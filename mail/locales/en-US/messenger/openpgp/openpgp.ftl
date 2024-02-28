@@ -769,7 +769,6 @@ minimal-line-wrapping =
     You have set line wrapping to { $width } characters. For correct encryption and/or signing, this value needs to be at least 68.
     Do you wish to change line wrapping to 68 characters now?
 save-attachment-header = Save decrypted attachment
-possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decrypt/Verify’ function to verify
 # Variables:
 # $key (String) - Sender email address.
 cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven’t yet configured end-to-end encryption for <{ $key }>

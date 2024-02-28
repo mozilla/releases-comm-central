@@ -110,9 +110,6 @@ pref("temp.openpgp.assignKeysManuallyIfMissing", true);
 // always srats manual dialog for keys
 pref("temp.openpgp.assignKeysManuallyAlways", false);
 
-// enable automatically decrypt/verify
-pref("temp.openpgp.autoDecrypt", true);
-
 // countdown for alerts when composing inline PGP HTML msgs
 pref("temp.openpgp.composeHtmlAlertCount", 3);
 

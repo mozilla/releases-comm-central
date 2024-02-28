@@ -536,7 +536,7 @@ Enigmail.hdrView = {
   async messageLoad(event) {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageLoad\n");
 
-    await Enigmail.msg.messageAutoDecrypt();
+    await Enigmail.msg.messageDecrypt(null, true);
     Enigmail.msg.handleAttachmentEvent();
   },
 

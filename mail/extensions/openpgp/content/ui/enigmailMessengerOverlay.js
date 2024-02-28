@@ -266,50 +266,6 @@ Enigmail.msg = {
     return EnigmailMsgRead.getUrlFromUriSpec(uriSpec);
   },
 
-  updateOptionsDisplay() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: updateOptionsDisplay: \n");
-    var optList = ["autoDecrypt"];
-
-    for (let j = 0; j < optList.length; j++) {
-      let menuElement = document.getElementById("enigmail_" + optList[j]);
-      menuElement.setAttribute(
-        "checked",
-        Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")
-          ? "true"
-          : "false"
-      );
-
-      menuElement = document.getElementById("enigmail_" + optList[j] + "2");
-      if (menuElement) {
-        menuElement.setAttribute(
-          "checked",
-          Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")
-            ? "true"
-            : "false"
-        );
-      }
-    }
-
-    optList = ["decryptverify"];
-    for (let j = 0; j < optList.length; j++) {
-      let menuElement = document.getElementById("enigmail_" + optList[j]);
-      if (Enigmail.msg.decryptButton && Enigmail.msg.decryptButton.disabled) {
-        menuElement.setAttribute("disabled", "true");
-      } else {
-        menuElement.removeAttribute("disabled");
-      }
-
-      menuElement = document.getElementById("enigmail_" + optList[j] + "2");
-      if (menuElement) {
-        if (Enigmail.msg.decryptButton && Enigmail.msg.decryptButton.disabled) {
-          menuElement.setAttribute("disabled", "true");
-        } else {
-          menuElement.removeAttribute("disabled");
-        }
-      }
-    }
-  },
-
   setMainMenuLabel() {
     const o = ["menu_Enigmail", "appmenu-Enigmail"];
 
@@ -326,27 +282,6 @@ Enigmail.msg = {
         menu.setAttribute("label", lbl);
       }
     }
-  },
-
-  displayMainMenu(menuPopup) {
-    let obj = menuPopup.firstChild;
-
-    while (obj) {
-      if (
-        obj.getAttribute("enigmailtype") == "enigmail" ||
-        obj.getAttribute("advanced") == "true"
-      ) {
-        obj.removeAttribute("hidden");
-      }
-
-      obj = obj.nextSibling;
-    }
-
-    EnigmailFuncs.collapseAdvanced(
-      menuPopup,
-      "hidden",
-      Enigmail.msg.updateOptionsDisplay()
-    );
   },
 
   /**
@@ -403,12 +338,6 @@ Enigmail.msg = {
     return true;
   },
 
-  // callback function for automatic decryption
-  async messageAutoDecrypt() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageAutoDecrypt:\n");
-    await Enigmail.msg.messageDecrypt(null, true);
-  },
-
   async notifyMessageDecryptDone() {
     Enigmail.msg.messageDecryptDone = true;
     await Enigmail.msg.processAfterAttachmentsAndDecrypt();
@@ -440,10 +369,6 @@ Enigmail.msg = {
     event = !!event;
 
     this.mimeParts = null;
-
-    if (!isAuto) {
-      EnigmailVerify.setManualUri(this.getCurrentMsgUriSpec());
-    }
 
     let contentType = "text/plain";
     if ("content-type" in currentHeaderData) {
@@ -745,37 +670,21 @@ Enigmail.msg = {
           return;
         }
 
-        if (isAuto && !Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
-          if (EnigmailVerify.getManualUri() != this.getCurrentMsgUriSpec()) {
-            // decryption set to manual
-            Enigmail.hdrView.updatePgpStatus(
-              EnigmailConstants.POSSIBLE_PGPMIME,
-              0, // exitCode, statusFlags
-              0,
-              "",
-              "", // keyId, userId
-              "", // sigDetails
-              await l10n.formatValue("possibly-pgp-mime"), // infoMsg
-              null, // blockSeparation
-              null // extraDetails
-            );
-          }
-        } else if (!isAuto) {
+        // TODO Clarify: why reload?
+        if (!isAuto) {
           Enigmail.msg.messageReload(false);
         }
         return;
       }
 
       // inline-PGP messages
-      if (!isAuto || Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
-        await this.messageParse(
-          event,
-          false,
-          contentEncoding,
-          msgUriSpec,
-          isAuto
-        );
-      }
+      await this.messageParse(
+        event,
+        false,
+        contentEncoding,
+        msgUriSpec,
+        isAuto
+      );
     } catch (ex) {
       EnigmailLog.writeException(
         "enigmailMessengerOverlay.js: messageDecryptCb",

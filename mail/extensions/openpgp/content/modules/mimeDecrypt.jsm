@@ -394,32 +394,6 @@ MimeDecryptHandler.prototype = {
         this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
 
       try {
-        if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
-          // "decrypt manually" mode
-          const manUrl = {};
-
-          if (lazy.EnigmailVerify.getManualUri()) {
-            manUrl.value = lazy.EnigmailFuncs.getUrlFromUriSpec(
-              lazy.EnigmailVerify.getManualUri()
-            );
-          }
-
-          // print a message if not message explicitly decrypted
-          const currUrlSpec = this.uri.spec.replace(
-            /(\?.*)(number=[0-9]*)(&.*)?$/,
-            "?$2"
-          );
-          const manUrlSpec = manUrl.value.spec.replace(
-            /(\?.*)(number=[0-9]*)(&.*)?$/,
-            "?$2"
-          );
-
-          if (!this.backgroundJob && currUrlSpec.indexOf(manUrlSpec) !== 0) {
-            this.handleManualDecrypt(mimeSvc.mailChannel?.openpgpSink);
-            return;
-          }
-        }
-
         if (this.msgUriSpec) {
           url.value = lazy.EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec);
         }

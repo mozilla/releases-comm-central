@@ -51,7 +51,6 @@ function MimeVerify(protocol) {
 var EnigmailVerify = {
   _initialized: false,
   lastMsgUri: null,
-  manualMsgUri: null,
 
   currentCtHandler: EnigmailConstants.MIME_HANDLER_UNDEF,
 
@@ -76,18 +75,6 @@ var EnigmailVerify = {
 
     const v = new MimeVerify(protocol);
     return v;
-  },
-
-  setManualUri(msgUriSpec) {
-    lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: setManualUri: " + msgUriSpec + "\n"
-    );
-    this.manualMsgUri = msgUriSpec;
-  },
-
-  getManualUri() {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: getManualUri\n");
-    return this.manualMsgUri;
   },
 
   pgpMimeFactory: {
@@ -490,31 +477,6 @@ MimeVerify.prototype = {
         this.uri.spec.search(/[&?]header=(print|quotebody)/) >= 0;
 
       try {
-        if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
-          // "decrypt manually" mode
-          let manUrl = {};
-
-          if (EnigmailVerify.getManualUri()) {
-            manUrl = lazy.EnigmailFuncs.getUrlFromUriSpec(
-              EnigmailVerify.getManualUri()
-            );
-          }
-
-          // print a message if not message explicitly decrypted
-          const currUrlSpec = this.uri.spec.replace(
-            /(\?.*)(number=[0-9]*)(&.*)?$/,
-            "?$2"
-          );
-          const manUrlSpec = manUrl.spec.replace(
-            /(\?.*)(number=[0-9]*)(&.*)?$/,
-            "?$2"
-          );
-
-          if (!this.backgroundJob && currUrlSpec != manUrlSpec) {
-            return; // this.handleManualDecrypt();
-          }
-        }
-
         if (
           this.uri.spec.search(/[&?]header=[a-zA-Z0-9]*$/) < 0 &&
           this.uri.spec.search(/[&?]part=[.0-9]+/) < 0 &&
