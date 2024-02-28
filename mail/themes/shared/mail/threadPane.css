@@ -871,6 +871,24 @@ tr[is="thread-card"] {
     padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
   }
 
+  /**
+   * Don't display this when only one account is added or when the user has
+   * disabled it in the settings.
+   * TODO: Create a way for the user to select a color to associate with each
+   * added account. Use that account color as the var(--acount-color) variable
+   * and create a toggle to show/hide this indicator.
+   */
+  & .account-indicator {
+    display: none;
+    box-sizing: border-box;
+    background-color: var(--account-color);
+    border: 1px solid color-mix(in srgb, var(--account-color) 80%, black);
+    border-radius: 4px;
+    width: 4px;
+    height: 12px;
+    margin-inline-end: -3px;
+  }
+
   & .sender {
     font-weight: 600;
     font-size: 0.95rem;

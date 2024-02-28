@@ -8,6 +8,7 @@
 
 :host,
 :root {
+  --account-color: AccentColor;
   --transition-duration: 120ms;
   --transition-timing: ease;
   --arrowpanel-background: var(--layout-background-1);
