@@ -21,6 +21,7 @@ const PREF_UPLOAD_ENABLED = "datareporting.healthreport.uploadEnabled";
 Preferences.addAll([
   { id: "mail.spam.manualMark", type: "bool" },
   { id: "mail.spam.manualMarkMode", type: "int" },
+  { id: "mailnews.ui.junk.manualMarkAsJunkMarksRead", type: "bool" },
   { id: "mail.spam.markAsReadOnSpam", type: "bool" },
   { id: "mail.spam.logging.enabled", type: "bool" },
   { id: "mail.phishing.detection.enabled", type: "bool" },

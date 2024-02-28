@@ -744,8 +744,8 @@ forms-master-pw-fips-desc = Password Change Failed
 
 junk-description = Set your default junk mail settings. Account-specific junk mail settings can be configured in Account Settings.
 
-junk-label =
-    .label = When I mark messages as junk:
+junk-marked-label =
+    .label = When messages are marked as junk:
     .accesskey = W
 
 junk-move-label =
@@ -756,9 +756,15 @@ junk-delete-label =
     .label = Delete them
     .accesskey = D
 
-junk-read-label =
-    .label = Mark messages determined to be Junk as read
+junk-read-description = Mark messages as read
+
+junk-read-manual-label =
+    .label = When manually marked as junk
     .accesskey = M
+
+junk-read-auto-label =
+    .label = When { -brand-short-name } determines that they are junk
+    .accesskey = T
 
 junk-log-label =
     .label = Enable adaptive junk filter logging

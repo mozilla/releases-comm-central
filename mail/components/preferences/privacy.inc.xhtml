@@ -228,7 +228,7 @@
       <separator class="thin"/>
       <hbox>
         <checkbox id="manualMark"
-                  data-l10n-id="junk-label"
+                  data-l10n-id="junk-marked-label"
                   preference="mail.spam.manualMark"
                   oncommand="gPrivacyPane.updateManualMarkMode(this.checked);"/>
         <spacer flex="1"/>
@@ -250,12 +250,16 @@
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
-      <hbox>
-        <checkbox id="markAsReadOnSpam"
-                  data-l10n-id="junk-read-label"
-                  preference="mail.spam.markAsReadOnSpam"/>
-        <spacer flex="1"/>
-      </hbox>
+      <separator class="thin"/>
+      <description data-l10n-id="junk-read-description"></description>
+      <checkbox class="indent"
+                id="manualMarkAsJunkMarksRead"
+                data-l10n-id="junk-read-manual-label"
+                preference="mailnews.ui.junk.manualMarkAsJunkMarksRead" />
+      <checkbox class="indent"
+                id="markAsReadOnSpam"
+                data-l10n-id="junk-read-auto-label"
+                preference="mail.spam.markAsReadOnSpam" />
       <hbox align="start">
         <checkbox id="enableJunkLogging" data-l10n-id="junk-log-label"
                   oncommand="gPrivacyPane.updateJunkLogButton(this.checked);"
