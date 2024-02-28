@@ -28,8 +28,6 @@ interface nsIMsgCompUtils : nsISupports {
    */
   AUTF8String msgGenerateMessageId(in nsIMsgIdentity identity, in AUTF8String host);
 
-  readonly attribute boolean msgMimeConformToStandard;
-
   /**
    * Detect the text encoding of an input string. This is a wrapper of
    * mozilla::EncodingDetector to be used by JavaScript code. For C++, use

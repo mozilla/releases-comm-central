@@ -174,19 +174,7 @@ nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
 // MIME encoder, output string should be freed by PR_FREE
 // XXX : fix callers later to avoid allocation and copy
 char* nsMsgI18NEncodeMimePartIIStr(const char* header, bool structured,
-                                   const char* charset, int32_t fieldnamelen,
-                                   bool usemime) {
-  // No MIME, convert to the outgoing mail charset.
-  if (!usemime) {
-    nsAutoCString convertedStr;
-    if (NS_SUCCEEDED(nsMsgI18NConvertFromUnicode(
-            charset ? nsDependentCString(charset) : EmptyCString(),
-            NS_ConvertUTF8toUTF16(header), convertedStr)))
-      return PL_strdup(convertedStr.get());
-    else
-      return PL_strdup(header);
-  }
-
+                                   const char* charset, int32_t fieldnamelen) {
   nsAutoCString encodedString;
   nsresult res;
   nsCOMPtr<nsIMimeConverter> converter =

@@ -87,12 +87,6 @@ char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs);
 char* RFC2231ParmFolding(const char* parmName, const char* parmValue);
 
 //
-// Informational calls...
-//
-void nsMsgMIMESetConformToStandard(bool conform_p);
-bool nsMsgMIMEGetConformToStandard(void);
-
-//
 // network service type calls...
 //
 nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec);

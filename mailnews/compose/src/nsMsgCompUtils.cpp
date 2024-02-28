@@ -71,12 +71,6 @@ NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageId(nsIMsgIdentity* identity,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompUtils::GetMsgMimeConformToStandard(bool* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = nsMsgMIMEGetConformToStandard();
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgCompUtils::DetectCharset(const nsACString& aContent,
                               nsACString& aCharset) {
@@ -106,35 +100,6 @@ nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile) {
   if (NS_FAILED(rv)) NS_RELEASE(*tFile);
 
   return rv;
-}
-
-// This is the value a caller will Get if they don't Set first (like MDN
-// sending a return receipt), so init to the default value of the
-// mail.strictly_mime_headers preference.
-static bool mime_headers_use_quoted_printable_p = true;
-
-bool nsMsgMIMEGetConformToStandard(void) {
-  return mime_headers_use_quoted_printable_p;
-}
-
-void nsMsgMIMESetConformToStandard(bool conform_p) {
-  /*
-   * If we are conforming to mime standard no matter what we set
-   * for the headers preference when generating mime headers we should
-   * also conform to the standard. Otherwise, depends the preference
-   * we set. For now, the headers preference is not accessible from UI.
-   */
-  if (conform_p)
-    mime_headers_use_quoted_printable_p = true;
-  else {
-    nsresult rv;
-    nsCOMPtr<nsIPrefBranch> prefs(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      prefs->GetBoolPref("mail.strictly_mime_headers",
-                         &mime_headers_use_quoted_printable_p);
-    }
-  }
 }
 
 /**

@@ -26,8 +26,7 @@ class nsIFile;
 NS_MSG_BASE char* nsMsgI18NEncodeMimePartIIStr(const char* header,
                                                bool structured,
                                                const char* charset,
-                                               int32_t fieldnamelen,
-                                               bool usemime);
+                                               int32_t fieldnamelen);
 
 /**
  * Check if given charset is stateful (e.g. ISO-2022-JP).
