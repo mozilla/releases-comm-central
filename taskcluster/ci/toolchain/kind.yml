@@ -68,6 +68,7 @@ reference-jobs:
     - sysroot-i686-linux-gnu
     - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
+    - vs
     - wasm32-wasi-compiler-rt-17
     - win32-compiler-rt-17
     - win32-fix-stacks
@@ -87,7 +88,6 @@ reference-jobs:
     - win64-rust
     - win64-rust-size
     - win64-sccache
-    - win64-vs2019
     - win64-winchecksec
     - windows-rs
 
