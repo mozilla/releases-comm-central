@@ -31,7 +31,6 @@ EXTRA_JS_MODULES += [
     "PluralForm.sys.mjs",
     "QuickFilterManager.jsm",
     "SearchSpec.jsm",
-    "SelectionWidgetController.jsm",
     "SessionStoreManager.jsm",
     "ShortcutsManager.jsm",
     "SmartServerUtils.sys.mjs",

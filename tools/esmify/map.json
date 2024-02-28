@@ -239,7 +239,6 @@
   "resource:///modules/SearchIntegration.jsm": "comm/mail/components/search/SearchIntegration.jsm",
   "resource:///modules/SearchSpec.jsm": "comm/mail/modules/SearchSpec.jsm",
   "resource:///modules/SearchWidgetTracker.jsm": "comm/mail/components/customizableui/SearchWidgetTracker.jsm",
-  "resource:///modules/SelectionWidgetController.jsm": "comm/mail/modules/SelectionWidgetController.jsm",
   "resource:///modules/SessionStore.jsm": "comm/mail/modules/SessionStore.jsm",
   "resource:///modules/SessionStoreManager.jsm": "comm/mail/modules/SessionStoreManager.jsm",
   "resource:///modules/ShortcutsManager.jsm": "comm/mail/modules/ShortcutsManager.jsm",
