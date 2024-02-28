@@ -15,64 +15,6 @@ const waitForRender = () => {
   });
 };
 
-/* These are shadow-root safe variants of the methods in BrowserTestUtils. */
-
-/**
- * Checks if a DOM element is hidden.
- *
- * @param {Element} element
- *        The element which is to be checked.
- *
- * @return {boolean}
- */
-function is_hidden(element) {
-  var style = element.ownerGlobal.getComputedStyle(element);
-  if (style.display == "none") {
-    return true;
-  }
-  if (style.visibility != "visible") {
-    return true;
-  }
-  if (style.display == "-moz-popup") {
-    return ["hiding", "closed"].includes(element.state);
-  }
-
-  // Hiding a parent element will hide all its children
-  if (element.parentNode != element.ownerDocument && element.parentElement) {
-    return is_hidden(element.parentElement);
-  }
-
-  return false;
-}
-
-/**
- * Checks if a DOM element is visible.
- *
- * @param {Element} element
- *        The element which is to be checked.
- *
- * @return {boolean}
- */
-function is_visible(element) {
-  var style = element.ownerGlobal.getComputedStyle(element);
-  if (style.display == "none") {
-    return false;
-  }
-  if (style.visibility != "visible") {
-    return false;
-  }
-  if (style.display == "-moz-popup" && element.state != "open") {
-    return false;
-  }
-
-  // Hiding a parent element will hide all its children
-  if (element.parentNode != element.ownerDocument && element.parentElement) {
-    return is_visible(element.parentElement);
-  }
-
-  return true;
-}
-
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/searchBar.xhtml",
@@ -208,16 +150,22 @@ add_task(async function test_placeholderVisibility() {
 
   input.value = "";
   await waitForRender();
-  ok(is_visible(placeholder), "Placeholder is visible initially");
+  ok(
+    BrowserTestUtils.isVisible(placeholder),
+    "Placeholder is visible initially"
+  );
 
   input.value = "some input";
   await waitForRender();
-  ok(is_hidden(placeholder), "Placeholder is hidden after text is entered");
+  ok(
+    BrowserTestUtils.isHidden(placeholder),
+    "Placeholder is hidden after text is entered"
+  );
 
   input.value = "";
   await waitForRender();
   ok(
-    is_visible(placeholder),
+    BrowserTestUtils.isVisible(placeholder),
     "Placeholder is visible again after input is cleared"
   );
 });
@@ -255,7 +203,7 @@ add_task(async function test_reset() {
 
   is(input.value, "", "Input empty after reset");
   await waitForRender();
-  ok(is_visible(placeholder), "Placeholder visible");
+  ok(BrowserTestUtils.isVisible(placeholder), "Placeholder visible");
 });
 
 add_task(async function test_disabled() {
