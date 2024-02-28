@@ -6777,6 +6777,7 @@ nsresult nsImapProtocol::SetFolderAdminUrl(const char* mailboxName) {
         name, nsDependentCString(GetServerStateParser().GetManageFolderUrl()));
   return rv;
 }
+
 // returns true is the delete succeeded (regardless of subscription changes)
 bool nsImapProtocol::DeleteMailboxRespectingSubscriptions(
     const char* mailboxName) {
@@ -6784,11 +6785,13 @@ bool nsImapProtocol::DeleteMailboxRespectingSubscriptions(
   if (!mailboxName) {
     return false;
   }
-  if (!MailboxIsNoSelectMailbox(nsDependentCString(mailboxName))) {
-    // Only try to delete it if it really exists
-    DeleteMailbox(mailboxName);
-    rv = GetServerStateParser().LastCommandSuccessful();
-  }
+
+  // Try to delete it -- even if NoSelect. Most servers report that the mailbox
+  // doesn't exist when trying to delete a NoSelect folder.
+  DeleteMailbox(mailboxName);
+  rv = GetServerStateParser().LastCommandSuccessful();
+  if (!rv && MailboxIsNoSelectMailbox(nsDependentCString(mailboxName)))
+    rv = true;  // Ignore possible error if NoSelect.
 
   // We can unsubscribe even if the mailbox doesn't exist.
   if (rv && m_autoUnsubscribe)  // auto-unsubscribe is on
