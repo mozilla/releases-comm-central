@@ -83,6 +83,10 @@ const SharedConversationPrototype = {
    * Close the conversation, including in the UI.
    */
   close() {
+    if (!this._account) {
+      // This conversation is already cleaned up.
+      return;
+    }
     this._disconnected = true;
     this._account._conversations.delete(this);
     GenericConversationPrototype.close.call(this);
@@ -249,6 +253,7 @@ Account.prototype = {
     for (const conversation of this._conversations) {
       conversation.close();
     }
+    this._conversations = new Set();
   },
   remove() {},
 };

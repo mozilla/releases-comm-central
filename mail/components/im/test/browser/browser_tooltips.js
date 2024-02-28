@@ -15,13 +15,13 @@ add_task(async function testMUCMessageSenderTooltip() {
   await openChatTab();
   const conversation = account.prplAccount.wrappedJSObject.makeMUC("tooltips");
   const convNode = getConversationItem(conversation);
-  ok(convNode);
+  ok(convNode, "Conversation should be in list");
 
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
   const chatConv = getChatConversationElement(conversation);
-  ok(chatConv);
-  ok(BrowserTestUtils.isVisible(chatConv));
+  ok(chatConv, "Conversation should exist");
+  ok(BrowserTestUtils.isVisible(chatConv), "Conversation should be shown");
   const messageParent = await getChatMessageParent(chatConv);
 
   conversation.addParticipant("foo", "1");
@@ -89,7 +89,11 @@ add_task(async function testMUCMessageSenderTooltip() {
     for (const testInfo of tooltipTests) {
       const usernameSelector = `.message:nth-child(${testInfo.messageIndex}) .ib-sender`;
       const username = messageParent.querySelector(usernameSelector);
-      is(username.textContent, testInfo.displayed);
+      is(
+        username.textContent,
+        testInfo.displayed,
+        `Message username ${testInfo.messageIndex}`
+      );
 
       const buddyInfo = TestUtils.topicObserved(
         "user-info-received",
@@ -97,9 +101,17 @@ add_task(async function testMUCMessageSenderTooltip() {
       );
       await showTooltip(usernameSelector, tooltip, chatConv.convBrowser);
 
-      is(tooltip.getAttribute("displayname"), testInfo.who);
+      is(
+        tooltip.getAttribute("displayname"),
+        testInfo.who,
+        `Tooltip display name ${testInfo.messageIndex}`
+      );
       await buddyInfo;
-      is(tooltip.table.querySelector("td").textContent, testInfo.alias);
+      is(
+        tooltip.table.querySelector("td").textContent,
+        testInfo.alias,
+        `Tooltip alias ${testInfo.messageIndex}`
+      );
       await hideTooltip(tooltip, chatConv.convBrowser);
     }
   } finally {
@@ -124,13 +136,13 @@ add_task(async function testTimestampTooltip() {
   await openChatTab();
   const conversation = account.prplAccount.wrappedJSObject.makeMUC("tooltips");
   const convNode = getConversationItem(conversation);
-  ok(convNode);
+  ok(convNode, "Conversation should be in list");
 
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
   const chatConv = getChatConversationElement(conversation);
-  ok(chatConv);
-  ok(BrowserTestUtils.isVisible(chatConv));
+  ok(chatConv, "Conversation should exist");
+  ok(BrowserTestUtils.isVisible(chatConv), "Conversation should be shown");
 
   const messageTime = Math.floor(Date.now() / 1000);
 
@@ -165,8 +177,8 @@ add_task(async function testTimestampTooltip() {
     await showTooltip(messageSelector, tooltip, chatConv.convBrowser);
 
     const htmlTooltip = tooltip.querySelector(".htmlTooltip");
-    ok(BrowserTestUtils.isVisible(htmlTooltip));
-    is(htmlTooltip.textContent, expectedText);
+    ok(BrowserTestUtils.isVisible(htmlTooltip), "HTML tooltip should be shown");
+    is(htmlTooltip.textContent, expectedText, "HTML tooltip text");
     await hideTooltip(tooltip, chatConv.convBrowser);
   } finally {
     window.windowUtils.disableNonTestMouseEvents(false);
@@ -178,21 +190,19 @@ add_task(async function testTimestampTooltip() {
 });
 
 async function showTooltip(elementSelector, tooltip, browser) {
-  const popupShown = BrowserTestUtils.waitForEvent(tooltip, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     elementSelector,
     { type: "mousemove" },
     browser
   );
-  return popupShown;
+  return BrowserTestUtils.waitForPopupEvent(tooltip, "shown");
 }
 
 async function hideTooltip(tooltip, browser) {
-  const popupHidden = BrowserTestUtils.waitForEvent(tooltip, "popuphidden");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ".message .body",
     { type: "mousemove" },
     browser
   );
-  return popupHidden;
+  return BrowserTestUtils.waitForPopupEvent(tooltip, "hidden");
 }
