@@ -446,6 +446,11 @@ async function getComposeDetails(composeWindow, extension) {
     returnReceipt: composeFields.returnReceipt,
     deliveryStatusNotification: composeFields.DSN,
     attachVCard: composeFields.attachVCard,
+    isModified:
+      composeWindow.gContentChanged ||
+      composeWindow.gMsgCompose.bodyModified ||
+      composeWindow.gReceiptOptionChanged ||
+      composeWindow.gDSNOptionChanged,
   };
   if (extension.hasPermission("accountsRead")) {
     details.identityId = composeWindow.getCurrentIdentityKey();
@@ -647,6 +652,27 @@ async function setComposeDetails(composeWindow, details, extension) {
   if (details.attachVCard != null) {
     composeWindow.gMsgCompose.compFields.attachVCard = details.attachVCard;
     composeWindow.gAttachVCardOptionChanged = true;
+  }
+
+  if (details.isModified != null) {
+    const modified =
+      composeWindow.gContentChanged ||
+      composeWindow.gMsgCompose.bodyModified ||
+      composeWindow.gReceiptOptionChanged ||
+      composeWindow.gDSNOptionChanged;
+
+    if (details.isModified === true && !modified) {
+      // To trigger the close confirmation dialog, it is enough to set
+      // gContentChanged to true.
+      composeWindow.gContentChanged = true;
+    } else if (details.isModified === false && modified) {
+      // In order to prevent the close confirmation dialog, we need to make sure
+      // all potential triggers are set to false.
+      composeWindow.gContentChanged = false;
+      composeWindow.gMsgCompose.bodyModified = false;
+      composeWindow.gReceiptOptionChanged = false;
+      composeWindow.gDSNOptionChanged = false;
+    }
   }
 
   activeElement.focus();

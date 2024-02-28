@@ -309,6 +309,222 @@ add_task(async function testBody() {
   await Promise.all(closePromises);
 });
 
+add_task(async function testModified() {
+  // Open an compose window with HTML body.
+
+  const params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  params.composeFields.body = "<p>Original Content.</p>";
+
+  const htmlWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  const htmlWindow = await htmlWindowPromise;
+  await BrowserTestUtils.waitForEvent(htmlWindow, "load");
+
+  // Run the extension.
+
+  const extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      const [composeTab] = await browser.tabs.query({ type: "messageCompose" });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertFalse(
+          details.isModified,
+          "Composer should not be marked as modified"
+        );
+        browser.test.assertEq(
+          details.subject,
+          "",
+          "Should get the correct subject"
+        );
+      }
+
+      // Set subject.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        subject: "Test Subject",
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertTrue(
+          details.isModified,
+          "Composer should be marked as modified"
+        );
+        browser.test.assertEq(
+          details.subject,
+          "Test Subject",
+          "Should get the correct subject"
+        );
+      }
+
+      // Clear modification flag
+      await browser.compose.setComposeDetails(composeTab.id, {
+        isModified: false,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertFalse(
+          details.isModified,
+          "Composer should not be marked as modified"
+        );
+        browser.test.assertEq(
+          details.subject,
+          "Test Subject",
+          "Should get the correct subject"
+        );
+        browser.test.assertFalse(
+          details.body.includes("Modified Content."),
+          "Body should be correct"
+        );
+      }
+
+      // Set body.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        body: "Modified Content.",
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertTrue(
+          details.isModified,
+          "Composer should be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.body.includes("Modified Content."),
+          "Body should be correct"
+        );
+      }
+
+      // Clear modification flag
+      await browser.compose.setComposeDetails(composeTab.id, {
+        isModified: false,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertFalse(
+          details.isModified,
+          "Composer should not be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.body.includes("Modified Content."),
+          "Body should be correct"
+        );
+        browser.test.assertFalse(
+          details.returnReceipt,
+          "ReturnReceipt should see the correct value"
+        );
+      }
+
+      // Set ReturnReceipt.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        returnReceipt: true,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertTrue(
+          details.isModified,
+          "Composer should be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.returnReceipt,
+          "ReturnReceipt should see the correct value"
+        );
+      }
+
+      // Clear modification flag
+      await browser.compose.setComposeDetails(composeTab.id, {
+        isModified: false,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertFalse(
+          details.isModified,
+          "Composer should not be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.returnReceipt,
+          "ReturnReceipt should see the correct value"
+        );
+        browser.test.assertFalse(
+          details.deliveryStatusNotification,
+          "DeliveryStatusNotification should see the correct value"
+        );
+      }
+
+      // Set DeliveryStatusNotification.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        deliveryStatusNotification: true,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertTrue(
+          details.isModified,
+          "Composer should be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.deliveryStatusNotification,
+          "DeliveryStatusNotification should see the correct value"
+        );
+      }
+
+      // Clear modification flag
+      await browser.compose.setComposeDetails(composeTab.id, {
+        isModified: false,
+      });
+
+      // Check details.
+      {
+        const details = await browser.compose.getComposeDetails(composeTab.id);
+        browser.test.assertFalse(
+          details.isModified,
+          "Composer should not be marked as modified"
+        );
+        browser.test.assertTrue(
+          details.deliveryStatusNotification,
+          "DeliveryStatusNotification should see the correct value"
+        );
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  // Close the HTML message. There should be no pending dialog.
+
+  const closePromises = [BrowserTestUtils.domWindowClosed(htmlWindow)];
+  Assert.ok(
+    htmlWindow.ComposeCanClose(),
+    "compose window should be allowed to close"
+  );
+  htmlWindow.close();
+  await Promise.all(closePromises);
+});
+
 add_task(async function testCJK() {
   const longCJKString = "안".repeat(400);
 
