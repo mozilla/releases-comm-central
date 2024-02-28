@@ -547,10 +547,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetFirstNewMessage(nsIMsgDBHdr** firstNewMessage) {
   rv = mDatabase->GetFirstNew(&key);
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr<nsIMsgDBHdr> hdr;
-  rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(hdr));
-  if (NS_FAILED(rv)) return rv;
-
   return mDatabase->GetMsgHdrForKey(key, firstNewMessage);
 }
 

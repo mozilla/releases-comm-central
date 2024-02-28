@@ -92,7 +92,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
         linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
           addon.id
         )}&q=${encodeURIComponent(name)}`,
-        messageId: "details-notification-incompatible",
+        messageId: "details-notification-incompatible2",
         messageArgs: { name, version: Services.appinfo.version },
         type: "warning",
       };

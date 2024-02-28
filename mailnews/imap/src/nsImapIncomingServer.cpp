@@ -2446,7 +2446,7 @@ nsImapIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
   return NS_OK;
 }
 
-// count number of non-busy connections in cache
+// Check whether all connections in the cache are idle.
 NS_IMETHODIMP
 nsImapIncomingServer::GetAllConnectionsIdle(bool* aAllIdle) {
   NS_ENSURE_ARG_POINTER(aAllIdle);

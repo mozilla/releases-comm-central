@@ -6025,11 +6025,6 @@ var sortController = {
         break;
     }
   },
-  sortByThread() {
-    threadPane.updateListRole(false);
-    gViewWrapper.showThreaded = true;
-    this.sortThreadPane("byDate");
-  },
   sortThreadPane(sortName) {
     // The sortName is either a sortKey (see Ci.nsMsgViewSortType and
     // DEFAULT_COLUMNS in thread-pane-columns.js), or the id of a custom column.

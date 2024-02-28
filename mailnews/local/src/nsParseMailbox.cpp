@@ -1348,7 +1348,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
         } else if (inReplyTo != nullptr) {
           m_newMsgHdr->SetReferences(nsDependentCString(inReplyTo->value));
         } else {
-          m_newMsgHdr->SetReferences(nsDependentCString(""));
+          m_newMsgHdr->SetReferences(""_ns);
         }
 
         // 'Received' should be as reliable an indicator of the receipt
