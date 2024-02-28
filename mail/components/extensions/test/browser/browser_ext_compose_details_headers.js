@@ -11,6 +11,14 @@ gRootFolder.createSubfolder("test", null);
 const gTestFolder = gRootFolder.getChildNamed("test");
 createMessages(gTestFolder, 4);
 
+add_setup(async () => {
+  // Add a custom header to the composer UI.
+  Services.prefs.setCharPref("mail.compose.other.header", "X-Expediteur");
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref("mail.compose.other.header");
+  });
+});
+
 add_task(async function testHeaders() {
   const files = {
     "background.js": async () => {
@@ -665,6 +673,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-TEST2", value: "this is header #2" },
         { name: "X-TEST3", value: "this is header #3" },
         { name: "X-TEST4", value: "this is header #4" },
+        { name: "X-EXPEDITEUR", value: "this is expediteur" },
       ];
       await browser.compose.setComposeDetails(tab.id, { customHeaders });
       expectedHeaders = [
@@ -672,6 +681,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-Test2", value: "this is header #2" },
         { name: "X-Test3", value: "this is header #3" },
         { name: "X-Test4", value: "this is header #4" },
+        { name: "X-Expediteur", value: "this is expediteur" },
       ];
       await checkCustomHeaders(tab, expectedHeaders);
 
@@ -680,11 +690,13 @@ add_task(async function testCustomHeaders() {
       customHeaders = [
         { name: "X-TEST2", value: "this is a header" },
         { name: "X-TEST3", value: "" },
+        { name: "X-EXPEDITEUR", value: "this is another expediteur" },
       ];
       await browser.compose.setComposeDetails(tab.id, { customHeaders });
       expectedHeaders = [
         { name: "X-Test2", value: "this is a header" },
         { name: "X-Test3", value: "" },
+        { name: "X-Expediteur", value: "this is another expediteur" },
       ];
       await checkCustomHeaders(tab, expectedHeaders);
 

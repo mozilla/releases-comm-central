@@ -595,18 +595,40 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   // Update custom headers, if specified.
   if (details.customHeaders) {
-    const newHeaderNames = details.customHeaders.map(h => h.name.toUpperCase());
-    const obsoleteHeaderNames = [
-      ...composeWindow.gMsgCompose.compFields.headerNames,
-    ]
-      .map(h => h.toUpperCase())
-      .filter(h => h.startsWith("X-") && !newHeaderNames.hasOwnProperty(h));
+    const customHeaders = new Map(
+      details.customHeaders.map(h => [
+        h.name.trim().toUpperCase(),
+        h.value.trim(),
+      ])
+    );
+    const obsoleteHeaderNames = new Set(
+      [...composeWindow.gMsgCompose.compFields.headerNames]
+        .map(h => h.trim().toUpperCase())
+        .filter(h => h.startsWith("X-") && !customHeaders.has(h))
+    );
 
     for (const headerName of obsoleteHeaderNames) {
       composeWindow.gMsgCompose.compFields.deleteHeader(headerName);
     }
-    for (const { name, value } of details.customHeaders) {
-      composeWindow.gMsgCompose.compFields.setHeader(name, value);
+
+    for (const [headerName, headerValue] of customHeaders) {
+      composeWindow.gMsgCompose.compFields.setHeader(headerName, headerValue);
+    }
+
+    // If we added or removed custom headers, which are also displayed in the UI,
+    // update these fields as well. Such headers are defined in in the pref
+    // "mail.compose.other.header".
+    for (const row of composeWindow.document.querySelectorAll(
+      ".address-row-raw"
+    )) {
+      const recipientType = row.dataset.recipienttype.trim().toUpperCase();
+      if (customHeaders.has(recipientType)) {
+        row.querySelector(".address-row-input").value =
+          customHeaders.get(recipientType);
+      }
+      if (obsoleteHeaderNames.has(recipientType)) {
+        row.querySelector(".address-row-input").value = "";
+      }
     }
   }
 
