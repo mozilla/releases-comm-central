@@ -2609,6 +2609,17 @@
       //    consumer deal with them.
       // 4. For untyped data, there needs to be no Content-Type header. This helps
       //    avoid false positives.
+
+      // If pruneat is set but also this._options.decodeSubMessages == false, we
+      // might never reach the requested part. Enforce parsing of sub messages, if
+      // the requested part is in that message.
+      let decodeSubMessages = this._options.decodeSubMessages;
+      if (!decodeSubMessages && this._options.pruneat) {
+        decodeSubMessages =
+          this._options.pruneat.length > partNum.length &&
+          this._options.pruneat.startsWith(partNum);
+      }
+
       if (contentType.mediatype == "multipart") {
         // If there's no boundary type, everything will be part of the prologue of
         // the multipart message, so just feed everything into a black hole.
@@ -2661,7 +2672,7 @@
           return [preLF, rest + buffer.substring(splitPoint)];
         };
       } else if (
-        (this._options.decodeSubMessages || this._willIgnorePart(partNum)) &&
+        (decodeSubMessages || this._willIgnorePart(partNum)) &&
         (contentType.type == "message/rfc822" ||
           contentType.type == "message/global" ||
           contentType.type == "message/news")
