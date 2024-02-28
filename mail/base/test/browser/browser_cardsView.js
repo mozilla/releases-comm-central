@@ -258,3 +258,37 @@ add_task(async function testTagsInVerticalView() {
   await ensure_cards_view();
   about3Pane.folderTree.focus();
 }).__skipMe = true; // To Do: update the test for tags on Bug 1860900.
+
+/**
+ * This test Checks that:
+ * Clicking on the kebab button of a row selects that row.
+ * If other rows are selected or multiselection, only the row clicked should be selected.
+ * The menu popup opens.
+ */
+add_task(async function testMessageMenuButton() {
+  const row1 = threadTree.getRowAtIndex(1);
+  const row2 = threadTree.getRowAtIndex(2);
+  const menuContext = about3Pane.document.getElementById("mailContext");
+  const menuButton = row1.querySelector(".tree-button-more");
+  EventUtils.synthesizeMouseAtCenter(row1, {}, about3Pane);
+  EventUtils.synthesizeMouseAtCenter(row2, { shiftKey: true }, about3Pane);
+  Assert.ok(row1.classList.contains("selected"), "Row 1 should be selected");
+  Assert.ok(row2.classList.contains("selected"), "Row 2 should be selected");
+  EventUtils.synthesizeMouseAtCenter(menuButton, {}, about3Pane);
+  await BrowserTestUtils.waitForPopupEvent(menuContext, "shown");
+  Assert.ok(
+    BrowserTestUtils.isVisible(menuContext),
+    "The message card's menu should be visible"
+  );
+  Assert.ok(
+    row1.classList.contains("selected"),
+    "The row that was clicked should be selected"
+  );
+  Assert.ok(
+    !row2.classList.contains("selected"),
+    "The row that wasn't clicked should be unselected"
+  );
+  menuContext.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(menuContext, "hidden");
+  about3Pane.folderTree.focus();
+});

@@ -3983,6 +3983,7 @@ var threadPane = {
     this.updateClassList();
 
     threadTree.addEventListener("contextmenu", this);
+    threadTree.addEventListener("click", this);
     threadTree.addEventListener("dblclick", this);
     threadTree.addEventListener("auxclick", this);
     threadTree.addEventListener("keypress", this);
@@ -4006,6 +4007,11 @@ var threadPane = {
   handleEvent(event) {
     const notOnEmptySpace = event.target !== threadTree;
     switch (event.type) {
+      case "click":
+        if (notOnEmptySpace && event.target.closest(".tree-button-more")) {
+          this._onContextMenu(event);
+        }
+        break;
       case "contextmenu":
         if (notOnEmptySpace) {
           this._onContextMenu(event);
@@ -4394,8 +4400,8 @@ var threadPane = {
     let row =
       event.target.closest(`tr[is^="thread-"]`) ||
       threadTree.getRowAtIndex(threadTree.currentIndex);
-    const isMouse = event.button == 2;
-    if (!isMouse) {
+    const isRightClick = event.button == 2;
+    if (!isRightClick) {
       if (threadTree.selectedIndex < 0) {
         return;
       }
@@ -4417,7 +4423,7 @@ var threadPane = {
     mailContextMenu.setAsThreadPaneContextMenu();
     const popup = document.getElementById("mailContext");
 
-    if (isMouse) {
+    if (isRightClick) {
       if (!gDBView.selection.isSelected(row.index)) {
         // The right-clicked-on row is not selected. Tell the context menu to
         // use it instead. This override lasts until the context menu fires
@@ -4426,6 +4432,9 @@ var threadPane = {
         row.classList.add("context-menu-target");
       }
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    } else if (event.target.closest(".tree-button-more")) {
+      const moreBtn = event.target.closest(".tree-button-more");
+      popup.openPopup(moreBtn, "after_end", 0, 0, true);
     } else {
       popup.openPopup(row, "after_end", 0, 0, true);
     }

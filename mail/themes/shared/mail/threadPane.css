@@ -652,6 +652,25 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
   opacity: 1;
 }
 
+#threadTree tr[is="thread-card"] .tree-button-more {
+  --button-padding: 0;
+  opacity: .5;
+  background-image: var(--icon-kebab);
+
+  &:hover,
+  &:focus {
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
+    border-color: transparent;
+    opacity: 1;
+  }
+
+  &:active {
+    background-color: color-mix(in srgb, currentColor 30%, transparent);
+    border-color: transparent;
+    opacity: 1;
+  }
+}
+
 /* Vertical view variations */
 #threadTree tr[data-properties~="junk"] :is(.state, .attachment-icon, .button-star) {
   display: none;
