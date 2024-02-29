@@ -36,6 +36,8 @@ var appmenu_popup;
 var menu_state;
 var about3Pane;
 
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
+
 add_setup(async function () {
   // Create one folder with unread messages and one favorite folder.
   inboxFolder.createSubfolder("UnreadFolder", null);
