@@ -223,6 +223,7 @@ nsAutoSyncManager::~nsAutoSyncManager() {}
 
 void nsAutoSyncManager::InitTimer() {
   if (!mTimer) {
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Starting timer"));
     nsresult rv = NS_NewTimerWithFuncCallback(
         getter_AddRefs(mTimer), TimerCallback, (void*)this, kTimerIntervalInMs,
         nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback",
@@ -235,6 +236,7 @@ void nsAutoSyncManager::InitTimer() {
 
 void nsAutoSyncManager::StopTimer() {
   if (mTimer) {
+    MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Stopping timer"));
     mTimer->Cancel();
     mTimer = nullptr;
   }
@@ -245,6 +247,7 @@ void nsAutoSyncManager::StartTimerIfNeeded() {
 }
 
 void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
+  MOZ_LOG(gAutoSyncLog, LogLevel::Debug, ("Timer callback"));
   if (!aClosure) return;
 
   nsAutoSyncManager* autoSyncMgr = static_cast<nsAutoSyncManager*>(aClosure);
@@ -259,33 +262,36 @@ void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
   // process a folder in the discovery queue
   if (autoSyncMgr->mDiscoveryQ.Count() > 0) {
     nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(autoSyncMgr->mDiscoveryQ[0]);
-    if (autoSyncStateObj) {
-      uint32_t leftToProcess;
-      nsresult rv = autoSyncStateObj->ProcessExistingHeaders(
-          kNumberOfHeadersToProcess, &leftToProcess);
+    // There should be no reason for `autoSyncStateObj` not to exist, but
+    // check anyway.
+    MOZ_ASSERT(autoSyncStateObj);
 
-      nsCOMPtr<nsIMsgFolder> folder;
-      autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
-      if (folder)
+    uint32_t leftToProcess = 0;
+    autoSyncStateObj->ProcessExistingHeaders(kNumberOfHeadersToProcess,
+                                             &leftToProcess);
+
+    nsCOMPtr<nsIMsgFolder> folder;
+    autoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
+    if (folder) {
+      NOTIFY_LISTENERS_STATIC(
+          autoSyncMgr, OnDiscoveryQProcessed,
+          (folder, kNumberOfHeadersToProcess, leftToProcess));
+    }
+    if (leftToProcess == 0) {
+      autoSyncMgr->mDiscoveryQ.RemoveObjectAt(0);
+      if (folder) {
         NOTIFY_LISTENERS_STATIC(
-            autoSyncMgr, OnDiscoveryQProcessed,
-            (folder, kNumberOfHeadersToProcess, leftToProcess));
-
-      if (NS_SUCCEEDED(rv) && 0 == leftToProcess) {
-        autoSyncMgr->mDiscoveryQ.RemoveObjectAt(0);
-        if (folder)
-          NOTIFY_LISTENERS_STATIC(
-              autoSyncMgr, OnFolderRemovedFromQ,
-              (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
+            autoSyncMgr, OnFolderRemovedFromQ,
+            (nsIAutoSyncMgrListener::DiscoveryQueue, folder));
       }
-      if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
-        nsCString folderName;
-        folder->GetURI(folderName);
-        MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
-                ("%s: processed discovery q for folder=%s, "
-                 "msgs left to process in folder=%d",
-                 __func__, folderName.get(), leftToProcess));
-      }
+    }
+    if (MOZ_LOG_TEST(gAutoSyncLog, LogLevel::Debug)) {
+      nsCString folderName;
+      folder->GetURI(folderName);
+      MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
+              ("%s: processed discovery q for folder=%s, "
+               "msgs left to process in folder=%d",
+               __func__, folderName.get(), leftToProcess));
     }
   }
 
