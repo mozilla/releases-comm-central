@@ -57,24 +57,6 @@ var gFiles;
 
 const DEFAULT_FILE_PERMS = 0o600;
 
-// The revocation strings are not localization since the revocation certificate
-// will be published to others who may not know the native language of the user.
-const revocationFilePrefix1 =
-  "This is a revocation certificate for the OpenPGP key:";
-const revocationFilePrefix2 = `
-A revocation certificate is kind of a "kill switch" to publicly
-declare that a key shall no longer be used.  It is not possible
-to retract such a revocation certificate once it has been published.
-
-Use it to revoke this key in case of a secret key compromise, or loss of
-the secret key, or loss of passphrase of the secret key.
-
-To avoid an accidental use of this file, a colon has been inserted
-before the 5 dashes below.  Remove this colon with a text editor
-before importing and publishing this revocation certificate.
-
-:`;
-
 var syncl10n = new Localization(["messenger/openpgp/keyWizard.ftl"], true);
 
 window.addEventListener("load", initKeyWiz);
@@ -718,7 +700,8 @@ async function openPgpKeygenConfirm() {
 
   const rev = await cApi.unlockAndGetNewRevocation(
     `0x${gGeneratedKey}`,
-    password
+    password,
+    true
   );
   if (!rev) {
     openPgpWarning.collapsed = false;
@@ -734,19 +717,11 @@ async function openPgpKeygenConfirm() {
     throw new Error("failed to obtain revocation for key " + gGeneratedKey);
   }
 
-  const revFull =
-    revocationFilePrefix1 +
-    "\n\n" +
-    gGeneratedKey +
-    "\n" +
-    revocationFilePrefix2 +
-    rev;
-
   const revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
   // Create a revokation cert in the Thunderbird profile directory.
-  await IOUtils.writeUTF8(revFile.path, revFull);
+  await IOUtils.writeUTF8(revFile.path, rev);
 
   // Key successfully created. Close the dialog and show a confirmation message.
   // Assigning the key to an identity is the responsibility of the caller,

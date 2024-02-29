@@ -497,6 +497,24 @@ class RnpPrivateKeyUnlockTracker {
   }
 }
 
+// The revocation strings are not localized, because the revocation certificate
+// will be published to others who may not know the native language of the user.
+const revocationFilePrefix1 =
+  "This is a revocation certificate for the OpenPGP key:";
+const revocationFilePrefix2 = `
+A revocation certificate is kind of a "kill switch" to publicly
+declare that a key shall no longer be used.  It is not possible
+to retract such a revocation certificate once it has been published.
+
+Use it to revoke this key in case of a secret key compromise, or loss of
+the secret key, or loss of passphrase of the secret key.
+
+To avoid an accidental use of this file, a colon has been inserted
+before the 5 dashes below.  Remove this colon with a text editor
+before importing and publishing this revocation certificate.
+
+:`;
+
 var RNP = {
   hasRan: false,
   libLoaded: false,
@@ -4570,20 +4588,38 @@ var RNP = {
     return result;
   },
 
-  async unlockAndGetNewRevocation(id, pass) {
-    let result = "";
+  /**
+   * Generate a revocation statement for the secret key with the given
+   * ID. The function must also unlock the secret key.
+   *
+   * @param {string} id - The ID of a primary key.
+   * @param {?string} pass - The password that can be used to unlock the
+   *   primary key. If parameter is set to null, then this function
+   *   will prompt the user to enter the password.
+   * @param {bool} addEnglishInformation - Add english language text to
+   *   the revocation file, that explains what the file contains.
+   * @returns {string} - The ASCII armored revocation statement.
+   */
+  async unlockAndGetNewRevocation(id, pass, addEnglishInformation = true) {
     const key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
-
     if (key.isNull()) {
-      return result;
+      return "";
+    }
+    const tracker = new RnpPrivateKeyUnlockTracker(key);
+
+    if (pass) {
+      tracker.setAllowPromptingUserForPassword(false);
+      tracker.setAllowAutoUnlockWithCachedPasswords(false);
+      tracker.unlockWithPassword(pass);
+    } else {
+      tracker.setAllowPromptingUserForPassword(true);
+      tracker.setAllowAutoUnlockWithCachedPasswords(true);
+      await tracker.unlock();
     }
 
-    const tracker = new RnpPrivateKeyUnlockTracker(key);
-    tracker.setAllowPromptingUserForPassword(false);
-    tracker.setAllowAutoUnlockWithCachedPasswords(false);
-    tracker.unlockWithPassword(pass);
     if (!tracker.isUnlocked()) {
-      throw new Error(`Couldn't unlock key ${key.fpr}`);
+      tracker.release();
+      throw new Error(`Couldn't unlock key ${id}`);
     }
 
     const out_final = new RNPLib.rnp_output_t();
@@ -4627,6 +4663,7 @@ var RNP = {
       false
     );
 
+    let result = "";
     if (!exitCode) {
       const char_array = lazy.ctypes.cast(
         result_buf,
@@ -4638,7 +4675,19 @@ var RNP = {
     RNPLib.rnp_output_destroy(out_binary);
     RNPLib.rnp_output_destroy(out_final);
     tracker.release();
-    return result;
+
+    if (!addEnglishInformation) {
+      return result;
+    }
+
+    return (
+      revocationFilePrefix1 +
+      "\n\n" +
+      id +
+      "\n" +
+      revocationFilePrefix2 +
+      result
+    );
   },
 
   enArmorString(input, type) {

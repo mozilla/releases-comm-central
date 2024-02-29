@@ -58,6 +58,15 @@ var { EnigmailKeyserverURIs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserverUris.jsm"
 );
 
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+const lazy = {};
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
+});
+
 const ENIG_KEY_EXPIRED = "e";
 const ENIG_KEY_REVOKED = "r";
 const ENIG_KEY_INVALID = "i";
@@ -270,6 +279,8 @@ function enigmailKeyMenu() {
   }
 
   document.getElementById("backupSecretKey").disabled = !haveSecretForAll;
+  document.getElementById("prepareRevocationID").disabled =
+    !singleSecretSelected;
   document.getElementById("uploadToServer").disabled = !singleSecretSelected;
 
   document.getElementById("revokeKey").disabled =
@@ -477,6 +488,62 @@ async function enigmailRevokeKey() {
     if (success) {
       refreshKeys();
     }
+  });
+}
+
+/**
+ * Obtain the label attribute of the given Fluent string ID.
+ */
+async function getLabel(stringId) {
+  const [{ attributes }] = await l10n.formatMessages([stringId]);
+  return attributes.find(a => a.name == "label")?.value;
+}
+
+/**
+ * Prepare a revocation statement for the selected secret key.
+ * Prompts the user for a filename. Will ask the user to unlock the
+ * secret key, if necessary, and if successful, will save it to the
+ * file.
+ */
+async function prepareRevocation() {
+  const selKeyList = getSelectedKeys();
+  if (selKeyList.length != 1) {
+    return;
+  }
+
+  const key = gKeyList[selKeyList[0]];
+
+  const keyId = key.keyId;
+
+  let defaultFileName = key.userId.replace(/[<>]/g, "").replace(/ /g, "-");
+  defaultFileName += `-(0x${keyId})-revocation.asc`;
+
+  const outFile = await EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    window,
+    await getLabel("openpgp-key-man-gen-revocation"),
+    defaultFileName
+  );
+  if (!outFile) {
+    return;
+  }
+
+  const revData = await lazy.RNP.unlockAndGetNewRevocation(
+    "0x" + keyId,
+    null,
+    true
+  );
+  if (!revData) {
+    return;
+  }
+
+  await IOUtils.writeUTF8(outFile.path, revData).catch(async () => {
+    Services.prompt.alert(
+      window,
+      null,
+      await l10n.formatValue("file-write-failed", {
+        output: outFile.path,
+      })
+    );
   });
 }
 
