@@ -118,18 +118,13 @@ OAuth2Module.prototype = {
         .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
 
       // This stores the refresh token in the login manager.
-      Object.defineProperty(this._oauth, "refreshToken", {
-        get: () => this.refreshToken,
-        set: token => {
-          this.refreshToken = token;
-        },
-      });
+      this._oauth.refreshToken = this.getRefreshToken();
     }
 
     return true;
   },
 
-  get refreshToken() {
+  getRefreshToken() {
     for (const login of Services.logins.findLogins(
       this._loginOrigin,
       null,
@@ -145,7 +140,7 @@ OAuth2Module.prototype = {
     }
     return "";
   },
-  set refreshToken(token) {
+  async setRefreshToken(token) {
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
     const logins = Services.logins.findLogins(
@@ -184,25 +179,27 @@ OAuth2Module.prototype = {
         "",
         ""
       );
-      Services.logins.addLoginAsync(login);
-      // FIXME: get/set refreshToken needs to move to async. Remove spin.
-      Services.tm.spinEventLoopUntilEmpty();
+      await Services.logins.addLoginAsync(login);
     }
   },
 
   connect(aWithUI, aListener) {
-    const oauth = this._oauth;
+    const oldRefreshToken = this._oauth.refreshToken;
     const promptlistener = {
       onPromptStartAsync(callback) {
         this.onPromptAuthAvailable(callback);
       },
 
       onPromptAuthAvailable: callback => {
-        oauth.connect(aWithUI, false).then(
-          () => {
+        this._oauth.connect(aWithUI, false).then(
+          async () => {
+            if (this._oauth.refreshToken != oldRefreshToken) {
+              // Refresh token changed, save it.
+              await this.setRefreshToken(this._oauth.refreshToken);
+            }
             aListener.onSuccess(
               btoa(
-                `user=${this._username}\x01auth=Bearer ${oauth.accessToken}\x01\x01`
+                `user=${this._username}\x01auth=Bearer ${this._oauth.accessToken}\x01\x01`
               )
             );
             callback?.onAuthResult(true);
