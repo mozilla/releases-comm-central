@@ -742,6 +742,10 @@ export class MessageSend {
     return this._folderUri;
   }
 
+  get messageId() {
+    return this._compFields.messageId;
+  }
+
   /**
    * @type {nsMsgKey}
    */

@@ -1041,6 +1041,13 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
       if (deliverMode == nsIMsgCompDeliverMode::AutoSaveAsDraft)
         deliverMode = nsIMsgCompDeliverMode::SaveAsDraft;
 
+      // When saving a draft, ensure each instance has a new messageId generated
+      // so imap search finds a unique match. This is needed for non-UIDPLUS
+      // imap servers.
+      if (deliverMode == nsIMsgCompDeliverMode::SaveAsDraft ||
+          deliverMode == nsIMsgCompDeliverMode::SaveAsTemplate)
+        m_compFields->SetMessageId("");
+
       RefPtr<nsIMsgCompose> msgCompose(this);
       composeSendListener->SetMsgCompose(msgCompose);
       composeSendListener->SetDeliverMode(deliverMode);
