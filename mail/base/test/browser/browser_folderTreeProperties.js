@@ -196,7 +196,7 @@ async function openFolderProperties(row) {
       Assert.equal(colorButton.value, hex);
     },
     async setColor(hex) {
-      SpecialPowers.MockColorPicker.init(dialogWindow.browsingContext);
+      SpecialPowers.MockColorPicker.init(dialogWindow);
       SpecialPowers.MockColorPicker.returnColor = hex;
       const inputPromise = BrowserTestUtils.waitForEvent(colorButton, "input");
       EventUtils.synthesizeMouseAtCenter(colorButton, {}, dialogWindow);
