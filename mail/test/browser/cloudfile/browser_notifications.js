@@ -46,7 +46,7 @@ add_setup(function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register();
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
 
   maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   oldInsertNotificationPref = Services.prefs.getBoolPref(

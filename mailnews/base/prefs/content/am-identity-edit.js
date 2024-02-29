@@ -364,7 +364,7 @@ function selectFile() {
 
   var prefBundle = document.getElementById("bundle_prefs");
   var title = prefBundle.getString("choosefile");
-  fp.init(window, title, Ci.nsIFilePicker.modeOpen);
+  fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeOpen);
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   // Get current signature folder, if there is one.

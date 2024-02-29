@@ -43,7 +43,7 @@ var mockPromptService = {
 
 add_setup(function () {
   Services.prompt = mockPromptService;
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   gMockCloudfileManager.register();
 });
 

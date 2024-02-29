@@ -126,7 +126,7 @@ async function subtest(aboutMessage, mailContext) {
   );
 
   let pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(window);
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
     SpecialPowers.MockFilePicker.useAnyFile();
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker);
@@ -249,7 +249,7 @@ async function subtest(aboutMessage, mailContext) {
   );
 
   pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(window);
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
     SpecialPowers.MockFilePicker.useAnyFile();
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker);

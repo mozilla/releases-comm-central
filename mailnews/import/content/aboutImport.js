@@ -491,10 +491,18 @@ class ProfileImporterController extends ImporterController {
         "profile-file-picker-archive-title",
       ]);
     if (type == "zip") {
-      filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
+      filePicker.init(
+        window.browsingContext,
+        filePickerTitleZip,
+        filePicker.modeOpen
+      );
       filePicker.appendFilter("", "*.zip");
     } else {
-      filePicker.init(window, filePickerTitleDir, filePicker.modeGetFolder);
+      filePicker.init(
+        window.browsingContext,
+        filePickerTitleDir,
+        filePicker.modeGetFolder
+      );
     }
     const rv = await new Promise(resolve => filePicker.open(resolve));
     if (rv != Ci.nsIFilePicker.returnOK) {
@@ -792,7 +800,11 @@ class AddrBookImporterController extends ImporterController {
     const [filePickerTitle] = await document.l10n.formatValues([
       "addr-book-file-picker",
     ]);
-    filePicker.init(window, filePickerTitle, filePicker.modeOpen);
+    filePicker.init(
+      window.browsingContext,
+      filePickerTitle,
+      filePicker.modeOpen
+    );
     const filter = {
       csv: "*.csv; *.tsv; *.tab",
       ldif: "*.ldif",
@@ -1077,7 +1089,7 @@ class CalendarImporterController extends ImporterController {
     filePicker.appendFilter("", "*.ics");
     filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
     filePicker.init(
-      window,
+      window.browsingContext,
       await document.l10n.formatValue("file-calendar-description"),
       filePicker.modeOpen
     );
@@ -1320,7 +1332,11 @@ class ExportController extends ImporterController {
     const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    filePicker.init(window, filePickerTitle, Ci.nsIFilePicker.modeSave);
+    filePicker.init(
+      window.browsingContext,
+      filePickerTitle,
+      Ci.nsIFilePicker.modeSave
+    );
     filePicker.defaultString = `${brandName}_profile_backup.zip`;
     filePicker.defaultExtension = "zip";
     filePicker.appendFilter("", "*.zip");

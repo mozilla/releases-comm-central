@@ -591,7 +591,7 @@ function PromptForSaveLocation(
     promptString = GetString("SaveDocumentAs");
   }
 
-  fp.init(window, promptString, Ci.nsIFilePicker.modeSave);
+  fp.init(window.browsingContext, promptString, Ci.nsIFilePicker.modeSave);
 
   // Set filters according to the type of output
   if (aDoSaveAsText) {

@@ -41,7 +41,7 @@ function checkVisiblePane(importDocument, activePaneId, activeStepId) {
 }
 
 add_setup(() => {
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   registerCleanupFunction(() => {
     MockFilePicker.cleanup();
   });

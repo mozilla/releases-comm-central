@@ -455,7 +455,7 @@ function BrowseForNewsrc() {
   var newsrcTextBox = document.getElementById("nntp.newsrcFilePath");
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
-    window,
+    window.browsingContext,
     document.getElementById("browseForNewsrc").getAttribute("filepickertitle"),
     Ci.nsIFilePicker.modeSave
   );

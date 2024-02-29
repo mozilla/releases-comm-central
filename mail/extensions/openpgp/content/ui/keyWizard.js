@@ -820,7 +820,11 @@ async function importSecretKey() {
   ]);
 
   const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  fp.init(window, importTitle, Ci.nsIFilePicker.modeOpenMultiple);
+  fp.init(
+    window.browsingContext,
+    importTitle,
+    Ci.nsIFilePicker.modeOpenMultiple
+  );
   fp.defaultExtension = "*.asc";
   fp.appendFilter(importType, "*.asc;*.gpg;*.pgp");
   fp.appendFilters(Ci.nsIFilePicker.filterAll);

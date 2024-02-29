@@ -94,7 +94,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
     what == "rev" ? "import-rev-file" : "import-key-file"
   );
   const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  fp.init(window, title, Ci.nsIFilePicker.modeOpenMultiple);
+  fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeOpenMultiple);
   fp.defaultExtension = "*.asc";
   fp.appendFilter(l10n.formatValueSync("gnupg-file"), "*.asc;*.gpg;*.pgp");
   fp.appendFilters(Ci.nsIFilePicker.filterAll);

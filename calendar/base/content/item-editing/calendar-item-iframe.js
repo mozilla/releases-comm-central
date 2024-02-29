@@ -2144,7 +2144,7 @@ function attachFile(cloudProvider) {
 
   const filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   filePicker.init(
-    window,
+    window.browsingContext,
     cal.l10n.getString("calendar-event-dialog", "selectAFile"),
     Ci.nsIFilePicker.modeOpenMultiple
   );

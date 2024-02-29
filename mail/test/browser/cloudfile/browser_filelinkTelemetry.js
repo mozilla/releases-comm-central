@@ -37,7 +37,7 @@ add_setup(function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register(cloudType);
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
 
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 });

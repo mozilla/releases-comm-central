@@ -347,7 +347,7 @@ export class AttachmentInfo {
               filePicker.defaultString = this.name;
               filePicker.defaultExtension = extension;
               filePicker.init(
-                win,
+                win.browsingContext,
                 lazy.messengerBundle.GetStringFromName("SaveAttachment"),
                 Ci.nsIFilePicker.modeSave
               );

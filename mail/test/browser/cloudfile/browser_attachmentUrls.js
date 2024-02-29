@@ -108,7 +108,7 @@ add_setup(async function () {
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   await add_message_to_folder([gInbox], create_message());
 
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   gMockCloudfileManager.register();
 
   Services.prefs.setBoolPref(kHtmlPrefKey, true);

@@ -2,7 +2,7 @@
 
 async function installFile(filename) {
   const MockFilePicker = SpecialPowers.MockFilePicker;
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.setFiles([new FileUtils.File(getTestFilePath(filename))]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 

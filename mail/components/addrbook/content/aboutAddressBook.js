@@ -4358,7 +4358,7 @@ var photoDialog = {
       Ci.nsIFilePicker
     );
     picker.init(
-      window.browsingContext.topChromeWindow,
+      window.browsingContext.topChromeWindow.browsingContext,
       title,
       Ci.nsIFilePicker.modeOpen
     );

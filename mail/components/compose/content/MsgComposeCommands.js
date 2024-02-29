@@ -2785,7 +2785,7 @@ async function attachToCloudNew(aAccount) {
   // gather url(s) to those files.
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
-    window,
+    window.browsingContext,
     getComposeBundle().getFormattedString("chooseFileToAttachViaCloud", [
       cloudFileAccounts.getDisplayName(aAccount),
     ]),
@@ -7941,7 +7941,7 @@ function AttachFile() {
   // Get file using nsIFilePicker and convert to URL
   const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
-    window,
+    window.browsingContext,
     getComposeBundle().getString("chooseFileToAttach"),
     Ci.nsIFilePicker.modeOpenMultiple
   );

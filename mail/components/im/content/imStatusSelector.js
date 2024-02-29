@@ -250,7 +250,7 @@ var statusSelector = {
       "chrome://messenger/locale/chat.properties"
     );
     fp.init(
-      window,
+      window.browsingContext,
       bundle.GetStringFromName("userIconFilePickerTitle"),
       Ci.nsIFilePicker.modeOpen
     );

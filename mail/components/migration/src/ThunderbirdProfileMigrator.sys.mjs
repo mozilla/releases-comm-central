@@ -120,11 +120,19 @@ export class ThunderbirdProfileMigrator {
       ]);
     switch (type) {
       case "zip":
-        filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
+        filePicker.init(
+          window.browsingContext,
+          filePickerTitleZip,
+          filePicker.modeOpen
+        );
         filePicker.appendFilter("", "*.zip");
         break;
       case "dir":
-        filePicker.init(window, filePickerTitleDir, filePicker.modeGetFolder);
+        filePicker.init(
+          window.browsingContext,
+          filePickerTitleDir,
+          filePicker.modeGetFolder
+        );
         break;
       default:
         throw new Error(`Unsupported type: ${type}`);

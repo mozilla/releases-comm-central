@@ -25,7 +25,7 @@ add_setup(async function () {
 
   await openAddressBookWindow();
 
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.useAnyFile();
 
   MockFilePicker.appendFilterCallback = function (picker, title, filter) {

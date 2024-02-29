@@ -627,7 +627,7 @@ var EnigmailKeyRing = {
 
   async promptKeyExport2AsciiFilename(window, title, defaultFilename) {
     const fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    fp.init(window, title, Ci.nsIFilePicker.modeSave);
+    fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeSave);
     fp.defaultString = defaultFilename;
     fp.defaultExtension = "*.asc";
     fp.appendFilter(await lazy.l10n.formatValue("ascii-armor-file"), "*.asc");

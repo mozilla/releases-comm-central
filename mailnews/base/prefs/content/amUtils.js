@@ -15,7 +15,7 @@ function BrowseForLocalFolders() {
   var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
   fp.init(
-    window,
+    window.browsingContext,
     document
       .getElementById("browseForLocalFolder")
       .getAttribute("filepickertitle"),

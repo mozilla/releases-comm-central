@@ -563,7 +563,7 @@ var gGeneralPane = {
 
     // XXX todo, persist the last sound directory and pass it in
     fp.init(
-      window,
+      window.browsingContext,
       document
         .getElementById("bundlePreferences")
         .getString("soundFilePickerTitle"),
@@ -2488,7 +2488,7 @@ class HandlerRow {
         Ci.nsIFilePicker
       );
       const winTitle = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
-      fp.init(window, winTitle, Ci.nsIFilePicker.modeOpen);
+      fp.init(window.browsingContext, winTitle, Ci.nsIFilePicker.modeOpen);
       fp.appendFilters(Ci.nsIFilePicker.filterApps);
 
       // Prompt the user to pick an app.  If they pick one, and it's a valid

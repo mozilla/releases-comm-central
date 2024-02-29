@@ -217,7 +217,11 @@ var AddrBookUtils = {
     const title = bundle.formatStringFromName("ExportAddressBookNameTitle", [
       directory.dirName,
     ]);
-    filePicker.init(Services.ww.activeWindow, title, Ci.nsIFilePicker.modeSave);
+    filePicker.init(
+      Services.ww.activeWindow.browsingContext,
+      title,
+      Ci.nsIFilePicker.modeSave
+    );
     filePicker.defaultString = directory.dirName;
 
     let filterString;

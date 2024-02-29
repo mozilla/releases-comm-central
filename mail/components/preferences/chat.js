@@ -145,7 +145,7 @@ var gChatPane = {
 
     // XXX todo, persist the last sound directory and pass it in
     fp.init(
-      window,
+      window.browsingContext,
       document
         .getElementById("bundlePreferences")
         .getString("soundFilePickerTitle"),

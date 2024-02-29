@@ -123,7 +123,7 @@ async function prepare_downloads_view() {
 }
 
 add_setup(async function () {
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
 
   await prepare_messages();
   await prepare_downloads_view();

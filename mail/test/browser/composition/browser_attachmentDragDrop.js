@@ -45,7 +45,7 @@ const kFiles = [
 
 add_setup(async function () {
   // Prepare the mock file picker.
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.setFiles(collectFiles(kFiles));
 
   // Register an extension based cloudFile provider.

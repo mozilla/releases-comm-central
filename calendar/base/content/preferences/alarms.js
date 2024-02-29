@@ -101,7 +101,7 @@ var gAlarmsPane = {
 
     const title = document.getElementById("bundlePreferences").getString("soundFilePickerTitle");
 
-    picker.init(window, title, Ci.nsIFilePicker.modeOpen);
+    picker.init(window.browsingContext, title, Ci.nsIFilePicker.modeOpen);
     picker.appendFilters(Ci.nsIFilePicker.filterAudio);
     picker.appendFilters(Ci.nsIFilePicker.filterAll);
 

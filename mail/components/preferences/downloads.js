@@ -24,7 +24,7 @@ var gDownloadDirSection = {
     var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     var bundlePreferences = document.getElementById("bundlePreferences");
     var title = bundlePreferences.getString("chooseAttachmentsFolderTitle");
-    fp.init(window, title, Ci.nsIFilePicker.modeGetFolder);
+    fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeGetFolder);
 
     var customDirPref = Preferences.get("browser.download.dir");
     if (customDirPref.value) {

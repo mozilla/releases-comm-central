@@ -1208,7 +1208,7 @@ function MsgOpenFromFile() {
   var filterLabel = bundle.getString("EMLFiles");
   var windowTitle = bundle.getString("OpenEMLFiles");
 
-  fp.init(window, windowTitle, Ci.nsIFilePicker.modeOpen);
+  fp.init(window.browsingContext, windowTitle, Ci.nsIFilePicker.modeOpen);
   fp.appendFilter(filterLabel, "*.eml");
 
   // Default or last filter is "All Files".

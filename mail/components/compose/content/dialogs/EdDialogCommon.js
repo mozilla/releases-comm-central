@@ -358,13 +358,21 @@ function GetLocalFileURL(filterType) {
   var fileType = "html";
 
   if (filterType == "img") {
-    fp.init(window, GetString("SelectImageFile"), Ci.nsIFilePicker.modeOpen);
+    fp.init(
+      window.browsingContext,
+      GetString("SelectImageFile"),
+      Ci.nsIFilePicker.modeOpen
+    );
     fp.appendFilters(Ci.nsIFilePicker.filterImages);
     fileType = "image";
   } else if (filterType.startsWith("html")) {
     // Current usage of this is in Link dialog,
     //  where we always want HTML first
-    fp.init(window, GetString("OpenHTMLFile"), Ci.nsIFilePicker.modeOpen);
+    fp.init(
+      window.browsingContext,
+      GetString("OpenHTMLFile"),
+      Ci.nsIFilePicker.modeOpen
+    );
 
     // When loading into Composer, direct user to prefer HTML files and text files,
     //   so we call separately to control the order of the filter list

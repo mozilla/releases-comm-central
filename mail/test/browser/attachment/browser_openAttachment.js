@@ -21,7 +21,7 @@ const handlerService = Cc[
 ].getService(Ci.nsIHandlerService);
 
 const { MockFilePicker } = SpecialPowers;
-MockFilePicker.init(window);
+MockFilePicker.init(window.browsingContext);
 
 // At the time of writing, this pref was set to true on nightly channels only.
 // The behaviour is slightly different when it is false.

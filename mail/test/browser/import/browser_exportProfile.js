@@ -16,7 +16,7 @@ add_task(async function testProfileExport() {
   const filePath = Services.io
     .newURI(PathUtils.toFileURI(zipFile))
     .QueryInterface(Ci.nsIFileURL);
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.setFiles([filePath.file]);
   registerCleanupFunction(async () => {
     await IOUtils.remove(profileDir, {

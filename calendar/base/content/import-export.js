@@ -137,7 +137,11 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
   // Show the 'Save As' dialog and ask for a filename to save to
   const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  picker.init(window, cal.l10n.getCalString("filepickerTitleExport"), Ci.nsIFilePicker.modeSave);
+  picker.init(
+    window.browsingContext,
+    cal.l10n.getCalString("filepickerTitleExport"),
+    Ci.nsIFilePicker.modeSave
+  );
 
   let filename;
   if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {

@@ -220,7 +220,7 @@ add_task(async function import_secret_key() {
   const fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
   const file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
 
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnOK;
 

@@ -2265,7 +2265,7 @@ Enigmail.msg = {
       const fp = Cc["@mozilla.org/filepicker;1"].createInstance(
         Ci.nsIFilePicker
       );
-      fp.init(window, title, Ci.nsIFilePicker.modeSave);
+      fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeSave);
       fp.defaultString = rawFileName;
       fp.displayDirectory = Enigmail.msg.lastSaveDir;
       fp.appendFilters(Ci.nsIFilePicker.filterAll);

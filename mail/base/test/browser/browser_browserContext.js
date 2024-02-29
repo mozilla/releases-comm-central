@@ -169,7 +169,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   );
 
   const pickerPromise = new Promise(resolve => {
-    SpecialPowers.MockFilePicker.init(window);
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
     SpecialPowers.MockFilePicker.showCallback = picker => {
       resolve(picker.defaultString);
       return Ci.nsIFilePicker.returnCancel;

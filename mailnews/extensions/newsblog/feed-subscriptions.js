@@ -2515,7 +2515,7 @@ var FeedSubscriptions = {
     fp.appendFilter(opmlFilterText, "*.opml");
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
     fp.filterIndex = 0;
-    fp.init(window, title, Ci.nsIFilePicker.modeSave);
+    fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeSave);
 
     return new Promise(resolve => {
       fp.open(rv => {
@@ -2556,7 +2556,7 @@ var FeedSubscriptions = {
     fp.appendFilter(opmlFilterText, "*.opml");
     fp.appendFilters(Ci.nsIFilePicker.filterXML);
     fp.appendFilters(Ci.nsIFilePicker.filterAll);
-    fp.init(window, title, Ci.nsIFilePicker.modeOpen);
+    fp.init(window.browsingContext, title, Ci.nsIFilePicker.modeOpen);
 
     return new Promise(resolve => {
       fp.open(rv => {

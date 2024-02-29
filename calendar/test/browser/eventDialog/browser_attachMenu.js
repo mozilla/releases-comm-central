@@ -166,7 +166,7 @@ add_task(async function testAttachProvider() {
   });
 
   const file = new FileUtils.File(getTestFilePath("data/guests.txt"));
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   MockFilePicker.setFiles([file]);
   MockFilePicker.returnValue = MockFilePicker.returnOk;
 

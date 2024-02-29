@@ -41,7 +41,7 @@ const kFiles = ["./data/attachment.txt"];
 
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  MockFilePicker.init(window);
+  MockFilePicker.init(window.browsingContext);
   // Register an extension based cloudFile provider.
   gCloudFileProvider = new CloudFileTestProvider("testProvider");
   await gCloudFileProvider.register(this);
