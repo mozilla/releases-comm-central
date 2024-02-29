@@ -474,7 +474,12 @@ export class MessengerContentHandler {
           win.gTabmail.openTab("contentTab", {
             url: uri,
             linkHandler: "single-site",
-            background: false,
+            // Default to opening protocol-handler tabs in the background, if
+            // opened via the console. Since this can be triggered externally,
+            // the user might become distracted, if such a tab suddenly opens and
+            // steals focus. If really necessary, the protocol implementation
+            // itself can bring the tab into the foreground.
+            background: true,
             duplicate: true,
           });
         });
