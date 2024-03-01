@@ -318,10 +318,9 @@ interface nsIMsgSend : nsISupports
     void notifyListenerOnStartCopy();
     void notifyListenerOnProgressCopy(in unsigned long aProgress, in unsigned long aProgressMax);
     void notifyListenerOnStopCopy(in nsresult aStatus);
+    void getMessageId(out ACString messageID);
     /// When saving as draft, the folder uri we saved to.
     readonly attribute AUTF8String folderUri;
-    /// The unique Message-ID assigned to each composed message.
-    readonly attribute AUTF8String messageId;
 
     /**
      * After a draft is saved, use this to get the mime part number for the dom
