@@ -111,7 +111,7 @@ function checkUserPref(prefName, prefValue) {
   );
 }
 
-function checkClearPref(prefName, prefValue) {
+function checkClearPref(prefName) {
   equal(
     Services.prefs.prefHasUserValue(prefName),
     false,
@@ -119,7 +119,7 @@ function checkClearPref(prefName, prefValue) {
   );
 }
 
-function checkDefaultPref(prefName, prefValue) {
+function checkDefaultPref(prefName) {
   const defaultPrefBranch = Services.prefs.getDefaultBranch("");
   const prefType = defaultPrefBranch.getPrefType(prefName);
   notEqual(

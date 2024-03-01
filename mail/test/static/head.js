@@ -129,7 +129,7 @@ function* generateEntriesFromJarFile(jarFile, extension) {
 }
 
 function fetchFile(uri) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = "text";
     xhr.open("GET", uri, true);

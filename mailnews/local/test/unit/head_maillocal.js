@@ -74,7 +74,7 @@ var gCopyListener = {
   callbackFunction: null,
   copiedMessageHeaderKeys: [],
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     try {
       this.copiedMessageHeaderKeys.push(aKey);
@@ -82,7 +82,7 @@ var gCopyListener = {
       dump(ex);
     }
   },
-  GetMessageId(aMessageId) {},
+  GetMessageId() {},
   OnStopCopy(aStatus) {
     if (this.callbackFunction) {
       mailTestUtils.do_timeout_function(0, this.callbackFunction, null, [

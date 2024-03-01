@@ -469,7 +469,7 @@ function promiseDirectoryRemoved(uri) {
 function promiseLoadSubDialog(url) {
   const abWindow = getAddressBookWindow();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     abWindow.SubDialog._dialogStack.addEventListener(
       "dialogopen",
       function dialogopen(aEvent) {

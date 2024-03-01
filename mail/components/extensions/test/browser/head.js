@@ -281,7 +281,7 @@ function promisePopupShown(popup) {
     if (popup.state == "open") {
       resolve();
     } else {
-      const onPopupShown = event => {
+      const onPopupShown = () => {
         popup.removeEventListener("popupshown", onPopupShown);
         resolve();
       };
@@ -718,7 +718,7 @@ async function closeExtensionContextMenu(
   contentAreaContextMenu.hidePopup();
 }
 
-async function openSubmenu(submenuItem, win = window) {
+async function openSubmenu(submenuItem) {
   const submenu = submenuItem.menupopup;
   const shown = BrowserTestUtils.waitForEvent(submenu, "popupshown");
   submenuItem.openMenu(true);
@@ -795,11 +795,11 @@ async function checkContent(browser, expected) {
 function contentTabOpenPromise(tabmail, url) {
   return new Promise(resolve => {
     const tabMonitor = {
-      onTabTitleChanged(aTab) {},
-      onTabClosing(aTab) {},
-      onTabPersist(aTab) {},
-      onTabRestored(aTab) {},
-      onTabSwitched(aNewTab, aOldTab) {},
+      onTabTitleChanged() {},
+      onTabClosing() {},
+      onTabPersist() {},
+      onTabRestored() {},
+      onTabSwitched() {},
       async onTabOpened(aTab) {
         const result = awaitBrowserLoaded(
           aTab.linkedBrowser,
@@ -1184,7 +1184,7 @@ async function run_popup_test(configData) {
         // Without popup and disabled button.
         extensionDetails.files["background.js"] = async function () {
           browser.test.log("nopopup & button disabled background script ran");
-          browser[window.apiName].onClicked.addListener(async (tab, info) => {
+          browser[window.apiName].onClicked.addListener(async () => {
             browser.test.fail(
               "Should not have seen the onClicked event for a disabled button"
             );
@@ -1344,7 +1344,7 @@ async function run_popup_test(configData) {
             browser.test.sendMessage("onShown", args);
           });
 
-          browser[window.apiName].onClicked.addListener(async (tab, info) => {
+          browser[window.apiName].onClicked.addListener(async () => {
             browser.test.fail(
               "Should not have seen the onClicked event for a disabled button"
             );

@@ -79,7 +79,7 @@ function getClientRoom(roomId, clientHandler, client) {
       getMyMembership() {
         return "join";
       },
-      getAccountData(key) {
+      getAccountData() {
         return null;
       },
       getUnfilteredTimelineSet() {
@@ -148,7 +148,7 @@ function getAccount(clientHandler) {
         }
         return this._rooms.get(roomId);
       },
-      setAccountData(field, data) {},
+      setAccountData() {},
       async createRoom(spec) {
         const roomId =
           "!" + spec.name + ":example.com" || "!newroom:example.com";
@@ -186,7 +186,7 @@ function getAccount(clientHandler) {
       getStoredDevicesForUser() {
         return [];
       },
-      isRoomEncrypted(roomId) {
+      isRoomEncrypted() {
         return false;
       },
     },
@@ -201,7 +201,7 @@ function getAccount(clientHandler) {
  */
 function makeProxyHandler(clientHandler) {
   return {
-    get(target, key, receiver) {
+    get(target, key) {
       if (typeof clientHandler === "function") {
         const value = clientHandler(target, key);
         if (value) {

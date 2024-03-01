@@ -100,19 +100,19 @@ function do_check_transaction(real, expected) {
 // nsIMsgSendListener interface as well).
 var copyListener = {
   // nsIMsgSendListener
-  onStartSending(aMsgID, aMsgSize) {},
-  onProgress(aMsgID, aProgress, aProgressMax) {},
-  onStatus(aMsgID, aMsg) {},
-  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {},
-  onGetDraftFolderURI(aMsgID, aFolderURI) {},
-  onSendNotPerformed(aMsgID, aStatus) {},
-  onTransportSecurityError(msgID, status, secInfo, location) {},
+  onStartSending() {},
+  onProgress() {},
+  onStatus() {},
+  onStopSending() {},
+  onGetDraftFolderURI() {},
+  onSendNotPerformed() {},
+  onTransportSecurityError() {},
 
   // nsIMsgCopyServiceListener
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  GetMessageId(aMessageId) {},
+  OnProgress() {},
+  SetMessageKey() {},
+  GetMessageId() {},
   OnStopCopy(aStatus) {
     /* globals OnStopCopy */
     OnStopCopy(aStatus);
@@ -125,25 +125,19 @@ var copyListener = {
   ]),
 };
 
+/** @implements {nsIWebProgressListener} */
 var progressListener = {
-  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       this.resolve(gDraftFolder && mailTestUtils.firstMsgHdr(gDraftFolder));
     }
   },
 
-  onProgressChange(
-    aWebProgress,
-    aRequest,
-    aCurSelfProgress,
-    aMaxSelfProgress,
-    aCurTotalProgress,
-    aMaxTotalProgress
-  ) {},
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
+  onProgressChange() {},
+  onLocationChange() {},
+  onStatusChange() {},
+  onSecurityChange() {},
+  onContentBlockingEvent() {},
 
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
