@@ -78,6 +78,7 @@ reference-jobs:
     - win64-clang-17-raw
     - win64-clang-17-stage1
     - win64-compiler-rt-17
+    - win64-libxml2
     - win64-dump_syms
     - win64-grcov
     - win64-llvm-symbolizer
