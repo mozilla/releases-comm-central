@@ -317,7 +317,7 @@ add_task(
             junk: false,
             junkScore: 0,
             headerMessageId: "sample-attached.eml@mime.sample",
-            size: 0,
+            size: account.type == "none" ? 442 : 444,
             tags: [],
             external: true,
           });
@@ -342,15 +342,39 @@ add_task(
             subMessage.id
           );
           browser.test.assertEq(4, subAttachments.length);
-          browser.test.assertEq("1.2.1.2", subAttachments[0].partName);
-          browser.test.assertEq("1.2.1.3", subAttachments[1].partName);
-          browser.test.assertEq("1.2.1.4", subAttachments[2].partName);
-          browser.test.assertEq("1.2.1.5", subAttachments[3].partName);
+          browser.test.assertEq("1.2", subAttachments[0].partName);
+          browser.test.assertEq("1.3", subAttachments[1].partName);
+          browser.test.assertEq("1.4", subAttachments[2].partName);
+          browser.test.assertEq("1.5", subAttachments[3].partName);
 
           browser.test.assertEq("whitePixel.png", subAttachments[0].name);
           browser.test.assertEq("greenPixel.png", subAttachments[1].name);
           browser.test.assertEq("redPixel.png", subAttachments[2].name);
           browser.test.assertEq("message2.eml", subAttachments[3].name);
+
+          // Make sure we can get an attachment from the subMessage
+          const att1 = await browser.messages.getAttachmentFile(
+            subMessage.id,
+            "1.2"
+          );
+          browser.test.assertTrue(att1.size);
+          const att2 = await browser.messages.getAttachmentFile(
+            subMessage.id,
+            "1.5"
+          );
+          browser.test.assertTrue(att2.size);
+
+          const subSubAttachments = await browser.messages.listAttachments(
+            subAttachments[3].message.id
+          );
+          browser.test.assertEq(1, subSubAttachments.length);
+          browser.test.assertEq("1.2", subSubAttachments[0].partName);
+          browser.test.assertEq("whitePixel.png", subSubAttachments[0].name);
+          const att3 = await browser.messages.getAttachmentFile(
+            subAttachments[3].message.id,
+            "1.2"
+          );
+          browser.test.assertTrue(att3.size);
 
           // Validate the returned MessageHeader for sub-message message2.eml
           // attached to sub-message message1.eml.
@@ -372,27 +396,24 @@ add_task(
             junk: false,
             junkScore: 0,
             headerMessageId: "sample-nested-attached.eml@mime.sample",
-            size: 0,
+            size: account.type == "none" ? 100 : 101,
             tags: [],
             external: true,
           });
 
           // Test getAttachmentFile().
-          // Note: This function has x-ray vision into sub-messages and can get
-          // any part inside the message, even if - technically - the attachments
-          // belong to subMessages. There is no difference between requesting
-          // part 1.2.1.2 from the main message or from message1.eml (part 1.2).
-          // X-ray vision from a sub-message back into a parent is not allowed.
-          const platform = await browser.runtime.getPlatformInfo();
+          // Note: X-Ray vision is an undocumented artefact. The parts of nested
+          //       messages are not returned by listAttachments() and one has to
+          //       guess the correct part name to be able to retrieve the part.
+          //       But it *is* possible to get any part inside the message, even
+          //       if the attachments belong to subMessages. Example: Requesting
+          //       part 1.2.1.3 from the main message returns the same part as
+          //       requesting part 1.3. from message1.eml (which is part 1.2).
           const fileTests = [
             {
               partName: "1.2",
               name: "message1.eml",
-              size:
-                platform.os != "win" &&
-                (account.type == "none" || account.type == "nntp")
-                  ? 2517
-                  : 2601,
+              size: account.type == "none" ? 2517 : 2601,
               text: "Message-ID: <sample-attached.eml@mime.sample>",
             },
             {
@@ -416,11 +437,7 @@ add_task(
             {
               partName: "1.2.1.5",
               name: "message2.eml",
-              size:
-                platform.os != "win" &&
-                (account.type == "none" || account.type == "nntp")
-                  ? 838
-                  : 867,
+              size: account.type == "none" ? 838 : 867,
               text: "Message-ID: <sample-nested-attached.eml@mime.sample>",
             },
             {
@@ -455,19 +472,18 @@ add_task(
           for (const msg of testMessages) {
             let fileCounts = 0;
             for (const test of fileTests) {
-              if (msg.subPart && !test.partName.startsWith(msg.subPart)) {
-                await browser.test.assertRejects(
-                  browser.messages.getAttachmentFile(msg.id, test.partName),
-                  `Part ${test.partName} not found in message ${msg.id}.`,
-                  "Sub-message should not be able to get parts from parent message"
-                );
+              // The fileTest array has the partNames as seen from the outer
+              // message and we need to rebase them to the current message, in
+              // order to get something back. Negative X-Ray is not possible.
+              if (msg.subPart && msg.subPart.length > test.partName.length) {
                 continue;
               }
-              fileCounts++;
 
+              fileCounts++;
+              const partName = test.partName.slice(msg.subPart?.length ?? 0);
               const file = await browser.messages.getAttachmentFile(
                 msg.id,
-                test.partName
+                partName
               );
 
               // eslint-disable-next-line mozilla/use-isInstance
@@ -499,6 +515,7 @@ add_task(
               "Should have requested to correct amount of attachment files."
             );
           }
+
           browser.test.notifyPass("finished");
         },
         "utils.js": await getUtilsJS(),

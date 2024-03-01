@@ -33,11 +33,6 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   lazy,
-  "MsgHdrToMimeMessage",
-  "resource:///modules/gloda/MimeMessage.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
   "VirtualFolderHelper",
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
@@ -89,7 +84,6 @@ export function getMsgStreamUrl(msgHdr) {
   if (msgHdr.folder) {
     return msgHdr.folder.getUriForMsg(msgHdr);
   }
-
   const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
   url.searchParams.set("type", "application/x-message-display");
   return url.toString();
@@ -611,324 +605,6 @@ export class MsgHdrProcessor {
   }
 }
 
-/**
- * @typedef MimeMessagePart
- * @property {MimeMessagePart[]} [attachments] - flat list of attachment parts
- *   found in any of the nested mime parts
- * @property {string} [body] - the body of the part
- * @property {Uint8Array} [raw] - the raw binary content of the part
- * @property {string} [contentType]
- * @property {string} headers - key-value object with key being a header name
- *   and value an array with all header values found
- * @property {string} [name] - filename, if part is an attachment
- * @property {string} partName - name of the mime part (e.g: "1.2")
- * @property {MimeMessagePart[]} [parts] - nested mime parts
- * @property {string} [size] - size of the part
- * @property {string} [url] - message url
- */
-
-/**
- * Returns attachments found in the message belonging to the given nsIMsgDBHdr.
- *
- * @param {nsIMsgDBHdr} msgHdr
- * @param {boolean} includeNestedAttachments - Whether to return all attachments,
- *   including attachments from nested mime parts.
- *
- * @returns {Promise<MimeMessagePart[]>}
- */
-export async function getAttachments(msgHdr, includeNestedAttachments = false) {
-  const mimeMsg = await getMimeMessage(msgHdr);
-  if (!mimeMsg) {
-    return null;
-  }
-
-  // Reduce returned attachments according to includeNestedAttachments.
-  const level = mimeMsg.partName ? mimeMsg.partName.split(".").length : 0;
-  return mimeMsg.attachments.filter(
-    a => includeNestedAttachments || a.partName.split(".").length == level + 2
-  );
-}
-
-/**
- * Returns the attachment identified by the provided partName.
- *
- * @param {nsIMsgDBHdr} msgHdr
- * @param {string} partName
- * @param {object} [options={}] - If the includeRaw property is truthy the raw
- *   attachment contents are included.
- *
- * @returns {Promise<MimeMessagePart>}
- */
-export async function getAttachment(msgHdr, partName, options = {}) {
-  // It's not ideal to have to call MsgHdrToMimeMessage here again, but we need
-  // the name of the attached file, plus this also gives us the URI without having
-  // to jump through a lot of hoops.
-  const attachment = await getMimeMessage(msgHdr, partName);
-  if (!attachment) {
-    return null;
-  }
-
-  if (options.includeRaw) {
-    const channel = Services.io.newChannelFromURI(
-      Services.io.newURI(attachment.url),
-      null,
-      Services.scriptSecurityManager.getSystemPrincipal(),
-      null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      Ci.nsIContentPolicy.TYPE_OTHER
-    );
-
-    attachment.raw = await new Promise((resolve, reject) => {
-      const listener = Cc[
-        "@mozilla.org/network/stream-loader;1"
-      ].createInstance(Ci.nsIStreamLoader);
-      listener.init({
-        onStreamComplete(loader, context, status, resultLength, result) {
-          if (Components.isSuccessCode(status)) {
-            resolve(Uint8Array.from(result));
-          } else {
-            reject(
-              new ExtensionError(
-                `Failed to read attachment ${attachment.url} content: ${status}`
-              )
-            );
-          }
-        },
-      });
-      channel.asyncOpen(listener, null);
-    });
-  }
-
-  return attachment;
-}
-
-/**
- * Returns the <part> parameter of the dummyMsgUrl of the provided nsIMsgDBHdr.
- *
- * @param {nsIMsgDBHdr} msgHdr
- * @returns {string}
- */
-function getSubMessagePartName(msgHdr) {
-  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
-    return "";
-  }
-
-  return new URL(msgHdr.getStringProperty("dummyMsgUrl")).searchParams.get(
-    "part"
-  );
-}
-
-/**
- * Returns the nsIMsgDBHdr of the outer message, if the provided nsIMsgDBHdr belongs
- * to a message which is actually an attachment of another message. Returns null
- * otherwise.
- *
- * @param {nsIMsgDBHdr} msgHdr
- * @returns {nsIMsgDBHdr}
- */
-function getParentMsgHdr(msgHdr) {
-  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
-    return null;
-  }
-
-  const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
-
-  if (url.protocol == "news:") {
-    const newsUrl = `news-message://${url.hostname}/${url.searchParams.get(
-      "group"
-    )}#${url.searchParams.get("key")}`;
-    return MailServices.messageServiceFromURI("news:").messageURIToMsgHdr(
-      newsUrl
-    );
-  }
-
-  // Everything else should be a mailbox:// or an imap:// url.
-  const params = Array.from(url.searchParams, p => p[0]).filter(
-    p => !["number"].includes(p)
-  );
-  for (const param of params) {
-    url.searchParams.delete(param);
-  }
-  return Services.io.newURI(url.href).QueryInterface(Ci.nsIMsgMessageUrl)
-    .messageHeader;
-}
-
-/**
- * Get the raw message for a given nsIMsgDBHdr.
- *
- * @param aMsgHdr - The message header to retrieve the raw message for.
- * @returns {Promise<string>} - Binary string of the raw message.
- */
-export async function getRawMessage(msgHdr) {
-  // If this message is a sub-message (an attachment of another message), get it
-  // as an attachment from the parent message and return its raw content.
-  const subMsgPartName = getSubMessagePartName(msgHdr);
-  if (subMsgPartName) {
-    const parentMsgHdr = getParentMsgHdr(msgHdr);
-    const attachment = await getAttachment(parentMsgHdr, subMsgPartName, {
-      includeRaw: true,
-    });
-    return attachment.raw.reduce(
-      (prev, curr) => prev + String.fromCharCode(curr),
-      ""
-    );
-  }
-
-  const msgUri = getMsgStreamUrl(msgHdr);
-  const service = MailServices.messageServiceFromURI(msgUri);
-  return new Promise((resolve, reject) => {
-    const streamlistener = {
-      _data: [],
-      _stream: null,
-      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-        if (!this._stream) {
-          this._stream = Cc[
-            "@mozilla.org/scriptableinputstream;1"
-          ].createInstance(Ci.nsIScriptableInputStream);
-          this._stream.init(aInputStream);
-        }
-        this._data.push(this._stream.read(aCount));
-      },
-      onStartRequest() {},
-      onStopRequest(request, status) {
-        if (Components.isSuccessCode(status)) {
-          resolve(this._data.join(""));
-        } else {
-          reject(
-            new ExtensionError(
-              `Error while streaming message <${msgUri}>: ${status}`
-            )
-          );
-        }
-      },
-      QueryInterface: ChromeUtils.generateQI([
-        "nsIStreamListener",
-        "nsIRequestObserver",
-      ]),
-    };
-
-    // This is not using aConvertData and therefore works for news:// messages.
-    service.streamMessage(
-      msgUri,
-      streamlistener,
-      null, // aMsgWindow
-      null, // aUrlListener
-      false, // aConvertData
-      "" //aAdditionalHeader
-    );
-  });
-}
-
-/**
- * Returns MIME parts found in the message identified by the given nsIMsgDBHdr.
- * Uses the jsmime parser directly, instead of MsgHdrToMimeMessage.
- *
- * @param {nsIMsgDBHdr} msgHdr
- *
- * @returns {Promise<MimeMessagePart>}
- */
-export async function getMimeParts(msgHdr) {
-  // If this message is a sub-message (an attachment of another message), get it
-  // as an attachment from the parent message and return its raw content.
-  const subMsgPartName = getSubMessagePartName(msgHdr);
-  if (subMsgPartName) {
-    const raw = await getRawMessage(msgHdr);
-    return lazy.MimeParser.extractMimeMsg(raw, {
-      excludeAttachmentData: true,
-      decodeSubMessages: false,
-    });
-  }
-
-  const msgUri = getMsgStreamUrl(msgHdr);
-  return lazy.MimeParser.streamMimeMsg(msgUri, {
-    excludeAttachmentData: true,
-    decodeSubMessages: false,
-  });
-}
-
-/**
- * Returns MIME parts found in the message identified by the given nsIMsgDBHdr.
- *
- * @param {nsIMsgDBHdr} msgHdr
- * @param {string} partName - Return only a specific mime part.
- *
- * @returns {Promise<MimeMessagePart>}
- */
-export async function getMimeMessage(msgHdr, partName = "") {
-  // If this message is a sub-message (an attachment of another message), get the
-  // mime parts of the parent message and return the part of the sub-message.
-  const subMsgPartName = getSubMessagePartName(msgHdr);
-  if (subMsgPartName) {
-    const parentMsgHdr = getParentMsgHdr(msgHdr);
-    if (!parentMsgHdr) {
-      return null;
-    }
-
-    const mimeMsg = await getMimeMessage(parentMsgHdr, partName);
-    if (!mimeMsg) {
-      return null;
-    }
-
-    // If <partName> was specified, the returned mime message is just that part,
-    // no further processing needed. But prevent x-ray vision into the parent.
-    if (partName) {
-      if (partName.split(".").length > subMsgPartName.split(".").length) {
-        return mimeMsg;
-      }
-      return null;
-    }
-
-    // Limit mimeMsg and attachments to the requested <subMessagePart>.
-    const findSubPart = (parts, partName) => {
-      const match = parts.find(a => partName.startsWith(a.partName));
-      if (!match) {
-        throw new ExtensionError(
-          `Unexpected Error: Part ${partName} not found.`
-        );
-      }
-      return match.partName == partName
-        ? match
-        : findSubPart(match.parts, partName);
-    };
-    const subMimeMsg = findSubPart(mimeMsg.parts, subMsgPartName);
-
-    if (mimeMsg.attachments) {
-      subMimeMsg.attachments = mimeMsg.attachments.filter(
-        a =>
-          a.partName != subMsgPartName && a.partName.startsWith(subMsgPartName)
-      );
-    }
-    return subMimeMsg;
-  }
-
-  try {
-    const mimeMsg = await new Promise((resolve, reject) => {
-      lazy.MsgHdrToMimeMessage(
-        msgHdr,
-        null,
-        (_msgHdr, mimeMsg) => {
-          if (!mimeMsg) {
-            reject();
-          } else {
-            mimeMsg.attachments = mimeMsg.allInlineAttachments;
-            resolve(mimeMsg);
-          }
-        },
-        true,
-        { examineEncryptedParts: true }
-      );
-    });
-    return partName
-      ? mimeMsg.attachments.find(a => a.partName == partName)
-      : mimeMsg;
-  } catch (ex) {
-    // Something went wrong. Return null, which will inform the user that the
-    // message could not be read.
-    console.warn(ex);
-    return null;
-  }
-}
-
 export function getMessagesInFolder(folder) {
   if (folder.isServer) {
     return [];
@@ -1062,17 +738,6 @@ export class CachedMsgHeader {
 
   QueryInterface() {
     return this;
-  }
-}
-
-/**
- * Checks if the provided dummyMsgUrl belongs to an attached message.
- */
-function isAttachedMessageUrl(dummyMsgUrl) {
-  try {
-    return dummyMsgUrl && new URL(dummyMsgUrl).searchParams.has("part");
-  } catch (ex) {
-    return false;
   }
 }
 
@@ -1790,17 +1455,6 @@ export class MessageManager {
       .split(" ")
       .filter(MailServices.tags.isValidKey);
 
-    // Getting the size of attached messages does not work consistently. For imap://
-    // and mailbox:// messages the returned size in msgHdr.messageSize is 0, and for
-    // file:// messages the returned size is always the total file size
-    // Be consistent here and always return 0. The user can obtain the message size
-    // from the size of the associated attachment file.
-    const size = isAttachedMessageUrl(
-      cachedHdr.getStringProperty("dummyMsgUrl")
-    )
-      ? 0
-      : cachedHdr.messageSize;
-
     const messageObject = {
       id: this._messageTracker.getId(cachedHdr),
       date: new Date(Math.round(cachedHdr.date / 1000)),
@@ -1820,7 +1474,7 @@ export class MessageManager {
       junk: junkScore >= lazy.gJunkThreshold,
       junkScore,
       headerMessageId: cachedHdr.messageId,
-      size,
+      size: cachedHdr.messageSize,
       tags,
       external: !cachedHdr.folder,
     };
@@ -1984,6 +1638,8 @@ export class MessageQuery {
    * @returns {Promise<boolean>}
    */
   async checkSearchCriteria(msgHdr, folder = msgHdr.folder) {
+    const msgHdrProcessor = new MsgHdrProcessor(msgHdr);
+
     // Check date ranges.
     if (
       this.queryInfo.fromDate !== null &&
@@ -2182,16 +1838,16 @@ export class MessageQuery {
 
     // Check body.
     if (this.queryInfo.body || fullTextBodySearchNeeded) {
-      const mimeMsg = await getMimeMessage(msgHdr);
+      const mimeTree = await msgHdrProcessor.getDecryptedTree();
       if (
         this.queryInfo.body &&
-        !includesContent(folder, [mimeMsg], this.queryInfo.body)
+        !includesContent(folder, [mimeTree], this.queryInfo.body)
       ) {
         return false;
       }
       if (
         fullTextBodySearchNeeded &&
-        !includesContent(folder, [mimeMsg], this.queryInfo.fullText)
+        !includesContent(folder, [mimeTree], this.queryInfo.fullText)
       ) {
         return false;
       }
@@ -2199,10 +1855,9 @@ export class MessageQuery {
 
     // Check attachments.
     if (this.queryInfo.attachment != null) {
-      const attachments = await getAttachments(
-        msgHdr,
-        true // includeNestedAttachments
-      );
+      const attachments = await msgHdrProcessor.getAttachmentParts({
+        includeNestedAttachments: true,
+      });
       if (typeof this.queryInfo.attachment == "boolean") {
         if (this.queryInfo.attachment != (attachments.length != 0)) {
           return false;
@@ -2272,7 +1927,7 @@ function includesContent(folder, parts, searchTerm) {
   for (const part of parts) {
     if (
       coerceBodyToPlaintext(folder, part).includes(searchTerm) ||
-      includesContent(folder, part.parts, searchTerm)
+      includesContent(folder, part.subParts, searchTerm)
     ) {
       return true;
     }
@@ -2284,11 +1939,12 @@ function coerceBodyToPlaintext(folder, part) {
   if (!part || !part.body) {
     return "";
   }
-  if (part.contentType == "text/plain") {
+  const contentType = part.headers.contentType.type;
+  if (contentType == "text/plain") {
     return part.body;
   }
   // text/enriched gets transformed into HTML by libmime
-  if (part.contentType == "text/html" || part.contentType == "text/enriched") {
+  if (contentType == "text/html" || part.contentType == "text/enriched") {
     return folder.convertMsgSnippetToPlainText(part.body);
   }
   return "";

@@ -156,9 +156,15 @@
             "type": "string",
             "optional": true
           },
+          "decryptionStatus": {
+            "type": "string",
+            "optional": true,
+            "description": "The decryption status, only available for the root part.",
+            "enum": ["none", "skipped", "success", "fail"]
+          },
           "headers": {
             "type": "object",
-            "description": "A <em>dictionary object</em> of part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>",
+            "description": "A <em>dictionary object</em> of part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>.",
             "optional": true,
             "additionalProperties": {
               "type": "array",
@@ -458,6 +464,18 @@
             "$ref": "messages.MessageId"
           },
           {
+            "name": "options",
+            "type": "object",
+            "properties": {
+              "decrypt": {
+                "type": "boolean",
+                "description": "Whether the message should be decrypted. If the message could not be decrypted, its parts are omitted. Defaults to true.",
+                "optional": true
+              }
+            },
+            "optional": true
+          },
+          {
             "type": "function",
             "name": "callback",
             "optional": true,
@@ -483,6 +501,11 @@
             "name": "options",
             "type": "object",
             "properties": {
+              "decrypt": {
+                "type": "boolean",
+                "description": "Whether the message should be decrypted. Throws, if the message could not be decrypted.",
+                "optional": true
+              },
               "data_format": {
                 "choices": [
                   {
@@ -497,7 +520,8 @@
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   }
-                ]
+                ],
+                "optional": true
               }
             },
             "optional": true

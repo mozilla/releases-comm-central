@@ -111,7 +111,7 @@ add_task(async function test_plain_mv2() {
         // {
         //   "contentType": "message/rfc822",
         //   "headers": {
-        //     "content-type": ["text/plain; charset=ISO-8859-1; format=flowed"],
+        //     "content-type": ["message/rfc822"],
         //     "subject": ["Big Meeting Today"],
         //     "from": ["\"Andy Anway\" <andy@anway.invalid>"],
         //     "to": ["\"Bob Bell\" <bob@bell.invalid>"],
@@ -273,7 +273,7 @@ add_task(async function test_plain_mv3() {
         // {
         //   "contentType": "message/rfc822",
         //   "headers": {
-        //     "content-type": ["text/plain; charset=ISO-8859-1; format=flowed"],
+        //     "content-type": ["message/rfc822"],
         //     "subject": ["Small Party Tomorrow"],
         //     "from": ["\"Chris Clarke\" <chris@clarke.invalid>"],
         //     "to": ["\"David Davol\" <David Davol>"],
@@ -416,6 +416,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Bug Reporter <new@thunderbird.bug>"],
               newsgroups: ["gmane.comp.mozilla.thundebird.user"],
@@ -423,9 +424,7 @@ add_task(async function test_encoding() {
               date: ["Thu, 27 May 2021 21:23:35 +0100"],
               "message-id": ["<01.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": ["text/plain; charset=utf-8;"],
-              "content-transfer-encoding": ["base64"],
-              "content-disposition": ["inline"],
+              "content-type": ["message/rfc822"],
             },
             parts: [
               {
@@ -435,6 +434,8 @@ add_task(async function test_encoding() {
                 body: "Άλφα\n",
                 headers: {
                   "content-type": ["text/plain; charset=utf-8;"],
+                  "content-transfer-encoding": ["base64"],
+                  "content-disposition": ["inline"],
                 },
               },
             ],
@@ -449,6 +450,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ['"Doug Sauder" <doug@example.com>'],
               to: ["Heinz Müller <mueller@example.com>"],
@@ -456,9 +458,7 @@ add_task(async function test_encoding() {
               date: ["Wed, 17 May 2000 19:32:47 -0400"],
               "message-id": ["<02.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": [
-                'multipart/mixed; boundary="----=_NextPart_000_0002_01BFC036.AE309650"',
-              ],
+              "content-type": ["message/rfc822"],
               "x-priority": ["3 (Normal)"],
               "x-msmail-priority": ["Normal"],
               "x-mailer": [
@@ -528,6 +528,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Heinz Müller <mueller@example.com>"],
               to: ['"Joe Blow" <jblow@example.com>'],
@@ -535,11 +536,7 @@ add_task(async function test_encoding() {
               date: ["Wed, 17 May 2000 19:35:05 -0400"],
               "message-id": ["<03.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": ['image/png; name="doubelspace  ball.png"'],
-              "content-transfer-encoding": ["base64"],
-              "content-disposition": [
-                'attachment; filename="doubelspace  ball.png"',
-              ],
+              "content-type": ["message/rfc822"],
               "x-priority": ["3 (Normal)"],
               "x-msmail-priority": ["Normal"],
               "x-mailer": [
@@ -556,6 +553,10 @@ add_task(async function test_encoding() {
                 size: 0,
                 headers: {
                   "content-type": ['image/png; name="doubelspace  ball.png"'],
+                  "content-transfer-encoding": ["base64"],
+                  "content-disposition": [
+                    'attachment; filename="doubelspace  ball.png"',
+                  ],
                 },
               },
             ],
@@ -570,6 +571,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Bug Reporter <new@thunderbird.bug>"],
               newsgroups: ["gmane.comp.mozilla.thundebird.user"],
@@ -577,8 +579,7 @@ add_task(async function test_encoding() {
               date: ["Sun, 27 May 2001 21:23:35 +0100"],
               "message-id": ["<04.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": ["text/plain; charset=koi8-r;"],
-              "content-transfer-encoding": ["base64"],
+              "content-type": ["message/rfc822"],
             },
             parts: [
               {
@@ -588,6 +589,7 @@ add_task(async function test_encoding() {
                 body: "Вопрос\n",
                 headers: {
                   "content-type": ["text/plain; charset=koi8-r;"],
+                  "content-transfer-encoding": ["base64"],
                 },
               },
             ],
@@ -602,6 +604,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Bug Reporter <new@thunderbird.bug>"],
               newsgroups: ["gmane.comp.mozilla.thundebird.user"],
@@ -609,8 +612,7 @@ add_task(async function test_encoding() {
               date: ["Sun, 27 May 2001 21:23:35 +0100"],
               "message-id": ["<05.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": ["text/plain; charset=windows-1251;"],
-              "content-transfer-encoding": ["base64"],
+              "content-type": ["message/rfc822"],
             },
             parts: [
               {
@@ -620,6 +622,7 @@ add_task(async function test_encoding() {
                 body: "Вопрос\n",
                 headers: {
                   "content-type": ["text/plain; charset=windows-1251;"],
+                  "content-transfer-encoding": ["base64"],
                 },
               },
             ],
@@ -634,6 +637,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Bug Reporter <new@thunderbird.bug>"],
               newsgroups: ["gmane.comp.mozilla.thundebird.user"],
@@ -641,6 +645,7 @@ add_task(async function test_encoding() {
               date: ["Sun, 27 May 2001 21:23:35 +0100"],
               "message-id": ["<06.eml@mime.sample>"],
               "mime-version": ["1.0"],
+              "content-type": ["message/rfc822"],
             },
             parts: [
               {
@@ -664,6 +669,7 @@ add_task(async function test_encoding() {
             contentType: "message/rfc822",
             partName: "",
             size: 0,
+            decryptionStatus: "none",
             headers: {
               from: ["Doug Sauder <dwsauder@example.com>"],
               to: ["Heinz <mueller@example.com>"],
@@ -671,9 +677,7 @@ add_task(async function test_encoding() {
               date: ["Fri, 19 May 2000 00:29:55 -0400"],
               "message-id": ["<07.eml@mime.sample>"],
               "mime-version": ["1.0"],
-              "content-type": [
-                'multipart/alternative; boundary="=====================_714967308==_.ALT"',
-              ],
+              "content-type": ["message/rfc822"],
             },
             parts: [
               {
@@ -822,7 +826,6 @@ add_task(async function test_encoding() {
         for (const message of messages) {
           const fullMessage = await browser.messages.getFull(message.id);
           browser.test.assertEq("object", typeof fullMessage);
-
           const expected = expectedData[message.headerMessageId];
           checkMsgHeaders(expected.msgHeaders, message);
           checkMsgParts(expected.msgParts, fullMessage);
@@ -875,10 +878,10 @@ add_task(
           // Read the message, without the key set up. The headers should be
           // readable, but not the message itself.
 
-          let { messages } = await browser.messages.list(folder.id);
+          const { messages } = await browser.messages.list(folder.id);
           browser.test.assertEq(1, messages.length);
 
-          let [message] = messages;
+          const [message] = messages;
           browser.test.assertEq("...", message.subject);
           browser.test.assertEq(
             "Bob Babbage <bob@openpgp.example>",
@@ -886,7 +889,27 @@ add_task(
           );
           browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
 
-          let fullMessage = await browser.messages.getFull(message.id);
+          // getRaw({decrypt: false}) should succeed without keys.
+          const rawMessage = await browser.messages.getRaw(message.id, {
+            decrypt: false,
+          });
+          browser.test.assertTrue(
+            rawMessage.includes("multipart/encrypted"),
+            "Should find the encrypted message"
+          );
+
+          // getRaw({decrypt: true}) should fail without keys.
+          await browser.test.assertRejects(
+            browser.messages.getRaw(message.id, { decrypt: true }),
+            `Error decrypting message ${message.id}`,
+            "browser.messages.getRaw({decrypt: true}) should reject, if the keys are not available."
+          );
+
+          // getFull() should not be able to decrypt the message and not return
+          // any parts.
+          const fullMessage = await browser.messages.getFull(message.id, {
+            decrypt: true,
+          });
           browser.test.log(JSON.stringify(fullMessage));
           browser.test.assertEq("object", typeof fullMessage);
           browser.test.assertEq("message/rfc822", fullMessage.contentType);
@@ -913,35 +936,52 @@ add_task(
             fullMessage.headers.to[0]
           );
 
-          browser.test.assertTrue(Array.isArray(fullMessage.parts));
-          browser.test.assertEq(1, fullMessage.parts.length);
-
-          let part = fullMessage.parts[0];
-          browser.test.assertEq("object", typeof part);
-          browser.test.assertEq("multipart/encrypted", part.contentType);
-          browser.test.assertEq(undefined, part.parts);
+          // Decryption failed, parts should be omitted.
+          browser.test.assertEq(
+            "fail",
+            fullMessage.decryptionStatus,
+            "should find the correct decryptionStatus"
+          );
+          browser.test.assertEq(
+            0,
+            fullMessage.parts.length,
+            "parts should be omitted"
+          );
 
           // Now set up the key and read the message again. It should all be
           // there this time.
 
           await window.sendMessage("load key");
 
-          ({ messages } = await browser.messages.list(folder.id));
-          browser.test.assertEq(1, messages.length);
-          [message] = messages;
-          browser.test.assertEq("...", message.subject);
+          const { messages: messages_with_key } = await browser.messages.list(
+            folder.id
+          );
+          browser.test.assertEq(1, messages_with_key.length);
+          const [message_with_key] = messages_with_key;
+          // FIXME: The messageHeader still has the encrypted subject, only after
+          // the UI has displayed and decrypted the message, the subject gets
+          // updated.
+          browser.test.assertEq("...", message_with_key.subject);
           browser.test.assertEq(
             "Bob Babbage <bob@openpgp.example>",
-            message.author
+            message_with_key.author
           );
-          browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
+          browser.test.assertEq(
+            "alice@openpgp.example",
+            message_with_key.recipients[0]
+          );
 
-          fullMessage = await browser.messages.getFull(message.id);
-          browser.test.log(JSON.stringify(fullMessage));
-          browser.test.assertEq("object", typeof fullMessage);
-          browser.test.assertEq("message/rfc822", fullMessage.contentType);
+          const fullDecrypted = await browser.messages.getFull(
+            message_with_key.id,
+            {
+              decrypt: true,
+            }
+          );
+          browser.test.log(JSON.stringify(fullDecrypted));
+          browser.test.assertEq("object", typeof fullDecrypted);
+          browser.test.assertEq("message/rfc822", fullDecrypted.contentType);
 
-          browser.test.assertEq("object", typeof fullMessage.headers);
+          browser.test.assertEq("object", typeof fullDecrypted.headers);
           for (const header of [
             "content-type",
             "date",
@@ -950,31 +990,37 @@ add_task(
             "subject",
             "to",
           ]) {
-            browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
-            browser.test.assertEq(1, fullMessage.headers[header].length);
+            browser.test.assertTrue(
+              Array.isArray(fullDecrypted.headers[header])
+            );
+            browser.test.assertEq(1, fullDecrypted.headers[header].length);
           }
-          browser.test.assertEq("...", fullMessage.headers.subject[0]);
+          browser.test.assertEq(
+            "Unsigned Encrypted",
+            fullDecrypted.headers.subject[0]
+          );
           browser.test.assertEq(
             "Bob Babbage <bob@openpgp.example>",
-            fullMessage.headers.from[0]
+            fullDecrypted.headers.from[0]
           );
           browser.test.assertEq(
             "alice@openpgp.example",
-            fullMessage.headers.to[0]
+            fullDecrypted.headers.to[0]
           );
 
-          browser.test.assertTrue(Array.isArray(fullMessage.parts));
-          browser.test.assertEq(1, fullMessage.parts.length);
+          browser.test.assertEq("success", fullDecrypted.decryptionStatus);
+          browser.test.assertTrue(Array.isArray(fullDecrypted.parts));
+          browser.test.assertEq(1, fullDecrypted.parts.length);
 
-          part = fullMessage.parts[0];
+          let part = fullDecrypted.parts[0];
           browser.test.assertEq("object", typeof part);
-          browser.test.assertEq("multipart/encrypted", part.contentType);
+          browser.test.assertEq("multipart/mixed", part.contentType);
           browser.test.assertTrue(Array.isArray(part.parts));
           browser.test.assertEq(1, part.parts.length);
 
           part = part.parts[0];
           browser.test.assertEq("object", typeof part);
-          browser.test.assertEq("multipart/fake-container", part.contentType);
+          browser.test.assertEq("multipart/mixed", part.contentType);
           browser.test.assertTrue(Array.isArray(part.parts));
           browser.test.assertEq(1, part.parts.length);
 
@@ -984,6 +1030,31 @@ add_task(
           browser.test.assertEq(
             "Sundays are nothing without callaloo.",
             part.body.trimRight()
+          );
+
+          // Explicitly request the encrypted message.
+          const fullEncrypted = await browser.messages.getFull(message.id, {
+            decrypt: false,
+          });
+          browser.test.assertEq("...", fullEncrypted.headers.subject[0]);
+          browser.test.assertEq("skipped", fullEncrypted.decryptionStatus);
+
+          // getRaw({decrypt: false}) should succeed.
+          const rawMessage2 = await browser.messages.getRaw(message.id, {
+            decrypt: false,
+          });
+          browser.test.assertTrue(
+            rawMessage2.includes("multipart/encrypted"),
+            "Should find the encrypted message"
+          );
+
+          // getRaw({decrypt: true}) should succeed.
+          const rawMessage3 = await browser.messages.getRaw(message.id, {
+            decrypt: true,
+          });
+          browser.test.assertFalse(
+            rawMessage3.includes("multipart/encrypted"),
+            "Should not find the encrypted message"
           );
 
           browser.test.notifyPass("finished");
@@ -1013,7 +1084,7 @@ add_task(
 
     cleanUpAccount(_account);
   }
-).skip(); // Temporary no encryption support.
+);
 
 add_task(async function test_attached_message_with_missing_headers() {
   const _account = createAccount();
