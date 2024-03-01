@@ -7,7 +7,7 @@ const lazy = {};
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
-import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import { getFolder } from "resource:///modules/ExtensionAccounts.sys.mjs";
 import {
@@ -384,8 +384,24 @@ export class MsgHdrProcessor {
       this.#originalMessage = attachment.body;
       return this.#originalMessage;
     }
-    const service = MailServices.messageServiceFromURI(this.#msgUri);
-    this.#originalMessage = await new Promise((resolve, reject) => {
+
+    const msgUri = this.#msgUri;
+    const service = MailServices.messageServiceFromURI(msgUri);
+
+    // Setup a connection timout of 20s, to be able to fail if streaming stalls.
+    let connectionSuccess = false;
+    const connectionPromise = Promise.withResolvers();
+    const connectionTimeout = setTimeout(() => {
+      if (!connectionSuccess) {
+        connectionPromise.reject(
+          new ExtensionError(
+            `Error while streaming message <${msgUri}>: Timeout`
+          )
+        );
+      }
+    }, 20000);
+
+    const messagePromise = new Promise((resolve, reject) => {
       const streamlistener = {
         _data: [],
         _stream: null,
@@ -398,14 +414,23 @@ export class MsgHdrProcessor {
           }
           this._data.push(this._stream.read(aCount));
         },
-        onStartRequest() {},
+        onStartRequest() {
+          connectionSuccess = true;
+        },
         onStopRequest(request, status) {
           if (Components.isSuccessCode(status)) {
+            if (!this._data) {
+              reject(
+                new ExtensionError(
+                  `Error while streaming message <${msgUri}>: No data`
+                )
+              );
+            }
             resolve(this._data.join(""));
           } else {
             reject(
               new ExtensionError(
-                `Error while streaming message <${this.#msgUri}>: ${status}`
+                `Error while streaming message <${msgUri}>: Status ${status}`
               )
             );
           }
@@ -418,7 +443,7 @@ export class MsgHdrProcessor {
 
       // This is not using aConvertData and returns the raw unprocessed message.
       service.streamMessage(
-        this.#msgUri,
+        msgUri,
         streamlistener,
         null, // aMsgWindow
         null, // aUrlListener
@@ -426,6 +451,17 @@ export class MsgHdrProcessor {
         "" //aAdditionalHeader
       );
     });
+
+    try {
+      this.#originalMessage = await Promise.race([
+        connectionPromise.promise,
+        messagePromise,
+      ]);
+    } finally {
+      // Clean up pending connectionPromise and connectionTimeout.
+      clearTimeout(connectionTimeout);
+      connectionPromise.resolve();
+    }
     return this.#originalMessage;
   }
 
