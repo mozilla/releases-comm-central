@@ -202,6 +202,17 @@ var quickFilterBar = {
   get filterer() {
     if (!this._filterer) {
       this._filterer = new QuickFilterState();
+      const _states = XULStoreUtils.getValue(
+        "messenger",
+        "quickFilter",
+        "textFilters"
+      );
+      if (_states) {
+        this._filterer.filterValues.text = {
+          text: null,
+          states: JSON.parse(_states),
+        };
+      }
       this._filterer.visible = false;
     }
     return this._filterer;
