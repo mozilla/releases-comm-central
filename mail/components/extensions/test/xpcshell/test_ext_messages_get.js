@@ -485,6 +485,7 @@ add_task(async function test_encoding() {
                     body: `\nDie Hasen und die Frösche \n \n`,
                     headers: {
                       "content-type": ['text/plain; charset="iso-8859-1"'],
+                      "content-transfer-encoding": ["quoted-printable"],
                     },
                   },
                   {
@@ -494,6 +495,10 @@ add_task(async function test_encoding() {
                     name: "blueball2.png",
                     headers: {
                       "content-type": ['image/png; name="blueball1.png"'],
+                      "content-transfer-encoding": ["base64"],
+                      "content-disposition": [
+                        'attachment; filename="blueball2.png"',
+                      ],
                     },
                   },
                   {
@@ -503,6 +508,8 @@ add_task(async function test_encoding() {
                     name: "greenball.png",
                     headers: {
                       "content-type": ['image/png; name="greenball.png"'],
+                      "content-transfer-encoding": ["base64"],
+                      "content-disposition": ["attachment"],
                     },
                   },
                   {
@@ -512,6 +519,10 @@ add_task(async function test_encoding() {
                     name: "redball.png",
                     headers: {
                       "content-type": ["image/png"],
+                      "content-transfer-encoding": ["base64"],
+                      "content-disposition": [
+                        'attachment; filename="redball.png"',
+                      ],
                     },
                   },
                 ],
@@ -697,6 +708,7 @@ add_task(async function test_encoding() {
                     body: "Die Hasen\n",
                     headers: {
                       "content-type": ["text/plain"],
+                      "content-transfer-encoding": ["quoted-printable"],
                     },
                   },
                   {

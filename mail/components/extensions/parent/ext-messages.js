@@ -153,13 +153,6 @@ function convertMessagePart(mimeTreePart, isRoot = true) {
       parts: mimeTreePart.decryptionStatus != "fail" ? [partObject] : [],
     };
   }
-
-  // Remove content-disposition and content-transfer-encoding headers.
-  partObject.headers = Object.fromEntries(
-    Object.entries(partObject.headers).filter(
-      h => !["content-disposition", "content-transfer-encoding"].includes(h[0])
-    )
-  );
   return partObject;
 }
 
