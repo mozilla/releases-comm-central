@@ -102,6 +102,8 @@ window.addEventListener("DOMContentLoaded", async event => {
   // Ensure all the necessary custom elements have been defined.
   await customElements.whenDefined("tree-view-table-row");
   await customElements.whenDefined("folder-tree-row");
+  await customElements.whenDefined("thread-row");
+  await customElements.whenDefined("thread-card");
 
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
@@ -4560,9 +4562,6 @@ var threadPane = {
    * Make the list rows density aware.
    */
   async densityChange() {
-    await customElements.whenDefined("thread-row");
-    await customElements.whenDefined("thread-card");
-
     // The class ThreadRow can't be referenced because it's declared in a
     // different scope. But we can get it from customElements.
     const rowClass = customElements.get("thread-row");
