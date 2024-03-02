@@ -6181,17 +6181,11 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
           }
           // Only checks the last imap command in sequence above.
           if (!GetServerStateParser().LastCommandSuccessful()) urlOk = false;
-        }
-        // for non UIDPLUS servers this code used to check for
-        // imapAction==nsIImapUrl::nsImapAppendMsgFromFile, which meant we'd get
-        // into this code whenever sending a message, as well as when copying
-        // messages to an imap folder from local folders or an other imap
-        // server. This made sending a message slow when there was a large sent
-        // folder. I don't believe this code worked anyway.
-        // *** code me to search for the newly appended message
-        else if (m_imapMailFolderSink &&
-                 imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
-          // go to selected state
+        } else if (m_imapMailFolderSink &&
+                   imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
+          // No UIDPLUS capability and just appended a message to draft folder.
+          // Must search the folder using the Message-ID to find the UID of the
+          // appended message. First, go to selected state.
           nsCString messageId;
           rv = m_imapMailFolderSink->GetMessageId(m_runningUrl, messageId);
           if (NS_SUCCEEDED(rv) && !messageId.IsEmpty()) {
