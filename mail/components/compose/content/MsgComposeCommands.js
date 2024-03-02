@@ -518,7 +518,7 @@ function getPrettyKey(aKeyId) {
  * This includes elements like the address list, attachment list, subject
  * and message body.
  *
- * @param aDisable  true = disable items. false = enable items.
+ * @param {boolean} aDisable - true = disable items. false = enable items.
  */
 function updateEditableFields(aDisable) {
   if (!gMsgCompose) {
@@ -795,6 +795,7 @@ var stateListener = {
   },
 };
 
+/** @implements {nsIMsgSendListener} */
 var gSendListener = {
   // nsIMsgSendListener
   onStartSending(aMsgID, aMsgSize) {},
@@ -834,7 +835,10 @@ var gSendListener = {
   },
 };
 
-// all progress notifications are done through the nsIWebProgressListener implementation...
+/**
+ * All progress notifications are done through progressListener.
+ * @implements {nsIWebProgressListener}
+ */
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     const progressMeter = document.getElementById("compose-progressmeter");
@@ -1539,6 +1543,8 @@ var attachmentBucketController = {
 
 /**
  * Start composing a new message.
+ *
+ * @param {?Event} aEvent
  */
 function goOpenNewMessage(aEvent) {
   // If aEvent is passed, check if Shift key was pressed for composition in
@@ -2827,9 +2833,9 @@ async function attachToCloudNew(aAccount) {
 /**
  * Convert an array of attachments to cloud attachments.
  *
- * @param aItems an array of <attachmentitem>s containing the attachments in
- *        question
- * @param aAccount the cloud account to upload the files to
+ * @param {Element[]} aItems - An array of <richlistitem.attachmentItem>s
+ *   containing the attachments in question.
+ * @param {CloudFileAccount} aAccount - The account to upload the files to.
  */
 async function convertListItemsToCloudAttachment(aItems, aAccount) {
   gMsgCompose.allowRemoteContent = true;
@@ -2855,7 +2861,7 @@ async function convertListItemsToCloudAttachment(aItems, aAccount) {
 /**
  * Convert the selected attachments to cloud attachments.
  *
- * @param aAccount the cloud account to upload the files to
+ * @param {CloudFileAccount} aAccount - The account to upload the files to.
  */
 function convertSelectedToCloudAttachment(aAccount) {
   convertListItemsToCloudAttachment(
@@ -2867,8 +2873,8 @@ function convertSelectedToCloudAttachment(aAccount) {
 /**
  * Convert an array of nsIMsgAttachments to cloud attachments.
  *
- * @param aAttachments an array of nsIMsgAttachments
- * @param aAccount the cloud account to upload the files to
+ * @param {nsIMsgAttachments[]} aAttachments - Attachments to convert.
+ * @param {CloudFileAccount} aAccount - The account to upload the files to.
  */
 function convertToCloudAttachment(aAttachments, aAccount) {
   const items = [];
@@ -2885,8 +2891,8 @@ function convertToCloudAttachment(aAttachments, aAccount) {
 /**
  * Convert an array of attachments to regular (non-cloud) attachments.
  *
- * @param aItems an array of <attachmentitem>s containing the attachments in
- *        question
+ * @param {Element[]} aItems - An array of <richlistitem.attachmentItem>s
+ *   containing the attachments in question.
  */
 async function convertListItemsToRegularAttachment(aItems) {
   const promises = [];
@@ -2913,23 +2919,7 @@ function convertSelectedToRegularAttachment() {
 }
 
 /**
- * Convert an array of nsIMsgAttachments to regular (non-cloud) attachments.
- *
- * @param aAttachments an array of nsIMsgAttachments
- */
-function convertToRegularAttachment(aAttachments) {
-  const items = [];
-  for (const attachment of aAttachments) {
-    const item = gAttachmentBucket.findItemForAttachment(attachment);
-    if (item) {
-      items.push(item);
-    }
-  }
-
-  return convertListItemsToRegularAttachment(items);
-}
-
-/* messageComposeOfflineQuitObserver is notified whenever the network
+ * messageComposeOfflineQuitObserver is notified whenever the network
  * connection status has switched to offline, or when the application
  * has received a request to quit.
  */
@@ -3020,7 +3010,7 @@ function DoCommandPrint() {
  * Locking means to disable all possible items in the window so that
  * the user can't click/activate anything.
  *
- * @param aDisable  true = lock the window. false = unlock the window.
+ * @param {boolean} aDisable - true = lock the window. false = unlock the window.
  */
 function ToggleWindowLock(aDisable) {
   if (aDisable) {
@@ -3162,22 +3152,6 @@ function observeRecipientsChange() {
   gRecipientKeysObserver.observe(document.getElementById("bccAddrContainer"), {
     childList: true,
   });
-}
-
-// checks if the passed in string is a mailto url, if it is, generates nsIMsgComposeParams
-// for the url and returns them.
-function handleMailtoArgs(mailtoUrl) {
-  // see if the string is a mailto url....do this by checking the first 7 characters of the string
-  if (mailtoUrl.toLowerCase().startsWith("mailto:")) {
-    // if it is a mailto url, turn the mailto url into a MsgComposeParams object....
-    const uri = Services.io.newURI(mailtoUrl);
-
-    if (uri) {
-      return MailServices.compose.getParamsForMailto(uri);
-    }
-  }
-
-  return null;
 }
 
 /**
@@ -4535,8 +4509,10 @@ async function ComposeStartup() {
       if (window.arguments[0] instanceof Ci.nsIMsgComposeParams) {
         params = window.arguments[0];
         gBodyFromArgs = params.composeFields && params.composeFields.body;
-      } else {
-        params = handleMailtoArgs(window.arguments[0]);
+      } else if (window.arguments[0].toLowerCase().startsWith("mailto:")) {
+        params = MailServices.compose.getParamsForMailto(
+          Services.io.newURI(window.arguments[0])
+        );
       }
     } catch (ex) {
       dump("ERROR with parameters: " + ex + "\n");
@@ -5094,9 +5070,12 @@ async function ComposeStartup() {
       new Event("compose-window-init", { bubbles: false, cancelable: true })
     );
 
-  dispatchAttachmentBucketEvent(
-    "attachments-added",
-    gMsgCompose.compFields.attachments
+  gAttachmentBucket.dispatchEvent(
+    new CustomEvent("attachments-added", {
+      bubbles: true,
+      cancelable: true,
+      detail: gMsgCompose.compFields.attachments,
+    })
   );
 
   // Add an observer to be called when document is done loading,
@@ -6050,7 +6029,7 @@ function SetComposeDetails(newValues) {
 /**
  * Handles message sending operations.
  *
- * @param {nsIMsgCompDeliverMode} mode - The delivery mode of the operation.
+ * @param {nsIMsgCompDeliverMode} msgType - The delivery mode of the operation.
  */
 async function GenericSendMessage(msgType) {
   const msgCompFields = GetComposeDetails();
@@ -6326,7 +6305,7 @@ async function GenericSendMessage(msgType) {
  * GenericSendMessage. This is a separate function so that it can be easily mocked
  * in tests.
  *
- * @param msgType nsIMsgCompDeliverMode of the operation.
+ * @param {nsIMsgCompDeliverMode} msgType - The delivery mode of the operation.
  */
 async function CompleteGenericSendMessage(msgType) {
   // hook for extra compose pre-processing
@@ -6343,11 +6322,11 @@ async function CompleteGenericSendMessage(msgType) {
     // Just before we try to send the message, fire off the
     // compose-send-message event for listeners, so they can do
     // any pre-security work before sending.
-    var event = document.createEvent("UIEvents");
-    event.initEvent("compose-send-message", false, true);
-    var msgcomposeWindow = document.getElementById("msgcomposeWindow");
-    msgcomposeWindow.setAttribute("msgtype", msgType);
-    msgcomposeWindow.dispatchEvent(event);
+    const event = new CustomEvent("compose-send-message", {
+      cancelable: true,
+      detail: { msgType },
+    });
+    window.dispatchEvent(event);
     if (event.defaultPrevented) {
       throw Components.Exception(
         "compose-send-message prevented",
@@ -6401,7 +6380,7 @@ async function CompleteGenericSendMessage(msgType) {
       progress
     );
   } catch (ex) {
-    console.error("GenericSendMessage FAILED: " + ex);
+    console.warn("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
     sendError = ex;
   }
@@ -7605,9 +7584,10 @@ function ToggleAttachVCard(target) {
  * Toggles checkmark on "Remind me later" menuitem and internal
  * gManualAttachmentReminder flag accordingly.
  *
- * @param aState (optional) true = activate reminder.
- *                          false = deactivate reminder.
- *                          (default) = toggle reminder state.
+ * @param {boolean} [aState] - Reminder state.
+ *   - true = activate reminder.
+ *   - false = deactivate reminder.
+ *   - (default) = toggle reminder state.
  */
 function toggleAttachmentReminder(aState = !gManualAttachmentReminder) {
   gManualAttachmentReminder = aState;
@@ -7725,20 +7705,14 @@ function AdjustFocus() {
 
 /**
  * Set the compose window title with flavors (Write | Print Preview).
- *
- * @param isPrintPreview (optional) true:  Set title for 'Print Preview' window.
- *                                  false: Set title for 'Write' window (default).
  */
-function SetComposeWindowTitle(isPrintPreview = false) {
-  const aStringName = isPrintPreview
-    ? "windowTitlePrintPreview"
-    : "windowTitleWrite";
+function SetComposeWindowTitle() {
   const subject =
     document.getElementById("msgSubject").value.trim() ||
     getComposeBundle().getString("defaultSubject");
   const brandBundle = document.getElementById("brandBundle");
   const brandShortName = brandBundle.getString("brandShortName");
-  const newTitle = getComposeBundle().getFormattedString(aStringName, [
+  const newTitle = getComposeBundle().getFormattedString("windowTitleWrite", [
     subject,
     brandShortName,
   ]);
@@ -7748,8 +7722,12 @@ function SetComposeWindowTitle(isPrintPreview = false) {
   }
 }
 
-// Check for changes to document and allow saving before closing
-// This is hooked up to the OS's window close widget (e.g., "X" for Windows)
+/**
+ * Check for changes to document and allow saving before closing
+ * This is hooked up to the OS's window close widget (e.g., "X" for Windows).
+ *
+ * @returns {boolean} true if the window can go ahead and close.
+ */
 function ComposeCanClose() {
   // No open compose window?
   if (!gMsgCompose) {
@@ -7924,7 +7902,9 @@ function GetLastAttachDirectory() {
   return lastDirectory;
 }
 
-// attachedLocalFile must be a nsIFile
+/**
+ * @param {nsIFile} attachedLocalFile
+ */
 function SetLastAttachDirectory(attachedLocalFile) {
   try {
     const file = attachedLocalFile.QueryInterface(Ci.nsIFile);
@@ -7981,8 +7961,8 @@ function AttachFile() {
 /**
  * Convert an nsIFile instance into an nsIMsgAttachment.
  *
- * @param file the nsIFile
- * @returns an attachment pointing to the file
+ * @param {nsIFile} file - The file to convert.
+ * @returns {nsIMsgAttachment} an attachment pointing to the file.
  */
 function FileToAttachment(file) {
   const fileHandler = Services.io
@@ -8182,7 +8162,13 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
     gAttachmentBucket.ensureIndexIsVisible(gAttachmentBucket.selectedIndex);
 
     AttachmentsChanged("show", aContentChanged);
-    dispatchAttachmentBucketEvent("attachments-added", addedAttachments);
+    gAttachmentBucket.dispatchEvent(
+      new CustomEvent("attachments-added", {
+        bubbles: true,
+        cancelable: true,
+        detail: addedAttachments,
+      })
+    );
 
     // Set min height for the attachment bucket.
     if (!gAttachmentBucket.style.minHeight) {
@@ -8352,8 +8338,8 @@ function AttachPage() {
 /**
  * Check if the given attachment already exists in the attachment bucket.
  *
- * @param nsIMsgAttachment - the attachment to check
- * @returns true if the attachment is already attached
+ * @param {nsIMsgAttachment} attachment - The attachment to check.
+ * @returns {boolean} true if the attachment is already attached.
  */
 function DuplicateFileAlreadyAttached(attachment) {
   for (const item of gAttachmentBucket.itemChildren) {
@@ -8401,8 +8387,9 @@ async function RemoveAllAttachments() {
  * Show or hide the attachment pane after updating its header bar information
  * (number and total file size of attachments) and tooltip.
  *
- * @param aShowBucket {Boolean} true: show the attachment pane
- *                              false (or omitted): hide the attachment pane
+ * @param {boolean} aShowBucket - Show bucked or not.
+ *   - true: show the attachment pane
+ *   - false (or omitted): hide the attachment pane
  */
 function UpdateAttachmentBucket(aShowBucket) {
   updateAttachmentPane(aShowBucket ? "show" : "hide");
@@ -8412,9 +8399,9 @@ function UpdateAttachmentBucket(aShowBucket) {
  * Update the header bar information (number and total file size of attachments)
  * and tooltip of attachment pane, then (optionally) show or hide the pane.
  *
- * @param aShowPane {string} "show":  show the attachment pane
- *                           "hide":  hide the attachment pane
- *                           omitted: just update without changing pane visibility
+ * @param {"show"|"hide"} [aShowPane} "show":  show the attachment pane
+ *   - "hide":  hide the attachment pane
+ *   -  omitted: just update without changing pane visibility
  */
 function updateAttachmentPane(aShowPane) {
   const count = gAttachmentBucket.itemCount;
@@ -8469,7 +8456,7 @@ async function RemoveSelectedAttachment() {
  *       not prevent the attachments from being removed from the composer. Such
  *       errors are caught and logged to the console.
  *
- * @param {DOMNode[]} items - AttachmentItems to be removed
+ * @param {DOMNode[]} items - AttachmentItems to be removed.
  */
 async function RemoveAttachments(items) {
   // Remember the current focus index so we can try to restore it when done.
@@ -8515,7 +8502,13 @@ async function RemoveAttachments(items) {
     gAttachmentBucket.clearSelection();
 
     AttachmentsChanged();
-    dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
+    gAttachmentBucket.dispatchEvent(
+      new CustomEvent("attachments-removed", {
+        bubbles: true,
+        cancelable: true,
+        detail: removedAttachments,
+      })
+    );
   }
 
   // Collapse the attachment container if all the items have been deleted.
@@ -8820,11 +8813,11 @@ function moveSelectedAttachments(aDirection) {
 
 /**
  * Toggle attachment pane view state: show or hide it.
- * If aAction parameter is omitted, toggle current view state.
  *
- * @param {string} [aAction = "toggle"] - "show":   show attachment pane
- *                                        "hide":   hide attachment pane
- *                                        "toggle": toggle attachment pane
+ * @param {string} [aAction="toggle"] - Action.
+ *  - "show":   show attachment pane
+ *  - "hide":   hide attachment pane
+ *  - "toggle": toggle attachment pane
  */
 function toggleAttachmentPane(aAction = "toggle") {
   const attachmentArea = document.getElementById("attachmentArea");
@@ -8939,8 +8932,9 @@ function attachmentsSelectionGetSortOrder() {
  * Returns a string representing the current sort order of attachment items
  * by their names.
  *
- * @param aSelectedOnly {boolean}: true: return sort order of selected items only.
- *                                 false (default): return sort order of all items.
+ * @param {boolean} aSelectedOnly - Whether to use selected items only.
+ *  - true: return sort order of selected items only.
+ *  - false (default): return sort order of all items.
  *
  * @returns {string} "ascending" : Sort order is ascending.
  *                  "descending": Sort order is descending.
@@ -9238,6 +9232,7 @@ function OpenSelectedAttachment() {
 
 function nsAttachmentOpener() {}
 
+/** @implements {nsIURIContentListener} */
 nsAttachmentOpener.prototype = {
   QueryInterface: ChromeUtils.generateQI([
     "nsIURIContentListener",
@@ -10521,7 +10516,7 @@ function focusMsgBody() {
  *
  * @param {Element} attachmentArea - The attachment container.
  *
- * @returns {boolean} - Whether the attachment bucket was focused.
+ * @returns {boolean} whether the attachment bucket was focused.
  */
 function focusAttachmentBucket(attachmentArea) {
   if (
@@ -10545,7 +10540,7 @@ function focusAttachmentBucket(attachmentArea) {
  *
  * Note, this is used as a {@link moveFocusWithin} method.
  *
- * @returns {boolean} - Whether a notification received focused.
+ * @returns {boolean} whether a notification received focused.
  */
 function focusNotification() {
   const notification = gComposeNotification.allNotifications[0];
@@ -10569,7 +10564,7 @@ function focusNotification() {
  *
  * @param {Element} attachmentArea - The status bar.
  *
- * @returns {boolean} - Whether a status bar descendant received focused.
+ * @returns {boolean} whether a status bar descendant received focused.
  */
 function focusStatusBar(statusBar) {
   const button = statusBar.querySelector("button:not([hidden])");
@@ -10977,9 +10972,9 @@ var gAttachmentNotifier = {
  * Helper function to remove a query part from a URL, so for example:
  * ...?remove=xx&other=yy becomes ...?other=yy.
  *
- * @param aURL    the URL from which to remove the query part
- * @param aQuery  the query part to remove
- * @returns the URL with the query part removed
+ * @param {string} aURL - The URL from which to remove the query part.
+ * @param {string} aQuery - The query part to remove.
+ * @returns {string} the URL with the query part removed.
  */
 function removeQueryPart(aURL, aQuery) {
   // Quick pre-check.
@@ -11278,22 +11273,6 @@ function getMailToolbox() {
   return document.getElementById("compose-toolbox");
 }
 
-/**
- * Helper function to dispatch a CustomEvent to the attachmentbucket.
- *
- * @param aEventType the name of the event to fire.
- * @param aData any detail data to pass to the CustomEvent.
- */
-function dispatchAttachmentBucketEvent(aEventType, aData) {
-  gAttachmentBucket.dispatchEvent(
-    new CustomEvent(aEventType, {
-      bubbles: true,
-      cancelable: true,
-      detail: aData,
-    })
-  );
-}
-
 /** Update state of zoom type (text vs. full) menu item. */
 function UpdateFullZoomMenu() {
   const menuItem = document.getElementById("menu_fullZoomToggle");
@@ -11496,10 +11475,10 @@ function onUnblockResource(aURL, aNode) {
  * Convert the blocked content to a data URL and swap the src to that for the
  * elements that were using it.
  *
- * @param {string}  aURL - (necko) URL to unblock
- * @param {Bool}    aReturnDataURL - return data: URL instead of processing image
+ * @param {string} aURL - (necko) URL to unblock.
+ * @param {boolean} aReturnDataURL - Return data: URL instead of processing image.
  * @returns {string} the image as data: URL.
- * @throw Error()   if reading the data failed
+ * @throws Error() if reading the data failed.
  */
 function loadBlockedImage(aURL, aReturnDataURL = false) {
   let filename;

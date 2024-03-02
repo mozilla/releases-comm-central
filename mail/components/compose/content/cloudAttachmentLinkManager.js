@@ -719,9 +719,10 @@ var gCloudAttachmentLinkManager = {
    * (and not saved!), find any cloudAttachmentList* nodes that we've created,
    * and strip their IDs out.  That way, if the receiving user replies by
    * sending some BigFiles, we don't run into ID conflicts.
+   * @param {CustomEvent} aEvent - The "compose-send-message" event.
    */
   send(aEvent) {
-    const msgType = parseInt(aEvent.target.getAttribute("msgtype"));
+    const msgType = aEvent.detail.msgType;
 
     if (
       msgType == Ci.nsIMsgCompDeliverMode.Now ||

@@ -2150,7 +2150,7 @@ Enigmail.msg = {
    * no headers will be returned.
    *
    * @returns {string} - All header lines including line endings,
-   *                     could be the empty string.
+   *   could be the empty string.
    */
   async getAutocryptGossip() {
     const fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
@@ -2234,15 +2234,16 @@ Enigmail.msg = {
   },
 
   /**
-   * Handle the 'compose-send-message' event from TB
+   * Handle the 'compose-send-message' event.
+   *
+   * @param {CustomEvent} event - A compose-send-message event.
    */
   sendMessageListener(event) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.sendMessageListener\n"
     );
 
-    const msgcomposeWindow = document.getElementById("msgcomposeWindow");
-    const sendMsgType = Number(msgcomposeWindow.getAttribute("msgtype"));
+    const sendMsgType = event.detail.msgType;
 
     if (
       !(
@@ -2256,8 +2257,6 @@ Enigmail.msg = {
       }
 
       this.sendProcess = true;
-      //let bc = document.getElementById("enigmail-bc-sendprocess");
-
       try {
         const cApi = EnigmailCryptoAPI();
         const encryptResult = cApi.sync(this.prepareSendMsg(sendMsgType));
