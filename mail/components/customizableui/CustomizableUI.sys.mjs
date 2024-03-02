@@ -20,8 +20,8 @@ var gPanelsForWindow = new WeakMap();
 
 var CustomizableUIInternal = {
   addPanelCloseListeners(aPanel) {
-    Services.els.addSystemEventListener(aPanel, "click", this, false);
-    Services.els.addSystemEventListener(aPanel, "keypress", this, false);
+    aPanel.addEventListener("click", this, { mozSystemGroup: true });
+    aPanel.addEventListener("keypress", this, { mozSystemGroup: true });
     const win = aPanel.ownerGlobal;
     if (!gPanelsForWindow.has(win)) {
       gPanelsForWindow.set(win, new Set());
@@ -30,8 +30,8 @@ var CustomizableUIInternal = {
   },
 
   removePanelCloseListeners(aPanel) {
-    Services.els.removeSystemEventListener(aPanel, "click", this, false);
-    Services.els.removeSystemEventListener(aPanel, "keypress", this, false);
+    aPanel.removeEventListener("click", this, { mozSystemGroup: true });
+    aPanel.removeEventListener("keypress", this, { mozSystemGroup: true });
     const win = aPanel.ownerGlobal;
     const panels = gPanelsForWindow.get(win);
     if (panels) {

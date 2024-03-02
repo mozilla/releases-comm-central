@@ -299,12 +299,9 @@ function InitMsgWindow() {
       }
     },
   };
-  Services.els.addSystemEventListener(
-    document,
-    "keypress",
-    keypressListener,
-    false
-  );
+  document.addEventListener("keypress", keypressListener, {
+    mozSystemGroup: true,
+  });
 }
 
 // We're going to implement our status feedback for the mail window in JS now.
