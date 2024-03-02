@@ -1398,7 +1398,7 @@ export class IMAP_RFC3501_handler {
         }
       }
       response += "\0";
-      return response + "OK SEARCH COMPLETED\0";
+      return response + "OK SEARCH COMPLETED";
     }
     return "BAD not here yet";
   }
