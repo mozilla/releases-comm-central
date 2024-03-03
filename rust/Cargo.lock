@@ -1033,7 +1033,7 @@ dependencies = [
 [[package]]
 name = "d3d12"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=23392c5228ce81ae3a9772cf93da933be2d5961c#23392c5228ce81ae3a9772cf93da933be2d5961c"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a5c0181c3a6b4b197dcae34591dfe78bf45338b9#a5c0181c3a6b4b197dcae34591dfe78bf45338b9"
 dependencies = [
  "bitflags 2.4.1",
  "libloading",
@@ -3190,7 +3190,7 @@ checksum = "a2983372caf4480544083767bf2d27defafe32af49ab4df3a0b7fc90793a3664"
 [[package]]
 name = "naga"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=23392c5228ce81ae3a9772cf93da933be2d5961c#23392c5228ce81ae3a9772cf93da933be2d5961c"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a5c0181c3a6b4b197dcae34591dfe78bf45338b9#a5c0181c3a6b4b197dcae34591dfe78bf45338b9"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -4213,9 +4213,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.195"
+version = "1.0.197"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63261df402c67811e9ac6def069e4786148c4563f4b50fd4bf30aa370d626b02"
+checksum = "3fb1c873e1b9b056a4dc4c0c198b24c3ffa059243875552b2bd0933b1aee4ce2"
 dependencies = [
  "serde_derive",
 ]
@@ -4241,9 +4241,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.195"
+version = "1.0.197"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46fe8f8603d81ba86327b23a2e9cdf49e1255fb94a4c5f297f6ee0547178ea2c"
+checksum = "7eb0b34b42edc17f6b7cac84a52a1c5f0e1bb2227e997ca9011ea3dd34e8610b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4710,18 +4710,18 @@ checksum = "a38c90d48152c236a3ab59271da4f4ae63d678c5d7ad6b7714d7cb9760be5e4b"
 
 [[package]]
 name = "thiserror"
-version = "1.0.56"
+version = "1.0.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d54378c645627613241d077a3a79db965db602882668f9136ac42af9ecb730ad"
+checksum = "1e45bcbe8ed29775f228095caf2cd67af7a4ccf756ebff23a306bf3e8b47b24b"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.56"
+version = "1.0.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa0faa943b50f3db30a20aa7e265dbc66076993efed8463e8de414e5d06d3471"
+checksum = "a953cb265bef375dae3de6663da4d3804eee9682ea80d8e2542529b73c531c81"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5404,7 +5404,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=23392c5228ce81ae3a9772cf93da933be2d5961c#23392c5228ce81ae3a9772cf93da933be2d5961c"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a5c0181c3a6b4b197dcae34591dfe78bf45338b9#a5c0181c3a6b4b197dcae34591dfe78bf45338b9"
 dependencies = [
  "arrayvec",
  "bit-vec",
@@ -5431,7 +5431,7 @@ dependencies = [
 [[package]]
 name = "wgpu-hal"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=23392c5228ce81ae3a9772cf93da933be2d5961c#23392c5228ce81ae3a9772cf93da933be2d5961c"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a5c0181c3a6b4b197dcae34591dfe78bf45338b9#a5c0181c3a6b4b197dcae34591dfe78bf45338b9"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -5470,7 +5470,7 @@ dependencies = [
 [[package]]
 name = "wgpu-types"
 version = "0.19.0"
-source = "git+https://github.com/gfx-rs/wgpu?rev=23392c5228ce81ae3a9772cf93da933be2d5961c#23392c5228ce81ae3a9772cf93da933be2d5961c"
+source = "git+https://github.com/gfx-rs/wgpu?rev=a5c0181c3a6b4b197dcae34591dfe78bf45338b9#a5c0181c3a6b4b197dcae34591dfe78bf45338b9"
 dependencies = [
  "bitflags 2.4.1",
  "js-sys",
