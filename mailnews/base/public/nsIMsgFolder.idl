@@ -718,7 +718,7 @@ interface nsIMsgFolder : nsISupports {
   /**
    * Determines if this folder is an ancestor of the supplied folder.
    *
-   * @param folder  The folder that may or may not be a descendent of this
+   * @param folder  The folder that may or may not be a descendant of this
    *                folder.
    */
   boolean isAncestorOf(in nsIMsgFolder folder);

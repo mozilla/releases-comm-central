@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Attempt to test nsMsgDBView and descendents.  Right now this means we:
+ * Attempt to test nsMsgDBView and descendants.  Right now this means we:
  * - Ensure sorting and grouping sorta works, including using custom columns.
  *
  * Things we really should do:
@@ -987,7 +987,7 @@ async function test_xfvf_threading() {
   gTestFolder = await messageInjection.makeEmptyFolder();
 
   let messages = [];
-  // Add messages such that ancestors arrive after their descendents in
+  // Add messages such that ancestors arrive after their descendants in
   // various interesting ways.
   // build a hierarchy like this (the UID order corresponds to the date order)
   //   3

@@ -3028,9 +3028,9 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
       nsCOMPtr<nsIMsgFolder> rootFolder;
       server->GetRootFolder(getter_AddRefs(rootFolder));
       if (rootFolder) {
-        nsTArray<RefPtr<nsIMsgFolder>> descendents;
-        rootFolder->GetDescendants(descendents);
-        aAllFolders.AppendElements(descendents);
+        nsTArray<RefPtr<nsIMsgFolder>> descendants;
+        rootFolder->GetDescendants(descendants);
+        aAllFolders.AppendElements(descendants);
       }
     }
   }

@@ -33,7 +33,7 @@ interface nsIMsgPluggableStore : nsISupports {
    *
    * @param aParentFolder folder whose existing children we want to discover.
    *                      This will be the root folder for the server object.
-   * @param aDeep true if we should discover all descendents. Would we ever
+   * @param aDeep true if we should discover all descendants. Would we ever
    *              not want to do this?
    */
 

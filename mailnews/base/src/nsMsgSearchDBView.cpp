@@ -812,7 +812,7 @@ nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
         }
       }
 
-      // Bump up the level of all the descendents of the message
+      // Bump up the level of all the descendants of the message
       // that was removed, if the thread was expanded.
       uint8_t removedLevel = m_levels[index];
       nsMsgViewIndex i = index + 1;
