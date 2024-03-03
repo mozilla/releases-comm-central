@@ -51,7 +51,7 @@ var { DefaultMap } = ExtensionUtils;
  * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
  */
 function convertHeaders(mimeTreePart) {
-  const partHeaders = [];
+  const partHeaders = {};
   for (const [headerName, headerValue] of mimeTreePart.headers._rawHeaders) {
     // Return an array, even for single values.
     const valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
