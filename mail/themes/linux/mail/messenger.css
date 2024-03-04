@@ -119,7 +119,7 @@
 }
 
 .titlebar-buttonbox-container {
-  margin-inline-end: 6px;
+  margin-inline-end: 3px;
 }
 
 /* The button box must appear on top of the navigation-toolbox in order for
@@ -129,104 +129,108 @@
 .titlebar-buttonbox {
   position: relative;
   z-index: 1;
-  align-items: center;
+  align-items: stretch;
 }
 
-/* Render titlebar command buttons according to system config.
- * Use full scale icons here as the Gtk+ does. */
+.titlebar-button {
+  appearance: none;
+  align-items: center;
+  padding: 0;
+  padding-inline: calc(env(-moz-gtk-csd-titlebar-button-spacing) / 2);
+
+  > .toolbarbutton-icon {
+    appearance: auto;
+  }
+
+  /* When using lightweight themes, use our own buttons since native ones might
+   * assume a native background in order to be visible. */
+  &:-moz-lwtheme {
+    padding-inline: 3px;
+
+    > .toolbarbutton-icon {
+      appearance: none;
+      border-radius: 100%;
+      background-position: center center;
+      background-repeat: no-repeat;
+      -moz-context-properties: stroke;
+      stroke: currentColor;
+      /* Roughly the Adwaita size */
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &:hover > .toolbarbutton-icon {
+    background-color: color-mix(in srgb, currentColor 20%, transparent);
+  }
+
+  &:hover:active > .toolbarbutton-icon {
+    background-color: color-mix(in srgb, currentColor 28%, transparent);
+  }
+
+  &:focus-visible > .toolbarbutton-icon {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-inset);
+  }
+}
+
 .titlebar-min {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-minimize;
   order: env(-moz-gtk-csd-minimize-button-position);
 
-  &:-moz-lwtheme {
-    list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
+  > .toolbarbutton-icon {
+    -moz-default-appearance: -moz-window-button-minimize;
+    background-image: url(chrome://messenger/skin/window-controls/minimize.svg);
+  }
+
+  @media not (-moz-gtk-csd-minimize-button) {
+    display: none;
   }
 }
 
 .titlebar-max {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-maximize;
   order: env(-moz-gtk-csd-maximize-button-position);
 
-  &:-moz-lwtheme {
-    list-style-image: url(chrome://messenger/skin/window-controls/maximize.svg);
+  > .toolbarbutton-icon {
+    -moz-default-appearance: -moz-window-button-maximize;
+    background-image: url(chrome://messenger/skin/window-controls/maximize.svg);
   }
 }
 
 .titlebar-restore {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-restore;
   order: env(-moz-gtk-csd-maximize-button-position);
 
-  &:-moz-lwtheme {
-    list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
+  > .toolbarbutton-icon {
+    -moz-default-appearance: -moz-window-button-restore;
+    background-image: url(chrome://messenger/skin/window-controls/restore.svg);
+  }
+}
+
+@media not (-moz-gtk-csd-maximize-button) {
+  .titlebar-max,
+  .titlebar-restore {
+    display: none;
   }
 }
 
 .titlebar-close {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-close;
   order: env(-moz-gtk-csd-close-button-position);
 
-  &:-moz-lwtheme {
-    list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
-  }
-}
-
-/* When using lightweight themes, use our own buttons since native ones might
- * assume a native background in order to be visible. */
-.titlebar-button:-moz-lwtheme {
-  appearance: none !important;
-  border-radius: 100%;
-  margin-inline: 5px;
-  padding: 1px;
-
-  &:hover {
-    background-color: color-mix(in srgb, currentColor 20%, transparent);
-
-    &:active {
-      background-color: color-mix(in srgb, currentColor 28%, transparent);
-    }
+  > .toolbarbutton-icon {
+    -moz-default-appearance: -moz-window-button-close;
+    background-image: url(chrome://messenger/skin/window-controls/close.svg);
   }
 
-  & > .toolbarbutton-icon {
-    display: inline-flex;
-    padding: 3px;
-    -moz-context-properties: stroke;
-    stroke: currentColor;
+  &:hover > .toolbarbutton-icon {
+    background-color: #d70022;
+    color: white;
   }
-}
 
-.titlebar-close:-moz-lwtheme:hover {
-  background-color: #d70022;
-  color: white;
-
-  &:active {
+  &:hover:active > .toolbarbutton-icon {
     background-color: #ff0039;
   }
-}
 
-@media not (-moz-gtk-csd-minimize-button) {
-  .titlebar-min {
+  @media not (-moz-gtk-csd-close-button) {
     display: none;
-  }
-}
-@media not (-moz-gtk-csd-maximize-button) {
-  .titlebar-restore,
-  .titlebar-max {
-    display: none;
-  }
-}
-@media not (-moz-gtk-csd-close-button) {
-  .titlebar-close {
-    display: none;
-  }
-}
-
-@media (-moz-gtk-csd-reversed-placement) {
-  .titlebar-buttonbox-container {
-    margin-inline-start: 6px;
   }
 }
 
