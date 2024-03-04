@@ -33,6 +33,7 @@ commandController.registerCallback("cmd_displayContact", function (card) {
     return;
   }
 
+  cardsPane.searchInput._clearSearch();
   booksList.selectedIndex = booksList.getIndexForUID(card.directoryUID);
   cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
     card.UID
@@ -48,6 +49,7 @@ commandController.registerCallback("cmd_editContact", function (card) {
     return;
   }
 
+  cardsPane.searchInput._clearSearch();
   booksList.selectedIndex = booksList.getIndexForUID(card.directoryUID);
   cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
     card.UID
