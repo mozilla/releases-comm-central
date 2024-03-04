@@ -870,10 +870,8 @@ pref("mail.main_menu.collapse_by_default", true);
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
 
-#ifdef NIGHTLY_BUILD
 // See bug 1572568 for details. Disallow eval() with system principal.
 pref("security.allow_eval_with_system_principal", false);
-#endif
 
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
