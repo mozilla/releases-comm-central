@@ -3121,7 +3121,6 @@ dependencies = [
  "mach2",
  "memoffset 0.8.999",
  "mozannotation_client",
- "nsstring",
  "thin-vec",
  "thiserror",
  "winapi",
