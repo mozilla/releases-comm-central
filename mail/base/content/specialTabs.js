@@ -825,6 +825,11 @@ var specialTabs = {
 
       if (aArgs.skipLoad) {
         clone.querySelector("browser").setAttribute("nodefaultsrc", "true");
+        // If a new tab is opened via a click on a link with target="_blank", we
+        // get here via createContentWindowInFrame(). The remoteness must be set
+        // before aTab.panel.appendChild(clone), otherwise the browser will get
+        // a docShell, which runs into a MOZ_ASSERT later (see Bug 1770105).
+        aTab.browser.setAttribute("remote", "true");
       }
       if (aArgs.userContextId) {
         aTab.browser.setAttribute("usercontextid", aArgs.userContextId);

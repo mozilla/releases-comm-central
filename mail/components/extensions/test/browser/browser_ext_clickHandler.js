@@ -404,7 +404,7 @@ add_task(async function test_tabs() {
     "single-site",
     () => document.getElementById("tabmail").currentTabInfo.browser
   );
-}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
+});
 
 add_task(async function test_windows() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -488,7 +488,7 @@ add_task(async function test_windows() {
     "single-site",
     () => Services.wm.getMostRecentWindow("mail:extensionPopup").browser
   );
-}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
+});
 
 add_task(async function test_mail3pane() {
   const account = createAccount();
@@ -582,7 +582,7 @@ add_task(async function test_mail3pane() {
     "single-page",
     () => document.getElementById("tabmail").currentTabInfo.browser
   );
-}).skip(AppConstants.DEBUG); // Disabled until Bug 1770105 is fully fixed.
+});
 
 // This is actually not an extension test, but everything we need is here already
 // and we only want to simulate a click on a link in a message.
