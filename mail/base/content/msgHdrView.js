@@ -137,6 +137,7 @@ const gExpandedHeaderList = [
   { name: "message-id", outputFunction: outputMessageIds, hidden: true },
   { name: "content-base" },
   { name: "tags", outputFunction: outputTags },
+  { name: "list-id" },
   { name: "list-help", outputFunction: outputMultiURL, hidden: true },
   { name: "list-unsubscribe", outputFunction: outputMultiURL, hidden: true },
   { name: "list-subscribe", outputFunction: outputMultiURL, hidden: true },
@@ -2940,6 +2941,51 @@ const gMessageHeader = {
     popup.openPopupAtScreen(event.screenX, event.screenY, true);
   },
 
+  /**
+   * Show context menu for given <div is="list-id-header-row">.
+   *
+   * @param {Element} element - The {ListIdHeaderRow} element this is for.
+   * @param {number} screenX - Where to show it, x.
+   * @param {number} screenY - Where to show it, y.
+   */
+  async openListIdPopup(element, screenX, screenY) {
+    document
+      .getElementById("listIdPlaceHolder")
+      .setAttribute(
+        "label",
+        element.value.textContent.replace(/.*<([^>]+)>.*/, "$1")
+      );
+
+    const popup = document.getElementById("listIdPopup");
+    popup.headerField = element;
+    for (const menu of popup.children) {
+      if (!menu.dataset.headerName) {
+        continue;
+      }
+      menu.hidden = !(menu.dataset.headerName in currentHeaderData);
+      if (!menu.hidden) {
+        let value = currentHeaderData[menu.dataset.headerName].headerValue;
+        // Prefer mailto: if that's available.
+        value = value.replace(/.*(<mailto:[^>]+>).*/, "$1");
+        if (menu.dataset.headerName == "list-post") {
+          // See https://datatracker.ietf.org/doc/html/rfc2369#section-3.4
+          // The list many not allow posting, e.g. an announcments list.
+          menu.disabled = value.includes("NO");
+        }
+        menu.setAttribute(
+          "value",
+          encodeURI(value.replace(/\s*<([^>]+)>.*/, "$1"))
+        );
+      }
+    }
+
+    if (!screenX) {
+      popup.openPopup(element, "after_start", 0, 0, true);
+      return;
+    }
+    popup.openPopupAtScreen(screenX, screenY, true);
+  },
+
   openMessageIdPopup(event, element) {
     document
       .getElementById("messageIdContext-messageIdTarget")
@@ -3198,7 +3244,27 @@ const gMessageHeader = {
       element.matches("a") ? element.href : element.value.textContent
     );
   },
+
+  openListURL(event) {
+    const url = event.target.value;
+    if (url.startsWith("mailto:")) {
+      top.composeEmailTo(url, MailUtils.getIdentityForHeader(gMessage));
+      return;
+    }
+    openUILink(url, event);
+  },
 };
+window.addEventListener(
+  "openListId",
+  async event => {
+    await gMessageHeader.openListIdPopup(
+      event.target,
+      event.detail.screenX,
+      event.detail.screenY
+    );
+  },
+  true
+);
 
 function MarkSelectedMessagesRead(markRead) {
   ClearPendingReadTimer();

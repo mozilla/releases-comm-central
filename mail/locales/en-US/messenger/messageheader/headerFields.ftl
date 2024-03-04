@@ -22,6 +22,8 @@ message-header-followup-to-list-name = Followup to
 
 message-header-tags-list-name = Tags
 
+message-header-list-id = List-ID
+
 message-header-list-help = List-Help
 
 message-header-list-unsubscribe = List-Unsubscribe
@@ -55,6 +57,8 @@ message-header-in-reply-to-field = In reply to<span data-l10n-name="field-separa
 
 message-header-website-field = Website<span data-l10n-name="field-separator">:</span>
 
+message-header-list-id-field = List-ID<span data-l10n-name="field-separator">:</span>
+
 message-header-list-help-field = List-Help<span data-l10n-name="field-separator">:</span>
 
 message-header-list-unsubscribe-field = List-Unsubscribe<span data-l10n-name="field-separator">:</span>
@@ -66,6 +70,30 @@ message-header-list-post-field = List-Post<span data-l10n-name="field-separator"
 message-header-list-owner-field = List-Owner<span data-l10n-name="field-separator">:</span>
 
 message-header-list-archive-field = List-Archive<span data-l10n-name="field-separator">:</span>
+
+list-id-context-list-help =
+  .label = Get Help
+  .accesskey = H
+
+list-id-list-unsubscribe =
+  .label = Unsubscribe…
+  .accesskey = U
+
+list-id-list-subscribe =
+  .label = Subscribe…
+  .accesskey = S
+
+list-id-list-post =
+  .label = Write
+  .accesskey = W
+
+list-id-list-owner =
+  .label = Contact Administrator…
+  .accesskey = C
+
+list-id-list-archive =
+  .label = List Archives
+  .accesskey = A
 
 # An additional email header field that the user has chosen to display. Unlike
 # the other headers, the name of this header is not expected to be localised

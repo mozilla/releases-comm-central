@@ -2066,23 +2066,15 @@ function getEmail(url) {
 /**
  * Begins composing an email to the address from the given mailto: URL.
  *
- * @param {string} linkURL
+ * @param {string} linkURL - mailto: link to use.
  * @param {nsIMsgIdentity} [identity] - The identity to use, otherwise the
  *   default identity is used.
  */
 function composeEmailTo(linkURL, identity) {
-  const fields = Cc[
-    "@mozilla.org/messengercompose/composefields;1"
-  ].createInstance(Ci.nsIMsgCompFields);
-  const params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-  fields.to = getEmail(linkURL);
-  params.type = Ci.nsIMsgCompType.New;
-  params.format = Ci.nsIMsgCompFormat.Default;
+  const uri = Services.io.newURI(linkURL);
+  const params = MailServices.compose.getParamsForMailto(uri);
   if (identity) {
     params.identity = identity;
   }
-  params.composeFields = fields;
   MailServices.compose.OpenComposeWindowWithParams(null, params);
 }

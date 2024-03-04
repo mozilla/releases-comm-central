@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gMessageHeader, gShowCondensedEmailAddresses */
+/* global gMessageHeader, gShowCondensedEmailAddresses, gMessage */
 
 {
   const { MailServices } = ChromeUtils.import(
@@ -19,6 +19,11 @@
     lazy,
     "TagUtils",
     "resource:///modules/TagUtils.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    lazy,
+    "MailUtils",
+    "resource:///modules/MailUtils.jsm"
   );
   const { openUILink } = ChromeUtils.importESModule(
     "resource:///modules/LinkHelper.sys.mjs"
@@ -589,19 +594,12 @@
   });
 
   class SimpleHeaderRow extends HTMLDivElement {
-    constructor() {
-      super();
-
-      this.addEventListener("contextmenu", event => {
-        gMessageHeader.openCopyPopup(event, this);
-      });
-    }
-
     connectedCallback() {
       if (this.hasConnected) {
         return;
       }
       this.hasConnected = true;
+      this.addEventListener("contextmenu", this);
 
       this.setAttribute("is", "simple-header-row");
       this.heading = document.createElement("span");
@@ -611,7 +609,18 @@
       sep.classList.add("screen-reader-only");
       sep.setAttribute("data-l10n-name", "field-separator");
       this.heading.appendChild(sep);
+      this.localizeHeading();
 
+      this.appendChild(this.heading);
+
+      this.classList.add("header-row");
+      this.tabIndex = 0;
+
+      this.value = document.createElement("span");
+      this.appendChild(this.value);
+    }
+
+    localizeHeading() {
       if (
         ["organization", "subject", "date", "user-agent"].includes(
           this.dataset.headerName
@@ -636,13 +645,12 @@
           }
         );
       }
-      this.appendChild(this.heading);
+    }
 
-      this.classList.add("header-row");
-      this.tabIndex = 0;
-
-      this.value = document.createElement("span");
-      this.appendChild(this.value);
+    handleEvent(event) {
+      if (event.type == "contextmenu") {
+        gMessageHeader.openCopyPopup(event, this);
+      }
     }
 
     /**
@@ -669,6 +677,43 @@
     }
   }
   customElements.define("simple-header-row", SimpleHeaderRow, {
+    extends: "div",
+  });
+
+  /**
+   * A row giving special functionality to the List-ID header.
+   */
+  class ListIdHeaderRow extends SimpleHeaderRow {
+    localizeHeading() {
+      document.l10n.setAttributes(this.heading, `message-header-list-id-field`);
+    }
+
+    connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      super.connectedCallback();
+      this.hasConnected = true;
+
+      this.addEventListener("click", this);
+      this.addEventListener("keypress", this);
+    }
+
+    handleEvent(event) {
+      if (
+        event.type == "contextmenu" ||
+        event.type == "click" ||
+        (event.type == "keypress" && event.key == "Enter")
+      ) {
+        this.dispatchEvent(
+          new CustomEvent("openListId", {
+            detail: { screenX: event.screenX, screenY: event.screenY },
+          })
+        );
+      }
+    }
+  }
+  customElements.define("list-id-header-row", ListIdHeaderRow, {
     extends: "div",
   });
 
@@ -804,6 +849,14 @@
         (event.type == "click" && event.button != 2) ||
         (event.type == "keydown" && event.key == "Enter")
       ) {
+        event.preventDefault();
+        if (event.target.href.startsWith("mailto:")) {
+          top.composeEmailTo(
+            event.target.href,
+            lazy.MailUtils.getIdentityForHeader(gMessage)
+          );
+          return;
+        }
         openUILink(event.target.href, event);
         return;
       }

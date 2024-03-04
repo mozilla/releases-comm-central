@@ -742,6 +742,111 @@ add_task(async function test_add_contact_from_context_menu() {
   Assert.ok(!editContactItem.hidden, "editContactItem is not hidden");
 });
 
+/**
+ * Test that clicking the <List-ID> header works as it should.
+ */
+add_task(async function test_add_contact_from_context_menu() {
+  // Add a new message.
+  const msg = create_message({
+    clobberHeaders: {
+      "List-ID": "Cats <gocats.example.test>",
+      "List-Help": "<https://example.test/lists/gocats/help>",
+      "List-Unsubscribe":
+        "<https://example.test/lists/gocats/unssubscribe>, <mailto:gocats+unsubscribe@example.test?subject=x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s>",
+      "List-Subscribe": "<https://example.test/lists/gocats/subscribe>",
+      "List-Post": "<https://example.test/lists/gocats/post>",
+      "List-Owner":
+        "<mailto:gocats+owner@example.test?subject=gocats-list>, <https://example.test/lists/gocats/owner>",
+      "List-Archive": "<https://example.test/lists/gocats/archive>",
+    },
+  });
+  await add_message_to_folder([folder], msg);
+  await be_in_folder(folder);
+
+  // Open the latest message.
+  await select_click_row(0);
+
+  // Right click to show the context menu.
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.querySelector("#expandedlist-idBox"),
+    { type: "contextmenu" },
+    aboutMessage
+  );
+  const listIdPopup = aboutMessage.document.getElementById("listIdPopup");
+  await wait_for_popup_to_open(
+    aboutMessage.document.getElementById("listIdPopup")
+  );
+
+  const listIdPlaceHolder =
+    aboutMessage.document.getElementById("listIdPlaceHolder");
+  Assert.equal(listIdPlaceHolder.hidden, false, "list-id should show");
+  Assert.equal(
+    listIdPlaceHolder.label,
+    "gocats.example.test",
+    "list-id ctx label should be correct"
+  );
+
+  const listIdListHelp = aboutMessage.document.getElementById("listIdListHelp");
+  Assert.equal(listIdListHelp.hidden, false, "list-help should show");
+  Assert.equal(
+    listIdListHelp.value,
+    "https://example.test/lists/gocats/help",
+    "list-help ctx value should be correct"
+  );
+
+  const listIdListUnsubscribe = aboutMessage.document.getElementById(
+    "listIdListUnsubscribe"
+  );
+  Assert.equal(
+    listIdListUnsubscribe.hidden,
+    false,
+    "list-unsubscribe should show"
+  );
+  Assert.equal(
+    listIdListUnsubscribe.value,
+    "mailto:gocats+unsubscribe@example.test?subject=x-tx-unsubscribe:2:thunderbird:fb10d204-8f3f-11eb-aa0e-32e0282d11b0:76d38cd0-e766-11e8-8e55-99e8122d11b0:Mc33789033c0aab1c5028308e:1:RAHZjXgrMOtgzIOraQB0jR5Cg58VHiMb2gSuzCZBy_s",
+    "list-unsubscribe ctx value should be correct"
+  );
+
+  const listIdListSubscribe = aboutMessage.document.getElementById(
+    "listIdListSubscribe"
+  );
+  Assert.equal(listIdListSubscribe.hidden, false, "list-subscribe should show");
+  Assert.equal(
+    listIdListSubscribe.value,
+    "https://example.test/lists/gocats/subscribe",
+    "list-subscribe ctx value should be correct"
+  );
+
+  const listIdListPost = aboutMessage.document.getElementById("listIdListPost");
+  Assert.equal(listIdListPost.hidden, false, "list-post should show");
+  Assert.equal(
+    listIdListPost.value,
+    "https://example.test/lists/gocats/post",
+    "list-post ctx value should be correct"
+  );
+
+  const listIdListOwner =
+    aboutMessage.document.getElementById("listIdListOwner");
+  Assert.equal(listIdListOwner.hidden, false, "list-owner should show");
+  Assert.equal(
+    listIdListOwner.value,
+    "mailto:gocats+owner@example.test?subject=gocats-list",
+    "list-owner ctx value should be correct"
+  );
+
+  const listIdListArchive =
+    aboutMessage.document.getElementById("listIdListArchive");
+  Assert.equal(listIdListArchive.hidden, false, "list-archive should show");
+  Assert.equal(
+    listIdListArchive.value,
+    "https://example.test/lists/gocats/archive",
+    "list-archive ctx value should be correct"
+  );
+
+  await close_popup(window, listIdPopup);
+});
+
 add_task(async function test_that_msg_without_date_clears_previous_headers() {
   await be_in_folder(folder);
 

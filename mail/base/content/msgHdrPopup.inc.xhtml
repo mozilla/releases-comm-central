@@ -148,6 +148,34 @@
               oncommand="gMessageHeader.copyWebsiteUrl(event);"/>
   </menupopup>
 
+  <menupopup id="listIdPopup"
+             position="after_start"
+             class="no-icon-menupopup"
+             oncommand="gMessageHeader.openListURL(event);">
+    <menuitem id="listIdPlaceHolder"
+              class="menuitem-iconic"
+              disabled="true"/>
+    <menuseparator/>
+    <menuitem id="listIdListHelp" data-l10n-id="list-id-context-list-help"
+              data-header-name="list-help"
+              class="menuitem-iconic"/>
+    <menuitem id="listIdListUnsubscribe" data-l10n-id="list-id-list-unsubscribe"
+              data-header-name="list-unsubscribe"
+              class="menuitem-iconic"/>
+    <menuitem id="listIdListSubscribe" data-l10n-id="list-id-list-subscribe"
+              data-header-name="list-subscribe"
+              class="menuitem-iconic"/>
+    <menuitem id="listIdListPost" data-l10n-id="list-id-list-post"
+              data-header-name="list-post"
+              class="menuitem-iconic"/>
+    <menuitem id="listIdListOwner" data-l10n-id="list-id-list-owner"
+              data-header-name="list-owner"
+              class="menuitem-iconic"/>
+    <menuitem id="listIdListArchive" data-l10n-id="list-id-list-archive"
+              data-header-name="list-archive"
+              class="menuitem-iconic"/>
+  </menupopup>
+
   <menupopup id="simpleCopyPopup" class="no-icon-menupopup">
     <menuitem id="copyMenuitem"
               data-l10n-id="text-action-copy"
