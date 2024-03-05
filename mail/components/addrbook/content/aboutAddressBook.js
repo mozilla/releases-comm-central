@@ -2893,8 +2893,8 @@ var detailsPane = {
     }
 
     // Remove these elements from (or add them back to) the tab focus cycle.
-    for (const id of ["books", "searchInput", "displayButton", "cardsBody"]) {
-      document.getElementById(id).tabIndex = editing ? -1 : 0;
+    for (const id of ["booksPane", "cardsPane"]) {
+      document.getElementById(id).inert = editing;
     }
 
     if (editing) {

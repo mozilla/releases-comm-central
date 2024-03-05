@@ -412,9 +412,8 @@ add_task(async function roving_multi_message_buttons() {
   );
   const headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
 
-  // Press tab twice while on the message selected to access the multi message
-  // view header buttons.
-  EventUtils.synthesizeKey("KEY_Tab", {});
+  // Press tab while on the message selected to access the multi message view
+  // header buttons.
   EventUtils.synthesizeKey("KEY_Tab", {});
   Assert.equal(
     headerButtons[0].id,

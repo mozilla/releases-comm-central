@@ -868,25 +868,41 @@ add_task(async function test_basic_edit() {
   // Check that pressing Tab can't get us stuck on an element that shouldn't
   // have focus.
 
-  abDocument.documentElement.focus();
+  const firstNameField = abDocument.getElementById("vcard-n-firstname");
+  Assert.equal(
+    document.activeElement,
+    abWindow.browsingContext.topFrameElement,
+    "address book frame should have focus"
+  );
   Assert.equal(
     abDocument.activeElement,
-    abDocument.documentElement,
-    "focus should be on the root element"
+    firstNameField,
+    "first name field should be focused"
   );
-  EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
-  Assert.ok(
-    abDocument
-      .getElementById("editContactForm")
-      .contains(abDocument.activeElement),
-    "focus should be on the editing form"
-  );
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, abWindow);
-  Assert.equal(
-    abDocument.activeElement,
-    abDocument.documentElement,
-    "focus should be on the root element again"
-  );
+
+  for (let loops = 0; loops < 100; loops++) {
+    EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
+    if (!abDocument.activeElement.closest("#detailsPane")) {
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        "focus escaped the details pane!"
+      );
+      break;
+    }
+    if (abDocument.activeElement == firstNameField) {
+      break;
+    }
+  }
+  if (abDocument.activeElement != firstNameField) {
+    Assert.report(
+      true,
+      undefined,
+      undefined,
+      "focus cycle never returned to the first name field"
+    );
+  }
 
   // Check that clicking outside the form doesn't steal focus.
 
