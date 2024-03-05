@@ -5,8 +5,6 @@
 
 #include "nsMsgComposeService.h"
 #include "nsIMsgSend.h"
-#include "nsIServiceManager.h"
-#include "nsIObserverService.h"
 #include "nsIMsgIdentity.h"
 #include "nsISmtpUrl.h"
 #include "nsIURI.h"
@@ -24,8 +22,6 @@
 #include "nsIAppWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIDocShellTreeItem.h"
-#include "nsIDocShellTreeOwner.h"
-#include "nsIBaseWindow.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIMsgAccountManager.h"
@@ -36,17 +32,13 @@
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsIDocumentEncoder.h"
-#include "nsContentCID.h"
 #include "mozilla/dom/Selection.h"
-#include "nsUTF8Utils.h"
 #include "mozilla/intl/LineBreaker.h"
 #include "mimemoz2.h"
 #include "nsIURIMutator.h"
 #include "mozilla/dom/Element.h"
-#include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
-#include "nsUnicharUtils.h"
 #include "mozilla/NullPrincipal.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
@@ -57,7 +49,6 @@
 #endif
 
 #include "nsICommandLine.h"
-#include "nsIAppStartup.h"
 #include "nsMsgUtils.h"
 #include "nsIPrincipal.h"
 #include "nsIMutableArray.h"
