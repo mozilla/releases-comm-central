@@ -301,6 +301,67 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
   );
 });
 
+add_task(async function testRejectImportUnsupportedKeys() {
+  // No password was set on the secret key files.
+  const secBlockV5 = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/alice-v5-sec.asc`).path
+  );
+
+  const cancelPassword = function (win, keyId, resultFlags) {
+    resultFlags.canceled = true;
+    return "";
+  };
+
+  let importResult = await RNP.importSecKeyBlockImpl(
+    null,
+    cancelPassword,
+    false,
+    secBlockV5
+  );
+
+  Assert.equal(importResult.exitCode, -1, "should reject sec v5 key");
+
+  const pubBlockV5 = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/alice-v5-pub.asc`).path
+  );
+
+  importResult = await RNP.importPubkeyBlockAutoAcceptImpl(
+    null,
+    pubBlockV5,
+    null // acceptance
+  );
+
+  Assert.equal(importResult.exitCode, -1, "should reject pub v5 key");
+
+  const alice448 = await RNP.findKeyByEmail("<alice-448@example.com>", false);
+  Assert.ok(!alice448);
+
+  const secBlockV6 = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/pgp-v6-sec.asc`).path
+  );
+
+  importResult = await RNP.importSecKeyBlockImpl(
+    null,
+    cancelPassword,
+    false,
+    secBlockV6
+  );
+
+  Assert.equal(importResult.exitCode, -1, "should reject sec v6 key");
+
+  const pubBlockV6 = await IOUtils.readUTF8(
+    do_get_file(`${keyDir}/pgp-v6-pub.asc`).path
+  );
+
+  importResult = await RNP.importPubkeyBlockAutoAcceptImpl(
+    null,
+    pubBlockV6,
+    null // acceptance
+  );
+
+  Assert.equal(importResult.exitCode, -1, "should reject pub v6 key");
+});
+
 // If we an existing public key, with multiple subkeys, and then we
 // import the secret key, but one of the existing public subkeys is
 // missing, test that we don't fail to import (bug 1795698).
