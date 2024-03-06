@@ -2887,6 +2887,24 @@ var RNP = {
       passwords: [],
     };
 
+    // Abort if we see keys that we don't support.
+    // TODO: In the future, the decision whether a key is supported
+    // should be based on the result of an API call that queries the
+    // version of the key. As of today, the newest version we support is
+    // v4 with a fingerprint length of 40 characters. All newer
+    // specifications known at the time of writing this code use longer
+    // fingerprints.
+    for (const k of keys) {
+      if (k.fpr.length > 40) {
+        RNPLib.rnp_ffi_destroy(tempFFI);
+        console.log(
+          `Cannot import OpenPGP key with fingerprint ${k.fpr} because it is based on an unsupported specification.`
+        );
+        result.errorMsg = `Found unsupported key: ${k.fpr}`;
+        return result;
+      }
+    }
+
     // Prior to importing, ensure the user is able to unlock all keys
 
     // If anything goes wrong during our attempt to unlock keys,
@@ -2895,7 +2913,6 @@ var RNP = {
     // unlock passphrase, temporarily in memory, and we'll minimize
     // the period of time during which the key remains unprotected.
     const secretKeyTrackers = new Map();
-
     let unableToUnlockId = null;
 
     for (const k of keys) {
