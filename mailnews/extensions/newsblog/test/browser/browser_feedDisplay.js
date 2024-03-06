@@ -126,7 +126,11 @@ add_task(async () => {
 
   about3Pane.displayFolder(folder.URI);
   index = folderTree.selectedIndex;
-  Assert.equal(about3Pane.threadTree.view.rowCount, 1);
+  Assert.equal(threadTree.view.rowCount, 1);
+  await TestUtils.waitForCondition(
+    () => threadTree.table.body.childElementCount == 1,
+    "waiting for rows to load in the thread tree"
+  );
 
   // Description mode.
 

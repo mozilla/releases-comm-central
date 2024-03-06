@@ -45,6 +45,11 @@ class TreeView extends HTMLElement {
   }
 
   /**
+   * @type {ResizeObserver}
+   */
+  #resizeObserver = null;
+
+  /**
    * Index of the first row that exists in the DOM. Includes rows in the
    * tolerance buffer if they have been added.
    *
@@ -146,14 +151,12 @@ class TreeView extends HTMLElement {
    * Determine the height of the visible row area, excluding any chrome which
    * covers elements.
    *
-   * WARNING: This may cause synchronous reflow if used after modifying the DOM.
-   *
    * @returns {integer} - The height of the area into which visible rows are
    *   rendered.
    */
   #calculateVisibleHeight() {
     // Account for the table header height in a sticky position above the body.
-    return this.clientHeight - this.table.header.clientHeight;
+    return this._height - this.table.header._height;
   }
 
   /**
@@ -188,11 +191,14 @@ class TreeView extends HTMLElement {
 
     this.addEventListener("scroll", this);
 
-    let lastHeight = 0;
-    this.resizeObserver = new ResizeObserver(entries => {
+    this._height = this.clientHeight;
+    this.#resizeObserver = new ResizeObserver(entries => {
+      const previousHeight = this._height;
+      this._height = this.clientHeight;
+
       // The width of the table isn't important to virtualizing the table. Skip
       // updating if the height hasn't changed.
-      if (this.clientHeight == lastHeight) {
+      if (this._height == previousHeight) {
         this.#dispatchRowBufferReadyEvent();
         return;
       }
@@ -208,20 +214,18 @@ class TreeView extends HTMLElement {
 
       // There's not much point in reducing the number of rows on resize. Scroll
       // height remains the same and we can retain the extra rows in the buffer.
-      if (this.clientHeight > lastHeight) {
+      if (this._height > previousHeight) {
         this._ensureVisibleRowsAreDisplayed();
       } else {
         this.#dispatchRowBufferReadyEvent();
       }
-
-      lastHeight = this.clientHeight;
     });
-    this.resizeObserver.observe(this);
+    this.#resizeObserver.observe(this);
   }
 
   disconnectedCallback() {
     this.#resetRowBuffer();
-    this.resizeObserver.disconnect();
+    this.#resizeObserver.disconnect();
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
@@ -1825,6 +1829,11 @@ customElements.define("tree-view-table", TreeViewTable, { extends: "table" });
  */
 class TreeViewTableHeader extends HTMLTableSectionElement {
   /**
+   * @type {ResizeObserver}
+   */
+  #resizeObserver = null;
+
+  /**
    * An array of all table header cells that can be reordered.
    *
    * @returns {HTMLTableCellElement[]}
@@ -1863,6 +1872,18 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     this.addEventListener("dragover", this);
     this.addEventListener("dragend", this);
     this.addEventListener("drop", this);
+
+    // Watch and remember the height of the header so we don't have to fetch
+    // it every time TreeView's visible height calculation runs.
+    this._height = this.clientHeight;
+    this.#resizeObserver = new ResizeObserver(entries => {
+      this._height = this.clientHeight;
+    });
+    this.#resizeObserver.observe(this);
+  }
+
+  disconnectedCallback() {
+    this.#resizeObserver.disconnect();
   }
 
   handleEvent(event) {
