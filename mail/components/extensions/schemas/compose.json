@@ -395,7 +395,7 @@
               "mode": {
                 "type": "string",
                 "description": "The used save mode.",
-                "enum": ["draft", "template"]
+                "enum": ["autoSave", "draft", "template"]
               },
               "error": {
                 "type": "string",

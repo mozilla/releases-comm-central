@@ -1097,6 +1097,7 @@ var afterSaveSendEventTracker = {
 
     const modes = new Map([
       [Ci.nsIMsgCompDeliverMode.SaveAsDraft, "draft"],
+      [Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft, "autoSave"],
       [Ci.nsIMsgCompDeliverMode.SaveAsTemplate, "template"],
       [Ci.nsIMsgCompDeliverMode.Now, "sendNow"],
       [Ci.nsIMsgCompDeliverMode.Later, "sendLater"],
@@ -1350,7 +1351,7 @@ this.compose = class extends ExtensionAPIPersistent {
             error: exception.message,
           });
         },
-        modes: ["draft", "template"],
+        modes: ["autoSave", "draft", "template"],
         extension,
       };
       afterSaveSendEventTracker.addListener(listener);
