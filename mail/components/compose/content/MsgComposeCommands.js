@@ -1668,22 +1668,48 @@ function updateComposeItems() {
  *   items to the state stored before disabling them.
  */
 function updateAllItems(disable) {
+  function isDisabled(i) {
+    return i.hasAttribute("disabled") && i.getAttribute("disabled") !== "false";
+  }
+
   for (const item of document.querySelectorAll(
     "menu, toolbarbutton, [command], [oncommand]"
   )) {
     if (disable) {
-      // Disable all items
-      item.setAttribute("stateBeforeSend", item.getAttribute("disabled"));
-      item.setAttribute("disabled", "disabled");
-    } else {
-      // Restore initial state
-      const stateBeforeSend = item.getAttribute("stateBeforeSend");
-      if (stateBeforeSend == "disabled" || stateBeforeSend == "true") {
-        item.setAttribute("disabled", stateBeforeSend);
-      } else {
-        item.removeAttribute("disabled");
+      if (item.hasAttribute("disabledForSend")) {
+        // The disabledForSend attribute is already set. This may be caused by:
+        // * multiple calls of updateAllItems(true)
+        // * a command item which is linked to *this* item was already updated
+        //   and implicitly updated *this* item already.
+        // In both cases we should not touch this item.
+        continue;
       }
-      item.removeAttribute("stateBeforeSend");
+
+      if (isDisabled(item)) {
+        // This item is already disabled, do not touch it.
+        continue;
+      }
+
+      if (AppConstants.platform === "macosx" && item.id == "helpMenu") {
+        // For some unknown reason, the help menu on macOS cannot be enabled anymore
+        // and also affects the help menu in the messenger window. Since all its
+        // menuitems still get disabled, the help menu itself is temporarily
+        // excluded (see Bug 1883647).
+        continue;
+      }
+
+      // Disable.
+      item.setAttribute("disabled", "true");
+      item.setAttribute("disabledForSend", "true");
+    } else {
+      if (!item.hasAttribute("disabledForSend")) {
+        // This item was not disabled by us, do not touch it.
+        continue;
+      }
+
+      // Restore initial state.
+      item.removeAttribute("disabled");
+      item.removeAttribute("disabledForSend");
     }
   }
 }

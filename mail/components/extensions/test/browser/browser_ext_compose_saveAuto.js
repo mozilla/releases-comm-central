@@ -130,8 +130,7 @@ add_task(async function test_compose_action_status_after_save() {
         browser.compose.onAfterSave.addListener(listener);
       });
 
-      // This will be enabled in Bug 1862405.
-      // await window.sendMessage("checkStatus", tab.windowId);
+      await window.sendMessage("checkStatus", tab.windowId);
       await browser.tabs.remove(tab.id);
 
       // Remove all saved messages.
