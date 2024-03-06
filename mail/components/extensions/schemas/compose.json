@@ -289,8 +289,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of a custom header, must have a <value>X-</value> prefix.",
-            "pattern": "^X-.*$"
+            "description": "Name of a custom header, must be prefixed by <value>X-</value> (but not by <value>X-Mozilla-</value>) or be one of the explicitly allowed headers (<value>MSIP_Labels</value>)"
           },
           "value": {
             "type": "string"

@@ -674,6 +674,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-TEST3", value: "this is header #3" },
         { name: "X-TEST4", value: "this is header #4" },
         { name: "X-EXPEDITEUR", value: "this is expediteur" },
+        { name: "MSIP_Labels", value: "this is a MSIP label" },
       ];
       await browser.compose.setComposeDetails(tab.id, { customHeaders });
       expectedHeaders = [
@@ -682,6 +683,7 @@ add_task(async function testCustomHeaders() {
         { name: "X-Test3", value: "this is header #3" },
         { name: "X-Test4", value: "this is header #4" },
         { name: "X-Expediteur", value: "this is expediteur" },
+        { name: "Msip_Labels", value: "this is a MSIP label" },
       ];
       await checkCustomHeaders(tab, expectedHeaders);
 
@@ -706,12 +708,27 @@ add_task(async function testCustomHeaders() {
       await checkCustomHeaders(tab, []);
 
       // Should throw for invalid custom headers.
-      customHeaders = [
-        { name: "TEST2", value: "this is an invalid custom header" },
-      ];
-      await browser.test.assertThrows(
-        () => browser.compose.setComposeDetails(tab.id, { customHeaders }),
-        'Type error for parameter details (Error processing customHeaders.0.name: String "TEST2" must match /^X-.*$/) for compose.setComposeDetails.',
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(tab.id, {
+          customHeaders: [
+            { name: "TEST2", value: "this is an invalid custom header" },
+          ],
+        }),
+        /Invalid custom header: TEST2/,
+        "Should throw for invalid custom headers"
+      );
+
+      // Should throw for internal mozilla headers.
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(tab.id, {
+          customHeaders: [
+            {
+              name: "X-Mozilla-Status",
+              value: "this is an invalid Mozilla header",
+            },
+          ],
+        }),
+        /Invalid custom header: X-Mozilla-Status/,
         "Should throw for invalid custom headers"
       );
 

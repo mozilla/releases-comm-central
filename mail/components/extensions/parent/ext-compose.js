@@ -289,6 +289,40 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   return composeWindow;
 }
 
+// List of explicitly allowed header names, which can be manipulated through
+// browser.compose.setComposeDetails({customHeaders}). Names must be given in
+// lowercase.
+const ALLOWED_CUSTOM_HEADER_NAMES = ["msip_labels"];
+
+/**
+ * Checks if the provided header name is an allowed custom header and returns it
+ * sanitized. It should start with X- (but not with X-Mozilla-) or be one of the
+ * explicitly allowed header names.
+ *
+ * @param {string} headerName - The header name to be checked.
+ * @returns {?string} The sanitized header name, or null if the header is invalid.
+ */
+function sanitizeCustomHeaderName(headerName) {
+  const sanitized = headerName.toLowerCase().trim();
+  if (
+    (sanitized.startsWith("x-") && !sanitized.startsWith("x-mozilla-")) ||
+    ALLOWED_CUSTOM_HEADER_NAMES.includes(sanitized)
+  ) {
+    return sanitized;
+  }
+  return null;
+}
+
+/**
+ * Sanitizes the provided header value.
+ *
+ * @param {string} headerValue - The header value to be sanitized
+ * @returns {string} The sanitized header value.
+ */
+function sanitizeCustomHeaderValue(headerValue) {
+  return headerValue.trim();
+}
+
 /**
  * Converts "\r\n" line breaks to "\n" and removes trailing line breaks.
  *
@@ -363,18 +397,21 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
-  const customHeaders = [...composeFields.headerNames]
-    .map(h => h.toLowerCase())
-    .filter(h => h.startsWith("x-"))
-    .map(h => {
-      return {
+  const customHeaders = [...composeFields.headerNames].flatMap(h => {
+    const sanitizedName = sanitizeCustomHeaderName(h);
+    if (!sanitizedName) {
+      return [];
+    }
+    return [
+      {
         // All-lower-case-names are ugly, so capitalize first letters.
-        name: h.replace(/(^|-)[a-z]/g, function (match) {
+        name: sanitizedName.replace(/(^|-|_)[a-z]/g, function (match) {
           return match.toUpperCase();
         }),
-        value: composeFields.getHeader(h),
-      };
-    });
+        value: sanitizeCustomHeaderValue(composeFields.getHeader(h)),
+      },
+    ];
+  });
 
   // We have two file carbon copy settings: fcc and fcc2. fcc allows to override
   // the default identity fcc and fcc2 is coupled to the UI selection.
@@ -502,6 +539,7 @@ async function setFromField(composeWindow, details, extension) {
  */
 async function setComposeDetails(composeWindow, details, extension) {
   const activeElement = composeWindow.document.activeElement;
+  const composeFields = composeWindow.gMsgCompose.compFields;
 
   // Check if conflicting formats have been specified.
   if (
@@ -566,19 +604,16 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   // Set file carbon copy values.
   if (details.overrideDefaultFcc === false) {
-    composeWindow.gMsgCompose.compFields.fcc = "";
+    composeFields.fcc = "";
   } else if (details.overrideDefaultFccFolder != null) {
     // Override identity fcc with enforced value.
     if (details.overrideDefaultFccFolder) {
       const { folder } = getFolder(details.overrideDefaultFccFolder);
-      composeWindow.gMsgCompose.compFields.fcc = folder.URI;
+      composeFields.fcc = folder.URI;
     } else {
-      composeWindow.gMsgCompose.compFields.fcc = "nocopy://";
+      composeFields.fcc = "nocopy://";
     }
-  } else if (
-    details.overrideDefaultFcc === true &&
-    composeWindow.gMsgCompose.compFields.fcc == ""
-  ) {
+  } else if (details.overrideDefaultFcc === true && composeFields.fcc == "") {
     throw new ExtensionError(
       `Setting overrideDefaultFcc to true requires setting overrideDefaultFccFolder as well`
     );
@@ -587,32 +622,45 @@ async function setComposeDetails(composeWindow, details, extension) {
   if (details.additionalFccFolder != null) {
     if (details.additionalFccFolder) {
       const { folder } = getFolder(details.additionalFccFolder);
-      composeWindow.gMsgCompose.compFields.fcc2 = folder.URI;
+      composeFields.fcc2 = folder.URI;
     } else {
-      composeWindow.gMsgCompose.compFields.fcc2 = "";
+      composeFields.fcc2 = "";
     }
   }
 
   // Update custom headers, if specified.
   if (details.customHeaders) {
     const customHeaders = new Map(
-      details.customHeaders.map(h => [
-        h.name.trim().toUpperCase(),
-        h.value.trim(),
-      ])
+      details.customHeaders.map(h => {
+        const sanitizedName = sanitizeCustomHeaderName(h.name);
+        if (!sanitizedName) {
+          throw new ExtensionError(
+            `Invalid custom header: ${
+              h.name
+            }. Name must be prefixed by "X-" (but not by "X-Mozilla-") or be one of the explicitly allowed headers (${ALLOWED_CUSTOM_HEADER_NAMES.join(
+              ", "
+            )})`
+          );
+        }
+        return [sanitizedName, sanitizeCustomHeaderValue(h.value)];
+      })
     );
+
     const obsoleteHeaderNames = new Set(
-      [...composeWindow.gMsgCompose.compFields.headerNames]
-        .map(h => h.trim().toUpperCase())
-        .filter(h => h.startsWith("X-") && !customHeaders.has(h))
+      [...composeFields.headerNames].flatMap(h => {
+        const sanitizedName = sanitizeCustomHeaderName(h);
+        return !sanitizedName || customHeaders.has(sanitizedName)
+          ? []
+          : [sanitizedName];
+      })
     );
 
     for (const headerName of obsoleteHeaderNames) {
-      composeWindow.gMsgCompose.compFields.deleteHeader(headerName);
+      composeFields.deleteHeader(headerName);
     }
 
     for (const [headerName, headerValue] of customHeaders) {
-      composeWindow.gMsgCompose.compFields.setHeader(headerName, headerValue);
+      composeFields.setHeader(headerName, headerValue);
     }
 
     // If we added or removed custom headers, which are also displayed in the UI,
@@ -621,7 +669,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     for (const row of composeWindow.document.querySelectorAll(
       ".address-row-raw"
     )) {
-      const recipientType = row.dataset.recipienttype.trim().toUpperCase();
+      const recipientType = row.dataset.recipienttype.trim().toLowerCase();
       if (customHeaders.has(recipientType)) {
         row.querySelector(".address-row-input").value =
           customHeaders.get(recipientType);
@@ -636,14 +684,12 @@ async function setComposeDetails(composeWindow, details, extension) {
   // need to validate here.
   if (details.priority) {
     if (details.priority == "normal") {
-      composeWindow.gMsgCompose.compFields.priority = "";
+      composeFields.priority = "";
     } else {
-      composeWindow.gMsgCompose.compFields.priority =
+      composeFields.priority =
         details.priority[0].toUpperCase() + details.priority.slice(1);
     }
-    composeWindow.updatePriorityToolbarButton(
-      composeWindow.gMsgCompose.compFields.priority
-    );
+    composeWindow.updatePriorityToolbarButton(composeFields.priority);
   }
 
   // Update receipt notifications.
@@ -653,8 +699,7 @@ async function setComposeDetails(composeWindow, details, extension) {
 
   if (
     details.deliveryStatusNotification != null &&
-    details.deliveryStatusNotification !=
-      composeWindow.gMsgCompose.compFields.DSN
+    details.deliveryStatusNotification != composeFields.DSN
   ) {
     const target = composeWindow.document.getElementById("dsnMenu");
     composeWindow.ToggleDSN(target);
@@ -665,14 +710,14 @@ async function setComposeDetails(composeWindow, details, extension) {
     // it is allowed to set ComposeDetails of an html composer onto a plain text
     // composer (and automatically pick the plainText body). The deliveryFormat
     // will be ignored.
-    composeWindow.gMsgCompose.compFields.deliveryFormat = deliveryFormats.find(
+    composeFields.deliveryFormat = deliveryFormats.find(
       f => f.value == details.deliveryFormat
     ).id;
     composeWindow.initSendFormatMenu();
   }
 
   if (details.attachVCard != null) {
-    composeWindow.gMsgCompose.compFields.attachVCard = details.attachVCard;
+    composeFields.attachVCard = details.attachVCard;
     composeWindow.gAttachVCardOptionChanged = true;
   }
 
