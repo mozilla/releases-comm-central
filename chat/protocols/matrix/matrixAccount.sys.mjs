@@ -41,6 +41,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
   OlmLib: "resource:///modules/matrix-sdk.sys.mjs",
   ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
+  Logger: "resource:///modules/matrixAccountLogger.sys.mjs",
 });
 
 /**
@@ -1873,6 +1874,7 @@ MatrixAccount.prototype = {
       },
       verificationMethods: [lazy.MatrixCrypto.verificationMethods.SAS],
       roomNameGenerator: getRoomName,
+      logger: new lazy.Logger(this, "matrix-js-sdk"),
     };
     return opts;
   },

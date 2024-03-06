@@ -14,6 +14,7 @@ EXTRA_JS_MODULES += [
     "matrix-sdk.sys.mjs",
     "matrix.sys.mjs",
     "matrixAccount.sys.mjs",
+    "matrixAccountLogger.sys.mjs",
     "matrixCommands.sys.mjs",
     "matrixMessageContent.sys.mjs",
     "matrixPowerLevels.sys.mjs",
