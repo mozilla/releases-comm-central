@@ -12,22 +12,22 @@ var _httpApi = require("../http-api");
 var _client = require("../client");
 var _typedEventEmitter = require("../models/typed-event-emitter");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 /**
  * Builds an EncryptionSetupOperation by calling any of the add.. methods.
  * Once done, `buildOperation()` can be called which allows to apply to operation.
@@ -179,7 +179,7 @@ class EncryptionSetupOperation {
       // We must only call `uploadDeviceSigningKeys` from inside this auth
       // helper to ensure we properly handle auth errors.
       await this.crossSigningKeys.authUpload?.(authDict => {
-        return baseApis.uploadDeviceSigningKeys(authDict, keys);
+        return baseApis.uploadDeviceSigningKeys(authDict ?? undefined, keys);
       });
 
       // pass the new keys to the main instance of our own CrossSigningInfo.
@@ -215,6 +215,8 @@ class EncryptionSetupOperation {
           prefix: _httpApi.ClientPrefix.V3
         });
       }
+      // tell the backup manager to re-check the keys now that they have been (maybe) updated
+      await crypto.backupManager.checkKeyBackup();
     }
   }
 }

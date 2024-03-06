@@ -48,11 +48,14 @@ var WidgetApiFromWidgetAction = /*#__PURE__*/function (WidgetApiFromWidgetAction
   WidgetApiFromWidgetAction["SendToDevice"] = "send_to_device";
   WidgetApiFromWidgetAction["WatchTurnServers"] = "watch_turn_servers";
   WidgetApiFromWidgetAction["UnwatchTurnServers"] = "unwatch_turn_servers";
+  WidgetApiFromWidgetAction["BeeperReadRoomAccountData"] = "com.beeper.read_room_account_data";
   WidgetApiFromWidgetAction["MSC2876ReadEvents"] = "org.matrix.msc2876.read_events";
   WidgetApiFromWidgetAction["MSC2931Navigate"] = "org.matrix.msc2931.navigate";
   WidgetApiFromWidgetAction["MSC2974RenegotiateCapabilities"] = "org.matrix.msc2974.request_capabilities";
   WidgetApiFromWidgetAction["MSC3869ReadRelations"] = "org.matrix.msc3869.read_relations";
   WidgetApiFromWidgetAction["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
+  WidgetApiFromWidgetAction["MSC4039GetMediaConfigAction"] = "org.matrix.msc4039.get_media_config";
+  WidgetApiFromWidgetAction["MSC4039UploadFileAction"] = "org.matrix.msc4039.upload_file";
   return WidgetApiFromWidgetAction;
 }({});
 exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction;

@@ -20,7 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let LocalStorageErrors = /*#__PURE__*/function (LocalStorageErrors) {
+let LocalStorageErrors = exports.LocalStorageErrors = /*#__PURE__*/function (LocalStorageErrors) {
   LocalStorageErrors["Global"] = "Global";
   LocalStorageErrors["SetItemError"] = "setItem";
   LocalStorageErrors["GetItemError"] = "getItem";
@@ -29,7 +29,6 @@ let LocalStorageErrors = /*#__PURE__*/function (LocalStorageErrors) {
   LocalStorageErrors["QuotaExceededError"] = "QuotaExceededError";
   return LocalStorageErrors;
 }({});
-exports.LocalStorageErrors = LocalStorageErrors;
 /**
  * Used in element-web as a temporary hack to handle all the localStorage errors on the highest level possible
  * As of 15.11.2021 (DD/MM/YYYY) we're not properly handling local storage exceptions anywhere.
@@ -39,5 +38,4 @@ exports.LocalStorageErrors = LocalStorageErrors;
  * See: https://github.com/vector-im/element-web/issues/18423
  */
 class LocalStorageErrorsEventsEmitter extends _typedEventEmitter.TypedEventEmitter {}
-const localStorageErrorsEventsEmitter = new LocalStorageErrorsEventsEmitter();
-exports.localStorageErrorsEventsEmitter = localStorageErrorsEventsEmitter;
+const localStorageErrorsEventsEmitter = exports.localStorageErrorsEventsEmitter = new LocalStorageErrorsEventsEmitter();

@@ -259,6 +259,17 @@ var WidgetApi = /*#__PURE__*/function (_EventEmitter) {
     }
 
     /**
+     * Requests the capability to receive a given item in room account data. It is not guaranteed to be
+     * allowed, but will be asked for if the negotiation has not already happened.
+     * @param {string} eventType The state event type to ask for.
+     */
+  }, {
+    key: "requestCapabilityToReceiveRoomAccountData",
+    value: function requestCapabilityToReceiveRoomAccountData(eventType) {
+      this.requestCapability(_WidgetEventCapability.WidgetEventCapability.forRoomAccountData(_WidgetEventCapability.EventDirection.Receive, eventType).raw);
+    }
+
+    /**
      * Requests an OpenID Connect token from the client for the currently logged in
      * user. This token can be validated server-side with the federation API. Note
      * that the widget is responsible for validating the token and caching any results
@@ -430,8 +441,25 @@ var WidgetApi = /*#__PURE__*/function (_EventEmitter) {
       });
     }
   }, {
+    key: "readRoomAccountData",
+    value: function readRoomAccountData(eventType, roomIds) {
+      var data = {
+        type: eventType
+      };
+      if (roomIds) {
+        if (roomIds.includes(_Symbols.Symbols.AnyRoom)) {
+          data.room_ids = _Symbols.Symbols.AnyRoom;
+        } else {
+          data.room_ids = roomIds;
+        }
+      }
+      return this.transport.send(_WidgetApiAction.WidgetApiFromWidgetAction.BeeperReadRoomAccountData, data).then(function (r) {
+        return r.events;
+      });
+    }
+  }, {
     key: "readRoomEvents",
-    value: function readRoomEvents(eventType, limit, msgtype, roomIds) {
+    value: function readRoomEvents(eventType, limit, msgtype, roomIds, since) {
       var data = {
         type: eventType,
         msgtype: msgtype
@@ -445,6 +473,9 @@ var WidgetApi = /*#__PURE__*/function (_EventEmitter) {
         } else {
           data.room_ids = roomIds;
         }
+      }
+      if (since) {
+        data.since = since;
       }
       return this.transport.send(_WidgetApiAction.WidgetApiFromWidgetAction.MSC2876ReadEvents, data).then(function (r) {
         return r.events;
@@ -703,6 +734,80 @@ var WidgetApi = /*#__PURE__*/function (_EventEmitter) {
         return _searchUserDirectory.apply(this, arguments);
       }
       return searchUserDirectory;
+    }()
+    /**
+     * Get the config for the media repository.
+     * @returns Promise which resolves with an object containing the config.
+     */
+  }, {
+    key: "getMediaConfig",
+    value: function () {
+      var _getMediaConfig = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var versions, data;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              _context5.next = 2;
+              return this.getClientVersions();
+            case 2:
+              versions = _context5.sent;
+              if (versions.includes(_ApiVersion.UnstableApiVersion.MSC4039)) {
+                _context5.next = 5;
+                break;
+              }
+              throw new Error("The get_media_config action is not supported by the client.");
+            case 5:
+              data = {};
+              return _context5.abrupt("return", this.transport.send(_WidgetApiAction.WidgetApiFromWidgetAction.MSC4039GetMediaConfigAction, data));
+            case 7:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5, this);
+      }));
+      function getMediaConfig() {
+        return _getMediaConfig.apply(this, arguments);
+      }
+      return getMediaConfig;
+    }()
+    /**
+     * Upload a file to the media repository on the homeserver.
+     * @param file - The object to upload. Something that can be sent to
+     *               XMLHttpRequest.send (typically a File).
+     * @returns Resolves to the location of the uploaded file.
+     */
+  }, {
+    key: "uploadFile",
+    value: function () {
+      var _uploadFile = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(file) {
+        var versions, data;
+        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
+            case 0:
+              _context6.next = 2;
+              return this.getClientVersions();
+            case 2:
+              versions = _context6.sent;
+              if (versions.includes(_ApiVersion.UnstableApiVersion.MSC4039)) {
+                _context6.next = 5;
+                break;
+              }
+              throw new Error("The upload_file action is not supported by the client.");
+            case 5:
+              data = {
+                file: file
+              };
+              return _context6.abrupt("return", this.transport.send(_WidgetApiAction.WidgetApiFromWidgetAction.MSC4039UploadFileAction, data));
+            case 7:
+            case "end":
+              return _context6.stop();
+          }
+        }, _callee6, this);
+      }));
+      function uploadFile(_x12) {
+        return _uploadFile.apply(this, arguments);
+      }
+      return uploadFile;
     }()
     /**
      * Starts the communication channel. This should be done early to ensure

@@ -14,22 +14,22 @@ var _slidingSyncSdk = require("./sliding-sync-sdk");
 var _user = require("./models/user");
 var _utils = require("./utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 /**
  * A MatrixClient that routes its requests through the widget API instead of the
  * real CS API.
@@ -38,13 +38,11 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
 class RoomWidgetClient extends _client.MatrixClient {
   constructor(widgetApi, capabilities, roomId, opts) {
     super(opts);
-
-    // Request capabilities for the functionality this client needs to support
     this.widgetApi = widgetApi;
     this.capabilities = capabilities;
     this.roomId = roomId;
     _defineProperty(this, "room", void 0);
-    _defineProperty(this, "widgetApiReady", new Promise(resolve => this.widgetApi.once("ready", resolve)));
+    _defineProperty(this, "widgetApiReady", void 0);
     _defineProperty(this, "lifecycle", void 0);
     _defineProperty(this, "syncState", null);
     _defineProperty(this, "onEvent", async ev => {
@@ -80,6 +78,9 @@ class RoomWidgetClient extends _client.MatrixClient {
       this.setSyncState(_sync.SyncState.Syncing);
       await this.ack(ev);
     });
+    this.widgetApiReady = new Promise(resolve => this.widgetApi.once("ready", resolve));
+
+    // Request capabilities for the functionality this client needs to support
     if (capabilities.sendEvent?.length || capabilities.receiveEvent?.length || capabilities.sendMessage === true || Array.isArray(capabilities.sendMessage) && capabilities.sendMessage.length || capabilities.receiveMessage === true || Array.isArray(capabilities.receiveMessage) && capabilities.receiveMessage.length || capabilities.sendState?.length || capabilities.receiveState?.length) {
       widgetApi.requestCapabilityForRoomTimeline(roomId);
     }
@@ -113,6 +114,12 @@ class RoomWidgetClient extends _client.MatrixClient {
 
     // Open communication with the host
     widgetApi.start();
+    // Send a content loaded event now we've started the widget API
+    // Note that element-web currently does not use waitForIFrameLoad=false and so
+    // does *not* (yes, that is the right way around) wait for this event. Let's
+    // start sending this, then once this has rolled out, we can change element-web to
+    // use waitForIFrameLoad=false and have a widget API that's less racy.
+    widgetApi.sendContentLoaded();
   }
   async startClient(opts = {}) {
     this.lifecycle = new AbortController();
@@ -153,6 +160,7 @@ class RoomWidgetClient extends _client.MatrixClient {
     }) ?? []);
     this.setSyncState(_sync.SyncState.Syncing);
     _logger.logger.info("Finished backfilling events");
+    this.matrixRTC.start();
 
     // Watch for TURN servers, if requested
     if (this.capabilities.turnServers) this.watchTurnServers();
@@ -163,7 +171,6 @@ class RoomWidgetClient extends _client.MatrixClient {
     super.stopClient();
     this.lifecycle.abort(); // Signal to other async tasks that the client has stopped
   }
-
   async joinRoom(roomIdOrAlias) {
     if (roomIdOrAlias === this.roomId) return this.room;
     throw new Error(`Unknown room: ${roomIdOrAlias}`);
@@ -187,6 +194,17 @@ class RoomWidgetClient extends _client.MatrixClient {
   async sendToDevice(eventType, contentMap) {
     await this.widgetApi.sendToDevice(eventType, false, (0, _utils.recursiveMapToObject)(contentMap));
     return {};
+  }
+  async getOpenIdToken() {
+    const token = await this.widgetApi.requestOpenIDConnectToken();
+    // the IOpenIDCredentials from the widget-api and IOpenIDToken form the matrix-js-sdk are compatible.
+    // we still recreate the token to make this transparent and catch'able by the linter in case the types change in the future.
+    return {
+      access_token: token.access_token,
+      expires_in: token.expires_in,
+      matrix_server_name: token.matrix_server_name,
+      token_type: token.token_type
+    };
   }
   async queueToDevice({
     eventType,

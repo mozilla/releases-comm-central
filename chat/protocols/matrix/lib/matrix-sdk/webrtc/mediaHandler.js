@@ -8,30 +8,29 @@ var _typedEventEmitter = require("../models/typed-event-emitter");
 var _groupCall = require("../webrtc/groupCall");
 var _logger = require("../logger");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015, 2016 OpenMarket Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 New Vector Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019, 2020 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 - 2022 Šimon Brandner <simon.bra.ag@gmail.com>
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
-let MediaHandlerEvent = /*#__PURE__*/function (MediaHandlerEvent) {
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2017 New Vector Ltd
+Copyright 2019, 2020 The Matrix.org Foundation C.I.C.
+Copyright 2021 - 2022 Šimon Brandner <simon.bra.ag@gmail.com>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+let MediaHandlerEvent = exports.MediaHandlerEvent = /*#__PURE__*/function (MediaHandlerEvent) {
   MediaHandlerEvent["LocalStreamsChanged"] = "local_streams_changed";
   return MediaHandlerEvent;
 }({});
-exports.MediaHandlerEvent = MediaHandlerEvent;
 class MediaHandler extends _typedEventEmitter.TypedEventEmitter {
   constructor(client) {
     super();
@@ -260,7 +259,19 @@ class MediaHandler extends _typedEventEmitter.TypedEventEmitter {
     }
     this.emit(MediaHandlerEvent.LocalStreamsChanged);
     if (this.localUserMediaStream === mediaStream) {
+      // if we have this stream cahced, remove it, because we've stopped it
       this.localUserMediaStream = undefined;
+    } else {
+      // If it's not the same stream. remove any tracks from the cached stream that
+      // we have just stopped, and if we do stop any, call the same method on the
+      // cached stream too in order to stop all its tracks (in case they are different)
+      // and un-cache it.
+      for (const track of mediaStream.getTracks()) {
+        if (this.localUserMediaStream?.getTrackById(track.id)) {
+          this.stopUserMediaStream(this.localUserMediaStream);
+          break;
+        }
+      }
     }
   }
 

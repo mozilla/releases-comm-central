@@ -19,9 +19,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let SERVICE_TYPES = /*#__PURE__*/function (SERVICE_TYPES) {
+let SERVICE_TYPES = exports.SERVICE_TYPES = /*#__PURE__*/function (SERVICE_TYPES) {
   SERVICE_TYPES["IS"] = "SERVICE_TYPE_IS";
   SERVICE_TYPES["IM"] = "SERVICE_TYPE_IM";
   return SERVICE_TYPES;
 }({}); // An integration manager
-exports.SERVICE_TYPES = SERVICE_TYPES;

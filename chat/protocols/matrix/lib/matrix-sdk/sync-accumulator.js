@@ -9,33 +9,33 @@ var _utils = require("./utils");
 var _sync = require("./@types/sync");
 var _receiptAccumulator = require("./receipt-accumulator");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2023 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link SyncAccumulator} for the public class.
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2017 - 2023 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * This is an internal module. See {@link SyncAccumulator} for the public class.
+ */
 /* eslint-disable camelcase */
 /* eslint-enable camelcase */
-let Category = /*#__PURE__*/function (Category) {
+let Category = exports.Category = /*#__PURE__*/function (Category) {
   Category["Invite"] = "invite";
   Category["Leave"] = "leave";
   Category["Join"] = "join";
+  Category["Knock"] = "knock";
   return Category;
 }({});
-exports.Category = Category;
 function isTaggedEvent(event) {
   return "_localTs" in event && event["_localTs"] !== undefined;
 }
@@ -57,6 +57,8 @@ class SyncAccumulator {
     // $event_type: Object
     _defineProperty(this, "inviteRooms", {});
     // $roomId: { ... sync 'invite' json data ... }
+    _defineProperty(this, "knockRooms", {});
+    // $roomId: { ... sync 'knock' json data ... }
     _defineProperty(this, "joinRooms", {});
     // the /sync token which corresponds to the last time rooms were
     // accumulated. We remember this so that any caller can obtain a
@@ -104,6 +106,11 @@ class SyncAccumulator {
         this.accumulateRoom(roomId, Category.Leave, syncResponse.rooms.leave[roomId], fromDatabase);
       });
     }
+    if (syncResponse.rooms.knock) {
+      Object.keys(syncResponse.rooms.knock).forEach(roomId => {
+        this.accumulateRoom(roomId, Category.Knock, syncResponse.rooms.knock[roomId], fromDatabase);
+      });
+    }
   }
   accumulateRoom(roomId, category, data, fromDatabase = false) {
     // Valid /sync state transitions
@@ -120,7 +127,14 @@ class SyncAccumulator {
     switch (category) {
       case Category.Invite:
         // (5)
+        if (this.knockRooms[roomId]) {
+          // was previously knock, now invite, need to delete knock state
+          delete this.knockRooms[roomId];
+        }
         this.accumulateInviteState(roomId, data);
+        break;
+      case Category.Knock:
+        this.accumulateKnockState(roomId, data);
         break;
       case Category.Join:
         if (this.inviteRooms[roomId]) {
@@ -134,7 +148,10 @@ class SyncAccumulator {
         this.accumulateJoinState(roomId, data, fromDatabase);
         break;
       case Category.Leave:
-        if (this.inviteRooms[roomId]) {
+        if (this.knockRooms[roomId]) {
+          // delete knock state on leave
+          delete this.knockRooms[roomId];
+        } else if (this.inviteRooms[roomId]) {
           // (4)
           delete this.inviteRooms[roomId];
         } else {
@@ -172,6 +189,35 @@ class SyncAccumulator {
       }
       if (!hasAdded) {
         currentData.invite_state.events.push(e);
+      }
+    });
+  }
+  accumulateKnockState(roomId, data) {
+    if (!data.knock_state || !data.knock_state.events) {
+      // no new data
+      return;
+    }
+    if (!this.knockRooms[roomId]) {
+      this.knockRooms[roomId] = {
+        knock_state: data.knock_state
+      };
+      return;
+    }
+    // accumulate extra keys
+    // clobber based on event type / state key
+    // We expect knock_state to be small, so just loop over the events
+    const currentData = this.knockRooms[roomId];
+    data.knock_state.events.forEach(e => {
+      let hasAdded = false;
+      for (let i = 0; i < currentData.knock_state.events.length; i++) {
+        const current = currentData.knock_state.events[i];
+        if (current.type === e.type && current.state_key == e.state_key) {
+          currentData.knock_state.events[i] = e; // update
+          hasAdded = true;
+        }
+      }
+      if (!hasAdded) {
+        currentData.knock_state.events.push(e);
       }
     });
   }
@@ -330,6 +376,7 @@ class SyncAccumulator {
     const data = {
       join: {},
       invite: {},
+      knock: {},
       // always empty. This is set by /sync when a room was previously
       // in 'invite' or 'join'. On fresh startup, the client won't know
       // about any previous room being in 'invite' or 'join' so we can
@@ -345,6 +392,9 @@ class SyncAccumulator {
     };
     Object.keys(this.inviteRooms).forEach(roomId => {
       data.invite[roomId] = this.inviteRooms[roomId];
+    });
+    Object.keys(this.knockRooms).forEach(roomId => {
+      data.knock[roomId] = this.knockRooms[roomId];
     });
     Object.keys(this.joinRooms).forEach(roomId => {
       const roomData = this.joinRooms[roomId];
@@ -385,7 +435,6 @@ class SyncAccumulator {
           if (!msgData.token) {
             return; // this shouldn't happen as we prune constantly.
           }
-
           roomJson.timeline.prev_batch = msgData.token;
         }
         let transformedEvent;

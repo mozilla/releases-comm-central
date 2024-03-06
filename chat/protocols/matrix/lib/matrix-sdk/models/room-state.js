@@ -15,22 +15,22 @@ var _beacon = require("./beacon");
 var _ReEmitter = require("../ReEmitter");
 var _beacon2 = require("../@types/beacon");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // possible statuses for out-of-band member loading
 var OobStatus = /*#__PURE__*/function (OobStatus) {
   OobStatus[OobStatus["NotStarted"] = 0] = "NotStarted";
@@ -38,7 +38,7 @@ var OobStatus = /*#__PURE__*/function (OobStatus) {
   OobStatus[OobStatus["Finished"] = 2] = "Finished";
   return OobStatus;
 }(OobStatus || {});
-let RoomStateEvent = /*#__PURE__*/function (RoomStateEvent) {
+let RoomStateEvent = exports.RoomStateEvent = /*#__PURE__*/function (RoomStateEvent) {
   RoomStateEvent["Events"] = "RoomState.events";
   RoomStateEvent["Members"] = "RoomState.members";
   RoomStateEvent["NewMember"] = "RoomState.newMember";
@@ -47,7 +47,6 @@ let RoomStateEvent = /*#__PURE__*/function (RoomStateEvent) {
   RoomStateEvent["Marker"] = "RoomState.Marker";
   return RoomStateEvent;
 }({});
-exports.RoomStateEvent = RoomStateEvent;
 class RoomState extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Construct room state.
@@ -655,7 +654,8 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     // The user may have been the sender, but they can't redact their own message
     // if redactions are blocked.
     const canRedact = this.maySendEvent(_event.EventType.RoomRedaction, userId);
-    if (mxEvent.getSender() === userId) return canRedact;
+    if (!canRedact) return false;
+    if (mxEvent.getSender() === userId) return true;
     return this.hasSufficientPowerLevelFor("redact", member.powerLevel);
   }
 

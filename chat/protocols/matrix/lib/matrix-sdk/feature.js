@@ -20,23 +20,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let ServerSupport = /*#__PURE__*/function (ServerSupport) {
+let ServerSupport = exports.ServerSupport = /*#__PURE__*/function (ServerSupport) {
   ServerSupport[ServerSupport["Stable"] = 0] = "Stable";
   ServerSupport[ServerSupport["Unstable"] = 1] = "Unstable";
   ServerSupport[ServerSupport["Unsupported"] = 2] = "Unsupported";
   return ServerSupport;
 }({});
-exports.ServerSupport = ServerSupport;
-let Feature = /*#__PURE__*/function (Feature) {
+let Feature = exports.Feature = /*#__PURE__*/function (Feature) {
   Feature["Thread"] = "Thread";
   Feature["ThreadUnreadNotifications"] = "ThreadUnreadNotifications";
   Feature["LoginTokenRequest"] = "LoginTokenRequest";
   Feature["RelationBasedRedactions"] = "RelationBasedRedactions";
   Feature["AccountDataDeletion"] = "AccountDataDeletion";
   Feature["RelationsRecursion"] = "RelationsRecursion";
+  Feature["IntentionalMentions"] = "IntentionalMentions";
   return Feature;
 }({});
-exports.Feature = Feature;
 const featureSupportResolver = {
   [Feature.Thread]: {
     unstablePrefixes: ["org.matrix.msc3440"],
@@ -57,6 +56,10 @@ const featureSupportResolver = {
   },
   [Feature.RelationsRecursion]: {
     unstablePrefixes: ["org.matrix.msc3981"]
+  },
+  [Feature.IntentionalMentions]: {
+    unstablePrefixes: ["org.matrix.msc3952_intentional_mentions"],
+    matrixVersion: "v1.7"
   }
 };
 async function buildFeatureSupportMap(versions) {

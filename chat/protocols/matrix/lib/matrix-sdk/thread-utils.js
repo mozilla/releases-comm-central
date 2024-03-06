@@ -3,7 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.initRustCrypto = initRustCrypto;
+exports.getRelationsThreadFilter = getRelationsThreadFilter;
+var _thread = require("./models/thread");
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -20,12 +21,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/* This file replaces rust-crypto/index.ts when the js-sdk is being built for browserify.
+/**
+ * Returns a filter function for the /relations endpoint to filter out relations directly
+ * to the thread root event that should not live in the thread timeline
  *
- * It is a stub, so that we do not import the whole of the base64'ed wasm artifact into the browserify bundle.
- * It deliberately does nothing except raise an exception.
+ * @param threadId - the thread ID (ie. the event ID of the root event of the thread)
+ * @returns the filtered list of events
  */
-
-async function initRustCrypto(_http, _userId, _deviceId) {
-  throw new Error("Rust crypto is not supported under browserify.");
+function getRelationsThreadFilter(threadId) {
+  return e => e.content?.["m.relates_to"]?.event_id !== threadId || e.content?.["m.relates_to"]?.rel_type === _thread.THREAD_RELATION_TYPE.name;
 }

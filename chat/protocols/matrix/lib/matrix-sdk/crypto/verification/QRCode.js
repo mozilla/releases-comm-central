@@ -4,39 +4,40 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QrCodeEvent = exports.QRCodeData = void 0;
+var _crypto = require("../crypto");
 var _Base = require("./Base");
 var _Error = require("./Error");
-var _olmlib = require("../olmlib");
+var _base = require("../../base64");
 var _logger = require("../../logger");
 var _verification = require("../../crypto-api/verification");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * QR code key verification.
-                                                                                                                                                                                                                                                                                                                                                                                              */
-const SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
-exports.SHOW_QR_CODE_METHOD = SHOW_QR_CODE_METHOD;
-const SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * QR code key verification.
+ */
+const SHOW_QR_CODE_METHOD = exports.SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
+const SCAN_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
 
 /** @deprecated use VerifierEvent */
-exports.SCAN_QR_CODE_METHOD = SCAN_QR_CODE_METHOD;
+
 /** @deprecated use VerifierEvent */
-const QrCodeEvent = _verification.VerifierEvent;
-exports.QrCodeEvent = QrCodeEvent;
+const QrCodeEvent = exports.QrCodeEvent = _verification.VerifierEvent;
+
+/** @deprecated Avoid referencing this class directly; instead use {@link Crypto.Verifier}. */
 class ReciprocateQRCode extends _Base.VerificationBase {
   constructor(...args) {
     super(...args);
@@ -116,6 +117,9 @@ class ReciprocateQRCode extends _Base.VerificationBase {
   static get NAME() {
     return "m.reciprocate.v1";
   }
+  getReciprocateQrCodeCallbacks() {
+    return this.reciprocateQREvent ?? null;
+  }
 }
 exports.ReciprocateQRCode = ReciprocateQRCode;
 const CODE_VERSION = 0x02; // the version of binary QR codes we support
@@ -173,8 +177,8 @@ class QRCodeData {
   }
   static generateSharedSecret() {
     const secretBytes = new Uint8Array(11);
-    global.crypto.getRandomValues(secretBytes);
-    return (0, _olmlib.encodeUnpaddedBase64)(secretBytes);
+    _crypto.crypto.getRandomValues(secretBytes);
+    return (0, _base.encodeUnpaddedBase64)(secretBytes);
   }
   static async getOtherDeviceKey(request, client) {
     const myUserId = client.getUserId();
@@ -250,7 +254,7 @@ class QRCodeData {
       buf = Buffer.concat([buf, tmpBuf]);
     };
     const appendEncBase64 = b64 => {
-      const b = (0, _olmlib.decodeBase64)(b64);
+      const b = (0, _base.decodeBase64)(b64);
       const tmpBuf = Buffer.from(b);
       buf = Buffer.concat([buf, tmpBuf]);
     };

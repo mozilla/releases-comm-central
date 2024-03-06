@@ -24,14 +24,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-let crypto = global.window?.crypto;
-exports.crypto = crypto;
-let subtleCrypto = global.window?.crypto?.subtle ?? global.window?.crypto?.webkitSubtle;
-exports.subtleCrypto = subtleCrypto;
-let TextEncoder = global.window?.TextEncoder;
+let crypto = exports.crypto = globalThis.window?.crypto;
+let subtleCrypto = exports.subtleCrypto = globalThis.window?.crypto?.subtle ?? global.window?.crypto?.webkitSubtle;
+let TextEncoder = exports.TextEncoder = globalThis.window?.TextEncoder;
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-exports.TextEncoder = TextEncoder;
 if (!crypto) {
   try {
     exports.crypto = crypto = require("crypto").webcrypto;

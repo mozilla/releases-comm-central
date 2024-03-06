@@ -3,29 +3,43 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VerificationRequestEvent = exports.VerificationRequest = exports.START_TYPE = exports.REQUEST_TYPE = exports.READY_TYPE = exports.Phase = exports.PHASE_UNSENT = exports.PHASE_STARTED = exports.PHASE_REQUESTED = exports.PHASE_READY = exports.PHASE_DONE = exports.PHASE_CANCELLED = exports.EVENT_PREFIX = exports.DONE_TYPE = exports.CANCEL_TYPE = void 0;
+exports.PHASE_UNSENT = exports.PHASE_STARTED = exports.PHASE_REQUESTED = exports.PHASE_READY = exports.PHASE_DONE = exports.PHASE_CANCELLED = exports.EVENT_PREFIX = exports.DONE_TYPE = exports.CANCEL_TYPE = void 0;
+Object.defineProperty(exports, "Phase", {
+  enumerable: true,
+  get: function () {
+    return _verification.VerificationPhase;
+  }
+});
+exports.VerificationRequest = exports.START_TYPE = exports.REQUEST_TYPE = exports.READY_TYPE = void 0;
+Object.defineProperty(exports, "VerificationRequestEvent", {
+  enumerable: true,
+  get: function () {
+    return _verification.VerificationRequestEvent;
+  }
+});
 var _logger = require("../../../logger");
 var _Error = require("../Error");
 var _QRCode = require("../QRCode");
 var _event = require("../../../@types/event");
 var _typedEventEmitter = require("../../../models/typed-event-emitter");
+var _verification = require("../../../crypto-api/verification");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ // backwards-compatibility exports
 // How long after the event's timestamp that the request times out
 const TIMEOUT_FROM_EVENT_TS = 10 * 60 * 1000; // 10 minutes
 
@@ -38,49 +52,26 @@ const TIMEOUT_FROM_EVENT_RECEIPT = 2 * 60 * 1000; // 2 minutes
 // are this amount of time away from expiring.
 const VERIFICATION_REQUEST_MARGIN = 3 * 1000; // 3 seconds
 
-const EVENT_PREFIX = "m.key.verification.";
-exports.EVENT_PREFIX = EVENT_PREFIX;
-const REQUEST_TYPE = EVENT_PREFIX + "request";
-exports.REQUEST_TYPE = REQUEST_TYPE;
-const START_TYPE = EVENT_PREFIX + "start";
-exports.START_TYPE = START_TYPE;
-const CANCEL_TYPE = EVENT_PREFIX + "cancel";
-exports.CANCEL_TYPE = CANCEL_TYPE;
-const DONE_TYPE = EVENT_PREFIX + "done";
-exports.DONE_TYPE = DONE_TYPE;
-const READY_TYPE = EVENT_PREFIX + "ready";
-exports.READY_TYPE = READY_TYPE;
-let Phase = /*#__PURE__*/function (Phase) {
-  Phase[Phase["Unsent"] = 1] = "Unsent";
-  Phase[Phase["Requested"] = 2] = "Requested";
-  Phase[Phase["Ready"] = 3] = "Ready";
-  Phase[Phase["Started"] = 4] = "Started";
-  Phase[Phase["Cancelled"] = 5] = "Cancelled";
-  Phase[Phase["Done"] = 6] = "Done";
-  return Phase;
-}({}); // Legacy export fields
-exports.Phase = Phase;
-const PHASE_UNSENT = Phase.Unsent;
-exports.PHASE_UNSENT = PHASE_UNSENT;
-const PHASE_REQUESTED = Phase.Requested;
-exports.PHASE_REQUESTED = PHASE_REQUESTED;
-const PHASE_READY = Phase.Ready;
-exports.PHASE_READY = PHASE_READY;
-const PHASE_STARTED = Phase.Started;
-exports.PHASE_STARTED = PHASE_STARTED;
-const PHASE_CANCELLED = Phase.Cancelled;
-exports.PHASE_CANCELLED = PHASE_CANCELLED;
-const PHASE_DONE = Phase.Done;
-exports.PHASE_DONE = PHASE_DONE;
-let VerificationRequestEvent = /*#__PURE__*/function (VerificationRequestEvent) {
-  VerificationRequestEvent["Change"] = "change";
-  return VerificationRequestEvent;
-}({});
-exports.VerificationRequestEvent = VerificationRequestEvent;
+const EVENT_PREFIX = exports.EVENT_PREFIX = "m.key.verification.";
+const REQUEST_TYPE = exports.REQUEST_TYPE = EVENT_PREFIX + "request";
+const START_TYPE = exports.START_TYPE = EVENT_PREFIX + "start";
+const CANCEL_TYPE = exports.CANCEL_TYPE = EVENT_PREFIX + "cancel";
+const DONE_TYPE = exports.DONE_TYPE = EVENT_PREFIX + "done";
+const READY_TYPE = exports.READY_TYPE = EVENT_PREFIX + "ready";
+
+// Legacy export fields
+const PHASE_UNSENT = exports.PHASE_UNSENT = _verification.VerificationPhase.Unsent;
+const PHASE_REQUESTED = exports.PHASE_REQUESTED = _verification.VerificationPhase.Requested;
+const PHASE_READY = exports.PHASE_READY = _verification.VerificationPhase.Ready;
+const PHASE_STARTED = exports.PHASE_STARTED = _verification.VerificationPhase.Started;
+const PHASE_CANCELLED = exports.PHASE_CANCELLED = _verification.VerificationPhase.Cancelled;
+const PHASE_DONE = exports.PHASE_DONE = _verification.VerificationPhase.Done;
 /**
  * State machine for verification requests.
  * Things that differ based on what channel is used to
  * send and receive verification events are put in `InRoomChannel` or `ToDeviceChannel`.
+ *
+ * @deprecated Avoid direct references: instead prefer {@link Crypto.VerificationRequest}.
  */
 class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   constructor(channel, verificationMethods, client) {
@@ -164,6 +155,22 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     }
     return true;
   }
+
+  /**
+   * Unique ID for this verification request.
+   *
+   * An ID isn't assigned until the first message is sent, so this may be `undefined` in the early phases.
+   */
+  get transactionId() {
+    return this.channel.transactionId;
+  }
+
+  /**
+   * For an in-room verification, the ID of the room.
+   */
+  get roomId() {
+    return this.channel.roomId;
+  }
   get invalid() {
     return this.phase === PHASE_UNSENT;
   }
@@ -238,7 +245,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     return this._verifier;
   }
   get canAccept() {
-    return this.phase < PHASE_READY && !this._accepting && !this._declining;
+    return (0, _verification.canAcceptVerificationRequest)(this);
   }
   get accepting() {
     return this._accepting;
@@ -252,9 +259,33 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     return !this.observeOnly && this._phase !== PHASE_DONE && this._phase !== PHASE_CANCELLED;
   }
 
-  /** Only set after a .ready if the other party can scan a QR code */
+  /** Only set after a .ready if the other party can scan a QR code
+   *
+   * @deprecated Prefer `generateQRCode`.
+   */
   get qrCodeData() {
     return this._qrCodeData;
+  }
+
+  /**
+   * Get the data for a QR code allowing the other device to verify this one, if it supports it.
+   *
+   * Only set after a .ready if the other party can scan a QR code, otherwise undefined.
+   *
+   * @deprecated Prefer `generateQRCode`.
+   */
+  getQRCodeBytes() {
+    return this._qrCodeData?.getBuffer();
+  }
+
+  /**
+   * Generate the data for a QR code allowing the other device to verify this one, if it supports it.
+   *
+   * Only returns data once `phase` is `Ready` and the other party can scan a QR code;
+   * otherwise returns `undefined`.
+   */
+  async generateQRCode() {
+    return this.getQRCodeBytes();
   }
 
   /** Checks whether the other party supports a given verification method.
@@ -342,6 +373,11 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   get otherUserId() {
     return this.channel.userId;
   }
+
+  /** The device id of the other party in this request, for requests happening over to-device messages only. */
+  get otherDeviceId() {
+    return this.channel.deviceId;
+  }
   get isSelfVerification() {
     return this.client.getUserId() === this.otherUserId;
   }
@@ -416,6 +452,15 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     }
     return this._verifier;
   }
+  async startVerification(method) {
+    const verifier = this.beginKeyVerification(method);
+    // kick off the verification in the background, but *don't* wait for to complete: we need to return the `Verifier`.
+    verifier.verify();
+    return verifier;
+  }
+  scanQRCode(qrCodeData) {
+    throw new Error("QR code scanning not supported by legacy crypto");
+  }
 
   /**
    * sends the initial .request event.
@@ -442,7 +487,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
   } = {}) {
     if (!this.observeOnly && this._phase !== PHASE_CANCELLED) {
       this._declining = true;
-      this.emit(VerificationRequestEvent.Change);
+      this.emit(_verification.VerificationRequestEvent.Change);
       if (this._verifier) {
         return this._verifier.cancel((0, _Error.errorFactory)(code, reason)());
       } else {
@@ -463,7 +508,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     if (!this.observeOnly && this.phase === PHASE_REQUESTED && !this.initiatedByMe) {
       const methods = [...this.verificationMethods.keys()];
       this._accepting = true;
-      this.emit(VerificationRequestEvent.Change);
+      this.emit(_verification.VerificationRequestEvent.Change);
       await this.channel.send(READY_TYPE, {
         methods
       });
@@ -489,19 +534,19 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
           handled = true;
         }
         if (handled) {
-          this.off(VerificationRequestEvent.Change, check);
+          this.off(_verification.VerificationRequestEvent.Change, check);
         }
         return handled;
       };
       if (!check()) {
-        this.on(VerificationRequestEvent.Change, check);
+        this.on(_verification.VerificationRequestEvent.Change, check);
       }
     });
   }
   setPhase(phase, notify = true) {
     this._phase = phase;
     if (notify) {
-      this.emit(VerificationRequestEvent.Change);
+      this.emit(_verification.VerificationRequestEvent.Change);
     }
   }
   getEventByEither(type) {
@@ -743,7 +788,7 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
         // set phase as last thing as this emits the "change" event
         this.setPhase(phase);
       } else if (this._observeOnly !== wasObserveOnly) {
-        this.emit(VerificationRequestEvent.Change);
+        this.emit(_verification.VerificationRequestEvent.Change);
       }
     } finally {
       // log events we processed so we can see from rageshakes what events were added to a request

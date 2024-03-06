@@ -26,5 +26,4 @@ limitations under the License.
  *
  * @experimental
  */
-const UNREAD_THREAD_NOTIFICATIONS = new _NamespacedValue.ServerControlledNamespacedValue("unread_thread_notifications", "org.matrix.msc3773.unread_thread_notifications");
-exports.UNREAD_THREAD_NOTIFICATIONS = UNREAD_THREAD_NOTIFICATIONS;
+const UNREAD_THREAD_NOTIFICATIONS = exports.UNREAD_THREAD_NOTIFICATIONS = new _NamespacedValue.ServerControlledNamespacedValue("unread_thread_notifications", "org.matrix.msc3773.unread_thread_notifications");

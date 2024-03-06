@@ -6,23 +6,24 @@ Object.defineProperty(exports, "__esModule", {
 exports.TimelineWindow = exports.TimelineIndex = void 0;
 var _eventTimeline = require("./models/event-timeline");
 var _logger = require("./logger");
+var _room2 = require("./models/room");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 /**
  * @internal
  */
@@ -36,10 +37,13 @@ const debuglog = DEBUG ? _logger.logger.log.bind(_logger.logger) : function () {
 
 /**
  * the number of times we ask the server for more events before giving up
+ * this is currently higher than it needs to be to workaround lack of a filter
+ * for excluding thread responses from main timeline pagination which can cause
+ * giving up incorrectly - https://github.com/matrix-org/matrix-spec-proposals/pull/3874
  *
  * @internal
  */
-const DEFAULT_PAGINATE_LOOP_LIMIT = 5;
+const DEFAULT_PAGINATE_LOOP_LIMIT = 10;
 class TimelineWindow {
   /**
    * Construct a TimelineWindow.
@@ -53,6 +57,10 @@ class TimelineWindow {
    * <p>Note that the window will not automatically extend itself when new events
    * are received from /sync; you should arrange to call {@link TimelineWindow#paginate}
    * on {@link RoomEvent.Timeline} events.
+   *
+   * <p>Note that constructing an instance of this class for a room adds a
+   * listener for RoomEvent.Timeline events which is never removed. In theory
+   * this should not cause a leak since the EventEmitter uses weak mappings.
    *
    * @param client -   MatrixClient to be used for context/pagination
    *   requests.
@@ -73,6 +81,7 @@ class TimelineWindow {
     _defineProperty(this, "end", void 0);
     _defineProperty(this, "eventCount", 0);
     this.windowLimit = opts.windowLimit || 1000;
+    timelineSet.room?.on(_room2.RoomEvent.Timeline, this.onTimelineEvent.bind(this));
   }
 
   /**
@@ -168,6 +177,22 @@ class TimelineWindow {
       return true;
     }
     return false;
+  }
+  onTimelineEvent(_event, _room, _atStart, removed) {
+    if (removed) {
+      this.onEventRemoved();
+    }
+  }
+
+  /**
+   * If an event was removed, meaning this window is longer than the timeline,
+   * shorten the window.
+   */
+  onEventRemoved() {
+    const events = this.getEvents();
+    if (events.length > 0 && events[events.length - 1] === undefined && this.end) {
+      this.end.index--;
+    }
   }
 
   /**

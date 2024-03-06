@@ -5,8 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.KeyClaimManager = void 0;
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -27,6 +27,8 @@ limitations under the License.
  * KeyClaimManager: linearises calls to OlmMachine.getMissingSessions to avoid races
  *
  * We have one of these per `RustCrypto` (and hence per `MatrixClient`).
+ *
+ * @internal
  */
 class KeyClaimManager {
   constructor(olmMachine, outgoingRequestProcessor) {
@@ -53,26 +55,32 @@ class KeyClaimManager {
    *
    * @param userList - list of userIDs to claim
    */
-  ensureSessionsForUsers(userList) {
+  ensureSessionsForUsers(logger, userList) {
     // The Rust-SDK requires that we only have one getMissingSessions process in flight at once. This little dance
     // ensures that, by only having one call to ensureSessionsForUsersInner active at once (and making them
     // queue up in order).
     const prom = this.currentClaimPromise.catch(() => {
       // any errors in the previous claim will have been reported already, so there is nothing to do here.
       // we just throw away the error and start anew.
-    }).then(() => this.ensureSessionsForUsersInner(userList));
+    }).then(() => this.ensureSessionsForUsersInner(logger, userList));
     this.currentClaimPromise = prom;
     return prom;
   }
-  async ensureSessionsForUsersInner(userList) {
+  async ensureSessionsForUsersInner(logger, userList) {
     // bail out quickly if we've been stopped.
     if (this.stopped) {
       throw new Error(`Cannot ensure Olm sessions: shutting down`);
     }
-    const claimRequest = await this.olmMachine.getMissingSessions(userList);
+    logger.info("Checking for missing Olm sessions");
+    // By passing the userId array to rust we transfer ownership of the items to rust, causing
+    // them to be invalidated on the JS side as soon as the method is called.
+    // As we haven't created the `userList` let's clone the users, to not break the caller from re-using it.
+    const claimRequest = await this.olmMachine.getMissingSessions(userList.map(u => u.clone()));
     if (claimRequest) {
+      logger.info("Making /keys/claim request");
       await this.outgoingRequestProcessor.makeOutgoingRequest(claimRequest);
     }
+    logger.info("Olm sessions prepared");
   }
 }
 exports.KeyClaimManager = KeyClaimManager;

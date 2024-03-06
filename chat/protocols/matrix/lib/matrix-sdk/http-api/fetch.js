@@ -9,25 +9,27 @@ var _method = require("./method");
 var _errors = require("./errors");
 var _interface = require("./interface");
 var _utils2 = require("./utils");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link MatrixHttpApi} for the public class.
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * This is an internal module. See {@link MatrixHttpApi} for the public class.
+ */
 class FetchHttpApi {
   constructor(eventEmitter, opts) {
     this.eventEmitter = eventEmitter;
@@ -88,8 +90,9 @@ class FetchHttpApi {
    *
    * @param body - The HTTP JSON body.
    *
-   * @param opts - additional options. If a number is specified,
-   * this is treated as `opts.localTimeoutMs`.
+   * @param opts - additional options.
+   * When `opts.doNotAttemptTokenRefresh` is true, token refresh will not be attempted
+   * when an expired token is encountered. Used to only attempt token refresh once.
    *
    * @returns Promise which resolves to
    * ```
@@ -103,8 +106,11 @@ class FetchHttpApi {
    * @returns Rejects with an error if a problem occurred.
    * This includes network problems and Matrix-specific error JSON.
    */
-  authedRequest(method, path, queryParams, body, opts = {}) {
+  async authedRequest(method, path, queryParams, body, paramOpts = {}) {
     if (!queryParams) queryParams = {};
+
+    // avoid mutating paramOpts so they can be used on retry
+    const opts = _objectSpread({}, paramOpts);
     if (this.opts.accessToken) {
       if (this.opts.useAuthorizationHeader) {
         if (!opts.headers) {
@@ -120,18 +126,52 @@ class FetchHttpApi {
         queryParams.access_token = this.opts.accessToken;
       }
     }
-    const requestPromise = this.request(method, path, queryParams, body, opts);
-    requestPromise.catch(err => {
+    try {
+      const response = await this.request(method, path, queryParams, body, opts);
+      return response;
+    } catch (error) {
+      const err = error;
+      if (err.errcode === "M_UNKNOWN_TOKEN" && !opts.doNotAttemptTokenRefresh) {
+        const shouldRetry = await this.tryRefreshToken();
+        // if we got a new token retry the request
+        if (shouldRetry) {
+          return this.authedRequest(method, path, queryParams, body, _objectSpread(_objectSpread({}, paramOpts), {}, {
+            doNotAttemptTokenRefresh: true
+          }));
+        }
+      }
+      // otherwise continue with error handling
       if (err.errcode == "M_UNKNOWN_TOKEN" && !opts?.inhibitLogoutEmit) {
         this.eventEmitter.emit(_interface.HttpApiEvent.SessionLoggedOut, err);
       } else if (err.errcode == "M_CONSENT_NOT_GIVEN") {
         this.eventEmitter.emit(_interface.HttpApiEvent.NoConsent, err.message, err.data.consent_uri);
       }
-    });
+      throw err;
+    }
+  }
 
-    // return the original promise, otherwise tests break due to it having to
-    // go around the event loop one more time to process the result of the request
-    return requestPromise;
+  /**
+   * Attempt to refresh access tokens.
+   * On success, sets new access and refresh tokens in opts.
+   * @returns Promise that resolves to a boolean - true when token was refreshed successfully
+   */
+  async tryRefreshToken() {
+    if (!this.opts.refreshToken || !this.opts.tokenRefreshFunction) {
+      return false;
+    }
+    try {
+      const {
+        accessToken,
+        refreshToken
+      } = await this.opts.tokenRefreshFunction(this.opts.refreshToken);
+      this.opts.accessToken = accessToken;
+      this.opts.refreshToken = refreshToken;
+      // successfully got new tokens
+      return true;
+    } catch (error) {
+      this.opts.logger?.warn("Failed to refresh token", error);
+      return false;
+    }
   }
 
   /**
@@ -180,6 +220,8 @@ class FetchHttpApi {
    * occurred. This includes network problems and Matrix-specific error JSON.
    */
   async requestOtherUrl(method, url, body, opts = {}) {
+    const urlForLogs = this.sanitizeUrlForLogs(url);
+    this.opts.logger?.debug(`FetchHttpApi: --> ${method} ${urlForLogs}`);
     const headers = Object.assign({}, opts.headers || {});
     const json = opts.json ?? true;
     // We can't use getPrototypeOf here as objects made in other contexts e.g. over postMessage won't have same ref
@@ -212,6 +254,7 @@ class FetchHttpApi {
       cleanup
     } = (0, _utils2.anySignal)(signals);
     let res;
+    const start = Date.now();
     try {
       res = await this.fetch(url, {
         signal,
@@ -225,9 +268,12 @@ class FetchHttpApi {
         cache: "no-cache",
         credentials: "omit",
         // we send credentials via headers
-        keepalive: keepAlive
+        keepalive: keepAlive,
+        priority: opts.priority
       });
+      this.opts.logger?.debug(`FetchHttpApi: <-- ${method} ${urlForLogs} [${Date.now() - start}ms ${res.status}]`);
     } catch (e) {
+      this.opts.logger?.debug(`FetchHttpApi: <-- ${method} ${urlForLogs} [${Date.now() - start}ms ${e}]`);
       if (e.name === "AbortError") {
         throw e;
       }
@@ -243,7 +289,27 @@ class FetchHttpApi {
     }
     return res;
   }
-
+  sanitizeUrlForLogs(url) {
+    try {
+      let asUrl;
+      if (typeof url === "string") {
+        asUrl = new URL(url);
+      } else {
+        asUrl = url;
+      }
+      // Remove the values of any URL params that could contain potential secrets
+      const sanitizedQs = new URLSearchParams();
+      for (const key of asUrl.searchParams.keys()) {
+        sanitizedQs.append(key, "xxx");
+      }
+      const sanitizedQsString = sanitizedQs.toString();
+      const sanitizedQsUrlPiece = sanitizedQsString ? `?${sanitizedQsString}` : "";
+      return asUrl.origin + asUrl.pathname + sanitizedQsUrlPiece;
+    } catch (error) {
+      // defensive coding for malformed url
+      return "??";
+    }
+  }
   /**
    * Form and return a homeserver request URL based on the given path params and prefix.
    * @param path - The HTTP path <b>after</b> the supplied prefix e.g. "/createRoom".

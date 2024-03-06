@@ -19,9 +19,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let HttpApiEvent = /*#__PURE__*/function (HttpApiEvent) {
+/**
+ * @experimental
+ * Unencrypted access and (optional) refresh token
+ */
+/**
+ * @experimental
+ * Function that performs token refresh using the given refreshToken.
+ * Returns a promise that resolves to the refreshed access and (optional) refresh tokens.
+ *
+ * Can be passed to HttpApi instance as {@link IHttpOpts.tokenRefreshFunction} during client creation {@link ICreateClientOpts}
+ */
+let HttpApiEvent = exports.HttpApiEvent = /*#__PURE__*/function (HttpApiEvent) {
   HttpApiEvent["SessionLoggedOut"] = "Session.logged_out";
   HttpApiEvent["NoConsent"] = "no_consent";
   return HttpApiEvent;
 }({});
-exports.HttpApiEvent = HttpApiEvent;

@@ -23,7 +23,7 @@ limitations under the License.
  * Enum for event statuses.
  * @readonly
  */
-let EventStatus = /*#__PURE__*/function (EventStatus) {
+let EventStatus = exports.EventStatus = /*#__PURE__*/function (EventStatus) {
   EventStatus["NOT_SENT"] = "not_sent";
   EventStatus["ENCRYPTING"] = "encrypting";
   EventStatus["SENDING"] = "sending";
@@ -32,4 +32,3 @@ let EventStatus = /*#__PURE__*/function (EventStatus) {
   EventStatus["CANCELLED"] = "cancelled";
   return EventStatus;
 }({});
-exports.EventStatus = EventStatus;

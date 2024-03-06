@@ -4,30 +4,34 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.OutgoingRequestProcessor = void 0;
-var _matrixSdkCryptoJs = require("@matrix-org/matrix-sdk-crypto-js");
+var _matrixSdkCryptoWasm = require("@matrix-org/matrix-sdk-crypto-wasm");
 var _logger = require("../logger");
 var _httpApi = require("../http-api");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _utils = require("../utils");
+var _event = require("../@types/event");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2023 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2023 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 /**
  * Common interface for all the request types returned by `OlmMachine.outgoingRequests`.
+ *
+ * @internal
  */
 
 /**
@@ -39,6 +43,8 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
  *   * holding the reference to the `MatrixHttpApi`
  *   * turning `OutgoingRequest`s from the rust backend into HTTP requests, and sending them
  *   * sending the results of such requests back to the rust backend.
+ *
+ * @internal
  */
 class OutgoingRequestProcessor {
   constructor(olmMachine, http) {
@@ -51,31 +57,68 @@ class OutgoingRequestProcessor {
     /* refer https://docs.rs/matrix-sdk-crypto/0.6.0/matrix_sdk_crypto/requests/enum.OutgoingRequests.html
      * for the complete list of request types
      */
-    if (msg instanceof _matrixSdkCryptoJs.KeysUploadRequest) {
+    if (msg instanceof _matrixSdkCryptoWasm.KeysUploadRequest) {
       resp = await this.rawJsonRequest(_httpApi.Method.Post, "/_matrix/client/v3/keys/upload", {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.KeysQueryRequest) {
+    } else if (msg instanceof _matrixSdkCryptoWasm.KeysQueryRequest) {
       resp = await this.rawJsonRequest(_httpApi.Method.Post, "/_matrix/client/v3/keys/query", {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.KeysClaimRequest) {
+    } else if (msg instanceof _matrixSdkCryptoWasm.KeysClaimRequest) {
       resp = await this.rawJsonRequest(_httpApi.Method.Post, "/_matrix/client/v3/keys/claim", {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.SignatureUploadRequest) {
+    } else if (msg instanceof _matrixSdkCryptoWasm.SignatureUploadRequest) {
       resp = await this.rawJsonRequest(_httpApi.Method.Post, "/_matrix/client/v3/keys/signatures/upload", {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.KeysBackupRequest) {
-      resp = await this.rawJsonRequest(_httpApi.Method.Put, "/_matrix/client/v3/room_keys/keys", {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.ToDeviceRequest) {
-      const path = `/_matrix/client/v3/sendToDevice/${encodeURIComponent(msg.event_type)}/` + encodeURIComponent(msg.txn_id);
+    } else if (msg instanceof _matrixSdkCryptoWasm.KeysBackupRequest) {
+      resp = await this.rawJsonRequest(_httpApi.Method.Put, "/_matrix/client/v3/room_keys/keys", {
+        version: msg.version
+      }, msg.body);
+    } else if (msg instanceof _matrixSdkCryptoWasm.ToDeviceRequest) {
+      resp = await this.sendToDeviceRequest(msg);
+    } else if (msg instanceof _matrixSdkCryptoWasm.RoomMessageRequest) {
+      const path = `/_matrix/client/v3/rooms/${encodeURIComponent(msg.room_id)}/send/` + `${encodeURIComponent(msg.event_type)}/${encodeURIComponent(msg.txn_id)}`;
       resp = await this.rawJsonRequest(_httpApi.Method.Put, path, {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.RoomMessageRequest) {
-      const path = `/_matrix/client/v3/room/${encodeURIComponent(msg.room_id)}/send/` + `${encodeURIComponent(msg.event_type)}/${encodeURIComponent(msg.txn_id)}`;
-      resp = await this.rawJsonRequest(_httpApi.Method.Put, path, {}, msg.body);
-    } else if (msg instanceof _matrixSdkCryptoJs.SigningKeysUploadRequest) {
-      resp = await this.makeRequestWithUIA(_httpApi.Method.Post, "/_matrix/client/v3/keys/device_signing/upload", {}, msg.body, uiaCallback);
+    } else if (msg instanceof _matrixSdkCryptoWasm.UploadSigningKeysRequest) {
+      await this.makeRequestWithUIA(_httpApi.Method.Post, "/_matrix/client/v3/keys/device_signing/upload", {}, msg.body, uiaCallback);
+      // SigningKeysUploadRequest does not implement OutgoingRequest and does not need to be marked as sent.
+      return;
     } else {
       _logger.logger.warn("Unsupported outgoing message", Object.getPrototypeOf(msg));
       resp = "";
     }
     if (msg.id) {
-      await this.olmMachine.markRequestAsSent(msg.id, msg.type, resp);
+      try {
+        await (0, _utils.logDuration)(_logger.logger, `Mark Request as sent ${msg.type}`, async () => {
+          await this.olmMachine.markRequestAsSent(msg.id, msg.type, resp);
+        });
+      } catch (e) {
+        // Ignore errors which are caused by the olmMachine having been freed. The exact error message depends
+        // on whether we are using a release or develop build of rust-sdk-crypto-wasm.
+        if (e instanceof Error && (e.message === "Attempt to use a moved value" || e.message === "null pointer passed to rust")) {
+          _logger.logger.log(`Ignoring error '${e.message}': client is likely shutting down`);
+        } else {
+          throw e;
+        }
+      }
+    } else {
+      _logger.logger.trace(`Outgoing request type:${msg.type} does not have an ID`);
     }
+  }
+
+  /**
+   * Send the HTTP request for a `ToDeviceRequest`
+   *
+   * @param request - request to send
+   * @returns JSON-serialized body of the response, if successful
+   */
+  async sendToDeviceRequest(request) {
+    // a bit of extra logging, to help trace to-device messages through the system
+    const parsedBody = JSON.parse(request.body);
+    const messageList = [];
+    for (const [userId, perUserMessages] of Object.entries(parsedBody.messages)) {
+      for (const [deviceId, message] of Object.entries(perUserMessages)) {
+        messageList.push(`${userId}/${deviceId} (msgid ${message[_event.ToDeviceMessageId]})`);
+      }
+    }
+    _logger.logger.info(`Sending batch of to-device messages. type=${request.event_type} txnid=${request.txn_id}`, messageList);
+    const path = `/_matrix/client/v3/sendToDevice/${encodeURIComponent(request.event_type)}/` + encodeURIComponent(request.txn_id);
+    return await this.rawJsonRequest(_httpApi.Method.Put, path, {}, request.body);
   }
   async makeRequestWithUIA(method, path, queryParams, body, uiaCallback) {
     if (!uiaCallback) {
@@ -83,9 +126,10 @@ class OutgoingRequestProcessor {
     }
     const parsedBody = JSON.parse(body);
     const makeRequest = async auth => {
-      const newBody = _objectSpread(_objectSpread({}, parsedBody), {}, {
-        auth
-      });
+      const newBody = _objectSpread({}, parsedBody);
+      if (auth !== null) {
+        newBody.auth = auth;
+      }
       const resp = await this.rawJsonRequest(method, path, queryParams, JSON.stringify(newBody));
       return JSON.parse(resp);
     };
@@ -104,14 +148,7 @@ class OutgoingRequestProcessor {
       // we use the full prefix
       prefix: ""
     };
-    try {
-      const response = await this.http.authedRequest(method, path, queryParams, body, opts);
-      _logger.logger.info(`rust-crypto: successfully made HTTP request: ${method} ${path}`);
-      return response;
-    } catch (e) {
-      _logger.logger.warn(`rust-crypto: error making HTTP request: ${method} ${path}: ${e}`);
-      throw e;
-    }
+    return await this.http.authedRequest(method, path, queryParams, body, opts);
   }
 }
 exports.OutgoingRequestProcessor = OutgoingRequestProcessor;

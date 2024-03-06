@@ -35,11 +35,12 @@ var UnstableApiVersion = /*#__PURE__*/function (UnstableApiVersion) {
   UnstableApiVersion["MSC3846"] = "town.robin.msc3846";
   UnstableApiVersion["MSC3869"] = "org.matrix.msc3869";
   UnstableApiVersion["MSC3973"] = "org.matrix.msc3973";
+  UnstableApiVersion["MSC4039"] = "org.matrix.msc4039";
   return UnstableApiVersion;
 }({});
 exports.UnstableApiVersion = UnstableApiVersion;
 var CurrentApiVersions = [MatrixApiVersion.Prerelease1, MatrixApiVersion.Prerelease2,
 //MatrixApiVersion.V010,
-UnstableApiVersion.MSC2762, UnstableApiVersion.MSC2871, UnstableApiVersion.MSC2931, UnstableApiVersion.MSC2974, UnstableApiVersion.MSC2876, UnstableApiVersion.MSC3819, UnstableApiVersion.MSC3846, UnstableApiVersion.MSC3869, UnstableApiVersion.MSC3973];
+UnstableApiVersion.MSC2762, UnstableApiVersion.MSC2871, UnstableApiVersion.MSC2931, UnstableApiVersion.MSC2974, UnstableApiVersion.MSC2876, UnstableApiVersion.MSC3819, UnstableApiVersion.MSC3846, UnstableApiVersion.MSC3869, UnstableApiVersion.MSC3973, UnstableApiVersion.MSC4039];
 exports.CurrentApiVersions = CurrentApiVersions;
 //# sourceMappingURL=ApiVersion.js.map

@@ -8,25 +8,25 @@ var _utils = require("./utils");
 var _logger = require("./logger");
 var _PushRules = require("./@types/PushRules");
 var _event = require("./@types/event");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 const RULEKINDS_IN_ORDER = [_PushRules.PushRuleKind.Override, _PushRules.PushRuleKind.ContentSpecific, _PushRules.PushRuleKind.RoomSpecific, _PushRules.PushRuleKind.SenderSpecific, _PushRules.PushRuleKind.Underride];
 
 // The default override rules to apply to the push rules that arrive from the server.
@@ -47,34 +47,6 @@ const DEFAULT_OVERRIDE_RULES = [{
     pattern: "m.reaction"
   }],
   actions: [_PushRules.PushRuleActionName.DontNotify]
-}, {
-  rule_id: _PushRules.RuleId.IsUserMention,
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventPropertyContains,
-    key: "content.org\\.matrix\\.msc3952\\.mentions.user_ids",
-    value: "" // The user ID is dynamically added in rewriteDefaultRules.
-  }],
-
-  actions: [_PushRules.PushRuleActionName.Notify, {
-    set_tweak: _PushRules.TweakName.Highlight
-  }]
-}, {
-  rule_id: _PushRules.RuleId.IsRoomMention,
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventPropertyIs,
-    key: "content.org\\.matrix\\.msc3952\\.mentions.room",
-    value: true
-  }, {
-    kind: _PushRules.ConditionKind.SenderNotificationPermission,
-    key: "room"
-  }],
-  actions: [_PushRules.PushRuleActionName.Notify, {
-    set_tweak: _PushRules.TweakName.Highlight
-  }]
 }, {
   // For homeservers which don't support MSC3786 yet
   rule_id: ".org.matrix.msc3786.rule.room.server_acl",
@@ -487,7 +459,6 @@ class PushProcessor {
     }
     PushProcessor.cachedGlobToRegex[glob] = new RegExp(prefix + (0, _utils.globToRegexp)(glob) + suffix, "i") // Case insensitive
     ;
-
     return PushProcessor.cachedGlobToRegex[glob];
   }
 
@@ -619,7 +590,7 @@ class PushProcessor {
   }
   ruleMatchesEvent(rule, ev) {
     // Disable the deprecated mentions push rules if the new mentions property exists.
-    if (this.client.supportsIntentionalMentions() && ev.getContent()["org.matrix.msc3952.mentions"] !== undefined && (rule.rule_id === _PushRules.RuleId.ContainsUserName || rule.rule_id === _PushRules.RuleId.ContainsDisplayName || rule.rule_id === _PushRules.RuleId.AtRoomNotification)) {
+    if (this.client.supportsIntentionalMentions() && ev.getContent()["m.mentions"] !== undefined && (rule.rule_id === _PushRules.RuleId.ContainsUserName || rule.rule_id === _PushRules.RuleId.ContainsDisplayName || rule.rule_id === _PushRules.RuleId.AtRoomNotification)) {
       return false;
     }
     return !rule.conditions?.some(cond => !this.eventFulfillsCondition(cond, ev));

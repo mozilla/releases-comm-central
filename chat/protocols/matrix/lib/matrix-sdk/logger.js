@@ -3,10 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logger = void 0;
+exports.logger = exports.LogSpan = void 0;
 var _loglevel = _interopRequireDefault(require("loglevel"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-/*
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2018 André Jaenisch
 Copyright 2019, 2021 The Matrix.org Foundation C.I.C.
 
@@ -22,6 +24,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/** Logger interface used within the js-sdk codebase */
+
+/** The basic interface for a logger which doesn't support children */
 
 // This is to demonstrate, that you can use any namespace you want.
 // Namespaces allow you to turn on/off the logging for specific parts of the
@@ -43,7 +48,7 @@ _loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
       args.unshift(this.prefix);
     }
     /* eslint-enable @typescript-eslint/no-invalid-this */
-    const supportedByConsole = methodName === "error" || methodName === "warn" || methodName === "trace" || methodName === "info";
+    const supportedByConsole = methodName === "error" || methodName === "warn" || methodName === "trace" || methodName === "info" || methodName === "debug";
     /* eslint-disable no-console */
     if (supportedByConsole) {
       return console[methodName](...args);
@@ -55,19 +60,19 @@ _loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
 };
 
 /**
- * Drop-in replacement for `console` using {@link https://www.npmjs.com/package/loglevel|loglevel}.
- * Can be tailored down to specific use cases if needed.
+ * Implementation of {@link Logger} based on `loglevel`.
+ *
+ * @deprecated this shouldn't be public; prefer {@link Logger}.
  */
-const logger = _loglevel.default.getLogger(DEFAULT_NAMESPACE);
-exports.logger = logger;
-logger.setLevel(_loglevel.default.levels.DEBUG, false);
+
+/** Internal utility function to turn a `loglevel.Logger` into a `PrefixedLogger` */
 function extendLogger(logger) {
-  logger.withPrefix = function (prefix) {
+  const prefixedLogger = logger;
+  prefixedLogger.getChild = prefixedLogger.withPrefix = function (prefix) {
     const existingPrefix = this.prefix || "";
     return getPrefixedLogger(existingPrefix + prefix);
   };
 }
-extendLogger(logger);
 function getPrefixedLogger(prefix) {
   const prefixLogger = _loglevel.default.getLogger(`${DEFAULT_NAMESPACE}-${prefix}`);
   if (prefixLogger.prefix !== prefix) {
@@ -78,3 +83,45 @@ function getPrefixedLogger(prefix) {
   }
   return prefixLogger;
 }
+
+/**
+ * Drop-in replacement for `console` using {@link https://www.npmjs.com/package/loglevel|loglevel}.
+ * Can be tailored down to specific use cases if needed.
+ */
+const logger = exports.logger = _loglevel.default.getLogger(DEFAULT_NAMESPACE);
+logger.setLevel(_loglevel.default.levels.DEBUG, false);
+extendLogger(logger);
+
+/**
+ * A "span" for grouping related log lines together.
+ *
+ * The current implementation just adds the name at the start of each log line.
+ *
+ * This offers a lighter-weight alternative to 'child' loggers returned by {@link Logger#getChild}. In particular,
+ * it's not possible to apply individual filters to the LogSpan such as setting the verbosity level. On the other hand,
+ * no reference to the LogSpan is retained in the logging framework, so it is safe to make lots of them over the course
+ * of an application's life and just drop references to them when the job is done.
+ */
+class LogSpan {
+  constructor(parent, name) {
+    this.parent = parent;
+    _defineProperty(this, "name", void 0);
+    this.name = name + ":";
+  }
+  trace(...msg) {
+    this.parent.trace(this.name, ...msg);
+  }
+  debug(...msg) {
+    this.parent.debug(this.name, ...msg);
+  }
+  info(...msg) {
+    this.parent.info(this.name, ...msg);
+  }
+  warn(...msg) {
+    this.parent.warn(this.name, ...msg);
+  }
+  error(...msg) {
+    this.parent.error(this.name, ...msg);
+  }
+}
+exports.LogSpan = LogSpan;

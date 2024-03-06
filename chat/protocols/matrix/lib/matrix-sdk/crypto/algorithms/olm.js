@@ -4,27 +4,27 @@ var _logger = require("../../logger");
 var olmlib = _interopRequireWildcard(require("../olmlib"));
 var _deviceinfo = require("../deviceinfo");
 var _base = require("./base");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * Defines m.olm encryption/decryption
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * Defines m.olm encryption/decryption
+ */
 const DeviceVerification = _deviceinfo.DeviceInfo.DeviceVerification;
 /**
  * Olm encryption implementation
@@ -155,9 +155,10 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
 
     // check that the device that encrypted the event belongs to the user that the event claims it's from.
     //
-    // To do this, we need to make sure that our device list is up-to-date. If the device is unknown, we can only
-    // assume that the device logged out and accept it anyway. Some event handlers, such as secret sharing, may be
-    // more strict and reject events that come from unknown devices.
+    // If the device is unknown then we check that we don't have any pending key-query requests for the sender. If
+    // after that the device is still unknown, then we can only assume that the device logged out and accept it
+    // anyway. Some event handlers, such as secret sharing, may be more strict and reject events that come from
+    // unknown devices.
     //
     // This is a defence against the following scenario:
     //
@@ -165,14 +166,25 @@ class OlmDecryption extends _base.DecryptionAlgorithm {
     //   * Mallory gets control of Alice's server, and sends a megolm session to Alice using her (Mallory's)
     //     senderkey, but claiming to be from Bob.
     //   * Mallory sends more events using that session, claiming to be from Bob.
-    //   * Alice sees that the senderkey is verified (since she verified Mallory) so marks events those
-    //     events as verified even though the sender is forged.
+    //   * Alice sees that the senderkey is verified (since she verified Mallory) so marks events those events as
+    //     verified even though the sender is forged.
     //
     // In practice, it's not clear that the js-sdk would behave that way, so this may be only a defence in depth.
 
-    await this.crypto.deviceList.downloadKeys([event.getSender()], false);
-    const senderKeyUser = this.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, deviceKey);
-    if (senderKeyUser !== event.getSender() && senderKeyUser != undefined) {
+    let senderKeyUser = this.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, deviceKey);
+    if (senderKeyUser === undefined || senderKeyUser === null) {
+      // Wait for any pending key query fetches for the user to complete before trying the lookup again.
+      try {
+        await this.crypto.deviceList.downloadKeys([event.getSender()], false);
+      } catch (e) {
+        throw new _base.DecryptionError("OLM_BAD_SENDER_CHECK_FAILED", "Could not verify sender identity", {
+          sender: deviceKey,
+          err: e
+        });
+      }
+      senderKeyUser = this.crypto.deviceList.getUserByIdentityKey(olmlib.OLM_ALGORITHM, deviceKey);
+    }
+    if (senderKeyUser !== event.getSender() && senderKeyUser !== undefined && senderKeyUser !== null) {
       throw new _base.DecryptionError("OLM_BAD_SENDER", "Message claimed to be from " + event.getSender(), {
         real_sender: senderKeyUser
       });

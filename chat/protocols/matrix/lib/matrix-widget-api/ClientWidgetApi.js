@@ -101,6 +101,7 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
     _defineProperty(_assertThisInitialized(_this), "allowedEvents", []);
     _defineProperty(_assertThisInitialized(_this), "isStopped", false);
     _defineProperty(_assertThisInitialized(_this), "turnServers", null);
+    _defineProperty(_assertThisInitialized(_this), "contentLoadedWaitTimer", void 0);
     if (!(iframe !== null && iframe !== void 0 && iframe.contentWindow)) {
       throw new Error("No iframe supplied");
     }
@@ -172,6 +173,13 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
       });
     }
   }, {
+    key: "canReceiveRoomAccountData",
+    value: function canReceiveRoomAccountData(eventType) {
+      return this.allowedEvents.some(function (e) {
+        return e.matchesAsRoomAccountData(_WidgetEventCapability.EventDirection.Receive, eventType);
+      });
+    }
+  }, {
     key: "stop",
     value: function stop() {
       this.isStopped = true;
@@ -193,6 +201,8 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
         _this2.allowedEvents = _WidgetEventCapability.WidgetEventCapability.findEventCapabilities(allowedCaps);
         _this2.notifyCapabilities(requestedCaps);
         _this2.emit("ready");
+      })["catch"](function (e) {
+        _this2.emit("error:preparing", e);
       });
     }
   }, {
@@ -218,19 +228,27 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
       } else {
         // Reaching this means, that the Iframe got reloaded/loaded and
         // the clientApi is awaiting the FIRST ContentLoaded action.
+        console.log("waitForIframeLoad is false: waiting for widget to send contentLoaded");
+        this.contentLoadedWaitTimer = setTimeout(function () {
+          console.error("Widget specified waitForIframeLoad=false but timed out waiting for contentLoaded event!");
+        }, 10000);
         this.contentLoadedActionSent = false;
       }
     }
   }, {
     key: "handleContentLoadedAction",
     value: function handleContentLoadedAction(action) {
+      if (this.contentLoadedWaitTimer !== undefined) {
+        clearTimeout(this.contentLoadedWaitTimer);
+        this.contentLoadedWaitTimer = undefined;
+      }
       if (this.contentLoadedActionSent) {
-        throw new Error("Improper sequence: ContentLoaded Action can only be send once after the widget loaded " + "and should only be used if waitForIframeLoad is false (default=true)");
+        throw new Error("Improper sequence: ContentLoaded Action can only be sent once after the widget loaded " + "and should only be used if waitForIframeLoad is false (default=true)");
       }
       if (this.widget.waitForIframeLoad) {
         this.transport.reply(action, {
           error: {
-            message: "Improper sequence: not expecting ContentLoaded event if " + "waitForIframLoad is true (default=true)"
+            message: "Improper sequence: not expecting ContentLoaded event if " + "waitForIframeLoad is true (default=true)"
           }
         });
       } else {
@@ -366,9 +384,28 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
       this.driver.askOpenID(observer);
     }
   }, {
+    key: "handleReadRoomAccountData",
+    value: function handleReadRoomAccountData(request) {
+      var _this7 = this;
+      var events = Promise.resolve([]);
+      events = this.driver.readRoomAccountData(request.data.type);
+      if (!this.canReceiveRoomAccountData(request.data.type)) {
+        return this.transport.reply(request, {
+          error: {
+            message: "Cannot read room account data of this type"
+          }
+        });
+      }
+      return events.then(function (evs) {
+        _this7.transport.reply(request, {
+          events: evs
+        });
+      });
+    }
+  }, {
     key: "handleReadEvents",
     value: function handleReadEvents(request) {
-      var _this7 = this;
+      var _this8 = this;
       if (!request.data.type) {
         return this.transport.reply(request, {
           error: {
@@ -409,6 +446,7 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
         }
       }
       var limit = request.data.limit || 0;
+      var since = request.data.since;
       var events = Promise.resolve([]);
       if (request.data.state_key !== undefined) {
         var stateKey = request.data.state_key === true ? undefined : request.data.state_key.toString();
@@ -428,10 +466,10 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
             }
           });
         }
-        events = this.driver.readRoomEvents(request.data.type, request.data.msgtype, limit, askRoomIds);
+        events = this.driver.readRoomEvents(request.data.type, request.data.msgtype, limit, askRoomIds, since);
       }
       return events.then(function (evs) {
-        return _this7.transport.reply(request, {
+        return _this8.transport.reply(request, {
           events: evs
         });
       });
@@ -439,7 +477,7 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "handleSendEvent",
     value: function handleSendEvent(request) {
-      var _this8 = this;
+      var _this9 = this;
       if (!request.data.type) {
         return this.transport.reply(request, {
           error: {
@@ -480,13 +518,13 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
         request.data.room_id);
       }
       sendEventPromise.then(function (sentEvent) {
-        return _this8.transport.reply(request, {
+        return _this9.transport.reply(request, {
           room_id: sentEvent.roomId,
           event_id: sentEvent.eventId
         });
       })["catch"](function (e) {
         console.error("error sending event: ", e);
-        return _this8.transport.reply(request, {
+        return _this9.transport.reply(request, {
           error: {
             message: "Error sending event"
           }
@@ -794,7 +832,7 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
     key: "handleReadRelations",
     value: function () {
       var _handleReadRelations = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(request) {
-        var _this9 = this;
+        var _this10 = this;
         var result, chunk;
         return _regeneratorRuntime().wrap(function _callee5$(_context5) {
           while (1) switch (_context5.prev = _context5.next) {
@@ -837,9 +875,9 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
               // only return events that the user has the permission to receive
               chunk = result.chunk.filter(function (e) {
                 if (e.state_key !== undefined) {
-                  return _this9.canReceiveStateEvent(e.type, e.state_key);
+                  return _this10.canReceiveStateEvent(e.type, e.state_key);
                 } else {
-                  return _this9.canReceiveRoomEvent(e.type, e.content['msgtype']);
+                  return _this10.canReceiveRoomEvent(e.type, e.content['msgtype']);
                 }
               });
               return _context5.abrupt("return", this.transport.reply(request, {
@@ -943,6 +981,98 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
       return handleUserDirectorySearch;
     }()
   }, {
+    key: "handleGetMediaConfig",
+    value: function () {
+      var _handleGetMediaConfig = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(request) {
+        var result;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              if (this.hasCapability(_Capabilities.MatrixCapabilities.MSC4039UploadFile)) {
+                _context7.next = 2;
+                break;
+              }
+              return _context7.abrupt("return", this.transport.reply(request, {
+                error: {
+                  message: "Missing capability"
+                }
+              }));
+            case 2:
+              _context7.prev = 2;
+              _context7.next = 5;
+              return this.driver.getMediaConfig();
+            case 5:
+              result = _context7.sent;
+              return _context7.abrupt("return", this.transport.reply(request, result));
+            case 9:
+              _context7.prev = 9;
+              _context7.t0 = _context7["catch"](2);
+              console.error("error while getting the media configuration", _context7.t0);
+              _context7.next = 14;
+              return this.transport.reply(request, {
+                error: {
+                  message: "Unexpected error while getting the media configuration"
+                }
+              });
+            case 14:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, this, [[2, 9]]);
+      }));
+      function handleGetMediaConfig(_x8) {
+        return _handleGetMediaConfig.apply(this, arguments);
+      }
+      return handleGetMediaConfig;
+    }()
+  }, {
+    key: "handleUploadFile",
+    value: function () {
+      var _handleUploadFile = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(request) {
+        var result;
+        return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+          while (1) switch (_context8.prev = _context8.next) {
+            case 0:
+              if (this.hasCapability(_Capabilities.MatrixCapabilities.MSC4039UploadFile)) {
+                _context8.next = 2;
+                break;
+              }
+              return _context8.abrupt("return", this.transport.reply(request, {
+                error: {
+                  message: "Missing capability"
+                }
+              }));
+            case 2:
+              _context8.prev = 2;
+              _context8.next = 5;
+              return this.driver.uploadFile(request.data.file);
+            case 5:
+              result = _context8.sent;
+              return _context8.abrupt("return", this.transport.reply(request, {
+                content_uri: result.contentUri
+              }));
+            case 9:
+              _context8.prev = 9;
+              _context8.t0 = _context8["catch"](2);
+              console.error("error while uploading a file", _context8.t0);
+              _context8.next = 14;
+              return this.transport.reply(request, {
+                error: {
+                  message: "Unexpected error while uploading a file"
+                }
+              });
+            case 14:
+            case "end":
+              return _context8.stop();
+          }
+        }, _callee8, this, [[2, 9]]);
+      }));
+      function handleUploadFile(_x9) {
+        return _handleUploadFile.apply(this, arguments);
+      }
+      return handleUploadFile;
+    }()
+  }, {
     key: "handleMessage",
     value: function handleMessage(ev) {
       if (this.isStopped) return;
@@ -977,6 +1107,12 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
             return this.handleReadRelations(ev.detail);
           case _WidgetApiAction.WidgetApiFromWidgetAction.MSC3973UserDirectorySearch:
             return this.handleUserDirectorySearch(ev.detail);
+          case _WidgetApiAction.WidgetApiFromWidgetAction.BeeperReadRoomAccountData:
+            return this.handleReadRoomAccountData(ev.detail);
+          case _WidgetApiAction.WidgetApiFromWidgetAction.MSC4039GetMediaConfigAction:
+            return this.handleGetMediaConfig(ev.detail);
+          case _WidgetApiAction.WidgetApiFromWidgetAction.MSC4039UploadFileAction:
+            return this.handleUploadFile(ev.detail);
           default:
             return this.transport.reply(ev.detail, {
               error: {
@@ -1040,46 +1176,46 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "feedEvent",
     value: function () {
-      var _feedEvent = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(rawEvent, currentViewedRoomId) {
+      var _feedEvent = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(rawEvent, currentViewedRoomId) {
         var _rawEvent$content;
-        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-          while (1) switch (_context7.prev = _context7.next) {
+        return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+          while (1) switch (_context9.prev = _context9.next) {
             case 0:
               if (!(rawEvent.room_id !== currentViewedRoomId && !this.canUseRoomTimeline(rawEvent.room_id))) {
-                _context7.next = 2;
+                _context9.next = 2;
                 break;
               }
-              return _context7.abrupt("return");
+              return _context9.abrupt("return");
             case 2:
               if (!(rawEvent.state_key !== undefined && rawEvent.state_key !== null)) {
-                _context7.next = 7;
+                _context9.next = 7;
                 break;
               }
               if (this.canReceiveStateEvent(rawEvent.type, rawEvent.state_key)) {
-                _context7.next = 5;
+                _context9.next = 5;
                 break;
               }
-              return _context7.abrupt("return");
+              return _context9.abrupt("return");
             case 5:
-              _context7.next = 9;
+              _context9.next = 9;
               break;
             case 7:
               if (this.canReceiveRoomEvent(rawEvent.type, (_rawEvent$content = rawEvent.content) === null || _rawEvent$content === void 0 ? void 0 : _rawEvent$content["msgtype"])) {
-                _context7.next = 9;
+                _context9.next = 9;
                 break;
               }
-              return _context7.abrupt("return");
+              return _context9.abrupt("return");
             case 9:
-              _context7.next = 11;
+              _context9.next = 11;
               return this.transport.send(_WidgetApiAction.WidgetApiToWidgetAction.SendEvent, rawEvent // it's compatible, but missing the index signature
               );
             case 11:
             case "end":
-              return _context7.stop();
+              return _context9.stop();
           }
-        }, _callee7, this);
+        }, _callee9, this);
       }));
-      function feedEvent(_x8, _x9) {
+      function feedEvent(_x10, _x11) {
         return _feedEvent.apply(this, arguments);
       }
       return feedEvent;
@@ -1095,26 +1231,26 @@ var ClientWidgetApi = /*#__PURE__*/function (_EventEmitter) {
   }, {
     key: "feedToDevice",
     value: function () {
-      var _feedToDevice = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(rawEvent, encrypted) {
-        return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-          while (1) switch (_context8.prev = _context8.next) {
+      var _feedToDevice = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(rawEvent, encrypted) {
+        return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+          while (1) switch (_context10.prev = _context10.next) {
             case 0:
               if (!this.canReceiveToDeviceEvent(rawEvent.type)) {
-                _context8.next = 3;
+                _context10.next = 3;
                 break;
               }
-              _context8.next = 3;
+              _context10.next = 3;
               return this.transport.send(_WidgetApiAction.WidgetApiToWidgetAction.SendToDevice, // it's compatible, but missing the index signature
               _objectSpread(_objectSpread({}, rawEvent), {}, {
                 encrypted: encrypted
               }));
             case 3:
             case "end":
-              return _context8.stop();
+              return _context10.stop();
           }
-        }, _callee8, this);
+        }, _callee10, this);
       }));
-      function feedToDevice(_x10, _x11) {
+      function feedToDevice(_x12, _x13) {
         return _feedToDevice.apply(this, arguments);
       }
       return feedToDevice;

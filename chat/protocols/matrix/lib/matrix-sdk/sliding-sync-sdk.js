@@ -16,22 +16,22 @@ var _event = require("./@types/event");
 var _roomState = require("./models/room-state");
 var _roomMember = require("./models/room-member");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // Number of consecutive failed syncs that will lead to a syncState of ERROR as opposed
 // to RECONNECTING. This is needed to inform the client of server issues when the
 // keepAlive is successful but the server /sync fails.
@@ -54,7 +54,6 @@ class ExtensionE2EE {
       enabled: true // this is sticky so only send it on the initial request
     };
   }
-
   async onResponse(data) {
     // Handle device list updates
     if (data.device_lists) {
@@ -200,7 +199,6 @@ class ExtensionTyping {
     if (!isInitial) {
       return undefined; // don't send a JSON object for subsequent requests, we don't need to.
     }
-
     return {
       enabled: true
     };
@@ -232,7 +230,6 @@ class ExtensionReceipts {
     }
     return undefined; // don't send a JSON object for subsequent requests, we don't need to.
   }
-
   onResponse(data) {
     if (!data?.rooms) {
       return;
@@ -275,7 +272,7 @@ class SlidingSyncSdk {
       this.slidingSync.registerExtension(ext);
     });
   }
-  onRoomData(roomId, roomData) {
+  async onRoomData(roomId, roomData) {
     let room = this.client.store.getRoom(roomId);
     if (!room) {
       if (!roomData.initial) {
@@ -284,7 +281,7 @@ class SlidingSyncSdk {
       }
       room = (0, _sync._createAndReEmitRoom)(this.client, roomId, this.opts);
     }
-    this.processRoomData(this.client, room, roomData);
+    await this.processRoomData(this.client, room, roomData);
   }
   onLifecycle(state, resp, err) {
     if (err) {
@@ -356,6 +353,14 @@ class SlidingSyncSdk {
    */
   stopPeeking() {
     // TODO
+  }
+
+  /**
+   * Specify the set_presence value to be used for subsequent calls to the Sync API.
+   * @param presence - the presence to specify to set_presence of sync calls
+   */
+  setPresence(presence) {
+    // TODO not possible in sliding sync yet
   }
 
   /**
@@ -462,7 +467,6 @@ class SlidingSyncSdk {
           seenKnownEvent = true;
           continue; // don't include this event, it's a dupe
         }
-
         if (seenKnownEvent) {
           // old -> new
           oldEvents.push(recvEvent);
@@ -477,7 +481,7 @@ class SlidingSyncSdk {
         room.addEventsToTimeline(oldEvents, true, room.getLiveTimeline(), roomData.prev_batch);
       }
     }
-    const encrypted = this.client.isRoomEncrypted(room.roomId);
+    const encrypted = room.hasEncryptionStateEvent();
     // we do this first so it's correct when any of the events fire
     if (roomData.notification_count != null) {
       room.setUnreadNotificationCount(_room.NotificationCountType.Total, roomData.notification_count);

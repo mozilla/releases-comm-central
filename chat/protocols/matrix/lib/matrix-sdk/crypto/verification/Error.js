@@ -48,38 +48,32 @@ function errorFactory(code, reason) {
 /**
  * The verification was cancelled by the user.
  */
-const newUserCancelledError = errorFactory("m.user", "Cancelled by user");
+const newUserCancelledError = exports.newUserCancelledError = errorFactory("m.user", "Cancelled by user");
 
 /**
  * The verification timed out.
  */
-exports.newUserCancelledError = newUserCancelledError;
-const newTimeoutError = errorFactory("m.timeout", "Timed out");
+const newTimeoutError = exports.newTimeoutError = errorFactory("m.timeout", "Timed out");
 
 /**
  * An unknown method was selected.
  */
-exports.newTimeoutError = newTimeoutError;
-const newUnknownMethodError = errorFactory("m.unknown_method", "Unknown method");
+const newUnknownMethodError = exports.newUnknownMethodError = errorFactory("m.unknown_method", "Unknown method");
 
 /**
  * An unexpected message was sent.
  */
-exports.newUnknownMethodError = newUnknownMethodError;
-const newUnexpectedMessageError = errorFactory("m.unexpected_message", "Unexpected message");
+const newUnexpectedMessageError = exports.newUnexpectedMessageError = errorFactory("m.unexpected_message", "Unexpected message");
 
 /**
  * The key does not match.
  */
-exports.newUnexpectedMessageError = newUnexpectedMessageError;
-const newKeyMismatchError = errorFactory("m.key_mismatch", "Key mismatch");
+const newKeyMismatchError = exports.newKeyMismatchError = errorFactory("m.key_mismatch", "Key mismatch");
 
 /**
  * An invalid message was sent.
  */
-exports.newKeyMismatchError = newKeyMismatchError;
-const newInvalidMessageError = errorFactory("m.invalid_message", "Invalid message");
-exports.newInvalidMessageError = newInvalidMessageError;
+const newInvalidMessageError = exports.newInvalidMessageError = errorFactory("m.invalid_message", "Invalid message");
 function errorFromEvent(event) {
   const content = event.getContent();
   if (content) {

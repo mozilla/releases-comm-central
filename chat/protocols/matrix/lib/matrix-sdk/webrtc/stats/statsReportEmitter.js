@@ -29,6 +29,9 @@ class StatsReportEmitter extends _typedEventEmitter.TypedEventEmitter {
   emitConnectionStatsReport(report) {
     this.emit(_statsReport.StatsReport.CONNECTION_STATS, report);
   }
+  emitCallFeedReport(report) {
+    this.emit(_statsReport.StatsReport.CALL_FEED_REPORT, report);
+  }
   emitSummaryStatsReport(report) {
     this.emit(_statsReport.StatsReport.SUMMARY_STATS, report);
   }

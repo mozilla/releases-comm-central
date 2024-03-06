@@ -19,10 +19,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let StatsReport = /*#__PURE__*/function (StatsReport) {
+let StatsReport = exports.StatsReport = /*#__PURE__*/function (StatsReport) {
   StatsReport["CONNECTION_STATS"] = "StatsReport.connection_stats";
+  StatsReport["CALL_FEED_REPORT"] = "StatsReport.call_feed_report";
   StatsReport["BYTE_SENT_STATS"] = "StatsReport.byte_sent_stats";
   StatsReport["SUMMARY_STATS"] = "StatsReport.summary_stats";
   return StatsReport;
-}({});
-exports.StatsReport = StatsReport;
+}({}); /// ByteSentStatsReport ################################################################################################
+/// ConnectionStatsReport ##############################################################################################
+/// SummaryStatsReport #################################################################################################
+/// CallFeedReport #####################################################################################################

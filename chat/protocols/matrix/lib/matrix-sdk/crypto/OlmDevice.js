@@ -7,25 +7,25 @@ exports.WITHHELD_MESSAGES = exports.PayloadTooLargeError = exports.OlmDevice = v
 var _logger = require("../logger");
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 var algorithms = _interopRequireWildcard(require("./algorithms"));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // The maximum size of an event is 65K, and we base64 the content, so this is a
 // reasonable approximation to the biggest plaintext we can encrypt.
 const MAX_PLAINTEXT_LENGTH = 65536 * 3 / 4;
@@ -461,7 +461,7 @@ class OlmDevice {
           session.free();
         }
       });
-    }, _logger.logger.withPrefix("[createOutboundSession]"));
+    }, _logger.logger.getChild("[createOutboundSession]"));
     return newSessionId;
   }
 
@@ -505,7 +505,7 @@ class OlmDevice {
           session.free();
         }
       });
-    }, _logger.logger.withPrefix("[createInboundSession]"));
+    }, _logger.logger.getChild("[createInboundSession]"));
     return result;
   }
 
@@ -517,7 +517,7 @@ class OlmDevice {
    * @returns  a list of known session ids for the device
    */
   async getSessionIdsForDevice(theirDeviceIdentityKey) {
-    const log = _logger.logger.withPrefix("[getSessionIdsForDevice]");
+    const log = _logger.logger.getChild("[getSessionIdsForDevice]");
     if (theirDeviceIdentityKey in this.sessionsInProgress) {
       log.debug(`Waiting for Olm session for ${theirDeviceIdentityKey} to be created`);
       try {
@@ -581,7 +581,7 @@ class OlmDevice {
    * @param log - A possibly customised log
    */
   async getSessionInfoForDevice(deviceIdentityKey, nowait = false, log = _logger.logger) {
-    log = log.withPrefix("[getSessionInfoForDevice]");
+    log = log.getChild("[getSessionInfoForDevice]");
     if (deviceIdentityKey in this.sessionsInProgress && !nowait) {
       log.debug(`Waiting for Olm session for ${deviceIdentityKey} to be created`);
       try {
@@ -629,7 +629,7 @@ class OlmDevice {
         res = sessionInfo.session.encrypt(payloadString);
         this.saveSession(theirDeviceIdentityKey, sessionInfo, txn);
       });
-    }, _logger.logger.withPrefix("[encryptMessage]"));
+    }, _logger.logger.getChild("[encryptMessage]"));
     return res;
   }
 
@@ -654,7 +654,7 @@ class OlmDevice {
         sessionInfo.lastReceivedMessageTs = Date.now();
         this.saveSession(theirDeviceIdentityKey, sessionInfo, txn);
       });
-    }, _logger.logger.withPrefix("[decryptMessage]"));
+    }, _logger.logger.getChild("[decryptMessage]"));
     return payloadString;
   }
 
@@ -679,7 +679,7 @@ class OlmDevice {
       this.getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
         matches = sessionInfo.session.matches_inbound(ciphertext);
       });
-    }, _logger.logger.withPrefix("[matchesSession]"));
+    }, _logger.logger.getChild("[matchesSession]"));
     return matches;
   }
   async recordSessionProblem(deviceKey, type, fixed) {
@@ -884,8 +884,7 @@ class OlmDevice {
               // If the sessions have the same index, go ahead and store the new trusted one.
             }
           }
-
-          _logger.logger.info(`Storing megolm session ${senderKey}|${sessionId} with first index ` + session.first_known_index());
+          _logger.logger.debug(`Storing megolm session ${senderKey}|${sessionId} with first index ` + session.first_known_index());
           const sessionData = Object.assign({}, extraSessionData, {
             room_id: roomId,
             session: session.pickle(this.pickleKey),
@@ -900,7 +899,7 @@ class OlmDevice {
           session.free();
         }
       });
-    }, _logger.logger.withPrefix("[addInboundGroupSession]"));
+    }, _logger.logger.getChild("[addInboundGroupSession]"));
   }
 
   /**
@@ -997,7 +996,7 @@ class OlmDevice {
           untrusted: !!sessionData.untrusted
         };
       });
-    }, _logger.logger.withPrefix("[decryptGroupMessage]"));
+    }, _logger.logger.getChild("[decryptGroupMessage]"));
     if (error) {
       throw error;
     }
@@ -1028,7 +1027,7 @@ class OlmDevice {
           result = true;
         }
       });
-    }, _logger.logger.withPrefix("[hasInboundSessionKeys]"));
+    }, _logger.logger.getChild("[hasInboundSessionKeys]"));
     return result;
   }
 
@@ -1078,7 +1077,7 @@ class OlmDevice {
           untrusted: untrusted
         };
       });
-    }, _logger.logger.withPrefix("[getInboundGroupSessionKey]"));
+    }, _logger.logger.getChild("[getInboundGroupSessionKey]"));
     return result;
   }
 
@@ -1109,7 +1108,7 @@ class OlmDevice {
     let result;
     await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
       result = this.cryptoStore.getSharedHistoryInboundGroupSessions(roomId, txn);
-    }, _logger.logger.withPrefix("[getSharedHistoryInboundGroupSessionsForRoom]"));
+    }, _logger.logger.getChild("[getSharedHistoryInboundGroupSessionsForRoom]"));
     return result;
   }
 
@@ -1134,7 +1133,7 @@ class OlmDevice {
   }
 }
 exports.OlmDevice = OlmDevice;
-const WITHHELD_MESSAGES = {
+const WITHHELD_MESSAGES = exports.WITHHELD_MESSAGES = {
   "m.unverified": "The sender has disabled encrypting to unverified devices.",
   "m.blacklisted": "The sender has blocked you.",
   "m.unauthorised": "You are not authorised to read the message.",
@@ -1150,7 +1149,6 @@ const WITHHELD_MESSAGES = {
  *
  * @internal
  */
-exports.WITHHELD_MESSAGES = WITHHELD_MESSAGES;
 function calculateWithheldMessage(withheld) {
   if (withheld.code && withheld.code in WITHHELD_MESSAGES) {
     return WITHHELD_MESSAGES[withheld.code];

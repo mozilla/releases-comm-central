@@ -19,27 +19,28 @@ var _ReEmitter = require("../ReEmitter");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _algorithms = require("../crypto/algorithms");
 var _OlmDevice = require("../crypto/OlmDevice");
+var _eventTimeline = require("./event-timeline");
 var _eventStatus = require("./event-status");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link MatrixEvent} and {@link RoomEvent} for
-                                                                                                                                                                                                                                                                                                                                                                                              * the public classes.
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * This is an internal module. See {@link MatrixEvent} and {@link RoomEvent} for
+ * the public classes.
+ */
 /* eslint-disable camelcase */
 
 /**
@@ -65,7 +66,7 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
 const MESSAGE_VISIBLE = Object.freeze({
   visible: true
 });
-let MatrixEventEvent = /*#__PURE__*/function (MatrixEventEvent) {
+let MatrixEventEvent = exports.MatrixEventEvent = /*#__PURE__*/function (MatrixEventEvent) {
   MatrixEventEvent["Decrypted"] = "Event.decrypted";
   MatrixEventEvent["BeforeRedaction"] = "Event.beforeRedaction";
   MatrixEventEvent["VisibilityChange"] = "Event.visibilityChange";
@@ -75,7 +76,6 @@ let MatrixEventEvent = /*#__PURE__*/function (MatrixEventEvent) {
   MatrixEventEvent["RelationsCreated"] = "Event.relationsCreated";
   return MatrixEventEvent;
 }({});
-exports.MatrixEventEvent = MatrixEventEvent;
 class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Construct a Matrix Event object
@@ -181,7 +181,7 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     /**
      * most recent error associated with sending the event, if any
      * @privateRemarks
-     * Should be read-only
+     * Should be read-only. May not be a MatrixError.
      */
     _defineProperty(this, "error", null);
     /**
@@ -212,7 +212,13 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
       event.content["m.relates_to"][prop] = (0, _utils.internaliseString)(event.content["m.relates_to"][prop]);
     });
     this.txnId = event.txn_id;
-    this.localTimestamp = Date.now() - (this.getAge() ?? 0);
+    // The localTimestamp is calculated using the age.
+    // Some events lack an `age` property, either because they are EDUs such as typing events,
+    // or due to server-side bugs such as https://github.com/matrix-org/synapse/issues/8429.
+    // The fallback in these cases will be to use the origin_server_ts.
+    // For EDUs, the origin_server_ts also is not defined so we use Date.now().
+    const age = this.getAge();
+    this.localTimestamp = age !== undefined ? Date.now() - age : this.getTs() ?? Date.now();
     this.reEmitter = new _ReEmitter.TypedReEmitter(this);
   }
 
@@ -235,9 +241,12 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Gets the event as though it would appear unencrypted. If the event is already not
-   * encrypted, it is simply returned as-is.
-   * @returns The event in wire format.
+   * Gets the event as it would appear if it had been sent unencrypted.
+   *
+   * If the event is encrypted, we attempt to mock up an event as it would have looked had the sender not encrypted it.
+   * If the event is not encrypted, a copy of it is simply returned as-is.
+   *
+   * @returns A shallow copy of the event, in wire format, as it would have been had it not been encrypted.
    */
   getEffectiveEvent() {
     const content = Object.assign({}, this.getContent()); // clone for mutation
@@ -342,16 +351,15 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * ```
    */
   getDetails() {
-    let details = `id=${this.getId()} type=${this.getWireType()} sender=${this.getSender()}`;
     const room = this.getRoomId();
     if (room) {
-      details += ` room=${room}`;
+      // in-room event
+      return `id=${this.getId()} type=${this.getWireType()} sender=${this.getSender()} room=${room} ts=${this.getDate()?.toISOString()}`;
+    } else {
+      // to-device event
+      const msgid = this.getContent()[_event.ToDeviceMessageId];
+      return `msgid=${msgid} type=${this.getWireType()} sender=${this.getSender()}`;
     }
-    const date = this.getDate();
-    if (date) {
-      details += ` ts=${date.toISOString()}`;
-    }
-    return details;
   }
 
   /**
@@ -401,24 +409,41 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * Get the event ID of the thread head
    */
   get threadRootId() {
+    // don't allow state events to be threaded as per the spec
+    if (this.isState()) {
+      return undefined;
+    }
     const relatesTo = this.getWireContent()?.["m.relates_to"];
     if (relatesTo?.rel_type === _thread.THREAD_RELATION_TYPE.name) {
       return relatesTo.event_id;
-    } else {
-      return this.getThread()?.id || this.threadId;
     }
+    if (this.thread) {
+      return this.thread.id;
+    }
+    if (this.threadId !== undefined) {
+      return this.threadId;
+    }
+    const unsigned = this.getUnsigned();
+    if (typeof unsigned[_event.UNSIGNED_THREAD_ID_FIELD.name] === "string") {
+      return unsigned[_event.UNSIGNED_THREAD_ID_FIELD.name];
+    }
+    return undefined;
   }
 
   /**
    * A helper to check if an event is a thread's head or not
    */
   get isThreadRoot() {
+    // don't allow state events to be threaded as per the spec
+    if (this.isState()) {
+      return false;
+    }
     const threadDetails = this.getServerAggregatedRelation(_thread.THREAD_RELATION_TYPE.name);
 
     // Bundled relationships only returned when the sync response is limited
     // hence us having to check both bundled relation and inspect the thread
     // model
-    return !!threadDetails || this.getThread()?.id === this.getId();
+    return !!threadDetails || this.threadRootId === this.getId();
   }
   get replyEventId() {
     return this.getWireContent()["m.relates_to"]?.["m.in_reply_to"]?.event_id;
@@ -804,7 +829,7 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * signing the public curve25519 key with the ed25519 key.
    *
    * In general, applications should not use this method directly, but should
-   * instead use MatrixClient.getEventSenderDeviceInfo.
+   * instead use {@link CryptoApi#getEncryptionInfoForEvent}.
    */
   getClaimedEd25519Key() {
     return this.claimedEd25519Key;
@@ -907,12 +932,18 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
+   * @deprecated In favor of the overload that includes a Room argument
+   */
+
+  /**
    * Update the content of an event in the same way it would be by the server
    * if it were redacted before it was sent to us
    *
    * @param redactionEvent - event causing the redaction
+   * @param room - the room in which the event exists
    */
-  makeRedacted(redactionEvent) {
+
+  makeRedacted(redactionEvent, room) {
     // quick sanity-check
     if (!redactionEvent.event) {
       throw new Error("invalid redactionEvent in makeRedacted");
@@ -947,7 +978,39 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
         delete content[key];
       }
     }
+
+    // If the redacted event was in a thread (but not thread root), move it
+    // to the main timeline. This will change if MSC3389 is merged.
+    if (room && !this.isThreadRoot && this.threadRootId && this.threadRootId !== this.getId()) {
+      this.moveAllRelatedToMainTimeline(room);
+      redactionEvent.moveToMainTimeline(room);
+    }
     this.invalidateExtensibleEvent();
+  }
+  moveAllRelatedToMainTimeline(room) {
+    const thread = this.thread;
+    this.moveToMainTimeline(room);
+
+    // If we dont have access to the thread, we can only move this
+    // event, not things related to it.
+    if (thread) {
+      for (const event of thread.events) {
+        if (event.getRelation()?.event_id === this.getId()) {
+          event.moveAllRelatedToMainTimeline(room);
+        }
+      }
+    }
+  }
+  moveToMainTimeline(room) {
+    // Remove it from its thread
+    this.thread?.timelineSet.removeEvent(this.getId());
+    this.setThread(undefined);
+
+    // And insert it into the main timeline
+    const timeline = room.getLiveTimeline();
+    // We use insertEventIntoTimeline to insert it in timestamp order,
+    // because we don't know where it should go (until we have MSC4033).
+    timeline.getTimelineSet().insertEventIntoTimeline(this, timeline, timeline.getState(_eventTimeline.EventTimeline.FORWARDS));
   }
 
   /**
@@ -1138,8 +1201,8 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     // Relation info is lifted out of the encrypted content when sent to
     // encrypted rooms, so we have to check `getWireContent` for this.
     const relation = this.getWireContent()?.["m.relates_to"];
-    if (this.isState() && relation?.rel_type === _event.RelationType.Replace) {
-      // State events cannot be m.replace relations
+    if (this.isState() && !!relation?.rel_type && [_event.RelationType.Replace, _event.RelationType.Thread].includes(relation.rel_type)) {
+      // State events cannot be m.replace or m.thread relations
       return false;
     }
     return !!(relation?.rel_type && relation.event_id && (relType ? relation.rel_type === relType : true));
@@ -1350,15 +1413,21 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Summarise the event as JSON. This is currently used by React SDK's view
-   * event source feature and Seshat's event indexing, so take care when
-   * adjusting the output here.
+   * Summarise the event as JSON.
    *
    * If encrypted, include both the decrypted and encrypted view of the event.
    *
    * This is named `toJSON` for use with `JSON.stringify` which checks objects
    * for functions named `toJSON` and will call them to customise the output
    * if they are defined.
+   *
+   * **WARNING** Do not log the result of this method; otherwise, it will end up
+   * in rageshakes, leading to a privacy violation.
+   *
+   * @deprecated Prefer to use {@link MatrixEvent#getEffectiveEvent} or similar.
+   * This method will be removed soon; it is too easy to use it accidentally
+   * and cause a privacy violation (cf https://github.com/vector-im/element-web/issues/26380).
+   * In any case, the value it returns is not a faithful serialization of the object.
    */
   toJSON() {
     const event = this.getEffectiveEvent();
@@ -1385,6 +1454,10 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * @param thread - the thread
    */
   setThread(thread) {
+    // don't allow state events to be threaded as per the spec
+    if (this.isState()) {
+      return;
+    }
     if (this.thread) {
       this.reEmitter.stopReEmitting(this.thread, [_thread.ThreadEvent.Update]);
     }
@@ -1422,9 +1495,6 @@ const REDACT_KEEP_KEYS = new Set(["event_id", "type", "room_id", "user_id", "sen
 const REDACT_KEEP_CONTENT_MAP = {
   [_event.EventType.RoomMember]: {
     membership: 1
-  },
-  [_event.EventType.RoomCreate]: {
-    creator: 1
   },
   [_event.EventType.RoomJoinRules]: {
     join_rule: 1

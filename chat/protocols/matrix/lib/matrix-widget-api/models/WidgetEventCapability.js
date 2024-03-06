@@ -32,6 +32,7 @@ var EventKind = /*#__PURE__*/function (EventKind) {
   EventKind["Event"] = "event";
   EventKind["State"] = "state_event";
   EventKind["ToDevice"] = "to_device";
+  EventKind["RoomAccount"] = "room_account";
   return EventKind;
 }({});
 exports.EventKind = EventKind;
@@ -90,6 +91,16 @@ var WidgetEventCapability = /*#__PURE__*/function () {
       // Default not allowed
       return false;
     }
+  }, {
+    key: "matchesAsRoomAccountData",
+    value: function matchesAsRoomAccountData(direction, eventType) {
+      if (this.kind !== EventKind.RoomAccount) return false; // not room account data
+      if (this.direction !== direction) return false; // direction mismatch
+      if (this.eventType !== eventType) return false; // event type mismatch
+
+      // Checks passed, the event is allowed
+      return true;
+    }
   }], [{
     key: "forStateEvent",
     value: function forStateEvent(direction, eventType, stateKey) {
@@ -131,6 +142,12 @@ var WidgetEventCapability = /*#__PURE__*/function () {
       var str = "org.matrix.msc2762.".concat(direction, ".event:m.room.message#").concat(msgtype);
 
       // cheat by sending it through the processor
+      return WidgetEventCapability.findEventCapabilities([str])[0];
+    }
+  }, {
+    key: "forRoomAccountData",
+    value: function forRoomAccountData(direction, eventType) {
+      var str = "com.beeper.capabilities.".concat(direction, ".room_account_data:").concat(eventType);
       return WidgetEventCapability.findEventCapabilities([str])[0];
     }
 
@@ -180,6 +197,10 @@ var WidgetEventCapability = /*#__PURE__*/function () {
             _direction = EventDirection.Receive;
             _kind = EventKind.ToDevice;
             eventSegment = cap.substring("org.matrix.msc3819.receive.to_device:".length);
+          } else if (cap.startsWith("com.beeper.capabilities.receive.room_account_data:")) {
+            _direction = EventDirection.Receive;
+            _kind = EventKind.RoomAccount;
+            eventSegment = cap.substring("com.beeper.capabilities.receive.room_account_data:".length);
           }
           if (_direction === null || _kind === null || eventSegment === undefined) continue;
 

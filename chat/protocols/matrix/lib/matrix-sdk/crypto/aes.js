@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.calculateKeyCheck = calculateKeyCheck;
 exports.decryptAES = decryptAES;
 exports.encryptAES = encryptAES;
-var _olmlib = require("./olmlib");
+var _base = require("../base64");
 var _crypto = require("./crypto");
 /*
 Copyright 2020 - 2021 The Matrix.org Foundation C.I.C.
@@ -37,7 +37,7 @@ const zeroSalt = new Uint8Array(8);
 async function encryptAES(data, key, name, ivStr) {
   let iv;
   if (ivStr) {
-    iv = (0, _olmlib.decodeBase64)(ivStr);
+    iv = (0, _base.decodeBase64)(ivStr);
   } else {
     iv = new Uint8Array(16);
     _crypto.crypto.getRandomValues(iv);
@@ -58,9 +58,9 @@ async function encryptAES(data, key, name, ivStr) {
     name: "HMAC"
   }, hmacKey, ciphertext);
   return {
-    iv: (0, _olmlib.encodeBase64)(iv),
-    ciphertext: (0, _olmlib.encodeBase64)(ciphertext),
-    mac: (0, _olmlib.encodeBase64)(hmac)
+    iv: (0, _base.encodeBase64)(iv),
+    ciphertext: (0, _base.encodeBase64)(ciphertext),
+    mac: (0, _base.encodeBase64)(hmac)
   };
 }
 
@@ -73,15 +73,15 @@ async function encryptAES(data, key, name, ivStr) {
  */
 async function decryptAES(data, key, name) {
   const [aesKey, hmacKey] = await deriveKeys(key, name);
-  const ciphertext = (0, _olmlib.decodeBase64)(data.ciphertext);
+  const ciphertext = (0, _base.decodeBase64)(data.ciphertext);
   if (!(await _crypto.subtleCrypto.verify({
     name: "HMAC"
-  }, hmacKey, (0, _olmlib.decodeBase64)(data.mac), ciphertext))) {
+  }, hmacKey, (0, _base.decodeBase64)(data.mac), ciphertext))) {
     throw new Error(`Error decrypting secret ${name}: bad MAC`);
   }
   const plaintext = await _crypto.subtleCrypto.decrypt({
     name: "AES-CTR",
-    counter: (0, _olmlib.decodeBase64)(data.iv),
+    counter: (0, _base.decodeBase64)(data.iv),
     length: 64
   }, aesKey, ciphertext);
   return new TextDecoder().decode(new Uint8Array(plaintext));

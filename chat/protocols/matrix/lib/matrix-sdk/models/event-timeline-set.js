@@ -10,22 +10,22 @@ var _room = require("./room");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _relationsContainer = require("./relations-container");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 const DEBUG = true;
 
 /* istanbul ignore next */
@@ -37,12 +37,11 @@ if (DEBUG) {
   /* istanbul ignore next */
   debuglog = function () {};
 }
-let DuplicateStrategy = /*#__PURE__*/function (DuplicateStrategy) {
+let DuplicateStrategy = exports.DuplicateStrategy = /*#__PURE__*/function (DuplicateStrategy) {
   DuplicateStrategy["Ignore"] = "ignore";
   DuplicateStrategy["Replace"] = "replace";
   return DuplicateStrategy;
 }({});
-exports.DuplicateStrategy = DuplicateStrategy;
 class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Construct a set of EventTimeline objects, typically on behalf of a given
@@ -433,7 +432,6 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
         }
         continue; // abort splicing - try next event
       }
-
       timeline.setNeighbouringTimeline(existingTimeline, direction);
       existingTimeline.setNeighbouringTimeline(timeline, inverseDirection);
       timeline = existingTimeline;
@@ -554,6 +552,9 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
       throw new Error(`EventTimelineSet.addEventToTimeline: Timeline=${timeline.toString()} does not belong " +
                 "in timelineSet(threadId=${this.thread?.id})`);
     }
+    const eventId = event.getId();
+    this.relations.aggregateParentEvent(event);
+    this.relations.aggregateChildEvent(event, this);
 
     // Make sure events don't get mixed in timelines they shouldn't be in (e.g. a
     // threaded message should not be in the main timeline).
@@ -561,22 +562,19 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     // We can only run this check for timelines with a `room` because `canContain`
     // requires it
     if (this.room && !this.canContain(event)) {
-      let eventDebugString = `event=${event.getId()}`;
+      let eventDebugString = `event=${eventId}`;
       if (event.threadRootId) {
         eventDebugString += `(belongs to thread=${event.threadRootId})`;
       }
       _logger.logger.warn(`EventTimelineSet.addEventToTimeline: Ignoring ${eventDebugString} that does not belong ` + `in timeline=${timeline.toString()} timelineSet(threadId=${this.thread?.id})`);
       return;
     }
-    const eventId = event.getId();
     timeline.addEvent(event, {
       toStartOfTimeline,
       roomState,
       timelineWasEmpty
     });
     this._eventIdToTimeline.set(eventId, timeline);
-    this.relations.aggregateParentEvent(event);
-    this.relations.aggregateChildEvent(event, this);
     const data = {
       timeline: timeline,
       liveEvent: !toStartOfTimeline && timeline == this.liveTimeline && !fromCache
@@ -606,9 +604,12 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
    */
   insertEventIntoTimeline(event, timeline, roomState) {
     if (timeline.getTimelineSet() !== this) {
-      throw new Error(`EventTimelineSet.addEventToTimeline: Timeline=${timeline.toString()} does not belong " +
+      throw new Error(`EventTimelineSet.insertEventIntoTimeline: Timeline=${timeline.toString()} does not belong " +
                 "in timelineSet(threadId=${this.thread?.id})`);
     }
+    const eventId = event.getId();
+    this.relations.aggregateParentEvent(event);
+    this.relations.aggregateChildEvent(event, this);
 
     // Make sure events don't get mixed in timelines they shouldn't be in (e.g. a
     // threaded message should not be in the main timeline).
@@ -616,11 +617,11 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     // We can only run this check for timelines with a `room` because `canContain`
     // requires it
     if (this.room && !this.canContain(event)) {
-      let eventDebugString = `event=${event.getId()}`;
+      let eventDebugString = `event=${eventId}`;
       if (event.threadRootId) {
         eventDebugString += `(belongs to thread=${event.threadRootId})`;
       }
-      _logger.logger.warn(`EventTimelineSet.addEventToTimeline: Ignoring ${eventDebugString} that does not belong ` + `in timeline=${timeline.toString()} timelineSet(threadId=${this.thread?.id})`);
+      _logger.logger.warn(`EventTimelineSet.insertEventIntoTimeline: Ignoring ${eventDebugString} that does not belong ` + `in timeline=${timeline.toString()} timelineSet(threadId=${this.thread?.id})`);
       return;
     }
 
@@ -653,14 +654,14 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     // If we got to the end of the loop, insertIndex points at the end of
     // the list.
 
-    const eventId = event.getId();
     timeline.insertEvent(event, insertIndex, roomState);
     this._eventIdToTimeline.set(eventId, timeline);
-    this.relations.aggregateParentEvent(event);
-    this.relations.aggregateChildEvent(event, this);
     const data = {
       timeline: timeline,
-      liveEvent: timeline == this.liveTimeline
+      // The purpose of this method is inserting events in the middle of the
+      // timeline, so the events are, by definition, not live (whether or not
+      // we're adding them to the live timeline).
+      liveEvent: false
     };
     this.emit(_room.RoomEvent.Timeline, event, this.room, false, false, data);
   }
@@ -718,11 +719,10 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
    *
    * @param eventId1 -   The id of the first event
    * @param eventId2 -   The id of the second event
-    * @returns a number less than zero if eventId1 precedes eventId2, and
-   *    greater than zero if eventId1 succeeds eventId2. zero if they are the
-   *    same event; null if we can't tell (either because we don't know about one
-   *    of the events, or because they are in separate timelines which don't join
-   *    up).
+    * @returns -1 if eventId1 precedes eventId2, and +1 eventId1 succeeds
+   * eventId2. 0 if they are the same event; null if we can't tell (either
+   * because we don't know about one of the events, or because they are in
+   * separate timelines which don't join up).
    */
   compareEventOrdering(eventId1, eventId2) {
     if (eventId1 == eventId2) {
@@ -751,7 +751,16 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
           idx2 = idx;
         }
       }
-      return idx1 - idx2;
+      const difference = idx1 - idx2;
+
+      // Return the sign of difference.
+      if (difference < 0) {
+        return -1;
+      } else if (difference > 0) {
+        return 1;
+      } else {
+        return 0;
+      }
     }
 
     // the events are in different timelines. Iterate through the
@@ -798,10 +807,14 @@ class EventTimelineSet extends _typedEventEmitter.TypedEventEmitter {
     }
     const {
       threadId,
-      shouldLiveInRoom
+      shouldLiveInRoom,
+      shouldLiveInThread
     } = this.room.eventShouldLiveIn(event);
     if (this.thread) {
       return this.thread.id === threadId;
+    }
+    if (!shouldLiveInRoom && !shouldLiveInThread) {
+      _logger.logger.warn(`EventTimelineSet:canContain event encountered which cannot be added to any timeline roomId=${this.room?.roomId} eventId=${event.getId()} threadId=${event.threadRootId}`);
     }
     return shouldLiveInRoom;
   }

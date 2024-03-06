@@ -11,30 +11,29 @@ var _logger = require("../logger");
 var _event = require("../@types/event");
 var _sync = require("../sync");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 Šimon Brandner <simon.bra.ag@gmail.com>
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
-let GroupCallEventHandlerEvent = /*#__PURE__*/function (GroupCallEventHandlerEvent) {
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2021 Šimon Brandner <simon.bra.ag@gmail.com>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+let GroupCallEventHandlerEvent = exports.GroupCallEventHandlerEvent = /*#__PURE__*/function (GroupCallEventHandlerEvent) {
   GroupCallEventHandlerEvent["Incoming"] = "GroupCall.incoming";
   GroupCallEventHandlerEvent["Outgoing"] = "GroupCall.outgoing";
   GroupCallEventHandlerEvent["Ended"] = "GroupCall.ended";
   GroupCallEventHandlerEvent["Participants"] = "GroupCall.participants";
   return GroupCallEventHandlerEvent;
 }({});
-exports.GroupCallEventHandlerEvent = GroupCallEventHandlerEvent;
 class GroupCallEventHandler {
   constructor(client) {
     this.client = client;
@@ -96,6 +95,7 @@ class GroupCallEventHandler {
     this.client.on(_roomState.RoomStateEvent.Events, this.onRoomStateChanged);
   }
   stop() {
+    this.client.removeListener(_client.ClientEvent.Room, this.onRoomsChanged);
     this.client.removeListener(_roomState.RoomStateEvent.Events, this.onRoomStateChanged);
   }
   getRoomDeferred(roomId) {
@@ -130,7 +130,6 @@ class GroupCallEventHandler {
       this.createGroupCallFromRoomStateEvent(callEvent);
       break;
     }
-    _logger.logger.info(`GroupCallEventHandler createGroupCallForRoom() processed room (roomId=${room.roomId})`);
     this.getRoomDeferred(room.roomId).resolve();
   }
   createGroupCallFromRoomStateEvent(event) {
@@ -172,7 +171,7 @@ class GroupCallEventHandler {
     const groupCall = new _groupCall.GroupCall(this.client, room, callType, isPtt, callIntent, groupCallId,
     // Because without Media section a WebRTC connection is not possible, so need a RTCDataChannel to set up a
     // no media WebRTC connection anyway.
-    content?.dataChannelsEnabled || this.client.isVoipWithNoMediaAllowed, dataChannelOptions, this.client.isVoipWithNoMediaAllowed);
+    content?.dataChannelsEnabled || this.client.isVoipWithNoMediaAllowed, dataChannelOptions, this.client.isVoipWithNoMediaAllowed, this.client.useLivekitForGroupCalls, content["io.element.livekit_service_url"]);
     this.groupCalls.set(room.roomId, groupCall);
     this.client.emit(GroupCallEventHandlerEvent.Incoming, groupCall);
     return groupCall;

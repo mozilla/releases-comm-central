@@ -7,28 +7,62 @@ var _exportNames = {
   setCryptoStoreFactory: true,
   createClient: true,
   createRoomWidgetClient: true,
+  TypedEventEmitter: true,
+  LocationAssetType: true,
+  IdentityProviderBrand: true,
+  SSOAction: true,
   ContentHelpers: true,
   SecretStorage: true,
   createNewMatrixCall: true,
+  CallEvent: true,
+  GroupCall: true,
   GroupCallEvent: true,
   GroupCallIntent: true,
   GroupCallState: true,
   GroupCallType: true,
+  GroupCallStatsReportEvent: true,
   CryptoEvent: true,
+  SyncState: true,
+  SetPresence: true,
+  SlidingSyncEvent: true,
+  MediaHandlerEvent: true,
+  CallFeedEvent: true,
+  StatsReport: true,
+  Relations: true,
+  RelationsEvent: true,
+  LocalStorageErrors: true,
   DeviceVerificationStatus: true,
   Crypto: true
 };
+Object.defineProperty(exports, "CallEvent", {
+  enumerable: true,
+  get: function () {
+    return _call.CallEvent;
+  }
+});
+Object.defineProperty(exports, "CallFeedEvent", {
+  enumerable: true,
+  get: function () {
+    return _callFeed.CallFeedEvent;
+  }
+});
 exports.Crypto = exports.ContentHelpers = void 0;
 Object.defineProperty(exports, "CryptoEvent", {
   enumerable: true,
   get: function () {
-    return _crypto.CryptoEvent;
+    return _crypto2.CryptoEvent;
   }
 });
 Object.defineProperty(exports, "DeviceVerificationStatus", {
   enumerable: true,
   get: function () {
     return _Crypto.DeviceVerificationStatus;
+  }
+});
+Object.defineProperty(exports, "GroupCall", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCall;
   }
 });
 Object.defineProperty(exports, "GroupCallEvent", {
@@ -49,13 +83,91 @@ Object.defineProperty(exports, "GroupCallState", {
     return _groupCall.GroupCallState;
   }
 });
+Object.defineProperty(exports, "GroupCallStatsReportEvent", {
+  enumerable: true,
+  get: function () {
+    return _groupCall.GroupCallStatsReportEvent;
+  }
+});
 Object.defineProperty(exports, "GroupCallType", {
   enumerable: true,
   get: function () {
     return _groupCall.GroupCallType;
   }
 });
+Object.defineProperty(exports, "IdentityProviderBrand", {
+  enumerable: true,
+  get: function () {
+    return _auth.IdentityProviderBrand;
+  }
+});
+Object.defineProperty(exports, "LocalStorageErrors", {
+  enumerable: true,
+  get: function () {
+    return _localStorageEventsEmitter.LocalStorageErrors;
+  }
+});
+Object.defineProperty(exports, "LocationAssetType", {
+  enumerable: true,
+  get: function () {
+    return _location.LocationAssetType;
+  }
+});
+Object.defineProperty(exports, "MediaHandlerEvent", {
+  enumerable: true,
+  get: function () {
+    return _mediaHandler.MediaHandlerEvent;
+  }
+});
+Object.defineProperty(exports, "Relations", {
+  enumerable: true,
+  get: function () {
+    return _relations.Relations;
+  }
+});
+Object.defineProperty(exports, "RelationsEvent", {
+  enumerable: true,
+  get: function () {
+    return _relations.RelationsEvent;
+  }
+});
+Object.defineProperty(exports, "SSOAction", {
+  enumerable: true,
+  get: function () {
+    return _auth.SSOAction;
+  }
+});
 exports.SecretStorage = void 0;
+Object.defineProperty(exports, "SetPresence", {
+  enumerable: true,
+  get: function () {
+    return _sync.SetPresence;
+  }
+});
+Object.defineProperty(exports, "SlidingSyncEvent", {
+  enumerable: true,
+  get: function () {
+    return _slidingSync.SlidingSyncEvent;
+  }
+});
+Object.defineProperty(exports, "StatsReport", {
+  enumerable: true,
+  get: function () {
+    return _statsReport.StatsReport;
+  }
+});
+Object.defineProperty(exports, "SyncState", {
+  enumerable: true,
+  get: function () {
+    return _sync.SyncState;
+  }
+});
+Object.defineProperty(exports, "TypedEventEmitter", {
+  enumerable: true,
+  get: function () {
+    return _typedEventEmitter.TypedEventEmitter;
+  }
+});
 exports.createClient = createClient;
 Object.defineProperty(exports, "createNewMatrixCall", {
   enumerable: true,
@@ -173,6 +285,18 @@ Object.keys(_errors).forEach(function (key) {
     }
   });
 });
+var _base = require("./base64");
+Object.keys(_base).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _base[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _base[key];
+    }
+  });
+});
 var _beacon = require("./models/beacon");
 Object.keys(_beacon).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -269,6 +393,18 @@ Object.keys(_roomState).forEach(function (key) {
     }
   });
 });
+var _thread = require("./models/thread");
+Object.keys(_thread).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _thread[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _thread[key];
+    }
+  });
+});
 var _typedEventEmitter = require("./models/typed-event-emitter");
 Object.keys(_typedEventEmitter).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -302,6 +438,30 @@ Object.keys(_device).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _device[key];
+    }
+  });
+});
+var _searchResult = require("./models/search-result");
+Object.keys(_searchResult).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _searchResult[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _searchResult[key];
+    }
+  });
+});
+var _oidc = require("./oidc");
+Object.keys(_oidc).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _oidc[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _oidc[key];
     }
   });
 });
@@ -365,6 +525,18 @@ Object.keys(_indexeddb).forEach(function (key) {
     }
   });
 });
+var _localStorageCryptoStore = require("./crypto/store/localStorage-crypto-store");
+Object.keys(_localStorageCryptoStore).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _localStorageCryptoStore[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _localStorageCryptoStore[key];
+    }
+  });
+});
 var _indexeddbCryptoStore = require("./crypto/store/indexeddb-crypto-store");
 Object.keys(_indexeddbCryptoStore).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -386,6 +558,30 @@ Object.keys(_contentRepo).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _contentRepo[key];
+    }
+  });
+});
+var _common = require("./@types/common");
+Object.keys(_common).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _common[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _common[key];
+    }
+  });
+});
+var _uia = require("./@types/uia");
+Object.keys(_uia).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _uia[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _uia[key];
     }
   });
 });
@@ -449,6 +645,150 @@ Object.keys(_search).forEach(function (key) {
     }
   });
 });
+var _beacon2 = require("./@types/beacon");
+Object.keys(_beacon2).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _beacon2[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _beacon2[key];
+    }
+  });
+});
+var _topic = require("./@types/topic");
+Object.keys(_topic).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _topic[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _topic[key];
+    }
+  });
+});
+var _location = require("./@types/location");
+Object.keys(_location).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _location[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _location[key];
+    }
+  });
+});
+var _threepids = require("./@types/threepids");
+Object.keys(_threepids).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _threepids[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _threepids[key];
+    }
+  });
+});
+var _auth = require("./@types/auth");
+Object.keys(_auth).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _auth[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _auth[key];
+    }
+  });
+});
+var _polls = require("./@types/polls");
+Object.keys(_polls).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _polls[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _polls[key];
+    }
+  });
+});
+var _local_notifications = require("./@types/local_notifications");
+Object.keys(_local_notifications).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _local_notifications[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _local_notifications[key];
+    }
+  });
+});
+var _registration = require("./@types/registration");
+Object.keys(_registration).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _registration[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _registration[key];
+    }
+  });
+});
+var _read_receipts = require("./@types/read_receipts");
+Object.keys(_read_receipts).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _read_receipts[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _read_receipts[key];
+    }
+  });
+});
+var _crypto = require("./@types/crypto");
+Object.keys(_crypto).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _crypto[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _crypto[key];
+    }
+  });
+});
+var _extensible_events = require("./@types/extensible_events");
+Object.keys(_extensible_events).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _extensible_events[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _extensible_events[key];
+    }
+  });
+});
+var _IIdentityServerProvider = require("./@types/IIdentityServerProvider");
+Object.keys(_IIdentityServerProvider).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _IIdentityServerProvider[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _IIdentityServerProvider[key];
+    }
+  });
+});
 var _roomSummary = require("./models/room-summary");
 Object.keys(_roomSummary).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -461,17 +801,36 @@ Object.keys(_roomSummary).forEach(function (key) {
     }
   });
 });
+var _eventStatus = require("./models/event-status");
+Object.keys(_eventStatus).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _eventStatus[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _eventStatus[key];
+    }
+  });
+});
 var _ContentHelpers = _interopRequireWildcard(require("./content-helpers"));
 exports.ContentHelpers = _ContentHelpers;
 var _SecretStorage = _interopRequireWildcard(require("./secret-storage"));
 exports.SecretStorage = _SecretStorage;
 var _call = require("./webrtc/call");
 var _groupCall = require("./webrtc/groupCall");
-var _crypto = require("./crypto");
+var _crypto2 = require("./crypto");
+var _sync = require("./sync");
+var _slidingSync = require("./sliding-sync");
+var _mediaHandler = require("./webrtc/mediaHandler");
+var _callFeed = require("./webrtc/callFeed");
+var _statsReport = require("./webrtc/stats/statsReport");
+var _relations = require("./models/relations");
+var _localStorageEventsEmitter = require("./store/local-storage-events-emitter");
 var _Crypto = _interopRequireWildcard(require("./crypto-api"));
 exports.Crypto = _Crypto;
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
 Copyright 2015-2022 The Matrix.org Foundation C.I.C.
 

@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.decodeRecoveryKey = decodeRecoveryKey;
 exports.encodeRecoveryKey = encodeRecoveryKey;
 var bs58 = _interopRequireWildcard(require("bs58"));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
 Copyright 2018 New Vector Ltd
 
@@ -27,6 +27,7 @@ limitations under the License.
 // picked arbitrarily but to try & avoid clashing with any bitcoin ones
 // (which are also base58 encoded, but bitcoin's involve a lot more hashing)
 const OLM_RECOVERY_KEY_PREFIX = [0x8b, 0x01];
+const KEY_SIZE = 32;
 function encodeRecoveryKey(key) {
   const buf = Buffer.alloc(OLM_RECOVERY_KEY_PREFIX.length + key.length + 1);
   buf.set(OLM_RECOVERY_KEY_PREFIX, 0);
@@ -53,8 +54,8 @@ function decodeRecoveryKey(recoveryKey) {
       throw new Error("Incorrect prefix");
     }
   }
-  if (result.length !== OLM_RECOVERY_KEY_PREFIX.length + global.Olm.PRIVATE_KEY_LENGTH + 1) {
+  if (result.length !== OLM_RECOVERY_KEY_PREFIX.length + KEY_SIZE + 1) {
     throw new Error("Incorrect length");
   }
-  return Uint8Array.from(result.slice(OLM_RECOVERY_KEY_PREFIX.length, OLM_RECOVERY_KEY_PREFIX.length + global.Olm.PRIVATE_KEY_LENGTH));
+  return Uint8Array.from(result.slice(OLM_RECOVERY_KEY_PREFIX.length, OLM_RECOVERY_KEY_PREFIX.length + KEY_SIZE));
 }

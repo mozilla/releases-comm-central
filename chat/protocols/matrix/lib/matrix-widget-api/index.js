@@ -388,6 +388,17 @@ Object.keys(_IRoomEvent).forEach(function (key) {
     }
   });
 });
+var _IRoomAccountData = require("./interfaces/IRoomAccountData");
+Object.keys(_IRoomAccountData).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _IRoomAccountData[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _IRoomAccountData[key];
+    }
+  });
+});
 var _NavigateAction = require("./interfaces/NavigateAction");
 Object.keys(_NavigateAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -418,6 +429,28 @@ Object.keys(_ReadRelationsAction).forEach(function (key) {
     enumerable: true,
     get: function get() {
       return _ReadRelationsAction[key];
+    }
+  });
+});
+var _GetMediaConfigAction = require("./interfaces/GetMediaConfigAction");
+Object.keys(_GetMediaConfigAction).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _GetMediaConfigAction[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _GetMediaConfigAction[key];
+    }
+  });
+});
+var _UploadFileAction = require("./interfaces/UploadFileAction");
+Object.keys(_UploadFileAction).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _UploadFileAction[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _UploadFileAction[key];
     }
   });
 });

@@ -22,24 +22,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // Types for MSC3488 - m.location: Extending events with location data
-let LocationAssetType = /*#__PURE__*/function (LocationAssetType) {
+let LocationAssetType = exports.LocationAssetType = /*#__PURE__*/function (LocationAssetType) {
   LocationAssetType["Self"] = "m.self";
   LocationAssetType["Pin"] = "m.pin";
   return LocationAssetType;
 }({});
-exports.LocationAssetType = LocationAssetType;
-const M_ASSET = new _NamespacedValue.UnstableValue("m.asset", "org.matrix.msc3488.asset");
+const M_ASSET = exports.M_ASSET = new _NamespacedValue.UnstableValue("m.asset", "org.matrix.msc3488.asset");
 
 /**
  * The event definition for an m.asset event (in content)
  */
-exports.M_ASSET = M_ASSET;
-const M_TIMESTAMP = new _NamespacedValue.UnstableValue("m.ts", "org.matrix.msc3488.ts");
+
+const M_TIMESTAMP = exports.M_TIMESTAMP = new _NamespacedValue.UnstableValue("m.ts", "org.matrix.msc3488.ts");
 /**
  * The event definition for an m.ts event (in content)
  */
-exports.M_TIMESTAMP = M_TIMESTAMP;
-const M_LOCATION = new _NamespacedValue.UnstableValue("m.location", "org.matrix.msc3488.location");
+
+const M_LOCATION = exports.M_LOCATION = new _NamespacedValue.UnstableValue("m.location", "org.matrix.msc3488.location");
 
 /* From the spec at:
  * https://github.com/matrix-org/matrix-doc/blob/matthew/location/proposals/3488-location.md
@@ -69,4 +68,3 @@ const M_LOCATION = new _NamespacedValue.UnstableValue("m.location", "org.matrix.
 /**
  * Possible content for location events as sent over the wire
  */
-exports.M_LOCATION = M_LOCATION;

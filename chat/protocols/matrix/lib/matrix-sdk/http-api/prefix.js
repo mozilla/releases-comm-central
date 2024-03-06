@@ -19,21 +19,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let ClientPrefix = /*#__PURE__*/function (ClientPrefix) {
-  ClientPrefix["R0"] = "/_matrix/client/r0";
+let ClientPrefix = exports.ClientPrefix = /*#__PURE__*/function (ClientPrefix) {
   ClientPrefix["V1"] = "/_matrix/client/v1";
   ClientPrefix["V3"] = "/_matrix/client/v3";
   ClientPrefix["Unstable"] = "/_matrix/client/unstable";
   return ClientPrefix;
 }({});
-exports.ClientPrefix = ClientPrefix;
-let IdentityPrefix = /*#__PURE__*/function (IdentityPrefix) {
+let IdentityPrefix = exports.IdentityPrefix = /*#__PURE__*/function (IdentityPrefix) {
   IdentityPrefix["V2"] = "/_matrix/identity/v2";
   return IdentityPrefix;
 }({});
-exports.IdentityPrefix = IdentityPrefix;
-let MediaPrefix = /*#__PURE__*/function (MediaPrefix) {
-  MediaPrefix["R0"] = "/_matrix/media/r0";
+let MediaPrefix = exports.MediaPrefix = /*#__PURE__*/function (MediaPrefix) {
+  MediaPrefix["V1"] = "/_matrix/media/v1";
+  MediaPrefix["V3"] = "/_matrix/media/v3";
   return MediaPrefix;
 }({});
-exports.MediaPrefix = MediaPrefix;

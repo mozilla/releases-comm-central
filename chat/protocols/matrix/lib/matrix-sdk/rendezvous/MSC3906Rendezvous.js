@@ -10,23 +10,24 @@ var _client = require("../client");
 var _feature = require("../feature");
 var _logger = require("../logger");
 var _utils = require("../utils");
+var _cryptoApi = require("../crypto-api");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 var PayloadType = /*#__PURE__*/function (PayloadType) {
   PayloadType["Start"] = "m.login.start";
   PayloadType["Finish"] = "m.login.finish";
@@ -84,15 +85,15 @@ class MSC3906Rendezvous {
     const checksum = await this.channel.connect();
     _logger.logger.info(`Connected to secure channel with checksum: ${checksum} our intent is ${this.ourIntent}`);
 
-    // in r1 of MSC3882 the availability is exposed as a capability
+    // in stable and unstable r1 the availability is exposed as a capability
     const capabilities = await this.client.getCapabilities();
     // in r0 of MSC3882 the availability is exposed as a feature flag
     const features = await (0, _feature.buildFeatureSupportMap)(await this.client.getVersions());
-    const capability = _client.UNSTABLE_MSC3882_CAPABILITY.findIn(capabilities);
+    const capability = _client.GET_LOGIN_TOKEN_CAPABILITY.findIn(capabilities);
 
     // determine available protocols
     if (!capability?.enabled && features.get(_feature.Feature.LoginTokenRequest) === _feature.ServerSupport.Unsupported) {
-      _logger.logger.info("Server doesn't support MSC3882");
+      _logger.logger.info("Server doesn't support get_login_token");
       await this.send({
         type: PayloadType.Finish,
         outcome: Outcome.Unsupported
@@ -104,7 +105,7 @@ class MSC3906Rendezvous {
       type: PayloadType.Progress,
       protocols: [LOGIN_TOKEN_PROTOCOL.name]
     });
-    _logger.logger.info("Waiting for other device to chose protocol");
+    _logger.logger.info("Waiting for other device to choose protocol");
     const {
       type,
       protocol,
@@ -169,9 +170,7 @@ class MSC3906Rendezvous {
     return deviceId;
   }
   async verifyAndCrossSignDevice(deviceInfo) {
-    if (!this.client.crypto) {
-      throw new Error("Crypto not available on client");
-    }
+    const crypto = this.client.getCrypto();
     if (!this.newDeviceId) {
       throw new Error("No new device ID set");
     }
@@ -180,28 +179,27 @@ class MSC3906Rendezvous {
     if (deviceInfo.getFingerprint() !== this.newDeviceKey) {
       throw new Error(`New device has different keys than expected: ${this.newDeviceKey} vs ${deviceInfo.getFingerprint()}`);
     }
-    const userId = this.client.getUserId();
-    if (!userId) {
-      throw new Error("No user ID set");
-    }
+    const userId = this.client.getSafeUserId();
+
     // mark the device as verified locally + cross sign
     _logger.logger.info(`Marking device ${this.newDeviceId} as verified`);
-    const info = await this.client.crypto.setDeviceVerification(userId, this.newDeviceId, true, false, true);
-    const masterPublicKey = this.client.crypto.crossSigningInfo.getId("master");
+    await crypto.setDeviceVerified(userId, this.newDeviceId, true);
+    await crypto.crossSignDevice(this.newDeviceId);
+    const masterPublicKey = (await crypto.getCrossSigningKeyId(_cryptoApi.CrossSigningKey.Master)) ?? undefined;
+    const ourDeviceId = this.client.getDeviceId();
+    const ourDeviceKey = (await crypto.getOwnDeviceKeys()).ed25519;
     await this.send({
       type: PayloadType.Finish,
       outcome: Outcome.Verified,
-      verifying_device_id: this.client.getDeviceId(),
-      verifying_device_key: this.client.getDeviceEd25519Key(),
+      verifying_device_id: ourDeviceId,
+      verifying_device_key: ourDeviceKey,
       master_key: masterPublicKey
     });
-    return info;
   }
 
   /**
    * Verify the device and cross-sign it.
    * @param timeout - time in milliseconds to wait for device to come online
-   * @returns the new device info if the device was verified
    */
   async verifyNewDeviceOnExistingDevice(timeout = 10 * 1000) {
     if (!this.newDeviceId) {
@@ -211,23 +209,26 @@ class MSC3906Rendezvous {
       _logger.logger.info("No new device key to sign");
       return undefined;
     }
-    if (!this.client.crypto) {
+    const crypto = this.client.getCrypto();
+    if (!crypto) {
       throw new Error("Crypto not available on client");
     }
-    const userId = this.client.getUserId();
-    if (!userId) {
-      throw new Error("No user ID set");
-    }
-    let deviceInfo = this.client.crypto.getStoredDevice(userId, this.newDeviceId);
+    let deviceInfo = await this.getOwnDevice(this.newDeviceId);
     if (!deviceInfo) {
       _logger.logger.info("Going to wait for new device to be online");
       await (0, _utils.sleep)(timeout);
-      deviceInfo = this.client.crypto.getStoredDevice(userId, this.newDeviceId);
+      deviceInfo = await this.getOwnDevice(this.newDeviceId);
     }
     if (deviceInfo) {
-      return await this.verifyAndCrossSignDevice(deviceInfo);
+      await this.verifyAndCrossSignDevice(deviceInfo);
+      return;
     }
     throw new Error("Device not online within timeout");
+  }
+  async getOwnDevice(deviceId) {
+    const userId = this.client.getSafeUserId();
+    const ownDeviceInfo = await this.client.getCrypto().getUserDeviceInfo([userId]);
+    return ownDeviceInfo.get(userId)?.get(deviceId);
   }
   async cancel(reason) {
     this.onFailure?.(reason);

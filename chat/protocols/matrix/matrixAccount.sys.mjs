@@ -41,7 +41,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
   OlmLib: "resource:///modules/matrix-sdk.sys.mjs",
   ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
-  SyncState: "resource:///modules/matrix-sdk.sys.mjs",
 });
 
 /**
@@ -250,6 +249,9 @@ function canVerifyUserIdentity(userId, client) {
  * @returns {boolean}
  */
 function userIdentityVerified(userId, client) {
+  //TODO The sync checkUserTrust was deprecated in favor for the async
+  // getCrypto().getUserVerificationStatus(userId), which is the only supported
+  // implementation with the rust crypto backend.
   return (
     client.checkUserTrust(userId).isCrossSigningVerified() &&
     !checkUserHasUnverifiedDevices(userId, client)
@@ -878,7 +880,9 @@ MatrixRoom.prototype = {
       opts.system = true;
       // We don't think we should show a notice for this event.
       if (!message) {
-        this.LOG("Unhandled event: " + JSON.stringify(event.toJSON()));
+        this.LOG(
+          "Unhandled event: " + JSON.stringify(event.getEffectiveEvent())
+        );
       }
     }
     if (message) {
@@ -1420,10 +1424,7 @@ async function startVerification(request) {
         throw new Error("verification aborted");
       }
       // Auto chose method as the only one we both support.
-      await request.beginKeyVerification(
-        request.methods[0],
-        request.targetDevice
-      );
+      await request.startVerification(request.methods[0]);
     } else {
       await request.waitFor(() => request.started || request.cancelled);
     }
@@ -1508,11 +1509,13 @@ MatrixSession.prototype = {
       );
     }
     if (this.currentSession) {
-      request = await this._account._client.requestVerification(this._ownerId);
+      request = await this._account._client
+        .getCrypto()
+        .requestVerification(this._ownerId);
     } else {
-      request = await this._account._client.requestVerification(this._ownerId, [
-        this._deviceInfo.deviceId,
-      ]);
+      request = await this._account._client
+        .getCrypto()
+        .requestVerification(this._ownerId, [this._deviceInfo.deviceId]);
     }
     this._account.trackOutgoingVerificationRequest(request, requestKey);
     return startVerification(request);
@@ -1712,8 +1715,7 @@ MatrixAccount.prototype = {
       this._client.removeAllListeners();
     }
 
-    const opts = await this.getClientOptions();
-    this._client = lazy.MatrixSDK.createClient(opts);
+    this.createClient();
     if (this._client.isLoggedIn()) {
       this.startClient();
       return;
@@ -1823,9 +1825,9 @@ MatrixAccount.prototype = {
    * Builds the options for the |createClient| call to the SDK including all
    * stores.
    *
-   * @returns {Promise<object>}
+   * @returns {object}
    */
-  async getClientOptions() {
+  getClientOptions() {
     const dbName = "chat:matrix:" + this.imAccount.id;
 
     const opts = {
@@ -1872,8 +1874,16 @@ MatrixAccount.prototype = {
       verificationMethods: [lazy.MatrixCrypto.verificationMethods.SAS],
       roomNameGenerator: getRoomName,
     };
-    await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
     return opts;
+  },
+
+  /**
+   * Create a new client.
+   */
+  async createClient() {
+    const opts = this.getClientOptions();
+    this._client = lazy.MatrixSDK.createClient(opts);
+    await Promise.all([opts.store.startup(), opts.cryptoStore.startup()]);
   },
 
   /**
@@ -1899,9 +1909,8 @@ MatrixAccount.prototype = {
       }
       this.storeSessionInformation(data);
       // Need to create a new client with the device ID set.
-      const opts = await this.getClientOptions();
       this._client.stopClient();
-      this._client = lazy.MatrixSDK.createClient(opts);
+      this.createClient();
       if (!this._client.isLoggedIn()) {
         throw new Error("Client has no access token after login");
       }
@@ -1976,7 +1985,7 @@ MatrixAccount.prototype = {
   },
 
   get _catchingUp() {
-    return this._client?.getSyncState() !== lazy.SyncState.Syncing;
+    return this._client?.getSyncState() !== lazy.MatrixSDK.SyncState.Syncing;
   },
 
   /**
@@ -1998,25 +2007,25 @@ MatrixAccount.prototype = {
       lazy.MatrixSDK.ClientEvent.Sync,
       (state, prevState, data) => {
         switch (state) {
-          case lazy.SyncState.Prepared:
+          case lazy.MatrixSDK.SyncState.Prepared:
             if (prevState !== state) {
               this.setPresence(this.imAccount.statusInfo);
             }
             this.reportConnected();
             break;
-          case lazy.SyncState.Stopped:
+          case lazy.MatrixSDK.SyncState.Stopped:
             this.reportDisconnected();
             break;
-          case lazy.SyncState.Syncing:
+          case lazy.MatrixSDK.SyncState.Syncing:
             if (prevState !== state) {
               this.reportConnected();
               this.handleCaughtUp();
             }
             break;
-          case lazy.SyncState.Reconnecting:
+          case lazy.MatrixSDK.SyncState.Reconnecting:
             this.reportConnecting();
             break;
-          case lazy.SyncState.Error:
+          case lazy.MatrixSDK.SyncState.Error:
             if (
               data.error.reason ==
               lazy.MatrixSDK.InvalidStoreError.TOGGLED_LAZY_LOADING
@@ -2030,7 +2039,7 @@ MatrixAccount.prototype = {
             );
             this.reportDisconnected();
             break;
-          case lazy.SyncState.Catchup:
+          case lazy.MatrixSDK.SyncState.Catchup:
             this.reportConnecting();
             break;
         }
@@ -2350,9 +2359,12 @@ MatrixAccount.prototype = {
       this.updateEncryptionStatus();
     });
 
-    this._client.on(lazy.MatrixSDK.CryptoEvent.VerificationRequest, request => {
-      this.handleIncomingVerificationRequest(request);
-    });
+    this._client.on(
+      lazy.MatrixSDK.CryptoEvent.VerificationRequestReceived,
+      request => {
+        this.handleIncomingVerificationRequest(request);
+      }
+    );
 
     // TODO Other events to handle:
     //  Room.localEchoUpdated
@@ -2664,7 +2676,7 @@ MatrixAccount.prototype = {
       throw new Error("Already have a pending request for user " + userId);
     }
     if (userId == this.userId) {
-      request = await this._client.requestVerification(userId);
+      request = await this._client.getCrypto().requestVerification(userId);
     } else {
       let conv = this.getDirectConversation(userId);
       conv = await conv.waitForRoom();
@@ -2801,18 +2813,19 @@ MatrixAccount.prototype = {
    */
   setPresence(statusInfo) {
     const presenceDetails = {
-      presence: "offline",
+      presence: lazy.MatrixSDK.SetPresence.Offline,
       status_msg: statusInfo.statusText,
     };
     if (statusInfo.statusType === Ci.imIStatusInfo.STATUS_AVAILABLE) {
-      presenceDetails.presence = "online";
+      presenceDetails.presence = lazy.MatrixSDK.SetPresence.Online;
     } else if (
       statusInfo.statusType === Ci.imIStatusInfo.STATUS_AWAY ||
       statusInfo.statusType === Ci.imIStatusInfo.STATUS_IDLE
     ) {
-      presenceDetails.presence = "unavailable";
+      presenceDetails.presence = lazy.MatrixSDK.SetPresence.Unavailable;
     }
     this._client.setPresence(presenceDetails);
+    this._client.setSyncPresence(presenceDetails.presence);
   },
 
   /**

@@ -19,21 +19,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let Visibility = /*#__PURE__*/function (Visibility) {
+let Visibility = exports.Visibility = /*#__PURE__*/function (Visibility) {
   Visibility["Public"] = "public";
   Visibility["Private"] = "private";
   return Visibility;
 }({});
-exports.Visibility = Visibility;
-let Preset = /*#__PURE__*/function (Preset) {
+let Preset = exports.Preset = /*#__PURE__*/function (Preset) {
   Preset["PrivateChat"] = "private_chat";
   Preset["TrustedPrivateChat"] = "trusted_private_chat";
   Preset["PublicChat"] = "public_chat";
   return Preset;
 }({});
-exports.Preset = Preset;
 // Knock and private are reserved keywords which are not yet implemented.
-let JoinRule = /*#__PURE__*/function (JoinRule) {
+let JoinRule = exports.JoinRule = /*#__PURE__*/function (JoinRule) {
   JoinRule["Public"] = "public";
   JoinRule["Invite"] = "invite";
   JoinRule["Private"] = "private";
@@ -41,23 +39,19 @@ let JoinRule = /*#__PURE__*/function (JoinRule) {
   JoinRule["Restricted"] = "restricted";
   return JoinRule;
 }({});
-exports.JoinRule = JoinRule;
-let RestrictedAllowType = /*#__PURE__*/function (RestrictedAllowType) {
+let RestrictedAllowType = exports.RestrictedAllowType = /*#__PURE__*/function (RestrictedAllowType) {
   RestrictedAllowType["RoomMembership"] = "m.room_membership";
   return RestrictedAllowType;
 }({});
-exports.RestrictedAllowType = RestrictedAllowType;
-let GuestAccess = /*#__PURE__*/function (GuestAccess) {
+let GuestAccess = exports.GuestAccess = /*#__PURE__*/function (GuestAccess) {
   GuestAccess["CanJoin"] = "can_join";
   GuestAccess["Forbidden"] = "forbidden";
   return GuestAccess;
 }({});
-exports.GuestAccess = GuestAccess;
-let HistoryVisibility = /*#__PURE__*/function (HistoryVisibility) {
+let HistoryVisibility = exports.HistoryVisibility = /*#__PURE__*/function (HistoryVisibility) {
   HistoryVisibility["Invited"] = "invited";
   HistoryVisibility["Joined"] = "joined";
   HistoryVisibility["Shared"] = "shared";
   HistoryVisibility["WorldReadable"] = "world_readable";
   return HistoryVisibility;
 }({});
-exports.HistoryVisibility = HistoryVisibility;

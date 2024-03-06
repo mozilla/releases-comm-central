@@ -342,11 +342,7 @@ export var commands = [
       },
       formatParams(conv, [userId, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
-        const powerLevelEvent = conv.roomState.getStateEvents(
-          lazy.MatrixSDK.EventType.RoomPowerLevels,
-          ""
-        );
-        return [conv._roomId, userId, powerLevel, powerLevelEvent];
+        return [conv._roomId, userId, powerLevel];
       },
     }),
   },
@@ -358,16 +354,7 @@ export var commands = [
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 1, {
       formatParams(conv, [userId]) {
-        const powerLevelEvent = conv.roomState.getStateEvents(
-          lazy.MatrixSDK.EventType.RoomPowerLevels,
-          ""
-        );
-        return [
-          conv._roomId,
-          userId,
-          lazy.MatrixPowerLevels.user,
-          powerLevelEvent,
-        ];
+        return [conv._roomId, userId, lazy.MatrixPowerLevels.user];
       },
     }),
   },

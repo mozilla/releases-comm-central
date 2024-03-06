@@ -30,6 +30,7 @@ var MatrixCapabilities = /*#__PURE__*/function (MatrixCapabilities) {
   MatrixCapabilities["MSC2931Navigate"] = "org.matrix.msc2931.navigate";
   MatrixCapabilities["MSC3846TurnServers"] = "town.robin.msc3846.turn_servers";
   MatrixCapabilities["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
+  MatrixCapabilities["MSC4039UploadFile"] = "org.matrix.msc4039.upload_file";
   return MatrixCapabilities;
 }({});
 exports.MatrixCapabilities = MatrixCapabilities;

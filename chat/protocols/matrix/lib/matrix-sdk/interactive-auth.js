@@ -6,25 +6,26 @@ Object.defineProperty(exports, "__esModule", {
 exports.NoAuthFlowFoundError = exports.InteractiveAuth = exports.AuthType = void 0;
 var _logger = require("./logger");
 var _utils = require("./utils");
+var _httpApi = require("./http-api");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 OpenMarket Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 Vector Creations Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2016 OpenMarket Ltd
+Copyright 2017 Vector Creations Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 const EMAIL_STAGE_TYPE = "m.login.email.identity";
 const MSISDN_STAGE_TYPE = "m.login.msisdn";
 
@@ -33,7 +34,7 @@ const MSISDN_STAGE_TYPE = "m.login.msisdn";
  *
  * @see https://spec.matrix.org/v1.6/client-server-api/#user-interactive-api-in-the-rest-api
  */
-let AuthType = /*#__PURE__*/function (AuthType) {
+let AuthType = exports.AuthType = /*#__PURE__*/function (AuthType) {
   AuthType["Password"] = "m.login.password";
   AuthType["Recaptcha"] = "m.login.recaptcha";
   AuthType["Terms"] = "m.login.terms";
@@ -47,14 +48,27 @@ let AuthType = /*#__PURE__*/function (AuthType) {
   return AuthType;
 }({});
 /**
+ * https://spec.matrix.org/v1.7/client-server-api/#password-based
+ */
+/**
+ * https://spec.matrix.org/v1.7/client-server-api/#google-recaptcha
+ */
+/**
+ * https://spec.matrix.org/v1.7/client-server-api/#email-based-identity--homeserver
+ */
+/**
  * The parameters which are submitted as the `auth` dict in a UIA request
  *
  * @see https://spec.matrix.org/v1.6/client-server-api/#authentication-types
  */
-exports.AuthType = AuthType;
+/**
+ * Backwards compatible export
+ * @deprecated in favour of AuthDict
+ */
 class NoAuthFlowFoundError extends Error {
+  constructor(m,
   // eslint-disable-next-line @typescript-eslint/naming-convention, camelcase
-  constructor(m, required_stages, flows) {
+  required_stages, flows) {
     super(m);
     this.required_stages = required_stages;
     this.flows = flows;
@@ -66,7 +80,8 @@ class NoAuthFlowFoundError extends Error {
  * The type of an application callback to perform the user-interactive bit of UIA.
  *
  * It is called with a single parameter, `makeRequest`, which is a function which takes the UIA parameters and
- * makes the HTTP request.
+ * makes the HTTP request. The `authData` parameter in `makeRequest` can be set to null to omit the `auth` field
+ * from the UIA request.
  *
  * The generic parameter `T` is the type of the response of the endpoint, once it is eventually successful.
  */
@@ -84,6 +99,7 @@ exports.NoAuthFlowFoundError = NoAuthFlowFoundError;
  * submitAuthDict.
  *
  * @param opts - options object
+ * @typeParam T - the return type of the request when it is successful
  */
 class InteractiveAuth {
   constructor(opts) {
@@ -95,6 +111,7 @@ class InteractiveAuth {
     _defineProperty(this, "stateUpdatedCallback", void 0);
     _defineProperty(this, "requestEmailTokenCallback", void 0);
     _defineProperty(this, "supportedStages", void 0);
+    // The current latest data or error received from the server during the user interactive auth flow.
     _defineProperty(this, "data", void 0);
     _defineProperty(this, "emailSid", void 0);
     _defineProperty(this, "requestingEmailToken", false);
@@ -128,7 +145,9 @@ class InteractiveAuth {
       }
     });
     this.matrixClient = opts.matrixClient;
-    this.data = opts.authData || {};
+    this.data = opts.authData || {
+      flows: []
+    };
     this.requestCallback = opts.doRequest;
     this.busyChangedCallback = opts.busyChanged;
     // startAuthStage included for backwards compat
@@ -148,7 +167,7 @@ class InteractiveAuth {
    * or rejects with the error on failure. Rejects with NoAuthFlowFoundError if
    *     no suitable authentication flow can be found
    */
-  attemptAuth() {
+  async attemptAuth() {
     // This promise will be quite long-lived and will resolve when the
     // request is authenticated and completes successfully.
     this.attemptAuthDeferred = (0, _utils.defer)();
@@ -156,7 +175,7 @@ class InteractiveAuth {
     const promise = this.attemptAuthDeferred.promise;
 
     // if we have no flows, try a request to acquire the flows
-    if (!this.data?.flows) {
+    if (!this.data?.flows?.length) {
       this.busyChangedCallback?.(true);
       // use the existing sessionId, if one is present.
       const auth = this.data.session ? {
@@ -192,10 +211,8 @@ class InteractiveAuth {
           sid: this.emailSid,
           client_secret: this.clientSecret
         };
-        if (await this.matrixClient.doesServerRequireIdServerParam()) {
-          const idServerParsedUrl = new URL(this.matrixClient.getIdentityServerUrl());
-          creds.id_server = idServerParsedUrl.host;
-        }
+        const idServerParsedUrl = new URL(this.matrixClient.getIdentityServerUrl());
+        creds.id_server = idServerParsedUrl.host;
         authDict = {
           type: EMAIL_STAGE_TYPE,
           // TODO: Remove `threepid_creds` once servers support proper UIA
@@ -235,7 +252,7 @@ class InteractiveAuth {
    * @returns any parameters from the server for this stage
    */
   getStageParams(loginType) {
-    return this.data.params?.[loginType];
+    return this.data?.params?.[loginType];
   }
   getChosenFlow() {
     return this.chosenFlow;
@@ -274,7 +291,7 @@ class InteractiveAuth {
 
     // use the sessionid from the last request, if one is present.
     let auth;
-    if (this.data.session) {
+    if (this.data?.session) {
       auth = {
         session: this.data.session
       };
@@ -333,10 +350,12 @@ class InteractiveAuth {
       this.attemptAuthDeferred.resolve(result);
       this.attemptAuthDeferred = null;
     } catch (error) {
+      const matrixError = error instanceof _httpApi.MatrixError ? error : null;
+
       // sometimes UI auth errors don't come with flows
-      const errorFlows = error.data?.flows ?? null;
-      const haveFlows = this.data.flows || Boolean(errorFlows);
-      if (error.httpStatus !== 401 || !error.data || !haveFlows) {
+      const errorFlows = matrixError?.data?.flows ?? null;
+      const haveFlows = this.data?.flows || Boolean(errorFlows);
+      if (!matrixError || matrixError.httpStatus !== 401 || !matrixError.data || !haveFlows) {
         // doesn't look like an interactive-auth failure.
         if (!background) {
           this.attemptAuthDeferred?.reject(error);
@@ -347,20 +366,22 @@ class InteractiveAuth {
           _logger.logger.log("Background poll request failed doing UI auth: ignoring", error);
         }
       }
-      if (!error.data) {
-        error.data = {};
+      if (matrixError && !matrixError.data) {
+        matrixError.data = {};
       }
       // if the error didn't come with flows, completed flows or session ID,
       // copy over the ones we have. Synapse sometimes sends responses without
       // any UI auth data (eg. when polling for email validation, if the email
       // has not yet been validated). This appears to be a Synapse bug, which
       // we workaround here.
-      if (!error.data.flows && !error.data.completed && !error.data.session) {
-        error.data.flows = this.data.flows;
-        error.data.completed = this.data.completed;
-        error.data.session = this.data.session;
+      if (matrixError && !matrixError.data.flows && !matrixError.data.completed && !matrixError.data.session) {
+        matrixError.data.flows = this.data.flows;
+        matrixError.data.completed = this.data.completed;
+        matrixError.data.session = this.data.session;
       }
-      this.data = error.data;
+      if (matrixError) {
+        this.data = matrixError.data;
+      }
       try {
         this.startNextAuthStage();
       } catch (e) {
@@ -465,7 +486,7 @@ class InteractiveAuth {
    * @throws {@link NoAuthFlowFoundError} If no suitable authentication flow can be found
    */
   chooseFlow() {
-    const flows = this.data.flows || [];
+    const flows = this.data?.flows || [];
 
     // we've been given an email or we've already done an email part
     const haveEmail = Boolean(this.inputs.emailAddress) || Boolean(this.emailSid);
@@ -503,7 +524,7 @@ class InteractiveAuth {
    * @returns login type
    */
   firstUncompletedStage(flow) {
-    const completed = this.data.completed || [];
+    const completed = this.data?.completed || [];
     return flow.stages.find(stageType => !completed.includes(stageType));
   }
 }

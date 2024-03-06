@@ -3,30 +3,38 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
+exports.AutoDiscoveryError = exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
+var _client = require("./client");
 var _logger = require("./logger");
 var _httpApi = require("./http-api");
+var _discovery = require("./oidc/discovery");
+var _validate = require("./oidc/validate");
+var _error = require("./oidc/error");
+var _versionSupport = require("./version-support");
+var _class;
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 New Vector Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2018 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // Dev note: Auto discovery is part of the spec.
 // See: https://matrix.org/docs/spec/client_server/r0.4.0.html#server-discovery
-let AutoDiscoveryAction = /*#__PURE__*/function (AutoDiscoveryAction) {
+let AutoDiscoveryAction = exports.AutoDiscoveryAction = /*#__PURE__*/function (AutoDiscoveryAction) {
   AutoDiscoveryAction["SUCCESS"] = "SUCCESS";
   AutoDiscoveryAction["IGNORE"] = "IGNORE";
   AutoDiscoveryAction["PROMPT"] = "PROMPT";
@@ -34,8 +42,7 @@ let AutoDiscoveryAction = /*#__PURE__*/function (AutoDiscoveryAction) {
   AutoDiscoveryAction["FAIL_ERROR"] = "FAIL_ERROR";
   return AutoDiscoveryAction;
 }({});
-exports.AutoDiscoveryAction = AutoDiscoveryAction;
-var AutoDiscoveryError = /*#__PURE__*/function (AutoDiscoveryError) {
+let AutoDiscoveryError = exports.AutoDiscoveryError = /*#__PURE__*/function (AutoDiscoveryError) {
   AutoDiscoveryError["Invalid"] = "Invalid homeserver discovery response";
   AutoDiscoveryError["GenericFailure"] = "Failed to get autodiscovery configuration from server";
   AutoDiscoveryError["InvalidHsBaseUrl"] = "Invalid base_url for m.homeserver";
@@ -45,8 +52,17 @@ var AutoDiscoveryError = /*#__PURE__*/function (AutoDiscoveryError) {
   AutoDiscoveryError["InvalidIs"] = "Invalid identity server discovery response";
   AutoDiscoveryError["MissingWellknown"] = "No .well-known JSON file found";
   AutoDiscoveryError["InvalidJson"] = "Invalid JSON";
+  AutoDiscoveryError["UnsupportedHomeserverSpecVersion"] = "The homeserver does not meet the version requirements";
+  AutoDiscoveryError["HomeserverTooOld"] = "The homeserver does not meet the version requirements";
   return AutoDiscoveryError;
-}(AutoDiscoveryError || {});
+}({}); // TODO: Implement when Sydent supports the `/versions` endpoint - https://github.com/matrix-org/sydent/issues/424
+//IdentityServerTooOld = "The identity server does not meet the minimum version requirements",
+/**
+ * @deprecated in favour of OidcClientConfig
+ */
+/**
+ * @experimental
+ */
 /**
  * Utilities for automatically discovery resources, such as homeservers
  * for users to log in to.
@@ -108,9 +124,29 @@ class AutoDiscovery {
 
     // Step 3: Make sure the homeserver URL points to a homeserver.
     const hsVersions = await this.fetchWellKnownObject(`${hsUrl}/_matrix/client/versions`);
-    if (!hsVersions?.raw?.["versions"]) {
+    if (!hsVersions || !Array.isArray(hsVersions.raw?.["versions"])) {
       _logger.logger.error("Invalid /versions response");
       clientConfig["m.homeserver"].error = AutoDiscovery.ERROR_INVALID_HOMESERVER;
+
+      // Supply the base_url to the caller because they may be ignoring liveliness
+      // errors, like this one.
+      clientConfig["m.homeserver"].base_url = hsUrl;
+      return Promise.resolve(clientConfig);
+    }
+
+    // Step 3.1: Non-spec check to ensure the server will actually work for us. We need to check if
+    // any of the versions in `SUPPORTED_MATRIX_VERSIONS` are listed in the /versions response.
+    const hsVersionSet = new Set(hsVersions.raw["versions"]);
+    let supportedVersionFound = false;
+    for (const version of _versionSupport.SUPPORTED_MATRIX_VERSIONS) {
+      if (hsVersionSet.has(version)) {
+        supportedVersionFound = true;
+        break;
+      }
+    }
+    if (!supportedVersionFound) {
+      _logger.logger.error("Homeserver does not meet version requirements");
+      clientConfig["m.homeserver"].error = AutoDiscovery.ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION;
 
       // Supply the base_url to the caller because they may be ignoring liveliness
       // errors, like this one.
@@ -189,9 +225,84 @@ class AutoDiscovery {
         clientConfig[k] = wellknown[k];
       }
     });
+    const authConfig = await this.discoverAndValidateAuthenticationConfig(wellknown);
+    clientConfig[_client.M_AUTHENTICATION.stable] = authConfig;
 
     // Step 8: Give the config to the caller (finally)
     return Promise.resolve(clientConfig);
+  }
+
+  /**
+   * Validate delegated auth configuration
+   * @deprecated use discoverAndValidateAuthenticationConfig
+   * - m.authentication config is present and valid
+   * - delegated auth issuer openid-configuration is reachable
+   * - delegated auth issuer openid-configuration is configured correctly for us
+   * When successful, DelegatedAuthConfig will be returned with endpoints used for delegated auth
+   * Any errors are caught, and AutoDiscoveryState returned with error
+   * @param wellKnown - configuration object as returned
+   * by the .well-known auto-discovery endpoint
+   * @returns Config or failure result
+   */
+  static async validateDiscoveryAuthenticationConfig(wellKnown) {
+    try {
+      const authentication = _client.M_AUTHENTICATION.findIn(wellKnown) || undefined;
+      const homeserverAuthenticationConfig = (0, _validate.validateWellKnownAuthentication)(authentication);
+      const issuerOpenIdConfigUrl = `${this.sanitizeWellKnownUrl(homeserverAuthenticationConfig.issuer)}/.well-known/openid-configuration`;
+      const issuerWellKnown = await this.fetchWellKnownObject(issuerOpenIdConfigUrl);
+      if (issuerWellKnown.action !== AutoDiscoveryAction.SUCCESS) {
+        _logger.logger.error("Failed to fetch issuer openid configuration");
+        throw new Error(_error.OidcError.General);
+      }
+      const validatedIssuerConfig = (0, _validate.validateOIDCIssuerWellKnown)(issuerWellKnown.raw);
+      const delegatedAuthConfig = _objectSpread(_objectSpread({
+        state: AutoDiscoveryAction.SUCCESS,
+        error: null
+      }, homeserverAuthenticationConfig), validatedIssuerConfig);
+      return delegatedAuthConfig;
+    } catch (error) {
+      const errorMessage = error.message;
+      const errorType = Object.values(_error.OidcError).includes(errorMessage) ? errorMessage : _error.OidcError.General;
+      const state = errorType === _error.OidcError.NotSupported ? AutoDiscoveryAction.IGNORE : AutoDiscoveryAction.FAIL_ERROR;
+      return {
+        state,
+        error: errorType
+      };
+    }
+  }
+
+  /**
+   * Validate delegated auth configuration
+   * - m.authentication config is present and valid
+   * - delegated auth issuer openid-configuration is reachable
+   * - delegated auth issuer openid-configuration is configured correctly for us
+   * When successful, validated authentication metadata and optionally signing keys will be returned
+   * Any errors are caught, and AutoDiscoveryState returned with error
+   * @param wellKnown - configuration object as returned
+   * by the .well-known auto-discovery endpoint
+   * @returns Config or failure result
+   */
+  static async discoverAndValidateAuthenticationConfig(wellKnown) {
+    try {
+      const authentication = _client.M_AUTHENTICATION.findIn(wellKnown) || undefined;
+      const result = await (0, _discovery.discoverAndValidateAuthenticationConfig)(authentication);
+
+      // include this for backwards compatibility
+      const validatedIssuerConfig = (0, _validate.validateOIDCIssuerWellKnown)(result.metadata);
+      const response = _objectSpread(_objectSpread({
+        state: AutoDiscoveryAction.SUCCESS,
+        error: null
+      }, validatedIssuerConfig), result);
+      return response;
+    } catch (error) {
+      const errorMessage = error.message;
+      const errorType = Object.values(_error.OidcError).includes(errorMessage) ? errorMessage : _error.OidcError.General;
+      const state = errorType === _error.OidcError.NotSupported ? AutoDiscoveryAction.IGNORE : AutoDiscoveryAction.FAIL_ERROR;
+      return {
+        state,
+        error: errorType
+      };
+    }
   }
 
   /**
@@ -242,7 +353,8 @@ class AutoDiscovery {
 
     // Step 1: Actually request the .well-known JSON file and make sure it
     // at least has a homeserver definition.
-    const wellknown = await this.fetchWellKnownObject(`https://${domain}/.well-known/matrix/client`);
+    const domainWithProtocol = domain.includes("://") ? domain : `https://${domain}`;
+    const wellknown = await this.fetchWellKnownObject(`${domainWithProtocol}/.well-known/matrix/client`);
     if (!wellknown || wellknown.action !== AutoDiscoveryAction.SUCCESS) {
       _logger.logger.error("No response or error when parsing .well-known");
       if (wellknown.reason) _logger.logger.error(wellknown.reason);
@@ -389,6 +501,7 @@ class AutoDiscovery {
   }
 }
 exports.AutoDiscovery = AutoDiscovery;
+_class = AutoDiscovery;
 // Dev note: the constants defined here are related to but not
 // exactly the same as those in the spec. This is to hopefully
 // translate the meaning of the states in the spec, but also
@@ -402,6 +515,9 @@ _defineProperty(AutoDiscovery, "ERROR_INVALID_IDENTITY_SERVER", AutoDiscoveryErr
 _defineProperty(AutoDiscovery, "ERROR_INVALID_IS", AutoDiscoveryError.InvalidIs);
 _defineProperty(AutoDiscovery, "ERROR_MISSING_WELLKNOWN", AutoDiscoveryError.MissingWellknown);
 _defineProperty(AutoDiscovery, "ERROR_INVALID_JSON", AutoDiscoveryError.InvalidJson);
+_defineProperty(AutoDiscovery, "ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION", AutoDiscoveryError.UnsupportedHomeserverSpecVersion);
+/** @deprecated Replaced by ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION */
+_defineProperty(AutoDiscovery, "ERROR_HOMESERVER_TOO_OLD", _class.ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION);
 _defineProperty(AutoDiscovery, "ALL_ERRORS", Object.keys(AutoDiscoveryError));
 /**
  * The auto discovery failed. The client is expected to communicate

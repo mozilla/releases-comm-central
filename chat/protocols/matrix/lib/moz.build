@@ -6,6 +6,7 @@
 # The Matrix SDK.
 EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/autodiscovery.js",
+    "matrix-sdk/base64.js",
     "matrix-sdk/browser-index.js",
     "matrix-sdk/client.js",
     "matrix-sdk/content-helpers.js",
@@ -36,9 +37,11 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/sliding-sync.js",
     "matrix-sdk/sync-accumulator.js",
     "matrix-sdk/sync.js",
+    "matrix-sdk/thread-utils.js",
     "matrix-sdk/timeline-window.js",
     "matrix-sdk/ToDeviceMessageQueue.js",
     "matrix-sdk/utils.js",
+    "matrix-sdk/version-support.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
@@ -71,6 +74,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.algorithms += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.store += [
+    "matrix-sdk/crypto/store/base.js",
     "matrix-sdk/crypto/store/indexeddb-crypto-store-backend.js",
     "matrix-sdk/crypto/store/indexeddb-crypto-store.js",
     "matrix-sdk/crypto/store/localStorage-crypto-store.js",
@@ -116,8 +120,15 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.http_api += [
     "matrix-sdk/http-api/utils.js",
 ]
 
+EXTRA_JS_MODULES.matrix.matrix_sdk.matrixrtc += [
+  "matrix-sdk/matrixrtc/CallMembership.js",
+  "matrix-sdk/matrixrtc/MatrixRTCSession.js",
+  "matrix-sdk/matrixrtc/MatrixRTCSessionManager.js",
+]
+
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/beacon.js",
+    "matrix-sdk/models/compare-event-ordering.js",
     "matrix-sdk/models/device.js",
     "matrix-sdk/models/event-context.js",
     "matrix-sdk/models/event-status.js",
@@ -133,6 +144,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/relations-container.js",
     "matrix-sdk/models/relations.js",
     "matrix-sdk/models/room-member.js",
+    "matrix-sdk/models/room-receipts.js",
     "matrix-sdk/models/room-state.js",
     "matrix-sdk/models/room-summary.js",
     "matrix-sdk/models/room.js",
@@ -140,6 +152,16 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/thread.js",
     "matrix-sdk/models/typed-event-emitter.js",
     "matrix-sdk/models/user.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.oidc += [
+  "matrix-sdk/oidc/authorize.js",
+  "matrix-sdk/oidc/discovery.js",
+  "matrix-sdk/oidc/error.js",
+  "matrix-sdk/oidc/index.js",
+  "matrix-sdk/oidc/register.js",
+  "matrix-sdk/oidc/tokenRefresher.js",
+  "matrix-sdk/oidc/validate.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
@@ -152,6 +174,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.channels += [
     "matrix-sdk/rendezvous/channels/index.js",
+    "matrix-sdk/rendezvous/channels/MSC3903ECDHv1RendezvousChannel.js",
     "matrix-sdk/rendezvous/channels/MSC3903ECDHv2RendezvousChannel.js",
 ]
 
@@ -161,15 +184,20 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rust_crypto += [
-    "matrix-sdk/rust-crypto/browserify-index.js",
+    "matrix-sdk/rust-crypto/backup.js",
     "matrix-sdk/rust-crypto/constants.js",
     "matrix-sdk/rust-crypto/CrossSigningIdentity.js",
     "matrix-sdk/rust-crypto/device-converter.js",
     "matrix-sdk/rust-crypto/index.js",
     "matrix-sdk/rust-crypto/KeyClaimManager.js",
+    "matrix-sdk/rust-crypto/libolm_migration.js",
     "matrix-sdk/rust-crypto/OutgoingRequestProcessor.js",
+    "matrix-sdk/rust-crypto/OutgoingRequestsManager.js",
+    "matrix-sdk/rust-crypto/PerSessionKeyBackupDownloader.js",
     "matrix-sdk/rust-crypto/RoomEncryptor.js",
     "matrix-sdk/rust-crypto/rust-crypto.js",
+    "matrix-sdk/rust-crypto/secret-storage.js",
+    "matrix-sdk/rust-crypto/verification.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
@@ -210,6 +238,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc.stats += [
+    "matrix-sdk/webrtc/stats/callFeedStatsReporter.js",
     "matrix-sdk/webrtc/stats/callStatsReportGatherer.js",
     "matrix-sdk/webrtc/stats/connectionStats.js",
     "matrix-sdk/webrtc/stats/connectionStatsBuilder.js",
@@ -237,6 +266,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc.stats.media += [
 EXTRA_JS_MODULES.matrix += [
     "another-json/another-json.js",
     "events/events.js",
+    "oidc-client-ts/oidc-client-ts.js",
 ]
 
 EXTRA_JS_MODULES.matrix.base_x += [
@@ -249,6 +279,10 @@ EXTRA_JS_MODULES.matrix.bs58 += [
 
 EXTRA_JS_MODULES.matrix.content_type += [
     "content-type/index.js",
+]
+
+EXTRA_JS_MODULES.matrix.jwt_decode += [
+  "jwt-decode/index.js",
 ]
 
 EXTRA_JS_MODULES.matrix.unhomoglyph += [

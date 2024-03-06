@@ -20,7 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let EventType = /*#__PURE__*/function (EventType) {
+let EventType = exports.EventType = /*#__PURE__*/function (EventType) {
   EventType["RoomCanonicalAlias"] = "m.room.canonical_alias";
   EventType["RoomCreate"] = "m.room.create";
   EventType["RoomJoinRules"] = "m.room.join_rules";
@@ -55,6 +55,7 @@ let EventType = /*#__PURE__*/function (EventType) {
   EventType["CallReplaces"] = "m.call.replaces";
   EventType["CallAssertedIdentity"] = "m.call.asserted_identity";
   EventType["CallAssertedIdentityPrefix"] = "org.matrix.call.asserted_identity";
+  EventType["CallEncryptionKeysPrefix"] = "io.element.call.encryption_keys";
   EventType["KeyVerificationRequest"] = "m.key.verification.request";
   EventType["KeyVerificationStart"] = "m.key.verification.start";
   EventType["KeyVerificationCancel"] = "m.key.verification.cancel";
@@ -81,18 +82,17 @@ let EventType = /*#__PURE__*/function (EventType) {
   EventType["Dummy"] = "m.dummy";
   EventType["GroupCallPrefix"] = "org.matrix.msc3401.call";
   EventType["GroupCallMemberPrefix"] = "org.matrix.msc3401.call.member";
+  EventType["CallNotify"] = "org.matrix.msc4075.call.notify";
   return EventType;
 }({});
-exports.EventType = EventType;
-let RelationType = /*#__PURE__*/function (RelationType) {
+let RelationType = exports.RelationType = /*#__PURE__*/function (RelationType) {
   RelationType["Annotation"] = "m.annotation";
   RelationType["Replace"] = "m.replace";
   RelationType["Reference"] = "m.reference";
   RelationType["Thread"] = "m.thread";
   return RelationType;
 }({});
-exports.RelationType = RelationType;
-let MsgType = /*#__PURE__*/function (MsgType) {
+let MsgType = exports.MsgType = /*#__PURE__*/function (MsgType) {
   MsgType["Text"] = "m.text";
   MsgType["Emote"] = "m.emote";
   MsgType["Notice"] = "m.notice";
@@ -104,57 +104,49 @@ let MsgType = /*#__PURE__*/function (MsgType) {
   MsgType["KeyVerificationRequest"] = "m.key.verification.request";
   return MsgType;
 }({});
-exports.MsgType = MsgType;
-const RoomCreateTypeField = "type";
-exports.RoomCreateTypeField = RoomCreateTypeField;
-let RoomType = /*#__PURE__*/function (RoomType) {
+const RoomCreateTypeField = exports.RoomCreateTypeField = "type";
+let RoomType = exports.RoomType = /*#__PURE__*/function (RoomType) {
   RoomType["Space"] = "m.space";
   RoomType["UnstableCall"] = "org.matrix.msc3417.call";
   RoomType["ElementVideo"] = "io.element.video";
   return RoomType;
 }({});
-exports.RoomType = RoomType;
-const ToDeviceMessageId = "org.matrix.msgid";
+const ToDeviceMessageId = exports.ToDeviceMessageId = "org.matrix.msgid";
 
 /**
  * Identifier for an [MSC3088](https://github.com/matrix-org/matrix-doc/pull/3088)
  * room purpose. Note that this reference is UNSTABLE and subject to breaking changes,
  * including its eventual removal.
  */
-exports.ToDeviceMessageId = ToDeviceMessageId;
-const UNSTABLE_MSC3088_PURPOSE = new _NamespacedValue.UnstableValue("m.room.purpose", "org.matrix.msc3088.purpose");
+const UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_PURPOSE = new _NamespacedValue.UnstableValue("m.room.purpose", "org.matrix.msc3088.purpose");
 
 /**
  * Enabled flag for an [MSC3088](https://github.com/matrix-org/matrix-doc/pull/3088)
  * room purpose. Note that this reference is UNSTABLE and subject to breaking changes,
  * including its eventual removal.
  */
-exports.UNSTABLE_MSC3088_PURPOSE = UNSTABLE_MSC3088_PURPOSE;
-const UNSTABLE_MSC3088_ENABLED = new _NamespacedValue.UnstableValue("m.enabled", "org.matrix.msc3088.enabled");
+const UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC3088_ENABLED = new _NamespacedValue.UnstableValue("m.enabled", "org.matrix.msc3088.enabled");
 
 /**
  * Subtype for an [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room.
  * Note that this reference is UNSTABLE and subject to breaking changes, including its
  * eventual removal.
  */
-exports.UNSTABLE_MSC3088_ENABLED = UNSTABLE_MSC3088_ENABLED;
-const UNSTABLE_MSC3089_TREE_SUBTYPE = new _NamespacedValue.UnstableValue("m.data_tree", "org.matrix.msc3089.data_tree");
+const UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_TREE_SUBTYPE = new _NamespacedValue.UnstableValue("m.data_tree", "org.matrix.msc3089.data_tree");
 
 /**
  * Leaf type for an event in a [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room.
  * Note that this reference is UNSTABLE and subject to breaking changes, including its
  * eventual removal.
  */
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = UNSTABLE_MSC3089_TREE_SUBTYPE;
-const UNSTABLE_MSC3089_LEAF = new _NamespacedValue.UnstableValue("m.leaf", "org.matrix.msc3089.leaf");
+const UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_LEAF = new _NamespacedValue.UnstableValue("m.leaf", "org.matrix.msc3089.leaf");
 
 /**
  * Branch (Leaf Reference) type for the index approach in a
  * [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089) space-room. Note that this reference is
  * UNSTABLE and subject to breaking changes, including its eventual removal.
  */
-exports.UNSTABLE_MSC3089_LEAF = UNSTABLE_MSC3089_LEAF;
-const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "org.matrix.msc3089.branch");
+const UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "org.matrix.msc3089.branch");
 
 /**
  * Marker event type to point back at imported historical content in a room. See
@@ -162,15 +154,13 @@ const UNSTABLE_MSC3089_BRANCH = new _NamespacedValue.UnstableValue("m.branch", "
  * Note that this reference is UNSTABLE and subject to breaking changes,
  * including its eventual removal.
  */
-exports.UNSTABLE_MSC3089_BRANCH = UNSTABLE_MSC3089_BRANCH;
-const UNSTABLE_MSC2716_MARKER = new _NamespacedValue.UnstableValue("m.room.marker", "org.matrix.msc2716.marker");
+const UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_MSC2716_MARKER = new _NamespacedValue.UnstableValue("m.room.marker", "org.matrix.msc2716.marker");
 
 /**
- * Name of the "with_relations" request property for relation based redactions.
+ * Name of the request property for relation based redactions.
  * {@link https://github.com/matrix-org/matrix-spec-proposals/pull/3912}
  */
-exports.UNSTABLE_MSC2716_MARKER = UNSTABLE_MSC2716_MARKER;
-const MSC3912_RELATION_BASED_REDACTIONS_PROP = new _NamespacedValue.UnstableValue("with_relations", "org.matrix.msc3912.with_relations");
+const MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = new _NamespacedValue.UnstableValue("with_rel_types", "org.matrix.msc3912.with_relations");
 
 /**
  * Functional members type for declaring a purpose of room members (e.g. helpful bots).
@@ -194,8 +184,7 @@ const MSC3912_RELATION_BASED_REDACTIONS_PROP = new _NamespacedValue.UnstableValu
  * }
  * ```
  */
-exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = MSC3912_RELATION_BASED_REDACTIONS_PROP;
-const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io.element.functional_members", "io.element.functional_members");
+const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io.element.functional_members", "io.element.functional_members");
 
 /**
  * A type of message that affects visibility of a message,
@@ -203,38 +192,32 @@ const UNSTABLE_ELEMENT_FUNCTIONAL_USERS = new _NamespacedValue.UnstableValue("io
  *
  * @experimental
  */
-exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = UNSTABLE_ELEMENT_FUNCTIONAL_USERS;
-const EVENT_VISIBILITY_CHANGE_TYPE = new _NamespacedValue.UnstableValue("m.visibility", "org.matrix.msc3531.visibility");
+const EVENT_VISIBILITY_CHANGE_TYPE = exports.EVENT_VISIBILITY_CHANGE_TYPE = new _NamespacedValue.UnstableValue("m.visibility", "org.matrix.msc3531.visibility");
 
 /**
  * https://github.com/matrix-org/matrix-doc/pull/3881
  *
  * @experimental
  */
-exports.EVENT_VISIBILITY_CHANGE_TYPE = EVENT_VISIBILITY_CHANGE_TYPE;
-const PUSHER_ENABLED = new _NamespacedValue.UnstableValue("enabled", "org.matrix.msc3881.enabled");
+const PUSHER_ENABLED = exports.PUSHER_ENABLED = new _NamespacedValue.UnstableValue("enabled", "org.matrix.msc3881.enabled");
 
 /**
  * https://github.com/matrix-org/matrix-doc/pull/3881
  *
  * @experimental
  */
-exports.PUSHER_ENABLED = PUSHER_ENABLED;
-const PUSHER_DEVICE_ID = new _NamespacedValue.UnstableValue("device_id", "org.matrix.msc3881.device_id");
+const PUSHER_DEVICE_ID = exports.PUSHER_DEVICE_ID = new _NamespacedValue.UnstableValue("device_id", "org.matrix.msc3881.device_id");
 
 /**
  * https://github.com/matrix-org/matrix-doc/pull/3890
  *
  * @experimental
  */
-exports.PUSHER_DEVICE_ID = PUSHER_DEVICE_ID;
-const LOCAL_NOTIFICATION_SETTINGS_PREFIX = new _NamespacedValue.UnstableValue("m.local_notification_settings", "org.matrix.msc3890.local_notification_settings");
+const LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = new _NamespacedValue.UnstableValue("m.local_notification_settings", "org.matrix.msc3890.local_notification_settings");
 
 /**
  * https://github.com/matrix-org/matrix-doc/pull/4023
  *
  * @experimental
  */
-exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = LOCAL_NOTIFICATION_SETTINGS_PREFIX;
-const UNSIGNED_THREAD_ID_FIELD = new _NamespacedValue.UnstableValue("thread_id", "org.matrix.msc4023.thread_id");
-exports.UNSIGNED_THREAD_ID_FIELD = UNSIGNED_THREAD_ID_FIELD;
+const UNSIGNED_THREAD_ID_FIELD = exports.UNSIGNED_THREAD_ID_FIELD = new _NamespacedValue.UnstableValue("thread_id", "org.matrix.msc4023.thread_id");

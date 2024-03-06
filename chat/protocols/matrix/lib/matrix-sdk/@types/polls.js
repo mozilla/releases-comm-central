@@ -24,13 +24,12 @@ limitations under the License.
 /**
  * Identifier for a disclosed poll.
  */
-const M_POLL_KIND_DISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.disclosed", "org.matrix.msc3381.poll.disclosed");
+const M_POLL_KIND_DISCLOSED = exports.M_POLL_KIND_DISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.disclosed", "org.matrix.msc3381.poll.disclosed");
 
 /**
  * Identifier for an undisclosed poll.
  */
-exports.M_POLL_KIND_DISCLOSED = M_POLL_KIND_DISCLOSED;
-const M_POLL_KIND_UNDISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.undisclosed", "org.matrix.msc3381.poll.undisclosed");
+const M_POLL_KIND_UNDISCLOSED = exports.M_POLL_KIND_UNDISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.undisclosed", "org.matrix.msc3381.poll.undisclosed");
 
 /**
  * Any poll kind.
@@ -39,11 +38,11 @@ const M_POLL_KIND_UNDISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.undis
 /**
  * Known poll kind namespaces.
  */
-exports.M_POLL_KIND_UNDISCLOSED = M_POLL_KIND_UNDISCLOSED;
+
 /**
  * The namespaced value for m.poll.start
  */
-const M_POLL_START = new _matrixEventsSdk.UnstableValue("m.poll.start", "org.matrix.msc3381.poll.start");
+const M_POLL_START = exports.M_POLL_START = new _matrixEventsSdk.UnstableValue("m.poll.start", "org.matrix.msc3381.poll.start");
 
 /**
  * The m.poll.start type within event content
@@ -60,11 +59,11 @@ const M_POLL_START = new _matrixEventsSdk.UnstableValue("m.poll.start", "org.mat
 /**
  * The content for an m.poll.start event
  */
-exports.M_POLL_START = M_POLL_START;
+
 /**
  * The namespaced value for m.poll.response
  */
-const M_POLL_RESPONSE = new _matrixEventsSdk.UnstableValue("m.poll.response", "org.matrix.msc3381.poll.response");
+const M_POLL_RESPONSE = exports.M_POLL_RESPONSE = new _matrixEventsSdk.UnstableValue("m.poll.response", "org.matrix.msc3381.poll.response");
 
 /**
  * The m.poll.response type within event content
@@ -77,11 +76,11 @@ const M_POLL_RESPONSE = new _matrixEventsSdk.UnstableValue("m.poll.response", "o
 /**
  * The content for an m.poll.response event
  */
-exports.M_POLL_RESPONSE = M_POLL_RESPONSE;
+
 /**
  * The namespaced value for m.poll.end
  */
-const M_POLL_END = new _matrixEventsSdk.UnstableValue("m.poll.end", "org.matrix.msc3381.poll.end");
+const M_POLL_END = exports.M_POLL_END = new _matrixEventsSdk.UnstableValue("m.poll.end", "org.matrix.msc3381.poll.end");
 
 /**
  * The event definition for an m.poll.end event (in content)
@@ -90,4 +89,3 @@ const M_POLL_END = new _matrixEventsSdk.UnstableValue("m.poll.end", "org.matrix.
 /**
  * The content for an m.poll.end event
  */
-exports.M_POLL_END = M_POLL_END;

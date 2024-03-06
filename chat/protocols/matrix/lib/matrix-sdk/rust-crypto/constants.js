@@ -21,5 +21,4 @@ limitations under the License.
 */
 
 /** The prefix used on indexeddbs created by rust-crypto */
-const RUST_SDK_STORE_PREFIX = "matrix-js-sdk";
-exports.RUST_SDK_STORE_PREFIX = RUST_SDK_STORE_PREFIX;
+const RUST_SDK_STORE_PREFIX = exports.RUST_SDK_STORE_PREFIX = "matrix-js-sdk";

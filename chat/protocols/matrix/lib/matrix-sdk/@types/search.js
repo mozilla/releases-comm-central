@@ -26,10 +26,9 @@ var GroupKey = /*#__PURE__*/function (GroupKey) {
   GroupKey["Sender"] = "sender";
   return GroupKey;
 }(GroupKey || {});
-let SearchOrderBy = /*#__PURE__*/function (SearchOrderBy) {
+let SearchOrderBy = exports.SearchOrderBy = /*#__PURE__*/function (SearchOrderBy) {
   SearchOrderBy["Recent"] = "recent";
   SearchOrderBy["Rank"] = "rank";
   return SearchOrderBy;
 }({});
 /* eslint-enable camelcase */
-exports.SearchOrderBy = SearchOrderBy;

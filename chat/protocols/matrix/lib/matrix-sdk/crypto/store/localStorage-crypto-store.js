@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.LocalStorageCryptoStore = void 0;
 var _logger = require("../../logger");
 var _memoryCryptoStore = require("./memory-crypto-store");
+var _base = require("./base");
 var _utils = require("../../utils");
 /*
 Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
@@ -32,6 +33,7 @@ limitations under the License.
  */
 
 const E2E_PREFIX = "crypto.";
+const KEY_END_TO_END_MIGRATION_STATE = E2E_PREFIX + "migration";
 const KEY_END_TO_END_ACCOUNT = E2E_PREFIX + "account";
 const KEY_CROSS_SIGNING_KEYS = E2E_PREFIX + "cross_signing_keys";
 const KEY_NOTIFIED_ERROR_DEVICES = E2E_PREFIX + "notified_error_devices";
@@ -70,12 +72,49 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
     this.store = store;
   }
 
+  /**
+   * Returns true if this CryptoStore has ever been initialised (ie, it might contain data).
+   *
+   * Implementation of {@link CryptoStore.containsData}.
+   *
+   * @internal
+   */
+  async containsData() {
+    return LocalStorageCryptoStore.exists(this.store);
+  }
+
+  /**
+   * Get data on how much of the libolm to Rust Crypto migration has been done.
+   *
+   * Implementation of {@link CryptoStore.getMigrationState}.
+   *
+   * @internal
+   */
+  async getMigrationState() {
+    return getJsonItem(this.store, KEY_END_TO_END_MIGRATION_STATE) ?? _base.MigrationState.NOT_STARTED;
+  }
+
+  /**
+   * Set data on how much of the libolm to Rust Crypto migration has been done.
+   *
+   * Implementation of {@link CryptoStore.setMigrationState}.
+   *
+   * @internal
+   */
+  async setMigrationState(migrationState) {
+    setJsonItem(this.store, KEY_END_TO_END_MIGRATION_STATE, migrationState);
+  }
+
   // Olm Sessions
 
   countEndToEndSessions(txn, func) {
     let count = 0;
     for (let i = 0; i < this.store.length; ++i) {
-      if (this.store.key(i)?.startsWith(keyEndToEndSessions(""))) ++count;
+      const key = this.store.key(i);
+      if (key?.startsWith(keyEndToEndSessions(""))) {
+        const sessions = getJsonItem(this.store, key);
+        count += Object.keys(sessions ?? {}).length;
+      }
     }
     func(count);
   }
@@ -176,6 +215,58 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
     return ret;
   }
 
+  /**
+   * Fetch a batch of Olm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.getEndToEndSessionsBatch}.
+   *
+   * @internal
+   */
+  async getEndToEndSessionsBatch() {
+    const result = [];
+    for (let i = 0; i < this.store.length; ++i) {
+      if (this.store.key(i)?.startsWith(keyEndToEndSessions(""))) {
+        const deviceKey = this.store.key(i).split("/")[1];
+        for (const session of Object.values(this._getEndToEndSessions(deviceKey))) {
+          result.push(session);
+          if (result.length >= _base.SESSION_BATCH_SIZE) {
+            return result;
+          }
+        }
+      }
+    }
+    if (result.length === 0) {
+      // No sessions left.
+      return null;
+    }
+
+    // There are fewer sessions than the batch size; return the final batch of sessions.
+    return result;
+  }
+
+  /**
+   * Delete a batch of Olm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.deleteEndToEndSessionsBatch}.
+   *
+   * @internal
+   */
+  async deleteEndToEndSessionsBatch(sessions) {
+    for (const {
+      deviceKey,
+      sessionId
+    } of sessions) {
+      const deviceSessions = this._getEndToEndSessions(deviceKey) || {};
+      delete deviceSessions[sessionId];
+      if (Object.keys(deviceSessions).length === 0) {
+        // No more sessions for this device.
+        this.store.removeItem(keyEndToEndSessions(deviceKey));
+      } else {
+        setJsonItem(this.store, keyEndToEndSessions(deviceKey), deviceSessions);
+      }
+    }
+  }
+
   // Inbound Group Sessions
 
   getEndToEndInboundGroupSession(senderCurve25519Key, sessionId, txn, func) {
@@ -210,6 +301,81 @@ class LocalStorageCryptoStore extends _memoryCryptoStore.MemoryCryptoStore {
   }
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
     setJsonItem(this.store, keyEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId), sessionData);
+  }
+
+  /**
+   * Count the number of Megolm sessions in the database.
+   *
+   * Implementation of {@link CryptoStore.countEndToEndInboundGroupSessions}.
+   *
+   * @internal
+   */
+  async countEndToEndInboundGroupSessions() {
+    let count = 0;
+    for (let i = 0; i < this.store.length; ++i) {
+      const key = this.store.key(i);
+      if (key?.startsWith(KEY_INBOUND_SESSION_PREFIX)) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Fetch a batch of Megolm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.getEndToEndInboundGroupSessionsBatch}.
+   *
+   * @internal
+   */
+  async getEndToEndInboundGroupSessionsBatch() {
+    const sessionsNeedingBackup = getJsonItem(this.store, KEY_SESSIONS_NEEDING_BACKUP) || {};
+    const result = [];
+    for (let i = 0; i < this.store.length; ++i) {
+      const key = this.store.key(i);
+      if (key?.startsWith(KEY_INBOUND_SESSION_PREFIX)) {
+        const key2 = key.slice(KEY_INBOUND_SESSION_PREFIX.length);
+
+        // we can't use split, as the components we are trying to split out
+        // might themselves contain '/' characters. We rely on the
+        // senderKey being a (32-byte) curve25519 key, base64-encoded
+        // (hence 43 characters long).
+
+        result.push({
+          senderKey: key2.slice(0, 43),
+          sessionId: key2.slice(44),
+          sessionData: getJsonItem(this.store, key),
+          needsBackup: key2 in sessionsNeedingBackup
+        });
+        if (result.length >= _base.SESSION_BATCH_SIZE) {
+          return result;
+        }
+      }
+    }
+    if (result.length === 0) {
+      // No sessions left.
+      return null;
+    }
+
+    // There are fewer sessions than the batch size; return the final batch of sessions.
+    return result;
+  }
+
+  /**
+   * Delete a batch of Megolm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.deleteEndToEndInboundGroupSessionsBatch}.
+   *
+   * @internal
+   */
+  async deleteEndToEndInboundGroupSessionsBatch(sessions) {
+    for (const {
+      senderKey,
+      sessionId
+    } of sessions) {
+      const k = keyEndToEndInboundGroupSession(senderKey, sessionId);
+      this.store.removeItem(k);
+    }
   }
   getEndToEndDeviceData(txn, func) {
     func(getJsonItem(this.store, KEY_DEVICE_DATA));

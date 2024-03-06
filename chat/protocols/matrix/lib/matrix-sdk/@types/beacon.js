@@ -67,9 +67,8 @@ limitations under the License.
 /**
  * Non-variable type for m.beacon_info event content
  */
-const M_BEACON_INFO = new _NamespacedValue.UnstableValue("m.beacon_info", "org.matrix.msc3672.beacon_info");
-exports.M_BEACON_INFO = M_BEACON_INFO;
-const M_BEACON = new _NamespacedValue.UnstableValue("m.beacon", "org.matrix.msc3672.beacon");
+const M_BEACON_INFO = exports.M_BEACON_INFO = new _NamespacedValue.UnstableValue("m.beacon_info", "org.matrix.msc3672.beacon_info");
+const M_BEACON = exports.M_BEACON = new _NamespacedValue.UnstableValue("m.beacon", "org.matrix.msc3672.beacon");
 
 /**
  * m.beacon_info Event example from the spec
@@ -123,4 +122,3 @@ const M_BEACON = new _NamespacedValue.UnstableValue("m.beacon", "org.matrix.msc3
 /**
  * Content of an m.beacon event
  */
-exports.M_BEACON = M_BEACON;

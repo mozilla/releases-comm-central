@@ -30,6 +30,7 @@ const KNOWN_INDEX_JS = new Set([
   "matrix_sdk/crypto",
   "matrix_sdk/crypto/algorithms",
   "matrix_sdk/http_api",
+  "matrix_sdk/oidc",
   "matrix_sdk/rendezvous",
   "matrix_sdk/rendezvous/channels",
   "matrix_sdk/rendezvous/transports",
@@ -77,11 +78,18 @@ const loader = Loader({
     // Matrix SDK files.
     "matrix-sdk": matrixPath + "matrix_sdk",
     "matrix-sdk/@types": matrixPath + "matrix_sdk/types",
+    "matrix-sdk/@types/common": matrixPath + "empty.js",
+    "matrix-sdk/@types/crypto": matrixPath + "empty.js",
+    "matrix-sdk/@types/IIdentityServerProvider": matrixPath + "empty.js",
+    "matrix-sdk/@types/local_notifications": matrixPath + "empty.js",
+    "matrix-sdk/@types/registration": matrixPath + "empty.js",
     "matrix-sdk/@types/requests": matrixPath + "empty.js",
+    "matrix-sdk/@types/uia": matrixPath + "empty.js",
     // The entire directory can't be mapped from crypto-api to crypto_api since
     // there's also a matrix-sdk/crypto-api.js.
     "matrix-sdk/crypto-api/verification":
       matrixPath + "matrix_sdk/crypto_api/verification.js",
+    "matrix-sdk/crypto-api/keybackup": matrixPath + "empty.js",
     "matrix-sdk/http-api": matrixPath + "matrix_sdk/http_api",
     "matrix-sdk/rust-crypto": matrixPath + "matrix_sdk/rust_crypto",
 
@@ -90,6 +98,8 @@ const loader = Loader({
     "base-x": matrixPath + "base_x/index.js",
     bs58: matrixPath + "bs58/index.js",
     "content-type": matrixPath + "content_type/index.js",
+    "jwt-decode": matrixPath + "jwt_decode/index.js",
+    "oidc-client-ts": matrixPath + "oidc-client-ts.js",
 
     // unhomoglyph
     unhomoglyph: matrixPath + "unhomoglyph",
@@ -106,8 +116,11 @@ const loader = Loader({
     "matrix-widget-api": matrixPath + "matrix_widget_api",
     "matrix-widget-api/interfaces/CapabilitiesAction": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/ContentLoadedAction": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/GetMediaConfigAction":
+      matrixPath + "empty.js",
     "matrix-widget-api/interfaces/ICustomWidgetData": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/IJitsiWidgetData": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/IRoomAccountData": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/IRoomEvent": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/IStickerpickerWidgetData":
       matrixPath + "empty.js",
@@ -130,6 +143,7 @@ const loader = Loader({
     "matrix-widget-api/interfaces/SupportedVersionsAction":
       matrixPath + "empty.js",
     "matrix-widget-api/interfaces/TurnServerActions": matrixPath + "empty.js",
+    "matrix-widget-api/interfaces/UploadFileAction": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/VisibilityAction": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/WidgetAction": matrixPath + "empty.js",
     "matrix-widget-api/interfaces/WidgetConfigAction": matrixPath + "empty.js",
@@ -214,6 +228,5 @@ export const MatrixSDK = require("matrix-sdk/browser-index.js");
 
 // Helper enums not exposed on MatrixSDK.
 export const MatrixCrypto = require("matrix-sdk/crypto");
-export const { SyncState } = require("matrix-sdk/sync");
 export const OlmLib = require("matrix-sdk/crypto/olmlib");
 export const { ReceiptType } = require("matrix-sdk/@types/read_receipts");

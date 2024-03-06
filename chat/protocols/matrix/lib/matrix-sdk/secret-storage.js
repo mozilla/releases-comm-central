@@ -31,7 +31,7 @@ limitations under the License.
  * @see https://spec.matrix.org/v1.6/client-server-api/#storage
  */
 
-const SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2";
+const SECRET_STORAGE_ALGORITHM_V1_AES = exports.SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2";
 
 /**
  * Common base interface for Secret Storage Keys.
@@ -88,7 +88,7 @@ const SECRET_STORAGE_ALGORITHM_V1_AES = "m.secret_storage.v1.aes-hmac-sha2";
  * Normally this will just be an {@link ServerSideSecretStorageImpl}, but for backwards
  * compatibility some methods allow other implementations.
  */
-exports.SECRET_STORAGE_ALGORITHM_V1_AES = SECRET_STORAGE_ALGORITHM_V1_AES;
+
 /**
  * Implementation of Server-side secret storage.
  *
@@ -160,7 +160,7 @@ class ServerSideSecretStorageImpl {
    *     keyId: the ID of the key
    *     keyInfo: details about the key (iv, mac, passphrase)
    */
-  async addKey(algorithm, opts = {}, keyId) {
+  async addKey(algorithm, opts, keyId) {
     if (algorithm !== SECRET_STORAGE_ALGORITHM_V1_AES) {
       throw new Error(`Unknown key algorithm ${algorithm}`);
     }
@@ -173,14 +173,12 @@ class ServerSideSecretStorageImpl {
     if (opts.passphrase) {
       keyInfo.passphrase = opts.passphrase;
     }
-    if (opts.key) {
-      const {
-        iv,
-        mac
-      } = await (0, _aes.calculateKeyCheck)(opts.key);
-      keyInfo.iv = iv;
-      keyInfo.mac = mac;
-    }
+    const {
+      iv,
+      mac
+    } = await (0, _aes.calculateKeyCheck)(opts.key);
+    keyInfo.iv = iv;
+    keyInfo.mac = mac;
 
     // Create a unique key id. XXX: this is racey.
     if (!keyId) {

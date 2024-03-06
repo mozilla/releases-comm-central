@@ -34,7 +34,9 @@ function runTemplate(url, widget, params) {
     'org.matrix.msc2873.client_theme': params.clientTheme || "",
     'org.matrix.msc2873.client_language': params.clientLanguage || "",
     // TODO: Convert to stable (https://github.com/matrix-org/matrix-spec-proposals/pull/3819)
-    'org.matrix.msc3819.matrix_device_id': params.deviceId || ""
+    'org.matrix.msc3819.matrix_device_id': params.deviceId || "",
+    // TODO: Convert to stable (https://github.com/matrix-org/matrix-spec-proposals/pull/4039)
+    'org.matrix.msc4039.matrix_base_url': params.baseUrl || ""
   });
   var result = url;
   for (var _i = 0, _Object$keys = Object.keys(variables); _i < _Object$keys.length; _i++) {

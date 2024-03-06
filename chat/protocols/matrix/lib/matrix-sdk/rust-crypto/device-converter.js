@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.deviceKeysToDeviceMap = deviceKeysToDeviceMap;
 exports.downloadDeviceToJsDevice = downloadDeviceToJsDevice;
 exports.rustDeviceToJsDevice = rustDeviceToJsDevice;
-var RustSdkCryptoJs = _interopRequireWildcard(require("@matrix-org/matrix-sdk-crypto-js"));
+var RustSdkCryptoJs = _interopRequireWildcard(require("@matrix-org/matrix-sdk-crypto-wasm"));
 var _device = require("../models/device");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -30,6 +30,8 @@ limitations under the License.
  * Convert a {@link RustSdkCryptoJs.Device} to a {@link Device}
  * @param device - Rust Sdk device
  * @param userId - owner of the device
+ *
+ * @internal
  */
 function rustDeviceToJsDevice(device, userId) {
   // Copy rust device keys to Device.keys
@@ -89,6 +91,8 @@ function rustDeviceToJsDevice(device, userId) {
 /**
  * Convert {@link DeviceKeys}  from `/keys/query` request to a `Map<string, Device>`
  * @param deviceKeys - Device keys object to convert
+ *
+ * @internal
  */
 function deviceKeysToDeviceMap(deviceKeys) {
   return new Map(Object.entries(deviceKeys).map(([deviceId, device]) => [deviceId, downloadDeviceToJsDevice(device)]));
@@ -99,6 +103,8 @@ function deviceKeysToDeviceMap(deviceKeys) {
 /**
  * Convert `/keys/query` {@link QueryDevice} device to {@link Device}
  * @param device - Device from `/keys/query` request
+ *
+ * @internal
  */
 function downloadDeviceToJsDevice(device) {
   const keys = new Map(Object.entries(device.keys));

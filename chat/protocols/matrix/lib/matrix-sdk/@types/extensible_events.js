@@ -42,7 +42,7 @@ limitations under the License.
 /**
  * The namespaced value for m.message
  */
-const M_MESSAGE = new _matrixEventsSdk.UnstableValue("m.message", "org.matrix.msc1767.message");
+const M_MESSAGE = exports.M_MESSAGE = new _matrixEventsSdk.UnstableValue("m.message", "org.matrix.msc1767.message");
 
 /**
  * An m.message event rendering
@@ -51,20 +51,20 @@ const M_MESSAGE = new _matrixEventsSdk.UnstableValue("m.message", "org.matrix.ms
 /**
  * The content for an m.message event
  */
-exports.M_MESSAGE = M_MESSAGE;
+
 /**
  * The namespaced value for m.text
  */
-const M_TEXT = new _matrixEventsSdk.UnstableValue("m.text", "org.matrix.msc1767.text");
+const M_TEXT = exports.M_TEXT = new _matrixEventsSdk.UnstableValue("m.text", "org.matrix.msc1767.text");
 
 /**
  * The content for an m.text event
  */
-exports.M_TEXT = M_TEXT;
+
 /**
  * The namespaced value for m.html
  */
-const M_HTML = new _matrixEventsSdk.UnstableValue("m.html", "org.matrix.msc1767.html");
+const M_HTML = exports.M_HTML = new _matrixEventsSdk.UnstableValue("m.html", "org.matrix.msc1767.html");
 
 /**
  * The content for an m.html event
@@ -73,11 +73,11 @@ const M_HTML = new _matrixEventsSdk.UnstableValue("m.html", "org.matrix.msc1767.
 /**
  * The content for an m.message, m.text, or m.html event
  */
-exports.M_HTML = M_HTML;
+
 /**
  * The namespaced value for an m.reference relation
  */
-const REFERENCE_RELATION = new _matrixEventsSdk.NamespacedValue("m.reference");
+const REFERENCE_RELATION = exports.REFERENCE_RELATION = new _matrixEventsSdk.NamespacedValue("m.reference");
 
 /**
  * Represents any relation type
@@ -94,7 +94,7 @@ const REFERENCE_RELATION = new _matrixEventsSdk.NamespacedValue("m.reference");
 /**
  * Represents a potentially namespaced event type.
  */
-exports.REFERENCE_RELATION = REFERENCE_RELATION;
+
 /**
  * Determines if two event types are the same, including namespaces.
  * @param given - The given event type. This will be compared

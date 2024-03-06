@@ -17,35 +17,34 @@ var _groupCallEventHandler = require("./groupCallEventHandler");
 var _utils = require("../utils");
 var _groupCallStats = require("./stats/groupCallStats");
 var _statsReport = require("./stats/statsReport");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _summaryStatsReportGatherer = require("./stats/summaryStatsReportGatherer");
+var _callFeedStatsReporter = require("./stats/callFeedStatsReporter");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let GroupCallIntent = /*#__PURE__*/function (GroupCallIntent) {
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+let GroupCallIntent = exports.GroupCallIntent = /*#__PURE__*/function (GroupCallIntent) {
   GroupCallIntent["Ring"] = "m.ring";
   GroupCallIntent["Prompt"] = "m.prompt";
   GroupCallIntent["Room"] = "m.room";
   return GroupCallIntent;
 }({});
-exports.GroupCallIntent = GroupCallIntent;
-let GroupCallType = /*#__PURE__*/function (GroupCallType) {
+let GroupCallType = exports.GroupCallType = /*#__PURE__*/function (GroupCallType) {
   GroupCallType["Video"] = "m.video";
   GroupCallType["Voice"] = "m.voice";
   return GroupCallType;
 }({});
-exports.GroupCallType = GroupCallType;
-let GroupCallTerminationReason = /*#__PURE__*/function (GroupCallTerminationReason) {
+let GroupCallTerminationReason = exports.GroupCallTerminationReason = /*#__PURE__*/function (GroupCallTerminationReason) {
   GroupCallTerminationReason["CallEnded"] = "call_ended";
   return GroupCallTerminationReason;
 }({});
-exports.GroupCallTerminationReason = GroupCallTerminationReason;
 /**
  * Because event names are just strings, they do need
  * to be unique over all event types of event emitter.
  * Some objects could emit more then one set of events.
  */
-let GroupCallEvent = /*#__PURE__*/function (GroupCallEvent) {
+let GroupCallEvent = exports.GroupCallEvent = /*#__PURE__*/function (GroupCallEvent) {
   GroupCallEvent["GroupCallStateChanged"] = "group_call_state_changed";
   GroupCallEvent["ActiveSpeakerChanged"] = "active_speaker_changed";
   GroupCallEvent["CallsChanged"] = "calls_changed";
@@ -57,21 +56,22 @@ let GroupCallEvent = /*#__PURE__*/function (GroupCallEvent) {
   GroupCallEvent["Error"] = "group_call_error";
   return GroupCallEvent;
 }({});
-exports.GroupCallEvent = GroupCallEvent;
-let GroupCallStatsReportEvent = /*#__PURE__*/function (GroupCallStatsReportEvent) {
+let GroupCallStatsReportEvent = exports.GroupCallStatsReportEvent = /*#__PURE__*/function (GroupCallStatsReportEvent) {
   GroupCallStatsReportEvent["ConnectionStats"] = "GroupCall.connection_stats";
   GroupCallStatsReportEvent["ByteSentStats"] = "GroupCall.byte_sent_stats";
   GroupCallStatsReportEvent["SummaryStats"] = "GroupCall.summary_stats";
+  GroupCallStatsReportEvent["CallFeedStats"] = "GroupCall.call_feed_stats";
   return GroupCallStatsReportEvent;
 }({});
-exports.GroupCallStatsReportEvent = GroupCallStatsReportEvent;
-let GroupCallErrorCode = /*#__PURE__*/function (GroupCallErrorCode) {
+/**
+ * The final report-events that get consumed by client.
+ */
+let GroupCallErrorCode = exports.GroupCallErrorCode = /*#__PURE__*/function (GroupCallErrorCode) {
   GroupCallErrorCode["NoUserMedia"] = "no_user_media";
   GroupCallErrorCode["UnknownDevice"] = "unknown_device";
   GroupCallErrorCode["PlaceCallFailed"] = "place_call_failed";
   return GroupCallErrorCode;
 }({});
-exports.GroupCallErrorCode = GroupCallErrorCode;
 class GroupCallError extends Error {
   constructor(code, msg, err) {
     // Still don't think there's any way to have proper nested errors
@@ -99,7 +99,7 @@ class OtherUserSpeakingError extends Error {
   }
 }
 exports.OtherUserSpeakingError = OtherUserSpeakingError;
-let GroupCallState = /*#__PURE__*/function (GroupCallState) {
+let GroupCallState = exports.GroupCallState = /*#__PURE__*/function (GroupCallState) {
   GroupCallState["LocalCallFeedUninitialized"] = "local_call_feed_uninitialized";
   GroupCallState["InitializingLocalCallFeed"] = "initializing_local_call_feed";
   GroupCallState["LocalCallFeedInitialized"] = "local_call_feed_initialized";
@@ -107,14 +107,17 @@ let GroupCallState = /*#__PURE__*/function (GroupCallState) {
   GroupCallState["Ended"] = "ended";
   return GroupCallState;
 }({});
-exports.GroupCallState = GroupCallState;
 const DEVICE_TIMEOUT = 1000 * 60 * 60; // 1 hour
 
 function getCallUserId(call) {
   return call.getOpponentMember()?.userId || call.invitee || null;
 }
 class GroupCall extends _typedEventEmitter.TypedEventEmitter {
-  constructor(client, room, type, isPtt, intent, groupCallId, dataChannelsEnabled, dataChannelOptions, isCallWithoutVideoAndAudio) {
+  constructor(client, room, type, isPtt, intent, groupCallId, dataChannelsEnabled, dataChannelOptions, isCallWithoutVideoAndAudio,
+  // this tells the js-sdk not to actually establish any calls to exchange media and just to
+  // create the group call signaling events, with the intention that the actual media will be
+  // handled using livekit. The js-sdk doesn't contain any code to do the actual livekit call though.
+  useLivekit = false, livekitServiceURL) {
     super();
     this.client = client;
     this.room = room;
@@ -123,6 +126,7 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     this.intent = intent;
     this.dataChannelsEnabled = dataChannelsEnabled;
     this.dataChannelOptions = dataChannelOptions;
+    this.useLivekit = useLivekit;
     // Config
     _defineProperty(this, "activeSpeakerInterval", 1000);
     _defineProperty(this, "retryCallInterval", 5000);
@@ -151,6 +155,7 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "initWithAudioMuted", false);
     _defineProperty(this, "initWithVideoMuted", false);
     _defineProperty(this, "initCallFeedPromise", void 0);
+    _defineProperty(this, "_livekitServiceURL", void 0);
     _defineProperty(this, "stats", void 0);
     /**
      * Configure default webrtc stats collection interval in ms
@@ -158,17 +163,36 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
      */
     _defineProperty(this, "statsCollectIntervalTime", 0);
     _defineProperty(this, "onConnectionStats", report => {
+      // Final emit of the summary event, to be consumed by the client
       this.emit(GroupCallStatsReportEvent.ConnectionStats, {
         report
       });
     });
     _defineProperty(this, "onByteSentStats", report => {
+      // Final emit of the summary event, to be consumed by the client
       this.emit(GroupCallStatsReportEvent.ByteSentStats, {
         report
       });
     });
     _defineProperty(this, "onSummaryStats", report => {
+      _summaryStatsReportGatherer.SummaryStatsReportGatherer.extendSummaryReport(report, this.participants);
+      // Final emit of the summary event, to be consumed by the client
       this.emit(GroupCallStatsReportEvent.SummaryStats, {
+        report
+      });
+    });
+    _defineProperty(this, "onCallFeedReport", report => {
+      if (this.localCallFeed) {
+        report = _callFeedStatsReporter.CallFeedStatsReporter.expandCallFeedReport(report, [this.localCallFeed], "from-local-feed");
+      }
+      const callFeeds = [];
+      this.forEachCall(call => {
+        if (call.callId === report.callId) {
+          call.getFeeds().forEach(f => callFeeds.push(f));
+        }
+      });
+      report = _callFeedStatsReporter.CallFeedStatsReporter.expandCallFeedReport(report, callFeeds, "from-call-feed");
+      this.emit(GroupCallStatsReportEvent.CallFeedStats, {
         report
       });
     });
@@ -201,6 +225,10 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
       const opponentUserId = newCall.getOpponentMember()?.userId;
       if (opponentUserId === undefined) {
         _logger.logger.warn(`GroupCall ${this.groupCallId} onIncomingCall() incoming call with no member - ignoring`);
+        return;
+      }
+      if (this.useLivekit) {
+        _logger.logger.info("Received incoming call whilst in signaling-only mode! Ignoring.");
         return;
       }
       const deviceMap = this.calls.get(opponentUserId) ?? new Map();
@@ -357,7 +385,9 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
           (0, _call.setTracksEnabled)(feed.stream.getVideoTracks(), !feed.isVideoMuted() && expected);
         }
       });
-      if (this.state === GroupCallState.Entered) this.placeOutgoingCalls();
+      if (this.state === GroupCallState.Entered && !this.useLivekit) this.placeOutgoingCalls();
+
+      // Update the participants stored in the stats object
     });
     _defineProperty(this, "onStateChanged", (newState, oldState) => {
       if (newState === GroupCallState.Entered || oldState === GroupCallState.Entered || newState === GroupCallState.Ended) {
@@ -373,6 +403,7 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     });
     this.reEmitter = new _ReEmitter.ReEmitter(this);
     this.groupCallId = groupCallId ?? (0, _call.genCallID)();
+    this._livekitServiceURL = livekitServiceURL;
     this.creationTs = room.currentState.getStateEvents(_event.EventType.GroupCallPrefix, this.groupCallId)?.getTs() ?? null;
     this.updateParticipants();
     room.on(_roomState.RoomStateEvent.Update, this.onRoomState);
@@ -385,6 +416,10 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     this.creationTs = Date.now();
     this.client.groupCallEventHandler.groupCalls.set(this.room.roomId, this);
     this.client.emit(_groupCallEventHandler.GroupCallEventHandlerEvent.Outgoing, this);
+    await this.sendCallStateEvent();
+    return this;
+  }
+  async sendCallStateEvent() {
     const groupCallState = {
       "m.intent": this.intent,
       "m.type": this.type,
@@ -393,8 +428,17 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
       "dataChannelsEnabled": this.dataChannelsEnabled,
       "dataChannelOptions": this.dataChannelsEnabled ? this.dataChannelOptions : undefined
     };
+    if (this.livekitServiceURL) {
+      groupCallState["io.element.livekit_service_url"] = this.livekitServiceURL;
+    }
     await this.client.sendStateEvent(this.room.roomId, _event.EventType.GroupCallPrefix, groupCallState, this.groupCallId);
-    return this;
+  }
+  get livekitServiceURL() {
+    return this._livekitServiceURL;
+  }
+  updateLivekitServiceURL(newURL) {
+    this._livekitServiceURL = newURL;
+    return this.sendCallStateEvent();
   }
   /**
    * The group call's state.
@@ -479,6 +523,10 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     return member !== null && deviceId !== undefined && this.participants.get(member)?.get(deviceId) !== undefined;
   }
   async initLocalCallFeed() {
+    if (this.useLivekit) {
+      _logger.logger.info("Livekit group call: not starting local call feed.");
+      return;
+    }
     if (this.state !== GroupCallState.LocalCallFeedUninitialized) {
       throw new Error(`Cannot initialize local call feed in the "${this.state}" state.`);
     }
@@ -558,10 +606,12 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
     for (const call of this.client.callEventHandler.calls.values()) {
       this.onIncomingCall(call);
     }
-    this.retryCallLoopInterval = setInterval(this.onRetryCallLoop, this.retryCallInterval);
-    this.activeSpeaker = undefined;
-    this.onActiveSpeakerLoop();
-    this.activeSpeakerLoopInterval = setInterval(this.onActiveSpeakerLoop, this.activeSpeakerInterval);
+    if (!this.useLivekit) {
+      this.retryCallLoopInterval = setInterval(this.onRetryCallLoop, this.retryCallInterval);
+      this.activeSpeaker = undefined;
+      this.onActiveSpeakerLoop();
+      this.activeSpeakerLoopInterval = setInterval(this.onActiveSpeakerLoop, this.activeSpeakerInterval);
+    }
   }
   dispose() {
     if (this.localCallFeed) {
@@ -1142,7 +1192,6 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
       // TODO: Add data channels
     }]);
   }
-
   async updateMemberState() {
     // Clear the old update interval before proceeding
     if (this.resendMemberStateTimer !== null) {
@@ -1196,6 +1245,7 @@ class GroupCall extends _typedEventEmitter.TypedEventEmitter {
       this.stats.reports.on(_statsReport.StatsReport.CONNECTION_STATS, this.onConnectionStats);
       this.stats.reports.on(_statsReport.StatsReport.BYTE_SENT_STATS, this.onByteSentStats);
       this.stats.reports.on(_statsReport.StatsReport.SUMMARY_STATS, this.onSummaryStats);
+      this.stats.reports.on(_statsReport.StatsReport.CALL_FEED_REPORT, this.onCallFeedReport);
     }
     return this.stats;
   }

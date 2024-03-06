@@ -19,9 +19,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let ThreepidMedium = /*#__PURE__*/function (ThreepidMedium) {
+let ThreepidMedium = exports.ThreepidMedium = /*#__PURE__*/function (ThreepidMedium) {
   ThreepidMedium["Email"] = "email";
   ThreepidMedium["Phone"] = "msisdn";
   return ThreepidMedium;
 }({}); // TODO: Are these types universal, or specific to just /account/3pid?
-exports.ThreepidMedium = ThreepidMedium;

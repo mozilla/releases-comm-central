@@ -22,20 +22,18 @@ limitations under the License.
 */
 // allow camelcase as these are things that go onto the wire
 /* eslint-disable camelcase */
-let PushRuleActionName = /*#__PURE__*/function (PushRuleActionName) {
+let PushRuleActionName = exports.PushRuleActionName = /*#__PURE__*/function (PushRuleActionName) {
   PushRuleActionName["DontNotify"] = "dont_notify";
   PushRuleActionName["Notify"] = "notify";
   PushRuleActionName["Coalesce"] = "coalesce";
   return PushRuleActionName;
 }({});
-exports.PushRuleActionName = PushRuleActionName;
-let TweakName = /*#__PURE__*/function (TweakName) {
+let TweakName = exports.TweakName = /*#__PURE__*/function (TweakName) {
   TweakName["Highlight"] = "highlight";
   TweakName["Sound"] = "sound";
   return TweakName;
 }({});
-exports.TweakName = TweakName;
-let ConditionOperator = /*#__PURE__*/function (ConditionOperator) {
+let ConditionOperator = exports.ConditionOperator = /*#__PURE__*/function (ConditionOperator) {
   ConditionOperator["ExactEquals"] = "==";
   ConditionOperator["LessThan"] = "<";
   ConditionOperator["GreaterThan"] = ">";
@@ -43,13 +41,11 @@ let ConditionOperator = /*#__PURE__*/function (ConditionOperator) {
   ConditionOperator["LessThanOrEqual"] = "<=";
   return ConditionOperator;
 }({});
-exports.ConditionOperator = ConditionOperator;
-const DMMemberCountCondition = "2";
-exports.DMMemberCountCondition = DMMemberCountCondition;
+const DMMemberCountCondition = exports.DMMemberCountCondition = "2";
 function isDmMemberCountCondition(condition) {
   return condition === "==2" || condition === "2";
 }
-let ConditionKind = /*#__PURE__*/function (ConditionKind) {
+let ConditionKind = exports.ConditionKind = /*#__PURE__*/function (ConditionKind) {
   ConditionKind["EventMatch"] = "event_match";
   ConditionKind["EventPropertyIs"] = "event_property_is";
   ConditionKind["EventPropertyContains"] = "event_property_contains";
@@ -61,8 +57,7 @@ let ConditionKind = /*#__PURE__*/function (ConditionKind) {
   return ConditionKind;
 }({}); // XXX: custom conditions are possible but always fail, and break the typescript discriminated union so ignore them here
 // IPushRuleCondition<Exclude<string, ConditionKind>> unfortunately does not resolve this at the time of writing.
-exports.ConditionKind = ConditionKind;
-let PushRuleKind = /*#__PURE__*/function (PushRuleKind) {
+let PushRuleKind = exports.PushRuleKind = /*#__PURE__*/function (PushRuleKind) {
   PushRuleKind["Override"] = "override";
   PushRuleKind["ContentSpecific"] = "content";
   PushRuleKind["RoomSpecific"] = "room";
@@ -70,11 +65,10 @@ let PushRuleKind = /*#__PURE__*/function (PushRuleKind) {
   PushRuleKind["Underride"] = "underride";
   return PushRuleKind;
 }({});
-exports.PushRuleKind = PushRuleKind;
-let RuleId = /*#__PURE__*/function (RuleId) {
+let RuleId = exports.RuleId = /*#__PURE__*/function (RuleId) {
   RuleId["Master"] = ".m.rule.master";
-  RuleId["IsUserMention"] = ".org.matrix.msc3952.is_user_mention";
-  RuleId["IsRoomMention"] = ".org.matrix.msc3952.is_room_mention";
+  RuleId["IsUserMention"] = ".m.rule.is_user_mention";
+  RuleId["IsRoomMention"] = ".m.rule.is_room_mention";
   RuleId["ContainsDisplayName"] = ".m.rule.contains_display_name";
   RuleId["ContainsUserName"] = ".m.rule.contains_user_name";
   RuleId["AtRoomNotification"] = ".m.rule.roomnotif";
@@ -98,4 +92,3 @@ let RuleId = /*#__PURE__*/function (RuleId) {
   return RuleId;
 }({});
 /* eslint-enable camelcase */
-exports.RuleId = RuleId;

@@ -22,7 +22,7 @@ limitations under the License.
 */
 // eslint-disable-next-line no-restricted-imports
 /** Events emitted by EventEmitter itself */
-let EventEmitterEvents = /*#__PURE__*/function (EventEmitterEvents) {
+let EventEmitterEvents = exports.EventEmitterEvents = /*#__PURE__*/function (EventEmitterEvents) {
   EventEmitterEvents["NewListener"] = "newListener";
   EventEmitterEvents["RemoveListener"] = "removeListener";
   EventEmitterEvents["Error"] = "error";
@@ -38,7 +38,6 @@ let EventEmitterEvents = /*#__PURE__*/function (EventEmitterEvents) {
  *   * `T` - The name of the actual event that this listener is for. Normally one of the types in `E` or
  *           {@link EventEmitterEvents}.
  */
-exports.EventEmitterEvents = EventEmitterEvents;
 /**
  * Typed Event Emitter class which can act as a Base Model for all our model
  * and communication events.
@@ -71,6 +70,20 @@ class TypedEventEmitter extends _events.EventEmitter {
 
   emit(event, ...args) {
     return super.emit(event, ...args);
+  }
+
+  /**
+   * Similar to `emit` but calls all listeners within a `Promise.all` and returns the promise chain
+   * @param event - The name of the event to emit
+   * @param args - Arguments to pass to the listener
+   * @returns `true` if the event had listeners, `false` otherwise.
+   */
+
+  async emitPromised(event, ...args) {
+    const listeners = this.listeners(event);
+    return Promise.allSettled(listeners.map(l => l(...args))).then(() => {
+      return listeners.length > 0;
+    });
   }
 
   /**
@@ -177,6 +190,10 @@ class TypedEventEmitter extends _events.EventEmitter {
    * @returns a reference to the `EventEmitter`, so that calls can be chained.
    */
   removeAllListeners(event) {
+    // EventEmitter::removeAllListeners uses `arguments.length` to determine undefined case
+    if (event === undefined) {
+      return super.removeAllListeners();
+    }
     return super.removeAllListeners(event);
   }
 

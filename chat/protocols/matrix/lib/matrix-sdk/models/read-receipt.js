@@ -11,29 +11,42 @@ var _utils = require("../utils");
 var _event = require("./event");
 var _event2 = require("../@types/event");
 var _room = require("./room");
+var _logger = require("../logger");
+var _client = require("../client");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
-function synthesizeReceipt(userId, event, receiptType) {
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/**
+ * Create a synthetic receipt for the given event
+ * @param userId - The user ID if the receipt sender
+ * @param event - The event that is to be acknowledged
+ * @param receiptType - The type of receipt
+ * @param unthreaded - the receipt is unthreaded
+ * @returns a new event with the synthetic receipt in it
+ */
+function synthesizeReceipt(userId, event, receiptType, unthreaded = false) {
   return new _event.MatrixEvent({
     content: {
       [event.getId()]: {
         [receiptType]: {
-          [userId]: {
-            ts: event.getTs(),
-            thread_id: event.threadRootId ?? _read_receipts.MAIN_ROOM_TIMELINE
-          }
+          [userId]: _objectSpread({
+            ts: event.getTs()
+          }, !unthreaded && {
+            thread_id: (0, _client.threadIdForReceipt)(event)
+          })
         }
       }
     },
@@ -53,7 +66,6 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
     // Map: receipt type → user Id → receipt
     _defineProperty(this, "receipts", new _utils.MapWithDefault(() => new Map()));
     _defineProperty(this, "receiptCacheByEventId", new Map());
-    _defineProperty(this, "timeline", void 0);
   }
   /**
    * Gets the latest receipt for a given user in the room
@@ -69,42 +81,133 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
     }
     return syntheticReceipt ?? realReceipt;
   }
+  compareReceipts(a, b) {
+    // Try compare them in our unfiltered timeline set order, falling back to receipt timestamp which should be
+    // relatively sane as receipts are set only by the originating homeserver so as long as its clock doesn't
+    // jump around then it should be valid.
+    return this.getUnfilteredTimelineSet().compareEventOrdering(a.eventId, b.eventId) ?? a.data.ts - b.data.ts;
+  }
 
   /**
-   * Get the ID of the event that a given user has read up to, or null if we
-   * have received no read receipts from them.
+   * Get the ID of the event that a given user has read up to, or null if:
+   * - we have received no read receipts for them, or
+   * - the receipt we have points at an event we don't have, or
+   * - the thread ID in the receipt does not match the thread root of the
+   *   referenced event.
+   *
+   * (The event might not exist if it is not loaded, and the thread ID might
+   * not match if the event has moved thread because it was redacted.)
+   *
    * @param userId - The user ID to get read receipt event ID for
    * @param ignoreSynthesized - If true, return only receipts that have been
-   *                                    sent by the server, not implicit ones generated
-   *                                    by the JS SDK.
-   * @returns ID of the latest event that the given user has read, or null.
+   *                            sent by the server, not implicit ones generated
+   *                            by the JS SDK.
+   * @returns ID of the latest existing event that the given user has read, or null.
    */
   getEventReadUpTo(userId, ignoreSynthesized = false) {
+    // Find what the latest receipt says is the latest event we have read
+    const latestReceipt = this.getLatestReceipt(userId, ignoreSynthesized);
+    if (!latestReceipt) {
+      return null;
+    }
+    return this.receiptPointsAtConsistentEvent(latestReceipt) ? latestReceipt.eventId : null;
+  }
+
+  /**
+   * Returns true if the event pointed at by this receipt exists, and its
+   * threadRootId is consistent with the thread information in the receipt.
+   */
+  receiptPointsAtConsistentEvent(receipt) {
+    const event = this.findEventById(receipt.eventId);
+    if (!event) {
+      // If the receipt points at a non-existent event, we have multiple
+      // possibilities:
+      //
+      // 1. We don't have the event because it's not loaded yet - probably
+      //    it's old and we're best off ignoring the receipt - we can just
+      //    send a new one when we read a new event.
+      //
+      // 2. We have a bug e.g. we misclassified this event into the wrong
+      //    thread.
+      //
+      // 3. The referenced event moved out of this thread (e.g. because it
+      //    was deleted.)
+      //
+      // 4. The receipt had the incorrect thread ID (due to a bug in a
+      // client, or malicious behaviour).
+
+      // This receipt is not "valid" because it doesn't point at an event
+      // we have. We want to pretend it doesn't exist.
+      return false;
+    }
+    if (!receipt.data?.thread_id) {
+      // If this is an unthreaded receipt, it could point at any event, so
+      // there is no need to validate further - this receipt is valid.
+      return true;
+    }
+    // Otherwise it is a threaded receipt...
+
+    if (receipt.data.thread_id === _read_receipts.MAIN_ROOM_TIMELINE) {
+      // The receipt is for the main timeline: we check that the event is
+      // in the main timeline.
+
+      // Check if the event is in the main timeline
+      const eventIsInMainTimeline = (0, _client.inMainTimelineForReceipt)(event);
+      if (eventIsInMainTimeline) {
+        // The receipt is for the main timeline, and so is the event, so
+        // the receipt is valid.
+        return true;
+      }
+    } else {
+      // The receipt is for a different thread (not the main timeline)
+
+      if (event.threadRootId === receipt.data.thread_id) {
+        // If the receipt and event agree on the thread ID, the receipt
+        // is valid.
+        return true;
+      }
+    }
+
+    // The receipt thread ID disagrees with the event thread ID. There are 2
+    // possibilities:
+    //
+    // 1. The event moved to a different thread after the receipt was
+    //    created. This can happen if the event was redacted because that
+    //    moves it to the main timeline.
+    //
+    // 2. There is a bug somewhere - either we put the event into the wrong
+    //    thread, or someone sent an incorrect receipt.
+    //
+    // In many cases, we won't get here because the call to findEventById
+    // would have already returned null. We include this check to cover
+    // cases when `this` is a  room, meaning findEventById will find events
+    // in any thread, and to be defensive against unforeseen code paths.
+    _logger.logger.warn(`Ignoring receipt because its thread_id (${receipt.data.thread_id}) disagrees ` + `with the thread root (${event.threadRootId}) of the referenced event ` + `(event ID = ${receipt.eventId})`);
+
+    // This receipt is not "valid" because it disagrees with us about what
+    // thread the event is in. We want to pretend it doesn't exist.
+    return false;
+  }
+  getLatestReceipt(userId, ignoreSynthesized) {
     // XXX: This is very very ugly and I hope I won't have to ever add a new
     // receipt type here again. IMHO this should be done by the server in
     // some more intelligent manner or the client should just use timestamps
 
-    const timelineSet = this.getUnfilteredTimelineSet();
     const publicReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.Read);
     const privateReadReceipt = this.getReadReceiptForUserId(userId, ignoreSynthesized, _read_receipts.ReceiptType.ReadPrivate);
 
     // If we have both, compare them
     let comparison;
     if (publicReadReceipt?.eventId && privateReadReceipt?.eventId) {
-      comparison = timelineSet.compareEventOrdering(publicReadReceipt?.eventId, privateReadReceipt?.eventId);
-    }
-
-    // If we didn't get a comparison try to compare the ts of the receipts
-    if (!comparison && publicReadReceipt?.data?.ts && privateReadReceipt?.data?.ts) {
-      comparison = publicReadReceipt?.data?.ts - privateReadReceipt?.data?.ts;
+      comparison = this.compareReceipts(publicReadReceipt, privateReadReceipt);
     }
 
     // The public receipt is more likely to drift out of date so the private
     // one has precedence
-    if (!comparison) return privateReadReceipt?.eventId ?? publicReadReceipt?.eventId ?? null;
+    if (!comparison) return privateReadReceipt ?? publicReadReceipt ?? null;
 
     // If public read receipt is older, return the private one
-    return (comparison < 0 ? privateReadReceipt?.eventId : publicReadReceipt?.eventId) ?? null;
+    return (comparison < 0 ? privateReadReceipt : publicReadReceipt) ?? null;
   }
   addReceiptToStructure(eventId, receiptType, userId, receipt, synthetic) {
     const receiptTypesMap = this.receipts.getOrCreate(receiptType);
@@ -117,18 +220,18 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
     if (synthetic) {
       existingReceipt = pair[ReceiptPairSyntheticIndex] ?? pair[ReceiptPairRealIndex];
     }
-    if (existingReceipt) {
-      // we only want to add this receipt if we think it is later than the one we already have.
-      // This is managed server-side, but because we synthesize RRs locally we have to do it here too.
-      const ordering = this.getUnfilteredTimelineSet().compareEventOrdering(existingReceipt.eventId, eventId);
-      if (ordering !== null && ordering >= 0) {
-        return;
-      }
-    }
     const wrappedReceipt = {
       eventId,
       data: receipt
     };
+    if (existingReceipt) {
+      // We only want to add this receipt if we think it is later than the one we already have.
+      // This is managed server-side, but because we synthesize RRs locally we have to do it here too.
+      const ordering = this.compareReceipts(existingReceipt, wrappedReceipt);
+      if (ordering >= 0) {
+        return;
+      }
+    }
     const realReceipt = synthetic ? pair[ReceiptPairRealIndex] : wrappedReceipt;
     const syntheticReceipt = synthetic ? wrappedReceipt : pair[ReceiptPairSyntheticIndex];
     let ordering = null;
@@ -183,6 +286,13 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   getReceiptsForEvent(event) {
     return this.receiptCacheByEventId.get(event.getId()) || [];
   }
+
+  /**
+   * Look in this room/thread's timeline to find an event. If `this` is a
+   * room, we look in all threads, but if `this` is a thread, we look only
+   * inside this thread.
+   */
+
   /**
    * This issue should also be addressed on synapse's side and is tracked as part
    * of https://github.com/matrix-org/synapse/issues/14837
@@ -209,9 +319,10 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    * @param userId - The user ID if the receipt sender
    * @param e - The event that is to be acknowledged
    * @param receiptType - The type of receipt
+   * @param unthreaded - the receipt is unthreaded
    */
-  addLocalEchoReceipt(userId, e, receiptType) {
-    this.addReceipt(synthesizeReceipt(userId, e, receiptType), true);
+  addLocalEchoReceipt(userId, e, receiptType, unthreaded = false) {
+    this.addReceipt(synthesizeReceipt(userId, e, receiptType, unthreaded), true);
   }
 
   /**
@@ -235,26 +346,15 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    * @param eventId - The event ID to check if the user read.
    * @returns True if the user has read the event, false otherwise.
    */
-  hasUserReadEvent(userId, eventId) {
-    const readUpToId = this.getEventReadUpTo(userId, false);
-    if (readUpToId === eventId) return true;
-    if (this.timeline?.length && this.timeline[this.timeline.length - 1].getSender() && this.timeline[this.timeline.length - 1].getSender() === userId) {
-      // It doesn't matter where the event is in the timeline, the user has read
-      // it because they've sent the latest event.
-      return true;
-    }
-    for (let i = this.timeline?.length - 1; i >= 0; --i) {
-      const ev = this.timeline[i];
 
-      // If we encounter the target event first, the user hasn't read it
-      // however if we encounter the readUpToId first then the user has read
-      // it. These rules apply because we're iterating bottom-up.
-      if (ev.getId() === eventId) return false;
-      if (ev.getId() === readUpToId) return true;
-    }
-
-    // We don't know if the user has read it, so assume not.
-    return false;
-  }
+  /**
+   * Returns the most recent unthreaded receipt for a given user
+   * @param userId - the MxID of the User
+   * @returns an unthreaded Receipt. Can be undefined if receipts have been disabled
+   * or a user chooses to use private read receipts (or we have simply not received
+   * a receipt from this user yet).
+   *
+   * @deprecated use `hasUserReadEvent` or `getEventReadUpTo` instead
+   */
 }
 exports.ReadReceipt = ReadReceipt;

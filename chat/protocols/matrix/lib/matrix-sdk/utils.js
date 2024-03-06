@@ -27,6 +27,7 @@ exports.isNullOrUndefined = isNullOrUndefined;
 exports.isNumber = isNumber;
 exports.isSupportedReceiptType = isSupportedReceiptType;
 exports.lexicographicCompare = lexicographicCompare;
+exports.logDuration = logDuration;
 exports.mapsEqual = mapsEqual;
 exports.nextString = nextString;
 exports.noUnsafeEventProps = noUnsafeEventProps;
@@ -51,27 +52,27 @@ var _pRetry = _interopRequireDefault(require("p-retry"));
 var _location = require("./@types/location");
 var _read_receipts = require("./@types/read_receipts");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015, 2016, 2019, 2023 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module.
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015, 2016, 2019, 2023 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * This is an internal module.
+ */
 const interns = new Map();
 
 /**
@@ -418,6 +419,23 @@ function sleep(ms, value) {
 }
 
 /**
+ * Utility to log the duration of a promise.
+ *
+ * @param logger - The logger to log to.
+ * @param name - The name of the operation.
+ * @param block - The block to execute.
+ */
+async function logDuration(logger, name, block) {
+  const start = Date.now();
+  try {
+    return await block();
+  } finally {
+    const end = Date.now();
+    logger.debug(`[Perf]: ${name} took ${end - start}ms`);
+  }
+}
+
+/**
  * Promise/async version of {@link setImmediate}.
  */
 function immediate() {
@@ -489,7 +507,7 @@ function simpleRetryOperation(promiseFn) {
  * The default alphabet used by string averaging in this SDK. This matches
  * all usefully printable ASCII characters (0x20-0x7E, inclusive).
  */
-const DEFAULT_ALPHABET = (() => {
+const DEFAULT_ALPHABET = exports.DEFAULT_ALPHABET = (() => {
   let str = "";
   for (let c = 0x20; c <= 0x7e; c++) {
     str += String.fromCharCode(c);
@@ -507,7 +525,6 @@ const DEFAULT_ALPHABET = (() => {
  * @param alphabet - The alphabet to use as a single string.
  * @returns The padded string.
  */
-exports.DEFAULT_ALPHABET = DEFAULT_ALPHABET;
 function alphabetPad(s, n, alphabet = DEFAULT_ALPHABET) {
   return s.padEnd(n, alphabet[0]);
 }

@@ -13,25 +13,25 @@ var _CrossSigning = require("../CrossSigning");
 var _typedEventEmitter = require("../../models/typed-event-emitter");
 var _verification = require("../../crypto-api/verification");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 New Vector Ltd
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2020 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * Base class for verification methods.
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2018 New Vector Ltd
+Copyright 2020 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * Base class for verification methods.
+ */
 const timeoutException = new Error("Verification timed out");
 class SwitchStartEventError extends Error {
   constructor(startEvent) {
@@ -43,10 +43,11 @@ class SwitchStartEventError extends Error {
 /** @deprecated use VerifierEvent */
 exports.SwitchStartEventError = SwitchStartEventError;
 /** @deprecated use VerifierEvent */
-const VerificationEvent = _verification.VerifierEvent;
+const VerificationEvent = exports.VerificationEvent = _verification.VerifierEvent;
 
 /** @deprecated use VerifierEventHandlerMap */
-exports.VerificationEvent = VerificationEvent;
+
+/** @deprecated Avoid referencing this class directly; instead use {@link Crypto.Verifier}. */
 // The type parameters of VerificationBase are no longer used, but we need some placeholders to maintain
 // backwards compatibility with applications that reference the class.
 class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
@@ -121,7 +122,6 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
       }
     }, 10 * 60 * 1000); // 10 minutes
   }
-
   endTimer() {
     if (this.transactionTimeoutTimer !== null) {
       clearTimeout(this.transactionTimeoutTimer);
@@ -340,6 +340,26 @@ class VerificationBase extends _typedEventEmitter.TypedEventEmitter {
   }
   get events() {
     return undefined;
+  }
+
+  /**
+   * Get the details for an SAS verification, if one is in progress
+   *
+   * Returns `null`, unless this verifier is for a SAS-based verification and we are waiting for the user to confirm
+   * the SAS matches.
+   */
+  getShowSasCallbacks() {
+    return null;
+  }
+
+  /**
+   * Get the details for reciprocating QR code verification, if one is in progress
+   *
+   * Returns `null`, unless this verifier is for reciprocating a QR-code-based verification (ie, the other user has
+   * already scanned our QR code), and we are waiting for the user to confirm.
+   */
+  getReciprocateQrCodeCallbacks() {
+    return null;
   }
 }
 exports.VerificationBase = VerificationBase;

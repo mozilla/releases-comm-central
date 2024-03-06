@@ -503,7 +503,7 @@ add_task(function test_addEventSticker() {
   equal(roomStub.who, "@user:example.com");
   equal(
     roomStub.message,
-    "https://example.com/_matrix/media/r0/download/example.com/sticker.png"
+    "https://example.com/_matrix/media/v3/download/example.com/sticker.png"
   );
   ok(!roomStub.options.system);
   ok(!roomStub.options.delayed);

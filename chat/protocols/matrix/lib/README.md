@@ -1,16 +1,18 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v26.0.1.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v31.4.0.
 
 The following npm dependencies are included:
 
-* @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages?type=npm v3.2.14
+* @matrix-org/olm: https://gitlab.matrix.org/matrix-org/olm/-/packages?type=npm v3.2.15
 * another-json: https://www.npmjs.com/package/another-json/ v0.2.0
 * base-x: https://www.npmjs.com/package/base-x v4.0.0
 * bs58: https://www.npmjs.com/package/bs58 v5.0.0
 * content-type: https://www.npmjs.com/package/content-type v1.0.5
 * events: https://www.npmjs.com/package/events v3.3.0
+* jwt-decode: https://www.npmjs.com/package/jwt-decode v4.0.0
 * matrix-events-sdk: https://www.npmjs.com/package/matrix-events-sdk v0.0.1
-* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.4.0
+* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.6.0
+* oidc-client-ts: https://www.npmjs.com/package/oidc-client-ts v3.0.1
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.2
 * retry: https://www.npmjs.com/package/retry v0.13.1
 * sdp-transform: https://www.npmjs.com/package/sdp-transform v2.14.1
@@ -26,7 +28,7 @@ The following npm dependencies are shimmed:
 There is not any automated way to update the libraries.
 
 Files have been obtained by downloading the matrix-js-sdk git repository,
-using yarn to obtain the dependencies), and then compiling the SDK using Babel.
+using yarn to obtain the dependencies, and then compiling the SDK using Babel.
 
 To make the whole thing work, some file paths and global variables are defined
 in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
@@ -97,11 +99,13 @@ another-json, base-x, bs58 and content-type all have a single file
 named for the package or named index.js. This should get copied to the proper
 sub-directory.
 
-```
+```sh
 cp ../../matrix-js-sdk/node_modules/another-json/another-json.js chat/protocols/matrix/lib/another-json
 cp ../../matrix-js-sdk/node_modules/base-x/src/index.js chat/protocols/matrix/lib/base-x
 cp ../../matrix-js-sdk/node_modules/bs58/index.js chat/protocols/matrix/lib/bs58
 cp ../../matrix-js-sdk/node_modules/content-type/index.js chat/protocols/matrix/lib/content-type
+cp ../../matrix-js-sdk/node_modules/oidc-client-ts/dist/umd/oidc-client-ts.js chat/protocols/matrix/lib/oidc-client-ts
+cp ../../matrix-js-sdk/node_modules/jwt-decode/build/cjs/index.js chat/protocols/matrix/lib/jwt-decode
 ```
 
 ### Updating events
@@ -121,7 +125,7 @@ The matrix-widget-api includes raw JS modules and Typescript definition files.
 We only want the JS modules. So we want all the js files in `lib/**/*.js`
 from the package.
 
-```
+```sh
 hg rm chat/protocols/matrix/lib/matrix-widget-api/
 hg revert chat/protocols/matrix/lib/matrix-widget-api/LICENSE
 cp -R ../../matrix-js-sdk/node_modules/matrix-widget-api/lib/* chat/protocols/matrix/lib/matrix-widget-api
@@ -135,7 +139,7 @@ hg add chat/protocols/matrix/lib/matrix-widget-api/
 The sdp-transform package includes raw JS modules, so we want all the js files
 under `lib/*.js`.
 
-```
+```sh
 cp ../../matrix-js-sdk/node_modules/sdp-transform/lib/*.js chat/protocols/matrix/lib/sdp-transform
 ```
 
@@ -144,7 +148,7 @@ cp ../../matrix-js-sdk/node_modules/sdp-transform/lib/*.js chat/protocols/matrix
 This is similar to the single file dependencies, but also has a JSON data file.
 Both of these files should be copied to the unhomoglyph directory.
 
-```
+```sh
 cp ../../matrix-js-sdk/node_modules/unhomoglyph/index.js chat/protocols/matrix/lib/unhomoglyph
 cp ../../matrix-js-sdk/node_modules/unhomoglyph/data.json chat/protocols/matrix/lib/unhomoglyph
 ```
@@ -167,7 +171,7 @@ the `retry` package, which consists of three files, and `index.js` and two
 modules in the `lib` folder. All four files should be mirrored over into this
 folder into a `p-retry` and `retry` folder respectively.
 
-```
+```sh
 cp ../../matrix-js-sdk/node_modules/p-retry/index.js chat/protocols/matrix/lib/p-retry/
 cp ../../matrix-js-sdk/node_modules/retry/index.js chat/protocols/matrix/lib/retry
 cp ../../matrix-js-sdk/node_modules/retry/lib/*.js chat/protocols/matrix/lib/retry/lib

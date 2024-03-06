@@ -7,35 +7,33 @@ exports.SlidingSyncState = exports.SlidingSyncEvent = exports.SlidingSync = expo
 var _logger = require("./logger");
 var _typedEventEmitter = require("./models/typed-event-emitter");
 var _utils = require("./utils");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2022 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // /sync requests allow you to set a timeout= but the request may continue
 // beyond that and wedge forever, so we need to track how long we are willing
 // to keep open the connection. This constant is *ADDED* to the timeout= value
 // to determine the max time we're willing to wait.
 const BUFFER_PERIOD_MS = 10 * 1000;
-const MSC3575_WILDCARD = "*";
-exports.MSC3575_WILDCARD = MSC3575_WILDCARD;
-const MSC3575_STATE_KEY_ME = "$ME";
-exports.MSC3575_STATE_KEY_ME = MSC3575_STATE_KEY_ME;
-const MSC3575_STATE_KEY_LAZY = "$LAZY";
+const MSC3575_WILDCARD = exports.MSC3575_WILDCARD = "*";
+const MSC3575_STATE_KEY_ME = exports.MSC3575_STATE_KEY_ME = "$ME";
+const MSC3575_STATE_KEY_LAZY = exports.MSC3575_STATE_KEY_LAZY = "$LAZY";
 
 /**
  * Represents a subscription to a room or set of rooms. Controls which events are returned.
@@ -56,8 +54,7 @@ const MSC3575_STATE_KEY_LAZY = "$LAZY";
 /**
  * A complete Sliding Sync response
  */
-exports.MSC3575_STATE_KEY_LAZY = MSC3575_STATE_KEY_LAZY;
-let SlidingSyncState = /*#__PURE__*/function (SlidingSyncState) {
+let SlidingSyncState = exports.SlidingSyncState = /*#__PURE__*/function (SlidingSyncState) {
   SlidingSyncState["RequestFinished"] = "FINISHED";
   SlidingSyncState["Complete"] = "COMPLETE";
   return SlidingSyncState;
@@ -66,7 +63,6 @@ let SlidingSyncState = /*#__PURE__*/function (SlidingSyncState) {
  * Internal Class. SlidingList represents a single list in sliding sync. The list can have filters,
  * multiple sliding windows, and maintains the index-\>room_id mapping.
  */
-exports.SlidingSyncState = SlidingSyncState;
 class SlidingList {
   /**
    * Construct a new sliding list.
@@ -158,7 +154,7 @@ class SlidingList {
 /**
  * When onResponse extensions should be invoked: before or after processing the main response.
  */
-let ExtensionState = /*#__PURE__*/function (ExtensionState) {
+let ExtensionState = exports.ExtensionState = /*#__PURE__*/function (ExtensionState) {
   ExtensionState["PreProcess"] = "ExtState.PreProcess";
   ExtensionState["PostProcess"] = "ExtState.PostProcess";
   return ExtensionState;
@@ -166,7 +162,6 @@ let ExtensionState = /*#__PURE__*/function (ExtensionState) {
 /**
  * An interface that must be satisfied to register extensions
  */
-exports.ExtensionState = ExtensionState;
 /**
  * Events which can be fired by the SlidingSync class. These are designed to provide different levels
  * of information when processing sync responses.
@@ -179,13 +174,12 @@ exports.ExtensionState = ExtensionState;
  *  - Lifecycle (state=Complete)
  *  - List (at most once per list)
  */
-let SlidingSyncEvent = /*#__PURE__*/function (SlidingSyncEvent) {
+let SlidingSyncEvent = exports.SlidingSyncEvent = /*#__PURE__*/function (SlidingSyncEvent) {
   SlidingSyncEvent["RoomData"] = "SlidingSync.RoomData";
   SlidingSyncEvent["Lifecycle"] = "SlidingSync.Lifecycle";
   SlidingSyncEvent["List"] = "SlidingSync.List";
   return SlidingSyncEvent;
 }({});
-exports.SlidingSyncEvent = SlidingSyncEvent;
 /**
  * SlidingSync is a high-level data structure which controls the majority of sliding sync.
  * It has no hooks into JS SDK except for needing a MatrixClient to perform the HTTP request.
@@ -410,14 +404,14 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
    * @param roomId - The room which received some data.
    * @param roomData - The raw sliding sync response JSON.
    */
-  invokeRoomDataListeners(roomId, roomData) {
+  async invokeRoomDataListeners(roomId, roomData) {
     if (!roomData.required_state) {
       roomData.required_state = [];
     }
     if (!roomData.timeline) {
       roomData.timeline = [];
     }
-    this.emit(SlidingSyncEvent.RoomData, roomId, roomData);
+    await this.emitPromised(SlidingSyncEvent.RoomData, roomId, roomData);
   }
 
   /**
@@ -564,7 +558,6 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
               if (!roomId) {
                 break; // we are at the end of list
               }
-
               listData.roomIndexToRoomId[i] = roomId;
             }
             _logger.logger.debug("SYNC", listKey, op.range[0], op.range[1], (op.room_ids || []).join(" "), ";");
@@ -751,7 +744,6 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
         } else if (this.needsResend || err.name === "AbortError") {
           continue; // don't sleep as we caused this error by abort()ing the request.
         }
-
         _logger.logger.error(err);
         await (0, _utils.sleep)(5000);
       }
@@ -759,9 +751,9 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
         continue;
       }
       this.onPreExtensionsResponse(resp.extensions);
-      Object.keys(resp.rooms).forEach(roomId => {
-        this.invokeRoomDataListeners(roomId, resp.rooms[roomId]);
-      });
+      for (const roomId in resp.rooms) {
+        await this.invokeRoomDataListeners(roomId, resp.rooms[roomId]);
+      }
       const listKeysWithUpdates = new Set();
       if (!doNotUpdateList) {
         for (const [key, list] of Object.entries(resp.lists)) {

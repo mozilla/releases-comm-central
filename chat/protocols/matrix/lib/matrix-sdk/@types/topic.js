@@ -47,7 +47,7 @@ limitations under the License.
 /**
  * The event type for an m.topic event (in content)
  */
-const M_TOPIC = new _NamespacedValue.UnstableValue("m.topic", "org.matrix.msc3765.topic");
+const M_TOPIC = exports.M_TOPIC = new _NamespacedValue.UnstableValue("m.topic", "org.matrix.msc3765.topic");
 
 /**
  * The event content for an m.topic event (in content)
@@ -60,4 +60,3 @@ const M_TOPIC = new _NamespacedValue.UnstableValue("m.topic", "org.matrix.msc376
 /**
  * The event content for an m.room.topic event
  */
-exports.M_TOPIC = M_TOPIC;

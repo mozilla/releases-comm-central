@@ -10,26 +10,27 @@ var _memoryCryptoStore = require("./memory-crypto-store");
 var IndexedDBCryptoStoreBackend = _interopRequireWildcard(require("./indexeddb-crypto-store-backend"));
 var _errors = require("../../errors");
 var IndexedDBHelpers = _interopRequireWildcard(require("../../indexeddb-helpers"));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var _base = require("./base");
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */
-/**
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/*
  * Internal module. indexeddb storage for e2e.
  */
 
@@ -40,6 +41,49 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
 class IndexedDBCryptoStore {
   static exists(indexedDB, dbName) {
     return IndexedDBHelpers.exists(indexedDB, dbName);
+  }
+
+  /**
+   * Utility to check if a legacy crypto store exists and has not been migrated.
+   * Returns true if the store exists and has not been migrated, false otherwise.
+   */
+  static existsAndIsNotMigrated(indexedDb, dbName) {
+    return new Promise((resolve, reject) => {
+      let exists = true;
+      const openDBRequest = indexedDb.open(dbName);
+      openDBRequest.onupgradeneeded = () => {
+        // Since we did not provide an explicit version when opening, this event
+        // should only fire if the DB did not exist before at any version.
+        exists = false;
+      };
+      openDBRequest.onblocked = () => reject(openDBRequest.error);
+      openDBRequest.onsuccess = () => {
+        const db = openDBRequest.result;
+        if (!exists) {
+          db.close();
+          // The DB did not exist before, but has been created as part of this
+          // existence check. Delete it now to restore previous state. Delete can
+          // actually take a while to complete in some browsers, so don't wait for
+          // it. This won't block future open calls that a store might issue next to
+          // properly set up the DB.
+          indexedDb.deleteDatabase(dbName);
+          resolve(false);
+        } else {
+          const tx = db.transaction([IndexedDBCryptoStore.STORE_ACCOUNT], "readonly");
+          const objectStore = tx.objectStore(IndexedDBCryptoStore.STORE_ACCOUNT);
+          const getReq = objectStore.get(_base.ACCOUNT_OBJECT_KEY_MIGRATION_STATE);
+          getReq.onsuccess = () => {
+            const migrationState = getReq.result ?? _base.MigrationState.NOT_STARTED;
+            resolve(migrationState === _base.MigrationState.NOT_STARTED);
+          };
+          getReq.onerror = () => {
+            reject(getReq.error);
+          };
+          db.close();
+        }
+      };
+      openDBRequest.onerror = () => reject(openDBRequest.error);
+    });
   }
   /**
    * Create a new IndexedDBCryptoStore
@@ -52,6 +96,17 @@ class IndexedDBCryptoStore {
     this.dbName = dbName;
     _defineProperty(this, "backendPromise", void 0);
     _defineProperty(this, "backend", void 0);
+  }
+
+  /**
+   * Returns true if this CryptoStore has ever been initialised (ie, it might contain data).
+   *
+   * Implementation of {@link CryptoStore.containsData}.
+   *
+   * @internal
+   */
+  async containsData() {
+    return IndexedDBCryptoStore.exists(this.indexedDB, this.dbName);
   }
 
   /**
@@ -149,6 +204,28 @@ class IndexedDBCryptoStore {
       // still use the app.
       _logger.logger.warn(`unable to delete IndexedDBCryptoStore: ${e}`);
     });
+  }
+
+  /**
+   * Get data on how much of the libolm to Rust Crypto migration has been done.
+   *
+   * Implementation of {@link CryptoStore.getMigrationState}.
+   *
+   * @internal
+   */
+  getMigrationState() {
+    return this.backend.getMigrationState();
+  }
+
+  /**
+   * Set data on how much of the libolm to Rust Crypto migration has been done.
+   *
+   * Implementation of {@link CryptoStore.setMigrationState}.
+   *
+   * @internal
+   */
+  setMigrationState(migrationState) {
+    return this.backend.setMigrationState(migrationState);
   }
 
   /**
@@ -383,6 +460,39 @@ class IndexedDBCryptoStore {
     return this.backend.filterOutNotifiedErrorDevices(devices);
   }
 
+  /**
+   * Count the number of Megolm sessions in the database.
+   *
+   * Implementation of {@link CryptoStore.countEndToEndInboundGroupSessions}.
+   *
+   * @internal
+   */
+  countEndToEndInboundGroupSessions() {
+    return this.backend.countEndToEndInboundGroupSessions();
+  }
+
+  /**
+   * Fetch a batch of Olm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.getEndToEndSessionsBatch}.
+   *
+   * @internal
+   */
+  getEndToEndSessionsBatch() {
+    return this.backend.getEndToEndSessionsBatch();
+  }
+
+  /**
+   * Delete a batch of Olm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.deleteEndToEndSessionsBatch}.
+   *
+   * @internal
+   */
+  deleteEndToEndSessionsBatch(sessions) {
+    return this.backend.deleteEndToEndSessionsBatch(sessions);
+  }
+
   // Inbound group sessions
 
   /**
@@ -436,6 +546,28 @@ class IndexedDBCryptoStore {
   }
   storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn) {
     this.backend.storeEndToEndInboundGroupSessionWithheld(senderCurve25519Key, sessionId, sessionData, txn);
+  }
+
+  /**
+   * Fetch a batch of Megolm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.getEndToEndInboundGroupSessionsBatch}.
+   *
+   * @internal
+   */
+  getEndToEndInboundGroupSessionsBatch() {
+    return this.backend.getEndToEndInboundGroupSessionsBatch();
+  }
+
+  /**
+   * Delete a batch of Megolm sessions from the database.
+   *
+   * Implementation of {@link CryptoStore.deleteEndToEndInboundGroupSessionsBatch}.
+   *
+   * @internal
+   */
+  deleteEndToEndInboundGroupSessionsBatch(sessions) {
+    return this.backend.deleteEndToEndInboundGroupSessionsBatch(sessions);
   }
 
   // End-to-end device tracking

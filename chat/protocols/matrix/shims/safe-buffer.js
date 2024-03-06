@@ -27,17 +27,24 @@ class Buffer extends Uint8Array {
     return new Buffer(size);
   }
 
-  // Add base 64 conversion support, used to safely transmit encrypted data.
-  static from(...args) {
-    if (args[1] === "base64") {
-      return super.from(atob(args[0]), character => character.charCodeAt(0));
+  // These methods are required for the base64 encoding used by the SDK. If we
+  // didn't have to provide a global Buffer implementation, these two methods
+  // would not be used.
+  static from(value, type) {
+    if (type === "base64") {
+      return super.from(
+        atob(value.replaceAll("-", "+").replaceAll("_", "/")),
+        c => c.charCodeAt(0)
+      );
     }
-    return super.from(...args);
+    return super.from(value);
   }
 
-  toString(target) {
-    if (target === "base64") {
-      return btoa(String.fromCharCode(...this.values()));
+  toString(type) {
+    if (type === "base64") {
+      return btoa(
+        this.reduce((acc, current) => acc + String.fromCharCode(current), "")
+      );
     }
     return super.toString();
   }

@@ -13,29 +13,29 @@ var _OlmDevice = require("../OlmDevice");
 var _event = require("../../@types/event");
 var _OutgoingRoomKeyRequestManager = require("../OutgoingRoomKeyRequestManager");
 var _utils = require("../../utils");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
-                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021, 2023 The Matrix.org Foundation C.I.C.
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
-                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
-                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
-                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
-                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
-                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                          */ /**
-                                                                                                                                                                                                                                                                                                                                                                                              * Defines m.olm encryption/decryption
-                                                                                                                                                                                                                                                                                                                                                                                              */
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
+Copyright 2015 - 2021, 2023 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/ /**
+ * Defines m.olm encryption/decryption
+ */
 // determine whether the key can be shared with invitees
 function isRoomSharedHistory(room) {
   const visibilityEvent = room?.currentState?.getStateEvents("m.room.history_visibility", "");
@@ -156,7 +156,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     _defineProperty(this, "roomId", void 0);
     _defineProperty(this, "prefixedLogger", void 0);
     this.roomId = params.roomId;
-    this.prefixedLogger = _logger.logger.withPrefix(`[${this.roomId} encryption]`);
+    this.prefixedLogger = _logger.logger.getChild(`[${this.roomId} encryption]`);
     this.sessionRotationPeriodMsgs = params.config?.rotation_period_msgs ?? 100;
     this.sessionRotationPeriodMs = params.config?.rotation_period_ms ?? 7 * 24 * 3600 * 1000;
   }
@@ -225,7 +225,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
 
     // need to make a brand new session?
     if (session?.needsRotation(this.sessionRotationPeriodMsgs, this.sessionRotationPeriodMs)) {
-      this.prefixedLogger.log("Starting new megolm session because we need to rotate.");
+      this.prefixedLogger.debug("Starting new megolm session because we need to rotate.");
       session = null;
     }
 
@@ -234,9 +234,9 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
       session = null;
     }
     if (!session) {
-      this.prefixedLogger.log("Starting new megolm session");
+      this.prefixedLogger.debug("Starting new megolm session");
       session = await this.prepareNewSession(sharedHistory);
-      this.prefixedLogger.log(`Started new megolm session ${session.sessionId}`);
+      this.prefixedLogger.debug(`Started new megolm session ${session.sessionId}`);
       this.outboundSessions[session.sessionId] = session;
     }
     return session;
@@ -686,9 +686,9 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
     for (let i = 0; i < userDeviceMaps.length; i++) {
       try {
         await this.sendBlockedNotificationsToDevices(session, userDeviceMaps[i], payload);
-        this.prefixedLogger.log(`Completed blacklist notification for ${session.sessionId} ` + `(slice ${i + 1}/${userDeviceMaps.length})`);
+        this.prefixedLogger.debug(`Completed blacklist notification for ${session.sessionId} ` + `(slice ${i + 1}/${userDeviceMaps.length})`);
       } catch (e) {
-        this.prefixedLogger.log(`blacklist notification for ${session.sessionId} ` + `(slice ${i + 1}/${userDeviceMaps.length}) failed`);
+        this.prefixedLogger.debug(`blacklist notification for ${session.sessionId} ` + `(slice ${i + 1}/${userDeviceMaps.length}) failed`);
         throw e;
       }
     }
@@ -754,7 +754,7 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
    * @returns Promise which resolves to the new event body
    */
   async encryptMessage(room, eventType, content) {
-    this.prefixedLogger.log("Starting to encrypt event");
+    this.prefixedLogger.debug("Starting to encrypt event");
     if (this.encryptionPreparation != null) {
       // If we started sending keys, wait for it to be done.
       // FIXME: check if we need to cancel
@@ -962,7 +962,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     _defineProperty(this, "roomId", void 0);
     _defineProperty(this, "prefixedLogger", void 0);
     this.roomId = params.roomId;
-    this.prefixedLogger = _logger.logger.withPrefix(`[${this.roomId} decryption]`);
+    this.prefixedLogger = _logger.logger.getChild(`[${this.roomId} decryption]`);
   }
 
   /**
@@ -1334,7 +1334,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       keysClaimed: roomKey.keysClaimed,
       forwardingCurve25519KeyChain: roomKey.forwardingKeyChain
     };
-    await this.crypto.cryptoStore.doTxn("readwrite", ["parked_shared_history"], txn => this.crypto.cryptoStore.addParkedSharedHistory(roomKey.roomId, parkedData, txn), _logger.logger.withPrefix("[addParkedSharedHistory]"));
+    await this.crypto.cryptoStore.doTxn("readwrite", ["parked_shared_history"], txn => this.crypto.cryptoStore.addParkedSharedHistory(roomKey.roomId, parkedData, txn), _logger.logger.getChild("[addParkedSharedHistory]"));
   }
 
   /**
@@ -1486,7 +1486,6 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
     // TODO: ratchet index
     );
   }
-
   shareKeysWithDevice(keyRequest) {
     const userId = keyRequest.userId;
     const deviceId = keyRequest.deviceId;
@@ -1505,7 +1504,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
         // so just skip it.
         return null;
       }
-      this.prefixedLogger.log("sharing keys for session " + body.sender_key + "|" + body.session_id + " with device " + userId + ":" + deviceId);
+      this.prefixedLogger.debug("sharing keys for session " + body.sender_key + "|" + body.session_id + " with device " + userId + ":" + deviceId);
       return this.buildKeyForwardingMessage(body.room_id, body.sender_key, body.session_id);
     }).then(payload => {
       const encryptedContent = {
@@ -1559,7 +1558,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
         this.crypto.backupManager.backupGroupSession(session.sender_key, session.session_id).catch(e => {
           // This throws if the upload failed, but this is fine
           // since it will have written it to the db and will retry.
-          this.prefixedLogger.log("Failed to back up megolm session", e);
+          this.prefixedLogger.debug("Failed to back up megolm session", e);
         });
       }
       // have another go at decrypting events sent with this session.
@@ -1624,7 +1623,7 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
   async sendSharedHistoryInboundSessions(devicesByUser) {
     await olmlib.ensureOlmSessionsForDevices(this.olmDevice, this.baseApis, devicesByUser);
     const sharedHistorySessions = await this.olmDevice.getSharedHistoryInboundGroupSessions(this.roomId);
-    this.prefixedLogger.log(`Sharing history in with users ${Array.from(devicesByUser.keys())}`, sharedHistorySessions.map(([senderKey, sessionId]) => `${senderKey}|${sessionId}`));
+    this.prefixedLogger.debug(`Sharing history in with users ${Array.from(devicesByUser.keys())}`, sharedHistorySessions.map(([senderKey, sessionId]) => `${senderKey}|${sessionId}`));
     for (const [senderKey, sessionId] of sharedHistorySessions) {
       const payload = await this.buildKeyForwardingMessage(this.roomId, senderKey, sessionId);
 
@@ -1654,20 +1653,20 @@ class MegolmDecryption extends _base.DecryptionAlgorithm {
       for (const [userId, deviceMessages] of contentMap) {
         for (const [deviceId, content] of deviceMessages) {
           if (!hasCiphertext(content)) {
-            this.prefixedLogger.log("No ciphertext for device " + userId + ":" + deviceId + ": pruning");
+            this.prefixedLogger.debug("No ciphertext for device " + userId + ":" + deviceId + ": pruning");
             deviceMessages.delete(deviceId);
           }
         }
         // No devices left for that user? Strip that too.
         if (deviceMessages.size === 0) {
-          this.prefixedLogger.log("Pruned all devices for user " + userId);
+          this.prefixedLogger.debug("Pruned all devices for user " + userId);
           contentMap.delete(userId);
         }
       }
 
       // Is there anything left?
       if (contentMap.size === 0) {
-        this.prefixedLogger.log("No users left to send to: aborting");
+        this.prefixedLogger.debug("No users left to send to: aborting");
         return;
       }
       await this.baseApis.sendToDevice("m.room.encrypted", contentMap);

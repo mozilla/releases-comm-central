@@ -27,16 +27,14 @@ limitations under the License.
 /// The event type storing the user's individual policies.
 ///
 /// Exported for testing purposes.
-const POLICIES_ACCOUNT_EVENT_TYPE = new _matrixEventsSdk.UnstableValue("m.policies", "org.matrix.msc3847.policies");
+const POLICIES_ACCOUNT_EVENT_TYPE = exports.POLICIES_ACCOUNT_EVENT_TYPE = new _matrixEventsSdk.UnstableValue("m.policies", "org.matrix.msc3847.policies");
 
 /// The key within the user's individual policies storing the user's ignored invites.
 ///
 /// Exported for testing purposes.
-exports.POLICIES_ACCOUNT_EVENT_TYPE = POLICIES_ACCOUNT_EVENT_TYPE;
-const IGNORE_INVITES_ACCOUNT_EVENT_KEY = new _matrixEventsSdk.UnstableValue("m.ignore.invites", "org.matrix.msc3847.ignore.invites");
+const IGNORE_INVITES_ACCOUNT_EVENT_KEY = exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = new _matrixEventsSdk.UnstableValue("m.ignore.invites", "org.matrix.msc3847.ignore.invites");
 
 /// The types of recommendations understood.
-exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = IGNORE_INVITES_ACCOUNT_EVENT_KEY;
 var PolicyRecommendation = /*#__PURE__*/function (PolicyRecommendation) {
   PolicyRecommendation["Ban"] = "m.ban";
   return PolicyRecommendation;
@@ -44,7 +42,7 @@ var PolicyRecommendation = /*#__PURE__*/function (PolicyRecommendation) {
 /**
  * The various scopes for policies.
  */
-let PolicyScope = /*#__PURE__*/function (PolicyScope) {
+let PolicyScope = exports.PolicyScope = /*#__PURE__*/function (PolicyScope) {
   PolicyScope["User"] = "m.policy.user";
   PolicyScope["Room"] = "m.policy.room";
   PolicyScope["Server"] = "m.policy.server";
@@ -60,7 +58,6 @@ let PolicyScope = /*#__PURE__*/function (PolicyScope) {
  * applications turn out to require longer lists, we may need to rework
  * our data structures.
  */
-exports.PolicyScope = PolicyScope;
 class IgnoredInvites {
   constructor(client) {
     this.client = client;
@@ -193,7 +190,6 @@ class IgnoredInvites {
         }
       }
     }
-
     return null;
   }
 
