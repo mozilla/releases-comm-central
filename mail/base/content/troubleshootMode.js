@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPIDatabase } = ChromeUtils.import(
-  "resource://gre/modules/addons/XPIDatabase.jsm"
+var { XPIDatabase } = ChromeUtils.importESModule(
+  "resource://gre/modules/addons/XPIDatabase.sys.mjs"
 );
 
 window.addEventListener("load", event => {

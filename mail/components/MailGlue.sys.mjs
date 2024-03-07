@@ -616,8 +616,8 @@ MailGlue.prototype = {
       const { AddonManager } = ChromeUtils.importESModule(
         "resource://gre/modules/AddonManager.sys.mjs"
       );
-      const { XPIDatabase } = ChromeUtils.import(
-        "resource://gre/modules/addons/XPIDatabase.jsm"
+      const { XPIDatabase } = ChromeUtils.importESModule(
+        "resource://gre/modules/addons/XPIDatabase.sys.mjs"
       );
       const addons = XPIDatabase.getAddons();
       for (const addon of addons) {
