@@ -414,6 +414,11 @@ add_task(async function roving_multi_message_buttons() {
 
   // Press tab while on the message selected to access the multi message view
   // header buttons.
+  if (
+    !Services.prefs.getBoolPref("dom.disable_tab_focus_to_root_element", true)
+  ) {
+    EventUtils.synthesizeKey("KEY_Tab", {});
+  }
   EventUtils.synthesizeKey("KEY_Tab", {});
   Assert.equal(
     headerButtons[0].id,

@@ -882,7 +882,14 @@ add_task(async function test_basic_edit() {
 
   for (let loops = 0; loops < 100; loops++) {
     EventUtils.synthesizeKey("VK_TAB", {}, abWindow);
-    if (!abDocument.activeElement.closest("#detailsPane")) {
+    if (
+      !abDocument.activeElement.closest("#detailsPane") &&
+      (Services.prefs.getBoolPref(
+        "dom.disable_tab_focus_to_root_element",
+        true
+      ) ||
+        abDocument.activeElement != abDocument.documentElement)
+    ) {
       Assert.report(
         true,
         undefined,
