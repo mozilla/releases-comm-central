@@ -2522,7 +2522,7 @@ bool nsMsgDBFolder::PromptForMasterPasswordIfNecessary() {
 
   // Do we have a master password?
   nsCOMPtr<nsIPK11TokenDB> tokenDB =
-      do_GetService(NS_PK11TOKENDB_CONTRACTID, &rv);
+      do_GetService("@mozilla.org/security/pk11tokendb;1", &rv);
   NS_ENSURE_SUCCESS(rv, false);
 
   nsCOMPtr<nsIPK11Token> token;
