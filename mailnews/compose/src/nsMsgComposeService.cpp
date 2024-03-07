@@ -797,7 +797,7 @@ nsMsgTemplateReplyHelper::OnDataAvailable(nsIRequest* request,
       }
       mInMsgBody = bodyOffset != 0;
       if (!mInMsgBody && readCount > 3)  // still in msg hdrs
-        strncpy(mLastBlockChars, readBuf + readCount - 3, 3);
+        memmove(mLastBlockChars, readBuf + readCount - 3, 3);
     }
     mTemplateBody.Append(readBuf + bodyOffset);
   }
