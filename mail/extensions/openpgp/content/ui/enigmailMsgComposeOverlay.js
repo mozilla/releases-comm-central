@@ -339,6 +339,7 @@ Enigmail.msg = {
     return msgUri;
   },
 
+  /** @param {?string} msgUri */
   getMsgHdr(msgUri) {
     try {
       if (!msgUri) {
@@ -349,10 +350,7 @@ Enigmail.msg = {
       }
     } catch (ex) {
       // See also bug 1635648
-      console.debug("exception in getMsgHdr: " + ex);
-      EnigmailLog.DEBUG(
-        "enigmailMessengerOverlay.js: exception in getMsgHdr: " + ex + "\n"
-      );
+      console.warn(`Get msg hdr failed for msgUri=${msgUri}`, ex);
     }
     return null;
   },
@@ -1286,9 +1284,8 @@ Enigmail.msg = {
           p.wrappedJSObject.sendFlags = 0;
         }
       } catch (ex) {
-        console.debug(ex);
+        console.warn(ex);
       }
-
       return true;
     }
 
@@ -1860,16 +1857,12 @@ Enigmail.msg = {
           (usingPGPMime && sendFlags & (ENCRYPT | SIGN)) ||
           (!usingPGPMime && sendFlags & ENCRYPT)
         ) {
-          try {
-            // make sure plaintext is not changed to 7bit
-            if (typeof msgCompFields.forceMsgEncoding == "boolean") {
-              msgCompFields.forceMsgEncoding = true;
-              EnigmailLog.DEBUG(
-                "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg: enabled forceMsgEncoding\n"
-              );
-            }
-          } catch (ex) {
-            console.debug(ex);
+          // make sure plaintext is not changed to 7bit
+          if (typeof msgCompFields.forceMsgEncoding == "boolean") {
+            msgCompFields.forceMsgEncoding = true;
+            EnigmailLog.DEBUG(
+              "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg: enabled forceMsgEncoding\n"
+            );
           }
         }
       }

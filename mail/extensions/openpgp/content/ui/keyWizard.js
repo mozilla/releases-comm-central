@@ -696,7 +696,6 @@ async function openPgpKeygenConfirm() {
     throw new Error("key generation failed");
   }
 
-  console.debug("saving new key id " + gGeneratedKey);
   Services.prefs.savePrefFile(null);
 
   // Hide wizard overlay at the end of the generation process.

@@ -4265,7 +4265,7 @@ async function addLinkPreview(url) {
 
       // Handle the case where we didn't get proper data.
       if (!title && !description) {
-        console.debug(`No link preview data for url=${url}`);
+        console.warn(`No link preview data for url=${url}`);
         return;
       }
 

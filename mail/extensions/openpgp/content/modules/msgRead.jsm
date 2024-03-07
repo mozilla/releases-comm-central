@@ -248,9 +248,7 @@ var EnigmailMsgRead = {
 
     try {
       fromAddr = lazy.EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
-    } catch (ex) {
-      console.debug(ex);
-    }
+    } catch (e) {}
 
     const keyObj = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!keyObj) {
@@ -265,12 +263,11 @@ var EnigmailMsgRead = {
           fromAddr ==
           lazy.EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
         ) {
-          const result = lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
-          return result;
+          return lazy.EnigmailFuncs.stripEmail(userIdList[i].userId);
         }
       }
-    } catch (ex) {
-      console.debug(ex);
+    } catch (e) {
+      // stripEmail can throw
     }
     return null;
   },

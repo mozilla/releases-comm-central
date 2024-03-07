@@ -108,7 +108,7 @@ Enigmail.hdrView = {
       const bodyElement = document.getElementById("messagepane");
       bodyElement.removeAttribute("collapsed");
     } catch (ex) {
-      console.debug(ex);
+      console.warn(ex);
     }
   },
 
@@ -147,7 +147,7 @@ Enigmail.hdrView = {
     if (!errorMsg) {
       errorMsg = "";
     } else {
-      console.debug("OpenPGP error status: " + errorMsg);
+      EnigmailLog.DEBUG("OpenPGP error status: " + errorMsg);
     }
 
     var replaceUid = null;
@@ -216,7 +216,7 @@ Enigmail.hdrView = {
         EnigmailConstants.EXPIRED_SIGNATURE);
 
     if (msgSigned && statusFlags & EnigmailConstants.IMPORTED_KEY) {
-      console.debug("unhandled status IMPORTED_KEY");
+      // unhandled status IMPORTED_KEY
       statusFlags &= ~EnigmailConstants.IMPORTED_KEY;
     }
 
@@ -230,17 +230,13 @@ Enigmail.hdrView = {
     this.msgSignatureKeyId = keyId;
 
     if (extraDetails) {
-      try {
-        const o = JSON.parse(extraDetails);
-        if ("encryptedTo" in o) {
-          this.msgEncryptionKeyId = o.encryptedTo.myRecipKey;
-          this.msgEncryptionAllKeyIds = o.encryptedTo.allRecipKeys;
-        }
-        if ("packetDump" in o && o.packetDump) {
-          this.packetDump = o.packetDump;
-        }
-      } catch (x) {
-        console.debug(x);
+      const o = JSON.parse(extraDetails);
+      if ("encryptedTo" in o) {
+        this.msgEncryptionKeyId = o.encryptedTo.myRecipKey;
+        this.msgEncryptionAllKeyIds = o.encryptedTo.allRecipKeys;
+      }
+      if ("packetDump" in o && o.packetDump) {
+        this.packetDump = o.packetDump;
       }
     }
 
@@ -470,30 +466,25 @@ Enigmail.hdrView = {
           "enigmailMsgHdrViewOverlay.js: _listener_onStartHeaders\n"
         );
 
-        try {
-          Enigmail.hdrView.statusBarHide();
-          EnigmailVerify.setLastMsgUri(Enigmail.msg.getCurrentMsgUriSpec());
+        Enigmail.hdrView.statusBarHide();
+        EnigmailVerify.setLastMsgUri(Enigmail.msg.getCurrentMsgUriSpec());
 
-          const msgFrame =
-            document.getElementById("messagepane").contentDocument;
+        const msgFrame = document.getElementById("messagepane").contentDocument;
 
-          if (msgFrame) {
-            msgFrame.addEventListener(
-              "unload",
-              Enigmail.hdrView.messageUnload.bind(Enigmail.hdrView),
-              true
-            );
-            msgFrame.addEventListener(
-              "load",
-              Enigmail.hdrView.messageLoad.bind(Enigmail.hdrView),
-              true
-            );
-          }
-
-          Enigmail.hdrView.forgetEncryptedMsgKey();
-        } catch (ex) {
-          console.debug(ex);
+        if (msgFrame) {
+          msgFrame.addEventListener(
+            "unload",
+            Enigmail.hdrView.messageUnload.bind(Enigmail.hdrView),
+            true
+          );
+          msgFrame.addEventListener(
+            "load",
+            Enigmail.hdrView.messageLoad.bind(Enigmail.hdrView),
+            true
+          );
         }
+
+        Enigmail.hdrView.forgetEncryptedMsgKey();
       },
 
       onEndHeaders() {

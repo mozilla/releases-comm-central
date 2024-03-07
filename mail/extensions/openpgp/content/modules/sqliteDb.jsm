@@ -70,9 +70,7 @@ var PgpSqliteDb2 = {
   async getFingerprintAcceptance(conn, fingerprint) {
     // 40 is for modern fingerprints, 32 for older fingerprints.
     if (fingerprint.length != 40 && fingerprint.length != 32) {
-      throw new Error(
-        "internal error, invalid fingerprint value: " + fingerprint
-      );
+      throw new Error(`Invalid fingerprint: ${fingerprint}`);
     }
 
     fingerprint = fingerprint.toLowerCase();
@@ -99,7 +97,7 @@ var PgpSqliteDb2 = {
           }
         });
     } catch (ex) {
-      console.debug(ex);
+      console.warn(ex);
     }
 
     if (myConn && conn) {

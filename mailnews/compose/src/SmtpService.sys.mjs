@@ -89,7 +89,7 @@ export class SmtpService {
     if (!server) {
       // Occurs for at least one unit test, but test does not fail if return
       // here. This check for "server" can be removed if tests are fixed.
-      console.log(
+      console.warn(
         `No server found for identity with email ${userIdentity.email} and ` +
           `smtpServerKey ${userIdentity.smtpServerKey}`
       );

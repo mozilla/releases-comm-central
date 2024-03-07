@@ -586,14 +586,7 @@ function SaveAsTemplate(uri) {
 }
 
 function viewEncryptedPart(message) {
-  let url;
-  try {
-    url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
-  } catch (e) {
-    console.debug(e);
-    // Couldn't get mail session
-    return false;
-  }
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.

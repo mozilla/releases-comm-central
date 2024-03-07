@@ -71,11 +71,11 @@ var OpenPGPAlias = {
 
     for (const entry of aliasRules) {
       if (!("keys" in entry) || !entry.keys || !entry.keys.length) {
-        console.log("Ignoring invalid alias rule without keys");
+        console.warn("Ignoring invalid alias rule without keys");
         continue;
       }
       if ("email" in entry && "domain" in entry) {
-        console.log("Ignoring invalid alias rule with both email and domain");
+        console.warn("Ignoring invalid alias rule with both email and domain");
         continue;
       }
       // Ignore duplicate rules, only use first rule per key.
@@ -83,15 +83,15 @@ var OpenPGPAlias = {
       if ("email" in entry) {
         const email = entry.email.toLowerCase();
         if (!email.includes("@")) {
-          console.log("Ignoring invalid email alias rule: " + email);
+          console.warn("Ignoring invalid email alias rule: " + email);
           continue;
         }
         if (this._aliasEmails.get(email)) {
-          console.log("Ignoring duplicate email alias rule: " + email);
+          console.warn("Ignoring duplicate email alias rule: " + email);
           continue;
         }
         if (!this._hasExpectedKeysStructure(entry.keys)) {
-          console.log(
+          console.warn(
             "Ignoring alias rule with invalid key entries for email " + email
           );
           continue;
@@ -100,22 +100,22 @@ var OpenPGPAlias = {
       } else if ("domain" in entry) {
         const domain = entry.domain.toLowerCase();
         if (domain.includes("@")) {
-          console.log("Ignoring invalid domain alias rule: " + domain);
+          console.warn("Ignoring invalid domain alias rule: " + domain);
           continue;
         }
         if (this._aliasDomains.get(domain)) {
-          console.log("Ignoring duplicate domain alias rule: " + domain);
+          console.warn("Ignoring duplicate domain alias rule: " + domain);
           continue;
         }
         if (!this._hasExpectedKeysStructure(entry.keys)) {
-          console.log(
+          console.warn(
             "Ignoring alias rule with invalid key entries for domain " + domain
           );
           continue;
         }
         this._aliasDomains.set(domain, entry.keys);
       } else {
-        console.log(
+        console.warn(
           "Ignoring invalid alias rule without domain and without email"
         );
       }

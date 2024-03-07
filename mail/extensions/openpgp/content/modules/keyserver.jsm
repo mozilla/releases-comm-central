@@ -1357,7 +1357,7 @@ const accessVksServer = {
           break;
         }
       } catch (ex) {
-        console.log(ex.errorDetails);
+        console.error("Uploading keys FAILED!", ex);
         rv = false;
         break;
       }

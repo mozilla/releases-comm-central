@@ -17,7 +17,7 @@ export const XULStoreUtils = {
       case "messenger":
         return "chrome://messenger/content/messenger.xhtml";
       default:
-        console.debug(`Unkown xulStore document URL: ${url}`);
+        console.warn(`Unkown xulStore document URL: ${url}`);
         return url;
     }
   },

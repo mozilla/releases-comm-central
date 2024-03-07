@@ -28,17 +28,13 @@ function tryLoadGPGME(name, suffix) {
   const binDir = PathUtils.parent(binPath);
   libgpgmePath = PathUtils.join(binDir, filename);
 
-  let loadFromInfo;
-
   try {
-    loadFromInfo = libgpgmePath;
     libgpgme = ctypes.open(libgpgmePath);
   } catch (e) {}
 
   if (!libgpgme) {
     try {
-      loadFromInfo = "system's standard library locations";
-      // look in standard locations
+      // look in system's standard library locations
       libgpgmePath = filename;
       libgpgme = ctypes.open(libgpgmePath);
     } catch (e) {}
@@ -49,7 +45,6 @@ function tryLoadGPGME(name, suffix) {
 
     for (const tryPath of ADDITIONAL_LIB_PATHS) {
       try {
-        loadFromInfo = "additional standard locations";
         libgpgmePath = tryPath + "/" + filename;
         libgpgme = ctypes.open(libgpgmePath);
 
@@ -58,15 +53,6 @@ function tryLoadGPGME(name, suffix) {
         }
       } catch (e) {}
     }
-  }
-
-  if (libgpgme) {
-    console.debug(
-      "Successfully loaded optional OpenPGP library " +
-        filename +
-        " from " +
-        loadFromInfo
-    );
   }
 }
 
@@ -235,9 +221,8 @@ function enableGPGMELibJS() {
     init() {
       // GPGME 1.9.0 released 2017-03-28 is the first version that
       // supports GPGME_DECRYPT_UNWRAP, requiring >= gpg 2.1.12
-      const versionPtr = this.gpgme_check_version("1.9.0");
-      const version = versionPtr.readString();
-      console.debug("gpgme version: " + version);
+      // const versionPtr = this.gpgme_check_version("1.9.0");
+      // const version = versionPtr.readString();
 
       const gpgExe = Services.prefs.getStringPref(
         "mail.openpgp.alternative_gpg_path"
@@ -252,13 +237,6 @@ function enableGPGMELibJS() {
         null
       );
       const success = extResult === this.GPG_ERR_NO_ERROR;
-      const info = success ? "success" : "failure: " + extResult;
-      console.debug(
-        "configuring GPGME to use an external OpenPGP engine " +
-          gpgExe +
-          " - " +
-          info
-      );
       return success;
     },
 

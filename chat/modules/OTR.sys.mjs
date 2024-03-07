@@ -120,7 +120,7 @@ export var OTR = {
         OTR.libLoaded = true;
       }
     } catch (e) {
-      console.log(e);
+      console.warn("Init OTR FAILED!", e);
     }
   },
 

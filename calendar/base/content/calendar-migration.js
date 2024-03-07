@@ -128,11 +128,9 @@ var gDataMigrator = {
         cal.manager.registerCalendar(calendar);
         cal.view.getCompositeCalendar(window).addCalendar(calendar);
       }
-      console.debug("icalMig making callback");
       aCallback();
     }
 
-    console.debug("Checking for ical data");
     const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     let icalSpec = profileDir.path;
     const diverge = icalSpec.indexOf("Thunderbird");
@@ -160,7 +158,6 @@ var gDataMigrator = {
     function evoMigrate(aDataDir, aCallback) {
       let i = 1;
       const evoDataMigrate = function (dataStore) {
-        console.debug("Migrating evolution data file in " + dataStore.path);
         if (dataStore.exists()) {
           const calendar = gDataMigrator.importICSToStorage(dataStore);
           calendar.name = "Evolution " + i++;

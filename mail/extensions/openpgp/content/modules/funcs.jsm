@@ -562,7 +562,6 @@ var EnigmailFuncs = {
       !addresses[0] ||
       !EnigmailFuncs.stringLooksLikeEmailAddress(addresses[0].email)
     ) {
-      console.debug("failed to extract email address from: " + uid);
       return "";
     }
     return addresses[0].email.trim();

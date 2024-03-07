@@ -148,5 +148,9 @@ module.exports = {
         "func-names": "off",
       },
     },
+    {
+      files: ["**/test/**", "**/tests/**"],
+      extends: ["plugin:mozilla/general-test"],
+    },
   ],
 };

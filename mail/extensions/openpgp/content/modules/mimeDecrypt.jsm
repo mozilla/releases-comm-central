@@ -77,25 +77,20 @@ var EnigmailMimeDecrypt = {
         "Content-Transfer-Encoding: 7bit\r\n" +
         'Content-Disposition: attachment; filename="attachment.eml"\r\n\r\n';
 
-      try {
-        const dbHdr = uri.QueryInterface(Ci.nsIMsgMessageUrl).messageHeader;
-        if (dbHdr.subject) {
-          msg += `Subject: ${dbHdr.subject}\r\n`;
-        }
-        if (dbHdr.author) {
-          msg += `From: ${dbHdr.author}\r\n`;
-        }
-        if (dbHdr.recipients) {
-          msg += `To: ${dbHdr.recipients}\r\n`;
-        }
-        if (dbHdr.ccList) {
-          msg += `Cc: ${dbHdr.ccList}\r\n`;
-        }
-      } catch (x) {
-        console.debug(x);
+      const dbHdr = uri.QueryInterface(Ci.nsIMsgMessageUrl).messageHeader;
+      if (dbHdr.subject) {
+        msg += `Subject: ${dbHdr.subject}\r\n`;
+      }
+      if (dbHdr.author) {
+        msg += `From: ${dbHdr.author}\r\n`;
+      }
+      if (dbHdr.recipients) {
+        msg += `To: ${dbHdr.recipients}\r\n`;
+      }
+      if (dbHdr.ccList) {
+        msg += `Cc: ${dbHdr.ccList}\r\n`;
       }
     }
-
     return msg;
   },
 };
@@ -294,7 +289,6 @@ MimeDecryptHandler.prototype = {
         ret = true;
       } catch (ex) {
         // not a base64 encoded
-        console.debug(ex);
       }
     }
 
@@ -320,7 +314,6 @@ MimeDecryptHandler.prototype = {
       this.base64Cache = lazy.EnigmailData.decodeBase64(this.base64Cache);
     } catch (ex) {
       // if decoding failed, try non-encoded version
-      console.debug(ex);
     }
 
     const lines = this.base64Cache.replace(/\r\n/g, "\n").split(/\n/);
@@ -432,11 +425,7 @@ MimeDecryptHandler.prototype = {
           }
         }
       } catch (ex) {
-        console.debug(ex);
-        lazy.EnigmailLog.writeException("mimeDecrypt.js", ex);
-        lazy.EnigmailLog.DEBUG(
-          "mimeDecrypt.jsm: error while processing " + this.msgUriSpec + "\n"
-        );
+        console.warn(`Error processing ${this.msgUriSpec}`, ex);
       }
     }
 
@@ -663,8 +652,7 @@ MimeDecryptHandler.prototype = {
       }
       this.statusDisplayed = true;
     } catch (ex) {
-      console.debug(ex);
-      lazy.EnigmailLog.writeException("mimeDecrypt.jsm", ex);
+      console.warn("Displaying status failed!", ex);
     }
     LOCAL_DEBUG("mimeDecrypt.jsm: displayStatus done\n");
   },
@@ -683,12 +671,8 @@ MimeDecryptHandler.prototype = {
       this.decryptedData += "\r\n";
     }
 
-    try {
-      this.extractEncryptedHeaders();
-      this.extractAutocryptGossip();
-    } catch (ex) {
-      console.debug(ex);
-    }
+    this.extractEncryptedHeaders();
+    this.extractAutocryptGossip();
 
     let mightNeedWrapper = true;
 
@@ -798,21 +782,13 @@ MimeDecryptHandler.prototype = {
         veri.onTextData(data);
         veri.onStopRequest(mimeSvc, 0);
       } catch (ex) {
-        console.debug(ex);
-        lazy.EnigmailLog.ERROR(
-          "mimeDecrypt.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
-            ex.toString()
-        );
+        console.error("Return data failed.", ex);
       }
     } else {
       try {
         mimeSvc.outputDecryptedData(data, data.length);
       } catch (ex) {
-        console.debug(ex);
-        lazy.EnigmailLog.ERROR(
-          "mimeDecrypt.jsm: returnData(): cannot send decrypted data to MIME processing:\n" +
-            ex.toString()
-        );
+        console.error("Output decrypted data failed.", ex);
       }
     }
   },
@@ -853,8 +829,8 @@ MimeDecryptHandler.prototype = {
           Ci.nsIMsgMessageUrl
         ).messageHeader;
         msgDbHdr.subject = this.decryptedHeaders.get("subject");
-      } catch (x) {
-        console.debug(x);
+      } catch (e) {
+        console.warn(`Updating subject FAILED for ${this.uri.spec}`);
       }
     }
   },

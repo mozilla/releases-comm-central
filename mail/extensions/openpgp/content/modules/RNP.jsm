@@ -531,7 +531,7 @@ var RNP = {
       }
       await lazy.OpenPGPMasterpass.ensurePasswordIsCached();
     } catch (e) {
-      console.log(e);
+      console.warn("Loading RNP FAILED!", e);
     }
   },
 
@@ -759,7 +759,7 @@ var RNP = {
             continue;
           }
         } catch (ex) {
-          console.log(ex);
+          console.warn(`Get key info from handle FAILED for 0x${keyObj.id}`);
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
         }
@@ -818,7 +818,7 @@ var RNP = {
             continue;
           }
         } catch (ex) {
-          console.log(ex);
+          console.warn(`Get key info from handle FAILED for 0x${keyObj.id}`);
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
         }
@@ -1588,7 +1588,7 @@ var RNP = {
         RNPLib.rnp_uid_handle_destroy(uid_handle);
       }
     } catch (ex) {
-      console.log(ex);
+      console.warn("Getting signatures FAILED!", ex);
     }
     return rList;
   },
@@ -1879,7 +1879,7 @@ var RNP = {
       default:
         useDecodedData = false;
         processSignature = false;
-        console.debug(
+        console.warn(
           "rnp_op_verify_execute returned unexpected: " + result.exitCode
         );
         break;
@@ -2288,7 +2288,7 @@ var RNP = {
               acceptanceResult
             );
           } catch (ex) {
-            console.debug("getAcceptance failed: " + ex);
+            console.warn("Get acceptance FAILED!", ex);
           }
 
           // unverified key acceptance means, we consider the signature OK,
@@ -2605,14 +2605,13 @@ var RNP = {
       flags,
       jsonInfo.address()
     );
+    if (rv) {
+      console.warn(`rnp_import_keys FAILED; rv=${rv}`);
+    }
 
     // TODO: parse jsonInfo and return a list of keys,
     // as seen in keyRing.importKeyAsync.
     // (should prevent the incorrect popup "no keys imported".)
-
-    if (rv) {
-      console.debug("rnp_import_keys failed with  rv: " + rv);
-    }
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -2745,12 +2744,11 @@ var RNP = {
       flags,
       jsonInfo.address()
     );
+    if (rv) {
+      console.warn(`rnp_import_signatures FAILED; rv=${rv}`);
+    }
 
     // TODO: parse jsonInfo
-
-    if (rv) {
-      console.debug("rnp_import_signatures failed with rv: " + rv);
-    }
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -2897,7 +2895,7 @@ var RNP = {
     for (const k of keys) {
       if (k.fpr.length > 40) {
         RNPLib.rnp_ffi_destroy(tempFFI);
-        console.log(
+        console.warn(
           `Cannot import OpenPGP key with fingerprint ${k.fpr} because it is based on an unsupported specification.`
         );
         result.errorMsg = `Found unsupported key: ${k.fpr}`;
@@ -3482,9 +3480,7 @@ var RNP = {
     for (const ak of aliasKeys) {
       const key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, "0x" + ak);
       if (!key || key.isNull()) {
-        console.debug(
-          "addAliasKeys: cannot find key used by alias rule: " + ak
-        );
+        console.warn(`Couldn't find key used by alias rule ${ak}`);
         return false;
       }
       this.addSuitableEncryptKey(key, op);
@@ -3785,7 +3781,6 @@ var RNP = {
               debugKey
             );
             if (!handle.isNull()) {
-              console.debug("encrypting to debug key " + debugKey);
               this.addSuitableEncryptKey(handle, op);
               RNPLib.rnp_key_handle_destroy(handle);
             }
@@ -4037,7 +4032,7 @@ var RNP = {
                       acceptanceResult
                     );
                   } catch (ex) {
-                    console.debug("getAcceptance failed: " + ex);
+                    console.warn("Get acceptance FAILED!", ex);
                   }
 
                   if (!acceptanceResult.emailDecided) {
@@ -4069,7 +4064,7 @@ var RNP = {
           RNPLib.rnp_uid_handle_destroy(uid_handle);
         }
       } catch (ex) {
-        console.log(ex);
+        console.warn(`Finding key by email=${id} FAILED`, ex);
       } finally {
         if (have_handle) {
           RNPLib.rnp_key_handle_destroy(handle);
@@ -4821,7 +4816,7 @@ var RNP = {
         0
       )
     ) {
-      console.debug("rnp_key_export_autocrypt failed");
+      console.warn("rnp_key_export_autocrypt FAILED");
     } else {
       const result_buf = new lazy.ctypes.uint8_t.ptr();
       const result_len = new lazy.ctypes.size_t();

@@ -305,7 +305,7 @@ var EnigmailDecryption = {
       "decryption.jsm: decryptMessage: decryption finished\n"
     );
     if (!result) {
-      console.debug("EnigmailCryptoAPI.decrypt() failed with empty result");
+      console.warn("Decryption message finished with no result.");
       return "";
     }
 
@@ -511,9 +511,9 @@ var EnigmailDecryption = {
 
   isDecryptFailureResult(result) {
     if (result.statusFlags & lazy.EnigmailConstants.MISSING_MDC) {
-      console.log("bad message, missing MDC");
+      lazy.EnigmailLog.DEBUG("Bad message: missing MDC");
     } else if (result.statusFlags & lazy.EnigmailConstants.DECRYPTION_FAILED) {
-      console.log("cannot decrypt message");
+      lazy.EnigmailLog.DEBUG("Cannot decrypt message");
     } else if (result.decryptedData) {
       return false;
     }
@@ -601,7 +601,7 @@ var EnigmailDecryption = {
             }
           }
         } else {
-          console.debug(
+          console.warn(
             "Failed to obtain key list from key block in decrypted attachment. " +
               errorMsgObj.value
           );
@@ -617,9 +617,7 @@ var EnigmailDecryption = {
     const cApi = lazy.EnigmailCryptoAPI();
     const result = await cApi.decryptAttachment(byteData);
     if (!result) {
-      console.debug(
-        "EnigmailCryptoAPI.decryptAttachment() failed with empty result"
-      );
+      console.warn("Decrypt attachment finished with no result.");
       return false;
     }
 

@@ -152,12 +152,7 @@ var KeyLookupHelper = {
           if (keyList && keyList.length > 1) {
             throw new Error("Unexpected multiple results from keyserver " + ks);
           }
-          console.log(
-            "failed to process data retrieved from keyserver " +
-              ks +
-              ": " +
-              errorInfo.value
-          );
+          console.warn(`Processing data from ${ks} failed: ${errorInfo.value}`);
         }
       }
       if (!continueSearching) {
@@ -246,9 +241,7 @@ var KeyLookupHelper = {
       }
     }
 
-    if (!wkdResult) {
-      console.debug("searchKeysOnInternet no wkd data for " + email);
-    } else {
+    if (wkdResult) {
       const errorInfo = {};
       const keyList = await lazy.EnigmailKey.getKeyListFromKeyBlock(
         wkdResult,
@@ -259,9 +252,7 @@ var KeyLookupHelper = {
         true
       );
       if (!keyList) {
-        console.debug(
-          "failed to process data retrieved from WKD server: " + errorInfo.value
-        );
+        console.warn(`Processing data from WKD failed: ${errorInfo.value}`);
       } else {
         const existingKeys = [];
         let newKeys = [];

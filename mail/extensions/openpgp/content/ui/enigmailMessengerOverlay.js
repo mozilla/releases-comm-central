@@ -591,7 +591,7 @@ Enigmail.msg = {
             return;
           }
         } catch (ex) {
-          console.debug(ex);
+          console.warn(ex);
         }
 
         // HACK for MS-EXCHANGE-Server Problem:
@@ -1620,7 +1620,6 @@ Enigmail.msg = {
         // ReloadMessage();
       })
       .catch(async function (ex) {
-        console.debug(ex);
         Services.prompt.alert(
           window,
           null,
@@ -2808,9 +2807,7 @@ Enigmail.msg = {
           "0x" + newKey.fpr
         ))
       ) {
-        console.debug(
-          "EnigmailKeyRing.importKeyDataSilent failed 0x" + newKey.fpr
-        );
+        console.warn(`Silent import failed for key 0x${newKey.fpr}`);
       }
     }
   },

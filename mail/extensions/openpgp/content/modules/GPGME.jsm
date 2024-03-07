@@ -35,7 +35,7 @@ var GPGME = {
         GPGME.libLoaded = true;
       }
     } catch (e) {
-      console.log(e);
+      console.warn("Init GPGME FAILED", e);
     }
   },
 

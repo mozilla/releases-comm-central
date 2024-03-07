@@ -106,7 +106,7 @@ var RNPLibLoader = {
     try {
       enableRNPLibJS();
     } catch (e) {
-      console.log(e);
+      console.warn("Enable RNP FAILED!", e);
       return dummyRNPLib;
     }
 
@@ -291,24 +291,26 @@ function enableRNPLibJS() {
       // might fail because of inconsistencies or corruption).
       let canRepair = false;
       try {
-        console.log("Trying to automatically protect the unprotected keys.");
+        console.warn("Trying to automatically protect the unprotected keys.");
         const mp = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
         if (mp) {
           await RNPLib.protectUnprotectedKeys();
           await RNPLib.saveKeys();
           canRepair = true;
-          console.log("Successfully protected the unprotected keys.");
+          console.warn("Successfully protected the unprotected keys.");
           const [prot, unprot] = RNPLib.getProtectedKeysCount();
-          console.debug(
-            `Found (${prot} protected and ${unprot} unprotected secret keys.`
-          );
+          if (unprot > 0) {
+            console.error(
+              `Found (${prot} protected and ${unprot} unprotected secret keys.`
+            );
+          }
         }
       } catch (ex) {
-        console.log(ex);
+        console.error("Protection FAILED!", ex);
       }
 
       if (!canRepair) {
-        console.log("Cannot protect the unprotected keys at this time.");
+        console.error("Cannot protect the unprotected keys at this time.");
       }
     },
 
@@ -556,15 +558,14 @@ function enableRNPLibJS() {
       this.rnp_get_secret_key_count(this.ffi, secnum.address());
 
       const [prot, unprot] = this.getProtectedKeysCount();
-      console.debug(
-        `Found ${pubnum.value} public keys and ${secnum.value} secret keys (${prot} protected, ${unprot} unprotected)`
-      );
-
       if (unprot) {
+        console.warn(
+          `Found ${pubnum.value} public keys and ${secnum.value} secret keys (${prot} protected, ${unprot} unprotected)`
+        );
         // We need automatic repair, which can involve a primary password
         // prompt. Let's use a short timer, so we keep it out of the
         // early startup code.
-        console.log(
+        console.warn(
           "Will attempt to automatically protect the unprotected keys in 30 seconds"
         );
         lazy.setTimeout(RNPLib._fixUnprotectedKeys, 30000);
@@ -853,9 +854,7 @@ function enableRNPLibJS() {
       }
       RNPLib.rnp_buffer_destroy(fingerprint);
 
-      console.debug(
-        `Internal error, default RNP password callback called unexpectedly. ${fpStr}.`
-      );
+      console.error(`RNP password_cb called unexpectedly; fpStr=${fpStr}`);
       return false;
     },
 

@@ -27,7 +27,6 @@ var gMigrateWizard = {
     wizard.title = props.formatStringFromName("migrationTitle", ["Lightning"]);
     desc.textContent = props.formatStringFromName("migrationDescription", ["Lightning"]);
 
-    console.debug("migrators: " + window.arguments.length);
     for (const migrator of window.arguments[0]) {
       const checkbox = document.createXULElement("checkbox");
       checkbox.setAttribute("checked", true);
@@ -79,7 +78,6 @@ var gMigrateWizard = {
 
         // Increment i to point to the next migrator
         i++;
-        console.debug("starting migrator: " + mig.title);
         label.value = props.formatStringFromName("migratingApp", [mig.title]);
         meter.value = ((i - 1) / migrators.length) * 100;
         mig.args.push(getNextMigrator);
@@ -87,12 +85,10 @@ var gMigrateWizard = {
         try {
           mig.migrate(...mig.args);
         } catch (e) {
-          console.debug("Failed to migrate: " + mig.title);
-          console.debug(e);
+          console.warn("Failed to migrate: " + mig.title, e);
           getNextMigrator();
         }
       } else {
-        console.debug("migration done");
         wizard.canAdvance = true;
         label.value = props.GetStringFromName("finished");
         meter.value = 100;

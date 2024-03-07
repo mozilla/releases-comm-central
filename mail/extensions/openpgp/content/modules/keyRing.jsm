@@ -976,7 +976,7 @@ var EnigmailKeyRing = {
             outParam.acceptance
           );
         } catch (ex) {
-          console.debug(ex);
+          console.warn("Importing key FAILED.", ex);
         }
 
         if (exitStatus === 0) {
@@ -1031,7 +1031,7 @@ var EnigmailKeyRing = {
               outParam.acceptance
             );
           } catch (ex) {
-            console.debug(ex);
+            console.warn("Importing key FAILED!", ex);
           }
 
           if (exitStatus === 0) {
@@ -1075,7 +1075,7 @@ var EnigmailKeyRing = {
       );
       this.clearCache();
     } catch (ex) {
-      console.debug(ex);
+      console.warn("Importing key FAILED!", ex);
     }
     return exitStatus === 0;
   },
@@ -1330,7 +1330,7 @@ var EnigmailKeyRing = {
         acceptanceResult
       );
     } catch (ex) {
-      console.debug("getAcceptance failed: " + ex);
+      console.warn("Get acceptance FAILED!", ex);
       return null;
     }
 
@@ -1366,7 +1366,7 @@ var EnigmailKeyRing = {
         acceptanceResult
       );
     } catch (ex) {
-      console.debug("getAcceptance failed: " + ex);
+      console.warn("Get acceptance FAILED!", ex);
       return null;
     }
 
@@ -1453,11 +1453,7 @@ var EnigmailKeyRing = {
               detEl.msg = "alias problem";
               details.errArray.push(detEl);
             }
-            console.debug(
-              'keyRing.jsm: getValidKeysForAllRecipients(): alias key list for="' +
-                addr +
-                ' refers to missing or unusable key"\n'
-            );
+            console.warn(`Alias key for ${addr} missing/unusable.`);
           }
         }
 
@@ -1486,11 +1482,7 @@ var EnigmailKeyRing = {
           detailsElem.msg = errMsg;
           details.errArray.push(detailsElem);
         }
-        lazy.EnigmailLog.DEBUG(
-          'keyRing.jsm: getValidKeysForAllRecipients(): no single valid key found for="' +
-            addr +
-            '"\n'
-        );
+        console.warn(`No single valid key for ${addr}`);
       }
     }
     return keyMissing;
@@ -1557,7 +1549,7 @@ var EnigmailKeyRing = {
    *
    * @param {string[]} keyList - Array of key identifiers
    * @returns {string[]} An array with fingerprints of all alias keys,
-   *                    or an empty array on failure.
+   *   or an empty array on failure.
    */
   getAliasKeys(keyList) {
     const keys = [];
@@ -1576,13 +1568,10 @@ var EnigmailKeyRing = {
         keys.push(key.fpr);
       } else {
         const reason = key ? "not usable" : "missing";
-        console.debug(
-          "getAliasKeys: key for identifier: " + lookupId + " is " + reason
-        );
+        console.warn(`Alias key for ${lookupId} ${reason}`);
         return [];
       }
     }
-
     return keys;
   },
 

@@ -223,42 +223,42 @@ class AccountHubControllerClass {
    * TODO: Show the calendar setup view.
    */
   #viewCalendarSetup() {
-    console.log("Calendar setup");
+    dump("Calendar setup\n");
   }
 
   /**
    * TODO: Show the address book setup view.
    */
   #viewAddressBookSetup() {
-    console.log("Address Book setup");
+    dump("Address Book setup\n");
   }
 
   /**
    * TODO: Show the chat setup view.
    */
   #viewChatSetup() {
-    console.log("Chat setup");
+    dump("Chat setup\n");
   }
 
   /**
    * TODO: Show the feed setup view.
    */
   #viewFeedSetup() {
-    console.log("Feed setup");
+    dump("Feed setup\n");
   }
 
   /**
    * TODO: Show the newsgroup setup view.
    */
   #viewNNTPSetup() {
-    console.log("Newsgroup setup");
+    dump("Newsgroup setup\n");
   }
 
   /**
    * TODO: Show the import setup view.
    */
   #viewImportSetup() {
-    console.log("Import setup");
+    dump("Import setup\n");
   }
 }
 

@@ -187,8 +187,7 @@ PgpMimeEncrypt.prototype = {
       this.outerBoundary = lazy.EnigmailMime.createBoundary();
       this.startCryptoHeaders();
     } catch (ex) {
-      console.debug(ex);
-      lazy.EnigmailLog.writeException("mimeEncrypt.js", ex);
+      lazy.EnigmailLog.ERROR(ex);
       throw ex;
     }
 
@@ -523,8 +522,7 @@ PgpMimeEncrypt.prototype = {
       this.finishCryptoHeaders();
       this.flushOutput();
     } catch (ex) {
-      console.debug(ex);
-      lazy.EnigmailLog.writeException("mimeEncrypt.js", ex);
+      lazy.EnigmailLog.ERROR(ex);
       throw ex;
     }
   },
@@ -615,8 +613,7 @@ PgpMimeEncrypt.prototype = {
         }
       }
     } catch (ex) {
-      console.debug(ex);
-      lazy.EnigmailLog.writeException("mimeEncrypt.js", ex);
+      console.warn("Write crypto block FAILED!", ex);
       throw ex;
     }
 
