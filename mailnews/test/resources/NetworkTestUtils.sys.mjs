@@ -272,8 +272,9 @@ export var NetworkTestUtils = {
       });
     }
 
-    dump("Requesting to map " + hostname + ":" + port + "\n");
-    gPortMap.set(hostname + ":" + port, localRemappedPort);
+    const key = `${hostname}:${port}`;
+    dump(`Requesting to map ${key}\n`);
+    gPortMap.set(key, localRemappedPort);
   },
 
   /**
@@ -283,8 +284,12 @@ export var NetworkTestUtils = {
    * @param {integer} port - The port number to use for the client.
    */
   unconfigureProxy(hostname, port) {
-    dump("Requesting to remove " + hostname + ":" + port + "\n");
-    gPortMap.delete(hostname + ":" + port);
+    const key = `${hostname}:${port}`;
+    dump(`Requesting to remove ${key}\n`);
+    if (!gPortMap.has(key)) {
+      dump(`${key} was not configured!\n`);
+    }
+    gPortMap.delete(key);
   },
 
   /**

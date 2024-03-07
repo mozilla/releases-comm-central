@@ -9,6 +9,12 @@ const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
 const { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
+const { HttpsProxy } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/HttpsProxy.sys.mjs"
+);
+const { OAuth2TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
+);
 
 // A list of books returned by CardDAVServer unless changed.
 const DEFAULT_BOOKS = [
@@ -62,6 +68,7 @@ async function attemptInit(
     certError,
     password,
     savePassword,
+    oAuth,
     expectedStatus = "carddav-connection-error",
     expectedBooks = [],
   }
@@ -89,10 +96,20 @@ async function attemptInit(
 
   const certPromise =
     certError === undefined ? Promise.resolve() : handleCertError();
-  const promptPromise =
-    password === undefined
-      ? Promise.resolve()
-      : handlePasswordPrompt(username, password, savePassword);
+  let promptPromise;
+  if (oAuth !== undefined) {
+    promptPromise = OAuth2TestUtils.promiseOAuthWindow().then(oAuthWindow =>
+      SpecialPowers.spawn(
+        oAuthWindow.getBrowser(),
+        [{ expectedHint: username, username, password }],
+        OAuth2TestUtils.submitOAuthLogin
+      )
+    );
+  } else if (password !== undefined) {
+    promptPromise = handlePasswordPrompt(username, password, savePassword);
+  } else {
+    promptPromise = Promise.resolve();
+  }
 
   acceptButton.click();
 
@@ -280,12 +297,59 @@ add_task(function testEmailBadPreset() {
   });
 });
 
+/** Test that we correctly use DNS discovery. */
+add_task(async function testDNSWithoutTXT() {
+  // Set up the CardDAV server at carddav.test:443.
+  // TLS is required for this test.
+  CardDAVServer.open("carol@dnstest.invalid", "carol");
+  const proxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "dav",
+    "carddav.test"
+  );
+
+  const _srv = DNS.srv;
+  DNS.srv = function (name) {
+    Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
+    return [{ prio: 0, weight: 0, host: "carddav.test", port: 443 }];
+  };
+
+  const abWindow = await openAddressBookWindow();
+  const dialogPromise = promiseLoadSubDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
+  ).then(async function (dialogWindow) {
+    await attemptInit(dialogWindow, {
+      username: "carol@dnstest.invalid",
+      password: "carol",
+      expectedStatus: null,
+      expectedBooks: [
+        {
+          label: "Not This One",
+          url: "https://carddav.test/addressbooks/me/default/",
+        },
+        {
+          label: "CardDAV Test",
+          url: "https://carddav.test/addressbooks/me/test/",
+        },
+      ],
+    });
+    dialogWindow.document.querySelector("dialog").getButton("cancel").click();
+  });
+  abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+  await dialogPromise;
+  await closeAddressBookWindow();
+
+  DNS.srv = _srv;
+  proxy.destroy();
+  CardDAVServer.close();
+});
+
 /**
  * Test that we correctly use DNS discovery. This uses the mochitest server
- * (files in the data directory) instead of CardDAVServer because the latter
- * can't speak HTTPS, and we only do DNS discovery for HTTPS.
+ * (files in the data directory) instead of CardDAVServer, which has an unusual
+ * path, so we can be sure the TXT entry worked.
  */
-add_task(async function testDNS() {
+add_task(async function testDNSWithTXT() {
   const _srv = DNS.srv;
   const _txt = DNS.txt;
 
@@ -321,10 +385,90 @@ add_task(async function testDNS() {
   });
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
   await dialogPromise;
+  await closeAddressBookWindow();
 
   DNS.srv = _srv;
   DNS.txt = _txt;
+});
+
+/** Test an address book that uses OAuth2 authentication. */
+add_task(async function testOAuth() {
+  // Set up the OAuth2 server.
+  await OAuth2TestUtils.startServer({
+    username: "dave@test.test",
+    password: "dave",
+  });
+
+  // Set up the CardDAV server at test.test:443. Using test.test causes us to
+  // use OAuth2 authentication, because it's registered in OAuth2Providers.
+  CardDAVServer.open("dave@test.test", "access_token");
+  const proxy = await HttpsProxy.create(
+    CardDAVServer.port,
+    "valid",
+    "test.test"
+  );
+
+  const abWindow = await openAddressBookWindow();
+  const dialogPromise = promiseLoadSubDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
+  ).then(async function (dialogWindow) {
+    await attemptInit(dialogWindow, {
+      url: "https://test.test/",
+      username: "dave@test.test",
+      password: "dave",
+      oAuth: true,
+      expectedStatus: null,
+      expectedBooks: [
+        {
+          label: "Not This One",
+          url: "https://test.test/addressbooks/me/default/",
+        },
+        {
+          label: "CardDAV Test",
+          url: "https://test.test/addressbooks/me/test/",
+        },
+      ],
+    });
+    const availableBooks = dialogWindow.document.getElementById(
+      "carddav-availableBooks"
+    );
+    availableBooks.children[0].checked = false;
+    dialogWindow.document.querySelector("dialog").getButton("accept").click();
+  });
+  const syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+  await dialogPromise;
   await closeAddressBookWindow();
+
+  const [directory] = await syncPromise;
+  const davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
+    "https://test.test/addressbooks/me/test/"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
+    "http://mochi.test/sync/0"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "dave@test.test"
+  );
+  Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
+
+  const logins = Services.logins.findLogins("oauth://test.test", null, "");
+  Assert.equal(logins.length, 1, "login was saved");
+  Assert.equal(logins[0].httpRealm, "test_scope");
+  Assert.equal(logins[0].username, "dave@test.test");
+  Assert.equal(logins[0].password, "refresh_token");
+
+  proxy.destroy();
+  CardDAVServer.close();
+  OAuth2TestUtils.stopServer();
+
+  await promiseDirectoryRemoved(directory.URI);
+  Services.logins.removeAllLogins();
 });
 
 /**

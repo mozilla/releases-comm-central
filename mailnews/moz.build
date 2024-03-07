@@ -72,6 +72,8 @@ TESTING_JS_MODULES.mailnews += [
     "test/resources/SmimeUtils.sys.mjs",
 ]
 TESTING_JS_MODULES.mailnews.certs += [
+    "test/certs/dav.cert",
+    "test/certs/dav.key",
     "test/certs/expired.cert",
     "test/certs/expired.key",
     "test/certs/oauth.cert",

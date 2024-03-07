@@ -116,6 +116,7 @@ export var CardDAVServer = {
     if (!this.username || !this.password) {
       return true;
     }
+
     if (!request.hasHeader("Authorization")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -123,20 +124,23 @@ export var CardDAVServer = {
     }
 
     const value = request.getHeader("Authorization");
-    if (!value.startsWith("Basic ")) {
-      response.setStatusLine("1.1", 401, "Unauthorized");
-      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
-      return false;
+    if (value.startsWith("Basic ")) {
+      const [username, password] = atob(value.substring(6)).split(":");
+      if (username == this.username && password == this.password) {
+        return true;
+      }
     }
 
-    const [username, password] = atob(value.substring(6)).split(":");
-    if (username != this.username || password != this.password) {
-      response.setStatusLine("1.1", 401, "Unauthorized");
-      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
-      return false;
+    if (value.startsWith("Bearer ")) {
+      const token = value.substring(7);
+      if (token == this.password) {
+        return true;
+      }
     }
 
-    return true;
+    response.setStatusLine("1.1", 401, "Unauthorized");
+    response.setHeader("WWW-Authenticate", `Basic realm="test"`);
+    return false;
   },
 
   ping(request, response) {

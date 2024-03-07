@@ -10,8 +10,6 @@ import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpsProxy } from "resource://testing-common/mailnews/HttpsProxy.sys.mjs";
 import { HttpServer, HTTP_405 } from "resource://testing-common/httpd.sys.mjs";
-import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
-import { ServerTestUtils } from "resource://testing-common/mailnews/ServerTestUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
@@ -22,14 +20,22 @@ export const OAuth2TestUtils = {
   /**
    * Start an OAuth2 server and add it to the proxy at oauth.test.test:443.
    */
-  async startServer() {
-    const oAuth2Server = new OAuth2Server();
-    const httpsProxy = new HttpsProxy(
-      oAuth2Server.httpServer.identity.primaryPort,
-      await ServerTestUtils.getCertificate("oauth")
+  async startServer(options) {
+    this._oAuth2Server = new OAuth2Server(options);
+    this._proxy = await HttpsProxy.create(
+      this._oAuth2Server.httpServer.identity.primaryPort,
+      "oauth",
+      "oauth.test.test"
     );
-    NetworkTestUtils.configureProxy("oauth.test.test", 443, httpsProxy.port);
-    return oAuth2Server;
+    TestUtils.promiseTestFinished?.then(() => this.stopServer());
+    return this._oAuth2Server;
+  },
+
+  stopServer() {
+    this._proxy?.destroy();
+    this._proxy = null;
+    this._oAuth2Server?.close();
+    this._oAuth2Server = null;
   },
 
   /**
@@ -119,13 +125,19 @@ export const OAuth2TestUtils = {
 };
 
 class OAuth2Server {
-  username = "user";
-  password = "password";
-  accessToken = "access_token";
-  refreshToken = "refresh_token";
-  expiry = null;
+  constructor({
+    username = "user",
+    password = "password",
+    accessToken = "access_token",
+    refreshToken = "refresh_token",
+    expiry = null,
+  } = {}) {
+    this.username = username;
+    this.password = password;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.expiry = expiry;
 
-  constructor() {
     this.httpServer = new HttpServer();
     this.httpServer.registerPathHandler("/form", this.formHandler.bind(this));
     this.httpServer.registerPathHandler(
@@ -137,11 +149,12 @@ class OAuth2Server {
 
     const port = this.httpServer.identity.primaryPort;
     dump(`OAuth2 server at localhost:${port} opened\n`);
+  }
 
-    TestUtils.promiseTestFinished?.then(() => {
-      this.httpServer.stop();
-      dump(`OAuth2 server at localhost:${port} closed\n`);
-    });
+  close() {
+    const port = this.httpServer.identity.primaryPort;
+    this.httpServer.stop();
+    dump(`OAuth2 server at localhost:${port} closed\n`);
   }
 
   formHandler(request, response) {

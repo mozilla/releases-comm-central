@@ -8,6 +8,8 @@
 
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { NetUtil } from "resource://gre/modules/NetUtil.sys.mjs";
+import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTestUtils.sys.mjs";
+import { ServerTestUtils } from "resource://testing-common/mailnews/ServerTestUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 const socketTransportService = Cc[
@@ -19,6 +21,18 @@ const socketTransportService = Cc[
  */
 export class HttpsProxy {
   QueryInterface = ChromeUtils.generateQI(["nsIServerSocketListener"]);
+
+  static async create(serverPort, tlsCertName, hostname) {
+    const tlsCert = await ServerTestUtils.getCertificate(tlsCertName);
+    const proxy = new HttpsProxy(serverPort, tlsCert);
+    NetworkTestUtils.configureProxy(hostname, 443, proxy.port);
+    return {
+      destroy() {
+        proxy.close();
+        NetworkTestUtils.unconfigureProxy(hostname, 443);
+      },
+    };
+  }
 
   /**
    * @type {HttpsProxyHandler[]}
@@ -128,8 +142,9 @@ class HttpsProxyHandler {
 
       for (let i = 1; i < lines.length; i++) {
         if (
-          lines[i].startsWith("Content-Type: ") ||
-          lines[i].startsWith("Content-Length: ")
+          lines[i].startsWith("Authorization: ") ||
+          lines[i].startsWith("Content-Length: ") ||
+          lines[i].startsWith("Content-Type: ")
         ) {
           serverRequest += `${lines[i]}\r\n`;
         } else if (lines[i] == "") {

@@ -1,0 +1,3 @@
+subject:dav.test
+extension:extKeyUsage:serverAuth
+extension:subjectAlternativeName:dav.test,caldav.test,carddav.test
