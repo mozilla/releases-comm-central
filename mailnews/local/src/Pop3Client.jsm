@@ -32,12 +32,14 @@ var { Pop3Authenticator } = ChromeUtils.import(
  * be a single status line of a multi-line data block.
  *
  * @typedef {object} Pop3Response
- * @property {boolean} success - True for a positive status indicator ("+OK","+").
- * @property {string} status - The status indicator, can be "+OK", "-ERR" or "+".
- * @property {string} statusText - The status line of the response excluding the
- *   status indicator.
- * @property {string} data - The part of a multi-line data block excluding the
- *   status line.
+ * @property {boolean} success - True for a positive status indicator, "+OK", or
+ *   for an authorization challenge respone "+".
+ * @property {string} status - This is the status indicator. Will be either
+ *   "+OK", "-ERR" or, for server authorization challenges, "+".
+ * @property {string} statusText - The optional text following the status
+ *   indicator.
+ * @property {string} data - The segment of a multi-line or a single line data
+ *   response with status and statustext not present - the useful response data.
  *
  * A single char to represent a uidl status, possible values are:
  *   - 'k'=KEEP,
@@ -72,6 +74,7 @@ class Pop3Client {
     this._server.wrappedJSObject.runningClient = this;
     this._authenticator = new Pop3Authenticator(server);
     this._lineReader = new LineReader();
+    this._noopRespPending = false;
 
     // Somehow, Services.io.newURI("pop3://localhost") doesn't work, what we
     // need is just a valid nsIMsgMailNewsUrl to propagate OnStopRunningUrl and
@@ -270,11 +273,11 @@ class Pop3Client {
    * Send `QUIT` request to the server.
    * @param {Function} nextAction - Callback function after QUIT response.
    */
-  quit(nextAction) {
+  async quit(nextAction) {
     this._onData = () => {};
     this._onError = () => {};
     if (this._socket?.readyState == "open") {
-      this._send("QUIT");
+      await this._send("QUIT");
       this._nextAction = nextAction || this.close;
     } else if (nextAction) {
       nextAction();
@@ -317,10 +320,13 @@ class Pop3Client {
    * @returns {Pop3Response}
    */
   _parse(str) {
-    if (this._lineReader.processingMultiLineResponse) {
-      // When processing multi-line response, no parsing should happen. If
-      // `+something` is treated as status line, _actionRetrResponse will treat
-      // it as a new message.
+    if (this._lineReader.receivingMultiLineResponse) {
+      // When receivingMultiLineResponse is true, no parsing should happen since
+      // the status info has already been parsed and removed. This avoids normal
+      // message content lines starting with, e.g., '+OK', '-ERR' or
+      // '+something', from being treated as status lines and causing problems
+      // such as _actionRetrResponse attempting to retrieve a message with a
+      // non-numeric index, e.g., sending a bad "RETR +OK".
       return { data: str };
     }
     const matches = /^(\+OK|-ERR|\+) ?(.*)\r\n([^]*)/.exec(str);
@@ -352,6 +358,14 @@ class Pop3Client {
     if (stringPayload.includes("\r\n")) {
       // Start parsing if the payload contains at least one line break.
       this._pendingPayload = "";
+      if (this._noopRespPending) {
+        // NOOP response received. Just reset the flag and return so response
+        // is ignored. NOOP is sent only when no other POP3 command is
+        // currently sent and waiting on its response. So no parsing for a
+        // specfic response is needed here.
+        this._noopRespPending = false;
+        return;
+      }
       const res = this._parse(stringPayload);
       this._nextAction?.(res);
     } else {
@@ -406,7 +420,7 @@ class Pop3Client {
     const { promise, resolve } = Promise.withResolvers();
     this._promiseErrorHandled = promise;
 
-    this.quit();
+    await this.quit();
     const secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
@@ -531,7 +545,7 @@ class Pop3Client {
    * @param {string} str - The command string to send.
    * @param {boolean} [suppressLogging=false] - Whether to suppress logging the str.
    */
-  _send(str, suppressLogging) {
+  async _send(str, suppressLogging) {
     if (this._socket?.readyState != "open") {
       if (str != "QUIT") {
         this._logger.warn(
@@ -539,6 +553,18 @@ class Pop3Client {
         );
       }
       return;
+    }
+
+    // Hold off sending a productive POP3 command when a NOOP POP3 command has
+    // been sent and the NOOP response has not yet arrived. Waits up to about
+    // 10 seconds (67*150/1000) polling for the NOOP response.
+    if (this._noopRespPending) {
+      let i = 67;
+      do {
+        i--;
+        await new Promise(resolve => setTimeout(resolve, 150));
+      } while (this._noopRespPending && i);
+      this._noopRespPending = false;
     }
 
     if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
@@ -552,17 +578,43 @@ class Pop3Client {
     }
 
     this._socket.send(CommonUtils.byteStringToArrayBuffer(str + "\r\n").buffer);
+    this._timeOfSend = Date.now();
+  }
+
+  /**
+   * Check if we have been busy and sent nothing to the POP3 server for at least
+   * 10 seconds. If so, send a NOOP so the connection is not terminated by the
+   * server. RFC1939 for POP3 specifies a 10 minute minimum inactivity/idle
+   * time but most servers, in violation of the RFC (e.g., outlook), only allow
+   * 60 seconds idle time before dropping the connection.
+   * Re: https://datatracker.ietf.org/doc/html/rfc1939#section-3
+   * Note: This is only called while processing the already completely received
+   * lines and is NEVER called while a productive POP3 command is in progress.
+   */
+  _sendNoopIfInactive() {
+    if (Date.now() - this._timeOfSend > 10000) {
+      // Just do the socket send here to avoid hanging while waiting on the NOOP
+      // response in _send() and to avoid checking for str=="NOOP"  in _send().
+      if (this._socket?.readyState == "open" && !this._noopRespPending) {
+        this._logger.debug("C: NOOP");
+        this._noopRespPending = true;
+        this._socket.send(
+          CommonUtils.byteStringToArrayBuffer("NOOP\r\n").buffer
+        );
+        this._timeOfSend = Date.now();
+      }
+    }
   }
 
   /**
    * Send `CAPA` request to the server.
    */
-  _actionCapa = () => {
+  _actionCapa = async () => {
     this._nextAction = this._actionCapaResponse;
     this._capabilities = [];
     this._newMessageDownloaded = 0;
     this._newMessageTotal = 0;
-    this._send("CAPA");
+    await this._send("CAPA");
   };
 
   /**
@@ -586,6 +638,9 @@ class Pop3Client {
         } else {
           this._capabilities.push(line.split(" ")[0]);
         }
+        // Don't check for need to send NOOP here since CAPA response is very
+        // short and CAPA can occur before pop3 TRANSACTION state is reached and
+        // NOOP only allowed in TRANSACTION state.
       },
       () => this._actionChooseFirstAuthMethod()
     );
@@ -594,7 +649,7 @@ class Pop3Client {
   /**
    * Decide the first auth method to try.
    */
-  _actionChooseFirstAuthMethod = () => {
+  _actionChooseFirstAuthMethod = async () => {
     if (
       [
         Ci.nsMsgSocketType.trySTARTTLS,
@@ -606,7 +661,7 @@ class Pop3Client {
         // Init STARTTLS negotiation if required by user pref and supported.
         this._nextAction = this._actionStlsResponse;
         // STLS is the POP3 command to init STARTTLS.
-        this._send("STLS");
+        await this._send("STLS");
       } else {
         // Abort if not supported.
         this._logger.error("Server doesn't support STLS. Aborting.");
@@ -714,19 +769,19 @@ class Pop3Client {
     switch (this._currentAuthMethod) {
       case "USERPASS":
         this._nextAction = this._actionAuthUserPass;
-        this._send(`USER ${this._authenticator.username}`);
+        await this._send(`USER ${this._authenticator.username}`);
         break;
       case "PLAIN":
         this._nextAction = this._actionAuthPlain;
-        this._send("AUTH PLAIN");
+        await this._send("AUTH PLAIN");
         break;
       case "LOGIN":
         this._nextAction = this._actionAuthLoginUser;
-        this._send("AUTH LOGIN");
+        await this._send("AUTH LOGIN");
         break;
       case "CRAM-MD5":
         this._nextAction = this._actionAuthCramMd5;
-        this._send("AUTH CRAM-MD5");
+        await this._send("AUTH CRAM-MD5");
         break;
       case "APOP": {
         const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
@@ -739,7 +794,10 @@ class Pop3Client {
         const digest = CommonUtils.bytesAsHex(
           CryptoUtils.digestBytes(data, hasher)
         );
-        this._send(`APOP ${this._authenticator.username} ${digest}`, true);
+        await this._send(
+          `APOP ${this._authenticator.username} ${digest}`,
+          true
+        );
         break;
       }
       case "GSSAPI": {
@@ -752,7 +810,7 @@ class Pop3Client {
           this._actionError("pop3GssapiFailure");
           return;
         }
-        this._send("AUTH GSSAPI");
+        await this._send("AUTH GSSAPI");
         break;
       }
       case "NTLM": {
@@ -765,12 +823,12 @@ class Pop3Client {
           this._actionDone(Cr.NS_ERROR_FAILURE);
           return;
         }
-        this._send("AUTH NTLM");
+        await this._send("AUTH NTLM");
         break;
       }
       case "XOAUTH2":
         this._nextAction = this._actionAuthXoauth;
-        this._send("AUTH XOAUTH2");
+        await this._send("AUTH XOAUTH2");
         break;
       default:
         this._actionDone();
@@ -841,7 +899,7 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(
+    await this._send(
       `PASS ${await this._authenticator.getByteStringPassword()}`,
       true
     );
@@ -856,16 +914,16 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(await this._authenticator.getPlainToken(), true);
+    await this._send(await this._authenticator.getPlainToken(), true);
   };
 
   /**
    * The second step of LOGIN auth, send the username to the server.
    */
-  _actionAuthLoginUser = () => {
+  _actionAuthLoginUser = async () => {
     this._nextAction = this._actionAuthLoginPass;
     this._logger.debug("AUTH LOGIN USER");
-    this._send(btoa(this._authenticator.username), true);
+    await this._send(btoa(this._authenticator.username), true);
   };
 
   /**
@@ -892,7 +950,7 @@ class Pop3Client {
       // BinaryString first, to make it work with btoa().
       password = MailStringUtils.stringToByteString(password);
     }
-    this._send(btoa(password), true);
+    await this._send(btoa(password), true);
   };
 
   /**
@@ -906,7 +964,7 @@ class Pop3Client {
       return;
     }
     this._nextAction = this._actionAuthResponse;
-    this._send(
+    await this._send(
       this._authenticator.getCramMd5Token(
         await this._authenticator.getPassword(),
         res.statusText
@@ -921,7 +979,7 @@ class Pop3Client {
    * @param {Pop3Response} res - AUTH response received from the server.
    * @param {string} firstToken - The first GSSAPI token to send.
    */
-  _actionAuthGssapi = (res, firstToken) => {
+  _actionAuthGssapi = async (res, firstToken) => {
     if (res.status != "+") {
       this._actionAuthResponse(res);
       return;
@@ -929,7 +987,7 @@ class Pop3Client {
 
     if (firstToken) {
       this._nextAction = this._actionAuthGssapi;
-      this._send(firstToken, true);
+      await this._send(firstToken, true);
       return;
     }
 
@@ -942,7 +1000,7 @@ class Pop3Client {
       this._actionAuthResponse({ success: false, data: "AUTH GSSAPI" });
       return;
     }
-    this._send(token, true);
+    await this._send(token, true);
   };
 
   /**
@@ -951,7 +1009,7 @@ class Pop3Client {
    * @param {Pop3Response} res - AUTH response received from the server.
    * @param {string} firstToken - The first NTLM token to send.
    */
-  _actionAuthNtlm = (res, firstToken) => {
+  _actionAuthNtlm = async (res, firstToken) => {
     if (res.status != "+") {
       this._actionAuthResponse(res);
       return;
@@ -959,7 +1017,7 @@ class Pop3Client {
 
     if (firstToken) {
       this._nextAction = this._actionAuthNtlm;
-      this._send(firstToken, true);
+      await this._send(firstToken, true);
       return;
     }
 
@@ -972,7 +1030,7 @@ class Pop3Client {
       this._actionAuthResponse({ success: false, data: "AUTH NTLM" });
       return;
     }
-    this._send(token, true);
+    await this._send(token, true);
   };
 
   /**
@@ -987,15 +1045,15 @@ class Pop3Client {
     }
     this._nextAction = this._actionAuthResponse;
     const token = await this._authenticator.getOAuthToken();
-    this._send(token, true);
+    await this._send(token, true);
   };
 
   /**
    * Send `STAT` request to the server.
    */
-  _actionStat = () => {
+  _actionStat = async () => {
     this._nextAction = this._actionStatResponse;
-    this._send("STAT");
+    await this._send("STAT");
   };
 
   /**
@@ -1057,10 +1115,10 @@ class Pop3Client {
   /**
    * Send `LIST` request to the server.
    */
-  _actionList = () => {
+  _actionList = async () => {
     this._messageSizeMap = new Map();
     this._nextAction = this._actionListResponse;
-    this._send("LIST");
+    await this._send("LIST");
   };
 
   /**
@@ -1078,6 +1136,7 @@ class Pop3Client {
       line => {
         const [messageNumber, messageSize] = line.split(" ");
         this._messageSizeMap.set(messageNumber, Number(messageSize));
+        this._sendNoopIfInactive();
       },
       () => {
         this._actionUidl();
@@ -1088,11 +1147,11 @@ class Pop3Client {
   /**
    * Send `UIDL` request to the server.
    */
-  _actionUidl = () => {
+  _actionUidl = async () => {
     this._messagesToHandle = [];
     this._newUidlMap = new Map();
     this._nextAction = this._actionUidlResponse;
-    this._send("UIDL");
+    await this._send("UIDL");
   };
 
   /**
@@ -1152,6 +1211,7 @@ class Pop3Client {
             status,
           });
         }
+        this._sendNoopIfInactive();
       },
       () => {
         if (!this._downloadMail) {
@@ -1217,10 +1277,22 @@ class Pop3Client {
   };
 
   /**
+   * We sent the UIDL command and it failed.
    * If the server doesn't support UIDL, leaveMessagesOnServer and headersOnly
    * feature can't be used.
    */
   _actionNoUidl = () => {
+    // If server has UIDL capability but we are here because UIDL failed for
+    // some reason. Treat this as a temporary error and no messages will be
+    // fetched this time.
+    if (this._capabilities.includes("UIDL")) {
+      this._actionError("pop3TempServerError", [this._server.hostName]);
+      return;
+    }
+    // UIDL has failed because the capability is lacking. Inform the user to
+    // remove configuration of "leave on server", "headers only", "limit message
+    // size" before new messages can be fetched at all. This is a permanent
+    // error until the configuration is changed.
     if (
       this._server.leaveMessagesOnServer ||
       this._server.headersOnly ||
@@ -1300,10 +1372,10 @@ class Pop3Client {
   /**
    * Send `TOP` request to the server.
    */
-  _actionTop = () => {
+  _actionTop = async () => {
     this._nextAction = this._actionTopResponse;
     const lineNumber = this._server.headersOnly ? 0 : 20;
-    this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
+    await this._send(`TOP ${this._currentMessage.messageNumber} ${lineNumber}`);
     this._updateStatus("receivingMessages", [
       ++this._newMessageDownloaded,
       this._newMessageTotal,
@@ -1347,6 +1419,7 @@ class Pop3Client {
           this._sink.incorporateAbort();
           throw e; // Stop reading.
         }
+        this._sendNoopIfInactive();
       },
       () => {
         try {
@@ -1383,9 +1456,9 @@ class Pop3Client {
   /**
    * Send `RETR` request to the server.
    */
-  _actionRetr = () => {
+  _actionRetr = async () => {
     this._nextAction = this._actionRetrResponse;
-    this._send(`RETR ${this._currentMessage.messageNumber}`);
+    await this._send(`RETR ${this._currentMessage.messageNumber}`);
     this._updateStatus("receivingMessages", [
       ++this._newMessageDownloaded,
       this._newMessageTotal,
@@ -1421,6 +1494,7 @@ class Pop3Client {
           this._actionError("pop3MessageWriteError");
           throw e; // Stop reading.
         }
+        this._sendNoopIfInactive();
       },
       () => {
         // Don't count the ending indicator.
@@ -1460,9 +1534,9 @@ class Pop3Client {
   /**
    * Send `DELE` request to the server.
    */
-  _actionDelete = () => {
+  _actionDelete = async () => {
     this._nextAction = this._actionDeleteResponse;
-    this._send(`DELE ${this._currentMessage.messageNumber}`);
+    await this._send(`DELE ${this._currentMessage.messageNumber}`);
   };
 
   /**
@@ -1525,7 +1599,7 @@ class Pop3Client {
    * Save popstate.dat when necessary, send QUIT.
    * @param {nsresult} status - Indicate if the last action succeeded.
    */
-  _actionDone = (status = Cr.NS_OK) => {
+  _actionDone = async (status = Cr.NS_OK) => {
     if (this._done) {
       return;
     }
@@ -1547,7 +1621,7 @@ class Pop3Client {
     }
     this._writeUidlState(true);
     // Normally we clean up after QUIT response.
-    this.quit(() => this._cleanUp(status));
+    await this.quit(() => this._cleanUp(status));
     // If we didn't receive QUIT response after 3 seconds, clean up anyway.
     setTimeout(() => {
       if (!this._cleanedUp) {

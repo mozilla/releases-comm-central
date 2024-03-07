@@ -292,8 +292,8 @@ class NntpClient {
    * @returns {NntpResponse}
    */
   _parse(str) {
-    if (this._lineReader.processingMultiLineResponse) {
-      // When processing multi-line response, no parsing should happen.
+    if (this._lineReader.receivingMultiLineResponse) {
+      // When receiving multi-line response, no parsing should happen.
       return { data: str };
     }
     const matches = /^(\d{3}) (.+)\r\n([^]*)/.exec(str);
