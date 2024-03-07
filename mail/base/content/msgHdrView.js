@@ -328,7 +328,7 @@ function initializeHeaderViewTables() {
     if (!extraHeaderName.trim()) {
       continue;
     }
-    gExpandedHeaderView[extraHeaderName.toLowerCase()] = new HeaderView(
+    gExpandedHeaderView[extraHeaderName.toLowerCase()] ??= new HeaderView(
       extraHeaderName,
       extraHeaderName
     );
