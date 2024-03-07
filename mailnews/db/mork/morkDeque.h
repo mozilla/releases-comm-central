@@ -62,7 +62,7 @@ class morkNext /*d*/ {
 
   void operator delete(void* ioAddress)  // DO NOT CALL THIS, hope to crash:
   {
-    ((morkNext*)0)->ZapOldNext((morkEnv*)0, (nsIMdbHeap*)0);
+    MOZ_ASSERT_UNREACHABLE("Trying to delete morkNext");
   }  // boom
 };
 
