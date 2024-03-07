@@ -163,10 +163,8 @@
 #endif
 @BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@gkcodecs@DLL_SUFFIX@
-#ifdef MOZ_FFVPX
 @BINPATH@/@DLL_PREFIX@mozavutil@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@mozavcodec@DLL_SUFFIX@
-#endif
 @RESPATH@/platform.ini
 #ifndef MOZ_FOLD_LIBS
 @RESPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
