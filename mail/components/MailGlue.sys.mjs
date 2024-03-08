@@ -306,6 +306,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "intl:app-locales-changed");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
+    Services.obs.addObserver(this, "content-document-global-created");
     Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "handlersvc-store-initialized");
 
@@ -333,6 +334,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "intl:app-locales-changed");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
+    Services.obs.removeObserver(this, "content-document-global-created");
     Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "handlersvc-store-initialized");
 
@@ -444,6 +446,7 @@ MailGlue.prototype = {
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);
         break;
+      case "content-document-global-created":
       case "chrome-document-global-created": {
         // Set up lwt, but only if the "lightweightthemes" attr is set on the root
         // (i.e. in messenger.xhtml).
@@ -451,7 +454,7 @@ MailGlue.prototype = {
           "DOMContentLoaded",
           () => {
             if (
-              aSubject.document.documentElement.hasAttribute(
+              aSubject?.document?.documentElement?.hasAttribute(
                 "lightweightthemes"
               )
             ) {
