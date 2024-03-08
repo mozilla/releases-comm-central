@@ -114,6 +114,11 @@ add_task(async function test_theme_icons() {
             light: "light.png",
             size: 16,
           },
+          {
+            dark: "dark.png",
+            light: "light.png",
+            size: 32,
+          },
         ],
       },
     },
@@ -137,7 +142,7 @@ add_task(async function test_theme_icons() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/light.png")`,
+    `image-set(url("moz-extension://${uuid}/light.png") 1dppx, url("moz-extension://${uuid}/light.png") 2dppx)`,
     `Dark theme should use light icon.`
   );
 
@@ -151,7 +156,7 @@ add_task(async function test_theme_icons() {
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/dark.png")`,
+    `image-set(url("moz-extension://${uuid}/dark.png") 1dppx, url("moz-extension://${uuid}/dark.png") 2dppx)`,
     `Light theme should use dark icon.`
   );
 
@@ -160,14 +165,15 @@ add_task(async function test_theme_icons() {
     BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
     light_theme.disable(),
   ]);
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
-    `url("moz-extension://${uuid}/default.png")`,
+    `image-set(url("moz-extension://${uuid}/default.png") 1dppx, url("moz-extension://${uuid}/default.png") 2dppx)`,
     `Default theme should use default icon.`
   );
 
   await extension.unload();
-}).skip(); // TODO (Bug 1828322)
+});
 
 add_task(async function test_button_order() {
   info("3-pane tab");
