@@ -192,8 +192,8 @@
     </template>
     <template id="threadPaneRowTemplate">
       <!-- This template must be kept in sync with thread-pane-columns.mjs. -->
-      <td class="selectcol-column" data-column-name="selectedcol" data-l10n-id="threadpane-cell-select"></td>
-      <td class="tree-view-row-thread threadcol-column button-column" data-column-name="threadcol" data-l10n-id="threadpane-cell-thread">
+      <td class="selectcol-column" data-column-name="selectcol"></td>
+      <td class="tree-view-row-thread threadcol-column button-column" data-column-name="threadcol">
         <button type="button"
                 class="button-flat tree-button-thread"
                 aria-hidden="true"
@@ -201,7 +201,7 @@
           <img src="" alt="" />
         </button>
       </td>
-      <td class="tree-view-row-flag flaggedcol-column button-column" data-column-name="flaggedcol" data-l10n-id="threadpane-cell-flagged">
+      <td class="tree-view-row-flag flaggedcol-column button-column" data-column-name="flaggedcol">
         <button type="button"
                 class="button-flat tree-button-flag"
                 aria-hidden="true"
@@ -209,10 +209,10 @@
           <img src="" alt="" />
         </button>
       </td>
-      <td class="attachmentcol-column button-column" data-column-name="attachmentcol" data-l10n-id="threadpane-cell-attachments">
+      <td class="attachmentcol-column button-column" data-column-name="attachmentcol">
         <img src="" data-l10n-id="tree-list-view-row-attach" />
       </td>
-      <td class="subjectcol-column" data-column-name="subjectcol" data-l10n-id="threadpane-cell-subject">
+      <td class="subjectcol-column" data-column-name="subjectcol">
         <div class="thread-container">
           <button type="button"
                   class="button button-flat button-reset twisty"
@@ -225,7 +225,7 @@
           </div>
         </div>
       </td>
-      <td class="tree-view-row-unread unreadbuttoncolheader-column button-column" data-column-name="unreadcol" data-l10n-id="threadpane-cell-read-status">
+      <td class="tree-view-row-unread unreadbuttoncolheader-column button-column" data-column-name="unreadcol">
         <button type="button"
                 class="button-flat tree-button-unread"
                 aria-hidden="true"
@@ -233,10 +233,10 @@
           <img src="" alt="" />
         </button>
       </td>
-      <td class="sendercol-column" data-column-name="sendercol" data-l10n-id="threadpane-cell-sender"></td>
-      <td class="recipientcol-column" data-column-name="recipientcol" data-l10n-id="threadpane-cell-recipient"></td>
-      <td class="correspondentcol-column" data-column-name="correspondentcol" data-l10n-id="threadpane-cell-correspondents"></td>
-      <td class="tree-view-row-spam junkstatuscol-column button-column" data-column-name="junkstatuscol" data-l10n-id="threadpane-cell-spam">
+      <td class="sendercol-column" data-column-name="sendercol"></td>
+      <td class="recipientcol-column" data-column-name="recipientcol"></td>
+      <td class="correspondentcol-column" data-column-name="correspondentcol"></td>
+      <td class="tree-view-row-spam junkstatuscol-column button-column" data-column-name="junkstatuscol">
         <button type="button"
                 class="button-flat tree-button-spam"
                 aria-hidden="true"
@@ -244,18 +244,18 @@
           <img src="" alt="" />
         </button>
       </td>
-      <td class="datecol-column" data-column-name="datecol" data-l10n-id="threadpane-cell-date"></td>
-      <td class="receivedcol-column" data-column-name="receivedcol" data-l10n-id="threadpane-cell-received"></td>
-      <td class="statuscol-column" data-column-name="statuscol" data-l10n-id="threadpane-cell-status"></td>
-      <td class="sizecol-column" data-column-name="sizecol" data-l10n-id="threadpane-cell-size"></td>
-      <td class="tagscol-column" data-column-name="tagscol" data-l10n-id="threadpane-cell-tags"></td>
-      <td class="accountcol-column" data-column-name="accountcol" data-l10n-id="threadpane-cell-account"></td>
-      <td class="prioritycol-column" data-column-name="prioritycol" data-l10n-id="threadpane-cell-priority"></td>
-      <td class="unreadcol-column" data-column-name="unreadcol" data-l10n-id="threadpane-cell-unread"></td>
-      <td class="totalcol-column" data-column-name="totalcol" data-l10n-id="threadpane-cell-total"></td>
-      <td class="locationcol-column" data-column-name="locationcol" data-l10n-id="threadpane-cell-location"></td>
-      <td class="idcol-column" data-column-name="idcol" data-l10n-id="threadpane-cell-id"></td>
-      <td class="tree-view-row-delete deletecol-column button-column" data-column-name="deletecol"  data-l10n-id="threadpane-cell-delete">
+      <td class="datecol-column" data-column-name="datecol"></td>
+      <td class="receivedcol-column" data-column-name="receivedcol"></td>
+      <td class="statuscol-column" data-column-name="statuscol"></td>
+      <td class="sizecol-column" data-column-name="sizecol"></td>
+      <td class="tagscol-column" data-column-name="tagscol"></td>
+      <td class="accountcol-column" data-column-name="accountcol"></td>
+      <td class="prioritycol-column" data-column-name="prioritycol"></td>
+      <td class="unreadcol-column" data-column-name="unreadcol"></td>
+      <td class="totalcol-column" data-column-name="totalcol"></td>
+      <td class="locationcol-column" data-column-name="locationcol"></td>
+      <td class="idcol-column" data-column-name="idcol"></td>
+      <td class="tree-view-row-delete deletecol-column button-column" data-column-name="deletecol">
         <button type="button"
                 class="button-flat tree-button-delete tree-button-request-delete"
                 tabindex="-1"
