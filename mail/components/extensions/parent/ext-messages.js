@@ -240,6 +240,9 @@ this.messages = class extends ExtensionAPIPersistent {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
         const convertedMessage = extension.messageManager.convert(message);
+        if (!convertedMessage) {
+          return;
+        }
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -553,7 +556,7 @@ this.messages = class extends ExtensionAPIPersistent {
           }
           const messageHeader =
             context.extension.messageManager.convert(msgHdr);
-          if (messageHeader.id != messageId) {
+          if (!messageHeader || messageHeader.id != messageId) {
             throw new ExtensionError(
               "Unexpected Error: Returned message does not equal requested message."
             );

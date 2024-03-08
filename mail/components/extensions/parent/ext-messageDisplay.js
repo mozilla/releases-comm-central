@@ -105,6 +105,9 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           const nativeTab = event.target.tabOrWindow;
           const tab = tabManager.wrapTab(nativeTab);
           const msg = messageManager.convert(event.detail);
+          if (!msg) {
+            return;
+          }
           fire.async(tab.convert(), msg);
         },
       };

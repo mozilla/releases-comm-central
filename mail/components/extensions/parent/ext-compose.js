@@ -390,7 +390,9 @@ async function getComposeDetails(composeWindow, extension) {
         composeWindow.gMsgCompose.originalMsgURI
       );
       const relatedMessage = extension.messageManager.convert(relatedMsgHdr);
-      relatedMessageId = relatedMessage.id;
+      if (relatedMessage) {
+        relatedMessageId = relatedMessage.id;
+      }
     } catch (ex) {
       // We are currently unable to get the fake msgHdr from the uri of messages
       // opened from file.
@@ -1067,9 +1069,10 @@ var afterSaveSendEventTracker = {
 
       let convertedMessages;
       if (listener.extension.messageManager) {
-        convertedMessages = messages.map(cachedMsgHdr =>
-          listener.extension.messageManager.convert(cachedMsgHdr)
-        );
+        convertedMessages = messages.flatmap(cachedMsgHdr => {
+          const msg = listener.extension.messageManager.convert(cachedMsgHdr);
+          return msg ? [msg] : [];
+        });
       }
 
       await listener.onSuccess(

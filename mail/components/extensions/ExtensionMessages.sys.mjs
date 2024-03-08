@@ -1270,7 +1270,7 @@ export class MessageList {
     const messageHeader = this.extension.messageManager.convert(msgHdr, {
       skipFolder: true,
     });
-    if (this.log.has(messageHeader.id)) {
+    if (!messageHeader || this.log.has(messageHeader.id)) {
       return;
     }
 
@@ -1485,6 +1485,14 @@ export class MessageManager {
     // Cache msgHdr to reduce XPCOM requests.
     const cachedHdr = new CachedMsgHeader(msgHdr);
 
+    // Skip messages, which are actually deleted.
+    if (
+      cachedHdr.flags &
+      (Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged)
+    ) {
+      return null;
+    }
+
     const junkScore =
       parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
     const tags = (cachedHdr.getStringProperty("keywords") || "")
@@ -1528,7 +1536,20 @@ export class MessageManager {
   }
 
   get(id) {
-    return this._messageTracker.getMessage(id);
+    const msgHdr = this._messageTracker.getMessage(id);
+    if (!msgHdr) {
+      return null;
+    }
+
+    // Skip messages, which are actually deleted.
+    if (
+      msgHdr.flags &
+      (Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged)
+    ) {
+      return null;
+    }
+
+    return msgHdr;
   }
 
   startMessageList(messageList) {

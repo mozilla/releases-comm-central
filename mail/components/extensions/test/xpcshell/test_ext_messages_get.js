@@ -1178,3 +1178,189 @@ add_task(async function test_attached_message_with_missing_headers() {
 
   cleanUpAccount(_account);
 });
+
+add_task(async function test_get_deleted_messages() {
+  const _account = createAccount();
+  const _folder = await createSubfolder(
+    _account.incomingServer.rootFolder,
+    "test1"
+  );
+  await createMessages(_folder, 10);
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const accounts = await browser.accounts.list();
+        browser.test.assertEq(
+          1,
+          accounts.length,
+          "Should find the correct number of accounts"
+        );
+        const foundMessages = new Map();
+
+        for (const account of accounts) {
+          const messageIds = [];
+
+          const folder = account.folders.find(f => f.name == "test1");
+          const { messages: listMessages } = await browser.messages.list(
+            folder.id
+          );
+          browser.test.assertEq(
+            10,
+            listMessages.length,
+            "Should find the correct number of messages"
+          );
+          const { messages: queryMessages } = await browser.messages.query({
+            folderId: folder.id,
+          });
+          browser.test.assertEq(
+            10,
+            queryMessages.length,
+            "Should find the correct number of messages"
+          );
+
+          let counts = 0;
+          for (const msg of listMessages) {
+            messageIds.push(msg.id);
+            const header = await browser.messages.get(msg.id);
+            if (header) {
+              counts++;
+            }
+          }
+          browser.test.assertEq(
+            10,
+            counts,
+            "Should find the correct number of messages"
+          );
+          foundMessages.set(account.id, messageIds);
+        }
+
+        await window.sendMessage("markSomeAsIMAPDeleted", 3);
+
+        for (const account of accounts) {
+          const folder = account.folders.find(f => f.name == "test1");
+          const { messages: listMessages } = await browser.messages.list(
+            folder.id
+          );
+          browser.test.assertEq(
+            7,
+            listMessages.length,
+            "Should find the correct number of messages"
+          );
+          const { messages: queryMessages } = await browser.messages.query({
+            folderId: folder.id,
+          });
+          browser.test.assertEq(
+            7,
+            queryMessages.length,
+            "Should find the correct number of messages"
+          );
+
+          const messageIds = foundMessages.get(account.id);
+          let goodCounts = 0;
+          let badCounts = 0;
+          for (const msgId of messageIds) {
+            try {
+              const header = await browser.messages.get(msgId);
+              if (header) {
+                goodCounts++;
+              }
+            } catch (ex) {
+              badCounts++;
+            }
+          }
+          browser.test.assertEq(
+            7,
+            goodCounts,
+            "Should find the correct number of messages"
+          );
+          browser.test.assertEq(
+            3,
+            badCounts,
+            "Should find the correct number of skipped messages"
+          );
+        }
+
+        await window.sendMessage("markSomeAsExpunged", 6);
+
+        for (const account of accounts) {
+          const folder = account.folders.find(f => f.name == "test1");
+          const { messages: listMessages } = await browser.messages.list(
+            folder.id
+          );
+          browser.test.assertEq(
+            4,
+            listMessages.length,
+            "Should find the correct number of messages"
+          );
+          const { messages: queryMessages } = await browser.messages.query({
+            folderId: folder.id,
+          });
+          browser.test.assertEq(
+            4,
+            queryMessages.length,
+            "Should find the correct number of messages"
+          );
+
+          const messageIds = foundMessages.get(account.id);
+          let goodCounts = 0;
+          let badCounts = 0;
+          for (const msgId of messageIds) {
+            try {
+              const header = await browser.messages.get(msgId);
+              if (header) {
+                goodCounts++;
+              }
+            } catch (ex) {
+              badCounts++;
+            }
+          }
+          browser.test.assertEq(
+            4,
+            goodCounts,
+            "Should find the correct number of messages"
+          );
+          browser.test.assertEq(
+            6,
+            badCounts,
+            "Should find the correct number of skipped messages"
+          );
+        }
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("markSomeAsIMAPDeleted", count => {
+    const messages = _folder.messages;
+    while (messages.hasMoreElements() && count > 0) {
+      const msg = messages.getNext();
+      msg.flags |= Ci.nsMsgMessageFlags.IMAPDeleted;
+      count--;
+    }
+    extension.sendMessage();
+  });
+
+  extension.onMessage("markSomeAsExpunged", count => {
+    const messages = _folder.messages;
+    while (messages.hasMoreElements() && count > 0) {
+      const msg = messages.getNext();
+      msg.flags |= Ci.nsMsgMessageFlags.Expunged;
+      count--;
+    }
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  cleanUpAccount(_account);
+});
