@@ -355,7 +355,7 @@ class Pop3Client {
     if (this._pendingPayload) {
       stringPayload = this._pendingPayload + stringPayload;
     }
-    if (stringPayload.includes("\r\n")) {
+    if (stringPayload.includes("\n")) {
       // Start parsing if the payload contains at least one line break.
       this._pendingPayload = "";
       if (this._noopRespPending) {
