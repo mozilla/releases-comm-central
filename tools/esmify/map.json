@@ -76,7 +76,6 @@
   "resource:///modules/AppIdleManager.jsm": "comm/mail/components/AppIdleManager.jsm",
   "resource:///modules/AppleMailProfileImporter.jsm": "comm/mailnews/import/modules/AppleMailProfileImporter.jsm",
   "resource:///modules/AppUpdateUI.jsm": "comm/mail/modules/AppUpdateUI.jsm",
-  "resource:///modules/AttachmentChecker.jsm": "comm/mail/modules/AttachmentChecker.jsm",
   "resource:///modules/BaseProfileImporter.jsm": "comm/mailnews/import/modules/BaseProfileImporter.jsm",
   "resource:///modules/BeckyProfileImporter.jsm": "comm/mailnews/import/modules/BeckyProfileImporter.jsm",
   "resource:///modules/BrowserWindowTracker.jsm": "comm/mail/modules/BrowserWindowTracker.jsm",

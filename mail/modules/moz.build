@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "AttachmentChecker.jsm",
+    "AttachmentChecker.worker.js",
     "AttachmentInfo.sys.mjs",
     "BrowserWindowTracker.sys.mjs",
     "CommandController.mjs",

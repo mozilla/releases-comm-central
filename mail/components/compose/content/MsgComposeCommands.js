@@ -25,9 +25,6 @@
 
 // Ensure the activity modules are loaded for this window.
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var { AttachmentChecker } = ChromeUtils.import(
-  "resource:///modules/AttachmentChecker.jsm"
-);
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
@@ -3228,11 +3225,11 @@ function handleEsc() {
  * manual reminder was just turned off). We always show the notification
  * again if keywords change (if no attachments and no manual reminder).
  *
- * @param aForce  If set to true, notification will be shown immediately if
- *                there are any keywords. If set to false, it is shown only when
- *                they have changed.
+ * @param {boolean} [force=false] - If set to true, notification will be shown
+ *   immediately if there are any keywords. If set to false, it is shown only
+ *   when they have changed.
  */
-function manageAttachmentNotification(aForce = false) {
+function manageAttachmentNotification(force = false) {
   let keywords;
   let keywordsCount = 0;
 
@@ -3240,7 +3237,7 @@ function manageAttachmentNotification(aForce = false) {
   // not having keywords.
   let removeNotification = attachmentNotificationSupressed();
 
-  // If that is not true, we need to look at the state of keywords.
+  // If not supressed, we need to look at the state of keywords.
   if (!removeNotification) {
     if (attachmentWorker.lastMessage) {
       // We know the state of keywords, so process them.
@@ -3250,10 +3247,9 @@ function manageAttachmentNotification(aForce = false) {
       }
       removeNotification = keywordsCount == 0;
     } else {
-      // We don't know keywords, so get them first.
-      // If aForce was true, and some keywords are found, we get to run again from
-      // attachmentWorker.onmessage().
-      gAttachmentNotifier.redetectKeywords(aForce);
+      // We don't know keywords, so get them first. Redetect.
+      // We get to run again from attachmentWorker.onmessage handler.
+      gAttachmentNotifier.checkForAttachmentKeywords();
       return;
     }
   }
@@ -3269,7 +3265,7 @@ function manageAttachmentNotification(aForce = false) {
 
   // We have some keywords, however only pop up the notification if requested
   // to do so.
-  if (!aForce) {
+  if (!force) {
     return;
   }
 
@@ -4028,53 +4024,65 @@ async function updateKeyCertNotifications(emailsWithMissing) {
 /**
  * Returns whether the attachment notification should be suppressed regardless
  * of the state of keywords.
+ *
+ * @returns {boolean} true if notification should not be shown.
  */
 function attachmentNotificationSupressed() {
-  return (
+  return !!(
     gDisableAttachmentReminder ||
     gManualAttachmentReminder ||
     gAttachmentBucket.getRowCount()
   );
 }
 
-var attachmentWorker = new Worker("resource:///modules/AttachmentChecker.jsm");
+var attachmentWorker = new Worker(
+  "resource:///modules/AttachmentChecker.worker.js"
+);
 
 // The array of currently found keywords. Or null if keyword detection wasn't
 // run yet so we don't know.
 attachmentWorker.lastMessage = null;
 
-attachmentWorker.onerror = function (error) {
-  console.error("Attachment Notification Worker error!!! " + error.message);
-  throw error;
+attachmentWorker.onerror = function (event) {
+  console.error(`Attachment Worker error: ${event.message}`, event);
 };
 
 /**
  * Called when attachmentWorker finishes checking of the message for keywords.
  *
- * @param event    If defined, event.data contains an array of found keywords.
- * @param aManage  If set to true and we determine keywords have changed,
- *                 manage the notification.
- *                 If set to false, just store the new keyword list but do not
- *                 touch the notification. That effectively eats the
- *                 "keywords changed" event which usually shows the notification
- *                 if it was hidden. See manageAttachmentNotification().
+ * @param {Event} event - "message" event from the worker. event.data contains
+ *   an array of found keywords.
  */
-attachmentWorker.onmessage = function (event, aManage = true) {
+attachmentWorker.onmessage = function (event) {
   // Exit if keywords haven't changed.
   if (
-    !event ||
-    (attachmentWorker.lastMessage &&
-      event.data.toString() == attachmentWorker.lastMessage.toString())
+    attachmentWorker.lastMessage &&
+    event.data.toString() == attachmentWorker.lastMessage.toString()
   ) {
     return;
   }
-
-  const data = event ? event.data : [];
-  attachmentWorker.lastMessage = data.slice(0);
-  if (aManage) {
-    manageAttachmentNotification(true);
-  }
+  attachmentWorker.lastMessage = event.data.slice(0);
+  manageAttachmentNotification(true);
 };
+
+/**
+ * Find keywords.
+ *
+ * @param {string} data - Data to look in.
+ * @param {string} keywordsInCsv - Comma separated keywords to find.
+ * @returns {Promise<string[]>} a list of keywords.
+ */
+attachmentWorker.findAttachmentKeywords = (data, keywordsInCsv) =>
+  new Promise(resolve => {
+    attachmentWorker.addEventListener(
+      "message",
+      event => {
+        resolve(event.data);
+      },
+      { once: true }
+    );
+    attachmentWorker.postMessage([data, keywordsInCsv]);
+  });
 
 /**
  * Update attachment-related internal flags, UI, and commands.
@@ -8402,10 +8410,7 @@ async function RemoveAllAttachments() {
   // Ensure that attachment pane is shown before removing all attachments.
   toggleAttachmentPane("show");
 
-  if (!gAttachmentBucket.itemCount) {
-    return;
-  }
-
+  attachmentWorker.lastMessage = null;
   await RemoveAttachments(gAttachmentBucket.itemChildren);
 }
 
@@ -8413,7 +8418,7 @@ async function RemoveAllAttachments() {
  * Show or hide the attachment pane after updating its header bar information
  * (number and total file size of attachments) and tooltip.
  *
- * @param {boolean} aShowBucket - Show bucked or not.
+ * @param {boolean} aShowBucket - Show bucket or not.
  *   - true: show the attachment pane
  *   - false (or omitted): hide the attachment pane
  */
@@ -8467,10 +8472,6 @@ function updateAttachmentPane(aShowPane) {
 }
 
 async function RemoveSelectedAttachment() {
-  if (!gAttachmentBucket.selectedCount) {
-    return;
-  }
-
   await RemoveAttachments(gAttachmentBucket.selectedItems);
 }
 
@@ -8485,6 +8486,9 @@ async function RemoveSelectedAttachment() {
  * @param {DOMNode[]} items - AttachmentItems to be removed.
  */
 async function RemoveAttachments(items) {
+  if (!items.length) {
+    return; // Nothing to remove.
+  }
   // Remember the current focus index so we can try to restore it when done.
   const focusIndex = gAttachmentBucket.currentIndex;
 
@@ -10835,41 +10839,17 @@ var gAttachmentNotifier = {
   },
 
   /**
-   * Checks for new keywords synchronously and run the usual handler.
-   *
-   * @param aManage  Determines whether to manage the notification according to keywords found.
-   */
-  redetectKeywords(aManage) {
-    if (!this.enabled) {
-      return;
-    }
-
-    attachmentWorker.onmessage(
-      { data: this._checkForAttachmentKeywords(false) },
-      aManage
-    );
-  },
-
-  /**
    * Check if there are any keywords in the message.
    *
-   * @param async  Whether we should run the regex checker asynchronously or not.
-   *
-   * @returns If async is true, attachmentWorker.message is called with the array
-   *          of found keywords and this function returns null.
-   *          If it is false, the array is returned from this function immediately.
+   * @returns {Promise<string[]>} the matching keywords.
    */
-  _checkForAttachmentKeywords(async) {
+  async checkForAttachmentKeywords() {
     if (!this.enabled) {
-      return async ? null : [];
+      return [];
     }
 
     if (attachmentNotificationSupressed()) {
-      // If we know we don't need to show the notification,
-      // we can skip the expensive checking of keywords in the message.
-      // but mark it in the .lastMessage that the keywords are unknown.
-      attachmentWorker.lastMessage = null;
-      return async ? null : [];
+      return [];
     }
 
     const keywordsInCsv = Services.prefs.getComplexValue(
@@ -10961,13 +10941,10 @@ var gAttachmentNotifier = {
     ) {
       mailData = subject + " " + mailData;
     }
-
-    if (!async) {
-      return AttachmentChecker.getAttachmentKeywords(mailData, keywordsInCsv);
-    }
-
-    attachmentWorker.postMessage([mailData, keywordsInCsv]);
-    return null;
+    return await attachmentWorker.findAttachmentKeywords(
+      mailData,
+      keywordsInCsv
+    );
   },
 
   shutdown() {
@@ -10980,14 +10957,13 @@ var gAttachmentNotifier = {
   },
 
   event: {
-    notify(timer) {
-      // Only run the checker if the compose window is initialized
-      // and not shutting down.
-      if (gMsgCompose) {
-        // This runs the attachmentWorker asynchronously so if keywords are found
-        // manageAttachmentNotification is run from attachmentWorker.onmessage.
-        gAttachmentNotifier._checkForAttachmentKeywords(true);
+    async notify(timer) {
+      if (!gMsgCompose) {
+        return;
       }
+      // This runs the attachmentWorker asynchronously so if keywords are found
+      // manageAttachmentNotification is run from attachmentWorker.onmessage.
+      await gAttachmentNotifier.checkForAttachmentKeywords();
     },
   },
 

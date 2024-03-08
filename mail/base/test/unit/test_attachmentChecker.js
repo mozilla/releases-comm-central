@@ -1,50 +1,33 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * Test suite for the attachmentChecker class
- *
- * Currently tested:
- * - getAttachmentKeywords function.
+/**
+ * Test suite for the attachmentChecker.
  */
 
-// Globals
-
-var { AttachmentChecker } = ChromeUtils.import(
-  "resource:///modules/AttachmentChecker.jsm"
+var attachmentWorker = new Worker(
+  "resource:///modules/AttachmentChecker.worker.js"
 );
 
-/*
- * UTILITIES
- */
+attachmentWorker.findAttachmentKeywords = (data, keywordsInCsv) =>
+  new Promise(resolve => {
+    attachmentWorker.addEventListener(
+      "message",
+      event => {
+        resolve(event.data);
+      },
+      { once: true }
+    );
+    attachmentWorker.postMessage([data, keywordsInCsv]);
+  });
 
-function assert(aBeTrue, aWhy) {
-  if (!aBeTrue) {
-    do_throw(aWhy);
-  }
-}
-
-function assert_equal(aA, aB, aWhy) {
-  assert(
-    aA == aB,
-    aWhy +
-      " (" +
-      unescape(encodeURIComponent(aA)) +
-      " != " +
-      unescape(encodeURIComponent(aB)) +
-      ")."
+async function test_getAttachmentKeywords(desc, mailData, keywords, expected) {
+  const result = await attachmentWorker.findAttachmentKeywords(
+    mailData,
+    keywords
   );
-}
-
-/*
- * TESTS
- */
-
-function test_getAttachmentKeywords(desc, mailData, keywords, expected) {
-  const result = AttachmentChecker.getAttachmentKeywords(mailData, keywords);
-  assert_equal(result, expected, desc + " not equal!");
+  Assert.equal(result, expected, desc + " - result should be as expected");
 }
 
 var tests = [
@@ -106,16 +89,8 @@ var tests = [
   ],
 ];
 
-function run_test() {
-  do_test_pending();
-
-  for (var i in tests) {
-    if (typeof tests[i] == "function") {
-      tests[i]();
-    } else {
-      test_getAttachmentKeywords.apply(null, tests[i]);
-    }
+add_task(async function test_checker() {
+  for (const testData of tests) {
+    await test_getAttachmentKeywords(...testData);
   }
-
-  do_test_finished();
-}
+});
