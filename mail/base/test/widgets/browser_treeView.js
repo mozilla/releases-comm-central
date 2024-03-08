@@ -1766,6 +1766,212 @@ async function subtestExpandCollapse() {
 }
 
 /**
+ * Checks that expanding and collapsing scrolls the view to the right position.
+ * Twisties in the test file are styled as coloured squares: red for collapsed,
+ * green for expanded.
+ */
+add_task(async function testScrollWhenExpandCollapse() {
+  await runTestInSandbox(subtestScrollWhenExpandCollapse, "scroll");
+});
+
+async function subtestScrollWhenExpandCollapse() {
+  const doc = content.document;
+  const list = doc.getElementById("testTree");
+
+  const listener = {
+    reset() {
+      this.collapsedIndex = null;
+      this.expandedIndex = null;
+    },
+    handleEvent(event) {
+      if (event.type == "collapsed") {
+        this.collapsedIndex = event.detail;
+      } else if (event.type == "expanded") {
+        this.expandedIndex = event.detail;
+      }
+    },
+  };
+  list.addEventListener("collapsed", listener);
+  list.addEventListener("expanded", listener);
+
+  const selectHandler = {
+    seenEvent: null,
+    selectedAtEvent: null,
+
+    reset() {
+      this.seenEvent = null;
+      this.selectedAtEvent = null;
+    },
+    handleEvent(event) {
+      this.seenEvent = event;
+      this.selectedAtEvent = list.selectedIndex;
+    },
+  };
+
+  // Click the twisties of rows without children.
+
+  function performChange(id, expectedChange, changeCallback) {
+    listener.reset();
+    let row = doc.getElementById(id);
+    const before = row.classList.contains("collapsed");
+
+    changeCallback(row);
+
+    row = doc.getElementById(id);
+    if (expectedChange == "collapsed") {
+      Assert.ok(!before, `${id} was expanded`);
+      Assert.ok(row.classList.contains("collapsed"), `${id} collapsed`);
+      Assert.notEqual(
+        listener.collapsedIndex,
+        null,
+        `${id} fired 'collapse' event`
+      );
+      Assert.ok(!listener.expandedIndex, `${id} did not fire 'expand' event`);
+    } else if (expectedChange == "expanded") {
+      Assert.ok(before, `${id} was collapsed`);
+      Assert.ok(!row.classList.contains("collapsed"), `${id} expanded`);
+      Assert.ok(
+        !listener.collapsedIndex,
+        `${id} did not fire 'collapse' event`
+      );
+      Assert.notEqual(
+        listener.expandedIndex,
+        null,
+        `${id} fired 'expand' event`
+      );
+    } else {
+      Assert.equal(
+        row.classList.contains("collapsed"),
+        before,
+        `${id} state did not change`
+      );
+    }
+  }
+
+  function clickTwisty(id, expectedChange) {
+    info(`clicking the twisty on ${id}`);
+    performChange(id, expectedChange, row =>
+      EventUtils.synthesizeMouseAtCenter(
+        row.querySelector(".twisty"),
+        {},
+        content
+      )
+    );
+  }
+
+  // Test key presses.
+
+  function pressKey(id, key, expectedChange) {
+    info(`pressing ${key}`);
+    performChange(id, expectedChange, row => {
+      EventUtils.synthesizeKey(key, {}, content);
+    });
+  }
+
+  async function checkFirstVisibleRow(id) {
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
+    Assert.equal(list.getFirstVisibleIndex(), id, "is first visible row");
+  }
+
+  async function checkLastVisibleRow(id) {
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
+    Assert.equal(list.getLastVisibleIndex(), id, "is last visible row");
+  }
+
+  async function checkVisibleRow(id) {
+    await new Promise(resolve => content.requestAnimationFrame(resolve));
+    Assert.lessOrEqual(
+      list.getFirstVisibleIndex(),
+      id,
+      "is first visible row or above"
+    );
+    Assert.greaterOrEqual(
+      list.getLastVisibleIndex(),
+      id,
+      "is last visible id or below"
+    );
+  }
+
+  Assert.equal(
+    list.querySelectorAll("collapsed").length,
+    0,
+    "no rows are collapsed"
+  );
+  Assert.equal(list.view.rowCount, 30, "row count");
+
+  // Expanding/collapsing row with few children all fitting the screen should
+  // not scroll.
+
+  list.selectedIndex = 0;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  clickTwisty("row-3", "expanded");
+  await checkFirstVisibleRow(0);
+
+  clickTwisty("row-3", "collapsed");
+  await checkFirstVisibleRow(0);
+
+  list.selectedIndex = 2;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  pressKey("row-3", "VK_RIGHT", "expanded");
+  await checkFirstVisibleRow(0);
+
+  pressKey("row-3", "VK_LEFT", "collapsed");
+  await checkFirstVisibleRow(0);
+
+  // Expanding/collapsing row with many children not all fitting the screen
+  // should scroll the first row to the top.
+
+  list.selectedIndex = 0;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  clickTwisty("row-4", "expanded");
+  await checkFirstVisibleRow(3);
+
+  clickTwisty("row-4", "collapsed");
+  await checkVisibleRow(3);
+
+  list.selectedIndex = 3;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  pressKey("row-4", "VK_RIGHT", "expanded");
+  await checkFirstVisibleRow(3);
+
+  pressKey("row-4", "VK_LEFT", "collapsed");
+  await checkVisibleRow(3);
+
+  // Expanding a row near the bottom with few children should scroll just the
+  // last child into view.
+
+  pressKey("row-4", "VK_RIGHT", "expanded");
+  list.selectedIndex = 38;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  clickTwisty("row-9", "expanded");
+  await checkLastVisibleRow(43);
+
+  clickTwisty("row-9", "collapsed");
+  await checkVisibleRow(38);
+
+  list.selectedIndex = 0;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+  list.selectedIndex = 38;
+  await new Promise(resolve => content.requestAnimationFrame(resolve));
+
+  pressKey("row-9", "VK_RIGHT", "expanded");
+  checkLastVisibleRow(43);
+
+  pressKey("row-9", "VK_LEFT", "collapsed");
+  checkVisibleRow(38);
+
+  list.removeEventListener("collapsed", listener);
+  list.removeEventListener("expanded", listener);
+  list.removeEventListener("select", selectHandler);
+  doc.documentElement.dir = null;
+}
+
+/**
  * Checks that the row widget can be changed, redrawing the rows and
  * maintaining the selection.
  */
