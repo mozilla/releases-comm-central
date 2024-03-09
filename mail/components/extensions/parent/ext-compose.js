@@ -1069,7 +1069,7 @@ var afterSaveSendEventTracker = {
 
       let convertedMessages;
       if (listener.extension.messageManager) {
-        convertedMessages = messages.flatmap(cachedMsgHdr => {
+        convertedMessages = messages.flatMap(cachedMsgHdr => {
           const msg = listener.extension.messageManager.convert(cachedMsgHdr);
           return msg ? [msg] : [];
         });
