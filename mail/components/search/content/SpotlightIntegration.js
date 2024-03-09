@@ -3,10 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// SearchIntegration.jsm
-/* globals SearchIntegration, SearchSupport, Services */
+// This file gets loaded through Services.scriptloader.loadSubScript.
+// by SearchIntegration.sys.mjs.
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+/* globals SearchIntegration, SearchSupport */ // from SearchIntegration.sys.mjs
+
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 var MSG_DB_LARGE_COMMIT = 1;
 var gFileHeader =

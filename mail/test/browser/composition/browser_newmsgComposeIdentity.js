@@ -14,14 +14,17 @@ var {
   compose_window_ready,
   open_compose_new_mail,
   save_compose_message,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, get_special_folder, press_delete, select_click_row } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-  );
-var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
+var { click_menus_in_sequence, promise_new_window } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

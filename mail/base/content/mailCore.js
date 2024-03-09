@@ -820,8 +820,8 @@ function safeModeRestart() {
   );
   if (rv == 0) {
     Services.env.set("MOZ_SAFE_MODE_RESTART", "1");
-    const { MailUtils } = ChromeUtils.import(
-      "resource:///modules/MailUtils.jsm"
+    const { MailUtils } = ChromeUtils.importESModule(
+      "resource:///modules/MailUtils.sys.mjs"
     );
     MailUtils.restartApplication();
   }

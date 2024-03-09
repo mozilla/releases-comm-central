@@ -24,7 +24,9 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { UpdateUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/UpdateUtils.sys.mjs"
 );
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+var { TagUtils } = ChromeUtils.importESModule(
+  "resource:///modules/TagUtils.sys.mjs"
+);
 
 XPCOMUtils.defineLazyServiceGetters(this, {
   gHandlerService: [
@@ -207,8 +209,8 @@ var gGeneralPane = {
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
     let disableSearchUI = false;
-    const { SearchIntegration } = ChromeUtils.import(
-      "resource:///modules/SearchIntegration.jsm"
+    const { SearchIntegration } = ChromeUtils.importESModule(
+      "resource:///modules/SearchIntegration.sys.mjs"
     );
     if (SearchIntegration) {
       if (SearchIntegration.osVersionTooLow) {

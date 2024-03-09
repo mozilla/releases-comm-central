@@ -25,15 +25,15 @@ var {
   set_mc,
   set_pane_layout,
   toggle_message_pane,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
-var { SessionStoreManager } = ChromeUtils.import(
-  "resource:///modules/SessionStoreManager.jsm"
+var { SessionStoreManager } = ChromeUtils.importESModule(
+  "resource:///modules/SessionStoreManager.sys.mjs"
 );
 
 var folderA, folderB;

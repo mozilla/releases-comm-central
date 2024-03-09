@@ -9,11 +9,11 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
 export class MailLinkParent extends JSWindowActorParent {

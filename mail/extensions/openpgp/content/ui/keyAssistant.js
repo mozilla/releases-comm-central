@@ -15,17 +15,17 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
-  OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
-  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs",
+  OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.sys.mjs",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   // FIXME: using this creates a conflict with another file where this symbol
   // was imported with ChromeUtils instead of defined as lazy getter.
   // EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
 });
-var { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
+var { EnigmailWindows } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/windows.sys.mjs"
 );
 
 window.addEventListener("load", () => {

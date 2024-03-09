@@ -33,7 +33,7 @@ EXTRA_COMPONENTS += [
 
 EXTRA_JS_MODULES += [
     "AboutRedirector.sys.mjs",
-    "AppIdleManager.jsm",
+    "AppIdleManager.sys.mjs",
     "MailGlue.sys.mjs",
     "MessengerContentHandler.sys.mjs",
 ]

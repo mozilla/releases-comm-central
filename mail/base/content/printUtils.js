@@ -10,8 +10,8 @@ ChromeUtils.defineESModuleGetters(this, {
   SubDialogManager: "resource://gre/modules/SubDialog.sys.mjs",
 });
 
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
+var { MailE10SUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailE10SUtils.sys.mjs"
 );
 
 // Load PrintUtils lazily and modify it to suit.

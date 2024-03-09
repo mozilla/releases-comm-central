@@ -28,16 +28,18 @@ var {
   set_open_message_behavior,
   switch_tab,
   wait_for_message_display_completion,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { MailViewConstants } = ChromeUtils.import(
-  "resource:///modules/MailViewManager.jsm"
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
+var { MailViewConstants } = ChromeUtils.importESModule(
+  "resource:///modules/MailViewManager.sys.mjs"
 );
 
 // One folder's enough

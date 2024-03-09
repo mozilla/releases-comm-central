@@ -17,8 +17,8 @@ var {
   get_about_3pane,
   inboxFolder,
   make_message_sets_in_folders,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var about3Pane;

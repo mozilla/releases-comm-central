@@ -4,8 +4,8 @@
 
 "use strict";
 
-const { save_compose_message } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+const { save_compose_message } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
 const {
   open_message_from_file,
@@ -14,11 +14,11 @@ const {
   get_special_folder,
   select_click_row,
   open_selected_message,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.import(

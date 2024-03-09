@@ -17,7 +17,9 @@ var {
   open_compose_new_mail,
   save_compose_message,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var {
   be_in_folder,
   get_about_message,
@@ -25,15 +27,18 @@ var {
   make_message_sets_in_folders,
   press_delete,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
+var { get_notification, wait_for_notification_to_show } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  );
 
 var { click_menus_in_sequence, close_popup_sequence, promise_new_window } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

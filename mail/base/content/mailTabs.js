@@ -8,11 +8,14 @@
 
 /* globals contentProgress, statusFeedback */ // From mailWindow.js
 
+ChromeUtils.defineESModuleGetters(this, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.jsm",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
 });
 

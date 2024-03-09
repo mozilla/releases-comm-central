@@ -19,18 +19,20 @@ var {
   get_about_message,
   select_click_row,
   select_none,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var {
   close_compose_window,
   open_compose_with_forward,
   open_compose_with_reply,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
+var { MailE10SUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailE10SUtils.sys.mjs"
 );
 
 const aboutMessage = get_about_message();

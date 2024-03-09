@@ -4,18 +4,12 @@
 
 /* import-globals-from about3Pane.js */
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MessageTextFilter: "resource:///modules/QuickFilterManager.jsm",
-  SearchSpec: "resource:///modules/SearchSpec.jsm",
-  QuickFilterManager: "resource:///modules/QuickFilterManager.jsm",
-  QuickFilterSearchListener: "resource:///modules/QuickFilterManager.jsm",
-  QuickFilterState: "resource:///modules/QuickFilterManager.jsm",
-});
-
 ChromeUtils.defineESModuleGetters(this, {
+  MessageTextFilter: "resource:///modules/QuickFilterManager.sys.mjs",
+  QuickFilterManager: "resource:///modules/QuickFilterManager.sys.mjs",
+  QuickFilterSearchListener: "resource:///modules/QuickFilterManager.sys.mjs",
+  QuickFilterState: "resource:///modules/QuickFilterManager.sys.mjs",
+  SearchSpec: "resource:///modules/SearchSpec.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 

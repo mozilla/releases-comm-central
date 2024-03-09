@@ -13,16 +13,16 @@ var {
   get_account_tree_row,
   open_advanced_settings,
   remove_account,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { content_tab_e } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { content_tab_e } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 
 var gPopAccount, gOriginalAccountCount;

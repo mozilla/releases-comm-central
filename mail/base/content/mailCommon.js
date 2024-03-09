@@ -19,17 +19,19 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  ConversationOpener: "resource:///modules/ConversationOpener.sys.mjs",
+  DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
+
+  EnigmailPersistentCrypto:
+    "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
+
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  ConversationOpener: "resource:///modules/ConversationOpener.jsm",
-  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
-  EnigmailPersistentCrypto:
-    "chrome://openpgp/content/modules/persistentCrypto.jsm",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
 });
 

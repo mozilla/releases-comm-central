@@ -18,8 +18,8 @@ const { MailTelemetryForTests } = ChromeUtils.importESModule(
 );
 
 const { add_message_to_folder, msgGen, get_special_folder, create_folder } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"

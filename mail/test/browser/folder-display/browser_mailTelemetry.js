@@ -13,8 +13,8 @@ const {
   create_encrypted_openpgp_message,
   add_message_to_folder,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 const { SmimeUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/SmimeUtils.sys.mjs"

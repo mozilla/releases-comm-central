@@ -13,13 +13,19 @@ var { MailServices } = ChromeUtils.import(
 // Platform-specific includes
 var AboutSupportPlatform;
 if ("@mozilla.org/windows-registry-key;1" in Cc) {
-  const temp = ChromeUtils.import("resource:///modules/AboutSupportWin32.jsm");
+  const temp = ChromeUtils.importESModule(
+    "resource:///modules/AboutSupportWin32.sys.mjs"
+  );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else if ("nsILocalFileMac" in Ci) {
-  const temp = ChromeUtils.import("resource:///modules/AboutSupportMac.jsm");
+  const temp = ChromeUtils.importESModule(
+    "resource:///modules/AboutSupportMac.sys.mjs"
+  );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else {
-  const temp = ChromeUtils.import("resource:///modules/AboutSupportUnix.jsm");
+  const temp = ChromeUtils.importESModule(
+    "resource:///modules/AboutSupportUnix.sys.mjs"
+  );
   AboutSupportPlatform = temp.AboutSupportPlatform;
 }
 

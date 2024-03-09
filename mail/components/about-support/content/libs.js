@@ -10,8 +10,8 @@ var { OTRLibLoader } = ChromeUtils.importESModule(
   "resource:///modules/OTRLib.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
 });
 
 /**

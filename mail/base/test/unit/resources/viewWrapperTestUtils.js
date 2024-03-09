@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { DBViewWrapper, IDBViewWrapperListener } = ChromeUtils.import(
-  "resource:///modules/DBViewWrapper.jsm"
+var { DBViewWrapper, IDBViewWrapperListener } = ChromeUtils.importESModule(
+  "resource:///modules/DBViewWrapper.sys.mjs"
 );
-var { MailViewManager, MailViewConstants } = ChromeUtils.import(
-  "resource:///modules/MailViewManager.jsm"
+var { MailViewManager, MailViewConstants } = ChromeUtils.importESModule(
+  "resource:///modules/MailViewManager.sys.mjs"
 );
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"

@@ -15,7 +15,9 @@ const {
   open_compose_with_forward,
   open_compose_with_reply,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 const {
   be_in_folder,
   create_folder,
@@ -25,11 +27,11 @@ const {
   press_delete,
   right_click_on_row,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-const { click_menus_in_sequence } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+const { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 let gInbox;

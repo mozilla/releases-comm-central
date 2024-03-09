@@ -14,8 +14,8 @@ var {
   assert_folder_tree_view_row_count,
   be_in_folder,
   make_message_sets_in_folders,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

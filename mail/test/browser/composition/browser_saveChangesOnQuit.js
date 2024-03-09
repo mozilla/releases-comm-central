@@ -16,7 +16,9 @@ var {
   open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_reply,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var {
   add_message_to_folder,
   assert_selected_and_displayed,
@@ -26,17 +28,18 @@ var {
   get_about_message,
   get_special_folder,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PromptHelpers.jsm"
+var { gMockPromptService } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
 );
-var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { get_notification, wait_for_notification_to_show } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  );
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var CANCEL = 1;

@@ -14,16 +14,18 @@ const {
   get_about_message,
   get_special_folder,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 const { open_compose_new_mail, get_msg_source, setup_msg_contents } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
-const { EnigmailPersistentCrypto } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/persistentCrypto.jsm"
+const { EnigmailPersistentCrypto } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/persistentCrypto.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.import(

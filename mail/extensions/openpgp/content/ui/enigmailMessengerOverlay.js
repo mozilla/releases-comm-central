@@ -27,37 +27,44 @@ const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.jsm",
-  EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  EnigmailFixExchangeMsg: "chrome://openpgp/content/modules/fixExchangeMsg.jsm",
-  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
-  EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs",
+  EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
+  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
+  EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
+  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
+  EnigmailFixExchangeMsg:
+    "chrome://openpgp/content/modules/fixExchangeMsg.sys.mjs",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
+  EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.sys.mjs",
+  EnigmailKeyserverURIs:
+    "chrome://openpgp/content/modules/keyserverUris.sys.mjs",
+  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
+  EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
+
   EnigmailPersistentCrypto:
-    "chrome://openpgp/content/modules/persistentCrypto.jsm",
-  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
-  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
+    "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
+
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
+  EnigmailTrust: "chrome://openpgp/content/modules/trust.sys.mjs",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
+  KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
+});
+
+XPCOMUtils.defineLazyModuleGetters(this, {
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
-  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
 ChromeUtils.defineLazyGetter(this, "l10n", () => {

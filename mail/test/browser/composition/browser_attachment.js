@@ -15,7 +15,9 @@ var {
   open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_forward_as_attachments,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var {
   add_message_to_folder,
   be_in_folder,
@@ -23,11 +25,11 @@ var {
   create_message,
   select_click_row,
   wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_modal_dialog } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var messenger;

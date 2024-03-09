@@ -9,7 +9,9 @@
 "use strict";
 
 var { add_attachments, close_compose_window, open_compose_new_mail } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 
 requestLongerTimeout(3);
 

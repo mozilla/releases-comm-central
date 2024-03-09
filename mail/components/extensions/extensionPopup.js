@@ -11,8 +11,8 @@ var { BrowserUtils } = ChromeUtils.importESModule(
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
+var { MailE10SUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailE10SUtils.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

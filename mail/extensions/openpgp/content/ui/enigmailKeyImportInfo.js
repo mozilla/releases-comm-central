@@ -4,17 +4,17 @@
 
 "use strict";
 
-var { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
+var { EnigmailWindows } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/windows.sys.mjs"
 );
-var { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
+var { EnigmailKeyRing } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
+var { EnigmailDialog } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/dialog.sys.mjs"
 );
-var { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
+var { EnigmailData } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/data.sys.mjs"
 );
 
 window.addEventListener("load", onLoad);

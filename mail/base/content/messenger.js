@@ -23,7 +23,9 @@
 
 /* globals loadCalendarComponent */
 
-ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
+ChromeUtils.importESModule(
+  "resource:///modules/activity/activityModules.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -32,21 +34,21 @@ var { AppConstants } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   Color: "resource://gre/modules/Color.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  SessionStoreManager: "resource:///modules/SessionStoreManager.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
-  SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
 });
 
 ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
-  const { PopupNotifications } = ChromeUtils.import(
-    "resource:///modules/GlobalPopupNotifications.jsm"
+  const { PopupNotifications } = ChromeUtils.importESModule(
+    "resource:///modules/GlobalPopupNotifications.sys.mjs"
   );
   try {
     // Hide all notifications while the URL is being edited and the address bar
@@ -509,8 +511,8 @@ function showSystemIntegrationDialog() {
   const defaultAccount = MailServices.accounts.defaultAccount;
 
   // Load the search integration module.
-  const { SearchIntegration } = ChromeUtils.import(
-    "resource:///modules/SearchIntegration.jsm"
+  const { SearchIntegration } = ChromeUtils.importESModule(
+    "resource:///modules/SearchIntegration.sys.mjs"
   );
 
   // Show the default client dialog only if

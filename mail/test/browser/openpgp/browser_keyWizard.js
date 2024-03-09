@@ -12,14 +12,14 @@ const {
   click_account_tree_row,
   get_account_tree_row,
   promise_account_tree_load,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
 );
-var { open_content_tab_with_url } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { open_content_tab_with_url } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
-const { wait_for_frame_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+const { wait_for_frame_load } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -27,8 +27,8 @@ const { MailServices } = ChromeUtils.import(
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
 );
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 var gAccount;

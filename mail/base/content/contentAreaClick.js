@@ -11,8 +11,8 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-XPCOMUtils.defineLazyModuleGetters(this, {
-  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
 });
 XPCOMUtils.defineLazyPreferenceGetter(
   this,

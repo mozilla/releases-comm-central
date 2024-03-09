@@ -11,8 +11,8 @@ var {
   create_deleted_attachment,
   create_detached_attachment,
   create_enclosure_attachment,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -23,8 +23,8 @@ var {
   get_about_message,
   select_click_row,
   wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var aboutMessage = get_about_message();

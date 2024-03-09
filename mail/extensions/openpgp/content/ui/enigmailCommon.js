@@ -6,10 +6,12 @@
 
 "use strict";
 
-var { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
+var { EnigmailCore } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/core.sys.mjs"
 );
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+var { RNP } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/RNP.sys.mjs"
+);
 
 var l10nCommon = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 

@@ -20,11 +20,13 @@ var {
   enter_folder,
   expand_folder,
   get_about_3pane,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

@@ -8,23 +8,23 @@
 
 "use strict";
 
-const { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/RNP.jsm"
+const { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/RNP.sys.mjs"
 );
-const { OpenPGPMasterpass } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/masterpass.jsm"
+const { OpenPGPMasterpass } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/masterpass.sys.mjs"
 );
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { EnigmailConstants } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/constants.sys.mjs"
 );
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
+const { EnigmailKeyRing } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
 const { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 const keyDir = "../../../../../test/browser/openpgp/data/keys";

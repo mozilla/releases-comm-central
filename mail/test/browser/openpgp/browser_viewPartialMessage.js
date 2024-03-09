@@ -8,15 +8,16 @@
 
 "use strict";
 
-const { get_about_message, open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-const { get_notification_button, wait_for_notification_to_show } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+const { get_about_message, open_message_from_file } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { get_notification_button, wait_for_notification_to_show } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  );
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.import(

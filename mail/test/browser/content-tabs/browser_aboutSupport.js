@@ -4,8 +4,8 @@
 
 "use strict";
 
-var { close_compose_window, compose_window_ready } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
 var {
   assert_content_tab_element_hidden,
@@ -17,16 +17,17 @@ var {
   get_element_by_text,
   open_content_tab_with_click,
   promise_content_tab_element_display,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 
-var { close_tab } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { close_tab } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var { click_menus_in_sequence, promise_new_window } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 var warningText = new Map();
 

@@ -9,8 +9,8 @@
  * when opened.
  */
 
-var { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+var { open_compose_new_mail, setup_msg_contents } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
 
 var {
@@ -19,11 +19,11 @@ var {
   get_special_folder,
   right_click_on_row,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+var { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

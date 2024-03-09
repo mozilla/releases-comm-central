@@ -8,29 +8,32 @@
 
 "use strict";
 
-var { select_attachments } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+var { select_attachments } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
 );
-var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
-);
+var { gMockCloudfileManager, MockCloudfileAccount } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+  );
 var {
   add_attachments,
   add_cloud_attachments,
   close_compose_window,
   open_compose_new_mail,
   delete_attachment,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var {
   assert_notification_displayed,
   close_notification,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PromptHelpers.jsm"
+var { gMockPromptService } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

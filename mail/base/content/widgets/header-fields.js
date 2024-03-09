@@ -10,21 +10,11 @@
   );
 
   const lazy = {};
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "DisplayNameUtils",
-    "resource:///modules/DisplayNameUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "TagUtils",
-    "resource:///modules/TagUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "MailUtils",
-    "resource:///modules/MailUtils.jsm"
-  );
+  ChromeUtils.defineESModuleGetters(lazy, {
+    DisplayNameUtils: "resource:///modules/DisplayNameUtils.sys.mjs",
+    MailUtils: "resource:///modules/MailUtils.sys.mjs",
+    TagUtils: "resource:///modules/TagUtils.sys.mjs",
+  });
   const { openUILink } = ChromeUtils.importESModule(
     "resource:///modules/LinkHelper.sys.mjs"
   );

@@ -6,9 +6,10 @@
  * Test link previews.
  */
 
-var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+var { close_compose_window, open_compose_new_mail } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/composition/html/linkpreview.html";

@@ -8,8 +8,8 @@
 
 "use strict";
 
-var { open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { open_message_from_file } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 async function check_eml_window_title(subject, eml) {

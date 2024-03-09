@@ -10,8 +10,8 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
 });
 
 var gDBView;

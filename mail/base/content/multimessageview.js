@@ -10,17 +10,17 @@ var { MailServices } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  DisplayNameUtils: "resource:///modules/DisplayNameUtils.jsm",
   Gloda: "resource:///modules/gloda/Gloda.jsm",
   makeFriendlyDateAgo: "resource:///modules/TemplateUtils.jsm",
-  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
   mimeMsgToContentSnippetAndMeta: "resource:///modules/gloda/GlodaContent.jsm",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
   PluralStringFormatter: "resource:///modules/TemplateUtils.jsm",
-  TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(this, {
+  DisplayNameUtils: "resource:///modules/DisplayNameUtils.sys.mjs",
+  MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
+  TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });

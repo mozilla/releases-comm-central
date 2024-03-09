@@ -4,17 +4,19 @@
 
 "use strict";
 
-var { close_compose_window, compose_window_ready } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
-var { open_content_tab_with_url } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { open_content_tab_with_url } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
-var { input_value } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+var { input_value } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
 var { click_menus_in_sequence, promise_modal_dialog, promise_new_window } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 var gCwc;
 var gNewTab;

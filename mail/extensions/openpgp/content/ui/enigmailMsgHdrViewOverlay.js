@@ -14,20 +14,20 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
-  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
-  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
+  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
+  EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
+  EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 
 Enigmail.hdrView = {

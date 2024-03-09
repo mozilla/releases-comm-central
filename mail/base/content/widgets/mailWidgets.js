@@ -1,7 +1,6 @@
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../components/compose/content/addressingWidgetOverlay.js */
 /* import-globals-from ../../../components/compose/content/MsgComposeCommands.js */
@@ -16,27 +15,11 @@
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const LazyModules = {};
-
+  const lazy = {};
   ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "DBViewWrapper",
-    "resource:///modules/DBViewWrapper.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "MailUtils",
-    "resource:///modules/MailUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
+    lazy,
     "MimeParser",
     "resource:///modules/mimeParser.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "TagUtils",
-    "resource:///modules/TagUtils.jsm"
   );
 
   /**
@@ -1139,9 +1122,9 @@
      */
     async updatePillStatus() {
       const isValid = this.isValidAddress(this.emailAddress);
-      const listNames = LazyModules.MimeParser.parseHeaderField(
+      const listNames = lazy.MimeParser.parseHeaderField(
         this.fullAddress,
-        LazyModules.MimeParser.HEADER_ADDRESS
+        lazy.MimeParser.HEADER_ADDRESS
       );
 
       if (listNames.length > 0) {
@@ -1254,7 +1237,7 @@
         // Disable inbuilt autocomplete on blur to handle it with our handlers.
         input._dontBlur = true;
 
-        setupAutocompleteInput(input);
+        this.#setupAutocompleteInput(input);
 
         input.addEventListener("keypress", event => {
           // Ctrl+Shift+Tab is handled by moveFocusToNeighbouringArea.
@@ -1601,7 +1584,7 @@
         // Disable the inbuilt autocomplete on blur as we handle it below.
         input._dontBlur = true;
 
-        setupAutocompleteInput(input);
+        this.#setupAutocompleteInput(input);
 
         // Handle keydown event in autocomplete address input of row with pills.
         // input.onBeforeHandleKeyDown() gets called by the toolkit autocomplete
@@ -1643,6 +1626,30 @@
       row.dataset.showSelfMenuitem = showRowMenuItem.id;
 
       return { row, showRowMenuItem };
+    }
+
+    /**
+     * Set up autocomplete search parameters for address inputs of inbuilt headers.
+     *
+     * @param {Element} input - The address input of an inbuilt header field.
+     */
+    #setupAutocompleteInput(input) {
+      const params = JSON.parse(input.getAttribute("autocompletesearchparam"));
+      params.type = input.closest(".address-row").dataset.recipienttype;
+      input.setAttribute("autocompletesearchparam", JSON.stringify(params));
+
+      // This method overrides the autocomplete binding's openPopup (essentially
+      // duplicating the logic from the autocomplete popup binding's
+      // openAutocompletePopup method), modifying it so that the popup is aligned
+      // and sized based on the parentNode of the input field.
+      input.openPopup = () => {
+        if (input.focused) {
+          input.popup.openAutocompletePopup(
+            input.nsIAutocompleteInput,
+            input.closest(".address-container")
+          );
+        }
+      };
     }
 
     /**

@@ -10,8 +10,8 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
+var { cloudFileAccounts } = ChromeUtils.importESModule(
+  "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["File", "FileReader"]);

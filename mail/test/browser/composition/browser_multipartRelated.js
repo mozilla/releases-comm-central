@@ -9,14 +9,17 @@
 "use strict";
 
 var { close_compose_window, open_compose_new_mail, save_compose_message } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, get_special_folder, press_delete, select_click_row } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
   );
-var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
+var { click_menus_in_sequence, promise_modal_dialog } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

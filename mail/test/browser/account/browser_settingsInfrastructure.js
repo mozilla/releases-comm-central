@@ -13,11 +13,11 @@
 "use strict";
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
-var { FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

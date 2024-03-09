@@ -15,10 +15,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 
 var gSigKeyId = null;

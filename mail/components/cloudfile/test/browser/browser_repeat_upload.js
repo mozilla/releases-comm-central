@@ -4,8 +4,8 @@
 
 /* import-globals-from ../../../../base/content/mailWindowOverlay.js */
 
-const { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
+const { cloudFileAccounts } = ChromeUtils.importESModule(
+  "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
 const ICON_URL = getRootDirectory(gTestPath) + "files/icon.svg";

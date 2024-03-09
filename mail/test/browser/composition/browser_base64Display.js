@@ -8,8 +8,8 @@
 
 "use strict";
 
-var { get_about_message, open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 add_task(async function test_base64_display() {

@@ -15,8 +15,8 @@ var {
   create_folder,
   focus_thread_tree,
   make_message_sets_in_folders,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var {
   assert_constraints_expressed,
@@ -26,8 +26,8 @@ var {
   toggle_boolean_constraints,
   toggle_quick_filter_bar,
   cleanup_qfb_button,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.sys.mjs"
 );
 
 var folder;

@@ -15,18 +15,20 @@ var {
   open_compose_new_mail,
   save_compose_message,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var {
   be_in_folder,
   get_about_message,
   get_special_folder,
   press_delete,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { delete_all_existing } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+var { delete_all_existing } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
 var {
   assert_notification_displayed,
@@ -35,15 +37,17 @@ var {
   get_notification_button,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
 );
 var {
   click_menus_in_sequence,
   promise_modal_dialog,
   promise_new_window,
   wait_for_window_focused,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

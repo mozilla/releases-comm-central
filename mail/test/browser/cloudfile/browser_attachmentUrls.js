@@ -8,12 +8,13 @@
 
 "use strict";
 
-var { select_attachments } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+var { select_attachments } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
 );
-var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
-);
+var { gMockCloudfileManager, MockCloudfileAccount } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+  );
 var {
   add_cloud_attachments,
   convert_selected_to_cloud_attachment,
@@ -25,9 +26,13 @@ var {
   open_compose_with_forward,
   open_compose_with_reply,
   type_in_composer,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 var { assert_next_nodes, assert_previous_nodes, promise_element } =
-  ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/DOMHelpers.sys.mjs"
+  );
 var {
   add_message_to_folder,
   assert_selected_and_displayed,
@@ -37,8 +42,8 @@ var {
   get_special_folder,
 
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

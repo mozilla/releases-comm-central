@@ -15,7 +15,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+var { TagUtils } = ChromeUtils.importESModule(
+  "resource:///modules/TagUtils.sys.mjs"
+);
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"

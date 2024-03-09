@@ -7,7 +7,9 @@
  */
 
 var { close_compose_window, open_compose_new_mail, FormatHelper } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 
 add_task(async function test_font_size() {
   const win = await open_compose_new_mail();

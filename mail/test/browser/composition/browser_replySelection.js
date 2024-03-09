@@ -8,14 +8,15 @@
 
 "use strict";
 
-var { close_compose_window, open_compose_with_reply } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+var { close_compose_window, open_compose_with_reply } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
+var { get_about_message, open_message_from_file } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { get_about_message, open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { click_menus_in_sequence, close_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 add_task(async function test_reply_w_selection_direct() {

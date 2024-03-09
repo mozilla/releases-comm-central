@@ -4,8 +4,8 @@
 
 /* globals MailServices, MailUtils */
 
-var { DisplayNameUtils } = ChromeUtils.import(
-  "resource:///modules/DisplayNameUtils.jsm"
+var { DisplayNameUtils } = ChromeUtils.importESModule(
+  "resource:///modules/DisplayNameUtils.sys.mjs"
 );
 var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"

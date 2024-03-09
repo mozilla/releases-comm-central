@@ -10,8 +10,8 @@
 "use strict";
 
 var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 
 function getMsgBodyTxt(msgc) {

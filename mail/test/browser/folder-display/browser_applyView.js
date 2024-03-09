@@ -8,11 +8,12 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, get_about_3pane } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { click_menus_in_sequence } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { be_in_folder, create_folder, get_about_3pane } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
+var { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 // These are for the reset/apply to other/apply to other+child tests.

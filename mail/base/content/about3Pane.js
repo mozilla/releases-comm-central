@@ -40,7 +40,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
+  TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
@@ -49,10 +52,7 @@ ChromeUtils.defineESModuleGetters(this, {
 XPCOMUtils.defineLazyModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
-  TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(

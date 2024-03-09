@@ -4,11 +4,11 @@
 
 "use strict";
 
-var { openAccountSetup } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+var { openAccountSetup } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
 );
-var { input_value, delete_all_existing } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+var { input_value, delete_all_existing } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
 
 var { cal } = ChromeUtils.importESModule(

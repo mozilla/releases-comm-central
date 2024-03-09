@@ -12,50 +12,50 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
+var { EnigmailCore } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/core.sys.mjs"
 );
-var { EnigmailStreams } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/streams.jsm"
+var { EnigmailStreams } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/streams.sys.mjs"
 );
-var { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
+var { EnigmailFuncs } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/funcs.sys.mjs"
 );
-var { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
+var { EnigmailWindows } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/windows.sys.mjs"
 );
-var { EnigmailKeyServer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserver.jsm"
+var { EnigmailKeyServer } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyserver.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
 );
-var { KeyLookupHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+var { KeyLookupHelper } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs"
 );
-var { EnigmailTrust } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/trust.jsm"
+var { EnigmailTrust } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/trust.sys.mjs"
 );
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
+var { PgpSqliteDb2 } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
-var { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+var { EnigmailLog } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/log.sys.mjs"
 );
-var { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
+var { EnigmailKeyRing } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
+var { EnigmailKey } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/key.sys.mjs"
 );
-var { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+var { EnigmailConstants } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/constants.sys.mjs"
 );
-var { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
+var { EnigmailDialog } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/dialog.sys.mjs"
 );
-var { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
+var { EnigmailKeyserverURIs } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyserverUris.sys.mjs"
 );
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
@@ -63,8 +63,8 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 );
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  RNP: "chrome://openpgp/content/modules/RNP.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 
 const ENIG_KEY_EXPIRED = "e";

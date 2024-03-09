@@ -8,8 +8,8 @@
 /* globals goDoCommand */ // From globalOverlay.js
 
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { DisplayNameUtils } = ChromeUtils.import(
-  "resource:///modules/DisplayNameUtils.jsm"
+var { DisplayNameUtils } = ChromeUtils.importESModule(
+  "resource:///modules/DisplayNameUtils.sys.mjs"
 );
 
 // Temporarily prevent repeated deletion key events in address rows or subject.

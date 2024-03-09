@@ -27,8 +27,8 @@ var {
   switch_tab,
   wait_for_all_messages_to_load,
   wait_for_message_display_completion,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var {
   assert_search_window_folder_displayed,
@@ -36,11 +36,11 @@ var {
   assert_messages_in_search_view,
   select_click_search_row,
   select_shift_click_search_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/SearchWindowHelpers.sys.mjs"
 );
-var { promise_modal_dialog, promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_modal_dialog, promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var folder, setFooBar;

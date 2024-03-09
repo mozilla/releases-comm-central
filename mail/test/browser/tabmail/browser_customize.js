@@ -8,16 +8,18 @@
 
 "use strict";
 
-const { close_popup, wait_for_popup_to_open } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+const { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
-const { click_through_appmenu } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+const { click_through_appmenu } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 const { promise_element_visible, promise_element_invisible } =
-  ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/DOMHelpers.sys.mjs"
+  );
 
 add_setup(function () {
   Services.prefs.setBoolPref("mail.tabs.autoHide", false);

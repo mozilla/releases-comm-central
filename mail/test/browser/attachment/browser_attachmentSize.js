@@ -12,8 +12,8 @@ var {
   create_body_part,
   create_deleted_attachment,
   create_detached_attachment,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -23,8 +23,8 @@ var {
   get_about_message,
   msgGen,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.importESModule(

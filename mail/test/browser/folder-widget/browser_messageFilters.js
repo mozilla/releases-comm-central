@@ -8,16 +8,17 @@
 
 "use strict";
 
-var { create_ldap_address_book } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+var { create_ldap_address_book } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
 );
 var { be_in_folder, create_folder, make_message_sets_in_folders } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
-var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NNTPHelpers.jsm"
-);
+var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/NNTPHelpers.sys.mjs"
+  );
 
 var {
   click_menus_in_sequence,
@@ -25,10 +26,12 @@ var {
   promise_new_window,
   wait_for_existing_window,
   wait_for_window_focused,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+);
 
-var { gMockPromptService } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PromptHelpers.jsm"
+var { gMockPromptService } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

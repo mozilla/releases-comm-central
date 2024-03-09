@@ -14,9 +14,11 @@ var {
   open_compose_new_mail,
   save_compose_message,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { CloudFileTestProvider } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
+var { CloudFileTestProvider } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
 );
 var {
   be_in_folder,
@@ -24,14 +26,15 @@ var {
   get_about_message,
   press_delete,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { get_notification, wait_for_notification_to_show } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  );
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

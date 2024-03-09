@@ -4,10 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
-    EXTRA_JS_MODULES += ["AboutSupportWin32.jsm"]
+    EXTRA_JS_MODULES += ["AboutSupportWin32.sys.mjs"]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    EXTRA_JS_MODULES += ["AboutSupportMac.jsm"]
+    EXTRA_JS_MODULES += ["AboutSupportMac.sys.mjs"]
 else:
-    EXTRA_JS_MODULES += ["AboutSupportUnix.jsm"]
+    EXTRA_JS_MODULES += ["AboutSupportUnix.sys.mjs"]
 
 JAR_MANIFESTS += ["jar.mn"]

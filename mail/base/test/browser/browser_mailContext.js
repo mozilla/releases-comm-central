@@ -8,8 +8,8 @@ requestLongerTimeout(2);
  * Tests that items on the mail context menu are correctly shown in context.
  */
 
-var { ConversationOpener } = ChromeUtils.import(
-  "resource:///modules/ConversationOpener.jsm"
+var { ConversationOpener } = ChromeUtils.importESModule(
+  "resource:///modules/ConversationOpener.sys.mjs"
 );
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { GlodaIndexer } = ChromeUtils.import(
@@ -24,7 +24,9 @@ var { MailConsts } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

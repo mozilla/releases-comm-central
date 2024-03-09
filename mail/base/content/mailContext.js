@@ -22,13 +22,16 @@ var { openLinkExternally, openWebSearch } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
+  TagUtils: "resource:///modules/TagUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   calendarDeactivator:
     "resource:///modules/calendar/calCalendarDeactivator.jsm",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  PhishingDetector: "resource:///modules/PhishingDetector.jsm",
-  TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
 /**

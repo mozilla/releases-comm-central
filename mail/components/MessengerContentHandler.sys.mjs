@@ -11,12 +11,12 @@ const { MailServices } = ChromeUtils.import(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
@@ -54,8 +54,8 @@ function handleIndexerResult(aFile) {
 
   // Use the search integration module to convert the indexer result into a
   // message header
-  const { SearchIntegration } = ChromeUtils.import(
-    "resource:///modules/SearchIntegration.jsm"
+  const { SearchIntegration } = ChromeUtils.importESModule(
+    "resource:///modules/SearchIntegration.sys.mjs"
   );
   const msgHdr = SearchIntegration.handleResult(aFile);
 

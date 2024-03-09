@@ -10,14 +10,14 @@
 "use strict";
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
-var { input_value } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+var { input_value } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
-var { gMockPromptService } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PromptHelpers.jsm"
+var { gMockPromptService } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

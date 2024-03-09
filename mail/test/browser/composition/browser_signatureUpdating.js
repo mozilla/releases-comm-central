@@ -15,10 +15,12 @@
 "use strict";
 
 var { close_compose_window, open_compose_new_mail, setup_msg_contents } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 var { be_in_folder, FAKE_SERVER_HOSTNAME, get_special_folder } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 
 var { MailServices } = ChromeUtils.import(

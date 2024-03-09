@@ -8,8 +8,8 @@
 const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
-const { gMockCloudfileManager } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+const { gMockCloudfileManager } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
 );
 const {
   add_attachments,
@@ -17,12 +17,14 @@ const {
   close_compose_window,
   open_compose_new_mail,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-const { wait_for_notification_to_stop } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
-const { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
+const { wait_for_notification_to_stop } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+);
+const { cloudFileAccounts } = ChromeUtils.importESModule(
+  "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

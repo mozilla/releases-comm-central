@@ -9,16 +9,16 @@
 "use strict";
 
 var { click_account_tree_row, get_account_tree_row, openAccountSettings } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 var gPopAccount, gOriginalAccountCount, gIdentitiesWin;

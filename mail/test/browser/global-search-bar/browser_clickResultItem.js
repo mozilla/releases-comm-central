@@ -9,8 +9,8 @@ const {
   create_folder,
   inboxFolder,
   make_message_sets_in_folders,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 const { GlodaMsgIndexer } = ChromeUtils.import(

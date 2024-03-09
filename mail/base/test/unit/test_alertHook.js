@@ -7,8 +7,8 @@
  * prompting or not.
  */
 
-var { alertHook } = ChromeUtils.import(
-  "resource:///modules/activity/alertHook.jsm"
+var { alertHook } = ChromeUtils.importESModule(
+  "resource:///modules/activity/alertHook.sys.mjs"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

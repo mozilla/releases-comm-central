@@ -14,11 +14,11 @@ var {
   ensure_no_card_exists,
   get_cards_in_all_address_books_for_email,
   get_mailing_list_from_address_book,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
 );
-var { promise_content_tab_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { promise_content_tab_load } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -34,8 +34,8 @@ var {
   select_none,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 const about3Pane = get_about_3pane();

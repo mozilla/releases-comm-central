@@ -8,15 +8,15 @@ var {
   assert_folders_selected_and_displayed,
   create_folder,
   select_click_folder,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var {
   assert_search_window_folder_displayed,
   close_search_window,
   open_search_window_from_context_menu,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/SearchWindowHelpers.sys.mjs"
 );
 
 var folderA, folderB;

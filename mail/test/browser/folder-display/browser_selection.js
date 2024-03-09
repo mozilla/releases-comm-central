@@ -28,8 +28,8 @@ var {
   select_shift_click_row,
   switch_tab,
   wait_for_blank_content_pane,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 // let us have 2 folders

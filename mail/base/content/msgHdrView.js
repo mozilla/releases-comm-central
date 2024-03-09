@@ -31,17 +31,18 @@ var { MailServices } = ChromeUtils.import(
 
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   calendarDeactivator:
     "resource:///modules/calendar/calCalendarDeactivator.jsm",
+
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  MessageArchiver: "resource:///modules/MessageArchiver.jsm",
-  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetter(

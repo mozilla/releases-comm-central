@@ -10,14 +10,14 @@
 
 "use strict";
 
-var { NNTP_PORT, setupLocalServer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NNTPHelpers.jsm"
+var { NNTP_PORT, setupLocalServer } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/NNTPHelpers.sys.mjs"
 );
-var { promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_modal_dialog } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
-var { click_menus_in_sequence } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { click_menus_in_sequence } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

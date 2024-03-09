@@ -5,15 +5,15 @@
 "use strict";
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
-var { close_popup, wait_for_popup_to_open } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
-var { content_tab_e } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { content_tab_e } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

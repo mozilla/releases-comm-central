@@ -7,11 +7,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  QuickFilterManager: "resource:///modules/QuickFilterManager.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(this, {
+  QuickFilterManager: "resource:///modules/QuickFilterManager.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 

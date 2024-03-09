@@ -5,9 +5,10 @@
 /**
  * Test the message header customization features.
  */
-var { be_in_folder, get_about_message, select_click_row } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { be_in_folder, get_about_message, select_click_row } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
 
 const aboutMessage = get_about_message();
 

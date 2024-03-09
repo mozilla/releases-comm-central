@@ -16,12 +16,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 XPCOMUtils.defineLazyModuleGetters(this, {
-  appIdleManager: "resource:///modules/AppIdleManager.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
 });
 
 ChromeUtils.defineESModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
+  appIdleManager: "resource:///modules/AppIdleManager.sys.mjs",
 });
 
 XPCOMUtils.defineLazyScriptGetter(

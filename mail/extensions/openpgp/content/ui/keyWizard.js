@@ -10,29 +10,29 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
 );
-var { OpenPGPMasterpass } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/masterpass.jsm"
+var { OpenPGPMasterpass } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/masterpass.sys.mjs"
 );
-var { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
+var { EnigmailDialog } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/dialog.sys.mjs"
 );
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
+var { EnigmailKey } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/key.sys.mjs"
 );
-var { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
+var { EnigmailKeyRing } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
+var { EnigmailWindows } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/windows.sys.mjs"
 );
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
+var { PgpSqliteDb2 } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
-var { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
+var { EnigmailCore } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/core.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {

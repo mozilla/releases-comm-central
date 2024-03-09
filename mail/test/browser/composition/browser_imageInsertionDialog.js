@@ -8,16 +8,18 @@
 
 "use strict";
 
-var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
-var { input_value } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+var { close_compose_window, open_compose_new_mail } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
+var { input_value } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
 
-var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var { click_menus_in_sequence, promise_modal_dialog } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 add_task(async function test_image_insertion_dialog_persist() {
   const cwc = await open_compose_new_mail();

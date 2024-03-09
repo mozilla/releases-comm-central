@@ -6,11 +6,12 @@
  * Tests ExtensionSupport.sys.mjs functions.
  */
 
-var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { close_compose_window, open_compose_new_mail } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var { ExtensionSupport } = ChromeUtils.importESModule(

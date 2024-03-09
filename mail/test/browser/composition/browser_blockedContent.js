@@ -9,13 +9,15 @@
 "use strict";
 
 var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, get_special_folder, press_delete, select_click_row } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
   );
-var { wait_for_notification_to_show } = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
+var { wait_for_notification_to_show } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
 );
 
 var gOutboxFolder;

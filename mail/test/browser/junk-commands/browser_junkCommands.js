@@ -11,11 +11,13 @@ var {
   select_click_row,
   select_none,
   select_shift_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var { delete_mail_marked_as_junk, mark_selected_messages_as_junk } =
-  ChromeUtils.import("resource://testing-common/mozmill/JunkHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/JunkHelpers.sys.mjs"
+  );
 
 // One folder's enough
 var folder = null;

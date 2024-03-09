@@ -11,7 +11,9 @@
 "use strict";
 
 var { close_compose_window, get_msg_source, open_compose_with_reply } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 var {
   be_in_folder,
   get_special_folder,
@@ -21,8 +23,8 @@ var {
   smimeUtils_ensureNSS,
   smimeUtils_loadCertificateAndKey,
   smimeUtils_loadPEMCertificate,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var gDrafts;

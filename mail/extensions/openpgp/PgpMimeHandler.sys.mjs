@@ -7,16 +7,14 @@
  *  implemented as an XPCOM object
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.jsm",
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
+  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
+  EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.sys.mjs",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
 });
 
 ////////////////////////////////////////////////////////////////////

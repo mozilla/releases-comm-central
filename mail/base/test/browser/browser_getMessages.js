@@ -16,7 +16,9 @@ requestLongerTimeout(2);
 const { MailConsts } = ChromeUtils.importESModule(
   "resource:///modules/MailConsts.sys.mjs"
 );
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

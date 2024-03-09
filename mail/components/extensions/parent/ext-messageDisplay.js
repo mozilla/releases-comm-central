@@ -5,7 +5,9 @@
 var { MailConsts } = ChromeUtils.importESModule(
   "resource:///modules/MailConsts.sys.mjs"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { getMsgStreamUrl } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
 );

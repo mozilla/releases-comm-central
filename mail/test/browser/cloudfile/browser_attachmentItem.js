@@ -8,25 +8,28 @@
 
 "use strict";
 
-var { select_attachments } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+var { select_attachments } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
 );
-var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
-);
+var { gMockCloudfileManager, MockCloudfileAccount } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+  );
 var {
   add_cloud_attachments,
   convert_selected_to_cloud_attachment,
   close_compose_window,
   open_compose_new_mail,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { close_popup } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
+var { close_popup } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 
-var { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
+var { cloudFileAccounts } = ChromeUtils.importESModule(
+  "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";

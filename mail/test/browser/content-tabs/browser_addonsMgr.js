@@ -4,12 +4,13 @@
 
 "use strict";
 
-var { promise_content_tab_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { promise_content_tab_load } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
-var { click_through_appmenu, promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var { click_through_appmenu, promise_modal_dialog } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
 
 add_task(async function test_open_addons_with_url() {
   window.openAddonsMgr("addons://list/theme");

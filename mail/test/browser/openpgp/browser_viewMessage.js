@@ -21,14 +21,15 @@ const {
   //  smimeUtils_ensureNSS,
   //  smimeUtils_loadCertificateAndKey,
   //  smimeUtils_loadPEMCertificate,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-const { promise_new_window, wait_for_window_focused } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { promise_new_window, wait_for_window_focused } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  );
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

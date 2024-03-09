@@ -12,13 +12,13 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = "activity"
 
 EXTRA_JS_MODULES.activity += [
-    "modules/activityModules.jsm",
-    "modules/alertHook.jsm",
-    "modules/autosync.jsm",
-    "modules/glodaIndexer.jsm",
-    "modules/moveCopy.jsm",
-    "modules/pop3Download.jsm",
-    "modules/sendLater.jsm",
+    "modules/activityModules.sys.mjs",
+    "modules/alertHook.sys.mjs",
+    "modules/autosync.sys.mjs",
+    "modules/glodaIndexer.sys.mjs",
+    "modules/moveCopy.sys.mjs",
+    "modules/pop3Download.sys.mjs",
+    "modules/sendLater.sys.mjs",
 ]
 
 EXTRA_JS_MODULES += [

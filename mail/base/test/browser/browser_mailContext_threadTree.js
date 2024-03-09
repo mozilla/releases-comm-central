@@ -7,8 +7,8 @@
  * thread tree.
  */
 
-const { ConversationOpener } = ChromeUtils.import(
-  "resource:///modules/ConversationOpener.jsm"
+const { ConversationOpener } = ChromeUtils.importESModule(
+  "resource:///modules/ConversationOpener.sys.mjs"
 );
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

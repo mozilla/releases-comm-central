@@ -7,29 +7,29 @@
 var { CommonUtils } = ChromeUtils.importESModule(
   "resource://services-common/utils.sys.mjs"
 );
-var { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
+var { EnigmailFuncs } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/funcs.sys.mjs"
 );
-var { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+var { EnigmailLog } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/log.sys.mjs"
 );
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
+var { EnigmailKey } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/key.sys.mjs"
 );
-var { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
+var { EnigmailKeyRing } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
+var { PgpSqliteDb2 } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
 );
-var { KeyLookupHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+var { KeyLookupHelper } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs"
 );
-var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/RNP.jsm"
+var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/RNP.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {

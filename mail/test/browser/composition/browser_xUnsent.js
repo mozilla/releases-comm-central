@@ -8,7 +8,9 @@
 
 "use strict";
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 function waitForComposeWindow() {
   return BrowserTestUtils.domWindowOpened(null, async win => {

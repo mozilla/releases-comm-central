@@ -14,11 +14,11 @@ const {
   get_about_message,
   get_special_folder,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
@@ -27,8 +27,8 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { EnigmailPersistentCrypto } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/persistentCrypto.jsm"
+const { EnigmailPersistentCrypto } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/persistentCrypto.sys.mjs"
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";

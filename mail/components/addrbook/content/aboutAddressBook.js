@@ -26,6 +26,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -39,7 +40,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
   ICAL: "resource:///modules/calendar/Ical.jsm",
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
 ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(

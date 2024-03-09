@@ -37,11 +37,9 @@
         "chrome://messenger/locale/messenger.properties"
       );
 
-      ChromeUtils.defineModuleGetter(
-        this,
-        "MailUtils",
-        "resource:///modules/MailUtils.jsm"
-      );
+      ChromeUtils.defineESModuleGetters(this, {
+        MailUtils: "resource:///modules/MailUtils.sys.mjs",
+      });
     }
 
     hasMessages() {

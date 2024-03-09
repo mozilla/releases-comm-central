@@ -12,11 +12,15 @@
 
 "use strict";
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
-var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+var { TagUtils } = ChromeUtils.importESModule(
+  "resource:///modules/TagUtils.sys.mjs"
+);
 
 var messenger;
 var msgWindow;

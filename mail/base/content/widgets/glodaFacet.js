@@ -9,7 +9,9 @@
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+  const { TagUtils } = ChromeUtils.importESModule(
+    "resource:///modules/TagUtils.sys.mjs"
+  );
   const { FacetUtils } = ChromeUtils.import(
     "resource:///modules/gloda/Facet.jsm"
   );

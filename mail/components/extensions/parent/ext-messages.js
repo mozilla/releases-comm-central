@@ -2,8 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+  MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
@@ -18,25 +24,15 @@ var {
 var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "MessageArchiver",
-  "resource:///modules/MessageArchiver.jsm"
-);
 
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
-XPCOMUtils.defineLazyGlobalGetters(this, ["File", "IOUtils", "PathUtils"]);
+
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+XPCOMUtils.defineLazyGlobalGetters(this, ["File"]);
 
 var { DefaultMap } = ExtensionUtils;
 

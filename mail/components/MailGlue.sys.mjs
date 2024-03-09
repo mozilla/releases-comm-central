@@ -29,22 +29,26 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
+
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
+
+  MailMigrator: "resource:///modules/MailMigrator.sys.mjs",
+  MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.sys.mjs",
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
   PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
+
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
-  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+
+  TBDistCustomizer: "resource:///modules/TBDistCustomizer.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
 if (AppConstants.MOZ_UPDATER) {
@@ -601,8 +605,8 @@ MailGlue.prototype = {
       WINTASKBAR_CONTRACTID in Cc &&
       Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available
     ) {
-      const { WinTaskbarJumpList } = ChromeUtils.import(
-        "resource:///modules/WindowsJumpLists.jsm"
+      const { WinTaskbarJumpList } = ChromeUtils.importESModule(
+        "resource:///modules/WindowsJumpLists.sys.mjs"
       );
       WinTaskbarJumpList.startup();
     }

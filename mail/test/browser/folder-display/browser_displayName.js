@@ -9,8 +9,8 @@
 
 "use strict";
 
-var { ensure_card_exists } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+var { ensure_card_exists } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -18,8 +18,8 @@ var {
   create_folder,
   create_message,
   get_about_3pane,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var folder;

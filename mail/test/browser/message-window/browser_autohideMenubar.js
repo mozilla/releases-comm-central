@@ -16,8 +16,8 @@ var {
   open_selected_message_in_new_window,
   select_click_row,
   toggle_main_menu,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var menuFolder;

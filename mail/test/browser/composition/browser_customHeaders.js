@@ -11,10 +11,13 @@ var {
   open_compose_new_mail,
   save_compose_message,
   open_compose_from_draft,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, select_click_row, get_special_folder } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
 );
+var { be_in_folder, select_click_row, get_special_folder } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
 
 /**
  * Test custom headers are set and encoded correctly.

@@ -1,5 +1,5 @@
-var { TBDistCustomizer } = ChromeUtils.import(
-  "resource:///modules/TBDistCustomizer.jsm"
+var { TBDistCustomizer } = ChromeUtils.importESModule(
+  "resource:///modules/TBDistCustomizer.sys.mjs"
 );
 
 function run_test() {

@@ -28,8 +28,8 @@ var {
   select_shift_click_folder,
   set_context_menu_background_tabs,
   switch_tab,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var folderA, folderB, folderC;

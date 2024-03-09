@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EnigmailKeyServer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserver.jsm"
+var { EnigmailKeyServer } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/keyserver.sys.mjs"
 );
 
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 const { HttpServer } = ChromeUtils.importESModule(

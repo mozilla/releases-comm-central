@@ -43,6 +43,9 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -51,9 +54,6 @@ ChromeUtils.defineESModuleGetters(this, {
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
 });
 
 ChromeUtils.defineLazyGetter(
@@ -9670,30 +9670,6 @@ function MakeFromFieldEditable(ignoreWarning) {
     "msgIdentityPlaceholder",
     [identityElement.selectedItem.value]
   );
-}
-
-/**
- * Set up autocomplete search parameters for address inputs of inbuilt headers.
- *
- * @param {Element} input - The address input of an inbuilt header field.
- */
-function setupAutocompleteInput(input) {
-  const params = JSON.parse(input.getAttribute("autocompletesearchparam"));
-  params.type = input.closest(".address-row").dataset.recipienttype;
-  input.setAttribute("autocompletesearchparam", JSON.stringify(params));
-
-  // This method overrides the autocomplete binding's openPopup (essentially
-  // duplicating the logic from the autocomplete popup binding's
-  // openAutocompletePopup method), modifying it so that the popup is aligned
-  // and sized based on the parentNode of the input field.
-  input.openPopup = () => {
-    if (input.focused) {
-      input.popup.openAutocompletePopup(
-        input.nsIAutocompleteInput,
-        input.closest(".address-container")
-      );
-    }
-  };
 }
 
 /**

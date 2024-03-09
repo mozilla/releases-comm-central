@@ -10,12 +10,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
   DownloadPaths: "resource://gre/modules/DownloadPaths.sys.mjs",
   Downloads: "resource://gre/modules/Downloads.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetters(lazy, {

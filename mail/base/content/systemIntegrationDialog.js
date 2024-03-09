@@ -5,8 +5,8 @@
 
 // This dialog can only be opened if we have a shell service.
 
-var { SearchIntegration } = ChromeUtils.import(
-  "resource:///modules/SearchIntegration.jsm"
+var { SearchIntegration } = ChromeUtils.importESModule(
+  "resource:///modules/SearchIntegration.sys.mjs"
 );
 
 window.addEventListener("load", event => {

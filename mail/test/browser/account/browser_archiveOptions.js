@@ -5,11 +5,11 @@
 "use strict";
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
-var { promise_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_modal_dialog } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

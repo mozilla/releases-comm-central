@@ -7,15 +7,17 @@
  */
 
 var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 var {
   be_in_folder,
   get_special_folder,
   get_about_message,
   press_delete,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var gOutboxFolder;

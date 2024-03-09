@@ -9,9 +9,10 @@
 
 "use strict";
 
-var { close_compose_window, open_compose_with_reply } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+var { close_compose_window, open_compose_with_reply } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 var {
   add_message_to_folder,
   assert_selected_and_displayed,
@@ -19,8 +20,8 @@ var {
   create_folder,
   create_message,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var folder = null;

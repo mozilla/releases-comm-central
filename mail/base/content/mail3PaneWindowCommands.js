@@ -19,11 +19,9 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailUtils",
-  "resource:///modules/MailUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+});
 
 // DefaultController object (handles commands when one of the trees does not have focus)
 var DefaultController = {

@@ -8,18 +8,19 @@
 
 "use strict";
 
-const { get_about_message, open_message_from_file } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { get_about_message, open_message_from_file } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  );
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { CollectedKeysDB } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/CollectedKeysDB.jsm"
+const { CollectedKeysDB } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs"
 );
 
 var aliceAcct;

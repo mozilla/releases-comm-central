@@ -10,8 +10,8 @@ const { XULStoreUtils } = ChromeUtils.importESModule(
 );
 
 var { add_message_sets_to_folders, be_in_folder, create_thread } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 
 let tabmail,

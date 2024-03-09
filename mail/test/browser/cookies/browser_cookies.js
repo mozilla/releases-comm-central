@@ -10,8 +10,8 @@
 
 "use strict";
 
-var { open_content_tab_with_url } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+var { open_content_tab_with_url } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back

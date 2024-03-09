@@ -22,11 +22,9 @@ var { ShortcutUtils } = ChromeUtils.importESModule(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailUtils",
-  "resource:///modules/MailUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+});
 var { E10SUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/E10SUtils.sys.mjs"
 );

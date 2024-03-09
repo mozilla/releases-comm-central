@@ -9,8 +9,8 @@
 "use strict";
 
 var { create_contact, create_mailing_list, load_contacts_into_address_book } =
-  ChromeUtils.import(
-    "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
   );
 var {
   be_in_folder,
@@ -18,8 +18,8 @@ var {
   FAKE_SERVER_HOSTNAME,
   get_special_folder,
   wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var {
   clear_recipients,
@@ -27,9 +27,11 @@ var {
   close_compose_window,
   open_compose_new_mail,
   setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { promise_modal_dialog, wait_for_frame_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
+var { promise_modal_dialog, wait_for_frame_load } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.import(

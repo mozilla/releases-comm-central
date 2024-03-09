@@ -26,19 +26,19 @@ var {
   switch_tab,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 var {
   drag_n_drop_element,
   synthesize_drag_end,
   synthesize_drag_start,
   synthesize_drag_over,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/MouseEventHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/MouseEventHelpers.sys.mjs"
 );
-var { promise_new_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
 var folder;

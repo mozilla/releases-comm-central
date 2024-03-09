@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MigrationTasks } = ChromeUtils.import(
-  "resource:///modules/MailMigrator.jsm"
+var { MigrationTasks } = ChromeUtils.importESModule(
+  "resource:///modules/MailMigrator.sys.mjs"
 );
 
 window.addEventListener("load", async function () {

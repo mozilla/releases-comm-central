@@ -8,17 +8,22 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
+ChromeUtils.defineESModuleGetters(lazy, {
+  EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
+  EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
+  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
+  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   jsmime: "resource:///modules/jsmime.jsm",
-  EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
-  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
+
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+
   MailCryptoUtils: "resource:///modules/MailCryptoUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });

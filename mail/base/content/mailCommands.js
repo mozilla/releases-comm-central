@@ -16,11 +16,9 @@ ChromeUtils.defineModuleGetter(
   "FeedUtils",
   "resource:///modules/FeedUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailUtils",
-  "resource:///modules/MailUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(
   this,
   "MsgHdrToMimeMessage",

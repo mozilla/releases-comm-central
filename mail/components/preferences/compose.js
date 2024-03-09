@@ -12,8 +12,8 @@ var { InlineSpellChecker } = ChromeUtils.importESModule(
 );
 
 // CloudFile account tools used by gCloudFile.
-var { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
+var { cloudFileAccounts } = ChromeUtils.importESModule(
+  "resource:///modules/cloudFileAccounts.sys.mjs"
 );
 var { E10SUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/E10SUtils.sys.mjs"

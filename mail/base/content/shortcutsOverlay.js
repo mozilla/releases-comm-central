@@ -10,8 +10,8 @@
     "resource://gre/modules/XPCOMUtils.sys.mjs"
   );
 
-  XPCOMUtils.defineLazyModuleGetters(this, {
-    ShortcutsManager: "resource:///modules/ShortcutsManager.jsm",
+  ChromeUtils.defineESModuleGetters(this, {
+    ShortcutsManager: "resource:///modules/ShortcutsManager.sys.mjs",
   });
 
   function setupShortcuts() {

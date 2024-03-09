@@ -16,7 +16,9 @@ var {
   open_compose_new_mail,
   open_compose_with_reply,
   FormatHelper,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+);
 
 var {
   be_in_folder,
@@ -25,8 +27,8 @@ var {
   get_about_message,
   open_message_from_file,
   select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
 var sendFormatPreference;

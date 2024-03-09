@@ -13,9 +13,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "mail.threadpane.use_correspondents",
   true
 );
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   FeedUtils: "resource:///modules/FeedUtils.jsm",
-  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
 });
 
 /**

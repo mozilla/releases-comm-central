@@ -10,7 +10,9 @@
 "use strict";
 
 var { close_compose_window, get_compose_body, open_compose_new_mail } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+  ChromeUtils.importESModule(
+    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  );
 
 var kHtmlPref = "mail.identity.default.compose_html";
 var kReplyOnTopPref = "mail.identity.default.reply_on_top";
