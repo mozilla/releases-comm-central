@@ -30,7 +30,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-select",
       menuitem: "threadpane-column-label-select",
-      cell: "threadpane-cell-select",
     },
     ordinal: 1,
     select: true,
@@ -44,7 +43,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-thread",
       menuitem: "threadpane-column-label-thread",
-      cell: "threadpane-cell-thread",
     },
     ordinal: 2,
     thread: true,
@@ -57,7 +55,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-flagged",
       menuitem: "threadpane-column-label-flagged",
-      cell: "threadpane-cell-flagged",
     },
     ordinal: 3,
     sortKey: "byFlagged",
@@ -70,7 +67,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-attachments",
       menuitem: "threadpane-column-label-attachments",
-      cell: "threadpane-cell-attachments",
     },
     ordinal: 4,
     sortKey: "byAttachments",
@@ -82,7 +78,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-subject",
       menuitem: "threadpane-column-label-subject",
-      cell: "threadpane-cell-subject-title",
     },
     ordinal: 5,
     picker: false,
@@ -93,7 +88,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-unread-button",
       menuitem: "threadpane-column-label-unread-button",
-      cell: "threadpane-cell-read-status",
     },
     ordinal: 6,
     sortKey: "byUnread",
@@ -106,7 +100,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-sender",
       menuitem: "threadpane-column-label-sender",
-      cell: "threadpane-cell-sender-title",
     },
     ordinal: 7,
     sortKey: "byAuthor",
@@ -117,7 +110,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-recipient",
       menuitem: "threadpane-column-label-recipient",
-      cell: "threadpane-cell-recipient-title",
     },
     ordinal: 8,
     sortKey: "byRecipient",
@@ -128,7 +120,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-correspondents",
       menuitem: "threadpane-column-label-correspondents",
-      cell: "threadpane-cell-correspondents-title",
     },
     ordinal: 9,
     sortKey: "byCorrespondent",
@@ -138,7 +129,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-spam",
       menuitem: "threadpane-column-label-spam",
-      cell: "threadpane-cell-spam",
     },
     ordinal: 10,
     sortKey: "byJunkStatus",
@@ -151,7 +141,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-date",
       menuitem: "threadpane-column-label-date",
-      cell: "threadpane-cell-date-title",
     },
     ordinal: 11,
     sortKey: "byDate",
@@ -161,7 +150,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-received",
       menuitem: "threadpane-column-label-received",
-      cell: "threadpane-cell-received-title",
     },
     ordinal: 12,
     sortKey: "byReceived",
@@ -172,7 +160,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-status",
       menuitem: "threadpane-column-label-status",
-      cell: "threadpane-cell-status-title",
     },
     ordinal: 13,
     sortKey: "byStatus",
@@ -183,7 +170,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-size",
       menuitem: "threadpane-column-label-size",
-      cell: "threadpane-cell-size-title",
     },
     ordinal: 14,
     sortKey: "bySize",
@@ -194,7 +180,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-tags",
       menuitem: "threadpane-column-label-tags",
-      cell: "threadpane-cell-tags-title",
     },
     ordinal: 15,
     sortKey: "byTags",
@@ -205,7 +190,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-account",
       menuitem: "threadpane-column-label-account",
-      cell: "threadpane-cell-account-title",
     },
     ordinal: 16,
     sortKey: "byAccount",
@@ -216,7 +200,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-priority",
       menuitem: "threadpane-column-label-priority",
-      cell: "threadpane-cell-priority-title",
     },
     ordinal: 17,
     sortKey: "byPriority",
@@ -227,7 +210,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-unread",
       menuitem: "threadpane-column-label-unread",
-      cell: "threadpane-cell-unread-title",
     },
     ordinal: 18,
     sortable: false,
@@ -238,7 +220,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-total",
       menuitem: "threadpane-column-label-total",
-      cell: "threadpane-cell-total-title",
     },
     ordinal: 19,
     sortable: false,
@@ -249,7 +230,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-location",
       menuitem: "threadpane-column-label-location",
-      cell: "threadpane-cell-location-title",
     },
     ordinal: 20,
     sortKey: "byLocation",
@@ -260,7 +240,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-id",
       menuitem: "threadpane-column-label-id",
-      cell: "threadpane-cell-id-title",
     },
     ordinal: 21,
     sortKey: "byId",
@@ -271,7 +250,6 @@ const DEFAULT_COLUMNS = [
     l10n: {
       header: "threadpane-column-header-delete",
       menuitem: "threadpane-column-label-delete",
-      cell: "threadpane-cell-delete",
     },
     ordinal: 22,
     delete: true,
