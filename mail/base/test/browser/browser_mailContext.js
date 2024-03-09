@@ -520,6 +520,12 @@ add_task(async function testMultipleMessages() {
   threadTree.selectedIndices = [1, 2, 3];
   await TestUtils.waitForTick(); // Wait for rows to be added.
 
+  // Sometimes a bit more waiting is needed.
+  await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
+    "waiting for rows to be added"
+  );
+
   // The message pane browser isn't visible.
 
   Assert.ok(
