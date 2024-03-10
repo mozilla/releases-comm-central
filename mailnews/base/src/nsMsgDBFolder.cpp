@@ -734,15 +734,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgStore(nsIMsgPluggableStore** aStore) {
 
 NS_IMETHODIMP nsMsgDBFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
                                                nsIInputStream** stream) {
-  // Eventually this will be purely a matter of fetching the storeToken
-  // from the header and asking the msgStore for an inputstream.
-  // But for now, the InputStream returned by the mbox msgStore doesn't
-  // EOF at the end of the message, so we need to jump through hoops here.
-  // For now, we implement it in the derived classes, as the message size
-  // is stored in different msgHdr attributes depending on folder type.
-  // See Bug 1764857.
-  // Also, IMAP has a gmail hack to work with (multiple msgHdrs referrring
-  // to the same locally-stored message).
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
