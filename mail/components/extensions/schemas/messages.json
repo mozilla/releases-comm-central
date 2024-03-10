@@ -902,7 +902,7 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.\n**Note**: Consider using :ref:`messages.move` to manually move messages to the account's trash folder, instead of requesting the overly powerful permission to actually delete messages. The account's trash folder can be extracted as follows: <literalinclude>includes/messages/getTrash.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.",
         "async": true,
         "permissions": ["messagesDelete"],
         "parameters": [
