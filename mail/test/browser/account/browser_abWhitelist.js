@@ -16,9 +16,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var gOldWhiteList = null;
 var gKeyString = null;
-
 var gAccount = null;
 
 add_setup(function () {
@@ -28,15 +26,10 @@ add_setup(function () {
     "pop3"
   );
   gAccount = MailServices.accounts.findAccountForServer(server);
-  const serverKey = server.key;
-
-  gKeyString = "mail.server." + serverKey + ".whiteListAbURI";
-  gOldWhiteList = Services.prefs.getCharPref(gKeyString);
-  Services.prefs.setCharPref(gKeyString, "");
-});
-
-registerCleanupFunction(function () {
-  Services.prefs.setCharPref(gKeyString, gOldWhiteList);
+  gKeyString = "mail.server." + server.key + ".whiteListAbURI";
+  registerCleanupFunction(function () {
+    Services.prefs.clearUserPref(gKeyString);
+  });
 });
 
 /**
@@ -74,6 +67,7 @@ async function subtest_check_whitelist_init_and_save(tab) {
       { clickCount: 1 },
       abNode.firstElementChild.ownerGlobal
     );
+    await TestUtils.waitForTick();
   }
 }
 
@@ -93,14 +87,23 @@ async function subtest_check_whitelist_load_and_clear(tab) {
       "contentFrame"
     ).contentDocument;
   const list = doc.getElementById("whiteListAbURI");
-  const whiteListURIs = Services.prefs.getCharPref(gKeyString).split(" ");
+  const whiteListURIs = Services.prefs
+    .getCharPref(gKeyString, "")
+    .split(" ")
+    .filter(Boolean);
+
+  Assert.greater(
+    whiteListURIs.length,
+    0,
+    `${gKeyString} pref should have uris`
+  );
 
   for (let i = 0; i < list.getRowCount(); i++) {
     const abNode = list.getItemAtIndex(i);
     Assert.equal(
       true,
       abNode.firstElementChild.checked,
-      "Should have been checked"
+      `list item ${i} should have been checked`
     );
     // Also ensure that the address book URI was properly saved in the
     // prefs
@@ -111,6 +114,7 @@ async function subtest_check_whitelist_load_and_clear(tab) {
       { clickCount: 1 },
       abNode.firstElementChild.ownerGlobal
     );
+    await TestUtils.waitForTick();
   }
 }
 
@@ -145,7 +149,7 @@ async function subtest_check_whitelist_load_cleared(tab) {
     Assert.equal(
       false,
       abNode.firstElementChild.checked,
-      "Should not have been checked"
+      `list item ${i} should NOT have been checked`
     );
     // Also ensure that the address book URI was properly cleared in the
     // prefs
