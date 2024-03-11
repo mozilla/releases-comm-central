@@ -9,6 +9,14 @@ const BACKGROUND =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0" +
   "DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==";
 
+add_setup(() => {
+  // Reduce animations to prevent intermittent fails due to late theme changes.
+  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  });
+});
+
 add_task(async function test_on_updated() {
   const theme = ExtensionTestUtils.loadExtension({
     manifest: {

@@ -19,6 +19,12 @@ add_setup(() => {
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];
+
+  // Reduce animations to prevent intermittent fails due to late theme changes.
+  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  });
 });
 
 add_task(async function testGetDisplayedMessage() {
