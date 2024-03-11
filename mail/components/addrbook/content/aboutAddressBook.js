@@ -32,6 +32,7 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
+  XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
@@ -508,9 +509,7 @@ customElements.whenDefined("tree-listbox").then(() => {
       row.id = `book-${book.UID}`;
       row.setAttribute("aria-label", book.dirName);
       row.title = book.dirName;
-      if (
-        Services.xulStore.getValue(cardsPane.URL, row.id, "collapsed") == "true"
-      ) {
+      if (XULStoreUtils.isItemCollapsed("addressBook", row.id)) {
         row.classList.add("collapsed");
       }
       if (book.isRemote) {
@@ -831,8 +830,8 @@ customElements.whenDefined("tree-listbox").then(() => {
     }
 
     _onCollapsed(event) {
-      Services.xulStore.setValue(
-        cardsPane.URL,
+      XULStoreUtils.setValue(
+        "addressBook",
         event.target.id,
         "collapsed",
         "true"
@@ -840,11 +839,7 @@ customElements.whenDefined("tree-listbox").then(() => {
     }
 
     _onExpanded(event) {
-      Services.xulStore.removeValue(
-        cardsPane.URL,
-        event.target.id,
-        "collapsed"
-      );
+      XULStoreUtils.removeValue("addressBook", event.target.id, "collapsed");
     }
 
     _onKeyPress(event) {
@@ -1407,13 +1402,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
 var cardsPane = {
   /**
-   * The document URL for saving and retrieving values in the XUL Store.
-   *
-   * @type {string}
-   */
-  URL: "about:addressbook",
-
-  /**
    * The array of columns for the table layout.
    *
    * @type {Array}
@@ -1529,8 +1517,7 @@ var cardsPane = {
     this.cardsList.setAttribute("rows", "ab-card-row");
 
     if (
-      Services.xulStore.getValue(cardsPane.URL, "cardsPane", "layout") ==
-      "table"
+      XULStoreUtils.getValue("addressBook", "cardsPane", "layout") == "table"
     ) {
       this.toggleLayout(true);
     }
@@ -1543,7 +1530,7 @@ var cardsPane = {
       .querySelector(`[name="format"][value="${nameFormat}"]`)
       ?.setAttribute("checked", "true");
 
-    let columns = Services.xulStore.getValue(cardsPane.URL, "cards", "columns");
+    let columns = XULStoreUtils.getValue("addressBook", "cards", "columns");
     if (columns) {
       columns = columns.split(",");
       for (const column of cardsPane.COLUMNS) {
@@ -1552,7 +1539,7 @@ var cardsPane = {
     }
 
     this.table.setColumns(cardsPane.COLUMNS);
-    this.table.restoreColumnsWidths(cardsPane.URL);
+    this.table.restoreColumnsWidths("addressBook");
 
     // Only add the address book toggle to the filter button outside the table
     // layout view. All other toggles are only for a table context.
@@ -1679,8 +1666,8 @@ var cardsPane = {
     this.table.updateColumns(cardsPane.COLUMNS);
     this.cardsList.reset();
 
-    Services.xulStore.setValue(
-      cardsPane.URL,
+    XULStoreUtils.setValue(
+      "addressBook",
       "cards",
       "columns",
       cardsPane.COLUMNS.filter(c => !c.hidden)
@@ -1723,8 +1710,8 @@ var cardsPane = {
     if (this.cardsList.selectedIndex > -1) {
       this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
     }
-    Services.xulStore.setValue(
-      cardsPane.URL,
+    XULStoreUtils.setValue(
+      "addressBook",
       "cardsPane",
       "layout",
       isTableLayout ? "table" : "list"
@@ -1769,10 +1756,10 @@ var cardsPane = {
       );
     }
     const sortColumn =
-      Services.xulStore.getValue(cardsPane.URL, "cards", "sortColumn") ||
+      XULStoreUtils.getValue("addressBook", "cards", "sortColumn") ||
       "GeneratedName";
     const sortDirection =
-      Services.xulStore.getValue(cardsPane.URL, "cards", "sortDirection") ||
+      XULStoreUtils.getValue("addressBook", "cards", "sortDirection") ||
       "ascending";
     this.cardsList.view = new ABView(
       book,
@@ -1800,10 +1787,10 @@ var cardsPane = {
       name: list.dirName,
     });
     const sortColumn =
-      Services.xulStore.getValue(cardsPane.URL, "cards", "sortColumn") ||
+      XULStoreUtils.getValue("addressBook", "cards", "sortColumn") ||
       "GeneratedName";
     const sortDirection =
-      Services.xulStore.getValue(cardsPane.URL, "cards", "sortDirection") ||
+      XULStoreUtils.getValue("addressBook", "cards", "sortDirection") ||
       "ascending";
     this.cardsList.view = new ABView(
       list,
@@ -1906,13 +1893,8 @@ var cardsPane = {
 
     this.cardsList.view.sortBy(column, direction);
 
-    Services.xulStore.setValue(cardsPane.URL, "cards", "sortColumn", column);
-    Services.xulStore.setValue(
-      cardsPane.URL,
-      "cards",
-      "sortDirection",
-      direction
-    );
+    XULStoreUtils.setValue("addressBook", "cards", "sortColumn", column);
+    XULStoreUtils.setValue("addressBook", "cards", "sortDirection", direction);
   },
 
   /**
@@ -2517,8 +2499,8 @@ var detailsPane = {
 
   init() {
     const booksSplitter = document.getElementById("booksSplitter");
-    const booksSplitterWidth = Services.xulStore.getValue(
-      cardsPane.URL,
+    const booksSplitterWidth = XULStoreUtils.getValue(
+      "addressBook",
       "booksSplitter",
       "width"
     );
@@ -2526,8 +2508,8 @@ var detailsPane = {
       booksSplitter.width = booksSplitterWidth;
     }
     booksSplitter.addEventListener("splitter-resized", () =>
-      Services.xulStore.setValue(
-        cardsPane.URL,
+      XULStoreUtils.setValue(
+        "addressBook",
         "booksSplitter",
         "width",
         booksSplitter.width
@@ -2538,16 +2520,16 @@ var detailsPane = {
     updateSharedSplitter(isTableLayout);
 
     this.splitter = document.getElementById("sharedSplitter");
-    const sharedSplitterWidth = Services.xulStore.getValue(
-      cardsPane.URL,
+    const sharedSplitterWidth = XULStoreUtils.getValue(
+      "addressBook",
       "sharedSplitter",
       "width"
     );
     if (sharedSplitterWidth) {
       this.splitter.width = sharedSplitterWidth;
     }
-    const sharedSplitterHeight = Services.xulStore.getValue(
-      cardsPane.URL,
+    const sharedSplitterHeight = XULStoreUtils.getValue(
+      "addressBook",
       "sharedSplitter",
       "height"
     );
@@ -2556,16 +2538,16 @@ var detailsPane = {
     }
     this.splitter.addEventListener("splitter-resized", () => {
       if (isTableLayout) {
-        Services.xulStore.setValue(
-          cardsPane.URL,
+        XULStoreUtils.setValue(
+          "addressBook",
           "sharedSplitter",
           "height",
           this.splitter.height
         );
         return;
       }
-      Services.xulStore.setValue(
-        cardsPane.URL,
+      XULStoreUtils.setValue(
+        "addressBook",
         "sharedSplitter",
         "width",
         this.splitter.width

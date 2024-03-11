@@ -17,7 +17,7 @@ export const XULStoreUtils = {
       case "messenger":
         return "chrome://messenger/content/messenger.xhtml";
       default:
-        console.warn(`Unkown xulStore document URL: ${url}`);
+        console.warn(`Unknown xulStore document URL: ${url}`);
         return url;
     }
   },
@@ -35,6 +35,8 @@ export const XULStoreUtils = {
   },
 
   /**
+   * Retrieve the value for a specific attribute of an item, or an empty string
+   * if it does not exist.
    *
    * @param {string} url
    * @param {string} element
@@ -43,6 +45,17 @@ export const XULStoreUtils = {
    */
   getValue(url, element, attribute) {
     return Services.xulStore.getValue(this._url(url), element, attribute);
+  },
+
+  /**
+   * Remove value for a specific attribute of an item.
+   *
+   * @param {string} url
+   * @param {string} element
+   * @param {string} attribute
+   */
+  removeValue(url, element, attribute) {
+    Services.xulStore.removeValue(this._url(url), element, attribute);
   },
 
   /**
