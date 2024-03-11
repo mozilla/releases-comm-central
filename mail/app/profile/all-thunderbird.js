@@ -1406,3 +1406,7 @@ pref("mailnews.imap.jsmodule", false);
 // 2: icons only
 // 3: text only
 pref("toolbar.unifiedtoolbar.buttonstyle", 0);
+
+// Bug 1773079 : check if true causes issues for Thunderbird
+// prevent JS from monkeying with window focus, etc
+pref("dom.disable_window_flip", true);
