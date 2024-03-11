@@ -50,6 +50,7 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalMetronome: "resource:///modules/CalMetronome.jsm",
   FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailStringUtils: "resource:///modules/MailStringUtils.jsm",
@@ -93,6 +94,16 @@ var multiMessageBrowser;
  * is selected.
  */
 var accountCentralBrowser;
+
+/**
+ * This is called at midnight to have messages grouped by their relative date
+ * (such as today, yesterday, etc.) correctly categorized.
+ */
+function refreshGroupedBySortView() {
+  if (gViewWrapper?.showGroupedBySort) {
+    folderTree.dispatchEvent(new CustomEvent("select"));
+  }
+}
 
 window.addEventListener("DOMContentLoaded", async event => {
   if (event.target != document) {
@@ -141,9 +152,12 @@ window.addEventListener("DOMContentLoaded", async event => {
   top.contentProgress.addProgressListenerToBrowser(webBrowser);
 
   mailContextMenu.init();
+
+  CalMetronome.on("day", refreshGroupedBySortView);
 });
 
 window.addEventListener("unload", () => {
+  CalMetronome.off("day", refreshGroupedBySortView);
   MailServices.mailSession.RemoveFolderListener(folderListener);
   gViewWrapper?.close();
   folderPane.uninit();
