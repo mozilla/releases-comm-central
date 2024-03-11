@@ -675,6 +675,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     )) {
       const recipientType = row.dataset.recipienttype.trim().toLowerCase();
       if (customHeaders.has(recipientType)) {
+        row.classList.remove("hidden");
         row.querySelector(".address-row-input").value =
           customHeaders.get(recipientType);
       }

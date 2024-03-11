@@ -656,6 +656,11 @@ add_task(async function testCustomHeaders() {
       let customHeaders = [{ name: "X-TEST1", value: "some header" }];
       const tab = await browser.compose.beginNew(null, { customHeaders });
 
+      // The initial window should not have the X-Expediteur row visible.
+      await window.sendMessage("Check X-Expediteur header display", {
+        isHidden: true,
+      });
+
       // Add a header which does not start with X- and should not be touched by
       // the API.
       await window.sendMessage("addTestHeader");
@@ -686,6 +691,11 @@ add_task(async function testCustomHeaders() {
         { name: "Msip_Labels", value: "this is a MSIP label" },
       ];
       await checkCustomHeaders(tab, expectedHeaders);
+
+      // The X-Expediteur row should now be visible.
+      await window.sendMessage("Check X-Expediteur header display", {
+        isHidden: false,
+      });
 
       // Update existing header and remove some of the others. Test support for
       // empty headers.
@@ -762,6 +772,19 @@ add_task(async function testCustomHeaders() {
     const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
     const value = composeWindow.gMsgCompose.compFields.getHeader("ATestHeader");
     extension.sendMessage(value);
+  });
+
+  extension.onMessage("Check X-Expediteur header display", expected => {
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    const row = composeWindow.document.querySelector(
+      ".address-row-raw[data-recipienttype=X-Expediteur]"
+    );
+    Assert.equal(
+      BrowserTestUtils.isHidden(row),
+      expected.isHidden,
+      "The display of the X-Expediteur header row should be correct"
+    );
+    extension.sendMessage();
   });
 
   await extension.startup();
