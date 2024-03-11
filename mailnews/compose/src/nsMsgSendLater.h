@@ -133,6 +133,7 @@ class nsMsgSendLater : public nsIMsgSendLater,
   char* mLeftoverBuffer;
   char* mIdentityKey;
   char* mAccountKey;
+  char* mDraftInfo;
 
   bool mSendingMessages;
   bool mUserInitiated;

@@ -37,6 +37,10 @@
 // send it.
 const uint32_t kInitialMessageSendTime = 1000;
 
+extern char* MimeHeaders_get_parameter(const char* header_value,
+                                       const char* parm_name, char** charset,
+                                       char** language);
+
 NS_IMPL_ISUPPORTS(nsMsgSendLater, nsIMsgSendLater, nsIFolderListener,
                   nsIRequestObserver, nsIStreamListener, nsIObserver,
                   nsIUrlListener, nsIMsgShutdownTask)
@@ -66,6 +70,7 @@ nsMsgSendLater::nsMsgSendLater() {
 
   mIdentityKey = nullptr;
   mAccountKey = nullptr;
+  mDraftInfo = nullptr;
 
   mUserInitiated = false;
 }
@@ -80,6 +85,7 @@ nsMsgSendLater::~nsMsgSendLater() {
   PR_Free(mLeftoverBuffer);
   PR_Free(mIdentityKey);
   PR_Free(mAccountKey);
+  PR_Free(mDraftInfo);
 }
 
 nsresult nsMsgSendLater::Init() {
@@ -502,6 +508,24 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
 
   if (m_newsgroups) fields->SetNewsgroups(m_newsgroups);
 
+  // Extract the returnReceipt, receiptHeaderType and DSN from the draft info.
+  if (mDraftInfo) {
+    char* param =
+        MimeHeaders_get_parameter(mDraftInfo, "receipt", nullptr, nullptr);
+    if (!param || strcmp(param, "0") == 0) {
+      fields->SetReturnReceipt(false);
+    } else {
+      int receiptType = 0;
+      fields->SetReturnReceipt(true);
+      sscanf(param, "%d", &receiptType);
+      fields->SetReceiptHeaderType(((int32_t)receiptType) - 1);
+    }
+    PR_FREEIF(param);
+    param = MimeHeaders_get_parameter(mDraftInfo, "DSN", nullptr, nullptr);
+    fields->SetDSN(param && strcmp(param, "1") == 0);
+    PR_FREEIF(param);
+  }
+
 #if 0
   // needs cleanup. Is this needed?
   if (m_newshost)
@@ -899,9 +923,10 @@ nsresult nsMsgSendLater::BuildHeaders() {
         else if (buf + strlen(HEADER_X_MOZILLA_STATUS) == end &&
                  !PL_strncasecmp(HEADER_X_MOZILLA_STATUS, buf, end - buf))
           prune_p = do_flags_p = true;
-        else if (!PL_strncasecmp(HEADER_X_MOZILLA_DRAFT_INFO, buf, end - buf))
+        else if (!PL_strncasecmp(HEADER_X_MOZILLA_DRAFT_INFO, buf, end - buf)) {
           prune_p = true;
-        else if (!PL_strncasecmp(HEADER_X_MOZILLA_KEYWORDS, buf, end - buf))
+          header = &mDraftInfo;
+        } else if (!PL_strncasecmp(HEADER_X_MOZILLA_KEYWORDS, buf, end - buf))
           prune_p = true;
         else if (!PL_strncasecmp(HEADER_X_MOZILLA_NEWSHOST, buf, end - buf)) {
           prune_p = true;
