@@ -2115,7 +2115,7 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
 NS_IMETHODIMP
 nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
-                  nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) {
+                  nsMsgViewFlagsTypeValue viewFlags) {
   m_viewFlags = viewFlags;
   m_sortOrder = sortOrder;
   m_sortType = sortType;
@@ -2254,7 +2254,7 @@ NS_IMETHODIMP
 nsMsgDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
-                          nsMsgViewFlagsTypeValue aViewFlags, int32_t* aCount) {
+                          nsMsgViewFlagsTypeValue aViewFlags) {
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }

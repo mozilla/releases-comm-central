@@ -131,13 +131,11 @@ add_setup(async function () {
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
-  var outCount = {};
   gDBView.open(
     gLocalInboxFolder,
     Ci.nsMsgViewSortType.byDate,
     Ci.nsMsgViewSortOrder.ascending,
-    view_flag,
-    outCount
+    view_flag
   );
 
   gTreeView = gDBView.QueryInterface(Ci.nsITreeView);

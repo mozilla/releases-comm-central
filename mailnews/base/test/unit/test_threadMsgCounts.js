@@ -454,7 +454,7 @@ function makeView(viewType, folder, sortType, flags, virtualFolder) {
   if (virtualFolder) {
     dbView.viewFolder = virtualFolder;
   }
-  dbView.open(folder, sortType, Ci.nsMsgViewSortOrder.ascending, flags, {});
+  dbView.open(folder, sortType, Ci.nsMsgViewSortOrder.ascending, flags);
 
   return dbView.QueryInterface(Ci.nsITreeView);
 }

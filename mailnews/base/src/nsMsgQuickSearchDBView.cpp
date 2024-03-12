@@ -27,10 +27,8 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgQuickSearchDBView, nsMsgDBView, nsIMsgDBView,
 NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
                                            nsMsgViewSortTypeValue sortType,
                                            nsMsgViewSortOrderValue sortOrder,
-                                           nsMsgViewFlagsTypeValue viewFlags,
-                                           int32_t* pCount) {
-  nsresult rv =
-      nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
+                                           nsMsgViewFlagsTypeValue viewFlags) {
+  nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_db) return NS_ERROR_NULL_POINTER;
@@ -38,7 +36,6 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
 
   int32_t count;
   rv = InitThreadedView(count);
-  if (pCount) *pCount = count;
   return rv;
 }
 
@@ -743,11 +740,10 @@ NS_IMETHODIMP
 nsMsgQuickSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                                      nsMsgViewSortTypeValue aSortType,
                                      nsMsgViewSortOrderValue aSortOrder,
-                                     nsMsgViewFlagsTypeValue aViewFlags,
-                                     int32_t* aCount) {
+                                     nsMsgViewFlagsTypeValue aViewFlags) {
   if (aViewFlags & nsMsgViewFlagsType::kGroupBySort)
     return nsMsgGroupView::OpenWithHdrs(aHeaders, aSortType, aSortOrder,
-                                        aViewFlags, aCount);
+                                        aViewFlags);
 
   m_sortType = aSortType;
   m_sortOrder = aSortOrder;
@@ -765,7 +761,6 @@ nsMsgQuickSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
       break;
     }
   }
-  *aCount = m_keys.Length();
   return rv;
 }
 

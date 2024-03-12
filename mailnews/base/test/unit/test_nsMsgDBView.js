@@ -254,18 +254,14 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
-  var outCount = {};
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
     Ci.nsMsgViewSortType.byDate,
     aViewType != "search"
       ? Ci.nsMsgViewSortOrder.ascending
       : Ci.nsMsgViewSortOrder.descending,
-    aViewFlags,
-    outCount
+    aViewFlags
   );
-  // outCount is 0 if byCustom; view is built by addColumnHandler()
-  dump("  View Out Count: " + outCount.value + "\n");
 
   // we need to cram messages into the search via nsIMsgSearchNotify interface
   if (

@@ -27,9 +27,8 @@ nsMsgThreadedDBView::~nsMsgThreadedDBView() {} /* destructor code */
 NS_IMETHODIMP
 nsMsgThreadedDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                           nsMsgViewSortOrderValue sortOrder,
-                          nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) {
-  nsresult rv =
-      nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
+                          nsMsgViewFlagsTypeValue viewFlags) {
+  nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_db) return NS_ERROR_NULL_POINTER;
@@ -61,7 +60,6 @@ nsMsgThreadedDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
   int32_t count;
   rv = InitThreadedView(count);
-  if (pCount) *pCount = count;
 
   // This is a hack, but we're trying to find a way to correct
   // incorrect total and unread msg counts w/o paying a big

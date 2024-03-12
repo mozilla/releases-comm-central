@@ -29,9 +29,8 @@ nsMsgGroupView::~nsMsgGroupView() {}
 NS_IMETHODIMP
 nsMsgGroupView::Open(nsIMsgFolder* aFolder, nsMsgViewSortTypeValue aSortType,
                      nsMsgViewSortOrderValue aSortOrder,
-                     nsMsgViewFlagsTypeValue aViewFlags, int32_t* aCount) {
-  nsresult rv =
-      nsMsgDBView::Open(aFolder, aSortType, aSortOrder, aViewFlags, aCount);
+                     nsMsgViewFlagsTypeValue aViewFlags) {
+  nsresult rv = nsMsgDBView::Open(aFolder, aSortType, aSortOrder, aViewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
@@ -41,7 +40,7 @@ nsMsgGroupView::Open(nsIMsgFolder* aFolder, nsMsgViewSortTypeValue aSortType,
   rv = m_db->EnumerateMessages(getter_AddRefs(headers));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return OpenWithHdrs(headers, aSortType, aSortOrder, aViewFlags, aCount);
+  return OpenWithHdrs(headers, aSortType, aSortOrder, aViewFlags);
 }
 
 void nsMsgGroupView::InternalClose() {
@@ -370,8 +369,7 @@ NS_IMETHODIMP
 nsMsgGroupView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                              nsMsgViewSortTypeValue aSortType,
                              nsMsgViewSortOrderValue aSortOrder,
-                             nsMsgViewFlagsTypeValue aViewFlags,
-                             int32_t* aCount) {
+                             nsMsgViewFlagsTypeValue aViewFlags) {
   nsresult rv = NS_OK;
 
   m_groupsTable.Clear();
@@ -440,7 +438,6 @@ nsMsgGroupView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
       }
     }
   }
-  *aCount = m_keys.Length();
   return rv;
 }
 
@@ -491,7 +488,6 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
 nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags) {
   nsCOMPtr<nsIMsgEnumerator> headers;
   if (NS_SUCCEEDED(GetMessageEnumerator(getter_AddRefs(headers)))) {
-    int32_t count;
     m_dayChanged = false;
     AutoTArray<nsMsgKey, 1> preservedSelection;
     nsMsgKey curSelectedKey;
@@ -511,8 +507,7 @@ nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags) {
     if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
     SetSuppressChangeNotifications(true);
-    nsresult rv =
-        OpenWithHdrs(headers, m_sortType, m_sortOrder, newFlags, &count);
+    nsresult rv = OpenWithHdrs(headers, m_sortType, m_sortOrder, newFlags);
     SetSuppressChangeNotifications(false);
     if (mTree) mTree->RowCountChanged(0, GetSize());
     if (mJSTree) mJSTree->RowCountChanged(0, GetSize());

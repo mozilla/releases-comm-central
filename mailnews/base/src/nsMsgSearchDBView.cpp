@@ -41,7 +41,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgSearchDBView, nsMsgDBView, nsIMsgDBView,
 NS_IMETHODIMP
 nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                         nsMsgViewSortOrderValue sortOrder,
-                        nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) {
+                        nsMsgViewFlagsTypeValue viewFlags) {
   // DBViewWrapper.jsm likes to create search views with a sort order
   // of byNone, in order to have the order be the order the search results
   // are returned. But this doesn't work with threaded view, so make the
@@ -51,8 +51,7 @@ nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
       sortType == nsMsgViewSortType::byNone)
     sortType = nsMsgViewSortType::byDate;
 
-  nsresult rv =
-      nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
+  nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -62,9 +61,6 @@ nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
   // Our sort is automatically valid because we have no contents at this point!
   m_sortValid = true;
-
-  if (pCount) *pCount = 0;
-
   m_folder = nullptr;
   return rv;
 }
@@ -1092,11 +1088,10 @@ NS_IMETHODIMP
 nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                                 nsMsgViewSortTypeValue aSortType,
                                 nsMsgViewSortOrderValue aSortOrder,
-                                nsMsgViewFlagsTypeValue aViewFlags,
-                                int32_t* aCount) {
+                                nsMsgViewFlagsTypeValue aViewFlags) {
   if (aViewFlags & nsMsgViewFlagsType::kGroupBySort)
     return nsMsgGroupView::OpenWithHdrs(aHeaders, aSortType, aSortOrder,
-                                        aViewFlags, aCount);
+                                        aViewFlags);
 
   m_sortType = aSortType;
   m_sortOrder = aSortOrder;
@@ -1116,7 +1111,6 @@ nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
     }
   }
 
-  *aCount = m_keys.Length();
   return rv;
 }
 

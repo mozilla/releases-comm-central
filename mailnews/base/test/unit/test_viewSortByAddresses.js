@@ -129,17 +129,14 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
 
   gDBView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   gDBView.init(null, null, null);
-  var outCount = {};
   gDBView.open(
     aViewType != "search" ? aTestFolder : null,
     Ci.nsMsgViewSortType.byDate,
     aViewType != "search"
       ? Ci.nsMsgViewSortOrder.ascending
       : Ci.nsMsgViewSortOrder.descending,
-    aViewFlags,
-    outCount
+    aViewFlags
   );
-  dump("  View Out Count: " + outCount.value + "\n");
 
   gTreeView = gDBView.QueryInterface(Ci.nsITreeView);
 }

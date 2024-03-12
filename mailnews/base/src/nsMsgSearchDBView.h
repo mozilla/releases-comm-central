@@ -33,7 +33,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual const char* GetViewName(void) override { return "SearchView"; }
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
-                  nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) override;
+                  nsMsgViewFlagsTypeValue viewFlags) override;
   NS_IMETHOD CloneDBView(nsIMessenger* aMessengerInstance,
                          nsIMsgWindow* aMsgWindow,
                          nsIMsgDBViewCommandUpdater* aCmdUpdater,
@@ -56,8 +56,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
-                          nsMsgViewFlagsTypeValue aViewFlags,
-                          int32_t* aCount) override;
+                          nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
                           int32_t aFlags,
                           nsIDBChangeListener* aInstigator) override;

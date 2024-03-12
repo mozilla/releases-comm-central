@@ -23,12 +23,11 @@ class nsMsgGroupView : public nsMsgDBView {
 
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
-                  nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) override;
+                  nsMsgViewFlagsTypeValue viewFlags) override;
   NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
-                          nsMsgViewFlagsTypeValue aViewFlags,
-                          int32_t* aCount) override;
+                          nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
                         nsIMessenger* aMessengerInstance,

@@ -1133,7 +1133,6 @@ DBViewWrapper.prototype = {
         ? 0
         : this._sort.length - 1;
     let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(index);
-    const outCount = {};
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
     if (this.isSingleFolder) {
@@ -1147,13 +1146,7 @@ DBViewWrapper.prototype = {
       }
 
       // Open the folder.
-      dbView.open(
-        this._underlyingFolders[0],
-        sortType,
-        sortOrder,
-        viewFlags,
-        outCount
-      );
+      dbView.open(this._underlyingFolders[0], sortType, sortOrder, viewFlags);
 
       // If there are any search terms, we need to tell the db view about the
       //  the display (/virtual) folder so it can store all the view-specific
@@ -1172,13 +1165,7 @@ DBViewWrapper.prototype = {
       //  db view about the display folder.  (It gets its own XFVF view, so it
       //  knows what to do.)
       // and for a synthetic folder, displayedFolder is null anyways
-      dbView.open(
-        this.displayedFolder,
-        sortType,
-        sortOrder,
-        viewFlags,
-        outCount
-      );
+      dbView.open(this.displayedFolder, sortType, sortOrder, viewFlags);
     }
     if (sortCustomCol) {
       dbView.curCustomColumn = sortCustomCol;

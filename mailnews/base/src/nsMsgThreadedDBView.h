@@ -16,7 +16,7 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
 
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
-                  nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) override;
+                  nsMsgViewFlagsTypeValue viewFlags) override;
   NS_IMETHOD CloneDBView(nsIMessenger* aMessengerInstance,
                          nsIMsgWindow* aMsgWindow,
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,

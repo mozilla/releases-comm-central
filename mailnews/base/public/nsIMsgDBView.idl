@@ -218,11 +218,10 @@ interface nsIMsgDBView : nsISupports
   void open(in nsIMsgFolder folder,
             in nsMsgViewSortTypeValue sortType,
             in nsMsgViewSortOrderValue sortOrder,
-            in nsMsgViewFlagsTypeValue viewFlags,
-            out long count);
+            in nsMsgViewFlagsTypeValue viewFlags);
   void openWithHdrs(in nsIMsgEnumerator aHeaders, in nsMsgViewSortTypeValue aSortType,
                       in nsMsgViewSortOrderValue aSortOrder,
-                      in nsMsgViewFlagsTypeValue aViewFlags, out long aCount);
+                      in nsMsgViewFlagsTypeValue aViewFlags);
   void close();
 
   void init(in nsIMessenger aMessengerInstance, in nsIMsgWindow aMsgWindow, in nsIMsgDBViewCommandUpdater aCommandUpdater);

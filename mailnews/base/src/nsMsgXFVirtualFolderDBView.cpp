@@ -30,11 +30,9 @@ NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder* folder,
                                  nsMsgViewSortTypeValue sortType,
                                  nsMsgViewSortOrderValue sortOrder,
-                                 nsMsgViewFlagsTypeValue viewFlags,
-                                 int32_t* pCount) {
+                                 nsMsgViewFlagsTypeValue viewFlags) {
   m_viewFolder = folder;
-  return nsMsgSearchDBView::Open(folder, sortType, sortOrder, viewFlags,
-                                 pCount);
+  return nsMsgSearchDBView::Open(folder, sortType, sortOrder, viewFlags);
 }
 
 void nsMsgXFVirtualFolderDBView::RemovePendingDBListeners() {
