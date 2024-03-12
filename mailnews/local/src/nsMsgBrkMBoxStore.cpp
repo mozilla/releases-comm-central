@@ -797,8 +797,25 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     rv = mboxFile->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  rv = NS_NewLocalFileOutputStream(aResult, mboxFile,
-                                   PR_WRONLY | PR_CREATE_FILE | PR_APPEND);
+
+  // We want to create a buffered stream.
+  // Borrowed the code from MsgNewBufferedFileOutputStream, but
+  // note that the permission bit ought to be 0600.
+  // no group read nor other read.
+  // Enlarge the buffer four times from the default.
+  // We need to seek to the end, and that is done later in this
+  // function.
+  {
+    nsCOMPtr<nsIOutputStream> stream;
+    rv = NS_NewLocalFileOutputStream(getter_AddRefs(stream), mboxFile,
+                                     PR_WRONLY | PR_CREATE_FILE | PR_APPEND,
+                                     00600);
+    if (NS_SUCCEEDED(rv)) {
+      // 2**16 buffer size for good performance in 2024
+      rv = NS_NewBufferedOutputStream(aResult, stream.forget(), 65536);
+    }
+  }
+
   if (NS_FAILED(rv)) {
     nsAutoCString uri;
     aFolder->GetURI(uri);
