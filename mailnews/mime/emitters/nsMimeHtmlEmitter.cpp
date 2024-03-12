@@ -170,6 +170,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
                  !PL_strcasecmp("list-post", headerName) ||
                  !PL_strcasecmp("list-owner", headerName) ||
                  !PL_strcasecmp("list-archive", headerName) ||
+                 !PL_strcasecmp("archived-at", headerName) ||
                  !PL_strcasecmp("delivered-to", headerName)) {
         skip = false;
 

@@ -770,6 +770,7 @@
           "list-post",
           "list-owner",
           "list-archive",
+          "archived-at",
         ].includes(this.dataset.headerName)
       ) {
         // message-header-list-help-field
@@ -778,6 +779,7 @@
         // message-header-list-post-field
         // message-header-list-owner-field
         // message-header-list-archive-field
+        // message-header-archived-at-field
         document.l10n.setAttributes(
           this.heading,
           `message-header-${this.dataset.headerName}-field`

@@ -758,6 +758,7 @@ add_task(async function test_add_contact_from_context_menu() {
       "List-Owner":
         "<mailto:gocats+owner@example.test?subject=gocats-list>, <https://example.test/lists/gocats/owner>",
       "List-Archive": "<https://example.test/lists/gocats/archive>",
+      "Archived-At": "<https://example.test/mid/123@example.org>",
     },
   });
   await add_message_to_folder([folder], msg);
@@ -842,6 +843,15 @@ add_task(async function test_add_contact_from_context_menu() {
     listIdListArchive.value,
     "https://example.test/lists/gocats/archive",
     "list-archive ctx value should be correct"
+  );
+
+  const listIdArchivedAt =
+    aboutMessage.document.getElementById("listIdArchivedAt");
+  Assert.equal(listIdArchivedAt.hidden, false, "archived-at should show");
+  Assert.equal(
+    listIdArchivedAt.value,
+    "https://example.test/mid/123@example.org",
+    "archived-at ctx value should be correct"
   );
 
   await close_popup(window, listIdPopup);

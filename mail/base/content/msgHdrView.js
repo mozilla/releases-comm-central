@@ -145,6 +145,7 @@ const gExpandedHeaderList = [
   { name: "list-post", outputFunction: outputMultiURL, hidden: true },
   { name: "list-owner", outputFunction: outputMultiURL, hidden: true },
   { name: "list-archive", outputFunction: outputMultiURL, hidden: true },
+  { name: "archived-at", outputFunction: outputMultiURL, hidden: true },
   { name: "user-agent", hidden: true },
   { name: "organization", hidden: true },
 ];
@@ -362,6 +363,9 @@ function initializeHeaderViewTables() {
     ["list-post", "mailnews.headers.showListPost"],
     ["list-owner", "mailnews.headers.showListOwner"],
     ["list-archive", "mailnews.headers.showListArchive"],
+
+    // RFC 5064.
+    ["archived-at", "mailnews.headers.showArchivedAt"],
   ]);
 
   for (const [header, pref] of headerPref) {

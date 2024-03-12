@@ -73,6 +73,8 @@ pref("mailnews.headers.showListSubscribe", false);
 pref("mailnews.headers.showListPost", false);
 pref("mailnews.headers.showListOwner", false);
 pref("mailnews.headers.showListArchive", false);
+// Show Archived-At header. RFC 5064.
+pref("mailnews.headers.showArchivedAt", false);
 
 // hidden pref for controlling if the message to a message-id
 // is opened in a new window or in the same window
