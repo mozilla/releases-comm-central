@@ -13,7 +13,7 @@ DIRS += [
 TEST_DIRS += ["test"]
 
 EXTRA_JS_MODULES.jsmime += [
-    "jsmime/jsmime.js",
+    "jsmime/jsmime.mjs",
 ]
 
 TESTING_JS_MODULES.jsmime += [

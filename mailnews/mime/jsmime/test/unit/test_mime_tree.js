@@ -31,11 +31,11 @@ define(function (require) {
   /**
    * Read a file into a string (all line endings become CRLF).
    *
-   * @param file  The name of the file to read, relative to the data/ directory.
-   * @param start The first line of the file to return, defaulting to 0
-   * @param end   The last line of the file to return, defaulting to the number of
-   *              lines in the file.
-   * @returns Promise<String> The contents of the file as a binary string.
+   * @param {string} file - The name of the file to read, relative to the data/ directory.
+   * @param {integer} [start=0] - The first line of the file to return.
+   * @param {integer} [end] - The last line of the file to return,
+   *   defaulting to the number of lines in the file.
+   * @returns {Promise<string>} the contents of the file as a binary string.
    */
   function read_file(file, start, end) {
     if (!(file in file_cache)) {
@@ -79,14 +79,14 @@ define(function (require) {
    * _eol: The CRLFs in the input file will be replaced with the given line
    *       ending instead.
    *
-   * @param test     The name of test
-   * @param file     The name of the file to read (relative to mailnews/data)
-   * @param opts     Options for the mime parser, as well as a few extras detailed
-   *                 above.
-   * @param partspec An array of [partnum, line start, line end] detailing the
-   *                 expected parts in the body. It will be expected that the
-   *                 accumulated body part data for partnum would be the contents
-   *                 of the file from [line start, line end) [1-based lines]
+   * @param {string} test - The name of test.
+   * @param {string} file - The name of the file to read (relative to mailnews/data).
+   * @param {object} opts - Options for the mime parser, as well as a few extras
+   *   detailed above.
+   * @param {Array} partspec - An array of [partnum, line start, line end]
+   *   detailing the expected parts in the body. It will be expected that the
+   *   accumulated body part data for partnum would be the contents
+   *   of the file from [line start, line end) [1-based lines]
    */
   function make_body_test(test, file, opts, partspec) {
     var results = Promise.all(
@@ -117,15 +117,15 @@ define(function (require) {
   /**
    * Execute a single MIME tree test.
    *
-   * @param message  Either the text of the message, an array of textual message
-   *                 part data (imagine coming on different TCP packets), or a
-   *                 promise that resolves to any of the above.
-   * @param opts     A set of options for the parser and for the test.
-   * @param results  The expected results of the call. This may either be a
-   *                 dictionary of part number -> header -> values (to check
-   *                 headers), or an array of [partnum, partdata] for expected
-   *                 results to deliverPartData, or a promise for the above.
-   * @returns A promise containing the results of the test.
+   * @param {string|string[]|Promise} message - Either the text of the message, an array of textual message
+   *   part data (imagine coming on different TCP packets), or a
+   *   promise that resolves to any of the above.
+   * @param {object} opts - A set of options for the parser and for the test.
+   * @param {object|Array} results - The expected results of the call.
+   *   This may either be adictionary of part number -> header -> values
+   *   (to check headers), or an array of [partnum, partdata] for expected
+   *   results to deliverPartData, or a promise for the above.
+   * @returns {Promise} A promise containing the results of the test.
    */
   function testParser(message, opts, results) {
     var uncheckedValues;

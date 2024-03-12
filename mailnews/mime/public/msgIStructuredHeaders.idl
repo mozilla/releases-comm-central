@@ -20,9 +20,7 @@ interface nsIUTF8StringEnumerator;
  * The structured forms defined in this method use the structured decoder and
  * encoder functionality found in jsmime to interconvert between the raw string
  * forms found in the actual message text and the structured forms supported by
- * this interface. Extensions can register their own custom structured headers
- * by listing the source URL of their code under the category
- * "custom-mime-encoder".
+ * this interface.
  *
  * The alternative modes of access for specific headers are expected to only
  * work for the headers for which that mode of access is the correct one. For

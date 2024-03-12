@@ -293,7 +293,6 @@
   "resource:///modules/chatNotifications.jsm": "comm/mail/components/im/modules/chatNotifications.jsm",
   "resource:///modules/cloudFileAccounts.jsm": "comm/mail/components/cloudfile/cloudFileAccounts.jsm",
   "resource:///modules/devtools-loader.jsm": "comm/mail/components/devtools/devtools-loader.jsm",
-  "resource:///modules/extraMimeParsers.jsm": "comm/mailnews/mime/src/extraMimeParsers.jsm",
   "resource:///modules/facebook.jsm": "comm/chat/protocols/facebook/facebook.jsm",
   "resource:///modules/gloda/Collection.jsm": "comm/mailnews/db/gloda/modules/Collection.jsm",
   "resource:///modules/gloda/Everybody.jsm": "comm/mailnews/db/gloda/modules/Everybody.jsm",

@@ -141,7 +141,6 @@
       "../mailnews/import/test/unit/test_ThunderbirdProfileImporter.js",
       "../mailnews/jsaccount/modules/JSAccountUtils.jsm",
       "../mailnews/mailnews.js",
-      "../mailnews/mime/jsmime/jsmime.js",
       "../mailnews/news/src/NntpClient.jsm",
       "../mailnews/news/src/NntpMessageService.jsm",
       "../mailnews/news/src/NntpNewsGroup.jsm",

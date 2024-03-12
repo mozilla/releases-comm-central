@@ -46,34 +46,6 @@ add_task(async function check_addressing() {
   Assert.equal(headers.getRawHeader("To"), '"Comma, Name" <test@foo.invalid>');
 });
 
-add_task(async function check_custom_header() {
-  // Load an extension for our custom header.
-  const url = Services.io.newFileURI(do_get_file("custom_header.js")).spec;
-  const promise = new Promise((resolve, reject) => {
-    function observer(subject, topic, data) {
-      Assert.equal(topic, "xpcom-category-entry-added");
-      Assert.equal(data, "custom-mime-encoder");
-      resolve();
-      Services.obs.removeObserver(observer, "xpcom-category-entry-added");
-    }
-    Services.obs.addObserver(observer, "xpcom-category-entry-added");
-  });
-  Services.catMan.addCategoryEntry(
-    "custom-mime-encoder",
-    "X-Unusual",
-    url,
-    false,
-    true
-  );
-  // The category manager doesn't fire until a later timestep.
-  await promise;
-  const headers = new StructuredHeaders();
-  headers.setRawHeader("X-Unusual", "10");
-  Assert.equal(headers.getHeader("X-Unusual"), 16);
-  headers.setHeader("X-Unusual", 32);
-  Assert.equal(headers.getRawHeader("X-Unusual"), "20");
-});
-
 add_task(async function check_raw() {
   const headers = new StructuredHeaders();
   Assert.ok(!headers.hasHeader("Date"));
