@@ -84,9 +84,8 @@ add_task(async function testGetDisplayedMessage() {
   extension.onMessage("testTheme", async () => {
     await themeUpdatePromise;
     await promiseAnimationFrame();
-    Assert.equal(
-      getDateLabelColor(),
-      "rgb(255, 0, 0)",
+    await TestUtils.waitForCondition(
+      () => getDateLabelColor() == "rgb(255, 0, 0)",
       "Color should have been modified"
     );
     extension.sendMessage();
