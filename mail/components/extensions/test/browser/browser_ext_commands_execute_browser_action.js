@@ -30,18 +30,16 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
     extensionOptions.manifest.browser_action.default_popup = "popup.html";
 
     extensionOptions.files = {
-      "popup.html": `
-        <!DOCTYPE html>
+      "popup.html": `<!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
-            <script src="popup.js"></script>
+            <script defer="defer" src="popup.js"></script>
           </head>
           <body>
             Popup
           </body>
-        </html>
-      `,
+        </html>`,
       "popup.js": function () {
         browser.runtime.sendMessage("from-browser-action-popup");
       },
@@ -142,18 +140,16 @@ async function testExecuteActionWithOptions_mv3(options = {}) {
     extensionOptions.manifest.action.default_popup = "popup.html";
 
     extensionOptions.files = {
-      "popup.html": `
-        <!DOCTYPE html>
+      "popup.html": `<!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
-            <script src="popup.js"></script>
+            <script defer="defer" src="popup.js"></script>
           </head>
           <body>
             Popup
           </body>
-        </html>
-      `,
+        </html>`,
       "popup.js": function () {
         browser.runtime.sendMessage("from-action-popup");
       },

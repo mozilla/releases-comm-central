@@ -175,31 +175,31 @@ const getCommonFiles = async () => {
 
       browser.test.notifyPass();
     },
-    "example.html": `<!DOCTYPE HTML>
+    "example.html": `<!DOCTYPE html>
       <html>
-      <head>
-        <title>EXAMPLE</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      </head>
-      <body>
-        <p>This is an example page</p>
-      </body>
+        <head>
+          <title>EXAMPLE</title>
+          <meta charset="utf-8">
+        </head>
+        <body>
+          <p>This is an example page</p>
+        </body>
       </html>`,
-    "test.html": `<!DOCTYPE HTML>
+    "test.html": `<!DOCTYPE html>
       <html>
-      <head>
-        <title>TEST</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      </head>
-      <body>
-        <ul>
-          <li><a id="link1" href="https://www.example.de/">external</a>
-          <li><a id="link2" href="example.html">no target</a>
-          <li><a id="link3" href="example.html#self" target = "_self">_self target</a>
-          <li><a id="link4" href="example.html#blank" target = "_blank">_blank target</a>
-          <li><a id="link5" href="example.html#other" target = "_other">_other target</a>
-        </ul>
-      </body>
+        <head>
+          <title>TEST</title>
+          <meta charset="utf-8">
+        </head>
+        <body>
+          <ul>
+            <li><a id="link1" href="https://www.example.de/">external</a>
+            <li><a id="link2" href="example.html">no target</a>
+            <li><a id="link3" href="example.html#self" target = "_self">_self target</a>
+            <li><a id="link4" href="example.html#blank" target = "_blank">_blank target</a>
+            <li><a id="link5" href="example.html#other" target = "_other">_other target</a>
+          </ul>
+        </body>
       </html>`,
   };
 };

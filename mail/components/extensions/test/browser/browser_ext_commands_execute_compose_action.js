@@ -35,18 +35,16 @@ async function testExecuteComposeActionWithOptions(options = {}) {
     extensionOptions.manifest.compose_action.default_popup = "popup.html";
 
     extensionOptions.files = {
-      "popup.html": `
-        <!DOCTYPE html>
+      "popup.html": `<!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
-            <script src="popup.js"></script>
+            <script defer="defer" src="popup.js"></script>
           </head>
           <body>
             Popup
           </body>
-      </html>
-      `,
+        </html>`,
       "popup.js": function () {
         browser.test.log("sending from-compose-action-popup");
         browser.runtime.sendMessage("from-compose-action-popup");

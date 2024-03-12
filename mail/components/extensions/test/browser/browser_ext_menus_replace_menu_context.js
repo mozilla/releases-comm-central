@@ -156,11 +156,17 @@ add_task(async function overrideContext_with_context() {
       permissions: ["menus", "menus.overrideContext", "tabs"],
     },
     files: {
-      "tab.html": `
-        <!DOCTYPE html><meta charset="utf-8">
-        <a href="http://example.com/">Link</a>
-        <script src="tab.js"></script>
-      `,
+      "tab.html": `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="tab.js"></script>
+          </head>
+          <body>
+            <a href="http://example.com/">Link</a>
+          </body>
+        </html>`,
       "tab.js": async () => {
         const [tab] = await browser.tabs.query({
           url: "https://example.com/?SomeTab",

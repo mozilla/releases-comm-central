@@ -12,21 +12,21 @@ Services.scriptloader.loadSubScript(
 const getCommonFiles = async () => {
   return {
     "utils.js": await getUtilsJS(),
-    "example.html": `<!DOCTYPE HTML>
-        <html>
+    "example.html": `<!DOCTYPE html>
+      <html>
         <head>
           <title>EXAMPLE</title>
-          <meta http-equiv="content-type" content="text/html; charset=utf-8">
+          <meta charset="utf-8">
         </head>
         <body>
         <p id="description">This is text.</p>
         </body>
-        </html>`,
-    "test.html": `<!DOCTYPE HTML>
-        <html>
+      </html>`,
+    "test.html": `<!DOCTYPE html>
+      <html>
         <head>
           <title>TEST</title>
-          <meta http-equiv="content-type" content="text/html; charset=utf-8">
+          <meta charset="utf-8">
         </head>
         <body>
           <p id="description">This is text.</p>
@@ -34,7 +34,7 @@ const getCommonFiles = async () => {
             <li><a id="link" href="example.html">link to example page</a>
           </ul>
         </body>
-        </html>`,
+      </html>`,
   };
 };
 

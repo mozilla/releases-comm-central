@@ -30,18 +30,16 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
       "popup.html";
 
     extensionOptions.files = {
-      "popup.html": `
-        <!DOCTYPE html>
+      "popup.html": `<!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
-            <script src="popup.js"></script>
+            <script defer="defer" src="popup.js"></script>
           </head>
           <body>
             Popup
           </body>
-        </html>
-      `,
+        </html>`,
       "popup.js": function () {
         browser.test.log("sending from-message-display-action-popup");
         browser.runtime.sendMessage("from-message-display-action-popup");

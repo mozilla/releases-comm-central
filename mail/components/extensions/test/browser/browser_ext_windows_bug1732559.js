@@ -45,17 +45,18 @@ add_task(async function check_focus() {
         browser.test.notifyPass("finished");
       },
       "focus.html": `<!DOCTYPE html>
-      <html>
-        <head>
-        <script src="utils.js"></script>
-        <script src="focus.js"></script>
-        <title>Focus Test</title>
-        </head>
-        <body>
-          <input id="email" type="text"/>
-          <input id="delay" type="number" min="0" max="10" size="2"/>
-        </body>
-      </html>`,
+        <html>
+          <head>
+            <title>Focus Test</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="utils.js"></script>
+            <script defer="defer" src="focus.js"></script>
+          </head>
+          <body>
+            <input id="email" type="text"/>
+            <input id="delay" type="number" min="0" max="10" size="2"/>
+          </body>
+        </html>`,
       "focus.js": () => {
         async function load() {
           const email = document.getElementById("email");

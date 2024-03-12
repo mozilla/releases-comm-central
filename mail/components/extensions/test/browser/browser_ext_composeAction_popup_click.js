@@ -147,15 +147,16 @@ add_task(
       "background.js": background_for_openPopup_tests,
       "utils.js": await getUtilsJS(),
       "popup.html": `<!DOCTYPE html>
-      <html>
-        <head>
-          <title>Popup</title>
-        </head>
-        <body>
-          <p>Hello</p>
-          <script src="popup.js"></script>
-        </body>
-      </html>`,
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="popup.js"></script>
+          </head>
+          <body>
+            <p>Hello</p>
+          </body>
+        </html>`,
       "popup.js": async function () {
         browser.test.sendMessage("popup opened");
         window.close();
@@ -209,15 +210,16 @@ add_task(
       "background.js": background_for_openPopup_tests,
       "utils.js": await getUtilsJS(),
       "popup.html": `<!DOCTYPE html>
-      <html>
-        <head>
-          <title>Popup</title>
-        </head>
-        <body>
-          <p>Hello</p>
-          <script src="popup.js"></script>
-        </body>
-      </html>`,
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="popup.js"></script>
+          </head>
+          <body>
+            <p>Hello</p>
+          </body>
+        </html>`,
       "popup.js": async function () {
         browser.test.sendMessage("popup opened");
         window.close();

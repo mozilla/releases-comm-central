@@ -93,12 +93,18 @@ add_task(async function overrideContext_in_extension_tab() {
       permissions: ["menus", "menus.overrideContext"],
     },
     files: {
-      "tab.html": `
-        <!DOCTYPE html><meta charset="utf-8">
-        <a href="http://example.com/">Link</a>
-        <div id="shadowHost"></div>
-        <script src="tab.js"></script>
-      `,
+      "tab.html": `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="tab.js"></script>
+          </head>
+          <body>
+            <a href="http://example.com/">Link</a>
+            <div id="shadowHost"></div>
+          </body>
+        </html>`,
       "tab.js": extensionTabScript,
     },
     background() {
@@ -356,12 +362,18 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
       },
     },
     files: {
-      "popup.html": `
-        <!DOCTYPE html><meta charset="utf-8">
-        <a id="link1" href="http://example.com/">Link1</a>
-        <div id="shadowHost"></div>
-        <script src="popup.js"></script>
-      `,
+      "popup.html": `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="popup.js"></script>
+          </head>
+          <body>
+            <a id="link1" href="http://example.com/">Link1</a>
+            <div id="shadowHost"></div>
+          </body>
+        </html>`,
       "popup.js": extensionPopupScript,
     },
     background() {

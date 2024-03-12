@@ -87,30 +87,30 @@ const getCommonFiles = async () => {
       }
       browser.test.notifyPass();
     },
-    "handler.html": `<!DOCTYPE HTML>
+    "handler.html": `<!DOCTYPE html>
       <html>
-      <head>
-        <title>EXAMPLE</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      </head>
-      <body>
-        <p>This is an example page</p>
-      </body>
+        <head>
+          <title>EXAMPLE</title>
+          <meta charset="utf-8">
+        </head>
+        <body>
+          <p>This is an example page</p>
+        </body>
       </html>`,
-    "test.html": `<!DOCTYPE HTML>
+    "test.html": `<!DOCTYPE html>
       <html>
-      <head>
-        <title>TEST</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      </head>
-      <body>
-        <ul>
-          <li><a id="link1" href="ext+test:payload">extension handler without target</a>
-          <li><a id="link2" href="ext+test:payload" target = "_self">extension handler with _self target</a>
-          <li><a id="link3" href="ext+test:payload" target = "_blank">extension handler with _blank target</a>
-          <li><a id="link4" href="ext+test:payload" target = "_other">extension handler with _other target</a>
-        </ul>
-      </body>
+        <head>
+          <title>TEST</title>
+          <meta charset="utf-8">
+        </head>
+        <body>
+          <ul>
+            <li><a id="link1" href="ext+test:payload">extension handler without target</a>
+            <li><a id="link2" href="ext+test:payload" target = "_self">extension handler with _self target</a>
+            <li><a id="link3" href="ext+test:payload" target = "_blank">extension handler with _blank target</a>
+            <li><a id="link4" href="ext+test:payload" target = "_other">extension handler with _other target</a>
+          </ul>
+        </body>
       </html>`,
   };
 };

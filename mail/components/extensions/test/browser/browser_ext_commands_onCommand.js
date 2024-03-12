@@ -414,16 +414,16 @@ add_task(async function test_commands_MV3_event_page() {
     files: {
       "background.js": background,
       "utils.js": await getUtilsJS(),
-      "example.html": `<!DOCTYPE HTML>
-      <html>
-      <head>
-        <title>EXAMPLE</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-      </head>
-      <body>
-        <p>This is an example page</p>
-      </body>
-      </html>`,
+      "example.html": `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>EXAMPLE</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <p>This is an example page</p>
+          </body>
+        </html>`,
     },
     manifest: {
       manifest_version: 3,

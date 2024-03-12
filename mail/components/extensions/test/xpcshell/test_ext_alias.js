@@ -86,17 +86,15 @@ add_task(async function test_alias() {
 
         browser.runtime.sendMessage("contentscript");
       `,
-      "web.html": `
-        <!DOCTYPE html>
+      "web.html": `<!DOCTYPE html>
         <html>
           <head>
             <meta charset='utf8'>
-            <script src="web.js"></script>
+            <script defer="defer" src="web.js"></script>
           </head>
           <body>
           </body>
-        </html>
-      `,
+        </html>`,
       "web.js": `
         browser.test.assertEq("object", typeof browser, "Web accessible script has browser object");
         browser.test.assertEq("object", typeof messenger, "Web accessible script has messenger object");

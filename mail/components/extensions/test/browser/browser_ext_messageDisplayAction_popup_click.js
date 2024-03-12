@@ -248,10 +248,11 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
       <html>
         <head>
           <title>Popup</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="popup.js"></script>
         </head>
         <body>
           <p>Hello</p>
-          <script src="popup.js"></script>
         </body>
       </html>`,
     "popup.js": async function () {

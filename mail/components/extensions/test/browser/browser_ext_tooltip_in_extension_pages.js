@@ -95,11 +95,12 @@ add_task(async function test_browserAction_in_about3pane() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -182,11 +183,12 @@ add_task(async function test_browserAction_in_message_window() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -263,11 +265,12 @@ add_task(async function test_composeAction() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -335,11 +338,12 @@ add_task(async function test_messageDisplayAction_in_about3pane() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -425,11 +429,12 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -515,11 +520,12 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -594,11 +600,12 @@ add_task(async function test_extension_window() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),
@@ -667,11 +674,12 @@ add_task(async function test_extension_tab() {
       <html>
         <head>
           <title>Page</title>
+          <meta charset="utf-8">
+          <script defer="defer" src="page.js"></script>
         </head>
         <body>
           <h1>Tooltip test</h1>
           <p title="Tooltip">I am an element with a tooltip</p>
-          <script src="page.js"></script>
         </body>
       </html>`,
     "utils.js": await getUtilsJS(),

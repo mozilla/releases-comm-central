@@ -675,6 +675,12 @@ async function openContextMenu(selector = "#img1", win = window) {
   return contentAreaContextMenu;
 }
 
+async function clickElementInPopup(extension, selector, win = window) {
+  const stack = getBrowserActionPopup(extension, win);
+  const browser = stack.querySelector("browser");
+  await synthesizeMouseAtCenterAndRetry(selector, {}, browser);
+}
+
 async function openContextMenuInPopup(extension, selector, win = window) {
   const contentAreaContextMenu =
     win.top.document.getElementById("browserContext");
@@ -882,15 +888,16 @@ async function run_popup_test(configData) {
   const extensionDetails = {
     files: {
       "popup.html": `<!DOCTYPE html>
-                      <html>
-                        <head>
-                          <title>Popup</title>
-                        </head>
-                        <body>
-                          <p>Hello</p>
-                          <script src="popup.js"></script>
-                        </body>
-                      </html>`,
+        <html>
+          <head>
+            <title>Popup</title>
+            <meta charset="utf-8">
+            <script defer="defer" src="popup.js"></script>
+          </head>
+          <body>
+            <p>Hello</p>
+          </body>
+        </html>`,
       "popup.js": async function () {
         // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
         await new Promise(resolve => window.setTimeout(resolve, 1000));

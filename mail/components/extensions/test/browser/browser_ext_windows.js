@@ -213,19 +213,17 @@ add_task(async function checkTitlePreface() {
 
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "content.html": `
-        <!DOCTYPE html>
+      "content.html": `<!DOCTYPE html>
         <html>
-        <head>
-          <meta charset="utf-8"/>
-          <title>A test document</title>
-          <script type="text/javascript" src="content.js"></script>
-        </head>
-        <body>
-          <p>This is text.</p>
-        </body>
-        </html>
-      `,
+          <head>
+            <meta charset="utf-8"/>
+            <title>A test document</title>
+            <script defer="defer" src="content.js"></script>
+          </head>
+          <body>
+            <p>This is text.</p>
+          </body>
+        </html>`,
       "content.js": `
         browser.runtime.onMessage.addListener(
           (data, sender) => {
@@ -406,15 +404,15 @@ add_task(async function checkTitlePreface() {
 add_task(async function test_popupLayoutProperties() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "test.html": `<!DOCTYPE HTML>
+      "test.html": `<!DOCTYPE html>
         <html>
-        <head>
-          <title>TEST</title>
-          <meta http-equiv="content-type" content="text/html; charset=utf-8">
-        </head>
-        <body>
-        <p>Test body</p>
-        </body>
+          <head>
+            <title>TEST</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <p>Test body</p>
+          </body>
         </html>`,
       "background.js": async () => {
         async function checkWindow(windowId, expected, retries = 0) {
