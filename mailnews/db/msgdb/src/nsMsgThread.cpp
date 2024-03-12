@@ -39,6 +39,7 @@ void nsMsgThread::Init() {
   m_threadKey = nsMsgKey_None;
   m_threadRootKey = nsMsgKey_None;
   m_numChildren = 0;
+  m_numNewChildren = 0;
   m_numUnreadChildren = 0;
   m_flags = 0;
   m_newestMsgDate = 0;
@@ -89,8 +90,29 @@ nsresult nsMsgThread::InitCachedValues() {
     //    fixing");
     if (m_numChildren > rowCount)
       ChangeChildCount((int32_t)rowCount - (int32_t)m_numChildren);
+
     if ((int32_t)m_numUnreadChildren < 0)
       ChangeUnreadChildCount(-(int32_t)m_numUnreadChildren);
+
+    // Count the number of new messages we started with. This information isn't
+    // stored in the database, so we have to iterate through the messages.
+    bool hasNew;
+    err = m_mdbDB->HasNew(&hasNew);
+    NS_ENSURE_SUCCESS(err, err);
+    if (hasNew) {
+      nsTArray<nsMsgKey> newKeys;
+      m_mdbDB->GetNewList(newKeys);
+      newKeys.Sort();
+
+      for (uint32_t childIndex = 0; childIndex < m_numChildren; childIndex++) {
+        nsMsgKey key;
+        err = GetChildKeyAt(childIndex, &key);
+        if (NS_SUCCEEDED(err) && newKeys.ContainsSorted(key)) {
+          MarkChildNew(true);
+        }
+      }
+    }
+
     if (NS_SUCCEEDED(err)) m_cachedValuesInitialized = true;
   }
   return err;
@@ -148,6 +170,12 @@ NS_IMETHODIMP nsMsgThread::GetSubject(nsACString& aSubject) {
 NS_IMETHODIMP nsMsgThread::GetNumChildren(uint32_t* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = m_numChildren;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgThread::GetNumNewChildren(uint32_t* aNumNewChildren) {
+  NS_ENSURE_ARG_POINTER(aNumNewChildren);
+  *aNumNewChildren = m_numNewChildren;
   return NS_OK;
 }
 
@@ -213,7 +241,8 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
   if (newHdrFlags & nsMsgMessageFlags::Watched)
     SetFlags(m_flags | nsMsgMessageFlags::Watched);
 
-  child->AndFlags(~(nsMsgMessageFlags::Watched), &newHdrFlags);
+  uint32_t unused;
+  child->AndFlags(~(nsMsgMessageFlags::Watched), &unused);
 
   // These are threading flags that the child may have set before being added
   // to the database.
@@ -230,6 +259,7 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
   // if this is an empty thread, set the root key to this header's key
   if (numChildren == 0) SetThreadRootKey(newHdrKey);
 
+  if (newHdrFlags & nsMsgMessageFlags::New) ChangeNewChildCount(1);
   if (m_mdbTable) {
     m_mdbTable->AddRow(m_mdbDB->GetEnv(), hdrRow);
     ChangeChildCount(1);
@@ -496,6 +526,7 @@ NS_IMETHODIMP nsMsgThread::RemoveChildHdr(nsIMsgDBHdr* child,
   child->GetDateInSeconds(&date);
   if (date == m_newestMsgDate) SetNewestMsgDate(0);
 
+  if (flags & nsMsgMessageFlags::New) ChangeNewChildCount(-1);
   if (!(flags & nsMsgMessageFlags::Read)) ChangeUnreadChildCount(-1);
   ChangeChildCount(-1);
   return RemoveChild(key);
@@ -536,6 +567,11 @@ nsresult nsMsgThread::ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent,
     }
   }
   return rv;
+}
+
+NS_IMETHODIMP nsMsgThread::MarkChildNew(bool bNew) {
+  ChangeNewChildCount(bNew ? 1 : -1);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgThread::MarkChildRead(bool bRead) {
@@ -877,6 +913,11 @@ nsresult nsMsgThread::ChangeChildCount(int32_t delta) {
       m_metaRow, m_mdbDB->m_threadChildrenColumnToken, childCount);
   m_numChildren = childCount;
   return rv;
+}
+
+nsresult nsMsgThread::ChangeNewChildCount(int32_t delta) {
+  m_numNewChildren += delta;
+  return NS_OK;
 }
 
 nsresult nsMsgThread::ChangeUnreadChildCount(int32_t delta) {

@@ -46,6 +46,7 @@ class nsMsgGroupThread : public nsIMsgThread {
 
   nsresult ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent,
                               nsIDBChangeAnnouncer* announcer);
+  nsresult ChangeNewChildCount(int32_t delta);
   nsresult ChangeUnreadChildCount(int32_t delta);
   nsresult GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr** result,
                              int32_t* resultIndex);
@@ -55,6 +56,7 @@ class nsMsgGroupThread : public nsIMsgThread {
   virtual nsMsgViewIndex FindMsgHdr(nsIMsgDBHdr* hdr);
 
   nsMsgKey m_threadKey;
+  uint32_t m_numNewChildren;
   uint32_t m_numUnreadChildren;
   uint32_t m_flags;
   nsMsgKey m_threadRootKey;

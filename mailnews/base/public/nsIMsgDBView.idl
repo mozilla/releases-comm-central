@@ -215,7 +215,11 @@ interface nsIMsgDBView : nsISupports
   /** A shim of XULTreeElement, with only the methods called by nsMsgDBView. */
   void setJSTree(in nsIMsgJSTree tree);
 
-  void open(in nsIMsgFolder folder, in nsMsgViewSortTypeValue sortType, in nsMsgViewSortOrderValue sortOrder, in nsMsgViewFlagsTypeValue viewFlags, out long count);
+  void open(in nsIMsgFolder folder,
+            in nsMsgViewSortTypeValue sortType,
+            in nsMsgViewSortOrderValue sortOrder,
+            in nsMsgViewFlagsTypeValue viewFlags,
+            out long count);
   void openWithHdrs(in nsIMsgEnumerator aHeaders, in nsMsgViewSortTypeValue aSortType,
                       in nsMsgViewSortOrderValue aSortOrder,
                       in nsMsgViewFlagsTypeValue aViewFlags, out long aCount);

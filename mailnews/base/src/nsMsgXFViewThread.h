@@ -27,6 +27,7 @@ class nsMsgXFViewThread : public nsIMsgThread {
 
   bool IsHdrParentOf(nsIMsgDBHdr* possibleParent, nsIMsgDBHdr* possibleChild);
 
+  void ChangeNewChildCount(int32_t delta);
   void ChangeUnreadChildCount(int32_t delta);
   void ChangeChildCount(int32_t delta);
 
@@ -40,6 +41,7 @@ class nsMsgXFViewThread : public nsIMsgThread {
   virtual ~nsMsgXFViewThread();
 
   nsMsgSearchDBView* m_view;
+  uint32_t m_numNewChildren;
   uint32_t m_numUnreadChildren;
   uint32_t m_numChildren;
   uint32_t m_flags;

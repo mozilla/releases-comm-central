@@ -755,14 +755,16 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
   if (!IsValidIndex(aRow)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
   if (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) ||
-      aColumnName.EqualsLiteral("unreadCol"))
+      aColumnName.EqualsLiteral("unreadCol") ||
+      aColumnName.EqualsLiteral("newCol"))
     return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
 
   // We only treat "subject" and "total" here.
   bool isSubject;
   if (!(isSubject = aColumnName.EqualsLiteral("subjectCol")) &&
-      !aColumnName.EqualsLiteral("totalCol"))
+      !aColumnName.EqualsLiteral("totalCol")) {
     return NS_OK;
+  }
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = GetMsgHdrForViewIndex(aRow, getter_AddRefs(msgHdr));
@@ -876,29 +878,6 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
       default:
         NS_ASSERTION(false, "we don't sort by group for this type");
         break;
-    }
-
-    if (groupThread) {
-      // Get number of messages in group.
-      nsAutoString formattedCountMsg;
-      uint32_t numMsg = groupThread->NumRealChildren();
-      formattedCountMsg.AppendInt(numMsg);
-
-      // Get number of unread messages.
-      nsAutoString formattedCountUnrMsg;
-      uint32_t numUnrMsg = 0;
-      groupThread->GetNumUnreadChildren(&numUnrMsg);
-      formattedCountUnrMsg.AppendInt(numUnrMsg);
-
-      // Add text to header.
-      aValue.AppendLiteral(u" (");
-      if (numUnrMsg) {
-        aValue.Append(formattedCountUnrMsg);
-        aValue.Append(u'/');
-      }
-
-      aValue.Append(formattedCountMsg);
-      aValue.Append(u')');
     }
   } else {
     nsAutoString formattedCountString;

@@ -1901,8 +1901,26 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         rv = FetchTags(msgHdr, aValue);
       }
       break;
+    case 'n':
+      // New messages in thread.
+      if (aColumnName.EqualsLiteral("newCol") &&
+          m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
+        if (m_flags[aRow] & MSG_VIEW_FLAG_ISTHREAD) {
+          rv = GetThreadContainingIndex(aRow, getter_AddRefs(thread));
+          if (NS_SUCCEEDED(rv) && thread) {
+            nsAutoString formattedCountString;
+            uint32_t numNewChildren;
+            thread->GetNumNewChildren(&numNewChildren);
+            if (numNewChildren > 0) {
+              formattedCountString.AppendInt(numNewChildren);
+              aValue.Assign(formattedCountString);
+            }
+          }
+        }
+      }
+      break;
     case 'u':
-      // unread msgs in thread col
+      // Unread messages in thread.
       if (aColumnName.EqualsLiteral("unreadCol") &&
           m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
         if (m_flags[aRow] & MSG_VIEW_FLAG_ISTHREAD) {
@@ -5757,6 +5775,11 @@ nsMsgDBView::OnHdrFlagsChanged(nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags,
     }
 
     uint32_t deltaFlags = (aOldFlags ^ aNewFlags);
+    if (deltaFlags & nsMsgMessageFlags::New) {
+      nsCOMPtr<nsIMsgThread> thread;
+      GetThreadContainingMsgHdr(aHdrChanged, getter_AddRefs(thread));
+      if (thread) thread->MarkChildNew(aNewFlags & nsMsgMessageFlags::New);
+    }
     if (deltaFlags & (nsMsgMessageFlags::Read | nsMsgMessageFlags::New)) {
       nsMsgViewIndex threadIndex =
           ThreadIndexOfMsgHdr(aHdrChanged, index, nullptr, nullptr);

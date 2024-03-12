@@ -16,6 +16,7 @@ nsMsgGroupThread::nsMsgGroupThread(nsIMsgDatabase* db,
                                    nsMsgViewSortOrderValue sortOrder) {
   m_threadKey = nsMsgKey_None;
   m_threadRootKey = nsMsgKey_None;
+  m_numNewChildren = 0;
   m_numUnreadChildren = 0;
   m_flags = 0;
   m_newestMsgDate = 0;
@@ -30,6 +31,7 @@ already_AddRefed<nsMsgGroupThread> nsMsgGroupThread::Clone() {
   RefPtr<nsMsgGroupThread> thread = new nsMsgGroupThread(m_db, m_sortOrder);
   thread->m_threadKey = m_threadKey;
   thread->m_threadRootKey = m_threadRootKey;
+  thread->m_numNewChildren = m_numNewChildren;
   thread->m_numUnreadChildren = m_numUnreadChildren;
   thread->m_flags = m_flags;
   thread->m_newestMsgDate = m_newestMsgDate;
@@ -80,6 +82,12 @@ NS_IMETHODIMP nsMsgGroupThread::GetNumChildren(uint32_t* aNumChildren) {
 
 uint32_t nsMsgGroupThread::NumRealChildren() {
   return m_keys.Length() - ((m_dummy) ? 1 : 0);
+}
+
+NS_IMETHODIMP nsMsgGroupThread::GetNumNewChildren(uint32_t* aNumNewChildren) {
+  NS_ENSURE_ARG_POINTER(aNumNewChildren);
+  *aNumNewChildren = m_numNewChildren;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgGroupThread::GetNumUnreadChildren(
@@ -146,7 +154,8 @@ nsMsgViewIndex nsMsgGroupThread::AddChildFromGroupView(nsIMsgDBHdr* child,
   child->GetFlags(&newHdrFlags);
   child->GetMessageKey(&newHdrKey);
 
-  child->AndFlags(~(nsMsgMessageFlags::Watched), &newHdrFlags);
+  uint32_t unused;
+  child->AndFlags(~(nsMsgMessageFlags::Watched), &unused);
   uint32_t numChildren;
 
   // get the num children before we add the new header.
@@ -155,6 +164,7 @@ nsMsgViewIndex nsMsgGroupThread::AddChildFromGroupView(nsIMsgDBHdr* child,
   // if this is an empty thread, set the root key to this header's key
   if (numChildren == 0) m_threadRootKey = newHdrKey;
 
+  if (newHdrFlags & nsMsgMessageFlags::New) ChangeNewChildCount(1);
   if (!(newHdrFlags & nsMsgMessageFlags::Read)) ChangeUnreadChildCount(1);
 
   return AddMsgHdrInDateOrder(child, view);
@@ -212,6 +222,7 @@ NS_IMETHODIMP nsMsgGroupThread::RemoveChildHdr(
   child->GetDateInSeconds(&date);
   if (date == m_newestMsgDate) SetNewestMsgDate(0);
 
+  if (flags & nsMsgMessageFlags::New) ChangeNewChildCount(-1);
   if (!(flags & nsMsgMessageFlags::Read)) ChangeUnreadChildCount(-1);
   nsMsgViewIndex threadIndex = FindMsgHdr(child);
   bool wasFirstChild = threadIndex == 0;
@@ -266,6 +277,11 @@ nsresult nsMsgGroupThread::ReparentChildrenOf(nsMsgKey oldParent,
   return rv;
 }
 
+NS_IMETHODIMP nsMsgGroupThread::MarkChildNew(bool bNew) {
+  ChangeNewChildCount(bNew ? 1 : -1);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgGroupThread::MarkChildRead(bool bRead) {
   ChangeUnreadChildCount(bRead ? -1 : 1);
   return NS_OK;
@@ -316,6 +332,11 @@ NS_IMETHODIMP nsMsgGroupThread::GetRootHdr(nsIMsgDBHdr** result) {
     // when removing the thread root key.
   }
   return GetChildHdrAt(0, result);
+}
+
+nsresult nsMsgGroupThread::ChangeNewChildCount(int32_t delta) {
+  m_numNewChildren += delta;
+  return NS_OK;
 }
 
 nsresult nsMsgGroupThread::ChangeUnreadChildCount(int32_t delta) {
@@ -373,6 +394,7 @@ already_AddRefed<nsMsgXFGroupThread> nsMsgXFGroupThread::Clone() {
   RefPtr<nsMsgXFGroupThread> thread = new nsMsgXFGroupThread(0);
   thread->m_threadKey = m_threadKey;
   thread->m_threadRootKey = m_threadRootKey;
+  thread->m_numNewChildren = m_numNewChildren;
   thread->m_numUnreadChildren = m_numUnreadChildren;
   thread->m_flags = m_flags;
   thread->m_newestMsgDate = m_newestMsgDate;
