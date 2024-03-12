@@ -1164,8 +1164,6 @@ function updateRange() {
       this.#input.setAttribute("minresultsforpopup", "1");
       this.#input.addEventListener("change", this);
       this.#input.addEventListener("keydown", this);
-      this.#input.addEventListener("input", this);
-      this.#input.addEventListener("click", this);
 
       this._freeBusyDiv = freebusyGridInner.appendChild(document.createElement("div"));
       this._freeBusyDiv.classList.add("freebusy-row");
@@ -1283,17 +1281,7 @@ function updateRange() {
     }
 
     handleEvent(event) {
-      if (
-        // Change, e.g. due to blur.
-        event.type == "change" ||
-        (event.type == "keydown" && event.key == "Enter") ||
-        // A click on the line of the input field.
-        (event.type == "click" && event.target.nodeName == "input") ||
-        // A click on an autocomplete suggestion.
-        (event.type == "input" &&
-          event.inputType == "insertReplacementText" &&
-          event.explicitOriginalTarget != event.originalTarget)
-      ) {
+      if (event.type == "change") {
         const nextElement = this.nextElementSibling;
         if (this.#input.value) {
           /**
@@ -1335,8 +1323,6 @@ function updateRange() {
           const attendeeAddresses = MailServices.headerParser.makeFromDisplayAddress(
             this.#input.value
           );
-          // Clear input so possible later events won't try to add again.
-          this.#input.value = "";
           const resolvedMailboxes = attendeeAddresses.reduce(
             resolveAddressesToMailboxes,
             new Map()

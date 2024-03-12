@@ -93,5 +93,5 @@ function findAndEditMatchingRow(attendeesWindow, newValue, message, matchFunctio
   // Set the new value of the row. We set the input value directly due to issues
   // experienced trying to use simulated keystrokes.
   attendeeInput.value = newValue;
-  EventUtils.synthesizeKey("VK_RETURN", {}, attendeesWindow);
+  attendeeInput.dispatchEvent(new Event("change"));
 }
