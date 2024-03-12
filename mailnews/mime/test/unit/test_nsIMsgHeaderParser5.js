@@ -5,8 +5,8 @@
  *   parseEncodedHeader
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 function equalArrays(arr1, arr2) {

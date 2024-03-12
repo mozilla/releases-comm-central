@@ -19,15 +19,18 @@
  *  define a bunch of message corpuses entirely specialized for each test.
  */
 
-var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+  );
+var { queryExpect } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
-var { queryExpect } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
+var { GlodaConstants } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaConstants.sys.mjs"
 );
 var { SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

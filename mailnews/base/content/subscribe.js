@@ -4,7 +4,9 @@
 
 /* globals msgWindow, nsMsgStatusFeedback */ // From mailWindow.js
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 var gSubscribeTree = null;
 var gSubscribeBody = null;

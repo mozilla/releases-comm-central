@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
-  "resource:///modules/hostnameUtils.jsm"
+var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.importESModule(
+  "resource:///modules/hostnameUtils.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-var { OAuth2Providers } = ChromeUtils.import(
-  "resource:///modules/OAuth2Providers.jsm"
+var { OAuth2Providers } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Providers.sys.mjs"
 );
 
 var gSmtpServer;

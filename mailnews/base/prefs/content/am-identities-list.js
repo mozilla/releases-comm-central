@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/Gloda.sys.mjs"
+);
 
 var gIdentityListBox; // the root <richlistbox> node
 var gAddButton;

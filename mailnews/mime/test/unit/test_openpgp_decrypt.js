@@ -7,20 +7,20 @@
  * processed correctly by mime.
  */
 
-const { OpenPGPTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
+const { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
-const { EnigmailSingletons } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/singletons.jsm"
+const { EnigmailSingletons } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/singletons.sys.mjs"
 );
-const { EnigmailVerify } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeVerify.jsm"
+const { EnigmailVerify } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/mimeVerify.sys.mjs"
 );
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { EnigmailConstants } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/constants.sys.mjs"
 );
-const { EnigmailDecryption } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/decryption.jsm"
+const { EnigmailDecryption } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/decryption.sys.mjs"
 );
 
 var { MessageInjection } = ChromeUtils.importESModule(

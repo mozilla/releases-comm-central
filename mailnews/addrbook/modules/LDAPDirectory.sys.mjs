@@ -2,30 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { AddrBookDirectory } = ChromeUtils.import(
-  "resource:///modules/AddrBookDirectory.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { AddrBookDirectory } from "resource:///modules/AddrBookDirectory.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  QueryStringToExpression: "resource:///modules/QueryStringToExpression.jsm",
+  QueryStringToExpression:
+    "resource:///modules/QueryStringToExpression.sys.mjs",
 });
 
 /**
+ * @augments {AddrBookDirectory}
  * @implements {nsIAbLDAPDirectory}
  * @implements {nsIAbDirectory}
  */
-
 export class LDAPDirectory extends AddrBookDirectory {
   QueryInterface = ChromeUtils.generateQI([
     "nsIAbLDAPDirectory",

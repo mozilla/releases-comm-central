@@ -2,18 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  newUID: "resource:///modules/AddrBookUtils.jsm",
+  newUID: "resource:///modules/AddrBookUtils.sys.mjs",
 });
 
 /**

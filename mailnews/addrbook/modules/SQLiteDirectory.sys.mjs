@@ -2,21 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { AddrBookDirectory } = ChromeUtils.import(
-  "resource:///modules/AddrBookDirectory.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
-const lazy = {};
-
+import { AddrBookDirectory } from "resource:///modules/AddrBookDirectory.sys.mjs";
 import { AsyncShutdown } from "resource://gre/modules/AsyncShutdown.sys.mjs";
 
+const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  newUID: "resource:///modules/AddrBookUtils.jsm",
+  newUID: "resource:///modules/AddrBookUtils.sys.mjs",
 });
 
 var log = console.createInstance({

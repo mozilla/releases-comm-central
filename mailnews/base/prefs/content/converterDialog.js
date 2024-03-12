@@ -7,17 +7,17 @@
  * type conversion.
  */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "FolderUtils",
-  "resource:///modules/FolderUtils.jsm"
-);
-var MailstoreConverter = ChromeUtils.import(
-  "resource:///modules/mailstoreConverter.jsm"
+ChromeUtils.defineESModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+});
+var MailstoreConverter = ChromeUtils.importESModule(
+  "resource:///modules/mailstoreConverter.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"

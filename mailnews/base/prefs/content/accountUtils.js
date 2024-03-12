@@ -7,8 +7,8 @@
 /* globals SelectFolder */ // From messageWindow.js or messenger.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var gAnyValidIdentity = false; // If there are no valid identities for any account

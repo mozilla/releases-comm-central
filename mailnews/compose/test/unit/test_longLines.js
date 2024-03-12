@@ -3,7 +3,9 @@
  * Most of this test was copied from test_messageHeaders.js.
  */
 
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
+);
 
 var CompFields = CC(
   "@mozilla.org/messengercompose/composefields;1",

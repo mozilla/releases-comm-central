@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { ImapResponse } = ChromeUtils.import(
-  "resource:///modules/ImapResponse.jsm"
+var { ImapResponse } = ChromeUtils.importESModule(
+  "resource:///modules/ImapResponse.sys.mjs"
 );
-var { ImapUtils } = ChromeUtils.import("resource:///modules/ImapUtils.jsm");
+var { ImapUtils } = ChromeUtils.importESModule(
+  "resource:///modules/ImapUtils.sys.mjs"
+);
 
 /**
  * Test CAPABILITY response can be correctly parsed.

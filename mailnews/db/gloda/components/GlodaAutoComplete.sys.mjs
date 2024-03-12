@@ -10,14 +10,15 @@
  * gloda-single-identity-richlistitem, gloda-single-tag-richlistitem.
  */
 
-const { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
-);
+import { GlodaConstants } from "resource:///modules/gloda/GlodaConstants.sys.mjs";
 
-var Gloda = null;
-var MultiSuffixTree = null;
-var TagNoun = null;
-var FreeTagNoun = null;
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
+  MultiSuffixTree: "resource:///modules/gloda/SuffixTree.sys.mjs",
+  TagNoun: "resource:///modules/gloda/NounTag.sys.mjs",
+  FreeTagNoun: "resource:///modules/gloda/NounFreetag.sys.mjs",
+});
 
 function ResultRowFullText(aItem, words, typeForStyle) {
   this.item = aItem;
@@ -31,7 +32,7 @@ ResultRowFullText.prototype = {
 
 function ResultRowSingle(aItem, aCriteriaType, aCriteria, aExplicitNounID) {
   this.nounID = aExplicitNounID || aItem.NOUN_ID;
-  this.nounDef = Gloda._nounIDToDef[this.nounID];
+  this.nounDef = lazy.Gloda._nounIDToDef[this.nounID];
   this.criteriaType = aCriteriaType;
   this.criteria = aCriteria;
   this.item = aItem;
@@ -44,7 +45,7 @@ ResultRowSingle.prototype = {
 
 function ResultRowMulti(aNounID, aCriteriaType, aCriteria, aQuery) {
   this.nounID = aNounID;
-  this.nounDef = Gloda._nounIDToDef[aNounID];
+  this.nounDef = lazy.Gloda._nounIDToDef[aNounID];
   this.criteriaType = aCriteriaType;
   this.criteria = aCriteria;
   this.collection = aQuery.getCollection(this);
@@ -182,7 +183,7 @@ var MAX_POPULAR_CONTACTS = 200;
  */
 function ContactIdentityCompleter() {
   // get all the contacts
-  const contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+  const contactQuery = lazy.Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
   contactQuery.orderBy("-popularity").limit(MAX_POPULAR_CONTACTS);
   this.contactCollection = contactQuery.getCollection(this, null);
   this.contactCollection.becomeExplicit();
@@ -244,7 +245,7 @@ ContactIdentityCompleter.prototype = {
     // - match against database contacts / identities
     const pending = { contactToThing, pendingCount: 2 };
 
-    const contactQuery = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+    const contactQuery = lazy.Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
     contactQuery.nameLike(
       contactQuery.WILDCARD,
       aString,
@@ -253,7 +254,7 @@ ContactIdentityCompleter.prototype = {
     pending.contactColl = contactQuery.getCollection(this, aResult);
     pending.contactColl.becomeExplicit();
 
-    const identityQuery = Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
+    const identityQuery = lazy.Gloda.newQuery(GlodaConstants.NOUN_IDENTITY);
     identityQuery
       .kind("email")
       .valueLike(identityQuery.WILDCARD, aString, identityQuery.WILDCARD);
@@ -272,10 +273,10 @@ ContactIdentityCompleter.prototype = {
     if (aCollection.data == null) {
       // cheat and explicitly add our own contact...
       if (
-        Gloda.myContact &&
-        !(Gloda.myContact.id in this.contactCollection._idMap)
+        lazy.Gloda.myContact &&
+        !(lazy.Gloda.myContact.id in this.contactCollection._idMap)
       ) {
-        this.contactCollection._onItemsAdded([Gloda.myContact]);
+        this.contactCollection._onItemsAdded([lazy.Gloda.myContact]);
       }
 
       // the set of identities owned by the contacts is automatically loaded as part
@@ -302,7 +303,7 @@ ContactIdentityCompleter.prototype = {
       //  duplicates the list we called concat on, and is thus harmless.  Our
       //  use of && on identityCollection allows its undefined value to be
       //  passed through to concat.  identityMails will likewise be undefined.
-      this.suffixTree = new MultiSuffixTree(
+      this.suffixTree = new lazy.MultiSuffixTree(
         contactNames.concat(identityMails),
         this.contactCollection.items.concat(
           this.identityCollection && this.identityCollection.items
@@ -365,19 +366,21 @@ ContactIdentityCompleter.prototype = {
  * Complete tags that are used on contacts.
  */
 function ContactTagCompleter() {
-  FreeTagNoun.populateKnownFreeTags();
+  lazy.FreeTagNoun.populateKnownFreeTags();
   this._buildSuffixTree();
-  FreeTagNoun.addListener(this);
+  lazy.FreeTagNoun.addListener(this);
 }
 ContactTagCompleter.prototype = {
   _buildSuffixTree() {
     const tagNames = [],
       tags = [];
-    for (const [tagName, tag] of Object.entries(FreeTagNoun.knownFreeTags)) {
+    for (const [tagName, tag] of Object.entries(
+      lazy.FreeTagNoun.knownFreeTags
+    )) {
       tagNames.push(tagName.toLowerCase());
       tags.push(tag);
     }
-    this._suffixTree = new MultiSuffixTree(tagNames, tags);
+    this._suffixTree = new lazy.MultiSuffixTree(tagNames, tags);
     this._suffixTreeDirty = false;
   },
   onFreeTagAdded(aTag) {
@@ -397,7 +400,7 @@ ContactTagCompleter.prototype = {
     const tags = this._suffixTree.findMatches(aString.toLowerCase());
     const rows = [];
     for (const tag of tags) {
-      const query = Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
+      const query = lazy.Gloda.newQuery(GlodaConstants.NOUN_CONTACT);
       query.freeTags(tag);
       const resRow = new ResultRowMulti(
         GlodaConstants.NOUN_CONTACT,
@@ -423,13 +426,13 @@ MessageTagCompleter.prototype = {
   _buildSuffixTree() {
     const tagNames = [],
       tags = [];
-    const tagArray = TagNoun.getAllTags();
+    const tagArray = lazy.TagNoun.getAllTags();
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
       const tag = tagArray[iTag];
       tagNames.push(tag.tag.toLowerCase());
       tags.push(tag);
     }
-    this._suffixTree = new MultiSuffixTree(tagNames, tags);
+    this._suffixTree = new lazy.MultiSuffixTree(tagNames, tags);
     this._suffixTreeDirty = false;
   },
   complete(aResult, aString) {
@@ -440,7 +443,7 @@ MessageTagCompleter.prototype = {
     const tags = this._suffixTree.findMatches(aString.toLowerCase());
     const rows = [];
     for (const tag of tags) {
-      const resRow = new ResultRowSingle(tag, "tag", tag.tag, TagNoun.id);
+      const resRow = new ResultRowSingle(tag, "tag", tag.tag, lazy.TagNoun.id);
       rows.push(resRow);
     }
     aResult.addRows(rows);
@@ -507,22 +510,6 @@ FullTextCompleter.prototype = {
 export function GlodaAutoComplete() {
   this.wrappedJSObject = this;
   try {
-    // set up our awesome globals!
-    if (Gloda === null) {
-      let loadNS = ChromeUtils.import(
-        "resource:///modules/gloda/GlodaPublic.jsm"
-      );
-      Gloda = loadNS.Gloda;
-
-      loadNS = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm");
-      loadNS = ChromeUtils.import("resource:///modules/gloda/SuffixTree.jsm");
-      MultiSuffixTree = loadNS.MultiSuffixTree;
-      loadNS = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
-      TagNoun = loadNS.TagNoun;
-      loadNS = ChromeUtils.import("resource:///modules/gloda/NounFreetag.jsm");
-      FreeTagNoun = loadNS.FreeTagNoun;
-    }
-
     this.completers = [];
     this.curResult = null;
 

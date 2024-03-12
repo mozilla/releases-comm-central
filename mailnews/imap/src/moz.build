@@ -38,17 +38,17 @@ LOCAL_INCLUDES += [
 ]
 
 EXTRA_JS_MODULES += [
-    "ImapChannel.jsm",
-    "ImapClient.jsm",
+    "ImapChannel.sys.mjs",
+    "ImapClient.sys.mjs",
     "ImapFolderContentHandler.sys.mjs",
-    "ImapIncomingServer.jsm",
-    "ImapMessageService.jsm",
+    "ImapIncomingServer.sys.mjs",
+    "ImapMessageService.sys.mjs",
     "ImapModuleLoader.sys.mjs",
-    "ImapProtocolHandler.jsm",
-    "ImapProtocolInfo.jsm",
-    "ImapResponse.jsm",
-    "ImapService.jsm",
-    "ImapUtils.jsm",
+    "ImapProtocolHandler.sys.mjs",
+    "ImapProtocolInfo.sys.mjs",
+    "ImapResponse.sys.mjs",
+    "ImapService.sys.mjs",
+    "ImapUtils.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

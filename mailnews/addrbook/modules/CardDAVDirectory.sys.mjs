@@ -2,25 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
-const lazy = {};
-
 import { SQLiteDirectory } from "resource:///modules/SQLiteDirectory.sys.mjs";
 
+const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
+  NotificationCallbacks: "resource:///modules/CardDAVUtils.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
   clearInterval: "resource://gre/modules/Timer.sys.mjs",
   setInterval: "resource://gre/modules/Timer.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
-  NotificationCallbacks: "resource:///modules/CardDAVUtils.jsm",
-  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
 
 const PREFIX_BINDINGS = {

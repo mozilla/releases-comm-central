@@ -12,10 +12,12 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+const { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
+);
 
 load("../../../resources/logHelper.js"); // watch for errors in the error console
 

@@ -4,8 +4,8 @@
  * Test suite for nsIMsgHeaderParser::makeFromDisplayAddress.
  * This is what is used to parse in the user input from addressing fields.
  */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 function run_test() {

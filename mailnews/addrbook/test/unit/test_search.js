@@ -4,8 +4,8 @@
 
 "use strict";
 
-const { getModelQuery, generateQueryURI } = ChromeUtils.import(
-  "resource:///modules/ABQueryUtils.jsm"
+const { getModelQuery, generateQueryURI } = ChromeUtils.importESModule(
+  "resource:///modules/ABQueryUtils.sys.mjs"
 );
 
 const jsonFile = do_get_file("data/ldap_contacts.json");

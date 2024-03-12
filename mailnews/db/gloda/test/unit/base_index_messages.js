@@ -15,28 +15,34 @@
  * - Full-text search.  Happens in query testing.
  */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { NetUtil } = ChromeUtils.importESModule(
   "resource://gre/modules/NetUtil.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
-var { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/IndexMsg.jsm"
+var { GlodaConstants } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaConstants.sys.mjs"
 );
-var { GlodaIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaIndexer.jsm"
+var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
-var { queryExpect, sqlExpectCount } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { GlodaIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+);
+var { queryExpect, sqlExpectCount } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
 var {
   assertExpectedMessagesIndexed,
   waitForGlodaIndexer,
   nukeGlodaCachesAndCollections,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+);
 var {
   configureGlodaIndexing,
   waitForGlodaDBFlush,
@@ -44,8 +50,8 @@ var {
   resumeFromSimulatedHang,
   permuteMessages,
   makeABCardForAddressPair,
-} = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
@@ -57,7 +63,9 @@ var { SyntheticMessageSet, SyntheticPartMultiMixed, SyntheticPartLeaf } =
   ChromeUtils.importESModule(
     "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
   );
-var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
+var { TagNoun } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/NounTag.sys.mjs"
+);
 
 // Whether we can expect fulltext results
 var expectFulltextResults = true;

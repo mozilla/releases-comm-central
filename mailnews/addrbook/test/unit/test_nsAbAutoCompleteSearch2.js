@@ -8,8 +8,8 @@
  * books.
  */
 
-var { getModelQuery } = ChromeUtils.import(
-  "resource:///modules/ABQueryUtils.jsm"
+var { getModelQuery } = ChromeUtils.importESModule(
+  "resource:///modules/ABQueryUtils.sys.mjs"
 );
 
 // taken from nsAbAutoCompleteSearch.js

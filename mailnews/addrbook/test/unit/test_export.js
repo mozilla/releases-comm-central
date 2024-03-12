@@ -7,14 +7,14 @@
 var { AddrBookCard } = ChromeUtils.importESModule(
   "resource:///modules/AddrBookCard.sys.mjs"
 );
-var { AddrBookUtils } = ChromeUtils.import(
-  "resource:///modules/AddrBookUtils.jsm"
+var { AddrBookUtils } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookUtils.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { VCardPropertyEntry } = ChromeUtils.importESModule(
   "resource:///modules/VCardUtils.sys.mjs"

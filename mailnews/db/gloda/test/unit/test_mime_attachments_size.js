@@ -13,8 +13,8 @@
  *  using chronicle-recorder impractical.
  */
 
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/MimeMessage.sys.mjs"
 );
 var {
   MessageGenerator,

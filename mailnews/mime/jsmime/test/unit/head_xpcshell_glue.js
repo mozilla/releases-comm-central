@@ -43,7 +43,9 @@ var fs = {
   },
 };
 requireCache.set("fs", fs);
-var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { jsmime } = ChromeUtils.importESModule(
+  "resource:///modules/jsmime.sys.mjs"
+);
 requireCache.set("jsmime", jsmime);
 
 function require(path) {

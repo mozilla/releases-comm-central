@@ -6,8 +6,8 @@
  * Tests problems emptying a Trash folder that is searched by a virtual folder.
  */
 
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 add_task(function () {

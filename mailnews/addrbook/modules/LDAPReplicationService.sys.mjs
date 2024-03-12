@@ -3,9 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { LDAPListenerBase } = ChromeUtils.import(
-  "resource:///modules/LDAPListenerBase.jsm"
-);
+import { LDAPListenerBase } from "resource:///modules/LDAPListenerBase.sys.mjs";
+
 import { SQLiteDirectory } from "resource:///modules/SQLiteDirectory.sys.mjs";
 
 /**

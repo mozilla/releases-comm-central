@@ -23,8 +23,8 @@ const { TreeSelection } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
-var { dump_view_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ViewHelpers.jsm"
+var { dump_view_contents } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ViewHelpers.sys.mjs"
 );
 
 // Items used to add messages to the folder

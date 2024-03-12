@@ -4,8 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 TESTING_JS_MODULES += [
-    "CardDAVServer.jsm",
-    "LDAPServer.jsm",
+    "CardDAVServer.sys.mjs",
+    "LDAPServer.sys.mjs",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

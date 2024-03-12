@@ -24,10 +24,12 @@
   * account -> accountData -> pageData -> accountData -> finishAccount
 */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
+var { NntpUtils } = ChromeUtils.importESModule(
+  "resource:///modules/NntpUtils.sys.mjs"
+);
 
 var contentWindow;
 

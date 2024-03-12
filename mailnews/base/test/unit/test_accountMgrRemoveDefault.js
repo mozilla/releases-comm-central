@@ -6,8 +6,8 @@
  * This tests that if the default account is removed, the default becomes
  * another account or null. The removed account must not remain the default.
  */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 function run_test() {

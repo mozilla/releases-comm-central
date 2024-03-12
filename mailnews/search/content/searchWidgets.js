@@ -11,10 +11,12 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
-  const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  const { MailUtils } = ChromeUtils.importESModule(
+    "resource:///modules/MailUtils.sys.mjs"
+  );
 
   const updateParentNode = parentNode => {
     if (parentNode.hasAttribute("initialActionIndex")) {

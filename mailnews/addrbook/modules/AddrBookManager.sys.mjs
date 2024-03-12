@@ -4,18 +4,12 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   MailGlue: "resource:///modules/MailGlue.sys.mjs",
   clearTimeout: "resource://gre/modules/Timer.sys.mjs",
+  compareAddressBooks: "resource:///modules/AddrBookUtils.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
 });
 
 /** Test for valid directory URIs. */

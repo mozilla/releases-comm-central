@@ -5,8 +5,8 @@
 
 // Tests of override functionality using a demo "foo" type url.
 
-var { JaBaseUrlProperties } = ChromeUtils.import(
-  "resource:///modules/jsaccount/JaBaseUrl.jsm"
+var { JaBaseUrlProperties } = ChromeUtils.importESModule(
+  "resource:///modules/jsaccount/JaBaseUrl.sys.mjs"
 );
 
 var extraInterfaces = [Ci.msgIFooUrl];

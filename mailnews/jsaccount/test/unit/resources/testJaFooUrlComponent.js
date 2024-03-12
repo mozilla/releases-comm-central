@@ -7,11 +7,11 @@
   a mailnews URL extended for a hypthetical account type "foo".
 */
 
-const { JSAccountUtils } = ChromeUtils.import(
-  "resource:///modules/jsaccount/JSAccountUtils.jsm"
+const { JSAccountUtils } = ChromeUtils.importESModule(
+  "resource:///modules/jsaccount/JSAccountUtils.sys.mjs"
 );
-const { JaBaseUrl, JaBaseUrlProperties } = ChromeUtils.import(
-  "resource:///modules/jsaccount/JaBaseUrl.jsm"
+const { JaBaseUrl, JaBaseUrlProperties } = ChromeUtils.importESModule(
+  "resource:///modules/jsaccount/JaBaseUrl.sys.mjs"
 );
 
 const ATTACHMENT_QUERY = "part=1.";

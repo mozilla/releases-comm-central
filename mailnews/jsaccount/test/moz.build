@@ -10,6 +10,6 @@ TEST_DIRS += [
 XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
 
 TESTING_JS_MODULES.mailnews += [
-    "unit/resources/testJaBaseIncomingServer.jsm",
-    "unit/resources/testJaBaseMsgFolder.jsm",
+    "unit/resources/testJaBaseIncomingServer.sys.mjs",
+    "unit/resources/testJaBaseMsgFolder.sys.mjs",
 ]

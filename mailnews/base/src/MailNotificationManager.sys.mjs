@@ -3,19 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  WinUnreadBadge: "resource:///modules/WinUnreadBadge.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  WinUnreadBadge: "resource:///modules/WinUnreadBadge.sys.mjs",
 });
-
 ChromeUtils.defineLazyGetter(
   lazy,
   "l10n",

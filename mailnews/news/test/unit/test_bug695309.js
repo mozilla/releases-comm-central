@@ -15,8 +15,8 @@
 // For the purposes of this test, we read enough to see if the group command is
 // being misread or not, as it is complicated enough.
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 const { PromiseTestUtils } = ChromeUtils.importESModule(

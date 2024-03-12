@@ -11,27 +11,16 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
 
-  const LazyModules = {};
-
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "FeedUtils",
-    "resource:///modules/FeedUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "FolderUtils",
-    "resource:///modules/FolderUtils.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    LazyModules,
-    "MailUtils",
-    "resource:///modules/MailUtils.jsm"
-  );
+  const lazy = {};
+  ChromeUtils.defineESModuleGetters(lazy, {
+    FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
+    FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+    MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  });
 
   /**
    * Creates an element, sets attributes on it, including always setting the
@@ -425,7 +414,7 @@
           // If we don't have a parent, then we assume we should build the
           // top-level accounts. (Actually we build the fake root folders for
           // those accounts.)
-          const accounts = LazyModules.FolderUtils.allAccountsSorted(true);
+          const accounts = lazy.FolderUtils.allAccountsSorted(true);
 
           // Now generate our folder list. Note that we'll special case this
           // situation elsewhere, to avoid destroying the sort order we just made.
@@ -526,8 +515,7 @@
         const folderURI = Services.prefs.getStringPref(
           "mail.last_msg_movecopy_target_uri"
         );
-        const folder =
-          folderURI && LazyModules.MailUtils.getExistingFolder(folderURI);
+        const folder = folderURI && lazy.MailUtils.getExistingFolder(folderURI);
         if (!folder) {
           return;
         }
@@ -565,7 +553,7 @@
         switch (specialType) {
           case "recent":
             // Find the most recently modified ones.
-            specialFolders = LazyModules.FolderUtils.getMostRecentFolders(
+            specialFolders = lazy.FolderUtils.getMostRecentFolders(
               specialFolders,
               Services.prefs.getIntPref("mail.folder_widget.max_recent"),
               "MRMTime"
@@ -616,7 +604,7 @@
 
         // Make sure the entries are sorted alphabetically.
         specialFoldersMap.sort((a, b) =>
-          LazyModules.FolderUtils.folderNameCompare(a.label, b.label)
+          lazy.FolderUtils.folderNameCompare(a.label, b.label)
         );
 
         // Create entries for each of the recent folders.
@@ -708,7 +696,7 @@
 
         // We need to call this, or hasSubFolders will always return false.
         // Remove this workaround when Bug 502900 is fixed.
-        LazyModules.MailUtils.discoverFolders();
+        lazy.MailUtils.discoverFolders();
         this._serversOnly = true;
 
         const [shouldExpand, labels] = this._getShouldExpandAndLabels();
@@ -870,7 +858,7 @@
 
         // First the SpecialFolder attribute.
         attributes.SpecialFolder =
-          LazyModules.FolderUtils.getSpecialFolderString(folder);
+          lazy.FolderUtils.getSpecialFolderString(folder);
 
         // Now the biffState.
         const biffStates = ["NewMail", "NoMail", "UnknownMail"];
@@ -884,8 +872,7 @@
         attributes.IsServer = folder.isServer;
         attributes.IsSecure = folder.server.isSecure;
         attributes.ServerType = folder.server.type;
-        attributes.IsFeedFolder =
-          !!LazyModules.FeedUtils.getFeedUrlsInFolder(folder);
+        attributes.IsFeedFolder = !!lazy.FeedUtils.getFeedUrlsInFolder(folder);
 
         return attributes;
       }
@@ -914,9 +901,7 @@
         }
 
         if (this._displayformat == "path") {
-          return (
-            LazyModules.FeedUtils.getFolderPrettyPath(folder) || folder.name
-          );
+          return lazy.FeedUtils.getFolderPrettyPath(folder) || folder.name;
         }
 
         return folder.name;
@@ -967,13 +952,11 @@
           );
           menulist.setAttribute(
             "SpecialFolder",
-            folder
-              ? LazyModules.FolderUtils.getSpecialFolderString(folder)
-              : "none"
+            folder ? lazy.FolderUtils.getSpecialFolderString(folder) : "none"
           );
           menulist.setAttribute(
             "IsFeedFolder",
-            Boolean(folder && LazyModules.FeedUtils.getFeedUrlsInFolder(folder))
+            Boolean(folder && lazy.FeedUtils.getFeedUrlsInFolder(folder))
           );
         }
 

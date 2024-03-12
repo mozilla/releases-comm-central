@@ -11,9 +11,8 @@
  *  then.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
 import { localAccountUtils } from "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 import * as Imapd from "resource://testing-common/mailnews/Imapd.sys.mjs";

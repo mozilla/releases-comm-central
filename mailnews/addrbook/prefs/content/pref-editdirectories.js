@@ -4,8 +4,8 @@
 
 /* import-globals-from ../../../../mail/components/addrbook/content/abCommon.js */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 window.addEventListener("DOMContentLoaded", onInitEditDirectories);

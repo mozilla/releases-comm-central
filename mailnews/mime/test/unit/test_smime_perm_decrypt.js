@@ -17,8 +17,8 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 var { SmimeUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
-const { EnigmailPersistentCrypto } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/persistentCrypto.jsm"
+const { EnigmailPersistentCrypto } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/persistentCrypto.sys.mjs"
 );
 var { setTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"

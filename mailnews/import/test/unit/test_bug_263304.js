@@ -6,8 +6,8 @@
  *   - Bug 264405: The Address Book doesn't show the LDAP-field "labeledURI"
  *                 as Website
  */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 function run_test() {

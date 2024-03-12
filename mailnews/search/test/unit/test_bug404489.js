@@ -4,8 +4,8 @@
 
 // Tests that custom headers like "Sender" work (bug 404489)
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var Contains = Ci.nsMsgSearchOp.Contains;

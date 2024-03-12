@@ -6,10 +6,12 @@
  * Tests the gloda folder logic.
  */
 
-var { glodaTestHelperInitialize } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { glodaTestHelperInitialize } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
+);
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

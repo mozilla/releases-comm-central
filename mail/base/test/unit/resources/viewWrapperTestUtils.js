@@ -17,8 +17,8 @@ var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
-var { dump_view_state } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ViewHelpers.jsm"
+var { dump_view_state } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ViewHelpers.sys.mjs"
 );
 
 var gMessageGenerator;

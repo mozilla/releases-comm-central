@@ -43,7 +43,8 @@
 // |   perform various (potentially expensive) actions.
 // + Messages: A message is represented internally as an annotated URI.
 
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
+
 import {
   AuthPLAIN,
   AuthLOGIN,

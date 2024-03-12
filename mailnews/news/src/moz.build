@@ -14,15 +14,15 @@ SOURCES += [
 EXTRA_JS_MODULES += [
     "NewsAutoCompleteSearch.sys.mjs",
     "NewsDownloader.sys.mjs",
-    "NntpChannel.jsm",
-    "NntpClient.jsm",
+    "NntpChannel.sys.mjs",
+    "NntpClient.sys.mjs",
     "NntpIncomingServer.sys.mjs",
     "NntpMessageService.sys.mjs",
-    "NntpNewsGroup.jsm",
+    "NntpNewsGroup.sys.mjs",
     "NntpProtocolHandler.sys.mjs",
     "NntpProtocolInfo.sys.mjs",
     "NntpService.sys.mjs",
-    "NntpUtils.jsm",
+    "NntpUtils.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

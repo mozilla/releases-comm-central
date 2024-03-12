@@ -10,8 +10,8 @@ var MsgComposeParamsContractID =
 var MsgComposeFieldsContractID =
   "@mozilla.org/messengercompose/composefields;1";
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 /**

@@ -3,16 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  SmtpClient: "resource:///modules/SmtpClient.jsm",
-  MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  SmtpClient: "resource:///modules/SmtpClient.sys.mjs",
+  MsgUtils: "resource:///modules/MimeMessageUtils.sys.mjs",
 });
 
 /**

@@ -29,8 +29,8 @@
 /* import-globals-from ../../../test/resources/msgFolderListenerSetup.js */
 load("../../../resources/msgFolderListenerSetup.js");
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // Globals

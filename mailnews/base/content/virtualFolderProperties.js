@@ -17,16 +17,20 @@ var gMsgFolder;
 var { FolderTreeProperties } = ChromeUtils.importESModule(
   "resource:///modules/FolderTreeProperties.sys.mjs"
 );
-var { FolderUtils } = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { FolderUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FolderUtils.sys.mjs"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
-var { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 window.addEventListener("DOMContentLoaded", onLoad);

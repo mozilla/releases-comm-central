@@ -4,9 +4,7 @@
 
 import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 // See Bug 903946
 function avoidUncaughtExceptionInExternalProtocolService() {

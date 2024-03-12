@@ -3,9 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailStringUtils } = ChromeUtils.import(
-  "resource:///modules/MailStringUtils.jsm"
-);
+import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 
 /**
  * This file provides fake LDAP server functionality, just enough to run

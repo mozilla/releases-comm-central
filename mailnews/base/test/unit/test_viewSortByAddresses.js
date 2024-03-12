@@ -10,8 +10,8 @@
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -19,8 +19,8 @@ var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
-var { dump_view_contents } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ViewHelpers.jsm"
+var { dump_view_contents } = ChromeUtils.importESModule(
+  "resource://testing-common/mozmill/ViewHelpers.sys.mjs"
 );
 
 var gMessageGenerator = new MessageGenerator();

@@ -32,24 +32,24 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/Gloda.sys.mjs"
+);
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "FolderUtils",
-  "resource:///modules/FolderUtils.jsm"
-);
-var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
-  "resource:///modules/hostnameUtils.jsm"
+var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.importESModule(
+  "resource:///modules/hostnameUtils.sys.mjs"
 );
 var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"

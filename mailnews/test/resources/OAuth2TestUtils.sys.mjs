@@ -14,9 +14,7 @@ import { NetworkTestUtils } from "resource://testing-common/mailnews/NetworkTest
 import { ServerTestUtils } from "resource://testing-common/mailnews/ServerTestUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
-const { OAuth2Module } = ChromeUtils.import(
-  "resource:///modules/OAuth2Module.jsm"
-);
+import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const validCodes = new Set();
 

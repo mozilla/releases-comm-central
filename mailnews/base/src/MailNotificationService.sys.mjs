@@ -8,9 +8,7 @@
  *  information to platform-specific notification modules.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
  * NewMailNotificationService.

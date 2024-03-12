@@ -8,11 +8,11 @@ const { FileUtils } = ChromeUtils.importESModule(
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-var { convertMailStoreTo } = ChromeUtils.import(
-  "resource:///modules/mailstoreConverter.jsm"
+var { convertMailStoreTo } = ChromeUtils.importESModule(
+  "resource:///modules/mailstoreConverter.sys.mjs"
 );
-const { FolderUtils } = ChromeUtils.import(
-  "resource:///modules/FolderUtils.jsm"
+const { FolderUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FolderUtils.sys.mjs"
 );
 
 // XXX: merge into test_converter.js

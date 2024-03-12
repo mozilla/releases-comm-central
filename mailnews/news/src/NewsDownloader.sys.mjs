@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
+import { NntpUtils } from "resource:///modules/NntpUtils.sys.mjs";
 
 /**
  * Download articles in all subscribed newsgroups for offline use.

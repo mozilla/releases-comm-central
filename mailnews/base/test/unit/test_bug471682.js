@@ -8,8 +8,8 @@
  * then compare the date and filesize of the folder file with the
  * stored result in dbfolderinfo. If they don't match, that's bad.
  */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var bugmail1 = do_get_file("../../../data/bugmail1");

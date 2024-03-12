@@ -6,7 +6,7 @@
 XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
 
 TESTING_JS_MODULES.gloda += [
-    "unit/resources/GlodaQueryHelper.jsm",
-    "unit/resources/GlodaTestHelper.jsm",
-    "unit/resources/GlodaTestHelperFunctions.jsm",
+    "unit/resources/GlodaQueryHelper.sys.mjs",
+    "unit/resources/GlodaTestHelper.sys.mjs",
+    "unit/resources/GlodaTestHelperFunctions.sys.mjs",
 ]

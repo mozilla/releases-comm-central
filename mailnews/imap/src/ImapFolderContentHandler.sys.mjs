@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailUtils: "resource:///modules/MailUtils.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
 /**
@@ -25,11 +21,10 @@ export class ImapFolderContentHandler {
   QueryInterface = ChromeUtils.generateQI(["nsIContentHandler"]);
 
   /**
-   * @param contentType - The content type of request.
-   * @param windowContest - Window context, used to get things like the current
-   *   nsIDOMWindow for this request.
-   * @param request - A request whose content type is already known.
-   * @see {nsIContentHandler}
+   * @param {string} contentType - The content type of request.
+   * @param {nsIInterfaceRequestor} windowContest - Window context, used to get
+   *    things like the current nsIDOMWindow for this request.
+   * @param {nsIRequest} request - A request whose content type is already known.
    */
   handleContent(contentType, windowContext, request) {
     if (contentType != "x-application-imapfolder") {

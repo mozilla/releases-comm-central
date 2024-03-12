@@ -4,8 +4,8 @@
 
 /* import-globals-from amUtils.js */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 window.addEventListener("DOMContentLoaded", event => {

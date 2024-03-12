@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+import { jsmime } from "resource:///modules/jsmime.sys.mjs";
+
+import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
 
 function HeaderHandler() {
   this.value = "";

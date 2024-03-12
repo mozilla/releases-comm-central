@@ -5,7 +5,9 @@
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 var gFccRadioElemChoice,
   gDraftsRadioElemChoice,

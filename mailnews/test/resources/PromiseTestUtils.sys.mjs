@@ -7,9 +7,7 @@
  * with mailnews tests.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
  * Url listener that can wrap another listener and trigger a callback.

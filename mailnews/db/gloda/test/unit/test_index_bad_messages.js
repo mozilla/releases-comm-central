@@ -11,13 +11,17 @@ var {
   assertExpectedMessagesIndexed,
   glodaTestHelperInitialize,
   waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
-var { configureGlodaIndexing } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/IndexMsg.jsm"
+var { configureGlodaIndexing } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
+);
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
+);
+var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

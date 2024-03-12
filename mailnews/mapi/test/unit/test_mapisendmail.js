@@ -5,7 +5,9 @@
 var { ctypes } = ChromeUtils.importESModule(
   "resource://gre/modules/ctypes.sys.mjs"
 );
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
+);
 var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );

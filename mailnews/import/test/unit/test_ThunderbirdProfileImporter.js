@@ -13,11 +13,11 @@ Services.prefs.setBoolPref(
   false
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-var { ThunderbirdProfileImporter } = ChromeUtils.import(
-  "resource:///modules/ThunderbirdProfileImporter.jsm"
+var { ThunderbirdProfileImporter } = ChromeUtils.importESModule(
+  "resource:///modules/ThunderbirdProfileImporter.sys.mjs"
 );
 
 let tmpProfileDir;

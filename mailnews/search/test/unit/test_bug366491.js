@@ -9,8 +9,8 @@
 // only needed during debug
 // do_import_script("mailnews/extensions/bayesian-spam-filter/test/resources/trainingfile.js");
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // local constants

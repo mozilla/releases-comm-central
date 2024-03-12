@@ -9,8 +9,8 @@
 var { CommonUtils } = ChromeUtils.importESModule(
   "resource://services-common/utils.sys.mjs"
 );
-var { LDAPResponse, SearchRequest } = ChromeUtils.import(
-  "resource:///modules/LDAPMessage.jsm"
+var { LDAPResponse, SearchRequest } = ChromeUtils.importESModule(
+  "resource:///modules/LDAPMessage.sys.mjs"
 );
 
 /**

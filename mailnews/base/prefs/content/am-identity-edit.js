@@ -6,8 +6,8 @@
 /* import-globals-from am-copies.js */
 /* import-globals-from ../../../../mail/extensions/am-e2e/am-e2e.js */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var gIdentity = null; // the identity we are editing (may be null for a new identity)

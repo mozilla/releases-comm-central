@@ -25,15 +25,17 @@ var {
   assertExpectedMessagesIndexed,
   glodaTestHelperInitialize,
   waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
-var { queryExpect } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { GlodaMsgSearcher } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+var { queryExpect } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
-var { waitForGlodaDBFlush } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+var { GlodaMsgSearcher } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs"
+);
+var { waitForGlodaDBFlush } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
 );
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

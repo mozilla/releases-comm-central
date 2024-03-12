@@ -2,18 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MsgIncomingServer } = ChromeUtils.import(
-  "resource:///modules/MsgIncomingServer.jsm"
-);
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MsgIncomingServer } from "resource:///modules/MsgIncomingServer.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  Pop3Client: "resource:///modules/Pop3Client.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  Pop3Client: "resource:///modules/Pop3Client.sys.mjs",
 });
 
 /**

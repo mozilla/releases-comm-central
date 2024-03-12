@@ -53,9 +53,9 @@ function run_test() {
 
   // - tickle gloda
   // GlodaPublic.jsm loads Gloda.jsm which self-initializes and initializes the datastore
-  ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-  const { GlodaDatastore } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaDatastore.jsm"
+  ChromeUtils.importESModule("resource:///modules/gloda/GlodaPublic.sys.mjs");
+  const { GlodaDatastore } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/GlodaDatastore.sys.mjs"
   );
 
   Assert.notEqual(GlodaDatastore.asyncConnection, null);

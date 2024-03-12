@@ -12,9 +12,11 @@ var {
   waitForGlodaIndexer,
   messageInjection,
   nukeGlodaCachesAndCollections,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
-var { waitForGlodaDBFlush } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+);
+var { waitForGlodaDBFlush } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
 );
 var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

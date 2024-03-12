@@ -6,8 +6,8 @@
  * Tests that subfolders added to searched folders are also searched.
  */
 
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 add_task(function () {

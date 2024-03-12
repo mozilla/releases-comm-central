@@ -3,9 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // MailServices
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 // Local Mail Folders. Requires prior setup of profile directory
 

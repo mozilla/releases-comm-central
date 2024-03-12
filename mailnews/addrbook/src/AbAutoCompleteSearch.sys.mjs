@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var {
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
+import {
   getSearchTokens,
   getModelQuery,
   modelQueryHasUserValue,
   generateQueryURI,
-} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+} from "resource:///modules/ABQueryUtils.sys.mjs";
 
 var ACR = Ci.nsIAutoCompleteResult;
 

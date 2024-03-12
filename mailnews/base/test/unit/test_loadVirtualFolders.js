@@ -5,8 +5,8 @@
 // Test loading of virtualFolders.dat, including verification of the search
 // scopes, i.e., folder uri's.
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // As currently written, this test will only work with Berkeley store.

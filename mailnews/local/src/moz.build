@@ -28,8 +28,8 @@ SOURCES += [
 FINAL_LIBRARY = "mail"
 
 EXTRA_JS_MODULES += [
-    "Pop3Channel.jsm",
-    "Pop3Client.jsm",
+    "Pop3Channel.sys.mjs",
+    "Pop3Client.sys.mjs",
     "Pop3IncomingServer.sys.mjs",
     "Pop3ProtocolHandler.sys.mjs",
     "Pop3ProtocolInfo.sys.mjs",

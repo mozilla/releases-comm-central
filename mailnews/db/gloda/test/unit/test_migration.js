@@ -15,18 +15,21 @@ var {
   glodaTestHelperInitialize,
   nukeGlodaCachesAndCollections,
   waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
-var { waitForGlodaDBFlush, makeABCardForAddressPair } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { sqlRun } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { waitForGlodaDBFlush, makeABCardForAddressPair } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
+  );
+var { sqlRun } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
-var { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/IndexMsg.jsm"
+var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
-var { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
+var { GlodaDatastore } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaDatastore.sys.mjs"
 );
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

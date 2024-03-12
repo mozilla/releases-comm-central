@@ -9,16 +9,18 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
+var { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
+var { MailE10SUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailE10SUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
 });
 
 // This global is for SeaMonkey compatibility.

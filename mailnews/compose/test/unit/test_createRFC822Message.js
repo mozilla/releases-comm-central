@@ -6,7 +6,9 @@
  * Test createRFC822Message creates a mail file.
  */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 const customSendListener = {
   ...copyListener,

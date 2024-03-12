@@ -57,14 +57,14 @@ add_task(function test_corrupt_databases_get_reported_and_blown_away() {
 
   // - Init gloda, get warnings.
   dump("Init gloda\n");
-  var { Gloda } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaPublic.jsm"
+  var { Gloda } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/GlodaPublic.sys.mjs"
   );
   dump("Gloda inited, checking\n");
 
   // - Make sure the datastore has an actual database.
-  const { GlodaDatastore } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaDatastore.jsm"
+  const { GlodaDatastore } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/GlodaDatastore.sys.mjs"
   );
 
   // Make sure that the datastoreID was overwritten

@@ -4,7 +4,7 @@
 
 // This file implements test NNTP servers
 
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
 
 export class NntpDaemon {
   constructor(flags) {

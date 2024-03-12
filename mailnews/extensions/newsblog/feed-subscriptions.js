@@ -8,10 +8,12 @@
  * GUI-side code for managing folder subscriptions.
  */
 
-var { Feed } = ChromeUtils.import("resource:///modules/Feed.jsm");
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { Feed } = ChromeUtils.importESModule("resource:///modules/Feed.sys.mjs");
+var { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"

@@ -18,22 +18,26 @@ var {
   assertExpectedMessagesIndexed,
   glodaTestHelperInitialize,
   waitForGlodaIndexer,
-} = ChromeUtils.import("resource://testing-common/gloda/GlodaTestHelper.jsm");
-var { waitForGlodaDBFlush } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelperFunctions.jsm"
+} = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { queryExpect, sqlExpectCount } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { waitForGlodaDBFlush } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelperFunctions.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
+var { queryExpect, sqlExpectCount } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
-var { GlodaFolder } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDataModel.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
-var { GlodaMsgSearcher } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+var { GlodaDatastore } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaDatastore.sys.mjs"
+);
+var { GlodaFolder } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaDataModel.sys.mjs"
+);
+var { GlodaMsgSearcher } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs"
 );
 var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

@@ -5,10 +5,12 @@
 
 /* import-globals-from AccountWizard.js */
 
-var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
-  "resource:///modules/hostnameUtils.jsm"
+var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.importESModule(
+  "resource:///modules/hostnameUtils.sys.mjs"
 );
-var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
+var { NntpUtils } = ChromeUtils.importESModule(
+  "resource:///modules/NntpUtils.sys.mjs"
+);
 
 function incomingPageValidate() {
   const hostName = cleanUpHostName(document.getElementById("newsServer").value);

@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/. */
 
-var { EnigmailVerify } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeVerify.jsm"
+var { EnigmailVerify } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/mimeVerify.sys.mjs"
 );
 
 /**

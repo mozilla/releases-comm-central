@@ -13,7 +13,7 @@ var {
   isLegalIPv4Address,
   isLegalIPv6Address,
   isLegalLocalIPAddress,
-} = ChromeUtils.import("resource:///modules/hostnameUtils.jsm");
+} = ChromeUtils.importESModule("resource:///modules/hostnameUtils.sys.mjs");
 
 /**
  * Checks if valid and invalid IPs are properly allowed or rejected.

@@ -6,7 +6,9 @@
  * Test that when fcc2 field is set, the mail is copied to the fcc2 folder.
  */
 
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 let fcc2Folder;
 

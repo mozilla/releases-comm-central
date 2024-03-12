@@ -10,22 +10,25 @@
  *  base_index_messages.js.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
-var { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/IndexMsg.jsm"
+var { GlodaConstants } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaConstants.sys.mjs"
 );
-var { queryExpect } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
-var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { queryExpect } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+  );
 var { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );

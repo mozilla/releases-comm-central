@@ -4,11 +4,9 @@
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "LDAPClient",
-  "resource:///modules/LDAPClient.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  LDAPClient: "resource:///modules/LDAPClient.sys.mjs",
+});
 
 /**
  * A module to manage LDAP operation.

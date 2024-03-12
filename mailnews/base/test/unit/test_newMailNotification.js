@@ -5,8 +5,8 @@
 /* Tests for platform-independent code to count new and unread messages and pass the
  * information to platform-specific notification modules */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 /**

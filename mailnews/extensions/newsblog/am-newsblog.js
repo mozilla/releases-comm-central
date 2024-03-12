@@ -5,7 +5,9 @@
 
 /* import-globals-from ../../base/prefs/content/am-prefs.js */
 
-var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
 
 var gAccount,
   gUpdateEnabled,

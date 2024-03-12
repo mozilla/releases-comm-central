@@ -14,17 +14,20 @@
  * care about the quoted blocks.)
  */
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { assertExpectedMessagesIndexed, waitForGlodaIndexer } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
+var { assertExpectedMessagesIndexed, waitForGlodaIndexer } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
+  );
 // We need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations.
-var { GlodaFundAttr } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaFundAttr.jsm"
+var { GlodaFundAttr } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaFundAttr.sys.mjs"
 );
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/MimeMessage.sys.mjs"
 );
 var { SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

@@ -5,8 +5,8 @@
 /* Test that the message failed to move to a local folder remains on IMAP
  * server. */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var { MessageGenerator } = ChromeUtils.importESModule(

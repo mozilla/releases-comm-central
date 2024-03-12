@@ -8,7 +8,9 @@
 var { FolderTreeProperties } = ChromeUtils.importESModule(
   "resource:///modules/FolderTreeProperties.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/Gloda.sys.mjs"
+);
 
 var gMsgFolder;
 var gLockedPref = null;

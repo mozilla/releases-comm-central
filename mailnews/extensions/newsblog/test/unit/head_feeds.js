@@ -1,5 +1,5 @@
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -11,9 +11,13 @@ var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
 
-const { FeedParser } = ChromeUtils.import("resource:///modules/FeedParser.jsm");
-const { Feed } = ChromeUtils.import("resource:///modules/Feed.jsm");
-const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const { FeedParser } = ChromeUtils.importESModule(
+  "resource:///modules/FeedParser.sys.mjs"
+);
+const { Feed } = ChromeUtils.importESModule("resource:///modules/Feed.sys.mjs");
+const { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
 const { HttpServer } = ChromeUtils.importESModule(
   "resource://testing-common/httpd.sys.mjs"
 );

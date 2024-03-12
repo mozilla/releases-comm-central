@@ -10,18 +10,20 @@
  *  to test for.)
  */
 
-var { prepareIndexerForTesting } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { prepareIndexerForTesting } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
-var { queryExpect } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaQueryHelper.jsm"
+var { queryExpect } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaQueryHelper.sys.mjs"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
-var { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
+var { Gloda } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaPublic.sys.mjs"
 );
-var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaIndexer.jsm"
+var { GlodaConstants } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaConstants.sys.mjs"
+);
+var { GlodaIndexer, IndexingJob } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
 );
 
 /* ===== Test Noun ===== */

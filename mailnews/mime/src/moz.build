@@ -69,9 +69,9 @@ SOURCES += [
 ]
 
 EXTRA_JS_MODULES += [
-    "jsmime.jsm",
+    "jsmime.sys.mjs",
     "MimeJSComponents.sys.mjs",
-    "mimeParser.jsm",
+    "mimeParser.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

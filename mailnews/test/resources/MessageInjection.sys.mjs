@@ -4,16 +4,12 @@
 
 import { mailTestUtils } from "resource://testing-common/mailnews/MailTestUtils.sys.mjs";
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import { PromiseTestUtils } from "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs";
 import { SyntheticMessageSet } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 
-var { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
-);
+import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
 import { ImapMessage } from "resource://testing-common/mailnews/Imapd.sys.mjs";
 
 import {

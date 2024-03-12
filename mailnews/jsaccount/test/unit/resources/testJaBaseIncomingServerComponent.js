@@ -6,12 +6,12 @@
 // This file is the component definition for a demo base implementation of a
 // javascript IncomingServer.
 
-const { JSAccountUtils } = ChromeUtils.import(
-  "resource:///modules/jsaccount/JSAccountUtils.jsm"
+const { JSAccountUtils } = ChromeUtils.importESModule(
+  "resource:///modules/jsaccount/JSAccountUtils.sys.mjs"
 );
 var { JaBaseIncomingServerProperties, JaBaseIncomingServer } =
-  ChromeUtils.import(
-    "resource://testing-common/mailnews/testJaBaseIncomingServer.jsm"
+  ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/testJaBaseIncomingServer.sys.mjs"
   );
 
 var xpcomFactory = JSAccountUtils.jaFactory(

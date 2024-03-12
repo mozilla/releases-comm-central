@@ -7,13 +7,13 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  FolderUtils: "resource:///modules/FolderUtils.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
 window.addEventListener("DOMContentLoaded", () => {

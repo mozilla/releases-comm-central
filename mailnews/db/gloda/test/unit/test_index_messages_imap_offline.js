@@ -6,8 +6,8 @@
  * Tests how well gloda indexes IMAP messages that are offline from the start.
  */
 
-var { glodaTestHelperInitialize } = ChromeUtils.import(
-  "resource://testing-common/gloda/GlodaTestHelper.jsm"
+var { glodaTestHelperInitialize } = ChromeUtils.importESModule(
+  "resource://testing-common/gloda/GlodaTestHelper.sys.mjs"
 );
 var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

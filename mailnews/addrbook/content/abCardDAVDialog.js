@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
 });
 
 var log = console.createInstance({

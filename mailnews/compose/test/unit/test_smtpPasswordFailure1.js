@@ -10,8 +10,8 @@
  * multiple sends, the rest of this test is in test_smtpPasswordFailure2.js.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */

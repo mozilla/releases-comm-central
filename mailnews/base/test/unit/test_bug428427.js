@@ -4,8 +4,8 @@
 
 // Test of message count changes in virtual folder views
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var bugmail1 = do_get_file("../../../data/bugmail1");

@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import * as EventUtils from "resource://testing-common/mozmill/EventUtils.sys.mjs";
-
 import {
   promise_new_window,
   wait_for_existing_window,
@@ -16,12 +19,7 @@ import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys
 import { SmartServerUtils } from "resource:///modules/SmartServerUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
-var nsMsgViewIndex_None = 0xffffffff;
 import { MailConsts } from "resource:///modules/MailConsts.sys.mjs";
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import {
   MessageGenerator,
@@ -30,10 +28,9 @@ import {
 } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 import { MessageInjection } from "resource://testing-common/mailnews/MessageInjection.sys.mjs";
 import { SmimeUtils } from "resource://testing-common/mailnews/SmimeUtils.sys.mjs";
+import { dump_view_state } from "resource://testing-common/mozmill/ViewHelpers.sys.mjs";
 
-var { dump_view_state } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ViewHelpers.jsm"
-);
+var nsMsgViewIndex_None = 0xffffffff;
 
 /**
  * Server hostname as set in runtest.py

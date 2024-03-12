@@ -86,8 +86,8 @@ ImapModuleLoader.prototype = {
 
       dump("[ImapModuleLoader] Using ImapService.jsm\n");
 
-      const { ImapProtocolHandler } = ChromeUtils.import(
-        `resource:///modules/ImapProtocolHandler.jsm`
+      const { ImapProtocolHandler } = ChromeUtils.importESModule(
+        "resource:///modules/ImapProtocolHandler.sys.mjs"
       );
       const protocolFlags =
         Ci.nsIProtocolHandler.URI_NORELATIVE |
@@ -117,7 +117,9 @@ function lazyFactoryFor(fileName, constructorName) {
   const factory = {
     get scope() {
       delete this.scope;
-      this.scope = ChromeUtils.import(`resource:///modules/${fileName}.jsm`);
+      this.scope = ChromeUtils.importESModule(
+        `resource:///modules/${fileName}.sys.mjs`
+      );
       return this.scope;
     },
     createInstance(interfaceID) {

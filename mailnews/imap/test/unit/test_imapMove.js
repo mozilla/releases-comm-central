@@ -4,8 +4,8 @@
 
 // This tests that we use IMAP move if the IMAP server supports it.
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 /* import-globals-from ../../../test/resources/logHelper.js */

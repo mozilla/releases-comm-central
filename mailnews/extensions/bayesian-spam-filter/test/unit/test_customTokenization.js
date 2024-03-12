@@ -4,8 +4,8 @@
 
 // Tests use of custom tokenization, originally introduced in bug 476389
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // command functions for test data

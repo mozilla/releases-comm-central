@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
-var { OAuth2Providers } = ChromeUtils.import(
-  "resource:///modules/OAuth2Providers.jsm"
-);
+import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
+
+import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
 /**
  * A collection of `OAuth2` objects that have previously been created.

@@ -5,8 +5,8 @@
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
 /* import-globals-from ../../../mail/components/compose/content/addressingWidgetOverlay.js */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"

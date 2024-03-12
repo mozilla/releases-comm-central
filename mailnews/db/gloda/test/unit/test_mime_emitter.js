@@ -18,11 +18,11 @@
  *  using chronicle-recorder impractical.
  */
 
-var { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDatastore.jsm"
+var { GlodaDatastore } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaDatastore.sys.mjs"
 );
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/MimeMessage.sys.mjs"
 );
 var {
   MessageGenerator,
@@ -46,8 +46,8 @@ var { MessageInjection } = ChromeUtils.importESModule(
 // While we're at it, we'll also test the correctness of the GlodaAttachment
 // representation, esp. its "I just need the part information to rebuild the
 // URLs" claim.
-var { GlodaFundAttr } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaFundAttr.jsm"
+var { GlodaFundAttr } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaFundAttr.sys.mjs"
 );
 
 const DEATH_TO_NEWLINE_TYPE_THINGS = /[\r\n]+/g;

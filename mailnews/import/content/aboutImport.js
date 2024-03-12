@@ -9,15 +9,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.sys.mjs",
+  CalendarFileImporter: "resource:///modules/CalendarFileImporter.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  ProfileExporter: "resource:///modules/ProfileExporter.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
-  AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",
-  CalendarFileImporter: "resource:///modules/CalendarFileImporter.jsm",
-  ProfileExporter: "resource:///modules/ProfileExporter.jsm",
 });
 
 /**
@@ -375,8 +372,8 @@ class ProfileImporterController extends ImporterController {
     this._sourceAppName = this._sourceL10nIds[source];
     const sourceModule = this._sourceModules[source];
 
-    const module = ChromeUtils.import(
-      `resource:///modules/${sourceModule}.jsm`
+    const module = ChromeUtils.importESModule(
+      `resource:///modules/${sourceModule}.sys.mjs`
     );
     this._importer = new module[sourceModule]();
 

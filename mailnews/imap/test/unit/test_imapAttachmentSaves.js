@@ -14,8 +14,8 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
 );
 
 // javascript mime emitter functions
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/MimeMessage.sys.mjs"
 );
 
 var kAttachFileName = "bob.txt";

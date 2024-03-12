@@ -7,8 +7,8 @@
  * mail, but should exist in the mail copy (e.g. Sent folder).
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var gServer;

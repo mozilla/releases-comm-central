@@ -4,19 +4,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "AddrBookFileImporter.jsm",
-    "BaseProfileImporter.jsm",
-    "CalendarFileImporter.jsm",
-    "SeamonkeyProfileImporter.jsm",
-    "ThunderbirdProfileImporter.jsm",
+    "AddrBookFileImporter.sys.mjs",
+    "BaseProfileImporter.sys.mjs",
+    "CalendarFileImporter.sys.mjs",
+    "SeamonkeyProfileImporter.sys.mjs",
+    "ThunderbirdProfileImporter.sys.mjs",
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
     EXTRA_JS_MODULES += [
-        "BeckyProfileImporter.jsm",
-        "OutlookProfileImporter.jsm",
+        "BeckyProfileImporter.sys.mjs",
+        "OutlookProfileImporter.sys.mjs",
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     EXTRA_JS_MODULES += [
-        "AppleMailProfileImporter.jsm",
+        "AppleMailProfileImporter.sys.mjs",
     ]

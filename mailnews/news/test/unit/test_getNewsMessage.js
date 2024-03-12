@@ -6,8 +6,8 @@
  *   - Downloading a single message and checking content in stream is correct.
  */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // The basic daemon to use for testing Nntpd.sys.mjs implementations

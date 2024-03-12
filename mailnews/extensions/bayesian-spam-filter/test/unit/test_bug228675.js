@@ -9,8 +9,8 @@
 /* import-globals-from resources/trainingfile.js */
 load("resources/trainingfile.js");
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // before shrink, the trained messages have 76 tokens. Force shrink.

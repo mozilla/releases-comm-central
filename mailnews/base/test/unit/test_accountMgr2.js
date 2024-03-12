@@ -5,8 +5,8 @@
 /**
  * This tests various methods and attributes on nsIMsgAccountManager.
  */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 add_task(async function () {
