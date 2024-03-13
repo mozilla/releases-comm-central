@@ -317,7 +317,10 @@ add_task(async function testBadAccessToken() {
   oAuth2Server.accessToken = "bad_access_token";
 
   for (const inbox of allInboxes) {
-    Assert.ok(!MockAlertsService._alert, "no alerts were shown before this test");
+    Assert.ok(
+      !MockAlertsService._alert,
+      "no alerts were shown before this test"
+    );
 
     info("poisoning the cache with a bad access token");
 
