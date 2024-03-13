@@ -55,7 +55,8 @@ menupopup {
       outline: 0;
     }
 
-    &[checked="true"] {
+    &[checked="true"],
+    &[selected="true"] {
       list-style-image: var(--icon-check);
       -moz-context-properties: stroke;
       stroke: currentColor;
