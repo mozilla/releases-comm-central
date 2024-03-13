@@ -81,10 +81,9 @@ add_task(async function testCancelWaitForRedirect() {
 
   await new Promise(resolve => setTimeout(resolve));
 
+  await BrowserTestUtils.closeWindow(requestWindow);
   const closeEvent = new Event("close");
   requestWindow.dispatchEvent(closeEvent);
-  await BrowserTestUtils.closeWindow(requestWindow);
-
   try {
     await request;
     ok(false, "request should be rejected");
