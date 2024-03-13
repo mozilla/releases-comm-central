@@ -1,20 +1,4 @@
-# Storybook for Thunderbird
-
-Storybook is a component library to document our design system, reusable
-components and any specific components you might want to test with dummy data.
-
-## Background
-
-The Storybook will list components that can be reused, and will help document
-what common elements we have. It can also list implementation specific
-components, but they should not be added to the "Design System" section.
-
-Changes to files directly referenced from the Storybook (so basically
-non-chrome:// paths) should automatically reflect changes in the opened tab.
-If you make a change to a chrome:// referenced file then you'll need to do a
-hard refresh (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>) to notice the changes.
-
-### Running Storybook
+# Running Storybook
 
 You can run Storybook by executing
 
@@ -29,7 +13,12 @@ open with a temporary profile, loading a tab with Storybook.
 You can disable Thunderbird opening with the command using the `--no-open`
 option.
 
-#### Manually opening Storybook in Thunderbird
+Changes to files directly referenced from the Storybook (so basically
+non-chrome:// paths) should automatically reflect changes in the opened tab.
+If you make a change to a chrome:// referenced file then you'll need to do a
+hard refresh (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>) to notice the changes.
+
+## Manually opening Storybook in Thunderbird
 
 Run the following command in your Thunderbird developer console:
 
@@ -44,7 +33,7 @@ and no preferences are modified except to open Storybook in the first place.
 Consider the next section on preferences you might want to flip while using
 Storybook like this.
 
-#### Ensuring all style features work
+## Ensuring all style features work
 
 Our stylesheets use some features that are not available to web content. To fix
 this a couple preferences have to be set to true:
