@@ -12,6 +12,18 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 import { Pop3Authenticator } from "resource:///modules/MailAuthenticator.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "localStrings", () =>
+  Services.strings.createBundle(
+    "chrome://messenger/locale/localMsgs.properties"
+  )
+);
+ChromeUtils.defineLazyGetter(lazy, "messengerStrings", () =>
+  Services.strings.createBundle(
+    "chrome://messenger/locale/messenger.properties"
+  )
+);
+
 /**
  * A structure to represent a response received from the server. A response can
  * be a single status line of a multi-line data block.
@@ -391,12 +403,10 @@ export class Pop3Client {
         break;
     }
     if (errorName) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messenger.properties"
+      const errorMessage = lazy.messengerStrings.formatStringFromName(
+        errorName,
+        [this._server.hostName]
       );
-      const errorMessage = bundle.formatStringFromName(errorName, [
-        this._server.hostName,
-      ]);
       MailServices.mailSession.alertUser(errorMessage, this.runningUri);
     }
 
@@ -872,6 +882,16 @@ export class Pop3Client {
       this._actionAuth();
     } else if (this._currentAuthMethod == "GSSAPI") {
       this._actionError("pop3GssapiFailure", [], res.statusText);
+    } else if (this._currentAuthMethod == "XOAUTH2") {
+      this._logger.error(
+        `Got an error name=oAuth2Error, the server said: ${res.statusText}`
+      );
+      const errorMessage = lazy.messengerStrings.formatStringFromName(
+        "oAuth2Error",
+        [this._server.hostName]
+      );
+      MailServices.mailSession.alertUser(errorMessage, this.runningUri);
+      this._actionDone(Cr.NS_ERROR_FAILURE);
     }
   };
 
@@ -1558,25 +1578,25 @@ export class Pop3Client {
     if (!this._msgWindow) {
       return;
     }
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/localMsgs.properties"
-    );
+
     let errorMsg;
     if (errorParams) {
-      errorMsg = bundle.formatStringFromName(errorName, errorParams);
+      errorMsg = lazy.localStrings.formatStringFromName(errorName, errorParams);
     } else {
-      errorMsg = bundle.GetStringFromName(errorName);
+      errorMsg = lazy.localStrings.GetStringFromName(errorName);
     }
     if (serverErrorMsg) {
-      const serverSaidPrefix = bundle.formatStringFromName("pop3ServerSaid", [
-        this._server.hostName,
-      ]);
+      const serverSaidPrefix = lazy.localStrings.formatStringFromName(
+        "pop3ServerSaid",
+        [this._server.hostName]
+      );
       errorMsg += ` ${serverSaidPrefix} ${serverErrorMsg}`;
     }
 
-    const errorTitle = bundle.formatStringFromName("pop3ErrorDialogTitle", [
-      this._server.prettyName,
-    ]);
+    const errorTitle = lazy.localStrings.formatStringFromName(
+      "pop3ErrorDialogTitle",
+      [this._server.prettyName]
+    );
     Services.prompt.alert(this._msgWindow.domWindow, errorTitle, errorMsg);
   }
 
@@ -1647,19 +1667,12 @@ export class Pop3Client {
     if (!this._msgWindow?.statusFeedback) {
       return;
     }
-    if (!this._localBundle) {
-      this._localBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/localMsgs.properties"
-      );
-      this._messengerBundle = Services.strings.createBundle(
-        "chrome://messenger/locale/messenger.properties"
-      );
-    }
+
     const status = params
-      ? this._localBundle.formatStringFromName(statusName, params)
-      : this._localBundle.GetStringFromName(statusName);
+      ? lazy.localStrings.formatStringFromName(statusName, params)
+      : lazy.localStrings.GetStringFromName(statusName);
     this._msgWindow.statusFeedback.showStatusString(
-      this._messengerBundle.formatStringFromName("statusMessage", [
+      lazy.messengerStrings.formatStringFromName("statusMessage", [
         this._server.prettyName,
         status,
       ])

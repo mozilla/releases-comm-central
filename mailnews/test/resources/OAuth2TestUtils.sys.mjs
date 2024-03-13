@@ -245,7 +245,7 @@ class OAuth2Server {
       data.error = "invalid_grant";
     }
 
-    if (data.accessToken && this.expiry !== null) {
+    if (data.access_token && this.expiry !== null) {
       data.expires_in = this.expiry;
     }
 

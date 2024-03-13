@@ -10,6 +10,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { OAuth2Module } = ChromeUtils.import(
+  "resource:///modules/OAuth2Module.jsm"
+);
 const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );
@@ -17,10 +20,16 @@ const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
 );
 
+Services.scriptloader.loadSubScript(
+  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
+  this
+);
+
 const generator = new MessageGenerator();
 let localAccount, localRootFolder;
 let imapServer, imapAccount, imapRootFolder, imapInbox;
 let pop3Server, pop3Account, pop3RootFolder, pop3Inbox;
+let oAuth2Server;
 
 const allInboxes = [];
 
@@ -88,7 +97,13 @@ add_setup(async function () {
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
-  await OAuth2TestUtils.startServer(this);
+  oAuth2Server = await OAuth2TestUtils.startServer(this);
+
+  const alertsService = new MockObjectRegisterer(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
+  alertsService.register();
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);
@@ -98,6 +113,9 @@ add_setup(async function () {
     Services.logins.removeAllLogins();
     Services.prefs.clearUserPref("mailnews.oauth.loglevel");
     Services.prefs.clearUserPref("signon.rememberSignons");
+
+    Assert.ok(!MockAlertsService._alert, "no unexpected alerts were shown");
+    alertsService.unregister();
   });
 });
 
@@ -230,6 +248,117 @@ add_task(async function testNoAccessToken() {
 });
 
 /**
+ * Tests that with an expired access token, a new access token is requested.
+ */
+add_task(async function testExpiredAccessToken() {
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(
+    "oauth://test.test",
+    null,
+    "test_scope",
+    "user",
+    "refresh_token",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(loginInfo);
+
+  for (const inbox of allInboxes) {
+    info("poisoning the cache with an expired access token");
+    oAuth2Server.accessToken = "expired_access_token";
+    oAuth2Server.expiry = -3600;
+
+    const expiredModule = new OAuth2Module();
+    expiredModule.initFromMail(inbox.server);
+    await expiredModule._oauth.connect(false, false);
+
+    oAuth2Server.accessToken = "access_token";
+    oAuth2Server.expiry = null;
+
+    info(
+      `getting messages for ${inbox.server.type} inbox with an expired access token`
+    );
+    await addMessagesToServer(inbox.server.type);
+
+    await fetchMessages(inbox);
+    await waitForMessages(inbox);
+
+    checkSavedPassword(inbox);
+    await promiseServerIdle(inbox.server);
+    inbox.server.closeCachedConnections();
+
+    OAuth2TestUtils.forgetObjects();
+  }
+
+  Services.logins.removeAllLogins();
+});
+
+/**
+ * Tests that with a bad access token. This simulates an authentication server
+ * giving a token that the mail server is not expecting. Very little can be
+ * done here, so we notify the user and give up.
+ */
+add_task(async function testBadAccessToken() {
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(
+    "oauth://test.test",
+    null,
+    "test_scope",
+    "user",
+    "refresh_token",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(loginInfo);
+  oAuth2Server.accessToken = "bad_access_token";
+
+  for (const inbox of allInboxes) {
+    Assert.ok(!MockAlertsService._alert, "no alerts were shown before this test");
+
+    info("poisoning the cache with a bad access token");
+
+    const expiredModule = new OAuth2Module();
+    expiredModule.initFromMail(inbox.server);
+    await expiredModule._oauth.connect(false, false);
+
+    info(
+      `getting messages for ${inbox.server.type} inbox with a bad access token`
+    );
+
+    await fetchMessages(inbox);
+    const alert = await TestUtils.waitForCondition(
+      () => MockAlertsService._alert,
+      "waiting for connection alert to show"
+    );
+    delete MockAlertsService._alert;
+
+    Assert.equal(alert.imageURL, "chrome://branding/content/icon48.png");
+    Assert.stringContains(
+      alert.text,
+      "test.test",
+      "the alert text should include the hostname of the server"
+    );
+    Assert.stringContains(
+      alert.text,
+      "Authentication failure",
+      "the alert text should state the problem"
+    );
+
+    await promiseServerIdle(inbox.server);
+    inbox.server.closeCachedConnections();
+
+    OAuth2TestUtils.forgetObjects();
+  }
+
+  Services.logins.removeAllLogins();
+  oAuth2Server.accessToken = "access_token";
+});
+
+/**
  * Tests that with a bad saved refresh token, new tokens are requested.
  */
 add_task(async function testBadRefreshToken() {
@@ -266,3 +395,36 @@ add_task(async function testBadRefreshToken() {
     Services.logins.removeAllLogins();
   }
 });
+
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+
+  static _alert;
+
+  showPersistentNotification(persistentData, alert, alertListener) {
+    info(`showPersistentNotification: ${alert.text}`);
+    Assert.ok(false, "unexpected call to showPersistentNotification");
+  }
+
+  showAlert(alert, listener) {
+    info(`showAlert: ${alert.text}`);
+    MockAlertsService._alert = alert;
+  }
+
+  showAlertNotification(
+    imageUrl,
+    title,
+    text,
+    textClickable,
+    cookie,
+    alertListener,
+    name
+  ) {
+    info(`showAlertNotification: ${text}`);
+    Assert.ok(false, "unexpected call to showAlertNotification");
+  }
+
+  closeAlert(name) {
+    Assert.ok(false, "unexpected call to closeAlert");
+  }
+}

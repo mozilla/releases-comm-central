@@ -487,6 +487,6 @@ export class POP3_OAUTH2_handler extends POP3_RFC5034_handler {
       this._state = kStateTransaction;
       return "+OK Yeah, that's the right access token.";
     }
-    return "-BAD Yeah, nah, that's the wrong access token.";
+    return "-ERR Yeah, nah, that's the wrong access token.";
   }
 }
