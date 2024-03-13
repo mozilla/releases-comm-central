@@ -22,25 +22,25 @@ message-header-followup-to-list-name = Followup to
 
 message-header-tags-list-name = Tags
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-id = List-ID
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-help = List-Help
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-unsubscribe = List-Unsubscribe
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-subscribe = List-Subscribe
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-post = List-Post
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-owner = List-Owner
 
-# List managment header - RFC 2369.
+# List management header - RFC 2369.
 message-header-list-archive = List-Archive
 
 # Direct link to the archived form of an individual email message - RFC 5064.
