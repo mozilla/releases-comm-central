@@ -241,6 +241,8 @@ class MboxParser {
         return handle_eMessageComplete(data);
       case eEOF:
         return handle_eEOF(data);
+      default:
+        MOZ_ASSERT_UNREACHABLE(); // should not happen
     }
   }
 
