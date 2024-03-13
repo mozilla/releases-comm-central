@@ -421,7 +421,6 @@ man/*
 ; MailNews components
 
 ; MailNews JS components
-@RESPATH@/components/msgMime.manifest
 
 ; MailNews chrome
 @RESPATH@/chrome/messenger@JAREXT@
@@ -502,6 +501,4 @@ man/*
 @RESPATH@/@PREF_DIR@/calendar.js
 
 # Files added to components directory via `FINAL_TARGET_FILES.components`.
-@RESPATH@/components/calCachedCalendar.js
-@RESPATH@/components/calICSService-worker.js
 @RESPATH@/components/calItemBase.js
