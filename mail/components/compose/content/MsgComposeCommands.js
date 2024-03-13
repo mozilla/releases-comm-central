@@ -1189,7 +1189,7 @@ var defaultController = {
 
     cmd_spelling: {
       isEnabled() {
-        return true;
+        return !gWindowLocked;
       },
       doCommand() {
         window.cancelSendMessage = false;

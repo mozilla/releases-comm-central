@@ -462,8 +462,12 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       this.getTargetFromWindow(window)
     );
 
+    const isDisabled = button =>
+      button.hasAttribute("disabled") &&
+      button.getAttribute("disabled") !== "false";
+
     let success = false;
-    if (button && enabled) {
+    if (button && enabled && !isDisabled(button)) {
       window.focus();
 
       if (popupURL) {
