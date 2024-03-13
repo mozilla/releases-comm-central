@@ -1970,8 +1970,8 @@ function msgComposeContextOnShowing(event) {
 
   const editor = GetCurrentEditorElement();
   const target = editor.contentDocument.elementFromPoint(
-    editor._contextX,
-    editor._contextY
+    editor._clientX,
+    editor._clientY
   );
 
   const selectionInfo = SelectionUtils.getSelectionDetails(window);
