@@ -39,3 +39,134 @@ add_task(async function test_formatFileSize() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function test_parseMailboxString() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const tests = [
+          {
+            addr: "user@invalid",
+            keepGroups: [undefined, false, true],
+            expected: [
+              {
+                email: "user@invalid",
+              },
+            ],
+          },
+          {
+            addr: "User <user@invalid>",
+            keepGroups: [undefined, false, true],
+            expected: [
+              {
+                name: "User",
+                email: "user@invalid",
+              },
+            ],
+          },
+          {
+            addr: "User1 <user1@invalid>, User2 <user2@invalid>",
+            keepGroups: [undefined, false, true],
+            expected: [
+              {
+                name: "User1",
+                email: "user1@invalid",
+              },
+              {
+                name: "User2",
+                email: "user2@invalid",
+              },
+            ],
+          },
+          {
+            addr: `"User1" <user1@invalid>; "User 2" <user2@invalid>; `,
+            keepGroups: [undefined, false, true],
+            expected: [
+              {
+                name: "User1",
+                email: "user1@invalid",
+              },
+              {
+                name: "User 2",
+                email: "user2@invalid",
+              },
+            ],
+          },
+          {
+            addr: `"User1" <user1@invalid>; GroupName : G1 <g1@invalid>, g2@invalid; "User 2" <user2@invalid>; `,
+            keepGroups: [true],
+            expected: [
+              {
+                name: "User1",
+                email: "user1@invalid",
+              },
+              {
+                name: "GroupName",
+                group: [
+                  {
+                    name: "G1",
+                    email: "g1@invalid",
+                  },
+                  {
+                    email: "g2@invalid",
+                  },
+                ],
+              },
+              {
+                name: "User 2",
+                email: "user2@invalid",
+              },
+            ],
+          },
+          {
+            addr: `"User1" <user1@invalid>; GroupName : G1 <g1@invalid>, g2@invalid; "User 2" <user2@invalid>; `,
+            keepGroups: [false, undefined],
+            expected: [
+              {
+                name: "User1",
+                email: "user1@invalid",
+              },
+              {
+                name: "G1",
+                email: "g1@invalid",
+              },
+              {
+                email: "g2@invalid",
+              },
+              {
+                name: "User 2",
+                email: "user2@invalid",
+              },
+            ],
+          },
+        ];
+        for (const { addr, keepGroups, expected } of tests) {
+          for (const keep of keepGroups) {
+            const result =
+              keep == undefined
+                ? await browser.messengerUtilities.parseMailboxString(addr)
+                : await browser.messengerUtilities.parseMailboxString(
+                    addr,
+                    keep
+                  );
+            window.assertDeepEqual(
+              expected,
+              result,
+              `The addr ${addr} should be parsed correctly.`
+            );
+          }
+        }
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

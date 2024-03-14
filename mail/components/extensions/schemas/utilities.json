@@ -1,6 +1,32 @@
 [
   {
     "namespace": "messengerUtilities",
+    "types": [
+      {
+        "id": "ParsedMailbox",
+        "type": "object",
+        "description": "Representation of a parsed mailbox string (see RFC 5322, section 3.4).",
+        "properties": {
+          "name": {
+            "type": "string",
+            "optional": true,
+            "description": "The <value>display-name</value> associated with the provided address or group, if available."
+          },
+          "email": {
+            "type": "string",
+            "optional": true,
+            "description": "The <value>addr-spec</value> associated with the provided address, if available."
+          },
+          "group": {
+            "type": "array",
+            "items": {
+              "$ref": "messengerUtilities.ParsedMailbox"
+            },
+            "description": "The members of the group, if available."
+          }
+        }
+      }
+    ],
     "functions": [
       {
         "name": "formatFileSize",
@@ -20,6 +46,38 @@
             "parameters": [
               {
                 "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "parseMailboxString",
+        "type": "function",
+        "description": "Parse a mailbox string containing one or more email addresses (see RFC 5322, section 3.4).",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "mailboxString",
+            "description": "The string to be parsed (e.g. <value>User <user@example.com>, other-user@example.com</value>)"
+          },
+          {
+            "type": "boolean",
+            "name": "preserveGroups",
+            "optional": true,
+            "description": "Keep grouped hierachies. Groups may be specified in a mailbox string as follows: <value>GroupName : user1 <user1@example.com>, user2@example,com ;</value>."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "messengerUtilities.ParsedMailbox"
+                }
               }
             ]
           }
