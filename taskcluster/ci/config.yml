@@ -56,6 +56,7 @@ treeherder:
         'misc': 'Misc checks'
         'pedantic': 'pedantic checks'
         'py': 'Python checks'
+        'rust': 'Rust checks'
         'text': 'Check on texts'
 
         # Tests

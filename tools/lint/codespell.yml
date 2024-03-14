@@ -38,6 +38,7 @@ codespell:
         - rst
         - md
         - ftl
+        - rs
     support-files:
         - 'tools/lint/spell/**'
         - 'comm/tools/lint/spell/**'
