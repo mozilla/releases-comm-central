@@ -204,7 +204,7 @@ var gGeneralPane = {
     if (AppConstants.platform != "macosx") {
       this.updateShowAlert();
     }
-    this.updateWebSearch();
+    await this.updateWebSearch();
 
     // Search integration -- check whether we should hide or disable integration
     let hideSearchUI = false;
@@ -648,7 +648,7 @@ var gGeneralPane = {
     }
   },
 
-  updateWebSearch() {
+  async updateWebSearch() {
     const self = this;
     Services.search.init().then(async () => {
       const defaultEngine = await Services.search.getDefault();
@@ -659,7 +659,8 @@ var gGeneralPane = {
         item.className = "menuitem-iconic";
         item.setAttribute(
           "image",
-          engine.getIconURL() || "resource://gre-resources/broken-image.png"
+          (await engine.getIconURL()) ||
+            "resource://gre-resources/broken-image.png"
         );
         if (engine == defaultEngine) {
           engineList.selectedItem = item;
@@ -764,7 +765,7 @@ var gGeneralPane = {
     item.className = "menuitem-iconic";
     item.setAttribute(
       "image",
-      engine.getIconURL() || "resource://gre-resources/broken-image.png"
+      (await engine.getIconURL()) || "resource://gre-resources/broken-image.png"
     );
     engineList.selectedIndex =
       engineList.firstElementChild.childElementCount - 1;
