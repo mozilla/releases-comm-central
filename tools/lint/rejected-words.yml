@@ -30,4 +30,3 @@ avoid-blacklist-and-whitelist:
         - xhtml
         - xml
         - yml
-        - rs

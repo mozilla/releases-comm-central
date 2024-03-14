@@ -210,22 +210,6 @@ py-ruff:
             root-path: comm
             mozlint-config: ruff.yml
 
-rustfmt:
-    description: rustfmt on the Rust code
-    treeherder:
-        symbol: rust(rustfmt)
-    run:
-        mach: >
-            commlint -v -l rustfmt -f treeherder
-            -f json:/builds/worker/mozlint.json comm/
-    fetches:
-        toolchain:
-            - linux64-rust
-    optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: rustfmt.yml
-
 shellcheck:
     description: shellcheck run over the Thunderbird codebase
     treeherder:
