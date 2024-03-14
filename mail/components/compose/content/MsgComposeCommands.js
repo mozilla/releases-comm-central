@@ -128,6 +128,7 @@ var gLoadingComplete = false;
 
 var gAttachmentBucket;
 var gAttachmentCounter;
+var gTempDirsToDelete = [];
 /**
  * typedef {Object} FocusArea
  *
@@ -5765,6 +5766,12 @@ function ComposeUnload() {
 
   top.controllers.removeController(SecurityController);
 
+  for (const dir of gTempDirsToDelete) {
+    if (dir.exists()) {
+      dir.remove(true);
+    }
+  }
+
   // This destroys the window for us.
   MsgComposeCloseWindow();
 }
@@ -8017,6 +8024,8 @@ async function messageAttachmentToFile(attachment) {
     "pid-" + Services.appinfo.processID
   );
   await IOUtils.makeDirectory(pathTempDir, { permissions: 0o700 });
+  const tempDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  tempDir.initWithPath(pathTempDir);
   const pathTempFile = await IOUtils.createUniqueFile(
     pathTempDir,
     attachment.name.replaceAll(/[/:*?\"<>|]/g, "_"),
@@ -8024,10 +8033,7 @@ async function messageAttachmentToFile(attachment) {
   );
   const tempFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   tempFile.initWithPath(pathTempFile);
-  const extAppLauncher = Cc[
-    "@mozilla.org/uriloader/external-helper-app-service;1"
-  ].getService(Ci.nsPIExternalAppLauncher);
-  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+  gTempDirsToDelete.push(tempDir);
 
   const service = MailServices.messageServiceFromURI(attachment.url);
   const bytes = await new Promise((resolve, reject) => {
@@ -8157,10 +8163,7 @@ async function AddAttachments(aAttachments, aContentChanged = true) {
         attachment.msgUri,
         tempDir
       );
-      const extAppLauncher = Cc[
-        "@mozilla.org/uriloader/external-helper-app-service;1"
-      ].getService(Ci.nsPIExternalAppLauncher);
-      extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+      gTempDirsToDelete.push(tempDir);
       // Store the original mailbox:// url in contentLocation.
       attachment.contentLocation = attachment.url;
       attachment.url = Services.io.newFileURI(tempFile).spec;

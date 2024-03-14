@@ -110,13 +110,8 @@
 #include "nsMimeTypes.h"
 #include "mimebuf.h"
 #include "nsMsgUtils.h"
+#include "nsMsgCompUtils.h"
 #include <ctype.h>
-
-//
-// External Defines...
-//
-
-extern nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile);
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartRelated, MimeMultipartRelatedClass,

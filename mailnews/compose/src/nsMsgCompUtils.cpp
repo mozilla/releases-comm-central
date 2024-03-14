@@ -93,13 +93,21 @@ nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile) {
 
   nsresult rv =
       GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, tFileName, tFile);
-
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = (*tFile)->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
-  if (NS_FAILED(rv)) NS_RELEASE(*tFile);
+  if (NS_FAILED(rv)) {
+    NS_RELEASE(*tFile);
+    return rv;
+  }
 
-  return rv;
+  nsCOMPtr<nsPIExternalAppLauncher> appLauncher =
+      do_GetService(NS_EXTERNALHELPERAPPSERVICE_CONTRACTID);
+  if (appLauncher) {
+    appLauncher->DeleteTemporaryFileOnExit(*tFile);
+  }
+
+  return NS_OK;
 }
 
 /**

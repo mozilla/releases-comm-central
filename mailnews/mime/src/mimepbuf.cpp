@@ -11,10 +11,7 @@
 #include "nsMimeStringResources.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
-//
-// External Defines...
-//
-extern nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile);
+#include "nsMsgCompUtils.h"
 
 /* See mimepbuf.h for a description of the mission of this file.
 

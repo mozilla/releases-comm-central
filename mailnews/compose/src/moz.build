@@ -8,6 +8,7 @@ EXPORTS += [
     "nsMsgAttachmentData.h",
     "nsMsgCompFields.h",
     "nsMsgCompose.h",
+    "nsMsgCompUtils.h",
 ]
 
 SOURCES += [

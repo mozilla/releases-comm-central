@@ -47,7 +47,6 @@ PR_BEGIN_EXTERN_C
 // in as a template
 //
 nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile);
-char* nsMsgCreateTempFileName(const char* tFileName);
 
 //
 // Various utilities for building parts of MIME encoded

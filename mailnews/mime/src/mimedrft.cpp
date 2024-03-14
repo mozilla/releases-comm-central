@@ -42,6 +42,7 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
+#include "nsMsgCompUtils.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIMsgAccountManager.h"
@@ -95,38 +96,6 @@ mime_draft_data::mime_draft_data()
       forwardInlineFilter(false),
       overrideComposeFormat(false),
       autodetectCharset(false) {}
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-// THIS SHOULD ALL MOVE TO ANOTHER FILE AFTER LANDING!
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-// safe filename for all OSes
-#define SAFE_TMP_FILENAME "nsmime.tmp"
-
-//
-// Create a file for the a unique temp file
-// on the local machine. Caller must free memory
-//
-nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile) {
-  if (!tFileName || !*tFileName) tFileName = SAFE_TMP_FILENAME;
-
-  nsresult rv =
-      GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, tFileName, tFile);
-
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = (*tFile)->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
-  if (NS_FAILED(rv)) NS_RELEASE(*tFile);
-
-  return rv;
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-// END OF - THIS SHOULD ALL MOVE TO ANOTHER FILE AFTER LANDING!
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
 
 typedef enum {
   nsMsg_RETURN_RECEIPT_BOOL_HEADER_MASK = 0,
