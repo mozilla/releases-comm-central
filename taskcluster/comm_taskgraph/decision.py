@@ -48,9 +48,9 @@ PER_PROJECT_PARAMETERS = {
     },
     "try-comm-central": {
         "enable_always_target": True,
-        "target_tasks_method": lambda parameters: "codereview"
-        if parameters.get("target_tasks_method") == "codereview"
-        else "try_cc_tasks",
+        "target_tasks_method": lambda parameters: "try_cc_tasks"
+        if (method := parameters.get("target_tasks_method")) == "default"
+        else method,
     },
     "comm-central": {
         "target_tasks_method": "comm_central_tasks",
@@ -133,9 +133,6 @@ def get_decision_parameters(graph_config, parameters):
     # Apply default values for all Thunderbird CI projects
     parameters.update(get_defaults(graph_config.vcs_root))
 
-    # If the target method is nightly, we should build partials. This means
-    # knowing what has been released previously.
-    # An empty release_history is fine, it just means no partials will be built
     project = parameters["project"]
 
     if project in PER_PROJECT_PARAMETERS:
@@ -192,6 +189,9 @@ def get_decision_parameters(graph_config, parameters):
         env_prefix=_get_env_prefix(graph_config),
     )
 
+    # If the target method is nightly, we should build partials. This means
+    # knowing what has been released previously.
+    # An empty release_history is fine, it just means no partials will be built
     parameters.setdefault("release_history", dict())
     if parameters.get("tasks_for", "") == "cron":
         for key, _callable in CRON_OPTIONS.get(parameters["target_tasks_method"], {}).items():
