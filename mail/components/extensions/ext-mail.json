@@ -131,6 +131,12 @@
     "manifest": ["messages"],
     "paths": [["messages"]]
   },
+  "messengerUtilities": {
+    "url": "chrome://messenger/content/parent/ext-utilities.js",
+    "schema": "chrome://messenger/content/schemas/utilities.json",
+    "scopes": ["addon_parent"],
+    "paths": [["messengerUtilities"]]
+  },
   "pkcs11": {
     "url": "chrome://messenger/content/parent/ext-pkcs11.js",
     "schema": "chrome://messenger/content/schemas/pkcs11.json",

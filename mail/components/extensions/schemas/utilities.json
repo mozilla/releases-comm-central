@@ -1,0 +1,30 @@
+[
+  {
+    "namespace": "messengerUtilities",
+    "functions": [
+      {
+        "name": "formatFileSize",
+        "type": "function",
+        "description": "Returns the provided file size in a human readable format (e.g. <value>12 bytes</value> or <value>11,4 GB</value>).",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "sizeInBytes",
+            "description": "The size in bytes."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
