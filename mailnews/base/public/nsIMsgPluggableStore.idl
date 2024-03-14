@@ -278,9 +278,12 @@ interface nsIMsgPluggableStore : nsISupports {
    * See nsIStoreScanListener below for the listener callback sequence.
    *
    * If asyncScan() succeeds, a reference-counter pointer to the scanListener
-   * will be held until the scan is completed.
-   * If asyncScan fails, no listener callbacks will be called.
+   * will be held until the scan is completed. The refcount is guaranteed
+   * to last until the final onStopScan() callback returns.
+   * If asyncScan() fails, no listener callbacks will be called.
    * No listener callbacks will be invoked before asyncScan() returns.
+   * Later, if any errors occur, or if any listener callbacks return failures,
+   * then the onStopScan() callback will be invoked with the failure code.
    */
   void asyncScan(in nsIMsgFolder folder, in nsIStoreScanListener scanListener);
 
