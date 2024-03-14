@@ -106,11 +106,13 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
    * Overrides the super class to update every about:message in this window.
    */
   async updateWindow(window) {
+    const promises = [];
     for (const bc of window.browsingContext.getAllBrowsingContextsInSubtree()) {
       if (bc.currentURI.spec == "about:message") {
-        super.updateWindow(bc.window);
+        promises.push(super.updateWindow(bc.window));
       }
     }
+    await Promise.all(promises);
   }
 
   /**
