@@ -779,10 +779,9 @@ nsresult nsMsgMdnGenerator::SendMdnMsg() {
   nsCOMPtr<nsIRequest> aRequest;
   nsCString identEmail;
   m_identity->GetEmail(identEmail);
-  smtpService->SendMailMessage(m_file, m_dntRrt.get(), m_identity,
-                               identEmail.get(), EmptyString(), this, nullptr,
-                               nullptr, false, ""_ns, getter_AddRefs(aUri),
-                               getter_AddRefs(aRequest));
+  smtpService->SendMailMessage(
+      m_file, m_dntRrt, m_identity, identEmail, EmptyString(), this, nullptr,
+      nullptr, false, ""_ns, getter_AddRefs(aUri), getter_AddRefs(aRequest));
 
   return NS_OK;
 }

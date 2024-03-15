@@ -624,8 +624,7 @@ void WMSettings::SetSmtpServer(mozilla::dom::Document* xmlDoc,
     nsCOMPtr<nsISmtpServer> extgServer;
     // don't try to make another server
     // regardless if username doesn't match
-    rv = smtpService->FindServer(userName.get(),
-                                 NS_ConvertUTF16toUTF8(smtpName).get(),
+    rv = smtpService->FindServer(userName, NS_ConvertUTF16toUTF8(smtpName),
                                  getter_AddRefs(extgServer));
     if (NS_SUCCEEDED(rv) && extgServer) {
       // set our account keyed to this smptserver key

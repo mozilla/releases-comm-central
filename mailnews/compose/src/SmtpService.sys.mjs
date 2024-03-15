@@ -110,7 +110,7 @@ export class SmtpService {
         fresh = false;
         let from = sender;
         const to = MailServices.headerParser
-          .parseEncodedHeaderW(decodeURIComponent(recipients))
+          .parseEncodedHeaderW(recipients)
           .map(rec => rec.email);
 
         if (
@@ -127,9 +127,7 @@ export class SmtpService {
             .msgGenerateMessageId(userIdentity, null);
         }
         client.useEnvelope({
-          from: MailServices.headerParser.parseEncodedHeaderW(
-            decodeURIComponent(from)
-          )[0].email,
+          from: MailServices.headerParser.parseEncodedHeaderW(from)[0].email,
           to,
           size: messageFile.fileSize,
           requestDSN,

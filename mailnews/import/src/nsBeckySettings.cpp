@@ -86,8 +86,7 @@ nsresult nsBeckySettings::CreateSmtpServer(const nsCString& aUserName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISmtpServer> server;
-  rv = smtpService->FindServer(aUserName.get(), aServerName.get(),
-                               getter_AddRefs(server));
+  rv = smtpService->FindServer(aUserName, aServerName, getter_AddRefs(server));
 
   if (NS_FAILED(rv) || !server) {
     rv = smtpService->CreateServer(getter_AddRefs(server));

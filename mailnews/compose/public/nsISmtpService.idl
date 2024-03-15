@@ -53,9 +53,9 @@ interface nsISmtpService : nsISupports {
    * @param aRequest                Provides a handle to the running request.
    *                                This parameter may be null.
    */
-  void sendMailMessage(in nsIFile aFilePath, in string aRecipients,
+  void sendMailMessage(in nsIFile aFilePath, in AUTF8String aRecipients,
                        in nsIMsgIdentity aSenderIdentity,
-                       in string aSender,
+                       in AUTF8String aSender,
                        in AString aPassword,
                        in nsIUrlListener aUrlListener,
                        in nsIMsgStatusFeedback aStatusListener,
@@ -117,7 +117,7 @@ interface nsISmtpService : nsISupports {
    * @param hostname  the hostname of the server
    * @returns         null if no server is found
    */
-  nsISmtpServer findServer(in string username, in string hostname);
+  nsISmtpServer findServer(in AUTF8String username, in AUTF8String hostname);
 
   /**
    * Look up the server with the given key.

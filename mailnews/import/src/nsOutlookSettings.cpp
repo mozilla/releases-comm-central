@@ -477,7 +477,7 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager* aMgr,
   nsAutoCString nativeServerName;
   NS_CopyUnicodeToNative(aServer, nativeServerName);
   nsCOMPtr<nsISmtpServer> foundServer;
-  rv = smtpService->FindServer(nativeUserName.get(), nativeServerName.get(),
+  rv = smtpService->FindServer(nativeUserName, nativeServerName,
                                getter_AddRefs(foundServer));
   if (NS_SUCCEEDED(rv) && foundServer) {
     if (aId) SetSmtpServerKey(aId, foundServer);

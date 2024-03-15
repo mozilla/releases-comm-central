@@ -1125,13 +1125,11 @@ export class MessageSend {
     const converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
       Ci.nsIMimeConverter
     );
-    const encodedRecipients = encodeURIComponent(
-      converter.encodeMimePartIIStr_UTF8(
-        recipients.join(","),
-        true,
-        0,
-        Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
-      )
+    const encodedRecipients = converter.encodeMimePartIIStr_UTF8(
+      recipients.join(","),
+      true,
+      0,
+      Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
     );
     lazy.MsgUtils.sendLogger.debug(
       `Delivering mail message <${this._compFields.messageId}>`
