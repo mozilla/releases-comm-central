@@ -229,9 +229,11 @@ class ThreadRow extends TreeViewTableRow {
           continue;
         }
         cell.textContent = cellTexts[textIndex];
-        document.l10n.setAttributes(cell, column.l10n.cell, {
-          title: cellTexts[textIndex],
-        });
+        if (!column.custom) {
+          document.l10n.setAttributes(cell, column.l10n.cell, {
+            title: cellTexts[textIndex],
+          });
+        }
         ariaLabelPromises.push(cellTexts[textIndex]);
       }
     }
