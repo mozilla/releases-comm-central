@@ -75,9 +75,8 @@ class ThreadRow extends TreeViewTableRow {
     this.dataset.properties = properties.value.trim();
 
     for (const column of columns) {
-      // Skip this column if it's hidden or it's the "select" column, since
-      // the selection state is communicated via the aria-activedescendant.
-      if (column.hidden || column.select) {
+      // Skip this column if it's hidden.
+      if (column.hidden) {
         continue;
       }
       const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
@@ -103,14 +102,19 @@ class ThreadRow extends TreeViewTableRow {
         }
 
         const span = div.querySelector("span");
-        cell.title = span.textContent = cellTexts[textIndex];
+        span.textContent = cellTexts[textIndex];
+        document.l10n.setAttributes(cell, column.l10n.cell, {
+          title: cellTexts[textIndex],
+        });
         ariaLabelPromises.push(cellTexts[textIndex]);
         continue;
       }
 
-      // Add tooltips to columns with no child elements.
-      if (["correspondentCol", "dateCol"].includes(column.id)) {
-        cell.title = cell.textContent;
+      // Only set the aria-label. The selection state is communicated via the
+      // aria-activedescendant.
+      if (["selectCol", "deleteCol"].includes(column.id)) {
+        document.l10n.setAttributes(cell, column.l10n.cell);
+        continue;
       }
 
       if (column.id == "threadCol") {
@@ -135,6 +139,7 @@ class ThreadRow extends TreeViewTableRow {
         if (labelString) {
           ariaLabelPromises.push(document.l10n.formatValue(labelString));
         }
+        document.l10n.setAttributes(cell, column.l10n.cell);
         continue;
       }
 
@@ -148,6 +153,7 @@ class ThreadRow extends TreeViewTableRow {
         } else {
           document.l10n.setAttributes(button, "tree-list-view-row-flag");
         }
+        document.l10n.setAttributes(cell, column.l10n.cell);
         continue;
       }
 
@@ -161,6 +167,7 @@ class ThreadRow extends TreeViewTableRow {
         } else {
           document.l10n.setAttributes(button, "tree-list-view-row-not-spam");
         }
+        document.l10n.setAttributes(cell, column.l10n.cell);
         continue;
       }
 
@@ -177,13 +184,19 @@ class ThreadRow extends TreeViewTableRow {
             document.l10n.formatValue("threadpane-unread-cell-label")
           );
         }
+        document.l10n.setAttributes(cell, column.l10n.cell);
         continue;
       }
 
-      if (column.id == "attachmentCol" && propertiesSet.has("attach")) {
-        ariaLabelPromises.push(
-          document.l10n.formatValue("threadpane-attachments-cell-label")
-        );
+      if (column.id == "attachmentCol") {
+        if (propertiesSet.has("attach")) {
+          const img = cell.querySelector("img");
+          document.l10n.setAttributes(img, "tree-list-view-row-attach");
+          ariaLabelPromises.push(
+            document.l10n.formatValue("threadpane-attachments-cell-label")
+          );
+        }
+        document.l10n.setAttributes(cell, column.l10n.cell);
         continue;
       }
 
@@ -192,7 +205,9 @@ class ThreadRow extends TreeViewTableRow {
         cell.textContent = Array.isArray(prettyPath)
           ? prettyPath.at(-1)
           : cellTexts[textIndex];
-        cell.title = cellTexts[textIndex];
+        document.l10n.setAttributes(cell, column.l10n.cell, {
+          title: cellTexts[textIndex],
+        });
         ariaLabelPromises.push(cellTexts[textIndex]);
         continue;
       }
@@ -214,6 +229,9 @@ class ThreadRow extends TreeViewTableRow {
           continue;
         }
         cell.textContent = cellTexts[textIndex];
+        document.l10n.setAttributes(cell, column.l10n.cell, {
+          title: cellTexts[textIndex],
+        });
         ariaLabelPromises.push(cellTexts[textIndex]);
       }
     }
