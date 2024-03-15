@@ -36,6 +36,15 @@ let removeButton;
 let removeAllButton;
 let signonsTree;
 
+/**
+ * To avoid multiple display reloads by observing notifications from
+ * LoginManagerStorage, temporarily set to false when calling LoginManager
+ * functions.
+ *
+ * @type {boolean}
+ */
+let reloadDisplay = true;
+
 window.addEventListener("load", event => {
   Startup();
 });
@@ -45,7 +54,7 @@ window.addEventListener("unload", event => {
 
 const signonReloadDisplay = {
   async observe(subject, topic, data) {
-    if (topic == "passwordmgr-storage-changed") {
+    if (topic == "passwordmgr-storage-changed" && reloadDisplay) {
       switch (data) {
         case "addLogin":
         case "modifyLogin":
@@ -54,7 +63,6 @@ const signonReloadDisplay = {
           if (!signonsTree) {
             return;
           }
-          signons.length = 0;
           await LoadSignons();
           // apply the filter if needed
           if (filterField && filterField.value != "") {
@@ -219,7 +227,9 @@ const signonsTreeView = {
       const existingLogin = table[row].clone();
       table[row][field] = value;
       table[row].timePasswordChanged = Date.now();
+      reloadDisplay = false;
       Services.logins.modifyLogin(existingLogin, table[row]);
+      reloadDisplay = true;
       signonsTree.invalidateRow(row);
     }
 
@@ -302,7 +312,15 @@ function SortTree(column, ascending) {
   }
 }
 
+/**
+ * Clear the view and load signons.
+ */
 async function LoadSignons() {
+  // Clear the display
+  const oldRowCount = signonsTreeView.rowCount;
+  signonsTreeView.rowCount = 0;
+  signonsTree.rowCountChanged(0, -oldRowCount);
+
   // loads signons into table
   try {
     signons = await Services.logins.getAllLogins();
@@ -311,9 +329,8 @@ async function LoadSignons() {
   }
   signons.forEach(login => login.QueryInterface(Ci.nsILoginMetaInfo));
   signonsTreeView.rowCount = signons.length;
-
-  // This is needed since bug 1839066.
   signonsTree.rowCountChanged(0, signons.length);
+
   // sort and display the table
   signonsTree.view = signonsTreeView;
   // The sort column didn't change. SortTree (called by
@@ -330,8 +347,6 @@ async function LoadSignons() {
     removeAllButton.removeAttribute("disabled");
     togglePasswordsButton.removeAttribute("disabled");
   }
-
-  return true;
 }
 
 function GetVisibleLogins() {
@@ -498,9 +513,11 @@ async function AskUserShowPasswords() {
 }
 
 async function FinalizeSignonDeletions(syncNeeded) {
+  reloadDisplay = false;
   for (let s = 0; s < deletedSignons.length; s++) {
     Services.logins.removeLogin(deletedSignons[s]);
   }
+  reloadDisplay = true;
   // If the deletion has been performed in a filtered view, reflect the deletion in the unfiltered table.
   // See bug 405389.
   if (syncNeeded) {
@@ -574,9 +591,6 @@ function SignonColumnSort(column) {
 async function SignonClearFilter() {
   const singleSelection = signonsTreeView.selection.count == 1;
 
-  // Clear the Tree Display
-  signonsTreeView.rowCount = 0;
-  signonsTree.rowCountChanged(0, -signonsTreeView._filterSet.length);
   signonsTreeView._filterSet = [];
 
   // Just reload the list to make sure deletions are respected
