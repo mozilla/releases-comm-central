@@ -18,6 +18,7 @@ var kToValidACE = "to@xn--vlid-loa.foo.invalid";
 var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
 var NS_ERROR_ILLEGAL_LOCALPART = 0x80553139;
+var NS_MSG_NO_RECIPIENTS = 0x805530df;
 
 // for alertTestUtils.js
 let resolveAlert;
@@ -28,11 +29,14 @@ function alertPS(parent, aDialogText, aText) {
   var expectedAlertMessage =
     composeProps.GetStringFromName("sendFailed") +
     "\n" +
-    composeProps
-      .GetStringFromName("errorIllegalLocalPart2")
-      // Without the domain, we currently don't display any name in the
-      // message part.
-      .replace("%s", test == kToInvalidWithoutDomain ? "" : test);
+    composeProps.GetStringFromName(
+      test == kToInvalidWithoutDomain
+        ? "noRecipients"
+        : "errorIllegalLocalPart2"
+    );
+  if (test != kToInvalidWithoutDomain) {
+    expectedAlertMessage = expectedAlertMessage.replace("%s", test);
+  }
 
   // we should only get here for the kToInvalid test case
   Assert.equal(aText, expectedAlertMessage);
@@ -70,7 +74,12 @@ MsgSendListener.prototype = {
         // Compare data file to what the server received
         Assert.equal(this.originalData, server._daemon.post);
       } else {
-        Assert.equal(aStatus, NS_ERROR_ILLEGAL_LOCALPART);
+        Assert.equal(
+          aStatus,
+          test == kToInvalidWithoutDomain
+            ? NS_MSG_NO_RECIPIENTS
+            : NS_ERROR_ILLEGAL_LOCALPART
+        );
         do_check_transaction(server.playTransaction(), ["EHLO test"]);
         // Local address (before the @) has non-ascii char(s) or the @ is
         // missing from the address. An alert is triggered after the EHLO is

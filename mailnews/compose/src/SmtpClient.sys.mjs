@@ -221,6 +221,11 @@ export class SmtpClient {
       this._envelope.to = [];
 
       for (let recipient of recipients) {
+        if (!recipient) {
+          // This happens when nsISmtpService.sendMailMessage() is called with
+          // recipients without @, for example in test_sendMailAddressIDN.js.
+          continue;
+        }
         let lastAt = null;
         let firstInvalid = null;
         for (let i = 0; i < recipient.length; i++) {
@@ -232,7 +237,7 @@ export class SmtpClient {
             break;
           }
         }
-        if (!recipient || firstInvalid != null) {
+        if (firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
             this._onNsError(MsgUtils.NS_ERROR_ILLEGAL_LOCALPART, recipient);
