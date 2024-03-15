@@ -147,7 +147,6 @@ async function setFilter(aFilterString) {
 const signonsTreeView = {
   QueryInterface: ChromeUtils.generateQI(["nsITreeView"]),
   _filterSet: [],
-  _lastSelectedRanges: [],
   selection: null,
 
   rowCount: 0,
@@ -246,9 +245,10 @@ const signonsTreeView = {
 
 function SortTree(column, ascending) {
   const table = GetVisibleLogins();
-  // remember which item was selected so we can restore it after the sort
-  const selections = GetTreeSelections();
-  const selectedNumber = selections.length ? table[selections[0]].number : -1;
+  // Remember which item was selected so we can restore it after sorting.
+  const index = signonsTree.view.selection.currentIndex;
+  const selectedGuid = index >= 0 ? table[index].guid : null;
+
   function compareFunc(a, b) {
     let valA, valB;
     switch (column) {
@@ -282,38 +282,27 @@ function SortTree(column, ascending) {
     return 0;
   }
 
-  // do the sort
+  // Do the sort.
   table.sort(compareFunc);
   if (!ascending) {
     table.reverse();
   }
 
-  // restore the selection
-  let selectedRow = -1;
-  // FIXME: dead code ahead; fix or remove
-  // eslint-disable-next-line no-constant-condition
-  if (selectedNumber >= 0 && false) {
-    for (let s = 0; s < table.length; s++) {
-      if (table[s].number == selectedNumber) {
-        // update selection
-        // note: we need to deselect before reselecting in order to trigger ...Selected()
-        signonsTree.view.selection.select(-1);
-        signonsTree.view.selection.select(s);
-        selectedRow = s;
-        break;
-      }
-    }
-  }
+  // Restore the last selected item.
+  const selectedIndex =
+    table.findIndex(login => login.guid == selectedGuid) ?? -1;
+  signonsTree.view.selection.select(selectedIndex);
+  SignonSelected();
 
-  // display the results
+  // Display the results.
   signonsTree.invalidate();
-  if (selectedRow >= 0) {
-    signonsTree.ensureRowIsVisible(selectedRow);
+  if (selectedIndex >= 0) {
+    signonsTree.ensureRowIsVisible(selectedIndex);
   }
 }
 
 /**
- * Clear the view and load signons.
+ * Clear the view, load and sort signons.
  */
 async function LoadSignons() {
   // Clear the display
@@ -485,7 +474,9 @@ async function TogglePasswordVisible() {
       showingPasswords ? "hide-passwords" : "show-passwords"
     );
     document.getElementById("passwordCol").hidden = !showingPasswords;
-    await FilterPasswords();
+    if (filterField.value) {
+      await FilterPasswords();
+    }
   }
 
   // Notify observers that the password visibility toggling is
@@ -589,24 +580,10 @@ function SignonColumnSort(column) {
 }
 
 async function SignonClearFilter() {
-  const singleSelection = signonsTreeView.selection.count == 1;
-
   signonsTreeView._filterSet = [];
 
   // Just reload the list to make sure deletions are respected
   await LoadSignons();
-
-  // Restore selection
-  if (singleSelection) {
-    signonsTreeView.selection.clearSelection();
-    for (let i = 0; i < signonsTreeView._lastSelectedRanges.length; ++i) {
-      const range = signonsTreeView._lastSelectedRanges[i];
-      signonsTreeView.selection.rangedSelect(range.min, range.max, true);
-    }
-  } else {
-    signonsTreeView.selection.select(0);
-  }
-  signonsTreeView._lastSelectedRanges = [];
 
   document.l10n.setAttributes(signonsIntro, "logins-description-all");
   document.l10n.setAttributes(removeAllButton, "remove-all");
@@ -650,22 +627,6 @@ function _filterPasswords(aFilterValue, view) {
   return signons.filter(s => SignonMatchesFilter(s, aFilterValue));
 }
 
-function SignonSaveState() {
-  // Save selection
-  const seln = signonsTreeView.selection;
-  signonsTreeView._lastSelectedRanges = [];
-  const rangeCount = seln.getRangeCount();
-  for (let i = 0; i < rangeCount; ++i) {
-    const min = {};
-    const max = {};
-    seln.getRangeAt(i, min, max);
-    signonsTreeView._lastSelectedRanges.push({
-      min: min.value,
-      max: max.value,
-    });
-  }
-}
-
 async function FilterPasswords() {
   if (filterField.value == "") {
     await SignonClearFilter();
@@ -673,11 +634,6 @@ async function FilterPasswords() {
   }
 
   const newFilterSet = _filterPasswords(filterField.value, signonsTreeView);
-  if (!signonsTreeView._filterSet.length) {
-    // Save Display Info for the Non-Filtered mode when we first
-    // enter Filtered mode.
-    SignonSaveState();
-  }
   signonsTreeView._filterSet = newFilterSet;
 
   // Clear the display
@@ -687,11 +643,6 @@ async function FilterPasswords() {
   // Set up the filtered display
   signonsTreeView.rowCount = signonsTreeView._filterSet.length;
   signonsTree.rowCountChanged(0, signonsTreeView.rowCount);
-
-  // if the view is not empty then select the first item
-  if (signonsTreeView.rowCount > 0) {
-    signonsTreeView.selection.select(0);
-  }
 
   document.l10n.setAttributes(signonsIntro, "logins-description-filtered");
   document.l10n.setAttributes(removeAllButton, "remove-all-shown");
