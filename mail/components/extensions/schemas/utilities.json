@@ -19,6 +19,7 @@
           },
           "group": {
             "type": "array",
+            "optional": true,
             "items": {
               "$ref": "messengerUtilities.ParsedMailbox"
             },
