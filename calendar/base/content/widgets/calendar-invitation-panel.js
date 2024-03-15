@@ -57,7 +57,7 @@
      */
 
     /**
-     * @typedef {Object} InvitationPropertyDescriptor
+     * @typedef {object} InvitationPropertyDescriptor
      * @property {string} id - The id of the HTMLElement that displays
      *   the property.
      * @property {GetValue} getValue - Function used to retrieve the displayed
@@ -266,9 +266,10 @@
   /**
    * Object used to describe relevant arguments to MozElements.NotificationBox.
    * appendNotification().
-   * @type {Object} InvitationStatusBarDescriptor
-   * @property {string} label - An l10n id used used to generate the notification
-   *   bar text.
+   *
+   * @type {object} InvitationStatusBarDescriptor
+   * @property {string} label - An l10n id used used to generate the
+   *   notification bar text.
    * @property {number} priority - One of the notification box constants that
    *   indicate the priority of a notification.
    * @property {object[]} buttons - An array of objects corresponding to the
@@ -297,7 +298,7 @@
      * Map-like object where each key is an InvitationPanel mode and the values
      * are descriptors used to generate the notification bar for that mode.
      *
-     * @type {Object.<string, InvitationStatusBarDescriptor>
+     * @type {Object<string, InvitationStatusBarDescriptor>}
      */
     notices = {
       [InvitationPanel.MODE_NEW]: {
@@ -560,7 +561,7 @@
      *
      * @param {T[]} oldValue
      * @param {T[]} newValue
-     * @return {[T, number][]}
+     * @returns {[T, number][]}
      */
     getChanges(oldValue, newValue) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -731,7 +732,7 @@
      * Sets up the attachment to be displayed as a link with appropriate icon.
      * Links are opened externally.
      *
-     * @param {calIAttachment}
+     * @param {calIAttachment} value
      */
     build(value) {
       const icon = document.createElement("img");

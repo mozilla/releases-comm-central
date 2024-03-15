@@ -316,11 +316,12 @@ function createEventWithDialog(
 /**
  * Creates a task with the calendar event dialog.
  *
- * @param calendar      (optional) The calendar to create the task in
- * @param dueDate       (optional) The task's due date.
- * @param summary       (optional) The task's title.
- * @param todo          (optional) A template task to show in the dialog.
- * @param initialDate   (optional) The initial date for new task datepickers
+ * @param {?calICalendar} calendar - The calendar to create the task in.
+ * @param {?calIDateTime} dueDate - The task's due date.
+ * @param {?string} summary - The task's title.
+ * @param {?calITodo} todo - A template task to show in the dialog.
+ * @param {?calIDateTime} initialDate - The initial date for new task
+ *   datepickers
  */
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
   const onNewItem = function (item, opcalendar, originalItem, listener, extresponse = null) {
@@ -374,23 +375,25 @@ function openEventDialogForViewing(item) {
 /**
  * Modifies the passed event in the event dialog.
  *
- * @param aItem                 The item to modify.
- * @param aPromptOccurrence     If the user should be prompted to select if the
- *                                parent item or occurrence should be modified.
- * @param initialDate           (optional) The initial date for new task datepickers
- * @param aCounterProposal      (optional) An object representing the counterproposal
- *        {
- *            {JsObject} result: {
- *                type: {String} "OK"|"OUTDATED"|"NOTLATESTUPDATE"|"ERROR"|"NODIFF"
- *                descr: {String} a technical description of the problem if type is ERROR or NODIFF,
- *                                otherwise an empty string
- *            },
- *            (empty if result.type = "ERROR"|"NODIFF"){Array} differences: [{
- *                property: {String} a property that is subject to the proposal
- *                proposed: {String} the proposed value
- *                original: {String} the original value
- *            }]
- *        }
+ * @param {calIItemBase} aItem - The item to modify.
+ * @param {boolean} aPromptOccurrence - If the user should be prompted to select
+ *   if the parent item or occurrence should be modified.
+ * @param {?calIDateTime} [initialDate] - The initial date for new task
+ *   datepickers.
+ * @param {object} [aCounterProposal] - An object representing the
+ *   counterproposal.
+ * @param {object} aCounterProposal.result - Result.
+ * @param {"OK"|"OUTDATED"|"NOTLATESTUPDATE"|"ERROR"|"NODIFF"} aCounterProposal.result.type -
+ *   Type of proposal.
+ * @param {string} aCounterProposal.result.desc - Technical description of the
+ *   problem if type is ERROR or NODIFF, otherwise an empty string.
+ * @param {object[]} aCounterProposal.differences - Array of counterproposal
+ *   differences. Should be empty if aCounterproposal.result.type is "ERROR" or
+ *   "NODIFF".
+ * @param {string} aCounterProposal.differences[].property - A property that is
+ *   subject to the proposal.
+ * @param {string} aCounterProposal.differences[].proposed - The proposed value.
+ * @param {string} aCounterProposal.differences[].original - The original value.
  */
 function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCounterProposal) {
   const dlg = cal.item.findWindow(aItem);
@@ -429,15 +432,14 @@ function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCo
  *
  * @param {calIItemBase} calendarItem - The item to open the dialog with.
  * @param {calICalendar} calendar - The calendar to open the dialog with.
- * @param {string} mode - The operation the dialog should do
- *                                       ("new", "view", "modify").
- * @param {onDialogComplete} callback - The callback to call when the dialog
- *                                       has completed.
+ * @param {"new"|"view"|"modify"} mode - The operation the dialog should do.
+ *   "modify").
+ * @param {onDialogComplete} callback - The callback to call when the dialog has
+ *   completed.
  * @param {?calIDateTime} initialDate - The initial date for new task
- *                                       datepickers.
+ *   datepickers.
  * @param {?object} counterProposal - An object representing the
- *                                       counterproposal - see description
- *                                       for modifyEventWithDialog().
+ *   counterproposal - see description for modifyEventWithDialog().
  */
 function openEventDialog(
   calendarItem,
@@ -582,30 +584,25 @@ function openEventDialog(
  * the modified item or the future item only consist of a single occurrence,
  * they are changed to be single items.
  *
- * @param aItem                         The item or array of items to check.
- * @param aNeedsFuture                  If true, the future item is parsed.
- *                                        This parameter can for example be
- *                                        false if a deletion is being made.
- * @param aAction                       Either "edit" or "delete". Sets up
- *                                          the labels in the occurrence prompt
- * @returns [modifiedItem, futureItem, promptResponse]
- *                                      modifiedItem is a single item or array
- *                                        of items depending on the past aItem
+ * @param {calIItemBase} aItem - The item or array of items to check.
+ * @param {boolean} aNeedsFuture - If true, the future item is parsed. This
+ *   parameter can for example be false if a deletion is being made.
+ * @param {string} aAction - Either "edit" or "delete". Sets up the labels in
+ *   the occurrence prompt.
+ * @returns {calIItemBase[]} [modifiedItem, futureItem, promptResponse] - The
+ *   first element, modifiedItem, is a single item or array of items depending
+ *   on the past aItem.
  *
- *                                        If "this and all following" was chosen,
- *                                        an array containing the item *until*
- *                                        the given occurrence (modifiedItem),
- *                                        and the item *after* the given
- *                                        occurrence (futureItem).
+ *   If "this and all following" was chosen, an array containing the item
+ *   until the given occurrence (modifiedItem), and the item after the given
+ *   occurrence (futureItem).
  *
- *                                        If any other option was chosen,
- *                                        futureItem is null  and the
- *                                        modifiedItem is either the parent item
- *                                        or the passed occurrence, or null if
- *                                        the dialog was canceled.
+ *   If any other option was chosen, futureItem is null  and the modifiedItem is
+ *   either the parent item or the passed occurrence, or null if the dialog was
+ *   canceled.
  *
- *                                        The promptResponse parameter gives the
- *                                        response of the dialog as a constant.
+ *   The promptResponse parameter gives the response of the dialog as a
+ *   constant.
  */
 function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
   const CANCEL = 0;
@@ -662,13 +659,14 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
  * Create and commit a transaction with the given arguments to the transaction
  * manager. Also updates the undo/redo menu.
  *
- * @param action       The action to do.
- * @param item         The new item to add/modify/delete
- * @param calendar     The calendar to do the transaction on
- * @param oldItem      (optional) some actions require an old item
- * @param observer     (optional) the observer to call when complete.
- * @param extResponse  (optional) JS object with additional parameters for sending itip messages
- *                                (see also description of checkAndSend in calItipUtils.jsm)
+ * @param {string} action - The action to do.
+ * @param {calIItemBase} item - The new item to add/modify/delete
+ * @param {calICalendar} calendar - The calendar to do the transaction on
+ * @param {?calIItemBase} [oldItem] - some actions require an old item
+ * @param {?Function} [observer] - The observer to call when complete.
+ * @param {?object} [extResponse] - JS object with additional
+ *   parameters for sending itip messages (see also description of checkAndSend
+ *   in calItipUtils.jsm).
  */
 async function doTransaction(action, item, calendar, oldItem, observer, extResponse = null) {
   // This is usually a user-initiated transaction, so make sure the calendar
@@ -774,16 +772,16 @@ function updateUndoRedoMenu() {
  * dealing with context menu partstat actions, see also setupAttendanceMenu(...)
  * in calendar-ui-utils.js
  *
- * @param {EventTarget}  aTarget   the target of the triggering event
- * @param {Array}        aItems    an array of calEvent or calIToDo items
+ * @param {EventTarget} aTarget - The target of the triggering event.
+ * @param {calIItemBase[]} aItems - An array of calIEvent or calIToDo items.
  */
 function setContextPartstat(aTarget, aItems) {
   /**
    * Provides the participation representing the user for a provided item
    *
-   * @param   {calEvent|calTodo}  aItem  The calendar item to inspect
-   * @returns {?calIAttendee} An calIAttendee object or null if no
-   *                                       participant was detected
+   * @param {calIEvent|calIToDo} aItem - The calendar item to inspect.
+   * @returns {?calIAttendee} An calIAttendee object or null if no participant
+   *   was detected.
    */
   function getParticipant(aItem) {
     let party = null;

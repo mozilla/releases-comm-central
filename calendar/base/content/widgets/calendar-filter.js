@@ -78,11 +78,13 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
  *                 The callback function will be called with the following parameters:
  *               - function(aItem, aResults, aFilterProperties, aFilter)
  *
- *                   @param aItem               The item being tested.
- *                   @param aResults            The results of the test of the other specified
- *                                              filter properties.
- *                   @param aFilterProperties   The current filter properties being tested.
- *                   @param aFilter             The calFilter object performing the filter test.
+ *                   param {calIItemBase} aItem - The item being tested.
+ *                   param {number} aResults - The results of the test of the
+ *                     other specified filter properties.
+ *                   param {calFilterProperties} aFilterProperties - The
+ *                     current filter properties being tested.
+ *                   param {calFilter} aFilter - The calFilter object
+ *                     performing the filter test.
  *
  *                 If specified, the callback function is responsible for returning a value that
  *               can be converted to true if the item should match the filter, or a value that
@@ -220,9 +222,10 @@ calFilter.prototype = {
   /**
    * Gets the filter properties for a predefined filter.
    *
-   * @param aFilter   The name of the filter to retrieve the filter properties for.
-   * @result          The filter properties for the specified filter, or null if the filter
-   *                  not predefined.
+   * @param {calFilter} aFilter - The name of the filter to retrieve the filter
+   *   properties for.
+   * @returns {calFilterProperties} The filter properties for the specified
+   *   filter, or null if the filter not predefined.
    */
   getPreDefinedFilterProperties(aFilter) {
     const props = new calFilterProperties();
@@ -320,12 +323,13 @@ calFilter.prototype = {
   },
 
   /**
-   * Defines a set of filter properties so that they may be applied by the filter name. If
-   * the specified filter name is already defined, it's associated filter properties will be
-   * replaced.
+   * Defines a set of filter properties so that they may be applied by the
+   * filter name. If the specified filter name is already defined, it's
+   * associated filter properties will be replaced.
    *
-   * @param aFilterName         The name to define the filter properties as.
-   * @param aFilterProperties   The filter properties to define.
+   * @param {string} aFilterName - The name to define the filter properties as.
+   * @param {calFilterProperties} aFilterProperties - The filter properties to
+   *   define.
    */
   defineFilter(aFilterName, aFilterProperties) {
     if (!(aFilterProperties instanceof calFilterProperties)) {
@@ -336,11 +340,13 @@ calFilter.prototype = {
   },
 
   /**
-   * Returns the set of filter properties that were previously defined by a filter name.
+   * Returns the set of filter properties that were previously defined by a
+   * filter name.
    *
-   * @param aFilter             The filter name of the defined filter properties.
-   * @returns The properties defined by the filter name, or null if
-   *                            the filter name was not previously defined.
+   * @param {calFilter} aFilter - The filter name of the defined filter
+   *   properties.
+   * @returns {calFilterProperties} The properties defined by the filter name,
+   *   or null if the filter name was not previously defined.
    */
   getDefinedFilterProperties(aFilter) {
     if (aFilter in this.mDefinedFilters) {
@@ -350,12 +356,14 @@ calFilter.prototype = {
   },
 
   /**
-   * Returns the filter name that a set of filter properties were previously defined as.
+   * Returns the filter name that a set of filter properties were previously
+   * defined as.
    *
-   * @param aFilterProperties   The filter properties previously defined.
-   * @returns The name of the first filter name that the properties
-   *                            were defined as, or null if the filter properties were
-   *                            not previously defined.
+   * @param {calFilterProperties} aFilterProperties - The filter properties
+   *   previously defined.
+   * @returns {string} The name of the first filter name that the properties
+   *   were defined as, or null if the filter properties were not previously
+   *   defined.
    */
   getDefinedFilterName(aFilterProperties) {
     for (const filter in this.mDefinedFilters) {
@@ -367,11 +375,11 @@ calFilter.prototype = {
   },
 
   /**
-   * Checks if the item matches the current filter text
+   * Checks if the item matches the current filter text.
    *
-   * @param aItem               The item to check.
-   * @returns Returns true if the item matches the filter text or no
-   *                            filter text has been set, false otherwise.
+   * @param {calIItemBase} aItem - The item to check.
+   * @returns {boolean} Returns true if the item matches the filter text or no
+   *   filter text has been set, false otherwise.
    */
   textFilter(aItem) {
     if (!this.mFilterText) {
@@ -398,21 +406,22 @@ calFilter.prototype = {
   /**
    * Checks if the item matches the current filter date range.
    *
-   * @param aItem               The item to check.
-   * @returns Returns true if the item falls within the date range
-   *                            specified by mStartDate and mEndDate, false otherwise.
+   * @param {calIItemBase} aItem - The item to check.
+   * @returns {boolean} Returns true if the item falls within the date range
+   *   specified by mStartDate and mEndDate, false otherwise.
    */
   dateRangeFilter(aItem) {
     return !!cal.item.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
   },
 
   /**
-   * Checks if the item matches the currently applied filter properties. Filter properties
-   * with a value of null or that are not applicable to the item's type are not tested.
+   * Checks if the item matches the currently applied filter properties. Filter
+   * properties with a value of null or that are not applicable to the item's
+   * type are not tested.
    *
-   * @param aItem               The item to check.
-   * @returns Returns true if the item matches the filter properties
-   *                            currently applied, false otherwise.
+   * @param {calIItemBase} aItem - The item to check.
+   * @returns {boolean} Returns true if the item matches the filter properties
+   *   currently applied, false otherwise.
    */
   propertyFilter(aItem) {
     let result;
@@ -490,7 +499,8 @@ calFilter.prototype = {
    * Checks if the item matches the expected item type.
    *
    * @param {calIItemBase} aItem - The item to check.
-   * @returns {boolean} - True if the item matches the item type, false otherwise.
+   * @returns {boolean} - True if the item matches the item type, false
+   *   otherwise.
    */
   itemTypeFilter(aItem) {
     if (aItem.isTodo() && this.mItemType & Ci.calICalendar.ITEM_FILTER_TYPE_TODO) {
@@ -514,13 +524,14 @@ calFilter.prototype = {
   /**
    * Calculates the date from a date filter property.
    *
-   * @param prop                The value of the date filter property to calculate for. May
-   *                            be a constant specifying a relative date range, or a string
-   *                            representing a duration offset from the current date time.
-   * @param start               If true, the function will return the date value for the
-   *                            start of the relative date range, otherwise it will return the
-   *                            date value for the end of the date range.
-   * @returns The calculated date for the property.
+   * @param {(calFilterProperties|string)} prop - The value of the date filter
+   *   property to calculate for. May be a constant specifying a relative date
+   *   range, or a string representing a duration offset from the current date
+   *   time.
+   * @param {boolean} start - If true, the function will return the date value
+   *   for the start of the relative date range, otherwise it will return the
+   *   date value for the end of the date range.
+   * @returns {calIDateTime} The calculated date for the property.
    */
   getDateForProperty(prop, start) {
     const props = this.mFilterProperties || new calFilterProperties();
@@ -584,9 +595,11 @@ calFilter.prototype = {
   },
 
   /**
-   * Calculates the current start and end dates for the currently applied filter.
+   * Calculates the current start and end dates for the currently applied
+   * filter.
    *
-   * @returns The current [startDate, endDate] for the applied filter.
+   * @returns {calIDateTime[]} The current [startDate, endDate] for the applied
+   *   filter.
    */
   getDatesForFilter() {
     let startDate = null;
@@ -610,8 +623,8 @@ calFilter.prototype = {
   /**
    * Gets the start date for the current filter date range.
    *
-   * @return:                    The start date of the current filter date range, or null if
-   *                             the date range has an unbound start date.
+   * @returns {calIDateTime} The start date of the current filter date range, or
+   *   null if the date range has an unbound start date.
    */
   get startDate() {
     return this.mStartDate;
@@ -628,8 +641,8 @@ calFilter.prototype = {
   /**
    * Gets the end date for the current filter date range.
    *
-   * @return:                    The end date of the current filter date range, or null if
-   *                             the date range has an unbound end date.
+   * @returns {?calIDateTime} The end date of the current filter date range, or
+   *   null if the date range has an unbound end date.
    */
   get endDate() {
     return this.mEndDate;
@@ -651,10 +664,15 @@ calFilter.prototype = {
   },
 
   /**
-   * One of the calICalendar.ITEM_FILTER_TYPE constants, optionally bitwise-OR-ed with a
-   * calICalendar.ITEM_FILTER_COMPLETED value. Only items of this type will pass the filter.
+   * Sets the item type.
    *
-   * If an ITEM_FILTER_COMPLETED bit is set it will will take priority over applyFilter.
+   * @param {number} aItemType - One of the calICalendar.ITEM_FILTER_TYPE
+   *   constants, optionally bitwise-OR-ed with a
+   *   calICalendar.ITEM_FILTER_COMPLETED value. Only items of this type will
+   *   pass the filter.
+   *
+   * If an ITEM_FILTER_COMPLETED bit is set it will will take priority over
+   * applyFilter.
    */
   set itemType(aItemType) {
     this.mItemType = aItemType;
@@ -670,7 +688,7 @@ calFilter.prototype = {
   /**
    * Sets the value used to perform the text filter.
    *
-   * @param aValue              The string value to use for the text filter.
+   * @param {string} aValue - The string value to use for the text filter.
    */
   set filterText(aValue) {
     this.mFilterText = aValue;
@@ -695,7 +713,7 @@ calFilter.prototype = {
   /**
    * Gets the currently applied filter properties.
    *
-   * @returns The currently applied filter properties.
+   * @returns {?calFilterProperties} The currently applied filter properties.
    */
   get filterProperties() {
     return this.mFilterProperties ? this.mFilterProperties.clone() : null;
@@ -704,9 +722,9 @@ calFilter.prototype = {
   /**
    * Gets the name of the currently applied filter.
    *
-   * @returns The current defined name of the currently applied filter
-   *                            properties, or null if the current properties were not
-   *                            previously defined.
+   * @returns {?string} The current defined name of the currently applied filter
+   *   properties, or null if the current properties were not previously
+   *   defined.
    */
   get filterName() {
     if (!this.mFilterProperties) {
@@ -719,11 +737,12 @@ calFilter.prototype = {
   /**
    * Applies the specified filter.
    *
-   * @param aFilter           The filter to apply. May be one of the following types:
-   *                          - a calFilterProperties object specifying the filter properties
-   *                          - a String representing a previously defined filter name
-   *                          - a String representing a duration offset from now
-   *                          - a Function to use for the onfilter callback for a custom filter
+   * @param {(calFilterProperties|string|Function)} aFilter - The filter to
+   *   apply. May be one of the following types:
+   *     ~ A calFilterProperties object specifying the filter properties
+   *     ~ A string representing a previously defined filter name
+   *     ~ A string representing a duration offset from now
+   *     ~ A Function to use for the onfilter callback for a custom filter
    */
   applyFilter(aFilter) {
     this.mFilterProperties = null;
@@ -757,11 +776,13 @@ calFilter.prototype = {
   },
 
   /**
-   * Calculates the current start and end dates for the currently applied filter, and updates
-   * the current filter start and end dates. This function can be used to update the date range
-   * for date range filters that are relative to the selected date or current date and time.
+   * Calculates the current start and end dates for the currently applied
+   * filter, and updates the current filter start and end dates. This function
+   * can be used to update the date range for date range filters that are
+   * relative to the selected date or current date and time.
    *
-   * @returns The current [startDate, endDate] for the applied filter.
+   * @returns {calIDateTime[]} The current [startDate, endDate] for the applied
+   *   filter.
    */
   updateFilterDates() {
     const [startDate, endDate] = this.getDatesForFilter();
@@ -780,14 +801,14 @@ calFilter.prototype = {
   },
 
   /**
-   * Filters an array of items, returning a new array containing the items that match
-   * the currently applied filter properties and text filter.
+   * Filters an array of items, returning a new array containing the items that
+   * match the currently applied filter properties and text filter.
    *
-   * @param aItems              The array of items to check.
-   * @param aCallback           An optional callback function to be called with each item and
-   *                            the result of it's filter test.
-   * @returns A new array containing the items that match the filters, or
-   *                            null if no filter has been applied.
+   * @param {calIItemBase[]} aItems - The array of items to check.
+   * @param {Function} [aCallback] - An optional callback function to be called
+   *   with each item and the result of it's filter test.
+   * @returns {?calIItemBase[]} A new array containing the items that match the
+   *   filters, or null if no filter has been applied.
    */
   filterItems(aItems, aCallback) {
     if (!this.mFilterProperties) {
@@ -806,23 +827,25 @@ calFilter.prototype = {
   },
 
   /**
-   * Checks if the item matches the currently applied filter properties and text filter.
+   * Checks if the item matches the currently applied filter properties and text
+   * filter.
    *
-   * @param aItem               The item to check.
-   * @returns Returns true if the item matches the filters,
-   *                            false otherwise.
+   * @param {calIItemBase} aItem - The item to check.
+   * @returns {boolean} Returns true if the item matches the filters, false
+   *   otherwise.
    */
   isItemInFilters(aItem) {
     return this.itemTypeFilter(aItem) && this.propertyFilter(aItem) && this.textFilter(aItem);
   },
 
   /**
-   * Finds the next occurrence of a repeating item that matches the currently applied
-   * filter properties.
+   * Finds the next occurrence of a repeating item that matches the currently
+   * applied filter properties.
    *
-   * @param aItem               The parent item to find the next occurrence of.
-   * @returns Returns the next occurrence that matches the filters,
-   *                            or null if no match is found.
+   * @param {calIItemBase} aItem - The parent item to find the next occurrence
+   *   of that matches applied filters.
+   * @returns {?calIItemBase} Returns the next occurrence that matches the
+   *   filters, or null if no match is found.
    */
   getNextOccurrence(aItem) {
     if (!aItem.recurrenceInfo) {
@@ -872,10 +895,10 @@ calFilter.prototype = {
    * Gets the occurrences of a repeating item that match the currently applied
    * filter properties and date range.
    *
-   * @param aItem               The parent item to find occurrence of.
-   * @returns Returns an array containing the occurrences that
-   *                            match the filters, an empty array if there are no
-   *                            matches, or null if the filter is not initialized.
+   * @param {calIItemBase} aItem - The parent item to find occurrence of.
+   * @returns {?calIItemBase[]} Returns an array containing the occurrences that
+   *   match the filters, an empty array if there are no matches, or null if the
+   *   filter is not initialized.
    */
   getOccurrences(aItem) {
     if (!this.mFilterProperties) {
@@ -1000,7 +1023,7 @@ calFilter.prototype = {
  *
  * This mixin handles disabled and/or hidden calendars, so you don't have to.
  *
- * @note Instances must have an `id` for logging purposes.
+ * Note: Instances must have an `id` for logging purposes.
  */
 let CalendarFilteredViewMixin = Base =>
   class extends Base {

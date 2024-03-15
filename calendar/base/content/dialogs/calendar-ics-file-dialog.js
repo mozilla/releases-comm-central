@@ -11,13 +11,13 @@ const gModel = {
   /** @type {calICalendar[]} */
   calendars: [],
 
-  /** @type {Map(number -> calIItemBase)} */
+  /** @type {Map<number, calIItemBase>} */
   itemsToImport: new Map(),
 
   /** @type {nsIFile | null} */
   file: null,
 
-  /** @type {Map(number -> CalendarItemSummary)} */
+  /** @type {Map<number, CalendarItemSummary>} */
   itemSummaries: new Map(),
 };
 
@@ -317,7 +317,6 @@ function getCurrentlySelectedCalendar() {
  *
  * @param {calIItemBase} item - Calendar item.
  * @param {number} itemIndex - Index of the calendar item in the item array.
- * @param {string} filePath - Path to the file being imported.
  * @param {Event} event - The button event.
  */
 async function importSingleItem(item, itemIndex, event) {

@@ -480,7 +480,7 @@ function onLoad() {
 /**
  * Initialize the dialog controls according to the passed rule
  *
- * @param rule    The recurrence rule to parse.
+ * @param {calIRecurrenceRule} rule - The recurrence rule to parse.
  */
 function initializeControls(rule) {
   function getOrdinalAndWeekdayOfRule(aByDayRuleComponent) {
@@ -656,8 +656,8 @@ function initializeControls(rule) {
  * Save the recurrence information selected in the dialog back to the given
  * item.
  *
- * @param item    The item to save back to.
- * @returns The saved recurrence info.
+ * @param {calIItemBase} item - The item to save back to.
+ * @returns {calIRecurrenceInfo} The saved recurrence info.
  */
 function onSave(item) {
   // Always return 'null' if this item is an occurrence.
@@ -844,7 +844,7 @@ document.addEventListener("dialogcancel", () => {
  * XXX we don't change the calendar in this dialog, this function should be
  * consolidated or renamed.
  *
- * @param calendar    The calendar to use for setup.
+ * @param {calICalendar} calendar - The calendar to use for setup.
  */
 function onChangeCalendar(calendar) {
   const args = window.arguments[0];
@@ -875,7 +875,7 @@ function onChangeCalendar(calendar) {
  *
  * A task without a start time is also considered readonly.
  *
- * @param item        The item to check.
+ * @param {calIItemBase} item - The item to check.
  */
 function disableOrEnable(item) {
   if (item.parentItem != item) {
@@ -893,7 +893,7 @@ function disableOrEnable(item) {
  * Disables all fields that have an attribute that matches the argument and is
  * set to "true".
  *
- * @param aAttributeName    The attribute to search for.
+ * @param {string} aAttributeName - The attribute to search for.
  */
 function disableRecurrenceFields(aAttributeName) {
   const disableElements = document.getElementsByAttribute(aAttributeName, "true");
@@ -906,7 +906,7 @@ function disableRecurrenceFields(aAttributeName) {
  * Enables all fields that have an attribute that matches the argument and is
  * set to "true".
  *
- * @param aAttributeName    The attribute to search for.
+ * @param {string} aAttributeName - The attribute to search for.
  */
 function enableRecurrenceFields(aAttributeName) {
   const enableElements = document.getElementsByAttribute(aAttributeName, "true");
@@ -1172,10 +1172,9 @@ function updateRecurrencePattern() {
  * This function changes the order for certain elements using a locale string.
  * This is needed for some locales that expect a different wording order.
  *
- * @param aPropKey      The locale property key to get the order from
- * @param aPropParams   An array of ids to be passed to the locale property.
- *                        These should be the ids of the elements to change
- *                        the order for.
+ * @param {string} aPropKey - The locale property key to get the order from
+ * @param {string[]} aPropParams - An array of ids to be passed to the locale
+ *   property. These should be the ids of the elements to change the order for.
  */
 function changeOrderForElements(aPropKey, aPropParams) {
   let localeOrder;

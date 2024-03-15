@@ -80,8 +80,9 @@ export var cal = {
    * Uses the prompt service to display an error message. Use this sparingly,
    * as it interrupts the user.
    *
-   * @param aMsg The message to be shown
-   * @param aWindow The window to show the message in, or null for any window.
+   * @param {string} aMsg - The message to be shown
+   * @param {?nsIWindow} aWindow - The window to show the message in, or null
+   *   for any window.
    */
   showError(aMsg, aWindow = null) {
     Services.prompt.alert(aWindow, cal.l10n.getCalString("genericErrorTitle"), aMsg);
@@ -91,8 +92,9 @@ export var cal = {
    * Returns a string describing the current js-stack with filename and line
    * numbers.
    *
-   * @param aDepth (optional) The number of frames to include. Defaults to 5.
-   * @param aSkip  (optional) Number of frames to skip
+   * @param {number} aDepth - (optional) The number of frames to include.
+   *   Defaults to 5.
+   * @param {number} aSkip - (optional) Number of frames to skip.
    */
   STACK(aDepth = 10, aSkip = 0) {
     let stack = "";
@@ -107,13 +109,13 @@ export var cal = {
   },
 
   /**
-   * Logs a message and the current js-stack, if aCondition fails
+   * Logs a message and the current js-stack, if aCondition fails.
    *
-   * @param aCondition  the condition to test for
-   * @param aMessage    the message to report in the case the assert fails
-   * @param aCritical   if true, throw an error to stop current code execution
-   *                    if false, code flow will continue
-   *                    may be a result code
+   * @param {boolean} aCondition - The condition to test for.
+   * @param {string} aMessage - The message to report in the case the assert
+   *   fails.
+   * @param {boolean} aCritical - If true, throw an error to stop current code
+   *   execution. If false, code flow will continue. May be a result code.
    */
   ASSERT(aCondition, aMessage, aCritical = false) {
     if (aCondition) {
@@ -130,13 +132,15 @@ export var cal = {
   },
 
   /**
-   * Generates the QueryInterface function. This is a replacement for XPCOMUtils.generateQI, which
-   * is being replaced. Unfortunately Calendar's code depends on some of its classes providing
-   * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event
-   * both calIItemBase and calIEvent.
+   * Generates the QueryInterface function. This is a replacement for
+   * XPCOMUtils.generateQI, which is being replaced. Unfortunately Calendar's
+   * code depends on some of its classes providing nsIClassInfo, which causes
+   * xpconnect/xpcom to make all methods available, e.g. for an event both
+   * calIItemBase and calIEvent.
    *
-   * @param {Array<string | nsIIDRef>} aInterfaces      The interfaces to generate QI for.
-   * @returns {Function} The QueryInterface function
+   * @param {(string[]|nsIIDRef[])} aInterfaces - The interfaces to generate QI
+   *   for.
+   * @returns {Function} The QueryInterface function.
    */
   generateQI(aInterfaces) {
     if (aInterfaces.length == 1) {
@@ -199,11 +203,11 @@ export var cal = {
    * Create an adapter for the given interface. If passed, methods will be
    * added to the template object, otherwise a new object will be returned.
    *
-   * @param iface     The interface to adapt, either using
-   *                    Components.interfaces or the name as a string.
-   * @param template  (optional) A template object to extend
-   * @returns If passed the adapted template object, otherwise a
-   *                    clean adapter.
+   * @param {(object|string)} iface - The interface to adapt, either using
+   *   Components.interfaces or the name as a string.
+   * @param {?object} template - (optional) A template object to extend.
+   * @returns {object} If passed the adapted template object, otherwise a clean
+   *   adapter.
    *
    * Currently supported interfaces are:
    *  - calIObserver
@@ -266,9 +270,9 @@ export var cal = {
   /**
    * Adds an observer listening for the topic.
    *
-   * @param func function to execute on topic
-   * @param topic topic to listen for
-   * @param oneTime whether to listen only once
+   * @param {Function} func - Function to execute on topic.
+   * @param {string} topic - Topic to listen for.
+   * @param {boolean} oneTime - Whether to listen only once.
    */
   addObserver(func, topic, oneTime) {
     const observer = {
@@ -288,16 +292,20 @@ export var cal = {
   /**
    * Wraps an instance, making sure the xpcom wrapped object is used.
    *
-   * @param aObj the object under consideration
-   * @param aInterface the interface to be wrapped
+   * @param {object} aObj - The object under consideration.
+   * @param {object} aInterface - The interface to be wrapped.
    *
    * Use this function to QueryInterface the object to a particular interface.
-   * You may only expect the return value to be wrapped, not the original passed object.
+   * You may only expect the return value to be wrapped, not the original passed
+   * object.
+   *
    * For example:
+   *
    * // BAD USAGE:
    * if (cal.wrapInstance(foo, Ci.nsIBar)) {
    *   foo.barMethod();
    * }
+   *
    * // GOOD USAGE:
    * foo = cal.wrapInstance(foo, Ci.nsIBar);
    * if (foo) {
@@ -321,8 +329,8 @@ export var cal = {
    * Tries to get rid of wrappers, if this is not possible then return the
    * passed object.
    *
-   * @param aObj  The object under consideration
-   * @returns The possibly unwrapped object.
+   * @param {object} aObj - The object under consideration.
+   * @returns {object} The possibly unwrapped object.
    */
   unwrapInstance(aObj) {
     return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
@@ -331,19 +339,19 @@ export var cal = {
   /**
    * Adds an xpcom shutdown observer.
    *
-   * @param func function to execute
+   * @param {Function} func - Function to execute.
    */
   addShutdownObserver(func) {
     cal.addObserver(func, "xpcom-shutdown", true /* one time */);
   },
 
   /**
-   * Due to wrapped js objects, some objects may have cyclic references.
-   * You can register properties of objects to be cleaned up on xpcom-shutdown.
+   * Due to wrapped JS objects, some objects may have cyclic references.
+   * You can register properties of objects to be cleaned up on XPCOM-shutdown.
    *
-   * @param obj    object
-   * @param prop   property to be deleted on shutdown
-   *               (if null, |object| will be deleted)
+   * @param {object} obj - Object.
+   * @param {?object} prop - Property to be deleted on shutdown (if null,
+   *   |object| will be deleted).
    */
   registerForShutdownCleanup: shutdownCleanup,
 };
@@ -469,9 +477,10 @@ function shutdownCleanup(obj, prop) {
 }
 
 /**
- * This is the makeQI function from XPCOMUtils.sys.mjs, it is separate to avoid leaks
+ * This is the makeQI function from XPCOMUtils.sys.mjs, it is separate to avoid
+ * leaks.
  *
- * @param {Array<string | nsIIDRef>} aInterfaces      The interfaces to make QI for.
+ * @param {(string[]|nsIIDRef[])} aInterfaces - The interfaces to make QI for.
  * @returns {Function} The QueryInterface function.
  */
 function makeQI(aInterfaces) {

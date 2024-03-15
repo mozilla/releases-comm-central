@@ -177,7 +177,7 @@ export var iterate = {
    *   for (let [paramName, paramValue] of cal.iterate.icalParameter(prop)) { ... }
    *
    * @param {calIIcalProperty} aProperty - The property to iterate.
-   * @yields {[String, String]}                  An iterator object to iterate the properties.
+   * @yields {[string, string]} An iterator object to iterate the properties.
    */
   *icalParameter(aProperty) {
     const paramSet = new Set();

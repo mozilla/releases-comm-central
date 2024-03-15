@@ -22,8 +22,8 @@ const DAY_IN_MS = 86400000;
  * second late, the time to the next event is recalculated and should fire a
  * few milliseconds late at worst.
  *
- * @implements nsIObserver
- * @implements EventEmitter
+ * @implements {nsIObserver}
+ * @implements {EventEmitter}
  */
 var CalMetronome = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
@@ -31,35 +31,35 @@ var CalMetronome = {
   /**
    * The time when the minute event last fired, in milliseconds since the epoch.
    *
-   * @type integer
+   * @type {integer}
    */
   _lastFireTime: 0,
 
   /**
    * The last minute for which the minute event fired.
    *
-   * @type integer (0-59)
+   * @type {integer} (0-59)
    */
   _lastMinute: -1,
 
   /**
    * The last hour for which the hour event fired.
    *
-   * @type integer (0-23)
+   * @type {integer} (0-23)
    */
   _lastHour: -1,
 
   /**
    * The last day of the week for which the day event fired.
    *
-   * @type integer (0-7)
+   * @type {integer} (0-7)
    */
   _lastDay: -1,
 
   /**
    * The timer running everything.
    *
-   * @type nsITimer
+   * @type {nsITimer}
    */
   _timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer),
 

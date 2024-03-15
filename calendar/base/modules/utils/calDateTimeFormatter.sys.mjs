@@ -509,7 +509,7 @@ export var formatter = {
   /**
    * Get the day name.
    *
-   * @param {number} aMonthIndex - Zero-based day number (0 is sunday, 6 is saturday).
+   * @param {number} aDayIndex - Zero-based day number (0 is sunday, 6 is saturday).
    * @returns {string} The day name in the current locale.
    */
   dayName(aDayIndex) {
@@ -520,7 +520,7 @@ export var formatter = {
   /**
    * Get the abbreviation of the day name.
    *
-   * @param {number} aMonthIndex - Zero-based day number (0 is sunday, 6 is saturday).
+   * @param {number} aDayIndex - Zero-based day number (0 is sunday, 6 is saturday).
    * @returns {string} The abbrevidated day name in the current locale.
    */
   shortDayName(aDayIndex) {
