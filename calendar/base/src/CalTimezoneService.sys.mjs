@@ -8,7 +8,7 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
-const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");
+import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
 
 const TIMEZONE_CHANGED_TOPIC = "default-timezone-changed";
 

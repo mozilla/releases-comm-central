@@ -6,8 +6,8 @@
  * Tests for the CalTransactionManager and the various CalTransaction instances.
  */
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+const { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");
@@ -18,7 +18,7 @@ const {
   CalAddTransaction,
   CalModifyTransaction,
   CalDeleteTransaction,
-} = ChromeUtils.import("resource:///modules/CalTransactionManager.jsm");
+} = ChromeUtils.importESModule("resource:///modules/CalTransactionManager.sys.mjs");
 
 /**
  * Records the number of times doTransction() and undoTransction() is called.

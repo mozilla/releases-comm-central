@@ -11,8 +11,8 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalDuration: "resource:///modules/CalDuration.sys.mjs",
+  CalTimezone: "resource:///modules/CalTimezone.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(lazy, "CalTimezone", "resource:///modules/CalTimezone.jsm");
 
 export function CalIcalProperty(innerObject) {
   this.innerObject = innerObject || new ICAL.Property();

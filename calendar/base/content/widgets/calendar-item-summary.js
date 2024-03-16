@@ -12,8 +12,8 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-  var { recurrenceStringFromItem } = ChromeUtils.import(
-    "resource:///modules/calendar/calRecurrenceUtils.jsm"
+  var { recurrenceStringFromItem } = ChromeUtils.importESModule(
+    "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
   );
 
   /**

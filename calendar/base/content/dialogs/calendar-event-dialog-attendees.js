@@ -6,8 +6,8 @@
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
+var { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {

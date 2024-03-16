@@ -4,7 +4,7 @@
 
 var { formatter } = cal.dtz;
 
-const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");
+const { CalTimezone } = ChromeUtils.importESModule("resource:///modules/CalTimezone.sys.mjs");
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
 function run_test() {

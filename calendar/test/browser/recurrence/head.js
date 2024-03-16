@@ -5,8 +5,8 @@
 // The tests in this folder frequently take too long. Give them more time.
 requestLongerTimeout(2);
 
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+var { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 
 /* globals toggleOrientation */

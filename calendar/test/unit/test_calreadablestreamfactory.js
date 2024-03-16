@@ -8,8 +8,8 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
-var { CalReadableStreamFactory } = ChromeUtils.import(
-  "resource:///modules/CalReadableStreamFactory.jsm"
+var { CalReadableStreamFactory } = ChromeUtils.importESModule(
+  "resource:///modules/CalReadableStreamFactory.sys.mjs"
 );
 
 /**

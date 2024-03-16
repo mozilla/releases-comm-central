@@ -5,7 +5,7 @@
 // This test works with code that is not timezone-aware.
 /* eslint-disable no-restricted-syntax */
 
-var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
+var { Extractor } = ChromeUtils.importESModule("resource:///modules/calendar/calExtract.sys.mjs");
 
 var extractor = new Extractor("en-US", 8);
 

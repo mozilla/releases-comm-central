@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { MailStringUtils } = ChromeUtils.import("resource:///modules/MailStringUtils.jsm");
+var { MailStringUtils } = ChromeUtils.importESModule("resource:///modules/MailStringUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",

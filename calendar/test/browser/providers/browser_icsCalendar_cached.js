@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { ICSServer } = ChromeUtils.import("resource://testing-common/calendar/ICSServer.jsm");
+var { ICSServer } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ICSServer.sys.mjs"
+);
 
 ICSServer.open("bob", "bob");
 

@@ -10,8 +10,8 @@
 /* import-globals-from calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { recurrenceRule2String } = ChromeUtils.import(
-  "resource:///modules/calendar/calRecurrenceUtils.jsm"
+var { recurrenceRule2String } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 

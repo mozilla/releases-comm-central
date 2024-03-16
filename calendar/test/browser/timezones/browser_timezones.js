@@ -4,14 +4,14 @@
 
 requestLongerTimeout(4);
 
-var { findEventsInNode } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
+var { findEventsInNode } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarUtils.sys.mjs"
 );
-var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+var { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");

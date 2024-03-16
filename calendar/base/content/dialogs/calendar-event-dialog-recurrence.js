@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { splitRecurrenceRules } = ChromeUtils.import(
-  "resource:///modules/calendar/calRecurrenceUtils.jsm"
+var { splitRecurrenceRules } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");

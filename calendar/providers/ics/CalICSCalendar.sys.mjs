@@ -4,9 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-var { CalReadableStreamFactory } = ChromeUtils.import(
-  "resource:///modules/CalReadableStreamFactory.jsm"
-);
+import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
 // This is a non-sync ics file. It reads the file pointer to by uri when set,
 // then writes it on updates. External changes to the file will be

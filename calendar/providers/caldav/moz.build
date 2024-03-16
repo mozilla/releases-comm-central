@@ -7,7 +7,7 @@ DIRS += ["public"]
 
 EXTRA_JS_MODULES += [
     "CalDavCalendar.sys.mjs",
-    "CalDavProvider.jsm",
+    "CalDavProvider.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [
@@ -15,10 +15,10 @@ XPCOM_MANIFESTS += [
 ]
 
 EXTRA_JS_MODULES.caldav += [
-    "modules/CalDavRequest.jsm",
-    "modules/CalDavRequestHandlers.jsm",
-    "modules/CalDavSession.jsm",
-    "modules/CalDavUtils.jsm",
+    "modules/CalDavRequest.sys.mjs",
+    "modules/CalDavRequestHandlers.sys.mjs",
+    "modules/CalDavSession.sys.mjs",
+    "modules/CalDavUtils.sys.mjs",
 ]
 
 with Files("**"):

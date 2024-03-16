@@ -4,6 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES.calendar.extract += [
-    "CalExtractParser.jsm",
-    "CalExtractParserService.jsm",
+    "CalExtractParser.sys.mjs",
+    "CalExtractParserService.sys.mjs",
 ]

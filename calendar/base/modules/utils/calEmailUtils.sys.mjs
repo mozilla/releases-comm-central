@@ -9,7 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.email namespace.
 
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {

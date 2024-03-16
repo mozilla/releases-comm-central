@@ -5,8 +5,8 @@
 
 EXTRA_JS_MODULES += [
     "CalItipEmailTransport.sys.mjs",
-    "CalItipMessageSender.jsm",
-    "CalItipOutgoingMessage.jsm",
+    "CalItipMessageSender.sys.mjs",
+    "CalItipOutgoingMessage.sys.mjs",
     "CalItipProtocolHandler.sys.mjs",
 ]
 

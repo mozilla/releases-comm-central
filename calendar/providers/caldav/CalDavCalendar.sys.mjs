@@ -4,7 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-var {
+import {
   CalDavGenericRequest,
   CalDavLegacySAXRequest,
   CalDavItemRequest,
@@ -14,16 +14,15 @@ var {
   CalDavPrincipalPropertySearchRequest,
   CalDavOutboxRequest,
   CalDavFreeBusyRequest,
-} = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+} from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 
-var { CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler } = ChromeUtils.import(
-  "resource:///modules/caldav/CalDavRequestHandlers.jsm"
-);
-
-var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
-var { CalReadableStreamFactory } = ChromeUtils.import(
-  "resource:///modules/CalReadableStreamFactory.jsm"
-);
+import {
+  CalDavEtagsHandler,
+  CalDavWebDavSyncHandler,
+  CalDavMultigetSyncHandler,
+} from "resource:///modules/caldav/CalDavRequestHandlers.sys.mjs";
+import { CalDavSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
+import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
 var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";

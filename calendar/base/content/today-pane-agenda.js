@@ -7,7 +7,7 @@
    TodayPane */
 
 {
-  const { CalMetronome } = ChromeUtils.import("resource:///modules/CalMetronome.jsm");
+  const { CalMetronome } = ChromeUtils.importESModule("resource:///modules/CalMetronome.sys.mjs");
   const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 

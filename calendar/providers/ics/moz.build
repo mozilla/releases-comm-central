@@ -5,7 +5,7 @@
 
 EXTRA_JS_MODULES += [
     "CalICSCalendar.sys.mjs",
-    "CalICSProvider.jsm",
+    "CalICSProvider.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

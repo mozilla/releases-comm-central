@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /**
  * Helpers and base class for calendar providers
@@ -13,14 +12,10 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 // including calUtils.jsm under the cal.provider namespace.
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   CalPeriod: "resource:///modules/CalPeriod.sys.mjs",
+  CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.jsm",
 });
 
 export var provider = {
@@ -884,8 +879,12 @@ export var provider = {
 
 // Initialize `cal.provider.providers` with the built-in providers.
 ChromeUtils.defineLazyGetter(provider, "providers", () => {
-  const { CalICSProvider } = ChromeUtils.import("resource:///modules/CalICSProvider.jsm");
-  const { CalDavProvider } = ChromeUtils.import("resource:///modules/CalDavProvider.jsm");
+  const { CalICSProvider } = ChromeUtils.importESModule(
+    "resource:///modules/CalICSProvider.sys.mjs"
+  );
+  const { CalDavProvider } = ChromeUtils.importESModule(
+    "resource:///modules/CalDavProvider.sys.mjs"
+  );
   return new Map([
     ["ics", CalICSProvider],
     ["caldav", CalDavProvider],

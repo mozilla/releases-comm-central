@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.jsm");
+import { HashedArray } from "resource:///modules/calendar/calHashedArray.sys.mjs";
+import { iterate } from "resource:///modules/calendar/utils/calIteratorUtils.sys.mjs";
+import { data } from "resource:///modules/calendar/utils/calDataUtils.sys.mjs";
+import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs";
 
-/*
+/**
  * Calendar item related functions
  */
 
@@ -164,10 +167,10 @@ export var item = {
        */
       reset() {
         this.mInitialItems = {};
-        this.mModifiedItems = new cal.HashedArray();
-        this.mModifiedOldItems = new cal.HashedArray();
-        this.mAddedItems = new cal.HashedArray();
-        this.mDeletedItems = new cal.HashedArray();
+        this.mModifiedItems = new HashedArray();
+        this.mModifiedOldItems = new HashedArray();
+        this.mAddedItems = new HashedArray();
+        this.mDeletedItems = new HashedArray();
         this.state = this.STATE_INITIAL;
       },
     };
@@ -220,7 +223,7 @@ export var item = {
   checkIfInRange(calendarItem, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
-    const queryStart = cal.dtz.ensureDateTime(rangeStart);
+    const queryStart = dtz.ensureDateTime(rangeStart);
     if (calendarItem.isEvent()) {
       startDate = calendarItem.startDate;
       if (!startDate) {
@@ -241,8 +244,8 @@ export var item = {
         // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
         // "DURATION") properties specifies a to-do that will be associated
         // with each successive calendar date, until it is completed.
-        const completedDate = cal.dtz.ensureDateTime(calendarItem.completedDate);
-        dueDate = cal.dtz.ensureDateTime(dueDate);
+        const completedDate = dtz.ensureDateTime(calendarItem.completedDate);
+        dueDate = dtz.ensureDateTime(dueDate);
         return (
           !completedDate ||
           !queryStart ||
@@ -253,9 +256,9 @@ export var item = {
       endDate = dueDate || startDate;
     }
 
-    const start = cal.dtz.ensureDateTime(startDate);
-    const end = cal.dtz.ensureDateTime(endDate);
-    const queryEnd = cal.dtz.ensureDateTime(rangeEnd);
+    const start = dtz.ensureDateTime(startDate);
+    const end = dtz.ensureDateTime(endDate);
+    const queryEnd = dtz.ensureDateTime(rangeEnd);
 
     if (start.compare(end) == 0) {
       if (
@@ -283,7 +286,7 @@ export var item = {
         if (
           (value.isDate && !calendarItem.startDate.isDate) ||
           (!value.isDate && calendarItem.startDate.isDate) ||
-          !cal.data.compareObjects(value.timezone, calendarItem.startDate.timezone) ||
+          !data.compareObjects(value.timezone, calendarItem.startDate.timezone) ||
           value.compare(calendarItem.startDate) != 0
         ) {
           calendarItem.startDate = value;
@@ -293,7 +296,7 @@ export var item = {
         if (
           (value.isDate && !calendarItem.endDate.isDate) ||
           (!value.isDate && calendarItem.endDate.isDate) ||
-          !cal.data.compareObjects(value.timezone, calendarItem.endDate.timezone) ||
+          !data.compareObjects(value.timezone, calendarItem.endDate.timezone) ||
           value.compare(calendarItem.endDate) != 0
         ) {
           calendarItem.endDate = value;
@@ -307,7 +310,7 @@ export var item = {
           (value && !calendarItem.entryDate) ||
           (!value && calendarItem.entryDate) ||
           value.isDate != calendarItem.entryDate.isDate ||
-          !cal.data.compareObjects(value.timezone, calendarItem.entryDate.timezone) ||
+          !data.compareObjects(value.timezone, calendarItem.entryDate.timezone) ||
           value.compare(calendarItem.entryDate) != 0
         ) {
           calendarItem.entryDate = value;
@@ -321,7 +324,7 @@ export var item = {
           (value && !calendarItem.dueDate) ||
           (!value && calendarItem.dueDate) ||
           value.isDate != calendarItem.dueDate.isDate ||
-          !cal.data.compareObjects(value.timezone, calendarItem.dueDate.timezone) ||
+          !data.compareObjects(value.timezone, calendarItem.dueDate.timezone) ||
           value.compare(calendarItem.dueDate) != 0
         ) {
           calendarItem.dueDate = value;
@@ -433,7 +436,7 @@ export var item = {
     // in the same order
     function normalizeComponent(comp) {
       let props = [];
-      for (const prop of cal.iterate.icalProperty(comp)) {
+      for (const prop of iterate.icalProperty(comp)) {
         if (!(prop.propertyName in ignoreProps)) {
           props.push(normalizeProperty(prop));
         }
@@ -441,7 +444,7 @@ export var item = {
       props = props.sort();
 
       let comps = [];
-      for (const subcomp of cal.iterate.icalSubcomponent(comp)) {
+      for (const subcomp of iterate.icalSubcomponent(comp)) {
         comps.push(normalizeComponent(subcomp));
       }
       comps = comps.sort();
@@ -450,7 +453,7 @@ export var item = {
     }
 
     function normalizeProperty(prop) {
-      const params = [...cal.iterate.icalParameter(prop)]
+      const params = [...iterate.icalParameter(prop)]
         .filter(
           ([k, v]) =>
             !(prop.propertyName in ignoreParams) || !(k in ignoreParams[prop.propertyName])
@@ -509,7 +512,7 @@ export var item = {
   moveToDate(aOldItem, aNewDate) {
     const newItem = aOldItem.clone();
     const start = (
-      aOldItem[cal.dtz.startDateProp(aOldItem)] || aOldItem[cal.dtz.endDateProp(aOldItem)]
+      aOldItem[dtz.startDateProp(aOldItem)] || aOldItem[dtz.endDateProp(aOldItem)]
     ).clone();
     const isDate = start.isDate;
     start.resetTo(
@@ -522,18 +525,18 @@ export var item = {
       start.timezone
     );
     start.isDate = isDate;
-    if (newItem[cal.dtz.startDateProp(newItem)]) {
-      newItem[cal.dtz.startDateProp(newItem)] = start;
+    if (newItem[dtz.startDateProp(newItem)]) {
+      newItem[dtz.startDateProp(newItem)] = start;
       const oldDuration = aOldItem.duration;
       if (oldDuration) {
-        const oldEnd = aOldItem[cal.dtz.endDateProp(aOldItem)];
+        const oldEnd = aOldItem[dtz.endDateProp(aOldItem)];
         let newEnd = start.clone();
         newEnd.addDuration(oldDuration);
         newEnd = newEnd.getInTimezone(oldEnd.timezone);
-        newItem[cal.dtz.endDateProp(newItem)] = newEnd;
+        newItem[dtz.endDateProp(newItem)] = newEnd;
       }
-    } else if (newItem[cal.dtz.endDateProp(newItem)]) {
-      newItem[cal.dtz.endDateProp(newItem)] = start;
+    } else if (newItem[dtz.endDateProp(newItem)]) {
+      newItem[dtz.endDateProp(newItem)] = start;
     }
     return newItem;
   },
@@ -611,19 +614,19 @@ export var item = {
    * @returns The modified item
    */
   setToAllDay(aItem, aIsDate) {
-    let start = aItem[cal.dtz.startDateProp(aItem)];
-    let end = aItem[cal.dtz.endDateProp(aItem)];
+    let start = aItem[dtz.startDateProp(aItem)];
+    let end = aItem[dtz.endDateProp(aItem)];
     if (start || end) {
       const calendarItem = aItem.clone();
       if (start && start.isDate != aIsDate) {
         start = start.clone();
         start.isDate = aIsDate;
-        calendarItem[cal.dtz.startDateProp(calendarItem)] = start;
+        calendarItem[dtz.startDateProp(calendarItem)] = start;
       }
       if (end && end.isDate != aIsDate) {
         end = end.clone();
         end.isDate = aIsDate;
-        calendarItem[cal.dtz.endDateProp(calendarItem)] = end;
+        calendarItem[dtz.endDateProp(calendarItem)] = end;
       }
       return calendarItem;
     }
@@ -649,7 +652,7 @@ export var item = {
     }
 
     if (aTask.dueDate && aTask.dueDate.isValid) {
-      if (cal.dtz.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
+      if (dtz.dateTimeToJsDate(aTask.dueDate).getTime() < nowdate.getTime()) {
         return "overdue";
       } else if (
         aTask.dueDate.year == nowdate.getFullYear() &&
@@ -663,7 +666,7 @@ export var item = {
     if (
       aTask.entryDate &&
       aTask.entryDate.isValid &&
-      cal.dtz.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()
+      dtz.dateTimeToJsDate(aTask.entryDate).getTime() < nowdate.getTime()
     ) {
       return "inprogress";
     }

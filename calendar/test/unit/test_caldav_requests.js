@@ -18,13 +18,15 @@ var {
   CalDavPrincipalPropertySearchRequest,
   CalDavOutboxRequest,
   CalDavFreeBusyRequest,
-} = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
-var { CalDavWebDavSyncHandler } = ChromeUtils.import(
-  "resource:///modules/caldav/CalDavRequestHandlers.jsm"
+} = ChromeUtils.importESModule("resource:///modules/caldav/CalDavRequest.sys.mjs");
+var { CalDavWebDavSyncHandler } = ChromeUtils.importESModule(
+  "resource:///modules/caldav/CalDavRequestHandlers.sys.mjs"
 );
 
-var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
-var { CalDavXmlns } = ChromeUtils.import("resource:///modules/caldav/CalDavUtils.jsm");
+var { CalDavSession } = ChromeUtils.importESModule(
+  "resource:///modules/caldav/CalDavSession.sys.mjs"
+);
+var { CalDavXmlns } = ChromeUtils.importESModule("resource:///modules/caldav/CalDavUtils.sys.mjs");
 var { Preferences } = ChromeUtils.importESModule("resource://gre/modules/Preferences.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 

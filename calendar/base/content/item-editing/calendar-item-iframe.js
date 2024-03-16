@@ -29,7 +29,7 @@ var {
   checkRecurrenceRule,
   countOccurrences,
   hasUnsupported,
-} = ChromeUtils.import("resource:///modules/calendar/calRecurrenceUtils.jsm");
+} = ChromeUtils.importESModule("resource:///modules/calendar/calRecurrenceUtils.sys.mjs");
 var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
@@ -44,7 +44,9 @@ window.addEventListener("unload", onEventDialogUnload);
 
 var cloudFileAccounts;
 try {
-  ({ cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm"));
+  ({ cloudFileAccounts } = ChromeUtils.importESModule(
+    "resource:///modules/cloudFileAccounts.sys.mjs"
+  ));
 } catch (e) {
   // This will fail on Seamonkey, but that's ok since the pref for cloudfiles
   // is false, which means the UI will not be shown

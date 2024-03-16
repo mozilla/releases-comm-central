@@ -15,13 +15,13 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { CalItipDefaultEmailTransport } = ChromeUtils.importESModule(
   "resource:///modules/CalItipEmailTransport.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
 var { FileTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/FileTestUtils.sys.mjs"
 );
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+var { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 
 registerCleanupFunction(async () => {

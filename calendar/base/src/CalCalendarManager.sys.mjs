@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calCachedCalendar.js */
-
 import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
 import { Preferences } from "resource://gre/modules/Preferences.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
-
-const { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");
+import { calCachedCalendar } from "resource:///modules/CalCachedCalendar.sys.mjs";
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 var REGISTRY_BRANCH = "calendar.registry.";

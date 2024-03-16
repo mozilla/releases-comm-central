@@ -4,9 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-var { CalReadableStreamFactory } = ChromeUtils.import(
-  "resource:///modules/CalReadableStreamFactory.jsm"
-);
+import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
 var cICL = Ci.calIChangeLog;
 

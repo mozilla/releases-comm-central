@@ -6,8 +6,8 @@
  * Tests for the CalStorageCalendar.getItems method.
  */
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+const { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 const { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 const { CalTodo } = ChromeUtils.importESModule("resource:///modules/CalTodo.sys.mjs");

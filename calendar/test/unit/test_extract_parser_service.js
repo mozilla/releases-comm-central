@@ -10,8 +10,8 @@
 // This test works with code that is not timezone-aware.
 /* eslint-disable no-restricted-syntax */
 
-var { CalExtractParserService } = ChromeUtils.import(
-  "resource:///modules/calendar/extract/CalExtractParserService.jsm"
+var { CalExtractParserService } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/extract/CalExtractParserService.sys.mjs"
 );
 
 const service = new CalExtractParserService();

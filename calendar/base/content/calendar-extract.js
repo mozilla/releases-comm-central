@@ -5,9 +5,9 @@
 /* globals getMessagePaneBrowser, addMenuItem, getSelectedCalendar
    createEventWithDialog*/
 
-var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
+var { Extractor } = ChromeUtils.importESModule("resource:///modules/calendar/calExtract.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -16,8 +16,8 @@ ChromeUtils.defineESModuleGetters(this, {
 });
 
 ChromeUtils.defineLazyGetter(this, "extractService", () => {
-  const { CalExtractParserService } = ChromeUtils.import(
-    "resource:///modules/calendar/extract/CalExtractParserService.jsm"
+  const { CalExtractParserService } = ChromeUtils.importESModule(
+    "resource:///modules/calendar/extract/CalExtractParserService.sys.mjs"
   );
   return new CalExtractParserService();
 });

@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarUtils.jsm"
+var { handleDeleteOccurrencePrompt } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarUtils.sys.mjs"
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
 var {

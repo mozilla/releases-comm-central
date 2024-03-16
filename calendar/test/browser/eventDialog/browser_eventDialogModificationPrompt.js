@@ -4,8 +4,8 @@
 
 requestLongerTimeout(2);
 
-var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");

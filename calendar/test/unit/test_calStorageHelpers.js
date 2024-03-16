@@ -1,4 +1,6 @@
-const { newDateTime } = ChromeUtils.import("resource:///modules/calendar/calStorageHelpers.jsm");
+const { newDateTime } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calStorageHelpers.sys.mjs"
+);
 
 add_task(async function testNewDateTimeWithIcalTimezoneDef() {
   // Define a timezone that is unlikely to match anything in common use

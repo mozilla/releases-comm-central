@@ -6,8 +6,8 @@
 
 /* globals openOptionsDialog, openAddonsMgr */
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+const { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 
 async function openTasksTab() {

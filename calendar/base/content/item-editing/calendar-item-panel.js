@@ -17,7 +17,7 @@
 
 // XXX Need to determine which of these we really need here.
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
 var gTabmail;
 window.addEventListener(

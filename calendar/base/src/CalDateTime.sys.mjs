@@ -7,8 +7,8 @@ const { ICAL, unwrap, unwrapSetter } = ChromeUtils.import("resource:///modules/c
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   CalDuration: "resource:///modules/CalDuration.sys.mjs",
+  CalTimezone: "resource:///modules/CalTimezone.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(lazy, "CalTimezone", "resource:///modules/CalTimezone.jsm");
 
 var UNIX_TIME_TO_PRTIME = 1000000;
 

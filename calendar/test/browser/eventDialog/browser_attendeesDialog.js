@@ -5,7 +5,7 @@
 /* globals createEventWithDialog, openAttendeesWindow, closeAttendeesWindow */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
 add_task(async () => {
   const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");

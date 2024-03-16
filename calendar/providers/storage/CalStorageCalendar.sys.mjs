@@ -4,19 +4,11 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-const { CalReadableStreamFactory } = ChromeUtils.import(
-  "resource:///modules/CalReadableStreamFactory.jsm"
-);
-const { CalStorageDatabase } = ChromeUtils.import(
-  "resource:///modules/calendar/CalStorageDatabase.jsm"
-);
-const { CalStorageModelFactory } = ChromeUtils.import(
-  "resource:///modules/calendar/CalStorageModelFactory.jsm"
-);
-const { CalStorageStatements } = ChromeUtils.import(
-  "resource:///modules/calendar/CalStorageStatements.jsm"
-);
-const { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageUpgrade.jsm");
+import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
+import { CalStorageDatabase } from "resource:///modules/calendar/CalStorageDatabase.sys.mjs";
+import { CalStorageModelFactory } from "resource:///modules/calendar/CalStorageModelFactory.sys.mjs";
+import { CalStorageStatements } from "resource:///modules/calendar/CalStorageStatements.sys.mjs";
+import { upgradeDB } from "resource:///modules/calendar/calStorageUpgrade.sys.mjs";
 
 const kCalICalendar = Ci.calICalendar;
 const cICL = Ci.calIChangeLog;

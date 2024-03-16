@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.jsm");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 ChromeUtils.defineESModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
+  HashedArray: "resource:///modules/calendar/calHashedArray.sys.mjs",
+  SortedHashedArray: "resource:///modules/calendar/calHashedArray.sys.mjs",
 });
 
 function run_test() {
@@ -119,13 +119,13 @@ function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCre
 }
 
 /**
- * Tests the basic cal.HashedArray
+ * Tests the basic HashedArray
  */
 function test_array_base() {
   let har, testItems;
 
   // Test normal additions
-  har = new cal.HashedArray();
+  har = new HashedArray();
   testItems = ["a", "b", "c", "d"].map(hashedCreateItem);
 
   testItems.forEach(har.addItem, har);
@@ -133,7 +133,7 @@ function test_array_base() {
   testRemoveModify(har, testItems);
 
   // Test adding in batch mode
-  har = new cal.HashedArray();
+  har = new HashedArray();
   testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
   har.startBatch();
   testItems.forEach(har.addItem, har);
@@ -143,7 +143,7 @@ function test_array_base() {
 }
 
 /**
- * Tests the sorted cal.SortedHashedArray
+ * Tests the sorted SortedHashedArray
  */
 function test_array_sorted() {
   let har, testItems, testItemsSorted;
@@ -154,7 +154,7 @@ function test_array_sorted() {
   }
 
   // Test normal additions
-  har = new cal.SortedHashedArray(titleComptor);
+  har = new SortedHashedArray(titleComptor);
   testItems = ["d", "c", "a", "b"].map(hashedCreateItem);
   testItemsSorted = testItems.sort(titleComptor);
 
@@ -163,7 +163,7 @@ function test_array_sorted() {
   testRemoveModify(har, testItemsSorted, sortedPostProcess);
 
   // Test adding in batch mode
-  har = new cal.SortedHashedArray(titleComptor);
+  har = new SortedHashedArray(titleComptor);
   testItems = ["e", "f", "g", "h"].map(hashedCreateItem);
   testItemsSorted = testItems.sort(titleComptor);
   har.startBatch();
@@ -174,12 +174,12 @@ function test_array_sorted() {
 }
 
 /**
- * Tests cal.SortedHashedArray with a custom hashAccessor.
+ * Tests SortedHashedArray with a custom hashAccessor.
  */
 function test_hashAccessor() {
   const comptor = (a, b) => titleComptor(a.item, b.item);
 
-  const har = new cal.SortedHashedArray(comptor);
+  const har = new SortedHashedArray(comptor);
   har.hashAccessor = function (obj) {
     return obj.item.hashId;
   };

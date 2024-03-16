@@ -6,7 +6,9 @@
 // requests in each of them to prove that OAuth2 authentication is working as expected.
 
 var { CalDavCalendar } = ChromeUtils.importESModule("resource:///modules/CalDavCalendar.sys.mjs");
-var { CalDavGenericRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+var { CalDavGenericRequest } = ChromeUtils.importESModule(
+  "resource:///modules/caldav/CalDavRequest.sys.mjs"
+);
 var { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );

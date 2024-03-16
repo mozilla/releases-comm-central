@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { TIMEOUT_MODAL_DIALOG, checkMonthAlarmIcon, handleDeleteOccurrencePrompt } =
-  ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
-var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.import(
-  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+  ChromeUtils.importESModule("resource://testing-common/calendar/CalendarUtils.sys.mjs");
+var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 

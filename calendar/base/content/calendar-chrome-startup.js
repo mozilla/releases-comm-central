@@ -18,11 +18,13 @@
 var { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { calendarDeactivator } = ChromeUtils.import(
-  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+var { calendarDeactivator } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calCalendarDeactivator.sys.mjs"
 );
 
-ChromeUtils.defineModuleGetter(this, "CalMetronome", "resource:///modules/CalMetronome.jsm");
+ChromeUtils.defineESModuleGetters(this, {
+  CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
+});
 
 /**
  * Does calendar initialization steps for a given chrome window. Called at

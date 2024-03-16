@@ -8,8 +8,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  var { recurrenceRule2String } = ChromeUtils.import(
-    "resource:///modules/calendar/calRecurrenceUtils.jsm"
+  var { recurrenceRule2String } = ChromeUtils.importESModule(
+    "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
   );
   const { openLinkExternally } = ChromeUtils.importESModule(
     "resource:///modules/LinkHelper.sys.mjs"

@@ -11,10 +11,7 @@
 
 ChromeUtils.defineESModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalTransactionManager: "resource:///modules/CalTransactionManager.jsm",
+  CalTransactionManager: "resource:///modules/CalTransactionManager.sys.mjs",
 });
 
 const calendar = CalendarTestUtils.createCalendar("Undo Redo Test");

@@ -13,8 +13,8 @@
 /* import-globals-from calendar-modes.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { countOccurrences } = ChromeUtils.import(
-  "resource:///modules/calendar/calRecurrenceUtils.jsm"
+var { countOccurrences } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 

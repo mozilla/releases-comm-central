@@ -5,8 +5,8 @@
 /**
  * Tests for the CalExtractParser module.
  */
-var { CalExtractParseNode, extendParseRule, prepareArguments } = ChromeUtils.import(
-  "resource:///modules/calendar/extract/CalExtractParser.jsm"
+var { CalExtractParseNode, extendParseRule, prepareArguments } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/extract/CalExtractParser.sys.mjs"
 );
 
 /**

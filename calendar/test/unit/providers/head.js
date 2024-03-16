@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/calendar/CalendarTestUtils.jsm"
+var { CalendarTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/CalendarTestUtils.sys.mjs"
 );
 var { CalEvent } = ChromeUtils.importESModule("resource:///modules/CalEvent.sys.mjs");
 var { updateAppInfo } = ChromeUtils.importESModule("resource://testing-common/AppInfo.sys.mjs");

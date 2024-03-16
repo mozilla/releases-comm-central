@@ -6,7 +6,7 @@
  * Tests for drag and drop on the today pane.
  */
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 const {
   add_message_to_folder,
   be_in_folder,
@@ -14,7 +14,7 @@ const {
   create_message,
   inboxFolder,
   select_click_row,
-} = ChromeUtils.import("resource://testing-common/mozmill/FolderDisplayHelpers.jsm");
+} = ChromeUtils.importESModule("resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs");
 const { SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

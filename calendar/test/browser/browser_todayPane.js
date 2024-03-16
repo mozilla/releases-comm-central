@@ -5,8 +5,8 @@
 /* globals TodayPane */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { formatDate, formatTime } = ChromeUtils.import(
-  "resource://testing-common/calendar/ItemEditingHelpers.jsm"
+var { formatDate, formatTime } = ChromeUtils.importESModule(
+  "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
