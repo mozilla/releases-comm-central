@@ -567,18 +567,18 @@ export var EnigmailFilters = {
   },
 
   /**
-   * add a new consumer to listen to new mails
+   * Add a new consumer to listen to new mails.
    *
-   * @param consumer - Object
-   *   - headersOnly:      Boolean - needs full message body? [FUTURE]
-   *   - incomingMailOnly: Boolean - only work on folder(s) that obtain new mail
-   *                                  (Inbox and folders that listen to new mail)
-   *   - unreadOnly:       Boolean - only process unread mails
-   *   - selfSentOnly:     Boolean - only process mails with sender Email == Account Email
-   *  - consumeMessage: function(messageStructure, rawMessageData, nsIMsgHdr)
+   * @param {object} consumer - Consumer object to add.
+   * @param {boolean} consumer.headersOnly - Needs full message body? [FUTURE]
+   * @param {boolean} consumer.incomingMailOnly - Only work on folder(s) that
+   *   obtain new mail (Inbox and folders that listen to new mail).
+   * @param {boolean} consumer.unreadOnly - Only process unread mails
+   * @param {boolean} consumer.selfSentOnly - Only process mails with sender
+   *   Email == Account Email
+   * @param {Function} consumer.consumeMessage - Callback function(messageStructure, rawMessageData, nsIMsgHdr)
    */
   addNewMailConsumer(consumer) {
-    lazy.EnigmailLog.DEBUG("filters.jsm: addNewMailConsumer()\n");
     consumerList.push(consumer);
   },
 
