@@ -1949,7 +1949,13 @@
 
             // navigate back to the proper page from the light page
             b.stop();
-            b.webNavigation.gotoIndex(0);
+            try {
+              b.webNavigation.gotoIndex(0);
+            } catch (e) {
+              // Might happen if the to be restored tag contains an invalid
+              // navigation scheme.
+              Cu.reportError(e);
+           }
 
             // reattach the old history
             b.webNavigation.sessionHistory = hist;
