@@ -28,11 +28,10 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Get the list of all knwn keys (including their secret keys)
+   * Get the list of all known keys (including their secret keys).
    *
-   * @param {Array of String} onlyKeys: [optional] only load data for specified key IDs
-   *
-   * @returns {Promise<Array of Object>}
+   * @param {string[]} [onlyKeys] - Only load data for thse specified key IDs.
+   * @returns {Promise<object[]>} the keys
    */
   async getKeys(onlyKeys = null) {
     return RNP.getKeys(onlyKeys);
@@ -41,10 +40,9 @@ class RNPCryptoAPI extends CryptoAPI {
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {string}  keyId:            space-separated list of key IDs
-   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
-   *
-   * @returns {Promise<Array of Object>} - see extractSignatures()
+   * @param {string} keyId - Space-separated list of key IDs.
+   * @param {boolean} ignoreUnknownUid - If true, filter out unknown signer's UIDs.
+   * @returns {Promise<object[]>} signatures. See extractSignatures()
    */
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
     return RNP.getKeySignatures(keyId, ignoreUnknownUid);
@@ -53,10 +51,9 @@ class RNPCryptoAPI extends CryptoAPI {
   /**
    * Obtain signatures for a given key.
    *
-   * @param {KeyObj}  keyObj:           the signatures of this key will be returned
-   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
-   *
-   * @returns {Promise<Array of Object>} - see extractSignatures()
+   * @param {string} keyId - The signatures of this key will be returned.
+   * @param {boolean} [ignoreUnknownUid=false] - If true, filter out unknown signer's UIDs.
+   * @returns {Promise<object[]>} signatures. See extractSignatures()
    */
   async getKeyObjSignatures(keyId, ignoreUnknownUid = false) {
     return RNP.getKeyObjSignatures(keyId, ignoreUnknownUid);
@@ -66,15 +63,15 @@ class RNPCryptoAPI extends CryptoAPI {
    * Export the minimum key for the public key object:
    * public key, primary user ID, newest encryption subkey
    *
-   * @param {string} fpr: - a single FPR
-   * @param {string} email: - [optional] the email address of the desired user ID.
-   *                                     If the desired user ID cannot be found or is not valid, use the primary UID instead
-   * @param {Array<number>} subkeyDates: [optional] remove subkeys with specific creation Dates
-   *
-   * @returns {Promise<object>}:
-   *    - exitCode (0 = success)
-   *    - errorMsg (if exitCode != 0)
-   *    - keyData: BASE64-encded string of key data
+   * @param {string} fpr - A a single fingerprint.
+   * @param {string} [email] - The email address of the desired user ID.
+   *   If the desired user ID cannot be found or is not valid, use the primary
+   *   UID instead
+   * @param {integer[]} [subkeyDates] - Remove subkeys with specific creation Dates.
+   * @returns {Promise<object>} result
+   * @returns {integer} result.exitCode - 0 for success.
+   * @returns {string} result.errorMsg - Error message, if exitCode != 0.
+   * @returns {string} result.keyData - key data in base64.
    */
   async getMinimalPubKey(fpr, email, subkeyDates) {
     throw new Error("Not implemented");
@@ -104,56 +101,43 @@ class RNPCryptoAPI extends CryptoAPI {
   /**
    * Export secret key(s) to a file
    *
-   * @param {string}  keyId      Specification by fingerprint or keyID
-   * @param {boolean} minimalKey - if true, reduce key to minimum required
-   *
-   * @returns {object}:
-   *   - {Number} exitCode:  result code (0: OK)
-   *   - {String} keyData:   ASCII armored key data material
-   *   - {String} errorMsg:  error message in case exitCode !== 0
+   * @param {string} keyId - Specification by fingerprint or keyID.
+   * @param {boolean} minimalKey - if true, reduce key to minimum required.
+   * @returns {Promise<object>} result
+   * @returns {integer} result.exitCode - 0 for success
+   * @returns {string} result.errorMsg - Error message, if exitCode != 0.
+   * @returns {string} result.keyData - key data in base64
    */
-
   async extractSecretKey(keyId, minimalKey) {
     throw new Error("extractSecretKey not implemented");
   }
 
   /**
    *
-   * @param {byte} byteData - The encrypted data
-   *
-   * @returns {String or null} - the name of the attached file
+   * @param {byte} byteData - The encrypted data.
+   * @returns {?string} the name of the attached file, or null.
    */
-
   async getFileName(byteData) {
     throw new Error("getFileName not implemented");
   }
 
   /**
    *
-   * @param {Path} filePath - The signed file
-   * @param {Path} sigPath - The signature to verify
-   *
+   * @param {Path} filePath - The signed file.
+   * @param {Path} sigPath - The signature to verify.
    * @returns {Promise<string>} - A message from the verification.
-   *
-   * Use Promise.catch to handle failed verifications.
-   * The message will be an error message in this case.
    */
-
   async verifyAttachment(filePath, sigPath) {
     throw new Error("verifyAttachment not implemented");
   }
 
   /**
    *
-   * @param {Bytes}  encrypted     The encrypted data
+   * @param {byte[]} encrypted - The encrypted data.
    *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
+   * @returns {Promise<object>} the object with decryptedData and
+   *   status information
    */
-
   async decryptAttachment(encrypted) {
     const options = {};
     options.fromAddr = "";
@@ -163,18 +147,16 @@ class RNPCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {string} encrypted - The encrypted data
-   * @param {object} options - Decryption options
-   *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
+   * @param {string} encrypted - The encrypted data.
+   * @param {object} options - Decryption options.
+   * @returns {Promise<object>} the object with decryptedData and
+   *   status information
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
    *   XXX: it's not... ^^^ This should be changed to always reject
    *     by throwing an Error (subclass?) for failures to decrypt.
    */
-
   async decrypt(encrypted, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decrypt()\n`);
 
@@ -183,16 +165,11 @@ class RNPCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {string} encrypted - The encrypted data
-   * @param {object} options - Decryption options
-   *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
+   * @param {string} encrypted - The encrypted data.
+   * @param {object} options - Decryption options.
+   * @returns {Promise<object>} the object with decryptedData and
+   *   status information
    */
-
   async decryptMime(encrypted, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decryptMime()\n`);
 
@@ -210,16 +187,12 @@ class RNPCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {string} signed - The signed data
-   * @param {object} options - Decryption options
+   * @param {string} signed - The signed data.
+   * @param {object} options - Decryption options.
    *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
+   * @returns {Promise<object>} the object with decryptedData and
+   *   status information
    */
-
   async verifyMime(signed, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: verifyMime()\n`);
 
