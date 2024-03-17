@@ -2269,7 +2269,10 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
 
   nsCOMPtr<nsIMsgDatabase> destMailDB;
 
-  if (!localFolder) return NS_MSG_POP_FILTER_TARGET_ERROR;
+  if (!localFolder) {
+    destIFolder->ReleaseSemaphore(myISupports);
+    return NS_MSG_POP_FILTER_TARGET_ERROR;
+  }
 
   // don't force upgrade in place - open the db here before we start writing to
   // the destination file because XP_Stat can return file size including bytes
