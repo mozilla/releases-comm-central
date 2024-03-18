@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+add_setup(() => {
+  // Reduce animations to prevent intermittent fails due to late theme changes.
+  Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("ui.prefersReducedMotion");
+  });
+});
+
 /**
  * Helper Function, creates a test extension to verify expected button states.
  *
