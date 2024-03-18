@@ -192,7 +192,7 @@ async function test_space(background, config = {}) {
         `Icon of menuitem for space ${name} with theme ${config.selectedTheme} should be correct.`
       );
 
-      pinnedPopup.hidePopup();
+      await closeMenuPopup(pinnedPopup);
       revealButton.click();
       Assert.ok(revealButton.hidden, "The status bar toggle button is hidden");
       Assert.ok(pinnedButton.hidden, "The pinned titlebar button is hidden");

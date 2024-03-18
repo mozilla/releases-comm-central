@@ -71,7 +71,6 @@ async function subtest_action_menu(
     const removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
     );
-    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     const promptPromise = BrowserTestUtils.promiseAlertDialog(
       undefined,
       undefined,
@@ -101,8 +100,7 @@ async function subtest_action_menu(
         },
       }
     );
-    menu.activateItem(removeExtension);
-    await hiddenPromise;
+    await clickItemInMenuPopup(menu, removeExtension);
     await promptPromise;
   }
 
@@ -119,7 +117,7 @@ async function subtest_action_menu(
       ".customize-context-manageExtension"
     );
     const addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
-    menu.activateItem(manageExtension);
+    await clickItemInMenuPopup(menu, manageExtension);
     const managerTab = await addonManagerPromise;
 
     // Check the UI to make sure that the correct view is loaded.
@@ -153,17 +151,16 @@ async function subtest_action_menu(
     expectedTab
   );
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   const clickedPromise = checkClickedEvent(
     extension,
     expectedInfo,
     expectedTab
   );
-  menu.activateItem(
+  await clickItemInMenuPopup(
+    menu,
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
   await clickedPromise;
-  await hiddenPromise;
 
   // Test the non actionButton element for visibility of the management menu entries.
   if (target.nonActionButtonSelector) {
@@ -172,9 +169,7 @@ async function subtest_action_menu(
     );
     await rightClick(menu, nonActionButtonElement);
     await checkVisibility(menu, false);
-    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    menu.hidePopup();
-    await hiddenPromise;
+    await closeMenuPopup(menu);
   }
 
   await testContextMenuManageExtension(extension, menu, element);

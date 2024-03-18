@@ -70,10 +70,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
           break;
       }
     }
-    // Wait a moment to make the test not fail.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => window.setTimeout(r, 125));
-    menu.hidePopup();
+    await closeMenuPopup(menu);
   }
 
   async function clickLink(browser) {

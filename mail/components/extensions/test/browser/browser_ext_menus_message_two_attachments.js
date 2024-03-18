@@ -267,14 +267,8 @@ async function subtest_attachmentItem(
     expectedClickData,
     expectedTab
   );
-  menu.activateItem(menuItem);
+  await clickItemInMenuPopup(menu, menuItem);
   await clickEventPromise;
-
-  // Sometimes, the popup will open then instantly disappear. It seems to
-  // still be hiding after the previous appearance. If we wait a little bit,
-  // this doesn't happen.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 250));
 }
 
 async function subtest_attachments(

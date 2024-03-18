@@ -34,7 +34,7 @@ async function subtest_tab(manifest) {
   async function checkTabEvent(index, active, mailTab) {
     await rightClick(menu, tabs[index]);
     Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_tab"));
-    menu.hidePopup();
+    await closeMenuPopup(menu);
 
     await checkShownEvent(
       extension,

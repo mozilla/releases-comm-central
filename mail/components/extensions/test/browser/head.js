@@ -33,9 +33,10 @@ var { makeWidgetId } = ExtensionCommon;
 var { assertPersistentListeners } = ExtensionTestUtils.testAssertions;
 
 // There are shutdown issues for which multiple rejections are left uncaught.
-// This bug should be fixed, but for the moment this directory is whitelisted.
+// This bug should be fixed, but for the moment this directory is forcefully
+// allowed.
 //
-// NOTE: Entire directory whitelisting should be kept to a minimum. Normally you
+// NOTE: Allowing an entire directory should be kept to a minimum. Normally you
 //       should use "expectUncaughtRejection" to flag individual failures.
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/PromiseTestUtils.sys.mjs"
@@ -352,12 +353,9 @@ function getBrowserActionPopup(extension, win = window) {
   return win.top.document.getElementById("webextension-remote-preload-panel");
 }
 
-function closeBrowserAction(extension, win = window) {
+async function closeBrowserAction(extension, win = window) {
   const popup = getBrowserActionPopup(extension, win);
-  const hidden = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-  popup.hidePopup();
-
-  return hidden;
+  await closeMenuPopup(popup);
 }
 
 async function openNewMailWindow(options = {}) {
@@ -704,26 +702,31 @@ async function openContextMenuInPopup(extension, selector, win = window) {
   return contentAreaContextMenu;
 }
 
-async function closeExtensionContextMenu(
+async function clickItemInBrowserContextMenuPopup(
   itemToSelect,
   modifiers = {},
   win = window
 ) {
-  const contentAreaContextMenu =
-    win.top.document.getElementById("browserContext");
-  const popupHiddenPromise = BrowserTestUtils.waitForEvent(
-    contentAreaContextMenu,
+  const menu = win.top.document.getElementById("browserContext");
+  await clickItemInMenuPopup(menu, itemToSelect, modifiers);
+}
+
+async function clickItemInMenuPopup(rootElement, itemToSelect, modifiers = {}) {
+  const hiddenPromise = BrowserTestUtils.waitForEvent(
+    rootElement,
     "popuphidden"
   );
   if (itemToSelect) {
     itemToSelect.closest("menupopup").activateItem(itemToSelect, modifiers);
   } else {
-    contentAreaContextMenu.hidePopup();
+    throw new Error("clickItemInMenuPopup specified non-existing item");
   }
-  await popupHiddenPromise;
-
-  // Bug 1351638: parent menu fails to close intermittently, make sure it does.
-  contentAreaContextMenu.hidePopup();
+  await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
 }
 
 async function openSubmenu(submenuItem) {
@@ -734,15 +737,20 @@ async function openSubmenu(submenuItem) {
   return submenu;
 }
 
-async function closeContextMenu(contextMenu) {
-  const contentAreaContextMenu =
-    contextMenu || document.getElementById("browserContext");
-  const popupHiddenPromise = BrowserTestUtils.waitForEvent(
-    contentAreaContextMenu,
-    "popuphidden"
-  );
-  contentAreaContextMenu.hidePopup();
-  await popupHiddenPromise;
+async function closeMenuPopup(menu) {
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  menu.hidePopup();
+  await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
+}
+
+async function closeBrowserContextMenuPopup() {
+  const contentAreaContextMenu = document.getElementById("browserContext");
+  await closeMenuPopup(contentAreaContextMenu);
 }
 
 async function getUtilsJS() {
@@ -1285,13 +1293,7 @@ async function run_popup_test(configData) {
             `${configData.actionType}_mochi_test-menuitem-_testmenu`
           );
           Assert.ok(menuitem);
-          menuitem.parentNode.activateItem(menuitem);
-
-          // Sometimes, the popup will open then instantly disappear. It seems to
-          // still be hiding after the previous appearance. If we wait a little bit,
-          // this doesn't happen.
-          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-          await new Promise(r => win.setTimeout(r, 250));
+          await clickItemInMenuPopup(menuitem.parentNode, menuitem);
           extension.sendMessage();
         });
 

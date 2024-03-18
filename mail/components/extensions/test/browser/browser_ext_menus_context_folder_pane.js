@@ -41,7 +41,7 @@ async function subtest_folder_pane(manifest) {
   const menu = about3Pane.document.getElementById("folderPaneContext");
   await rightClick(menu, folderTree.rows[1].querySelector(".container"));
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
-  menu.hidePopup();
+  await closeMenuPopup(menu);
 
   await checkShownEvent(
     extension,
@@ -57,7 +57,7 @@ async function subtest_folder_pane(manifest) {
 
   await rightClick(menu, folderTree.rows[0].querySelector(".container"));
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
-  menu.hidePopup();
+  await closeMenuPopup(menu);
 
   await checkShownEvent(
     extension,

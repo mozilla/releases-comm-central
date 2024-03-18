@@ -49,17 +49,16 @@ async function subtest_tools_menu(
     expectedTab
   );
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   const clickedPromise = checkClickedEvent(
     extension,
     expectedInfo,
     expectedTab
   );
-  menu.activateItem(
+  await clickItemInMenuPopup(
+    menu,
     menu.querySelector("#menus_mochi_test-menuitem-_tools_menu")
   );
   await clickedPromise;
-  await hiddenPromise;
   await extension.unload();
 }
 add_task(async function test_tools_menu_mv2() {

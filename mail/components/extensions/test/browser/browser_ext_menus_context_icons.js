@@ -174,6 +174,6 @@ add_task(async function test_root_icon() {
     "The data-url icon should be correct"
   );
 
-  await closeContextMenu(menu);
+  await closeMenuPopup(menu);
   await extension.unload();
 });

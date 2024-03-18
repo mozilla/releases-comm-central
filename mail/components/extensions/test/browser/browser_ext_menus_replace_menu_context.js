@@ -295,7 +295,7 @@ add_task(async function overrideContext_with_context() {
       2,
       "There are two menu items with label 'tab_context'"
     );
-    await closeExtensionContextMenu(menuItems[1]);
+    await clickItemInBrowserContextMenuPopup(menuItems[1]);
 
     Assert.deepEqual(
       await otherExtension.awaitMessage("onClicked"),
@@ -339,7 +339,7 @@ add_task(async function overrideContext_with_context() {
       2,
       "There are two menu items with label 'tab_context'"
     );
-    await closeExtensionContextMenu(menuItems[0]);
+    await clickItemInBrowserContextMenuPopup(menuItems[0]);
 
     Assert.deepEqual(
       await extension.awaitMessage("onClicked"),
@@ -368,7 +368,7 @@ add_task(async function overrideContext_with_context() {
     // When an invalid tabId is used, all extension menu logic is skipped and
     // the default menu is shown.
     checkIsDefaultMenuItemVisible(getVisibleChildrenIds(menu));
-    await closeContextMenu(menu);
+    await closeMenuPopup(menu);
   }
 
   await extension.unload();

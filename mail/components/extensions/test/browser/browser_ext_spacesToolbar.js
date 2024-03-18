@@ -185,7 +185,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
         `Icon of menuitem ${id} with theme ${selectedTheme} should be correct.`
       );
 
-      pinnedPopup.hidePopup();
+      await closeMenuPopup(pinnedPopup);
       revealButton.click();
       Assert.ok(revealButton.hidden, "The status bar toggle button is hidden");
       Assert.ok(pinnedButton.hidden, "The pinned titlebar button is hidden");

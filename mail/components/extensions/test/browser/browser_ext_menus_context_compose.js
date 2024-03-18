@@ -117,7 +117,7 @@ async function subtest_compose(manifest) {
   Assert.ok(
     menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );
-  menu.hidePopup();
+  await closeMenuPopup(menu);
 
   await checkShownEvent(
     extension,
@@ -136,7 +136,7 @@ async function subtest_compose(manifest) {
   Assert.ok(
     menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );
-  menu.hidePopup();
+  await closeMenuPopup(menu);
 
   await checkShownEvent(
     extension,

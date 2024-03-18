@@ -64,14 +64,15 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
 
     const menuId = browser.getAttribute("context");
     const menu = browser.ownerGlobal.top.document.getElementById(menuId);
-    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     await rightClickOnContent(menu, elementSelector, browser);
     Assert.ok(
       menu.querySelector("#browserContext-openInBrowser"),
       "menu item should exist"
     );
-    menu.activateItem(menu.querySelector("#browserContext-openInBrowser"));
-    await hiddenPromise;
+    await clickItemInMenuPopup(
+      menu,
+      menu.querySelector("#browserContext-openInBrowser")
+    );
   }
 
   await extension.startup();

@@ -190,7 +190,7 @@ add_task(async function overrideContext_in_extension_tab() {
     );
 
     const menuItems = menu.getElementsByAttribute("label", "tab_1");
-    await closeExtensionContextMenu(menuItems[0]);
+    await clickItemInBrowserContextMenuPopup(menuItems[0]);
     await extension.awaitMessage("onClicked_tab_1");
   }
 
@@ -219,7 +219,7 @@ add_task(async function overrideContext_in_extension_tab() {
     );
 
     const menuItems = menu.getElementsByAttribute("label", "tab_2");
-    await closeExtensionContextMenu(menuItems[0]);
+    await clickItemInBrowserContextMenuPopup(menuItems[0]);
     await extension.awaitMessage("onClicked_tab_2");
   }
 
@@ -252,7 +252,7 @@ add_task(async function overrideContext_in_extension_tab() {
       "Extension menu items should be in the submenu by default."
     );
 
-    await closeContextMenu();
+    await closeBrowserContextMenuPopup();
   }
 
   {
@@ -272,7 +272,7 @@ add_task(async function overrideContext_in_extension_tab() {
       "Expected only extension menu items after overrideContext({}) in shadow DOM"
     );
 
-    await closeContextMenu();
+    await closeBrowserContextMenuPopup();
   }
 
   // Unloading the extension will automatically close the extension's tab.html
@@ -432,7 +432,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
 
     const menuItems = menu.getElementsByAttribute("label", "popup_1");
 
-    await closeExtensionContextMenu(menuItems[0], {}, testWindow);
+    await clickItemInBrowserContextMenuPopup(menuItems[0], {}, testWindow);
     await extension.awaitMessage("onClicked_popup_1");
   }
 
@@ -453,7 +453,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
     checkIsDefaultMenuItemVisible(visibleMenuItemIds);
 
     const menuItems = menu.getElementsByAttribute("label", "popup_2");
-    await closeExtensionContextMenu(menuItems[0], {}, testWindow);
+    await clickItemInBrowserContextMenuPopup(menuItems[0], {}, testWindow);
     await extension.awaitMessage("onClicked_popup_2");
   }
 
@@ -486,7 +486,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
       "Extension menu items should be in the submenu by default."
     );
 
-    await closeContextMenu(menu);
+    await closeMenuPopup(menu);
   }
 
   {
@@ -506,7 +506,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
       "Expected only extension menu items after overrideContext({}) in shadow DOM"
     );
 
-    await closeContextMenu(menu);
+    await closeMenuPopup(menu);
   }
 
   await closeBrowserAction(extension, testWindow);
