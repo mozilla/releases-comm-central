@@ -62,11 +62,12 @@ const background_for_openPopup_tests = async () => {
     (await browser.windows.get(composeWindow.id)).focused,
     "composeWindow should be focused"
   );
+  const popupClosePromise1 = window.waitForMessage("popup closed");
   browser.test.assertTrue(
     await browser.composeAction.openPopup(),
     "openPopup() should have succeeded while the compose window is active"
   );
-  await window.waitForMessage();
+  await popupClosePromise1;
 
   // Disable the compose_action, openPopup() should fail.
   await browser.composeAction.disable();
@@ -77,11 +78,12 @@ const background_for_openPopup_tests = async () => {
 
   // Enable the compose_action, openPopup() should succeed.
   await browser.composeAction.enable();
+  const popupClosePromise2 = window.waitForMessage("popup closed");
   browser.test.assertTrue(
     await browser.composeAction.openPopup(),
     "openPopup() should have succeeded after the action button was enabled again"
   );
-  await window.waitForMessage();
+  await popupClosePromise2;
 
   // Create a popup window, which does not have a compose_action, openPopup()
   // should fail.
@@ -100,24 +102,26 @@ const background_for_openPopup_tests = async () => {
 
   // Specifically open the compose_action of the compose window, should become
   // focused and openPopup() should succeed.
+  const popupClosePromise3 = window.waitForMessage("popup closed");
   browser.test.assertTrue(
     await browser.composeAction.openPopup({
       windowId: composeWindow.id,
     }),
     "openPopup() should have succeeded when explicitly requesting the compose window"
   );
-  await window.waitForMessage();
+  await popupClosePromise3;
   browser.test.assertTrue(
     (await browser.windows.get(composeWindow.id)).focused,
     "composeWindow should be focused"
   );
 
   // The compose window is focused now, openPopup() should succeed.
+  const popupClosePromise4 = window.waitForMessage("popup closed");
   browser.test.assertTrue(
     await browser.composeAction.openPopup(),
     "openPopup() should have succeeded while the compose window is active"
   );
-  await window.waitForMessage();
+  await popupClosePromise4;
 
   // Collapse the toolbar, openPopup() should fail.
   await window.sendMessage("collapseToolbar", true);
@@ -128,11 +132,12 @@ const background_for_openPopup_tests = async () => {
 
   // Restore the toolbar, openPopup() should succeed.
   await window.sendMessage("collapseToolbar", false);
+  const popupClosePromise5 = window.waitForMessage("popup closed");
   browser.test.assertTrue(
     await browser.composeAction.openPopup(),
     "openPopup() should have succeeded after the toolbar is restored"
   );
-  await window.waitForMessage();
+  await popupClosePromise5;
 
   // Close the popup window and finish
   await browser.windows.remove(popupWindow.id);
@@ -158,8 +163,14 @@ add_task(
           </body>
         </html>`,
       "popup.js": async function () {
-        browser.test.sendMessage("popup opened");
-        window.close();
+        const [currentTab] = await browser.tabs.query({
+          currentWindow: true,
+          active: true,
+        });
+        browser.test.log(
+          `windowType: ${currentTab.windowType}, windowId: ${currentTab.windowId}`
+        );
+        browser.test.sendMessage("popup opened", currentTab.windowId);
       },
     };
     const extension = ExtensionTestUtils.loadExtension({
@@ -179,11 +190,15 @@ add_task(
       },
     });
 
-    extension.onMessage("popup opened", async () => {
-      // Wait a moment to make sure the popup has closed.
-      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      await new Promise(r => window.setTimeout(r, 150));
-      extension.sendMessage();
+    extension.onMessage("popup opened", async windowId => {
+      const window = Services.wm.getOuterWindowWithId(windowId);
+      console.log(
+        `windowtype of container window: ${window.document.documentElement.getAttribute(
+          "windowtype"
+        )}`
+      );
+      await closeBrowserAction(extension, window);
+      extension.sendMessage("popup closed");
     });
 
     extension.onMessage("collapseToolbar", state => {
@@ -221,8 +236,14 @@ add_task(
           </body>
         </html>`,
       "popup.js": async function () {
-        browser.test.sendMessage("popup opened");
-        window.close();
+        const [currentTab] = await browser.tabs.query({
+          currentWindow: true,
+          active: true,
+        });
+        browser.test.log(
+          `windowType: ${currentTab.windowType}, windowId: ${currentTab.windowId}`
+        );
+        browser.test.sendMessage("popup opened", currentTab.windowId);
       },
     };
     const extension = ExtensionTestUtils.loadExtension({
@@ -243,10 +264,14 @@ add_task(
       },
     });
 
-    extension.onMessage("popup opened", async () => {
-      // Wait a moment to make sure the popup has closed.
-      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      await new Promise(r => window.setTimeout(r, 150));
+    extension.onMessage("popup opened", async windowId => {
+      const window = Services.wm.getOuterWindowWithId(windowId);
+      console.log(
+        `windowtype of container window: ${window.document.documentElement.getAttribute(
+          "windowtype"
+        )}`
+      );
+      await closeBrowserAction(extension, window);
       extension.sendMessage();
     });
 

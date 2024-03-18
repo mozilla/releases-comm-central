@@ -81,6 +81,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
       browser.test.log("Sending send-keys");
       browser.test.sendMessage("send-keys");
     });
+    browser.test.sendMessage("ready");
   };
 
   const extension = ExtensionTestUtils.loadExtension(extensionOptions);
@@ -111,6 +112,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
   }
   await SimpleTest.promiseFocus(aboutMessage);
 
+  await extension.awaitMessage("ready");
   // trigger setup of listeners in background and the send-keys msg
   extension.sendMessage("withPopup", options.withPopup);
 

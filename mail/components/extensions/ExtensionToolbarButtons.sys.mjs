@@ -466,9 +466,26 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       button.hasAttribute("disabled") &&
       button.getAttribute("disabled") !== "false";
 
+    const focusWindow = win => {
+      if (Services.focus.activeWindow == win.top) {
+        return Promise.resolve();
+      }
+      const promise = new Promise(resolve => {
+        win.addEventListener(
+          "focus",
+          function () {
+            resolve();
+          },
+          { capture: true, once: true }
+        );
+      });
+      win.focus();
+      return promise;
+    };
+
     let success = false;
     if (button && enabled && !isDisabled(button)) {
-      window.focus();
+      await focusWindow(window);
 
       if (popupURL) {
         success = true;

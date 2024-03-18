@@ -51,32 +51,6 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
         );
       }
 
-      async function waitForPopupOpenedAndClosed(callbackToOpenPopup) {
-        await new Promise(resolve => {
-          const listener = message => {
-            switch (message) {
-              case "popup opened":
-                browser.test.sendMessage("click element in popup", "#hello");
-                break;
-              case "popup closed":
-                browser.runtime.onMessage.removeListener(listener);
-                resolve();
-                break;
-            }
-          };
-          browser.runtime.onMessage.addListener(listener);
-          callbackToOpenPopup();
-        });
-        // Wait a moment to make sure the popup has closed.
-        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-        await new Promise(r => window.setTimeout(r, 150));
-        // The window should have focus again.
-        browser.test.assertTrue(
-          (await browser.windows.get(mailWindow.id)).focused,
-          "mailWindow should be focused"
-        );
-      }
-
       // Initially we should have selected the first message in row #0.
       const message0 = (await browser.mailTabs.getSelectedMessages())
         .messages[0];
@@ -110,8 +84,12 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
 
       // Open the browser_action via openPopup() and wait for a click into the
       // popup, which closes the popup again.
-      await waitForPopupOpenedAndClosed(() =>
-        browser.browserAction.openPopup({ windowId: mailWindow.id })
+      const popupClosePromise1 = window.waitForMessage("popup closed");
+      browser.browserAction.openPopup({ windowId: mailWindow.id });
+      await popupClosePromise1;
+      browser.test.assertTrue(
+        (await browser.windows.get(mailWindow.id)).focused,
+        "mailWindow should be focused"
       );
 
       // Press the down arrow again to make sure focus has returned to the message
@@ -120,11 +98,15 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
 
       // Open the browser_action via a click and wait for a click into the
       // popup, which closes the popup again.
-      await waitForPopupOpenedAndClosed(() =>
-        browser.test.sendMessage(
-          "click element in window",
-          `.unified-toolbar [extension="browser_action_focus@mochi.test"]`
-        )
+      const popupClosePromise2 = window.waitForMessage("popup closed");
+      browser.test.sendMessage(
+        "click element in window",
+        `.unified-toolbar [extension="browser_action_focus@mochi.test"]`
+      );
+      await popupClosePromise2;
+      browser.test.assertTrue(
+        (await browser.windows.get(mailWindow.id)).focused,
+        "mailWindow should be focused"
       );
 
       // Press the down arrow again to make sure focus has returned to the message
@@ -149,10 +131,7 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
       document.addEventListener("click", () => {
         window.close();
       });
-      window.addEventListener("beforeunload", () => {
-        browser.runtime.sendMessage("popup closed");
-      });
-      browser.runtime.sendMessage("popup opened");
+      browser.test.sendMessage("popup opened");
     },
   };
   const extension = ExtensionTestUtils.loadExtension({
@@ -173,8 +152,14 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
     },
   });
 
-  extension.onMessage("click element in popup", selector => {
-    clickElementInPopup(extension, selector);
+  extension.onMessage("popup opened", async () => {
+    // Get the popup and create a Promise for it being hidden.
+    const popup = getBrowserActionPopup(extension);
+    const hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+    // Trigger a click in the popup, which should close it again.
+    clickElementInPopup(extension, "#hello");
+    await hiddenPromise;
+    extension.sendMessage("popup closed");
   });
 
   extension.onMessage("click element in window", selector => {

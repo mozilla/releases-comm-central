@@ -125,21 +125,23 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
         (await browser.windows.get(messageWindow.id)).focused,
         "messageWindow should be focused"
       );
+      const popupClosePromise1 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup(),
         "openPopup() should have succeeded while the messageWindow is active"
       );
-      await window.waitForMessage();
+      await popupClosePromise1;
 
       // Specifically open the message_display_action of the mailWindow, since we
       // loaded a message, openPopup() should succeed.
+      const popupClosePromise2 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup({
           windowId: mailWindow.id,
         }),
         "openPopup() should have succeeded when explicitly requesting the mailWindow"
       );
-      await window.waitForMessage();
+      await popupClosePromise2;
       // Mail window should have focus now.
       browser.test.assertTrue(
         (await browser.windows.get(mailWindow.id)).focused,
@@ -155,11 +157,12 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
 
       // Enable the message_display_action, openPopup() should succeed.
       await browser.messageDisplayAction.enable();
+      const popupClosePromise3 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup(),
         "openPopup() should have succeeded after the action_button was enabled again"
       );
-      await window.waitForMessage();
+      await popupClosePromise3;
 
       // Create content tab, the message_display_action is not allowed there and
       // should not be visible, openPopup() should fail.
@@ -174,11 +177,12 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
       // Close the content tab and return to the mail space, the message_display_action
       // should be visible again, openPopup() should succeed.
       await browser.tabs.remove(contentTab.id);
+      const popupClosePromise4 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup(),
         "openPopup() should have succeeded after the content tab was closed"
       );
-      await window.waitForMessage();
+      await popupClosePromise4;
 
       // Load a webpage into the mailTab, the message_display_action should not
       // be shown and openPopup() should fail
@@ -196,11 +200,12 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
         messageId: msg.id,
         windowId: mailWindow.id,
       });
+      const popupClosePromise5 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup(),
         "openPopup() should have succeeded in a message tab"
       );
-      await window.waitForMessage();
+      await popupClosePromise5;
 
       // Create a popup window, which does not have a message_display_action, openPopup()
       // should fail.
@@ -219,24 +224,26 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
 
       // Specifically open the message_display_action of the messageWindow, should become
       // focused and openPopup() should succeed.
+      const popupClosePromise6 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup({
           windowId: messageWindow.id,
         }),
         "openPopup() should have succeeded when explicitly requesting the messageWindow"
       );
-      await window.waitForMessage();
+      await popupClosePromise6;
       browser.test.assertTrue(
         (await browser.windows.get(messageWindow.id)).focused,
         "messageWindow should be focused"
       );
 
       // The messageWindow is focused now, openPopup() should succeed.
+      const popupClosePromise7 = window.waitForMessage("popup closed");
       browser.test.assertTrue(
         await browser.messageDisplayAction.openPopup(),
         "openPopup() should have succeeded while the messageWindow is active"
       );
-      await window.waitForMessage();
+      await popupClosePromise7;
 
       // Close the popup window, the extra message tab and finish
       await browser.windows.remove(popupWindow.id);
@@ -256,8 +263,14 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
         </body>
       </html>`,
     "popup.js": async function () {
-      browser.test.sendMessage("popup opened");
-      window.close();
+      const [currentTab] = await browser.tabs.query({
+        currentWindow: true,
+        active: true,
+      });
+      browser.test.log(
+        `windowType: ${currentTab.windowType}, windowId: ${currentTab.windowId}`
+      );
+      browser.test.sendMessage("popup opened", currentTab.windowId);
     },
   };
   const extension = ExtensionTestUtils.loadExtension({
@@ -278,14 +291,18 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
     },
   });
 
-  extension.onMessage("popup opened", async () => {
-    // Wait a moment to make sure the popup has closed.
-    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-    await new Promise(r => window.setTimeout(r, 150));
-    extension.sendMessage();
-  });
-
   const messageWindow = await openMessageInWindow(messages.getNext());
+
+  extension.onMessage("popup opened", async windowId => {
+    const window = Services.wm.getOuterWindowWithId(windowId);
+    console.log(
+      `windowtype of container window: ${window.document.documentElement.getAttribute(
+        "windowtype"
+      )}`
+    );
+    await closeBrowserAction(extension, window);
+    extension.sendMessage("popup closed");
+  });
 
   await extension.startup();
   await extension.awaitFinish("finished");
