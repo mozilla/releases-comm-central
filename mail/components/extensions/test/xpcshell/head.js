@@ -94,6 +94,7 @@ function cleanUpAccount(account) {
 
 registerCleanupFunction(() => {
   MailServices.accounts.accounts.forEach(cleanUpAccount);
+  Services.prefs.setStringPref("extensions.webextensions.uuids", "");
 });
 
 function addIdentity(account, email = "xpcshell@localhost") {

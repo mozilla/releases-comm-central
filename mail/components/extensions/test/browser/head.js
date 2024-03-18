@@ -110,6 +110,7 @@ registerCleanupFunction(() => {
     "threadPane",
     "view"
   );
+  Services.prefs.setStringPref("extensions.webextensions.uuids", "");
 });
 
 /**
