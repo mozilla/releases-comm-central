@@ -304,7 +304,7 @@ add_task(async function test_edit_draft_mime_from() {
   // Should not be editable - which it would be if no identity matched.
   Assert.equal(
     msgIdentity.getAttribute("editable"),
-    "",
+    null,
     "msgIdentity should not be editable since a draft identity email matches"
   );
 

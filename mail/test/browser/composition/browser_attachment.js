@@ -146,8 +146,8 @@ function check_no_attachment_size(win, index) {
     throw new Error("attachment.size attribute should be -1!");
   }
 
-  // If there's no size, the size attribute is empty.
-  if (node.getAttribute("size") != "") {
+  // For unknown size, the size attribute is set to empty.
+  if (node.getAttribute("size") !== "") {
     throw new Error("Attachment size should not be displayed!");
   }
 }

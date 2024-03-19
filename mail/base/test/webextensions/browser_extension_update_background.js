@@ -85,7 +85,7 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   const addonId = addon.id;
 
   ok(addon, "Addon was installed");
-  is(getBadgeStatus(), "", "Should not start out with an addon alert badge");
+  is(getBadgeStatus(), null, "Should not start out with an addon alert badge");
 
   // Trigger an update check and wait for the update for this addon
   // to be downloaded.
@@ -134,7 +134,7 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   is(addon.version, "1.0", "Should still be running the old version");
 
   // Alert badge and hamburger menu items should be gone
-  is(getBadgeStatus(), "", "Addon alert badge should be gone");
+  is(getBadgeStatus(), null, "Addon alert badge should be gone");
 
   await gCUITestUtils.openMainMenu();
   addons = PanelUI.addonNotificationContainer;
@@ -167,7 +167,7 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   addon = await updatePromise;
   is(addon.version, "2.0", "Should have upgraded to the new version");
 
-  is(getBadgeStatus(), "", "Addon alert badge should be gone");
+  is(getBadgeStatus(), null, "Addon alert badge should be gone");
 
   await addon.uninstall();
   await SpecialPowers.popPrefEnv();

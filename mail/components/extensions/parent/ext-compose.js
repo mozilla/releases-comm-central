@@ -591,7 +591,7 @@ async function setComposeDetails(composeWindow, details, extension) {
       composeWindow.document.getElementById("msgIdentity");
     identityElement.selectedItem = [
       ...identityElement.childNodes[0].childNodes,
-    ].find(e => e.getAttribute("identitykey") == details.identityId);
+    ].find(e => e.getAttribute("identitykey") === details.identityId);
     composeWindow.LoadIdentity(false);
   }
   for (const field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {

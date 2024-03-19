@@ -373,9 +373,9 @@
      * state of the columns across restarts. Used with `persistTaskTreeColumnState` function.
      */
     restoreColumnState() {
-      const visibleColumns = this.getAttribute("visible-columns").split(" ");
-      const ordinals = this.getAttribute("ordinals").split(" ");
-      const widths = this.getAttribute("widths").split(" ");
+      const visibleColumns = this.getAttribute("visible-columns")?.split(" ") || [];
+      const ordinals = this.getAttribute("ordinals")?.split(" ") || [];
+      const widths = this.getAttribute("widths")?.split(" ") || [];
       const sorted = this.getAttribute("sort-active");
       const sortDirection = this.getAttribute("sort-direction") || "ascending";
 
@@ -386,10 +386,10 @@
         } else {
           col.setAttribute("hidden", "true");
         }
-        if (ordinals && ordinals.length > 0) {
+        if (ordinals.length > 0) {
           col.ordinal = ordinals.shift();
         }
-        if (widths && widths.length > 0) {
+        if (widths.length > 0) {
           col.style.width = Number(widths.shift()) + "px";
         }
         if (sorted && sorted == itemProperty) {

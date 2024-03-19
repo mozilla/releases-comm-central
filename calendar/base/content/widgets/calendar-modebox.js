@@ -183,8 +183,8 @@
       if (!this.isVisibleInMode(mode)) {
         return false;
       }
-      const collapsedModes = this.getAttribute("collapsedinmodes").split(",");
-      return !collapsedModes.includes(mode);
+      const collapsedModes = this.getAttribute("collapsedinmodes")?.split(",");
+      return !collapsedModes?.includes(mode);
     }
 
     /**

@@ -6022,7 +6022,7 @@ function SetComposeDetails(newValues) {
   if (newValues.identityKey !== null) {
     const identityList = document.getElementById("msgIdentity");
     for (const menuItem of identityList.menupopup.children) {
-      if (menuItem.getAttribute("identitykey") == newValues.identityKey) {
+      if (menuItem.getAttribute("identitykey") === newValues.identityKey) {
         identityList.selectedItem = menuItem;
         LoadIdentity(false);
         break;
@@ -9352,7 +9352,7 @@ function expandRecipients() {
  *
  * @param {string} accountKey - Key of the account that is currently selected
  *   as the sending account.
- * @param {string} prevKey - Key of the account that was previously selected
+ * @param {?string} prevKey - Key of the account that was previously selected
  *   as the sending account.
  */
 function hideIrrelevantAddressingOptions(accountKey, prevKey) {
@@ -9378,7 +9378,7 @@ function hideIrrelevantAddressingOptions(accountKey, prevKey) {
   }
 
   // If the new account is a Mail account and a previous account was selected.
-  if (accountType != "nntp" && prevKey != "") {
+  if (accountType != "nntp" && prevKey != null) {
     updateUIforMailAccount();
   }
 }
