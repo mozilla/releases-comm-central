@@ -60,12 +60,12 @@
       --toolbarbutton-checked-background: SelectedItem;
       --toolbarbutton-icon-fill-attention: SelectedItem;
     }
-    
+
     & .toolbarbutton-1.message-header-view-button {
       --toolbarbutton-header-bordercolor: WindowText;
       --toolbarbutton-active-bordercolor: WindowText;
     }
-    
+
     & .toolbarbutton-1:not(.qfb-tag-button):hover,
     & #calendar-add-task-button:hover,
     & #todaypane-new-event-button:hover,
@@ -73,7 +73,7 @@
     & .toolbarbutton-menubutton-button:hover {
       color: SelectedItemText !important;
     }
-    
+
     & menulist {
       --toolbarbutton-hover-background: ButtonFace;
     }

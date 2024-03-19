@@ -44,18 +44,18 @@
     background-repeat: no-repeat;
     background-position: right top !important;
   }
-  
+
   &:not([lwt-tree]):-moz-window-inactive {
     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
   }
-  
+
   &:not([lwt-tree]) dialog,
   & #calendar-event-dialog-inner:not([lwt-tree]),
   & #calendar-task-dialog-inner:not([lwt-tree]) {
     background-color: -moz-Dialog;
     color: -moz-DialogText;
     text-shadow: none !important;
-  
+
     --box-text-color: MenuText;
     --box-background-color: Menu;
     --box-border-color: ThreeDShadow;
