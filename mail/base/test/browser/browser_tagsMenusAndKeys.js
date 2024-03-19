@@ -608,7 +608,7 @@ function checkTagItems(tagsPopup, expectedTags, expectedChecked = []) {
       Assert.equal(element.accessKey, index, "menu item accessKey");
       Assert.equal(element.label, `${index} ${label}`, "menu item label");
     } else {
-      Assert.equal(element.accessKey, "", "menu item accessKey");
+      Assert.equal(element.accessKey, null, "menu item accessKey");
       Assert.equal(element.label.trim(), label, "menu item label");
     }
     Assert.equal(element.value, key, "menu item value");

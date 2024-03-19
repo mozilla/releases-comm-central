@@ -882,7 +882,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     // (the key for the tag at index n needs to have the id key_tag<n>)
     const shortcutkey = document.getElementById("key_tag" + index);
     const accesskey = shortcutkey ? shortcutkey.getAttribute("key") : "  ";
-    if (accesskey != "  ") {
+    if (accesskey != "  " && accesskey !== null) {
       menuitem.setAttribute("accesskey", accesskey);
       menuitem.setAttribute("acceltext", accesskey);
     }

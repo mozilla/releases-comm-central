@@ -671,6 +671,7 @@ var mailContextMenu = {
    * @param {Element} parent - Parent element that will contain the menu items.
    * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
    * @param {string} [classes] - Classes to set on the menu items.
+   * @see InitMessageTags()
    */
   _initMessageTags() {
     const parent = document.getElementById("mailContext-tagpopup");
@@ -701,10 +702,13 @@ var mailContextMenu = {
       }
 
       const item = document.createXULElement("menuitem");
-      item.accessKey = index < 10 ? index : "";
+      const accessKey = index < 10 ? index : "";
+      if (accessKey !== "") {
+        item.accessKey = accessKey;
+      }
       item.label = messengerBundle.formatStringFromName(
         "mailnews.tags.format",
-        [item.accessKey, tagInfo.tag]
+        [accessKey, tagInfo.tag]
       );
       item.setAttribute("type", "checkbox");
       if (msgHasTag) {
