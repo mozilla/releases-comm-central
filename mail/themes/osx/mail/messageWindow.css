@@ -38,7 +38,7 @@
   border-bottom: 0;
 }
 
-#mail-toolbox:-moz-lwtheme {
+:root[lwtheme] #mail-toolbox {
   box-shadow: none;
 }
 

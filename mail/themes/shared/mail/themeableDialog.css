@@ -27,7 +27,7 @@
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
 }
 
-:root:-moz-lwtheme {
+:root[lwtheme] {
   --box-text-color: var(--color-ink-90);
   --box-background-color: var(--color-white);
   --box-border-color: var(--color-gray-40);
@@ -38,46 +38,46 @@
   --primary-focus-border: var(--lwt-accent-color);
   background-color: var(--lwt-accent-color);
   color: var(--lwt-text-color);
+
+  &[lwtheme-image]:not([lwt-tree]) {
+    background-image: var(--lwt-header-image) !important;
+    background-repeat: no-repeat;
+    background-position: right top !important;
+  }
+  
+  &:not([lwt-tree]):-moz-window-inactive {
+    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  }
+  
+  &:not([lwt-tree]) dialog,
+  & #calendar-event-dialog-inner:not([lwt-tree]),
+  & #calendar-task-dialog-inner:not([lwt-tree]) {
+    background-color: -moz-Dialog;
+    color: -moz-DialogText;
+    text-shadow: none !important;
+  
+    --box-text-color: MenuText;
+    --box-background-color: Menu;
+    --box-border-color: ThreeDShadow;
+    --field-text-color: FieldText;
+    --field-background-color: Field;
+    --field-border-color: rgba(128, 128, 128, 0.6);
+    --field-border-hover-color: rgba(128, 128, 128, 0.8);
+    --lwt-accent-color: -moz-Dialog;
+    --richlist-button-background: -moz-Dialog;
+    --tab-hover-background: hsla(0, 0%, 50%, 0.15);
+    --tab-selected-background: hsla(0, 0%, 50%, 0.25);
+  }
 }
 
 :root[lwt-tree] {
   --richlist-button-background: var(--sidebar-background-color);
 }
 
-:root:not([lwt-tree]):-moz-lwtheme[lwtheme-image] {
-  background-image: var(--lwt-header-image) !important;
-  background-repeat: no-repeat;
-  background-position: right top !important;
-}
-
-:root:not([lwt-tree]):-moz-lwtheme:-moz-window-inactive {
-  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-}
-
-:root:not([lwt-tree]):-moz-lwtheme dialog,
-#calendar-event-dialog-inner:not([lwt-tree]):-moz-lwtheme,
-#calendar-task-dialog-inner:not([lwt-tree]):-moz-lwtheme {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-  text-shadow: none !important;
-
-  --box-text-color: MenuText;
-  --box-background-color: Menu;
-  --box-border-color: ThreeDShadow;
-  --field-text-color: FieldText;
-  --field-background-color: Field;
-  --field-border-color: rgba(128, 128, 128, 0.6);
-  --field-border-hover-color: rgba(128, 128, 128, 0.8);
-  --lwt-accent-color: -moz-Dialog;
-  --richlist-button-background: -moz-Dialog;
-  --tab-hover-background: hsla(0, 0%, 50%, 0.15);
-  --tab-selected-background: hsla(0, 0%, 50%, 0.25);
-}
-
 @media (prefers-color-scheme: dark) {
   :host,
-  :root:-moz-lwtheme,
-  :root:not([lwt-tree]):-moz-lwtheme dialog {
+  :root[lwtheme],
+  :root[lwtheme]:not([lwt-tree]) dialog {
     --box-text-color: var(--color-ink-10);
     --box-background-color: var(--color-ink-80);
     --box-border-color: rgba(249, 249, 250, 0.3);
@@ -93,7 +93,7 @@
 
 @media (prefers-contrast) {
   :host,
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --button-background-color: ButtonFace;
     --button-hover-background-color: SelectedItem;
     --button-active-background-color: SelectedItem;
@@ -438,7 +438,7 @@ richlistbox > richlistitem {
                                       var(--button-background-color));
     color: var(--field-text-color) !important;
 
-    &:-moz-lwtheme {
+    :root[lwtheme] & {
       color: var(--lwt-text-color) !important;
     }
   }
@@ -506,11 +506,11 @@ tabpanels {
   padding-top: 6px;
 }
 
-fieldset:-moz-lwtheme {
+:root[lwtheme] fieldset {
   border: 1px solid var(--field-border-color);
 }
 
-legend:-moz-lwtheme {
+:root[lwtheme] legend {
   background-color: var(--lwt-accent-color);
 }
 

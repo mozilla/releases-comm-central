@@ -75,15 +75,15 @@ hr {
   appearance: none;
 }
 
-#navigation-toolbox:-moz-lwtheme,
-#compose-toolbox:-moz-lwtheme {
+:root[lwtheme] #navigation-toolbox,
+:root[lwtheme] #compose-toolbox {
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-additional-images);
   background-repeat: var(--lwt-background-tiling);
   background-position: var(--lwt-background-alignment);
 }
 
-:root:not([tabsintitlebar]) #navigation-toolbox:-moz-lwtheme {
+:root[lwtheme]:not([tabsintitlebar]) #navigation-toolbox {
   color: var(--toolbar-color, inherit);
   background-color: var(--toolbar-bgcolor);
 }
@@ -97,8 +97,8 @@ hr {
   background-position: right top, var(--lwt-background-alignment);
 }
 
-:root[tabsintitlebar] #navigation-toolbox:-moz-window-inactive:-moz-lwtheme,
-#compose-toolbox:-moz-window-inactive:-moz-lwtheme {
+:root[lwtheme][tabsintitlebar] #navigation-toolbox:-moz-window-inactive,
+:root[lwtheme] #compose-toolbox:-moz-window-inactive {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
@@ -237,7 +237,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
   }
 }
 
-tree:-moz-lwtheme:not(:focus)
+:root[lwtheme] tree:not(:focus)
   treechildren::-moz-tree-row(selected) {
   --sidebar-highlight-background-color: hsla(0, 0%, 50%, 0.2);
 }
@@ -256,7 +256,7 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
   stroke: var(--selected-item-text-color) !important;
 }
 
-:root:-moz-lwtheme {
+:root[lwtheme] {
   & treecol:not([hideheader="true"]),
   & .tree-columnpicker-button:not([hideheader="true"]) {
     appearance: none;
@@ -531,7 +531,7 @@ menubar {
   font-size: inherit;
 }
 
-menubar > menu:-moz-lwtheme[_moz-menuactive="true"]:not([disabled="true"]) {
+:root[lwtheme] menubar > menu[_moz-menuactive="true"]:not([disabled="true"]) {
   background-color: hsla(0, 0%, 0%, 0.12);
   color: inherit;
 
@@ -551,7 +551,7 @@ menulist {
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     color: inherit;
   }
 
@@ -930,13 +930,13 @@ statuspanel {
   min-height: 22px;
 
   @media (prefers-color-scheme: dark) {
-    &:-moz-lwtheme {
+    :root[lwtheme] & {
       border-top-color: var(--lwt-accent-color);
     }
   }
 }
 
-#status-bar:-moz-lwtheme {
+:root[lwtheme] #status-bar {
   appearance: none;
   background-repeat: no-repeat, var(--lwt-background-tiling);
   background-position: bottom right, var(--lwt-background-alignment);
@@ -1090,7 +1090,7 @@ findbar {
   color: var(--toolbar-color);
   border-top-color: var(--chrome-content-separator-color, ThreeDShadow);
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     background-color: var(--lwt-accent-color);
     background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-additional-images);
     background-repeat: no-repeat, var(--lwt-background-tiling);

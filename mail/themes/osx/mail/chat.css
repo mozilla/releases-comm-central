@@ -50,7 +50,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 
 #chatPanel {
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     color: -moz-DialogText;
     text-shadow: none;
   }

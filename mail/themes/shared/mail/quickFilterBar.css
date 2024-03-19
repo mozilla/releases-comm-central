@@ -17,7 +17,7 @@
   border-bottom: 1px solid
     var(--sidebar-border-color, var(--tree-view-header-border-color));
 
-  :root[lwt-tree] &:-moz-lwtheme {
+  :root[lwtheme][lwt-tree] & {
     background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
     color: var(--lwt-text-color);
   }

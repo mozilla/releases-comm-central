@@ -22,7 +22,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme #calendar-list > li.selected {
+  :root[lwtheme] #calendar-list > li.selected {
     background-color: var(--dark-lwt-highlight-color);
     color: var(--lwt-text-color);
   }

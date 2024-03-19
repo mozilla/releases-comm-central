@@ -10,7 +10,7 @@
   visibility: collapse;
 }
 
-#tabmail:-moz-lwtheme {
+:root[lwtheme] #tabmail {
   text-shadow: none;
 }
 
@@ -176,13 +176,13 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 /* Quick-Filter-Bar */
-:root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
+:root[lwtheme][lwt-tree] #quick-filter-bar {
   background-color: var(--toolbar-bgcolor);
   color: var(--lwt-text-color);
 }
 
 /* virtual folder list dialog */
-#virtualFolderList:not(:-moz-lwtheme) {
+:root:not([lwtheme]) #virtualFolderList {
   background-color: -moz-dialog;
 }
 

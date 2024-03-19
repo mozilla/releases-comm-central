@@ -37,7 +37,7 @@ menupopup {
   font-size: inherit;
   text-align: start;
 
-  menubar:not(:-moz-lwtheme) > menu & {
+  :root:not([lwtheme]) menubar > menu & {
     --panel-background: Menu;
     --panel-color: MenuText;
   }
@@ -88,7 +88,7 @@ menupopup {
     }
   }
 
-  menubar:not(:-moz-lwtheme) > menu & >
+  :root:not([lwtheme]) menubar > menu & >
     :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: -moz-MenuHoverText;
     background-color: -moz-MenuHover;

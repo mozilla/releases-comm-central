@@ -23,7 +23,7 @@
   }
 
   @media not (prefers-contrast) {
-    :root:not([lwt-tree],:-moz-lwtheme) & {
+    :root:not([lwt-tree],[lwtheme]) & {
       background-color: var(--layout-background-1);
     }
   }

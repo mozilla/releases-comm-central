@@ -4,7 +4,7 @@
 
 @import url(chrome://calendar/skin/shared/calendar.css);
 
-#calendarContent:-moz-lwtheme {
+:root[lwtheme] #calendarContent {
   text-shadow: none;
 }
 

@@ -10,17 +10,20 @@
   min-height: 51em;
 }
 
-#calendar-event-dialog:-moz-lwtheme,
-#calendar-task-dialog:-moz-lwtheme {
-  background-color: transparent;
+:root:not([lwtheme]) {
+  #calendar-event-dialog,
+  #calendar-task-dialog {
+    background-color: transparent;
+  }
+
+  #calendar-event-dialog-inner,
+  #calendar-task-dialog-inner {
+    background-image: none !important;
+  }
 }
 
-:root:not([lwt-tree]):-moz-lwtheme #calendar-item-panel-iframe {
+:root[lwtheme]:not([lwt-tree]) #calendar-item-panel-iframe {
   background-color: -moz-Dialog;
-}
-#calendar-event-dialog-inner:-moz-lwtheme,
-#calendar-task-dialog-inner:-moz-lwtheme {
-  background-image: none !important;
 }
 
 #calendar-event-dialog,

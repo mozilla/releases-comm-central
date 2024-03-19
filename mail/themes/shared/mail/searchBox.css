@@ -55,8 +55,8 @@
 }
 
 /* special treatment because these boxes are on themable toolbars */
-.gloda-search:-moz-lwtheme,
-.remote-gloda-search:-moz-lwtheme,
+:root[lwtheme] .gloda-search,
+:root[lwtheme] .remote-gloda-search,
 :root[lwt-tree] .themeableSearchBox,
 :root[lwt-tree] #peopleSearchInput:not([focused="true"]) {
   color: var(--toolbar-field-color);
@@ -71,16 +71,16 @@
   outline: 1px solid var(--toolbar-field-focus-border-color);
 }
 
-.gloda-search:-moz-lwtheme:focus,
+:root[lwtheme] .gloda-search:focus,
+:root[lwtheme] .remote-gloda-search[focused="true"],
 :root[lwt-tree] .themeableSearchBox:is(:focus, [focused="true"]),
-:root[lwt-tree] #peopleSearchInput[focused="true"],
-.remote-gloda-search:-moz-lwtheme[focused="true"] {
+:root[lwt-tree] #peopleSearchInput[focused="true"] {
   color: var(--toolbar-field-focus-color);
   background-color: var(--toolbar-field-focus-background-color);
 }
 
-.gloda-search:-moz-lwtheme::selection,
-.themeableSearchBox:-moz-lwtheme::selection {
+:root[lwtheme] .gloda-search::selection,
+:root[lwtheme] .themeableSearchBox::selection {
   background-color: var(--lwt-toolbar-field-highlight, Highlight);
   color: var(--lwt-toolbar-field-highlight-text, HighlightText);
 }

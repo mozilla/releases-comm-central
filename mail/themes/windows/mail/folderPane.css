@@ -20,7 +20,7 @@ treechildren::-moz-tree-image(folderNameCol) {
     stroke: SelectedItemText !important;
   }
 
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
+  :root:not([lwtheme]) treechildren::-moz-tree-image(folderNameCol) {
     --default: FieldText;
     --primary: SelectedItem;
   }

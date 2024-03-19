@@ -8,7 +8,7 @@
   height: 32px;
 }
 
-#today-pane-panel:-moz-lwtheme > .sidebar-header {
+:root[lwtheme] #today-pane-panel > .sidebar-header {
   text-shadow: none;
 }
 

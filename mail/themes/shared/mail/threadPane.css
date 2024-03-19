@@ -1010,7 +1010,7 @@ tr[is="thread-card"] {
   border-bottom: 1px solid var(--layout-border-0);
 }
 
-:root[lwt-tree] .list-header-bar:-moz-lwtheme {
+:root[lwtheme][lwt-tree] .list-header-bar {
   background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
   color: var(--toolbar-color, inherit);
 }

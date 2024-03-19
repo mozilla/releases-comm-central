@@ -119,12 +119,14 @@
 }
 
 @media (prefers-contrast) {
-  .calendar-notification-bar:not(:-moz-lwtheme) {
-    background-color: var(--selected-item-color);
-  }
+  :root:not([lwtheme]) {
+    .calendar-notification-bar {
+      background-color: var(--selected-item-color);
 
-  .calendar-notification-bar:not(:-moz-lwtheme) > *:not(#imip-view-toolbox) {
-    color: var(--selected-item-text-color);
+      & > *:not(#imip-view-toolbox) {
+        color: var(--selected-item-text-color);
+      }
+    }
   }
 }
 

@@ -52,41 +52,43 @@
 }
 
 @media (prefers-contrast) {
-  #msgSubject:not(:-moz-lwtheme),
-  #msgIdentity:not(:-moz-lwtheme),
-  .address-container:not(:-moz-lwtheme) {
-    --toolbarbutton-hover-bordercolor: ThreeDShadow;
+  :root:not([lwtheme]) {
+    & #msgSubject,
+    & #msgIdentity,
+    .address-container {
+      --toolbarbutton-hover-bordercolor: ThreeDShadow;
 
-    &:hover {
-      --toolbarbutton-hover-bordercolor: ThreeDDarkShadow;
-    }
-  }
-
-  #MsgHeadersToolbar:not(:-moz-lwtheme) {
-    & .address-pill {
-      box-shadow: inset 0 0 0 1px ThreeDShadow;
-
-      &:where(:hover, :focus):not(.editing) {
-        box-shadow: inset 0 0 0 1px SelectedItem;
+      &:hover {
+        --toolbarbutton-hover-bordercolor: ThreeDDarkShadow;
       }
+    }
 
-      &[selected] {
-        color: SelectedItemText;
-        background-color: SelectedItem;
-        box-shadow: inset 0 0 0 1px SelectedItem, inset 0 0 0 2em SelectedItem;
+    & #MsgHeadersToolbar {
+      & .address-pill {
+        box-shadow: inset 0 0 0 1px ThreeDShadow;
 
         &:where(:hover, :focus):not(.editing) {
-          box-shadow: inset 0 0 0 1px SelectedItemText, inset 0 0 0 2em SelectedItem;
-          text-shadow: none;
+          box-shadow: inset 0 0 0 1px SelectedItem;
         }
-      }
 
-      &:not([selected]) .pill-indicator {
-        fill: ThreeDShadow;
-      }
+        &[selected] {
+          color: SelectedItemText;
+          background-color: SelectedItem;
+          box-shadow: inset 0 0 0 1px SelectedItem, inset 0 0 0 2em SelectedItem;
 
-      &:not([selected], .editing):hover .pill-indicator {
-        fill: SelectedItem;
+          &:where(:hover, :focus):not(.editing) {
+            box-shadow: inset 0 0 0 1px SelectedItemText, inset 0 0 0 2em SelectedItem;
+            text-shadow: none;
+          }
+        }
+
+        &:not([selected]) .pill-indicator {
+          fill: ThreeDShadow;
+        }
+
+        &:not([selected], .editing):hover .pill-indicator {
+          fill: SelectedItem;
+        }
       }
     }
   }
@@ -157,14 +159,14 @@ toolbarbutton.formatting-button {
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-toolbar:not(:-moz-lwtheme) {
+:root:not([lwtheme]) toolbar {
   appearance: none;
 }
 
 #compose-toolbox > toolbar:not([type="menubar"]) {
   padding: 2px 1px;
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     text-shadow: none;
   }
 }

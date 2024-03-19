@@ -398,7 +398,7 @@ global-search-bar:not([hidden]) {
   display: block;
   color: var(--layout-color-0);
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     color: var(--toolbar-field-color);
     text-shadow: none;
   }

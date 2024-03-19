@@ -11,7 +11,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#mail-menubar:-moz-lwtheme {
+:root[lwtheme] #mail-menubar {
   color: inherit;
 }
 
@@ -19,7 +19,7 @@
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-#composeToolbar2:not(:-moz-lwtheme) {
+:root:not([lwtheme]) #composeToolbar2 {
   appearance: none;
 }
 

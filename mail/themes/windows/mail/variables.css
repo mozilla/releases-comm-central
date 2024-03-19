@@ -23,12 +23,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme {
+  :root[lwtheme] {
     --autocomplete-popup-highlight-color: var(--lwt-text-color);
     --dark-lwt-highlight-color: #0a84ff;
   }
 
-  :root:not([lwt-tree]):-moz-lwtheme menupopup {
+  :root[lwtheme]:not([lwt-tree]) menupopup {
     --panel-background: var(--arrowpanel-background) !important;
     --panel-color: var(--arrowpanel-color) !important;
     --panel-border-color: var(--arrowpanel-border-color) !important;
@@ -39,7 +39,7 @@
 }
 
 @media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --lwt-tabs-border-color: ThreeDShadow;
     --item-focus-selected-border-color: SelectedItemText;
     --new-folder-color: Highlight;
@@ -47,35 +47,35 @@
     --arrowpanel-dimmed: SelectedItem;
     --arrowpanel-dimmed-further: SelectedItem;
     --toolbar-field-focus-border-color: SelectedItem;
-  }
 
-  :root:not(:-moz-lwtheme) .themeable-full,
-  :root:not(:-moz-lwtheme) .themeable-brighttext,
-  :root:not(:-moz-lwtheme) #navigation-toolbox > toolbar,
-  :root:not(:-moz-lwtheme) #todaypane-new-event-button,
-  :root:not(:-moz-lwtheme) #CardViewBox {
-    --toolbarbutton-hover-background: SelectedItem;
-    --toolbarbutton-hover-bordercolor: SelectedItemText !important;
-    --toolbarbutton-active-background: SelectedItem;
-    --toolbarbutton-active-bordercolor: SelectedItemText;
-    --toolbarbutton-checked-background: SelectedItem;
-    --toolbarbutton-icon-fill-attention: SelectedItem;
-  }
-
-  :root:not(:-moz-lwtheme) .toolbarbutton-1.message-header-view-button {
-    --toolbarbutton-header-bordercolor: WindowText;
-    --toolbarbutton-active-bordercolor: WindowText;
-  }
-
-  :root:not(:-moz-lwtheme) .toolbarbutton-1:not(.qfb-tag-button):hover,
-  :root:not(:-moz-lwtheme) #calendar-add-task-button:hover,
-  :root:not(:-moz-lwtheme) #todaypane-new-event-button:hover,
-  :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
-  :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
-    color: SelectedItemText !important;
-  }
-
-  menulist:not(:-moz-lwtheme) {
-    --toolbarbutton-hover-background: ButtonFace;
+    & .themeable-full,
+    & .themeable-brighttext,
+    & #navigation-toolbox > toolbar,
+    & #todaypane-new-event-button,
+    & #CardViewBox {
+      --toolbarbutton-hover-background: SelectedItem;
+      --toolbarbutton-hover-bordercolor: SelectedItemText !important;
+      --toolbarbutton-active-background: SelectedItem;
+      --toolbarbutton-active-bordercolor: SelectedItemText;
+      --toolbarbutton-checked-background: SelectedItem;
+      --toolbarbutton-icon-fill-attention: SelectedItem;
+    }
+    
+    & .toolbarbutton-1.message-header-view-button {
+      --toolbarbutton-header-bordercolor: WindowText;
+      --toolbarbutton-active-bordercolor: WindowText;
+    }
+    
+    & .toolbarbutton-1:not(.qfb-tag-button):hover,
+    & #calendar-add-task-button:hover,
+    & #todaypane-new-event-button:hover,
+    & .toolbarbutton-1[checked="true"],
+    & .toolbarbutton-menubutton-button:hover {
+      color: SelectedItemText !important;
+    }
+    
+    & menulist {
+      --toolbarbutton-hover-background: ButtonFace;
+    }
   }
 }

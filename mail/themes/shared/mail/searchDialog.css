@@ -106,8 +106,8 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 /* ::::: theme support ::::: */
 
-:root:not([lwt-tree]) #searchTermBox:-moz-lwtheme,
-:root:not([lwt-tree]) #searchResults:-moz-lwtheme {
+:root[lwtheme]:not([lwt-tree]) #searchTermBox,
+:root[lwtheme]:not([lwt-tree]) #searchResults {
   background-color: -moz-Dialog;
 }
 
@@ -116,11 +116,11 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
-:root:not(:-moz-lwtheme) #searchTermList:focus > richlistitem[selected="true"] {
+:root:not([lwtheme])  #searchTermList:focus > richlistitem[selected="true"] {
   color: inherit;
 }
 
-:root:-moz-lwtheme #gray_horizontal_splitter {
+:root[lwtheme] #gray_horizontal_splitter {
   background-color: var(--toolbar-bgcolor);
   border-color: hsla(0, 0%, 50%, .3);
 }

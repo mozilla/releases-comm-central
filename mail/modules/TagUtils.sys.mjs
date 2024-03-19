@@ -61,7 +61,7 @@ function addTagToSheet(aKey, aColor, aSheet) {
       selector +
       ", selected, focus) { color: SelectedItemText !important; }";
     ruleString3 =
-      "tree:-moz-lwtheme treechildren::-moz-tree-cell-text(" +
+      ":root[lwtheme] tree treechildren::-moz-tree-cell-text(" +
       selector +
       ", selected) { color: currentColor !important; }";
     ruleString4 =

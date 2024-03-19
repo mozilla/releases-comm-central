@@ -60,7 +60,7 @@ html {
   }
 
   @media (prefers-contrast) {
-    &:not(:-moz-lwtheme) {
+    &:not([lwtheme]) {
       --bg-color: Window;
       --text-color: WindowText;
       --title-color: -moz-DialogText;

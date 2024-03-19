@@ -144,7 +144,7 @@
     }
 
     @media (prefers-contrast) {
-      &:not(:-moz-lwtheme):hover {
+      :root:not([lwtheme]) &:hover {
         border-color: var(--button-primary-hover-border-color);
       }
     }
@@ -325,7 +325,7 @@
 }
 
 @media (-moz-windows-accent-color-in-titlebar) {
-  #navigation-toolbox :is(.unified-toolbar-button, .toolbar-button):not(:-moz-lwtheme):focus-visible {
+  :root:not([lwtheme]) #navigation-toolbox :is(.unified-toolbar-button, .toolbar-button):focus-visible {
     outline-color: AccentColorText;
   }
 }

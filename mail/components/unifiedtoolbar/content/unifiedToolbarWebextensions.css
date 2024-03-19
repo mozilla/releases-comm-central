@@ -10,7 +10,7 @@
   margin-inline: 1px;
   content: var(--webextension-toolbar-image, inherit);
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     content: var(--webextension-toolbar-image-dark, inherit);
   }
 

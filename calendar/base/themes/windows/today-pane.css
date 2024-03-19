@@ -23,7 +23,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:-moz-lwtheme #agenda {
+  :root[lwtheme] #agenda {
     list-style: none;
     --selected-background: var(--dark-lwt-highlight-color);
     --selected-foreground: var(--lwt-text-color);

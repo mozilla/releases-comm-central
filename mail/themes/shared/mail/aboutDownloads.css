@@ -33,7 +33,7 @@ body {
 #downloadBottomBox {
   padding: 15px 18px;
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     text-shadow: none;
   }
 }

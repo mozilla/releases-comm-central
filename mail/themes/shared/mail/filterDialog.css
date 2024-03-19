@@ -6,7 +6,7 @@
   == Styles for the Mail Filters dialog.
   ======================================================================= */
 
-#filterListDialog:not([lwt-tree]):-moz-lwtheme {
+:root[lwtheme] #filterListDialog:not([lwt-tree]) {
   background: -moz-Dialog !important;
   color: -moz-DialogText;
   text-shadow: none;

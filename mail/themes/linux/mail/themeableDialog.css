@@ -6,7 +6,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-:root:-moz-lwtheme {
+:root[lwtheme] {
   appearance: none;
 }
 

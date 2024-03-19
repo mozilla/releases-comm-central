@@ -210,20 +210,22 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
 
 /* Make the new mail indicator better visible on dark themes */
 @media (prefers-color-scheme: dark) {
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true) {
-    --sidebar-text-color: var(--color-white);
-  }
+  :root[lwtheme] {
+    & #folderTree
+      treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
+    & #folderTree
+      treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true) {
+      --sidebar-text-color: var(--color-white);
+    }
 
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
-  #folderTree:-moz-lwtheme
-    treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-    --new-folder-color: var(--color-blue-40);
+    & #folderTree
+      treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+    & #folderTree
+      treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+    & #folderTree
+      treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+      --new-folder-color: var(--color-blue-40);
+    }
   }
 }
 

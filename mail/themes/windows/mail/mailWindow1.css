@@ -33,15 +33,15 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media not (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     background-color: light-dark(var(--color-gray-10), var(--color-gray-90));
+  }
 
-    &:-moz-lwtheme {
-      background-color: var(--lwt-accent-color);
+  :root[lwtheme] {
+    background-color: var(--lwt-accent-color);
 
-      &:-moz-window-inactive {
-        background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-      }
+    &:-moz-window-inactive {
+      background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
     }
   }
 
@@ -53,13 +53,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         border-top-color: AccentColor;
       }
     }
-    :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
+    :root[tabsintitlebar]:not([lwtheme],:-moz-window-inactive) {
       background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
     }
   }
 
   @media (-moz-windows-accent-color-in-titlebar) {
-    :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
+    :root[tabsintitlebar]:not([lwtheme],:-moz-window-inactive) {
       background-color: AccentColor;
 
       & #navigation-toolbox {
@@ -70,7 +70,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
+  :root[tabsintitlebar]:not([lwtheme]) #navigation-toolbox {
     background-color: ActiveCaption;
     color: CaptionText;
 
@@ -95,7 +95,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
   @media not (prefers-contrast) {
     @media (-moz-windows-accent-color-in-titlebar) {
-      &:not(:-moz-window-inactive, :-moz-lwtheme) {
+      :root:not([lwtheme]) &:not(:-moz-window-inactive) {
         stroke: AccentColorText;
       }
     }
@@ -266,13 +266,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  :root:not(:-moz-lwtheme)
+  :root:not([lwtheme])
     treechildren::-moz-tree-image(selected) {
     color: inherit;
   }
 }
 
-:root:not([lwt-tree], :-moz-lwtheme) #folderTree {
+:root:not([lwt-tree],[lwtheme]) #folderTree {
   background-color: #fafafa;
 }
 

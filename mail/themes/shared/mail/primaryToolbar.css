@@ -9,7 +9,7 @@
   appearance: none;
   background-color: var(--toolbar-bgcolor);
 
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     color: var(--toolbar-color, inherit);
     background-color: var(--lwt-accent-color);
     background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),

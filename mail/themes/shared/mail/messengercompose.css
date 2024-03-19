@@ -332,7 +332,7 @@
 }
 
 #compose-toolbox {
-  &:-moz-lwtheme {
+  :root[lwtheme] & {
     appearance: none;
     position: relative;
     color: var(--toolbar-color, inherit);

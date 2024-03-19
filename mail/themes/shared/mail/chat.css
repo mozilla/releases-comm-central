@@ -738,7 +738,7 @@ richlistitem:not([selected]) .protoIconDimmed {
   }
 
   #chat-status-selector > vbox > &[editing],
-  &:-moz-lwtheme:focus {
+  :root[lwtheme] &:focus {
     appearance: none;
     padding-inline: 4px;
     color: var(--toolbar-field-color);

@@ -8,7 +8,7 @@
 
 @media (prefers-color-scheme: dark) {
   :host,
-  :root:-moz-lwtheme {
+  :root[lwtheme] {
     --arrowpanel-color: #f9f9fa;
     --arrowpanel-background: #282829;
     --richlist-button-background: #1e1e1e;

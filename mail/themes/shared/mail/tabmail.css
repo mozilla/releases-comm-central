@@ -72,16 +72,16 @@
     box-shadow: 0 2px 8px -5px var(--color-black);
   }
 
-  &:not([selected],:-moz-lwtheme) {
+  :root[lwtheme] & {
     color: inherit;
+
+    &[visuallyselected=true] {
+      color: var(--lwt-tab-text, var(--toolbar-color, inherit));
+    }
   }
 
-  &:-moz-lwtheme {
+  :root:not([lwtheme]) &:not([selected]) {
     color: inherit;
-  }
-
-  &[visuallyselected=true]:-moz-lwtheme {
-    color: var(--lwt-tab-text, var(--toolbar-color, inherit));
   }
 }
 
@@ -234,7 +234,7 @@ button.tab-close-button {
  */
 
 /* Lightweight theme on tabs */
-.tabmail-tab .tab-background[selected=true]:-moz-lwtheme {
+:root[lwtheme] .tabmail-tab .tab-background[selected=true] {
   background-attachment: scroll, scroll, fixed;
   background-color: transparent;
   background-image: linear-gradient(var(--lwt-selected-tab-background-color, transparent),

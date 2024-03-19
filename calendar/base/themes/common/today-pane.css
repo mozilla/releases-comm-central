@@ -25,7 +25,7 @@
   background-color: var(--layout-background-0);
 }
 
-#today-pane-panel:-moz-lwtheme {
+:root[lwtheme] #today-pane-panel {
   background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color);
 }
@@ -91,7 +91,7 @@
   margin-inline-end: 3px;
 }
 
-#today-pane-panel:-moz-lwtheme > vbox {
+:root[lwtheme] #today-pane-panel > vbox {
   text-shadow: none;
   background-color: var(--layout-background-0);
 }

@@ -57,6 +57,10 @@
   --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
   --new-folder-color: light-dark(var(--color-blue-60), var(--color-blue-40));
   --lwt-header-image: none;
+  --search-bar-color: inherit;
+  --search-bar-border-color: var(--color-gray-40);
+  --search-bar-background: var(--layout-background-0);
+  --search-bar-focus-background: var(--layout-background-0);
   --search-field-placeholder: color-mix(in srgb, currentColor 50%, transparent);
   --search-focus-outline-color: var(--focus-outline-color);
   --search-outline-offset: -1px;
@@ -126,13 +130,17 @@
 
   /* LW-themes enabled */
 
-  &:-moz-lwtheme {
+  &[lwtheme] {
     color: var(--lwt-text-color);
     --autocomplete-popup-url-color: light-dark(hsl(210, 77%, 47%), #0a84ff);
     --button-background: #d2d2d3;
     --button-background-hover: #c2c2c3;
     --button-background-active: #b2b2b3;
     --panel-separator-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.1));
+    --search-bar-color: var(--toolbar-field-focus-color);
+    --search-bar-background: var(--toolbar-field-background-color);
+    --search-bar-border-color: var(--toolbar-field-border-color);
+    --search-bar-focus-background: var(--toolbar-field-focus-background-color);
     --toolbar-color: var(--lwt-text-color, inherit);
     --toolbar-bgcolor: rgba(255, 255, 255, 0.4);
     --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
@@ -159,7 +167,7 @@
     --lwt-accent-color: rgb(24, 24, 26);
   }
 
-  :root:not([lwt-tree]):-moz-lwtheme {
+  :root[lwtheme]:not([lwt-tree]) {
     --button-background-color: var(--layout-background-3);
     --button-hover-background-color: var(--layout-background-4);
     --button-active-background-color: var(--layout-background-2);
@@ -174,7 +182,7 @@
 /* Special High contrast setting */
 
 @media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --button-color: ButtonText;
     --button-background-color: ButtonFace;
     --button-border-color: ButtonText;
@@ -207,7 +215,7 @@
 }
 
 @media not (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --buttons-secondary-bgcolor: rgb(240, 240, 244);
     --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
     --buttons-secondary-active-bgcolor: rgb(207, 207, 216);

@@ -62,7 +62,7 @@
 
 @media (prefers-contrast) {
   :host,
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --layout-background-0: Window;
     --layout-background-1: -moz-Dialog;
     --layout-background-2: transparent;

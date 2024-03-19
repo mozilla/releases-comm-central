@@ -47,6 +47,6 @@
   position: relative;
 }
 
-#today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
+:root[lwtheme] #today-splitter.calendar-sidebar-splitter {
   background-image: none;
 }

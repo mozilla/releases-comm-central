@@ -10,7 +10,7 @@ menupopup {
   }
 
   @media (prefers-contrast) {
-    &:not(:-moz-lwtheme) > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
+    :root:not([lwtheme]) & > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
       color: SelectedItemText;
     }
   }

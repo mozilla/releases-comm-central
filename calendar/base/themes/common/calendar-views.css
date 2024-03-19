@@ -97,7 +97,7 @@
 }
 
 @media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root:not([lwtheme]) {
     --calendar-view-toggle-background: transparent;
     --calendar-view-toggle-hover-background: SelectedItem;
     --calendar-view-toggle-active-background: SelectedItem;
@@ -134,13 +134,13 @@
     --viewDragboxColor: GrayText;
     --viewDragboxBackground: var(--selected-item-color);
     --viewDropshadowBackground: var(--selected-item-color) !important;
-  }
 
-  button.calview-toggle-item:not(:-moz-lwtheme):hover,
-  button.calview-toggle-item[role="tab"][aria-selected="true"]:not(:-moz-lwtheme) {
-    --button-border-color: SelectedItem;
-    --calendar-view-toggle-border-color: SelectedItem;
-    color: SelectedItemText;
+    button.calview-toggle-item:hover,
+    button.calview-toggle-item[role="tab"][aria-selected="true"] {
+      --button-border-color: SelectedItem;
+      --calendar-view-toggle-border-color: SelectedItem;
+      color: SelectedItemText;
+    }
   }
 }
 

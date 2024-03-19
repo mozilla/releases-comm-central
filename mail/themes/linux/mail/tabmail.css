@@ -13,7 +13,7 @@
   padding-block-end: 0;
 }
 
-#tabpanelcontainer:-moz-lwtheme {
+:root[lwtheme] #tabpanelcontainer {
   color: inherit;
 }
 

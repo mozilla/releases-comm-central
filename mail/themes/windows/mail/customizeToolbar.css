@@ -8,7 +8,7 @@
   margin: 0 4px 10px;
 
   @media (prefers-contrast) {
-    :root:not(:-moz-lwtheme) & {
+    :root:not([lwtheme])  & {
       background-color: transparent;
       border-color: ThreeDShadow;
     }

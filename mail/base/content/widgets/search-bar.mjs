@@ -18,6 +18,11 @@
  *   holds the search term.
  * @fires {CustomEvent} autocomplete - Auto complete update. detail holds the
  *   current search term.
+ * @cssproperty --search-bar-color - Text color of the search bar.
+ * @cssproperty --search-bar-border-color - Border color of the search bar.
+ * @cssproperty --search-bar-background - Background color of the search bar.
+ * @cssproperty --search-bar-focus-background - Background color of the search
+ *   bar when focused.
  */
 export class SearchBar extends HTMLElement {
   static get observedAttributes() {

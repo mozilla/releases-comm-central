@@ -63,16 +63,16 @@
 
 #task-addition-box {
   border-bottom: 1px solid ThreeDShadow;
-}
 
-:root[lwt-tree] #task-addition-box {
-  background-color: var(--toolbar-bgcolor);
-  background-image: none;
-  color: var(--toolbar-color);
-}
+  :root[lwt-tree] & {
+    background-color: var(--toolbar-bgcolor);
+    background-image: none;
+    color: var(--toolbar-color);
+  }
 
-#task-addition-box:-moz-lwtheme {
-  border-color: var(--splitter-color);
+  :root[lwtheme] & {
+    border-color: var(--splitter-color);
+  }
 }
 
 :root[lwt-tree] #calendar-task-details-container {
@@ -148,10 +148,10 @@
 #calendar-task-tree-detail {
   border-top: 1px solid ThreeDShadow;
   margin: 3px 0;
-}
 
-#calendar-task-tree-detail:-moz-lwtheme {
-  border-top-color: var(--splitter-color);
+  :root[lwtheme] & {
+    border-top-color: var(--splitter-color);
+  }
 }
 
 #view-task-edit-field {
