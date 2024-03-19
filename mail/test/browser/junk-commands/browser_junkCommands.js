@@ -25,33 +25,8 @@ var folder = null;
 add_setup(async function () {
   folder = await create_folder("JunkCommandsA");
   await make_message_sets_in_folders([folder], [{ count: 30 }]);
+  registerCleanupFunction(() => folder.deleteSelf(null));
 });
-
-/**
- * The number of messages to mark as junk and expect to be deleted.
- */
-var NUM_MESSAGES_TO_JUNK = 8;
-
-/**
- * Helper to check whether a folder has the right number of messages.
- *
- * @param aFolder the folder to check
- * @param aNumMessages the number of messages the folder should contain.
- */
-function _assert_folder_total_messages(aFolder, aNumMessages) {
-  const curMessages = aFolder.getTotalMessages(false);
-  if (curMessages != aNumMessages) {
-    throw new Error(
-      "The folder " +
-        aFolder.prettyName +
-        " should have " +
-        aNumMessages +
-        " messages, but actually has " +
-        curMessages +
-        " messages."
-    );
-  }
-}
 
 /**
  * Test deleting junk messages with no messages marked as junk.
@@ -62,7 +37,11 @@ add_task(async function test_delete_no_junk_messages() {
   await select_none();
   await delete_mail_marked_as_junk(0);
   // Check if we still have the same number of messages
-  _assert_folder_total_messages(folder, initialNumMessages);
+  Assert.equal(
+    folder.getTotalMessages(false),
+    initialNumMessages,
+    "should have the same nbr of msgs"
+  );
 });
 
 /**
@@ -72,6 +51,10 @@ add_task(async function test_delete_junk_messages() {
   const initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
   await select_click_row(1);
+
+  // The number of messages to mark as junk and expect to be deleted.
+  const NUM_MESSAGES_TO_JUNK = 8;
+
   const selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_JUNK);
   Assert.equal(
     selectedMessages.length,
@@ -82,26 +65,15 @@ add_task(async function test_delete_junk_messages() {
   mark_selected_messages_as_junk();
   // Now delete junk mail
   await delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK);
-  // Check that we have the right number of messages left
-  _assert_folder_total_messages(
-    folder,
-    initialNumMessages - NUM_MESSAGES_TO_JUNK
+  Assert.equal(
+    folder.getTotalMessages(false),
+    initialNumMessages - NUM_MESSAGES_TO_JUNK,
+    "should have the right number of mail left"
   );
   // Check that none of the message keys exist any more
   const db = folder.getDBFolderInfoAndDB({});
   for (const msgHdr of selectedMessages) {
     const key = msgHdr.messageKey;
-    if (db.containsKey(key)) {
-      throw new Error(
-        "The database shouldn't contain key " + key + ", but does."
-      );
-    }
+    Assert.ok(!db.containsKey(key), `db should not contain ${key}`);
   }
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 });

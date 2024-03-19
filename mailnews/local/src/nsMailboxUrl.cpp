@@ -420,7 +420,11 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
   nsCOMPtr<nsIMsgDBHdr> msg;
   GetMsgDBHdrFromURI(uri, getter_AddRefs(msg));
-  if (!msg) return NS_ERROR_FAILURE;
+  if (!msg) {
+    // E.g. the folder no longer exists. That's ok.
+    *msgFolder = nullptr;
+    return NS_OK;
+  }
   return msg->GetFolder(msgFolder);
 }
 

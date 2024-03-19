@@ -4308,10 +4308,6 @@ function OnMsgParsed(aUrl) {
 }
 
 function OnMsgLoaded(aUrl) {
-  if (!aUrl) {
-    return;
-  }
-
   window.msgLoaded = true;
   window.dispatchEvent(
     new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
@@ -4388,17 +4384,15 @@ function autoMarkAsRead() {
 }
 
 /**
- * This function handles all mdn response generation (ie, imap and pop).
- * For pop the msg uid can be 0 (ie, 1st msg in a local folder) so no
+ * This function handles all MDN response generation.
+ * For pop the msg uid can be 0 (i.e., 1st msg in a local folder) so no
  * need to check uid here. No one seems to set mimeHeaders to null so
  * no need to check it either.
+ *
+ * @param {nsIMsgMailNewsUrl} url
  */
-function HandleMDNResponse(aUrl) {
-  if (!aUrl) {
-    return;
-  }
-
-  var msgFolder = aUrl.folder;
+function HandleMDNResponse(url) {
+  const msgFolder = url.folder;
   if (
     !msgFolder ||
     !gMessage ||
@@ -4416,7 +4410,7 @@ function HandleMDNResponse(aUrl) {
   var mimeHdr;
 
   try {
-    mimeHdr = aUrl.mimeHeaders;
+    mimeHdr = url.mimeHeaders;
   } catch (ex) {
     return;
   }
