@@ -11,9 +11,8 @@ from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
 
+from gecko_taskgraph.files_changed import get_changed_files
 from gecko_taskgraph.util.hg import get_json_automationrelevance
-
-from comm_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
 

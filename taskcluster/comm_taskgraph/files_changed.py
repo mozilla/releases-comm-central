@@ -7,48 +7,13 @@ Support for optimizing tasks based on the set of files that have changed.
 """
 
 import logging
-import os
-from subprocess import CalledProcessError
 
-from taskgraph.util.memoize import memoize
 from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
 
-from gecko_taskgraph import GECKO
-from gecko_taskgraph.util.hg import get_json_automationrelevance
-from mozversioncontrol import InvalidRepoPath, get_repository_object
+from gecko_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
-
-
-@memoize
-def get_changed_files(repository, revision):
-    """
-    Get the set of files changed in the push headed by the given revision.
-    Responses are cached, so multiple calls with the same arguments are OK.
-    """
-    contents = get_json_automationrelevance(repository, revision)
-    try:
-        changesets = contents["changesets"]
-    except KeyError:
-        # We shouldn't hit this error in CI.
-        if os.environ.get("MOZ_AUTOMATION"):
-            raise
-
-        # We're likely on an unpublished commit, grab changed files from
-        # version control.
-        return get_locally_changed_files(GECKO)
-
-    logger.debug("{} commits influencing task scheduling:".format(len(changesets)))
-    changed_files = set()
-    for c in changesets:
-        desc = ""  # Support empty desc
-        if c["desc"]:
-            desc = c["desc"].splitlines()[0].encode("ascii", "ignore")
-        logger.debug(" {cset} {desc}".format(cset=c["node"][0:12], desc=desc))
-        changed_files |= set(c["files"])
-
-    return changed_files
 
 
 def get_files_changed_extended(params):
@@ -103,12 +68,3 @@ def check(params, file_patterns):
                 return True
 
     return False
-
-
-@memoize
-def get_locally_changed_files(repo):
-    try:
-        vcs = get_repository_object(repo)
-        return set(vcs.get_outgoing_files("AM"))
-    except (InvalidRepoPath, CalledProcessError):
-        return set()
