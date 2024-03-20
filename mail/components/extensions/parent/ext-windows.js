@@ -8,6 +8,72 @@
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
+var { IconDetails } = ExtensionParent;
+
+ChromeUtils.defineESModuleGetters(this, {
+  NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
+
+XPCOMUtils.defineLazyServiceGetters(this, {
+  imgTools: ["@mozilla.org/image/tools;1", "imgITools"],
+  WindowsUIUtils: ["@mozilla.org/windows-ui-utils;1", "nsIWindowsUIUtils"],
+});
+
+function getCanvasAsImgContainer(canvas, width, height) {
+  const imageData = canvas.getContext("2d").getImageData(0, 0, width, height);
+
+  // Create an imgIEncoder so we can turn the image data into a PNG stream.
+  const imgEncoder = Cc[
+    "@mozilla.org/image/encoder;2?type=image/png"
+  ].getService(Ci.imgIEncoder);
+  imgEncoder.initFromData(
+    imageData.data,
+    imageData.data.length,
+    imageData.width,
+    imageData.height,
+    imageData.width * 4,
+    imgEncoder.INPUT_FORMAT_RGBA,
+    ""
+  );
+
+  // Now turn the PNG stream into an imgIContainer.
+  const imgBuffer = NetUtil.readInputStreamToString(
+    imgEncoder,
+    imgEncoder.available()
+  );
+  const iconImage = imgTools.decodeImageFromBuffer(
+    imgBuffer,
+    imgBuffer.length,
+    "image/png"
+  );
+
+  // Close the PNG stream.
+  imgEncoder.close();
+  return iconImage;
+}
+
+async function setWindowIcon(window, iconUrl) {
+  try {
+    const canvas = new window.OffscreenCanvas(16, 16);
+    const ctx = canvas.getContext("2d");
+    const img = new window.Image();
+    const imageLoadPromise = new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = err => reject(err);
+    });
+    img.src = iconUrl;
+    await imageLoadPromise;
+
+    ctx.drawImage(img, 0, 0, 16, 16);
+    const readImage = getCanvasAsImgContainer(canvas, 16, 16);
+    WindowsUIUtils.setWindowIcon(window, readImage, null);
+  } catch (ex) {
+    console.error(`Failed to set icon "${iconUrl}" as window icon: ${ex}`);
+  }
+}
 
 function sanitizePositionParams(params, window = null, positionOffset = 0) {
   if (params.left === null && params.top === null) {
@@ -482,6 +548,19 @@ this.windows = class extends ExtensionAPIPersistent {
           window.dispatchEvent(
             new window.CustomEvent("webExtensionWindowCreateDone")
           );
+
+          if (AppConstants.platform === "win" && extension.manifest.icons) {
+            const { icon: iconUrl } = IconDetails.getPreferredIcon(
+              extension.manifest.icons,
+              extension,
+              16 * window.devicePixelRatio
+            );
+            if (iconUrl) {
+              // Do not wait for the image conversion process to finish.
+              setWindowIcon(window, iconUrl);
+            }
+          }
+
           return win.convert({ populate: true });
         },
 
