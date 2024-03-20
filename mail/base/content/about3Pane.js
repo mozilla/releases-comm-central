@@ -2478,6 +2478,9 @@ var folderPane = {
     // Clean up any existing view wrapper. This will invalidate the thread tree.
     gViewWrapper?.close();
 
+    // Hide any currently visible findbar.
+    messagePane.hideCurrentFindBar();
+
     if (gFolder.isServer) {
       document.title = gFolder.server.prettyName;
       gViewWrapper = gDBView = threadTree.view = null;
@@ -5545,6 +5548,12 @@ var messagePane = {
    * @param {string} messageURI
    */
   displayMessage(messageURI) {
+    // Hide the findbar of webview pane or multimessage pane if opened.
+    const switchingMessages = !messageBrowser.hidden;
+    if (!switchingMessages) {
+      this.hideCurrentFindBar();
+    }
+
     if (!paneLayout.messagePaneVisible) {
       return;
     }
@@ -5577,6 +5586,12 @@ var messagePane = {
    * @param {nsIMsgDBHdr[]} messages
    */
   displayMessages(messages = []) {
+    // Hide the findbar of webview pane or message pane if opened.
+    const switchingThreads = !multiMessageBrowser.hidden;
+    if (!switchingThreads) {
+      this.hideCurrentFindBar();
+    }
+
     if (!paneLayout.messagePaneVisible) {
       return;
     }
@@ -5615,6 +5630,33 @@ var messagePane = {
 
     multiMessageBrowser.hidden = false;
     window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
+
+    if (switchingThreads) {
+      const findBar = document.getElementById("multiMessageViewFindToolbar");
+      if (findBar && !findBar?.hidden) {
+        findBar.onFindAgainCommand(false);
+      }
+    }
+  },
+
+  /**
+   * Hide the findbar, in all of messageBrowser, multimessageBrowser,
+   * or webBrowser.
+   */
+  hideCurrentFindBar() {
+    // Multi message view.
+    const multiFindbar = document.getElementById("multiMessageViewFindToolbar");
+    multiFindbar?.clear();
+    multiFindbar?.close();
+
+    // Single message view.
+    messageBrowser.contentDocument.getElementById("FindToolbar").clear();
+    messageBrowser.contentDocument.getElementById("FindToolbar").close();
+
+    // Web Browser view.
+    const browserFindbar = document.getElementById("webBrowserFindToolbar");
+    browserFindbar?.clear();
+    browserFindbar?.close();
   },
 
   /**
@@ -6481,28 +6523,93 @@ commandController.registerCallback(
   () => gDBView?.numSelected >= 1 && gFolder && !gViewWrapper.isMultiFolder
 );
 
-// Forward these commands directly to about:message.
+/* Forward find commands to about:message if message view is open, otherwise
+ * create (if not already created) findbars for web and multi message view
+ * and call the attached find commands. We create the findbars inline here
+ * because adding them to the HTML initializes and additional Finder, which
+ * the findbar then uses, but doesn't attach any event listeners to. This
+ * causes the findbar to not update with a result status properly. */
 commandController.registerCallback(
   "cmd_find",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand("cmd_find"),
-  () => this.messageBrowser && !this.messageBrowser.hidden
+  () => {
+    if (!this.messageBrowser.hidden) {
+      this.messageBrowser.contentWindow.commandController.doCommand("cmd_find");
+      return;
+    }
+
+    if (!this.multiMessageBrowser.hidden) {
+      // Create the findbar for the multi message view if it isn't there.
+      if (!document.getElementById("multiMessageViewFindToolbar")) {
+        const findbar = document.createXULElement("findbar");
+        findbar.setAttribute("id", "multiMessageViewFindToolbar");
+        findbar.setAttribute("browserid", "multiMessageBrowser");
+        this.multiMessageBrowser.after(findbar);
+      }
+
+      document.getElementById("multiMessageViewFindToolbar").onFindCommand();
+      return;
+    }
+
+    if (!this.webBrowser.hidden) {
+      // Create the findbar for the web browser if it isn't there.
+      if (!document.getElementById("webBrowserFindToolbar")) {
+        const findbar = document.createXULElement("findbar");
+        findbar.setAttribute("id", "webBrowserFindToolbar");
+        findbar.setAttribute("browserid", "webBrowser");
+        this.webBrowser.after(findbar);
+      }
+      document.getElementById("webBrowserFindToolbar").onFindCommand();
+    }
+  },
+  () => browserPaneVisible()
 );
 commandController.registerCallback(
   "cmd_findAgain",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_findAgain"
-    ),
-  () => this.messageBrowser && !this.messageBrowser.hidden
+  () => {
+    if (!this.messageBrowser.hidden) {
+      this.messageBrowser.contentWindow.commandController.doCommand(
+        "cmd_findAgain"
+      );
+      return;
+    }
+
+    if (!this.multiMessageBrowser.hidden) {
+      document
+        .getElementById("multiMessageViewFindToolbar")
+        .onFindAgainCommand(false);
+      return;
+    }
+
+    if (!this.webBrowser.hidden) {
+      document
+        .getElementById("webBrowserFindToolbar")
+        .onFindAgainCommand(false);
+    }
+  },
+  () => browserPaneVisible()
 );
 commandController.registerCallback(
   "cmd_findPrevious",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_findPrevious"
-    ),
-  () => this.messageBrowser && !this.messageBrowser.hidden
+  () => {
+    if (!this.messageBrowser.hidden) {
+      this.messageBrowser.contentWindow.commandController.doCommand(
+        "cmd_findPrevious"
+      );
+      return;
+    }
+
+    if (!this.multiMessageBrowser.hidden) {
+      document
+        .getElementById("multiMessageViewFindToolbar")
+        .onFindAgainCommand(true);
+      return;
+    }
+
+    if (!this.webBrowser.hidden) {
+      document.getElementById("webBrowserFindToolbar").onFindAgainCommand(true);
+    }
+  },
+  () => browserPaneVisible()
 );
 
 /**
@@ -6528,6 +6635,20 @@ function visibleMessagePaneBrowser() {
   }
 
   return null;
+}
+
+/**
+ * Helper function that returns true if one of the three browser panes are
+ * visible, and false otherwise.
+ *
+ * @returns {boolean} - Whether a browser pane is visible or not.
+ */
+function browserPaneVisible() {
+  return (
+    (webBrowser && !webBrowser.hidden) ||
+    (messageBrowser && !messageBrowser.hidden) ||
+    (multiMessageBrowser && !multiMessageBrowser.hidden)
+  );
 }
 
 // Zoom.
