@@ -95,6 +95,7 @@ Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/English.lpr
 #ifdef XP_MACOSX
 @DIR_RESOURCES@defaults/pref/channel-prefs.js
 @DIR_RESOURCES@defaults/pref/
+@DIR_RESOURCES@defaults/
 #endif
 
 # update-settings.ini has been removed on macOS.
