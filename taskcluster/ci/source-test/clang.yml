@@ -24,7 +24,7 @@ job-defaults:
             - linux64-nasm
             - linux64-node
     optimization:
-        skip-unless-changed-no-suite:
+        skip-unless-changed:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'

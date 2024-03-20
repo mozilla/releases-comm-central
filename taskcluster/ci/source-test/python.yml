@@ -30,6 +30,6 @@ comm_taskgraph-tests:
             ./mach configure &&
             ./mach python-test --subsuite comm_taskgraph
     optimization:
-        skip-unless-changed-no-suite:
+        skip-unless-changed:
             - "taskcluster/**/*.py"
             - "comm/taskcluster/**/*.py"

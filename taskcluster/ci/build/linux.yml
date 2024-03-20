@@ -41,7 +41,7 @@ linux64/opt:
             - builds/releng_base_linux_64_builds.py
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -73,7 +73,7 @@ linux64-rust/opt:
     use-sccache: true
     run-on-projects: ['comm-central']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -106,7 +106,7 @@ linux64-shippable/opt:
             - taskcluster_nightly.py
     run-on-projects: ['release']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -133,7 +133,7 @@ linux64/debug:
         mozconfig-variant: debug
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -165,7 +165,7 @@ linux64-asan/opt:
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -207,7 +207,7 @@ linux64-asan-reporter-shippable/opt:
         accepted-mar-channel-ids:
             thunderbird-comm-central-asan
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -240,7 +240,7 @@ linux64-tsan/opt:
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -273,7 +273,7 @@ linux64-aarch64/opt:
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux-aarch64-libotr
@@ -312,7 +312,7 @@ linux64-ccov/opt:
         mozconfig-variant: code-coverage-opt
     use-sccache: false
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -342,7 +342,7 @@ linux64-ccov/debug:
         mozconfig-variant: code-coverage-debug
     use-sccache: false
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-libotr
@@ -366,7 +366,7 @@ linux/opt:
             - builds/releng_base_linux_32_builds.py
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux32-libotr
@@ -400,7 +400,7 @@ linux-shippable/opt:
             - taskcluster_nightly.py
     run-on-projects: ['release']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux32-libotr
@@ -426,7 +426,7 @@ linux/debug:
         mozconfig-variant: debug
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux32-libotr

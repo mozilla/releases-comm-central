@@ -40,6 +40,6 @@ jobs:
         scopes:
             - secrets:get:project/comm/thunderbird/releng/build/level-{level}/rtd-webhook
         optimization:
-            skip-unless-changed-no-suite:
+            skip-unless-changed:
                 - comm/docs/**
                 - comm/taskcluster/ci/source-docs/*.yml

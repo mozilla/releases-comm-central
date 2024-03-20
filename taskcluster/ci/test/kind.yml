@@ -30,11 +30,11 @@ job-defaults:
     optimization:
         by-test-platform:
             .*-tsan.*/opt:
-                skip-unless-backstop-no-suite: null
+                skip-unless-backstop: null
             .*-asan.*/opt:
-                skip-unless-backstop-no-suite: null
+                skip-unless-backstop: null
             default:
-                skip-suite-only: null
+                never: null
     mozharness:
         requires-signed-builds:
             by-test-platform:

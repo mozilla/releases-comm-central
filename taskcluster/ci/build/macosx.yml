@@ -14,7 +14,7 @@ job-defaults:
             - comm/testing/mozharness/configs
         script: "mozharness/scripts/fx_desktop_build.py"
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen

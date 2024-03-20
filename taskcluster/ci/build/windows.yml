@@ -44,7 +44,7 @@ win32/opt:
             mozconfig_platform: win32
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -98,7 +98,7 @@ win32-shippable/opt:
             mozconfig_platform: win32
     run-on-projects: ['release']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -147,7 +147,7 @@ win32/debug:
             mozconfig_platform: win32
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -196,7 +196,7 @@ win64/opt:
             mozconfig_platform: win64
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -248,7 +248,7 @@ win64-rust/opt:
     use-sccache: true
     run-on-projects: ['comm-central']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -302,7 +302,7 @@ win64-shippable/opt:
             mozconfig_platform: win64
     run-on-projects: ['release']
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -351,7 +351,7 @@ win64/debug:
             mozconfig_platform: win64
     use-sccache: true
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -399,7 +399,7 @@ win64-plain/debug:
         mozconfig-variant: plain-debug
     run-on-projects: ['comm-central']
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - sysroot-wasm32-wasi
@@ -441,7 +441,7 @@ win64-plain/opt:
         mozconfig-variant: plain-opt
     run-on-projects: ['comm-central']
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - sysroot-wasm32-wasi
@@ -484,7 +484,7 @@ win64-asan/opt:
     run-on-projects: ['comm-central']
     use-sccache: true
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -544,7 +544,7 @@ win64-asan-reporter-shippable/opt:
             thunderbird-comm-central-asan
     run-on-projects: ['comm-central']
     optimization:
-        skip-unless-backstop-no-suite: null
+        skip-unless-backstop: null
     fetches:
         toolchain:
             - linux64-cbindgen
@@ -602,7 +602,7 @@ win64-ccov/opt:
     run-on-projects: ['comm-central']
     use-sccache: false
     optimization:
-        skip-suite-only: null
+        never: null
     fetches:
         toolchain:
             - sysroot-wasm32-wasi
