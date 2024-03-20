@@ -15,6 +15,11 @@ comm_head_rev: 5fef80a909002a7ff1e94299c0e0f212233f91d4
 comm_src_path: comm/
 do_not_optimize: []
 existing_tasks: {}
+files_changed:
+    - dom/html/HTMLDetailsElement.cpp
+    - gfx/thebes/gfxUserFontSet.cpp
+    - comm/mail/base/content/about3Pane.js
+    - comm/mail/base/content/about3Pane.xhtml
 filters: [target_tasks_method]
 head_ref: FIREFOX_RELEASE_120_BASE
 head_repository: https://hg.mozilla.org/releases/mozilla-beta

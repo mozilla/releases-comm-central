@@ -16,6 +16,11 @@ comm_src_path: comm/
 do_not_optimize: []
 enable_always_target: true
 existing_tasks: {}
+files_changed:
+    - dom/html/HTMLDetailsElement.cpp
+    - gfx/thebes/gfxUserFontSet.cpp
+    - comm/mail/base/content/about3Pane.js
+    - comm/mail/base/content/about3Pane.xhtml
 filters: [target_tasks_method]
 head_ref: default
 head_repository: https://hg.mozilla.org/mozilla-central
