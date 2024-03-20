@@ -2852,12 +2852,16 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           if (HandlingMultipleMessages(messageIdString) ||
               m_imapAction == nsIImapUrl::nsImapMsgDownloadForOffline ||
               m_imapAction == nsIImapUrl::nsImapMsgPreview) {
-            // multiple messages, fetch them all
-            SetProgressString(IMAP_MESSAGES_STRING_INDEX);
+            if (m_imapAction == nsIImapUrl::nsImapMsgPreview) {
+              // Autosync does its own progress. Don't show progress here
+              // unless preview. This voids lots of "1 of 1", "1 of 3" etc.
+              // interspersed with autosync progress.
+              SetProgressString(IMAP_MESSAGES_STRING_INDEX);
 
-            m_progressCurrentNumber[m_stringIndex] = 0;
-            m_progressExpectedNumber =
-                CountMessagesInIdString(messageIdString.get());
+              m_progressCurrentNumber[m_stringIndex] = 0;
+              m_progressExpectedNumber =
+                  CountMessagesInIdString(messageIdString.get());
+            }
 
             FetchMessage(messageIdString,
                          (m_imapAction == nsIImapUrl::nsImapMsgPreview)
@@ -5136,25 +5140,27 @@ void nsImapProtocol::SetProgressString(uint32_t aStringIndex) {
     default:
       break;
   }
+  // Make sure header download progress starts at zero.
+  m_progressCurrentNumber[aStringIndex] = 0;
 }
 
+// Called from parser
 void nsImapProtocol::ShowProgress() {
   if (m_imapServerSink && (m_stringIndex != IMAP_EMPTY_STRING_INDEX)) {
-    nsString progressString;
-    const char* mailboxName = GetServerStateParser().GetSelectedMailboxName();
-    nsString unicodeMailboxName;
-    nsresult rv = CopyFolderNameToUTF16(nsDependentCString(mailboxName),
-                                        unicodeMailboxName);
-    NS_ENSURE_SUCCESS_VOID(rv);
-
     int32_t progressCurrentNumber = ++m_progressCurrentNumber[m_stringIndex];
-
-    PercentProgressUpdateEvent(m_progressStringName, unicodeMailboxName,
-                               progressCurrentNumber, m_progressExpectedNumber);
+    PercentProgressUpdateEvent(m_progressStringName, progressCurrentNumber,
+                               m_progressExpectedNumber);
   }
 }
 
 void nsImapProtocol::ProgressEventFunctionUsingName(const char* aMsgName) {
+  if (m_imapAction == nsIImapUrl::nsImapMsgDownloadForOffline &&
+      !strcmp(aMsgName, "imapDownloadingMessage")) {
+    // When downloading messages for offline don't display status line
+    // "Downloading message..." to prevent this status line from being
+    // interspersed with the download progress status "Downloading X of Y...".
+    return;
+  }
   if (m_imapMailFolderSink && !m_lastProgressStringName.Equals(aMsgName)) {
     m_imapMailFolderSink->ProgressStatusString(this, aMsgName, nullptr);
     m_lastProgressStringName.Assign(aMsgName);
@@ -5176,7 +5182,6 @@ void nsImapProtocol::ProgressEventFunctionUsingNameWithString(
 }
 
 void nsImapProtocol::PercentProgressUpdateEvent(nsACString const& fmtStringName,
-                                                nsAString const& mailbox,
                                                 int64_t currentProgress,
                                                 int64_t maxProgress) {
   int64_t nowMS = 0;
@@ -5201,8 +5206,8 @@ void nsImapProtocol::PercentProgressUpdateEvent(nsACString const& fmtStringName,
   }
 
   if (m_imapMailFolderSink) {
-    m_imapMailFolderSink->PercentProgress(this, fmtStringName, mailbox,
-                                          currentProgress, maxProgress);
+    m_imapMailFolderSink->PercentProgress(this, fmtStringName, currentProgress,
+                                          maxProgress);
   }
 }
 
@@ -6126,8 +6131,7 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         dataBuffer[readCount] = 0;
         rv = SendData(dataBuffer);
         totalSize -= readCount;
-        PercentProgressUpdateEvent(""_ns, u""_ns, fileSize - totalSize,
-                                   fileSize);
+        PercentProgressUpdateEvent(""_ns, fileSize - totalSize, fileSize);
         if (!totalSize) {
           // The full message has been queued for sending, but the actual send
           // is just now starting and can still potentially fail. From this
@@ -6137,7 +6141,7 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
           // appear if the send should fail.
           m_lastProgressTime = 0;  // Force progress bar update
           m_lastPercent = -1;      // Force progress bar update
-          PercentProgressUpdateEvent(""_ns, u""_ns, 0, -1);  // Indeterminate
+          PercentProgressUpdateEvent(""_ns, 0, -1);  // Indeterminate
         }
       }
     }  // end while appending chunks
@@ -6514,14 +6518,14 @@ void nsImapProtocol::OnRefreshAllACLs() {
       if (!onlineName.IsEmpty()) {
         RefreshACLForFolder(onlineName.get());
       }
-      PercentProgressUpdateEvent(""_ns, u""_ns, count, total);
+      PercentProgressUpdateEvent(""_ns, count, total);
       delete mb;
       count++;
     }
   }
   m_listedMailboxList.Clear();
 
-  PercentProgressUpdateEvent(""_ns, u""_ns, 100, 100);
+  PercentProgressUpdateEvent(""_ns, 100, 100);
   GetServerStateParser().SetReportingErrors(true);
   m_hierarchyNameState = kNoOperationInProgress;
 }
@@ -7405,7 +7409,7 @@ void nsImapProtocol::DiscoverMailboxList() {
               RefreshACLForFolder(onlineName.get());
             }
           }
-          PercentProgressUpdateEvent(""_ns, u""_ns, cnt, total);
+          PercentProgressUpdateEvent(""_ns, cnt, total);
           delete mb;  // this is the last time we're using the list, so delete
                       // the entries here
           cnt++;

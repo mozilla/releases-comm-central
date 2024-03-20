@@ -107,8 +107,8 @@ interface nsIImapMailFolderSink : nsISupports {
   void setBiffStateAndUpdate(in long biffState);
   void progressStatusString(in nsIImapProtocol aProtocol, in string aMsgId, in wstring extraInfo);
   void percentProgress(in nsIImapProtocol aProtocol,
-                       in ACString aFmtStringName, in AString aMailboxName,
-                       in long long aCurrentProgress, in long long aMaxProgressProgressInfo);
+                       in ACString aFmtStringName, in long long aCurrentProgress,
+                       in long long aMaxProgressProgressInfo);
 
   void clearFolderRights();
   void setCopyResponseUid(in string msgIdString,

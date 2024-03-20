@@ -6252,7 +6252,6 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
 NS_IMETHODIMP
 nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
                                   nsACString const& aFmtStringName,
-                                  nsAString const& aMailboxName,
                                   int64_t aCurrentProgress,
                                   int64_t aMaxProgress) {
   if (aProtocol) {
@@ -6274,8 +6273,12 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
             current.AppendInt(aCurrentProgress);
             nsAutoString expected;
             expected.AppendInt(aMaxProgress);
-            nsAutoString mailbox(aMailboxName);
-            AutoTArray<nsString, 3> params = {current, expected, mailbox};
+            // Use the localized (pretty) name and not the the standard imap
+            // name. I.e., don't use INBOX but use the local name, e.g.,
+            // "Bandeja de entrada".
+            nsString prettyName;
+            GetPrettyName(prettyName);
+            AutoTArray<nsString, 3> params = {current, expected, prettyName};
 
             nsCOMPtr<nsIStringBundle> bundle;
             nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));

@@ -303,7 +303,6 @@ class nsImapProtocol : public nsIImapProtocol,
   void ProgressEventFunctionUsingNameWithString(const char* aMsgName,
                                                 const char* aExtraInfo);
   void PercentProgressUpdateEvent(nsACString const& fmtStringName,
-                                  nsAString const& mailbox,
                                   int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();
 
