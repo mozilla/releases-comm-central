@@ -113,7 +113,9 @@ async function subtest_compose(manifest) {
     {},
     composeWindow
   );
-  await rightClick(menu, attachmentBucket.itemChildren[0], composeWindow);
+  await openMenuPopup(menu, attachmentBucket.itemChildren[0], {
+    type: "contextmenu",
+  });
   Assert.ok(
     menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );
@@ -132,7 +134,9 @@ async function subtest_compose(manifest) {
   );
 
   attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[3]);
-  await rightClick(menu, attachmentBucket.itemChildren[0], composeWindow);
+  await openMenuPopup(menu, attachmentBucket.itemChildren[0], {
+    type: "contextmenu",
+  });
   Assert.ok(
     menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );

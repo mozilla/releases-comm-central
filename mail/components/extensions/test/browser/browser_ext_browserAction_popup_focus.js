@@ -155,10 +155,10 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
   extension.onMessage("popup opened", async () => {
     // Get the popup and create a Promise for it being hidden.
     const popup = getBrowserActionPopup(extension);
-    const hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+    await BrowserTestUtils.waitForPopupEvent(popup, "shown");
     // Trigger a click in the popup, which should close it again.
-    clickElementInPopup(extension, "#hello");
-    await hiddenPromise;
+    clickElementInActionPopup(extension, "#hello");
+    await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
     extension.sendMessage("popup closed");
   });
 

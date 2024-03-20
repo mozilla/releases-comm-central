@@ -70,7 +70,6 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
       "menu item should exist"
     );
     await clickItemInMenuPopup(
-      menu,
       menu.querySelector("#browserContext-openInBrowser")
     );
   }

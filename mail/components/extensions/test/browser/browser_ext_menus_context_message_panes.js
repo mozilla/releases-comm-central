@@ -49,7 +49,9 @@ async function subtest_message_panes(manifest) {
   const threadTree = about3Pane.document.getElementById("threadTree");
   let menu = about3Pane.document.getElementById("mailContext");
   threadTree.selectedIndex = 0;
-  await rightClick(menu, threadTree.getRowAtIndex(0));
+  await openMenuPopup(menu, threadTree.getRowAtIndex(0), {
+    type: "contextmenu",
+  });
   Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_message_list"));
   await closeMenuPopup(menu);
 

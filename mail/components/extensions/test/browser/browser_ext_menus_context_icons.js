@@ -120,7 +120,9 @@ add_task(async function test_root_icon() {
   threadTree.selectedIndex = 0;
 
   // Open the context menu of the thread pane.
-  await rightClick(menu, threadTree.getRowAtIndex(0));
+  await openMenuPopup(menu, threadTree.getRowAtIndex(0), {
+    type: "contextmenu",
+  });
 
   // Verify and open the extension menu.
   const extensionMenu = menu.querySelector(
@@ -132,7 +134,7 @@ add_task(async function test_root_icon() {
     `moz-extension://${extension.uuid}/extension.png`,
     "The icon of the extension menu should be correct"
   );
-  await openSubmenu(extensionMenu);
+  await openSubMenuPopup(extensionMenu);
 
   // Check icon which was specifed as a relative url.
   const relativeUrlMenuEntry = menu.querySelector(

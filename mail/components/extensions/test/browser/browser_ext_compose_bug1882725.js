@@ -70,7 +70,7 @@ add_task(async function test_compose_body_context_scrolled() {
     element.scrollIntoView({ behavior: "instant" });
 
     const menu = composeWindow.document.getElementById("msgComposeContext");
-    await rightClick(menu, element);
+    await openMenuPopup(menu, element, { type: "contextmenu" });
     Assert.ok(menu.querySelector("[id$=_-menuitem-_extensionMenu]"));
     await closeMenuPopup(menu);
     extension.sendMessage();

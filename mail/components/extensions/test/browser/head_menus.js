@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals synthesizeMouseAtCenterAndRetry, awaitBrowserLoaded, closeMenuPopup, clickItemInMenuPopup */
+/* globals synthesizeMouseAtCenterAndRetry, awaitBrowserLoaded, closeMenuPopup, clickItemInMenuPopup, openSubMenuPopup */
 
 "use strict";
 
@@ -16,39 +16,8 @@ const { mailTestUtils } = ChromeUtils.importESModule(
 
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
 
-var URL_BASE =
+const URL_BASE =
   "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data";
-
-/**
- * Left-click on something and wait for the context menu to appear.
- * For elements in the parent process only.
- *
- * @param {Element} menu - The <menu> that should appear.
- * @param {Element} element - The element to be clicked on.
- * @returns {Promise} A promise that resolves when the menu appears.
- */
-function leftClick(menu, element) {
-  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(element, {}, element.ownerGlobal);
-  return shownPromise;
-}
-/**
- * Right-click on something and wait for the context menu to appear.
- * For elements in the parent process only.
- *
- * @param {Element} menu - The <menu> that should appear.
- * @param {Element} element - The element to be clicked on.
- * @returns {Promise} A promise that resolves when the menu appears.
- */
-function rightClick(menu, element) {
-  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(
-    element,
-    { type: "contextmenu" },
-    element.ownerGlobal
-  );
-  return shownPromise;
-}
 
 /**
  * Right-click on something in a content document and wait for the context
@@ -351,7 +320,6 @@ async function subtest_content(
     tab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector("#menus_mochi_test-menuitem-_selection")
   );
   await clickedPromise;
@@ -381,7 +349,6 @@ async function subtest_content(
     tab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector("#menus_mochi_test-menuitem-_link")
   );
   await clickedPromise;
@@ -409,7 +376,6 @@ async function subtest_content(
     tab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector("#menus_mochi_test-menuitem-_image")
   );
   await clickedPromise;
@@ -430,10 +396,7 @@ async function openExtensionSubMenu(menu) {
   Assert.ok(submenu, `Found submenu: ${submenu.id}`);
 
   // Open submenu.
-  const submenuPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  submenu.openMenu(true);
-  await submenuPromise;
-
+  await openSubMenuPopup(submenu);
   return submenu;
 }
 
@@ -502,7 +465,6 @@ async function subtest_compose_body(
       tab
     );
     await clickItemInMenuPopup(
-      menu,
       submenu.querySelector("#menus_mochi_test-menuitem-_selection")
     );
     await clickedPromise;
@@ -539,7 +501,6 @@ async function subtest_compose_body(
       tab
     );
     await clickItemInMenuPopup(
-      menu,
       submenu.querySelector("#menus_mochi_test-menuitem-_link")
     );
     await clickedPromise;
@@ -575,7 +536,6 @@ async function subtest_compose_body(
       tab
     );
     await clickItemInMenuPopup(
-      menu,
       submenu.querySelector("#menus_mochi_test-menuitem-_image")
     );
     await clickedPromise;
@@ -593,6 +553,32 @@ async function subtest_element(
   pageUrl,
   tab
 ) {
+  /**
+   * Function to trigger a context click on the specified element. The provided
+   * observerElement is used to wait for the popupshown event.
+   * This function cannot be replaced by BrowserTestUtils.waitForPopupEvent(),
+   * because the context menu may not exist yet. It is created on the fly here:
+   * https://searchfox.org/comm-central/rev/7e60bfd71efc4a4a3aece6a0ab87f3ffb75803a2/mozilla/toolkit/content/editMenuOverlay.js#108-126
+   *
+   * @param {Element} observerElement - An element which can observe the expected
+   *   popupshown event, which will be triggered by the click.
+   * @param {Element} element - The element to click on.
+   *
+   * @returns {Promise<event>} The captured popupshown event.
+   */
+  const rightClick = (observerElement, element) => {
+    const shownPromise = BrowserTestUtils.waitForEvent(
+      observerElement,
+      "popupshown"
+    );
+    EventUtils.synthesizeMouseAtCenter(
+      element,
+      { type: "contextmenu" },
+      element.ownerGlobal
+    );
+    return shownPromise;
+  };
+
   for (const selectedTest of [false, true]) {
     element.focus();
     if (selectedTest) {
@@ -601,7 +587,6 @@ async function subtest_element(
     } else {
       element.value = "";
     }
-
     const event = await rightClick(element.ownerGlobal, element);
     const menu = event.target;
     const trigger = menu.triggerNode;
@@ -644,13 +629,7 @@ async function subtest_element(
           submenu = foundMenu;
         }
       }
-      Assert.ok(submenu, "Submenu found.");
-      const submenuPromise = BrowserTestUtils.waitForEvent(
-        element.ownerGlobal,
-        "popupshown"
-      );
-      submenu.openMenu(true);
-      await submenuPromise;
+      await openSubMenuPopup(submenu);
     }
 
     const clickedPromise = checkClickedEvent(
@@ -662,7 +641,7 @@ async function subtest_element(
       tab
     );
 
-    await clickItemInMenuPopup(element.ownerGlobal, menuitem);
+    await clickItemInMenuPopup(menuitem);
     await clickedPromise;
   }
 }

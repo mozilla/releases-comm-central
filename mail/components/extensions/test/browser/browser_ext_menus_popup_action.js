@@ -49,7 +49,7 @@ async function subtest_action_popup_menu(
   const element = testWindow.document.querySelector(target.elementSelector);
   const menu = element.querySelector("menupopup");
 
-  await leftClick(menu, element);
+  await openMenuPopup(menu, element);
   await checkShownEvent(
     extension,
     { menuIds: [target.context], contexts: [target.context, "all"] },
@@ -62,7 +62,6 @@ async function subtest_action_popup_menu(
     expectedTab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
   await clickedPromise;

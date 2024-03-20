@@ -32,7 +32,9 @@ add_setup(async () => {
 
 async function subtest_tab(manifest) {
   async function checkTabEvent(index, active, mailTab) {
-    await rightClick(menu, tabs[index]);
+    await openMenuPopup(menu, tabs[index], {
+      type: "contextmenu",
+    });
     Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_tab"));
     await closeMenuPopup(menu);
 

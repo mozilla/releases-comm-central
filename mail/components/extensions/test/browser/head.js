@@ -280,20 +280,6 @@ async function focusWindow(win) {
   await promise;
 }
 
-function promisePopupShown(popup) {
-  return new Promise(resolve => {
-    if (popup.state == "open") {
-      resolve();
-    } else {
-      const onPopupShown = () => {
-        popup.removeEventListener("popupshown", onPopupShown);
-        resolve();
-      };
-      popup.addEventListener("popupshown", onPopupShown);
-    }
-  });
-}
-
 function getPanelForNode(node) {
   while (node.localName != "panel") {
     node = node.parentNode;
@@ -345,8 +331,7 @@ var awaitExtensionPanel = async function (
   if (awaitLoad) {
     await awaitBrowserLoaded(browser, url => url != "about:blank");
   }
-  await promisePopupShown(getPanelForNode(browser));
-
+  await BrowserTestUtils.waitForPopupEvent(getPanelForNode(browser), "shown");
   return browser;
 };
 
@@ -630,6 +615,23 @@ async function checkComposeHeaders(expected) {
   }
 }
 
+/**
+ * Click on an item in a browser until the expected event is observed.
+ *
+ * @param {String} selector - A CSS selector to identify the element which should
+ *   be clicked on, inside the provided browser.
+ * @param {Object} [event] - The mouse event to be used to open the menu popup.
+ *   It is an object which may contain the properties:
+ *     `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
+ *     `button`, `type`.
+ *   For valid `type`s see nsIDOMWindowUtils' `sendMouseEvent`.
+ *   If the type is specified, an mouse event of that type is fired. Otherwise,
+ *   a mousedown followed by a mouseup is performed.
+ * @param {Browser} browser - The browser which has the element to be clicked on.
+ *
+ * @returns {Promise} A promise that resolves once the click was observed. Rejects
+ *   if unsucessfull for more then 3 tries.
+ */
 async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
   let success = false;
   const type = event.type || "click";
@@ -653,42 +655,80 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
   Assert.ok(success, `Should have received ${type} event.`);
 }
 
-async function openContextMenu(selector = "#img1", win = window) {
-  const contentAreaContextMenu = win.document.getElementById("browserContext");
-  const popupShownPromise = BrowserTestUtils.waitForEvent(
-    contentAreaContextMenu,
-    "popupshown"
-  );
-  const tabmail = document.getElementById("tabmail");
-  await synthesizeMouseAtCenterAndRetry(
-    selector,
-    { type: "mousedown", button: 2 },
-    tabmail.selectedBrowser
-  );
-  await synthesizeMouseAtCenterAndRetry(
-    selector,
-    { type: "contextmenu" },
-    tabmail.selectedBrowser
-  );
-  await popupShownPromise;
-  return contentAreaContextMenu;
-}
-
-async function clickElementInPopup(extension, selector, win = window) {
+/**
+ * Click on an element inside an action popup.
+ *
+ * @param {Extension} extension - The extension the action popup belongs to.
+ * @param {String} selector - A CSS selector to identify the element which should
+ *   be clicked on, inside the action popup.
+ * @param {Winow} [win] - The window which has the action popup. Defaults to the
+ *   current window.
+ *
+ * @returns {Promise} A promise that resolves once the click was observed. Rejects
+ *   if unsucessfull for more then 3 tries.
+ */
+async function clickElementInActionPopup(extension, selector, win = window) {
   const stack = getBrowserActionPopup(extension, win);
   const browser = stack.querySelector("browser");
   await synthesizeMouseAtCenterAndRetry(selector, {}, browser);
 }
 
-async function openContextMenuInPopup(extension, selector, win = window) {
+/**
+ * Open the standard browser context menu popup inside the current tab.
+ *
+ * @param {String} selector - A CSS selector to identify the element which should
+ *   be clicked on, inside the current tab.
+ * @param {Window} [win] - The window which has the tab. Defaults to the current
+ *   window.
+ *
+ * @returns {Promise<Element>} The opened menu.
+ */
+async function openBrowserContextMenuInTab(selector, win = window) {
+  const contentAreaContextMenu =
+    win.top.document.getElementById("browserContext");
+  const tabmail = document.getElementById("tabmail");
+  const browser = tabmail.selectedBrowser;
+  await openMenuPopupInBrowser(browser, contentAreaContextMenu, selector);
+  return contentAreaContextMenu;
+}
+
+/**
+ * Open the standard browser context menu popup inside an action popup.
+ *
+ * @param {Extension} extension - The extension the action popup belongs to.
+ * @param {String} selector - A CSS selector to identify the element which should
+ *   be clicked on, inside the action popup.
+ * @param {Winow} [win] - The window which has the action popup. Defaults to the
+ *   current window.
+ *
+ * @returns {Promise<Element>} The opened menu.
+ */
+async function openBrowserContextMenuInActionPopup(
+  extension,
+  selector,
+  win = window
+) {
   const contentAreaContextMenu =
     win.top.document.getElementById("browserContext");
   const stack = getBrowserActionPopup(extension, win);
   const browser = stack.querySelector("browser");
-  const popupShownPromise = BrowserTestUtils.waitForEvent(
-    contentAreaContextMenu,
-    "popupshown"
-  );
+  await openMenuPopupInBrowser(browser, contentAreaContextMenu, selector);
+  return contentAreaContextMenu;
+}
+
+/**
+ * Click on an element identified by a selector, inside a browser and wait for the
+ * specified menu popup to be shown.
+ *
+ * @param {Browser} browser
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {String} selector - A CSS selector to identify the element which should
+ *   be clicked on, inside the browser.
+ * @returns {Promise} A promise that resolves once the menu was opened. Rejects
+ *   if unsucessfull for more then 3 tries.
+ */
+async function openMenuPopupInBrowser(browser, menu, selector) {
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
   await synthesizeMouseAtCenterAndRetry(
     selector,
     { type: "mousedown", button: 2 },
@@ -699,56 +739,83 @@ async function openContextMenuInPopup(extension, selector, win = window) {
     { type: "contextmenu" },
     browser
   );
-  await popupShownPromise;
-  return contentAreaContextMenu;
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 }
 
-async function clickItemInBrowserContextMenuPopup(
-  itemToSelect,
-  modifiers = {},
-  win = window
-) {
-  const menu = win.top.document.getElementById("browserContext");
-  await clickItemInMenuPopup(menu, itemToSelect, modifiers);
+/**
+ * click on the specified element and wait for the specified menu popup to appear.
+ * For elements in the parent process only.
+ *
+ * @param {Element} menu - The <menu> that should appear.
+ * @param {Element} element - The element to be clicked on.
+ * @param {Object} [event] - The mouse event to be used to open the menu popup.
+ *   It is an object which may contain the properties:
+ *     `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `accessKey`, `clickCount`,
+ *     `button`, `type`.
+ *   For valid `type`s see nsIDOMWindowUtils' `sendMouseEvent`.
+ *   If the type is specified, an mouse event of that type is fired. Otherwise,
+ *   a mousedown followed by a mouseup is performed.
+ *
+ * @returns {Promise} A promise that resolves when the menu appears.
+ */
+async function openMenuPopup(menu, element, event = {}) {
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  EventUtils.synthesizeMouseAtCenter(element, event, element.ownerGlobal);
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
 }
 
-async function clickItemInMenuPopup(rootElement, itemToSelect, modifiers = {}) {
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    rootElement,
-    "popuphidden"
-  );
-  if (itemToSelect) {
-    itemToSelect.closest("menupopup").activateItem(itemToSelect, modifiers);
+/**
+ * Activate (click) an menu item in a menu popup.
+ *
+ * @param {Element} element - The menu item element to be clicked on.
+ * @param {ActivateMenuItemOptions} [modifiers] - A modifier object.
+ * @see /dom/chrome-webidl/XULPopupElement.webidl
+ *
+ * @returns {Promise} A promise that resolves after the menu popup of the
+ *   clicked item is hidden.
+ */
+async function clickItemInMenuPopup(element, modifiers = {}) {
+  if (element) {
+    const menu = element.parentNode;
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    element.closest("menupopup").activateItem(element, modifiers);
+    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
   } else {
     throw new Error("clickItemInMenuPopup specified non-existing item");
   }
-  await hiddenPromise;
-  // Sometimes, the popup will open then instantly disappear. It seems to
-  // still be hiding after the previous appearance. If we wait a little bit,
-  // this doesn't happen.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 250));
 }
 
-async function openSubmenu(submenuItem) {
-  const submenu = submenuItem.menupopup;
-  const shown = BrowserTestUtils.waitForEvent(submenu, "popupshown");
-  submenuItem.openMenu(true);
-  await shown;
+/**
+ * Open (click) a sub-menu item in a menu popup.
+ *
+ * @param {Element} element - The sub-menu item element to be clicked on.
+ * @returns {Promise<Element>} The opened sub-menu.
+ */
+async function openSubMenuPopup(element) {
+  const submenu = element.menupopup;
+  await BrowserTestUtils.waitForPopupEvent(submenu, "hidden");
+  element.openMenu(true);
+  await BrowserTestUtils.waitForPopupEvent(submenu, "shown");
   return submenu;
 }
 
+/**
+ * Close a menu popup.
+ *
+ * @param {Element} menu - The menu popup element to be closed.
+ * @returns {Promise} A promise that resolves after the menu popup is hidden.
+ */
 async function closeMenuPopup(menu) {
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
   menu.hidePopup();
-  await hiddenPromise;
-  // Sometimes, the popup will open then instantly disappear. It seems to
-  // still be hiding after the previous appearance. If we wait a little bit,
-  // this doesn't happen.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 250));
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 }
 
+/**
+ * Close the standard browser context menu popup.
+ *
+ * @returns {Promise} A promise that resolves after the menu popup is hidden.
+ */
 async function closeBrowserContextMenuPopup() {
   const contentAreaContextMenu = document.getElementById("browserContext");
   await closeMenuPopup(contentAreaContextMenu);
@@ -1277,16 +1344,13 @@ async function run_popup_test(configData) {
           const button = getButton(win);
           const menu = win.document.getElementById(menuId);
           const onShownPromise = extension.awaitMessage("onShown");
-          const shownPromise = BrowserTestUtils.waitForEvent(
-            menu,
-            "popupshown"
-          );
+          await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
           EventUtils.synthesizeMouseAtCenter(
             button,
             { type: "contextmenu" },
             win
           );
-          await shownPromise;
+          await BrowserTestUtils.waitForPopupEvent(menu, "shown");
           await onShownPromise;
           await new Promise(resolve => win.setTimeout(resolve));
 
@@ -1294,7 +1358,7 @@ async function run_popup_test(configData) {
             `${configData.actionType}_mochi_test-menuitem-_testmenu`
           );
           Assert.ok(menuitem);
-          await clickItemInMenuPopup(menuitem.parentNode, menuitem);
+          await clickItemInMenuPopup(menuitem);
           extension.sendMessage();
         });
 

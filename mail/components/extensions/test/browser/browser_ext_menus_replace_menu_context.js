@@ -225,7 +225,7 @@ add_task(async function overrideContext_with_context() {
 
   {
     // Test case 1: context=tab
-    const menu = await openContextMenu("a");
+    const menu = await openBrowserContextMenuInTab("a");
     await extension.awaitMessage("oncontextmenu_in_dom");
     for (const ext of [extension, otherExtension]) {
       info(`Testing menu from ${ext.id} after changing context to tab`);
@@ -261,7 +261,7 @@ add_task(async function overrideContext_with_context() {
       "Expected menu items after changing context to tab"
     );
 
-    const submenu = await openSubmenu(topLevels[0]);
+    const submenu = await openSubMenuPopup(topLevels[0]);
     is(submenu, topLevels[0].menupopup, "Correct submenu opened");
 
     Assert.deepEqual(
@@ -295,7 +295,7 @@ add_task(async function overrideContext_with_context() {
       2,
       "There are two menu items with label 'tab_context'"
     );
-    await clickItemInBrowserContextMenuPopup(menuItems[1]);
+    await clickItemInMenuPopup(menuItems[1]);
 
     Assert.deepEqual(
       await otherExtension.awaitMessage("onClicked"),
@@ -326,7 +326,7 @@ add_task(async function overrideContext_with_context() {
 
   {
     // Test case 2: context=tab, click on menu item of extension..
-    const menu = await openContextMenu("a");
+    const menu = await openBrowserContextMenuInTab("a");
     await extension.awaitMessage("oncontextmenu_in_dom");
 
     // The previous test has already verified the visible menu items,
@@ -339,7 +339,7 @@ add_task(async function overrideContext_with_context() {
       2,
       "There are two menu items with label 'tab_context'"
     );
-    await clickItemInBrowserContextMenuPopup(menuItems[0]);
+    await clickItemInMenuPopup(menuItems[0]);
 
     Assert.deepEqual(
       await extension.awaitMessage("onClicked"),
@@ -363,7 +363,7 @@ add_task(async function overrideContext_with_context() {
 
   {
     // Test case 4: context=tab, invalid tabId.
-    const menu = await openContextMenu("a");
+    const menu = await openBrowserContextMenuInTab("a");
     await extension.awaitMessage("oncontextmenu_in_dom");
     // When an invalid tabId is used, all extension menu logic is skipped and
     // the default menu is shown.

@@ -66,7 +66,7 @@ async function subtest_action_menu(
     info(
       `Choosing 'Remove Extension' in ${menu.id} should show confirm dialog.`
     );
-    await rightClick(menu, element);
+    await openMenuPopup(menu, element, { type: "contextmenu" });
     await extension.awaitMessage("onShown");
     const removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
@@ -100,7 +100,7 @@ async function subtest_action_menu(
         },
       }
     );
-    await clickItemInMenuPopup(menu, removeExtension);
+    await clickItemInMenuPopup(removeExtension);
     await promptPromise;
   }
 
@@ -111,13 +111,13 @@ async function subtest_action_menu(
     info(
       `Choosing 'Manage Extension' in ${menu.id} should load the management page.`
     );
-    await rightClick(menu, element);
+    await openMenuPopup(menu, element, { type: "contextmenu" });
     await extension.awaitMessage("onShown");
     const manageExtension = menu.querySelector(
       ".customize-context-manageExtension"
     );
     const addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
-    await clickItemInMenuPopup(menu, manageExtension);
+    await clickItemInMenuPopup(manageExtension);
     const managerTab = await addonManagerPromise;
 
     // Check the UI to make sure that the correct view is loaded.
@@ -143,7 +143,7 @@ async function subtest_action_menu(
   const element = testWindow.document.querySelector(target.elementSelector);
   const menu = testWindow.document.getElementById(target.menuId);
 
-  await rightClick(menu, element);
+  await openMenuPopup(menu, element, { type: "contextmenu" });
   await checkVisibility(menu, true);
   await checkShownEvent(
     extension,
@@ -157,7 +157,6 @@ async function subtest_action_menu(
     expectedTab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
   await clickedPromise;
@@ -167,7 +166,9 @@ async function subtest_action_menu(
     const nonActionButtonElement = testWindow.document.querySelector(
       target.nonActionButtonSelector
     );
-    await rightClick(menu, nonActionButtonElement);
+    await openMenuPopup(menu, nonActionButtonElement, {
+      type: "contextmenu",
+    });
     await checkVisibility(menu, false);
     await closeMenuPopup(menu);
   }

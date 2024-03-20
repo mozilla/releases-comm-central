@@ -42,7 +42,7 @@ async function subtest_tools_menu(
 
   const element = testWindow.document.getElementById("tasksMenu");
   const menu = testWindow.document.getElementById("taskPopup");
-  await leftClick(menu, element);
+  await openMenuPopup(menu, element);
   await checkShownEvent(
     extension,
     { menuIds: ["tools_menu"], contexts: ["tools_menu"] },
@@ -55,7 +55,6 @@ async function subtest_tools_menu(
     expectedTab
   );
   await clickItemInMenuPopup(
-    menu,
     menu.querySelector("#menus_mochi_test-menuitem-_tools_menu")
   );
   await clickedPromise;
