@@ -30,6 +30,7 @@ class TestCommParameters(unittest.TestCase):
         "do_not_optimize": [],
         "enable_always_target": False,
         "existing_tasks": {},
+        "files_changed": [],
         "filters": [],
         "head_ref": "head_ref",
         "head_repository": "head_repository",

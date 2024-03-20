@@ -18,6 +18,7 @@ from taskgraph.util.taskcluster import get_artifact
 from taskgraph.util.vcs import get_repository
 
 from gecko_taskgraph.decision import ARTIFACTS_DIR, write_artifact
+from gecko_taskgraph.parameters import get_app_version, get_version
 from gecko_taskgraph.util.backstop import is_backstop
 from gecko_taskgraph.util.hg import get_hg_commit_message
 from gecko_taskgraph.util.partials import populate_release_history
@@ -27,7 +28,7 @@ from gecko_taskgraph.util.taskgraph import (
 )
 
 from . import COMM
-from comm_taskgraph.parameters import get_defaults
+from comm_taskgraph.files_changed import get_changed_files
 from comm_taskgraph.util.suite import is_suite_only_push
 
 logger = logging.getLogger(__name__)
@@ -82,6 +83,13 @@ CRON_OPTIONS = {
 }
 
 
+COMM_DEFAULTS = {
+    "app_version": get_app_version(product_dir="comm/mail"),
+    "version": get_version("comm/mail"),
+    "comm_src_path": "comm/",
+}
+
+
 def write_build_artifact(filename, data):
     build_artifact_path = os.path.dirname(os.path.join(ARTIFACTS_DIR, filename))
     if not os.path.isdir(build_artifact_path):
@@ -130,8 +138,8 @@ def get_decision_parameters(graph_config, parameters):
     commit_message = get_hg_commit_message(COMM)
     options = restore_options()
 
-    # Apply default values for all Thunderbird CI projects
-    parameters.update(get_defaults(graph_config.vcs_root))
+    # Apply default values for all Thunderbird CI projects - override some Gecko defaults!
+    parameters.update(COMM_DEFAULTS)
 
     project = parameters["project"]
 
@@ -189,6 +197,16 @@ def get_decision_parameters(graph_config, parameters):
         env_prefix=_get_env_prefix(graph_config),
     )
 
+    # Calculate changed files here. Already have gecko's changed files when this
+    # executes, so only need to add comm changed files
+    parameters["files_changed"] += sorted(
+        get_changed_files(
+            parameters["comm_head_repository"],
+            parameters["comm_head_rev"],
+            parameters["comm_src_path"],
+        )
+    )
+
     # If the target method is nightly, we should build partials. This means
     # knowing what has been released previously.
     # An empty release_history is fine, it just means no partials will be built
@@ -198,15 +216,9 @@ def get_decision_parameters(graph_config, parameters):
             result = _callable(parameters, graph_config)
             parameters[key] = result
 
-    comm_head_repository = parameters.get("comm_head_repository")
-    comm_head_rev = parameters.get("comm_head_rev")
-
     # Do not run any jobs if this is a suite-only push, but the push could be used for
     # a cron decision task later (like for a Daily build)
-    if (
-        is_suite_only_push(comm_head_repository, comm_head_rev)
-        and options["tasks_for"] == "hg-push"
-    ):
+    if is_suite_only_push(parameters) and options["tasks_for"] == "hg-push":
         logger.info("This is a suite-only push; setting target_tasks_method to 'nothing'.")
         parameters["target_tasks_method"] = "nothing"
 

@@ -45,7 +45,7 @@ class SkipUnlessMozlint(OptimizationStrategy):
             extensions += [e.strip(".") for e in config.get("extensions", [])]
             support_files += config.get("support-files", [])
 
-        changed_files = files_changed.get_files_changed_extended(params)
+        changed_files = params["files_changed"]
 
         # Support files may not be part of "include" patterns, so check first
         # Do not remove (return False) if any changed
@@ -68,8 +68,6 @@ class SkipUnlessMozlint(OptimizationStrategy):
         return False
 
 
-optimizations = (
-    {"skip-unless-mozlint": SkipUnlessMozlint.schema},
-)
+optimizations = ({"skip-unless-mozlint": SkipUnlessMozlint.schema},)
 
 thunderbird_optimizations = default_optimizations + optimizations

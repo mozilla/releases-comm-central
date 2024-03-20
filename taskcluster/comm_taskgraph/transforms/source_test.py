@@ -8,10 +8,8 @@ import shlex
 
 import taskgraph
 from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
 
-from gecko_taskgraph.files_changed import get_changed_files
 from gecko_taskgraph.util.hg import get_json_automationrelevance
 
 logger = logging.getLogger(__name__)
@@ -41,13 +39,11 @@ def changed_clang_format(config, jobs):
     """
     for job in jobs:
         if job.get("name", "") == "clang-format":
-            repository = config.params.get("comm_head_repository")
-            revision = config.params.get("comm_head_rev")
+            prefix = config.params.get("comm_src_path")
+            files_changed = config.params.get("files_changed")
 
             match_patterns = get_patterns(job)
-            changed_files = {
-                join_path("comm", file) for file in get_changed_files(repository, revision)
-            }
+            changed_files = {file for file in files_changed if file.startswith(prefix)}
 
             cpp_files = []
             for pattern in match_patterns:

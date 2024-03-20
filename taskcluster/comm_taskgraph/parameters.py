@@ -5,13 +5,16 @@
 import logging
 
 from taskgraph.parameters import extend_parameters_schema
+from taskgraph.util.path import join
 from voluptuous import Required
 
+from gecko_taskgraph.files_changed import get_locally_changed_files
 from gecko_taskgraph.parameters import gecko_parameters_schema as comm_parameters_schema
 from gecko_taskgraph.parameters import get_app_version, get_version
 
-logger = logging.getLogger(__name__)
+from comm_taskgraph.files_changed import prefix_paths
 
+logger = logging.getLogger(__name__)
 
 # Called at import time when comm_taskgraph:register is called
 comm_parameters_schema.update(
@@ -28,10 +31,17 @@ comm_parameters_schema.update(
 
 
 def get_defaults(repo_root=None):
+    changed_files = set()
+    if repo_root is not None:
+        changed_files = sorted(
+            prefix_paths(get_locally_changed_files(repo_root), repo_root)
+            | get_locally_changed_files(join(repo_root, ".."))
+        )
     return {
         "app_version": get_app_version(product_dir="comm/mail"),
         "version": get_version("comm/mail"),
         "comm_src_path": "comm/",
+        "files_changed": changed_files,
     }
 
 
