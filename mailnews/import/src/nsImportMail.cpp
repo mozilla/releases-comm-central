@@ -324,8 +324,8 @@ NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString* successLog,
   m_pThreadData->stringBundle = m_stringBundle;
 
   // Previously this was run in a sub-thread, after introducing
-  // SeamonkeyImport.jsm and because JS XPCOM can only run in the main thread,
-  // this has been changed to run in the main thread.
+  // SeamonkeyImport.sys.mjs and because JS XPCOM can only run in the main
+  // thread, this has been changed to run in the main thread.
   ImportMailThread(m_pThreadData);
   *_retval = true;
   return NS_OK;

@@ -10,7 +10,7 @@ function run_test() {
   do_calendar_startup(run_next_test);
 }
 
-// tests for calRecurrenceUtils.jsm
+// tests for calRecurrenceUtils.sys.mjs
 /* Incomplete - still missing test coverage for:
  * recurrenceRule2String
  * splitRecurrenceRules

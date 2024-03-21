@@ -216,7 +216,7 @@ const accessHkpInternal = {
    */
   async accessKeyServer(actionFlag, keyserver, keyId, listener) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`
+      `keyserver.sys.mjs: accessHkpInternal.accessKeyServer(${keyserver})\n`
     );
     if (!keyserver) {
       throw new Error("accessKeyServer requires explicit keyserver parameter");
@@ -229,7 +229,7 @@ const accessHkpInternal = {
       if (listener && typeof listener === "object") {
         listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
-            `keyserver.jsm: accessHkpInternal.accessKeyServer - onCancel() called\n`
+            `keyserver.sys.mjs: accessHkpInternal.accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
@@ -251,14 +251,14 @@ const accessHkpInternal = {
 
       xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessHkpInternal: onload(): status=" +
+          "keyserver.sys.mjs: accessHkpInternal: onload(): status=" +
             xmlReq.status +
             "\n"
         );
         switch (actionFlag) {
           case lazy.EnigmailConstants.UPLOAD_KEY:
             lazy.EnigmailLog.DEBUG(
-              "keyserver.jsm: accessHkpInternal: onload: " +
+              "keyserver.sys.mjs: accessHkpInternal: onload: " +
                 xmlReq.responseText +
                 "\n"
             );
@@ -291,7 +291,7 @@ const accessHkpInternal = {
               resolve(1);
             } else if (xmlReq.status >= 500) {
               lazy.EnigmailLog.DEBUG(
-                "keyserver.jsm: accessHkpInternal: onload: " +
+                "keyserver.sys.mjs: accessHkpInternal: onload: " +
                   xmlReq.responseText +
                   "\n"
               );
@@ -335,7 +335,7 @@ const accessHkpInternal = {
 
       xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessHkpInternal.accessKeyServer: onerror: " +
+          "keyserver.sys.mjs: accessHkpInternal.accessKeyServer: onerror: " +
             e +
             "\n"
         );
@@ -368,7 +368,7 @@ const accessHkpInternal = {
 
       xmlReq.onloadend = function () {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessHkpInternal.accessKeyServer: loadEnd\n"
+          "keyserver.sys.mjs: accessHkpInternal.accessKeyServer: loadEnd\n"
         );
       };
 
@@ -379,7 +379,7 @@ const accessHkpInternal = {
       );
 
       lazy.EnigmailLog.DEBUG(
-        `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
+        `keyserver.sys.mjs: accessHkpInternal.accessKeyServer: requesting ${url}\n`
       );
       xmlReq.open(method, url);
       xmlReq.setRequestHeader(
@@ -401,7 +401,7 @@ const accessHkpInternal = {
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessHkpInternal.download(${keyIDs})\n`
+      `keyserver.sys.mjs: accessHkpInternal.download(${keyIDs})\n`
     );
     const keyIdArr = keyIDs.split(/ +/);
     const retObj = {
@@ -464,7 +464,7 @@ const accessHkpInternal = {
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessHkpInternal.upload(${keyIDs})\n`
+      `keyserver.sys.mjs: accessHkpInternal.upload(${keyIDs})\n`
     );
     const keyIdArr = keyIDs.split(/ +/);
     let rv = false;
@@ -517,7 +517,7 @@ const accessHkpInternal = {
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessHkpInternal.search(${searchTerm})\n`
+      `keyserver.sys.mjs: accessHkpInternal.search(${searchTerm})\n`
     );
     const retObj = {
       result: 0,
@@ -635,14 +635,16 @@ const accessKeyBase = {
    * @return:   Promise<Number (Status-ID)>
    */
   async accessKeyServer(actionFlag, keyId, listener) {
-    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer()\n`);
+    lazy.EnigmailLog.DEBUG(
+      `keyserver.sys.mjs: accessKeyBase: accessKeyServer()\n`
+    );
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
         listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
-            `keyserver.jsm: accessKeyBase: accessKeyServer - onCancel() called\n`
+            `keyserver.sys.mjs: accessKeyBase: accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
@@ -659,7 +661,7 @@ const accessKeyBase = {
 
       xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: onload(): status=" + xmlReq.status + "\n"
+          "keyserver.sys.mjs: onload(): status=" + xmlReq.status + "\n"
         );
         switch (actionFlag) {
           case lazy.EnigmailConstants.SEARCH_KEY:
@@ -679,7 +681,7 @@ const accessKeyBase = {
               resolve(1);
             } else if (xmlReq.status >= 500) {
               lazy.EnigmailLog.DEBUG(
-                "keyserver.jsm: onload: " + xmlReq.responseText + "\n"
+                "keyserver.sys.mjs: onload: " + xmlReq.responseText + "\n"
               );
               reject(
                 createError(lazy.EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR)
@@ -736,7 +738,7 @@ const accessKeyBase = {
 
       xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessKeyBase: onerror: " + e + "\n"
+          "keyserver.sys.mjs: accessKeyBase: onerror: " + e + "\n"
         );
         const err = lazy.FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
@@ -766,13 +768,13 @@ const accessKeyBase = {
       };
 
       xmlReq.onloadend = function () {
-        lazy.EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: loadEnd\n");
+        lazy.EnigmailLog.DEBUG("keyserver.sys.mjs: accessKeyBase: loadEnd\n");
       };
 
       const { url, method } = this.createRequestUrl(actionFlag, keyId);
 
       lazy.EnigmailLog.DEBUG(
-        `keyserver.jsm: accessKeyBase: requesting ${url}\n`
+        `keyserver.sys.mjs: accessKeyBase: requesting ${url}\n`
       );
       xmlReq.open(method, url);
       xmlReq.send("");
@@ -789,7 +791,7 @@ const accessKeyBase = {
    * @return:   Promise<...>
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
-    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: download()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.sys.mjs: accessKeyBase: download()\n`);
     const keyIdArr = keyIDs.split(/ +/);
     const retObj = {
       result: 0,
@@ -843,7 +845,7 @@ const accessKeyBase = {
 
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
-    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: search()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.sys.mjs: accessKeyBase: search()\n`);
     const retObj = {
       result: 0,
       errorDetails: "",
@@ -897,7 +899,7 @@ const accessKeyBase = {
   },
 
   refresh(keyServer, listener = null) {
-    lazy.EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: refresh()\n`);
+    lazy.EnigmailLog.DEBUG(`keyserver.sys.mjs: accessKeyBase: refresh()\n`);
     const keyList = lazy.EnigmailKeyRing.getAllKeys()
       .keyList.map(keyObj => {
         return "0x" + keyObj.fpr;
@@ -1041,7 +1043,7 @@ const accessVksServer = {
    */
   async accessKeyServer(actionFlag, keyserver, keyId, listener) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessVksServer.accessKeyServer(${keyserver})\n`
+      `keyserver.sys.mjs: accessVksServer.accessKeyServer(${keyserver})\n`
     );
     if (keyserver === null) {
       keyserver = "keys.openpgp.org";
@@ -1055,7 +1057,7 @@ const accessVksServer = {
       if (listener && typeof listener === "object") {
         listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
-            `keyserver.jsm: accessVksServer.accessKeyServer - onCancel() called\n`
+            `keyserver.sys.mjs: accessVksServer.accessKeyServer - onCancel() called\n`
           );
           if (xmlReq) {
             xmlReq.abort();
@@ -1077,7 +1079,7 @@ const accessVksServer = {
 
       xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessVksServer.onload(): status=" +
+          "keyserver.sys.mjs: accessVksServer.onload(): status=" +
             xmlReq.status +
             "\n"
         );
@@ -1085,7 +1087,7 @@ const accessVksServer = {
           case lazy.EnigmailConstants.UPLOAD_KEY:
           case lazy.EnigmailConstants.GET_CONFIRMATION_LINK:
             lazy.EnigmailLog.DEBUG(
-              "keyserver.jsm: accessVksServer.onload: " +
+              "keyserver.sys.mjs: accessVksServer.onload: " +
                 xmlReq.responseText +
                 "\n"
             );
@@ -1118,7 +1120,7 @@ const accessVksServer = {
               resolve(1);
             } else if (xmlReq.status >= 500) {
               lazy.EnigmailLog.DEBUG(
-                "keyserver.jsm: accessVksServer.onload: " +
+                "keyserver.sys.mjs: accessVksServer.onload: " +
                   xmlReq.responseText +
                   "\n"
               );
@@ -1159,7 +1161,9 @@ const accessVksServer = {
 
       xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n"
+          "keyserver.sys.mjs: accessVksServer.accessKeyServer: onerror: " +
+            e +
+            "\n"
         );
         const err = lazy.FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
@@ -1190,7 +1194,7 @@ const accessVksServer = {
 
       xmlReq.onloadend = function () {
         lazy.EnigmailLog.DEBUG(
-          "keyserver.jsm: accessVksServer.accessKeyServer: loadEnd\n"
+          "keyserver.sys.mjs: accessVksServer.accessKeyServer: loadEnd\n"
         );
       };
 
@@ -1201,7 +1205,7 @@ const accessVksServer = {
       );
 
       lazy.EnigmailLog.DEBUG(
-        `keyserver.jsm: accessVksServer.accessKeyServer: requesting ${method} for ${url}\n`
+        `keyserver.sys.mjs: accessVksServer.accessKeyServer: requesting ${method} for ${url}\n`
       );
       xmlReq.open(method, url);
       xmlReq.setRequestHeader("Content-Type", contentType);
@@ -1220,7 +1224,7 @@ const accessVksServer = {
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessVksServer.download(${keyIDs})\n`
+      `keyserver.sys.mjs: accessVksServer.download(${keyIDs})\n`
     );
     const keyIdArr = keyIDs.split(/ +/);
     const retObj = {
@@ -1274,7 +1278,7 @@ const accessVksServer = {
 
   async requestConfirmationLink(keyserver, jsonFragment) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessVksServer.requestConfirmationLink()\n`
+      `keyserver.sys.mjs: accessVksServer.requestConfirmationLink()\n`
     );
 
     const response = JSON.parse(jsonFragment);
@@ -1317,7 +1321,7 @@ const accessVksServer = {
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessVksServer.upload(${keyIDs})\n`
+      `keyserver.sys.mjs: accessVksServer.upload(${keyIDs})\n`
     );
     const keyIdArr = keyIDs.split(/ +/);
     let rv = false;
@@ -1381,7 +1385,7 @@ const accessVksServer = {
    */
   async searchKeyserver(searchTerm, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
-      `keyserver.jsm: accessVksServer.search(${searchTerm})\n`
+      `keyserver.sys.mjs: accessVksServer.search(${searchTerm})\n`
     );
     const retObj = {
       result: 0,

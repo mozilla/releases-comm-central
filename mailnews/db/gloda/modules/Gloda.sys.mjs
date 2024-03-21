@@ -45,10 +45,10 @@ BadItemContentsError.prototype = {
  *  functionality.  There is currently a dependency/ordering
  *  problem in that the concept of 'gloda' also includes some logic that is
  *  contributed by built-in extensions, if you will.  Those built-in extensions
- *  (fundattr.js, GlodaExplicitAttr.jsm) also import this file.  To avoid a circular
- *  dependency, those built-in extensions are loaded by Everybody.jsm.  The
- *  simplest/best solution is probably to move Everybody.jsm to be Gloda.jsm and
- *  have it re-export only 'Gloda'.  Gloda.jsm (this file) can then move to be
+ *  (fundattr.js, GlodaExplicitAttr.sys.mjs) also import this file.  To avoid a circular
+ *  dependency, those built-in extensions are loaded by Everybody.sys.mjs.  The
+ *  simplest/best solution is probably to move Everybody.sys.mjs to be Gloda.sys.mjs and
+ *  have it re-export only 'Gloda'.  Gloda.sys.mjs (this file) can then move to be
  *  gloda_int.js (or whatever our eventual naming scheme is), which built-in
  *  extensions can explicitly rely upon.
  *
@@ -86,7 +86,7 @@ BadItemContentsError.prototype = {
  * == Nouns
  *
  * So, we go and define the nouns that are roughly the classes in our data
- *  model.  Every 'class' we define in GlodaDataModel.jsm is a noun that gets defined
+ *  model.  Every 'class' we define in GlodaDataModel.sys.mjs is a noun that gets defined
  *  here in the Gloda core.  We provide sufficient meta-data about the noun to
  *  serialize/deserialize its representation from our database representation.
  *  Nouns do not have to be defined in this class, but can also be contributed
@@ -110,8 +110,8 @@ BadItemContentsError.prototype = {
  *  process, although we have not yet fully dealt with the problem of deleting
  *  these records should they become orphaned in the database due to the
  *  purging of a message and its attributes.
- * All of the 'core' gloda attributes are provided by the GlodaFundAttr.jsm and
- *  GlodaExplicitAttr.jsm providers.
+ * All of the 'core' gloda attributes are provided by the GlodaFundAttr.sys.mjs and
+ *  GlodaExplicitAttr.sys.mjs providers.
  *
  * === (Notable) Future Work
  *
@@ -136,7 +136,7 @@ export var Gloda = {
    *  current user (based on accounts).
    *
    * Additional nouns and the core attribute providers are initialized by the
-   *  Everybody.jsm module which ensures all of those dependencies are loaded
+   *  Everybody.sys.mjs module which ensures all of those dependencies are loaded
    *  (and initialized).
    */
   _init() {
@@ -832,10 +832,10 @@ export var Gloda = {
   /**
    * Define the core nouns (that are not defined elsewhere) and a few noun
    *  actions.  Core nouns could be defined in other files, assuming dependency
-   *  issues are resolved via the Everybody.jsm mechanism or something else.
+   *  issues are resolved via the Everybody.sys.mjs mechanism or something else.
    *  Right now, noun_tag defines the tag noun.  If we broke more of these out,
-   *  we would probably want to move the 'class' code from GlodaDataModel.jsm, the
-   *  SQL table def and helper code from GlodaDatastore.jsm (and this code) to their
+   *  we would probably want to move the 'class' code from GlodaDataModel.sys.mjs, the
+   *  SQL table def and helper code from GlodaDatastore.sys.mjs (and this code) to their
    *  own noun_*.js files.  There are some trade-offs to be made, and I think
    *  we can deal with those once we start to integrate lightning/calendar and
    *  our noun space gets large and more heterogeneous.
@@ -2265,6 +2265,6 @@ try {
       ex
   );
 }
-/* but don't forget that we effectively depend on Everybody.jsm too, and
+/* but don't forget that we effectively depend on Everybody.sys.mjs too, and
    currently on our importer to be importing that if they need us fully armed
    and operational. */

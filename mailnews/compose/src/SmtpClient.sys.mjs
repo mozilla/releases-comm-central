@@ -502,7 +502,7 @@ export class SmtpClient {
     }
 
     // Use nsresult to integrate with other parts of sending process, e.g.
-    // MessageSend.jsm will show an error message depending on the nsresult.
+    // MessageSend.sys.mjs will show an error message depending on the nsresult.
     this.onerror(nsError, "", secInfo);
   };
 

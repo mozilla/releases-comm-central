@@ -746,7 +746,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
   /**
    * @see nsIInterfaceRequestor
-   * @see calProviderUtils.jsm
+   * @see calProviderUtils.sys.mjs
    */
   getInterface = cal.provider.InterfaceRequestor_getInterface;
 

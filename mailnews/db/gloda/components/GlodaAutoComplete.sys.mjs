@@ -461,7 +461,7 @@ FullTextCompleter.prototype = {
     if (aSearchString.length < 4) {
       return false;
     }
-    // We use code very similar to that in GlodaMsgSearcher.jsm, except that we
+    // We use code very similar to that in GlodaMsgSearcher.sys.mjs, except that we
     // need to detect when we found phrases, as well as strip commas.
     aSearchString = aSearchString.trim();
     const terms = [];

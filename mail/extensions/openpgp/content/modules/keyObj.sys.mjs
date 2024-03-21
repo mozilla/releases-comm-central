@@ -481,7 +481,7 @@ class EnigmailKeyObj {
    */
   getMinimalPubKey(emailAddr) {
     lazy.EnigmailLog.DEBUG(
-      "keyObj.jsm: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n"
+      "keyObj.sys.mjs: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n"
     );
 
     if (emailAddr) {
@@ -565,7 +565,7 @@ class EnigmailKeyObj {
    */
   getVirtualKeySize() {
     lazy.EnigmailLog.DEBUG(
-      "keyObj.jsm: EnigmailKeyObj.getVirtualKeySize: " + this.keyId + "\n"
+      "keyObj.sys.mjs: EnigmailKeyObj.getVirtualKeySize: " + this.keyId + "\n"
     );
 
     switch (this.algoSym) {

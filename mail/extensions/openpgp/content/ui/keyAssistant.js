@@ -22,7 +22,7 @@ ChromeUtils.defineESModuleGetters(this, {
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   // FIXME: using this creates a conflict with another file where this symbol
   // was imported with ChromeUtils instead of defined as lazy getter.
-  // EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  // EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 var { EnigmailWindows } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/windows.sys.mjs"

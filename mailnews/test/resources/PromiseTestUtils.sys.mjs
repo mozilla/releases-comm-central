@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * This file provides utilities useful in using Promises and Task.jsm
+ * This file provides utilities useful in using Promises and Task.sys.mjs
  * with mailnews tests.
  */
 

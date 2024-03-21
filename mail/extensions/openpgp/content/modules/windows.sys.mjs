@@ -91,7 +91,9 @@ export var EnigmailWindows = {
    * @return:    the frame object or null if not found
    */
   getFrame(win, frameName) {
-    lazy.EnigmailLog.DEBUG("windows.jsm: getFrame: name=" + frameName + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "windows.sys.mjs: getFrame: name=" + frameName + "\n"
+    );
     for (var j = 0; j < win.frames.length; j++) {
       if (win.frames[j].name == frameName) {
         return win.frames[j];
@@ -326,7 +328,7 @@ export var EnigmailWindows = {
    */
   downloadKeys(win, inputObj, resultObj) {
     lazy.EnigmailLog.DEBUG(
-      "windows.jsm: downloadKeys: searchList=" + inputObj.searchList + "\n"
+      "windows.sys.mjs: downloadKeys: searchList=" + inputObj.searchList + "\n"
     );
 
     resultObj.importedKeys = 0;
@@ -457,7 +459,7 @@ export var EnigmailWindows = {
   },
 
   shutdown(reason) {
-    lazy.EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
+    lazy.EnigmailLog.DEBUG("windows.sys.mjs: shutdown()\n");
 
     const tabs = Services.wm
       .getMostRecentWindow("mail:3pane")

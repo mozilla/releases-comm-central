@@ -994,7 +994,7 @@ export var MessageTextFilter = {
    * to put a quote at the end of the string.  (This is important because we
    * update using a timer and this results in stable behavior.)
    *
-   * This code is cloned from gloda's GlodaMsgSearcher.jsm and known good (enough :).
+   * This code is cloned from gloda's GlodaMsgSearcher.sys.mjs and known good (enough :).
    * I did change the friendless quote situation, though.
    *
    * @param aSearchString The phrase to parse up.

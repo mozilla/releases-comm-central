@@ -5,7 +5,7 @@
 
 export class VCardChild extends JSWindowActorChild {
   handleEvent(event) {
-    // This link comes from VCardMimeConverter.convertToHTML in VCardUtils.jsm.
+    // This link comes from VCardMimeConverter.convertToHTML in VCardUtils.sys.mjs.
     if (event.target.classList.contains("moz-vcard-badge")) {
       if (event.button == 0) {
         // The href is a data:text/vcard URL.

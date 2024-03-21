@@ -52,7 +52,7 @@ function run_test() {
   make_out_of_date_database();
 
   // - tickle gloda
-  // GlodaPublic.jsm loads Gloda.jsm which self-initializes and initializes the datastore
+  // GlodaPublic.sys.mjs loads Gloda.sys.mjs which self-initializes and initializes the datastore
   ChromeUtils.importESModule("resource:///modules/gloda/GlodaPublic.sys.mjs");
   const { GlodaDatastore } = ChromeUtils.importESModule(
     "resource:///modules/gloda/GlodaDatastore.sys.mjs"

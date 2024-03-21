@@ -30,7 +30,7 @@ var formatCache = new Map();
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.dtz.formatter namespace.
+// including calUtils.sys.mjs under the cal.dtz.formatter namespace.
 
 export var formatter = {
   /**

@@ -23,7 +23,7 @@ export var EnigmailCore = {
 
     initializeLogDirectory();
 
-    lazy.EnigmailLog.DEBUG("core.jsm: startup()\n");
+    lazy.EnigmailLog.DEBUG("core.sys.mjs: startup()\n");
 
     await lazy.PgpSqliteDb2.checkDatabaseStructure();
 
@@ -53,7 +53,7 @@ function initializeLogDirectory() {
   lazy.EnigmailLog.setLogLevel(5);
   lazy.EnigmailLog.setLogDirectory(dir);
   lazy.EnigmailLog.DEBUG(
-    "core.jsm: Logging debug output to " + dir + "/enigdbug.txt\n"
+    "core.sys.mjs: Logging debug output to " + dir + "/enigdbug.txt\n"
   );
 }
 

@@ -21,7 +21,7 @@ export var OpenPGPMasterpass = {
           Ci.nsISecretDecoderRing
         );
       } catch (ex) {
-        lazy.EnigmailLog.writeException("masterpass.jsm", ex);
+        lazy.EnigmailLog.writeException("masterpass.sys.mjs", ex);
       }
     }
     return this._sdr;
@@ -277,7 +277,7 @@ export var OpenPGPMasterpass = {
 
   // This function may trigger password creation, if necessary
   async retrieveOpenPGPPassword() {
-    lazy.EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
+    lazy.EnigmailLog.DEBUG("masterpass.sys.mjs: retrieveMasterPassword()\n");
 
     await this.ensurePasswordIsCached();
     return this.cachedPassword;

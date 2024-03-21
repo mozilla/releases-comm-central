@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Determine whether to use nsImapService.cpp or ImapService.jsm. When
- * `mailnews.imap.jsmodule` is `true`, use ImapService.jsm.
+ * Determine whether to use nsImapService.cpp or ImapService.sys.mjs. When
+ * `mailnews.imap.jsmodule` is `true`, use ImapService.sys.mjs.
  */
 export function ImapModuleLoader() {
   try {
@@ -84,7 +84,7 @@ ImapModuleLoader.prototype = {
         );
       }
 
-      dump("[ImapModuleLoader] Using ImapService.jsm\n");
+      dump("[ImapModuleLoader] Using ImapService.sys.mjs\n");
 
       const { ImapProtocolHandler } = ChromeUtils.importESModule(
         "resource:///modules/ImapProtocolHandler.sys.mjs"

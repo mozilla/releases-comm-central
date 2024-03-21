@@ -665,7 +665,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
  * @param {?Function} [observer] - The observer to call when complete.
  * @param {?object} [extResponse] - JS object with additional
  *   parameters for sending itip messages (see also description of checkAndSend
- *   in calItipUtils.jsm).
+ *   in calItipUtils.sys.mjs).
  */
 async function doTransaction(action, item, calendar, oldItem, observer, extResponse = null) {
   // This is usually a user-initiated transaction, so make sure the calendar

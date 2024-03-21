@@ -219,7 +219,7 @@ interface nsIAbCard : nsISupports {
    * true, this attribute MUST be a `VCardProperties` object, otherwise it
    * MUST be null.
    *
-   * @see VCardProperties in VCardUtils.jsm
+   * @see VCardProperties in VCardUtils.sys.mjs
    */
   readonly attribute jsval vCardProperties;
 

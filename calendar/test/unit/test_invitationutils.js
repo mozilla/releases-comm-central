@@ -15,7 +15,7 @@ function run_test() {
   do_calendar_startup(run_next_test);
 }
 
-// tests for calInvitationUtils.jsm
+// tests for calInvitationUtils.sys.mjs
 
 // Make sure that the Europe/Berlin timezone and long datetime format is set.
 Services.prefs.setIntPref("calendar.date.format", 0);

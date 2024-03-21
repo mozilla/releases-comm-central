@@ -34,9 +34,9 @@ const isXpcshell = Services.env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
-    prefix: "Policies.jsm",
+    prefix: "Policies",
     // tip: set maxLogLevel to "debug" and use log.debug() to create detailed
-    // messages during development. See LOG_LEVELS in Console.jsm for details.
+    // messages during development. See LOG_LEVELS in Console.sys.mjs for details.
     maxLogLevel: "Error",
     maxLogLevelPref: PREF_LOGLEVEL,
   });

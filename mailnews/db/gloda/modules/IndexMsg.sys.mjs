@@ -3310,7 +3310,7 @@ export var GlodaMsgIndexer = {
       const bodyPlain = aMimeMsg.coerceBodyToPlaintext(aMsgHdr.folder);
       if (bodyPlain) {
         curMsg._bodyLines = bodyPlain.split(/\r?\n/);
-        // curMsg._content gets set by GlodaFundAttr.jsm
+        // curMsg._content gets set by GlodaFundAttr.sys.mjs
       }
     }
 
@@ -3322,8 +3322,8 @@ export var GlodaMsgIndexer = {
     curMsg._subject = aMsgHdr.mime2DecodedSubject;
     curMsg._attachmentNames = attachmentNames;
 
-    // curMsg._indexAuthor gets set by GlodaFundAttr.jsm
-    // curMsg._indexRecipients gets set by GlodaFundAttr.jsm
+    // curMsg._indexAuthor gets set by GlodaFundAttr.sys.mjs
+    // curMsg._indexRecipients gets set by GlodaFundAttr.sys.mjs
 
     // zero the notability so everything in grokNounItem can just increment
     curMsg.notability = 0;

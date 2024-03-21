@@ -263,7 +263,7 @@ const STARTUP_CRASHES_END_DELAY_MS = 30 * 1000;
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
- * MailUtils.jsm instead.
+ * MailUtils.sys.mjs instead.
  */
 
 export function MailGlue() {
@@ -1080,7 +1080,7 @@ function reportAccountSizes() {
 /**
  * Report addressbook count and contact count to telemetry, keyed by addressbook
  * type. Type is one of ["jsaddrbook", "jscarddav", "moz-abldapdirectory"], see
- * AddrBookManager.jsm for more details.
+ * AddrBookManager.sys.mjs for more details.
  *
  * NOTE: We didn't use `dir.dirType` because it's just an integer, instead we
  * use the scheme of `dir.URI` as the type.

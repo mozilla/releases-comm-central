@@ -131,7 +131,7 @@ export var EnigmailDecryption = {
     extraDetailsObj
   ) {
     lazy.EnigmailLog.DEBUG(
-      "decryption.jsm: decryptMessage(" +
+      "decryption.sys.mjs: decryptMessage(" +
         cipherText.length +
         " bytes, " +
         uiFlags +
@@ -149,7 +149,7 @@ export var EnigmailDecryption = {
     var oldSignature = signatureObj.value;
 
     lazy.EnigmailLog.DEBUG(
-      "decryption.jsm: decryptMessage: oldSignature=" + oldSignature + "\n"
+      "decryption.sys.mjs: decryptMessage: oldSignature=" + oldSignature + "\n"
     );
 
     signatureObj.value = "";
@@ -211,7 +211,7 @@ export var EnigmailDecryption = {
     // HACK to better support messages from Outlook: if there are empty lines, drop them
     if (pgpBlock.search(/MESSAGE-----\r?\n\r?\nVersion/) >= 0) {
       lazy.EnigmailLog.DEBUG(
-        "decryption.jsm: decryptMessage: apply Outlook empty line workaround\n"
+        "decryption.sys.mjs: decryptMessage: apply Outlook empty line workaround\n"
       );
       pgpBlock = pgpBlock.replace(/\r?\n\r?\n/g, "\n");
     }
@@ -293,7 +293,7 @@ export var EnigmailDecryption = {
     const cApi = lazy.EnigmailCryptoAPI();
     const result = cApi.sync(cApi.decrypt(pgpBlock, options));
     lazy.EnigmailLog.DEBUG(
-      "decryption.jsm: decryptMessage: decryption finished\n"
+      "decryption.sys.mjs: decryptMessage: decryption finished\n"
     );
     if (!result) {
       console.warn("Decryption message finished with no result.");
@@ -399,7 +399,7 @@ export var EnigmailDecryption = {
 
           statusFlagsObj.value |= EnigmailConstants.INLINE_KEY;
           EnigmailLog.DEBUG(
-            "decryption.jsm: decryptMessage: innerKeyBlock found\n"
+            "decryption.sys.mjs: decryptMessage: innerKeyBlock found\n"
           );
         }
       }
@@ -465,7 +465,7 @@ export var EnigmailDecryption = {
   },
 
   inlineInnerVerification(parent, uiFlags, text, statusObject) {
-    lazy.EnigmailLog.DEBUG("decryption.jsm: inlineInnerVerification()\n");
+    lazy.EnigmailLog.DEBUG("decryption.sys.mjs: inlineInnerVerification()\n");
 
     if (text && text.indexOf("-----BEGIN PGP SIGNED MESSAGE-----") === 0) {
       var status = newStatusObject();
@@ -528,7 +528,7 @@ export var EnigmailDecryption = {
     errorMsgObj
   ) {
     lazy.EnigmailLog.DEBUG(
-      "decryption.jsm: decryptAttachment(parent=" +
+      "decryption.sys.mjs: decryptAttachment(parent=" +
         parent +
         ", outFileName=" +
         outFile.path +

@@ -11,7 +11,7 @@ interface prplIUsernameSplit;
 /**
  * This must be implemented for every protocol.
  *
- * See jsProtoHelper.jsm for a base class.
+ * See jsProtoHelper.sys.mjs for a base class.
  */
 [scriptable, uuid(7d302db0-3813-4c51-8372-c7eb5fc9f3d3)]
 interface prplIProtocol: nsISupports {

@@ -28,9 +28,9 @@ const kESModuleList = new Set([
   /chrome\/pdfjs\/content\/web\/.*\.js$/,
 ]);
 
-// Normally we would use reflect.jsm to get Reflect.parse. However, if
-// we do that, then all the AST data is allocated in reflect.jsm's
-// zone. That exposes a bug in our GC. The GC collects reflect.jsm's
+// Normally we would use reflect.sys.mjs to get Reflect.parse. However, if
+// we do that, then all the AST data is allocated in reflect.sys.mjs's
+// zone. That exposes a bug in our GC. The GC collects reflect.sys.mjs's
 // zone but not the zone in which our test code lives (since no new
 // data is being allocated in it). The cross-compartment wrappers in
 // our zone that point to the AST data never get collected, and so the
@@ -58,8 +58,8 @@ function uriIsWhiteListed(uri) {
 /**
  * Check if a URI should be parsed as an ES module.
  *
- * @param uri the uri to check against the ES module list
- * @returns true if the uri should be parsed as a module, otherwise parse it as a script.
+ * @param {nsIURI} uri - The uri to check against the ES module list
+ * @returns {boolean} true if the uri should be parsed as a module, otherwise parse it as a script.
  */
 function uriIsESModule(uri) {
   for (const whitelistItem of kESModuleList) {
@@ -67,7 +67,7 @@ function uriIsESModule(uri) {
       return true;
     }
   }
-  return false;
+  return uri.spec.endsWith(".mjs");
 }
 
 function parsePromise(uri, parseTarget) {
@@ -137,7 +137,7 @@ add_task(async function checkAllTheJS() {
     // our zipreader APIs are all sync)
     const startTimeMs = Date.now();
     info("Collecting URIs");
-    uris = await generateURIsFromDirTree(appDir, [".js", ".jsm"]);
+    uris = await generateURIsFromDirTree(appDir, [".js", ".mjs"]);
     info("Collected URIs in " + (Date.now() - startTimeMs) + "ms");
 
     // Apply the filter specified on the command line, if any.

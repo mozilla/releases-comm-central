@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.view namespace.
+// including calUtils.sys.mjs under the cal.view namespace.
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 

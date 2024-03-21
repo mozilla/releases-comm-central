@@ -280,7 +280,7 @@ export const UIFontSize = {
   /**
    * Ensure the subdialogs are properly resized to fit larger font size
    * variations.
-   * This is copied from SubDialog.jsm:resizeDialog(), and we need to do that
+   * This is copied from SubDialog.sys.mjs:resizeDialog(), and we need to do that
    * because that method triggers again the `resizeCallback` and `dialogopen`
    * Event, which we use to detect the opening of a dialog, therefore calling
    * the `resizeDialog()` method would cause an infinite loop.

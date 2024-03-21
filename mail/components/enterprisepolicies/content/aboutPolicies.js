@@ -239,14 +239,14 @@ function generateErrors() {
   const consoleEvents = storage.getEvents();
   const prefixes = [
     "Enterprise Policies",
-    "JsonSchemaValidator.jsm",
-    "Policies.jsm",
-    "GPOParser.jsm",
+    "JsonSchemaValidator",
+    "Policies",
+    "WindowsGPOParser",
     "Enterprise Policies Child",
-    "BookmarksPolicies.jsm",
-    "ProxyPolicies.jsm",
+    "BookmarksPolicies",
+    "ProxyPolicies",
     "WebsiteFilter Policy",
-    "macOSPoliciesParser.jsm",
+    "macOSPoliciesParser",
   ];
 
   const new_cont = document.getElementById("errorsContent");

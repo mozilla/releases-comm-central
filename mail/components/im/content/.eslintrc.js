@@ -10,10 +10,10 @@ module.exports = {
         gChatTab: true,
         Services: true,
 
-        // chat/modules/imStatusUtils.jsm
+        // chat/modules/imStatusUtils.sys.mjs
         Status: true,
 
-        // chat/modules/imTextboxUtils.jsm
+        // chat/modules/imTextboxUtils.sys.mjs
         MessageFormat: true,
         TextboxSize: true,
       },

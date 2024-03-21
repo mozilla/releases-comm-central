@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the operation of the GlodaContent (in GlodaContent.jsm) and its exposure
+ * Tests the operation of the GlodaContent (in GlodaContent.sys.mjs) and its exposure
  * via Gloda.getMessageContent for local messages.
  */
 

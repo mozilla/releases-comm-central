@@ -46,7 +46,7 @@ class nsIURI;
  *    it's internals. That's all just confusing noise that shouldn't be seen
  *    from outside the class.
  *
- * Just as PromiseTestUtils.jsm brings the Javascript side up from callback
+ * Just as PromiseTestUtils.sys.mjs brings the Javascript side up from callback
  * hell to async lovelyness, this can be used to raise the C++ side from
  * callback-somewhere-else-maybe-in-this-class-but-who-can-really-tell hell
  * up to normal callback hell :-)

@@ -1407,7 +1407,7 @@ CalDavCalendar.prototype = {
 
   /**
    * @see nsIInterfaceRequestor
-   * @see calProviderUtils.jsm
+   * @see calProviderUtils.sys.mjs
    */
   getInterface: cal.provider.InterfaceRequestor_getInterface,
 

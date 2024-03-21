@@ -18,7 +18,7 @@ const { BinaryServer } = ChromeUtils.importESModule(
  * Adaptor class to implement nsILDAPMessageListener with a promise.
  * It should be passed into LDAP functions as a normal listener. The
  * caller can then await the promise attribute.
- * Based on the pattern used in PromiseTestUtils.jsm.
+ * Based on the pattern used in PromiseTestUtils.sys.mjs.
  *
  * This base class just rejects all callbacks. Derived classes should
  * implement the callbacks they need to handle.

@@ -11,8 +11,8 @@ interface nsIURI;
  * nsISimpleMimeConverter provides an interface for rendering raw mime objects
  * as HTML. It's used to provide converters for mime types not handled
  * directly by the mime code.
- * "text/calendar" - see calendar/base/src/CalMimeConverter.jsm
- * "text/vcard"    - see mailnews/addrbook/modules/VCardUtils.jsm
+ * "text/calendar" - see calendar/base/src/CalMimeConverter.sys.mjs
+ * "text/vcard"    - see mailnews/addrbook/modules/VCardUtils.sys.mjs
  */
 [scriptable, uuid(FC6E8234-BBF3-44A1-9802-5F023A929173)]
 interface nsISimpleMimeConverter : nsISupports

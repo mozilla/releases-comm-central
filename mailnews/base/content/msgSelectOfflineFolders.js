@@ -158,7 +158,7 @@ class FolderRow {
     let properties = "";
     switch (column?.id) {
       case "folderNameCol":
-        // From folderUtils.jsm.
+        // From folderUtils.sys.mjs.
         properties = FolderUtils.getFolderProperties(this._folder, this.open);
         break;
       case "syncCol":

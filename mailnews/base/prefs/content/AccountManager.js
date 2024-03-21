@@ -1340,7 +1340,7 @@ function savePage(account) {
   }
   // Reset accountArray so that only the current page will be saved. This is
   // needed to prevent resetting prefs unintentionally. An example is when
-  // changing username/hostname, MsgIncomingServer.jsm will modify identities,
+  // changing username/hostname, MsgIncomingServer.sys.mjs will modify identities,
   // without this, identities changes may be reverted to old values in
   // accountArray.
   accountArray = {};

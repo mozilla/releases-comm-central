@@ -51,7 +51,7 @@ ChromeUtils.defineLazyGetter(lazy, "MailFolder", () =>
 var gIMAccounts = {};
 
 function GlodaIMConversation(aTitle, aTime, aPath, aContent) {
-  // grokNounItem from Gloda.jsm puts automatically the values of all
+  // grokNounItem from Gloda.sys.mjs puts automatically the values of all
   // JS properties in the jsonAttributes magic attribute, except if
   // they start with _, so we put the values in _-prefixed properties,
   // and have getters in the prototype.
@@ -180,7 +180,7 @@ var IMConversationNoun = {
 Gloda.defineNoun(IMConversationNoun);
 
 // Needs to be set after calling defineNoun, otherwise it's replaced
-// by GlodaDatabind.jsm' implementation.
+// by GlodaDatabind.sys.mjs' implementation.
 IMConversationNoun.objFromRow = function (aRow) {
   // Row columns are:
   // 0 id
@@ -269,7 +269,7 @@ Gloda.defineAttribute({
   subjectNouns: [IMConversationNoun.id],
   objectNoun: GlodaConstants.NOUN_FULLTEXT,
 });
-// For Facet.jsm DateFaceter
+// For Facet.sys.mjs DateFaceter
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,

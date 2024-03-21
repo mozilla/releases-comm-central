@@ -24,7 +24,7 @@ const startupPhases = {
   // Anything loaded during app-startup must have a compelling reason
   // to run before we have even selected the user profile.
   // Consider loading your code after first paint instead,
-  // eg. from MailGlue.jsm' _onFirstWindowLoaded method).
+  // eg. from MailGlue.sys.mjs' _onFirstWindowLoaded method).
   "before profile selection": {
     allowlist: {
       modules: new Set([
@@ -47,14 +47,14 @@ const startupPhases = {
   "before opening first browser window": {
     denylist: {
       modules: new Set([
-        "chrome://openpgp/content/modules/constants.jsm",
+        "chrome://openpgp/content/modules/constants.sys.mjs",
         "resource:///modules/IMServices.sys.mjs",
         "resource:///modules/imXPCOMUtils.sys.mjs",
         "resource:///modules/jsProtoHelper.sys.mjs",
         "resource:///modules/logger.sys.mjs",
         "resource:///modules/MailNotificationManager.sys.mjs",
         "resource:///modules/MailNotificationService.sys.mjs",
-        "resource:///modules/MsgIncomingServer.jsm",
+        "resource:///modules/MsgIncomingServer.sys.mjs",
       ]),
       services: new Set([
         "@mozilla.org/mail/notification-manager;1",
@@ -69,18 +69,18 @@ const startupPhases = {
   "before first paint": {
     denylist: {
       modules: new Set([
-        "chrome://openpgp/content/BondOpenPGP.jsm",
-        "chrome://openpgp/content/modules/core.jsm",
+        "chrome://openpgp/content/BondOpenPGP.sys.mjs",
+        "chrome://openpgp/content/modules/core.sys.mjs",
         "resource:///modules/index_im.sys.mjs",
-        "resource:///modules/MsgDBCacheManager.jsm",
-        "resource:///modules/PeriodicFilterManager.jsm",
+        "resource:///modules/MsgDBCacheManager.sys.mjs",
+        "resource:///modules/PeriodicFilterManager.sys.mjs",
         "resource://gre/modules/Blocklist.sys.mjs",
         "resource://gre/modules/NewTabUtils.sys.mjs",
         "resource://gre/modules/Sqlite.sys.mjs",
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.sys.mjs",
-        // "resource://gre/modules/Preferences.jsm",
+        // "resource://gre/modules/Preferences.sys.mjs",
         // These can probably be pushed back even further.
       ]),
       services: new Set([
@@ -96,27 +96,27 @@ const startupPhases = {
   "before handling user events": {
     denylist: {
       modules: new Set([
-        "resource:///modules/gloda/Everybody.jsm",
-        "resource:///modules/gloda/Gloda.jsm",
-        "resource:///modules/gloda/GlodaContent.jsm",
-        "resource:///modules/gloda/GlodaDatabind.jsm",
-        "resource:///modules/gloda/GlodaDataModel.jsm",
-        "resource:///modules/gloda/GlodaDatastore.jsm",
-        "resource:///modules/gloda/GlodaExplicitAttr.jsm",
-        "resource:///modules/gloda/GlodaFundAttr.jsm",
-        "resource:///modules/gloda/GlodaMsgIndexer.jsm",
-        "resource:///modules/gloda/GlodaPublic.jsm",
-        "resource:///modules/gloda/GlodaQueryClassFactory.jsm",
-        "resource:///modules/gloda/GlodaUtils.jsm",
-        "resource:///modules/gloda/IndexMsg.jsm",
-        "resource:///modules/gloda/MimeMessage.jsm",
-        "resource:///modules/gloda/NounFreetag.jsm",
-        "resource:///modules/gloda/NounMimetype.jsm",
-        "resource:///modules/gloda/NounTag.jsm",
+        "resource:///modules/gloda/Everybody.sys.mjs",
+        "resource:///modules/gloda/Gloda.sys.mjs",
+        "resource:///modules/gloda/GlodaContent.sys.mjs",
+        "resource:///modules/gloda/GlodaDatabind.sys.mjs",
+        "resource:///modules/gloda/GlodaDataModel.sys.mjs",
+        "resource:///modules/gloda/GlodaDatastore.sys.mjs",
+        "resource:///modules/gloda/GlodaExplicitAttr.sys.mjs",
+        "resource:///modules/gloda/GlodaFundAttr.sys.mjs",
+        "resource:///modules/gloda/GlodaMsgIndexer.sys.mjs",
+        "resource:///modules/gloda/GlodaPublic.sys.mjs",
+        "resource:///modules/gloda/GlodaQueryClassFactory.sys.mjs",
+        "resource:///modules/gloda/GlodaUtils.sys.mjs",
+        "resource:///modules/gloda/IndexMsg.sys.mjs",
+        "resource:///modules/gloda/MimeMessage.sys.mjs",
+        "resource:///modules/gloda/NounFreetag.sys.mjs",
+        "resource:///modules/gloda/NounMimetype.sys.mjs",
+        "resource:///modules/gloda/NounTag.sys.mjs",
         "resource:///modules/index_im.sys.mjs",
-        "resource:///modules/jsmime.jsm",
+        "resource:///modules/jsmime.sys.mjs",
         "resource:///modules/MimeJSComponents.sys.mjs",
-        "resource:///modules/mimeParser.jsm",
+        "resource:///modules/mimeParser.sys.mjs",
         "resource://gre/modules/BookmarkHTMLUtils.sys.mjs",
         "resource://gre/modules/Bookmarks.sys.mjs",
         "resource://gre/modules/ContextualIdentityService.sys.mjs",
@@ -144,19 +144,19 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "resource:///modules/AddrBookManager.sys.mjs",
-        "resource:///modules/DisplayNameUtils.jsm",
-        "resource:///modules/gloda/Facet.jsm",
-        "resource:///modules/gloda/GlodaMsgSearcher.jsm",
-        "resource:///modules/gloda/SuffixTree.jsm",
+        "resource:///modules/DisplayNameUtils.sys.mjs",
+        "resource:///modules/gloda/Facet.sys.mjs",
+        "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
+        "resource:///modules/gloda/SuffixTree.sys.mjs",
         "resource:///modules/GlodaAutoComplete.sys.mjs",
-        "resource:///modules/ImapIncomingServer.jsm",
-        "resource:///modules/ImapMessageMessageService.jsm",
-        "resource:///modules/ImapMessageService.jsm",
+        "resource:///modules/ImapIncomingServer.sys.mjs",
+        "resource:///modules/ImapMessageMessageService.sys.mjs",
+        "resource:///modules/ImapMessageService.sys.mjs",
         // Skipped due to the way ImapModuleLoader and registerProtocolHandler
         // works, uncomment once ImapModuleLoader is removed and imap-js becomes
         // the only IMAP implemention.
-        // "resource:///modules/ImapProtocolHandler.jsm",
-        "resource:///modules/ImapService.jsm",
+        // "resource:///modules/ImapProtocolHandler.sys.mjs",
+        "resource:///modules/ImapService.sys.mjs",
         "resource:///modules/NntpIncomingServer.sys.mjs",
         "resource:///modules/NntpMessageService.sys.mjs",
         "resource:///modules/NntpProtocolHandler.sys.mjs",
@@ -165,12 +165,12 @@ const startupPhases = {
         "resource:///modules/Pop3IncomingServer.sys.mjs",
         "resource:///modules/Pop3ProtocolHandler.sys.mjs",
         "resource:///modules/Pop3ProtocolInfo.sys.mjs",
-        // "resource:///modules/Pop3Service.jsm",
-        "resource:///modules/SmtpClient.jsm",
+        // "resource:///modules/Pop3Service.sys.mjs",
+        "resource:///modules/SmtpClient.sys.mjs",
         "resource:///modules/SMTPProtocolHandler.sys.mjs",
         "resource:///modules/SmtpServer.sys.mjs",
         "resource:///modules/SmtpService.sys.mjs",
-        "resource:///modules/TemplateUtils.jsm",
+        "resource:///modules/TemplateUtils.sys.mjs",
         "resource://gre/modules/AsyncPrefs.sys.mjs",
         "resource://gre/modules/LoginManagerContextMenu.sys.mjs",
         "resource://pdf.js/PdfStreamConverter.sys.mjs",

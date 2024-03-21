@@ -21,7 +21,9 @@ export var EnigmailURIs = {
    * @return null
    */
   rememberEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG("uris.jsm: rememberEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "uris.sys.mjs: rememberEncryptedUri: uri=" + uri + "\n"
+    );
     if (!encryptedUris.includes(uri)) {
       encryptedUris.push(uri);
     }
@@ -35,7 +37,9 @@ export var EnigmailURIs = {
    * @return null
    */
   forgetEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG("uris.jsm: forgetEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "uris.sys.mjs: forgetEncryptedUri: uri=" + uri + "\n"
+    );
     const pos = encryptedUris.indexOf(uri);
     if (pos >= 0) {
       encryptedUris.splice(pos, 1);
@@ -50,7 +54,7 @@ export var EnigmailURIs = {
    * @return: Boolean true if yes, false otherwise
    */
   isEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG("uris.jsm: isEncryptedUri: uri=" + uri + "\n");
+    lazy.EnigmailLog.DEBUG("uris.sys.mjs: isEncryptedUri: uri=" + uri + "\n");
     return encryptedUris.includes(uri);
   },
 
@@ -77,7 +81,7 @@ export var EnigmailURIs = {
     }
 
     lazy.EnigmailLog.DEBUG(
-      "uris.jsm: msgIdentificationFromUrl: url.pathQueryRef=" +
+      "uris.sys.mjs: msgIdentificationFromUrl: url.pathQueryRef=" +
         ("path" in url ? url.path : url.pathQueryRef) +
         "\n"
     );
@@ -103,7 +107,7 @@ export var EnigmailURIs = {
     }
 
     lazy.EnigmailLog.DEBUG(
-      "uris.jsm: msgIdentificationFromUrl: msgNum=" +
+      "uris.sys.mjs: msgIdentificationFromUrl: msgNum=" +
         msgNum +
         " / folder=" +
         msgFolder +

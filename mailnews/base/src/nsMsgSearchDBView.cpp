@@ -42,7 +42,7 @@ NS_IMETHODIMP
 nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                         nsMsgViewSortOrderValue sortOrder,
                         nsMsgViewFlagsTypeValue viewFlags) {
-  // DBViewWrapper.jsm likes to create search views with a sort order
+  // DBViewWrapper.sys.mjs likes to create search views with a sort order
   // of byNone, in order to have the order be the order the search results
   // are returned. But this doesn't work with threaded view, so make the
   // sort order be byDate if we're threaded.

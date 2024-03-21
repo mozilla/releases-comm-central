@@ -9,7 +9,7 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.provider.detection namespace.
+// including calUtils.sys.mjs under the cal.provider.detection namespace.
 
 /**
  * The base class marker for detection errors. Useful in instanceof checks.

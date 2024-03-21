@@ -98,7 +98,7 @@ pref("app.update.notifyDuringDownload", false);
 // default value to migrate to the new location that this data is now stored
 // (which is in a file in the update directory). Because of this, this pref
 // should no longer be used directly. Instead, getAppUpdateAutoEnabled and
-// getAppUpdateAutoEnabled from UpdateUtils.jsm should be used.
+// getAppUpdateAutoEnabled from UpdateUtils.sys.mjs should be used.
 #ifndef XP_WIN
  pref("app.update.auto", true);
 #endif
@@ -192,7 +192,7 @@ pref("extensions.systemAddon.update.enabled", true);  // See bug 1462160.
 
 // Disable add-ons installed into the shared user and shared system areas by
 // default. This does not include the application directory. See the SCOPE
-// constants in AddonManager.jsm for values to use here
+// constants in AddonManager.sys.mjs for values to use here
 pref("extensions.autoDisableScopes", 15);
 
 // Enable add-ons installed and owned by the application, like the default theme.
@@ -698,7 +698,7 @@ pref("font.size.monospace.el", 12);
 #endif
 
 // Since different versions of Windows need different settings, we'll handle
-// this in MailMigrator.jsm.
+// this in MailMigrator.sys.mjs.
 
 // Linux, in other words.  Other OSes may wish to override.
 #ifdef UNIX_BUT_NOT_MAC

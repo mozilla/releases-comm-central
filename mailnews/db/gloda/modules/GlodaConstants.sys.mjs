@@ -113,7 +113,7 @@ export var GlodaConstants = {
 
   /**
    * The extensionName used for the attributes defined by core gloda plugins
-   *  such as GlodaFundAttr.jsm and GlodaExplicitAttr.jsm.
+   *  such as GlodaFundAttr.sys.mjs and GlodaExplicitAttr.sys.mjs.
    */
   BUILT_IN: "built-in",
 
@@ -194,27 +194,27 @@ export var GlodaConstants = {
    */
   NOUN_FOLDER: 100,
   /**
-   * All messages belong to a conversation.  See GlodaDataModel.jsm for the
+   * All messages belong to a conversation.  See GlodaDataModel.sys.mjs for the
    *  definition of the GlodaConversation class.
    */
   NOUN_CONVERSATION: 101,
   /**
    * A one-to-one correspondence with underlying (indexed) nsIMsgDBHdr
-   *  instances.  See GlodaDataModel.jsm for the definition of the GlodaMessage class.
+   *  instances.  See GlodaDataModel.sys.mjs for the definition of the GlodaMessage class.
    */
   NOUN_MESSAGE: 102,
   /**
    * Corresponds to a human being, who may have multiple electronic identities
    *  (a la NOUN_IDENTITY).  There is no requirement for association with an
    *  address book contact, although when the address book contact exists,
-   *  we want to be associated with it.  See GlodaDataModel.jsm for the definition
+   *  we want to be associated with it.  See GlodaDataModel.sys.mjs for the definition
    *  of the GlodaContact class.
    */
   NOUN_CONTACT: 103,
   /**
    * A single identity of a contact, who may have one or more.  E-mail accounts,
    *  instant messaging accounts, social network site accounts, etc. are each
-   *  identities.  See GlodaDataModel.jsm for the definition of the GlodaIdentity
+   *  identities.  See GlodaDataModel.sys.mjs for the definition of the GlodaIdentity
    *  class.
    */
   NOUN_IDENTITY: 104,
@@ -234,7 +234,7 @@ export var GlodaConstants = {
    *  store the identity of the other party.  So in both the from-me and to-me
    *  cases involving 'me' and 'foo@bar', the 'me' identity is always stored via
    *  the attribute parameter, and the 'foo@bar' identity is always stored as
-   *  the attribute value.  See GlodaFundAttr.jsm for more information on this, but
+   *  the attribute value.  See GlodaFundAttr.sys.mjs for more information on this, but
    *  you probably shouldn't be touching this unless you are fundattr.
    */
   NOUN_PARAM_IDENTITY: 200,

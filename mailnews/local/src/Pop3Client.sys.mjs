@@ -342,7 +342,7 @@ export class Pop3Client {
   _onData = async event => {
     // Some servers close the socket on invalid username/password, this line
     // guarantees onclose is handled before we try another AUTH method. See the
-    // same handling in SmtpClient.jsm.
+    // same handling in SmtpClient.sys.mjs.
     await new Promise(resolve => setTimeout(resolve));
 
     let stringPayload = CommonUtils.arrayBufferToByteString(

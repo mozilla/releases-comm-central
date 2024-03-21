@@ -4,7 +4,7 @@
 
 /*
  * This file provides gloda testing infrastructure functions which are not coupled
- * with the IndexMessageState from GlodaTestHelper.jsm
+ * with the IndexMessageState from GlodaTestHelper.sys.mjs
  */
 
 import { GlodaDatastore } from "resource:///modules/gloda/GlodaDatastore.sys.mjs";
@@ -25,7 +25,7 @@ var log = console.createInstance({
  * Resume execution when the db has run all the async statements whose execution
  *  was queued prior to this call.  We trigger a commit to accomplish this,
  *  although this could also be accomplished without a commit.  (Though we would
- *  have to reach into GlodaDatastore.jsm and get at the raw connection or extend
+ *  have to reach into GlodaDatastore.sys.mjs and get at the raw connection or extend
  *  datastore to provide a way to accomplish this.)
  */
 export async function waitForGlodaDBFlush() {

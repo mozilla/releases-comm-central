@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.email namespace.
+// including calUtils.sys.mjs under the cal.email namespace.
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 

@@ -89,7 +89,7 @@ PgpMimeEncrypt.prototype = {
   //statusStr: "",
   cryptoOutputLength: 0,
   cryptoOutput: "",
-  hashAlgorithm: "SHA256", // TODO: coordinate with RNP.jsm
+  hashAlgorithm: "SHA256", // TODO: coordinate with RNP.sys.mjs
   cryptoInputBuffer: "",
   outgoingMessageBuffer: "",
   mimeStructure: 0,
@@ -723,7 +723,7 @@ export var EnigmailMimeEncrypt = {
   Handler: PgpMimeEncrypt,
 
   init() {
-    lazy.EnigmailLog.DEBUG("mimeEncrypt.jsm: initModule()\n");
+    lazy.EnigmailLog.DEBUG("mimeEncrypt.sys.mjs: initModule()\n");
     const nspr_log_modules = Services.env.get("NSPR_LOG_MODULES");
     const matches = nspr_log_modules.match(/mimeEncrypt:(\d+)/);
 

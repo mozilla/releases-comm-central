@@ -849,7 +849,7 @@ function calendarUpdateDeleteCommand(selectedItems) {
  * process for that browser.
  */
 async function printCalendar() {
-  // Ensure the printing of this file will be detected by calPrintUtils.jsm.
+  // Ensure the printing of this file will be detected by calPrintUtils.sys.mjs.
   cal.print.ensureInitialized();
 
   await PrintUtils.loadPrintBrowser("chrome://calendar/content/printing-template.html");

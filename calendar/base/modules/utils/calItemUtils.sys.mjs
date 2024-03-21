@@ -12,7 +12,7 @@ import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.item namespace.
+// including calUtils.sys.mjs under the cal.item namespace.
 
 export var item = {
   ItemDiff: (function () {

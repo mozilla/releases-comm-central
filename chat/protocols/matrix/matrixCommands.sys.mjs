@@ -36,7 +36,7 @@ ChromeUtils.defineLazyGetter(lazy, "EVENT_TO_STRING", () => ({
 }));
 
 // Commands from element that we're not yet supporting (including equivalents):
-// - /nick (no proper display name change support in matrix.jsm yet)
+// - /nick (no proper display name change support in matrix.sys.mjs yet)
 // - /myroomnick <display_name>
 // - /roomavatar [<mxc_url>]
 // - /myroomavatar [<mxc_url>]

@@ -13,7 +13,7 @@ var { localAccountUtils } = ChromeUtils.importESModule(
 
 var CC = Components.Constructor;
 
-// WebApps.jsm called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
+// WebApps.sys.mjs called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
 var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.importESModule(
   "resource://testing-common/AppInfo.sys.mjs"
 );

@@ -1,4 +1,4 @@
-# MailGlue.jsm
+# MailGlue.sys.mjs
 
 # This component must restrict its registration for the app-startup category
 # to the specific list of apps that use it so it doesn't get loaded in xpcshell.

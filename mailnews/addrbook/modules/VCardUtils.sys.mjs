@@ -279,7 +279,7 @@ VCardMimeConverter.prototype = {
     }
     propertiesTable += `</table>`;
 
-    // VCardChild.jsm and VCardParent.jsm handle clicking on this link.
+    // VCardChild.sys.mjs and VCardParent.sys.mjs handle clicking on this link.
     return `<html>
       <body>
         <table class="moz-vcard-table">

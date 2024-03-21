@@ -10,7 +10,7 @@ import { CalDavPropfindRequest } from "resource:///modules/caldav/CalDavRequest.
 import { CalDavDetectionSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.provider.caldav namespace.
+// including calUtils.sys.mjs under the cal.provider.caldav namespace.
 
 /**
  * @implements {calICalendarProvider}

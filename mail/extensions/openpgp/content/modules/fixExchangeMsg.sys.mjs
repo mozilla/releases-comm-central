@@ -30,7 +30,9 @@ export var EnigmailFixExchangeMsg = {
   async fixExchangeMessage(hdr, brokenByApp, destFolderUri = null) {
     const msgUriSpec = hdr.folder.getUriForMsg(hdr);
     lazy.EnigmailLog.DEBUG(
-      "fixExchangeMsg.jsm: fixExchangeMessage: msgUriSpec: " + msgUriSpec + "\n"
+      "fixExchangeMsg.sys.mjs: fixExchangeMessage: msgUriSpec: " +
+        msgUriSpec +
+        "\n"
     );
 
     this.hdr = hdr;
@@ -42,7 +44,7 @@ export var EnigmailFixExchangeMsg = {
     const fixedMsgData = await this.getMessageBody();
 
     lazy.EnigmailLog.DEBUG(
-      "fixExchangeMsg.jsm: fixExchangeMessage: got fixedMsgData\n"
+      "fixExchangeMsg.sys.mjs: fixExchangeMessage: got fixedMsgData\n"
     );
     this.ensureExpectedStructure(fixedMsgData);
     return lazy.EnigmailPersistentCrypto.copyMessageToFolder(
@@ -55,7 +57,7 @@ export var EnigmailFixExchangeMsg = {
   },
 
   getMessageBody() {
-    lazy.EnigmailLog.DEBUG("fixExchangeMsg.jsm: getMessageBody:\n");
+    lazy.EnigmailLog.DEBUG("fixExchangeMsg.sys.mjs: getMessageBody:\n");
 
     var self = this;
 
@@ -65,12 +67,12 @@ export var EnigmailFixExchangeMsg = {
       );
 
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getting data from URL " + url + "\n"
+        "fixExchangeMsg.sys.mjs: getting data from URL " + url + "\n"
       );
 
       const s = lazy.EnigmailStreams.newStringStreamListener(function (data) {
         lazy.EnigmailLog.DEBUG(
-          "fixExchangeMsg.jsm: analyzeDecryptedData: got " +
+          "fixExchangeMsg.sys.mjs: analyzeDecryptedData: got " +
             data.length +
             " bytes\n"
         );
@@ -95,7 +97,7 @@ export var EnigmailFixExchangeMsg = {
         channel.asyncOpen(s, null);
       } catch (e) {
         lazy.EnigmailLog.DEBUG(
-          "fixExchangeMsg.jsm: getMessageBody: exception " + e + "\n"
+          "fixExchangeMsg.sys.mjs: getMessageBody: exception " + e + "\n"
         );
       }
     });
@@ -136,7 +138,7 @@ export var EnigmailFixExchangeMsg = {
         break;
       default:
         lazy.EnigmailLog.ERROR(
-          "fixExchangeMsg.jsm: getRepairedMessage: unknown appType " +
+          "fixExchangeMsg.sys.mjs: getRepairedMessage: unknown appType " +
             this.brokenByApp +
             "\n"
         );
@@ -184,7 +186,7 @@ export var EnigmailFixExchangeMsg = {
    */
   getFixedHeaderData(hdrLines) {
     lazy.EnigmailLog.DEBUG(
-      "fixExchangeMsg.jsm: getFixedHeaderData: hdrLines[]:'" +
+      "fixExchangeMsg.sys.mjs: getFixedHeaderData: hdrLines[]:'" +
         hdrLines.length +
         "'\n"
     );
@@ -242,7 +244,7 @@ export var EnigmailFixExchangeMsg = {
    */
   getCorrectedExchangeBodyData(bodyData, boundary) {
     lazy.EnigmailLog.DEBUG(
-      "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: boundary='" +
+      "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: boundary='" +
         boundary +
         "'\n"
     );
@@ -253,7 +255,7 @@ export var EnigmailFixExchangeMsg = {
 
     if (match.index < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: did not find index of mime type to skip\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: did not find index of mime type to skip\n"
       );
       return null;
     }
@@ -263,7 +265,7 @@ export var EnigmailFixExchangeMsg = {
     match = boundRx.exec(bodyData);
     if (match.index <= 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: did not find boundary of PGP/MIME version identification\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: did not find boundary of PGP/MIME version identification\n"
       );
       return null;
     }
@@ -278,7 +280,7 @@ export var EnigmailFixExchangeMsg = {
         ) < 0
     ) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: first MIME part is not content-type text/plain or text/html\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: first MIME part is not content-type text/plain or text/html\n"
       );
       return null;
     }
@@ -286,7 +288,7 @@ export var EnigmailFixExchangeMsg = {
     match = boundRx.exec(bodyData);
     if (match.index < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: did not find boundary of PGP/MIME encrypted data\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: did not find boundary of PGP/MIME encrypted data\n"
       );
       return null;
     }
@@ -300,7 +302,7 @@ export var EnigmailFixExchangeMsg = {
 
     if (!ct || ct.search(/application\/pgp-encrypted/i) < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: wrong content-type of version-identification\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: wrong content-type of version-identification\n"
       );
       lazy.EnigmailLog.DEBUG("   ct = '" + ct + "'\n");
       return null;
@@ -310,7 +312,7 @@ export var EnigmailFixExchangeMsg = {
     ct = mimeHdr.extractHeader("content-type", false);
     if (!ct || ct.search(/application\/octet-stream/i) < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectedExchangeBodyData: wrong content-type of PGP/MIME data\n"
+        "fixExchangeMsg.sys.mjs: getCorrectedExchangeBodyData: wrong content-type of PGP/MIME data\n"
       );
       lazy.EnigmailLog.DEBUG("   ct = '" + ct + "'\n");
       return null;
@@ -324,7 +326,7 @@ export var EnigmailFixExchangeMsg = {
    */
   getCorrectediPGMailBodyData(bodyData, boundary) {
     lazy.EnigmailLog.DEBUG(
-      "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: boundary='" +
+      "fixExchangeMsg.sys.mjs: getCorrectediPGMailBodyData: boundary='" +
         boundary +
         "'\n"
     );
@@ -335,7 +337,7 @@ export var EnigmailFixExchangeMsg = {
 
     if (match.index < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: did not find index of mime type to skip\n"
+        "fixExchangeMsg.sys.mjs: getCorrectediPGMailBodyData: did not find index of mime type to skip\n"
       );
       return null;
     }
@@ -344,7 +346,7 @@ export var EnigmailFixExchangeMsg = {
     match = boundRx.exec(bodyData);
     if (match.index <= 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: did not find boundary of text/plain msg part\n"
+        "fixExchangeMsg.sys.mjs: getCorrectediPGMailBodyData: did not find boundary of text/plain msg part\n"
       );
       return null;
     }
@@ -354,7 +356,7 @@ export var EnigmailFixExchangeMsg = {
     match = boundRx.exec(bodyData);
     if (match.index < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: did not find end boundary of PGP/MIME encrypted data\n"
+        "fixExchangeMsg.sys.mjs: getCorrectediPGMailBodyData: did not find end boundary of PGP/MIME encrypted data\n"
       );
       return null;
     }
@@ -367,7 +369,7 @@ export var EnigmailFixExchangeMsg = {
     const ct = mimeHdr.extractHeader("content-type", false);
     if (!ct || ct.search(/application\/pgp-encrypted/i) < 0) {
       lazy.EnigmailLog.DEBUG(
-        "fixExchangeMsg.jsm: getCorrectediPGMailBodyData: wrong content-type of PGP/MIME data\n"
+        "fixExchangeMsg.sys.mjs: getCorrectediPGMailBodyData: wrong content-type of PGP/MIME data\n"
       );
       lazy.EnigmailLog.DEBUG("   ct = '" + ct + "'\n");
       return null;

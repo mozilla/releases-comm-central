@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.itip namespace.
+// including calUtils.sys.mjs under the cal.itip namespace.
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { calendarDeactivator } from "resource:///modules/calendar/calCalendarDeactivator.sys.mjs";

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Test GlodaMsgSearcher.jsm our heuristic-based fulltext search mechanism.  Things we
+ * Test GlodaMsgSearcher.sys.mjs our heuristic-based fulltext search mechanism.  Things we
  *  generally want to verify:
  * - fulltext weighting by where the match happened works.
  * - static interestingness impacts things appropriately.

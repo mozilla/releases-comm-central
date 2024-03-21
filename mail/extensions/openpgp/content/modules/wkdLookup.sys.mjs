@@ -261,7 +261,7 @@ export var EnigmailWkdLookup = {
     let response;
     try {
       lazy.EnigmailLog.DEBUG(
-        "wkdLookup.jsm: downloadKey: requesting " + url + "\n"
+        "wkdLookup.sys.mjs: downloadKey: requesting " + url + "\n"
       );
       response = await fetch(url, {
         method: "GET",
@@ -284,7 +284,7 @@ export var EnigmailWkdLookup = {
       }
     } catch (ex) {
       lazy.EnigmailLog.DEBUG(
-        "wkdLookup.jsm: downloadKey: error " + ex.toString() + "\n"
+        "wkdLookup.sys.mjs: downloadKey: error " + ex.toString() + "\n"
       );
       return null;
     }

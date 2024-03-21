@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.l10n namespace.
+// including calUtils.sys.mjs under the cal.l10n namespace.
 
 /**
  * Gets the value of a string in a .properties file.

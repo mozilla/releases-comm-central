@@ -497,7 +497,7 @@ function verify_attachment_flag(smsg, gmsg) {
     );
   }
 }
-/* ===== Fundamental Attributes (per GlodaFundAttr.jsm) ===== */
+/* ===== Fundamental Attributes (per GlodaFundAttr.sys.mjs) ===== */
 
 /**
  * Save the synthetic message created in test_attributes_fundamental for the
@@ -520,8 +520,8 @@ var fundamentalGlodaMessageId;
 /**
  * Test that we extract the 'fundamental attributes' of a message properly
  *  'Fundamental' in this case is talking about the attributes defined/extracted
- *  by gloda's GlodaFundAttr.jsm and perhaps the core message indexing logic itself
- *  (which show up as kSpecial* attributes in GlodaFundAttr.jsm anyways.)
+ *  by gloda's GlodaFundAttr.sys.mjs and perhaps the core message indexing logic itself
+ *  (which show up as kSpecial* attributes in GlodaFundAttr.sys.mjs anyways.)
  */
 async function test_attributes_fundamental() {
   // Create a synthetic message with attachment.
@@ -733,10 +733,10 @@ function verify_attributes_fundamental_from_disk(aGlodaMessage) {
   return aGlodaMessage.headerMessageID;
 }
 
-/* ===== Explicit Attributes (per GlodaExplicitAttr.jsm) ===== */
+/* ===== Explicit Attributes (per GlodaExplicitAttr.sys.mjs) ===== */
 
 /**
- * Test the attributes defined by GlodaExplicitAttr.jsm.
+ * Test the attributes defined by GlodaExplicitAttr.sys.mjs.
  */
 async function test_attributes_explicit() {
   const [, msgSet] = await messageInjection.makeFoldersWithSets(1, [

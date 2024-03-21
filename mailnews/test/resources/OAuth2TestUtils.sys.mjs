@@ -39,7 +39,7 @@ export const OAuth2TestUtils = {
   },
 
   /**
-   * Forget any `OAuth2` objects remembered by OAuth2Module.jsm
+   * Forget any `OAuth2` objects remembered by OAuth2Module.sys.mjs
    */
   forgetObjects() {
     OAuth2Module._forgetObjects();

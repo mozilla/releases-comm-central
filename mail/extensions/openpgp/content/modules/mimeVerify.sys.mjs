@@ -52,14 +52,14 @@ export var EnigmailVerify = {
 
   setLastMsgUri(msgUriSpec) {
     lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: setLastMsgUri: " + msgUriSpec + "\n"
+      "mimeVerify.sys.mjs: setLastMsgUri: " + msgUriSpec + "\n"
     );
     this.lastMsgUri = msgUriSpec;
   },
 
   newVerifier(protocol) {
     lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: newVerifier: " + (protocol || "null") + "\n"
+      "mimeVerify.sys.mjs: newVerifier: " + (protocol || "null") + "\n"
     );
 
     const v = new MimeVerify(protocol);
@@ -79,7 +79,7 @@ export var EnigmailVerify = {
    * Sets the PGPMime content type handler as the registered handler.
    */
   registerPGPMimeHandler() {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: registerPGPMimeHandler\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: registerPGPMimeHandler\n");
 
     if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
       return;
@@ -101,7 +101,7 @@ export var EnigmailVerify = {
    * registered, S/MIME works.
    */
   unregisterPGPMimeHandler() {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: unregisterPGPMimeHandler\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: unregisterPGPMimeHandler\n");
 
     const reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
     if (this.currentCtHandler == EnigmailConstants.MIME_HANDLER_PGPMIME) {
@@ -134,7 +134,7 @@ MimeVerify.prototype = {
     // Eat up CRLF's.
     contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
     lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: parseContentType: " + contentTypeLine + "\n"
+      "mimeVerify.sys.mjs: parseContentType: " + contentTypeLine + "\n"
     );
 
     const protoRx = RegExp(
@@ -147,7 +147,7 @@ MimeVerify.prototype = {
       contentTypeLine.search(protoRx) > 0
     ) {
       lazy.EnigmailLog.DEBUG(
-        "mimeVerify.jsm: parseContentType: found MIME signed message\n"
+        "mimeVerify.sys.mjs: parseContentType: found MIME signed message\n"
       );
       this.foundMsg = true;
       const hdr = lazy.EnigmailFuncs.getHeaderData(contentTypeLine);
@@ -158,7 +158,7 @@ MimeVerify.prototype = {
   },
 
   onStartRequest(request, uri) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStartRequest\n"); // always log this one
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: onStartRequest\n"); // always log this one
 
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
@@ -185,7 +185,9 @@ MimeVerify.prototype = {
   },
 
   onDataAvailable(req, stream, offset, count) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onDataAvailable: " + count + "\n");
+    lazy.EnigmailLog.DEBUG(
+      "mimeVerify.sys.mjs: onDataAvailable: " + count + "\n"
+    );
     if (count > 0) {
       this.inStream.init(stream);
       var data = this.inStream.read(count);
@@ -194,7 +196,7 @@ MimeVerify.prototype = {
   },
 
   onTextData(data) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onTextData\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: onTextData\n");
 
     this.dataCount += data.length;
 
@@ -421,7 +423,7 @@ MimeVerify.prototype = {
   },
 
   onStopRequest(request) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: onStopRequest\n");
 
     const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
@@ -493,9 +495,9 @@ MimeVerify.prototype = {
           }
         }
       } catch (ex) {
-        lazy.EnigmailLog.writeException("mimeVerify.jsm", ex);
+        lazy.EnigmailLog.writeException("mimeVerify.sys.mjs", ex);
         lazy.EnigmailLog.DEBUG(
-          "mimeVerify.jsm: error while processing " + this.msgUriSpec + "\n"
+          "mimeVerify.sys.mjs: error while processing " + this.msgUriSpec + "\n"
         );
       }
     }
@@ -556,7 +558,7 @@ MimeVerify.prototype = {
   // return data to libMime
   returnData(data) {
     lazy.EnigmailLog.DEBUG(
-      "mimeVerify.jsm: returnData: " + data.length + " bytes\n"
+      "mimeVerify.sys.mjs: returnData: " + data.length + " bytes\n"
     );
 
     const m = data.match(/^(content-type: +)([\w/]+)/im);
@@ -586,7 +588,7 @@ MimeVerify.prototype = {
    * @param {nsIMsgOpenPGPSink} sink
    */
   displayStatus(sink) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
+    lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: displayStatus\n");
     if (this.exitCode === null || this.statusDisplayed || this.backgroundJob) {
       return;
     }
@@ -595,7 +597,9 @@ MimeVerify.prototype = {
       return;
     }
 
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
+    lazy.EnigmailLog.DEBUG(
+      "mimeVerify.sys.mjs: displayStatus displaying result\n"
+    );
     if (this.protectedHeaders) {
       sink.modifyMessageHeaders(
         this.uri.spec,

@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * This file is loaded into the printing options page by calPrintUtils.jsm if
+ * This file is loaded into the printing options page by calPrintUtils.sys.mjs if
  * we are printing the calendar. It injects a new form (from
  * calendar-tab-panels.inc.xhtml) for choosing the print output. It also
  * contains the javascript for the form.

@@ -273,7 +273,7 @@ export class CalItipEmailTransport {
       }
       case Ci.calIItipItem.NONE: {
         // we shouldn't get here, as we stopped processing in this case
-        // earlier in checkAndSend in calItipUtils.jsm
+        // earlier in checkAndSend in calItipUtils.sys.mjs
         cal.LOG("sendXpcomMail: Found NONE autoResponse type.");
         break;
       }

@@ -1365,7 +1365,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
           } else {
             // Get the current vCardProperties, build a propertyMap and create
             // vCardParsed which allows to identify all currently exposed entries
-            // based on the typeName used in VCardUtils.jsm (e.g. adr.work).
+            // based on the typeName used in VCardUtils.sys.mjs (e.g. adr.work).
             const vCardProperties = vCardPropertiesFromCard(node.item);
             const vCardParsed = VCardUtils._parse(vCardProperties.entries);
             const propertyMap = vCardProperties.toPropertyMap();

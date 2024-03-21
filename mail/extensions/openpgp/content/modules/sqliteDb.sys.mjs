@@ -16,7 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 export var PgpSqliteDb2 = {
   openDatabase() {
-    lazy.EnigmailLog.DEBUG("sqliteDb.jsm: PgpSqliteDb2 openDatabase()\n");
+    lazy.EnigmailLog.DEBUG("sqliteDb.sys.mjs: PgpSqliteDb2 openDatabase()\n");
     return new Promise((resolve, reject) => {
       openDatabaseConn(
         "openpgp.sqlite",
@@ -30,7 +30,7 @@ export var PgpSqliteDb2 = {
 
   async checkDatabaseStructure() {
     lazy.EnigmailLog.DEBUG(
-      `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure()\n`
+      `sqliteDb.sys.mjs: PgpSqliteDb2 checkDatabaseStructure()\n`
     );
     let conn;
     try {
@@ -38,11 +38,11 @@ export var PgpSqliteDb2 = {
       await checkAcceptanceTable(conn);
       await conn.close();
       lazy.EnigmailLog.DEBUG(
-        `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure - success\n`
+        `sqliteDb.sys.mjs: PgpSqliteDb2 checkDatabaseStructure - success\n`
       );
     } catch (ex) {
       lazy.EnigmailLog.ERROR(
-        `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure: ERROR: ${ex}\n`
+        `sqliteDb.sys.mjs: PgpSqliteDb2 checkDatabaseStructure: ERROR: ${ex}\n`
       );
       if (conn) {
         await conn.close();
@@ -397,7 +397,7 @@ export var PgpSqliteDb2 = {
  *   which we should give up.
  */
 function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
-  lazy.EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");
+  lazy.EnigmailLog.DEBUG("sqliteDb.sys.mjs: openDatabaseConn()\n");
   lazy.Sqlite.openConnection({
     path: filename,
     sharedMemoryCache: false,
@@ -421,13 +421,15 @@ async function checkAcceptanceTable(connection) {
   try {
     const exists = await connection.tableExists("acceptance_email");
     const exists2 = await connection.tableExists("acceptance_decision");
-    lazy.EnigmailLog.DEBUG("sqliteDB.jsm: checkAcceptanceTable - success\n");
+    lazy.EnigmailLog.DEBUG(
+      "sqliteDB.sys.mjs: checkAcceptanceTable - success\n"
+    );
     if (!exists || !exists2) {
       await createAcceptanceTable(connection);
     }
   } catch (error) {
     lazy.EnigmailLog.DEBUG(
-      `sqliteDB.jsm: checkAcceptanceTable - error ${error}\n`
+      `sqliteDB.sys.mjs: checkAcceptanceTable - error ${error}\n`
     );
     throw error;
   }
@@ -436,7 +438,7 @@ async function checkAcceptanceTable(connection) {
 }
 
 async function createAcceptanceTable(connection) {
-  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable()\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.sys.mjs: createAcceptanceTable()\n");
 
   await connection.execute(
     "create table acceptance_email (" +
@@ -452,12 +454,12 @@ async function createAcceptanceTable(connection) {
       "unique(fpr));"
   );
 
-  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index1\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.sys.mjs: createAcceptanceTable - index1\n");
   await connection.execute(
     "create unique index acceptance_email_i1 on acceptance_email(fpr, email);"
   );
 
-  lazy.EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index2\n");
+  lazy.EnigmailLog.DEBUG("sqliteDB.sys.mjs: createAcceptanceTable - index2\n");
   await connection.execute(
     "create unique index acceptance__decision_i1 on acceptance_decision(fpr);"
   );

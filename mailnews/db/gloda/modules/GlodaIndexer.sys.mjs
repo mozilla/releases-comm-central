@@ -420,9 +420,9 @@ export var GlodaIndexer = {
   /**
    * The list of indexers registered with us.  If you are a core gloda indexer
    *  (you ship with gloda), then you can import this file directly and should
-   *  make sure your indexer is imported in 'Everybody.jsm' in the right order.
-   *  If you are not core gloda, then you should import 'GlodaPublic.jsm' and only
-   *  then should you import 'GlodaIndexer.jsm' to get at GlodaIndexer.
+   *  make sure your indexer is imported in 'Everybody.sys.mjs' in the right order.
+   *  If you are not core gloda, then you should import 'GlodaPublic.sys.mjs' and only
+   *  then should you import 'GlodaIndexer.sys.mjs' to get at GlodaIndexer.
    */
   _indexers: [],
   /**
@@ -1484,6 +1484,6 @@ export var GlodaIndexer = {
     }
   },
 };
-// we used to initialize here; now we have GlodaPublic.jsm do it for us after the
+// we used to initialize here; now we have GlodaPublic.sys.mjs do it for us after the
 //  indexers register themselves so we know about all our built-in indexers
 //  at init-time.

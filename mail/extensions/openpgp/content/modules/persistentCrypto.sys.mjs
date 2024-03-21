@@ -115,7 +115,7 @@ export var EnigmailPersistentCrypto = {
     content,
     newMessageIdPrefix
   ) {
-    lazy.EnigmailLog.DEBUG("persistentCrypto.jsm: copyMessageToFolder()\n");
+    lazy.EnigmailLog.DEBUG("persistentCrypto.sys.mjs: copyMessageToFolder()\n");
     return new Promise((resolve, reject) => {
       if (newMessageIdPrefix) {
         content = this.changeMessageId(content, newMessageIdPrefix);
@@ -166,7 +166,7 @@ export var EnigmailPersistentCrypto = {
         },
         SetMessageKey(key) {
           lazy.EnigmailLog.DEBUG(
-            `persistentCrypto.jsm: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`
+            `persistentCrypto.sys.mjs: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`
           );
           newKey = key;
         },
@@ -181,7 +181,7 @@ export var EnigmailPersistentCrypto = {
           statusCode = status;
           if (statusCode !== 0) {
             lazy.EnigmailLog.ERROR(
-              `persistentCrypto.jsm: ${statusCode} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`
+              `persistentCrypto.sys.mjs: ${statusCode} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`
             );
             reject();
             return;
@@ -192,13 +192,13 @@ export var EnigmailPersistentCrypto = {
           } catch (ex) {}
 
           lazy.EnigmailLog.DEBUG(
-            "persistentCrypto.jsm: copyMessageToFolder: Triggering deletion from OnStopCopy()\n"
+            "persistentCrypto.sys.mjs: copyMessageToFolder: Triggering deletion from OnStopCopy()\n"
           );
           this.applyFlags();
 
           if (deleteOrigMsg) {
             lazy.EnigmailLog.DEBUG(
-              `persistentCrypto.jsm: copyMessageToFolder: Deleting old message with key ${originalMsgHdr.messageKey}\n`
+              `persistentCrypto.sys.mjs: copyMessageToFolder: Deleting old message with key ${originalMsgHdr.messageKey}\n`
             );
             msgFolder.deleteMessages(
               [originalMsgHdr],
@@ -282,7 +282,7 @@ class CryptMessageIntoFolder extends MimeTreeDecrypter {
     const exitCodeObj = {};
     const statusFlagsObj = {};
     const errorMsgObj = {};
-    lazy.EnigmailLog.DEBUG("persistentCrypto.jsm: Encrypting message.\n");
+    lazy.EnigmailLog.DEBUG("persistentCrypto.sys.mjs: Encrypting message.\n");
 
     const inputMsg = mimeTreeToString(mimeTree, false);
 
@@ -303,7 +303,7 @@ class CryptMessageIntoFolder extends MimeTreeDecrypter {
       );
     } catch (ex) {
       lazy.EnigmailLog.DEBUG(
-        "persistentCrypto.jsm: Encryption failed: " + ex + "\n"
+        "persistentCrypto.sys.mjs: Encryption failed: " + ex + "\n"
       );
       return null;
     }

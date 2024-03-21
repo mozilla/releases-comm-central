@@ -2,7 +2,7 @@
 
 module.exports = {
   globals: {
-    // These are defined in the WebExtension script scopes by ExtensionCommon.jsm.
+    // These are defined in the WebExtension script scopes by ExtensionCommon.sys.mjs.
     // From toolkit/components/extensions/.eslintrc.js.
     ExtensionAPI: true,
     ExtensionAPIPersistent: true,

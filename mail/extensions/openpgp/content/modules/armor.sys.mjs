@@ -68,7 +68,7 @@ export var EnigmailArmor = {
     indentStrObj
   ) {
     lazy.EnigmailLog.DEBUG(
-      "armor.jsm: Enigmail.locateArmoredBlock: " +
+      "armor.sys.mjs: Enigmail.locateArmoredBlock: " +
         offset +
         ", '" +
         indentStr +
@@ -140,7 +140,9 @@ export var EnigmailArmor = {
     if (matches && matches.length > 1) {
       blockType = matches[1];
       lazy.EnigmailLog.DEBUG(
-        "armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n"
+        "armor.sys.mjs: Enigmail.locateArmoredBlock: blockType=" +
+          blockType +
+          "\n"
       );
     }
 
@@ -204,14 +206,14 @@ export var EnigmailArmor = {
     }
 
     lazy.EnigmailLog.DEBUG(
-      "armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n"
+      "armor.sys.mjs: locateArmorBlocks: Found " + blocks.length + " Blocks\n"
     );
     return blocks;
   },
 
   extractSignaturePart(signatureBlock, part) {
     lazy.EnigmailLog.DEBUG(
-      "armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n"
+      "armor.sys.mjs: Enigmail.extractSignaturePart: part=" + part + "\n"
     );
 
     return searchBlankLine(signatureBlock, function (offset) {

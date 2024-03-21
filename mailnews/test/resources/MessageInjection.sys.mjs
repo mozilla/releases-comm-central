@@ -962,7 +962,7 @@ export class MessageInjection {
   get messageGenerator() {
     if (this.msgGen === undefined) {
       throw new Error(
-        "MessageInjection.jsm needs a MessageGenerator for new messages. " +
+        "MessageInjection.sys.mjs needs a MessageGenerator for new messages. " +
           "The MessageGenerator helps you with threaded messages. If you use " +
           "two different MessageGenerators the behaviour with threads are complicated."
       );

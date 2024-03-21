@@ -169,7 +169,7 @@ CalStorageCalendar.prototype = {
     if (aTopic == "profile-change-teardown") {
       Services.obs.removeObserver(this, "profile-change-teardown");
       // Finalize the storage statements, but don't close the database.
-      // CalStorageDatabase.jsm will take care of that while blocking profile-before-change.
+      // CalStorageDatabase.sys.mjs will take care of that while blocking profile-before-change.
       this.mStatements?.finalize();
     }
   },

@@ -25,12 +25,9 @@ export var EnigmailFuncs = {
    *
    * @param {string} mailAddresses - Address list encdoded as specified
    *   in RFC 2822, 3.4 separated by , or ;
-   *
    * @returns {string} a list of pure email addresses separated by ","
    */
   stripEmail(mailAddresses) {
-    // EnigmailLog.DEBUG("funcs.jsm: stripEmail(): mailAddresses=" + mailAddresses + "\n");
-
     const SIMPLE = "[^<>,]+"; // RegExp for a simple email address (e.g. a@b.c)
     const COMPLEX = "[^<>,]*<[^<>, ]+>"; // RegExp for an address containing <...> (e.g. Name <a@b.c>)
     const MatchAddr = new RegExp(
@@ -44,7 +41,7 @@ export var EnigmailFuncs = {
       qEnd = mailAddrs.indexOf('"', qStart + 1);
       if (qEnd < 0) {
         lazy.EnigmailLog.ERROR(
-          "funcs.jsm: stripEmail: Unmatched quote in mail address: '" +
+          "funcs.sys.mjs: stripEmail: Unmatched quote in mail address: '" +
             mailAddresses +
             "'\n"
         );
@@ -68,7 +65,7 @@ export var EnigmailFuncs = {
     // having two <..> <..> in one email, or things like <a@b.c,><d@e.f> is an error
     if (mailAddrs.search(MatchAddr) < 0) {
       lazy.EnigmailLog.ERROR(
-        "funcs.jsm: stripEmail: Invalid <..> brackets in mail address: '" +
+        "funcs.sys.mjs: stripEmail: Invalid <..> brackets in mail address: '" +
           mailAddresses +
           "'\n"
       );
@@ -128,7 +125,7 @@ export var EnigmailFuncs = {
    * @param {object} dummy - Anything.
    */
   collapseAdvanced(obj, attribute, dummy) {
-    lazy.EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
+    lazy.EnigmailLog.DEBUG("funcs.sys.mjs: collapseAdvanced:\n");
 
     var advancedUser = Services.prefs.getBoolPref("temp.openpgp.advancedUser");
 
@@ -262,7 +259,6 @@ export var EnigmailFuncs = {
       lines.join("\n") +
       (isSignature ? "</div>" : "") +
       "</pre>";
-    //EnigmailLog.DEBUG("funcs.jsm: r='"+r+"'\n");
     return r;
   },
 
@@ -276,7 +272,7 @@ export var EnigmailFuncs = {
    */
   getHeaderData(data) {
     lazy.EnigmailLog.DEBUG(
-      "funcs.jsm: getHeaderData: " + data.substr(0, 100) + "\n"
+      "funcs.sys.mjs: getHeaderData: " + data.substr(0, 100) + "\n"
     );
     var a = data.split(/\n/);
     var res = [];
@@ -293,7 +289,7 @@ export var EnigmailFuncs = {
           // m[2]: identifier / m[6]: data
           res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
           lazy.EnigmailLog.DEBUG(
-            "funcs.jsm: getHeaderData: " +
+            "funcs.sys.mjs: getHeaderData: " +
               m[2].toLowerCase() +
               " = " +
               res[m[2].toLowerCase()] +

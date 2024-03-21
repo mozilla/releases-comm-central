@@ -52,7 +52,7 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
       StringEndsWith(name, u".toc"_ns))
     return true;
 
-  // ignore RSS data source files (see FeedUtils.jsm)
+  // ignore RSS data source files (see FeedUtils.sys.mjs)
   if (name.LowerCaseEqualsLiteral("feeds.json") ||
       name.LowerCaseEqualsLiteral("feeds.json.tmp") ||
       name.LowerCaseEqualsLiteral("feeds.json.backup") ||

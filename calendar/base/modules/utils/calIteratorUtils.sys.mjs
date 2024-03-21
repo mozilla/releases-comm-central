@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.iterate namespace.
+// including calUtils.sys.mjs under the cal.iterate namespace.
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {

@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineLazyGetter(lazy, "makeRange", () => {
   const { ExtensionParent } = ChromeUtils.importESModule(
     "resource://gre/modules/ExtensionParent.sys.mjs"
@@ -16,10 +13,9 @@ ChromeUtils.defineLazyGetter(lazy, "makeRange", () => {
 
 ChromeUtils.defineESModuleGetters(lazy, {
   Preferences: "resource://gre/modules/Preferences.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  Sanitizer: "resource:///modules/Sanitizer.jsm",
+  // TODO: Sanitizer.sys.mjs doesn't exist for Thunderbird.
+  // If we start using BrowsingDataDelegate we need this too.
+  Sanitizer: "resource:///modules/Sanitizer.sys.mjs",
 });
 
 export class BrowsingDataDelegate {

@@ -16,7 +16,7 @@ ChromeUtils.defineESModuleGetters(this, {
   CalItipEmailTransport: "resource:///modules/CalItipEmailTransport.sys.mjs",
 });
 
-// tests for calItipUtils.jsm
+// tests for calItipUtils.sys.mjs
 
 do_get_profile();
 

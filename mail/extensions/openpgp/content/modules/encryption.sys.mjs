@@ -58,7 +58,9 @@ export var EnigmailEncryption = {
     result.senderKeyIsExternal = false;
 
     lazy.EnigmailLog.DEBUG(
-      "encryption.jsm: getCryptParams: hashAlgorithm=" + hashAlgorithm + "\n"
+      "encryption.sys.mjs: getCryptParams: hashAlgorithm=" +
+        hashAlgorithm +
+        "\n"
     );
 
     try {
@@ -195,7 +197,7 @@ export var EnigmailEncryption = {
    */
   determineInvSignReason(keyId) {
     lazy.EnigmailLog.DEBUG(
-      "errorHandling.jsm: determineInvSignReason: keyId: " + keyId + "\n"
+      "errorHandling.sys.mjs: determineInvSignReason: keyId: " + keyId + "\n"
     );
 
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
@@ -222,7 +224,7 @@ export var EnigmailEncryption = {
    */
   determineInvRcptReason(keyId) {
     lazy.EnigmailLog.DEBUG(
-      "errorHandling.jsm: determineInvRcptReason: keyId: " + keyId + "\n"
+      "errorHandling.sys.mjs: determineInvRcptReason: keyId: " + keyId + "\n"
     );
 
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
@@ -252,7 +254,7 @@ export var EnigmailEncryption = {
    */
   async determineOwnKeyUsability(sendFlags, fromKeyId, isExternalGnuPG) {
     lazy.EnigmailLog.DEBUG(
-      "encryption.jsm: determineOwnKeyUsability: sendFlags=" +
+      "encryption.sys.mjs: determineOwnKeyUsability: sendFlags=" +
         sendFlags +
         ", sender=" +
         fromKeyId +
@@ -367,7 +369,7 @@ export var EnigmailEncryption = {
     errorMsgObj
   ) {
     lazy.EnigmailLog.DEBUG(
-      "encryption.jsm: encryptMessageStart: uiFlags=" +
+      "encryption.sys.mjs: encryptMessageStart: uiFlags=" +
         uiFlags +
         ", from " +
         fromMailAddr +
@@ -398,7 +400,7 @@ export var EnigmailEncryption = {
 
     if (!sendFlags) {
       lazy.EnigmailLog.DEBUG(
-        "encryption.jsm: encryptMessageStart: NO ENCRYPTION!\n"
+        "encryption.sys.mjs: encryptMessageStart: NO ENCRYPTION!\n"
       );
       errorMsgObj.value = lazy.l10n.formatValueSync("not-required");
       return 0;

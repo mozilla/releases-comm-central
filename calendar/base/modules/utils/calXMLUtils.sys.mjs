@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.xml namespace.
+// including calUtils.sys.mjs under the cal.xml namespace.
 
 export var xml = {
   /**

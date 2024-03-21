@@ -1396,7 +1396,7 @@ EventEmitter.decorate(ExtensionsUI);
  * by assigning to innerHTML. Fluent can probably replace this when
  * it is in use everywhere.
  *
- * Lifted from BrowserUIUtils.jsm.
+ * Lifted from BrowserUIUtils.sys.mjs.
  *
  * @param {Document} doc
  * @param {string}   msg

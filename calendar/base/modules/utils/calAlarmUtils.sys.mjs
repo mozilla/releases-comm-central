@@ -7,7 +7,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.alarm namespace.
+// including calUtils.sys.mjs under the cal.alarm namespace.
 
 const lazy = {};
 

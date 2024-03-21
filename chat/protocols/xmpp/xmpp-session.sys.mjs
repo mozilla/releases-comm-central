@@ -88,7 +88,7 @@ export function XMPPSession(
 }
 
 XMPPSession.prototype = {
-  /* for the socket.jsm helper */
+  /* for the socket.sys.mjs helper */
   __proto__: Socket,
   connectTimeout: 60,
   readWriteTimeout: 300,

@@ -156,7 +156,7 @@ export var EnigmailKey = {
     seckey,
     withPubKey = false
   ) {
-    lazy.EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
+    lazy.EnigmailLog.DEBUG("key.sys.mjs: getKeyListFromKeyBlock\n");
     errorMsgObj.value = "";
 
     const cacheEntry = this._keyListCache.get(keyBlockStr);

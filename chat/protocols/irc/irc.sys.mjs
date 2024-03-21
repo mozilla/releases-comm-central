@@ -15,7 +15,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 export function ircProtocol() {
-  // ircCommands.jsm exports one variable: commands. Import this directly into
+  // ircCommands.sys.mjs exports one variable: commands. Import this directly into
   // the protocol object.
   this.commands = ChromeUtils.importESModule(
     "resource:///modules/ircCommands.sys.mjs"

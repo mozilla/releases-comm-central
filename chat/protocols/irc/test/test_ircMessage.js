@@ -153,7 +153,7 @@ function testRFC2812Messages() {
   run_next_test();
 }
 
-// Unreal sends a couple of broken messages, see ircMessage in irc.jsm for a
+// Unreal sends a couple of broken messages, see ircMessage in irc.sys.mjs for a
 // description of what's wrong.
 function testBrokenUnrealMessages() {
   const messages = {

@@ -62,7 +62,7 @@ export var MailE10SUtils = {
   /**
    * Force `browser` to be a remote/local browser.
    *
-   * @see E10SUtils.jsm for remote types.
+   * @see E10SUtils.sys.mjs for remote types.
    *
    * @param {nsIBrowser} browser - the browser to enforce the remoteness of.
    * @param {string} remoteType - the remoteness to enforce.

@@ -122,7 +122,7 @@ interface calICalendarManager : nsISupports
 /**
  * Observer to handle actions done by the calendar manager
  *
- * NOTE: When adding methods here, please also add them in calUtils.jsm's
+ * NOTE: When adding methods here, please also add them in calUtils.sys.mjs's
  * createAdapter() method.
  */
 [scriptable, uuid(383f36f1-e669-4ca4-be7f-06b43910f44a)]

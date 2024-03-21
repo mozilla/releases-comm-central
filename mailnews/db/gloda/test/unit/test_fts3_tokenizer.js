@@ -10,7 +10,7 @@
  *
  * We want to test that the behavior of the tokenizer is as expected (namely,
  * that it drops two-letter tokens unless they're CJK bigrams), and that
- * GlodaMsgSearcher.jsm properly drops two-letter tokens (unless CJK) from the search
+ * GlodaMsgSearcher.sys.mjs properly drops two-letter tokens (unless CJK) from the search
  * terms to avoid issuing a query that will definitely return no results.
  */
 

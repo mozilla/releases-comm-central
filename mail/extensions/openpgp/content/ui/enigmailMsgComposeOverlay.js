@@ -1878,7 +1878,7 @@ Enigmail.msg = {
 
     // The encryption process for PGP/MIME messages follows "here". It's
     // called automatically from nsMsgCompose->sendMsg().
-    // registration for this is done in core.jsm: startup()
+    // registration for this is done in core.sys.mjs: startup()
 
     return true;
   },

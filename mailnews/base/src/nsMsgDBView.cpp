@@ -3914,7 +3914,7 @@ nsresult nsMsgDBView::DecodeColumnSort(nsString& columnSortString) {
 //  messages are in Date order.
 
 void nsMsgDBView::PushSort(const MsgViewSortColumnInfo& newSort) {
-  // Handle byNone (bug 901948) ala a mail/base/modules/DBViewerWrapper.jsm
+  // Handle byNone (bug 901948) ala a mail/base/modules/DBViewerWrapper.sys.mjs
   // where we don't push the secondary sort type if it's ::byNone;
   // (and secondary sort type is NOT the same as the first sort type
   // there). This code should behave the same way.

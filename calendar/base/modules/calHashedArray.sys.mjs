@@ -16,7 +16,7 @@ import { data } from "resource:///modules/calendar/utils/calDataUtils.sys.mjs";
  */
 export const HashedArray = function () {
   this.clear();
-}; // even though it's defined in calUtils.jsm, import needs this
+}; // even though it's defined in calUtils.sys.mjs, import needs this
 
 HashedArray.prototype = {
   mArray: null,

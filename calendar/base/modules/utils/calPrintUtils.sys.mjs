@@ -13,7 +13,7 @@
  */
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.print namespace.
+// including calUtils.sys.mjs under the cal.print namespace.
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {

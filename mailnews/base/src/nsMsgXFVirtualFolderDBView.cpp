@@ -387,7 +387,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
 
   rv = MsgTermListToString(searchTerms, curSearchAsString);
   // Trim off the initial AND/OR, which is irrelevant and inconsistent between
-  // what SearchSpec.jsm generates, and what's in virtualFolders.dat.
+  // what SearchSpec.sys.mjs generates, and what's in virtualFolders.dat.
   curSearchAsString.Cut(0,
                         StringBeginsWith(curSearchAsString, "AND"_ns) ? 3 : 2);
   terms.Cut(0, StringBeginsWith(terms, "AND"_ns) ? 3 : 2);

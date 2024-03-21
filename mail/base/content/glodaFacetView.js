@@ -8,7 +8,7 @@
  *  the the view and controller.
  *
  * Because much of the work related to faceting is not UI-specific, we try and
- *  push as much of it into mailnews/db/gloda/Facet.jsm.  In some cases we may
+ *  push as much of it into mailnews/db/gloda/Facet.sys.mjs.  In some cases we may
  *  get it wrong and it may eventually want to migrate.
  */
 

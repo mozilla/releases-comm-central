@@ -4,26 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
+  EnigmailFixExchangeMsg:
+    "chrome://openpgp/content/modules/fixExchangeMsg.sys.mjs",
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
   MailCryptoUtils: "resource:///modules/MailCryptoUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   jsmime: "resource:///modules/jsmime.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailFixExchangeMsg:
-    "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -980,18 +974,12 @@ export class MimeTreeDecrypter {
   }
 
   fixExchangeMessage(mimeTreePart) {
-    lazy.EnigmailLog.DEBUG("MimeTree.sys.mjs: fixExchangeMessage()\n");
-
     const msg = mimeTreeToString(mimeTreePart, true);
-
-    try {
-      const fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);
-      const replacement = getMimeTree(fixedMsg, true);
-
-      for (const i in replacement) {
-        mimeTreePart[i] = replacement[i];
-      }
-    } catch (ex) {}
+    const fixedMsg = lazy.EnigmailFixExchangeMsg.getRepairedMessage(msg);
+    const replacement = getMimeTree(fixedMsg, true);
+    for (const i in replacement) {
+      mimeTreePart[i] = replacement[i];
+    }
   }
 }
 

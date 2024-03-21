@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests for LDAPMessage.jsm.
+ * Tests for LDAPMessage.sys.mjs.
  */
 
 var { CommonUtils } = ChromeUtils.importESModule(

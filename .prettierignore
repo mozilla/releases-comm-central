@@ -1,7 +1,6 @@
 # Exclude everything by default, then include all the formats we support.
 *.*
 !*.js
-!*.jsm
 !*.json
 !*.mjs
 !*.jsx

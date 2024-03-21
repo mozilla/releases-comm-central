@@ -126,7 +126,7 @@ From the DevTools console, you can send an immediate test ping:
 
 ```
 const { TelemetrySession } = ChromeUtils.import(
-  "resource://gre/modules/TelemetrySession.jsm"
+  "resource://gre/modules/TelemetrySession.sys.mjs"
 );
 TelemetrySession.testPing();
 ```

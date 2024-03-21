@@ -39,7 +39,6 @@ license:
         - .idl
         - .java
         - .js
-        - .jsm
         - .jsx
         - .m
         - .mjs

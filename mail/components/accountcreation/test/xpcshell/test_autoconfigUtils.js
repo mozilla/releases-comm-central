@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * Tests for GuessConfig.sys.jsm
+/**
+ * Tests for GuessConfig.sys.mjs
  *
  * Currently tested:
  * - getHostEntry function.
@@ -15,8 +15,6 @@
  * - Test the returned CMDS.
  * - Figure out what else to test.
  */
-
-// Globals
 
 var { GuessConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/GuessConfig.sys.mjs"

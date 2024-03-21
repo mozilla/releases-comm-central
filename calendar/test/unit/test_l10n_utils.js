@@ -6,7 +6,7 @@ function run_test() {
   do_calendar_startup(run_next_test);
 }
 
-// tests for calL10NUtils.jsm
+// tests for calL10NUtils.sys.mjs
 /* Incomplete - still missing test coverage for:
  * getAnyString
  * getString

@@ -415,7 +415,7 @@ export var PluralForm = {
  *        Error message to log or an array of strings to concat
  */
 function log(aMsg) {
-  const msg = "PluralForm.jsm: " + (aMsg.join ? aMsg.join("") : aMsg);
+  const msg = "PluralForm.sys.mjs: " + (aMsg.join ? aMsg.join("") : aMsg);
   Services.console.logStringMessage(msg);
   dump(msg + "\n");
 }

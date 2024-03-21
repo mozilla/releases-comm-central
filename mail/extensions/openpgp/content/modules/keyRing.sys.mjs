@@ -102,7 +102,7 @@ export var EnigmailKeyRing = {
    * @returns Object - found KeyObject or null if key not found
    */
   getKeyById(keyId, noLoadKeys) {
-    lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeyById: " + keyId + "\n");
+    lazy.EnigmailLog.DEBUG("keyRing.sys.mjs: getKeyById: " + keyId + "\n");
 
     if (!keyId) {
       return null;
@@ -150,7 +150,9 @@ export var EnigmailKeyRing = {
    * @returns Array of KeyObjects with the found keys (array length is 0 if no key found)
    */
   getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
-    lazy.EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
+    lazy.EnigmailLog.DEBUG(
+      "keyRing.sys.mjs: getKeysByEmail: '" + email + "'\n"
+    );
 
     const res = [];
     if (!email) {
@@ -255,7 +257,7 @@ export var EnigmailKeyRing = {
 
   async getAllSecretKeysByEmail(emailAddr, result, allowExpired) {
     lazy.EnigmailLog.DEBUG(
-      "keyRing.jsm: getAllSecretKeysByEmail: '" + emailAddr + "'\n"
+      "keyRing.sys.mjs: getAllSecretKeysByEmail: '" + emailAddr + "'\n"
     );
     const keyList = this.getKeysByEmail(emailAddr, true, true);
 
@@ -323,7 +325,7 @@ export var EnigmailKeyRing = {
    */
   getKeyListById(keyIdList) {
     lazy.EnigmailLog.DEBUG(
-      "keyRing.jsm: getKeyListById: '" + keyIdList + "'\n"
+      "keyRing.sys.mjs: getKeyListById: '" + keyIdList + "'\n"
     );
     let keyArr;
     if (typeof keyIdList === "string") {
@@ -404,7 +406,7 @@ export var EnigmailKeyRing = {
     importedKeysObj
   ) {
     lazy.EnigmailLog.DEBUG(
-      "keyRing.jsm: EnigmailKeyRing.importSecKeyFromFile: fileName=" +
+      "keyRing.sys.mjs: EnigmailKeyRing.importSecKeyFromFile: fileName=" +
         inputFile.path +
         "\n"
     );
@@ -476,7 +478,7 @@ export var EnigmailKeyRing = {
    * no input or return values
    */
   clearCache() {
-    lazy.EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.clearCache\n");
+    lazy.EnigmailLog.DEBUG("keyRing.sys.mjs: EnigmailKeyRing.clearCache\n");
     gKeyListObj = {
       keyList: [],
       keySortList: [],
@@ -823,7 +825,7 @@ export var EnigmailKeyRing = {
     acceptance = null
   ) {
     lazy.EnigmailLog.DEBUG(
-      `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
+      `keyRing.sys.mjs: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
     );
 
     var pgpBlock;
@@ -1097,7 +1099,7 @@ export var EnigmailKeyRing = {
     passphrase,
     listener
   ) {
-    lazy.EnigmailLog.WRITE("keyRing.jsm: generateKey:\n");
+    lazy.EnigmailLog.WRITE("keyRing.sys.mjs: generateKey:\n");
     throw new Error("Not implemented");
   },
 
@@ -1225,7 +1227,9 @@ export var EnigmailKeyRing = {
    */
   async getValidKeyForRecipient(emailAddr, details) {
     lazy.EnigmailLog.DEBUG(
-      'keyRing.jsm: getValidKeyForRecipient(): emailAddr="' + emailAddr + '"\n'
+      'keyRing.sys.mjs: getValidKeyForRecipient(): emailAddr="' +
+        emailAddr +
+        '"\n'
     );
     const FULLTRUSTLEVEL = 2;
 
@@ -1275,11 +1279,11 @@ export var EnigmailKeyRing = {
         emailAddr +
         "' found";
       lazy.EnigmailLog.DEBUG(
-        "keyRing.jsm: getValidKeyForRecipient():  " + msg + "\n"
+        "keyRing.sys.mjs: getValidKeyForRecipient():  " + msg + "\n"
       );
     } else {
       lazy.EnigmailLog.DEBUG(
-        "keyRing.jsm: getValidKeyForRecipient():  key=" +
+        "keyRing.sys.mjs: getValidKeyForRecipient():  key=" +
           foundKeyId +
           '" found\n'
       );
@@ -1480,7 +1484,7 @@ export var EnigmailKeyRing = {
 
   async getMultValidKeysForOneRecipient(emailAddr, allowExpired = false) {
     lazy.EnigmailLog.DEBUG(
-      'keyRing.jsm: getMultValidKeysForOneRecipient(): emailAddr="' +
+      'keyRing.sys.mjs: getMultValidKeysForOneRecipient(): emailAddr="' +
         emailAddr +
         '"\n'
     );
@@ -1592,7 +1596,9 @@ export var EnigmailKeyRing = {
    * @param keys: Array of String - key IDs or fingerprints
    */
   updateKeys(keys) {
-    lazy.EnigmailLog.DEBUG("keyRing.jsm: updateKeys(" + keys.join(",") + ")\n");
+    lazy.EnigmailLog.DEBUG(
+      "keyRing.sys.mjs: updateKeys(" + keys.join(",") + ")\n"
+    );
     const uniqueKeys = [...new Set(keys)]; // make key IDs unique
 
     deleteKeysFromCache(uniqueKeys);
@@ -2045,7 +2051,7 @@ function getSortFunction(type, keyListObj, sortDirection) {
  * no return value
  */
 function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
-  lazy.EnigmailLog.DEBUG("keyRing.jsm: loadKeyList( " + onlyKeys + ")\n");
+  lazy.EnigmailLog.DEBUG("keyRing.sys.mjs: loadKeyList( " + onlyKeys + ")\n");
 
   if (gLoadingKeys) {
     waitForKeyList();
@@ -2067,14 +2073,14 @@ function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
         gLoadingKeys = false;
       })
       .catch(e => {
-        lazy.EnigmailLog.ERROR(`keyRing.jsm: loadKeyList: error ${e}
+        lazy.EnigmailLog.ERROR(`keyRing.sys.mjs: loadKeyList: error ${e}
 `);
         gLoadingKeys = false;
       });
     waitForKeyList();
   } catch (ex) {
     lazy.EnigmailLog.ERROR(
-      "keyRing.jsm: loadKeyList: exception: " + ex.toString()
+      "keyRing.sys.mjs: loadKeyList: exception: " + ex.toString()
     );
   }
 }
@@ -2108,7 +2114,7 @@ function updateSortList() {
 
 function deleteKeysFromCache(keyList) {
   lazy.EnigmailLog.DEBUG(
-    "keyRing.jsm: deleteKeysFromCache(" + keyList.join(",") + ")\n"
+    "keyRing.sys.mjs: deleteKeysFromCache(" + keyList.join(",") + ")\n"
   );
 
   const deleted = [];
@@ -2143,7 +2149,7 @@ function createAndSortKeyList(
   sortDirection,
   resetKeyCache
 ) {
-  lazy.EnigmailLog.DEBUG("keyRing.jsm: createAndSortKeyList()\n");
+  lazy.EnigmailLog.DEBUG("keyRing.sys.mjs: createAndSortKeyList()\n");
 
   if (typeof sortColumn !== "string") {
     sortColumn = "userid";

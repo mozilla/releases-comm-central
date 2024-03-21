@@ -272,7 +272,7 @@ function enableRNPLibJS() {
       // To do so, we require that the user has already unlocked
       // by entering the global primary password, if it is set.
       // Ensure that other repairing is done first, if necessary,
-      // as handled by masterpass.jsm (OpenPGP automatic password).
+      // as handled by masterpass.sys.mjs (OpenPGP automatic password).
 
       // Note we have two failure scenarios, either a failure, or
       // retrieveOpenPGPPassword() returning null (that function

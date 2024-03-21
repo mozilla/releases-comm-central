@@ -12,7 +12,7 @@ import {
 } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 
 // NOTE: This module should not be loaded directly, it is available when
-// including calUtils.jsm under the cal.provider.ics namespace.
+// including calUtils.sys.mjs under the cal.provider.ics namespace.
 
 /**
  * @implements {calICalendarProvider}
