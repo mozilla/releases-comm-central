@@ -404,7 +404,7 @@ function getProperSenderForCardsView(folder) {
  */
 function getDefaultColumnsForCardsView(folder) {
   const sender = getProperSenderForCardsView(folder);
-  return ["subjectCol", sender, "dateCol", "tagsCol", "totalCol"];
+  return ["subjectCol", sender, "dateCol", "tagsCol", "totalCol", "unreadCol"];
 }
 
 /**

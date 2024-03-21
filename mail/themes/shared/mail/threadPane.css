@@ -440,6 +440,41 @@ tr[is="thread-card"] .state {
   display: none;
 }
 
+tr[is="thread-card"] .sort-header-details {
+  display: none;
+}
+
+[data-show-grouped-by-sort~="true"] tr[is="thread-card"][data-properties~="dummy"] {
+  & .thread-card-row:not(.thread-card-last-row) {
+    margin-inline-start: 0;
+  }
+
+  & .thread-card-last-row {
+    justify-content: space-between;
+  }
+
+  & .subject {
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--layout-color-2);
+  }
+
+  & .sort-header-details {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--layout-color-2);
+
+    & .sort-header-count {
+      font-weight: 700;
+    }
+  }
+
+  & .thread-card-icon-info {
+    display: none;
+  }
+}
+
 /* Icons variations for message state in subject column */
 
 tr[data-properties~="new"] .subject-line img {

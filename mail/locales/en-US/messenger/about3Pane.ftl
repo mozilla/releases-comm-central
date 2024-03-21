@@ -586,5 +586,21 @@ apply-current-view-to-folder-message = Apply the current folder’s view to { $n
 #  $name (String): The name of the folder to apply to.
 apply-current-view-to-folder-with-children-message = Apply the current folder’s view to { $name } and its children?
 
+# Variables:
+# $unread (Number) - Number of unread messages in thread.
+# $total (Number) - Number of messages in thread.
+threadpane-sort-header-unread =
+  { $total ->
+    [one] <span data-l10n-name="threadpane-sort-header-unread-count">{ $unread }</span> unread of <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> message
+    *[other] <span data-l10n-name="threadpane-sort-header-unread-count">{ $unread }</span> unread of <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> messages
+  }
+# Variables:
+# $total (Number) - Number of messages in thread.
+threadpane-sort-header =
+  { $total ->
+    [one] <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> message
+    *[other] <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> messages
+  }
+
 threadpane-card-menu-button =
   .title = Message menu
