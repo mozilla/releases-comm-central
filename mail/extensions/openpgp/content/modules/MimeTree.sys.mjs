@@ -16,16 +16,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
+  MailCryptoUtils: "resource:///modules/MailCryptoUtils.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  jsmime: "resource:///modules/jsmime.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  jsmime: "resource:///modules/jsmime.jsm",
-
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
-
-  MailCryptoUtils: "resource:///modules/MailCryptoUtils.jsm",
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {

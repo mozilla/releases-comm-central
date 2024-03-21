@@ -13,8 +13,8 @@ var { DownloadUtils } = ChromeUtils.importESModule(
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 ChromeUtils.defineESModuleGetters(this, {
   PluralForm: "resource:///modules/PluralForm.sys.mjs",

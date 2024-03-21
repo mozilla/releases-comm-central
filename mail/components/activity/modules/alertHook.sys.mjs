@@ -8,9 +8,7 @@ var nsActWarning = Components.Constructor(
   "init"
 );
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 // This module provides a link between the send later service and the activity
 // manager.

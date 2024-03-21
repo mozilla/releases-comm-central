@@ -17,8 +17,8 @@ const { get_about_message, open_message_from_file } =
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";

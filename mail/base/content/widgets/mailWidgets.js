@@ -12,15 +12,13 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
   const lazy = {};
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "MimeParser",
-    "resource:///modules/mimeParser.jsm"
-  );
+  ChromeUtils.defineESModuleGetters(lazy, {
+    MimeParser: "resource:///modules/mimeParser.sys.mjs",
+  });
 
   /**
    * A tree column header with an icon instead of a label.

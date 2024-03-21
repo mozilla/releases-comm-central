@@ -4,15 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  jsmime: "resource:///modules/jsmime.jsm",
-  GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
-  MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
-  MimeParser: "resource:///modules/mimeParser.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  jsmime: "resource:///modules/jsmime.sys.mjs",
+  GlodaUtils: "resource:///modules/gloda/GlodaUtils.sys.mjs",
+  MsgUtils: "resource:///modules/MimeMessageUtils.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
 
 export var EnigmailMime = {

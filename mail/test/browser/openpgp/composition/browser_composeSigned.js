@@ -28,8 +28,8 @@ const { EnigmailPersistentCrypto } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/persistentCrypto.sys.mjs"
 );
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 let bobAcct;

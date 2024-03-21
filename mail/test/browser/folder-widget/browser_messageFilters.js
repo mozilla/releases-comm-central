@@ -34,8 +34,8 @@ var { gMockPromptService } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var folderA, NNTPAccount;

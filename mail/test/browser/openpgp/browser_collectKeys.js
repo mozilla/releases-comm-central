@@ -16,8 +16,8 @@ const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 const { CollectedKeysDB } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs"

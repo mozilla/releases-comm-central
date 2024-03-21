@@ -5,14 +5,13 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  FolderUtils: "resource:///modules/FolderUtils.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
-});
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
 });
 var { CachedFolder, folderURIToPath, getFolder, specialUseMap } =
   ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");

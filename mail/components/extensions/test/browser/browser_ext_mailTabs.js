@@ -5,8 +5,8 @@
 let account, rootFolder, subFolders;
 const tabmail = document.getElementById("tabmail");
 
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 add_setup(async () => {

@@ -10,8 +10,8 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { OAuth2Module } = ChromeUtils.import(
-  "resource:///modules/OAuth2Module.jsm"
+const { OAuth2Module } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Module.sys.mjs"
 );
 const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"

@@ -2,17 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailServices: "resource:///modules/MailServices.jsm",
-  MimeParser: "resource:///modules/mimeParser.jsm",
-});
-
 ChromeUtils.defineESModuleGetters(lazy, {
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });

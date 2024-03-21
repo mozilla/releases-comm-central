@@ -13,8 +13,8 @@ var { click_account_tree_row, get_account_tree_row, openAccountSettings } =
     "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(

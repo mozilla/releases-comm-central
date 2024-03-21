@@ -9,23 +9,15 @@
  * a module makes unit testing much easier.
  */
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
-  setTimeout: "resource://gre/modules/Timer.sys.mjs",
-  migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
   clearXULToolbarState: "resource:///modules/ToolbarMigration.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  migrateMailnews: "resource:///modules/MailnewsMigrator.jsm",
+  migrateMailnews: "resource:///modules/MailnewsMigrator.sys.mjs",
+  migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 export var MailMigrator = {

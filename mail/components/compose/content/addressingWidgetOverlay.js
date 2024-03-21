@@ -7,7 +7,9 @@
 /* import-globals-from ../../addrbook/content/abCommon.js */
 /* globals goDoCommand */ // From globalOverlay.js
 
-var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { MimeParser } = ChromeUtils.importESModule(
+  "resource:///modules/mimeParser.sys.mjs"
+);
 var { DisplayNameUtils } = ChromeUtils.importESModule(
   "resource:///modules/DisplayNameUtils.sys.mjs"
 );

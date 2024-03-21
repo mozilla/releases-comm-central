@@ -5,8 +5,8 @@
 
 /* import-globals-from mailCore.js */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 // Load and add the menu item to the OS X Dock icon menu.

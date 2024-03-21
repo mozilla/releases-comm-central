@@ -15,14 +15,14 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
-var { calendarDeactivator } = ChromeUtils.import(
-  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+var { calendarDeactivator } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calCalendarDeactivator.sys.mjs"
 );
 
 var paneDeck = document.getElementById("paneDeck");

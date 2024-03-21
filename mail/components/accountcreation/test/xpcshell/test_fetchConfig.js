@@ -33,7 +33,7 @@ const { AccountCreationUtils } = ChromeUtils.importESModule(
 const { FetchHTTP } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FetchHTTP.sys.mjs"
 );
-const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+const { JXON } = ChromeUtils.importESModule("resource:///modules/JXON.sys.mjs");
 
 const { Abortable, runAsync } = AccountCreationUtils;
 

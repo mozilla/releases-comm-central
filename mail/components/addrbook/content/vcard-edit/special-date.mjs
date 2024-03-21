@@ -9,7 +9,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
 });
 
-const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+const { ICAL } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/Ical.sys.mjs"
+);
 
 /**
  * ANNIVERSARY and BDAY both have a cardinality of

@@ -16,8 +16,8 @@ var { content_tab_e } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var imapAccount, nntpAccount, originalAccountCount;

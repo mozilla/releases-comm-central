@@ -4,9 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-const { MailStringUtils } = ChromeUtils.import(
-  "resource:///modules/MailStringUtils.jsm"
-);
+import { MailStringUtils } from "resource:///modules/MailStringUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {

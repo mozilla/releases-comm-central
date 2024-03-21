@@ -4,8 +4,8 @@
 
 do_get_profile();
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 const { AddressBooksEngine } = ChromeUtils.importESModule(
   "resource://services-sync/engines/addressBooks.sys.mjs"

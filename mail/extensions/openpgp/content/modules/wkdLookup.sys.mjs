@@ -3,21 +3,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /**
- *  Lookup keys by email addresses using WKD. A an email address is lookep up at most
- *  once a day. (see https://tools.ietf.org/html/draft-koch-openpgp-webkey-service)
+ * Lookup keys by email addresses using WKD. A an email address is lookep up at most
+ * once a day. (see https://tools.ietf.org/html/draft-koch-openpgp-webkey-service)
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   DNS: "resource:///modules/DNS.sys.mjs",
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.sys.mjs",
-});
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
 // Those domains are not expected to have WKD:

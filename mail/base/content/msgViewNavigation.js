@@ -8,11 +8,9 @@
 /* globals DBViewWrapper, dbViewWrapperListener, TreeSelection */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */ // mailCommon.js
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "FolderUtils",
-  "resource:///modules/FolderUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+});
 
 function GetSubFoldersInFolderPaneOrder(folder) {
   function compareFolderSortKey(folder1, folder2) {

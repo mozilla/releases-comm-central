@@ -20,8 +20,8 @@ var { be_in_folder, FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var accountPOP3 = null;

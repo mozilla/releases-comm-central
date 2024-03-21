@@ -34,7 +34,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
 
   MailMigrator: "resource:///modules/MailMigrator.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
   PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
 
@@ -44,11 +46,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailServices: "resource:///modules/MailServices.jsm",
-  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
 
 if (AppConstants.MOZ_UPDATER) {
@@ -718,7 +715,9 @@ MailGlue.prototype = {
       {
         task() {
           // Make sure Gloda's up and running.
-          ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+          ChromeUtils.importESModule(
+            "resource:///modules/gloda/GlodaPublic.sys.mjs"
+          );
         },
       },
       {

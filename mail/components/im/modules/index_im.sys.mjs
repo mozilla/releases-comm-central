@@ -4,23 +4,16 @@
 
 var CC = Components.Constructor;
 
-const { Gloda } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaPublic.jsm"
-);
-const { GlodaAccount } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaDataModel.jsm"
-);
-const { GlodaConstants } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaConstants.jsm"
-);
-const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaIndexer.jsm"
-);
+import { Gloda } from "resource:///modules/gloda/GlodaPublic.sys.mjs";
+import { GlodaAccount } from "resource:///modules/gloda/GlodaDataModel.sys.mjs";
+import { GlodaConstants } from "resource:///modules/gloda/GlodaConstants.sys.mjs";
+import {
+  GlodaIndexer,
+  IndexingJob,
+} from "resource:///modules/gloda/GlodaIndexer.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { FileUtils } from "resource://gre/modules/FileUtils.sys.mjs";
 
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
@@ -29,12 +22,8 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   AsyncShutdown: "resource://gre/modules/AsyncShutdown.sys.mjs",
+  GlodaDatastore: "resource:///modules/gloda/GlodaDatastore.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "GlodaDatastore",
-  "resource:///modules/gloda/GlodaDatastore.jsm"
-);
 
 var kCacheFileName = "indexedFiles.json";
 

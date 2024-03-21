@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
-var { AddrBookDirectory } = ChromeUtils.import(
-  "resource:///modules/AddrBookDirectory.jsm"
+var { AddrBookDirectory } = ChromeUtils.importESModule(
+  "resource:///modules/AddrBookDirectory.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -21,10 +21,7 @@ ChromeUtils.defineESModuleGetters(this, {
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
   VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  newUID: "resource:///modules/AddrBookUtils.jsm",
+  newUID: "resource:///modules/AddrBookUtils.sys.mjs",
 });
 
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not
@@ -1209,7 +1206,9 @@ this.addressBook = class extends ExtensionAPIPersistent {
         },
         async quickSearch(parentId, queryInfo) {
           const { getSearchTokens, getModelQuery, generateQueryURI } =
-            ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+            ChromeUtils.importESModule(
+              "resource:///modules/ABQueryUtils.sys.mjs"
+            );
 
           let searchString;
           if (typeof queryInfo == "string") {

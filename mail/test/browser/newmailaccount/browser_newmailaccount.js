@@ -8,8 +8,8 @@
 
 "use strict";
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { gMockPromptService } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/PromptHelpers.sys.mjs"

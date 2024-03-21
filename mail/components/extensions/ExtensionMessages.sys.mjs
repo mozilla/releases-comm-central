@@ -17,25 +17,13 @@ import {
 } from "chrome://openpgp/content/modules/MimeTree.sys.mjs";
 
 var { ExtensionError } = ExtensionUtils;
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "jsmime",
-  "resource:///modules/jsmime.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MimeParser",
-  "resource:///modules/mimeParser.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "VirtualFolderHelper",
-  "resource:///modules/VirtualFolderWrapper.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
+  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
+  jsmime: "resource:///modules/jsmime.sys.mjs",
+});
 
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,

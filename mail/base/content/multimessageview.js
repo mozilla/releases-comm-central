@@ -5,24 +5,22 @@
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  Gloda: "resource:///modules/gloda/Gloda.jsm",
-  makeFriendlyDateAgo: "resource:///modules/TemplateUtils.jsm",
-  mimeMsgToContentSnippetAndMeta: "resource:///modules/gloda/GlodaContent.jsm",
-  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
-  PluralStringFormatter: "resource:///modules/TemplateUtils.jsm",
-});
 
 ChromeUtils.defineESModuleGetters(this, {
   DisplayNameUtils: "resource:///modules/DisplayNameUtils.sys.mjs",
+  Gloda: "resource:///modules/gloda/Gloda.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
+  PluralStringFormatter: "resource:///modules/TemplateUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
+  makeFriendlyDateAgo: "resource:///modules/TemplateUtils.sys.mjs",
+  mimeMsgToContentSnippetAndMeta:
+    "resource:///modules/gloda/GlodaContent.sys.mjs",
 });
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);

@@ -17,8 +17,8 @@
    HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
    OnUnloadMsgHeaderPane HandleAllAttachments AttachmentMenuController */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

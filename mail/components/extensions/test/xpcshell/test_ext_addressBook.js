@@ -14,10 +14,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
+  AddrBookUtils: "resource:///modules/AddrBookUtils.sys.mjs",
 });
 
 var { AddonTestUtils } = ChromeUtils.importESModule(

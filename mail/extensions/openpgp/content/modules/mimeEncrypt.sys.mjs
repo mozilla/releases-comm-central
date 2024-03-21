@@ -7,10 +7,7 @@
  *  implemented as XPCOM component
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
@@ -18,10 +15,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  jsmime: "resource:///modules/jsmime.jsm",
+  jsmime: "resource:///modules/jsmime.sys.mjs",
 });
 
 // our own contract IDs

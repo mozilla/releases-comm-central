@@ -23,8 +23,8 @@ var { be_in_folder, FAKE_SERVER_HOSTNAME, get_special_folder } =
     "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 add_setup(async function () {

@@ -47,8 +47,8 @@ var {
 );
 var { MockFilePicker } = SpecialPowers;
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var kHtmlPrefKey = "mail.identity.default.compose_html";

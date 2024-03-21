@@ -15,8 +15,8 @@ var { input_value, delete_all_existing } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var PORT_NUMBERS_TO_TEST = [

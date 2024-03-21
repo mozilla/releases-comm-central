@@ -6,9 +6,9 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  isLegalIPAddress: "resource:///modules/hostnameUtils.jsm",
-  isLegalLocalIPAddress: "resource:///modules/hostnameUtils.jsm",
+ChromeUtils.defineESModuleGetters(lazy, {
+  isLegalIPAddress: "resource:///modules/hostnameUtils.sys.mjs",
+  isLegalLocalIPAddress: "resource:///modules/hostnameUtils.sys.mjs",
 });
 
 export const PhishingDetector = new (class PhishingDetector {

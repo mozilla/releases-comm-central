@@ -28,8 +28,8 @@ var { assert_notification_displayed, wait_for_notification_to_show } =
     "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var id1Domain = "example.com";

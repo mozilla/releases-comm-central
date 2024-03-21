@@ -21,8 +21,8 @@ var { open_content_tab_with_url } = ChromeUtils.importESModule(
 const { wait_for_frame_load } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"

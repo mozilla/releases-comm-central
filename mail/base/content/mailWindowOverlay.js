@@ -29,14 +29,11 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
 
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
 Object.defineProperty(this, "BrowserConsoleManager", {

@@ -5,9 +5,7 @@
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 
 var { ExtensionError } = ExtensionUtils;
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 export class AccountManager {
   constructor(extension) {

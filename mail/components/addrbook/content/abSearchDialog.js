@@ -8,11 +8,11 @@
 /* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from abCommon.js */
 
-var { encodeABTermValue } = ChromeUtils.import(
-  "resource:///modules/ABQueryUtils.jsm"
+var { encodeABTermValue } = ChromeUtils.importESModule(
+  "resource:///modules/ABQueryUtils.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"

@@ -10,9 +10,7 @@ import {
   l10nHelper,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import {
   GenericAccountPrototype,

@@ -5,11 +5,9 @@
 import { UnifiedToolbarButton } from "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "FolderUtils",
-  "resource:///modules/FolderUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+});
 
 /* globals MsgGetMessagesForAccount */
 

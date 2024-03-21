@@ -17,8 +17,8 @@ var { assert_selected_and_displayed, be_in_folder, select_click_row } =
     "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var testFolder = null;

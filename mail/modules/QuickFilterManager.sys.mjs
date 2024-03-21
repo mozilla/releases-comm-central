@@ -2,22 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
-// we need to be able to create gloda message searcher instances for upsells:
-const lazy = {};
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
-  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
-});
+// we need to be able to create gloda message searcher instances for upsells.
 
+const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.sys.mjs",
+  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });

@@ -34,8 +34,8 @@ var { promise_modal_dialog, wait_for_frame_load } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var account = null;

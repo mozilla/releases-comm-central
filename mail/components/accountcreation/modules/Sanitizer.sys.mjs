@@ -4,9 +4,10 @@
 
 import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
-const { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
-  "resource:///modules/hostnameUtils.jsm"
-);
+import {
+  cleanUpHostName,
+  isLegalHostNameOrIP,
+} from "resource:///modules/hostnameUtils.sys.mjs";
 
 /**
  * This is a generic input validation lib. Use it when you process

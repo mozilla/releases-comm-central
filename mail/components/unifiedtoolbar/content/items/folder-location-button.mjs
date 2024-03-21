@@ -5,11 +5,9 @@
 import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "FolderUtils",
-  "resource:///modules/FolderUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+});
 
 class FolderLocationButton extends MailTabButton {
   /**

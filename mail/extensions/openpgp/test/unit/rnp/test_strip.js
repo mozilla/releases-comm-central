@@ -17,8 +17,8 @@ const { EnigmailKeyRing } = ChromeUtils.importESModule(
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
-const { MailStringUtils } = ChromeUtils.import(
-  "resource:///modules/MailStringUtils.jsm"
+const { MailStringUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailStringUtils.sys.mjs"
 );
 
 const keyDir = "../../../../../test/browser/openpgp/data/keys";

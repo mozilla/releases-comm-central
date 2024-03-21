@@ -8,8 +8,8 @@ var { DBViewWrapper, IDBViewWrapperListener } = ChromeUtils.importESModule(
 var { MailViewManager, MailViewConstants } = ChromeUtils.importESModule(
   "resource:///modules/MailViewManager.sys.mjs"
 );
-var { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+var { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"

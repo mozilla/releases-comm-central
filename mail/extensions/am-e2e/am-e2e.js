@@ -7,8 +7,8 @@
 
 /* global EnigRevokeKey */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { RNP } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/RNP.sys.mjs"

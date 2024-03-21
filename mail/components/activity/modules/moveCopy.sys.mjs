@@ -9,9 +9,7 @@ var nsActEvent = Components.Constructor(
   "init"
 );
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
 // This module provides a link between the move/copy code and the activity

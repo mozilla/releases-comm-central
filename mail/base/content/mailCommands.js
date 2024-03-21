@@ -8,22 +8,14 @@
 /* globals msgWindow, messenger */ // From mailWindow.js
 /* globals openComposeWindowForRSSArticle */ // From newsblogOverlay.js
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "FeedUtils",
-  "resource:///modules/FeedUtils.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 ChromeUtils.defineESModuleGetters(this, {
+  FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  this,
-  "MsgHdrToMimeMessage",
-  "resource:///modules/gloda/MimeMessage.jsm"
-);
 
 const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"

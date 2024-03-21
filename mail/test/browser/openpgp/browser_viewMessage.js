@@ -31,8 +31,8 @@ const { promise_new_window, wait_for_window_focused } =
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var { MailConsts } = ChromeUtils.importESModule(

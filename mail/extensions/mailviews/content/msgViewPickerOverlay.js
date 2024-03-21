@@ -5,8 +5,8 @@
 /* globals OpenOrFocusWindow */ // From mailWindowOverlay.js
 /* globals GetSelectedMsgFolders */ // From messenger.js
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { MailViewConstants } = ChromeUtils.importESModule(
   "resource:///modules/MailViewManager.sys.mjs"

@@ -4,8 +4,8 @@
 
 /* import-globals-from MsgComposeCommands.js */
 
-const { MsgUtils } = ChromeUtils.import(
-  "resource:///modules/MimeMessageUtils.jsm"
+const { MsgUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MimeMessageUtils.sys.mjs"
 );
 
 var gCloudAttachmentLinkManager = {

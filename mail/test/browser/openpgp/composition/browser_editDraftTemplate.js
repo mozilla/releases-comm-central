@@ -26,8 +26,8 @@ var { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 let aliceAcct;

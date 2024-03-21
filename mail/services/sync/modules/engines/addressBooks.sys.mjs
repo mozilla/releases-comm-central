@@ -12,9 +12,7 @@ import { Utils } from "resource://services-sync/util.sys.mjs";
 
 import { SCORE_INCREMENT_XLARGE } from "resource://services-sync/constants.sys.mjs";
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const SYNCED_COMMON_PROPERTIES = {
   autocomplete: "enable_autocomplete",

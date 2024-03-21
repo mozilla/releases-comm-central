@@ -13,8 +13,8 @@ const {
   "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
 
-const { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/IndexMsg.jsm"
+const { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
 );
 
 let folder;

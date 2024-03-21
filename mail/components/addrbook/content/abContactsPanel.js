@@ -14,9 +14,8 @@ window.addEventListener("unload", event => {
   AbPanelUnload();
 });
 
-var { getSearchTokens, getModelQuery, generateQueryURI } = ChromeUtils.import(
-  "resource:///modules/ABQueryUtils.jsm"
-);
+var { getSearchTokens, getModelQuery, generateQueryURI } =
+  ChromeUtils.importESModule("resource:///modules/ABQueryUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.sys.mjs",

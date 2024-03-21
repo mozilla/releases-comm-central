@@ -12,8 +12,8 @@ const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
 const { MessageInjection } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageInjection.sys.mjs"
 );
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 const injection = new MessageInjection({ mode: "local" });

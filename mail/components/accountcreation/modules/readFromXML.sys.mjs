@@ -11,9 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-const { OAuth2Providers } = ChromeUtils.import(
-  "resource:///modules/OAuth2Providers.jsm"
-);
+import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
 /* eslint-disable complexity */
 /**

@@ -20,23 +20,10 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const lazy = {};
   ChromeUtils.defineESModuleGetters(lazy, {
     GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
+    Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
+    GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
+    GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
   });
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "Gloda",
-    "resource:///modules/gloda/GlodaPublic.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "GlodaMsgSearcher",
-    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
-  );
-  ChromeUtils.defineModuleGetter(
-    lazy,
-    "GlodaConstants",
-    "resource:///modules/gloda/GlodaConstants.jsm"
-  );
-
   ChromeUtils.defineLazyGetter(
     lazy,
     "glodaCompleter",

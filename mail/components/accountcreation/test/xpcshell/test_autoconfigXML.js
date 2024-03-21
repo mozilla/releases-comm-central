@@ -23,7 +23,7 @@ var { readFromXML } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/readFromXML.sys.mjs"
 );
 
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+var { JXON } = ChromeUtils.importESModule("resource:///modules/JXON.sys.mjs");
 
 /*
  * UTILITIES

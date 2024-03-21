@@ -26,8 +26,8 @@
 ChromeUtils.importESModule(
   "resource:///modules/activity/activityModules.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -38,12 +38,9 @@ ChromeUtils.defineESModuleGetters(this, {
   Color: "resource://gre/modules/Color.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.sys.mjs",
   SessionStoreManager: "resource:///modules/SessionStoreManager.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
-  PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
+  msgDBCacheManager: "resource:///modules/MsgDBCacheManager.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {

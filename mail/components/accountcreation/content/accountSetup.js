@@ -18,20 +18,19 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
-  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
+
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
+
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
-  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 var {

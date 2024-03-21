@@ -24,8 +24,8 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 const { EnigmailPersistentCrypto } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/persistentCrypto.sys.mjs"

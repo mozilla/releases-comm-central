@@ -10,8 +10,8 @@ if (!customElements.get("menulist")) {
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
   /**
    * MozMenulistAddrbooks is a menulist widget that is automatically

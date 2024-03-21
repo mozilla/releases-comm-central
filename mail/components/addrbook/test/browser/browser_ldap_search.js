@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { LDAPServer } = ChromeUtils.import(
-  "resource://testing-common/LDAPServer.jsm"
+const { LDAPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/LDAPServer.sys.mjs"
 );
 
 const jsonFile =

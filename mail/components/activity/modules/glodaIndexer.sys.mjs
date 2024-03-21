@@ -14,18 +14,12 @@ var nsActEvent = Components.Constructor(
   "init"
 );
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
+  Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
+  GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
+  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
-  GlodaConstants: "resource:///modules/gloda/GlodaConstants.jsm",
-  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
 });
 
 /**

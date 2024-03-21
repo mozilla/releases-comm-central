@@ -4,8 +4,8 @@
 
 /* globals ABView */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -18,14 +18,18 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
-  return ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+  return ChromeUtils.importESModule("resource:///modules/ABQueryUtils.sys.mjs");
 });
 
 ChromeUtils.defineESModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
+  AddrBookUtils: "resource:///modules/AddrBookUtils.sys.mjs",
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
+  CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
+  ICAL: "resource:///modules/calendar/Ical.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -36,12 +40,6 @@ ChromeUtils.defineESModuleGetters(this, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
-  CalMetronome: "resource:///modules/CalMetronome.jsm",
-  GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.jsm",
-  ICAL: "resource:///modules/calendar/Ical.jsm",
-});
 ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"

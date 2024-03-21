@@ -30,30 +30,27 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  CalMetronome: "resource:///modules/CalMetronome.sys.mjs",
+  FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  CalMetronome: "resource:///modules/CalMetronome.jsm",
-  FeedUtils: "resource:///modules/FeedUtils.jsm",
-  FolderUtils: "resource:///modules/FolderUtils.jsm",
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 const messengerBundle = Services.strings.createBundle(

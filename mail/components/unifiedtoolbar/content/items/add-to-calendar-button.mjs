@@ -5,11 +5,10 @@
 import { MailTabButton } from "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "calendarDeactivator",
-  "resource:///modules/calendar/calCalendarDeactivator.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  calendarDeactivator:
+    "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
+});
 
 /* import-globals-from ../../../../../calendar/base/content/calendar-extract.js */
 

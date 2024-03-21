@@ -21,7 +21,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+import { JXON } from "resource:///modules/JXON.sys.mjs";
 
 const {
   Abortable,

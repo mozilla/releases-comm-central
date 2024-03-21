@@ -10,9 +10,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
 });
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 /* eslint-disable complexity */
 /**

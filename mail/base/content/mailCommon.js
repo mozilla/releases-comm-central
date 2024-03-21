@@ -11,8 +11,8 @@
 // about3pane.js
 /* globals ThreadPaneColumns */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -29,10 +29,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.jsm",
+  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
 
 XPCOMUtils.defineLazyServiceGetter(

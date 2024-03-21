@@ -16,8 +16,8 @@
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -36,14 +36,18 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
+
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMsg.sys.mjs",
+
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.sys.mjs",
+
   EnigmailKeyserverURIs:
     "chrome://openpgp/content/modules/keyserverUris.sys.mjs",
+
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
@@ -58,13 +62,10 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
-  MimeParser: "resource:///modules/mimeParser.jsm",
 });
 
 ChromeUtils.defineLazyGetter(this, "l10n", () => {

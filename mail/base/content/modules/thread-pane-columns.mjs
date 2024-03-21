@@ -16,10 +16,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 ChromeUtils.defineESModuleGetters(lazy, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  FeedUtils: "resource:///modules/FeedUtils.jsm",
+  FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
 });
 
 /**

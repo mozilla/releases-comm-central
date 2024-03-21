@@ -5,10 +5,12 @@
 const { CardDAVDirectory } = ChromeUtils.importESModule(
   "resource:///modules/CardDAVDirectory.sys.mjs"
 );
-const { CardDAVServer } = ChromeUtils.import(
-  "resource://testing-common/CardDAVServer.jsm"
+const { CardDAVServer } = ChromeUtils.importESModule(
+  "resource://testing-common/CardDAVServer.sys.mjs"
 );
-const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+const { ICAL } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/Ical.sys.mjs"
+);
 
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService

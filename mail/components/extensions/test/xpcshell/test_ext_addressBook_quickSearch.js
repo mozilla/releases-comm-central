@@ -7,8 +7,8 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-var { LDAPServer } = ChromeUtils.import(
-  "resource://testing-common/LDAPServer.jsm"
+var { LDAPServer } = ChromeUtils.importESModule(
+  "resource://testing-common/LDAPServer.sys.mjs"
 );
 
 add_setup(async () => {

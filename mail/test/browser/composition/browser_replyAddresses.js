@@ -36,8 +36,8 @@ var myEmail2 = "otherme@example.com";
 var identity;
 var identity2;
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 add_setup(function () {

@@ -27,10 +27,6 @@ var { AccountManager, FolderManager } = ChromeUtils.importESModule(
 var { MessageListTracker, MessageTracker, MessageManager } =
   ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailServices: "resource:///modules/MailServices.jsm",
-});
-
 XPCOMUtils.defineLazyGlobalGetters(this, [
   "IOUtils",
   "PathUtils",

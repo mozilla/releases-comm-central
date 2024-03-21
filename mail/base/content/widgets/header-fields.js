@@ -5,8 +5,8 @@
 /* global gMessageHeader, gShowCondensedEmailAddresses, gMessage */
 
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
 
   const lazy = {};

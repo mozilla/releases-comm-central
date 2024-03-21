@@ -2,18 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+
 import {
   MailViewConstants,
   MailViewManager,
 } from "resource:///modules/MailViewManager.sys.mjs";
 import { SearchSpec } from "resource:///modules/SearchSpec.sys.mjs";
 
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
-);
+import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 

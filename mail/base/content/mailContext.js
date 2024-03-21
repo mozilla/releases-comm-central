@@ -12,8 +12,8 @@
 
 /* globals gEncryptedURIService */ // mailCommon.js
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -27,11 +27,9 @@ ChromeUtils.defineESModuleGetters(this, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
-});
 
-XPCOMUtils.defineLazyModuleGetters(this, {
   calendarDeactivator:
-    "resource:///modules/calendar/calCalendarDeactivator.jsm",
+    "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
 
 /**

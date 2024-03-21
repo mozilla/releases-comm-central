@@ -30,8 +30,8 @@ var {
 } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
 );
-var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/MimeMessage.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/MimeMessage.sys.mjs"
 );
 
 var folder;

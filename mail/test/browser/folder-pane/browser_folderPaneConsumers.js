@@ -20,8 +20,8 @@ var { click_menus_in_sequence } = ChromeUtils.importESModule(
   "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 var nntpAccount;

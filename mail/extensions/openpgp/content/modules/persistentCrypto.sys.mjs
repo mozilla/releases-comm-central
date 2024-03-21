@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   MimeTreeDecrypter,
   getMimeTreeFromUrl,
@@ -12,19 +11,15 @@ import {
 } from "chrome://openpgp/content/modules/MimeTree.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailEncryption: "chrome://openpgp/content/modules/encryption.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
+  MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MimeParser: "resource:///modules/mimeParser.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
+  MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
 
 export var EnigmailPersistentCrypto = {

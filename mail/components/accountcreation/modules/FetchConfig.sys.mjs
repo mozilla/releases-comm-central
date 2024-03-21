@@ -13,7 +13,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 import { DNS } from "resource:///modules/DNS.sys.mjs";
 
-const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+import { JXON } from "resource:///modules/JXON.sys.mjs";
 
 const {
   Abortable,

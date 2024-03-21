@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-const { GlodaSyntheticView } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaSyntheticView.jsm"
-);
+import { Gloda } from "resource:///modules/gloda/Gloda.sys.mjs";
+
+import { GlodaSyntheticView } from "resource:///modules/gloda/GlodaSyntheticView.sys.mjs";
 
 export class ConversationOpener {
   static isMessageIndexed(message) {

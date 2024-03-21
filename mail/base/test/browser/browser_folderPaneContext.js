@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+const { FeedUtils } = ChromeUtils.importESModule(
+  "resource:///modules/FeedUtils.sys.mjs"
+);
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -10,8 +12,8 @@ const { MessageGenerator } = ChromeUtils.importESModule(
 const { NNTPServer } = ChromeUtils.importESModule(
   "resource://testing-common/NNTPServer.sys.mjs"
 );
-const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/VirtualFolderWrapper.jsm"
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
 );
 
 const servers = ["server", "nntpRoot", "rssRoot"];

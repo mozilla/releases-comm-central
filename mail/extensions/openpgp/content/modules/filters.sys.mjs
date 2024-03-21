@@ -4,31 +4,22 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sys.mjs";
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
-
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
-
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   getMimeTree: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  jsmime: "resource:///modules/jsmime.jsm",
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
+  jsmime: "resource:///modules/jsmime.sys.mjs",
 });
 
 const l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);

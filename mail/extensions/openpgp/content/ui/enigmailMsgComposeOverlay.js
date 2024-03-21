@@ -11,8 +11,8 @@
 /* global MsgAccountManager */
 /* global gCurrentIdentity */
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { EnigmailCore } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/core.sys.mjs"
@@ -62,13 +62,15 @@ var { EnigmailMimeEncrypt } = ChromeUtils.importESModule(
 const { EnigmailCryptoAPI } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
 );
-var { MailStringUtils } = ChromeUtils.import(
-  "resource:///modules/MailStringUtils.jsm"
+var { MailStringUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailStringUtils.sys.mjs"
 );
 const { OpenPGPAlias } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/OpenPGPAlias.sys.mjs"
 );
-var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+var { jsmime } = ChromeUtils.importESModule(
+  "resource:///modules/jsmime.sys.mjs"
+);
 
 const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"

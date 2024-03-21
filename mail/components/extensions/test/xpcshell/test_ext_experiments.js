@@ -134,8 +134,8 @@ add_task(async function test_managers() {
         var { ExtensionCommon } = ChromeUtils.importESModule(
           "resource://gre/modules/ExtensionCommon.sys.mjs"
         );
-        var { MailServices } = ChromeUtils.import(
-          "resource:///modules/MailServices.jsm"
+        var { MailServices } = ChromeUtils.importESModule(
+          "resource:///modules/MailServices.sys.mjs"
         );
         this.testapi = class extends ExtensionCommon.ExtensionAPI {
           getAPI(context) {

@@ -40,8 +40,8 @@ var { click_menus_in_sequence, close_popup_sequence, promise_new_window } =
     "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
   );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 
 const aboutMessage = get_about_message();

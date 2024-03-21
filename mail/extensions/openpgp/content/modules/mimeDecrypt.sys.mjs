@@ -8,7 +8,7 @@
 
 import { EnigmailSingletons } from "chrome://openpgp/content/modules/singletons.sys.mjs";
 
-const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+import { MimeParser } from "resource:///modules/mimeParser.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {

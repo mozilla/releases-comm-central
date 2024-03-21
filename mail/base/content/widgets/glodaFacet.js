@@ -6,19 +6,21 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { MailServices } = ChromeUtils.import(
-    "resource:///modules/MailServices.jsm"
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
   );
   const { TagUtils } = ChromeUtils.importESModule(
     "resource:///modules/TagUtils.sys.mjs"
   );
-  const { FacetUtils } = ChromeUtils.import(
-    "resource:///modules/gloda/Facet.jsm"
+  const { FacetUtils } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/Facet.sys.mjs"
   );
   const { PluralForm } = ChromeUtils.importESModule(
     "resource:///modules/PluralForm.sys.mjs"
   );
-  const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+  const { Gloda } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/Gloda.sys.mjs"
+  );
 
   var glodaFacetStrings = Services.strings.createBundle(
     "chrome://messenger/locale/glodaFacetView.properties"
@@ -1574,8 +1576,8 @@
       );
 
       // this.author.textContent = ;
-      const { makeFriendlyDateAgo } = ChromeUtils.import(
-        "resource:///modules/TemplateUtils.jsm"
+      const { makeFriendlyDateAgo } = ChromeUtils.importESModule(
+        "resource:///modules/TemplateUtils.sys.mjs"
       );
       this.date.textContent = makeFriendlyDateAgo(message.date);
 

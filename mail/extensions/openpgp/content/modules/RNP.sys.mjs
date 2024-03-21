@@ -4,22 +4,16 @@
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   GPGME: "chrome://openpgp/content/modules/GPGME.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.sys.mjs",
   ctypes: "resource://gre/modules/ctypes.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  MailStringUtils: "resource:///modules/MailStringUtils.jsm",
 });
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"]);
