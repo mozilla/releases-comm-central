@@ -209,11 +209,16 @@ async function getMenuExtension(manifest) {
         }
 
         for (const context of contexts) {
-          browser.menus.create({
-            id: context,
-            title: context,
-            contexts: [context],
-          });
+          await new Promise(resolve =>
+            browser.menus.create(
+              {
+                id: context,
+                title: context,
+                contexts: [context],
+              },
+              resolve
+            )
+          );
         }
 
         browser.menus.onShown.addListener((...args) => {

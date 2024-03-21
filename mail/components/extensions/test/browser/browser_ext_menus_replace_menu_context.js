@@ -22,7 +22,7 @@ function checkIsDefaultMenuItemVisible(visibleMenuItemIds) {
 // - tab
 add_task(async function overrideContext_with_context() {
   // Background script of the main test extension and the auxiliary other extension.
-  function background() {
+  async function background() {
     const HTTP_URL = "https://example.com/?SomeTab";
     browser.test.onMessage.addListener(async (msg, tabId) => {
       browser.test.assertEq(
@@ -106,44 +106,77 @@ add_task(async function overrideContext_with_context() {
     });
 
     // Minimal properties to define menu items for a specific context.
-    browser.menus.create({
-      id: "tab_context",
-      title: "tab_context",
-      contexts: ["tab"],
-    });
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "tab_context",
+          title: "tab_context",
+          contexts: ["tab"],
+        },
+        resolve
+      )
+    );
 
     // documentUrlPatterns in the tab context applies to the tab's URL.
-    browser.menus.create({
-      id: "tab_context_http",
-      title: "tab_context_http",
-      contexts: ["tab"],
-      documentUrlPatterns: [HTTP_URL],
-    });
-    browser.menus.create({
-      id: "tab_context_moz_unexpected",
-      title: "tab_context_moz",
-      contexts: ["tab"],
-      documentUrlPatterns: ["moz-extension://*/tab.html"],
-    });
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "tab_context_http",
+          title: "tab_context_http",
+          contexts: ["tab"],
+          documentUrlPatterns: [HTTP_URL],
+        },
+        resolve
+      )
+    );
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "tab_context_moz_unexpected",
+          title: "tab_context_moz",
+          contexts: ["tab"],
+          documentUrlPatterns: ["moz-extension://*/tab.html"],
+        },
+        resolve
+      )
+    );
     // When viewTypes is present, the document's URL is matched instead.
-    browser.menus.create({
-      id: "tab_context_viewType_http_unexpected",
-      title: "tab_context_viewType_http",
-      contexts: ["tab"],
-      viewTypes: ["tab"],
-      documentUrlPatterns: [HTTP_URL],
-    });
-    browser.menus.create({
-      id: "tab_context_viewType_moz",
-      title: "tab_context_viewType_moz",
-      contexts: ["tab"],
-      viewTypes: ["tab"],
-      documentUrlPatterns: ["moz-extension://*/tab.html"],
-    });
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "tab_context_viewType_http_unexpected",
+          title: "tab_context_viewType_http",
+          contexts: ["tab"],
+          viewTypes: ["tab"],
+          documentUrlPatterns: [HTTP_URL],
+        },
+        resolve
+      )
+    );
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "tab_context_viewType_moz",
+          title: "tab_context_viewType_moz",
+          contexts: ["tab"],
+          viewTypes: ["tab"],
+          documentUrlPatterns: ["moz-extension://*/tab.html"],
+        },
+        resolve
+      )
+    );
 
-    browser.menus.create({ id: "link_context", title: "link_context" }, () => {
-      browser.test.sendMessage("menu_items_registered");
-    });
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "link_context",
+          title: "link_context",
+        },
+        resolve
+      )
+    );
+
+    browser.test.sendMessage("menu_items_registered");
 
     if (browser.runtime.id === "@menu-test-extension") {
       browser.tabs.create({ url: "tab.html" });
