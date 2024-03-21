@@ -6,7 +6,7 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+import { ICAL, unwrapSingle } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
 

@@ -1,4 +1,4 @@
-comm/calendar/base/modules/Ical.jsm
+comm/calendar/base/modules/Ical.sys.mjs
 comm/chat/protocols/matrix/lib
 comm/chat/protocols/xmpp/lib
 comm/mail/base/content/protovis-r2.6-modded.js

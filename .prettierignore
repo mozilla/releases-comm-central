@@ -110,7 +110,7 @@ docs/_templates/**
 # When this is implemented, we'll update the configuration below (bug 1825508)
 ##############################################################################
 
-calendar/base/modules/Ical.jsm
+calendar/base/modules/Ical.sys.mjs
 chat/protocols/matrix/lib/**
 chat/protocols/xmpp/lib/**
 mail/base/content/protovis-r2.6-modded.js

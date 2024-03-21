@@ -4,7 +4,8 @@
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
+
 ICAL.design.strict = false;
 
 const lazy = {};

@@ -133,14 +133,13 @@ CalIcsParser.prototype = {
       // We are using two types of very similar listeners here:
       // aAsyncParsing is a calIcsParsingListener that returns the ics
       //   parser containing the processed items.
-      // The listener passed to parseICSAsync is a calICsComponentParsingListener
+      // The listener passed to parseICSAsync is a calIIcsParsingListener
       //   required by the ics service, that receives the parsed root component.
       cal.icsService.parseICSAsync(aICSString, {
         onParsingComplete(rc, rootComp) {
           if (Components.isSuccessCode(rc)) {
             self.processIcalComponent(rootComp, aAsyncParsing);
           } else {
-            cal.ERROR("Error Parsing ICS: " + rc);
             aAsyncParsing.onParsingComplete(rc, self);
           }
         },

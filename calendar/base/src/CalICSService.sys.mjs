@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import(
-  "resource:///modules/calendar/Ical.jsm"
-);
+import {
+  ICAL,
+  unwrapSetter,
+  unwrapSingle,
+  wrapGetter,
+} from "resource:///modules/calendar/Ical.sys.mjs";
+
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
@@ -578,7 +582,10 @@ CalICSService.prototype = {
   },
 
   parseICSAsync(serialized, listener) {
-    const worker = new ChromeWorker("resource:///components/calICSService-worker.js");
+    // XXX: should we cache the worker?
+    const worker = new ChromeWorker("resource:///modules/CalICSService.worker.mjs", {
+      type: "module",
+    });
     worker.onmessage = function (event) {
       const icalComp = new calIcalComponent(new ICAL.Component(event.data));
       listener.onParsingComplete(Cr.OK, icalComp);

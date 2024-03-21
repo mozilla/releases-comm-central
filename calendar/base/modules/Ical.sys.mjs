@@ -15,21 +15,19 @@
  * https://github.com/darktrojan/ical.js/commit/0f1af2444b82708bb3a0a6b05d834884dedd8109
  */
 
-var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
-
-function wrapGetter(type, val) {
+export function wrapGetter(type, val) {
     return val ? new type(val) : null;
 }
 
-function unwrap(type, innerFunc) {
+export function unwrap(type, innerFunc) {
     return function(val) { return unwrapSetter.call(this, type, val, innerFunc); };
 }
 
-function unwrapSetter(type, val, innerFunc, thisObj) {
+export function unwrapSetter(type, val, innerFunc, thisObj) {
     return innerFunc.call(thisObj || this, unwrapSingle(type, val));
 }
 
-function unwrapSingle(type, val) {
+export function unwrapSingle(type, val) {
     if (!val || !val.wrappedJSObject) {
         return null;
     } else if (val.wrappedJSObject.innerObject instanceof type) {
@@ -48,7 +46,7 @@ function unwrapSingle(type, val) {
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * Portions Copyright (C) Philipp Kewisch, 2021 */
 
-var ICAL = {};
+export var ICAL = {};
 
 /**
  * The number of characters before iCalendar line folding should occur

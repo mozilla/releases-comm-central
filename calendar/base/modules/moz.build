@@ -32,5 +32,5 @@ EXTRA_JS_MODULES.calendar += [
     "calHashedArray.sys.mjs",
     "calRecurrenceUtils.sys.mjs",
     "calUtils.sys.mjs",
-    "Ical.jsm",
+    "Ical.sys.mjs",
 ]

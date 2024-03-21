@@ -26,6 +26,7 @@ EXTRA_JS_MODULES += [
     "CalIcsParser.sys.mjs",
     "CalIcsSerializer.sys.mjs",
     "CalICSService.sys.mjs",
+    "CalICSService.worker.mjs",
     "CalItemBase.sys.mjs",
     "CalItipItem.sys.mjs",
     "CalMetronome.sys.mjs",
@@ -55,11 +56,6 @@ UNIFIED_SOURCES += [
 
 XPCOM_MANIFESTS += [
     "components.conf",
-]
-
-# These files go in components so they can be packaged correctly.
-FINAL_TARGET_FILES.components += [
-    "calICSService-worker.js",
 ]
 
 with Files("**"):

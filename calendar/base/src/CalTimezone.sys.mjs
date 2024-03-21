@@ -4,7 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-var { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 const lazy = {};
 
