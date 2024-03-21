@@ -477,15 +477,11 @@
 @BINPATH@/crashreporter.app/
 #else
 @BINPATH@/crashreporter@BIN_SUFFIX@
-@RESPATH@/crashreporter.ini
-#ifdef XP_UNIX
-@RESPATH@/Throbber-small.gif
-#elif defined(XP_WIN)
+#if defined(XP_WIN)
 @BINPATH@/@DLL_PREFIX@mozwer@DLL_SUFFIX@
 #endif
 #endif
 #ifdef MOZ_CRASHREPORTER_INJECTOR
-@RESPATH@/crashreporter-override.ini
 @BINPATH@/breakpadinjector.dll
 #endif
 #endif
