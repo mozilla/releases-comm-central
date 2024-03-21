@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrap } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 export function CalDuration(innerObject) {
   this.innerObject = innerObject || new ICAL.Duration();
@@ -70,13 +70,15 @@ CalDuration.prototype = {
     this.innerObject.fromSeconds(val);
   },
 
-  addDuration: unwrap(ICAL.Duration, function (val) {
-    this.innerObject.fromSeconds(this.innerObject.toSeconds() + val.toSeconds());
-  }),
+  addDuration(val) {
+    this.innerObject.fromSeconds(
+      this.innerObject.toSeconds() + val.wrappedJSObject.innerObject.toSeconds()
+    );
+  },
 
-  compare: unwrap(ICAL.Duration, function (val) {
-    return this.innerObject.compare(val);
-  }),
+  compare(val) {
+    return this.innerObject.compare(val.wrappedJSObject.innerObject);
+  },
 
   reset() {
     this.innerObject.reset();

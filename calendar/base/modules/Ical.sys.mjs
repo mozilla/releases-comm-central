@@ -15,10 +15,6 @@
  * https://github.com/darktrojan/ical.js/commit/0f1af2444b82708bb3a0a6b05d834884dedd8109
  */
 
-export function unwrap(type, innerFunc) {
-    return function(val) { return unwrapSetter.call(this, type, val, innerFunc); };
-}
-
 export function unwrapSetter(type, val, innerFunc, thisObj) {
     return innerFunc.call(thisObj || this, unwrapSingle(type, val));
 }
