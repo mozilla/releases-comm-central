@@ -15,10 +15,6 @@
  * https://github.com/darktrojan/ical.js/commit/0f1af2444b82708bb3a0a6b05d834884dedd8109
  */
 
-export function wrapGetter(type, val) {
-    return val ? new type(val) : null;
-}
-
 export function unwrap(type, innerFunc) {
     return function(val) { return unwrapSetter.call(this, type, val, innerFunc); };
 }

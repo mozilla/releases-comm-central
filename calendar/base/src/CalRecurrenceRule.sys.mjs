@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  ICAL,
-  unwrapSetter,
-  unwrapSingle,
-  wrapGetter,
-} from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL, unwrapSetter, unwrapSingle } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
@@ -77,7 +72,8 @@ CalRecurrenceRule.prototype = {
     }
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRecId = unwrapSingle(ICAL.Time, aRecId);
-    return wrapGetter(lazy.CalDateTime, this.innerObject.getNextOccurrence(aStartTime, aRecId));
+    const val = this.innerObject.getNextOccurrence(aStartTime, aRecId);
+    return val ? new lazy.CalDateTime(val) : null;
   },
 
   getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {

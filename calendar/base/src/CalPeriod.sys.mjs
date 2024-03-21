@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter, wrapGetter } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -37,7 +37,8 @@ CalPeriod.prototype = {
   },
 
   get start() {
-    return wrapGetter(lazy.CalDateTime, this.innerObject.start);
+    const val = this.innerObject.start;
+    return val ? new lazy.CalDateTime(val) : null;
   },
   set start(rawval) {
     unwrapSetter(
@@ -51,7 +52,8 @@ CalPeriod.prototype = {
   },
 
   get end() {
-    return wrapGetter(lazy.CalDateTime, this.innerObject.getEnd());
+    const val = this.innerObject.getEnd();
+    return val ? new lazy.CalDateTime(val) : null;
   },
   set end(rawval) {
     unwrapSetter(
@@ -68,7 +70,8 @@ CalPeriod.prototype = {
   },
 
   get duration() {
-    return wrapGetter(lazy.CalDuration, this.innerObject.getDuration());
+    const val = this.innerObject.getDuration();
+    return val ? new lazy.CalDuration(val) : null;
   },
 
   get icalString() {
