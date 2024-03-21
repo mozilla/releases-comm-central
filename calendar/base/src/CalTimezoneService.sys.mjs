@@ -6,7 +6,7 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-import { ICAL, unwrapSingle } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
 
@@ -51,7 +51,7 @@ CalTimezoneService.prototype = {
     return this.getTimezone(id) != null;
   },
   get(id) {
-    return id ? unwrapSingle(ICAL.Timezone, this.getTimezone(id)) : null;
+    return id ? this.getTimezone(id)?.wrappedJSObject.innerObject : null;
   },
   remove() {},
   register() {},

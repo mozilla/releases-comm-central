@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter, unwrapSingle } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
@@ -473,7 +473,7 @@ calIcalComponent.prototype = {
 
   addSubcomponent(comp) {
     comp.getReferencedTimezones().forEach(this.addTimezoneReference, this);
-    const jscomp = unwrapSingle(ICAL.Component, comp);
+    const jscomp = comp.wrappedJSObject.innerObject;
     this.innerObject.addSubcomponent(jscomp);
   },
 
@@ -541,7 +541,7 @@ calIcalComponent.prototype = {
       // that break adding the property.
     }
 
-    const jsprop = unwrapSingle(ICAL.Property, prop);
+    const jsprop = prop.wrappedJSObject.innerObject;
     this.innerObject.addProperty(jsprop);
   },
 

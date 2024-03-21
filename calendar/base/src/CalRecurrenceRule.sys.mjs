@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter, unwrapSingle } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
@@ -70,8 +70,8 @@ CalRecurrenceRule.prototype = {
     if (!this.freqSupported()) {
       return null;
     }
-    aStartTime = unwrapSingle(ICAL.Time, aStartTime);
-    aRecId = unwrapSingle(ICAL.Time, aRecId);
+    aStartTime = aStartTime.wrappedJSObject.innerObject;
+    aRecId = aRecId.wrappedJSObject.innerObject;
     const val = this.innerObject.getNextOccurrence(aStartTime, aRecId);
     return val ? new lazy.CalDateTime(val) : null;
   },
@@ -80,9 +80,9 @@ CalRecurrenceRule.prototype = {
     if (!this.freqSupported()) {
       return [];
     }
-    aStartTime = unwrapSingle(ICAL.Time, aStartTime);
-    aRangeStart = unwrapSingle(ICAL.Time, aRangeStart);
-    aRangeEnd = unwrapSingle(ICAL.Time, aRangeEnd);
+    aStartTime = aStartTime.wrappedJSObject.innerObject;
+    aRangeStart = aRangeStart.wrappedJSObject.innerObject;
+    aRangeEnd = aRangeEnd.wrappedJSObject.innerObject;
 
     if (!aMaxCount && !aRangeEnd && this.count == 0 && this.until == null) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);

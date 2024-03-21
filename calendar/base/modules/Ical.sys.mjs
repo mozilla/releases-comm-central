@@ -23,7 +23,7 @@ export function unwrapSetter(type, val, innerFunc, thisObj) {
     return innerFunc.call(thisObj || this, unwrapSingle(type, val));
 }
 
-export function unwrapSingle(type, val) {
+function unwrapSingle(type, val) {
     if (!val || !val.wrappedJSObject) {
         return null;
     } else if (val.wrappedJSObject.innerObject instanceof type) {
