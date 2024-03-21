@@ -18,6 +18,7 @@ fluent/migratetb/errors.py
 fluent/migratetb/evaluator.py
 fluent/migratetb/helpers.py
 fluent/migratetb/merge.py
+fluent/migratetb/repo_client.py
 fluent/migratetb/tool.py
 fluent/migratetb/transforms.py
 fluent/migratetb/util.py

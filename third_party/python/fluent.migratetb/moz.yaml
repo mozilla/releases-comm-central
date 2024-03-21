@@ -18,13 +18,9 @@ origin:
   # Usually different from repository url
   url: https://github.com/jfx2006/tb-fluent-migrate
 
-  # Human-readable identifier for this version/release
-  # Generally "version NNN", "tag SSS", "bookmark SSS"
-  release: tag v0.11.2
-
   # Revision to pull in
   # Must be a long or short commit SHA (long preferred)
-  revision: v0.12.0
+  revision: v0.13.0.1
 
   # The package's license, where possible using the mnemonic from
   # https://spdx.org/licenses/
