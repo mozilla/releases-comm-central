@@ -36,7 +36,7 @@ job-defaults:
         env:
             CHANNEL: "release-localtest-next"
     treeherder:
-        symbol: UV(UVnext)
+        symbol: UVnext()
         kind: test
     extra:
         chunks: 12

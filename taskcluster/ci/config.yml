@@ -48,6 +48,7 @@ treeherder:
         'rs': 'Repackage signing'
         'Snap': 'Snap image generation'
         'UV': 'Update verify'
+        'UVnext': 'Update verify for esr-next'
 
         # mozlint
         'cpp': 'C/C++ checks'

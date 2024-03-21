@@ -34,7 +34,7 @@ job-defaults:
         retry-exit-status:
             - 255
     treeherder:
-        symbol: UV(UV)
+        symbol: UV()
         kind: test
     extra:
         chunks: 12
