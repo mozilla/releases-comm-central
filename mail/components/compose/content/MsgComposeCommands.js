@@ -3023,6 +3023,9 @@ function MessageComposeOfflineStateChanged(goingOffline) {
 
 function DoCommandPrint() {
   const browser = GetCurrentEditorElement();
+  browser.onFirstPrintDialogOpened = () => ToggleWindowLock(true);
+  browser.onLastPrintDialogClosed = () => ToggleWindowLock(false);
+
   browser.contentDocument.title =
     document.getElementById("msgSubject").value.trim() ||
     getComposeBundle().getString("defaultSubject");

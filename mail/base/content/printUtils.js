@@ -275,6 +275,7 @@ class TabDialogBox {
   }
 
   _onFirstDialogOpen() {
+    this.browser?.onFirstPrintDialogOpened?.();
     for (const element of this.printPreviewStack.children) {
       if (element != this.dialogStack) {
         element.setAttribute("tabDialogShowing", true);
@@ -289,6 +290,7 @@ class TabDialogBox {
   }
 
   _onLastDialogClose() {
+    this.browser?.onLastPrintDialogClosed?.();
     for (const element of this.printPreviewStack.children) {
       if (element != this.dialogStack) {
         element.removeAttribute("tabDialogShowing");
