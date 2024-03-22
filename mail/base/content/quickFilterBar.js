@@ -13,7 +13,7 @@ ChromeUtils.defineESModuleGetters(this, {
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
 });
 
-import("chrome://messenger/content/search-bar.mjs");
+import("chrome://messenger/content/search-bar.mjs").catch(console.error);
 
 class ToggleButton extends HTMLButtonElement {
   constructor() {
