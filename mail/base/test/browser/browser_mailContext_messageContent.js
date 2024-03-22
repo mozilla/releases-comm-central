@@ -480,15 +480,15 @@ const mockExternalProtocolService = {
 
   _deferred: null,
 
-  externalProtocolHandlerExists(scheme) {
+  externalProtocolHandlerExists() {
     return true;
   },
 
-  isExposedProtocol(scheme) {
+  isExposedProtocol() {
     return true;
   },
 
-  loadURI(aURI, aWindowContext) {
+  loadURI(aURI) {
     if (this._deferred) {
       const deferred = this._deferred;
       this._deferred = null;

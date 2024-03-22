@@ -100,7 +100,7 @@ function waitForAboutDialog() {
         var domwindow = aAppWindow.docShell.domWindow;
         domwindow.addEventListener("load", aboutDialogOnLoad, true);
       },
-      onCloseWindow: aAppWindow => {},
+      onCloseWindow: () => {},
     };
 
     Services.wm.addListener(listener);

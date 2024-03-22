@@ -291,7 +291,7 @@ IMIncomingServer.prototype = {
   get spamSettings() {
     return {
       level: 0,
-      initialize(aServer) {},
+      initialize() {},
       QueryInterface: ChromeUtils.generateQI(["nsISpamSettings"]),
     };
   },
@@ -333,13 +333,13 @@ IMIncomingServer.prototype = {
       RemoveFolderListener() {},
       descendants: [],
       getFlag: () => false,
-      getFolderWithFlags: aFlags => null,
-      getFoldersWithFlags: aFlags => [],
+      getFolderWithFlags: () => null,
+      getFoldersWithFlags: () => [],
       get subFolders() {
         return [];
       },
-      getStringProperty: aPropertyName => "",
-      getNumUnread: aDeep => 0,
+      getStringProperty: () => "",
+      getNumUnread: () => 0,
       Shutdown() {},
       QueryInterface: ChromeUtils.generateQI(["nsIMsgFolder"]),
     });

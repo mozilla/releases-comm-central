@@ -446,7 +446,7 @@ function onSMIMEBeforeShowHeaderPane() {
   }
 }
 
-function msgHdrViewSMIMEOnLoad(event) {
+function msgHdrViewSMIMEOnLoad() {
   window.crypto.enableSmartCardEvents = true;
   document.addEventListener("smartcard-insert", onSmartCardChange);
   document.addEventListener("smartcard-remove", onSmartCardChange);
@@ -470,7 +470,7 @@ function msgHdrViewSMIMEOnLoad(event) {
   ].getService(Ci.nsIEncryptedSMIMEURIsService);
 }
 
-function msgHdrViewSMIMEOnUnload(event) {
+function msgHdrViewSMIMEOnUnload() {
   window.crypto.enableSmartCardEvents = false;
   document.removeEventListener("smartcard-insert", onSmartCardChange);
   document.removeEventListener("smartcard-remove", onSmartCardChange);

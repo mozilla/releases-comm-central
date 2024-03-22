@@ -113,10 +113,10 @@ add_setup(async function () {
   win = tab.browser.contentWindow;
   doc = win.document;
 
-  win.addEventListener("splitter-resizing", event => resizingEvents++);
-  win.addEventListener("splitter-resized", event => resizedEvents++);
-  win.addEventListener("splitter-collapsed", event => collapsedEvents++);
-  win.addEventListener("splitter-expanded", event => expandedEvents++);
+  win.addEventListener("splitter-resizing", () => resizingEvents++);
+  win.addEventListener("splitter-resized", () => resizedEvents++);
+  win.addEventListener("splitter-collapsed", () => collapsedEvents++);
+  win.addEventListener("splitter-expanded", () => expandedEvents++);
 });
 
 add_task(async function testHorizontalBefore() {

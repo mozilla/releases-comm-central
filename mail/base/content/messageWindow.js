@@ -53,7 +53,7 @@ window.addEventListener("DOMContentLoaded", event => {
   });
   messageBrowser.addEventListener(
     "load",
-    event => (messageBrowser.contentWindow.tabOrWindow = window),
+    () => (messageBrowser.contentWindow.tabOrWindow = window),
     true
   );
 });
@@ -602,7 +602,7 @@ var MessageWindowController = {
     }
   },
 
-  onEvent(event) {},
+  onEvent() {},
 };
 
 function SetupCommandUpdateHandlers() {

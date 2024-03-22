@@ -432,7 +432,7 @@ var SearchSupport = {
    * Get the last reindex time for this folder. This will be whichever's
    * greater, the global reindex time or the folder reindex time
    */
-  _getLastReindexTime(aFolder) {
+  _getLastReindexTime() {
     let reindexTime = this.globalReindexTime;
 
     // Check if this folder has a separate string property set

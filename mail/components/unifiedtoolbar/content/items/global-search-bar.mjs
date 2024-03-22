@@ -37,7 +37,7 @@ class GlobalSearchBar extends SearchBar {
     stopSearch() {
       lazy.glodaCompleter.stopSearch();
     },
-    handleEnter: (isAutocomplete, event) => {
+    handleEnter: isAutocomplete => {
       if (!isAutocomplete) {
         return;
       }
@@ -211,7 +211,7 @@ class GlobalSearchBar extends SearchBar {
     }
   };
 
-  #handleFocus = event => {
+  #handleFocus = () => {
     if (this.controller.searchString && this.controller.matchCount >= 1) {
       this.popup.openAutocompletePopup(
         this,

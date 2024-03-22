@@ -7,7 +7,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 this.messengerUtilities = class extends ExtensionAPIPersistent {
-  getAPI(context) {
+  getAPI() {
     const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );

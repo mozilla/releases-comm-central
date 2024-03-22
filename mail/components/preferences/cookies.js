@@ -11,10 +11,10 @@ ChromeUtils.defineESModuleGetters(this, {
     "resource://gre/modules/ContextualIdentityService.sys.mjs",
 });
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gCookiesWindow.init();
 });
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   gCookiesWindow.uninit();
 });
 
@@ -350,13 +350,13 @@ var gCookiesWindow = {
     set selection(val) {
       this._selection = val;
     },
-    getRowProperties(aRow) {
+    getRowProperties() {
       return "";
     },
-    getCellProperties(aRow, aColumn) {
+    getCellProperties() {
       return "";
     },
-    getColumnProperties(aColumn) {
+    getColumnProperties() {
       return "";
     },
     isContainer(aIndex) {
@@ -389,16 +389,16 @@ var gCookiesWindow = {
       }
       return false;
     },
-    isSeparator(aIndex) {
+    isSeparator() {
       return false;
     },
-    isSorted(aIndex) {
+    isSorted() {
       return false;
     },
-    canDrop(aIndex, aOrientation) {
+    canDrop() {
       return false;
     },
-    drop(aIndex, aOrientation) {},
+    drop() {},
     getParentIndex(aIndex) {
       if (!this._filtered) {
         var item = this._getItemAtIndex(aIndex);
@@ -463,10 +463,10 @@ var gCookiesWindow = {
       }
       return 0;
     },
-    getImageSrc(aIndex, aColumn) {},
-    getProgressMode(aIndex, aColumn) {},
-    getCellValue(aIndex, aColumn) {},
-    setTree(aTree) {},
+    getImageSrc() {},
+    getProgressMode() {},
+    getCellValue() {},
+    setTree() {},
     toggleOpenState(aIndex) {
       if (!this._filtered) {
         var item = this._getItemAtIndex(aIndex);
@@ -482,14 +482,14 @@ var gCookiesWindow = {
         gCookiesWindow._tree.invalidateRow(aIndex);
       }
     },
-    cycleHeader(aColumn) {},
+    cycleHeader() {},
     selectionChanged() {},
-    cycleCell(aIndex, aColumn) {},
-    isEditable(aIndex, aColumn) {
+    cycleCell() {},
+    isEditable() {
       return false;
     },
-    setCellValue(aIndex, aColumn, aValue) {},
-    setCellText(aIndex, aColumn, aValue) {},
+    setCellValue() {},
+    setCellText() {},
   },
 
   _makeStrippedHost(aHost) {

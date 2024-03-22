@@ -32,11 +32,11 @@ export const DNS = {
    *
    * Example: DNS.lookup("_caldavs._tcp.example.com", DNS.SRV)
    *
-   * @param aName           The aName to look up.
-   * @param aTypeID         The RR type to look up as a constant.
+   * @param _aName           The aName to look up.
+   * @param _aTypeID         The RR type to look up as a constant.
    * @returns A promise resolved when completed.
    */
-  async lookup(aName, aTypeID) {
+  async lookup(_aName, _aTypeID) {
     const worker = new BasePromiseWorker("resource:///modules/dnsWorker.js");
     workers.add(worker);
     let result;

@@ -53,7 +53,7 @@ ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
         "chrome://messenger/skin/shared/preferences/subdialog.css",
         "chrome://messenger/skin/abFormFields.css",
       ],
-      resizeCallback: ({ title, frame }) => {
+      resizeCallback: ({ frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
         updateAbCommands();
 
@@ -440,7 +440,7 @@ customElements.whenDefined("tree-listbox").then(() => {
 
       // Add event listener to update the total count of the selected address
       // book.
-      this.addEventListener("select", e => {
+      this.addEventListener("select", () => {
         updateAddressBookCount();
       });
 
@@ -628,7 +628,7 @@ customElements.whenDefined("tree-listbox").then(() => {
 
       let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
       directory = CardDAVDirectory.forFile(directory.fileName);
-      directory.syncWithServer().then(res => {
+      directory.syncWithServer().then(() => {
         updateAddressBookCount();
       });
     }
@@ -1557,7 +1557,7 @@ var cardsPane = {
       menuitem.setAttribute("checked", "true");
     }
 
-    menuitem.addEventListener("command", event =>
+    menuitem.addEventListener("command", () =>
       this._onColumnsChanged({ target: menuitem, value: abColumn.id })
     );
 
@@ -2259,7 +2259,7 @@ var cardsPane = {
     }
   },
 
-  _onSelect(event) {
+  _onSelect() {
     detailsPane.displayCards(this.selectedCards);
   },
 
@@ -2571,7 +2571,7 @@ var detailsPane = {
     document.getElementById("detailsFooter").addEventListener("click", this);
 
     const photoImage = document.getElementById("viewContactPhoto");
-    photoImage.addEventListener("error", event => {
+    photoImage.addEventListener("error", () => {
       if (!detailsPane.currentCard) {
         return;
       }
@@ -3951,7 +3951,7 @@ var photoDialog = {
         }
       }
 
-      onMouseUp(event) {
+      onMouseUp() {
         delete this._dragPosition;
         window.removeEventListener("mousemove", this);
         window.removeEventListener("mouseup", this);

@@ -118,7 +118,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     await chrome_settings_overrides.removeEngine(id);
   }
 
-  async onManifestEntry(entryName) {
+  async onManifestEntry() {
     const { extension } = this;
     const { manifest } = extension;
     if (manifest.chrome_settings_overrides.search_provider) {

@@ -26,7 +26,7 @@ const kMozTocIdPrefixLength = 8;
 const kMozTocClassPrefix = "mozToc";
 const kMozTocClassPrefixLength = 6;
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   Startup();
 });
 document.addEventListener("dialogaccept", () => BuildTOC(true));

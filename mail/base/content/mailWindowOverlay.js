@@ -1561,7 +1561,7 @@ function InformUserOfCertError(secInfo, targetSite) {
  * @implements {nsIUrlListener}
  */
 class TransportErrorUrlListener {
-  OnStartRunningUrl(url) {}
+  OnStartRunningUrl() {}
 
   OnStopRunningUrl(url, exitCode) {
     if (Components.isSuccessCode(exitCode)) {

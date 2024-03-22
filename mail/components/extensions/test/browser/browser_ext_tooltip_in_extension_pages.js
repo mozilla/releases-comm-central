@@ -159,13 +159,11 @@ add_task(async function test_browserAction_in_message_window() {
       });
 
       // Open the popup after a message has been displayed.
-      browser.messageDisplay.onMessageDisplayed.addListener(
-        async (tab, message) => {
-          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-          await new Promise(resolve => window.setTimeout(resolve, 125));
-          browser.browserAction.openPopup({ windowId: tab.windowId });
-        }
-      );
+      browser.messageDisplay.onMessageDisplayed.addListener(async tab => {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => window.setTimeout(resolve, 125));
+        browser.browserAction.openPopup({ windowId: tab.windowId });
+      });
 
       // Open a message in a window.
       const { messages } = await browser.messages.query({
@@ -405,13 +403,11 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       });
 
       // Open the popup after a message has been displayed.
-      browser.messageDisplay.onMessageDisplayed.addListener(
-        async (tab, message) => {
-          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-          await new Promise(resolve => window.setTimeout(resolve, 125));
-          browser.messageDisplayAction.openPopup({ windowId: tab.windowId });
-        }
-      );
+      browser.messageDisplay.onMessageDisplayed.addListener(async tab => {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => window.setTimeout(resolve, 125));
+        browser.messageDisplayAction.openPopup({ windowId: tab.windowId });
+      });
 
       // Open a message in a tab.
       const { messages } = await browser.messages.query({
@@ -496,13 +492,11 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       });
 
       // Open the popup after a message has been displayed.
-      browser.messageDisplay.onMessageDisplayed.addListener(
-        async (tab, message) => {
-          // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-          await new Promise(resolve => window.setTimeout(resolve, 125));
-          browser.messageDisplayAction.openPopup({ windowId: tab.windowId });
-        }
-      );
+      browser.messageDisplay.onMessageDisplayed.addListener(async tab => {
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => window.setTimeout(resolve, 125));
+        browser.messageDisplayAction.openPopup({ windowId: tab.windowId });
+      });
 
       // Open a message in a window.
       const { messages } = await browser.messages.query({

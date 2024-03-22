@@ -30,7 +30,7 @@ ChromeUtils.defineESModuleGetters(this, {
 
       this.tabmail = document.getElementById("tabmail");
 
-      this._mutationObserver = new MutationObserver((records, observer) => {
+      this._mutationObserver = new MutationObserver(records => {
         records.forEach(mutation => {
           const menuItem = mutation.target.mCorrespondingMenuitem;
           if (menuItem) {
@@ -39,7 +39,7 @@ ChromeUtils.defineESModuleGetters(this, {
         });
       });
 
-      this.addEventListener("popupshowing", event => {
+      this.addEventListener("popupshowing", () => {
         // Set up the menu popup.
         const tabcontainer = this.tabmail.tabContainer;
         const tabs = tabcontainer.allTabs;
@@ -64,7 +64,7 @@ ChromeUtils.defineESModuleGetters(this, {
         this._updateTabsVisibilityStatus();
       });
 
-      this.addEventListener("popuphiding", event => {
+      this.addEventListener("popuphiding", () => {
         // Clear out the menu popup and remove the listeners.
         while (this.hasChildNodes()) {
           const menuItem = this.lastElementChild;
@@ -1862,7 +1862,7 @@ ChromeUtils.defineESModuleGetters(this, {
     }
 
     // Called by <browser>, unused by tabmail.
-    finishBrowserRemotenessChange(browser, loadSwitchId) {}
+    finishBrowserRemotenessChange() {}
 
     /**
      * Returns the find bar for a tab.

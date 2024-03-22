@@ -72,23 +72,23 @@ export var Policies = {
   // Used for cleaning up policies.
   // Use the same timing that you used for setting up the policy.
   _cleanup: {
-    onBeforeAddons(manager) {
+    onBeforeAddons() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onBeforeAddons");
         clearBlockedAboutPages();
       }
     },
-    onProfileAfterChange(manager) {
+    onProfileAfterChange() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onProfileAfterChange");
       }
     },
-    onBeforeUIStartup(manager) {
+    onBeforeUIStartup() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onBeforeUIStartup");
       }
     },
-    onAllWindowsRestored(manager) {
+    onAllWindowsRestored() {
       if (Cu.isInAutomation || isXpcshell) {
         lazy.log.debug("_cleanup from onAllWindowsRestored");
       }
@@ -1615,7 +1615,7 @@ function clearBlockedAboutPages() {
   gBlockedAboutPages = [];
 }
 
-function blockAboutPage(manager, feature, neededOnContentProcess = false) {
+function blockAboutPage(manager, feature) {
   addChromeURLBlocker();
   gBlockedAboutPages.push(feature);
 
@@ -1633,7 +1633,7 @@ function blockAboutPage(manager, feature, neededOnContentProcess = false) {
 }
 
 const ChromeURLBlockPolicy = {
-  shouldLoad(contentLocation, loadInfo, mimeTypeGuess) {
+  shouldLoad(contentLocation, loadInfo) {
     const contentType = loadInfo.externalContentPolicyType;
     if (
       (contentLocation.scheme != "chrome" &&
@@ -1652,7 +1652,7 @@ const ChromeURLBlockPolicy = {
     }
     return Ci.nsIContentPolicy.ACCEPT;
   },
-  shouldProcess(contentLocation, loadInfo, mimeTypeGuess) {
+  shouldProcess() {
     return Ci.nsIContentPolicy.ACCEPT;
   },
   classDescription: "Policy Engine Content Policy",

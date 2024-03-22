@@ -39,7 +39,7 @@ function httpRequestObserver(aBrowser, aParams) {
 }
 
 httpRequestObserver.prototype = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (
       aTopic != "http-on-examine-response" &&
       aTopic != "http-on-examine-cached-response"

@@ -4,7 +4,7 @@
 
 /* import-globals-from sanitize.js */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gSanitizePromptDialog.init();
 });
 

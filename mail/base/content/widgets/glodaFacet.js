@@ -225,7 +225,7 @@
     constructor() {
       super();
 
-      this.addEventListener("mouseover", event => {
+      this.addEventListener("mouseover", () => {
         FacetContext.hoverFacet(
           this.faceter,
           this.faceter.attrDef,
@@ -234,7 +234,7 @@
         );
       });
 
-      this.addEventListener("mouseout", event => {
+      this.addEventListener("mouseout", () => {
         FacetContext.unhoverFacet(
           this.faceter,
           this.faceter.attrDef,
@@ -534,7 +534,7 @@
       }
     }
 
-    filterChanged(event) {
+    filterChanged() {
       if (!this.checked) {
         return;
       }
@@ -657,7 +657,7 @@
       }
     }
 
-    build(firstTime) {
+    build() {
       // -- Header Building
       this.nameNode.textContent = this.facetDef.strings.facetNameLabel;
 
@@ -869,7 +869,7 @@
      * - lists, mark the remainder header as "needed" if either of include /
      * - exclude exist so we need that label.
      */
-    updateHeaderStates(items) {
+    updateHeaderStates() {
       this.includeLabel.setAttribute(
         "state",
         this.includeList.childElementCount ? "some" : "empty"
@@ -893,7 +893,7 @@
       this.remainderLabel.removeAttribute("style");
     }
 
-    brushItems(items) {}
+    brushItems() {}
 
     clearBrushedItems() {}
 
@@ -1062,7 +1062,7 @@
       }
     }
 
-    barHovered(barNode, aInclude) {
+    barHovered(barNode) {
       const groupValue = barNode.groupValue;
       const groupItems = barNode.groupItems;
 
@@ -1078,7 +1078,7 @@
      * HoverGone! HoverGone!
      * We know it's gone, but where has it gone?
      */
-    barHoverGone(barNode, include) {
+    barHoverGone(barNode) {
       const groupValue = barNode.groupValue;
       const groupItems = barNode.groupItems;
 
@@ -1327,7 +1327,7 @@
       }
     }
 
-    moveFocus(event, delta) {
+    moveFocus(event) {
       try {
         // We probably want something quite generic in the long term, but that
         // is way too much for now (needs to skip over invisible items, etc)
@@ -1344,7 +1344,7 @@
       }
     }
 
-    selectItem(event) {
+    selectItem() {
       try {
         const focused = document.activeElement;
         if (focused == this.includeNode) {
@@ -1453,7 +1453,7 @@
     constructor() {
       super();
 
-      this.addEventListener("mouseover", event => {
+      this.addEventListener("mouseover", () => {
         FacetContext.hoverFacet(
           FacetContext.fakeResultFaceter,
           FacetContext.fakeResultAttr,
@@ -1462,7 +1462,7 @@
         );
       });
 
-      this.addEventListener("mouseout", event => {
+      this.addEventListener("mouseout", () => {
         FacetContext.unhoverFacet(
           FacetContext.fakeResultFaceter,
           FacetContext.fakeResultAttr,

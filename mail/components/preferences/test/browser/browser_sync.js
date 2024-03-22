@@ -38,9 +38,9 @@ add_setup(async function () {
   /** @implements {nsIExternalProtocolService} */
   const mockExternalProtocolService = {
     QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-    externalProtocolHandlerExists(protocolScheme) {},
-    isExposedProtocol(protocolScheme) {},
-    loadURI(uri, windowContext) {
+    externalProtocolHandlerExists() {},
+    isExposedProtocol() {},
+    loadURI(uri) {
       Assert.report(
         true,
         undefined,

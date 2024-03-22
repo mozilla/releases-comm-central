@@ -122,7 +122,7 @@ add_task(async function testFirstTab() {
   };
 
   const tabmail = document.getElementById("tabmail");
-  function getBrowser(expected) {
+  function getBrowser() {
     return tabmail.currentTabInfo.browser;
   }
 
@@ -143,7 +143,7 @@ add_task(async function testContentTab() {
     };
   };
 
-  function getBrowser(expected) {
+  function getBrowser() {
     const tabmail = document.getElementById("tabmail");
     return tabmail.currentTabInfo.browser;
   }
@@ -177,7 +177,7 @@ add_task(async function testPopupWindow() {
     };
   };
 
-  function getBrowser(expected) {
+  function getBrowser() {
     const popups = [...Services.wm.getEnumerator("mail:extensionPopup")];
     Assert.equal(popups.length, 1);
 

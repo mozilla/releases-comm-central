@@ -29,7 +29,7 @@ const initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
 
 // This patches constructor of ContentScriptContextChild adding the object to
 // the sandbox.
-ExtensionContent.getContext = function (extension, window) {
+ExtensionContent.getContext = function () {
   const context = getContext.apply(ExtensionContent, arguments);
   if (!("messenger" in context.sandbox)) {
     Schemas.exportLazyGetter(

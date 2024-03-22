@@ -855,7 +855,7 @@ function GetSelectedMsgFolders() {
   return [];
 }
 
-function SelectFolder(folderUri) {
+function SelectFolder() {
   // TODO: Replace this.
 }
 
@@ -866,7 +866,7 @@ function messageFlavorDataProvider() {}
 messageFlavorDataProvider.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
-  getFlavorData(aTransferable, aFlavor, aData) {
+  getFlavorData(aTransferable, aFlavor) {
     if (aFlavor !== "application/x-moz-file-promise") {
       return;
     }
@@ -954,7 +954,7 @@ var TabsInTitlebar = {
     return document.documentElement.getAttribute("tabsintitlebar") == "true";
   },
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     if (topic == "nsPref:changed") {
       this._readPref();
     }

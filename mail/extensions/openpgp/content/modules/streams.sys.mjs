@@ -46,9 +46,9 @@ export var EnigmailStreams = {
         "nsIRequestObserver",
       ]),
 
-      onStartRequest(channel) {},
+      onStartRequest() {},
 
-      onStopRequest(channel, status) {
+      onStopRequest() {
         this.inStream = null;
         onStopCallback(this.data);
       },

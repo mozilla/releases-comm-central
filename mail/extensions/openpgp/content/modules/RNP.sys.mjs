@@ -1582,7 +1582,7 @@ export var RNP = {
     return rList;
   },
 
-  policyForbidsAlg(alg) {
+  policyForbidsAlg() {
     // TODO: implement policy
     // Currently, all algorithms are allowed
     return false;
@@ -1668,14 +1668,7 @@ export var RNP = {
     let collected_fingerprint = null;
     let remembered_password = null;
 
-    function collect_key_info_password_cb(
-      ffi,
-      app_ctx,
-      key,
-      pgp_context,
-      buf,
-      buf_len
-    ) {
+    function collect_key_info_password_cb(ffi, app_ctx, key) {
       const fingerprint = new lazy.ctypes.char.ptr();
       if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
         collected_fingerprint = fingerprint.readString();

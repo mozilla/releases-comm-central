@@ -118,7 +118,7 @@
           this.removeObservers();
         },
 
-        observe: (subject, topic, data) => {
+        observe: (subject, topic) => {
           switch (topic) {
             case "addrbook-directory-created":
             case "addrbook-directory-deleted":

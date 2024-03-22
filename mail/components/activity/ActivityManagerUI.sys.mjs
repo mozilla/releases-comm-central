@@ -7,7 +7,7 @@ const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xhtml";
 export function ActivityManagerUI() {}
 
 ActivityManagerUI.prototype = {
-  show(aWindowContext, aID) {
+  show(aWindowContext) {
     // First we see if it is already visible
     const window = this.recentWindow;
     if (window) {

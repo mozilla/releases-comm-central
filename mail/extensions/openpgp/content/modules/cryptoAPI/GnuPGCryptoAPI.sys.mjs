@@ -36,7 +36,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *
    * @returns {Promise<Array of Object>}
    */
-  async getKeys(onlyKeys = null) {
+  async getKeys() {
     throw new Error("Not implemented");
   }
 
@@ -48,7 +48,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *
    * @returns {Promise<Array of Object>} - see extractSignatures()
    */
-  async getKeySignatures(keyId, ignoreUnknownUid = false) {
+  async getKeySignatures(keyId) {
     lazy.EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
     throw new Error("Not implemented");
   }
@@ -61,7 +61,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *
    * @returns {Promise<Array of Object>} - see extractSignatures()
    */
-  async getKeyObjSignatures(keyObj, ignoreUnknownUid = false) {
+  async getKeyObjSignatures() {
     throw new Error("Not implemented");
   }
 
@@ -79,7 +79,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
    */
-  async getMinimalPubKey(fpr, email, subkeyDates) {
+  async getMinimalPubKey(fpr) {
     lazy.EnigmailLog.DEBUG(`gnupg.js: getMinimalPubKey: ${fpr}\n`);
     throw new Error("Not implemented");
   }
@@ -96,7 +96,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *   - {String} errorMsg:  error message in case exitCode !== 0
    */
 
-  async extractSecretKey(keyId, minimalKey) {
+  async extractSecretKey() {
     throw new Error("Not implemented");
   }
 
@@ -107,7 +107,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * @returns {String or null} - the name of the attached file
    */
 
-  async getFileName(byteData) {
+  async getFileName() {
     lazy.EnigmailLog.DEBUG(`gnupg.js: getFileName()\n`);
     throw new Error("Not implemented");
   }
@@ -123,7 +123,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * The message will be an error message in this case.
    */
 
-  async verifyAttachment(filePath, sigPath) {
+  async verifyAttachment() {
     lazy.EnigmailLog.DEBUG(`gnupg.js: verifyAttachment()\n`);
     throw new Error("Not implemented");
   }
@@ -139,7 +139,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async decryptAttachment(encrypted) {
+  async decryptAttachment() {
     lazy.EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
     throw new Error("Not implemented");
   }
@@ -156,7 +156,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async decrypt(encrypted, options) {
+  async decrypt() {
     lazy.EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
     throw new Error("Not implemented");
   }
@@ -210,19 +210,19 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return this.decrypt(signed, options);
   }
 
-  async getKeyListFromKeyBlockAPI(keyBlockStr) {
+  async getKeyListFromKeyBlockAPI() {
     throw new Error("Not implemented");
   }
 
-  async genKey(userId, keyType, keySize, expiryTime, passphrase) {
+  async genKey() {
     throw new Error("GnuPG genKey() not implemented");
   }
 
-  async deleteKey(keyFingerprint, deleteSecret) {
+  async deleteKey() {
     return null;
   }
 
-  async encryptAndOrSign(plaintext, args, resultStatus) {
+  async encryptAndOrSign() {
     return null;
   }
 }

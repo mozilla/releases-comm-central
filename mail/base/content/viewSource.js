@@ -139,7 +139,7 @@ function ViewSourceSavePage() {
 }
 
 /** Called by ContextMenuParent.sys.mjs */
-function openContextMenu({ data }, browser, actor) {
+function openContextMenu({ data }, browser) {
   const popup = browser.ownerDocument.getElementById("viewSourceContextMenu");
 
   const newEvent = document.createEvent("MouseEvent");

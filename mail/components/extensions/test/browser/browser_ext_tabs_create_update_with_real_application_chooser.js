@@ -89,7 +89,7 @@ add_task(async function testUpdateTabs_with_application_chooser() {
       // Load a URL.
       await new Promise(resolve => {
         let urlSeen = false;
-        const updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo) => {
           if (changeInfo.url == "https://www.example.com/") {
             urlSeen = true;
           }

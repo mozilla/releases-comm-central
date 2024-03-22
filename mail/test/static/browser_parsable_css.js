@@ -430,13 +430,13 @@ add_task(async function checkAllTheCSS() {
 
   const loadCSS = chromeUri =>
     new Promise(resolve => {
-      const onLoad = e => {
+      const onLoad = () => {
         processCSSRules(linkEl.sheet);
         resolve();
         linkEl.removeEventListener("load", onLoad);
         linkEl.removeEventListener("error", onError);
       };
-      const onError = e => {
+      const onError = () => {
         ok(
           false,
           "Loading " + linkEl.getAttribute("href") + " threw an error!"

@@ -37,7 +37,7 @@ var MockCompleteGenericSendMessage = {
         "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       ],
       onLoadWindow(window) {
-        window.CompleteGenericSendMessage = function (msgType) {
+        window.CompleteGenericSendMessage = function () {
           const items = [...window.gAttachmentBucket.itemChildren];
           for (const item of items) {
             if (item.attachment.sendViaCloud && item.cloudFileAccount) {
@@ -1015,7 +1015,7 @@ add_task(async function test_compose_attachments() {
       // Delete the cloud attachment2 in tab1, which should not trigger a cloud
       // delete, as the url is still used in tab5.
 
-      function fileListener(account, id, tab) {
+      function fileListener() {
         browser.test.fail(
           `The onFileDeleted listener should not fire for deleting a cloud file which is still used in another tab.`
         );
@@ -1057,7 +1057,7 @@ add_task(async function test_compose_attachments() {
       // delete.
 
       const tab5_deletePromise = new Promise(resolve => {
-        function fileListener(account, id, tab) {
+        function fileListener(account, id) {
           browser.cloudFile.onFileDeleted.removeListener(fileListener);
           setTimeout(() => resolve(id));
         }
@@ -1491,7 +1491,7 @@ add_task(async function test_compose_attachments_immutable() {
       // delete, as the url has been marked as immutable by sending the message
       // in tab1.
 
-      function fileListener(account, id, tab) {
+      function fileListener() {
         browser.test.fail(
           `The onFileDeleted listener should not fire for deleting a cloud file marked as immutable.`
         );

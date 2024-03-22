@@ -70,7 +70,7 @@
 
       this.setAttribute("is", "chat-contact-richlistitem");
 
-      this.addEventListener("blur", event => {
+      this.addEventListener("blur", () => {
         if (!this.hasAttribute("aliasing")) {
           return;
         }
@@ -108,7 +108,7 @@
       // @implements {nsIObserver}
       this.observer = {
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        observe: function (subject, topic, data) {
+        observe: function (subject, topic) {
           if (
             topic == "contact-preferred-buddy-changed" ||
             topic == "contact-display-name-changed" ||
@@ -187,7 +187,7 @@
       label.setAttribute("hidden", "true");
       input.focus();
 
-      this._inputBlurListener = function (event) {
+      this._inputBlurListener = function () {
         this.finishAliasing(true);
       }.bind(this);
       input.addEventListener("blur", this._inputBlurListener);

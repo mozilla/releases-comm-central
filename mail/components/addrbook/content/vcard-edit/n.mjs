@@ -136,7 +136,7 @@ export class VCardNComponent extends HTMLElement {
     this.prefixEl = this.querySelector("#n-list-component-prefix");
     const prefixInput = this.prefixEl.querySelector("input");
     const prefixButton = this.prefixEl.querySelector("button");
-    prefixButton.addEventListener("click", e => {
+    prefixButton.addEventListener("click", () => {
       this.prefixEl.querySelector("label").hidden = false;
       prefixInput.hidden = false;
       prefixButton.hidden = true;
@@ -149,7 +149,7 @@ export class VCardNComponent extends HTMLElement {
     this.middleNameEl = this.querySelector("#n-list-component-middlename");
     const middleNameInput = this.middleNameEl.querySelector("input");
     const middleNameButton = this.middleNameEl.querySelector("button");
-    middleNameButton.addEventListener("click", e => {
+    middleNameButton.addEventListener("click", () => {
       this.middleNameEl.querySelector("label").hidden = false;
       middleNameInput.hidden = false;
       middleNameButton.hidden = true;
@@ -162,7 +162,7 @@ export class VCardNComponent extends HTMLElement {
     this.suffixEl = this.querySelector("#n-list-component-suffix");
     const suffixInput = this.suffixEl.querySelector("input");
     const suffixButton = this.suffixEl.querySelector("button");
-    suffixButton.addEventListener("click", e => {
+    suffixButton.addEventListener("click", () => {
       this.suffixEl.querySelector("label").hidden = false;
       suffixInput.hidden = false;
       suffixButton.hidden = true;

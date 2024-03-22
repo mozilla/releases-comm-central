@@ -86,7 +86,7 @@ export var pop3DownloadModule = {
     this._mostRecentActivityForFolder.set(aFolder.URI, downloadItem);
   },
 
-  onDownloadProgress(aFolder, aNumMsgsDownloaded, aTotalMsgs) {
+  onDownloadProgress() {
     this.log.info("in onDownloadProgress");
   },
 

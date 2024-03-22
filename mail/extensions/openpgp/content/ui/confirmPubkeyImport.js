@@ -90,7 +90,7 @@ async function init() {
   );
 }
 
-function onAccept(event) {
+function onAccept() {
   window.arguments[0].confirmed = true;
   if (gUndecided.selected) {
     window.arguments[0].acceptance = "undecided";

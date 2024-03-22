@@ -138,7 +138,7 @@ provisionerCheckoutTabType._setMonitoring = function (
  * dialog again.
  */
 provisionerCheckoutTabType.quitObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // Make sure we saw the right topic, and that the window that is closing
     // is the 3pane window that the provisionerCheckoutTab belongs to.
     if (aTopic == "mail-unloading-messenger" && aSubject === window) {

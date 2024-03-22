@@ -49,7 +49,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
 
   extensionOptions.background = () => {
     browser.test.onMessage.addListener((message, withPopup) => {
-      browser.commands.onCommand.addListener(commandName => {
+      browser.commands.onCommand.addListener(() => {
         browser.test.fail(
           "The onCommand listener should never fire for a valid _execute_* command."
         );

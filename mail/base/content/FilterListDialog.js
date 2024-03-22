@@ -88,12 +88,12 @@ var gStatusFeedback = {
       // can get here if closing window when running filters
     }
   },
-  showProgress(percentage) {},
+  showProgress() {},
   closeWindow() {},
 };
 
 var filterEditorQuitObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
     if (
@@ -564,28 +564,28 @@ function onDeleteFilter() {
 /**
  * Move filter one step up in visible list.
  */
-function onUp(event) {
+function onUp() {
   moveFilter(msgMoveMotion.Up);
 }
 
 /**
  * Move filter one step down in visible list.
  */
-function onDown(event) {
+function onDown() {
   moveFilter(msgMoveMotion.Down);
 }
 
 /**
  * Move filter to bottom for long filter lists.
  */
-function onTop(evt) {
+function onTop() {
   moveFilter(msgMoveMotion.Top);
 }
 
 /**
  * Move filter to top for long filter lists.
  */
-function onBottom(evt) {
+function onBottom() {
   moveFilter(msgMoveMotion.Bottom);
 }
 
@@ -1006,7 +1006,7 @@ function getServerThatCanHaveFilters() {
   return MailServices.accounts.allServers.find(server => server.canHaveFilters);
 }
 
-function onFilterClick(event) {
+function onFilterClick() {
   // This is called after the clicked checkbox changed state
   // so this.checked is the right state we want to toggle to.
   toggleFilter(this.parentNode, this.checked);

@@ -141,13 +141,7 @@ export var sendLaterModule = {
   },
 
   // Replaces the process with a warning that reflects the failed process.
-  _replaceProcessWithWarning(
-    aProcess,
-    aCopyOrSend,
-    aStatus,
-    aMsg,
-    aMessageHeader
-  ) {
+  _replaceProcessWithWarning(aProcess, aCopyOrSend) {
     this.activityMgr.removeActivity(aProcess.id);
 
     const warning = new nsActWarning(
@@ -273,7 +267,7 @@ export var sendLaterModule = {
     );
   },
 
-  onStopSending(aStatus, aMsg, aTotalTried, aSuccessful) {},
+  onStopSending() {},
 
   init() {
     // We should need to remove the listener as we're not being held by anyone

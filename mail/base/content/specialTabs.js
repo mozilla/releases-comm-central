@@ -360,7 +360,7 @@ var contentTabBaseType = {
   // as specified in inContentWhitelist.
   inContentOverlays: [
     // about:addons
-    function (aDocument, aTab) {
+    function (aDocument) {
       Services.scriptloader.loadSubScript(
         "chrome://messenger/content/aboutAddonsExtra.js",
         aDocument.defaultView
@@ -376,7 +376,7 @@ var contentTabBaseType = {
     null,
 
     // about:profiles
-    function (aDocument, aTab) {
+    function (aDocument) {
       const win = aDocument.defaultView;
       // Need a timeout to let the script run to create the needed buttons.
       win.setTimeout(() => {
@@ -499,7 +499,7 @@ var contentTabBaseType = {
 
   // Internal function used to set up the title listener on a content tab.
   _setUpTitleListener(aTab) {
-    function onDOMTitleChanged(aEvent) {
+    function onDOMTitleChanged() {
       aTab.title = aTab.browser.contentTitle;
       document.getElementById("tabmail").setTabTitle(aTab);
     }
@@ -530,7 +530,7 @@ var contentTabBaseType = {
     aTab.browser.addEventListener("DOMWindowClose", aTab.closeListener, true);
   },
 
-  supportsCommand(aCommand, aTab) {
+  supportsCommand(aCommand) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -1206,7 +1206,7 @@ var specialTabs = {
         label: rightsBundle.GetStringFromName("buttonLabel"),
         accessKey: rightsBundle.GetStringFromName("buttonAccessKey"),
         popup: null,
-        callback(aNotificationBar, aButton) {
+        callback() {
           // Show the about:rights tab
           document.getElementById("tabmail").openTab("contentTab", {
             url: "about:rights",

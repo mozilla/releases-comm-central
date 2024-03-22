@@ -844,11 +844,7 @@ export async function select_control_click_row(aViewIndex) {
  *   the first window.
  * @returns The message headers for all messages that are now selected.
  */
-export async function select_shift_click_row(
-  aViewIndex,
-  aWin,
-  aDoNotRequireLoad
-) {
+export async function select_shift_click_row(aViewIndex, aWin) {
   aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
   const win = get_about_3pane();
@@ -1375,7 +1371,7 @@ export async function archive_selected_messages(win = mc) {
  * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
  */
-export async function wait_for_all_messages_to_load(win = mc) {
+export async function wait_for_all_messages_to_load() {
   // await TestUtils.waitForCondition(
   //   () => win.gFolderDisplay.allMessagesLoaded,
   //   "Messages never finished loading.  Timed Out."
@@ -1396,7 +1392,7 @@ export async function wait_for_all_messages_to_load(win = mc) {
  *   the first window. If the message display is going to be caused by a tab
  *   switch, a reference to the tab to switch to should be passed in.
  */
-export function plan_for_message_display(winOrTab) {}
+export function plan_for_message_display() {}
 
 /**
  * If a message or summary is in the process of loading, let it finish;

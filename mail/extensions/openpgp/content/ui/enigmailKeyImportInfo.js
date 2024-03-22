@@ -170,6 +170,6 @@ function dlgClose(buttonNumber) {
   window.close();
 }
 
-document.addEventListener("dialogaccept", function (event) {
+document.addEventListener("dialogaccept", function () {
   dlgClose(0);
 });

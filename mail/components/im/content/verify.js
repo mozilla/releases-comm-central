@@ -48,6 +48,6 @@ var verifySession = {
   },
 };
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   verifySession.onload();
 });

@@ -62,11 +62,11 @@ if (!customElements.get("menulist")) {
           window.removeEventListener("unload", this);
         },
 
-        handleEvent(event) {
+        handleEvent() {
           this.cleanUp();
         },
 
-        observe: (subject, topic, data) => {
+        observe: (subject, topic) => {
           // Test-only reload of the address book manager.
           if (topic == "addrbook-reloaded") {
             this._rebuild();

@@ -244,7 +244,7 @@ this.menus = class extends ExtensionAPI {
           }
           pendingMenuEvent = {
             webExtContextData,
-            observe(subject, topic, data) {
+            observe(subject) {
               pendingMenuEvent = null;
               Services.obs.removeObserver(this, "on-prepare-contextmenu");
               subject = subject.wrappedJSObject;

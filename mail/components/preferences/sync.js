@@ -161,7 +161,7 @@ var gSyncPane = {
     setEventListener("fxaRejectedRemoveAccount", "click", function () {
       gSyncPane.unlinkFirefoxAccount(true);
     });
-    setEventListener("photoButton", "click", function (event) {
+    setEventListener("photoButton", "click", function () {
       window.browsingContext.topChromeWindow.gSync.openFxAAvatarPage(
         "preferences"
       );

@@ -655,7 +655,7 @@ function detectStandardProtocols(config, domain, successCallback) {
 
   lazy.GuessConfig.guessConfig(
     domain,
-    function (type, hostname, port, ssl, done, config) {
+    function (type, hostname) {
       gAccountSetupLogger.info(
         `Probing exchange server ${hostname} for ${type} protocol support.`
       );
@@ -664,7 +664,7 @@ function detectStandardProtocols(config, domain, successCallback) {
       // Probing succeeded: found open protocols, yay!
       successCallback(probedConfig);
     },
-    function (e, probedConfig) {
+    function () {
       // Probing didn't find any open protocols.
       // Let's use the exchange (only) config that was listed then.
       config.subSource += "-guess";

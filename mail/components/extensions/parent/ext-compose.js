@@ -496,7 +496,7 @@ async function getComposeDetails(composeWindow, extension) {
   return details;
 }
 
-async function setFromField(composeWindow, details, extension) {
+async function setFromField(composeWindow, details) {
   if (!details || details.from == null) {
     return;
   }
@@ -880,7 +880,7 @@ class MsgOperationObserver {
     MailServices.mfn.addListener(this, MailServices.mfn.msgsClassified);
     this.composeWindow.addEventListener(
       "compose-prepare-message-success",
-      event => this.preparedCallbacks.resolve(),
+      () => this.preparedCallbacks.resolve(),
       { once: true }
     );
     this.composeWindow.addEventListener(
@@ -891,7 +891,7 @@ class MsgOperationObserver {
   }
 
   // Observer for mail:composeSendProgressStop.
-  observe(subject, topic, data) {
+  observe(subject) {
     const { composeWindow } = subject.wrappedJSObject;
     if (composeWindow == this.composeWindow) {
       this.deliveryCallbacks.resolve();
@@ -899,10 +899,10 @@ class MsgOperationObserver {
   }
 
   // nsIMsgSendListener
-  onStartSending(msgID, msgSize) {}
-  onProgress(msgID, progress, progressMax) {}
-  onStatus(msgID, msg) {}
-  onStopSending(msgID, status, msg, returnFile) {
+  onStartSending() {}
+  onProgress() {}
+  onStatus() {}
+  onStopSending(msgID, status) {
     if (!Components.isSuccessCode(status)) {
       this.deliveryCallbacks.reject(
         new ExtensionError("Message operation failed")
@@ -920,11 +920,11 @@ class MsgOperationObserver {
     const headerMessageId = msgID.replace(/^<|>$/g, "");
     this.savedMessages.push(JSON.stringify({ headerMessageId, folderURI }));
   }
-  onSendNotPerformed(msgID, status) {}
-  onTransportSecurityError(msgID, status, secInfo, location) {}
+  onSendNotPerformed() {}
+  onTransportSecurityError() {}
 
   // Implementation for nsIMsgFolderListener::msgsClassified
-  msgsClassified(msgs, junkProcessed, traitProcessed) {
+  msgsClassified(msgs) {
     // Collect all msgHdrs added to folders during the current message operation.
     for (const msgHdr of msgs) {
       const cachedMsgHdr = new CachedMsgHeader(msgHdr);
@@ -1332,7 +1332,7 @@ this.compose = class extends ExtensionAPIPersistent {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
       const listener = {
-        async onSuccess(window, mode, messages, headerMessageId) {
+        async onSuccess(window, mode, messages) {
           if (fire.wakeup) {
             await fire.wakeup();
           }

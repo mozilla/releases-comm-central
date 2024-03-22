@@ -7,7 +7,7 @@ var { XPIDatabase } = ChromeUtils.importESModule(
   "resource://gre/modules/addons/XPIDatabase.sys.mjs"
 );
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   onLoad();
 });
 

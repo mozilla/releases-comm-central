@@ -271,7 +271,7 @@ add_task(async function test_attachments_removed_on_multiple() {
 add_task(async function test_no_attachments_removed_on_none() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
-  const listener = function (event) {
+  const listener = function () {
     eventCount++;
   };
 
@@ -409,7 +409,7 @@ add_task(async function test_attachment_renamed() {
 add_task(async function test_no_attachment_renamed_on_blank() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
-  const listener = function (event) {
+  const listener = function () {
     eventCount++;
   };
 

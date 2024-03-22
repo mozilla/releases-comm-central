@@ -26,11 +26,11 @@ var gStatusBar = document.getElementById("statusbar-icon");
 var GlodaSearchBoxTabMonitor = {
   monitorName: "glodaSearchBox",
 
-  onTabSwitched(aTab, aOldTab) {},
+  onTabSwitched() {},
 
   onTabTitleChanged() {},
 
-  onTabOpened(aTab, aFirstTab, aOldTab) {
+  onTabOpened(aTab) {
     aTab._ext.glodaSearchBox = {
       value: aTab.mode.name === "glodaFacet" ? aTab.searchString : "",
     };

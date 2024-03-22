@@ -235,7 +235,7 @@ add_task(
 
         // Test that unspecified properties aren't changed.
         let listenerCalls = 0;
-        const listenerFunc = (msg, props) => {
+        const listenerFunc = () => {
           listenerCalls++;
         };
         browser.messages.onUpdated.addListener(listenerFunc);

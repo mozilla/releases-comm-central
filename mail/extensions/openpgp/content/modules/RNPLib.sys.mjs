@@ -834,7 +834,7 @@ function enableRNPLibJS() {
      * This is a C callback from an external library, so we cannot
      * rely on the usual JS throw mechanism to abort this operation.
      */
-    password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
+    password_cb(ffi, app_ctx, key) {
       const fingerprint = new ctypes.char.ptr();
       let fpStr;
       if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {

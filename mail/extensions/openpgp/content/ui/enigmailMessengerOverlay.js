@@ -727,7 +727,7 @@ Enigmail.msg = {
       {
         "l10n-id": "openpgp-broken-exchange-repair",
         popup: null,
-        callback(notification, button) {
+        callback() {
           Enigmail.msg.fixBuggyExchangeMail();
           return false; // Close notification.
         },
@@ -942,7 +942,7 @@ Enigmail.msg = {
           {
             label: buttonLabel,
             popup: null,
-            callback(aNotification, aButton) {
+            callback() {
               Enigmail.msg.processOpenPGPSubset();
               return false; // Close notification.
             },
@@ -1614,7 +1614,7 @@ Enigmail.msg = {
         // parent.gDBView.selectMsgByKey(msgKey);
         // ReloadMessage();
       })
-      .catch(async function (ex) {
+      .catch(async function () {
         Services.prompt.alert(
           window,
           null,
@@ -1859,7 +1859,7 @@ Enigmail.msg = {
     PromiseStreamListener.prototype = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
-      onStartRequest(request) {
+      onStartRequest() {
         this.data = "";
         this.inStream = Cc[
           "@mozilla.org/scriptableinputstream;1"
@@ -2521,7 +2521,7 @@ Enigmail.msg = {
         destFolder.URI,
         move,
         false
-      ).catch(err => {
+      ).catch(() => {
         failures++;
       });
     }
@@ -2932,7 +2932,7 @@ Enigmail.msg = {
         {
           "l10n-id": "openpgp-show-encrypted-parts",
           popup: null,
-          callback(notification, button) {
+          callback() {
             top.viewEncryptedPart(Enigmail.msg.getCurrentMsgUriSpec());
             return true; // keep notification
           },

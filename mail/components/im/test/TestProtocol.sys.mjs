@@ -97,7 +97,7 @@ const SharedConversationPrototype = {
    * @param {string} aMsg - Message to send.
    * @returns
    */
-  dispatchMessage(aMsg, aAction = false, aNotice = false) {
+  dispatchMessage(aMsg, aNotice = false) {
     if (this._disconnected) {
       return;
     }

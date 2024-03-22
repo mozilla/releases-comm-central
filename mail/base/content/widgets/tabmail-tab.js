@@ -70,7 +70,7 @@
 
       this.addEventListener(
         "dragstart",
-        event => {
+        () => {
           document.dragTab = this;
         },
         true
@@ -78,7 +78,7 @@
 
       this.addEventListener(
         "dragover",
-        event => {
+        () => {
           document.dragTab = null;
         },
         true

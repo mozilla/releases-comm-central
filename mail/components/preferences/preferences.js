@@ -352,7 +352,7 @@ async function spotlight(subcategory, category) {
   }
 }
 
-async function scrollAndHighlight(subcategory, category) {
+async function scrollAndHighlight(subcategory) {
   const element = document.querySelector(`[data-subcategory="${subcategory}"]`);
   if (!element) {
     return;

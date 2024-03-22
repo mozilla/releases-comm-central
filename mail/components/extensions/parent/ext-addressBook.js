@@ -332,10 +332,10 @@ class ExtSearchBook extends AddrBookDirectory {
   get isSecure() {
     return this._isSecure;
   }
-  getCardFromProperty(aProperty, aValue, aCaseSensitive) {
+  getCardFromProperty() {
     return null;
   }
-  getCardsFromProperty(aProperty, aValue, aCaseSensitive) {
+  getCardsFromProperty() {
     return [];
   }
   get dirType() {
@@ -347,14 +347,14 @@ class ExtSearchBook extends AddrBookDirectory {
   get childCardCount() {
     return 0;
   }
-  useForAutocomplete(aIdentityKey) {
+  useForAutocomplete() {
     // AddrBookDirectory defaults to true
     return false;
   }
   get supportsMailingLists() {
     return false;
   }
-  setLocalizedStringValue(aName, aValue) {}
+  setLocalizedStringValue() {}
   async search(aQuery, aSearchString, aListener) {
     try {
       if (this.fire.wakeup) {
@@ -1253,7 +1253,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
             promises.push(
               new Promise(resolve => {
                 book.item.search(searchQuery, searchString, {
-                  onSearchFinished(status, complete, secInfo, location) {
+                  onSearchFinished() {
                     resolve();
                   },
                   onSearchFoundCard(contact) {

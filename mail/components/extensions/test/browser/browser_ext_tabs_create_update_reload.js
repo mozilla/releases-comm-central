@@ -66,7 +66,7 @@ add_task(async function testCreateUpdateTabs_WebExtProtocolHandler() {
 
       await new Promise(resolve => {
         let urlSeen = false;
-        const updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo) => {
           if (
             changeInfo.url &&
             changeInfo.url.endsWith("handler.html#ext%2Btest%3A1234-1")
@@ -112,7 +112,7 @@ add_task(async function testCreateUpdateTabs_WebExtProtocolHandler() {
 
       await new Promise(resolve => {
         let urlSeen = false;
-        const updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo) => {
           if (
             changeInfo.url &&
             changeInfo.url.endsWith("handler.html#ext%2Btest%3A1234-1")
@@ -468,7 +468,7 @@ add_task(async function testReloadTabs() {
       // Load a content URL by updating the mail tab.
       await new Promise(resolve => {
         let urlSeen = false;
-        const updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo) => {
           if (changeInfo.url == "https://www.example.com/") {
             urlSeen = true;
           }

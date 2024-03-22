@@ -195,7 +195,7 @@ export class MimeTreeEmitter {
     }
   }
 
-  endPart(partNum) {
+  endPart() {
     // Identify PGP encrypted parts, if this message has not yet been identified
     // as having encrypted parts.
     if (
@@ -1165,7 +1165,7 @@ function getPepSubject(mimeString) {
       }
     },
 
-    endPart(partNum) {},
+    endPart() {},
 
     deliverPartData(partNum, data) {
       lazy.EnigmailLog.DEBUG(

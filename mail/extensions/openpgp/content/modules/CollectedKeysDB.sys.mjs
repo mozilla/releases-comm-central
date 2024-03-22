@@ -62,11 +62,11 @@ export class CollectedKeysDB {
         }
         log.debug(`Database ready at version ${VERSION}`);
       };
-      DBOpenRequest.onerror = event => {
+      DBOpenRequest.onerror = () => {
         log.debug(`Error loading database: ${DBOpenRequest.error.message}`);
         reject(DBOpenRequest.error);
       };
-      DBOpenRequest.onsuccess = event => {
+      DBOpenRequest.onsuccess = () => {
         const keyDb = new CollectedKeysDB(DBOpenRequest.result);
         resolve(keyDb);
       };
@@ -134,12 +134,12 @@ export class CollectedKeysDB {
         .objectStore("seen_keys")
         .get(fingerprint);
 
-      request.onsuccess = event => {
+      request.onsuccess = () => {
         // If we didn't find anything, result is undefined. If so return null
         // so that we make it clear we found "something", but it was nothing.
         resolve(request.result || null);
       };
-      request.onerror = event => {
+      request.onerror = () => {
         log.debug(`Find key failed: ${request.error.message}`);
         reject(request.error);
       };
@@ -154,7 +154,7 @@ export class CollectedKeysDB {
    */
   async findKeysForEmail(email) {
     email = email.toLowerCase();
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const keys = [];
       const index = this.db
         .transaction("seen_keys")
@@ -261,7 +261,7 @@ export class CollectedKeysDB {
       const transaction = this.db.transaction(["seen_keys"], "readwrite");
       const objectStore = transaction.objectStore("seen_keys");
       const request = objectStore.index("emails").openKeyCursor();
-      request.onsuccess = event => {
+      request.onsuccess = () => {
         const cursor = request.result;
         if (cursor) {
           objectStore.delete(cursor.primaryKey);
@@ -274,7 +274,7 @@ export class CollectedKeysDB {
         log.debug(`Keys gone for email ${email}.`);
         resolve(email);
       };
-      transaction.onerror = event => {
+      transaction.onerror = () => {
         log.debug(
           `Could not delete keys for email ${email}: ${transaction.error.message}`
         );
@@ -299,7 +299,7 @@ export class CollectedKeysDB {
         log.debug(`Keys gone for fingerprint ${fingerprint}.`);
         resolve(fingerprint);
       };
-      request.onerror = event => {
+      request.onerror = () => {
         log.debug(
           `Could not delete keys for fingerprint ${fingerprint}: ${transaction.error.message}`
         );

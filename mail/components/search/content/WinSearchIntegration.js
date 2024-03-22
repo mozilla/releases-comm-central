@@ -143,7 +143,7 @@ SearchIntegration = {
     return MailUtils.getFolderForFileInProfile(aDir);
   },
 
-  _pathNeedsReindexing(aPath) {
+  _pathNeedsReindexing() {
     // only needed on MacOSX (see bug 670566).
     return false;
   },
@@ -235,7 +235,7 @@ SearchIntegration = {
     // Buffer to store the message
     _message: "",
 
-    onStartRequest(request) {
+    onStartRequest() {
       try {
         const outputFileStream = Cc[
           "@mozilla.org/network/file-output-stream;1"
@@ -250,7 +250,7 @@ SearchIntegration = {
       }
     },
 
-    onStopRequest(request, status) {
+    onStopRequest() {
       try {
         // XXX Once the JS emitter gets checked in, this code should probably be
         // switched over to use that

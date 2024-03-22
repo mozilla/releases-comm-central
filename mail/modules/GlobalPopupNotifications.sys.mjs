@@ -1022,7 +1022,7 @@ PopupNotifications.prototype = {
           true
         );
       }
-      this._popupshownListener = function (e) {
+      this._popupshownListener = function () {
         target.removeEventListener(
           "popupshown",
           this._popupshownListener,
@@ -1214,7 +1214,7 @@ PopupNotifications.prototype = {
     }
   },
 
-  _getNotificationsForBrowser(browser) {
+  _getNotificationsForBrowser() {
     return popupNotificationsMap;
   },
   _setNotificationsForBrowser(browser, notifications) {

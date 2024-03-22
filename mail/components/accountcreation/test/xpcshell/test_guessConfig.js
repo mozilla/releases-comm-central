@@ -435,7 +435,7 @@ async function subtestHostDetector({
 }) {
   const { promise, resolve, reject } = Promise.withResolvers();
   const detector = new HostDetector(
-    function progressCallback(hostTry) {},
+    function progressCallback() {},
     function successCallback(result, alts) {
       resolve({ result, alts });
     },

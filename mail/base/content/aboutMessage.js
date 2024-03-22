@@ -203,9 +203,9 @@ function displayMessage(uri, viewWrapper) {
     endUpdateBatch() {
       this._inBatch = false;
     },
-    ensureRowIsVisible(index) {},
+    ensureRowIsVisible() {},
     invalidate() {},
-    invalidateRange(startIndex, endIndex) {},
+    invalidateRange() {},
     rowCountChanged(index, count) {
       const wasSuppressed = gDBView.selection.selectEventsSuppressed;
       gDBView.selection.selectEventsSuppressed = true;
@@ -255,8 +255,8 @@ function displayMessage(uri, viewWrapper) {
 
   // @implements {nsIUrlListener}
   const urlListener = {
-    OnStartRunningUrl(url) {},
-    OnStopRunningUrl(url, status) {
+    OnStartRunningUrl() {},
+    OnStopRunningUrl(url) {
       window.msgLoading = true;
       window.dispatchEvent(
         new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
@@ -311,7 +311,7 @@ function displayMessage(uri, viewWrapper) {
 var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
 
-  onFolderRemoved(parentFolder, childFolder) {},
+  onFolderRemoved() {},
   onMessageRemoved(parentFolder, msg) {
     messageHistory.onMessageRemoved(parentFolder, msg);
   },

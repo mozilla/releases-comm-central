@@ -46,7 +46,7 @@ export class VCardIMPPComponent extends HTMLElement {
     const protocolLabel = this.querySelector('label[for="protocol"]');
     protocolLabel.htmlFor = this.protocolEl.id;
 
-    this.protocolEl.addEventListener("change", event => {
+    this.protocolEl.addEventListener("change", () => {
       const entered = this.imppEl.value.split(":", 1)[0]?.toLowerCase();
       if (entered) {
         this.protocolEl.value =
@@ -61,7 +61,7 @@ export class VCardIMPPComponent extends HTMLElement {
     const imppLabel = this.querySelector('label[for="impp"]');
     imppLabel.htmlFor = this.imppEl.id;
     document.l10n.setAttributes(imppLabel, "vcard-impp-label");
-    this.imppEl.addEventListener("change", event => {
+    this.imppEl.addEventListener("change", () => {
       this.protocolEl.dispatchEvent(new CustomEvent("change"));
     });
 

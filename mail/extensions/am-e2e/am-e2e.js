@@ -278,7 +278,7 @@ async function initOpenPgpSettings() {
   });
 }
 
-function onPreInit(account, accountValues) {
+function onPreInit(account) {
   gIdentity = account.defaultIdentity;
 }
 
@@ -1552,7 +1552,7 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
       );
       document.getElementById("openPgpNotification").collapsed = false;
     })
-    .catch(async err => {
+    .catch(async () => {
       alertUser(await document.l10n.formatValue("openpgp-export-secret-fail"));
     });
 }

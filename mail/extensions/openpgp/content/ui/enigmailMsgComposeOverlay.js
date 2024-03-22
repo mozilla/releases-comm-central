@@ -951,7 +951,7 @@ Enigmail.msg = {
 
     no return value
   */
-  processFinalState(sendFlags) {},
+  processFinalState() {},
 
   /* check if encryption is possible (have keys for everyone or not)
    */
@@ -1050,7 +1050,7 @@ Enigmail.msg = {
     }
   },
 
-  setDraftStatus(doEncrypt) {
+  setDraftStatus() {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.setDraftStatus - enabling draft mode\n"
     );
@@ -1360,7 +1360,7 @@ Enigmail.msg = {
     return true;
   },
 
-  createEnigmailSecurityFields(oldSecurityInfo) {
+  createEnigmailSecurityFields() {
     const newSecurityInfo = EnigmailMimeEncrypt.createMimeEncrypt(
       Enigmail.msg.getSecurityParams()
     );
@@ -1552,7 +1552,7 @@ Enigmail.msg = {
     };
   },
 
-  prepareSending(sendFlags, toAddrStr, gpgKeys, isOffline) {
+  prepareSending(sendFlags) {
     // perform confirmation dialog if necessary/requested
     if (
       sendFlags & EnigmailConstants.SEND_WITH_CHECK &&
@@ -2757,7 +2757,7 @@ Enigmail.msg = {
       buttonArr.push({
         accessKey,
         label,
-        callback(aNotificationBar, aButton) {
+        callback() {
           Services.prompt.alert(window, null, detailsText);
         },
       });
@@ -2862,7 +2862,7 @@ Enigmail.composeStateListener = {
         );
       },
 
-      NotifyDocumentStateChanged(nowDirty) {
+      NotifyDocumentStateChanged() {
         EnigmailLog.DEBUG(
           "enigmailMsgComposeOverlay.js: EDSL.enigDocStateListener.NotifyDocumentStateChanged\n"
         );
@@ -2936,7 +2936,7 @@ Enigmail.composeStateListener = {
     window.dispatchEvent(new CustomEvent("compose-editor-ready"));
   },
 
-  SaveInFolderDone(folderURI) {
+  SaveInFolderDone() {
     //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: ECSL.SaveInFolderDone\n");
   },
 };

@@ -23,7 +23,7 @@ add_setup(async () => {
   reset();
   class MockAlertsService {
     QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-    showAlert(alertInfo, listener) {
+    showAlert() {
       alertShown = true;
     }
   }

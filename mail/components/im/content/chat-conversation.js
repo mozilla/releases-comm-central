@@ -302,7 +302,7 @@
       Services.obs.addObserver(this.observer, "conversation-loaded");
 
       // @implements {nsIObserver}
-      this.prefObserver = (subject, topic, data) => {
+      this.prefObserver = () => {
         if (Services.prefs.getBoolPref("mail.spellcheck.inline")) {
           this.inputBox.setAttribute("spellcheck", "true");
           this.spellchecker.enabled = true;
@@ -337,7 +337,7 @@
       );
     }
 
-    _forgetConv(shouldClose) {
+    _forgetConv() {
       this._conv.removeObserver(this.observer);
       delete this._conv;
       this.convBrowser.destroy();
@@ -1064,7 +1064,7 @@
       }
     }
 
-    inputExpand(event) {
+    inputExpand() {
       // This feature has been disabled, or the user is currently dragging
       // the splitter and the textbox has received an overflow event
       if (
@@ -1125,7 +1125,7 @@
       }
     }
 
-    _onTextboxUnderflow(event) {
+    _onTextboxUnderflow() {
       if (TextboxSize.autoResize) {
         this.style.overflowY = "hidden";
       }

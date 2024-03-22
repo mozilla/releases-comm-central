@@ -70,7 +70,7 @@ export var ChatCore = {
     Services.obs.notifyObservers(null, "chat-core-initialized");
     ChatCore._initializing = false;
   },
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "browser-request") {
       Services.ww.openWindow(
         null,

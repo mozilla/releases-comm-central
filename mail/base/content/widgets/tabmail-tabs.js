@@ -440,7 +440,7 @@
         this.tabmail.updateCurrentTab();
       });
 
-      this.addEventListener("TabSelect", event => {
+      this.addEventListener("TabSelect", () => {
         this._handleTabSelect();
       });
       XPCOMUtils.defineLazyPreferenceGetter(

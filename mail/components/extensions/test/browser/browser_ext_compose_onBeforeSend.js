@@ -26,7 +26,7 @@ function messagesInOutbox(count) {
   return new Promise(resolve => {
     MailServices.mfn.addListener(
       {
-        msgAdded(msgHdr) {
+        msgAdded() {
           if (--count == 0) {
             MailServices.mfn.removeListener(this);
             resolve();
@@ -179,7 +179,7 @@ add_task(async function testCancel() {
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ],
     onLoadWindow(window) {
-      window.CompleteGenericSendMessage = function (msgType) {
+      window.CompleteGenericSendMessage = function () {
         didTryToSendMessage = true;
         Services.obs.notifyObservers(
           {
@@ -482,7 +482,7 @@ add_task(async function testChangeAttachments() {
         ],
       });
 
-      const listener12 = async (tab, details) => {
+      const listener12 = async tab => {
         let attachments = await browser.compose.listAttachments(tab.id);
         browser.test.assertEq("remove.txt", attachments[0].name);
         browser.test.assertEq("change.txt", attachments[1].name);

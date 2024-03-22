@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gOfflineDialog.dialogSetup();
 });
 

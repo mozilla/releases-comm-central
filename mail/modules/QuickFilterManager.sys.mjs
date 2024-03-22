@@ -542,11 +542,11 @@ export var QuickFilterManager = {
 QuickFilterManager.defineFilter({
   name: "sticky",
   domId: "qfb-sticky",
-  appendTerms(aTermCreator, aTerms, aFilterValue) {},
+  appendTerms() {},
   /**
    * This should not cause an update, otherwise default logic.
    */
-  onCommand(aState, aNode, aEvent, aDocument) {
+  onCommand(aState, aNode) {
     const checked = aNode.pressed;
     return [checked, false];
   },
@@ -763,11 +763,11 @@ var TagFacetingFilter = {
     return null;
   },
 
-  onSearchStart(aCurState) {
+  onSearchStart() {
     // this becomes aKeywordMap; we want to start with an empty one
     return {};
   },
-  onSearchMessage(aKeywordMap, aMsgHdr, aFolder) {
+  onSearchMessage(aKeywordMap, aMsgHdr) {
     const keywords = aMsgHdr.getStringProperty("keywords");
     const keywordList = keywords.split(" ");
     for (let iKeyword = 0; iKeyword < keywordList.length; iKeyword++) {
@@ -775,7 +775,7 @@ var TagFacetingFilter = {
       aKeywordMap[keyword] = null;
     }
   },
-  onSearchDone(aCurState, aKeywordMap, aStatus) {
+  onSearchDone(aCurState, aKeywordMap) {
     // we are an async operation; if the user turned off the tag facet already,
     //  then leave that state intact...
     if (aCurState == null) {
@@ -833,7 +833,7 @@ var TagFacetingFilter = {
     return [checked, true];
   },
 
-  domBindExtra(aDocument, aMuxer, aNode) {
+  domBindExtra(aDocument, aMuxer) {
     // Tag filtering mode menu (All of/Any of)
     function commandHandler(aEvent) {
       const filterValue = aMuxer.getFilterValueForMutation(
@@ -876,7 +876,7 @@ var TagFacetingFilter = {
       aState.mode = qbm.value;
     }
 
-    function clickHandler(aEvent) {
+    function clickHandler() {
       const tagKey = this.getAttribute("value");
       const state = aMuxer.getFilterValueForMutation(TagFacetingFilter.name);
       state.tags[tagKey] = this.pressed ? true : null;
@@ -1129,7 +1129,7 @@ export var MessageTextFilter = {
     // -- Blurring kills upsell.
     aNode.addEventListener(
       "blur",
-      function (aEvent) {
+      function () {
         const panel = aDocument.getElementById("qfb-text-search-upsell");
         if (
           (Services.focus.activeWindow != aDocument.defaultView ||
@@ -1143,7 +1143,7 @@ export var MessageTextFilter = {
     );
 
     // -- Expando Buttons!
-    function commandHandler(aEvent) {
+    function commandHandler() {
       const state = aMuxer.getFilterValueForMutation(MessageTextFilter.name);
       const filterDef = MessageTextFilter.textFilterDefsByDomId[this.id];
       state.states[filterDef.name] = this.pressed;
@@ -1318,20 +1318,20 @@ MessageTextFilter.defineTextFilter({
 QuickFilterManager.defineFilter({
   name: "results",
   domId: "qfb-results-label",
-  appendTerms(aTermCreator, aTerms, aFilterValue) {},
+  appendTerms() {},
 
   /**
    * Our state is meaningless; we implement this to avoid clearState ever
    *  thinking we were a facet.
    */
-  clearState(aState) {
+  clearState() {
     return [null, false];
   },
 
   /**
    * We never have any state to propagate!
    */
-  propagateState(aOld, aSticky) {
+  propagateState() {
     return null;
   },
 

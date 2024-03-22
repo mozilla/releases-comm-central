@@ -333,7 +333,7 @@ CalendarTracker.prototype = {
       this.score += SCORE_INCREMENT_XLARGE;
     }
   },
-  onCalendarUnregistering(calendar) {},
+  onCalendarUnregistering() {},
   onCalendarDeleting(calendar) {
     if (this._ignoreAll) {
       return;

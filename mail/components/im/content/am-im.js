@@ -14,14 +14,14 @@ ChromeUtils.defineESModuleGetters(this, {
   OTRUI: "resource:///modules/OTRUI.sys.mjs",
 });
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   parent.onPanelLoaded("am-im.xhtml");
 });
-window.addEventListener("beforeunload", event => {
+window.addEventListener("beforeunload", () => {
   onBeforeUnload();
 });
 
-function onPreInit(aAccount, aAccountValue) {
+function onPreInit(aAccount) {
   account.init(aAccount.incomingServer.wrappedJSObject.imAccount);
 }
 
@@ -274,11 +274,11 @@ var account = {
     // notify the parent document that there are prefs to save.
     for (const input of inputElements) {
       if (input.localName == "input" || input.localName == "textarea") {
-        input.addEventListener("change", event => {
+        input.addEventListener("change", () => {
           document.dispatchEvent(new CustomEvent("prefchange"));
         });
       } else {
-        input.addEventListener("command", event => {
+        input.addEventListener("command", () => {
           document.dispatchEvent(new CustomEvent("prefchange"));
         });
       }

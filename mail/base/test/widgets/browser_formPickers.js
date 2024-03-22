@@ -407,7 +407,7 @@ add_task(async function testBrowserRequestWindow() {
       {
         url: TEST_DOCUMENT_URL,
         cancelled() {},
-        loaded(window, webProgress) {
+        loaded(window) {
           resolve(window);
         },
       }

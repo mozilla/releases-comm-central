@@ -255,7 +255,7 @@ class OrderableTreeListbox extends TreeListboxMixin(HTMLOListElement) {
     this.dispatchEvent(new CustomEvent("ordered", { detail: row }));
   }
 
-  _onDragEnd(event) {
+  _onDragEnd() {
     if (!this._dragInfo) {
       return;
     }

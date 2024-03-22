@@ -57,7 +57,7 @@ function UnknownProtoHandler() {
 }
 
 UnknownProtoHandler.prototype = {
-  onStartRequest(request, ctxt) {
+  onStartRequest(request) {
     this.proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.bound = lazy.EnigmailMime.getBoundary(this.proxy.contentType);
     /*
@@ -119,7 +119,7 @@ PgpMimeHandler.prototype = {
     Ci.nsIScriptableInputStream
   ),
 
-  onStartRequest(request, ctxt) {
+  onStartRequest(request) {
     const proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
     const ct = proxy.contentType;
     const uri = proxy.messageURI;

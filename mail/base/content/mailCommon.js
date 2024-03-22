@@ -212,7 +212,7 @@ var commandController = {
           destFolder.URI,
           false, // not moving
           false
-        ).catch(err => {
+        ).catch(() => {
           failures++;
         });
       }
@@ -931,7 +931,7 @@ var dbViewWrapperListener = {
       "nsISupportsWeakReference",
     ]),
     updateCommandStatus() {},
-    displayMessageChanged(folder, subject, keywords) {},
+    displayMessageChanged() {},
     updateNextMessageAfterDelete() {
       dbViewWrapperListener._nextViewIndexAfterDelete = gDBView
         ? gDBView.msgToSelectAfterDelete
@@ -978,8 +978,8 @@ var dbViewWrapperListener = {
       false
     );
   },
-  onFolderLoading(isFolderLoading) {},
-  onSearching(isSearching) {},
+  onFolderLoading() {},
+  onSearching() {},
   onCreatedView() {
     if (window.threadTree) {
       for (const col of ThreadPaneColumns.getCustomColumns()) {
@@ -1009,7 +1009,7 @@ var dbViewWrapperListener = {
       window.threadTree.view = gDBView = null;
     }
   },
-  onLoadingFolder(dbFolderInfo) {
+  onLoadingFolder() {
     window.quickFilterBar?.onFolderChanged();
   },
   onDisplayingFolder() {},

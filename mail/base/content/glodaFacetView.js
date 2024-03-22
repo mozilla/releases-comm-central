@@ -852,7 +852,7 @@ var FacetContext = {
   _timeoutHoverWrapper(aThis) {
     aThis._timeoutHover();
   },
-  unhoverFacet(aFaceter, aAttrDef, aGroupValue, aGroupItems) {
+  unhoverFacet(aFaceter, aAttrDef, aGroupValue) {
     // have we already brushed from some other source already?  ignore then.
     if (this._brushedFacet != aFaceter || this._brushedGroup != aGroupValue) {
       return;
@@ -1047,10 +1047,10 @@ var FacetContext = {
     });
   },
 
-  onItemsAdded(aItems, aCollection) {},
-  onItemsModified(aItems, aCollection) {},
-  onItemsRemoved(aItems, aCollection) {},
-  onQueryCompleted(aCollection) {
+  onItemsAdded() {},
+  onItemsModified() {},
+  onItemsRemoved() {},
+  onQueryCompleted() {
     if (
       this.tab.query.completed &&
       (!("IMQuery" in this.tab) || this.tab.IMQuery.completed)

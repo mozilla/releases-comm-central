@@ -132,7 +132,7 @@ var gSpacesToolbar = {
     onTabRestored() {},
     onTabClosing() {},
 
-    onTabSwitched(newTabInfo, oldTabInfo) {
+    onTabSwitched(newTabInfo) {
       // Bail out if for whatever reason something went wrong.
       if (!newTabInfo) {
         console.error(

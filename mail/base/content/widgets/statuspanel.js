@@ -64,7 +64,7 @@
     }
 
     _setupEventListeners() {
-      this.addEventListener("mouseover", event => {
+      this.addEventListener("mouseover", () => {
         if (this.hasAttribute("mirror")) {
           this.removeAttribute("mirror");
         } else {

@@ -131,11 +131,11 @@ MockCloudfileAccount.prototype = {
     return `https://www.example.com/${this.accountKey}/${aFile.leafName}`;
   },
 
-  cancelFileUpload(window, aUploadId) {
+  cancelFileUpload() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  deleteFile(window, aUploadId) {
+  deleteFile() {
     return new Promise(resolve => fdh.mc.setTimeout(resolve));
   },
 };
@@ -222,7 +222,7 @@ export class CloudFileTestProvider {
     }
 
     async function default_background() {
-      function fileListener(account, { id, name, data }, tab, relatedFileInfo) {
+      function fileListener(account, { name }) {
         return { url: "https://example.com/" + name };
       }
       browser.cloudFile.onFileUpload.addListener(fileListener);

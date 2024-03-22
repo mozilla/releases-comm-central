@@ -48,7 +48,7 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
 
   extensionOptions.background = () => {
     browser.test.onMessage.addListener((message, withPopup) => {
-      browser.commands.onCommand.addListener(commandName => {
+      browser.commands.onCommand.addListener(() => {
         browser.test.fail(
           "The onCommand listener should never fire for a valid _execute_* command."
         );
@@ -158,7 +158,7 @@ async function testExecuteActionWithOptions_mv3(options = {}) {
 
   extensionOptions.background = () => {
     browser.test.onMessage.addListener((message, withPopup) => {
-      browser.commands.onCommand.addListener(commandName => {
+      browser.commands.onCommand.addListener(() => {
         browser.test.fail(
           "The onCommand listener should never fire for a valid _execute_* command."
         );

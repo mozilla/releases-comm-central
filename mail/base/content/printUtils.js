@@ -32,7 +32,6 @@ ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
     initialBrowsingContextGroupId,
     userContextId,
     skipLoad,
-    initiallyActive,
   } = {}) {
     const b = document.createXULElement("browser");
     // Use the JSM global to create the permanentKey, so that if the
@@ -116,7 +115,7 @@ ChromeUtils.defineLazyGetter(this, "PrintUtils", () => {
         ]),
 
         /** nsIWebProgressListener */
-        onStateChange(webProgress, request, stateFlags, status) {
+        onStateChange(webProgress, request, stateFlags) {
           if (
             stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
             printBrowser.currentURI.spec != "about:blank"

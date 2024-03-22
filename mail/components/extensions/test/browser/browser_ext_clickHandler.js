@@ -9,15 +9,15 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(protocolScheme) {},
-  getApplicationDescription(scheme) {},
-  getProtocolHandlerInfo(protocolScheme) {},
-  getProtocolHandlerInfoFromOS(protocolScheme, found) {},
-  isExposedProtocol(protocolScheme) {},
-  loadURI(uri, windowContext) {
+  externalProtocolHandlerExists() {},
+  getApplicationDescription() {},
+  getProtocolHandlerInfo() {},
+  getProtocolHandlerInfoFromOS() {},
+  isExposedProtocol() {},
+  loadURI(uri) {
     this._loadedURLs.push(uri.spec);
   },
-  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+  setProtocolHandlerDefaults() {},
   urlLoaded(url) {
     const rv = this._loadedURLs.length == 1 && this._loadedURLs[0] == url;
     this._loadedURLs = [];
@@ -62,7 +62,7 @@ const getCommonFiles = async () => {
         constructor() {
           this.promise = new Promise(resolve => {
             let log = {};
-            const updateListener = (tabId, changes, tab) => {
+            const updateListener = (tabId, changes) => {
               if (changes.url == "about:blank") {
                 // Reset whatever we have seen so far.
                 log = {};

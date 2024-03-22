@@ -7,10 +7,10 @@
 /* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from abCommon.js */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   AbPanelLoad();
 });
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   AbPanelUnload();
 });
 
@@ -257,7 +257,7 @@ function AbPanelUnload() {
   CloseAbView();
 }
 
-function AbResultsPaneDoubleClick(card) {
+function AbResultsPaneDoubleClick() {
   // double click for ab panel means "send mail to this person / list"
   AbNewMessage();
 }

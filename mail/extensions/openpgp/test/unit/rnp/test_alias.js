@@ -301,7 +301,7 @@ add_task(async function testAlias() {
     } else {
       Assert.equal(foundAliasKeys.length, test.expectedAliasKeys.length);
 
-      test.expectedAliasKeys.forEach((val, i) => {
+      test.expectedAliasKeys.forEach(val => {
         Assert.ok(foundAliasKeys.includes(val));
       });
 

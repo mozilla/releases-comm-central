@@ -713,7 +713,7 @@ var mailContextMenu = {
         item.setAttribute("checked", "true");
       }
       item.value = tagInfo.key;
-      item.addEventListener("command", event =>
+      item.addEventListener("command", () =>
         this._toggleMessageTag(
           tagInfo.key,
           item.getAttribute("checked") == "true"

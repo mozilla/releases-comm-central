@@ -40,7 +40,7 @@ const tabListener = {
    * @param {nsIURI} locationURI - The target uri
    * @param {Integer} flags - The web progress flags for this change
    */
-  onLocationChange(browser, webProgress, request, locationURI, flags) {
+  onLocationChange(browser, webProgress) {
     if (webProgress && webProgress.isTopLevel) {
       const window = browser.ownerGlobal.top;
       const tabmail = window.document.getElementById("tabmail");
@@ -161,7 +161,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
     onActivated: this.tabEventRegistrar({
       tabEvent: "tab-activated",
-      listener: ({ context, fire, event }) => {
+      listener: ({ fire, event }) => {
         const { tabId, windowId, previousTabId } = event;
         fire.async({ tabId, windowId, previousTabId });
       },
@@ -169,7 +169,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
     onCreated: this.tabEventRegistrar({
       tabEvent: "tab-created",
-      listener: ({ context, fire, event }) => {
+      listener: ({ fire, event }) => {
         const { extension } = this;
         const { tabManager } = extension;
         fire.async(tabManager.convert(event.nativeTabInfo, event.currentTab));
@@ -178,7 +178,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
     onAttached: this.tabEventRegistrar({
       tabEvent: "tab-attached",
-      listener: ({ context, fire, event }) => {
+      listener: ({ fire, event }) => {
         fire.async(event.tabId, {
           newWindowId: event.newWindowId,
           newPosition: event.newPosition,
@@ -188,7 +188,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
     onDetached: this.tabEventRegistrar({
       tabEvent: "tab-detached",
-      listener: ({ context, fire, event }) => {
+      listener: ({ fire, event }) => {
         fire.async(event.tabId, {
           oldWindowId: event.oldWindowId,
           oldPosition: event.oldPosition,
@@ -198,7 +198,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
     onRemoved: this.tabEventRegistrar({
       tabEvent: "tab-removed",
-      listener: ({ context, fire, event }) => {
+      listener: ({ fire, event }) => {
         fire.async(event.tabId, {
           windowId: event.windowId,
           isWindowClosing: event.isWindowClosing,
@@ -292,7 +292,7 @@ this.tabs = class extends ExtensionAPIPersistent {
         return windowId;
       }
 
-      function matchFilters(tab, changed) {
+      function matchFilters(tab) {
         if (!filterProps) {
           return true;
         }

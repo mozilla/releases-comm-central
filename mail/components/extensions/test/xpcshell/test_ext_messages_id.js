@@ -222,7 +222,7 @@ add_task(
     });
 
     const observer = {
-      observe(aSubject, aTopic, aData) {
+      observe(aSubject, aTopic) {
         if (aTopic == "attachment-delete-msgkey-changed") {
           extension.sendMessage();
         }

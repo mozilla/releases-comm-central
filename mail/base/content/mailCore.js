@@ -578,7 +578,7 @@ function openAddonsMgr(aView) {
     let emWindow;
     let browserWindow;
 
-    const receivePong = function (aSubject, aTopic, aData) {
+    const receivePong = function (aSubject) {
       const browserWin = aSubject.browsingContext.topChromeWindow;
       if (!emWindow || browserWin == window /* favor the current window */) {
         emWindow = aSubject;
@@ -607,7 +607,7 @@ function openAddonsMgr(aView) {
     tab.browser.droppedLinkHandler = event =>
       tab.browser.contentWindow.gDragDrop.onDrop(event);
 
-    Services.obs.addObserver(function observer(aSubject, aTopic, aData) {
+    Services.obs.addObserver(function observer(aSubject, aTopic) {
       Services.obs.removeObserver(observer, aTopic);
       if (aView) {
         aSubject.loadView(aView);

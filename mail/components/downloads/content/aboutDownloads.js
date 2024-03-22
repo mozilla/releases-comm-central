@@ -13,7 +13,7 @@ ChromeUtils.defineESModuleGetters(this, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
 });
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   DownloadsView.init();
 });
 
@@ -28,7 +28,7 @@ var DownloadsView = {
       .then(list => list.addView(this))
       .catch(console.error);
 
-    window.addEventListener("unload", aEvent => {
+    window.addEventListener("unload", () => {
       Downloads.getList(Downloads.ALL)
         .then(list => list.removeView(this))
         .catch(console.error);
@@ -292,10 +292,10 @@ DownloadItem.prototype = {
     element.appendChild(vbox);
 
     // launch the download if double clicked
-    vbox.addEventListener("dblclick", aEvent => this.launch());
+    vbox.addEventListener("dblclick", () => this.launch());
 
     // Show the downloaded file in folder if the folder icon is clicked.
-    downloadButton.addEventListener("click", aEvent => this.show());
+    downloadButton.addEventListener("click", () => this.show());
 
     // set download as an expando property for the context menu
     element.download = this.download;

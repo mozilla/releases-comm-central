@@ -257,7 +257,7 @@ export const UIFontSize = {
     }
   },
 
-  observe(win, topic, data) {
+  observe(win, topic) {
     // Observe any new window or dialog that is opened and register it to
     // inherit the font sizing variation.
     switch (topic) {

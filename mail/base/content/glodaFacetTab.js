@@ -96,11 +96,11 @@ var glodaFacetTabType = {
 
     this.lastTabId++;
   },
-  closeTab(aTab) {},
-  saveTabState(aTab) {
+  closeTab() {},
+  saveTabState() {
     // nothing to do; we are not multiplexed
   },
-  showTab(aTab) {
+  showTab() {
     // nothing to do; we are not multiplexed
   },
   getBrowser(aTab) {

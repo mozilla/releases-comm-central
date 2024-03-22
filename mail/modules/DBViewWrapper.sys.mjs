@@ -240,7 +240,7 @@ var FolderNotificationHelper = {
     }
   },
 
-  onFolderIntPropertyChanged(aFolder, aProperty, aOldValue, aNewValue) {
+  onFolderIntPropertyChanged(aFolder, aProperty) {
     if (aProperty == "TotalMessages" || aProperty == "TotalUnreadMessages") {
       this._notifyHelper(aFolder, "_messageCountsChanged");
     }
@@ -341,13 +341,13 @@ IDBViewWrapperListener.prototype = {
    *  time to mess with the hour-glass cursor machinery if you are inclined to
    *  do so.
    */
-  onFolderLoading(aIsFolderLoading) {},
+  onFolderLoading() {},
 
   /**
    * We tell you when we start and stop searching.  This is a good time to mess
    *  with progress spinners (meteors) and the like, if you are so inclined.
    */
-  onSearching(aIsSearching) {},
+  onSearching() {},
 
   /**
    * This event is generated when a new view has been created.  It is intended
@@ -368,7 +368,7 @@ IDBViewWrapperListener.prototype = {
    *     will be the case unless we are switching to display a new folder or
    *     closing the view wrapper entirely.
    */
-  onDestroyingView(aFolderIsComingBack) {},
+  onDestroyingView() {},
 
   /**
    * Generated when we are loading information about the folder from its
@@ -380,7 +380,7 @@ IDBViewWrapperListener.prototype = {
    * |onDisplayingFolder| is the next expected notification following this
    *  notification.
    */
-  onLoadingFolder(aDbFolderInfo) {},
+  onLoadingFolder() {},
 
   /**
    * Generated when the folder is being entered for display.  This is the chance
@@ -408,7 +408,7 @@ IDBViewWrapperListener.prototype = {
    * the view is opened. You will definitely get onMessagesLoaded(true)
    * when we've finished getting the headers for the view.
    */
-  onMessagesLoaded(aAll) {},
+  onMessagesLoaded() {},
 
   /**
    * The mail view changed.  The mail view widget is likely to care about this.
@@ -1339,7 +1339,7 @@ DBViewWrapper.prototype = {
    *  not initiate the move / deletion but has kicked off its own about the
    *  completion and confuse it.  However, that's on the view code.
    */
-  _deleteCompleted(aFolder) {
+  _deleteCompleted() {
     if (this.dbView) {
       this.dbView.onDeleteCompleted(true);
     }
@@ -1349,7 +1349,7 @@ DBViewWrapper.prototype = {
   /**
    * See _deleteCompleted for an explanation of what is going on.
    */
-  _deleteFailed(aFolder) {
+  _deleteFailed() {
     if (this.dbView) {
       this.dbView.onDeleteCompleted(false);
     }
@@ -1588,7 +1588,7 @@ DBViewWrapper.prototype = {
    *  reached 0 with this call, the view will be re-created with the current
    *  settings.
    */
-  endViewUpdate(aForceLevel) {
+  endViewUpdate() {
     if (--this._viewUpdateDepth == 0) {
       this._applyViewChanges();
     }

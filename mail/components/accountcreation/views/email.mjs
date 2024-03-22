@@ -400,7 +400,7 @@ class AccountHubEmail extends HTMLElement {
 
     // Set the manual email config button. This should hide the current email
     // form and display the manual configuration email form.
-    this.#retestButton.addEventListener("click", event => {
+    this.#retestButton.addEventListener("click", () => {
       this.testManualConfig();
     });
 
@@ -672,17 +672,17 @@ class AccountHubEmail extends HTMLElement {
 
     this.#abortable = GuessConfig.guessConfig(
       this.#domain,
-      (type, hostname, port, ssl, done, config) => {
+      (type, hostname, port) => {
         gAccountSetupLogger.debug(
           `progress callback host: ${hostname}, port: ${port}, type: ${type}`
         );
       },
-      config => {
+      () => {
         // TODO: Success - Refill and validate inputs, enable continue button.
         this.#abortable = null;
         this.#validateManualConfigForm();
       },
-      (error, config) => {
+      error => {
         this.#abortable = null;
 
         // guessConfig failed.

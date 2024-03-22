@@ -3,7 +3,7 @@ function checkAll(win) {
   triggerPageOptionsAction(win, "check-for-updates");
   return new Promise(resolve => {
     const observer = {
-      observe(subject, topic, data) {
+      observe() {
         Services.obs.removeObserver(observer, "EM-update-check-finished");
         resolve();
       },

@@ -756,7 +756,7 @@ class VCardEdit extends HTMLElement {
     const addSpecialDate = document.getElementById(
       "vcard-add-bday-anniversary"
     );
-    addSpecialDate.addEventListener("click", e => {
+    addSpecialDate.addEventListener("click", () => {
       let newVCardProperty;
       if (!this.vCardProperties.getFirstEntry("bday")) {
         newVCardProperty = VCardEdit.createVCardProperty("bday");
@@ -770,7 +770,7 @@ class VCardEdit extends HTMLElement {
 
     // Organizational Properties.
     const addOrg = document.getElementById("vcard-add-org");
-    addOrg.addEventListener("click", event => {
+    addOrg.addEventListener("click", () => {
       const title = VCardEdit.createVCardProperty("title");
       const role = VCardEdit.createVCardProperty("role");
       const org = VCardEdit.createVCardProperty("org");
@@ -806,7 +806,7 @@ class VCardEdit extends HTMLElement {
     });
 
     const addCustom = document.getElementById("vcard-add-custom");
-    addCustom.addEventListener("click", event => {
+    addCustom.addEventListener("click", () => {
       const el = new VCardCustomComponent();
 
       // When the custom properties are deleted and added again ensure that
@@ -861,7 +861,7 @@ class VCardEdit extends HTMLElement {
    * Like different focus instead of an input field.
    */
   registerAddButton(addButton, VCardPropertyName, callback) {
-    addButton.addEventListener("click", event => {
+    addButton.addEventListener("click", () => {
       const newVCardProperty = VCardEdit.createVCardProperty(VCardPropertyName);
       const el = this.insertVCardElement(newVCardProperty, true);
 
@@ -1030,7 +1030,7 @@ class VCardTypeSelectionComponent extends HTMLElement {
     }
 
     // Change the value on the vCardPropertyEntry.
-    this.selectEl.addEventListener("change", e => {
+    this.selectEl.addEventListener("change", () => {
       if (this.selectEl.value) {
         vCardPropertyEntry.params.type = this.selectEl.value;
       } else {

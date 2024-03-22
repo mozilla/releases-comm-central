@@ -266,7 +266,7 @@ DateFacetVis.prototype = {
     const [bins, maxBinSize] = this.binBySpan(scale, span, rules);
 
     // build empty bins for our hot bins
-    this.emptyBins = bins.map(bin => 0);
+    this.emptyBins = bins.map(() => 0);
 
     const binScale = maxBinSize ? ch / maxBinSize : 1;
 
@@ -294,10 +294,10 @@ DateFacetVis.prototype = {
         return isRTL ? this.index * barPix : null;
       })
       .fillStyle("var(--barColor)")
-      .event("mouseover", function (d) {
+      .event("mouseover", function () {
         return this.fillStyle("var(--barHlColor)");
       })
-      .event("mouseout", function (d) {
+      .event("mouseout", function () {
         return this.fillStyle("var(--barColor)");
       })
       .event("click", function (d) {
@@ -333,10 +333,10 @@ DateFacetVis.prototype = {
         .right(d => (isRTL ? Math.floor(width * d[0]) : null))
         .width(d => Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
         .fillStyle("var(--dateColor)")
-        .event("mouseover", function (d) {
+        .event("mouseover", function () {
           return this.fillStyle("var(--dateHLColor)");
         })
-        .event("mouseout", function (d) {
+        .event("mouseout", function () {
           return this.fillStyle("var(--dateColor)");
         })
         .event("click", function (d) {
@@ -389,7 +389,7 @@ DateFacetVis.prototype = {
    *  array of buckets with a linear scan of items and a calculation of what
    *  bucket they should be placed in.
    */
-  binBySpan(aScale, aSpan, aRules, aItems) {
+  binBySpan(aScale, aSpan, aRules) {
     const bins = [];
     let maxBinSize = 0;
     const binCount = aRules.length - 1;

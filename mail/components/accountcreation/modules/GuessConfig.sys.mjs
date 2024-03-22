@@ -1181,7 +1181,7 @@ function SocketUtil(
 
   var dataListener = {
     data: [],
-    onStartRequest(request) {
+    onStartRequest() {
       try {
         initialized = true;
         if (!aborted) {
@@ -1285,7 +1285,7 @@ function SocketAbortable(transport) {
 }
 SocketAbortable.prototype = Object.create(Abortable.prototype);
 SocketAbortable.prototype.constructor = UserCancelledException;
-SocketAbortable.prototype.cancel = function (ex) {
+SocketAbortable.prototype.cancel = function () {
   try {
     this._transport.close(Cr.NS_ERROR_ABORT);
   } catch (e) {
@@ -1306,7 +1306,7 @@ function doProxy(hostname, resultCallback) {
   // This implements the nsIProtocolProxyCallback interface:
   function ProxyResolveCallback() {}
   ProxyResolveCallback.prototype = {
-    onProxyAvailable(req, uri, proxy, status) {
+    onProxyAvailable(req, uri, proxy) {
       // Anything but a SOCKS proxy will be unusable for email.
       if (proxy != null && proxy.type != "socks" && proxy.type != "socks4") {
         proxy = null;

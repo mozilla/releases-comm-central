@@ -334,7 +334,7 @@ MessageArchiver.prototype = {
   },
 
   // @implements {nsIUrlListener}
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, exitCode) {
     // this will always be a create folder url, afaik.
     if (Components.isSuccessCode(exitCode)) {
@@ -350,8 +350,8 @@ MessageArchiver.prototype = {
   // about the OnStopCopy
   // @implements {nsIMsgCopyServiceListener}
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
+  OnProgress() {},
+  SetMessageKey() {},
   GetMessageId() {},
   OnStopCopy(aStatus) {
     if (Components.isSuccessCode(aStatus)) {

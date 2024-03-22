@@ -1089,16 +1089,7 @@ export var EnigmailKeyRing = {
    *
    * @return: handle to process
    */
-  generateKey(
-    name,
-    comment,
-    email,
-    expiryDate,
-    keyLength,
-    keyType,
-    passphrase,
-    listener
-  ) {
+  generateKey() {
     lazy.EnigmailLog.WRITE("keyRing.sys.mjs: generateKey:\n");
     throw new Error("Not implemented");
   },

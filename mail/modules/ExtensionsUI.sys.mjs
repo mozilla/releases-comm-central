@@ -399,7 +399,7 @@ var gXPInstallObserver = {
     return !!notifications.length;
   },
 
-  async observe(aSubject, aTopic, aData) {
+  async observe(aSubject, aTopic) {
     const installInfo = aSubject.wrappedJSObject;
     const browser = installInfo.browser;
 
@@ -975,7 +975,7 @@ export var ExtensionsUI = {
     );
   },
 
-  async observe(subject, topic, data) {
+  async observe(subject, topic) {
     if (topic == "webextension-permission-prompt") {
       const { target, info } = subject.wrappedJSObject;
 

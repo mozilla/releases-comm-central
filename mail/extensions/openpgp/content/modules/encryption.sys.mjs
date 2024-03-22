@@ -43,8 +43,7 @@ export var EnigmailEncryption = {
     hashAlgorithm,
     sendFlags,
     isAscii,
-    errorMsgObj,
-    logFileObj
+    errorMsgObj
   ) {
     const result = {};
     result.sender = "";
@@ -453,18 +452,7 @@ export var EnigmailEncryption = {
     return resultStatus.exitCode;
   },
 
-  encryptMessage(
-    parent,
-    uiFlags,
-    plainText,
-    fromMailAddr,
-    toMailAddr,
-    bccMailAddr,
-    sendFlags,
-    exitCodeObj,
-    statusFlagsObj,
-    errorMsgObj
-  ) {
+  encryptMessage() {
     throw new Error("Not implemented");
   },
 };

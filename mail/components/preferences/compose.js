@@ -309,7 +309,7 @@ var gComposePane = {
   startupDirListener: {
     inited: false,
     domain: "mail.addr_book.view.startupURI",
-    observe(subject, topic, prefName) {
+    observe(subject, topic) {
       if (topic != "nsPref:changed") {
         return;
       }
@@ -326,7 +326,7 @@ var gComposePane = {
       this.inited = true;
     },
 
-    unload(event) {
+    unload() {
       Services.prefs.removeObserver(
         gComposePane.startupDirListener.domain,
         gComposePane.startupDirListener

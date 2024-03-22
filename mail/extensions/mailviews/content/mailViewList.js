@@ -106,7 +106,7 @@ function onEditMailView() {
   }
 }
 
-function onMailViewSelect(event) {
+function onMailViewSelect() {
   updateButtons();
 }
 

@@ -332,7 +332,7 @@ var gMenuBuilder = {
     return this.customizeElement(element, item, contextData);
   },
 
-  createMenuElement(doc, item) {
+  createMenuElement(doc) {
     const element = doc.createXULElement("menu");
     // Menu elements need to have a menupopup child for its menu items.
     const menupopup = doc.createXULElement("menupopup");
@@ -1169,7 +1169,7 @@ const menuTracker = {
     windowTracker.removeOpenListener(this.onWindowOpen);
   },
 
-  observe(subject, topic, data) {
+  observe(subject) {
     subject = subject.wrappedJSObject;
     gMenuBuilder.build(subject);
   },

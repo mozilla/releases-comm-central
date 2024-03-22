@@ -29,7 +29,7 @@ function promiseLoadSubDialog(aURL) {
     throw new Error("promiseLoadSubDialog doesn't work in headless mode!");
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     content.gSubDialog._dialogStack.addEventListener(
       "dialogopen",
       function dialogopen(aEvent) {

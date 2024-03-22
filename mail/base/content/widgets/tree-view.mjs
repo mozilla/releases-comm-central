@@ -192,7 +192,7 @@ class TreeView extends HTMLElement {
     this.addEventListener("scroll", this);
 
     this._height = this.clientHeight;
-    this.#resizeObserver = new ResizeObserver(entries => {
+    this.#resizeObserver = new ResizeObserver(() => {
       const previousHeight = this._height;
       this._height = this.clientHeight;
 
@@ -1910,7 +1910,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     // Watch and remember the height of the header so we don't have to fetch
     // it every time TreeView's visible height calculation runs.
     this._height = this.clientHeight;
-    this.#resizeObserver = new ResizeObserver(entries => {
+    this.#resizeObserver = new ResizeObserver(() => {
       this._height = this.clientHeight;
     });
     this.#resizeObserver.observe(this);

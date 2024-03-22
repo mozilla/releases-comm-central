@@ -348,7 +348,7 @@ function ChangeBackgroundImage() {
   ValidateAndPreviewImage(false);
 }
 
-function ValidateAndPreviewImage(ShowErrorMessage) {
+function ValidateAndPreviewImage() {
   // First make a string with just background color
   var styleValue = backColorStyle + previewBGColor + ";";
 

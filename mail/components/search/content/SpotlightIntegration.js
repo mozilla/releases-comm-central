@@ -129,7 +129,7 @@ SearchIntegration = {
       });
     },
 
-    onStartRequest(request) {
+    onStartRequest() {
       try {
         const outputFileStream = Cc[
           "@mozilla.org/network/file-output-stream;1"
@@ -180,7 +180,7 @@ SearchIntegration = {
       }
     },
 
-    onStopRequest(request, status) {
+    onStopRequest() {
       try {
         // we want to write out the from, to, cc, and subject headers into the
         // Text Content value, so they'll be indexed.

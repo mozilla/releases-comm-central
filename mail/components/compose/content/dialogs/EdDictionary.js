@@ -8,7 +8,7 @@
 var gSpellChecker;
 var gWordToAdd;
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   Startup();
 });
 

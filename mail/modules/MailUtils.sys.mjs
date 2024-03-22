@@ -847,7 +847,7 @@ class FolderNotificationManager {
     Services.obs.addObserver(this, "folder-attention");
   }
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     switch (topic) {
       case "profile-before-change":
         Services.obs.removeObserver(this, "profile-before-change");

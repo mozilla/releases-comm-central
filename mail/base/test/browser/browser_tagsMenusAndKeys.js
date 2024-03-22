@@ -669,26 +669,20 @@ function handleNewTagDialog(tagToAdd, colorToUse) {
 function promiseKeywordsChanged(header) {
   return new Promise(resolve => {
     gDbService.registerPendingListener(testFolder, {
-      onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {},
-      onHdrDeleted(hdrChanged, parentKey, Flags, instigator) {},
-      onHdrAdded(hdrChanged, parentKey, flags, instigator) {},
-      onParentChanged(keyChanged, oldParent, newParent, instigator) {},
-      onAnnouncerGoingAway(instigator) {},
-      onReadChanged(instigator) {},
-      onJunkScoreChanged(instigator) {},
-      onHdrPropertyChanged(
-        hdrToChange,
-        property,
-        preChange,
-        status,
-        instigator
-      ) {
+      onHdrFlagsChanged() {},
+      onHdrDeleted() {},
+      onHdrAdded() {},
+      onParentChanged() {},
+      onAnnouncerGoingAway() {},
+      onReadChanged() {},
+      onJunkScoreChanged() {},
+      onHdrPropertyChanged(hdrToChange) {
         if (hdrToChange == header) {
           gDbService.unregisterPendingListener(this);
           TestUtils.waitForTick().then(resolve);
         }
       },
-      onEvent(db, event) {},
+      onEvent() {},
     });
   });
 }

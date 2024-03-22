@@ -160,7 +160,7 @@ export var EnigmailPersistentCrypto = {
           "nsIMsgCopyServiceListener",
           "nsIUrlListener",
         ]),
-        GetMessageId(messageId) {
+        GetMessageId() {
           // Maybe enable this later. Most of the Thunderbird code does not supply this.
           // messageId = { value: msgHdr.messageId };
         },

@@ -57,7 +57,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
     browser.test.assertEq(1, accounts.length, "number of accounts");
 
     browser.test.onMessage.addListener((message, withPopup) => {
-      browser.commands.onCommand.addListener(commandName => {
+      browser.commands.onCommand.addListener(() => {
         browser.test.fail(
           "The onCommand listener should never fire for a valid _execute_* command."
         );

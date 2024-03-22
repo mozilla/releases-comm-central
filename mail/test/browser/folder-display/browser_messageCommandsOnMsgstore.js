@@ -55,7 +55,7 @@ add_setup(async function () {
   const urlListener = {
     compactDone: false,
 
-    OnStartRunningUrl(aUrl) {},
+    OnStartRunningUrl() {},
     OnStopRunningUrl(aUrl, aExitCode) {
       Assert.equal(aExitCode, 0);
       Assert.ok(gInbox.msgDatabase.summaryValid);

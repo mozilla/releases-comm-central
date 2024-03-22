@@ -187,9 +187,9 @@ var joinChat = {
 
 document.addEventListener("dialogaccept", joinChat.join);
 
-window.addEventListener("DOMContentLoaded", event => {
+window.addEventListener("DOMContentLoaded", () => {
   joinChat.onload();
 });
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   window.sizeToContent();
 });

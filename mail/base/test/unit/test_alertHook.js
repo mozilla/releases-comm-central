@@ -48,10 +48,10 @@ add_task(async function test_not_shown_to_user_no_url_no_window() {
   // Just text, no url or window => expect no error shown to user
   MailServices.mailSession.alertUser("test error");
   await Promise.race([
-    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(result => {
+    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
       Assert.ok(true, "Alert is not shown with no window or no url present");
     }),
-    mockAlertsService.promise.then(result => {
+    mockAlertsService.promise.then(() => {
       throw new Error(
         "Alert is shown to the user although neither window nor url is present"
       );
@@ -80,10 +80,10 @@ add_task(async function test_not_shown_to_user_no_window() {
   // Text, url and no window => export no error shown to user
   MailServices.mailSession.alertUser("test error 3", mailnewsURL);
   await Promise.race([
-    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(result => {
+    PromiseTestUtils.promiseDelay(TEST_WAITTIME).then(() => {
       Assert.ok(true, "Alert is not shown with no window but a url present");
     }),
-    mockAlertsService.promise.then(result => {
+    mockAlertsService.promise.then(() => {
       throw new Error(
         "Alert is shown to the user although no window in the mailnewsURL present"
       );

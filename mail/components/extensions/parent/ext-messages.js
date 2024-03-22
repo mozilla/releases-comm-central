@@ -436,9 +436,9 @@ this.messages = class extends ExtensionAPIPersistent {
                     /* aMsgKeywords */ "",
                     {
                       OnStartCopy() {},
-                      OnProgress(progress, progressMax) {},
-                      SetMessageKey(key) {},
-                      GetMessageId(messageId) {},
+                      OnProgress() {},
+                      SetMessageKey() {},
+                      GetMessageId() {},
                       OnStopCopy(status) {
                         if (status == Cr.NS_OK) {
                           resolve();
@@ -466,9 +466,9 @@ this.messages = class extends ExtensionAPIPersistent {
                 isMove && sourceFolder.canDeleteMessages,
                 {
                   OnStartCopy() {},
-                  OnProgress(progress, progressMax) {},
-                  SetMessageKey(key) {},
-                  GetMessageId(messageId) {},
+                  OnProgress() {},
+                  SetMessageKey() {},
+                  GetMessageId() {},
                   OnStopCopy(status) {
                     if (status == Cr.NS_OK) {
                       resolve();
@@ -822,8 +822,8 @@ this.messages = class extends ExtensionAPIPersistent {
 
           await new Promise(resolve => {
             const listener = {
-              OnStartRunningUrl(aUrl) {},
-              OnStopRunningUrl(aUrl, aExitCode) {
+              OnStartRunningUrl() {},
+              OnStopRunningUrl() {
                 resolve();
               },
             };
@@ -931,9 +931,9 @@ this.messages = class extends ExtensionAPIPersistent {
                     /* isMove */ false,
                     {
                       OnStartCopy() {},
-                      OnProgress(progress, progressMax) {},
-                      SetMessageKey(key) {},
-                      GetMessageId(messageId) {},
+                      OnProgress() {},
+                      SetMessageKey() {},
+                      GetMessageId() {},
                       OnStopCopy(status) {
                         if (status == Cr.NS_OK) {
                           resolve();
@@ -991,7 +991,7 @@ this.messages = class extends ExtensionAPIPersistent {
                     finish(msgHdrs.get(newKey));
                   }
                 },
-                onFolderAdded(parent, child) {},
+                onFolderAdded() {},
               };
 
               // Note: Currently this API is not supported for IMAP. Once this gets added (Bug 1787104),
@@ -1032,7 +1032,7 @@ this.messages = class extends ExtensionAPIPersistent {
                 /* aMsgKeywords */ tags,
                 {
                   OnStartCopy() {},
-                  OnProgress(progress, progressMax) {},
+                  OnProgress() {},
                   SetMessageKey(aKey) {
                     /* Note: Not fired for offline IMAP. Add missing
                      * if (aCopyState) {
@@ -1046,7 +1046,7 @@ this.messages = class extends ExtensionAPIPersistent {
                       finish(msgHdrs.get(newKey));
                     }
                   },
-                  GetMessageId(messageId) {},
+                  GetMessageId() {},
                   OnStopCopy(status) {
                     if (status == Cr.NS_OK) {
                       if (newKey && msgHdrs.has(newKey)) {

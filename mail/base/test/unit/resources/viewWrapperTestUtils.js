@@ -86,7 +86,7 @@ function assert_bit_not_set(aWhat, aBit, aWhy) {
 var gFakeCommandUpdater = {
   updateCommandStatus() {},
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {},
+  displayMessageChanged() {},
 
   summarizeSelection() {},
 

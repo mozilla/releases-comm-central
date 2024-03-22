@@ -35,7 +35,7 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
 
       async function checkDownArrowKeySelectsNewMessage(expectedSubject) {
         await new Promise(resolve => {
-          const listener = (tab, messages) => {
+          const listener = () => {
             browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
             resolve();
           };
@@ -63,7 +63,7 @@ add_task(async function test_popup_open_with_openPopup_in_normal_window() {
       // Click on row #1, to select the next message and set focus into the message
       // list.
       await new Promise(resolve => {
-        const listener = (tab, messages) => {
+        const listener = () => {
           browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
           resolve();
         };

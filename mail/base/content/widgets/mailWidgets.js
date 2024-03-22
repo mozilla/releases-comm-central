@@ -131,7 +131,7 @@
         this.mSelectedInternal = null;
         this.setInitialSelection();
 
-        this._handleMutation = mutations => {
+        this._handleMutation = () => {
           this.editable = this.getAttribute("editable") == "true";
         };
         this.mAttributeObserver = new MutationObserver(this._handleMutation);
@@ -842,7 +842,7 @@
 
       // @implements {nsIObserver}
       this.inputObserver = {
-        observe: (subject, topic, data) => {
+        observe: (subject, topic) => {
           if (topic == "autocomplete-did-enter-text" && this.isEditing) {
             this.updatePill();
           }

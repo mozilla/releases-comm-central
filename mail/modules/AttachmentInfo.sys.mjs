@@ -378,7 +378,7 @@ export class AttachmentInfo {
           MIMEInfo: mimeInfo,
           source: Services.io.newURI(this.url),
           suggestedFileName: this.name,
-          cancel(reason) {},
+          cancel() {},
           promptForSaveDestination() {
             appLauncherDialog.promptForSaveToFileAsync(
               this,
@@ -391,7 +391,7 @@ export class AttachmentInfo {
           launchLocalFile() {
             openLocalFile(mimeInfo);
           },
-          async setDownloadToLaunch(handleInternally, file) {
+          async setDownloadToLaunch() {
             await createTemporaryFileAndOpen(mimeInfo);
           },
           async saveDestinationAvailable(file) {
@@ -399,7 +399,7 @@ export class AttachmentInfo {
               await saveToFile(file.path);
             }
           },
-          setWebProgressListener(webProgressListener) {},
+          setWebProgressListener() {},
           targetFile: null,
           targetFileIsExecutable: null,
           timeDownloadStarted: null,

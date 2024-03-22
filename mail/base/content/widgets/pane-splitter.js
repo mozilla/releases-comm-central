@@ -41,7 +41,7 @@
       this._updateStyling();
     }
 
-    attributeChangedCallback(name, oldValue, newValue) {
+    attributeChangedCallback(name) {
       switch (name) {
         case "resize-direction":
           this._updateResizeDirection();

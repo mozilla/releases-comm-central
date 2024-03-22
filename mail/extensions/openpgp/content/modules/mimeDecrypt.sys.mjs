@@ -124,7 +124,7 @@ MimeDecryptHandler.prototype = {
     Ci.nsIScriptableInputStream
   ),
 
-  onStartRequest(request, uri) {
+  onStartRequest(request) {
     lazy.EnigmailCore.init();
     lazy.EnigmailLog.DEBUG("mimeDecrypt.sys.mjs: onStartRequest\n"); // always log this one
 
@@ -343,7 +343,7 @@ MimeDecryptHandler.prototype = {
     return false;
   },
 
-  onStopRequest(request, status, dummy) {
+  onStopRequest(request) {
     LOCAL_DEBUG("mimeDecrypt.sys.mjs: onStopRequest\n");
     --gNumProc;
     if (!this.initOk) {

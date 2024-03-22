@@ -5,7 +5,7 @@
 // applications.js
 /* globals gGeneralPane */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gAppManagerDialog.init();
 });
 

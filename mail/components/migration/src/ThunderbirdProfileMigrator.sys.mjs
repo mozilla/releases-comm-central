@@ -201,7 +201,7 @@ export class ThunderbirdProfileMigrator {
     );
   }
 
-  migrate(items, startup, profile) {
+  migrate() {
     throw new Error("migrate not implemented");
   }
 

@@ -13,7 +13,7 @@ var { ChatIcons } = ChromeUtils.importESModule(
 );
 
 var statusSelector = {
-  observe(aSubject, aTopic, aMsg) {
+  observe(aSubject, aTopic) {
     if (aTopic == "status-changed") {
       this.displayCurrentStatus();
     } else if (aTopic == "user-icon-changed") {
@@ -116,7 +116,7 @@ var statusSelector = {
 
     if (!statusMessageInput.hasAttribute("editing")) {
       statusMessageInput.setAttribute("editing", "true");
-      statusMessageInput.addEventListener("blur", event => {
+      statusMessageInput.addEventListener("blur", () => {
         this.finishEditStatusMessage(true);
       });
       if (statusMessage.hasAttribute("usingDefault")) {
@@ -232,7 +232,7 @@ var statusSelector = {
     }
 
     statusMessageInput.removeAttribute("editing");
-    statusMessageInput.removeEventListener("blur", event => {
+    statusMessageInput.removeEventListener("blur", () => {
       this.finishEditStatusMessage(true);
     });
 
@@ -279,7 +279,7 @@ var statusSelector = {
         );
       }
       displayNameInput.addEventListener("keypress", this.displayNameKeyPress);
-      displayNameInput.addEventListener("blur", event => {
+      displayNameInput.addEventListener("blur", () => {
         this.finishEditDisplayName(true);
       });
       // force binding attachment by forcing layout
@@ -337,7 +337,7 @@ var statusSelector = {
 
     displayNameInput.removeAttribute("editing");
     displayNameInput.removeEventListener("keypress", this.displayNameKeyPress);
-    displayNameInput.removeEventListener("blur", event => {
+    displayNameInput.removeEventListener("blur", () => {
       this.finishEditDisplayName(true);
     });
   },

@@ -97,24 +97,24 @@ PgpMimeEncrypt.prototype = {
   inspector: null,
 
   // nsIStreamListener interface
-  onStartRequest(request) {
+  onStartRequest() {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: onStartRequest\n");
     this.encHeader = null;
   },
 
-  onDataAvailable(req, stream, offset, count) {
+  onDataAvailable(req, stream) {
     LOCAL_DEBUG("mimeEncrypt.js: onDataAvailable\n");
     this.inStream.init(stream);
     //var data = this.inStream.read(count);
     //LOCAL_DEBUG("mimeEncrypt.js: >"+data+"<\n");
   },
 
-  onStopRequest(request, status) {
+  onStopRequest() {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: onStopRequest\n");
   },
 
   // nsIMsgComposeSecure interface
-  requiresCryptoEncapsulation(msgIdentity, msgCompFields) {
+  requiresCryptoEncapsulation() {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: requiresCryptoEncapsulation\n");
     return (
       (this.sendFlags &
@@ -317,7 +317,7 @@ PgpMimeEncrypt.prototype = {
     }
   },
 
-  encryptedHeaders(isEightBit = false) {
+  encryptedHeaders() {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: encryptedHeaders\n");
     let subj = "";
 
@@ -411,7 +411,7 @@ PgpMimeEncrypt.prototype = {
     this.appendToMessage("\r\n--" + this.outerBoundary + "--\r\n");
   },
 
-  finishCryptoEncapsulation(abort, sendReport) {
+  finishCryptoEncapsulation() {
     lazy.EnigmailLog.DEBUG("mimeEncrypt.js: finishCryptoEncapsulation\n");
 
     if ((this.sendFlags & lazy.EnigmailConstants.SEND_VERBATIM) !== 0) {
@@ -700,11 +700,11 @@ PgpMimeEncrypt.prototype = {
   },
 
   // API for decryptMessage Listener
-  stdin(pipe) {
+  stdin() {
     throw new Error("unexpected");
   },
 
-  stderr(s) {
+  stderr() {
     throw new Error("unexpected");
     //this.statusStr += s;
   },

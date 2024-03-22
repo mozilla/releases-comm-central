@@ -112,7 +112,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
   constructor(extension, global) {
     super(extension);
     this.global = global;
-    this.tabContext = new this.global.TabContext(target =>
+    this.tabContext = new this.global.TabContext(() =>
       this.getContextData(null)
     );
   }
@@ -248,7 +248,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
    * @param {DOMElement} toolbar - a toolbar node
    * @returns {DOMElement} a node which is to be used as insertion point, or null
    */
-  getNonCustomizableToolbarInsertionPoint(toolbar) {
+  getNonCustomizableToolbarInsertionPoint() {
     return null;
   }
 
@@ -907,7 +907,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
           await action.setProperty(details, "badgeBackgroundColor", color);
         },
 
-        getBadgeBackgroundColor(details, callback) {
+        getBadgeBackgroundColor(details) {
           const color = action.getProperty(details, "badgeBackgroundColor");
           return color || [0xd9, 0, 0, 255];
         },

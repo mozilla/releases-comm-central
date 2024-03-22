@@ -175,7 +175,7 @@ async function getWindows() {
   const windows = new Set();
   await new Promise(resolve =>
     manager.getReports(
-      (process, path, kind, units, amount, description) => {
+      (process, path) => {
         if (path.startsWith("explicit/window-objects/top")) {
           path = path.replace("top(none)", "top");
           path = path.substring(0, path.indexOf(")") + 1);

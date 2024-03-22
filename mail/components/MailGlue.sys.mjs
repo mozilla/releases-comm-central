@@ -660,7 +660,7 @@ MailGlue.prototype = {
     }
 
     this._scheduleStartupIdleTasks();
-    this._lateTasksIdleObserver = (idleService, topic, data) => {
+    this._lateTasksIdleObserver = (idleService, topic) => {
       if (topic == "idle") {
         idleService.removeIdleObserver(
           this._lateTasksIdleObserver,

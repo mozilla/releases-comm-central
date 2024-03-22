@@ -32,7 +32,7 @@ var gNewMailListenerInitiated = false;
  */
 
 const filterActionMoveDecrypt = {
-  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue) {
     lazy.EnigmailLog.DEBUG(
       "filters.sys.mjs: filterActionMoveDecrypt: Move to: " +
         aActionValue +
@@ -49,11 +49,11 @@ const filterActionMoveDecrypt = {
     }
   },
 
-  isValidForType(type, scope) {
+  isValidForType() {
     return true;
   },
 
-  validateActionValue(value, folder, type) {
+  validateActionValue(value) {
     l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
       Services.prompt.alert(null, null, value);
     });
@@ -71,7 +71,7 @@ const filterActionMoveDecrypt = {
  * message untouched
  */
 const filterActionCopyDecrypt = {
-  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue) {
     lazy.EnigmailLog.DEBUG(
       "filters.sys.mjs: filterActionCopyDecrypt: Copy to: " +
         aActionValue +
@@ -88,7 +88,7 @@ const filterActionCopyDecrypt = {
     }
   },
 
-  isValidForType(type, scope) {
+  isValidForType(type) {
     lazy.EnigmailLog.DEBUG(
       "filters.sys.mjs: filterActionCopyDecrypt.isValidForType(" + type + ")\n"
     );
@@ -97,7 +97,7 @@ const filterActionCopyDecrypt = {
     return r;
   },
 
-  validateActionValue(value, folder, type) {
+  validateActionValue(value) {
     lazy.EnigmailLog.DEBUG(
       "filters.sys.mjs: filterActionCopyDecrypt.validateActionValue(" +
         value +
@@ -116,7 +116,7 @@ const filterActionCopyDecrypt = {
  * filter action for to encrypt a mail to a specific key
  */
 const filterActionEncrypt = {
-  async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  async applyAction(aMsgHdrs, aActionValue, aListener) {
     // Ensure KeyRing is loaded.
     lazy.EnigmailCore.init();
     lazy.EnigmailKeyRing.getAllKeys();
@@ -170,11 +170,11 @@ const filterActionEncrypt = {
     }
   },
 
-  isValidForType(type, scope) {
+  isValidForType() {
     return true;
   },
 
-  validateActionValue(value, folder, type) {
+  validateActionValue(value) {
     // Initialize KeyRing. Ugly as it blocks the GUI but
     // we need it.
     lazy.EnigmailCore.init();
@@ -293,11 +293,11 @@ const filterTermPGPEncrypted = {
     );
   },
 
-  getEnabled(scope, op) {
+  getEnabled() {
     return true;
   },
 
-  getAvailable(scope, op) {
+  getAvailable() {
     return true;
   },
 
@@ -581,7 +581,7 @@ export var EnigmailFilters = {
     consumerList.push(consumer);
   },
 
-  removeNewMailConsumer(consumer) {},
+  removeNewMailConsumer() {},
 
   moveDecrypt: filterActionMoveDecrypt,
   copyDecrypt: filterActionCopyDecrypt,

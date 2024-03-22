@@ -73,10 +73,10 @@ add_task(async function test_move_message() {
   const copyListener = {
     copyDone: false,
     OnStartCopy() {},
-    OnProgress(aProgress, aProgressMax) {},
-    SetMessageKey(aKey) {},
-    SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) {
+    OnProgress() {},
+    SetMessageKey() {},
+    SetMessageId() {},
+    OnStopCopy() {
       this.copyDone = true;
     },
   };

@@ -242,7 +242,7 @@ export function assert_content_tab_text_absent(aTab, aText) {
  * Returns the notification bar for a tab if one is currently visible,
  * null if otherwise.
  */
-export function get_notification_bar_for_tab(aTab) {
+export function get_notification_bar_for_tab() {
   const notificationBoxEls = mc.document
     .getElementById("tabmail")
     .selectedTab.panel.querySelector("notificationbox");

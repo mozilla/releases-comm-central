@@ -260,7 +260,7 @@
       super();
 
       this.activityListener = {
-        onStateChanged: (activity, oldState) => {
+        onStateChanged: () => {
           // change the view of the element according to the new state
           // default states for each item
           let hideProgressMeter = false;

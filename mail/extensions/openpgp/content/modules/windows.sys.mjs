@@ -192,7 +192,7 @@ export var EnigmailWindows = {
    *
    * no return value
    */
-  openDebugLog(win) {
+  openDebugLog() {
     EnigmailWindows.openWin(
       "enigmail:logFile",
       "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" +
@@ -458,7 +458,7 @@ export var EnigmailWindows = {
     );
   },
 
-  shutdown(reason) {
+  shutdown() {
     lazy.EnigmailLog.DEBUG("windows.sys.mjs: shutdown()\n");
 
     const tabs = Services.wm

@@ -141,7 +141,7 @@ async function internal_check_delivery_format(editDraft) {
    * @param aMenuItemId  The id of the menuitem expected to be selected.
    * @param aValue       A value of nsIMsgCompSendFormat constants of the expected selected format.
    */
-  async function assert_format_value(aMenuItemId, aValue) {
+  async function assert_format_value(aMenuItemId) {
     EventUtils.synthesizeMouseAtCenter(
       cwc.document.getElementById("optionsMenu"),
       {},

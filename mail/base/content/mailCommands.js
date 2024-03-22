@@ -549,8 +549,8 @@ function saveAsUrlListener(aUri, aIdentity) {
 }
 
 saveAsUrlListener.prototype = {
-  OnStartRunningUrl(aUrl) {},
-  OnStopRunningUrl(aUrl, aExitCode) {
+  OnStartRunningUrl() {},
+  OnStopRunningUrl() {
     messenger.saveAs(this.uri, false, this.identity, null);
   },
 };

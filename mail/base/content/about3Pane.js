@@ -1754,7 +1754,7 @@ var folderPane = {
    *
    * @param {Event} event - The DOMEvent.
    */
-  moveFolderModeUp(event) {
+  moveFolderModeUp() {
     const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
@@ -1772,7 +1772,7 @@ var folderPane = {
    *
    * @param {Event} event - The DOMEvent.
    */
-  moveFolderModeDown(event) {
+  moveFolderModeDown() {
     const currentModes = this.activeModes;
     const mode = this.mode;
     const index = currentModes.indexOf(mode);
@@ -2403,7 +2403,7 @@ var folderPane = {
    * @param {nsIMsgFolder} folder
    * @param {integer} newValue
    */
-  changeTotalCount(folder, newValue) {
+  changeTotalCount(folder) {
     this._changeRows(folder, row => {
       // Find the nearest visible ancestor and update it.
       let collapsedAncestor = row.parentElement?.closest("li.collapsed");
@@ -2447,7 +2447,7 @@ var folderPane = {
     }
   },
 
-  _onSelect(event) {
+  _onSelect() {
     const isSynthetic = gViewWrapper?.isSynthetic;
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
@@ -2538,7 +2538,7 @@ var folderPane = {
       return;
     }
 
-    const tabListener = event => {
+    const tabListener = () => {
       // Hide the pane if the new tab ain't us.
       quotaPanel.hidden =
         top.window.document.getElementById("tabmail").currentAbout3Pane ==
@@ -4193,7 +4193,7 @@ var threadPane = {
   /**
    * Handle threadPane select events.
    */
-  _onSelect(event) {
+  _onSelect() {
     if (!paneLayout.messagePaneVisible.isCollapsed && gDBView) {
       messagePane.clearWebPage();
       switch (gDBView.numSelected) {
@@ -4461,7 +4461,7 @@ var threadPane = {
   _flavorDataProvider: {
     QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
-    getFlavorData(transferable, flavor, data) {
+    getFlavorData(transferable, flavor) {
       if (flavor !== "application/x-moz-file-promise") {
         return;
       }
@@ -5328,7 +5328,7 @@ var threadPane = {
           "learnMoreAboutIgnoreThreadAccessKey"
         ),
         popup: null,
-        callback(aNotificationBar, aButton) {
+        callback() {
           const url = Services.prefs.getCharPref(
             "mail.ignore_thread.learn_more_url"
           );
@@ -5347,7 +5347,7 @@ var threadPane = {
         ),
         isDefault: true,
         popup: null,
-        callback(aNotificationBar, aButton) {
+        callback() {
           messages.forEach(function (msg) {
             const msgDb = msg.folder.msgDatabase;
             if (subthreadOnly) {
@@ -5823,7 +5823,7 @@ var folderListener = {
     folderPane.addFolder(parentFolder, childFolder);
     folderPane.updateFolderRowUIElements();
   },
-  onMessageAdded(parentFolder, msg) {},
+  onMessageAdded() {},
   onFolderRemoved(parentFolder, childFolder) {
     folderPane.removeFolder(parentFolder, childFolder);
     if (childFolder == gFolder) {
@@ -5831,8 +5831,8 @@ var folderListener = {
       gViewWrapper?.close(true);
     }
   },
-  onMessageRemoved(parentFolder, msg) {},
-  onFolderPropertyChanged(folder, property, oldValue, newValue) {},
+  onMessageRemoved() {},
+  onFolderPropertyChanged() {},
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
       case "BiffState":
@@ -5888,7 +5888,7 @@ var folderListener = {
         break;
     }
   },
-  onFolderPropertyFlagChanged(folder, property, oldFlag, newFlag) {},
+  onFolderPropertyFlagChanged() {},
   onFolderEvent(folder, event) {
     if (event == "RenameCompleted") {
       // If a folder is renamed, we get an `onFolderAdded` notification for

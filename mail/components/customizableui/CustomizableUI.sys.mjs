@@ -288,13 +288,13 @@ export var CustomizableUI = {
    * and an onWidgetBeforeDOMChange and onWidgetAfterDOMChange notification
    * for each window CustomizableUI knows about.
    *
-   * @param aWidgetId the ID of the widget to add
-   * @param aArea     the ID of the area to add the widget to
-   * @param aPosition the position at which to add the widget. If you do not
+   * @param _aWidgetId the ID of the widget to add
+   * @param _aArea     the ID of the area to add the widget to
+   * @param _aPosition the position at which to add the widget. If you do not
    *                  pass a position, the widget will be added to the end
    *                  of the area.
    */
-  addWidgetToArea(aWidgetId, aArea, aPosition) {},
+  addWidgetToArea(_aWidgetId, _aArea, _aPosition) {},
   /**
    * Remove a widget from its area. If the widget cannot be removed from its
    * area, or is not in any area, this will no-op. Otherwise, this will fire an
@@ -302,16 +302,16 @@ export var CustomizableUI = {
    * onWidgetAfterDOMChange notification for each window CustomizableUI knows
    * about.
    *
-   * @param aWidgetId the ID of the widget to remove
+   * @param _aWidgetId the ID of the widget to remove
    */
-  removeWidgetFromArea(aWidgetId) {},
+  removeWidgetFromArea(_aWidgetId) {},
   /**
    * Get the placement of a widget. This is by far the best way to obtain
    * information about what the state of your widget is. The internals of
    * this call are cheap (no DOM necessary) and you will know where the user
    * has put your widget.
    *
-   * @param aWidgetId the ID of the widget whose placement you want to know
+   * @param _aWidgetId the ID of the widget whose placement you want to know
    * @returns
    *   {
    *     area: "somearea", // The ID of the area where the widget is placed
@@ -323,7 +323,7 @@ export var CustomizableUI = {
    *
    *   null // if the widget is not placed anywhere (ie in the palette)
    */
-  getPlacementOfWidget(aWidgetId, aOnlyRegistered = true, aDeadAreas = false) {
+  getPlacementOfWidget(_aWidgetId) {
     return null;
   },
   /**
@@ -351,10 +351,10 @@ export var CustomizableUI = {
    * all toolboxes will be notified. For use from Customize Mode only,
    * do not use otherwise.
    *
-   * @param aEvent the name of the event to send.
-   * @param aDetails optional, the details of the event.
-   * @param aWindow optional, the window in which to send the event.
+   * @param _aEvent the name of the event to send.
+   * @param _aDetails optional, the details of the event.
+   * @param _aWindow optional, the window in which to send the event.
    */
-  dispatchToolboxEvent(aEvent, aDetails = {}, aWindow = null) {},
+  dispatchToolboxEvent(_aEvent, _aDetails, _aWindow) {},
 };
 Object.freeze(CustomizableUI);

@@ -804,7 +804,7 @@ var gGeneralPane = {
    * default for each type; otherwise, the user is informed that Thunderbird is
    * already the default.
    */
-  checkDefaultNow(aAppType) {
+  checkDefaultNow() {
     if (!this.mShellServiceWorking) {
       return;
     }

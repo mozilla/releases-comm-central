@@ -9,15 +9,15 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(protocolScheme) {},
-  getApplicationDescription(scheme) {},
-  getProtocolHandlerInfo(protocolScheme) {},
-  getProtocolHandlerInfoFromOS(protocolScheme, found) {},
-  isExposedProtocol(protocolScheme) {},
-  loadURI(uri, windowContext) {
+  externalProtocolHandlerExists() {},
+  getApplicationDescription() {},
+  getProtocolHandlerInfo() {},
+  getProtocolHandlerInfoFromOS() {},
+  isExposedProtocol() {},
+  loadURI(uri) {
     this._loadedURLs.push(uri.spec);
   },
-  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+  setProtocolHandlerDefaults() {},
   urlLoaded(url) {
     const found = this._loadedURLs.includes(url);
     this._loadedURLs = this._loadedURLs.filter(e => e != url);

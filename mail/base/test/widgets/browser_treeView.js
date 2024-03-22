@@ -1441,7 +1441,7 @@ async function subtestExpandCollapse() {
 
   function pressKey(id, key, expectedChange) {
     info(`pressing ${key}`);
-    performChange(id, expectedChange, row => {
+    performChange(id, expectedChange, () => {
       EventUtils.synthesizeKey(key, {}, content);
     });
   }
@@ -1863,7 +1863,7 @@ async function subtestScrollWhenExpandCollapse() {
 
   function pressKey(id, key, expectedChange) {
     info(`pressing ${key}`);
-    performChange(id, expectedChange, row => {
+    performChange(id, expectedChange, () => {
       EventUtils.synthesizeKey(key, {}, content);
     });
   }

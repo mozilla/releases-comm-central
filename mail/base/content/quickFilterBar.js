@@ -235,7 +235,7 @@ var quickFilterBar = {
       let handlerDomId, handlerMenuItems;
 
       if (!("onCommand" in filterDef)) {
-        handlerDomId = event => {
+        handlerDomId = () => {
           try {
             const postValue = domNode.pressed ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
@@ -245,7 +245,7 @@ var quickFilterBar = {
             console.error(ex);
           }
         };
-        handlerMenuItems = event => {
+        handlerMenuItems = () => {
           try {
             const postValue = menuItemNode.hasAttribute("checked")
               ? true

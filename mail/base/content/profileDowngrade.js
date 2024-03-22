@@ -8,7 +8,7 @@ const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   init();
 });
 

@@ -13,7 +13,7 @@ function checkNewText(target) {
     ) {
       const toggle = document.createElement("div");
       toggle.className = "eventToggle";
-      toggle.addEventListener("click", event => {
+      toggle.addEventListener("click", () => {
         toggle.closest(".event").classList.toggle("hide-children");
       });
       parent.insertBefore(

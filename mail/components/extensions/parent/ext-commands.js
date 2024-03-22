@@ -61,7 +61,7 @@ this.commands = class extends ExtensionAPIPersistent {
     return MailExtensionShortcuts.removeCommandsFromStorage(extensionId);
   }
 
-  async onManifestEntry(entryName) {
+  async onManifestEntry() {
     const shortcuts = new MailExtensionShortcuts({
       extension: this.extension,
       onCommand: name => this.emit("command", name),

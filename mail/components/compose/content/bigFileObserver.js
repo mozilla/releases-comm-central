@@ -311,7 +311,7 @@ var gBigFileObserver = {
         "stopShowingUploadingNotification.accesskey"
       ),
       label: this.formatString("stopShowingUploadingNotification.label"),
-      callback(aNotificationBar, aButton) {
+      callback() {
         Services.prefs.setBoolPref(
           "mail.compose.big_attachments.insert_notification",
           false

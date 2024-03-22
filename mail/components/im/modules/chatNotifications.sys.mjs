@@ -145,7 +145,7 @@ export var Notifications = {
     // Show the notification!
     Cc["@mozilla.org/alerts-service;1"]
       .getService(Ci.nsIAlertsService)
-      .showAlert(alert, (subject, topic, data) => {
+      .showAlert(alert, (subject, topic) => {
         if (topic != "alertclickcallback") {
           return;
         }
@@ -195,7 +195,7 @@ export var Notifications = {
   },
 
   _notificationPrefName: "mail.chat.show_desktop_notifications",
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (!Services.prefs.getBoolPref(this._notificationPrefName)) {
       return;
     }

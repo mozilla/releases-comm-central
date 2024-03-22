@@ -516,11 +516,11 @@ SearchSpecListener.prototype = {
     }
   },
 
-  onSearchHit(aMsgHdr, aFolder) {
+  onSearchHit() {
     // this method is never invoked!
   },
 
-  onSearchDone(aStatus) {
+  onSearchDone() {
     this.searchSpec.owner.searching = false;
   },
 };

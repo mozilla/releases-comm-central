@@ -50,7 +50,7 @@ export var moveCopyModule = {
     }
   },
 
-  msgAdded(aMsg) {},
+  msgAdded() {},
 
   msgsDeleted(aMsgList) {
     this.log.info("in msgsDeleted");
@@ -182,7 +182,7 @@ export var moveCopyModule = {
     }
   },
 
-  folderAdded(aFolder) {},
+  folderAdded() {},
 
   folderDeleted(aFolder) {
     // When a new account is created we get this notification with an empty named

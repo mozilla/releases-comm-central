@@ -153,30 +153,22 @@ class MockAlertsService {
 
   static _alert;
 
-  showPersistentNotification(persistentData, alert, alertListener) {
+  showPersistentNotification(persistentData, alert) {
     info(`showPersistentNotification: ${alert.text}`);
     Assert.ok(false, "unexpected call to showPersistentNotification");
   }
 
-  showAlert(alert, listener) {
+  showAlert(alert) {
     info(`showAlert: ${alert.text}`);
     MockAlertsService._alert = alert;
   }
 
-  showAlertNotification(
-    imageUrl,
-    title,
-    text,
-    textClickable,
-    cookie,
-    alertListener,
-    name
-  ) {
+  showAlertNotification(imageUrl, title, text) {
     info(`showAlertNotification: ${text}`);
     Assert.ok(false, "unexpected call to showAlertNotification");
   }
 
-  closeAlert(name) {
+  closeAlert() {
     Assert.ok(false, "unexpected call to closeAlert");
   }
 }

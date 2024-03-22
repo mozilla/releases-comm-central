@@ -202,7 +202,7 @@ var gPrivacyPane = {
   /**
    * Displays all the user's cookies in a dialog.
    */
-  showCookies(aCategory) {
+  showCookies() {
     gSubDialog.open("chrome://messenger/content/preferences/cookies.xhtml");
   },
 

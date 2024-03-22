@@ -697,7 +697,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
     extension.sendMessage();
   });
 
-  extension.onMessage("clearNewMessages", count => {
+  extension.onMessage("clearNewMessages", () => {
     InfoTestFolder.clearNewMessages();
     extension.sendMessage();
   });

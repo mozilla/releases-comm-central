@@ -11,10 +11,10 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gPermissionManager.onLoad();
 });
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   gPermissionManager.uninit();
 });
 window.addEventListener("keypress", event => {
@@ -60,24 +60,24 @@ var gPermissionManager = {
       return "";
     },
 
-    isSeparator(aIndex) {
+    isSeparator() {
       return false;
     },
     isSorted() {
       return false;
     },
-    isContainer(aIndex) {
+    isContainer() {
       return false;
     },
-    setTree(aTree) {},
-    getImageSrc(aRow, aColumn) {},
-    getProgressMode(aRow, aColumn) {},
-    getCellValue(aRow, aColumn) {},
-    cycleHeader(column) {},
-    getRowProperties(row) {
+    setTree() {},
+    getImageSrc() {},
+    getProgressMode() {},
+    getCellValue() {},
+    cycleHeader() {},
+    getRowProperties() {
       return "";
     },
-    getColumnProperties(column) {
+    getColumnProperties() {
       return "";
     },
     getCellProperties(row, column) {

@@ -517,14 +517,14 @@ Enigmail.hdrView = {
     this.messageListener.onEndAttachments();
   },
 
-  messageUnload(event) {
+  messageUnload() {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageUnload\n");
     if (Enigmail.hdrView.flexbuttonAction === null) {
       this.forgetEncryptedMsgKey();
     }
   },
 
-  async messageLoad(event) {
+  async messageLoad() {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageLoad\n");
 
     await Enigmail.msg.messageDecrypt(null, true);
@@ -553,7 +553,7 @@ Enigmail.hdrView = {
     }
   },
 
-  onShowAttachmentContextMenu(event) {
+  onShowAttachmentContextMenu() {
     const contextMenu = document.getElementById("attachmentItemContext");
     const separator = document.getElementById("openpgpCtxItemsSeparator");
     const decryptOpenMenu = document.getElementById("enigmail_ctxDecryptOpen");

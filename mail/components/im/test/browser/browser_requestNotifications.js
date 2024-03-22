@@ -34,7 +34,7 @@ add_task(async function testGrantingBuddyRequest() {
   ok(!notification.dimissable, "Can't dismiss without interacting");
   ok(!notification.closeButtonEl, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -87,7 +87,7 @@ add_task(async function testCancellingBuddyRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -136,7 +136,7 @@ add_task(async function testDenyingBuddyRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -184,7 +184,7 @@ add_task(async function testGrantingChatRequest() {
   ok(!notification.dimissable, "Can't dismiss without interacting");
   ok(!notification.closeButtonEl, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -241,7 +241,7 @@ add_task(async function testCancellingChatRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -289,7 +289,7 @@ add_task(async function testDenyingChatRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });
@@ -338,7 +338,7 @@ add_task(async function testUndenyableChatRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   const closePromise = new Promise(resolve => {
-    notification.eventCallback = event => {
+    notification.eventCallback = () => {
       resolve();
     };
   });

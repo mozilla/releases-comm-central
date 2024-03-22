@@ -22,7 +22,7 @@ ChromeUtils.defineESModuleGetters(this, {
  * the user has opted to search for more languages.
  */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gMessengerLanguagesDialog.onLoad();
 });
 

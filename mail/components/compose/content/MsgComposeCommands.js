@@ -266,10 +266,10 @@ var gSpellCheckingEnabled;
 
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   ComposeUnload();
 });
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   ComposeLoad();
 });
 window.addEventListener("close", event => {
@@ -277,7 +277,7 @@ window.addEventListener("close", event => {
     event.preventDefault();
   }
 });
-window.addEventListener("focus", event => {
+window.addEventListener("focus", () => {
   EditorOnFocus();
 });
 window.addEventListener("click", event => {
@@ -298,15 +298,15 @@ this.__defineGetter__("browser", GetCurrentEditorElement);
  */
 var XULBrowserWindow = {
   // Used to show the link-being-hovered-over in the status bar. Do nothing here.
-  setOverLink(url, anchorElt) {},
+  setOverLink() {},
 
   // Called before links are navigated to to allow us to retarget them if needed.
-  onBeforeLinkTraversal(originalTarget, linkURI, linkNode, isAppTab) {
+  onBeforeLinkTraversal(originalTarget) {
     return originalTarget;
   },
 
   // Called by BrowserParent::RecvShowTooltip.
-  showTooltip(xDevPix, yDevPix, tooltip, direction, browser) {
+  showTooltip(xDevPix, yDevPix, tooltip, direction) {
     if (
       Cc["@mozilla.org/widget/dragservice;1"]
         .getService(Ci.nsIDragService)
@@ -344,7 +344,7 @@ window
 
 // Observer for the autocomplete input.
 const inputObserver = {
-  observe: (subject, topic, data) => {
+  observe: (subject, topic) => {
     if (topic == "autocomplete-did-enter-text") {
       const input = subject.QueryInterface(
         Ci.nsIAutoCompleteInput
@@ -364,7 +364,7 @@ const inputObserver = {
 };
 
 const keyObserver = {
-  observe: async (subject, topic, data) => {
+  observe: async (subject, topic) => {
     switch (topic) {
       case "openpgp-key-change":
         EnigmailKeyRing.clearCache();
@@ -797,16 +797,16 @@ var stateListener = {
 /** @implements {nsIMsgSendListener} */
 var gSendListener = {
   // nsIMsgSendListener
-  onStartSending(aMsgID, aMsgSize) {},
-  onProgress(aMsgID, aProgress, aProgressMax) {},
-  onStatus(aMsgID, aMsg) {},
-  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
+  onStartSending() {},
+  onProgress() {},
+  onStatus() {},
+  onStopSending(aMsgID, aStatus) {
     if (Components.isSuccessCode(aStatus)) {
       Services.obs.notifyObservers(null, "mail:composeSendSucceeded", aMsgID);
     }
   },
-  onGetDraftFolderURI(aMsgID, aFolderURI) {},
-  onSendNotPerformed(aMsgID, aStatus) {},
+  onGetDraftFolderURI() {},
+  onSendNotPerformed() {},
   onTransportSecurityError(msgID, status, secInfo, location) {
     // We're only interested in Bad Cert errors here.
     const nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
@@ -839,7 +839,7 @@ var gSendListener = {
  * @implements {nsIWebProgressListener}
  */
 var progressListener = {
-  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags) {
     const progressMeter = document.getElementById("compose-progressmeter");
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
       progressMeter.hidden = false;
@@ -883,7 +883,7 @@ var progressListener = {
     }
   },
 
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+  onLocationChange() {
     // we can ignore this notification
   },
 
@@ -898,11 +898,11 @@ var progressListener = {
     } catch (ex) {}
   },
 
-  onSecurityChange(aWebProgress, aRequest, state) {
+  onSecurityChange() {
     // we can ignore this notification
   },
 
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  onContentBlockingEvent() {
     // we can ignore this notification
   },
 
@@ -1241,7 +1241,7 @@ var defaultController = {
     cmd.doCommand();
   },
 
-  onEvent(event) {},
+  onEvent() {},
 };
 
 var attachmentBucketController = {
@@ -1537,7 +1537,7 @@ var attachmentBucketController = {
     cmd.doCommand();
   },
 
-  onEvent(event) {},
+  onEvent() {},
 };
 
 /**
@@ -2949,7 +2949,7 @@ function convertSelectedToRegularAttachment() {
  * has received a request to quit.
  */
 var messageComposeOfflineQuitObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // sanity checks
     if (aTopic == "network:offline-status-changed") {
       MessageComposeOfflineStateChanged(Services.io.offline);
@@ -3298,7 +3298,7 @@ function manageAttachmentNotification(force = false) {
 
   // Construct the notification as we don't have one.
   const msg = document.createElement("div");
-  msg.onclick = function (event) {
+  msg.onclick = function () {
     openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
       subdialog: "attachment_reminder_button",
     });
@@ -3314,7 +3314,7 @@ function manageAttachmentNotification(force = false) {
   msgKeywords.textContent = keywords;
   const addButton = {
     "l10n-id": "add-attachment-notification-reminder2",
-    callback(aNotificationBar, aButton) {
+    callback() {
       goDoCommand("cmd_attachFile");
       return true; // keep notification open (the state machine will decide on it later)
     },
@@ -3349,7 +3349,7 @@ function manageAttachmentNotification(force = false) {
     "label",
     getComposeBundle().getString("remindLaterButton")
   );
-  remindButton.addEventListener("command", function (event) {
+  remindButton.addEventListener("command", function () {
     toggleAttachmentReminder(true);
   });
   remindButton.appendChild(remindLaterMenuPopup);
@@ -4160,7 +4160,7 @@ function getValidSpellcheckerDictionaries(draftLanguages) {
 }
 
 var dictionaryRemovalObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic != "spellcheck-dictionary-remove") {
       return;
     }
@@ -4225,10 +4225,10 @@ function EditorClick(event) {
     settings.style.top = meRect.top + event.clientY + 20 + "px";
     settings.hidden = false;
     event.target.remove();
-    settings.querySelector(".close").onclick = event => {
+    settings.querySelector(".close").onclick = () => {
       settings.hidden = true;
     };
-    settings.querySelector(".preview-replace").onclick = event => {
+    settings.querySelector(".preview-replace").onclick = () => {
       addLinkPreview(url, true);
       settings.hidden = true;
     };
@@ -5208,7 +5208,7 @@ function emailSimilar(a, b) {
 
 // The new, nice, simple way of getting notified when a new editor has been created
 var gMsgEditorCreationObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "obs_documentCreated") {
       var editor = GetCurrentEditor();
       if (editor && GetCurrentCommandManager() == aSubject) {
@@ -7224,7 +7224,7 @@ var spellCheckReadyObserver = {
 
   _ignoreWords: [],
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic != this._topic) {
       return;
     }
@@ -7449,7 +7449,7 @@ async function ComposeChangeLanguage(languages) {
   // Spell checker needs to be ready before we can select new dictionaries.
   if (gSpellCheckingEnabled && checker?.spellCheckPending) {
     await new Promise(resolve => {
-      Services.obs.addObserver(function observe(subject, topic, data) {
+      Services.obs.addObserver(function observe(subject, topic) {
         if (subject == gMsgCompose.editor) {
           Services.obs.removeObserver(observe, topic);
           resolve();
@@ -9276,7 +9276,7 @@ nsAttachmentOpener.prototype = {
     "nsIInterfaceRequestor",
   ]),
 
-  doContent(contentType, isContentPreferred, request, contentHandler) {
+  doContent(contentType, isContentPreferred, request) {
     // If we came here to display an attached message, make sure we provide a type.
     if (/[?&]part=/i.test(request.URI.query)) {
       const newQuery = request.URI.query + "&type=message/rfc822";
@@ -9289,14 +9289,14 @@ nsAttachmentOpener.prototype = {
     return true;
   },
 
-  isPreferred(contentType, desiredContentType) {
+  isPreferred(contentType) {
     if (contentType == "message/rfc822") {
       return true;
     }
     return false;
   },
 
-  canHandleContent(contentType, isContentPreferred, desiredContentType) {
+  canHandleContent() {
     return false;
   },
 
@@ -9722,7 +9722,7 @@ function subjectKeyPress(event) {
  *
  * @param {Event} event - A DOM input event on #msgSubject.
  */
-function msgSubjectOnInput(event) {
+function msgSubjectOnInput() {
   gSubjectChanged = true;
   gContentChanged = true;
   SetComposeWindowTitle();
@@ -10277,7 +10277,7 @@ var envelopeDragObserver = {
     this.detectHoveredOverlay(event.target.id);
   },
 
-  onDragLeave(event) {
+  onDragLeave() {
     // Set the variable to false as a drag leave event was triggered.
     gIsDraggingAttachments = false;
 
@@ -10783,7 +10783,7 @@ var gAttachmentNotifier = {
       return;
     }
 
-    this._obs = new MutationObserver(function (aMutations) {
+    this._obs = new MutationObserver(function () {
       gAttachmentNotifier.timer.cancel();
       gAttachmentNotifier.timer.initWithCallback(
         gAttachmentNotifier.event,
@@ -10940,7 +10940,7 @@ var gAttachmentNotifier = {
   },
 
   event: {
-    async notify(timer) {
+    async notify() {
       if (!gMsgCompose) {
         return;
       }
@@ -11310,7 +11310,7 @@ var gComposeNotificationBar = {
         label: buttonLabel,
         accessKey: buttonAccesskey,
         popup: "blockedContentOptions",
-        callback(aNotification, aButton) {
+        callback() {
           return true; // keep notification open
         },
       },
@@ -11356,7 +11356,7 @@ var gComposeNotificationBar = {
     );
   },
 
-  clearNotifications(aValue) {
+  clearNotifications() {
     gComposeNotification.removeAllNotifications(true);
   },
 

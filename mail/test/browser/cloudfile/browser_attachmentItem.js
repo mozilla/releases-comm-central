@@ -82,7 +82,7 @@ add_task(async function test_upload_cancel_repeat() {
   // so that we're perpetually uploading...
   let promise;
   let started;
-  provider.uploadFile = function (window, aFile) {
+  provider.uploadFile = function () {
     return new Promise((resolve, reject) => {
       promise = { resolve, reject };
       started = true;
@@ -400,7 +400,7 @@ add_task(async function test_error_conversion() {
   providerB.init("someOtherKey");
 
   let uploadPromise = null;
-  providerB.uploadFile = function (window, aFile) {
+  providerB.uploadFile = function () {
     return new Promise((resolve, reject) => {
       uploadPromise = { resolve, reject };
     });

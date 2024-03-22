@@ -335,7 +335,7 @@ export class BasePopup {
   }
 
   unblockParser() {
-    this.browserReady.then(browser => {
+    this.browserReady.then(() => {
       if (this.destroyed) {
         return;
       }

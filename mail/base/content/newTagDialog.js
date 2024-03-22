@@ -8,7 +8,7 @@ var { MailServices } = ChromeUtils.importESModule(
 
 var dialog;
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   onLoad();
 });
 

@@ -27,7 +27,7 @@ var gSync = {
     }
   },
 
-  observe(subject, topic, data) {
+  observe() {
     this.updateFxAPanel();
   },
 

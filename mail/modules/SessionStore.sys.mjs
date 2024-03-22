@@ -7,6 +7,6 @@
  * the methods that appear to be hit by comm-central are implemented.
  */
 export var SessionStore = {
-  updateSessionStoreFromTablistener(aBrowser, aBrowsingContext, aData) {},
+  updateSessionStoreFromTablistener() {},
   maybeExitCrashedState() {},
 };

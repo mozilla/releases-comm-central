@@ -749,7 +749,7 @@ export class CachedMsgHeader {
   setUint32Property(aProperty, aVal) {
     this.mProperties[aProperty] = aVal.toString();
   }
-  markHasAttachments(hasAttachments) {}
+  markHasAttachments() {}
   get mime2DecodedAuthor() {
     return this.author;
   }

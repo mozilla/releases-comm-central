@@ -52,7 +52,7 @@ var preferencesTabType = {
     return document.getElementById("tabmail").tabInfo.indexOf(this.tab);
   },
 
-  closeTab(aTab) {
+  closeTab() {
     this.tab = null;
   },
 

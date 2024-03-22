@@ -854,10 +854,7 @@ add_task(async function test_adding_filelinks_to_nonempty_reply_above() {
  * Does some special casing for the weird br insertions that happens in
  * various cases.
  */
-async function subtest_adding_filelinks_to_reply_above_plaintext(
-  aText,
-  aWithSig
-) {
+async function subtest_adding_filelinks_to_reply_above_plaintext(aText) {
   const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   let br;
@@ -976,7 +973,7 @@ add_task(async function test_adding_filelinks_to_nonempty_reply_below() {
 /**
  * Subtest for test_adding_filelinks_to_reply_below for the HTML composer.
  */
-async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
+async function subtest_adding_filelinks_to_reply_below(aText) {
   const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
 
   // So, we should have the root, followed by a br
@@ -1024,10 +1021,7 @@ async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
 /**
  * Subtest for test_adding_filelinks_to_reply_below for the plaintext composer.
  */
-async function subtest_adding_filelinks_to_plaintext_reply_below(
-  aText,
-  aWithSig
-) {
+async function subtest_adding_filelinks_to_plaintext_reply_below(aText) {
   const [cw, root] = await prepare_some_attachments_and_reply(aText, kFiles);
   let br, span;
 
@@ -1110,7 +1104,7 @@ add_task(async function test_adding_filelinks_to_forward() {
  * test_adding_filelinks_to_forward - ensures that the inserted Filelinks
  * are positioned correctly.
  */
-async function subtest_adding_filelinks_to_forward(aText, aWithSig) {
+async function subtest_adding_filelinks_to_forward(aText) {
   const [cw, root] = await prepare_some_attachments_and_forward(aText, kFiles);
 
   const br = assert_next_nodes("br", root, 1);

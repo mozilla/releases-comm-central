@@ -198,7 +198,7 @@ export const MailUsageTelemetry = {
     Services.obs.removeObserver(this, DOMWINDOW_OPENED_TOPIC);
   },
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     switch (topic) {
       case DOMWINDOW_OPENED_TOPIC:
         this._onWindowOpen(subject);

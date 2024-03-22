@@ -24,7 +24,7 @@ async function getImageArrayBuffer() {
   const response = await fetch(TEST_IMAGE_URL);
   const blob = await response.blob();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const reader = new FileReader();
     reader.addEventListener("loadend", event => {
       resolve(event.target.result);

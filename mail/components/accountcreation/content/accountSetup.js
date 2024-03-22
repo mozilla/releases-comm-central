@@ -644,13 +644,13 @@ var gAccountSetup = {
     let fetch = null;
 
     const priority = (this._abortable = new PriorityOrderAbortable(
-      function (config, call) {
+      function (config) {
         // success
         self._abortable = null;
         self.stopLoadingState(self._getConfigSourceStringName(config));
         self.foundConfig(config);
       },
-      function (e, allErrors) {
+      function (e) {
         // all failed
         if (e instanceof CancelledException) {
           self.onStartOver();
@@ -789,7 +789,7 @@ var gAccountSetup = {
     const self = this;
     self._abortable = GuessConfig.guessConfig(
       domain,
-      function (type, hostname, port, socketType, done, config) {
+      function (type, hostname, port, socketType) {
         // progress
         gAccountSetupLogger.debug(
           `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
@@ -805,7 +805,7 @@ var gAccountSetup = {
             : "account-setup-success-guess"
         );
       },
-      function (e, config) {
+      function (e) {
         // guessconfig failed
         if (e instanceof CancelledException) {
           return;
@@ -1257,7 +1257,7 @@ var gAccountSetup = {
                   return;
                 }
                 const listener = {
-                  onUpdateAvailable(addon, install) {
+                  onUpdateAvailable() {
                     button.disabled = false;
                   },
                   onNoUpdateAvailable() {},
@@ -2051,7 +2051,7 @@ var gAccountSetup = {
     const self = this;
     this._abortable = GuessConfig.guessConfig(
       this._domain,
-      function (type, hostname, port, ssl, done, config) {
+      function (type, hostname, port) {
         // Progress.
         gAccountSetupLogger.debug(
           `progress callback host: ${hostname}, port: ${port}, type: ${type}`
@@ -2064,7 +2064,7 @@ var gAccountSetup = {
         self.stopLoadingState("account-setup-success-half-manual");
         self.validateManualEditComplete();
       },
-      function (e, config) {
+      function (e) {
         // guessConfig failed.
         if (e instanceof CancelledException) {
           return;
@@ -2276,7 +2276,7 @@ var gAccountSetup = {
 
     const self = this;
     const verifier = new ConfigVerifier(this._msgWindow);
-    window.addEventListener("unload", event => {
+    window.addEventListener("unload", () => {
       verifier.cleanup();
     });
     verifier

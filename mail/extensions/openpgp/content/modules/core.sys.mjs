@@ -64,7 +64,7 @@ class Factory {
     Object.freeze(this);
   }
 
-  createInstance(iid) {
+  createInstance() {
     return new this.component();
   }
 

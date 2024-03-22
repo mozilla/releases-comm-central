@@ -155,7 +155,7 @@ registerCleanupFunction(function () {
   MockRegistrar.unregister(gMockAlertsService._classID);
 });
 
-function setupTest(test) {
+function setupTest() {
   gFolder.markAllMessagesRead(null);
   gMockAlertsService._reset();
   gMockAlertsService._doFail = false;
@@ -220,7 +220,7 @@ add_task(async function test_dont_show_newmailalert() {
   setupTest();
 
   let windowOpened = false;
-  function observer(subject, topic, data) {
+  function observer(subject, topic) {
     if (topic == "domwindowopened") {
       windowOpened = true;
     }

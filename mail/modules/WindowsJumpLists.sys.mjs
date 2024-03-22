@@ -235,7 +235,7 @@ export var WinTaskbarJumpList = {
     lazy._prefs.removeObserver("", this);
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     switch (aTopic) {
       case "nsPref:changed":
         if (this._enabled && !lazy._prefs.getBoolPref(PREF_TASKBAR_ENABLED)) {

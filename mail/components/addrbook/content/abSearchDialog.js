@@ -389,7 +389,7 @@ function AbResultsPaneKeyPress(event) {
   }
 }
 
-function AbResultsPaneDoubleClick(card) {
+function AbResultsPaneDoubleClick() {
   // Kept for abResultsPane.js.
 }
 

@@ -151,7 +151,7 @@ const LOCALE_PLURAL_NUMBER = {
 /* eslint-disable no-nested-ternary */
 var gFunctions = [
   // 0: Chinese
-  [1, n => 0],
+  [1, () => 0],
   // 1: English
   [2, n => (n != 1 ? 1 : 0)],
   // 2: French

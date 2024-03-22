@@ -53,7 +53,7 @@ var downloadsView = {
     this.items.set(aDownload, aDownload.target.path);
   },
 
-  onDownloadChanged(aDownload) {},
+  onDownloadChanged() {},
 
   onDownloadRemoved(aDownload) {
     this.removedItems.push(aDownload.target.path);
@@ -132,7 +132,7 @@ add_setup(async function () {
   downloadsTab = await open_about_downloads();
 });
 
-function setupTest(test) {
+function setupTest() {
   downloadsView.init();
 }
 

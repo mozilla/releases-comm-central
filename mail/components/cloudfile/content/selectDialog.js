@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../../../toolkit/components/prompts/content/selectDialog.js */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   cloudfileDialogOnLoad();
 });
 

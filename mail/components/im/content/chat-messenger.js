@@ -73,7 +73,7 @@ function openChatContextMenu(popup) {
   goUpdateCommand("cmd_selectAll");
 }
 
-function clearChatContextMenu(popup) {
+function clearChatContextMenu() {
   const conv = chatHandler._getActiveConvView();
   const spellchecker = conv.spellchecker;
   spellchecker.clearDictionaryListFromMenu();
@@ -280,7 +280,7 @@ var chatTabType = {
 
     // Unused, but needed functions
     onTabTitleChanged() {},
-    onTabOpened(aTab) {},
+    onTabOpened() {},
     onTabPersist() {},
     onTabRestored() {},
 
@@ -378,21 +378,21 @@ var chatTabType = {
     chatHandler._updateSelectedConversation();
     chatHandler._updateFocus();
   },
-  closeTab(aTab) {
+  closeTab() {
     gChatTab = null;
     const tabmail = document.getElementById("tabmail");
     tabmail.unregisterTabMonitor(this.tabMonitor);
     window.removeEventListener("deactivate", chatTabType._onWindowDeactivated);
     window.removeEventListener("activate", chatTabType._onWindowActivated);
   },
-  persistTab(aTab) {
+  persistTab() {
     return {};
   },
-  restoreTab(aTabmail, aPersistedState) {
+  restoreTab(aTabmail) {
     aTabmail.openTab("chat", {});
   },
 
-  supportsCommand(aCommand, aTab) {
+  supportsCommand(aCommand) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -406,7 +406,7 @@ var chatTabType = {
         return false;
     }
   },
-  isCommandEnabled(aCommand, aTab) {
+  isCommandEnabled(aCommand) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -421,7 +421,7 @@ var chatTabType = {
         return false;
     }
   },
-  doCommand(aCommand, aTab) {
+  doCommand(aCommand) {
     switch (aCommand) {
       case "cmd_fullZoomReduce":
         ZoomManager.reduce();
@@ -446,8 +446,8 @@ var chatTabType = {
         break;
     }
   },
-  onEvent(aEvent, aTab) {},
-  getBrowser(aTab) {
+  onEvent() {},
+  getBrowser() {
     const panel = getSelectedPanel();
     if (panel == document.getElementById("logDisplay")) {
       if (!document.getElementById("logDisplayBrowserBox").hidden) {
@@ -458,7 +458,7 @@ var chatTabType = {
     }
     return null;
   },
-  getFindbar(aTab) {
+  getFindbar() {
     const panel = getSelectedPanel();
     if (panel == document.getElementById("logDisplay")) {
       if (!document.getElementById("logDisplayBrowserBox").hidden) {
@@ -470,7 +470,7 @@ var chatTabType = {
     return null;
   },
 
-  saveTabState(aTab) {},
+  saveTabState() {},
 };
 
 var chatHandler = {
@@ -808,7 +808,7 @@ var chatHandler = {
   },
 
   _contactObserver: {
-    observe(aSubject, aTopic, aData) {
+    observe(aSubject, aTopic) {
       if (
         aTopic == "contact-status-changed" ||
         aTopic == "contact-display-name-changed" ||

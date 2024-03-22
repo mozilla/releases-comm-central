@@ -716,7 +716,7 @@ export async function get_msg_source(aMsgHdr, aCharset = "") {
         this.sis.init(inputStream);
         this.content += this.sis.read(count);
       },
-      onStartRequest(request) {},
+      onStartRequest() {},
       onStopRequest(request, statusCode) {
         this.sis.close();
         if (Components.isSuccessCode(statusCode)) {

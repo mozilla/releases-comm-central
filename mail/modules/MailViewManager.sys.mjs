@@ -64,7 +64,7 @@ export var MailViewManager = {
     return {
       name: mailView.prettyName, // since the user created it it's localized
       index: aCustomViewIndex,
-      makeTerms(aSession, aData) {
+      makeTerms() {
         return mailView.searchTerms;
       },
     };
@@ -107,7 +107,7 @@ export var MailViewManager = {
 MailViewManager.defineView({
   name: "all mail", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemAll,
-  makeTerms(aSession, aData) {
+  makeTerms() {
     return null;
   },
 });
@@ -115,7 +115,7 @@ MailViewManager.defineView({
 MailViewManager.defineView({
   name: "new mail / unread", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemUnread,
-  makeTerms(aSession, aData) {
+  makeTerms(aSession) {
     const term = aSession.createTerm();
     const value = term.value;
 
@@ -151,7 +151,7 @@ MailViewManager.defineView({
 MailViewManager.defineView({
   name: "not deleted", // debugging assistance only! not localized!
   index: MailViewConstants.kViewItemNotDeleted,
-  makeTerms(aSession, aKeyword) {
+  makeTerms(aSession) {
     const term = aSession.createTerm();
     const value = term.value;
 

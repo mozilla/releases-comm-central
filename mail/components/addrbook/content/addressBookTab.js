@@ -59,7 +59,7 @@ var addressBookTabType = {
     return document.getElementById("tabmail").tabInfo.indexOf(this.tab);
   },
 
-  closeTab(aTab) {
+  closeTab() {
     this.tab = null;
   },
 
@@ -158,7 +158,7 @@ var addressBookTabType = {
     return {};
   },
 
-  restoreTab(aTabmail, aPersistedState) {
+  restoreTab(aTabmail) {
     aTabmail.openTab("addressBookTab", {});
   },
 

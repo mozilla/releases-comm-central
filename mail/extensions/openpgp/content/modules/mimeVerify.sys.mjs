@@ -157,7 +157,7 @@ MimeVerify.prototype = {
     }
   },
 
-  onStartRequest(request, uri) {
+  onStartRequest(request) {
     lazy.EnigmailLog.DEBUG("mimeVerify.sys.mjs: onStartRequest\n"); // always log this one
 
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);

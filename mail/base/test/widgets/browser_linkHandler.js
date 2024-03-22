@@ -40,7 +40,7 @@ const webProgressListener = {
   _browser: null,
   _deferred: null,
 
-  onStateChange(webProgress, request, stateFlags, status) {
+  onStateChange(webProgress, request, stateFlags) {
     if (
       !(stateFlags & Ci.nsIWebProgressListener.STATE_STOP) ||
       this._browser?.currentURI.spec == "about:blank"
@@ -105,27 +105,27 @@ const mockExternalProtocolService = {
     return false;
   },
 
-  isExposedProtocol(protocolScheme) {
+  isExposedProtocol() {
     return true;
   },
 
-  getProtocolHandlerInfo(protocolScheme) {
+  getProtocolHandlerInfo() {
     throw Components.Exception(
       "getProtocolHandlerInfo not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   },
 
-  getProtocolHandlerInfoFromOS(protocolScheme, aFound) {
+  getProtocolHandlerInfoFromOS() {
     throw Components.Exception(
       "getProtocolHandlerInfoFromOS not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   },
 
-  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+  setProtocolHandlerDefaults() {},
 
-  loadURI(aURI, aWindowContext) {
+  loadURI(aURI) {
     if (this._deferred) {
       const deferred = this._deferred;
       this._deferred = null;
@@ -137,14 +137,14 @@ const mockExternalProtocolService = {
     }
   },
 
-  getApplicationDescription(scheme) {
+  getApplicationDescription() {
     throw Components.Exception(
       "getApplicationDescription not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   },
 
-  isCurrentAppOSDefaultForProtocol(scheme) {
+  isCurrentAppOSDefaultForProtocol() {
     return true;
   },
 
@@ -297,7 +297,7 @@ add_task(function testNoGroup() {
 });
 
 add_task(function testBrowsersGroup() {
-  return subtest(TEST_DOMAIN, null, selector => true);
+  return subtest(TEST_DOMAIN, null, () => true);
 });
 
 add_task(function testSingleSiteGroup() {
@@ -323,7 +323,7 @@ add_task(function testNoGroupWithIP() {
 });
 
 add_task(function testBrowsersGroupWithIP() {
-  return subtest(TEST_IP, null, selector => true);
+  return subtest(TEST_IP, null, () => true);
 });
 
 add_task(function testSingleSiteGroupWithIP() {

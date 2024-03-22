@@ -53,7 +53,7 @@ add_task(async function test_without_UI() {
 
       // Other account creation
       await new Promise((resolve, reject) => {
-        function accountListener(account) {
+        function accountListener() {
           browser.cloudFile.onAccountAdded.removeListener(accountListener);
           browser.test.fail("Got onAccountAdded for account from other addon");
           reject();
@@ -152,12 +152,7 @@ add_task(async function test_without_UI() {
 
       browser.test.log("test upload error");
       await new Promise(resolve => {
-        function fileListener(
-          account,
-          { id, name, data },
-          tab,
-          relatedFileInfo
-        ) {
+        function fileListener(account, { id }, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
@@ -176,12 +171,7 @@ add_task(async function test_without_UI() {
 
       browser.test.log("test upload error with message");
       await new Promise(resolve => {
-        function fileListener(
-          account,
-          { id, name, data },
-          tab,
-          relatedFileInfo
-        ) {
+        function fileListener(account, { id }, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(undefined, relatedFileInfo);
           setTimeout(() => resolve(id));
@@ -305,12 +295,7 @@ add_task(async function test_without_UI() {
 
       browser.test.log("test upload aborted");
       await new Promise(resolve => {
-        async function fileListener(
-          account,
-          { id, name, data },
-          tab,
-          relatedFileInfo
-        ) {
+        async function fileListener(account, { id }, tab, relatedFileInfo) {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
 
           // The listener won't return until onFileUploadAbort fires. When that happens,
@@ -590,7 +575,7 @@ add_task(async function test_compose_window_MV2() {
       await new Promise(resolve => {
         async function fileListener(
           uploadAccount,
-          { id, name, data },
+          { id },
           tab,
           relatedFileInfo
         ) {
@@ -1142,12 +1127,7 @@ add_task(async function test_incomplete_cloudFiles() {
     );
 
     await new Promise(resolve => {
-      function fileListener(
-        uploadAccount,
-        { id, name, data },
-        tab,
-        relatedFileInfo
-      ) {
+      function fileListener(uploadAccount, { id, name }) {
         browser.cloudFile.onFileUpload.removeListener(fileListener);
         setTimeout(() => resolve(id));
         return { url: "https://example.com/" + name };
@@ -1416,7 +1396,7 @@ add_task(async function test_file_format() {
       }
 
       account.uploadFile(null, testFiles[filename]).then(
-        upload => {
+        () => {
           Assert.equal(Cr.NS_OK, expectedErrorStatus);
         },
         status => {

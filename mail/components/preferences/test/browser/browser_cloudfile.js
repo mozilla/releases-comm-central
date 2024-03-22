@@ -180,15 +180,15 @@ const mockPromptService = {
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(aProtocolScheme) {},
-  getApplicationDescription(aScheme) {},
-  getProtocolHandlerInfo(aProtocolScheme) {},
-  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
-  isExposedProtocol(aProtocolScheme) {},
-  loadURI(aURI, aWindowContext) {
+  externalProtocolHandlerExists() {},
+  getApplicationDescription() {},
+  getProtocolHandlerInfo() {},
+  getProtocolHandlerInfoFromOS() {},
+  isExposedProtocol() {},
+  loadURI(aURI) {
     this._loadedURLs.push(aURI.spec);
   },
-  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
+  setProtocolHandlerDefaults() {},
   urlLoaded(aURL) {
     return this._loadedURLs.includes(aURL);
   },

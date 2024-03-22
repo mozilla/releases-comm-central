@@ -124,7 +124,7 @@ export var EnigmailFuncs = {
    * @param {string} attribute - Attribute to set or remove (i.e. "hidden" or "collapsed")
    * @param {object} dummy - Anything.
    */
-  collapseAdvanced(obj, attribute, dummy) {
+  collapseAdvanced(obj, attribute) {
     lazy.EnigmailLog.DEBUG("funcs.sys.mjs: collapseAdvanced:\n");
 
     var advancedUser = Services.prefs.getBoolPref("temp.openpgp.advancedUser");

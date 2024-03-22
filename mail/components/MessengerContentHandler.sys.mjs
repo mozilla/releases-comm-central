@@ -54,7 +54,7 @@ function handleIndexerResult(aFile) {
 
   // If we found a message header, open it, otherwise throw an exception
   if (msgHdr) {
-    getOrOpen3PaneWindow().then(win => {
+    getOrOpen3PaneWindow().then(() => {
       lazy.MailUtils.displayMessage(msgHdr);
     });
   } else {
@@ -130,11 +130,11 @@ export function openURI(uri) {
   );
 
   var loadlistener = {
-    onStartRequest(aRequest) {
+    onStartRequest() {
       Services.startup.enterLastWindowClosingSurvivalArea();
     },
 
-    onStopRequest(aRequest, aStatusCode) {
+    onStopRequest() {
       Services.startup.exitLastWindowClosingSurvivalArea();
     },
 
@@ -147,20 +147,20 @@ export function openURI(uri) {
   loadgroup.groupObserver = loadlistener;
 
   var listener = {
-    doContent(ctype, preferred, request, handler) {
+    doContent(ctype, preferred, request) {
       var newHandler = Cc[
         "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
       ].createInstance(Ci.nsIContentHandler);
       newHandler.handleContent("application/x-message-display", this, request);
       return true;
     },
-    isPreferred(ctype, desired) {
+    isPreferred(ctype) {
       if (ctype == "message/rfc822") {
         return true;
       }
       return false;
     },
-    canHandleContent(ctype, preferred, desired) {
+    canHandleContent() {
       return false;
     },
     loadCookie: null,
@@ -429,7 +429,7 @@ export class MessengerContentHandler {
       // Check for protocols first then look at the file ending.
       // Protocols are able to contain file endings like '.ics'.
       if (/^https?:/i.test(uri) || /^feed:/i.test(uri)) {
-        getOrOpen3PaneWindow().then(win => {
+        getOrOpen3PaneWindow().then(() => {
           lazy.FeedUtils.subscribeToFeed(uri, null);
         });
       } else if (/^webcals?:\/\//i.test(uri)) {
@@ -443,18 +443,18 @@ export class MessengerContentHandler {
           )
         );
       } else if (/^mid:/i.test(uri)) {
-        getOrOpen3PaneWindow().then(win => {
+        getOrOpen3PaneWindow().then(() => {
           lazy.MailUtils.openMessageByMessageId(uri.slice(4));
         });
       } else if (/^(mailbox|imap|news)-message:\/\//.test(uri)) {
-        getOrOpen3PaneWindow().then(win => {
+        getOrOpen3PaneWindow().then(() => {
           const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
             Ci.nsIMessenger
           );
           lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
         });
       } else if (/^imap:/i.test(uri) || /^s?news:/i.test(uri)) {
-        getOrOpen3PaneWindow().then(win => {
+        getOrOpen3PaneWindow().then(() => {
           openURI(cmdLine.resolveURI(uri));
         });
       } else if (
@@ -752,7 +752,7 @@ export class MessengerProfileMigrator {
   QueryInterface = ChromeUtils.generateQI(["nsIProfileMigrator"]);
 
   /** @see {nsIProfileMigrator} */
-  migrate(startup, key, profileName) {
+  migrate() {
     isMigration = true;
     getOrOpen3PaneWindow().then(win => {
       win.toImport();

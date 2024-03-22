@@ -640,16 +640,16 @@ class TabTracker extends TabTrackerBase {
       onLoadWindow(window) {
         window.gTabmail.registerTabMonitor({
           monitorName: "extensionSession",
-          onTabTitleChanged(aTab) {},
-          onTabClosing(aTab) {},
+          onTabTitleChanged() {},
+          onTabClosing() {},
           onTabPersist(aTab) {
             return aTab._ext.extensionSession;
           },
           onTabRestored(aTab, aState) {
             aTab._ext.extensionSession = aState;
           },
-          onTabSwitched(aNewTab, aOldTab) {},
-          onTabOpened(aTab) {},
+          onTabSwitched() {},
+          onTabOpened() {},
         });
       },
     });
@@ -1725,7 +1725,7 @@ class TabManager extends TabManagerBase {
    * @returns {boolean}
    *        True if the extension has permissions for this tab.
    */
-  canAccessTab(nativeTab) {
+  canAccessTab() {
     return true;
   }
 
@@ -1837,7 +1837,7 @@ async function getNormalWindowReady(context, windowId) {
   // Wait for session restore.
   await new Promise(resolve => {
     if (!window.SessionStoreManager._restored) {
-      const obs = (observedWindow, topic, data) => {
+      const obs = observedWindow => {
         if (observedWindow != window) {
           return;
         }

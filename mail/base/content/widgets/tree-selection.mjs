@@ -197,7 +197,7 @@ export class TreeSelection {
     this._fireSelectionChanged();
   }
 
-  timedSelect(index, delay) {
+  timedSelect() {
     throw new Error("We do not implement timed selection.");
   }
 

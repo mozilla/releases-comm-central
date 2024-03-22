@@ -35,7 +35,7 @@ export class ConfigVerifier {
    * @param {nsIURI} url - The URL being processed.
    * @see {nsIUrlListener}
    */
-  OnStartRunningUrl(url) {
+  OnStartRunningUrl() {
     this._log.debug(`Starting to verify configuration;
       email as username=${
         this.config.incoming.username != this.config.identity.emailAddress

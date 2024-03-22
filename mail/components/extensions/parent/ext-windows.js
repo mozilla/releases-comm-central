@@ -215,7 +215,7 @@ this.windows = class extends ExtensionAPIPersistent {
 
     onCreated: this.windowEventRegistrar({
       windowEvent: "domwindowopened",
-      listener: async ({ context, fire, window }) => {
+      listener: async ({ fire, window }) => {
         // Return the window only after it has been fully initialized.
         if (window.webExtensionWindowCreatePending) {
           await new Promise(resolve => {
@@ -230,7 +230,7 @@ this.windows = class extends ExtensionAPIPersistent {
 
     onRemoved: this.windowEventRegistrar({
       windowEvent: "domwindowclosed",
-      listener: ({ context, fire, window }) => {
+      listener: ({ fire, window }) => {
         fire.async(windowTracker.getId(window));
       },
     }),
@@ -241,7 +241,7 @@ this.windows = class extends ExtensionAPIPersistent {
       let lastOnFocusChangedWindowId;
       const scheduledEvents = [];
 
-      const listener = async event => {
+      const listener = async () => {
         // Wait a tick to avoid firing a superfluous WINDOW_ID_NONE
         // event when switching focus between two Thunderbird windows.
         // Note: This is not working for Linux, where we still get the -1

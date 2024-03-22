@@ -122,7 +122,7 @@ const filterActionEncrypt = {
     }
   },
 
-  isValidForType(type, scope) {
+  isValidForType() {
     return gEnigmailFilters ? gEnigmailFilters.encrypt.isValidForType() : false;
   },
 

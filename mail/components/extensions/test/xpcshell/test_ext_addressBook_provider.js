@@ -10,7 +10,7 @@ add_task(async function () {
   const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       let id = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";
-      const dummy = async (node, searchString, query) => {
+      const dummy = async () => {
         await browser.test.assertTrue(
           false,
           "Should have removed this address book"
@@ -24,7 +24,7 @@ add_task(async function () {
       await browser.addressBooks.provider.onSearchRequest.removeListener(dummy);
       id = "00e1d9af-a846-4ef5-a6ac-15e8926bf6d3";
       await browser.addressBooks.provider.onSearchRequest.addListener(
-        async (node, searchString, query) => {
+        async (node, searchString) => {
           await browser.test.assertEq(
             id,
             node.id,
@@ -47,7 +47,7 @@ add_task(async function () {
         }
       );
       await browser.addressBooks.provider.onSearchRequest.addListener(
-        async (node, searchString, query) => {
+        async () => {
           await browser.test.assertTrue(
             false,
             "Should not have created a duplicate address book"

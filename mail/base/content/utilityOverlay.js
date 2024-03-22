@@ -346,13 +346,7 @@ function openWebLinkIn(url, where, params = {}) {
 // parameters including "where" and always open the link externally. We don't
 // want to open donation pages in a tab due to their complexity, and we don't
 // want to handle them inside Thunderbird.
-function openUILinkIn(
-  url,
-  where,
-  aAllowThirdPartyFixup,
-  aPostData,
-  aReferrerInfo
-) {
+function openUILinkIn(url) {
   openLinkExternally(url);
 }
 

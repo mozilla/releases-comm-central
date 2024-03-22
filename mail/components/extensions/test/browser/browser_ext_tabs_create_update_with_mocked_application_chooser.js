@@ -12,24 +12,24 @@ const { MockRegistrar } = ChromeUtils.importESModule(
 /** @implements {nsIExternalProtocolService} */
 const mockExternalProtocolService = {
   _loadedURLs: [],
-  externalProtocolHandlerExists(protocolScheme) {
+  externalProtocolHandlerExists() {
     // Signal that we have an external app for this protocol.
     return true;
   },
-  getApplicationDescription(scheme) {},
-  getProtocolHandlerInfo(protocolScheme) {
+  getApplicationDescription() {},
+  getProtocolHandlerInfo() {
     return {
       possibleApplicationHandlers: Cc["@mozilla.org/array;1"].createInstance(
         Ci.nsIMutableArray
       ),
     };
   },
-  getProtocolHandlerInfoFromOS(protocolScheme, found) {},
-  isExposedProtocol(protocolScheme) {},
-  loadURI(uri, windowContext) {
+  getProtocolHandlerInfoFromOS() {},
+  isExposedProtocol() {},
+  loadURI(uri) {
     this._loadedURLs.push(uri.spec);
   },
-  setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
+  setProtocolHandlerDefaults() {},
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
@@ -79,7 +79,7 @@ add_task(async function testUpdateTabs_with_application_chooser() {
       // Load a URL.
       await new Promise(resolve => {
         let urlSeen = false;
-        const updateListener = (tabId, changeInfo, tab) => {
+        const updateListener = (tabId, changeInfo) => {
           if (changeInfo.url == "https://www.example.com/") {
             urlSeen = true;
           }

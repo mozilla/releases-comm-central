@@ -44,7 +44,7 @@ var gSearchStopButton;
 var gSearchOnline = false;
 
 window.addEventListener("load", searchOnLoad);
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   onSearchStop();
   searchOnUnload();
 });
@@ -136,14 +136,14 @@ var nsSearchResultsController = {
     }
   },
 
-  onEvent(event) {},
+  onEvent() {},
 };
 
-function UpdateMailSearch(caller) {
+function UpdateMailSearch() {
   document.commandDispatcher.updateCommands("mail-search");
 }
 
-function SetAdvancedSearchStatusText(aNumHits) {}
+function SetAdvancedSearchStatusText() {}
 
 /**
  * Subclass the FolderDisplayWidget to deal with UI specific to the search

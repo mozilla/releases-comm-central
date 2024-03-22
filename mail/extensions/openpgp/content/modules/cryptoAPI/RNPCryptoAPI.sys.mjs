@@ -73,7 +73,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @returns {string} result.errorMsg - Error message, if exitCode != 0.
    * @returns {string} result.keyData - key data in base64.
    */
-  async getMinimalPubKey(fpr, email, subkeyDates) {
+  async getMinimalPubKey() {
     throw new Error("Not implemented");
   }
 
@@ -108,7 +108,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @returns {string} result.errorMsg - Error message, if exitCode != 0.
    * @returns {string} result.keyData - key data in base64
    */
-  async extractSecretKey(keyId, minimalKey) {
+  async extractSecretKey() {
     throw new Error("extractSecretKey not implemented");
   }
 
@@ -117,7 +117,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @param {byte} byteData - The encrypted data.
    * @returns {?string} the name of the attached file, or null.
    */
-  async getFileName(byteData) {
+  async getFileName() {
     throw new Error("getFileName not implemented");
   }
 
@@ -127,7 +127,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @param {Path} sigPath - The signature to verify.
    * @returns {Promise<string>} - A message from the verification.
    */
-  async verifyAttachment(filePath, sigPath) {
+  async verifyAttachment() {
     throw new Error("verifyAttachment not implemented");
   }
 

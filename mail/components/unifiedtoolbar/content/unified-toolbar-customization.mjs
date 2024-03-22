@@ -67,7 +67,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
         passive: false,
       }
     );
-    form.addEventListener("reset", event => {
+    form.addEventListener("reset", () => {
       this.#reset();
     });
     template

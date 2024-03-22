@@ -275,7 +275,7 @@ add_task(async function testDeletionWhileScrolling() {
     setNoScrollExpectation() {
       this.direction = 0;
     },
-    handleEvent(event) {
+    handleEvent() {
       if (this.direction === 0) {
         Assert.report(true, undefined, undefined, "unexpected scroll event");
         return;

@@ -87,7 +87,7 @@ var contentController = {
     }
     cmd.doCommand();
   },
-  onEvent(event) {},
+  onEvent() {},
 };
 
 /**
@@ -136,14 +136,7 @@ class nsBrowserAccess {
     return newTab.browser;
   }
 
-  createContentWindow(
-    aURI,
-    aOpenWindowInfo,
-    aWhere,
-    aFlags,
-    aTriggeringPrincipal,
-    aCsp
-  ) {
+  createContentWindow() {
     throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
@@ -161,23 +154,15 @@ class nsBrowserAccess {
     );
   }
 
-  openURI(aURI, aOpenWindowInfo, aWhere, aFlags, aTriggeringPrincipal, aCsp) {
+  openURI() {
     throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
-  openURIInFrame(aURI, aParams, aWhere, aFlags, aName) {
+  openURIInFrame() {
     throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
-  getContentWindowOrOpenURI(
-    aURI,
-    aOpenWindowInfo,
-    aWhere,
-    aFlags,
-    aTriggeringPrincipal,
-    aCsp,
-    aSkipLoad
-  ) {
+  getContentWindowOrOpenURI() {
     throw Components.Exception("Not implemented", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
@@ -317,7 +302,7 @@ var gBrowser = {
 
     document.title = docTitle;
   },
-  getTabForBrowser(browser) {
+  getTabForBrowser() {
     return null;
   },
 };
@@ -341,7 +326,7 @@ var gBrowserInit = {
       }
     };
 
-    window.onclose = event => {
+    window.onclose = () => {
       const { permitUnload } = gBrowser.selectedBrowser.permitUnload();
       return permitUnload;
     };
@@ -404,15 +389,15 @@ var gBrowserInit = {
 var XULBrowserWindow = {
   // Used in mailWindows to show the link in the status bar, but popup windows
   // do not have one. Do nothing here.
-  setOverLink(url, anchorElt) {},
+  setOverLink() {},
 
   // Called before links are navigated to to allow us to retarget them if needed.
-  onBeforeLinkTraversal(originalTarget, linkURI, linkNode, isAppTab) {
+  onBeforeLinkTraversal(originalTarget) {
     return originalTarget;
   },
 
   // Called by BrowserParent::RecvShowTooltip.
-  showTooltip(xDevPix, yDevPix, tooltip, direction, browser) {
+  showTooltip(xDevPix, yDevPix, tooltip, direction) {
     if (
       Cc["@mozilla.org/widget/dragservice;1"]
         .getService(Ci.nsIDragService)

@@ -563,7 +563,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       item.setAttribute("disabled", "true");
       menuItems.push(item);
     }
-    window.addEventListener("contextmenu", event => {
+    window.addEventListener("contextmenu", () => {
       if (document.getElementById("datalist-menuseparator")) {
         return;
       }
@@ -580,7 +580,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
 function createMenuItem(label) {
   var menuitem = document.createXULElement("menuitem");
   menuitem.setAttribute("label", label);
-  menuitem.addEventListener("click", event => {
+  menuitem.addEventListener("click", () => {
     gDialog.hrefInput.value = label;
     ChangeLinkLocation();
   });

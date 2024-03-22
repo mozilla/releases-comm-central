@@ -25,7 +25,7 @@ async function openBrowserRequestWindow() {
         cancelled() {
           onCancelled();
         },
-        loaded(window, webProgress) {
+        loaded(window) {
           resolve(window);
         },
       }

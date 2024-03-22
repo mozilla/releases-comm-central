@@ -233,7 +233,7 @@ FolderDisplayWidget.prototype = {
    *  to make us unresponsive and accordingly make it very hard for the user to
    *  change tabs.
    */
-  onFolderLoading(aFolderLoading) {},
+  onFolderLoading() {},
 
   /**
    * The view wrapper tells us when a search is active, and we mark the tab as
@@ -242,7 +242,7 @@ FolderDisplayWidget.prototype = {
    *  searches, mail views, plus the more obvious quick search are all based off
    *  of searches and we will receive a notification for them.
    */
-  onSearching(aIsSearching) {},
+  onSearching() {},
 
   /**
    * Things we do on creating a view:
@@ -278,7 +278,7 @@ FolderDisplayWidget.prototype = {
    * If our view is being destroyed and it is coming back, we want to save the
    *  current selection so we can restore it when the view comes back.
    */
-  onDestroyingView(aFolderIsComingBack) {
+  onDestroyingView() {
     gDBView = null; // eslint-disable-line no-global-assign
 
     // if we have no view, no messages could be loaded.
@@ -297,7 +297,7 @@ FolderDisplayWidget.prototype = {
    *  The column states will be set to default values in onDisplayingFolder in
    *  that case.
    */
-  onLoadingFolder(aDbFolderInfo) {},
+  onLoadingFolder() {},
 
   /**
    * We are entering the folder for display:
@@ -493,7 +493,7 @@ FolderDisplayWidget.prototype = {
    *     subject.
    * @param aKeywords The keywords, which roughly translates to message tags.
    */
-  displayMessageChanged(aFolder, aSubject, aKeywords) {},
+  displayMessageChanged() {},
 
   /**
    * This gets called as a hint that the currently selected message is junk and
@@ -590,7 +590,7 @@ FolderDisplayWidget.prototype = {
    *  This function hides some of the XPCOM-odditities of the getCommandStatus
    *  call.
    */
-  getCommandStatus(aCommandType, aEnabledObj, aCheckStatusObj) {
+  getCommandStatus(aCommandType) {
     // no view means not enabled
     if (!this.view.dbView) {
       return false;

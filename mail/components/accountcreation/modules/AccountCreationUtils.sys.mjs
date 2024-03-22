@@ -140,7 +140,7 @@ NotReached.prototype.constructor = NotReached;
  */
 function Abortable() {}
 Abortable.prototype = {
-  cancel(e) {},
+  cancel() {},
 };
 
 function CancelledException(msg) {
@@ -443,7 +443,7 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
   ParallelAbortable.call(this); // call super constructor
   this._successfulCall = null;
 
-  this.addOneFinishedObserver(finishedCall => {
+  this.addOneFinishedObserver(() => {
     for (const call of this._calls) {
       if (!call.finished) {
         if (this._successfulCall) {

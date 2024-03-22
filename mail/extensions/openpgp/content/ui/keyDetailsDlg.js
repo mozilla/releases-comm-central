@@ -831,7 +831,7 @@ SigListView.prototype = {
     return "sigList" in s;
   },
 
-  isSeparator(row) {
+  isSeparator() {
     return false;
   },
 
@@ -844,40 +844,40 @@ SigListView.prototype = {
     return "sigList" in s ? 0 : 1;
   },
 
-  cycleHeader(col, elem) {},
+  cycleHeader() {},
 
-  getImageSrc(row, col) {
+  getImageSrc() {
     return null;
   },
 
-  getRowProperties(row, props) {},
+  getRowProperties() {},
 
-  getCellProperties(row, col) {
+  getCellProperties() {
     return "";
   },
 
-  canDrop(row, orientation, data) {
+  canDrop() {
     return false;
   },
 
-  getColumnProperties(colid, col, props) {},
+  getColumnProperties() {},
 
-  isContainerEmpty(row) {
+  isContainerEmpty() {
     return false;
   },
 
-  getParentIndex(idx) {
+  getParentIndex() {
     return -1;
   },
 
-  getProgressMode(row, col) {},
+  getProgressMode() {},
 
   isContainerOpen(row) {
     const s = this.getSigAtIndex(row);
     return s.expanded;
   },
 
-  isSelectable(row, col) {
+  isSelectable() {
     return true;
   },
 
@@ -1013,11 +1013,11 @@ SubkeyListView.prototype = {
     this.treebox = treebox;
   },
 
-  isContainer(row) {
+  isContainer() {
     return false;
   },
 
-  isSeparator(row) {
+  isSeparator() {
     return false;
   },
 
@@ -1025,50 +1025,50 @@ SubkeyListView.prototype = {
     return false;
   },
 
-  getLevel(row) {
+  getLevel() {
     return 0;
   },
 
-  cycleHeader(col, elem) {},
+  cycleHeader() {},
 
-  getImageSrc(row, col) {
+  getImageSrc() {
     return null;
   },
 
-  getRowProperties(row, props) {},
+  getRowProperties() {},
 
-  getCellProperties(row, col) {
+  getCellProperties() {
     return "";
   },
 
-  canDrop(row, orientation, data) {
+  canDrop() {
     return false;
   },
 
-  getColumnProperties(colid, col, props) {},
+  getColumnProperties() {},
 
-  isContainerEmpty(row) {
+  isContainerEmpty() {
     return false;
   },
 
-  getParentIndex(idx) {
+  getParentIndex() {
     return -1;
   },
 
-  getProgressMode(row, col) {},
+  getProgressMode() {},
 
-  isContainerOpen(row) {
+  isContainerOpen() {
     return false;
   },
 
-  isSelectable(row, col) {
+  isSelectable() {
     return true;
   },
 
-  toggleOpenState(row) {},
+  toggleOpenState() {},
 };
 
-function sigHandleDblClick(event) {}
+function sigHandleDblClick() {}
 
 document.addEventListener("dialogaccept", async function (event) {
   // Prevent the closing of the dialog to wait until all the SQLite operations

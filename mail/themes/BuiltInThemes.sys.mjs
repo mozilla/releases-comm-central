@@ -64,7 +64,7 @@ class _BuiltInThemes {
    *   the user has the ability to use it after its expiry date.
    *   Or it would - this is just a shim not to break assumptions...
    */
-  isRetainedExpiredTheme(id) {
+  isRetainedExpiredTheme() {
     return false;
   }
 

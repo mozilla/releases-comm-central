@@ -27,7 +27,7 @@ add_task(async function test_help_menu() {
 });
 
 add_task(async function test_safemode_from_about_support() {
-  await withNewTab({ url: "about:support" }, browser => {
+  await withNewTab({ url: "about:support" }, () => {
     const button = content.document.getElementById(
       "restart-in-safe-mode-button"
     );
@@ -40,7 +40,7 @@ add_task(async function test_safemode_from_about_support() {
 });
 
 add_task(async function test_safemode_from_about_profiles() {
-  await withNewTab({ url: "about:profiles" }, browser => {
+  await withNewTab({ url: "about:profiles" }, () => {
     const button = content.document.getElementById(
       "restart-in-safe-mode-button"
     );

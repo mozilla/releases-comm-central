@@ -6,7 +6,7 @@
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 /* import-globals-from ./extensionControlled.js */
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gConnectionsDialog.checkForSystemProxy();
 });
 

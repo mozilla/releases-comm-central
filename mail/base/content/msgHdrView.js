@@ -216,7 +216,7 @@ class FolderDBListener {
   }
 
   /** @implements {nsIDBChangeListener} */
-  onHdrFlagsChanged(hdrChanged, oldFlags, newFlags, instigator) {
+  onHdrFlagsChanged(hdrChanged, oldFlags, newFlags) {
     // Bail out if the changed message isn't the one currently displayed.
     if (hdrChanged != gMessage) {
       return;
@@ -230,13 +230,13 @@ class FolderDBListener {
       updateStarButton();
     }
   }
-  onHdrDeleted(hdrChanged, parentKey, flags, instigator) {}
-  onHdrAdded(hdrChanged, parentKey, flags, instigator) {}
-  onParentChanged(keyChanged, oldParent, newParent, instigator) {}
-  onAnnouncerGoingAway(instigator) {}
-  onReadChanged(instigator) {}
-  onJunkScoreChanged(instigator) {}
-  onHdrPropertyChanged(hdrToChange, property, preChange, status, instigator) {
+  onHdrDeleted() {}
+  onHdrAdded() {}
+  onParentChanged() {}
+  onAnnouncerGoingAway() {}
+  onReadChanged() {}
+  onJunkScoreChanged() {}
+  onHdrPropertyChanged(hdrToChange, property, preChange) {
     // Not interested before a change, or if the message isn't the one displayed,
     // or an .eml file from disk or an attachment.
     if (preChange || gMessage != hdrToChange) {
@@ -251,7 +251,7 @@ class FolderDBListener {
         break;
     }
   }
-  onEvent(db, event) {}
+  onEvent() {}
 }
 
 /**
@@ -533,7 +533,7 @@ var messageProgressListener = {
    * @param {nsresult} status
    * @see {nsIWebProgressListener}
    */
-  onStateChange(webProgress, request, stateFlags, status) {
+  onStateChange(webProgress, request, stateFlags) {
     if (
       !(request instanceof Ci.nsIMailChannel) ||
       !(stateFlags & Ci.nsIWebProgressListener.STATE_START)
@@ -578,7 +578,7 @@ var messageProgressListener = {
    * @param {nsIMailChannel} mailChannel
    * @see {nsIMailProgressListener}
    */
-  onBodyComplete(mailChannel) {
+  onBodyComplete() {
     autoMarkAsRead();
   },
 
@@ -970,7 +970,7 @@ var messageProgressListener = {
           }
         }
 
-        img.addEventListener("load", function (event) {
+        img.addEventListener("load", function () {
           if (this.clientWidth > this.parentNode.clientWidth) {
             img.setAttribute("overflowing", "true");
             img.setAttribute("shrinktofit", "true");
@@ -1678,7 +1678,7 @@ function onShowSaveAttachmentMenuMultiple() {
  *
  * @param event  the event object
  */
-function attachmentItemCommand(event) {
+function attachmentItemCommand() {
   HandleSelectedAttachments("open");
 }
 
@@ -1730,7 +1730,7 @@ var AttachmentListController = {
     }
   },
 
-  onEvent(event) {},
+  onEvent() {},
 };
 
 var AttachmentMenuController = {
@@ -3799,7 +3799,7 @@ var gMessageNotificationBar = {
           label: this.stringBundle.getString("junkBarInfoButton"),
           accessKey: this.stringBundle.getString("junkBarInfoButtonKey"),
           popup: null,
-          callback(aNotification, aButton) {
+          callback() {
             // TODO: This doesn't work in a message window.
             top.openContentTab(
               "https://support.mozilla.org/kb/thunderbird-and-junk-spam-messages"
@@ -3811,7 +3811,7 @@ var gMessageNotificationBar = {
           label: this.stringBundle.getString("junkBarButton"),
           accessKey: this.stringBundle.getString("junkBarButtonKey"),
           popup: null,
-          callback(aNotification, aButton) {
+          callback() {
             commandController.doCommand("cmd_markAsNotJunk");
             // Return true (=don't close) since changing junk status will fire a
             // JunkStatusChanged notification which will make the junk bar go away
@@ -3928,7 +3928,7 @@ var gMessageNotificationBar = {
         label: buttonLabel,
         accessKey: buttonAccesskey,
         popup: "phishingOptions",
-        callback(aNotification, aButton) {},
+        callback() {},
       },
     ];
 
@@ -3994,7 +3994,7 @@ var gMessageNotificationBar = {
         label: this.stringBundle.getString("mdnBarSendReqButton"),
         accessKey: this.stringBundle.getString("mdnBarSendReqButtonKey"),
         popup: null,
-        callback(aNotification, aButton) {
+        callback() {
           SendMDNResponse();
           return false; // close notification
         },
@@ -4003,7 +4003,7 @@ var gMessageNotificationBar = {
         label: this.stringBundle.getString("mdnBarIgnoreButton"),
         accessKey: this.stringBundle.getString("mdnBarIgnoreButtonKey"),
         popup: null,
-        callback(aNotification, aButton) {
+        callback() {
           IgnoreMDNResponse();
           return false; // close notification
         },
@@ -4033,7 +4033,7 @@ var gMessageNotificationBar = {
           label: this.stringBundle.getString("draftMessageButton"),
           accessKey: this.stringBundle.getString("draftMessageButtonKey"),
           popup: null,
-          callback(aNotification, aButton) {
+          callback() {
             MsgComposeDraftMessage();
             return true; // keep notification open
           },

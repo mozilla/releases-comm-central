@@ -149,7 +149,7 @@ add_task(async function test_compose_action_status_after_save() {
     },
   });
 
-  extension.onMessage("checkStatus", async windowId => {
+  extension.onMessage("checkStatus", async () => {
     const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
     const button = composeWindow.document.querySelector(
       "[id$=_-composeAction-toolbarbutton]"

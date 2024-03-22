@@ -93,7 +93,7 @@ add_task(async function test_accounts_MV3_event_pages() {
       type: "local",
       identity: "user@invalidLocal",
       expectedUpdate: false,
-      expectedName: accountKey => "Local Folders",
+      expectedName: () => "Local Folders",
       expectedType: "none",
       updatedName: "Test4",
     },

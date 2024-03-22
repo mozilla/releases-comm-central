@@ -710,7 +710,7 @@ async function enigmailCopyToClipbrd() {
         Services.prompt.alert(window, null, value);
       });
     })
-    .catch(err => {
+    .catch(() => {
       l10n.formatValue("copy-to-clipbrd-failed").then(value => {
         Services.prompt.alert(window, null, value);
       });
@@ -997,15 +997,15 @@ var gKeyListView = {
   rowCount: 0,
   selection: null,
 
-  canDrop(index, orientation, dataTransfer) {
+  canDrop() {
     return false;
   },
 
-  cycleCell(row, col) {},
-  cycleHeader(col) {},
-  drop(row, orientation, dataTransfer) {},
+  cycleCell() {},
+  cycleHeader() {},
+  drop() {},
 
-  getCellProperties(row, col) {
+  getCellProperties(row) {
     const r = this.getFilteredRow(row);
     if (!r) {
       return "";
@@ -1102,14 +1102,14 @@ var gKeyListView = {
 
     return "";
   },
-  getCellValue(row, col) {
+  getCellValue() {
     return "";
   },
-  getColumnProperties(col) {
+  getColumnProperties() {
     return "";
   },
 
-  getImageSrc(row, col) {
+  getImageSrc(row) {
     const r = this.getFilteredRow(row);
     if (!r) {
       return null;
@@ -1138,15 +1138,15 @@ var gKeyListView = {
     return 0;
   },
 
-  getParentIndex(idx) {
+  getParentIndex() {
     return -1;
   },
-  getProgressMode(row, col) {},
+  getProgressMode() {},
 
-  getRowProperties(row) {
+  getRowProperties() {
     return "";
   },
-  hasNextSibling(rowIndex, afterIndex) {
+  hasNextSibling() {
     return false;
   },
   isContainer(row) {
@@ -1175,21 +1175,21 @@ var gKeyListView = {
   isContainerOpen(row) {
     return this.getFilteredRow(row).isOpen;
   },
-  isEditable(row, col) {
+  isEditable() {
     return false;
   },
-  isSelectable(row, col) {
+  isSelectable() {
     return true;
   },
-  isSeparator(index) {
+  isSeparator() {
     return false;
   },
   isSorted() {
     return false;
   },
-  performAction(action) {},
-  performActionOnCell(action, row, col) {},
-  performActionOnRow(action, row) {},
+  performAction() {},
+  performActionOnCell() {},
+  performActionOnRow() {},
   selectionChanged() {},
   // void setCellText(in long row, in nsITreeColumn col, in AString value);
   // void setCellValue(in long row, in nsITreeColumn col, in AString value);

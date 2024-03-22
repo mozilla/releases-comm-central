@@ -78,8 +78,8 @@ var mailTabType = {
     tab.mode._nextId++;
   },
 
-  closeTab(tab) {},
-  saveTabState(tab) {},
+  closeTab() {},
+  saveTabState() {},
 
   modes: {
     mail3PaneTab: {
@@ -317,7 +317,7 @@ var mailTabType = {
         mailTabType._cloneTemplate(
           "mailMessageTabTemplate",
           tab,
-          win => {
+          () => {
             // Make tabmail give the message pane focus when this tab becomes
             // the active tab.
             tab.lastActiveElement = tab.browser;
@@ -365,7 +365,7 @@ var mailTabType = {
       restoreTab(tabmail, persistedState) {
         tabmail.openTab("mailMessageTab", persistedState);
       },
-      showTab(tab) {},
+      showTab() {},
       supportsCommand(command, tab) {
         return tab.chromeBrowser?.contentWindow.commandController?.supportsCommand(
           command

@@ -351,7 +351,7 @@ add_task(async function test_summary_when_multiple_identities() {
   assert_summary_contains_N_elts(".item-header > .subject", 2);
 });
 
-function extract_first_address(thread) {
+function extract_first_address() {
   const addresses = MailServices.headerParser.parseEncodedHeader(
     thread1.getMsgHdr(0).mime2DecodedAuthor
   );

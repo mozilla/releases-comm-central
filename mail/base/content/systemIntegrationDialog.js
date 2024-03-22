@@ -9,7 +9,7 @@ var { SearchIntegration } = ChromeUtils.importESModule(
   "resource:///modules/SearchIntegration.sys.mjs"
 );
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   gSystemIntegrationDialog.onLoad();
 });
 

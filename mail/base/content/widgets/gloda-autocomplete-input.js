@@ -98,7 +98,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
 
       // @implements {nsIObserver}
       this.textObserver = {
-        observe: (subject, topic, data) => {
+        observe: (subject, topic) => {
           try {
             // Some autocomplete controllers throw NS_ERROR_NOT_IMPLEMENTED.
             subject.popupElement;

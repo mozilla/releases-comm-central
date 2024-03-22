@@ -127,7 +127,7 @@ add_task(async function testSecretKeys() {
 
   Assert.ok(importResult.exitCode != 0, "import should have failed");
 
-  const getGoodPassword = function (win, keyId, resultFlags) {
+  const getGoodPassword = function () {
     return backupPassword;
   };
 
@@ -155,7 +155,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   const carolSec = await IOUtils.readUTF8(carolFile.path);
 
   // Carol's secret key is protected with password "x".
-  const getCarolPassword = function (win, keyId, resultFlags) {
+  const getCarolPassword = function () {
     return "x";
   };
 
@@ -406,7 +406,7 @@ add_task(async function testImportAndBackupUntweakedECCKey() {
   const untweakedFile = do_get_file(`${keyDir}/untweaked-secret.asc`);
   const untweakedSecKey = await IOUtils.readUTF8(untweakedFile.path);
 
-  const getGoodPasswordForTweaked = function (win, keyId, resultFlags) {
+  const getGoodPasswordForTweaked = function () {
     return "pass112233";
   };
 

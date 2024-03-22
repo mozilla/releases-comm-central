@@ -406,11 +406,11 @@ class MultiMessageSummary {
   }
 
   // These are listeners for the gloda collections.
-  onItemsAdded(aItems) {}
+  onItemsAdded() {}
   onItemsModified(aItems) {
     this._processItems(aItems);
   }
-  onItemsRemoved(aItems) {}
+  onItemsRemoved() {}
 
   /**
    * Given a set of items from a gloda collection, process them and update
@@ -466,7 +466,7 @@ class MultiMessageSummary {
     }
   }
 
-  onQueryCompleted(aCollection) {
+  onQueryCompleted() {
     // If we need something that's just available from GlodaMessages, this is
     // where we'll get it initially.
     if (this._listener) {
@@ -512,7 +512,7 @@ class ThreadSummarizer {
    * @param aMessages A LimitIterator of the messages to summarize.
    * @returns An array of the messages actually summarized.
    */
-  summarize(aMessages, aDBView) {
+  summarize(aMessages) {
     const messageList = document.getElementById("messageList");
 
     // Remove all ignored messages from summarization.

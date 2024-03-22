@@ -235,7 +235,7 @@ var previewObserver = {
     Services.obs.addObserver(this, "conversation-loaded");
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic != "conversation-loaded" || aSubject != this.browser) {
       return;
     }

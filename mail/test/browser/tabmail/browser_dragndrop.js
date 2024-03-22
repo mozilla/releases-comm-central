@@ -467,7 +467,7 @@ add_task(async function test_tab_recentlyClosed() {
   teardownTest();
 });
 
-function teardownTest(test) {
+function teardownTest() {
   // Some test cases open new windows, thus we need to ensure all
   // opened windows get closed.
   for (const win of Services.wm.getEnumerator("mail:3pane")) {

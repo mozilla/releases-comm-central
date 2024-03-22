@@ -99,7 +99,7 @@ function EditorCleanup() {
 var DocumentReloadListener = {
   NotifyDocumentWillBeDestroyed() {},
 
-  NotifyDocumentStateChanged(isNowDirty) {
+  NotifyDocumentStateChanged() {
     var editor = GetCurrentEditor();
     try {
       // unregister the listener to prevent multiple callbacks
@@ -115,7 +115,7 @@ var DocumentReloadListener = {
 
 // implements nsIObserver
 var gEditorDocumentObserver = {
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // Should we allow this even if NOT the focused editor?
     var commandManager = GetCurrentCommandManager();
     if (commandManager != aSubject) {

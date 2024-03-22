@@ -13,10 +13,10 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   overlayOnLoad();
 });
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   onUnload();
 });
 

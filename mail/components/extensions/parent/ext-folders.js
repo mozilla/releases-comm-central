@@ -125,7 +125,7 @@ var folderTracker = new (class extends EventEmitter {
     }
   }
 
-  onFolderBoolPropertyChanged(folder, property, oldValue, newValue) {
+  onFolderBoolPropertyChanged(folder, property) {
     if (!(folder instanceof Ci.nsIMsgFolder)) {
       return;
     }
@@ -661,10 +661,10 @@ this.folders = class extends ExtensionAPIPersistent {
           const specialUseFlags =
             specialUse && Array.isArray(specialUse) && specialUse.length > 0
               ? [...specialUseMap.entries()]
-                  .filter(([flag, specialUseName]) =>
+                  .filter(([, specialUseName]) =>
                     specialUse.includes(specialUseName)
                   )
-                  .map(([flag, specialUseName]) => flag)
+                  .map(([flag]) => flag)
                   .reduce((rv, f) => rv | f)
               : null;
 

@@ -45,10 +45,10 @@ let signonsTree;
  */
 let reloadDisplay = true;
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   Startup();
 });
-window.addEventListener("unload", event => {
+window.addEventListener("unload", () => {
   Shutdown();
 });
 
@@ -150,7 +150,7 @@ const signonsTreeView = {
   selection: null,
 
   rowCount: 0,
-  setTree(tree) {},
+  setTree() {},
   getImageSrc(row, column) {
     if (column.element.getAttribute("id") !== "providerCol") {
       return "";
@@ -160,7 +160,7 @@ const signonsTreeView = {
 
     return PlacesUtils.urlWithSizeRef(window, "page-icon:" + signon.origin, 16);
   },
-  getCellValue(row, column) {},
+  getCellValue() {},
   getCellText(row, column) {
     let time;
     const signon = GetVisibleLogins()[row];
@@ -194,20 +194,20 @@ const signonsTreeView = {
     }
     return false;
   },
-  isSeparator(index) {
+  isSeparator() {
     return false;
   },
   isSorted() {
     return false;
   },
-  isContainer(index) {
+  isContainer() {
     return false;
   },
-  cycleHeader(column) {},
-  getRowProperties(row) {
+  cycleHeader() {},
+  getRowProperties() {
     return "";
   },
-  getColumnProperties(column) {
+  getColumnProperties() {
     return "";
   },
   getCellProperties(row, column) {
@@ -622,7 +622,7 @@ function SignonMatchesFilter(aSignon, aFilterValue) {
   return false;
 }
 
-function _filterPasswords(aFilterValue, view) {
+function _filterPasswords(aFilterValue) {
   aFilterValue = aFilterValue.toLowerCase();
   return signons.filter(s => SignonMatchesFilter(s, aFilterValue));
 }

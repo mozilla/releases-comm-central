@@ -185,7 +185,7 @@ async function runTest(testType) {
     files: {
       "background.js": function () {
         if (browser.runtime.getManifest().name == "delayed") {
-          function handleUpdateAvailable(details) {
+          function handleUpdateAvailable() {
             browser.test.sendMessage("update postponed by 1");
           }
           browser.runtime.onUpdateAvailable.addListener(handleUpdateAvailable);

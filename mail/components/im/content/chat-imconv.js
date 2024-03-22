@@ -86,7 +86,7 @@
 
       this.directedUnreadCount = 0;
 
-      new MutationObserver(mutations => {
+      new MutationObserver(() => {
         if (!this.convView || !this.convView.loaded) {
           return;
         }
@@ -100,7 +100,7 @@
       // @implements {nsIObserver}
       this.observer = {
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        observe: function (subject, topic, data) {
+        observe: function (subject, topic) {
           if (
             topic == "target-prpl-conversation-changed" ||
             topic == "unread-message-count-changed" ||

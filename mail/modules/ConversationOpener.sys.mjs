@@ -34,9 +34,9 @@ export class ConversationOpener {
       console.error(e);
     }
   }
-  onItemsAdded(items) {}
-  onItemsModified(items) {}
-  onItemsRemoved(items) {}
+  onItemsAdded() {}
+  onItemsModified() {}
+  onItemsRemoved() {}
   onQueryCompleted(collection) {
     try {
       if (!collection.items.length) {

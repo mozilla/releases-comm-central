@@ -10,7 +10,7 @@ var gFindInst; // nsIWebBrowserFind that we're going to use
 var gFindService; // Global service which remembers find params
 var gEditor; // the editor we're using
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   onLoad();
 });
 

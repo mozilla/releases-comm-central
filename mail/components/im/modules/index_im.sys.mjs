@@ -539,7 +539,7 @@ var GlodaIMIndexer = {
     this._knownConversations[convId].scheduledIndex = null;
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (
       aTopic == "new-ui-conversation" ||
       aTopic == "conversation-update-type"
@@ -615,7 +615,7 @@ var GlodaIMIndexer = {
     );
     selectStatement.bindByIndex(0, aPath);
     let id;
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       selectStatement.executeAsync({
         handleResult: aResultSet => {
           const row = aResultSet.getNextRow();
@@ -776,7 +776,7 @@ var GlodaIMIndexer = {
     yield GlodaConstants.kWorkDone;
   },
 
-  *_worker_logsFolderSweep(aJob) {
+  *_worker_logsFolderSweep() {
     const dir = new FileUtils.File(
       PathUtils.join(PathUtils.profileDir, "logs")
     );
