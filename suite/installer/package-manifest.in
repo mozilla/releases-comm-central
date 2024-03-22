@@ -401,12 +401,7 @@ man/*
 @BINPATH@/crashreporter.app/
 #else
 @BINPATH@/crashreporter@BIN_SUFFIX@
-@RESPATH@/crashreporter.ini
-#ifdef XP_UNIX
-@RESPATH@/Throbber-small.gif
 #endif
-#endif
-@RESPATH@/crashreporter-override.ini
 #ifdef MOZ_CRASHREPORTER_INJECTOR
 @BINPATH@/breakpadinjector.dll
 #endif
