@@ -559,7 +559,7 @@ tr[is="thread-card"][data-properties~="hasUnread"] {
     }
 
     & .twisty::before {
-      overflow: show;
+      overflow: visible;
       content: var(--icon-dot-xs);
       fill: var(--color-green-50);
       stroke: var(--color-green-60);
@@ -575,7 +575,7 @@ tr[is="thread-card"][data-properties~="hasUnread"] {
   }
 
   & .twisty::before {
-    overflow: show;
+    overflow: visible;
     content: var(--icon-sparkle-star-xs);
     fill: var(--color-yellow-30);
     stroke: var(--color-amber-50);
