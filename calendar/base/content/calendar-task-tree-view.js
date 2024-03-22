@@ -7,10 +7,12 @@
 /* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from widgets/mouseoverPreviews.js */
 
-/* globals cal */
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * The tree view for a CalendarTaskTree.
+ *
+ * @implements {nsITreeView}
  */
 class CalendarTaskTreeView {
   /**
@@ -80,12 +82,12 @@ class CalendarTaskTreeView {
    * Removes an array of old items from the list, and adds an array of new items if
    * they match the currently applied filter.
    *
-   * @param {object[]} newItems - An array of new items to add.
-   * @param {object[]} oldItems - An array of old items to remove.
-   * @param {boolean} [doNotSort] - Whether to re-sort the list after modifying it.
-   * @param {boolean} [selectNew] - Whether to select the new tasks.
+   * @param {calIItemBase[]} newItems - An array of new items to add.
+   * @param {calIItemBase[]} oldItems - An array of old items to remove.
+   * @param {boolean} [doNotSort=false] - Whether to re-sort the list after modifying it.
+   * @param {boolean} [selectNew=false] - Whether to select the new tasks.
    */
-  modifyItems(newItems = [], oldItems = [], doNotSort, selectNew) {
+  modifyItems(newItems, oldItems, doNotSort = false, selectNew = false) {
     const selItem = this.tree.currentTask;
     let selIndex = this.tree.currentIndex;
     let firstHash = null;
@@ -93,16 +95,10 @@ class CalendarTaskTreeView {
 
     this.tree.beginUpdateBatch();
 
-    const idiff = new cal.item.ItemDiff();
-    idiff.load(oldItems);
-    idiff.difference(newItems);
-    idiff.complete();
-    const delItems = idiff.deletedItems;
-    const addItems = idiff.addedItems;
-    const modItems = idiff.modifiedItems;
+    const { deletedItems, addedItems, modifiedItems } = cal.item.interDiff(oldItems, newItems);
 
     // Find the indexes of the old items that need to be removed.
-    for (const item of delItems.mArray) {
+    for (const item of deletedItems) {
       if (item.hashId in this.tree.mHash2Index) {
         // The old item needs to be removed.
         remIndexes.push(this.tree.mHash2Index[item.hashId]);
@@ -111,7 +107,7 @@ class CalendarTaskTreeView {
     }
 
     // Modified items need to be updated.
-    for (const item of modItems.mArray) {
+    for (const item of modifiedItems) {
       if (item.hashId in this.tree.mHash2Index) {
         // Make sure we're using the new version of a modified item.
         this.tree.mTaskArray[this.tree.mHash2Index[item.hashId]] = item;
@@ -127,7 +123,7 @@ class CalendarTaskTreeView {
       });
 
     // Add the new items.
-    for (const item of addItems.mArray) {
+    for (const item of addedItems) {
       if (!(item.hashId in this.tree.mHash2Index)) {
         const index = this.tree.mTaskArray.length;
         this.tree.mTaskArray.push(item);
@@ -194,7 +190,7 @@ class CalendarTaskTreeView {
    * @param {Event} event - An event.
    * @param {object} [col] - A column object.
    * @param {object} [row] - A row object.
-   * @returns {object | false} The task object related to the event or false if none found.
+   * @returns {?calITodo} the task object related to the event, if any.
    */
   getItemFromEvent(event, col, row) {
     const { col: eventColumn, row: eventRow } = this.tree.getCellAt(event.clientX, event.clientY);
@@ -204,7 +200,7 @@ class CalendarTaskTreeView {
     if (row) {
       row.value = eventRow;
     }
-    return eventRow > -1 && this.tree.mTaskArray[eventRow];
+    return eventRow > -1 ? this.tree.mTaskArray[eventRow] : null;
   }
 
   // nsITreeView Methods and Properties
@@ -353,9 +349,10 @@ class CalendarTaskTreeView {
   }
 
   /**
-   * Called to link the task tree to the tree view.  A null argument un-sets/un-links the tree.
+   * Called to link the task tree to the tree view.
+   * A null argument un-sets/un-links the tree.
    *
-   * @param {object | null} tree
+   * @param {?XULTreeElement} tree
    */
   setTree(tree) {
     const hasOldTree = this.tree != null;
@@ -484,8 +481,8 @@ class CalendarTaskTreeView {
   /**
    * Format a datetime object for display.
    *
-   * @param {object} dateTime - From a todo object, not a JavaScript date.
-   * @returns {string} Formatted string version of the datetime ("" if invalid).
+   * @param {calIDateTime} dateTime - Datetime, from a calITodo object.
+   * @returns {string} a formatted string version of the datetime ("" if invalid).
    */
   _formatDateTime(dateTime) {
     return dateTime && dateTime.isValid

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { HashedArray } from "resource:///modules/calendar/calHashedArray.sys.mjs";
 import { iterate } from "resource:///modules/calendar/utils/calIteratorUtils.sys.mjs";
 import { data } from "resource:///modules/calendar/utils/calDataUtils.sys.mjs";
 import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs";
@@ -15,174 +14,39 @@ import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs
 // including calUtils.sys.mjs under the cal.item namespace.
 
 export var item = {
-  ItemDiff: (function () {
-    /**
-     * Given two sets of items, find out which items were added, changed or
-     * removed.
-     *
-     * The general flow is to first use load method to load the engine with
-     * the first set of items, then use difference to load the set of
-     * items to diff against. Afterwards, call the complete method to tell the
-     * engine that no more items are coming.
-     *
-     * You can then access the mAddedItems/mModifiedItems/mDeletedItems attributes to
-     * get the items that were changed during the process.
-     */
-    function ItemDiff() {
-      this.reset();
+  /**
+   * Calculcate difference between items.
+   *
+   * @param {calIItemBase[]} oldItems - Old items.
+   * @param {calIItemBase[]} newItems - New items.
+   * @returns {object} interdiff
+   * @returns {calIItemBase[]} interdiff.deletedItems
+   * @returns {calIItemBase[]} interdiff.addedItems
+   * @returns {calIItemBase[]} interdiff.modifiedItems
+   */
+  interDiff(oldItems, newItems) {
+    const addedItems = [];
+    const modifiedItems = [];
+
+    const initialItems = new Map(oldItems.map(item => [item.hashId, item]));
+    for (const item of newItems) {
+      if (initialItems.has(item.hashId)) {
+        modifiedItems.push(item);
+      } else {
+        addedItems.push(item);
+      }
+      initialItems.delete(item.hashId);
     }
-
-    ItemDiff.prototype = {
-      STATE_INITIAL: 1,
-      STATE_LOADING: 2,
-      STATE_DIFFERING: 4,
-      STATE_COMPLETED: 8,
-
-      state: 1,
-      mInitialItems: null,
-
-      mModifiedItems: null,
-      mModifiedOldItems: null,
-      mAddedItems: null,
-      mDeletedItems: null,
-
-      /**
-       * Expect the difference engine to be in the given state.
-       *
-       * @param aState    The state to be in
-       * @param aMethod   The method name expecting the state
-       */
-      _expectState(aState, aMethod) {
-        if ((this.state & aState) == 0) {
-          throw new Error(
-            "ItemDiff method " + aMethod + " called while in unexpected state " + this.state
-          );
-        }
-      },
-
-      /**
-       * Loads an array of items. This step cannot be executed
-       * after calling the difference methods.
-       *
-       * @param items     The array of items to load
-       */
-      load(items) {
-        this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
-
-        for (const calendarItem of items) {
-          this.mInitialItems[calendarItem.hashId] = calendarItem;
-        }
-
-        this.state = this.STATE_LOADING;
-      },
-
-      /**
-       * Calculate the difference for the array of items. This method should be
-       * called after all load methods and before the complete method.
-       *
-       * @param items     The array of items to calculate difference with
-       */
-      difference(items) {
-        this._expectState(
-          this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING,
-          "difference"
-        );
-
-        this.mModifiedOldItems.startBatch();
-        this.mModifiedItems.startBatch();
-        this.mAddedItems.startBatch();
-
-        for (const calendarItem of items) {
-          if (calendarItem.hashId in this.mInitialItems) {
-            const oldItem = this.mInitialItems[calendarItem.hashId];
-            this.mModifiedOldItems.addItem(oldItem);
-            this.mModifiedItems.addItem(calendarItem);
-          } else {
-            this.mAddedItems.addItem(calendarItem);
-          }
-          delete this.mInitialItems[calendarItem.hashId];
-        }
-
-        this.mModifiedOldItems.endBatch();
-        this.mModifiedItems.endBatch();
-        this.mAddedItems.endBatch();
-
-        this.state = this.STATE_DIFFERING;
-      },
-
-      /**
-       * Tell the engine that all load and difference calls have been made, this
-       * makes sure that all item states are correctly returned.
-       */
-      complete() {
-        this._expectState(
-          this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING,
-          "complete"
-        );
-
-        this.mDeletedItems.startBatch();
-
-        for (const hashId in this.mInitialItems) {
-          const calendarItem = this.mInitialItems[hashId];
-          this.mDeletedItems.addItem(calendarItem);
-        }
-
-        this.mDeletedItems.endBatch();
-        this.mInitialItems = {};
-
-        this.state = this.STATE_COMPLETED;
-      },
-
-      /** @returns a HashedArray containing the new version of the modified items */
-      get modifiedItems() {
-        this._expectState(this.STATE_COMPLETED, "get modifiedItems");
-        return this.mModifiedItems;
-      },
-
-      /** @returns a HashedArray containing the old version of the modified items */
-      get modifiedOldItems() {
-        this._expectState(this.STATE_COMPLETED, "get modifiedOldItems");
-        return this.mModifiedOldItems;
-      },
-
-      /** @returns a HashedArray containing added items */
-      get addedItems() {
-        this._expectState(this.STATE_COMPLETED, "get addedItems");
-        return this.mAddedItems;
-      },
-
-      /** @returns a HashedArray containing deleted items */
-      get deletedItems() {
-        this._expectState(this.STATE_COMPLETED, "get deletedItems");
-        return this.mDeletedItems;
-      },
-
-      /** @returns the number of loaded items */
-      get count() {
-        return Object.keys(this.mInitialItems).length;
-      },
-
-      /**
-       * Resets the difference engine to its initial state.
-       */
-      reset() {
-        this.mInitialItems = {};
-        this.mModifiedItems = new HashedArray();
-        this.mModifiedOldItems = new HashedArray();
-        this.mAddedItems = new HashedArray();
-        this.mDeletedItems = new HashedArray();
-        this.state = this.STATE_INITIAL;
-      },
-    };
-    return ItemDiff;
-  })(),
+    const deletedItems = [...initialItems.values()];
+    return { deletedItems, addedItems, modifiedItems };
+  },
 
   /**
    * Checks if an item is supported by a Calendar.
    *
-   * @param aCalendar the calendar
-   * @param aItem the item either a task or an event
-   * @returns true or false
+   * @param {calICalendar} aCalendar - The calendar to check.
+   * @param {calIItemBase} aItem - The item; either a task or an event.
+   * @returns {boolean} true if supported.
    */
   isItemSupported(aItem, aCalendar) {
     if (aItem.isTodo()) {
@@ -196,7 +60,7 @@ export var item = {
   /*
    * Checks whether a calendar supports events
    *
-   * @param aCalendar
+   * @param {calICalendar} aCalendar
    */
   isEventCalendar(aCalendar) {
     return aCalendar.getProperty("capabilities.events.supported") !== false;

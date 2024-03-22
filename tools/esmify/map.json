@@ -282,7 +282,6 @@
   "resource:///modules/calendar/Ical.jsm": "comm/calendar/base/modules/Ical.jsm",
   "resource:///modules/calendar/calCalendarDeactivator.jsm": "comm/calendar/base/modules/calCalendarDeactivator.jsm",
   "resource:///modules/calendar/calExtract.jsm": "comm/calendar/base/modules/calExtract.jsm",
-  "resource:///modules/calendar/calHashedArray.jsm": "comm/calendar/base/modules/calHashedArray.jsm",
   "resource:///modules/calendar/calRecurrenceUtils.jsm": "comm/calendar/base/modules/calRecurrenceUtils.jsm",
   "resource:///modules/calendar/calStorageHelpers.jsm": "comm/calendar/providers/storage/calStorageHelpers.jsm",
   "resource:///modules/calendar/calStorageUpgrade.jsm": "comm/calendar/providers/storage/calStorageUpgrade.jsm",

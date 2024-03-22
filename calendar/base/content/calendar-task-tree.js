@@ -463,7 +463,7 @@
      * Return the task object related to a given event.
      *
      * @param {Event} event - The event.
-     * @returns {object | false} The task object related to the event or false if none found.
+     * @returns {?calITodo} the task object related to the event, if any.
      */
     getTaskFromEvent(event) {
       return this.mTreeView.getItemFromEvent(event);
