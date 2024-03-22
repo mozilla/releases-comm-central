@@ -79,6 +79,7 @@ add_setup(async function () {
     "dateCol",
     "tagsCol",
     "totalCol",
+    "unreadCol",
   ];
   SENT_DEFAULTS = [
     "threadCol",
@@ -96,6 +97,7 @@ add_setup(async function () {
     "dateCol",
     "tagsCol",
     "totalCol",
+    "unreadCol",
   ];
   VIRTUAL_DEFAULTS = [
     "threadCol",
