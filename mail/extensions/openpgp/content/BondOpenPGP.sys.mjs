@@ -37,14 +37,14 @@ export var BondOpenPGP = {
     lazy.EnigmailKeyRing.init();
     lazy.EnigmailVerify.init();
 
-    const initDone = await lazy.RNP.init({});
+    const initDone = await lazy.RNP.init();
     if (!initDone) {
       const { error } = this.getRNPLibStatus();
       throw new Error(error);
     }
 
     if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
-      lazy.GPGME.init({});
+      lazy.GPGME.init();
     }
 
     // trigger service init

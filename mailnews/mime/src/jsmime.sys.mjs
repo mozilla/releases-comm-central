@@ -20,11 +20,11 @@ function bytesToString(buffer) {
 }
 
 // Our UTF-7 decoder.
-function UTF7TextDecoder(options = {}, manager) {
-  this.manager = manager;
-  this.collectInput = "";
-}
-UTF7TextDecoder.prototype = {
+class UTF7TextDecoder {
+  constructor(manager) {
+    this.manager = manager;
+    this.collectInput = "";
+  }
   // Since the constructor checked, this will only be called for UTF-7.
   decode(input, options = {}) {
     const more = "stream" in options ? options.stream : false;
@@ -37,8 +37,8 @@ UTF7TextDecoder.prototype = {
       return "";
     }
     return this.manager.utf7ToUnicode(this.collectInput);
-  },
-};
+  }
+}
 
 function MimeTextDecoder(charset, options) {
   const manager = Cc["@mozilla.org/charset-converter-manager;1"].createInstance(
@@ -47,7 +47,7 @@ function MimeTextDecoder(charset, options) {
   // The following will throw if the charset is unknown.
   const newCharset = manager.getCharsetAlias(charset);
   if (newCharset.toLowerCase() == "utf-7") {
-    return new UTF7TextDecoder(options, manager);
+    return new UTF7TextDecoder(manager);
   }
   return new TextDecoder(newCharset, options);
 }

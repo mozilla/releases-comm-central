@@ -29,9 +29,7 @@ export var GPGME = {
     }
   },
 
-  init(opts) {
-    opts = opts || {};
-
+  init() {
     if (!this.hasRan) {
       this.once();
     }

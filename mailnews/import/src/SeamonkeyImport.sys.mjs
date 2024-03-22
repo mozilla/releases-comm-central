@@ -183,6 +183,7 @@ SeamonkeyImportSettings.prototype = {
         return false;
       }
     }
+    // eslint-disable-next-line no-unused-vars
     loc = this.sourceProfileLocation;
     return true;
   },

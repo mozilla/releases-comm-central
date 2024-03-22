@@ -528,9 +528,7 @@ export var RNP = {
     return RNPLib.getRNPLibStatus();
   },
 
-  async init(opts) {
-    opts = opts || {};
-
+  async init() {
     if (!this.hasRan) {
       await this.once();
     }
