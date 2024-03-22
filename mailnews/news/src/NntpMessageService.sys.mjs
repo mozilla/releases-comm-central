@@ -25,13 +25,7 @@ class BaseMessageService {
   _logger = lazy.NntpUtils.logger;
 
   /** @see nsIMsgMessageService */
-  loadMessage(
-    messageURI,
-    displayConsumer,
-    msgWindow,
-    urlListener,
-    autodetectCharset
-  ) {
+  loadMessage(messageURI, displayConsumer, msgWindow, urlListener) {
     this._logger.debug("loadMessage", messageURI);
 
     const uri = this.getUrlForUri(messageURI, msgWindow);

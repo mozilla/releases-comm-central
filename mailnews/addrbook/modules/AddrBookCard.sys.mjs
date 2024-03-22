@@ -399,7 +399,7 @@ AddrBookCard.prototype = {
     }
     this._properties.set(name, "" + value);
   },
-  setPropertyAsAString(name, value) {
+  setPropertyAsAString() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   setPropertyAsAUTF8String(name, value) {
@@ -463,7 +463,7 @@ AddrBookCard.prototype = {
     }
     return "";
   },
-  copy(srcCard) {
+  copy() {
     throw Components.Exception(
       "nsIAbCard.copy() not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED

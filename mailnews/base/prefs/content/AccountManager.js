@@ -67,7 +67,7 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
         "chrome://messenger/skin/preferences/dialog.css",
         "chrome://messenger/skin/preferences/preferences.css",
       ],
-      resizeCallback: ({ title, frame }) => {
+      resizeCallback: ({ frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
 
         // Resize the dialog to fit the content with edited font size.
@@ -180,20 +180,20 @@ function onLoad() {
   setTimeout(selectServer, 0, selectedServer, selectPage);
 
   const contentFrame = document.getElementById("contentFrame");
-  contentFrame.addEventListener("load", event => {
+  contentFrame.addEventListener("load", () => {
     const inputElements = contentFrame.contentDocument.querySelectorAll(
       "checkbox, input, menulist, textarea, radiogroup, richlistbox"
     );
-    contentFrame.contentDocument.addEventListener("prefchange", event => {
+    contentFrame.contentDocument.addEventListener("prefchange", () => {
       onAccept(true);
     });
     for (const input of inputElements) {
       if (input.localName == "input" || input.localName == "textarea") {
-        input.addEventListener("change", event => {
+        input.addEventListener("change", () => {
           onAccept(true);
         });
       } else {
-        input.addEventListener("command", event => {
+        input.addEventListener("command", () => {
           onAccept(true);
         });
       }
@@ -1708,7 +1708,7 @@ var gAccountTree = {
         event.preventDefault();
       }
     });
-    mainTree.addEventListener("ordered", event => {
+    mainTree.addEventListener("ordered", () => {
       const accountKeyList = Array.from(mainTree.children, row => row.id);
       accountKeyList.pop(); // Remove SMTP.
       MailServices.accounts.reorderAccounts(accountKeyList);
@@ -1741,10 +1741,10 @@ var gAccountTree = {
     // it in the tree.
     this._build(server);
   },
-  onServerUnloaded(aServer) {
+  onServerUnloaded() {
     this._build();
   },
-  onServerChanged(aServer) {},
+  onServerChanged() {},
 
   _dataStore: Services.xulStore,
 

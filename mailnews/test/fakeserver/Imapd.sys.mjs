@@ -1025,7 +1025,7 @@ export class IMAP_RFC3501_handler {
 
   // PROTOCOL COMMANDS (ordered as in spec)
 
-  CAPABILITY(args) {
+  CAPABILITY() {
     var capa = "* CAPABILITY IMAP4rev1 " + this.kCapabilities.join(" ");
     if (this.kAuthSchemes.length > 0) {
       capa += " AUTH=" + this.kAuthSchemes.join(" AUTH=");
@@ -1033,10 +1033,10 @@ export class IMAP_RFC3501_handler {
     capa += "\0OK CAPABILITY completed";
     return capa;
   }
-  CLIENTID(args) {
+  CLIENTID() {
     return "OK Recognized a valid CLIENTID command, used for authentication methods";
   }
-  LOGOUT(args) {
+  LOGOUT() {
     this.closing = true;
     if (this._selectedMailbox) {
       this._daemon.synchronize(this._selectedMailbox, !this._readOnly);
@@ -1044,10 +1044,10 @@ export class IMAP_RFC3501_handler {
     this._state = IMAP_STATE_NOT_AUTHED;
     return "* BYE IMAP4rev1 Logging out\0OK LOGOUT completed";
   }
-  NOOP(args) {
+  NOOP() {
     return "OK NOOP completed";
   }
-  STARTTLS(args) {
+  STARTTLS() {
     // simulate annoying server that drops connection on STARTTLS
     if (this.dropOnStartTLS) {
       this.closing = true;
@@ -1372,24 +1372,24 @@ export class IMAP_RFC3501_handler {
     mailbox.addMessage(msg);
     return "OK APPEND complete";
   }
-  CHECK(args) {
+  CHECK() {
     this._daemon.synchronize(this._selectedMailbox, false);
     return "OK CHECK completed";
   }
-  CLOSE(args) {
+  CLOSE() {
     this._selectedMailbox.expunge();
     this._daemon.synchronize(this._selectedMailbox, !this._readOnly);
     this._selectedMailbox = null;
     this._state = IMAP_STATE_AUTHED;
     return "OK CLOSE completed";
   }
-  EXPUNGE(args) {
+  EXPUNGE() {
     // Will be either empty or LF-terminated already
     var response = this._selectedMailbox.expunge();
     this._daemon.synchronize(this._selectedMailbox);
     return response + "OK EXPUNGE completed";
   }
-  SEARCH(args, uid) {
+  SEARCH(args) {
     if (args[0] == "UNDELETED") {
       let response = "* SEARCH";
       const messages = this._selectedMailbox._messages;
@@ -1805,7 +1805,7 @@ export class IMAP_RFC3501_handler {
     response += data;
     return response;
   }
-  _FETCH_BODYSTRUCTURE(message, query) {
+  _FETCH_BODYSTRUCTURE(message) {
     return "BODYSTRUCTURE " + bodystructure(message.getText(), true);
   }
   // _FETCH_ENVELOPE,
@@ -2218,7 +2218,7 @@ export var IMAP_RFC2197_extension = {
 
 // RFC 2342: IMAP4 Namespace (NAMESPACE)
 export var IMAP_RFC2342_extension = {
-  NAMESPACE(args) {
+  NAMESPACE() {
     var namespaces = [[], [], []];
     for (const namespace of this._daemon.namespaces) {
       namespaces[namespace.type].push(namespace);
@@ -2411,7 +2411,7 @@ export var IMAP_RFC2195_extension = {
     handler._kAuthSchemeStartFunction.LOGIN = this.authLOGINStart;
   },
 
-  authPLAINStart(lineRest) {
+  authPLAINStart() {
     this._nextAuthFunction = this.authPLAINCred;
     this._multiline = true;
 
@@ -2426,7 +2426,7 @@ export var IMAP_RFC2195_extension = {
     return "BAD Wrong username or password, crook!";
   },
 
-  authCRAMStart(lineRest) {
+  authCRAMStart() {
     this._nextAuthFunction = this.authCRAMDigest;
     this._multiline = true;
 
@@ -2446,7 +2446,7 @@ export var IMAP_RFC2195_extension = {
     return "BAD Wrong username or password, crook!";
   },
 
-  authLOGINStart(lineRest) {
+  authLOGINStart() {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
@@ -2463,7 +2463,7 @@ export var IMAP_RFC2195_extension = {
     this._multiline = true;
     return "+ " + btoa("Password:");
   },
-  authLOGINBadUsername(line) {
+  authLOGINBadUsername() {
     return "BAD Wrong username or password, crook!";
   },
   authLOGINPassword(line) {
@@ -2529,7 +2529,7 @@ function bodystructure(msg, extension) {
       this.length += data.length;
       this.numLines += Array.from(data).filter(x => x == "\n").length;
     },
-    endPart(partNum) {
+    endPart() {
       // Grab the headers from before
       const headers = headerStack.pop();
       const contentType = headers.contentType;

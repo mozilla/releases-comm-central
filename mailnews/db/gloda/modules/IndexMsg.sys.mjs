@@ -337,7 +337,7 @@ MessagesByMessageIdCallback.prototype = {
     maxLogLevelPref: "gloda.loglevel",
   }),
 
-  onItemsAdded(aItems, aCollection) {
+  onItemsAdded(aItems) {
     // just outright bail if we are shutdown
     if (GlodaDatastore.datastoreIsShutdown) {
       return;
@@ -350,7 +350,7 @@ MessagesByMessageIdCallback.prototype = {
   },
   onItemsModified() {},
   onItemsRemoved() {},
-  onQueryCompleted(aCollection) {
+  onQueryCompleted() {
     // just outright bail if we are shutdown
     if (GlodaDatastore.datastoreIsShutdown) {
       return;
@@ -1090,7 +1090,7 @@ export var GlodaMsgIndexer = {
    * The only state we need to cleanup is that there is no longer an active
    *  indexing sweep.
    */
-  _cleanup_indexingSweep(aJob) {
+  _cleanup_indexingSweep() {
     this._indexingSweepActive = false;
   },
 
@@ -1524,7 +1524,7 @@ export var GlodaMsgIndexer = {
    *  _pendingAddJob if that is the job.  We do this so that work items are not
    *  added to _pendingAddJob while it is being processed.
    */
-  _schedule_messageIndex(aJob, aCallbackHandle) {
+  _schedule_messageIndex(aJob) {
     // we do not want new work items to be added as we are processing, so
     //  clear _pendingAddJob.  A new job will be created as needed.
     if (aJob === this._pendingAddJob) {
@@ -1637,7 +1637,7 @@ export var GlodaMsgIndexer = {
    * @returns 1 if we were able to recover (because we want the call stack
    *     popped down to our worker), false if we can't.
    */
-  _recover_indexMessage(aJob, aContextStack, aException) {
+  _recover_indexMessage(aJob, aContextStack) {
     // See if indexMessage is on the stack...
     if (
       aContextStack.length >= 2 &&
@@ -1769,8 +1769,8 @@ export var GlodaMsgIndexer = {
           });
         }
       },
-      handleError(aError) {},
-      handleCompletion(aReason) {
+      handleError() {},
+      handleCompletion() {
         GlodaDatastore._asyncCompleted();
         aCallbackHandle.wrappedCallback();
       },
@@ -2286,7 +2286,7 @@ export var GlodaMsgIndexer = {
      *  junk/trait classification has run (or decided not to run) and all
      *  filters have run.  The msgsClassified notification provides that for us.
      */
-    msgAdded(aMsgHdr) {
+    msgAdded() {
       // we are never called! we do not enable this bit!
     },
 
@@ -2302,7 +2302,7 @@ export var GlodaMsgIndexer = {
      *  ignore their msgsClassified events because we will have received a
      *  msgKeyChanged notification sometime in the recent past.
      */
-    msgsClassified(aMsgHdrs, aJunkClassified, aTraitClassified) {
+    msgsClassified(aMsgHdrs) {
       this.indexer._log.debug("msgsClassified notification");
       try {
         GlodaMsgIndexer._reindexChangedMessages(aMsgHdrs, false);
@@ -2903,11 +2903,11 @@ export var GlodaMsgIndexer = {
       this.indexer = aIndexer;
     },
 
-    onFolderAdded(parentFolder, child) {},
-    onMessageAdded(parentFolder, msg) {},
-    onFolderRemoved(parentFolder, child) {},
-    onMessageRemoved(parentFolder, msg) {},
-    onFolderPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+    onFolderAdded() {},
+    onMessageAdded() {},
+    onFolderRemoved() {},
+    onMessageRemoved() {},
+    onFolderPropertyChanged() {},
     /**
      * Detect changes to folder flags and reset our indexing priority.  This
      * is important because (all?) folders start out without any flags and
@@ -2929,8 +2929,8 @@ export var GlodaMsgIndexer = {
       }
       GlodaMsgIndexer.resetFolderIndexingPriority(aFolderItem);
     },
-    onFolderBoolPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
-    onFolderUnicharPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {},
+    onFolderBoolPropertyChanged() {},
+    onFolderUnicharPropertyChanged() {},
     /**
      * Notice when user activity adds/removes tags or changes a message's
      *  status.
@@ -2991,7 +2991,7 @@ export var GlodaMsgIndexer = {
      * So this really ends up just being a correctness / safety protection
      *  mechanism.  At least now that we have better compaction support.
      */
-    onAnnouncerGoingAway(aDBChangeAnnouncer) {
+    onAnnouncerGoingAway() {
       // The fact that we are getting called means we have an active folder and
       //  that we therefore are the active job.  As such, we must kill the
       //  active job.
@@ -3003,14 +3003,14 @@ export var GlodaMsgIndexer = {
       GlodaIndexer.killActiveJob();
     },
 
-    onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {},
-    onHdrDeleted(aHdrChanged, aParentKey, aFlags, aInstigator) {},
-    onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {},
-    onParentChanged(aKeyChanged, aOldParent, aNewParent, aInstigator) {},
-    onReadChanged(aInstigator) {},
-    onJunkScoreChanged(aInstigator) {},
-    onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {},
-    onEvent(aDB, aEvent) {},
+    onHdrFlagsChanged() {},
+    onHdrDeleted() {},
+    onHdrAdded() {},
+    onParentChanged() {},
+    onReadChanged() {},
+    onJunkScoreChanged() {},
+    onHdrPropertyChanged() {},
+    onEvent() {},
   },
 
   /**

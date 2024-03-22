@@ -302,7 +302,7 @@ export class MessageInjection {
       // Circumvent this scoping.
       const mis = this._mis;
       const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener({
-        OnStopRunningUrl: (url, exitCode) => {
+        OnStopRunningUrl: () => {
           // get the newly created nsIMsgFolder folder
           const msgFolder = mis.rootFolder.getChildNamed(folderName);
 
@@ -360,9 +360,9 @@ export class MessageInjection {
         {
           /* nsIMsgCopyServiceListener implementation */
           OnStartCopy() {},
-          OnProgress(progress, progressMax) {},
-          SetMessageKey(key) {},
-          SetMessageId(messageId) {},
+          OnProgress() {},
+          SetMessageKey() {},
+          SetMessageId() {},
           OnStopCopy(status) {
             if (Components.isSuccessCode(status)) {
               resolve();

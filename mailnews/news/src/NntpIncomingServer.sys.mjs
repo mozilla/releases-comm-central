@@ -86,7 +86,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     ]);
   }
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     switch (topic) {
       case "profile-before-change":
         lazy.clearInterval(this._newsrcTimer);
@@ -244,7 +244,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     return this._searchResult.length;
   }
 
-  isContainer(index) {
+  isContainer() {
     return false;
   }
 
@@ -473,7 +473,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     }
   }
 
-  groupNotFound(msgWindow, groupName, opening) {
+  groupNotFound(msgWindow, groupName) {
     const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/news.properties"
     );

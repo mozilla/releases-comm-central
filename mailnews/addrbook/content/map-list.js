@@ -26,7 +26,7 @@
         event.stopPropagation();
       });
 
-      this.addEventListener("popupshowing", event => {
+      this.addEventListener("popupshowing", () => {
         this._listMapServices();
       });
 

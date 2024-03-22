@@ -297,7 +297,7 @@ class DummyMsgWindow {
 
 /* exported alert, confirmEx */
 // Prompts for cancel.
-function alertPS(parent, title, text) {}
-function confirmExPS(parent, title, text, flags) {
+function alertPS() {}
+function confirmExPS() {
   return 0;
 }

@@ -82,17 +82,17 @@ function run_test() {
 var actionTestOffline = {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue) {
     for (const msgHdr of aMsgHdrs) {
       const isOffline = msgHdr.flags & Ci.nsMsgMessageFlags.Offline;
       Assert.equal(!!isOffline, aActionValue == "true");
     }
   },
-  isValidForType(type, scope) {
+  isValidForType() {
     return true;
   },
 
-  validateActionValue(value, folder, type) {
+  validateActionValue() {
     return null;
   },
 

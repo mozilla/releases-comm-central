@@ -164,14 +164,14 @@ GlodaSyntheticView.prototype = {
   },
 
   // --- collection listener
-  onItemsAdded(aItems, aCollection) {
+  onItemsAdded(aItems) {
     if (this.searchListener) {
       this.reportResults(aItems);
     }
   },
-  onItemsModified(aItems, aCollection) {},
-  onItemsRemoved(aItems, aCollection) {},
-  onQueryCompleted(aCollection) {
+  onItemsModified() {},
+  onItemsRemoved() {},
+  onQueryCompleted() {
     this.completed = true;
     if (this.searchListener) {
       this.searchListener.onSearchDone(Cr.NS_OK);

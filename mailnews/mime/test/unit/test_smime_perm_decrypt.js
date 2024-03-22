@@ -33,14 +33,14 @@ class CertVerificationResultCallback {
   constructor(callback) {
     this.callback = callback;
   }
-  verifyCertFinished(prErrorCode, verifiedChain, hasEVPolicy) {
+  verifyCertFinished(prErrorCode) {
     gCertValidityResult = prErrorCode;
     this.callback();
   }
 }
 
 function testCertValidity(cert, date) {
-  const prom = new Promise((resolve, reject) => {
+  const prom = new Promise(resolve => {
     const certificateUsageEmailRecipient = 0x0020;
     const result = new CertVerificationResultCallback(resolve);
     const flags = Ci.nsIX509CertDB.FLAG_LOCAL_ONLY;

@@ -42,17 +42,7 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmExPS(
-  parent,
-  aDialogTitle,
-  aText,
-  aButtonFlags,
-  aButton0Title,
-  aButton1Title,
-  aButton2Title,
-  aCheckMsg,
-  aCheckState
-) {
+function confirmExPS() {
   switch (++attempt) {
     // First attempt, retry.
     case 1:

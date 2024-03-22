@@ -75,7 +75,7 @@ add_task(async function trigger_bug() {
   const testFolder = localserver.rootFolder.getChildNamed("test.filter");
   const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
   const promiseFolderEvent = function (folder, event) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const folderListener = {
         QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
         onFolderEvent(aEventFolder, aEvent) {

@@ -32,10 +32,10 @@ add_task(async () => {
   const mockExternalProtocolService = {
     QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
     _loadedURLs: [],
-    loadURI(uri, windowContext) {
+    loadURI(uri) {
       this._loadedURLs.push(uri.spec);
     },
-    isExposedProtocol(scheme) {
+    isExposedProtocol() {
       return true;
     },
     urlLoaded(url) {

@@ -204,7 +204,7 @@ OAuth2.prototype = {
             this._parent.onAuthorizationReceived(url);
           },
 
-          onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+          onStateChange(aWebProgress, aRequest, aStateFlags) {
             const wpl = Ci.nsIWebProgressListener;
             if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
               const channel = aRequest.QueryInterface(Ci.nsIChannel);

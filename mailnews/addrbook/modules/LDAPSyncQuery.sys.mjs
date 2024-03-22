@@ -37,7 +37,7 @@ export class LDAPSyncQuery {
     }
   }
 
-  onLDAPError(status, secInfo, location) {
+  onLDAPError(status) {
     this._statusCode = status;
     this._finished = true;
   }
@@ -102,9 +102,9 @@ export class LDAPSyncQuery {
   /**
    * Handler of nsILDAPMessage.RES_SEARCH_RESULT message.
    *
-   * @param {nsILDAPMessage} msg - The received LDAP message.
+   * @param {nsILDAPMessage} _msg - The received LDAP message.
    */
-  _onLDAPSearchResult(msg) {
+  _onLDAPSearchResult(_msg) {
     this._finished = true;
   }
 }

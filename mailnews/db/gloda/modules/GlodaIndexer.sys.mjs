@@ -986,7 +986,7 @@ export var GlodaIndexer = {
     onItemsAdded() {},
     onItemsModified() {},
     onItemsRemoved() {},
-    onQueryCompleted(aCollection) {
+    onQueryCompleted() {
       GlodaIndexer.callbackDriver();
     },
   },

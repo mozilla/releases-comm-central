@@ -28,16 +28,7 @@ var kUsername = "testsmtp";
 // file.
 var kValidPassword = "smtptest1";
 
-function confirmExPS(
-  aDialogTitle,
-  aText,
-  aButtonFlags,
-  aButton0Title,
-  aButton1Title,
-  aButton2Title,
-  aCheckMsg,
-  aCheckState
-) {
+function confirmExPS() {
   switch (++attempt) {
     // First attempt, retry.
     case 1:
@@ -127,7 +118,7 @@ add_task(async function () {
 });
 
 var URLListener = {
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, rc) {
     // Check for ok status.
     Assert.equal(rc, 0);

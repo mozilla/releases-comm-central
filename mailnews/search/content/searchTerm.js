@@ -553,7 +553,7 @@ function saveSearchTerms(searchTerms, termOwner) {
   return searchTerms;
 }
 
-function onReset(event) {
+function onReset() {
   while (gTotalSearchTerms > 0) {
     removeSearchRow(--gTotalSearchTerms);
   }

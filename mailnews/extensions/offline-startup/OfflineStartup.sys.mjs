@@ -16,7 +16,7 @@ var gDebugLog;
 // Debug helper
 
 if (!kDebug) {
-  gDebugLog = function (m) {};
+  gDebugLog = function () {};
 } else {
   gDebugLog = function (m) {
     dump("\t *** nsOfflineStartup: " + m + "\n");
@@ -109,7 +109,7 @@ OfflineStartup.prototype = {
     }
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     gDebugLog("observe: " + aTopic);
 
     if (aTopic == "profile-change-net-teardown") {

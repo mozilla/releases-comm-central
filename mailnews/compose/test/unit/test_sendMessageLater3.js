@@ -40,23 +40,13 @@ msll.prototype = {
   _errorRaised: false,
 
   // nsIMsgSendLaterListener
-  onStartSending(aTotal) {
+  onStartSending() {
     this._initialTotal = 1;
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageHeader,
-    aIdentity
-  ) {},
-  onMessageSendProgress(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageSendPercent,
-    aMessageCopyPercent
-  ) {},
-  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
+  onMessageStartSending() {},
+  onMessageSendProgress() {},
+  onMessageSendError() {
     this._errorRaised = true;
   },
   onStopSending(aStatus, aMsg, aTotal, aSuccessful) {

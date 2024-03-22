@@ -31,12 +31,12 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 // nsIMsgCopyServiceListener implementation
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     const hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
-  SetMessageId(aMessageId) {},
+  SetMessageId() {},
   OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
@@ -51,7 +51,7 @@ var copyListener = {
 };
 
 var urlListener = {
-  OnStartRunningUrl(aUrl) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);

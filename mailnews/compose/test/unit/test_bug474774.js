@@ -33,25 +33,15 @@ msll.prototype = {
   _initialTotal: 0,
 
   // nsIMsgSendLaterListener
-  onStartSending(aTotalMessageCount) {
+  onStartSending() {
     this._initialTotal = 1;
     Assert.equal(msgSendLater.sendingMessages, true);
   },
-  onMessageStartSending(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageHeader,
-    aIdentity
-  ) {},
-  onMessageSendProgress(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageSendPercent,
-    aMessageCopyPercent
-  ) {
+  onMessageStartSending() {},
+  onMessageSendProgress() {
     // XXX Enable this function
   },
-  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus) {
     do_throw(
       "onMessageSendError should not have been called, status: " + aStatus
     );

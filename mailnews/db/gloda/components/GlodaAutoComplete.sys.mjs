@@ -63,8 +63,8 @@ ResultRowMulti.prototype = {
       }
     }
   },
-  onItemsModified(aItems) {},
-  onItemsRemoved(aItems) {},
+  onItemsModified() {},
+  onItemsRemoved() {},
   onQueryCompleted() {},
 };
 
@@ -86,10 +86,10 @@ nsAutoCompleteGlodaResult.prototype = {
   getObjectAt(aIndex) {
     return this._results[aIndex] || null;
   },
-  markPending(aCompleter) {
+  markPending() {
     this._pendingCount++;
   },
-  markCompleted(aCompleter) {
+  markCompleted() {
     if (--this._pendingCount == 0 && this.active) {
       this.listener.onSearchResult(this.completer, this);
     }
@@ -265,9 +265,9 @@ ContactIdentityCompleter.prototype = {
 
     return true;
   },
-  onItemsAdded(aItems, aCollection) {},
-  onItemsModified(aItems, aCollection) {},
-  onItemsRemoved(aItems, aCollection) {},
+  onItemsAdded() {},
+  onItemsModified() {},
+  onItemsRemoved() {},
   onQueryCompleted(aCollection) {
     // handle the initial setup case...
     if (aCollection.data == null) {
@@ -383,7 +383,7 @@ ContactTagCompleter.prototype = {
     this._suffixTree = new lazy.MultiSuffixTree(tagNames, tags);
     this._suffixTreeDirty = false;
   },
-  onFreeTagAdded(aTag) {
+  onFreeTagAdded() {
     this._suffixTreeDirty = true;
   },
   complete(aResult, aString) {

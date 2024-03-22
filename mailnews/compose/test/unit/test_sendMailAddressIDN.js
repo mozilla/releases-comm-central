@@ -55,10 +55,10 @@ function MsgSendListener(aRecipient, originalData) {
  */
 MsgSendListener.prototype = {
   // nsIMsgSendListener
-  onStartSending(aMsgID, aMsgSize) {},
-  onProgress(aMsgID, aProgress, aProgressMax) {},
-  onStatus(aMsgID, aMsg) {},
-  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
+  onStartSending() {},
+  onProgress() {},
+  onStatus() {},
+  onStopSending(aMsgID, aStatus) {
     try {
       if (test == kToValid || test == kToASCII) {
         Assert.equal(aStatus, 0);
@@ -98,15 +98,15 @@ MsgSendListener.prototype = {
       do_test_finished();
     }
   },
-  onGetDraftFolderURI(aMsgID, aFolderURI) {},
-  onSendNotPerformed(aMsgID, aStatus) {},
-  onTransportSecurityError(msgID, status, secInfo, location) {},
+  onGetDraftFolderURI() {},
+  onSendNotPerformed() {},
+  onTransportSecurityError() {},
 
   // nsIMsgCopyServiceListener
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  GetMessageId(aMessageId) {},
+  OnProgress() {},
+  SetMessageKey() {},
+  GetMessageId() {},
   OnStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     try {

@@ -541,7 +541,7 @@ function awGetRowByInputElement(inputElement) {
   );
 }
 
-function DragOverAddressListTree(event) {
+function DragOverAddressListTree() {
   var dragSession = gDragService.getCurrentSession();
 
   // XXX add support for other flavors here

@@ -632,7 +632,7 @@ class ProfileImporterController extends ImporterController {
     }
     document.getElementById("appSummaryItems").replaceChildren(
       ...Object.entries(this._getItemsChecked(true))
-        .filter(([item, checked]) => checked)
+        .filter(([, checked]) => checked)
         .map(([item]) => {
           const li = document.createElement("li");
           const fluentId = this._importItemFluentId[item] ?? item;

@@ -463,7 +463,7 @@
       this.menulist.selectedItem = this.validMenuitem;
     }
 
-    onSelect(event) {
+    onSelect() {
       if (this.menulist.value == Ci.nsMsgSearchAttrib.OtherHeader) {
         // Customize menuitem selected.
         const args = {};
@@ -1211,12 +1211,12 @@
         this.hasConnected = true;
 
         this.setAttribute("is", "ruleactiontype-menulist");
-        this.addEventListener("command", event => {
+        this.addEventListener("command", () => {
           this.parentNode.setAttribute("value", this.value);
           checkActionsReorder();
         });
 
-        this.addEventListener("popupshowing", event => {
+        this.addEventListener("popupshowing", () => {
           const unavailableActions = this.usedActionsList();
           for (let index = 0; index < this.menuitems.length; index++) {
             const menu = this.menuitems[index];
@@ -1544,7 +1544,7 @@
       return false;
     }
 
-    _fireEvent(aName) {
+    _fireEvent() {
       // This provides a dummy _fireEvent function that the richlistbox expects to
       // be able to call. See bug 202036.
     }

@@ -1206,7 +1206,7 @@ export class MsgIncomingServer {
     }
   }
 
-  performExpand(msgWindow) {}
+  performExpand() {}
 
   get wrappedJSObject() {
     return this;

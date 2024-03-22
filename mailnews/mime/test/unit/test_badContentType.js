@@ -72,7 +72,7 @@ async function test_message_attachments(info) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
 
   const streamListener = new PromiseTestUtils.PromiseStreamListener({
-    onStopRequest(request, statusCode) {
+    onStopRequest(request) {
       request.QueryInterface(Ci.nsIMailChannel);
       const msgHdrSinkContentType =
         request.attachments[0].getProperty("contentType");
@@ -99,13 +99,7 @@ function MsgHeaderSinkHandleAttachments() {
 }
 
 MsgHeaderSinkHandleAttachments.prototype = {
-  handleAttachment(
-    aContentType,
-    aUrl,
-    aDisplayName,
-    aUri,
-    aIsExternalAttachment
-  ) {
+  handleAttachment(aContentType) {
     this._resolve(aContentType);
   },
 

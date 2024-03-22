@@ -47,7 +47,7 @@ function MsgsDeletedListener() {
   this._promise = new Promise(resolve => (this._resolve = resolve));
 }
 MsgsDeletedListener.prototype = {
-  msgsDeleted(aMsgArray) {
+  msgsDeleted() {
     this._resolve();
   },
   get promise() {
@@ -175,7 +175,7 @@ function getContentFromMessage(aMsgHdr) {
         this.sis.init(inputStream);
         this.content += this.sis.read(count);
       },
-      onStartRequest(request) {},
+      onStartRequest() {},
       onStopRequest(request, statusCode) {
         this.sis.close();
         if (Components.isSuccessCode(statusCode)) {

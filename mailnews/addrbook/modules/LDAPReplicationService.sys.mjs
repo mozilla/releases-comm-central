@@ -47,7 +47,7 @@ export class LDAPReplicationService extends LDAPListenerBase {
   /**
    * @see nsIAbLDAPReplicationService
    */
-  cancelReplication(directory) {
+  cancelReplication() {
     this._operation.abandonExt();
     this.done(false);
   }
@@ -81,7 +81,7 @@ export class LDAPReplicationService extends LDAPListenerBase {
   /**
    * @see nsILDAPMessageListener
    */
-  onLDAPError(status, secInfo, location) {
+  onLDAPError() {
     this.done(false);
   }
 

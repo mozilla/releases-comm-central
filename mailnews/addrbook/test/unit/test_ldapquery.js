@@ -33,13 +33,13 @@ class PromiseListener {
       this._reject = reject;
     });
   }
-  onLDAPMessage(message) {
+  onLDAPMessage() {
     this._reject(new Error("Unexpected onLDAPMessage"));
   }
   onLDAPInit() {
     this._reject(new Error("Unexpected onLDAPInit"));
   }
-  onLDAPError(status, secInfo, location) {
+  onLDAPError(status) {
     this._reject(new Error(`Unexpected onLDAPError (0x${status.toString(16)}`));
   }
 }

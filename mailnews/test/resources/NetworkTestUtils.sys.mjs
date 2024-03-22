@@ -208,7 +208,7 @@ SocksTestServer.prototype = {
     this.client_connections.push(client);
   },
 
-  onStopListening(socket) {},
+  onStopListening() {},
 
   close() {
     for (const client of this.client_connections) {

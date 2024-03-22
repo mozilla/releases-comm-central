@@ -52,7 +52,7 @@ function run_test() {
 }
 
 var doTestingListener = {
-  onMessageClassified(aMsgURI, aClassification, aJunkPercent) {
+  onMessageClassified(aMsgURI) {
     if (!aMsgURI) {
       // Ignore end-of-batch signal.
       return;

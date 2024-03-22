@@ -28,7 +28,7 @@ export class Pop3ProtocolHandler {
     return channel;
   }
 
-  allowPort(port, scheme) {
+  allowPort() {
     return true;
   }
 }

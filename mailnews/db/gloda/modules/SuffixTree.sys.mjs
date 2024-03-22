@@ -126,14 +126,7 @@ SuffixTree.prototype = {
     return results;
   },
 
-  _resultGather(
-    aState,
-    aResults,
-    aPresence,
-    aPatLength,
-    aDelta,
-    alreadyAdjusted
-  ) {
+  _resultGather(aState, aResults, aPresence, aPatLength, aDelta) {
     // find the item that this state originated from based on the state's
     //  start character.  offsetToItem holds [string start index, string end
     //  index (exclusive), item reference].  So we want to binary search to

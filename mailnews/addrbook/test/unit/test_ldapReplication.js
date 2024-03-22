@@ -37,7 +37,7 @@ add_task(async () => {
   let progressResolve;
   let progressPromise = new Promise(resolve => (progressResolve = resolve));
   const progressListener = {
-    onStateChange(webProgress, request, stateFlags, status) {
+    onStateChange(webProgress, request, stateFlags) {
       if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
         info("replication started");
       }
@@ -46,18 +46,11 @@ add_task(async () => {
         progressResolve();
       }
     },
-    onProgressChange(
-      webProgress,
-      request,
-      currentSelfProgress,
-      maxSelfProgress,
-      currentTotalProgress,
-      maxTotalProgress
-    ) {},
-    onLocationChange(webProgress, request, location, flags) {},
-    onStatusChange(webProgress, request, status, message) {},
-    onSecurityChange(webProgress, request, state) {},
-    onContentBlockingEvent(webProgress, request, event) {},
+    onProgressChange() {},
+    onLocationChange() {},
+    onStatusChange() {},
+    onSecurityChange() {},
+    onContentBlockingEvent() {},
   };
 
   replicationService.startReplication(book, progressListener);

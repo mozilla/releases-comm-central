@@ -331,8 +331,8 @@ function startContinue(aSelectedStoreType, aResponse) {
     canCompact(gServer.rootFolder)
   ) {
     const urlListener = {
-      OnStartRunningUrl(aUrl) {},
-      OnStopRunningUrl(aUrl, aExitCode) {
+      OnStartRunningUrl() {},
+      OnStopRunningUrl() {
         const pConvert = MailstoreConverter.convertMailStoreTo(
           originalStoreContractID,
           gServer,

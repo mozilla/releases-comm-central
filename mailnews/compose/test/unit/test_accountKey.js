@@ -4,7 +4,7 @@
 
 const MockNntpService = {
   QueryInterface: ChromeUtils.generateQI(["nsINntpService"]),
-  postMessage(messageFile, groupNames, accountKey, urlListener, msgWindow) {
+  postMessage(messageFile, groupNames, accountKey) {
     this.messageFile = messageFile;
     this.groupNames = groupNames;
     this.accountKey = accountKey;
@@ -12,7 +12,7 @@ const MockNntpService = {
 };
 
 const MockNntpServiceFactory = {
-  createInstance(aIID) {
+  createInstance() {
     return MockNntpService;
   },
 };

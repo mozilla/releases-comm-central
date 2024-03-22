@@ -34,7 +34,7 @@ var expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5"];
 // const expectedTransaction = ["AUTH", "CAPA", "AUTH CRAM-MD5", "CAPA", "AUTH PLAIN", "STAT"];
 
 var urlListener = {
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, result) {
     try {
       // We should be getting an error here, because we couldn't log in.

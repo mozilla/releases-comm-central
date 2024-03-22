@@ -70,7 +70,7 @@ function POP3Pump() {
 }
 
 // nsIUrlListener implementation
-POP3Pump.prototype.OnStartRunningUrl = function (url) {};
+POP3Pump.prototype.OnStartRunningUrl = function () {};
 
 POP3Pump.prototype.OnStopRunningUrl = function (aUrl, aResult) {
   this._actualResult = aResult;

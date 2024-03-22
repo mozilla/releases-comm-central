@@ -34,19 +34,9 @@ msll.prototype = {
     Assert.equal(gMsgSendLater.sendingMessages, true);
     Assert.equal(aTotal, 1);
   },
-  onMessageStartSending(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageHeader,
-    aIdentity
-  ) {},
-  onMessageSendProgress(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageSendPercent,
-    aMessageCopyPercent
-  ) {},
-  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
+  onMessageStartSending() {},
+  onMessageSendProgress() {},
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus) {
     do_throw(
       "onMessageSendError should not have been called, status: " + aStatus
     );

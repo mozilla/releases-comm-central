@@ -173,7 +173,7 @@ function onSynchronizeTreeKeyPress(event) {
   }
 }
 
-function UpdateNode(resource, row) {
+function UpdateNode(resource) {
   var folder = resource.QueryInterface(Ci.nsIMsgFolder);
 
   if (folder.isServer) {

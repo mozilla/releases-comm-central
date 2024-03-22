@@ -192,7 +192,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   const colorInput = document.getElementById("color");
   colorInput.value =
     FolderTreeProperties.getColor(aVirtualFolder.URI) || gDefaultColor;
-  colorInput.addEventListener("input", event => {
+  colorInput.addEventListener("input", () => {
     // Preview the chosen color.
     Services.obs.notifyObservers(
       gMsgFolder,
@@ -323,7 +323,7 @@ function onOK(event) {
   }
 }
 
-function onCancel(event) {
+function onCancel() {
   if (gMsgFolder) {
     // Clear any previewed color.
     Services.obs.notifyObservers(gMsgFolder, "folder-color-preview");

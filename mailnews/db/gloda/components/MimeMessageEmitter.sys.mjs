@@ -70,7 +70,7 @@ var deathToNewlines = /\n/g;
 MimeMessageEmitter.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMimeEmitter"]),
 
-  initialize(aUrl, aChannel, aFormat) {
+  initialize(aUrl) {
     this._url = aUrl;
     this._curPart = new this._mimeMsg.MimeMessage();
     // the partName is intentionally ""!  not a place-holder!
@@ -98,7 +98,7 @@ MimeMessageEmitter.prototype = {
     this._bogusPartTranslation = null;
   },
 
-  setPipe(aInputStream, aOutputStream) {
+  setPipe() {
     // we do not care about these
   },
   set outputListener(aListener) {
@@ -165,7 +165,7 @@ MimeMessageEmitter.prototype = {
    *
    * We do need to track our state for addHeaderField's benefit though.
    */
-  startHeader(aIsRootMailHeader, aIsHeaderOnly, aMsgID, aOutputCharset) {
+  startHeader() {
     this._state = kStateInHeaders;
   },
   /**
@@ -222,20 +222,20 @@ MimeMessageEmitter.prototype = {
       }
     }
   },
-  addAllHeaders(aAllHeaders, aHeaderSize) {
+  addAllHeaders() {
     // This is called by the parsing code after the calls to AddHeaderField (or
     //  AddAttachmentField if the part is an attachment), and seems to serve
     //  a specialized, quasi-redundant purpose.  (nsMimeBaseEmitter creates a
     //  nsIMimeHeaders instance and hands it to the nsIMsgMailNewsUrl.)
     // nop
   },
-  writeHTMLHeaders(aName) {
+  writeHTMLHeaders() {
     // It doesn't look like this should even be part of the interface; I think
     //  only the nsMimeHtmlDisplayEmitter::EndHeader call calls this signature.
     // nop
   },
-  endHeader(aName) {},
-  updateCharacterSet(aCharset) {
+  endHeader() {},
+  updateCharacterSet() {
     // we do not need to worry about this.  it turns out this notification is
     //  exclusively for the benefit of the UI.  libmime, believe it or not,
     //  is actually doing the right thing under the hood and handles all the
@@ -460,7 +460,7 @@ MimeMessageEmitter.prototype = {
    *  our body part's content-type in addHeaderField, so this serves as our
    *  notice to set up the part (giving it a name).
    */
-  startBody(aIsBodyOnly, aMsgID, aOutCharset) {
+  startBody() {
     this._state = kStateInBody;
 
     const subPartName =
@@ -474,7 +474,7 @@ MimeMessageEmitter.prototype = {
    * Write to the body.  When saneBodySize is active, we stop adding if we are
    *  already at the limit for this body part.
    */
-  writeBody(aBuf, aSize, aOutAmountWritten) {
+  writeBody(aBuf) {
     if (
       this._writeBody &&
       (!this._saneBodySize || this._curPart.size < MAX_SANE_BODY_PART_SIZE)

@@ -250,7 +250,7 @@ SyntheticPartLeaf.prototype = {
   toMessageString() {
     return this.body;
   },
-  prettyString(aIndent) {
+  prettyString() {
     return "Leaf: " + this._contentType;
   },
 };
@@ -265,7 +265,7 @@ SyntheticPartLeaf.prototype = {
 export function SyntheticDegeneratePartEmpty() {}
 
 SyntheticDegeneratePartEmpty.prototype = {
-  prettyString(aIndent) {
+  prettyString() {
     return "Degenerate Empty Part";
   },
 };
@@ -1191,12 +1191,12 @@ MessageGenerator.prototype = {
    *  message id to the server that theoretically might be sending it.  Or some
    *  such.
    *
-   * @param {SyntheticMessage} aSynthMessage - The synthetic message you would
+   * @param {SyntheticMessage} _aSynthMessage - The synthetic message you would
    *   like us to make up a message-id for. We don't set the message-id on the
    *   message, that's up to you.
    * @returns {string} A Message-Id suitable for the given message.
    */
-  makeMessageId(aSynthMessage) {
+  makeMessageId(_aSynthMessage) {
     const msgId = this._nextMessageIdNum + "@made.up.invalid";
     this._nextMessageIdNum++;
     return msgId;

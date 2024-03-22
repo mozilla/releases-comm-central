@@ -270,24 +270,24 @@ function DBListener() {
 }
 
 DBListener.prototype = {
-  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {
+  onHdrFlagsChanged() {
     this.counts.onHdrFlagsChanged++;
   },
 
-  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {
+  onHdrDeleted() {
     this.counts.onHdrDeleted++;
   },
 
-  onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
+  onHdrAdded(aHdrChanged) {
     this.counts.onHdrAdded++;
     gHeader = aHdrChanged;
   },
 
-  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {
+  onParentChanged() {
     this.counts.onParentChanged++;
   },
 
-  onAnnouncerGoingAway(instigator) {
+  onAnnouncerGoingAway() {
     if (gInboxListener) {
       try {
         IMAPPump.inbox.msgDatabase.removeListener(gInboxListener);
@@ -298,19 +298,19 @@ DBListener.prototype = {
     this.counts.onAnnouncerGoingAway++;
   },
 
-  onReadChanged(aInstigator) {
+  onReadChanged() {
     this.counts.onReadChanged++;
   },
 
-  onJunkScoreChanged(aInstigator) {
+  onJunkScoreChanged() {
     this.counts.onJunkScoreChanged++;
   },
 
-  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {
+  onHdrPropertyChanged() {
     this.counts.onHdrPropertyChanged++;
   },
 
-  onEvent(aDB, aEvent) {
+  onEvent() {
     this.counts.onEvent++;
   },
 };
@@ -355,7 +355,7 @@ var gPreviousUnread;
 //  aFolderNewDelta: change in new count for the folder
 //  aDbNewDelta:     change in new count for the database
 //
-function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
+function testCounts(aHasNew, aUnreadDelta) {
   try {
     const folderNew = IMAPPump.inbox.getNumNewMessages(false);
     const hasNew = IMAPPump.inbox.hasNewMessages;
@@ -397,7 +397,7 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
 var actionTestOffline = {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",
-  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs) {
     for (const msgHdr of aMsgHdrs) {
       const isOffline = !!(msgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       dump(
@@ -414,11 +414,11 @@ var actionTestOffline = {
       Assert.equal(msgHdr.subject, gMessageSubject);
     }
   },
-  isValidForType(type, scope) {
+  isValidForType() {
     return true;
   },
 
-  validateActionValue(value, folder, type) {
+  validateActionValue() {
     return null;
   },
 

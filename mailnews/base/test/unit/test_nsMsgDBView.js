@@ -208,7 +208,7 @@ function assert_view_message_at_indices(...aArgs) {
 }
 
 var authorFirstLetterCustomColumn = {
-  getCellText(row, col) {
+  getCellText(row) {
     const msgHdr = this.dbView.getMsgHdrAt(row);
     return msgHdr.mime2DecodedAuthor.charAt(0).toUpperCase() || "?";
   },
@@ -220,16 +220,16 @@ var authorFirstLetterCustomColumn = {
     return true;
   },
 
-  getCellProperties(row, col) {
+  getCellProperties() {
     return "";
   },
-  getRowProperties(row) {
+  getRowProperties() {
     return "";
   },
-  getImageSrc(row, col) {
+  getImageSrc() {
     return null;
   },
-  getSortLongForRow(hdr) {
+  getSortLongForRow() {
     return 0;
   },
 };
@@ -508,7 +508,7 @@ function test_sort_columns() {
     Ci.nsMsgViewSortType.byDate,
     Ci.nsMsgViewSortOrder.descending,
     "date",
-    function getDateAgeBucket(msgHdr) {
+    function getDateAgeBucket() {
       // so, this is a cop-out, but we know that the date age bucket for our
       //  generated messages is always more than 2-weeks ago!
       return 5;
@@ -518,7 +518,7 @@ function test_sort_columns() {
     Ci.nsMsgViewSortType.byDate,
     Ci.nsMsgViewSortOrder.ascending,
     "date",
-    function getDateAgeBucket(msgHdr) {
+    function getDateAgeBucket() {
       // so, this is a cop-out, but we know that the date age bucket for our
       //  generated messages is always more than 2-weeks ago!
       return 5;

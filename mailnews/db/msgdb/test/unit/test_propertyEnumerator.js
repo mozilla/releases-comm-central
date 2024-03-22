@@ -30,12 +30,12 @@ function run_test() {
 
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
   },
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  SetMessageId() {},
+  OnStopCopy() {
     continue_test();
   },
 };

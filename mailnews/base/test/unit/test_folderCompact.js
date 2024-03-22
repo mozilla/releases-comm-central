@@ -161,7 +161,7 @@ async function verifyMboxSize(folder, expectedSize) {
  * Disabled but not removed, as it's just so useful for troubleshooting
  * if anything goes wrong!
  */
-function showMessages(folder, text) {
+function showMessages() {
   /*
   dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
   for (const hdr of folder.messages) {

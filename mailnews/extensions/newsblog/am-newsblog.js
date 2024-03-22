@@ -55,7 +55,7 @@ function onInit() {
   gAutotagPrefix.value = optionsAcct.category.prefix;
 }
 
-function onPreInit(account, accountValues) {
+function onPreInit(account) {
   gAccount = account;
 }
 

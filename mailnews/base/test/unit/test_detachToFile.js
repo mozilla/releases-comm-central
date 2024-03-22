@@ -136,7 +136,7 @@ function getContentFromMessage(aMsgHdr) {
         this.sis.init(inputStream);
         this.content += this.sis.read(count);
       },
-      onStartRequest(request) {},
+      onStartRequest() {},
       onStopRequest(request, statusCode) {
         this.sis.close();
         if (Components.isSuccessCode(statusCode)) {

@@ -147,7 +147,7 @@ autoSyncListenerPromise.prototype = {
       "Folder removed from Q " + this.qName(queue) + " " + folder.URI + "\n"
     );
   },
-  onDownloadStarted(folder, numOfMessages, totalPending) {
+  onDownloadStarted(folder) {
     dump("Folder download started" + folder.URI + "\n");
   },
 
@@ -175,7 +175,7 @@ autoSyncListenerPromise.prototype = {
     }
   },
 
-  onDiscoveryQProcessed(folder, numOfHdrsProcessed, leftToProcess) {
+  onDiscoveryQProcessed(folder) {
     dump("onDiscoveryQProcessed: " + folder.prettyName + "\n");
     const index = mailTestUtils.non_strict_index_of(
       this._waitingForDiscoveryList,
@@ -194,7 +194,7 @@ autoSyncListenerPromise.prototype = {
     }
   },
 
-  onAutoSyncInitiated(folder) {},
+  onAutoSyncInitiated() {},
   qName(queueType) {
     if (queueType == Ci.nsIAutoSyncMgrListener.PriorityQueue) {
       return "priorityQ";

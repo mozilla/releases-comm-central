@@ -14,14 +14,14 @@ const gCertDialogs = {
     trust.value = Ci.nsIX509CertDB.TRUSTED_EMAIL;
     return true;
   },
-  setPKCS12FilePassword: (ctx, password) => {
+  setPKCS12FilePassword: () => {
     throw new Error("Not implemented");
   },
   getPKCS12FilePassword: (ctx, password) => {
     password.value = "";
     return true;
   },
-  viewCert: (ctx, cert) => {
+  viewCert: () => {
     throw new Error("Not implemented");
   },
   QueryInterface: ChromeUtils.generateQI(["nsICertificateDialogs"]),
@@ -49,7 +49,7 @@ export const SmimeUtils = {
     MockRegistrar.register("@mozilla.org/nsCertificateDialogs;1", gCertDialogs);
   },
 
-  loadPEMCertificate(file, certType, loadKey = false) {
+  loadPEMCertificate(file, certType) {
     dump("Loading certificate from " + file.path + "\n");
     const certDB = Cc["@mozilla.org/security/x509certdb;1"].getService(
       Ci.nsIX509CertDB

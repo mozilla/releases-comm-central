@@ -768,7 +768,7 @@ function setFilterScope(aFilterType, aFilterList) {
 // type, return the scope used for filter. This assumes a
 // hierarchy of contexts, with incoming the most restrictive,
 // followed by manual and post-plugin.
-function getFilterScope(aServerFilterScope, aFilterType, aFilterList) {
+function getFilterScope(aServerFilterScope, aFilterType) {
   if (aFilterType & Ci.nsMsgFilterType.Incoming) {
     return aServerFilterScope;
   }

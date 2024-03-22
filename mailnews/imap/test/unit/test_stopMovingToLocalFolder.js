@@ -52,7 +52,7 @@ add_task(async function move_messages() {
     IMAPPump.mailbox.uidnext - 1
   );
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    OnProgress(aProgress, aProgressMax) {
+    OnProgress() {
       stop_server();
     },
   });

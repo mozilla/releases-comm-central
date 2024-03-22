@@ -123,17 +123,11 @@ function run_test() {
 
 var listener = {
   // nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified(aMsgURI, aTraits, aPercents) {
+  onMessageTraitsClassified() {
     startCommand();
   },
 
-  onMessageTraitDetails(
-    aMsgURI,
-    aProTrait,
-    aTokenString,
-    aTokenPercents,
-    aRunningPercents
-  ) {
+  onMessageTraitDetails(aMsgURI, aProTrait, aTokenString) {
     print("Details for " + aMsgURI);
     for (let i = 0; i < aTokenString.length; i++) {
       print("Token " + aTokenString[i]);

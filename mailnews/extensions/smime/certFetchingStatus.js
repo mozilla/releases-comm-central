@@ -129,13 +129,13 @@ async function getPassword() {
 class BindListener {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
-  async onLDAPInit(conn, status) {
+  async onLDAPInit() {
     // Kick off bind.
     getLDAPOperation();
     gLdapOperation.simpleBind(await getPassword());
   }
 
-  onLDAPMessage(message) {}
+  onLDAPMessage() {}
 
   onLDAPError(status, secInfo, location) {
     if (secInfo) {
@@ -154,7 +154,7 @@ class BindListener {
 class LDAPMessageListener {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
-  onLDAPInit(conn, status) {}
+  onLDAPInit() {}
 
   onLDAPMessage(message) {
     if (Ci.nsILDAPMessage.RES_SEARCH_RESULT == message.type) {

@@ -111,7 +111,7 @@ function nextTest() {
     {}
   );
   let resolved = false;
-  urlListener.promise.catch(e => {}).finally(() => (resolved = true));
+  urlListener.promise.catch(() => {}).finally(() => (resolved = true));
   Services.tm.spinEventLoopUntil("wait for sending", () => resolved);
 
   do_check_transaction(server.playTransaction(), curTest.transaction);

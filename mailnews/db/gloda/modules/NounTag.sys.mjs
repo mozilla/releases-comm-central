@@ -65,7 +65,7 @@ export var TagNoun = {
   toJSON(aTag) {
     return aTag.key;
   },
-  fromJSON(aTagKey, aIgnored) {
+  fromJSON(aTagKey) {
     let tag = this._tagMap.hasOwnProperty(aTagKey)
       ? this._tagMap[aTagKey]
       : undefined;

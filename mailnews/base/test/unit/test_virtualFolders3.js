@@ -31,7 +31,7 @@ add_setup(function () {
           }`
         );
       },
-      onMessageAdded(parentFolder, msg) {},
+      onMessageAdded() {},
       onFolderRemoved(parentFolder, childFolder) {
         console.log(
           `onFolderRemoved: ${
@@ -41,8 +41,8 @@ add_setup(function () {
           }`
         );
       },
-      onMessageRemoved(parentFolder, msg) {},
-      onFolderPropertyChanged(folder, property, oldValue, newValue) {},
+      onMessageRemoved() {},
+      onFolderPropertyChanged() {},
       onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
         if (property == "FolderFlag") {
           console.log(
@@ -54,10 +54,10 @@ add_setup(function () {
           );
         }
       },
-      onFolderBoolPropertyChanged(folder, property, oldValue, newValue) {},
-      onFolderUnicharPropertyChanged(folder, property, oldValue, newValue) {},
-      onFolderPropertyFlagChanged(folder, property, oldFlag, newFlag) {},
-      onFolderEvent(folder, event) {},
+      onFolderBoolPropertyChanged() {},
+      onFolderUnicharPropertyChanged() {},
+      onFolderPropertyFlagChanged() {},
+      onFolderEvent() {},
     },
     Ci.nsIFolderListener.all
   );

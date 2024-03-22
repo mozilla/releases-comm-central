@@ -108,7 +108,7 @@ function getSelectedIdentity() {
   );
 }
 
-function onEdit(event) {
+function onEdit() {
   var id = getSelectedIdentity();
   openIdentityEditor(id);
 }
@@ -142,7 +142,7 @@ function updateButtons() {
   // The Add command is always enabled.
 }
 
-function onSetDefault(event) {
+function onSetDefault() {
   const identity = getSelectedIdentity();
   if (!identity) {
     return;
@@ -160,7 +160,7 @@ function onSetDefault(event) {
   Gloda._initMyIdentities();
 }
 
-function onDelete(event) {
+function onDelete() {
   if (gIdentityListBox.itemCount <= 1) {
     // don't support deleting the last identity
     return;

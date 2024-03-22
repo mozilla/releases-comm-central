@@ -173,7 +173,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
  * @returns {Promise} Promise that resolves when the event occurs.
  */
 PromiseTestUtils.promiseFolderEvent = function (folder, event) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const folderListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
       onFolderEvent(aEventFolder, aEvent) {
@@ -199,7 +199,7 @@ PromiseTestUtils.promiseFolderEvent = function (folder, event) {
  * @returns {Promise} Promise that resolves when the event occurs.
  */
 PromiseTestUtils.promiseFolderNotification = function (folder, listenerMethod) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const mfnListener = {};
     mfnListener[listenerMethod] = function () {
       const args = Array.from(arguments);
@@ -236,7 +236,7 @@ PromiseTestUtils.promiseFolderNotification = function (folder, listenerMethod) {
  *   when the folder add completes.
  */
 PromiseTestUtils.promiseFolderAdded = function (folderName) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     var listener = {
       folderAdded: aFolder => {
         if (aFolder.name == folderName) {
@@ -259,7 +259,7 @@ PromiseTestUtils.promiseFolderAdded = function (folderName) {
  * @returns {Promise} Promise that resolves after the delay.
  */
 PromiseTestUtils.promiseDelay = function (aDelay) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
   });
@@ -330,8 +330,8 @@ PromiseTestUtils.PromiseStoreScanListener.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIStoreScanListener"]),
 
   // nsIRequestObserver callbacks
-  onStartRequest(req) {},
-  onStopRequest(req, status) {},
+  onStartRequest() {},
+  onStopRequest() {},
 
   // nsIStreamListener callbacks
   onDataAvailable(req, stream, offset, count) {

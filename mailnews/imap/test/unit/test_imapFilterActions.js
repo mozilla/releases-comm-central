@@ -457,24 +457,24 @@ function DBListener() {
 }
 
 DBListener.prototype = {
-  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {
+  onHdrFlagsChanged() {
     this.counts.onHdrFlagsChanged++;
   },
 
-  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {
+  onHdrDeleted() {
     this.counts.onHdrDeleted++;
   },
 
-  onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
+  onHdrAdded(aHdrChanged) {
     this.counts.onHdrAdded++;
     gHeader = aHdrChanged;
   },
 
-  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {
+  onParentChanged() {
     this.counts.onParentChanged++;
   },
 
-  onAnnouncerGoingAway(instigator) {
+  onAnnouncerGoingAway() {
     if (gInboxListener) {
       try {
         IMAPPump.inbox.msgDatabase.removeListener(gInboxListener);
@@ -485,19 +485,19 @@ DBListener.prototype = {
     this.counts.onAnnouncerGoingAway++;
   },
 
-  onReadChanged(aInstigator) {
+  onReadChanged() {
     this.counts.onReadChanged++;
   },
 
-  onJunkScoreChanged(aInstigator) {
+  onJunkScoreChanged() {
     this.counts.onJunkScoreChanged++;
   },
 
-  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {
+  onHdrPropertyChanged() {
     this.counts.onHdrPropertyChanged++;
   },
 
-  onEvent(aDB, aEvent) {
+  onEvent() {
     this.counts.onEvent++;
   },
 };

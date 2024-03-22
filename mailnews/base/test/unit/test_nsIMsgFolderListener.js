@@ -38,7 +38,7 @@ function gMFListener() {}
 gMFListener.prototype = {
   mReceived: 0,
   mRemoveSelf: false,
-  msgAdded(aMsg) {
+  msgAdded() {
     Assert.equal(this.mReceived & nsIMFNService.msgAdded, 0);
     this.mReceived |= nsIMFNService.msgAdded;
     if (this.mRemoveSelf) {
@@ -46,7 +46,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
+  msgsClassified() {
     Assert.equal(this.mReceived & nsIMFNService.msgsClassified, 0);
     this.mReceived |= nsIMFNService.msgsClassified;
     if (this.mRemoveSelf) {
@@ -54,7 +54,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgsJunkStatusChanged(messages) {
+  msgsJunkStatusChanged() {
     Assert.equal(this.mReceived & nsIMFNService.msgsJunkStatusChanged, 0);
     this.mReceived |= nsIMFNService.msgsJunkStatusChanged;
     if (this.mRemoveSelf) {
@@ -62,7 +62,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgsDeleted(aMsgs) {
+  msgsDeleted() {
     Assert.equal(this.mReceived & nsIMFNService.msgsDeleted, 0);
     this.mReceived |= nsIMFNService.msgsDeleted;
     if (this.mRemoveSelf) {
@@ -70,7 +70,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
+  msgsMoveCopyCompleted() {
     Assert.equal(this.mReceived & nsIMFNService.msgsMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.msgsMoveCopyCompleted;
     if (this.mRemoveSelf) {
@@ -78,7 +78,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgKeyChanged(aOldMsgKey, aNewMsgHdr) {
+  msgKeyChanged() {
     Assert.equal(this.mReceived & nsIMFNService.msgKeyChanged, 0);
     this.mReceived |= nsIMFNService.msgKeyChanged;
     if (this.mRemoveSelf) {
@@ -86,7 +86,7 @@ gMFListener.prototype = {
     }
   },
 
-  msgUnincorporatedMoved(srcFolder, msg) {
+  msgUnincorporatedMoved() {
     Assert.equal(this.mReceived & nsIMFNService.msgUnincorporatedMoved, 0);
     this.mReceived |= nsIMFNService.msgUnincorporatedMoved;
     if (this.mRemoveSelf) {
@@ -94,7 +94,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderAdded(aFolder) {
+  folderAdded() {
     Assert.equal(this.mReceived & nsIMFNService.folderAdded, 0);
     this.mReceived |= nsIMFNService.folderAdded;
     if (this.mRemoveSelf) {
@@ -102,7 +102,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderDeleted(aFolder) {
+  folderDeleted() {
     Assert.equal(this.mReceived & nsIMFNService.folderDeleted, 0);
     this.mReceived |= nsIMFNService.folderDeleted;
     if (this.mRemoveSelf) {
@@ -110,7 +110,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderMoveCopyCompleted(aMove, aSrcFolder, aDestFolder) {
+  folderMoveCopyCompleted() {
     Assert.equal(this.mReceived & nsIMFNService.folderMoveCopyCompleted, 0);
     this.mReceived |= nsIMFNService.folderMoveCopyCompleted;
     if (this.mRemoveSelf) {
@@ -118,7 +118,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderRenamed(aOrigFolder, aNewFolder) {
+  folderRenamed() {
     Assert.equal(this.mReceived & nsIMFNService.folderRenamed, 0);
     this.mReceived |= nsIMFNService.folderRenamed;
     if (this.mRemoveSelf) {
@@ -126,7 +126,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderCompactStart(folder) {
+  folderCompactStart() {
     Assert.equal(this.mReceived & nsIMFNService.folderCompactStart, 0);
     this.mReceived |= nsIMFNService.folderCompactStart;
     if (this.mRemoveSelf) {
@@ -134,7 +134,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderCompactFinish(folder) {
+  folderCompactFinish() {
     Assert.equal(this.mReceived & nsIMFNService.folderCompactFinish, 0);
     this.mReceived |= nsIMFNService.folderCompactFinish;
     if (this.mRemoveSelf) {
@@ -142,7 +142,7 @@ gMFListener.prototype = {
     }
   },
 
-  folderReindexTriggered(folder) {
+  folderReindexTriggered() {
     Assert.equal(this.mReceived & nsIMFNService.folderReindexTriggered, 0);
     this.mReceived |= nsIMFNService.folderReindexTriggered;
     if (this.mRemoveSelf) {

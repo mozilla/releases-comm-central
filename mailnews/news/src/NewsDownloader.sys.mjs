@@ -136,13 +136,13 @@ export class NewsDownloader {
     await new Promise(resolve => {
       searchSession.registerListener(
         {
-          onSearchHit(hdr, folder) {
+          onSearchHit(hdr) {
             if (!(hdr.flags & Ci.nsMsgMessageFlags.Offline)) {
               // Only need to download articles we don't already have.
               keysToDownload.add(hdr.messageKey);
             }
           },
-          onSearchDone: status => {
+          onSearchDone: () => {
             resolve();
           },
         },

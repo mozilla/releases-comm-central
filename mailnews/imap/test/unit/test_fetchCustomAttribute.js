@@ -56,7 +56,7 @@ add_task(async function testFetchCustomValue() {
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.
   const fetchCustomValueListener = new PromiseTestUtils.PromiseUrlListener({
-    OnStopRunningUrl(aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(aUrl.customAttributeResult, gCustomValue);
     },
@@ -76,7 +76,7 @@ add_task(async function testFetchCustomList() {
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE.
   const fetchCustomListListener = new PromiseTestUtils.PromiseUrlListener({
-    OnStopRunningUrl(aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(
         aUrl.customAttributeResult,

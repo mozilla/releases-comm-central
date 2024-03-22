@@ -29,7 +29,7 @@ var gAddressBookAbListener = {
     }
   },
 
-  observe(subject, topic, data) {
+  observe(subject) {
     subject.QueryInterface(Ci.nsIAbDirectory);
     fillDirectoryList(subject);
   },

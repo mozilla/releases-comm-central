@@ -133,10 +133,10 @@ var Tests = [
 
 var gHitCount = 0;
 var searchListener = {
-  onSearchHit(dbHdr, folder) {
+  onSearchHit() {
     gHitCount++;
   },
-  onSearchDone(status) {
+  onSearchDone() {
     testSearch();
   },
   onNewSearch() {
@@ -188,12 +188,12 @@ function run_test() {
 
   var copyListener = {
     OnStartCopy() {},
-    OnProgress(aProgress, aProgressMax) {},
+    OnProgress() {},
     SetMessageKey(aKey) {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) {
+    SetMessageId() {},
+    OnStopCopy() {
       testSearch();
     },
   };

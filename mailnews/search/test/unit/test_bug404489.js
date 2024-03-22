@@ -94,10 +94,10 @@ function run_test() {
 
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
+  OnStopCopy() {
     continue_test();
   },
 };
@@ -139,10 +139,10 @@ function continue_test() {
 
 function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
   var searchListener = {
-    onSearchHit(dbHdr, folder) {
+    onSearchHit() {
       hitCount++;
     },
-    onSearchDone(status) {
+    onSearchDone() {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);

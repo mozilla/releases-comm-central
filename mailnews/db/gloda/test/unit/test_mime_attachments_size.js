@@ -277,7 +277,7 @@ var bogusMessageInfos = [
   },
 ];
 
-add_task(async function test_bogus_messages(info) {
+add_task(async function test_bogus_messages() {
   for (const bogusMessageInfo of bogusMessageInfos) {
     await bogus_messages(bogusMessageInfo);
   }

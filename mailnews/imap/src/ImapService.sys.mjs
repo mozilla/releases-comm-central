@@ -112,28 +112,15 @@ export class ImapService {
     });
   }
 
-  addMessageFlags(folder, urlListener, messageIds, flags, messageIdsAreUID) {
+  addMessageFlags(folder, urlListener, messageIds, flags) {
     this._updateMessageFlags("+", folder, urlListener, messageIds, flags);
   }
 
-  subtractMessageFlags(
-    folder,
-    urlListener,
-    messageIds,
-    flags,
-    messageIdsAreUID
-  ) {
+  subtractMessageFlags(folder, urlListener, messageIds, flags) {
     this._updateMessageFlags("-", folder, urlListener, messageIds, flags);
   }
 
-  setMessageFlags(
-    folder,
-    urlListener,
-    outURL,
-    messageIds,
-    flags,
-    messageIdsAreUID
-  ) {
+  setMessageFlags(folder, urlListener, outURL, messageIds, flags) {
     outURL.value = this._updateMessageFlags(
       "",
       folder,
@@ -452,7 +439,7 @@ export class ImapService {
     offlineSync.processNextOperation();
   }
 
-  getHeaders(folder, urlListener, outURL, messageIds, messageIdsAreUID) {
+  getHeaders(folder, urlListener, outURL, messageIds) {
     return this._withClient(folder, (client, runningUrl) => {
       client.startRunningUrl(urlListener, null, runningUrl);
       runningUrl.QueryInterface(Ci.nsIImapUrl).imapAction =

@@ -28,7 +28,7 @@ export class ImapProtocolHandler {
     return channel;
   }
 
-  allowPort(port, scheme) {
+  allowPort() {
     return true;
   }
 }

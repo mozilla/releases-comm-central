@@ -99,9 +99,9 @@ function endTest() {
 // nsIMsgCopyServiceListener implementation
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
   OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);

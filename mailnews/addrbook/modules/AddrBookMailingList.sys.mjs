@@ -265,7 +265,7 @@ AddrBookMailingList.prototype = {
           self._uid
         );
       },
-      editMailListToDatabase(listCard) {
+      editMailListToDatabase() {
         if (this.readOnly) {
           throw new Components.Exception(
             "Directory is read-only",
@@ -306,10 +306,10 @@ AddrBookMailingList.prototype = {
           self._parent.UID
         );
       },
-      hasMailListWithName(name) {
+      hasMailListWithName() {
         return false;
       },
-      getMailListFromName(name) {
+      getMailListFromName() {
         return null;
       },
     };
@@ -353,7 +353,7 @@ AddrBookMailingList.prototype = {
         return [];
       },
 
-      generateName(generateFormat) {
+      generateName() {
         return self._name;
       },
       getProperty(name, defaultValue) {
@@ -378,7 +378,7 @@ AddrBookMailingList.prototype = {
       equals(card) {
         return self._uid == card.UID;
       },
-      hasEmailAddress(emailAddress) {
+      hasEmailAddress() {
         return false;
       },
       get properties() {

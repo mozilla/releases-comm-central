@@ -57,11 +57,11 @@ nsAbAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].comment;
   },
 
-  getStyleAt(aIndex) {
+  getStyleAt() {
     return "local-abook";
   },
 
-  getImageAt(aIndex) {
+  getImageAt() {
     return "";
   },
 
@@ -69,7 +69,7 @@ nsAbAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {},
+  removeValueAt() {},
 
   // nsIAbAutoCompleteResult
 
@@ -235,7 +235,7 @@ AbAutoCompleteSearch.prototype = {
             }
           }
         },
-        onSearchFinished(status, complete, secInfo, location) {
+        onSearchFinished() {
           resolve();
         },
       });
@@ -544,7 +544,7 @@ AbAutoCompleteSearch.prototype = {
         onSearchFoundCard: card => {
           cards.push(card);
         },
-        onSearchFinished: (status, isCompleteResult, secInfo, location) => {
+        onSearchFinished: (status, isCompleteResult) => {
           if (this._result != result) {
             // The search was aborted, so give up.
             return;

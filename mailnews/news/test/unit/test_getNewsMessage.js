@@ -25,7 +25,7 @@ var streamListener = {
   ]),
 
   // nsIRequestObserver
-  onStartRequest(aRequest) {},
+  onStartRequest() {},
   onStopRequest(aRequest, aStatusCode) {
     Assert.equal(aStatusCode, 0);
 

@@ -40,17 +40,17 @@ nsAbLDAPAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].value;
   },
 
-  getCommentAt(aIndex) {
+  getCommentAt() {
     return this._commentColumn;
   },
 
-  getStyleAt(aIndex) {
+  getStyleAt() {
     return this.searchResult == ACR.RESULT_FAILURE
       ? "remote-err"
       : "remote-abook";
   },
 
-  getImageAt(aIndex) {
+  getImageAt() {
     return "";
   },
 
@@ -58,7 +58,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {},
+  removeValueAt() {},
 
   // nsIAbAutoCompleteResult
 
@@ -148,7 +148,7 @@ AbLDAPAutoCompleteSearch.prototype = {
 
   // nsIObserver
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     if (topic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
     } else if (topic != "timer-callback") {
@@ -309,7 +309,7 @@ AbLDAPAutoCompleteSearch.prototype = {
 
   // nsIAbDirSearchListener
 
-  onSearchFinished(status, complete, secInfo, location) {
+  onSearchFinished(status) {
     if (!this._listener) {
       return;
     }

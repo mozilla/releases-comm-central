@@ -111,12 +111,12 @@ var messageHeaderGetterListener = {
   msgKey: null,
 
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  GetMessageId(aMessageId) {},
+  OnProgress() {},
+  GetMessageId() {},
   SetMessageKey(aKey) {
     this.msgKey = aKey;
   },
-  OnStopCopy(aStatus) {
+  OnStopCopy() {
     test_references_header_parsing(
       localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey)
     );

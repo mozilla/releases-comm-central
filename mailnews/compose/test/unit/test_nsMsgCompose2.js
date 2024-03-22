@@ -14,43 +14,43 @@ sendListener.prototype = {
   mReceived: 0,
   mAutoRemoveItem: 0,
 
-  onStartSending(aMsgID, aMsgSize) {
+  onStartSending() {
     this.mReceived |= 0x01;
     if (this.mAutoRemoveItem == 0x01) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onProgress(aMsgID, aProgress, aProgressMax) {
+  onProgress() {
     this.mReceived |= 0x02;
     if (this.mAutoRemoveItem == 0x02) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onStatus(aMsgID, aMsg) {
+  onStatus() {
     this.mReceived |= 0x04;
     if (this.mAutoRemoveItem == 0x04) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
+  onStopSending() {
     this.mReceived |= 0x08;
     if (this.mAutoRemoveItem == 0x08) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onGetDraftFolderURI(aMsgID, aFolderURI) {
+  onGetDraftFolderURI() {
     this.mReceived |= 0x10;
     if (this.mAutoRemoveItem == 0x10) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onSendNotPerformed(aMsgID, aStatus) {
+  onSendNotPerformed() {
     this.mReceived |= 0x20;
     if (this.mAutoRemoveItem == 0x20) {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onTransportSecurityError(msgID, status, secInfo, location) {
+  onTransportSecurityError() {
     this.mReceived |= 0x40;
     if (this.mAutoRemoveItem == 0x40) {
       gMsgCompose.removeMsgSendListener(this);

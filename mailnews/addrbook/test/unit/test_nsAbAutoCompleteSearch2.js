@@ -51,11 +51,11 @@ nsAbAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].comment;
   },
 
-  getStyleAt: function getStyleAt(aIndex) {
+  getStyleAt: function getStyleAt() {
     return "local-abook";
   },
 
-  getImageAt: function getImageAt(aIndex) {
+  getImageAt: function getImageAt() {
     return "";
   },
 
@@ -63,7 +63,7 @@ nsAbAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt: function removeValueAt(aRowIndex, aRemoveFromDB) {},
+  removeValueAt: function removeValueAt() {},
 
   // nsIAbAutoCompleteResult
 
@@ -76,7 +76,7 @@ nsAbAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].card.primaryEmail;
   },
 
-  isCompleteResult: function isCompleteResult(aIndex) {
+  isCompleteResult: function isCompleteResult() {
     // For this test we claim all results are complete.
     return true;
   },
@@ -89,7 +89,7 @@ nsAbAutoCompleteResult.prototype = {
   ]),
 };
 
-function createCard(chars, popularity) {
+function createCard(chars) {
   var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
@@ -151,7 +151,7 @@ add_task(async () => {
   // Test - Matches
 
   // Now check multiple matches
-  async function checkInputItem(element, index) {
+  async function checkInputItem(element) {
     const resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,

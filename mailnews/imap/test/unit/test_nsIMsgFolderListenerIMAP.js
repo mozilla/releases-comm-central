@@ -307,7 +307,7 @@ function run_test() {
   gRootFolder = gIMAPIncomingServer.rootFolder;
   gIMAPInbox = gRootFolder.getChildNamed("Inbox");
   gExpectedEvents = [
-    [MailServices.mfn.folderAdded, gRootFolder, "Trash", function (folder) {}],
+    [MailServices.mfn.folderAdded, gRootFolder, "Trash", function () {}],
   ];
   gCurrStatus |= kStatus.onStopCopyDone | kStatus.functionCallDone;
 

@@ -74,7 +74,7 @@ async function help_test_rfc822_body(info) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
 
   const streamListener = new PromiseTestUtils.PromiseStreamListener({
-    onStopRequest(request, statusCode) {
+    onStopRequest(request) {
       request.QueryInterface(Ci.nsIMailChannel);
       Assert.equal(request.attachments.length, info.attachmentCount);
     },

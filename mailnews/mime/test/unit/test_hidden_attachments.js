@@ -186,7 +186,7 @@ async function test_message_attachments(info) {
   const msgService = MailServices.messageServiceFromURI(msgURI);
 
   const streamListener = new PromiseTestUtils.PromiseStreamListener({
-    onStopRequest(request, status) {
+    onStopRequest(request) {
       request.QueryInterface(Ci.nsIMailChannel);
       const expectedAttachments = (info.attachments || [])
         .filter(i => i.shouldShow)

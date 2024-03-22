@@ -333,7 +333,7 @@ Feed.prototype = {
   },
 
   // nsIUrlListener methods for getDatabaseWithReparse().
-  OnStartRunningUrl(aUrl) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(aUrl, aExitCode) {
     if (Components.isSuccessCode(aExitCode)) {
       lazy.FeedUtils.log.debug(
@@ -686,7 +686,7 @@ Feed.prototype = {
   },
 
   // nsITimerCallback
-  notify(aTimer) {
+  notify() {
     this.storeNextItem();
   },
 };

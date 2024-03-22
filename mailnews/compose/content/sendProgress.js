@@ -83,7 +83,7 @@ var progressListener = {
     }
   },
 
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+  onLocationChange() {
     // we can ignore this notification
   },
 
@@ -93,11 +93,11 @@ var progressListener = {
     }
   },
 
-  onSecurityChange(aWebProgress, aRequest, state) {
+  onSecurityChange() {
     // we can ignore this notification
   },
 
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  onContentBlockingEvent() {
     // we can ignore this notification
   },
 

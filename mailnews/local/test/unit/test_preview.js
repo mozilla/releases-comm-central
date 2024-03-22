@@ -10,11 +10,11 @@ function run_test() {
   copyFileMessageInLocalFolder(bugmail10, 0, "", null, copy_next_message);
 }
 
-function copy_next_message(aMessageHeaderKeys, aStatus) {
+function copy_next_message() {
   copyFileMessageInLocalFolder(bugmail11, 0, "", null, test_preview);
 }
 
-function test_preview(aMessageHeaderKeys, aStatus) {
+function test_preview(aMessageHeaderKeys) {
   const headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
   Assert.equal(headerKeys.length, 2);

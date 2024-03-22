@@ -179,7 +179,7 @@ function run_test() {
     },
   ];
 
-  function checkAc(element, index, array) {
+  function checkAc(element, index) {
     dump("Testing index " + index + "\n");
     Services.prefs.setBoolPref(
       "ldap_2.autoComplete.useDirectory",

@@ -214,16 +214,16 @@
           onFolderAdded(parentFolder, child) {
             this._folderAddedOrRemoved(child);
           },
-          onMessageAdded(parentFolder, msg) {},
+          onMessageAdded() {},
           onFolderRemoved(parentFolder, child) {
             this._folderAddedOrRemoved(child);
           },
-          onMessageRemoved(parentFolder, msg) {},
+          onMessageRemoved() {},
 
           // xxx I stole this listener list from nsMsgFolderDatasource.cpp, but
           // someone should really document what events are fired when, so that
           // we make sure we're updating at the right times.
-          onFolderPropertyChanged(item, property, old, newItem) {},
+          onFolderPropertyChanged() {},
           onFolderIntPropertyChanged(item, property, old, aNew) {
             if (item instanceof Ci.nsIMsgFolder) {
               if (property == "FolderFlag") {
@@ -244,13 +244,13 @@
             }
             this._setCssSelectorsForItem(item);
           },
-          onFolderBoolPropertyChanged(item, property, old, newItem) {
+          onFolderBoolPropertyChanged(item) {
             this._setCssSelectorsForItem(item);
           },
-          onFolderUnicharPropertyChanged(item, property, old, newItem) {
+          onFolderUnicharPropertyChanged(item) {
             this._setCssSelectorsForItem(item);
           },
-          onFolderPropertyFlagChanged(item, property, old, newItem) {},
+          onFolderPropertyFlagChanged() {},
 
           onFolderEvent(folder, eventName) {
             if (eventName == "MRMTimeChanged") {
@@ -375,7 +375,7 @@
         // note on the _filters field. (Note: empty strings ("") are falsy in JS.)
         const mode = this.getAttribute("mode");
 
-        const filterFunction = mode ? this._filters[mode] : folder => true;
+        const filterFunction = mode ? this._filters[mode] : () => true;
 
         const folders = this._getFolders(
           this._parentFolder,
@@ -1050,7 +1050,7 @@
         // To improve performance, only build the menu when it is shown.
         this.addEventListener(
           "popupshowing",
-          event => {
+          () => {
             this._ensureInitialized();
           },
           true
@@ -1206,7 +1206,7 @@
 
         menupopup.addEventListener(
           "popupshowing",
-          event => {
+          () => {
             this._populateSpecialSubmenu(menu, menupopup);
           },
           { once: true }

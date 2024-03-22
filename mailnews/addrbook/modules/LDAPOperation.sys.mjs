@@ -16,7 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 export class LDAPOperation {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPOperation"]);
 
-  init(connection, listener, closure) {
+  init(connection, listener) {
     this._listener = listener;
     this._connection = connection;
     this._client = connection.wrappedJSObject.client;

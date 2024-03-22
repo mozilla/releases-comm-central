@@ -57,7 +57,7 @@ nsMsgShutdownTaskListener.prototype = {
     "nsISupportsWeakReference",
   ]),
 
-  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       window.close();
     }
@@ -75,7 +75,7 @@ nsMsgShutdownTaskListener.prototype = {
     updateTaskProgressLabel(aCurTotalProgress + 1);
   },
 
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {
+  onLocationChange() {
     // we can ignore this notification
   },
 
@@ -85,11 +85,11 @@ nsMsgShutdownTaskListener.prototype = {
     }
   },
 
-  onSecurityChange(aWebProgress, aRequest, state) {
+  onSecurityChange() {
     // we can ignore this notification
   },
 
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
+  onContentBlockingEvent() {
     // we can ignore this notification
   },
 };

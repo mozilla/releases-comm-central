@@ -74,7 +74,7 @@ export class NewMailNotificationService {
     this.#unreadCount = count;
   }
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     if (topic == "profile-before-change") {
       try {
         MailServices.mailSession.RemoveFolderListener(this);

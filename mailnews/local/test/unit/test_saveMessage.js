@@ -39,7 +39,7 @@ function run_test() {
   copyFileMessageInLocalFolder(dot, 0, "", null, save_message);
 }
 
-async function save_message(aMessageHeaderKeys, aStatus) {
+async function save_message(aMessageHeaderKeys) {
   const headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
 

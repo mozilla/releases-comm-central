@@ -26,7 +26,7 @@ add_task(async function testAbort() {
   do_test_pending();
 
   const urlListener = {
-    OnStartRunningUrl(url) {},
+    OnStartRunningUrl() {},
     OnStopRunningUrl(url, status) {
       // Test sending is aborted with NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS.
       Assert.equal(status, 0x80553126);

@@ -57,7 +57,7 @@ add_task(async function testStoreCustomList() {
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   // Listens for response from customCommandResult request for X-CUSTOM-LIST.
   const storeCustomListSetListener = new PromiseTestUtils.PromiseUrlListener({
-    OnStopRunningUrl(aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(
         aUrl.customCommandResult,
@@ -82,7 +82,7 @@ add_task(async function testStoreMinusCustomList() {
   // Listens for response from customCommandResult request for X-CUSTOM-LIST.
   const storeCustomListRemovedListener =
     new PromiseTestUtils.PromiseUrlListener({
-      OnStopRunningUrl(aUrl, aExitCode) {
+      OnStopRunningUrl(aUrl) {
         aUrl.QueryInterface(Ci.nsIImapUrl);
         Assert.equal(
           aUrl.customCommandResult,
@@ -105,7 +105,7 @@ add_task(async function testStorePlusCustomList() {
   );
   uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
   const storeCustomListAddedListener = new PromiseTestUtils.PromiseUrlListener({
-    OnStopRunningUrl(aUrl, aExitCode) {
+    OnStopRunningUrl(aUrl) {
       aUrl.QueryInterface(Ci.nsIImapUrl);
       Assert.equal(
         aUrl.customCommandResult,

@@ -65,7 +65,7 @@ export class BaseProfileImporter {
    * @returns {boolean} Returns true when accounts have been imported, which
    *   means a restart is needed. Otherwise, no restart is needed.
    */
-  async startImport(sourceProfileDir, items) {
+  async startImport() {
     throw Components.Exception(
       `startImport not implemented in ${this.constructor.name}`,
       Cr.NS_ERROR_NOT_IMPLEMENTED

@@ -2,7 +2,7 @@
 
 /* globals define */
 
-define(function (require) {
+define(function () {
   /**
    * A class which appears to act like the Date class with customizable timezone
    * offsets.

@@ -474,7 +474,7 @@ function setPickersState(enablePickerId, disablePickerId, event) {
 
 // This routine is to restore the correct radio element
 // state when the fcc self checkbox broadcasts the change
-function SetRadioButtons(selectPickerId, unselectPickerId) {
+function SetRadioButtons(selectPickerId) {
   var activeRadioElem = document.getElementById(selectPickerId);
   activeRadioElem.radioGroup.selectedItem = activeRadioElem;
 }

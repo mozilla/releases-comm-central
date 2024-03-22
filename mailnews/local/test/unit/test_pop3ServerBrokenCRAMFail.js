@@ -19,7 +19,7 @@ var expectedTransaction = [
 const kStateAuthNeeded = 1; // the same value as in Pop3d.sys.mjs
 
 var urlListener = {
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, result) {
     try {
       Assert.equal(result, 0);

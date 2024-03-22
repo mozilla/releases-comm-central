@@ -92,7 +92,7 @@ const abResultsPaneObserver = {
   },
 };
 
-function DragAddressOverTargetControl(event) {
+function DragAddressOverTargetControl() {
   var dragSession = Cc["@mozilla.org/widget/dragservice;1"]
     .getService(Ci.nsIDragService)
     .getCurrentSession();

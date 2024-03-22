@@ -184,7 +184,7 @@ export class ImapIncomingServer extends MsgIncomingServer {
   /** @see nsIUrlListener */
   OnStartRunningUrl() {}
 
-  OnStopRunningUrl(url, exitCode) {
+  OnStopRunningUrl(url) {
     switch (url.QueryInterface(Ci.nsIImapUrl).imapAction) {
       case Ci.nsIImapUrl.nsImapDiscoverAllAndSubscribedBoxesUrl:
         this.stopPopulating();

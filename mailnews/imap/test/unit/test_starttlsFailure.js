@@ -60,7 +60,7 @@ add_setup(async function () {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(gDummyMsgWindow, listener);
   await listener.promise
-    .then(res => {
+    .then(() => {
       throw new Error("updateFolderWithListener has to fail");
     })
     .catch(exitCode => {

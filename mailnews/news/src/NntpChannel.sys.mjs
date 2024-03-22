@@ -135,7 +135,7 @@ export class NntpChannel extends MailChannel {
     this._readFromCacheStream(entry.openInputStream(0));
   }
 
-  onCacheEntryCheck(entry) {
+  onCacheEntryCheck() {
     return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
   }
 

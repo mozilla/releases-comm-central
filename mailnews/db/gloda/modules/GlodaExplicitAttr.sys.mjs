@@ -122,7 +122,7 @@ export var GlodaExplicitAttr = {
     }); // tested-by: test_attributes_explicit
   },
 
-  *process(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
+  *process(aGlodaMessage, aRawReps) {
     const aMsgHdr = aRawReps.header;
 
     aGlodaMessage.starred = aMsgHdr.isFlagged;
@@ -170,7 +170,7 @@ export var GlodaExplicitAttr = {
    *  be factored to call us, grokNounItem should be factored to call us, or we
    *  should get sufficiently fancy that our code wildly diverges.
    */
-  score(aMessage, aContext) {
+  score(aMessage) {
     let score = 0;
     if (aMessage.starred) {
       score += this.NOTABILITY_STARRED;

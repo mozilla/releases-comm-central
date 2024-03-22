@@ -29,7 +29,7 @@ function verifyPop3Logon(validPassword) {
 
 var urlListener = {
   expectSucess: false,
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, aResult) {
     Assert.equal(Components.isSuccessCode(aResult), this.expectSuccess);
   },

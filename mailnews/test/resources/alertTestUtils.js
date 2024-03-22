@@ -328,11 +328,11 @@ var alertUtilsPromptService = {
 };
 
 var alertUtilsWindowWatcher = {
-  getNewPrompter(aParent) {
+  getNewPrompter() {
     return alertUtilsPrompts;
   },
 
-  getNewAuthPrompter(aParent) {
+  getNewAuthPrompter() {
     return Cc["@mozilla.org/login-manager/authprompter;1"].getService(
       Ci.nsIAuthPrompt
     );

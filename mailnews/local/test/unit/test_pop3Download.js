@@ -56,11 +56,11 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   _stream: null,
   _data: null,
-  onStartRequest(aRequest) {
+  onStartRequest() {
     this._stream = null;
     this._data = "";
   },
-  onStopRequest(aRequest, aStatusCode) {
+  onStopRequest() {
     // Check the streamed message doesn't start with mbox separator "From ".
     Assert.ok(!this._data.startsWith("From "));
     if (++gHdrIndex == gFiles.length) {

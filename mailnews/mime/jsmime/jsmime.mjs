@@ -3,11 +3,10 @@ const JsMIMEmimeutils = function () {
    * Decode a quoted-printable buffer into a binary string.
    *
    * @param {BinaryString} buffer - The string to decode.
-   * @param {boolean} more - This argument is ignored.
    * @returns {BinaryString[]} The first element of the array is the decoded
    *   string. The second element is always the empty string.
    */
-  function decode_qp(buffer, more) {
+  function decode_qp(buffer) {
     // Unlike base64, quoted-printable isn't stateful across multiple lines, so
     // there is no need to buffer input, so we can always ignore more.
     const decoded = buffer.replace(
@@ -749,7 +748,7 @@ const JsMIMEheaderparser = function () {
         // whitespace at the end of the string. Such an input string is already
         // malformed to begin with, so stripping the = and following input in that
         // case should not be an important loss.
-        buffer = mimeutils.decode_qp(text.replace(/_/g, " "), false)[0];
+        buffer = mimeutils.decode_qp(text.replace(/_/g, " "))[0];
       } else {
         return false;
       }
@@ -2071,7 +2070,7 @@ const JsMIMEmimeparser = function () {
       stripcontinuations: true,
       charset: "",
       "force-charset": false,
-      onerror(error) {},
+      onerror() {},
     };
     // Load the options as a copy here (prevents people from changing on the fly).
     if (options) {

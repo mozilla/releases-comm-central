@@ -156,7 +156,7 @@ export class LDAPDirectory extends AddrBookDirectory {
     return this._replicationDB;
   }
 
-  getCardFromProperty(property, value, caseSensitive) {
+  getCardFromProperty() {
     return null;
   }
 

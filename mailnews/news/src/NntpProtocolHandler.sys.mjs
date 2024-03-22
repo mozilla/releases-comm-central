@@ -28,7 +28,7 @@ export class NewsProtocolHandler {
     return channel;
   }
 
-  allowPort(port, scheme) {
+  allowPort() {
     return true;
   }
 }

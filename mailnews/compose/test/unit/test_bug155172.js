@@ -17,29 +17,12 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
 var gNewPassword = null;
 
 // for alertTestUtils.js
-function confirmExPS(
-  parent,
-  aDialogTitle,
-  aText,
-  aButtonFlags,
-  aButton0Title,
-  aButton1Title,
-  aButton2Title,
-  aCheckMsg,
-  aCheckState
-) {
+function confirmExPS() {
   // Just return 2 which will is pressing button 2 - enter a new password.
   return 2;
 }
 
-function promptPasswordPS(
-  aParent,
-  aDialogTitle,
-  aText,
-  aPassword,
-  aCheckMsg,
-  aCheckState
-) {
+function promptPasswordPS(aParent, aDialogTitle, aText, aPassword) {
   aPassword.value = gNewPassword;
   return true;
 }

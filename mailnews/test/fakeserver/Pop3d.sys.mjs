@@ -156,7 +156,7 @@ export class POP3_RFC1939_handler {
     }
     return "-ERR invalid password";
   }
-  STAT(args) {
+  STAT() {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
@@ -168,7 +168,7 @@ export class POP3_RFC1939_handler {
       this._daemon.getTotalMessageSize()
     );
   }
-  LIST(args) {
+  LIST() {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
@@ -182,7 +182,7 @@ export class POP3_RFC1939_handler {
     result += ".";
     return result;
   }
-  UIDL(args) {
+  UIDL() {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
@@ -233,20 +233,20 @@ export class POP3_RFC1939_handler {
     }
     return "+OK";
   }
-  NOOP(args) {
+  NOOP() {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     return "+OK";
   }
-  RSET(args) {
+  RSET() {
     if (this._state != kStateTransaction) {
       return "-ERR invalid state";
     }
     this._state = kStateAuthNeeded;
     return "+OK";
   }
-  QUIT(args) {
+  QUIT() {
     // Let the client close the socket
     // this.closing = true;
     return "+OK fakeserver signing off";
@@ -256,7 +256,7 @@ export class POP3_RFC1939_handler {
     this._state = kStateAuthNeeded;
     return "+OK Fake POP3 server ready";
   }
-  onError(command, args) {
+  onError(command) {
     return "-ERR command " + command + " not implemented";
   }
   onServerFault(e) {
@@ -278,7 +278,7 @@ export class POP3_RFC1939_handler {
 export class POP3_RFC2449_handler extends POP3_RFC1939_handler {
   kCapabilities = ["UIDL", "TOP"]; // the test may adapt this as necessary
 
-  CAPA(args) {
+  CAPA() {
     var capa = "+OK List of our wanna-be capabilities follows:\r\n";
     for (var i = 0; i < this.kCapabilities.length; i++) {
       capa += this.kCapabilities[i] + "\r\n";
@@ -384,7 +384,7 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
     return undefined;
   }
 
-  authPLAINStart(lineRest) {
+  authPLAINStart() {
     this._nextAuthFunction = this.authPLAINCred;
     this._multiline = true;
 
@@ -402,7 +402,7 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
     return "-ERR Wrong username or password, crook!";
   }
 
-  authCRAMStart(lineRest) {
+  authCRAMStart() {
     this._nextAuthFunction = this.authCRAMDigest;
     this._multiline = true;
 
@@ -425,7 +425,7 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
     return "-ERR Wrong username or password, crook!";
   }
 
-  authLOGINStart(lineRest) {
+  authLOGINStart() {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
@@ -442,7 +442,7 @@ export class POP3_RFC5034_handler extends POP3_RFC2449_handler {
     this._multiline = true;
     return "+ " + btoa("Password:");
   }
-  authLOGINBadUsername(line) {
+  authLOGINBadUsername() {
     if (this.dropOnAuthFailure) {
       this.closing = true;
     }
@@ -472,7 +472,7 @@ export class POP3_OAUTH2_handler extends POP3_RFC5034_handler {
     this._kAuthSchemeStartFunction.XOAUTH2 = this.authXOAUTH2Start;
   }
 
-  authXOAUTH2Start(lineRest) {
+  authXOAUTH2Start() {
     this._nextAuthFunction = this.authXOAUTH2Cred;
     this._multiline = true;
 

@@ -52,7 +52,7 @@ TestJaMsgProtocolInfo.prototype = {
   get canDuplicate() {
     return false;
   },
-  getDefaultServerPort: isSecure => 0,
+  getDefaultServerPort: () => 0,
   get canGetMessages() {
     return false;
   },

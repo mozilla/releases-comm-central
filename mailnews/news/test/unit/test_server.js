@@ -106,8 +106,8 @@ function testReentrantClose() {
   server.start(NNTP_PORT);
 
   var listener = {
-    OnStartRunningUrl(url) {},
-    OnStopRunningUrl(url, rv) {
+    OnStartRunningUrl() {},
+    OnStopRunningUrl() {
       // Spin the event loop (entering nsNNTPProtocol::ProcessProtocolState)
       const thread = Services.tm.currentThread;
       while (thread.hasPendingEvents()) {
@@ -153,8 +153,8 @@ function testManyConnections() {
   _server.maximumConnectionsNumber = 3;
   var listener = {
     ran: 0,
-    OnStartRunningUrl(url) {},
-    OnStopRunningUrl(url, rv) {
+    OnStartRunningUrl() {},
+    OnStopRunningUrl() {
       if (--this.ran == 0) {
         _server.closeCachedConnections();
       }

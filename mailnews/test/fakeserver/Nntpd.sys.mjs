@@ -229,7 +229,7 @@ export class NNTP_RFC977_handler {
     response += ".";
     return response;
   }
-  HELP(args) {
+  HELP() {
     var response = "100 Why certainly, here is my help:\n";
     response += "Mozilla fake NNTP RFC 977 testing server";
     response += "Commands supported:\n";
@@ -250,7 +250,7 @@ export class NNTP_RFC977_handler {
     response += ".";
     return response;
   }
-  LAST(args) {
+  LAST() {
     if (this.group == null) {
       return "412 no newsgroup selected";
     }
@@ -259,7 +259,7 @@ export class NNTP_RFC977_handler {
     }
     return "502 Command not implemented";
   }
-  LIST(args) {
+  LIST() {
     var response = "215 list of newsgroup follows\n";
     for (const groupname in this._daemon._groups) {
       const group = this._daemon._groups[groupname];
@@ -277,13 +277,13 @@ export class NNTP_RFC977_handler {
     response += ".";
     return response;
   }
-  NEWGROUPS(args) {
+  NEWGROUPS() {
     return "502 Command not implemented";
   }
-  NEWNEWS(args) {
+  NEWNEWS() {
     return "502 Command not implemented";
   }
-  NEXT(args) {
+  NEXT() {
     if (this.group == null) {
       return "412 no newsgroup selected";
     }
@@ -292,12 +292,12 @@ export class NNTP_RFC977_handler {
     }
     return "502 Command not implemented";
   }
-  POST(args) {
+  POST() {
     this.posting = true;
     this.post = "";
     return "340 Please continue";
   }
-  QUIT(args) {
+  QUIT() {
     this.closing = true;
     return "205 closing connection - goodbye!";
   }
@@ -321,7 +321,7 @@ export class NNTP_RFC977_handler {
     return response;
   }
 
-  onError(command, args) {
+  onError() {
     return "500 command not recognized";
   }
   onServerFault(e) {
@@ -408,7 +408,7 @@ export class NNTP_RFC977_handler {
 }
 
 export class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
-  DATE(args) {
+  DATE() {
     return "502 Command not implemented";
   }
   LIST(args) {

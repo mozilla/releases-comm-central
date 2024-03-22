@@ -50,10 +50,10 @@ function run_test() {
 
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
+  OnStopCopy() {
     const fileName = Files.shift();
     if (fileName) {
       const file = do_get_file(fileName);

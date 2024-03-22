@@ -47,10 +47,10 @@ function run_test() {
 
 var messageHeaderGetterListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  GetMessageId(aMessageId) {},
-  SetMessageKey(aKey) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  GetMessageId() {},
+  SetMessageKey() {},
+  OnStopCopy() {
     do_timeout(0, test_enumerator_cleanup);
   },
 };

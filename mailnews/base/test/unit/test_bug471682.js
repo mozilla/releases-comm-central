@@ -49,13 +49,13 @@ function run_test() {
 // nsIMsgCopyServiceListener implementation
 var step2 = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     dump("in set message key\n");
     gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
   },
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  SetMessageId() {},
+  OnStopCopy() {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
     MailServices.copy.copyMessages(
@@ -75,10 +75,10 @@ var step2 = {
 // nsIMsgCopyServiceListener implementation
 var step3 = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
+  OnStopCopy() {
     do_timeout(2000, step4);
   },
 };
@@ -100,10 +100,10 @@ function step4() {
 // nsIMsgCopyServiceListener implementation
 var step5 = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
+  OnStopCopy() {
     var dbSize = gSubfolder.msgDatabase.dBFolderInfo.folderSize;
     var dbDate = gSubfolder.msgDatabase.dBFolderInfo.folderDate;
     var filePath = gSubfolder.filePath;

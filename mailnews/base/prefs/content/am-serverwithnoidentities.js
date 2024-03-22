@@ -60,7 +60,7 @@ function changeStoreType(aResponse) {
   }
 }
 
-function onInit(aPageId, aServerId) {
+function onInit() {
   // UI for account store type
   const storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account
@@ -83,7 +83,7 @@ function onInit(aPageId, aServerId) {
   gOriginalStoreType = storeTypeElement.value;
 }
 
-function onPreInit(account, accountValues) {
+function onPreInit(account) {
   gAccount = account;
 }
 

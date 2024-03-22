@@ -83,7 +83,7 @@ class ThunderbirdImportMail {
     return this._collectMailboxesInDirectory(location, 0);
   }
 
-  ImportMailbox(source, dstFolder, errorLog, successLog, fatalError) {
+  ImportMailbox(source, dstFolder, errorLog, successLog) {
     if (source.file.isFile()) {
       source.file.copyTo(
         dstFolder.filePath.parent,

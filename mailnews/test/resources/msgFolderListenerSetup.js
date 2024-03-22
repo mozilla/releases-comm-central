@@ -224,7 +224,7 @@ var copyListener = {
   mFolderStoredIn: null,
   mMessageId: "",
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     gHdrsReceived.push(this.mFolderStoredIn.GetMessageHeader(aKey));
   },

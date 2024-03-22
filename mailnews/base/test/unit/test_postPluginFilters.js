@@ -131,7 +131,7 @@ function endTest() {
 
 var classifyListener = {
   // nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified(aMsgURI, aTraits, aPercents) {
+  onMessageTraitsClassified(aMsgURI) {
     // print("Message URI is " + aMsgURI);
     if (!aMsgURI) {
       // Ignore end-of-batch signal.
@@ -146,17 +146,17 @@ var classifyListener = {
 function DBListener() {}
 
 DBListener.prototype = {
-  onHdrFlagsChanged(aHdrChanged, aOldFlags, aNewFlags, aInstigator) {},
+  onHdrFlagsChanged() {},
 
-  onHdrDeleted(aHdrChanged, aParentKey, Flags, aInstigator) {},
+  onHdrDeleted() {},
 
-  onHdrAdded(aHdrChanged, aParentKey, aFlags, aInstigator) {
+  onHdrAdded(aHdrChanged) {
     gMsgHdr = aHdrChanged;
   },
 
-  onParentChanged(aKeyChanged, oldParent, newParent, aInstigator) {},
+  onParentChanged() {},
 
-  onAnnouncerGoingAway(instigator) {
+  onAnnouncerGoingAway() {
     if (gInboxListener) {
       try {
         POP3Pump.inbox.msgDatabase.removeListener(gInboxListener);
@@ -166,12 +166,12 @@ DBListener.prototype = {
     }
   },
 
-  onReadChanged(aInstigator) {},
+  onReadChanged() {},
 
-  onJunkScoreChanged(aInstigator) {},
+  onJunkScoreChanged() {},
 
-  onHdrPropertyChanged(aHdrToChange, aPreChange, aStatus, aInstigator) {},
-  onEvent(aDB, aEvent) {},
+  onHdrPropertyChanged() {},
+  onEvent() {},
 };
 
 // start the next test command

@@ -9,7 +9,7 @@ function onLoad() {
   parent.onPanelLoaded("am-addressing.xhtml");
 }
 
-function onInit(aPageId, aServerId) {
+function onInit() {
   onInitCompositionAndAddressing();
 }
 
@@ -24,7 +24,7 @@ function onEditDirectories() {
   );
 }
 
-function onPreInit(account, accountValues) {}
+function onPreInit() {}
 
 function LDAPenabling() {
   onCheckItem("identity.directoryServer", ["directories"]);

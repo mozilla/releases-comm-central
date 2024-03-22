@@ -35,10 +35,10 @@ function TestSearch(
   aHdrProperty
 ) {
   var searchListener = {
-    onSearchHit(dbHdr, folder) {
+    onSearchHit() {
       hitCount++;
     },
-    onSearchDone(status) {
+    onSearchDone() {
       print("Finished search does " + aHitCount + " equal " + hitCount + "?");
       searchSession = null;
       Assert.equal(aHitCount, hitCount);

@@ -96,7 +96,7 @@ const certificateUsages = {
   certificateUsageEmailRecipient,
 };
 
-function onSelectionChange(event) {
+function onSelectionChange() {
   gViewButton.disabled = !(
     gListBox.selectedItems.length == 1 && certForRow(gListBox.selectedIndex)
   );

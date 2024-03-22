@@ -45,15 +45,7 @@ add_task(async function cancelPasswordDialog() {
   do_check_transaction(transaction, ["MODE READER"]);
 });
 
-function promptUsernameAndPasswordPS(
-  aParent,
-  aDialogTitle,
-  aText,
-  aUsername,
-  aPassword,
-  aCheckMsg,
-  aCheckState
-) {
+function promptUsernameAndPasswordPS() {
   // Cancel the password dialog.
   return false;
 }

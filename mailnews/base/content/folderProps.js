@@ -186,7 +186,7 @@ function folderPropsOKButton(event) {
   }
 }
 
-function folderCancelButton(event) {
+function folderCancelButton() {
   // Clear any previewed color.
   Services.obs.notifyObservers(gMsgFolder, "folder-color-preview");
 }
@@ -269,7 +269,7 @@ function folderPropsOnLoad() {
     const colorInput = document.getElementById("color");
     colorInput.value =
       FolderTreeProperties.getColor(gMsgFolder.URI) || gDefaultColor;
-    colorInput.addEventListener("input", event => {
+    colorInput.addEventListener("input", () => {
       // Preview the chosen color.
       Services.obs.notifyObservers(
         gMsgFolder,

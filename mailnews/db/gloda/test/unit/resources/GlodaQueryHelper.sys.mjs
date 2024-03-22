@@ -145,12 +145,12 @@ class QueryExpectationListener {
       }
     }
   }
-  onItemsModified(aItems, aCollection) {
+  onItemsModified() {
     log.debug(
       "QueryExpectationListener onItemsModified received. Nothing done."
     );
   }
-  onItemsRemoved(aItems, aCollection) {
+  onItemsRemoved() {
     log.debug(
       "QueryExpectationListener onItemsRemoved received. Nothing done."
     );
@@ -401,7 +401,7 @@ class SqlExpectationListener {
     );
   }
 
-  handleCompletion(aReason) {
+  handleCompletion() {
     if (this.actualCount != this.expectedCount) {
       this._reject(
         new Error(

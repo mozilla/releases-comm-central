@@ -8,7 +8,7 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-window.addEventListener("DOMContentLoaded", event => {
+window.addEventListener("DOMContentLoaded", () => {
   gSmtpServerListWindow.onLoad();
 });
 
@@ -35,7 +35,7 @@ var gSmtpServerListWindow = {
     this.updateButtons();
   },
 
-  onSelectionChanged(aEvent) {
+  onSelectionChanged() {
     var server = this.getSelectedServer();
     if (!server) {
       return;
@@ -45,7 +45,7 @@ var gSmtpServerListWindow = {
     this.updateServerInfoBox(server);
   },
 
-  onDeleteServer(aEvent) {
+  onDeleteServer() {
     var server = this.getSelectedServer();
     if (!server) {
       return;
@@ -82,11 +82,11 @@ var gSmtpServerListWindow = {
     }
   },
 
-  onAddServer(aEvent) {
+  onAddServer() {
     this.openServerEditor(null);
   },
 
-  onEditServer(aEvent) {
+  onEditServer() {
     const server = this.getSelectedServer();
     if (!server) {
       return;
@@ -95,7 +95,7 @@ var gSmtpServerListWindow = {
     this.openServerEditor(server);
   },
 
-  onSetDefaultServer(aEvent) {
+  onSetDefaultServer() {
     const server = this.getSelectedServer();
     if (!server) {
       return;

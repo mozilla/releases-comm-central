@@ -47,13 +47,7 @@ class BaseMessageService {
     );
   }
 
-  loadMessage(
-    messageUri,
-    displayConsumer,
-    msgWindow,
-    urlListener,
-    autodetectCharset
-  ) {
+  loadMessage(messageUri, displayConsumer, msgWindow, urlListener) {
     this._logger.debug("loadMessage", messageUri);
     const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
@@ -116,7 +110,7 @@ class BaseMessageService {
     );
   }
 
-  getUrlForUri(messageUri, msgWindow) {
+  getUrlForUri(messageUri) {
     if (messageUri.includes("&type=application/x-message-display")) {
       return Services.io.newURI(messageUri);
     }
@@ -174,7 +168,7 @@ class BaseMessageService {
     );
   }
 
-  streamHeaders(messageUri, consumer, urlListener, localOnly) {
+  streamHeaders(messageUri, consumer) {
     this._logger.debug("streamHeaders", messageUri);
     const { folder, key } = this._decomposeMessageUri(messageUri);
 

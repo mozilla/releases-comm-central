@@ -99,7 +99,7 @@ function EnableDisableAllowedReceipts() {
   return true;
 }
 
-function onPreInit(account, accountValues) {
+function onPreInit(account) {
   gIdentity = account.defaultIdentity;
   gIncomingServer = account.incomingServer;
 }

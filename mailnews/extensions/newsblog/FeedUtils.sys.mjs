@@ -993,7 +993,7 @@ export var FeedUtils = {
     const uri = Services.io.newURI(url);
     const iconURL = await fetchFavicon(uri.prePath + "/favicon.ico")
       .then(blobToBase64)
-      .catch(e => {
+      .catch(() => {
         return discoverFaviconURL(url)
           .catch(() => discoverFaviconURL(uri.prePath))
           .then(fetchFavicon)
@@ -2081,7 +2081,7 @@ export var FeedUtils = {
       }
     },
 
-    onProgress(feed, aProgress, aProgressMax, aLengthComputable) {
+    onProgress(feed, aProgress, aProgressMax) {
       if (feed.url in this.mFeeds) {
         // Have we already seen this feed?
         this.mFeeds[feed.url].currentProgress = aProgress;

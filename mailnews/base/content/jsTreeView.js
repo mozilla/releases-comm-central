@@ -108,12 +108,12 @@ PROTO_TREE_VIEW.prototype = {
     return this._rowMap[aIndex].open;
   },
 
-  isEditable(aRow, aCol) {
+  isEditable() {
     // We don't support editing rows in the tree yet.
     return false;
   },
 
-  isSeparator(aIndex) {
+  isSeparator() {
     // There are no separators in our trees
     return false;
   },
@@ -200,18 +200,18 @@ PROTO_TREE_VIEW.prototype = {
   },
 
   // We don't implement any of these at the moment
-  canDrop(aIndex, aOrientation) {},
-  drop(aRow, aOrientation) {},
+  canDrop() {},
+  drop() {},
   selectionChanged() {},
-  setCellText(aRow, aCol, aValue) {},
-  setCellValue(aRow, aCol, aValue) {},
-  getColumnProperties(aCol) {
+  setCellText() {},
+  setCellValue() {},
+  getColumnProperties() {
     return "";
   },
-  getImageSrc(aRow, aCol) {},
-  getProgressMode(aRow, aCol) {},
-  cycleCell(aRow, aCol) {},
-  cycleHeader(aCol) {},
+  getImageSrc() {},
+  getProgressMode() {},
+  cycleCell() {},
+  cycleHeader() {},
 
   _tree: null,
 

@@ -61,7 +61,7 @@ CommandUpdaterWithPromise.prototype = {
     // when the # of items in the selection has actually changed.
   },
 
-  displayMessageChanged(aFolder, aSubject, aKeywords) {},
+  displayMessageChanged() {},
 
   updateNextMessageAfterDelete() {},
   summarizeSelection() {

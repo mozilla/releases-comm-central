@@ -63,7 +63,7 @@ SeamonkeyImportAddressbook.prototype = {
     return 0;
   },
 
-  BeginImport(successLog, errorLog) {
+  BeginImport(successLog) {
     this.migrator.migrate(
       Ci.nsIMailProfileMigrator.ADDRESSBOOK_DATA,
       null,
@@ -148,7 +148,7 @@ SeamonkeyImportMail.prototype = {
   },
 
   // Copy mailboxes a Seamonkey profile to Thunderbird profile.
-  ImportMailbox(source, dstFolder, errorLog, successLog, fatalError) {
+  ImportMailbox(source, dstFolder, errorLog, successLog) {
     if (source.file.isFile()) {
       source.file.copyTo(
         dstFolder.filePath.parent,

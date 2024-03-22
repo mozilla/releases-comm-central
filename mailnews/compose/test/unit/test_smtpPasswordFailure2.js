@@ -34,16 +34,7 @@ var kUsername = "testsmtp";
 var kInvalidPassword = "smtptest";
 var kValidPassword = "smtptest1";
 
-function confirmExPS(
-  aDialogTitle,
-  aText,
-  aButtonFlags,
-  aButton0Title,
-  aButton1Title,
-  aButton2Title,
-  aCheckMsg,
-  aCheckState
-) {
+function confirmExPS() {
   switch (++attempt) {
     // First attempt, retry.
     case 1:

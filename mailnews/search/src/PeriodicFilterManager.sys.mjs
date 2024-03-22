@@ -71,7 +71,7 @@ export var PeriodicFilterManager = {
    * is still ongoing, in which cases running periodic filter of any server
    * may be postponed.
    */
-  notify(timer) {
+  notify() {
     log.debug("PeriodicFilterManager timer callback");
     if (this._running) {
       log.debug("PeriodicFilterManager Previous filter run still executing");
@@ -179,7 +179,7 @@ export var PeriodicFilterManager = {
     return serverRateMinutes;
   },
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     Services.obs.removeObserver(this, topic);
     if (topic == "mail-startup-done") {
       this.init();

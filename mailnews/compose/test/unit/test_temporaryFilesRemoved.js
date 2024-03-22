@@ -10,24 +10,17 @@ var gMsgCompose;
 var gExpectedFiles;
 
 var progressListener = {
-  onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+  onStateChange(aWebProgress, aRequest, aStateFlags) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       do_timeout(0, checkResult);
     }
   },
 
-  onProgressChange(
-    aWebProgress,
-    aRequest,
-    aCurSelfProgress,
-    aMaxSelfProgress,
-    aCurTotalProgress,
-    aMaxTotalProgress
-  ) {},
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
+  onProgressChange() {},
+  onLocationChange() {},
+  onStatusChange() {},
+  onSecurityChange() {},
+  onContentBlockingEvent() {},
 
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",

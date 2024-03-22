@@ -239,7 +239,7 @@ class CallbackHandle {
     });
   }
 
-  pushAndGo(aIterator, aContext) {
+  pushAndGo(aIterator) {
     this.glodaWorkerAdapter(aIterator, this._resolve).catch(reason => {
       if (!reason.message.match(ENUMERATOR_SIGNAL_WORD)) {
         throw reason;

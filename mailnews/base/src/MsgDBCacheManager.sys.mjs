@@ -61,7 +61,7 @@ export var msgDBCacheManager = {
 
   /* ........ Observer Notification Handler ................*/
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     switch (aTopic) {
       // This is observed before any windows start unloading if something other
       // than the last 3pane window closing requested the application be

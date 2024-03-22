@@ -65,7 +65,7 @@ function checkPersistentState(folder) {
 // nsIMsgCopyServiceListener implementation
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
+  OnProgress() {},
   SetMessageKey(aKey) {
     try {
       const hdr = gLocalFolder2.GetMessageHeader(aKey);
@@ -74,7 +74,7 @@ var copyListener = {
       dump("SetMessageKey failed: " + e + "\n");
     }
   },
-  SetMessageId(aMessageId) {},
+  SetMessageId() {},
   OnStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
@@ -89,7 +89,7 @@ var copyListener = {
 };
 
 var urlListener = {
-  OnStartRunningUrl(aUrl) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(aUrl, aExitCode) {
     // Check: message successfully copied.
     Assert.equal(aExitCode, 0);

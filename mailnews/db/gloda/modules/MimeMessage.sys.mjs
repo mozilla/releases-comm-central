@@ -24,7 +24,7 @@ var shutdownCleanupObserver = {
     this._initialized = true;
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "quit-application") {
       Services.obs.removeObserver(this, "quit-application");
 
@@ -72,7 +72,7 @@ CallbackStreamListener.prototype = {
 
   // nsIUrlListener part
 
-  OnStartRunningUrl(aUrl) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(aUrl, aExitCode) {
     if (!Components.isSuccessCode(aExitCode)) {
       // Connection errors are not seen by onStopRequest, so we finalize on
@@ -131,7 +131,7 @@ CallbackStreamListener.prototype = {
    * Our onDataAvailable should actually never be called. The stream converter
    * is actually eating everything except the start and stop notification.
    */
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest) {
     throw new Error(
       `The stream converter should have grabbed the data for ${aRequest?.URI.spec}`
     );
@@ -798,7 +798,7 @@ MimeMessageAttachment.prototype = {
   get allUserAttachments() {
     return [this];
   },
-  prettyString(aVerbose, aIndent, aDumpBody) {
+  prettyString(aVerbose, aIndent) {
     let s =
       "Attachment " +
       (this.isEncrypted ? "[encrypted] " : "") +

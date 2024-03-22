@@ -497,7 +497,7 @@ GlodaNullQueryClass.prototype = {
    *     associated collection.  But we don't care!  Not a fig!
    * @returns false
    */
-  test(aObj) {
+  test() {
     return false;
   },
 };
@@ -590,7 +590,7 @@ GlodaWildcardQueryClass.prototype = {
   /**
    * Everybody wins!
    */
-  test(aObj) {
+  test() {
     return true;
   },
 };

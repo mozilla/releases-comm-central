@@ -51,7 +51,7 @@ function alertListener() {}
 alertListener.prototype = {
   reset() {},
 
-  onAlert(aMessage, aMsgWindow) {
+  onAlert(aMessage) {
     throw new Error("got alert - TEST FAILED " + aMessage);
   },
 };

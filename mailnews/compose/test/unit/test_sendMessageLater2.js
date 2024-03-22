@@ -237,29 +237,19 @@ class MsgSendLaterListener {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(msgSendLater.sendingMessages, true);
   }
-  onMessageStartSending(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageHeader,
-    aIdentity
-  ) {
+  onMessageStartSending(aCurrentMessage) {
     if (gLastSentMessage > 0) {
       this.checkMessageSend(aCurrentMessage);
     }
     Assert.equal(gLastSentMessage + 1, aCurrentMessage);
     gLastSentMessage = aCurrentMessage;
   }
-  onMessageSendProgress(
-    aCurrentMessage,
-    aTotalMessageCount,
-    aMessageSendPercent,
-    aMessageCopyPercent
-  ) {
+  onMessageSendProgress(aCurrentMessage, aTotalMessageCount) {
     Assert.equal(aTotalMessageCount, gMsgOrder.length);
     Assert.equal(gLastSentMessage, aCurrentMessage);
     Assert.equal(msgSendLater.sendingMessages, true);
   }
-  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus, aMsg) {
+  onMessageSendError(aCurrentMessage, aMessageHeader, aStatus) {
     throw new Error(
       "onMessageSendError should not have been called, status: " + aStatus
     );
@@ -283,7 +273,7 @@ class MsgSendLaterListener {
     // and sometimes it isn't. This protects us for the synchronous case to
     // allow the sendUnsentMessages function to complete and exit before we
     // resolve the promise.
-    PromiseTestUtils.promiseDelay(0).then(resolve => {
+    PromiseTestUtils.promiseDelay(0).then(() => {
       this._deferredPromise.resolve(true);
     });
   }

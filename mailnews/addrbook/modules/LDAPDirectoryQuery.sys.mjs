@@ -123,7 +123,7 @@ export class LDAPDirectoryQuery extends LDAPListenerBase {
     return this.i++;
   }
 
-  stopQuery(contextId) {
+  stopQuery() {
     this._operation?.abandonExt();
   }
 

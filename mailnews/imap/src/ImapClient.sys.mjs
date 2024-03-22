@@ -394,7 +394,7 @@ export class ImapClient {
         return;
       }
       // Create one and subscribe to it.
-      this._actionCreateAndSubscribe(mailboxName, res => {
+      this._actionCreateAndSubscribe(mailboxName, () => {
         this._actionList(mailboxName, () => this._actionDone());
       });
     };
@@ -410,7 +410,7 @@ export class ImapClient {
   createFolder(parent, folderName) {
     this._logger.debug("createFolder", parent.URI, folderName);
     const mailboxName = this._getServerSubFolderName(parent, folderName);
-    this._actionCreateAndSubscribe(mailboxName, res => {
+    this._actionCreateAndSubscribe(mailboxName, () => {
       this._actionList(mailboxName, () => this._actionDone());
     });
   }
@@ -1256,7 +1256,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionAuthPlain = async res => {
+  _actionAuthPlain = async () => {
     this._nextAction = this._actionAuthResponse;
     this._send(await this._authenticator.getPlainToken(), true);
   };
@@ -1266,7 +1266,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - The server response.
    */
-  _actionAuthLoginUser = res => {
+  _actionAuthLoginUser = () => {
     this._nextAction = this._actionAuthLoginPass;
     this._send(btoa(this._authenticator.username), true);
   };
@@ -1276,7 +1276,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - The server response.
    */
-  _actionAuthLoginPass = async res => {
+  _actionAuthLoginPass = async () => {
     this._nextAction = this._actionAuthResponse;
     const password = MailStringUtils.stringToByteString(
       await this._getPassword()
@@ -1489,7 +1489,7 @@ export class ImapClient {
         this._actionFinishFolderDiscovery();
       } else {
         // Trash folder doesn't exist, create one and subscribe to it.
-        this._nextAction = res => {
+        this._nextAction = () => {
           this._actionList(trashFolderName, () => {
             // After subscribing, finish folder discovery.
             this._nextAction = this._actionFinishFolderDiscovery;
@@ -1510,7 +1510,7 @@ export class ImapClient {
    *   command.
    */
   _actionCreateAndSubscribe(folderName, callbackAfterSubscribe) {
-    this._nextAction = res => {
+    this._nextAction = () => {
       this._nextAction = callbackAfterSubscribe;
       this._sendTagged(`SUBSCRIBE "${folderName}"`);
     };
@@ -1570,7 +1570,7 @@ export class ImapClient {
    * @param {boolean} [isMove] - Is it response to MOVE command.
    * @param {ImapResponse} res - The server response.
    */
-  _actionRenameResponse = (oldName, newName, isMove) => res => {
+  _actionRenameResponse = (oldName, newName, isMove) => () => {
     // Step 3: Rename the local folder and send LIST command to re-sync folders.
     const actionAfterUnsubscribe = () => {
       this._serverSink.onlineFolderRename(this._msgWindow, oldName, newName);
@@ -1606,7 +1606,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionUidFetchResponse(res) {
+  _actionUidFetchResponse() {
     const outFolderInfo = {};
     this.folder.getDBFolderInfoAndDB(outFolderInfo);
     const highestUid = outFolderInfo.value.getUint32Property(
@@ -1664,7 +1664,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionUidFetchHeaderResponse(res) {
+  _actionUidFetchHeaderResponse() {
     this.folder
       .QueryInterface(Ci.nsIImapMailFolderSink)
       .headerFetchCompleted(this);
@@ -1684,7 +1684,7 @@ export class ImapClient {
    *
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionUidFetchBodyResponse(res) {
+  _actionUidFetchBodyResponse() {
     this._actionDone();
   }
 

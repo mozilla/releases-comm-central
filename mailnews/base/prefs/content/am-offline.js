@@ -14,7 +14,7 @@ var gOfflineMap = null; // map of folder URLs to offline flags
 var gOfflineFolders; // initial state of allFoldersOffline checkbox
 var gToggleOccurred = false;
 
-function onInit(aPageId, aServerId) {
+function onInit() {
   onLockPreference();
 
   // init values here

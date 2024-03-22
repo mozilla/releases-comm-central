@@ -93,10 +93,10 @@ function run_test() {
 
   var copyListener = {
     OnStartCopy() {},
-    OnProgress(aProgress, aProgressMax) {},
-    SetMessageKey(aKey) {},
-    SetMessageId(aMessageId) {},
-    OnStopCopy(aStatus) {
+    OnProgress() {},
+    SetMessageKey() {},
+    SetMessageId() {},
+    OnStopCopy() {
       testSearch();
     },
   };

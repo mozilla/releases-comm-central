@@ -82,7 +82,7 @@ var actionResults = {
   },
   "5@regular.invalid": ["isFlagged", true],
   "6.odd@regular.invalid": ["isRead", false],
-  "7@regular.invalid": function (header, folder) {
+  "7@regular.invalid": function (header) {
     return header.getStringProperty("keywords") == "tag";
   },
   "8.unread@regular.invalid": ["isRead", false],

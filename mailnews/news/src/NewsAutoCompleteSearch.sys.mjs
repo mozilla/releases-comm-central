@@ -41,11 +41,11 @@ NewsAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].comment;
   },
 
-  getStyleAt(aIndex) {
+  getStyleAt() {
     return "subscribed-news-abook";
   },
 
-  getImageAt(aIndex) {
+  getImageAt() {
     return "";
   },
 
@@ -53,7 +53,7 @@ NewsAutoCompleteResult.prototype = {
     return this.getValueAt(aIndex);
   },
 
-  removeValueAt(aRowIndex, aRemoveFromDB) {},
+  removeValueAt() {},
 
   // nsISupports
 

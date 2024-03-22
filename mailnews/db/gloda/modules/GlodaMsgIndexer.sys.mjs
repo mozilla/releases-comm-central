@@ -89,7 +89,7 @@ export var GlodaABIndexer = {
 
   initialSweep() {},
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     subject.QueryInterface(Ci.nsIAbCard);
 
     switch (topic) {
@@ -271,7 +271,7 @@ export var GlodaABAttrs = {
     }
   },
 
-  *process(aContact, aRawReps, aIsNew, aCallbackHandle) {
+  *process(aContact, aRawReps) {
     const card = aRawReps.card;
     if (aContact.NOUN_ID != GlodaConstants.NOUN_CONTACT) {
       this._log.warn("Somehow got a non-contact: " + aContact);

@@ -73,10 +73,10 @@ var searchListener = {
   onNewSearch() {
     this.numTotalMessages = 0;
   },
-  onSearchHit(dbHdr, folder) {
+  onSearchHit() {
     this.numTotalMessages++;
   },
-  onSearchDone(status) {
+  onSearchDone() {
     Assert.equal(this.numTotalMessages, 1);
     return true;
   },

@@ -54,7 +54,7 @@ export class SMTP_RFC2821_handler {
     this.expectingData = false;
     this._daemon.post = "";
   }
-  EHLO(args) {
+  EHLO() {
     var capa = "250-fakeserver greets you";
     if (this.kCapabilities.length > 0) {
       capa += "\n250-" + this.kCapabilities.join("\n250-");
@@ -65,7 +65,7 @@ export class SMTP_RFC2821_handler {
     capa += "\n250 HELP"; // the odd one: no "-", per RFC 2821
     return capa;
   }
-  CLIENTID(args) {
+  CLIENTID() {
     return "250 ok";
   }
   AUTH(lineRest) {
@@ -91,19 +91,19 @@ export class SMTP_RFC2821_handler {
     dump("Starting AUTH " + scheme + "\n");
     return func.call(this, args.length > 1 ? args[1] : undefined);
   }
-  MAIL(args) {
+  MAIL() {
     if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
     }
     return "250 ok";
   }
-  RCPT(args) {
+  RCPT() {
     if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
     }
     return "250 ok";
   }
-  DATA(args) {
+  DATA() {
     if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
     }
@@ -111,25 +111,25 @@ export class SMTP_RFC2821_handler {
     this._daemon.post = "";
     return "354 ok\n";
   }
-  RSET(args) {
+  RSET() {
     return "250 ok\n";
   }
-  VRFY(args) {
+  VRFY() {
     if (this._state == kStateAuthNeeded) {
       return "530 5.7.0 Authentication required";
     }
     return "250 ok\n";
   }
-  EXPN(args) {
+  EXPN() {
     return "250 ok\n";
   }
-  HELP(args) {
+  HELP() {
     return "211 ok\n";
   }
-  NOOP(args) {
+  NOOP() {
     return "250 ok\n";
   }
-  QUIT(args) {
+  QUIT() {
     this.closing = true;
     return "221 done";
   }
@@ -166,7 +166,7 @@ export class SMTP_RFC2821_handler {
     return "535 5.7.8 Wrong username or password, crook!";
   }
 
-  authCRAMStart(lineRest) {
+  authCRAMStart() {
     this._nextAuthFunction = this.authCRAMDigest;
     this._multiline = true;
 
@@ -189,7 +189,7 @@ export class SMTP_RFC2821_handler {
     return "535 5.7.8 Wrong username or password, crook!";
   }
 
-  authLOGINStart(lineRest) {
+  authLOGINStart() {
     this._nextAuthFunction = this.authLOGINUsername;
     this._multiline = true;
 
@@ -206,7 +206,7 @@ export class SMTP_RFC2821_handler {
     this._multiline = true;
     return "334 " + btoa("Password:");
   }
-  authLOGINBadUsername(line) {
+  authLOGINBadUsername() {
     if (this.dropOnAuthFailure) {
       this.closing = true;
     }
@@ -224,7 +224,7 @@ export class SMTP_RFC2821_handler {
     return "535 5.7.8 Wrong username or password, crook!";
   }
 
-  onError(command, args) {
+  onError(command) {
     return "500 Command " + command + " not recognized\n";
   }
   onServerFault(e) {

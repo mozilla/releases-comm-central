@@ -126,7 +126,7 @@ class HttpsProxyHandler {
     this.serverOutputStream?.close();
   }
 
-  onHandshakeDone(socket, status) {
+  onHandshakeDone() {
     this.clientInputStream.asyncWait(this, 0, 0, Services.tm.currentThread);
   }
 

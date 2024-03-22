@@ -19,7 +19,7 @@ export class LDAPProtocolHandler {
     return channel;
   }
 
-  allowPort(port, scheme) {
+  allowPort(port) {
     return port == 389;
   }
 }
@@ -31,7 +31,7 @@ LDAPProtocolHandler.prototype.classID = Components.ID(
 export class LDAPSProtocolHandler extends LDAPProtocolHandler {
   scheme = "ldaps";
 
-  allowPort(port, scheme) {
+  allowPort(port) {
     return port == 636;
   }
 }

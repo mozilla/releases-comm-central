@@ -13,12 +13,12 @@ window.addEventListener("DOMContentLoaded", onLoad);
 
 document.addEventListener("dialogdisclosure", showInfo);
 document.addEventListener("dialogaccept", onAccept);
-document.subDialogSetDefaultFocus = isInitialFocus => {
+document.subDialogSetDefaultFocus = () => {
   gDialog.getButton("cancel").focus();
   delete document.subDialogSetDefaultFocus;
 };
 
-function onLoad(event) {
+function onLoad() {
   gServer = window.arguments[0].account.incomingServer;
   gDialog = document.querySelector("dialog");
 

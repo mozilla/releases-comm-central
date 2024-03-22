@@ -50,7 +50,7 @@ add_task(async function test_rss1() {
       folder
     );
     feed.parseItems = true; // We want items too, not just the feed details.
-    feed.onParseError = function (f) {
+    feed.onParseError = function () {
       throw new Error("PARSE ERROR");
     };
     const parser = new FeedParser();
@@ -118,7 +118,7 @@ add_task(async function test_download() {
 
     const dl = new Promise(function (resolve, reject) {
       const cb = {
-        downloaded(f, error, disable) {
+        downloaded(f, error) {
           if (error != FeedUtils.kNewsBlogSuccess) {
             reject(
               new Error(`download failed (url=${feed.url} error=${error})`)
@@ -134,7 +134,7 @@ add_task(async function test_download() {
 
           resolve();
         },
-        onProgress(f, loaded, total, lengthComputable) {},
+        onProgress() {},
       };
 
       feed.download(true, cb);

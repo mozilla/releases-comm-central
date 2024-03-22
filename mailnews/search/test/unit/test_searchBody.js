@@ -203,10 +203,10 @@ function fixFile(file) {
 
 var copyListener = {
   OnStartCopy() {},
-  OnProgress(aProgress, aProgressMax) {},
-  SetMessageKey(aKey) {},
-  SetMessageId(aMessageId) {},
-  OnStopCopy(aStatus) {
+  OnProgress() {},
+  SetMessageKey() {},
+  SetMessageId() {},
+  OnStopCopy() {
     var fileName = Files.shift();
     if (fileName) {
       var file = fixFile(do_get_file(fileName));

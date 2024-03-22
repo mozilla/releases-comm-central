@@ -177,32 +177,32 @@ var FeedSubscriptions = {
     setTree(aTree) {
       this.tree = aTree;
     },
-    isSeparator(aRow) {
+    isSeparator() {
       return false;
     },
     isSorted() {
       return false;
     },
-    isEditable(aRow, aColumn) {
+    isEditable() {
       return false;
     },
 
-    getProgressMode(aRow, aCol) {},
-    cycleHeader(aCol) {},
-    cycleCell(aRow, aCol) {},
+    getProgressMode() {},
+    cycleHeader() {},
+    cycleCell() {},
     selectionChanged() {},
-    getRowProperties(aRow) {
+    getRowProperties() {
       return "";
     },
-    getColumnProperties(aCol) {
+    getColumnProperties() {
       return "";
     },
-    getCellValue(aRow, aColumn) {},
-    setCellValue(aRow, aColumn, aValue) {},
-    setCellText(aRow, aColumn, aValue) {},
+    getCellValue() {},
+    setCellValue() {},
+    setCellText() {},
     /* eslint-enable no-multi-spaces */
 
-    getCellProperties(aRow, aColumn) {
+    getCellProperties(aRow) {
       const item = this.getItemAtIndex(aRow);
       if (!item) {
         return "";
@@ -345,7 +345,7 @@ var FeedSubscriptions = {
       return item && aColumn.id == "folderNameCol" ? item.name : "";
     },
 
-    getImageSrc(aRow, aCol) {
+    getImageSrc(aRow) {
       const item = this.getItemAtIndex(aRow);
       if ((item.folder && item.folder.isServer) || item.open) {
         return "";
@@ -424,7 +424,7 @@ var FeedSubscriptions = {
       );
     },
 
-    drop(aRow, aOrientation) {
+    drop(aRow) {
       const win = FeedSubscriptions;
       const results = this.extractDragData(aRow);
       if (!results.canDrop) {
@@ -2115,7 +2115,7 @@ var FeedSubscriptions = {
       this.onProgress(feed, aCurrentFeedItems, aMaxFeedItems);
     },
 
-    onProgress(feed, aProgress, aProgressMax, aLengthComputable) {
+    onProgress(feed, aProgress, aProgressMax) {
       FeedSubscriptions.updateStatusItem(
         "progressMeter",
         (aProgress * 100) / (aProgressMax || 100)
@@ -3096,7 +3096,7 @@ var FeedSubscriptions = {
     processor(aBody, rssServer.rootFolder);
   },
 
-  importOPMLStatus(aFeedsAdded, aRssOutlines, aFolderOutlines) {
+  importOPMLStatus(aFeedsAdded, aRssOutlines) {
     let statusReport;
     if (aRssOutlines > aFeedsAdded) {
       statusReport = FeedUtils.strings.formatStringFromName(

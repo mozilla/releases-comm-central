@@ -123,7 +123,7 @@ export class nsMailServer {
     const observer = {
       QueryInterface: ChromeUtils.generateQI(["nsITLSServerSecurityObserver"]),
 
-      onHandshakeDone: (socket, status) => {
+      onHandshakeDone: () => {
         // Note: must use main thread here, or we might get a GC that will cause
         // threadsafety assertions.  We really need to fix XPConnect so that
         // you can actually do things in multi-threaded JS.  :-(
@@ -381,7 +381,7 @@ class nsMailReader {
     this.observer = {
       server,
       forced: false,
-      notify(timer) {
+      notify() {
         this.forced = true;
         this.server.stopTest();
         this.server.stop();

@@ -61,19 +61,7 @@ const openpgpSink = {
   hasUnauthenticatedParts() {
     return false;
   },
-  updateSecurityStatus(
-    exitCode,
-    statusFlags,
-    extStatusFlags,
-    keyId,
-    userId,
-    sigDetails,
-    errorMsg,
-    blockSeparation,
-    uri,
-    extraDetails,
-    mimePartNumber
-  ) {
+  updateSecurityStatus(exitCode, statusFlags, extStatusFlags, keyId) {
     if (statusFlags & EnigmailConstants.PGP_MIME_SIGNED) {
       this.results.push({
         type: "signed",

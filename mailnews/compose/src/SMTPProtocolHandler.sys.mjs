@@ -10,14 +10,14 @@ export class SMTPProtocolHandler {
 
   scheme = "smtp";
 
-  newChannel(aURI, aLoadInfo) {
+  newChannel() {
     throw Components.Exception(
       `${this.constructor.name}.newChannel not implemented`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
 
-  allowPort(port, scheme) {
+  allowPort(port) {
     return port == Ci.nsISmtpUrl.DEFAULT_SMTP_PORT;
   }
 }
@@ -29,7 +29,7 @@ SMTPProtocolHandler.prototype.classID = Components.ID(
 export class SMTPSProtocolHandler extends SMTPProtocolHandler {
   scheme = "smtps";
 
-  allowPort(port, scheme) {
+  allowPort(port) {
     return port == Ci.nsISmtpUrl.DEFAULT_SMTPS_PORT;
   }
 }

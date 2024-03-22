@@ -211,7 +211,7 @@ export class SmtpService {
   /**
    * @see nsISmtpService
    */
-  verifyLogon(server, urlListener, msgWindow) {
+  verifyLogon(server, urlListener) {
     const client = new lazy.SmtpClient(server);
     client.connect();
     const runningUrl = this._getRunningUri(server);

@@ -129,23 +129,16 @@ var progressListener = {
       EndDownload(aStatus);
     }
   },
-  onProgressChange(
-    aWebProgress,
-    aRequest,
-    aCurSelfProgress,
-    aMaxSelfProgress,
-    aCurTotalProgress,
-    aMaxTotalProgress
-  ) {
+  onProgressChange(aWebProgress, aRequest, aCurSelfProgress) {
     gProgressText.value = gReplicationBundle.getFormattedString(
       "currentCount",
       [aCurSelfProgress]
     );
   },
-  onLocationChange(aWebProgress, aRequest, aLocation, aFlags) {},
-  onStatusChange(aWebProgress, aRequest, aStatus, aMessage) {},
-  onSecurityChange(aWebProgress, aRequest, state) {},
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
+  onLocationChange() {},
+  onStatusChange() {},
+  onSecurityChange() {},
+  onContentBlockingEvent() {},
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
     "nsISupportsWeakReference",

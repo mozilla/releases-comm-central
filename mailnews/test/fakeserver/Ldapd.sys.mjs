@@ -509,7 +509,7 @@ export class LDAPDaemon {
       case 9: // extensibleMatch
         // UNSUPPORTED! just match everything.
         dump("WARNING: unsupported filter\n");
-        return e => true;
+        return () => true;
       default:
         throw new Error("unknown filter");
     }
@@ -583,7 +583,7 @@ class LDAPHandler {
     await this._conn.write(msg.encode());
   }
 
-  async handleBindRequest(msgID, req) {
+  async handleBindRequest(msgID) {
     // Ignore the details, just say "OK!"
     // TODO: Add some auth support here, would be handy for testing.
     const bindResponse = new BERValue(0x61);

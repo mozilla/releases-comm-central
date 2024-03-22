@@ -270,18 +270,11 @@ export class MessageSend {
   }
 
   // nsIWebProgressListener.
-  onLocationChange(webProgress, request, location, flags) {}
-  onProgressChange(
-    webProgress,
-    request,
-    curSelfProgress,
-    maxSelfProgress,
-    curTotalProgress,
-    maxTotalProgress
-  ) {}
-  onStatusChange(webProgress, request, status, message) {}
-  onSecurityChange(webProgress, request, state) {}
-  onContentBlockingEvent(webProgress, request, event) {}
+  onLocationChange() {}
+  onProgressChange() {}
+  onStatusChange() {}
+  onSecurityChange() {}
+  onContentBlockingEvent() {}
   onStateChange(webProgress, request, stateFlags, status) {
     if (
       stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
@@ -345,7 +338,7 @@ export class MessageSend {
     return exitCode;
   }
 
-  getPartForDomIndex(domIndex) {
+  getPartForDomIndex() {
     throw Components.Exception(
       "getPartForDomIndex not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
@@ -1411,7 +1404,7 @@ class MsgDeliveryListener {
     this._isNewsDelivery = isNewsDelivery;
   }
 
-  OnStartRunningUrl(url) {
+  OnStartRunningUrl() {
     this._msgSend.notifyListenerOnStartSending(null, 0);
   }
 

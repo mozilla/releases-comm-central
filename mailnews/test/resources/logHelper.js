@@ -59,7 +59,7 @@ var _errorConsoleTunnel = {
     Services.obs.removeObserver(this, "quit-application");
   },
 
-  observe(aMessage, aTopic, aData) {
+  observe(aMessage, aTopic) {
     if (aTopic == "quit-application") {
       this.shutdown();
       return;

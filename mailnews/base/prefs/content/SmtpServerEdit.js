@@ -188,7 +188,7 @@ function saveSmtpSettings(server) {
   }
 }
 
-function authMethodChanged(userAction) {
+function authMethodChanged() {
   var noUsername = gSmtpAuthMethod.value == Ci.nsMsgAuthMethod.none;
   gSmtpUsername.disabled = noUsername;
   gSmtpUsernameLabel.disabled = noUsername;

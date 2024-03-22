@@ -43,7 +43,7 @@ function PostCommitHandler(aCallbacks) {
 }
 
 PostCommitHandler.prototype = {
-  handleResult(aResultSet) {},
+  handleResult() {},
 
   handleError(aError) {
     PCH_LOG.error("database error:" + aError);
@@ -299,7 +299,7 @@ QueryFromQueryCallback.prototype = {
     );
   },
 
-  handleCompletion(aReason) {
+  handleCompletion() {
     try {
       try {
         this.statement.finalize();
@@ -480,7 +480,7 @@ CompactionBlockFetcherHandler.prototype = {
         aError.message
     );
   },
-  handleCompletion(aReason) {
+  handleCompletion() {
     GlodaDatastore._asyncCompleted();
     this.callback(this.idsAndMessageKeys);
   },
@@ -510,7 +510,7 @@ SingletonResultValueHandler.prototype = {
         aError.message
     );
   },
-  handleCompletion(aReason) {
+  handleCompletion() {
     GlodaDatastore._asyncCompleted();
     this.callback(this.result);
   },
@@ -602,7 +602,7 @@ ExplainedStatementProcessor.prototype = {
   handleError(aError) {
     console.error("Unexpected error in EXPLAIN handler: " + aError);
   },
-  handleCompletion(aReason) {
+  handleCompletion() {
     const obj = {
       sql: this._sqlStack.shift(),
       operations: this._curOps,
@@ -613,7 +613,7 @@ ExplainedStatementProcessor.prototype = {
     this._curOps = [];
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "quit-application") {
       this.shutdown();
     }
@@ -1535,7 +1535,7 @@ export var GlodaDatastore = {
    *  is not a time machine!  If we need to blow away the database to get to the
    *  most recent version, then that's the sum total of the migration!
    */
-  _migrate(aDBFile, aDBConnection, aCurVersion, aNewVersion) {
+  _migrate(aDBFile, aDBConnection, aCurVersion) {
     // version 12:
     // - notability column added
     // version 13:

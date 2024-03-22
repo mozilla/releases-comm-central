@@ -64,7 +64,7 @@ function fillLocationPlaceholder() {
   }
 }
 
-function handleCardDAVURLInput(event) {
+function handleCardDAVURLInput() {
   changeCardDAVURL();
 }
 
@@ -73,7 +73,7 @@ function changeCardDAVURL() {
   setStatus();
 }
 
-function handleCardDAVURLBlur(event) {
+function handleCardDAVURLBlur() {
   if (
     uiElements.location.validity.typeMismatch &&
     !uiElements.location.value.match(/^https?:\/\//)

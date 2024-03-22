@@ -20,7 +20,7 @@ export function FeedAcctMgrExtension() {}
 FeedAcctMgrExtension.prototype = {
   name: "newsblog",
   chromePackageName: "messenger-newsblog",
-  showPanel: server => false,
+  showPanel: () => false,
 
   QueryInterface: ChromeUtils.generateQI(["nsIMsgAccountManagerExtension"]),
 };

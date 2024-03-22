@@ -280,7 +280,7 @@ export class MimePart {
         Ci.nsIContentPolicy.TYPE_OTHER
       );
       content = await new Promise((resolve, reject) =>
-        NetUtil.asyncFetch(channel, (stream, status, request) => {
+        NetUtil.asyncFetch(channel, (stream, status) => {
           if (!Components.isSuccessCode(status)) {
             reject(`asyncFetch failed with status=${status}`);
             return;

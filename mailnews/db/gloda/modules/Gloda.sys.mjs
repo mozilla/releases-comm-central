@@ -943,7 +943,7 @@ export var Gloda = {
         allowsArbitraryAttrs: false,
         continuous: false,
         isPrimitive: true,
-        comparator(a, b) {
+        comparator() {
           throw new Error("Fulltext nouns are not comparable!");
         },
         // as noted on NOUN_FULLTEXT, we just pass the string around.  it never
@@ -1312,11 +1312,7 @@ export var Gloda = {
 
           return [added, removed];
         },
-        contributeObjDependencies(
-          aJsonValues,
-          aReferencesByNounID,
-          aInverseReferencesByNounID
-        ) {
+        contributeObjDependencies(aJsonValues, aReferencesByNounID) {
           // nothing to do with a zero-length list
           if (aJsonValues.length == 0) {
             return false;
@@ -1341,11 +1337,7 @@ export var Gloda = {
 
           return true;
         },
-        resolveObjDependencies(
-          aJsonValues,
-          aReferencesByNounID,
-          aInverseReferencesByNounID
-        ) {
+        resolveObjDependencies(aJsonValues, aReferencesByNounID) {
           const references = aReferencesByNounID[GlodaConstants.NOUN_IDENTITY];
 
           const results = [];

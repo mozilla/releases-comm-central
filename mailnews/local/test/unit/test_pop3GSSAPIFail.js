@@ -64,7 +64,7 @@ var tests = [
 ];
 
 var urlListener = {
-  OnStartRunningUrl(url) {},
+  OnStartRunningUrl() {},
   OnStopRunningUrl(url, result) {
     try {
       if (thisTest.expectSuccess) {

@@ -619,7 +619,7 @@ export var GlodaFundAttr = {
     );
   },
 
-  *optimize(aGlodaMessage, aRawReps, aIsNew, aCallbackHandle) {
+  *optimize(aGlodaMessage, aRawReps, aIsNew) {
     const aMsgHdr = aRawReps.header;
 
     // for simplicity this is used for both involves and recipients
@@ -789,7 +789,7 @@ export var GlodaFundAttr = {
    *  be factored to call us, grokNounItem should be factored to call us, or we
    *  should get sufficiently fancy that our code wildly diverges.
    */
-  score(aMessage, aContext) {
+  score(aMessage) {
     let score = 0;
 
     const authorIdentity = aMessage.from;

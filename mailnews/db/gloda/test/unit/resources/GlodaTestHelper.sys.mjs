@@ -424,7 +424,7 @@ class MsgsClassifiedListener {
    *  this because we add events we care about to interestingEvents before they
    *  can possibly be fired.
    */
-  msgsClassified(aMsgHdrs, aJunkClassified, aTraitClassified) {
+  msgsClassified() {
     log.debug("MsgsClassifiedListener msgsClassified received.");
     const idx = indexMessageState.interestingEvents.indexOf("msgsClassified");
     if (idx != -1) {
@@ -457,7 +457,7 @@ class TestAttributeProvider {
    *  between fully reindexed messages and fast-path modified messages.
    * Process has to be invoked for the GlodaCollectionListener
    */
-  *process(aItem, aRawReps, aIsConceptuallyNew, aCallbackHandle) {
+  *process() {
     indexMessageState._numFullIndexed++;
 
     yield GlodaConstants.kWorkDone;
@@ -544,7 +544,7 @@ class GlodaCollectionListener {
       indexMessageState._glodaDeletionsByMessageId[item.headerMessageID] = item;
     }
   }
-  onQueryComplete(aCollection) {
+  onQueryComplete() {
     log.debug(
       "GlodaCollectionListener onQueryComplete received. Nothing done."
     );

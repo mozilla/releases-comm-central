@@ -17,8 +17,8 @@ var gMessages;
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 var gUrlListener = {
-  OnStartRunningUrl(aUrl) {},
-  OnStopRunningUrl(aUrl, aExitCode) {
+  OnStartRunningUrl() {},
+  OnStopRunningUrl() {
     do_test_finished();
   },
 };
@@ -58,8 +58,8 @@ var gStreamListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   _stream: null,
   // nsIRequestObserver part
-  onStartRequest(aRequest) {},
-  onStopRequest(aRequest, aStatusCode) {
+  onStartRequest() {},
+  onStopRequest() {
     doNextTest();
   },
 

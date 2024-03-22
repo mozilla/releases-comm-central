@@ -114,7 +114,7 @@ export class BinaryServer {
         conn.close();
         server._connections.delete(conn);
       },
-      onStopListening(socket, status) {
+      onStopListening() {
         // Server is stopping, time to close any outstanding connections.
         server._connections.forEach(conn => conn.close());
         server._connections.clear();
