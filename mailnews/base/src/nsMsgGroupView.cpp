@@ -738,6 +738,10 @@ nsMsgGroupView::GetCellProperties(int32_t aRow, nsTreeColumn* aCol,
     groupThread->GetNumUnreadChildren(&numUnrMsg);
     if (numUnrMsg > 0) aProperties.AppendLiteral(" hasUnread");
 
+    uint32_t numNewMsg = 0;
+    groupThread->GetNumNewChildren(&numNewMsg);
+    if (numNewMsg > 0) aProperties.AppendLiteral(" hasNew");
+
     return NS_OK;
   }
 

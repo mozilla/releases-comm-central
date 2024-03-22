@@ -36,6 +36,7 @@
     --thread-card-shadow-children-inverse: inset 0 -6px 6px -8px var(--thread-card-shadow-color);
     --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
     --tags-base-background-color: var(--layout-background-0);
+    --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
 
     @media (prefers-color-scheme: dark) {
       --thread-pane-flag-fill: var(--color-orange-40);
@@ -52,6 +53,7 @@
     --thread-card-background-children: Canvas;
     --thread-card-border-color: color-mix(in srgb, Canvas 50%, CanvasText);
     --tags-base-background-color: SelectedItemText;
+    --new-color: SelectedItem;
   }
 }
 
@@ -549,6 +551,37 @@ tr[is="thread-row"] .twisty {
   color: var(--tree-view-color);
 }
 
+tr[is="thread-card"][data-properties~="hasUnread"] {
+  &:not([data-properties~="hasNew"]) {
+    & .replies-icon,
+    & .thread-replies {
+      color: var(--unread-color);
+    }
+
+    & .twisty::before {
+      overflow: show;
+      content: var(--icon-dot-xs);
+      fill: var(--color-green-50);
+      stroke: var(--color-green-60);
+    }
+  }
+
+  & .replies-icon,
+  & .thread-replies {
+    font-weight: bold;
+    color: var(--new-color);
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
+
+  & .twisty::before {
+    overflow: show;
+    content: var(--icon-sparkle-star-xs);
+    fill: var(--color-yellow-30);
+    stroke: var(--color-amber-50);
+  }
+}
+
 #threadTree tr[is="thread-card"] button.twisty {
   width: auto;
   height: auto;
@@ -556,6 +589,16 @@ tr[is="thread-row"] .twisty {
   min-height: 13px;
   padding: 0;
   border: 1px solid transparent;
+  position: relative;
+  overflow: visible;
+
+  &::before {
+    position: absolute;
+    inset-inline-start: -3px;
+    inset-block-start: -3px;
+    -moz-context-properties: fill, stroke;
+    z-index: 10;
+  }
 
   &:hover {
     background-color: var(--layout-background-2);
@@ -579,16 +622,6 @@ tr[is="thread-row"] .twisty {
     [data-properties~="hasUnread"] & {
       background-color: var(--layout-background-2);
       border-color: var(--layout-background-4);
-
-      ::before {
-        position: absolute;
-        inset-inline-start: -3px;
-        inset-block-start: -3px;
-        content: var(--icon-dot-xs);
-        -moz-context-properties: fill, stroke;
-        fill: var(--color-green-40);
-        stroke: var(--color-green-60);
-      }
     }
   }
 
@@ -605,11 +638,6 @@ tr[is="thread-row"] .twisty {
 
   .thread-replies {
     margin: 0 2px;
-
-    [data-properties~="hasUnread"] & {
-      font-weight: bold;
-      color: var(--unread-color);
-    }
   }
 
   .twisty-icon {

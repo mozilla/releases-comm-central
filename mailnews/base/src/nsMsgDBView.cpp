@@ -1204,6 +1204,10 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
     thread->GetNumUnreadChildren(&numUnreadChildren);
     if (numUnreadChildren > 0) properties.AppendLiteral(" hasUnread");
 
+    uint32_t numNewChildren;
+    thread->GetNumNewChildren(&numNewChildren);
+    if (numNewChildren > 0) properties.AppendLiteral(" hasNew");
+
     // For threaded display add the ignore/watch properties to the
     // thread top row. For non-threaded add it to all rows.
     if (!(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) ||
