@@ -14,12 +14,12 @@ function test_listener_set() {
   let listener2Id = null;
 
   const listener1 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId) {
       listener1Id = aId;
     },
   });
   const listener2 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId) {
       listener2Id = aId;
     },
   });
@@ -40,7 +40,7 @@ function test_listener_set() {
   // function uses a live list of observers.
   let called = 0;
   const listener3 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete() {
       set.delete(listener3);
       if (called == 0) {
         set.add(listener3);

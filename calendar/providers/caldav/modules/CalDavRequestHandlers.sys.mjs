@@ -180,7 +180,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
     }
   }
 
-  async onStopRequest(request, statusCode) {
+  async onStopRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
@@ -292,7 +292,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
 
   endDocument() {}
 
-  startElement(aUri, aLocalName, aQName, aAttributes) {
+  startElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response":
         this.currentResponse = {};
@@ -366,7 +366,7 @@ export class CalDavEtagsHandler extends XMLResponseHandler {
     }
   }
 
-  processingInstruction(aTarget, aData) {}
+  processingInstruction() {}
 }
 
 /**
@@ -486,7 +486,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  async onStopRequest(request, statusCode) {
+  async onStopRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
@@ -609,7 +609,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  startElement(aUri, aLocalName, aQName, aAttributes) {
+  startElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response": // WebDAV Sync draft 3
         this.currentResponse = {};
@@ -758,7 +758,7 @@ export class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  processingInstruction(aTarget, aData) {}
+  processingInstruction() {}
 }
 
 /**
@@ -899,7 +899,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
     }
   }
 
-  async onStopRequest(request, statusCode) {
+  async onStopRequest(request) {
     const httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
 
     let responseStatus;
@@ -937,7 +937,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
       this.resetXMLResponseHandler();
       const timerCallback = {
         requestHandler: this,
-        notify(timer) {
+        notify() {
           // Call multiget again to get another batch
           this.requestHandler.doMultiGet();
         },
@@ -983,7 +983,7 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
     this.calendar.superCalendar.endBatch();
   }
 
-  startElement(aUri, aLocalName, aQName, aAttributes) {
+  startElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response":
         this.currentResponse = {};
@@ -1083,5 +1083,5 @@ export class CalDavMultigetSyncHandler extends XMLResponseHandler {
     }
   }
 
-  processingInstruction(aTarget, aData) {}
+  processingInstruction() {}
 }

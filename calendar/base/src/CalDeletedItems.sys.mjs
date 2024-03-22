@@ -121,7 +121,7 @@ CalDeletedItems.prototype = {
     cal.addShutdownObserver(this.shutdown.bind(this));
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "profile-after-change") {
       // Make sure to observe calendar changes so we know when things are
       // deleted. We don't initialize the statements until first use.

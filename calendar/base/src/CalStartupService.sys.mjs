@@ -104,7 +104,7 @@ CalStartupService.prototype = {
   /**
    * Observer notification callback
    */
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     switch (aTopic) {
       case "profile-after-change":
         callOrderedServices("startup", this.getStartupOrder());

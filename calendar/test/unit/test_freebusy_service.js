@@ -138,7 +138,7 @@ function test_cancel() {
 
   const provider = {
     QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider", "calIOperation"]),
-    getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
+    getFreeBusyIntervals() {
       Services.tm.currentThread.dispatch(
         {
           run() {

@@ -134,7 +134,7 @@ function unifinderDoubleClick(event) {
  *
  * @param event         The DOM selection event.
  */
-async function unifinderSelect(event) {
+async function unifinderSelect() {
   const treeView = getUnifinderView();
   const currentSelection = treeView.selection;
   if (!currentSelection || currentSelection.getRangeCount() == 0) {

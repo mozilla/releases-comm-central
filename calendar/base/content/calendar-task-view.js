@@ -22,7 +22,7 @@ var taskDetailsView = {
    * XXXberend Please document this function, possibly also consolidate since
    * its the only function in taskDetailsView.
    */
-  onSelect(event) {
+  onSelect() {
     function displayElement(id, flag) {
       document.getElementById(id).hidden = !flag;
       return flag;
@@ -255,7 +255,7 @@ var taskDetailsView = {
     }
   },
 
-  saveCategories(event) {
+  saveCategories() {
     const categoryPopup = document.getElementById("task-actions-category-popup");
     const item = document.getElementById("calendar-task-tree").currentTask;
 

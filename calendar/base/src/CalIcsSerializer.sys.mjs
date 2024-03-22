@@ -34,7 +34,7 @@ CalIcsSerializer.prototype = {
     return calComp.serializeToICS();
   },
 
-  serializeToInputStream(aStream) {
+  serializeToInputStream() {
     const calComp = this.getIcalComponent();
     return calComp.serializeToICSStream();
   },

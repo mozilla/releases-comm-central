@@ -225,7 +225,7 @@ CalAlarmMonitor.prototype = {
     });
   },
 
-  onAlarmsLoaded(aCalendar) {
+  onAlarmsLoaded() {
     // the alarm dialog won't close while alarms are loading, check again now
     const calAlarmWindow = peekAlarmWindow();
     if (calAlarmWindow && this.mAlarms.length == 0) {

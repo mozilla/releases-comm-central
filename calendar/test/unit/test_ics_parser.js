@@ -46,7 +46,7 @@ function test_failures() {
 
   do_test_pending();
   parser.parseString("BOGUS", {
-    onParsingComplete(rc, opparser) {
+    onParsingComplete(rc) {
       dump("Note: The previous error message is expected ^^\n");
       equal(rc, Cr.NS_ERROR_FAILURE);
       do_test_finished();
@@ -117,7 +117,7 @@ function test_async() {
 
   do_test_pending();
   parser.parseString(str, {
-    onParsingComplete(rc, opparser) {
+    onParsingComplete() {
       const items = parser.getItems();
       equal(items.length, 2);
       let item = items[0];

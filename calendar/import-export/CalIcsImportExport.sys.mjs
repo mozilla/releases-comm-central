@@ -43,7 +43,7 @@ CalIcsExporter.prototype = {
 
   getFileTypes: getIcsFileTypes,
 
-  exportToStream(aStream, aItems, aTitle) {
+  exportToStream(aStream, aItems) {
     const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );

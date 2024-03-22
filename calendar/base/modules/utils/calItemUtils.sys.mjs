@@ -319,8 +319,7 @@ export var item = {
     function normalizeProperty(prop) {
       const params = [...iterate.icalParameter(prop)]
         .filter(
-          ([k, v]) =>
-            !(prop.propertyName in ignoreParams) || !(k in ignoreParams[prop.propertyName])
+          ([k]) => !(prop.propertyName in ignoreParams) || !(k in ignoreParams[prop.propertyName])
         )
         .map(([k, v]) => k + "=" + v)
         .sort();

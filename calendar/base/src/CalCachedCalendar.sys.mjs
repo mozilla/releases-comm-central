@@ -50,7 +50,7 @@ calCachedCalendarObserverHelper.prototype = {
     this.home.mObservers.notify("onEndBatch", [this.home]);
   },
 
-  async onLoad(calendar) {
+  async onLoad() {
     if (this.isCachedObserver) {
       this.home.mObservers.notify("onLoad", [this.home]);
     } else {
@@ -64,25 +64,25 @@ calCachedCalendarObserverHelper.prototype = {
     }
   },
 
-  onAddItem(aItem) {
+  onAddItem() {
     if (this.isCachedObserver) {
       this.home.mObservers.notify("onAddItem", arguments);
     }
   },
 
-  onModifyItem(aNewItem, aOldItem) {
+  onModifyItem() {
     if (this.isCachedObserver) {
       this.home.mObservers.notify("onModifyItem", arguments);
     }
   },
 
-  onDeleteItem(aItem) {
+  onDeleteItem() {
     if (this.isCachedObserver) {
       this.home.mObservers.notify("onDeleteItem", arguments);
     }
   },
 
-  onError(aCalendar, aErrNo, aMessage) {
+  onError() {
     this.home.mObservers.notify("onError", arguments);
   },
 
@@ -143,7 +143,7 @@ calCachedCalendar.prototype = {
       // afterwards.
 
       const listener = {
-        onDeleteCalendar(aCalendar, aStatus, aDetail) {
+        onDeleteCalendar() {
           self.mCachedCalendar = null;
         },
       };
@@ -348,7 +348,7 @@ calCachedCalendar.prototype = {
       throw e; // Do not swallow this error.
     }
 
-    await new Promise((resolve, reject) => {
+    await new Promise(resolve => {
       cal.iterate.forEach(
         this.offlineCachedItems,
         item => {

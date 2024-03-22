@@ -27,7 +27,7 @@ registerCleanupFunction(() => {
  *
  * @param {calIDateTime} date - A date to navigate the view to.
  */
-async function resetView(date, view) {
+async function resetView(date) {
   window.goToDate(date);
 
   if (window.windowState != window.STATE_MAXIMIZED) {

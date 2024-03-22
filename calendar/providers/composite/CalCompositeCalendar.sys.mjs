@@ -29,27 +29,27 @@ calCompositeCalendarObserverHelper.prototype = {
     this.compCalendar.mObservers.notify("onLoad", [calendar]);
   },
 
-  onAddItem(aItem) {
+  onAddItem() {
     this.compCalendar.mObservers.notify("onAddItem", arguments);
   },
 
-  onModifyItem(aNewItem, aOldItem) {
+  onModifyItem() {
     this.compCalendar.mObservers.notify("onModifyItem", arguments);
   },
 
-  onDeleteItem(aDeletedItem) {
+  onDeleteItem() {
     this.compCalendar.mObservers.notify("onDeleteItem", arguments);
   },
 
-  onError(aCalendar, aErrNo, aMessage) {
+  onError() {
     this.compCalendar.mObservers.notify("onError", arguments);
   },
 
-  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+  onPropertyChanged() {
     this.compCalendar.mObservers.notify("onPropertyChanged", arguments);
   },
 
-  onPropertyDeleting(aCalendar, aName) {
+  onPropertyDeleting() {
     this.compCalendar.mObservers.notify("onPropertyDeleting", arguments);
   },
 };

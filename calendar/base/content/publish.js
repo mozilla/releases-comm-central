@@ -175,7 +175,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
 
 /** @implements {nsIInterfaceRequestor} */
 var notificationCallbacks = {
-  getInterface(iid, instance) {
+  getInterface(iid) {
     if (iid.equals(Ci.nsIAuthPrompt2)) {
       if (!this.calAuthPrompt) {
         return new cal.auth.Prompt();
@@ -199,8 +199,8 @@ class PublishingListener {
     this.progressDialog = progressDialog;
   }
 
-  onStartRequest(request) {}
-  onStopRequest(request, status) {
+  onStartRequest() {}
+  onStopRequest(request) {
     let channel;
     let requestSucceeded;
     try {
@@ -227,5 +227,5 @@ class PublishingListener {
     }
   }
 
-  onDataAvailable(request, inStream, sourceOffset, count) {}
+  onDataAvailable() {}
 }

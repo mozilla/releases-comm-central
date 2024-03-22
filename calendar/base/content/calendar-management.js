@@ -292,7 +292,7 @@ async function loadCalendarManager() {
       }
     }
   });
-  calendarList.addEventListener("select", event => {
+  calendarList.addEventListener("select", () => {
     const item = calendarList.rows[calendarList.selectedIndex];
     const calendarId = item.getAttribute("calendar-id");
     const calendar = cal.manager.getCalendarById(calendarId);
@@ -306,12 +306,12 @@ async function loadCalendarManager() {
     onStartBatch() {},
     onEndBatch() {},
     onLoad() {},
-    onAddItem(item) {},
-    onModifyItem(newItem, oldItem) {},
-    onDeleteItem(deletedItem) {},
-    onError(calendar, errNo, message) {},
+    onAddItem() {},
+    onModifyItem() {},
+    onDeleteItem() {},
+    onError() {},
 
-    onPropertyChanged(calendar, name, value, oldValue) {
+    onPropertyChanged(calendar, name, value) {
       const item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
       if (!item) {
         return;
@@ -385,7 +385,7 @@ async function loadCalendarManager() {
       item.remove();
       saveSortOrder();
     },
-    onCalendarDeleting(calendar) {},
+    onCalendarDeleting() {},
   };
   cal.manager.addObserver(calendarList._calendarManagerObserver);
 }
@@ -603,7 +603,7 @@ var compositeObserver = {
   onDeleteItem() {},
   onError() {},
 
-  onPropertyChanged(calendar, name, value, oldValue) {
+  onPropertyChanged(calendar, name) {
     if (name == "disabled" || name == "readOnly") {
       // Update commands when a calendar has been enabled or disabled.
       calendarUpdateNewItemsCommand();
@@ -613,21 +613,21 @@ var compositeObserver = {
 
   onPropertyDeleting() {},
 
-  onCalendarAdded(aCalendar) {
+  onCalendarAdded() {
     // Update the calendar commands for number of remote calendars and for
     // more than one calendar.
     calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  onCalendarRemoved(aCalendar) {
+  onCalendarRemoved() {
     // Update commands to disallow deleting the last calendar and only
     // allowing reload remote calendars when there are remote calendars.
     calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  onDefaultCalendarChanged(aNewCalendar) {
+  onDefaultCalendarChanged() {
     // A new default calendar may mean that the new calendar has different
     // ACLs. Make sure the commands are updated.
     calendarUpdateNewItemsCommand();
@@ -706,7 +706,7 @@ var calendarOfflineManager = {
     return !Services.io.offline;
   },
 
-  updateOfflineUI(aIsOffline) {
+  updateOfflineUI() {
     // Refresh the current view
     currentView().goToDay(currentView().selectedDay);
 

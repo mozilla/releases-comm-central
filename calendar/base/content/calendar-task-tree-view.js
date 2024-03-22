@@ -336,15 +336,15 @@ class CalendarTaskTreeView {
     return null;
   }
 
-  setCellValue(row, col, value) {
+  setCellValue() {
     return null;
   }
 
-  getImageSrc(row, col) {
+  getImageSrc() {
     return "";
   }
 
-  isEditable(row, col) {
+  isEditable() {
     return true;
   }
 
@@ -370,21 +370,21 @@ class CalendarTaskTreeView {
     this.tree = tree;
   }
 
-  isContainer(row) {
+  isContainer() {
     return false;
   }
-  isContainerOpen(row) {
+  isContainerOpen() {
     return false;
   }
-  isContainerEmpty(row) {
-    return false;
-  }
-
-  isSeparator(row) {
+  isContainerEmpty() {
     return false;
   }
 
-  isSorted(row) {
+  isSeparator() {
+    return false;
+  }
+
+  isSorted() {
     return false;
   }
 
@@ -392,20 +392,20 @@ class CalendarTaskTreeView {
     return false;
   }
 
-  drop(row, orientation) {}
+  drop() {}
 
-  getParentIndex(row) {
+  getParentIndex() {
     return -1;
   }
 
-  getLevel(row) {
+  getLevel() {
     return 0;
   }
 
   // End nsITreeView Methods and Properties
   // Task Tree Event Handlers
 
-  onSelect(event) {}
+  onSelect() {}
 
   /**
    * Handle double click events.

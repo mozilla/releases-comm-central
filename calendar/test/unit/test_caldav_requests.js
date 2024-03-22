@@ -51,7 +51,7 @@ var MockConflictPrompt = {
   register() {
     if (!this._origFunc) {
       this._origFunc = cal.provider.promptOverwrite;
-      cal.provider.promptOverwrite = (aMode, aItem) => {
+      cal.provider.promptOverwrite = () => {
         return this.overwrite;
       };
     }
@@ -517,15 +517,15 @@ add_task(async function test_caldav_session() {
   let restart = false;
 
   gServer.session.authAdapters.localhost = {
-    async prepareRequest(aChannel) {
+    async prepareRequest() {
       prepared++;
     },
 
-    async prepareRedirect(aOldChannel, aNewChannel) {
+    async prepareRedirect() {
       redirected++;
     },
 
-    async completeRequest(aResponse) {
+    async completeRequest() {
       completed++;
       if (restart) {
         restart = false;

@@ -41,15 +41,15 @@ var gInvitationsCalendarManagerObserver = {
   mStoredThis: this,
   QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
 
-  onCalendarRegistered(aCalendar) {
+  onCalendarRegistered() {
     this.mStoredThis.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
   },
 
-  onCalendarUnregistering(aCalendar) {
+  onCalendarUnregistering() {
     this.mStoredThis.rescheduleInvitationsUpdate(FIRST_DELAY_UNREGISTER);
   },
 
-  onCalendarDeleting(aCalendar) {},
+  onCalendarDeleting() {},
 };
 
 function scheduleInvitationsUpdate(firstDelay) {

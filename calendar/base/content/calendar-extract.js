@@ -102,7 +102,7 @@ var calendarExtract = {
           // If we ever got text, we're good. Ignore further chunks.
           content ||= text;
         },
-        onStartRequest(request) {},
+        onStartRequest() {},
         onStopRequest(request, statusCode) {
           if (!Components.isSuccessCode(statusCode)) {
             reject(new Error(statusCode));

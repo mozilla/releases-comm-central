@@ -141,7 +141,7 @@ add_task(async function testInitializeWithExistingCalenderEvents() {
 
     beginUpdateBatch() {},
     endUpdateBatch() {},
-    invalidateRow(index) {},
+    invalidateRow() {},
   };
   view.setTree(tree);
 
@@ -442,7 +442,7 @@ async function initializeCalendarAndView() {
 
     beginUpdateBatch() {},
     endUpdateBatch() {},
-    invalidateRow(index) {},
+    invalidateRow() {},
   };
   view.setTree(tree);
 

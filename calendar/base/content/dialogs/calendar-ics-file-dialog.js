@@ -330,11 +330,11 @@ async function importSingleItem(item, itemIndex, event) {
   const calendar = getCurrentlySelectedCalendar();
 
   await putItemsIntoCal(calendar, [item], {
-    onDuplicate(item, error) {
+    onDuplicate() {
       // TODO: CalCalendarManager already shows a not-very-useful error pop-up.
       // Once that is fixed, use this callback to display a proper error message.
     },
-    onError(item, error) {
+    onError() {
       // TODO: CalCalendarManager already shows a not-very-useful error pop-up.
       // Once that is fixed, use this callback to display a proper error message.
     },
@@ -407,13 +407,13 @@ async function importRemainingItems(event) {
         progressElement.value = this.count;
       }, 50);
     },
-    onDuplicate(item, error) {
+    onDuplicate() {
       this.duplicatesCount++;
     },
-    onError(item, error) {
+    onError() {
       this.errorsCount++;
     },
-    onProgress(count, total) {
+    onProgress(count) {
       this.count = count;
     },
     async onEnd() {

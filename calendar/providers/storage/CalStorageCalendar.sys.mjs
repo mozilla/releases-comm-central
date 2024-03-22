@@ -165,7 +165,7 @@ CalStorageCalendar.prototype = {
     Services.obs.addObserver(this, "profile-change-teardown");
   },
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "profile-change-teardown") {
       Services.obs.removeObserver(this, "profile-change-teardown");
       // Finalize the storage statements, but don't close the database.

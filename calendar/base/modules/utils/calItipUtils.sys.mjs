@@ -654,7 +654,7 @@ export var itip = {
 
         const opListener = {
           QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-          onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
+          onOperationComplete(aCalendar, aStatus, aOperationType) {
             isFirstProcessing = false;
             if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
               // TODO: move the DECLINECOUNTER stuff to actionFunc
@@ -713,7 +713,7 @@ export var itip = {
               );
             }
           },
-          onGetResult(calendar, status, itemType, detail, items) {},
+          onGetResult() {},
         };
 
         try {
@@ -822,7 +822,7 @@ export var itip = {
           const methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
           const newItipItem = lazy.cal.itip.getModifiedItipItem(aItipItem, saveitems, methods);
           // setup callback and trigger re-processing
-          const storeCopy = function (aItipItem, aRc, aActionFunc, aFoundItems) {
+          const storeCopy = function (aItipItem, aRc, aActionFunc) {
             if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
               _execAction(aActionFunc, aItipItem, aWindow, aParticipantStatus);
             }
@@ -1546,7 +1546,7 @@ ItipOpListener.prototype = {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);
     }
   },
-  onGetResult(calendar, status, itemType, detail, items) {},
+  onGetResult() {},
 };
 
 /** local to this module file
@@ -1651,7 +1651,7 @@ ItipItemFinder.prototype = {
   onError() {},
   onPropertyChanged() {},
   onPropertyDeleting() {},
-  onLoad(aCalendar) {
+  onLoad() {
     // Its possible that the item was updated. We need to re-retrieve the
     // items now.
     this.findItem();
@@ -1744,7 +1744,7 @@ ItipItemFinder.prototype = {
                   const attendees = itipItemItem.getAttendees();
                   lazy.cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
                   if (attendees.length > 0) {
-                    const action = function (opListener, partStat, extResponse) {
+                    const action = function () {
                       if (!item.organizer) {
                         const org = itip.createOrganizer(item.calendar);
                         if (org) {
@@ -1773,7 +1773,7 @@ ItipItemFinder.prototype = {
                     itip.compare(itipItemItem, item) > 0
                   ) {
                     const newItem = updateItem(item, itipItemItem);
-                    const action = function (opListener, partStat, extResponse) {
+                    const action = function (opListener) {
                       return newItem.calendar.modifyItem(newItem, item).then(
                         item =>
                           opListener.onOperationComplete(
@@ -2013,7 +2013,7 @@ ItipItemFinder.prototype = {
                     // Make sure the provider-specified properties are copied over
                     copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
-                    operations.push((opListener, partStat, extResponse) =>
+                    operations.push(opListener =>
                       newItem.calendar.modifyItem(newItem, item).then(
                         item =>
                           opListener.onOperationComplete(
@@ -2037,7 +2037,7 @@ ItipItemFinder.prototype = {
                   newItem.recurrenceInfo.removeOccurrenceAt(rid);
                 } else if (item.recurrenceId && item.recurrenceId.compare(rid) == 0) {
                   // parentless occurrence to be deleted (future)
-                  operations.push((opListener, partStat, extResponse) =>
+                  operations.push(opListener =>
                     item.calendar.deleteItem(item).then(
                       () =>
                         opListener.onOperationComplete(
@@ -2059,7 +2059,7 @@ ItipItemFinder.prototype = {
                   );
                 }
               } else {
-                operations.push((opListener, partStat, extResponse) =>
+                operations.push(opListener =>
                   item.calendar.deleteItem(item).then(
                     () =>
                       opListener.onOperationComplete(

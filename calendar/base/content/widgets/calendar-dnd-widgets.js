@@ -49,7 +49,7 @@
     /**
      * Method to add individual code e.g to set up the new item during 'ondrop'.
      */
-    onDropItem(aItem) {
+    onDropItem() {
       // method that may be overridden by derived bindings...
     }
 
@@ -183,7 +183,7 @@
       event.stopPropagation();
     }
 
-    onDragEnd(event) {
+    onDragEnd() {
       currentView().removeDropShadows();
     }
   }

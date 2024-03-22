@@ -414,7 +414,7 @@ var calendarController = {
     }
   },
 
-  onEvent(aEvent) {},
+  onEvent() {},
 
   isCalendarInForeground() {
     return gCurrentMode && gCurrentMode != "mail";

@@ -75,9 +75,9 @@
       }
     }
 
-    onError(calendar, errNo, message) {}
+    onError() {}
 
-    onPropertyChanged(calendar, name, value, oldValue) {
+    onPropertyChanged(calendar, name, value) {
       switch (name) {
         case "disabled":
           if (value) {
@@ -106,7 +106,7 @@
       this.tree.onCalendarRemoved(calendar);
     }
 
-    onDefaultCalendarChanged(newDefaultCalendar) {}
+    onDefaultCalendarChanged() {}
 
     // End calICompositeObserver Methods
   }
@@ -226,11 +226,11 @@
         }
       });
 
-      this.addEventListener("focus", event => {
+      this.addEventListener("focus", () => {
         this.updateFocus();
       });
 
-      this.addEventListener("blur", event => {
+      this.addEventListener("blur", () => {
         this.updateFocus();
       });
 

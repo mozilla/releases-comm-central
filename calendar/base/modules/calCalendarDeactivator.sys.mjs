@@ -152,22 +152,22 @@ export var calendarDeactivator = {
       this.refreshDeactivatedState();
     }
   },
-  onCalendarDeleting(calendar) {},
+  onCalendarDeleting() {},
 
   // calIObserver methods
   onStartBatch() {},
   onEndBatch() {},
   onLoad() {},
-  onAddItem(item) {},
-  onModifyItem(newItem, oldItem) {},
-  onDeleteItem(deletedItem) {},
-  onError(calendar, errNo, message) {},
+  onAddItem() {},
+  onModifyItem() {},
+  onDeleteItem() {},
+  onError() {},
 
-  onPropertyChanged(calendar, name, value, oldValue) {
+  onPropertyChanged(calendar, name) {
     if (name == "disabled") {
       this.refreshDeactivatedState();
     }
   },
 
-  onPropertyDeleting(calendar, name) {},
+  onPropertyDeleting() {},
 };

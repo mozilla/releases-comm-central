@@ -37,7 +37,7 @@ function check_webcal_uri(aUri) {
     Ci.nsIContentPolicy.TYPE_OTHER
   );
 
-  NetUtil.asyncFetch(channel, (data, status, request) => {
+  NetUtil.asyncFetch(channel, (data, status) => {
     ok(Components.isSuccessCode(status));
     run_next_test();
   });

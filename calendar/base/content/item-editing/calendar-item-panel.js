@@ -730,7 +730,7 @@ function updateStatus(aArg) {
   ];
   let found = false;
   document.getElementById("status-status").collapsed = true;
-  commands.forEach((aElement, aIndex, aArray) => {
+  commands.forEach((aElement, aIndex) => {
     const node = document.getElementById(aElement);
     const matches = node.getAttribute("value") == aArg.status;
     found = found || matches;
@@ -937,7 +937,7 @@ function onCommandViewToolbar(aToolbarId, aMenuItemId) {
  *
  * @param {boolean} aToolboxChanged - When true the toolbox has changed
  */
-function dialogToolboxCustomizeDone(aToolboxChanged) {
+function dialogToolboxCustomizeDone() {
   // Re-enable menu items (disabled during toolbar customization).
   const menubarId = gTabmail ? "mail-menubar" : "event-menubar";
   const menubar = document.getElementById(menubarId);

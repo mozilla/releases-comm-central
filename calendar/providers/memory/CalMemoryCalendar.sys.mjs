@@ -408,7 +408,7 @@ CalMemoryCalendar.prototype = {
           return new Promise(resolve => {
             cal.iterate.forEach(
               self.mItems,
-              ([id, item]) => {
+              ([, item]) => {
                 const isEvent_ = item.isEvent();
                 if (isEvent_) {
                   if (!wantEvents) {

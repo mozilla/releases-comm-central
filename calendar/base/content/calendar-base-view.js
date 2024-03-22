@@ -38,7 +38,7 @@
       this.calView.flashAlarm(alarmItem, false);
     }
 
-    onNotification(item) {}
+    onNotification() {}
 
     onRemoveAlarmsByItem(item) {
       // Stop the flashing for the item.
@@ -55,7 +55,7 @@
       }
     }
 
-    onAlarmsLoaded(calendar) {}
+    onAlarmsLoaded() {}
 
     // End calIAlarmServiceObserver
   }
@@ -155,7 +155,7 @@
         }
       });
 
-      this.addEventListener("MozMagnifyGestureStart", event => {
+      this.addEventListener("MozMagnifyGestureStart", () => {
         this.mMagnifyAmount = 0;
       });
 
@@ -264,7 +264,7 @@
 
       this.setAttribute("type", this.type);
 
-      window.addEventListener("viewresize", event => {
+      window.addEventListener("viewresize", () => {
         if (gCurrentMode == "calendar" && this.isVisible()) {
           this.onResize();
         }
@@ -552,7 +552,7 @@
         [5, "d5fridaysoff", "false"],
         [6, "d6saturdaysoff", "true"],
       ];
-      const filterDaysOff = ([number, name, defaultValue]) =>
+      const filterDaysOff = ([, name, defaultValue]) =>
         Services.prefs.getBoolPref(prefix + name, defaultValue);
 
       this.daysOffArray = daysOffPrefs.filter(filterDaysOff).map(pref => pref[0]);
@@ -574,11 +574,11 @@
       this.goToDay(this.selectedDay);
     }
 
-    handlePreference(subject, topic, pref) {
+    handlePreference() {
       // Do nothing by default.
     }
 
-    flashAlarm(alarmItem, stop) {
+    flashAlarm() {
       // Do nothing by default.
     }
 
@@ -625,9 +625,9 @@
       return dateList;
     }
 
-    zoomIn(level) {}
+    zoomIn() {}
 
-    zoomOut(level) {}
+    zoomOut() {}
 
     zoomReset() {}
 

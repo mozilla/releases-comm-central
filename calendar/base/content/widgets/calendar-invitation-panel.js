@@ -165,7 +165,7 @@
      */
     item;
 
-    constructor(id) {
+    constructor() {
       super();
       this.attachShadow({ mode: "open" });
       document.l10n.connectRoot(this.shadowRoot);
@@ -248,7 +248,7 @@
           this.mode == InvitationPanel.MODE_UPDATE_MAJOR
         ) {
           for (const button of this.shadowRoot.querySelectorAll("#actionButtons > button")) {
-            button.addEventListener("click", e =>
+            button.addEventListener("click", () =>
               this.dispatchEvent(
                 new CustomEvent("calendar-invitation-panel-action", {
                   detail: { type: button.dataset.action },
@@ -311,7 +311,7 @@
                 {
                   l10nId: "calendar-invitation-panel-menu-item-save-copy",
                   name: "save",
-                  command: e =>
+                  command: () =>
                     this.dispatchEvent(
                       new CustomEvent("calendar-invitation-panel-action", {
                         details: { type: "x-savecopy" },
@@ -559,11 +559,11 @@
      * Implemented by sub-classes to generate a list of changes for each element
      * of the new list.
      *
-     * @param {T[]} oldValue
-     * @param {T[]} newValue
+     * @param {T[]} _oldValue
+     * @param {T[]} _newValue
      * @returns {[T, number][]}
      */
-    getChanges(oldValue, newValue) {
+    getChanges(_oldValue, _newValue) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
   }
@@ -600,10 +600,10 @@
     /**
      * Implemented by sub-classes to build the <li> inner DOM structure.
      *
-     * @param {T} value
+     * @param {T} _value
      * @abstract
      */
-    build(value) {
+    build(_value) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
   }

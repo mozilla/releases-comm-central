@@ -123,7 +123,7 @@ var TodayPane = {
       }
       if (todoIsVisible) {
         // Add listener to update the date filters.
-        getViewBox().addEventListener("dayselect", event => {
+        getViewBox().addEventListener("dayselect", () => {
           this.updateCalendarToDoUnifinder();
         });
         this.updateCalendarToDoUnifinder();

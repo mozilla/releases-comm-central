@@ -32,7 +32,7 @@ var alarmObserver = {
     this.firedMap[aItem.hashId][aAlarm.icalString] = true;
   },
 
-  onNotification(item) {},
+  onNotification() {},
 
   onRemoveAlarmsByItem(aItem) {
     if (aItem.hashId in this.firedMap) {

@@ -54,7 +54,7 @@ const calendarObserver = {
       this._onAddItemPromise.resolve();
     }
   },
-  onModifyItem(newItem, oldItem) {
+  onModifyItem(newItem) {
     info(`onModifyItem ${newItem.calendar.id} ${newItem.id}`);
     if (this._batchRequired) {
       Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
@@ -69,9 +69,9 @@ const calendarObserver = {
       this._onDeleteItemPromise.resolve();
     }
   },
-  onError(calendar, errNo, message) {},
-  onPropertyChanged(calendar, name, value, oldValue) {},
-  onPropertyDeleting(calendar, name) {},
+  onError() {},
+  onPropertyChanged() {},
+  onPropertyDeleting() {},
 };
 
 /**

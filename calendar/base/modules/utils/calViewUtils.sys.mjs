@@ -125,7 +125,7 @@ export var view = {
             comp.defaultCalendar = comp.getCalendars()[0];
           }
         },
-        onCalendarDeleting(calendar) {},
+        onCalendarDeleting() {},
       };
       lazy.cal.manager.addObserver(calManagerObserver);
       aWindow.addEventListener("unload", () => lazy.cal.manager.removeObserver(calManagerObserver));
@@ -485,24 +485,24 @@ view.colorTracker = {
       this._removeCalendarFromDocument(window.document, aCalendar);
     }
   },
-  onCalendarDeleting(aCalendar) {},
+  onCalendarDeleting() {},
 
   // calIObserver methods
   onStartBatch() {},
   onEndBatch() {},
   onLoad() {},
-  onAddItem(aItem) {},
-  onModifyItem(aNewItem, aOldItem) {},
-  onDeleteItem(aDeletedItem) {},
-  onError(aCalendar, aErrNo, aMessage) {},
-  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+  onAddItem() {},
+  onModifyItem() {},
+  onDeleteItem() {},
+  onError() {},
+  onPropertyChanged(aCalendar, aName) {
     if (aName == "color") {
       for (const window of this.windows) {
         this._addCalendarToDocument(window.document, aCalendar);
       }
     }
   },
-  onPropertyDeleting(aCalendar, aName) {},
+  onPropertyDeleting() {},
 
   // nsIObserver method
   observe(aSubject, aTopic, aData) {

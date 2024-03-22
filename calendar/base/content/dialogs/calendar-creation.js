@@ -616,7 +616,7 @@ function setUpAddonCalendarSettingsPanel(calendarType) {
  *
  * @param {Event} event - The menu selection event.
  */
-function onChangeIdentity(event) {
+function onChangeIdentity() {
   notifyOnIdentitySelection(gLocalCalendar);
 }
 

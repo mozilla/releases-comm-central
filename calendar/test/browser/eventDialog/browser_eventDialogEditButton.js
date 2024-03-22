@@ -74,7 +74,7 @@ add_task(async function testEditNonRecurringEvent() {
   const modificationPromise = new Promise(resolve => {
     calendar.wrappedJSObject.addObserver({
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
-      onModifyItem(aNewItem, aOldItem) {
+      onModifyItem() {
         calendar.wrappedJSObject.removeObserver(this);
         resolve();
       },
@@ -145,7 +145,7 @@ add_task(async function testEditThisOccurrence() {
   const modificationPromise = new Promise(resolve => {
     calendar.wrappedJSObject.addObserver({
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
-      onModifyItem(aNewItem, aOldItem) {
+      onModifyItem() {
         calendar.wrappedJSObject.removeObserver(this);
         resolve();
       },

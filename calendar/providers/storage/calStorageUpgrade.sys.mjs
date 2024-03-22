@@ -746,7 +746,7 @@ var upgrade = {};
  * p=vlad
  */
 // eslint-disable-next-line id-length
-upgrade.v2 = upgrade.v1 = function (db, version) {
+upgrade.v2 = upgrade.v1 = function (db) {
   LOGdb(db, "Storage: Upgrading to v1/v2");
   const tblData = {
     cal_calendar_schema_version: { version: "INTEGER" },

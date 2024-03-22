@@ -329,7 +329,7 @@
       // in the bubbling phase which is set up in the calendar-editable-item.
       this.addEventListener(
         "dragstart",
-        event => {
+        () => {
           document.monthDragEvent = this;
         },
         true

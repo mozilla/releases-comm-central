@@ -118,7 +118,7 @@ var taskEdit = {
    * Load function to set up all quick-add inputs. The input must
    * have the class "task-edit-field".
    */
-  onLoad(aEvent) {
+  onLoad() {
     cal.view.getCompositeCalendar(window).addObserver(taskEdit.compositeObserver);
     taskEdit.callOnBlurForAllTaskFields();
   },
@@ -142,13 +142,13 @@ var taskEdit = {
     // calIObserver:
     onStartBatch() {},
     onEndBatch() {},
-    onLoad(aCalendar) {},
-    onAddItem(aItem) {},
-    onModifyItem(aNewItem, aOldItem) {},
-    onDeleteItem(aDeletedItem) {},
-    onError(aCalendar, aErrNo, aMessage) {},
+    onLoad() {},
+    onAddItem() {},
+    onModifyItem() {},
+    onDeleteItem() {},
+    onError() {},
 
-    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged(aCalendar, aName) {
       if (aCalendar.id != getSelectedCalendar().id) {
         // Optimization: if the given calendar isn't the selected calendar,
         // then we don't need to change any readonly/disabled states.
@@ -172,9 +172,9 @@ var taskEdit = {
     },
 
     // calICompositeObserver:
-    onCalendarAdded(aCalendar) {},
-    onCalendarRemoved(aCalendar) {},
-    onDefaultCalendarChanged(aNewDefault) {
+    onCalendarAdded() {},
+    onCalendarRemoved() {},
+    onDefaultCalendarChanged() {
       taskEdit.callOnBlurForAllTaskFields();
     },
   },

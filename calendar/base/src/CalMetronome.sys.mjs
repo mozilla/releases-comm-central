@@ -75,7 +75,7 @@ export var CalMetronome = {
     this._startNext();
   },
 
-  observe(subject, topic, data) {
+  observe(subject, topic) {
     if (topic == "wake_notification") {
       cal.LOGverbose("[CalMetronome] Observed wake_notification");
       this.notify();

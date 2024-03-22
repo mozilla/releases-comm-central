@@ -97,7 +97,7 @@
      * _elButtonAdd and _elList.
      */
     _bindEvents() {
-      this._elButtonAdd.addEventListener("click", e => {
+      this._elButtonAdd.addEventListener("click", () => {
         // Add a notification time row.
         this._addNewRow(0, "M", "before-START");
         this._emit();

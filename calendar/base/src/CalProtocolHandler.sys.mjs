@@ -43,7 +43,7 @@ export class CalProtocolHandlerWebcal {
     return channel;
   }
 
-  allowPort(aPort, aScheme) {
+  allowPort() {
     return false; // We are not overriding any special ports.
   }
 }

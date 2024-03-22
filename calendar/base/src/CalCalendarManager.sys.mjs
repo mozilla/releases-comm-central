@@ -706,16 +706,16 @@ calMgrCalendarObserver.prototype = {
   onEndBatch() {
     return this.calMgr.notifyCalendarObservers("onEndBatch", arguments);
   },
-  onLoad(calendar) {
+  onLoad() {
     return this.calMgr.notifyCalendarObservers("onLoad", arguments);
   },
-  onAddItem(aItem) {
+  onAddItem() {
     return this.calMgr.notifyCalendarObservers("onAddItem", arguments);
   },
-  onModifyItem(aNewItem, aOldItem) {
+  onModifyItem() {
     return this.calMgr.notifyCalendarObservers("onModifyItem", arguments);
   },
-  onDeleteItem(aDeletedItem) {
+  onDeleteItem() {
     return this.calMgr.notifyCalendarObservers("onDeleteItem", arguments);
   },
   onError(aCalendar, aErrNo, aMessage) {
@@ -723,7 +723,7 @@ calMgrCalendarObserver.prototype = {
     this.announceError(aCalendar, aErrNo, aMessage);
   },
 
-  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+  onPropertyChanged(aCalendar, aName, aValue) {
     this.calMgr.notifyCalendarObservers("onPropertyChanged", arguments);
     switch (aName) {
       case "requiresNetwork":
@@ -883,10 +883,10 @@ calMgrCalendarObserver.prototype = {
   },
 
   announceParamBlock(paramBlock) {
-    function awaitLoad(event) {
+    function awaitLoad() {
       promptWindow.addEventListener("unload", awaitUnload, { capture: false, once: true });
     }
-    const awaitUnload = event => {
+    const awaitUnload = () => {
       // unloaded (user closed prompt window),
       // remove paramBlock and unload listener.
       try {
@@ -1001,7 +1001,7 @@ function flushPrefs() {
  * @param aCalendar     The calendar to refresh on notification
  */
 function timerCallback(aCalendar) {
-  this.notify = function (aTimer) {
+  this.notify = function () {
     if (!aCalendar.getProperty("disabled") && aCalendar.canRefresh) {
       aCalendar.refresh();
     }
@@ -1009,14 +1009,14 @@ function timerCallback(aCalendar) {
 }
 
 var gCalendarManagerAddonListener = {
-  onDisabling(aAddon, aNeedsRestart) {
+  onDisabling(aAddon) {
     if (!this.queryUninstallProvider(aAddon)) {
       // If the addon should not be disabled, then re-enable it.
       aAddon.userDisabled = false;
     }
   },
 
-  onUninstalling(aAddon, aNeedsRestart) {
+  onUninstalling(aAddon) {
     if (!this.queryUninstallProvider(aAddon)) {
       // If the addon should not be uninstalled, then cancel the uninstall.
       aAddon.cancelUninstall();

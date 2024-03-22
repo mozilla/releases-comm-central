@@ -554,7 +554,7 @@ calIcalComponent.prototype = {
     }
   },
 
-  getReferencedTimezones(aCount) {
+  getReferencedTimezones() {
     return Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
   },
 

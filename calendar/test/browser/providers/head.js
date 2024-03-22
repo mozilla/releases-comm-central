@@ -52,7 +52,7 @@ const calendarObserver = {
       Assert.equal(this._batchCount, 1, "onAddItem must occur in a batch");
     }
   },
-  onModifyItem(newItem, oldItem) {
+  onModifyItem(newItem) {
     info(`onModifyItem ${newItem.calendar.id} ${newItem.id}`);
     if (this._batchRequired) {
       Assert.equal(this._batchCount, 1, "onModifyItem must occur in a batch");
@@ -61,9 +61,9 @@ const calendarObserver = {
   onDeleteItem(deletedItem) {
     info(`onDeleteItem ${deletedItem.calendar.id} ${deletedItem.id}`);
   },
-  onError(calendar, errNo, message) {},
-  onPropertyChanged(calendar, name, value, oldValue) {},
-  onPropertyDeleting(calendar, name) {},
+  onError() {},
+  onPropertyChanged() {},
+  onPropertyDeleting() {},
 };
 
 /**
@@ -108,13 +108,13 @@ const alarmObserver = {
   /* calIAlarmServiceObserver */
 
   _alarmCount: 0,
-  onAlarm(item, alarm) {
+  onAlarm() {
     info("onAlarm");
     this._alarmCount++;
   },
-  onRemoveAlarmsByItem(item) {},
-  onRemoveAlarmsByCalendar(calendar) {},
-  onAlarmsLoaded(calendar) {},
+  onRemoveAlarmsByItem() {},
+  onRemoveAlarmsByCalendar() {},
+  onAlarmsLoaded() {},
 };
 alarmService.addObserver(alarmObserver);
 registerCleanupFunction(async () => {

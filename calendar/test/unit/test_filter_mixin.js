@@ -924,7 +924,7 @@ add_task(async function testChangeWhileRefreshing() {
     },
     addObserver() {},
 
-    getItems(filter, count, rangeStart, rangeEndEx) {
+    getItems() {
       return CalReadableStreamFactory.createReadableStream({
         async start(controller) {
           pumpCalendar.controller = controller;
@@ -945,10 +945,10 @@ add_task(async function testChangeWhileRefreshing() {
   const ready1 = widget.ready;
   let ready1Resolved, ready1Rejected;
   ready1.then(
-    arg => {
+    () => {
       ready1Resolved = true;
     },
-    arg => {
+    () => {
       ready1Rejected = true;
     }
   );

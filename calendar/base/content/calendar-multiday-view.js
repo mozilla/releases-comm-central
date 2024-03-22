@@ -1592,7 +1592,7 @@
       }
     }
 
-    onMouseDown(event) {
+    onMouseDown() {
       this.calendarView.selectedDay = this.date;
     }
 
@@ -1714,13 +1714,13 @@
         }
       });
 
-      this.addEventListener("mouseout", event => {
+      this.addEventListener("mouseout", () => {
         if (!this.mEditing && this.mInMouseDown && this.parentColumn) {
           this.startItemDrag();
         }
       });
 
-      this.addEventListener("mouseup", event => {
+      this.addEventListener("mouseup", () => {
         if (!this.mEditing) {
           this.mInMouseDown = false;
         }
@@ -1733,7 +1733,7 @@
         }
       });
 
-      this.addEventListener("mouseenter", event => {
+      this.addEventListener("mouseenter", () => {
         // Update the event-readonly class to determine whether to show the
         // gripbars, which are otherwise shown on hover.
         this.classList.toggle("event-readonly", !canEditEventItem(this.occurrence));
@@ -1744,7 +1744,7 @@
       // in the bubbling phase which is set up in the calendar-editable-item.
       this.addEventListener(
         "dragstart",
-        event => {
+        () => {
           document.monthDragEvent = this;
         },
         true
@@ -2136,7 +2136,7 @@
         this.scrollToMinute(minute);
       });
 
-      this.grid.addEventListener("scroll", event => {
+      this.grid.addEventListener("scroll", () => {
         if (!this.clientHeight) {
           // Hidden, so don't store the scroll position.
           // FIXME: We don't expect scrolling whilst we are hidden, so we should

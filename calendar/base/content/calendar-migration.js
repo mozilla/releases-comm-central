@@ -292,7 +292,7 @@ var gDataMigrator = {
       failedCount: 0,
       lastError: null,
 
-      onDuplicate(item, error) {
+      onDuplicate() {
         this.duplicateCount++;
       },
       onError(item, error) {

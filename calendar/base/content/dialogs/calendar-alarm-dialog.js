@@ -14,7 +14,7 @@ var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   setupWindow();
   window.arguments[0].wrappedJSObject.window_onLoad();
 });
@@ -476,7 +476,7 @@ function onSelectAlarm(event) {
   }
 }
 
-function ensureCalendarVisible(aCalendar) {
+function ensureCalendarVisible() {
   // This function is called on the alarm dialog from calendar-item-editing.js.
   // Normally, it makes sure that the calendar being edited is made visible,
   // but the alarm dialog is too far away from the calendar views that it

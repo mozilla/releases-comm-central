@@ -66,7 +66,7 @@ var calendarTaskButtonDNDObserver;
             // If we ever got text, we're good. Ignore further chunks.
             content ||= text;
           },
-          onStartRequest(request) {},
+          onStartRequest() {},
           onStopRequest(request, statusCode) {
             if (!Components.isSuccessCode(statusCode)) {
               reject(new Error(statusCode));
@@ -275,7 +275,7 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {DataTransferItem} item
      */
-    async handleDataTransferItem(item) {}
+    async handleDataTransferItem() {}
 
     /**
      * Overridden by child classes that handle string data. By default, no
@@ -283,7 +283,7 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {string} data
      */
-    async handleString(data) {}
+    async handleString() {}
   }
 
   /**
@@ -542,14 +542,14 @@ var calendarTaskButtonDNDObserver;
      *
      * @param {calIItemBase[]} items
      */
-    onDropItems(items) {}
+    onDropItems() {}
 
     /**
      * Handles mail messages.
      *
      * @param {nsIMsgHdr} msgHdr
      */
-    onDropMessage(msgHdr) {}
+    onDropMessage() {}
 
     /**
      * Handles address book data.

@@ -1232,7 +1232,7 @@ CalDavCalendar.prototype = {
       const self = this;
       const opListener = {
         QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
-        onGetResult(calendar, status, itemType, detail, items) {
+        onGetResult() {
           cal.ASSERT(false, "unexpected!");
         },
         onOperationComplete(opCalendar, opStatus, opType, opId, opDetail) {
@@ -2184,13 +2184,7 @@ CalDavCalendar.prototype = {
     const self = this;
     const modListener = {};
     modListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
-    modListener.onOperationComplete = function (
-      aCalendar,
-      aStatus,
-      aOperationType,
-      aItemId,
-      aDetail
-    ) {
+    modListener.onOperationComplete = function (aCalendar, aStatus) {
       cal.LOG(`CalDAV: status ${aStatus} while processing iTIP REPLY for ${self.name}`);
       // don't delete the REPLY item from inbox unless modifying the master
       // item was successful
@@ -2228,7 +2222,7 @@ CalDavCalendar.prototype = {
     );
   },
 
-  canNotify(aMethod, aItem) {
+  canNotify(aMethod) {
     // canNotify should return false if the imip transport should takes care of notifying cal
     // users
     if (this.getProperty("forceEmailScheduling")) {

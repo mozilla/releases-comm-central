@@ -67,14 +67,14 @@ CalRecurrenceDate.prototype = {
     this.mDate = val;
   },
 
-  getNextOccurrence(aStartTime, aOccurrenceTime) {
+  getNextOccurrence(aStartTime) {
     if (this.mDate && this.mDate.compare(aStartTime) > 0) {
       return this.mDate;
     }
     return null;
   },
 
-  getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
+  getOccurrences(aStartTime, aRangeStart, aRangeEnd) {
     if (
       this.mDate &&
       this.mDate.compare(aRangeStart) >= 0 &&

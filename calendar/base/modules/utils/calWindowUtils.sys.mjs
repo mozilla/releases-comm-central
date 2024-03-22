@@ -92,7 +92,7 @@ export var window = {
 
       // Wait until calendar is set up in the new window.
       const calStartupObserver = {
-        observe(subject, topic, data) {
+        observe() {
           openCal(mainWindow);
           Services.obs.removeObserver(calStartupObserver, "calendar-startup-done");
         },

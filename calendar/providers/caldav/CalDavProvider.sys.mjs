@@ -30,17 +30,11 @@ export var CalDavProvider = {
     return "CalDAV";
   },
 
-  deleteCalendar(aCalendar, aListener) {
+  deleteCalendar() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
-  async detectCalendars(
-    username,
-    password,
-    location = null,
-    savePassword = false,
-    extraProperties = {}
-  ) {
+  async detectCalendars(username, password, location = null, savePassword = false) {
     const uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");

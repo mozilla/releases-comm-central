@@ -118,7 +118,7 @@ class CalDavOAuth extends OAuth2 {
                 callback?.onAuthResult(true);
                 resolve();
               },
-              error => {
+              () => {
                 callback?.onAuthResult(false);
                 reject(Cr.NS_ERROR_ABORT);
               }

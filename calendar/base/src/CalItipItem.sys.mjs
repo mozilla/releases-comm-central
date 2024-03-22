@@ -190,7 +190,7 @@ CalItipItem.prototype = {
    * Note that this code forces the user to respond to all items in the same
    * way, which is a current limitation of the spec.
    */
-  setAttendeeStatus(aAttendeeId, aStatus) {
+  setAttendeeStatus(aAttendeeId) {
     // Append "mailto:" to the attendee if it is missing it.
     if (!aAttendeeId.match(/^mailto:/i)) {
       aAttendeeId = "mailto:" + aAttendeeId;

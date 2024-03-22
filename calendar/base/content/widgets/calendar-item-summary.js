@@ -670,7 +670,7 @@
               "nsIWebProgressListener",
               "nsISupportsWeakReference",
             ]),
-            onStateChange(webProgress, request, stateFlags, status) {
+            onStateChange(webProgress, request, stateFlags) {
               if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
                 itemDescription.browsingContext.webProgress.removeProgressListener(this);
                 delete itemDescription._listener;

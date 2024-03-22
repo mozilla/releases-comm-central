@@ -6,7 +6,7 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-window.addEventListener("load", event => {
+window.addEventListener("load", () => {
   loadCalendars();
 });
 function loadCalendars() {

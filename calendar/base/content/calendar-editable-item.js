@@ -151,7 +151,7 @@
       // in the bubbling phase.
       this.addEventListener(
         "dragstart",
-        event => {
+        () => {
           document.monthDragEvent = this;
         },
         true

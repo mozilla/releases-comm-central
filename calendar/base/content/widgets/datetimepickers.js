@@ -508,6 +508,8 @@
      * @param {number} hourNumber - Hour value of the clicked hour item
      */
     doubleClickHour(hourItem, hourNumber) {
+      this.clickHour(hourItem, hourNumber);
+
       // set the minutes to :00
       this.mSelectedTime.setMinutes(0);
 
@@ -733,7 +735,7 @@
       this.value = this.getAttribute("value") || new Date();
 
       // Other attributes handled in inheritedAttributes.
-      this._handleMutation = mutations => {
+      this._handleMutation = () => {
         this.value = this.getAttribute("value");
       };
       this._attributeObserver = new MutationObserver(this._handleMutation);
@@ -913,7 +915,7 @@
       }
 
       // Other attributes handled in inheritedAttributes.
-      this._handleMutation = mutations => {
+      this._handleMutation = () => {
         this.value = this.getAttribute("value");
       };
       this._attributeObserver = new MutationObserver(this._handleMutation);

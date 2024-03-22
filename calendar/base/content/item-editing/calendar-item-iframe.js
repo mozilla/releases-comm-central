@@ -90,7 +90,7 @@ ChromeUtils.defineLazyGetter(this, "gEventNotification", () => {
 var eventDialogRequestObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (
       aTopic == "http-on-modify-request" &&
       aSubject instanceof Ci.nsIChannel &&
@@ -107,7 +107,7 @@ var eventDialogRequestObserver = {
 var eventDialogQuitObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
     if (
@@ -1322,7 +1322,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
  * @param {object} aItem - The calendar item
  * @returns {string[]} An array of two strings: [repeatType, untilDate]
  */
-function getRepeatTypeAndUntilDate(aItem) {
+function getRepeatTypeAndUntilDate() {
   const recurrenceInfo = window.recurrenceInfo;
   let repeatType = "none";
   let untilDate = "forever";
@@ -3206,7 +3206,7 @@ function onCommandSave(aIsClosing) {
         window.counterProposal.onReschedule();
       }
     },
-    onGetResult(calendarItem, status, itemType, detail, items) {},
+    onGetResult() {},
   };
   const resp = document.getElementById("notify-attendees-checkbox").checked
     ? Ci.calIItipItem.AUTO

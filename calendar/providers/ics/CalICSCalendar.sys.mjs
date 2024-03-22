@@ -597,9 +597,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
   // nsIStreamListener impl
   // For after publishing. Do error checks here
-  onStartRequest(aRequest) {}
+  onStartRequest() {}
 
-  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+  onDataAvailable(aRequest, aInputStream) {
     // All data must be consumed. For an upload channel, there is
     // no meaningful data. So it gets read and then ignored
     const scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
@@ -609,7 +609,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     scriptableInputStream.read(-1);
   }
 
-  onStopRequest(aRequest, aStatusCode) {
+  onStopRequest(aRequest) {
     let httpChannel;
     let requestSucceeded = false;
     try {
@@ -1010,7 +1010,7 @@ class calICSObserver {
 // dummyHooks are for transport types that don't have hooks of their own.
 // Also serves as poor-mans interface definition.
 class dummyHooks {
-  onBeforeGet(aChannel, aForceRefresh) {
+  onBeforeGet() {
     return true;
   }
 
@@ -1019,11 +1019,11 @@ class dummyHooks {
    *                    didn't change, there might be no data in this GET), true
    *                    in all other cases
    */
-  onAfterGet(aChannel) {
+  onAfterGet() {
     return true;
   }
 
-  onBeforePut(aChannel) {
+  onBeforePut() {
     return true;
   }
 
@@ -1183,8 +1183,8 @@ class httpHooks {
   }
 
   // nsIProgressEventSink
-  onProgress(aRequest, aProgress, aProgressMax) {}
-  onStatus(aRequest, aStatus, aStatusArg) {}
+  onProgress() {}
+  onStatus() {}
 
   getInterface(aIid) {
     if (aIid.equals(Ci.nsIProgressEventSink)) {
@@ -1197,7 +1197,7 @@ class httpHooks {
 class fileHooks {
   #lastModified = null;
 
-  onBeforeGet(aChannel, aForceRefresh) {
+  onBeforeGet() {
     return true;
   }
 

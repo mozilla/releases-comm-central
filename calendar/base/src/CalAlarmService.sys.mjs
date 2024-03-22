@@ -135,8 +135,8 @@ export function CalAlarmService() {
     onDeleteItem(aDeletedItem) {
       this.alarmService.removeAlarmsForOccurrences(aDeletedItem);
     },
-    onError(aCalendar, aErrNo, aMessage) {},
-    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    onError() {},
+    onPropertyChanged(aCalendar, aName) {
       switch (aName) {
         case "suppressAlarms":
         case "disabled":
@@ -203,7 +203,7 @@ CalAlarmService.prototype = {
   /**
    * nsIObserver
    */
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     // This will also be called on app-startup, but nothing is done yet, to
     // prevent unwanted dialogs etc. See bug 325476 and 413296
     if (aTopic == "profile-after-change" || aTopic == "wake_notification") {
@@ -267,7 +267,7 @@ CalAlarmService.prototype = {
     IgnoredAlarmsStore.add(aItem);
   },
 
-  async dismissAlarm(aItem, aAlarm) {
+  async dismissAlarm(aItem) {
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
       const now = nowUTC();
       // We want the parent item, otherwise we're going to accidentally

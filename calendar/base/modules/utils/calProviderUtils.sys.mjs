@@ -201,7 +201,7 @@ export var provider = {
 
       const timerCallback = {
         calendar: this.calendar,
-        notify(timer) {
+        notify() {
           const params = {
             exceptionAdded: false,
             securityInfo: secInfo,
@@ -546,14 +546,9 @@ export var provider = {
      * Implementation of calICalendar.getItems(). This should be overridden by
      * all child classes.
      *
-     * @param {number} itemFilter
-     * @param {number} count
-     * @param {calIDateTime} rangeStart
-     * @param {calIDateTime} rangeEnd
-     *
      * @returns {ReadableStream<calIItemBase>}
      */
-    getItems(itemFilter, count, rangeStart, rangeEnd) {
+    getItems() {
       return lazy.CalReadableStreamFactory.createEmptyReadableStream();
     }
 
@@ -820,7 +815,7 @@ export var provider = {
     }
 
     // boolean canNotify(in AUTF8String aMethod, in calIItemBase aItem);
-    canNotify(aMethod, aItem) {
+    canNotify() {
       return false; // use outbound iTIP for all
     }
   },

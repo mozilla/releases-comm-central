@@ -83,8 +83,8 @@ var calendarTabType = {
         gLastShownCalendarView.get();
         tab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
-      showTab(tab) {},
-      closeTab(tab) {},
+      showTab() {},
+      closeTab() {},
 
       persistTab(tab) {
         const tabmail = document.getElementById("tabmail");
@@ -103,10 +103,10 @@ var calendarTabType = {
         tab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
 
-      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
-      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
-      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent),
+      supportsCommand: aCommand => calendarController2.supportsCommand(aCommand),
+      isCommandEnabled: aCommand => calendarController2.isCommandEnabled(aCommand),
+      doCommand: aCommand => calendarController2.doCommand(aCommand),
+      onEvent: aEvent => calendarController2.onEvent(aEvent),
     },
 
     tasks: {
@@ -116,8 +116,8 @@ var calendarTabType = {
         tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
         tab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
-      showTab(tab) {},
-      closeTab(tab) {},
+      showTab() {},
+      closeTab() {},
 
       persistTab(tab) {
         const tabmail = document.getElementById("tabmail");
@@ -136,14 +136,14 @@ var calendarTabType = {
         tab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
 
-      supportsCommand: (aCommand, aTab) => calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: (aCommand, aTab) => calendarController2.isCommandEnabled(aCommand),
-      doCommand: (aCommand, aTab) => calendarController2.doCommand(aCommand),
-      onEvent: (aEvent, aTab) => calendarController2.onEvent(aEvent),
+      supportsCommand: aCommand => calendarController2.supportsCommand(aCommand),
+      isCommandEnabled: aCommand => calendarController2.isCommandEnabled(aCommand),
+      doCommand: aCommand => calendarController2.doCommand(aCommand),
+      onEvent: aEvent => calendarController2.onEvent(aEvent),
     },
   },
 
-  saveTabState(tab) {},
+  saveTabState() {},
 };
 
 ChromeUtils.defineLazyGetter(calendarTabType.modes.calendar, "notificationbox", () => {
@@ -374,7 +374,7 @@ var calendarItemTabType = {
   },
 };
 
-window.addEventListener("load", e => {
+window.addEventListener("load", () => {
   const tabmail = document.getElementById("tabmail");
   tabmail.registerTabType(calendarTabType);
   tabmail.registerTabType(calendarItemTabType);

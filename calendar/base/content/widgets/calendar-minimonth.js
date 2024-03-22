@@ -469,9 +469,9 @@
       this.setBusyDaysForItem(aNewItem, true);
     }
 
-    onError(aCalendar, aErrNo, aMessage) {}
+    onError() {}
 
-    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged(aCalendar, aName) {
       switch (aName) {
         case "disabled":
           this.resetAttributesForDate();
@@ -501,7 +501,7 @@
       }
     }
 
-    onDefaultCalendarChanged(aCalendar) {}
+    onDefaultCalendarChanged() {}
 
     // End calICompositeObserver methods.
 

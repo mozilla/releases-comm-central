@@ -72,7 +72,7 @@ add_test(function test_builtin_registration() {
 
   let readOnly = false;
   const calendarObserver = cal.createAdapter(Ci.calIObserver, {
-    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged(aCalendar, aName, aValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
       readOnly = aValue;
@@ -138,7 +138,7 @@ add_task(async function test_dynamic_registration() {
       this.initProviderBase();
     }
 
-    getItems(itemFilter, count, rangeStart, rangeEnd, listener) {
+    getItems() {
       return CalReadableStreamFactory.createEmptyReadableStream();
     }
   }
@@ -321,7 +321,7 @@ add_test(function test_removeModes() {
     };
 
     const oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;
-    memory.wrappedJSObject.deleteCalendar = function (calendar, listener) {
+    memory.wrappedJSObject.deleteCalendar = function () {
       deleteCalled = true;
       return oldDeleteCalendar.apply(this, arguments);
     };

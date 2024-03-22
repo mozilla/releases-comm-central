@@ -169,7 +169,7 @@ document.addEventListener("dialogaccept", () => onAcceptDialog());
 /**
  * Called when an identity is selected.
  */
-function onChangeIdentity(aEvent) {
+function onChangeIdentity() {
   notifyOnIdentitySelection(gCalendar);
   updateForceEmailSchedulingControl();
 }

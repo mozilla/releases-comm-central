@@ -640,7 +640,7 @@ window.addEventListener(
     dateTimePickerUI.addListeners();
     addEventListener("resize", layout);
 
-    dateTimePickerUI.start.addEventListener("change", function (event) {
+    dateTimePickerUI.start.addEventListener("change", function () {
       if (!updateByFunction) {
         updateEndDate();
         if (dateTimePickerUI.allDay.checked) {
@@ -649,7 +649,7 @@ window.addEventListener(
         updateRange();
       }
     });
-    dateTimePickerUI.end.addEventListener("change", function (event) {
+    dateTimePickerUI.end.addEventListener("change", function () {
       if (!updateByFunction) {
         checkDate();
         dateTimePickerUI.saveOldValues();
