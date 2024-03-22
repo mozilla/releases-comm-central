@@ -113,7 +113,7 @@ function testXMPPParser() {
       onXMLError(aString) {
         ok(current.isError, aString + " - " + current.description);
       },
-      LOG(aString) {},
+      LOG() {},
       startLegacyAuth() {},
       onXmppStanza(aStanza) {
         equal(current.output, aStanza.getXML(), current.description);

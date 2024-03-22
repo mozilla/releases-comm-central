@@ -113,7 +113,7 @@ Object.defineProperty(lazy, "DBConn", {
 
     if (!gDBConnection) {
       gDBConnection = getDBConnection();
-      Services.obs.addObserver(function dbClose(aSubject, aTopic, aData) {
+      Services.obs.addObserver(function dbClose(aSubject, aTopic) {
         Services.obs.removeObserver(dbClose, aTopic);
         if (gDBConnection) {
           gDBConnection.asyncClose();

@@ -2063,7 +2063,7 @@ export var XMPPAccountPrototype = {
   },
 
   /* Called whenever a stanza is received */
-  onXmppStanza(aStanza) {},
+  onXmppStanza() {},
 
   /* Called when a iq stanza is received */
   onIQStanza(aStanza) {
@@ -3168,15 +3168,12 @@ export var XMPPAccountPrototype = {
         children.push(Stanza.node("priority", null, null, priority.toString()));
       }
     }
-    this.sendStanza(
-      Stanza.presence({ "xml:lang": "en" }, children),
-      aStanza => {
-        // As we are implicitly subscribed to our own presence (rfc6121#4), we
-        // will receive the presence stanza mirrored back to us. We don't need
-        // to do anything with this response.
-        return true;
-      }
-    );
+    this.sendStanza(Stanza.presence({ "xml:lang": "en" }, children), () => {
+      // As we are implicitly subscribed to our own presence (rfc6121#4), we
+      // will receive the presence stanza mirrored back to us. We don't need
+      // to do anything with this response.
+      return true;
+    });
   },
 
   _downloadingUserVCard: false,

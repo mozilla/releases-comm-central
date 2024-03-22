@@ -219,7 +219,7 @@ function runCommand(
   parameterCount,
   {
     requiredCount = parameterCount,
-    validateParams = params => true,
+    validateParams = () => true,
     formatParams = (conv, params) => [conv._roomId, ...params],
   } = {}
 ) {
@@ -333,7 +333,7 @@ export var commands = [
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 2, {
-      validateParams([userId, powerLevelString]) {
+      validateParams([, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
         return (
           Number.isInteger(powerLevel) &&
@@ -370,7 +370,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.topic", "topic");
     },
-    run: runCommand((account, conv, [roomId, topic]) => {
+    run: runCommand((account, conv, [, topic]) => {
       conv.topic = topic;
       return true;
     }, 1),
@@ -402,7 +402,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.detail", "detail");
     },
-    run(msg, convObj, returnedConv) {
+    run(msg, convObj) {
       const account = getAccount(convObj);
       const conv = getConv(convObj);
       publishRoomDetails(account, conv);
@@ -436,7 +436,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.me", "me");
     },
-    run: runCommand((account, conv, [roomId, message]) => {
+    run: runCommand((account, conv, [, message]) => {
       conv.sendMsg(message, true);
       return true;
     }, 1),
@@ -446,7 +446,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.msg", "msg");
     },
-    run: runCommand((account, conv, [roomId, userId, message]) => {
+    run: runCommand((account, conv, [, userId, message]) => {
       const room = account.getDirectConversation(userId);
       if (room) {
         room.waitForRoom().then(readyRoom => {
@@ -464,7 +464,7 @@ export var commands = [
       return lazy._("command.join", "join");
     },
     run: runCommand(
-      (account, conv, [currentRoomId, joinRoomId]) => {
+      (account, conv, [, joinRoomId]) => {
         account.getGroupConversation(joinRoomId);
         return true;
       },

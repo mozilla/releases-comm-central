@@ -10,7 +10,7 @@ const { l10nHelper } = ChromeUtils.importESModule(
 );
 const { OTR } = ChromeUtils.importESModule("resource:///modules/OTR.sys.mjs");
 
-window.addEventListener("DOMContentLoaded", event => {
+window.addEventListener("DOMContentLoaded", () => {
   otrAuth.onload();
 });
 

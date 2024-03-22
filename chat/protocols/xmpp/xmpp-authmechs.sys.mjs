@@ -34,7 +34,7 @@ import { CryptoUtils } from "resource://services-crypto/utils.sys.mjs";
 import { Stanza } from "resource:///modules/xmpp-xml.sys.mjs";
 
 // Handle PLAIN authorization mechanism.
-function* PlainAuth(aUsername, aPassword, aDomain) {
+function* PlainAuth(aUsername, aPassword) {
   const data = "\0" + aUsername + "\0" + aPassword;
 
   // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa

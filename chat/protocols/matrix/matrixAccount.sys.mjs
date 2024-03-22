@@ -2049,7 +2049,7 @@ MatrixAccount.prototype = {
     );
     this._client.on(
       lazy.MatrixSDK.RoomMemberEvent.Membership,
-      (event, member, oldMembership) => {
+      (event, member) => {
         if (this._catchingUp) {
           return;
         }
@@ -2145,7 +2145,7 @@ MatrixAccount.prototype = {
     // Queued, sending and failed events
     this._client.on(
       lazy.MatrixSDK.RoomEvent.LocalEchoUpdated,
-      (event, room, oldEventId, oldStatus) => {
+      (event, room, oldEventId) => {
         if (
           this._catchingUp ||
           room.isSpaceRoom() ||
@@ -2324,7 +2324,7 @@ MatrixAccount.prototype = {
 
     this._client.on(
       lazy.MatrixSDK.CryptoEvent.UserTrustStatusChanged,
-      (userId, trustLevel) => {
+      userId => {
         this.updateConvDeviceTrust(
           conv =>
             (conv.isChat && conv.getParticipant(userId)) ||

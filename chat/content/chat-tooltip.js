@@ -70,7 +70,7 @@
         }
       });
 
-      this.addEventListener("popuphiding", event => {
+      this.addEventListener("popuphiding", () => {
         this.buddy = null;
         if ("observedUserInfo" in this && this.observedUserInfo) {
           Services.obs.removeObserver(this.observer, "user-info-received");

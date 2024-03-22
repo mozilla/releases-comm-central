@@ -60,7 +60,7 @@ add_task(async function test_dispatchMessage_normal() {
 add_task(async function test_dispatchMessage_empty() {
   let didSend = false;
   const channelStub = getChannel({
-    sendMessage(type, data) {
+    sendMessage() {
       ok(false, "Should not send empty message");
       didSend = true;
       return true;
@@ -117,7 +117,7 @@ add_task(async function test_dispatchMessage_error() {
 add_task(async function test_dispatchMessage_action() {
   let didSend = false;
   const channelStub = getChannel({
-    sendMessage(type, data) {
+    sendMessage() {
       ok(false, "Action should not be sent as normal message");
       return false;
     },
@@ -144,7 +144,7 @@ add_task(async function test_dispatchMessage_action() {
 add_task(async function test_dispatchMessage_actionError() {
   let didSend = false;
   const channelStub = getChannel({
-    sendMessage(type, data) {
+    sendMessage() {
       ok(false, "Action should not be sent as normal message");
       return false;
     },

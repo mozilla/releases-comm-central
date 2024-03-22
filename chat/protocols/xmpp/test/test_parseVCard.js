@@ -18,7 +18,7 @@ function _test_vcard(aInput, aExpectedResult) {
       // Ensure that no errors happen.
       ok(false, aError + " - " + aException);
     },
-    LOG(aString) {},
+    LOG() {},
     onXmppStanza(aStanza) {
       // This is a simplified stanza parser that assumes inputs are vCards.
       const vCard = aStanza.getElement(["vCard"]);

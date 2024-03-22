@@ -44,7 +44,7 @@ fakeCommand.prototype = {
   },
   usageContext: IMServices.cmd.COMMAND_CONTEXT.ALL,
   priority: IMServices.cmd.COMMAND_PRIORITY.PRPL,
-  run: (aMsg, aConv) => true,
+  run: () => true,
 };
 
 function run_test() {

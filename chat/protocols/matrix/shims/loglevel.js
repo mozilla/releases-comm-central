@@ -54,7 +54,7 @@ function getLogger(loggerName) {
   );
 
   // This is a no-op since log levels are configured via preferences.
-  logger.setLevel = function (level) {};
+  logger.setLevel = function () {};
 
   _loggers[moduleName] = logger;
 

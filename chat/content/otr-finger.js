@@ -9,7 +9,7 @@ var { OTR } = ChromeUtils.importESModule("resource:///modules/OTR.sys.mjs");
 
 var l10n = new Localization(["messenger/otr/finger-sync.ftl"], true);
 
-window.addEventListener("DOMContentLoaded", event => {
+window.addEventListener("DOMContentLoaded", () => {
   otrFinger.onload();
 });
 
@@ -18,10 +18,10 @@ var fingerTreeView = {
   selection: null,
   rowCount: 0,
 
-  setTree(tree) {},
-  getImageSrc(row, column) {},
-  getProgressMode(row, column) {},
-  getCellValue(row, column) {},
+  setTree() {},
+  getImageSrc() {},
+  getProgressMode() {},
+  getCellValue() {},
 
   getCellText(row, column) {
     const finger = gFingers[row];
@@ -35,7 +35,7 @@ var fingerTreeView = {
     }
   },
 
-  isSeparator(index) {
+  isSeparator() {
     return false;
   },
 
@@ -43,21 +43,21 @@ var fingerTreeView = {
     return false;
   },
 
-  isContainer(index) {
+  isContainer() {
     return false;
   },
 
-  cycleHeader(column) {},
+  cycleHeader() {},
 
-  getRowProperties(row) {
+  getRowProperties() {
     return "";
   },
 
-  getColumnProperties(column) {
+  getColumnProperties() {
     return "";
   },
 
-  getCellProperties(row, column) {
+  getCellProperties() {
     return "";
   },
 };

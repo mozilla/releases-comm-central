@@ -106,7 +106,7 @@ export var ircNonStandard = {
       return false;
     },
 
-    "042": function (aMessage) {
+    "042": function () {
       // RPL_YOURID (IRCnet)
       // <nick> <id> :your unique ID
       return true;
@@ -138,13 +138,13 @@ export var ircNonStandard = {
       return false;
     },
 
-    328(aMessage) {
+    328() {
       // RPL_CHANNEL_URL (Bahamut & Austhex)
       // <channel> :<URL>
       return true;
     },
 
-    329(aMessage) {
+    329() {
       // RPL_CREATIONTIME (Bahamut & Unreal)
       // <channel> <creation time>
       return true;
@@ -172,7 +172,7 @@ export var ircNonStandard = {
       return this.setWhois(aMessage.params[1], { bot: true });
     },
 
-    338(aMessage) {
+    338() {
       // RPL_CHANPASSOK
       // RPL_WHOISACTUALLY (ircu, Bahamut, Charybdis)
       // <nick> <user> <ip> :actually using host
@@ -186,7 +186,7 @@ export var ircNonStandard = {
       return this.setWhois(aMessage.params[1], { host, ip });
     },
 
-    379(aMessage) {
+    379() {
       // RPL_WHOISMODES (Unreal, Inspircd)
       // <nick> :is using modes <modes>
       // Sent in response to a WHOIS on the user.

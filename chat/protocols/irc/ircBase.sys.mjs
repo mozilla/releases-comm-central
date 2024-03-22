@@ -385,7 +385,7 @@ export var ircBase = {
       }
       return true;
     },
-    SQUIT(aMessage) {
+    SQUIT() {
       // <server> <comment>
       return true;
     },
@@ -802,7 +802,7 @@ export var ircBase = {
       }
       return this.setWhois(aMessage.params[1], { away: aMessage.params[2] });
     },
-    302(aMessage) {
+    302() {
       // RPL_USERHOST
       // :*1<reply> *( " " <reply )"
       // reply = nickname [ "*" ] "=" ( "+" / "-" ) hostname
@@ -836,13 +836,13 @@ export var ircBase = {
       }
       return true;
     },
-    305(aMessage) {
+    305() {
       // RPL_UNAWAY
       // :You are no longer marked as being away
       this.isAway = false;
       return true;
     },
-    306(aMessage) {
+    306() {
       // RPL_NOWAWAY
       // :You have been marked as away
       this.isAway = true;
@@ -893,12 +893,12 @@ export var ircBase = {
         connectedFrom: source,
       });
     },
-    315(aMessage) {
+    315() {
       // RPL_ENDOFWHO
       // <name> :End of WHO list
       return false;
     },
-    316(aMessage) {
+    316() {
       // RPL_WHOISCHANOP
       // Non-generic
       return false;
@@ -937,7 +937,7 @@ export var ircBase = {
     /*
      * LIST
      */
-    321(aMessage) {
+    321() {
       // RPL_LISTSTART
       // Channel :Users Name
       // Obsolete. Not used.
@@ -968,7 +968,7 @@ export var ircBase = {
       }
       return true;
     },
-    323(aMessage) {
+    323() {
       // RPL_LISTEND
       // :End of LIST
       this._sendRemainingRoomInfo();
@@ -989,7 +989,7 @@ export var ircBase = {
 
       return true;
     },
-    325(aMessage) {
+    325() {
       // RPL_UNIQOPIS
       // <channel> <nickname>
       // TODO parse this and have the UI respond accordingly.
@@ -1012,7 +1012,7 @@ export var ircBase = {
       conversation.setTopic(topic ? ctcpFormatToText(topic) : "");
       return true;
     },
-    333(aMessage) {
+    333() {
       // nonstandard
       // <channel> <nickname> <time>
       return true;
@@ -1042,25 +1042,25 @@ export var ircBase = {
         lazy._("message.summoned", aMessage.params[0])
       );
     },
-    346(aMessage) {
+    346() {
       // RPL_INVITELIST
       // <channel> <invitemask>
       // TODO what do we do?
       return false;
     },
-    347(aMessage) {
+    347() {
       // RPL_ENDOFINVITELIST
       // <channel> :End of channel invite list
       // TODO what do we do?
       return false;
     },
-    348(aMessage) {
+    348() {
       // RPL_EXCEPTLIST
       // <channel> <exceptionmask>
       // TODO what do we do?
       return false;
     },
-    349(aMessage) {
+    349() {
       // RPL_ENDOFEXCEPTIONLIST
       // <channel> :End of channel exception list
       // TODO update UI?
@@ -1079,7 +1079,7 @@ export var ircBase = {
     /*
      * WHO
      */
-    352(aMessage) {
+    352() {
       // RPL_WHOREPLY
       // <channel> <user> <host> <server> <nick> ( "H" / "G" ) ["*"] [ ("@" / "+" ) ] :<hopcount> <real name>
       // TODO parse and display this?
@@ -1110,19 +1110,19 @@ export var ircBase = {
       return true;
     },
 
-    361(aMessage) {
+    361() {
       // RPL_KILLDONE
       // Non-generic
       // TODO What is this?
       return false;
     },
-    362(aMessage) {
+    362() {
       // RPL_CLOSING
       // Non-generic
       // TODO What is this?
       return false;
     },
-    363(aMessage) {
+    363() {
       // RPL_CLOSEEND
       // Non-generic
       // TODO What is this?
@@ -1137,7 +1137,7 @@ export var ircBase = {
       // <mask> <server> :<hopcount> <server info>
       return serverMessage(this, aMessage);
     },
-    365(aMessage) {
+    365() {
       // RPL_ENDOFLINKS
       // <mask> :End of LINKS list
       return true;
@@ -1216,13 +1216,13 @@ export var ircBase = {
       // :- <text>
       return addMotd(this, aMessage);
     },
-    373(aMessage) {
+    373() {
       // RPL_INFOSTART
       // Non-generic
       // This is unnecessary and servers just send RPL_INFO.
       return true;
     },
-    374(aMessage) {
+    374() {
       // RPL_ENDOFINFO
       // :End of INFO list
       return true;
@@ -1264,7 +1264,7 @@ export var ircBase = {
       // <config file> :Rehashing
       return serverMessage(this, aMessage);
     },
-    383(aMessage) {
+    383() {
       // RPL_YOURESERVICE
       // You are service <servicename>
       this.WARN('Received "You are a service" message.');
@@ -1274,7 +1274,7 @@ export var ircBase = {
     /*
      * Info
      */
-    384(aMessage) {
+    384() {
       // RPL_MYPORTIS
       // Non-generic
       // TODO Parse and display?
@@ -1290,25 +1290,25 @@ export var ircBase = {
       // should always be shown.
       return writeMessage(this, aMessage, msg, "system");
     },
-    392(aMessage) {
+    392() {
       // RPL_USERSSTART
       // :UserID   Terminal  Host
       // TODO
       return false;
     },
-    393(aMessage) {
+    393() {
       // RPL_USERS
       // :<username> <ttyline> <hostname>
       // TODO store into buddy list? List out?
       return false;
     },
-    394(aMessage) {
+    394() {
       // RPL_ENDOFUSERS
       // :End of users
       // TODO Notify observers of the buddy list?
       return false;
     },
-    395(aMessage) {
+    395() {
       // RPL_NOUSERS
       // :Nobody logged in
       // TODO clear buddy list?
@@ -1338,7 +1338,7 @@ export var ircBase = {
         lazy._(msgId, aMessage.params[1])
       );
     },
-    402(aMessage) {
+    402() {
       // ERR_NOSUCHSERVER
       // <server name> :No such server
       // TODO Parse & display an error to the user.
@@ -1396,26 +1396,26 @@ export var ircBase = {
         false
       );
     },
-    408(aMessage) {
+    408() {
       // ERR_NOSUCHSERVICE
       // <service name> :No such service
       // TODO
       return false;
     },
-    409(aMessage) {
+    409() {
       // ERR_NOORIGIN
       // :No origin specified
       // TODO failed PING/PONG message, this should never occur?
       return false;
     },
-    411(aMessage) {
+    411() {
       // ERR_NORECIPIENT
       // :No recipient given (<command>)
       // If this happens a real error with the protocol occurred.
       this.ERROR("ERR_NORECIPIENT: No recipient given for PRIVMSG.");
       return true;
     },
-    412(aMessage) {
+    412() {
       // ERR_NOTEXTTOSEND
       // :No text to send
       // If this happens a real error with the protocol occurred: we should
@@ -1423,52 +1423,52 @@ export var ircBase = {
       this.ERROR("ERR_NOTEXTTOSEND: No text to send for PRIVMSG.");
       return true;
     },
-    413(aMessage) {
+    413() {
       // ERR_NOTOPLEVEL
       // <mask> :No toplevel domain specified
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_NOTOPLEVEL: Toplevel domain not specified.");
       return true;
     },
-    414(aMessage) {
+    414() {
       // ERR_WILDTOPLEVEL
       // <mask> :Wildcard in toplevel domain
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_WILDTOPLEVEL: Wildcard toplevel domain specified.");
       return true;
     },
-    415(aMessage) {
+    415() {
       // ERR_BADMASK
       // <mask> :Bad Server/host mask
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_BADMASK: Bad server/host mask specified.");
       return true;
     },
-    421(aMessage) {
+    421() {
       // ERR_UNKNOWNCOMMAND
       // <command> :Unknown command
       // TODO This shouldn't occur.
       return false;
     },
-    422(aMessage) {
+    422() {
       // ERR_NOMOTD
       // :MOTD File is missing
       // No message of the day to display.
       return true;
     },
-    423(aMessage) {
+    423() {
       // ERR_NOADMININFO
       // <server> :No administrative info available
       // TODO
       return false;
     },
-    424(aMessage) {
+    424() {
       // ERR_FILEERROR
       // :File error doing <file op> on <file>
       // TODO
       return false;
     },
-    431(aMessage) {
+    431() {
       // ERR_NONICKNAMEGIVEN
       // :No nickname given
       // TODO
@@ -1524,7 +1524,7 @@ export var ircBase = {
         true
       );
     },
-    441(aMessage) {
+    441() {
       // ERR_USERNOTINCHANNEL
       // <nick> <channel> :They aren't on that channel
       // TODO
@@ -1554,19 +1554,19 @@ export var ircBase = {
       );
       return true;
     },
-    444(aMessage) {
+    444() {
       // ERR_NOLOGIN
       // <user> :User not logged in
       // TODO
       return false;
     },
-    445(aMessage) {
+    445() {
       // ERR_SUMMONDISABLED
       // :SUMMON has been disabled
       // TODO keep track of this and disable UI associated?
       return false;
     },
-    446(aMessage) {
+    446() {
       // ERR_USERSDISABLED
       // :USERS has been disabled
       // TODO Disabled all buddy list etc.
@@ -1583,7 +1583,7 @@ export var ircBase = {
       // TODO
       return false;
     },
-    461(aMessage) {
+    461() {
       // ERR_NEEDMOREPARAMS
       // <command> :Not enough parameters
 
@@ -1599,19 +1599,19 @@ export var ircBase = {
 
       return false;
     },
-    462(aMessage) {
+    462() {
       // ERR_ALREADYREGISTERED
       // :Unauthorized command (already registered)
       // TODO
       return false;
     },
-    463(aMessage) {
+    463() {
       // ERR_NOPERMFORHOST
       // :Your host isn't among the privileged
       // TODO
       return false;
     },
-    464(aMessage) {
+    464() {
       // ERR_PASSWDMISMATCH
       // :Password incorrect
       this.gotDisconnected(
@@ -1634,7 +1634,7 @@ export var ircBase = {
       // ERR_YOUWILLBEBANNED
       return serverErrorMessage(this, aMessage, lazy._("error.bannedSoon"));
     },
-    467(aMessage) {
+    467() {
       // ERR_KEYSET
       // <channel> :Channel key already set
       // TODO
@@ -1650,7 +1650,7 @@ export var ircBase = {
         true
       );
     },
-    472(aMessage) {
+    472() {
       // ERR_UNKNOWNMODE
       // <char> :is unknown mode char to me for <channel>
       // TODO
@@ -1689,25 +1689,25 @@ export var ircBase = {
         false
       );
     },
-    476(aMessage) {
+    476() {
       // ERR_BADCHANMASK
       // <channel> :Bad Channel Mask
       // TODO
       return false;
     },
-    477(aMessage) {
+    477() {
       // ERR_NOCHANMODES
       // <channel> :Channel doesn't support modes
       // TODO
       return false;
     },
-    478(aMessage) {
+    478() {
       // ERR_BANLISTFULL
       // <channel> <char> :Channel list is full
       // TODO
       return false;
     },
-    481(aMessage) {
+    481() {
       // ERR_NOPRIVILEGES
       // :Permission Denied- You're not an IRC operator
       // TODO ask to auth?
@@ -1718,32 +1718,32 @@ export var ircBase = {
       // <channel> :You're not channel operator
       return conversationErrorMessage(this, aMessage, "error.notChannelOp");
     },
-    483(aMessage) {
+    483() {
       // ERR_CANTKILLSERVER
       // :You can't kill a server!
       // TODO Display error?
       return false;
     },
-    484(aMessage) {
+    484() {
       // ERR_RESTRICTED
       // :Your connection is restricted!
       // Indicates user mode +r
       // TODO
       return false;
     },
-    485(aMessage) {
+    485() {
       // ERR_UNIQOPPRIVSNEEDED
       // :You're not the original channel operator
       // TODO ask to auth?
       return false;
     },
-    491(aMessage) {
+    491() {
       // ERR_NOOPERHOST
       // :No O-lines for your host
       // TODO
       return false;
     },
-    492(aMessage) {
+    492() {
       // ERR_NOSERVICEHOST
       // Non-generic
       // TODO

@@ -739,7 +739,7 @@ add_task(async function test_encryptionStateOn() {
     isCryptoEnabled() {
       return true;
     },
-    isRoomEncrypted(roomId) {
+    isRoomEncrypted() {
       return true;
     },
   });

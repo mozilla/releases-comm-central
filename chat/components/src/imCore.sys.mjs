@@ -371,7 +371,7 @@ class CoreService {
       });
     }
   }
-  observe(aObject, aTopic, aData) {
+  observe(aObject, aTopic) {
     if (aTopic == kQuitApplicationGranted) {
       this.quit();
     }

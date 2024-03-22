@@ -114,7 +114,7 @@ add_task(function test_message_transformation() {
 
   const uiConv = new UIConversation(conv);
   uiConv.addObserver({
-    observe(aObject, aTopic, aMsg) {
+    observe(aObject, aTopic) {
       switch (aTopic) {
         case "sending-message":
           ok(!newTxt, "sending-message should fire before new-text.");
@@ -174,7 +174,7 @@ add_task(function test_cancel_display_message() {
   let received = false;
   const uiConv = new UIConversation(conv);
   uiConv.addObserver({
-    observe(aObject, aTopic, aMsg) {
+    observe(aObject, aTopic) {
       switch (aTopic) {
         case "received-message":
           ok(aObject.QueryInterface(Ci.imIMessage), "Wrong message type.");
@@ -201,7 +201,7 @@ var test_update_message = function () {
   let updateText = false;
 
   uiConv.addObserver({
-    observe(aObject, aTopic, aMsg) {
+    observe(aObject, aTopic) {
       switch (aTopic) {
         case "received-message":
           ok(!updateText, "received-message should fire before update-text.");

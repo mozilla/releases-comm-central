@@ -280,12 +280,12 @@ const MATRIX_EVENT_HANDLERS = {
     },
   },
   [MatrixSDK.EventType.KeyVerificationDone]: {
-    handler(matrixEvent, { sender, content }) {
+    handler() {
       return lazy._("message.verification.done");
     },
   },
   [MatrixSDK.EventType.RoomEncryption]: {
-    handler(matrixEvent, { sender, content }) {
+    handler() {
       return lazy._("message.encryptionStart");
     },
   },

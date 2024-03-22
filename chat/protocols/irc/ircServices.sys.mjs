@@ -100,7 +100,7 @@ export var ircServices = {
       return false;
     },
 
-    "001": function (aMessage) {
+    "001": function () {
       // RPL_WELCOME
       // If SASL authentication failed, attempt IDENTIFY.
       ircServices.sendIdentify(this);

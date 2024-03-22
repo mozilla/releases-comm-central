@@ -24,7 +24,7 @@ export var isupportNAMESX = {
   isEnabled: () => true,
 
   commands: {
-    NAMESX(aMessage) {
+    NAMESX() {
       this.sendMessage("PROTOCTL", "NAMESX");
       return true;
     },

@@ -102,7 +102,7 @@ export var InteractiveBrowser = {
 
           this._cleanUp();
         },
-        onStateChange(aWebProgress, request, stateFlags, aStatus) {
+        onStateChange(aWebProgress, request, stateFlags) {
           const wpl = Ci.nsIWebProgressListener;
           if (stateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
             try {

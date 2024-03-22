@@ -1023,7 +1023,7 @@ export class Logger {
     gFilePromises.forEach(checkLogFiles);
     // After all operations finish, remove the whole log folder.
     return Promise.all(pendingPromises)
-      .then(values => {
+      .then(() => {
         IOUtils.remove(logPath, { recursive: true });
       })
       .catch(aError =>
@@ -1096,7 +1096,7 @@ export class Logger {
     }
   }
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     switch (aTopic) {
       case "new-text": {
         let excludeBecauseEncrypted = false;

@@ -53,7 +53,7 @@ export var GenericAccountPrototype = {
     this.imAccount = aImAccount;
     initLogModule(aProtocol.id, this);
   },
-  observe(aSubject, aTopic, aData) {},
+  observe() {},
   remove() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
@@ -66,15 +66,15 @@ export var GenericAccountPrototype = {
   disconnect() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
-  createConversation(aName) {
+  createConversation() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
-  joinChat(aComponents) {
+  joinChat() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
-  setBool(aName, aVal) {},
-  setInt(aName, aVal) {},
-  setString(aName, aVal) {},
+  setBool() {},
+  setInt() {},
+  setString() {},
 
   get name() {
     return this.imAccount.name;
@@ -380,7 +380,7 @@ export var GenericAccountPrototype = {
     this._pendingChatRequests = null;
   },
 
-  requestBuddyInfo(aBuddyName) {},
+  requestBuddyInfo() {},
 
   get canJoinChat() {
     return false;
@@ -413,10 +413,10 @@ export var GenericAccountPrototype = {
 
     return new ChatRoomFieldValues(defaultFieldValues);
   },
-  requestRoomInfo(aCallback) {
+  requestRoomInfo() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
-  getRoomInfo(aName) {
+  getRoomInfo() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   get isRoomInfoStale() {
@@ -1003,11 +1003,11 @@ export var GenericConversationPrototype = {
    * timers. Protocols may wish to internally call sendTyping(Ci.prplIConvIM.NOT_TYPING)
    * if additional wire messages are needed to cancel typing.
    *
-   * @param {string} message - The message typed by the user.
-   * @param {boolean} action - True if the message is an emote (i.e. /me).
-   * @param {boolean} notification - True if the message is a notification (i.e. /notice).
+   * @param {string} _message - The message typed by the user.
+   * @param {boolean} _action - True if the message is an emote (i.e. /me).
+   * @param {boolean} _notification - True if the message is a notification (i.e. /notice).
    */
-  dispatchMessage(message, action, notification) {
+  dispatchMessage(_message, _action, _notification) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
@@ -1061,19 +1061,19 @@ export var GenericConversationPrototype = {
   /**
    * Called to send the protocol over thewire.
    *
-   * @param {number} newState - The user's typing state, matching the constants
+   * @param {number} _newState - The user's typing state, matching the constants
    *    defined in Ci.prplIConvIM.
    */
-  setTypingState: newState => {},
+  setTypingState: _newState => {},
 
   /**
    * Called when the user is typing a message.
    *
-   * @param {string} string - The currently typed message.
+   * @param {string} _string - The currently typed message.
    * @returns {number} The number of characters that can still be typed
    *    or NO_TYPING_LIMIT if there is no protocol defined limit.
    */
-  getRemainingCharacters: string => Ci.prplIConversation.NO_TYPING_LIMIT,
+  getRemainingCharacters: _string => Ci.prplIConversation.NO_TYPING_LIMIT,
 
   /**
    * Called when the user has finished typing a message.
@@ -1648,7 +1648,7 @@ export var GenericProtocolPrototype = {
     return "chrome://chat/skin/prpl-generic/";
   },
 
-  getAccount(aImAccount) {
+  getAccount() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 

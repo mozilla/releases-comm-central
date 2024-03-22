@@ -714,7 +714,7 @@ export class UIConversation {
   // Used above when notifying of new-texts originating in the
   // UIConversation. This happens when this.systemMessage() is called. The
   // conversation for the message is set as the UIConversation.
-  prepareForDisplaying(aMsg) {}
+  prepareForDisplaying() {}
 
   // prplIConvIM
   get buddy() {
@@ -802,7 +802,7 @@ class ConversationsService {
     Services.obs.removeObserver(this, "account-buddy-removed");
   }
 
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic == "account-connected") {
       for (const id in this._uiConv) {
         const conv = this._uiConv[id];

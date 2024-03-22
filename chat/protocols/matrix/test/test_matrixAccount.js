@@ -225,7 +225,7 @@ add_task(async function test_getDMRoomIdsForUserId() {
           getMyMembership() {
             return roomId === "!left:example.com" ? "leave" : "join";
           },
-          getMember(userId) {
+          getMember() {
             return {
               membership: "invite",
             };

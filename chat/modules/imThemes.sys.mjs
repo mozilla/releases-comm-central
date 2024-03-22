@@ -388,7 +388,7 @@ var footerReplacements = {
       "incoming_icon.png"
     );
   },
-  outgoingIconPath: aConv => "outgoing_icon.png",
+  outgoingIconPath: () => "outgoing_icon.png",
   timeOpened(aConv, aFormat) {
     const date = new Date(aConv.startDate / 1000);
     if (aFormat) {
@@ -493,18 +493,18 @@ var messageReplacements = {
   sender: aMsg => formatSender(aMsg.alias || aMsg.who, aMsg.isEncrypted),
   senderColor: aMsg => aMsg.color,
   senderStatusIcon: aMsg => getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
-  messageDirection: aMsg => "ltr",
+  messageDirection: () => "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
   senderDisplayName: aMsg =>
     formatSender(aMsg.alias || aMsg.who, aMsg.isEncrypted),
   service: aMsg => aMsg.conversation.account.protocol.name,
-  textbackgroundcolor: (aMsg, aFormat) => "transparent", // FIXME?
+  textbackgroundcolor: () => "transparent", // FIXME?
   __proto__: statusMessageReplacements,
 };
 
 var statusReplacements = {
-  status: aMsg => "", // FIXME
+  status: () => "", // FIXME
   statusIcon(aMsg) {
     const conv = aMsg.conversation;
     let buddy = null;
@@ -1190,7 +1190,7 @@ SelectedMessage.prototype = {
     // have to change the content of msg.message and revert it
     // afterwards.
     replacements = {
-      message: aMsg => text,
+      message: () => text,
       sender: aMsg => aMsg.alias || aMsg.who,
       __proto__: replacements,
     };

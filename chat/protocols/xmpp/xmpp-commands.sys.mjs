@@ -324,7 +324,7 @@ export var commands = [
       return lazy._("command.version", "version");
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.IM,
-    run(aMsg, aConv, aReturnedConv) {
+    run(aMsg, aConv) {
       const conv = getConv(aConv);
       if (conv.left) {
         return true;

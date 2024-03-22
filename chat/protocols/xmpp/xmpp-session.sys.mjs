@@ -734,7 +734,7 @@ XMPPSession.prototype = {
         `<iq type="set".../> (${logString})`
       );
     },
-    sessionStarted(aStanza) {
+    sessionStarted() {
       this.resetPingTimer();
       this._account.onConnection();
       this.LOG("Account successfully connected.");
@@ -757,7 +757,7 @@ XMPPSession.prototype = {
       }
     },
   },
-  onXmppStanza(aStanza) {
+  onXmppStanza() {
     this.ERROR("should not be reached\n");
   },
 };

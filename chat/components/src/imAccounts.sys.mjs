@@ -114,7 +114,7 @@ UnknownProtocol.prototype = {
     return "";
   },
 
-  getAccount(aKey, aName) {
+  getAccount() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   accountExists() {

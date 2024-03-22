@@ -13,7 +13,7 @@ var NOTICE = ircNonStandard.commands.NOTICE;
 
 function FakeConversation() {}
 FakeConversation.prototype = {
-  writeMessage(aSender, aTarget, aOpts) {},
+  writeMessage() {},
 };
 
 function FakeAccount(aPassword) {
@@ -30,7 +30,7 @@ FakeAccount.prototype = {
   sendMessage(aCommand, aParams) {
     this.buffer.push([aCommand, aParams]);
   },
-  gotDisconnected(aReason, aMsg) {
+  gotDisconnected() {
     this.connected = false;
   },
   getConversation(aName) {

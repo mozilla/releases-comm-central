@@ -323,7 +323,7 @@ add_task(async function test_getActions_report() {
         },
       },
       roomState: {
-        maySendRedactionForEvent(ev, userId) {
+        maySendRedactionForEvent() {
           return false;
         },
       },
@@ -370,7 +370,7 @@ add_task(async function test_getActions_notSent() {
         },
       },
       roomState: {
-        maySendRedactionForEvent(ev, userId) {
+        maySendRedactionForEvent() {
           return false;
         },
       },
@@ -394,7 +394,7 @@ add_task(function test_whenDisplayedUnsent() {
   const mockConv = {
     _account: {
       _client: {
-        sendReadReceipt(event, options) {
+        sendReadReceipt() {
           ok(false, "Should not send read receipt for unsent event");
         },
       },
@@ -419,7 +419,7 @@ add_task(function test_whenReadUnsent() {
   const mockConv = {
     _account: {
       _client: {
-        setRoomReadMarkers(event, options) {
+        setRoomReadMarkers() {
           ok(false, "Should not send read marker for unsent event");
         },
       },

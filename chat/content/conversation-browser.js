@@ -164,7 +164,7 @@
       this.addEventListener("resize", this.browserResize);
 
       // @implements {nsIObserver}
-      this.prefObserver = (subject, topic, data) => {
+      this.prefObserver = () => {
         if (this.magicCopyEnabled) {
           this.enableMagicCopy();
         } else {
@@ -183,7 +183,7 @@
             !this.contentWindow.getSelection().isCollapsed
           );
         },
-        doCommand: command => {
+        doCommand: () => {
           const selection = this.contentWindow.getSelection();
           if (selection.isCollapsed) {
             return;
@@ -193,7 +193,7 @@
             .getService(Ci.nsIClipboardHelper)
             .copyString(LazyModules.serializeSelection(selection));
         },
-        onEvent(command) {},
+        onEvent() {},
         QueryInterface: ChromeUtils.generateQI(["nsIController"]),
       };
 
@@ -848,7 +848,7 @@
       this.contentWindow.scrollTo(0, newY);
     }
 
-    browserScroll(event) {
+    browserScroll() {
       if (this._scrollingIntoView) {
         // We have explicitly requested a scrollIntoView, ignore the event.
         this._scrollingIntoView = false;
@@ -880,7 +880,7 @@
       this._updateConvScrollEnabled();
     }
 
-    browserResize(event) {
+    browserResize() {
       if (this._convScrollEnabled && this._lastElement) {
         // The content area was resized and auto-scroll is enabled,
         // make sure the last inserted element is still visible

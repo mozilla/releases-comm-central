@@ -249,7 +249,7 @@ export var OTRUI = {
 
     this.debug = Services.prefs.getBoolPref("chat.otr.trace", false);
 
-    OTR.init({});
+    OTR.init();
     if (!OTR.libLoaded) {
       return;
     }

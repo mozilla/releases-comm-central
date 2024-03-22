@@ -21,14 +21,7 @@ FakeXMPPSession.prototype = {
   _account: { __proto__: XMPPAccountPrototype },
   _host: null,
   _port: 0,
-  connect(
-    aHostOrigin,
-    aPortOrigin,
-    aSecurity,
-    aProxy,
-    aHost = aHostOrigin,
-    aPort = aPortOrigin
-  ) {},
+  connect() {},
   _connectNextRecord() {
     this.isConnectNextRecord = true;
   },
@@ -36,8 +29,8 @@ FakeXMPPSession.prototype = {
   // Used to indicate that method _connectNextRecord is called or not.
   isConnectNextRecord: false,
 
-  LOG(aMsg) {},
-  WARN(aMsg) {},
+  LOG() {},
+  WARN() {},
 };
 
 var TEST_DATA = [

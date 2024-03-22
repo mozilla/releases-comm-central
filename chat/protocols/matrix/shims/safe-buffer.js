@@ -19,7 +19,7 @@ class Buffer extends Uint8Array {
 
   // Note that this doesn't fully implement allocate, only enough is implemented
   // for the base-x package to function properly.
-  static alloc(size, fill, encoding) {
+  static alloc(size) {
     return new Buffer(size);
   }
 

@@ -61,7 +61,7 @@ export class CommandsService {
       },
       usageContext: this.COMMAND_CONTEXT.ALL,
       priority: this.COMMAND_PRIORITY.HIGH,
-      run(aMsg, aConv) {
+      run() {
         throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
       },
     });

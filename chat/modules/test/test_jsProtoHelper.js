@@ -47,7 +47,7 @@ function rot13(aString) {
 // A test that cancels a message before it can be sent.
 add_task(function test_cancel_send_message() {
   const conv = new Conversation();
-  conv.dispatchMessage = function (aMsg) {
+  conv.dispatchMessage = function () {
     ok(
       false,
       "The message should have been halted in the conversation service."
@@ -56,7 +56,7 @@ add_task(function test_cancel_send_message() {
 
   let sending = false;
   conv.addObserver({
-    observe(aObject, aTopic, aMsg) {
+    observe(aObject, aTopic) {
       switch (aTopic) {
         case "sending-message":
           ok(

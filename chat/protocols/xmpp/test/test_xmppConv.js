@@ -19,7 +19,7 @@ TestXmppConversation.prototype = {
   __proto__: XMPPConversationPrototype,
   to: "alice@example.com",
   _account: {
-    sendStanza(stanza, callback, aThis, logString) {
+    sendStanza(stanza) {
       this.stanzas.push(stanza);
     },
   },

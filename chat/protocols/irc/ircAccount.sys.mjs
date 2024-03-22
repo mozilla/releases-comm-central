@@ -1129,7 +1129,7 @@ ircAccount.prototype = {
   // Tell the server about status changes. IRC is only away or not away;
   // consider the away, idle and unavailable status type to be away.
   isAway: false,
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic != "status-changed") {
       return;
     }
@@ -1299,7 +1299,7 @@ ircAccount.prototype = {
       // of [channel, key] pairs.
       // To work around an inspircd bug (bug 1108596), we reorder
       // the list so that entries with keys appear first.
-      const items = aItems.slice().sort(([c1, k1], [c2, k2]) => {
+      const items = aItems.slice().sort(([, k1], [, k2]) => {
         if (!k1 && k2) {
           return 1;
         }
@@ -1311,8 +1311,8 @@ ircAccount.prototype = {
       // To send the command, we have to group all the channels and keys
       // together, i.e. grab the columns of this matrix, and build the two
       // parameters of the command from that.
-      const channels = items.map(([channel, key]) => channel);
-      const keys = items.map(([channel, key]) => key).filter(key => !!key);
+      const channels = items.map(([channel]) => channel);
+      const keys = items.map(([, key]) => key).filter(key => !!key);
       const params = [channels.join(",")];
       if (keys.length) {
         params.push(keys.join(","));

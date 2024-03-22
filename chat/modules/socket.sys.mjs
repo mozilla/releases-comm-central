@@ -308,7 +308,7 @@ export var Socket = {
   // Plenty of time may have elapsed if the computer wakes from sleep, so check
   // if we should reconnect immediately.
   _lastAliveTime: null,
-  observe(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic) {
     if (aTopic != "wake_notification") {
       return;
     }
@@ -341,7 +341,7 @@ export var Socket = {
   /*
    * nsIProtocolProxyCallback methods
    */
-  onProxyAvailable(aRequest, aURI, aProxyInfo, aStatus) {
+  onProxyAvailable(aRequest, aURI, aProxyInfo) {
     if (!("_proxyCancel" in this)) {
       this.LOG("onProxyAvailable called, but disconnect() was called before.");
       return;
@@ -429,7 +429,7 @@ export var Socket = {
    * nsIRequestObserver methods
    */
   // Signifies the beginning of an async request
-  onStartRequest(aRequest) {
+  onStartRequest() {
     if (this.disconnected) {
       // Ignore this if we're already disconnected.
       return;
@@ -477,7 +477,7 @@ export var Socket = {
   /*
    * nsITransportEventSink methods
    */
-  onTransportStatus(aTransport, aStatus, aProgress, aProgressmax) {
+  onTransportStatus(aTransport, aStatus) {
     // Don't send status change notifications after the socket has been closed.
     // The event sink can't be removed after opening the transport, so we can't
     // do better than adding a null check here.
@@ -609,8 +609,8 @@ export var Socket = {
    ********************* Methods for subtypes to override **********************
    *****************************************************************************
    */
-  LOG(aString) {},
-  DEBUG(aString) {},
+  LOG() {},
+  DEBUG() {},
   // Called when a connection is established.
   onConnection() {},
   // Called when a socket is accepted after listening.
@@ -620,12 +620,12 @@ export var Socket = {
   // Called when a socket request's network is reset.
   onConnectionReset() {},
   // Called when the certificate provided by the server didn't satisfy NSS.
-  onConnectionSecurityError(aTLSError, aNSSErrorMessage) {},
+  onConnectionSecurityError() {},
   // Called when the other end has closed the connection.
   onConnectionClosed() {},
 
   // Called when ASCII data is available.
-  onDataReceived(/* string */ aData) {},
+  onDataReceived(/* string */) {},
 
   // If using the ping functionality, this is called when a new ping message
   // should be sent on the socket.

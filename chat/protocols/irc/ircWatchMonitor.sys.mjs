@@ -153,7 +153,7 @@ export var ircWATCH = {
   },
 
   commands: {
-    251(aMessage) {
+    251() {
       // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
@@ -187,7 +187,7 @@ export var ircWATCH = {
       return false;
     },
 
-    303(aMessage) {
+    303() {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
@@ -195,7 +195,7 @@ export var ircWATCH = {
       return true;
     },
 
-    512(aMessage) {
+    512() {
       // ERR_TOOMANYWATCH
       // Maximum size for WATCH-list is <watchlimit> entries
       this.ERROR(
@@ -246,13 +246,13 @@ export var ircWATCH = {
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    602(aMessage) {
+    602() {
       // RPL_WATCHOFF
       // <nickname> <username> <hostname> <lastnickchange> :stopped watching
       return true;
     },
 
-    603(aMessage) {
+    603() {
       // RPL_WATCHSTAT
       // You have <entrycount> and are on <onlistcount> WATCH entries
       // TODO I don't think we really need to care about this.
@@ -271,21 +271,21 @@ export var ircWATCH = {
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    606(aMessage) {
+    606() {
       // RPL_WATCHLIST
       // <entrylist>
       // TODO
       return false;
     },
 
-    607(aMessage) {
+    607() {
       // RPL_ENDOFWATCHLIST
       // End of WATCH <parameter>
       // TODO
       return false;
     },
 
-    608(aMessage) {
+    608() {
       // RPL_CLEARWATCH
       // Your WATCH list is now empty
       // Note that this is optional for servers to send, so ignore it.
@@ -395,7 +395,7 @@ export var ircMONITOR = {
   },
 
   commands: {
-    251(aMessage) {
+    251() {
       // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
@@ -416,7 +416,7 @@ export var ircMONITOR = {
       return false;
     },
 
-    303(aMessage) {
+    303() {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
@@ -443,19 +443,19 @@ export var ircMONITOR = {
         .every(aResult => aResult);
     },
 
-    732(aMessage) {
+    732() {
       // RPL_MONLIST
       // :<server> 732 <nick> :nick[,nick1]*
       return false;
     },
 
-    733(aMessage) {
+    733() {
       // RPL_ENDOFMONLIST
       // :<server> 733 <nick> :End of MONITOR list
       return false;
     },
 
-    734(aMessage) {
+    734() {
       // ERR_MONLISTFULL
       // :<server> 734 <nick> <limit> <nicks> :Monitor list is full.
       this.ERROR(

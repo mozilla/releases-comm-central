@@ -137,7 +137,7 @@ export var isupportBase = {
       }
       return true;
     },
-    CHANMODES: aMessage => false,
+    CHANMODES: () => false,
     CHANNELLEN(aMessage) {
       // CHANNELLEN=<number>
       // Default is from RFC 1493.
@@ -151,17 +151,17 @@ export var isupportBase = {
       this.channelPrefixes = value.split("");
       return true;
     },
-    EXCEPTS: aMessage => false,
-    IDCHAN: aMessage => false,
-    INVEX: aMessage => false,
+    EXCEPTS: () => false,
+    IDCHAN: () => false,
+    INVEX: () => false,
     KICKLEN(aMessage) {
       // KICKLEN=<number>
       // Default value is Infinity.
       return setSimpleNumber(this, "maxKickLength", aMessage, Infinity);
     },
-    MAXLIST: aMessage => false,
-    MODES: aMessage => false,
-    NETWORK: aMessage => false,
+    MAXLIST: () => false,
+    MODES: () => false,
+    NETWORK: () => false,
     NICKLEN(aMessage) {
       // NICKLEN=<number>
       // Default value is from RFC 1493.
@@ -200,12 +200,12 @@ export var isupportBase = {
     // SAFELIST allows the client to request the server buffer LIST responses to
     // avoid flooding the client. This is not an issue for us, so just ignore
     // it.
-    SAFELIST: aMessage => true,
+    SAFELIST: () => true,
     // SECURELIST tells us that the server won't send LIST data directly after
     // connection. Unfortunately, the exact time the client has to wait is
     // configurable, so we can't do anything with this information.
-    SECURELIST: aMessage => true,
-    STATUSMSG: aMessage => false,
+    SECURELIST: () => true,
+    STATUSMSG: () => false,
     STD(aMessage) {
       // This was never updated as the RFC was never formalized.
       if (aMessage.isupport.value != "rfcnnnn") {
@@ -240,9 +240,9 @@ export var isupportBase = {
     },
 
     // The following are considered "obsolete" by the RFC, but are still in use.
-    CHARSET: aMessage => false,
-    MAXBANS: aMessage => false,
-    MAXCHANNELS: aMessage => false,
+    CHARSET: () => false,
+    MAXBANS: () => false,
+    MAXCHANNELS: () => false,
     MAXTARGETS(aMessage) {
       return setSimpleNumber(this, "maxTargets", aMessage, 1);
     },

@@ -47,7 +47,7 @@ export var ircSASL = {
       return true;
     },
 
-    900(aMessage) {
+    900() {
       // RPL_LOGGEDIN
       // <nick>!<ident>@<host> <account> :You are now logged in as <user>
       // Now logged in ("whether by SASL or otherwise").
@@ -55,14 +55,14 @@ export var ircSASL = {
       return true;
     },
 
-    901(aMessage) {
+    901() {
       // RPL_LOGGEDOUT
       // The user's account name is unset (whether by SASL or otherwise).
       this.isAuthenticated = false;
       return true;
     },
 
-    902(aMessage) {
+    902() {
       // ERR_NICKLOCKED
       // Authentication failed because the account is currently locked out,
       // held, or otherwise administratively made unavailable.
@@ -73,7 +73,7 @@ export var ircSASL = {
       return true;
     },
 
-    903(aMessage) {
+    903() {
       // RPL_SASLSUCCESS
       // Authentication was successful.
       this.isAuthenticated = true;
@@ -86,7 +86,7 @@ export var ircSASL = {
       return true;
     },
 
-    904(aMessage) {
+    904() {
       // ERR_SASLFAIL
       // Sent when the SASL authentication fails because of invalid credentials
       // or other errors not explicitly mentioned by other numerics.
@@ -95,7 +95,7 @@ export var ircSASL = {
       return true;
     },
 
-    905(aMessage) {
+    905() {
       // ERR_SASLTOOLONG
       // Sent when credentials are valid, but the SASL authentication fails
       // because the client-sent `AUTHENTICATE` command was too long.
@@ -104,7 +104,7 @@ export var ircSASL = {
       return true;
     },
 
-    906(aMessage) {
+    906() {
       // ERR_SASLABORTED
       // The client completed registration before SASL authentication completed,
       // or because we sent `AUTHENTICATE` with `*` as the parameter.
@@ -119,7 +119,7 @@ export var ircSASL = {
       return true;
     },
 
-    907(aMessage) {
+    907() {
       // ERR_SASLALREADY
       // Response if client attempts to AUTHENTICATE after successful
       // authentication.
@@ -128,7 +128,7 @@ export var ircSASL = {
       return true;
     },
 
-    908(aMessage) {
+    908() {
       // RPL_SASLMECHS
       // <nick> <mechanisms> :are available SASL mechanisms
       // List of SASL mechanisms supported by the server (or network, services).
