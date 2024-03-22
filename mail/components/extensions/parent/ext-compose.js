@@ -1258,7 +1258,7 @@ this.compose = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onBeforeSend({ context, fire }) {
+    onBeforeSend({ fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
       const listener = {
@@ -1280,13 +1280,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           beforeSendEventTracker.removeListener(listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAfterSend({ context, fire }) {
+    onAfterSend({ fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
       const listener = {
@@ -1322,13 +1321,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           afterSaveSendEventTracker.removeListener(listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAfterSave({ context, fire }) {
+    onAfterSave({ fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
       const listener = {
@@ -1362,13 +1360,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           afterSaveSendEventTracker.removeListener(listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAttachmentAdded({ context, fire }) {
+    onAttachmentAdded({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event) {
@@ -1388,13 +1385,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("attachments-added", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAttachmentRemoved({ context, fire }) {
+    onAttachmentRemoved({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event) {
@@ -1418,13 +1414,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("attachments-removed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onIdentityChanged({ context, fire }) {
+    onIdentityChanged({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event) {
@@ -1441,13 +1436,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("compose-from-changed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onComposeStateChanged({ context, fire }) {
+    onComposeStateChanged({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event) {
@@ -1464,13 +1458,12 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("compose-state-changed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onActiveDictionariesChanged({ context, fire }) {
+    onActiveDictionariesChanged({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event) {
@@ -1494,9 +1487,8 @@ this.compose = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("active-dictionaries-changed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

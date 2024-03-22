@@ -201,7 +201,7 @@ this.messages = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onNewMailReceived({ context, fire }, [monitorAllFolders]) {
+    onNewMailReceived({ fire }, [monitorAllFolders]) {
       const listener = async (event, folder, newMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
@@ -223,13 +223,12 @@ this.messages = class extends ExtensionAPIPersistent {
         unregister: () => {
           messageTracker.off("messages-received", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onUpdated({ context, fire }) {
+    onUpdated({ fire }) {
       const listener = async (event, message, properties) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
@@ -247,13 +246,12 @@ this.messages = class extends ExtensionAPIPersistent {
         unregister: () => {
           messageTracker.off("message-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMoved({ context, fire }) {
+    onMoved({ fire }) {
       const listener = async (event, srcMessages, dstMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
@@ -275,13 +273,12 @@ this.messages = class extends ExtensionAPIPersistent {
         unregister: () => {
           messageTracker.off("messages-moved", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onCopied({ context, fire }) {
+    onCopied({ fire }) {
       const listener = async (event, srcMessages, dstMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
@@ -303,13 +300,12 @@ this.messages = class extends ExtensionAPIPersistent {
         unregister: () => {
           messageTracker.off("messages-copied", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onDeleted({ context, fire }) {
+    onDeleted({ fire }) {
       const listener = async (event, deletedMessages) => {
         const { extension } = this;
         // The msgHdr could be gone after the wakeup, convert them early.
@@ -327,9 +323,8 @@ this.messages = class extends ExtensionAPIPersistent {
         unregister: () => {
           messageTracker.off("messages-deleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

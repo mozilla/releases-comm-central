@@ -568,7 +568,7 @@ this.cloudFile = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onFileUpload({ context, fire }) {
+    onFileUpload({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(
@@ -590,14 +590,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           extension.off("uploadFile", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onFileUploadAbort({ context, fire }) {
+    onFileUploadAbort({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(_event, account, id, tab) {
@@ -613,14 +612,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           extension.off("uploadAbort", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onFileRename({ context, fire }) {
+    onFileRename({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(_event, account, id, newName, tab) {
@@ -636,14 +634,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           extension.off("renameFile", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onFileDeleted({ context, fire }) {
+    onFileDeleted({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(_event, account, id, tab) {
@@ -659,14 +656,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           extension.off("deleteFile", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onAccountAdded({ context, fire }) {
+    onAccountAdded({ fire }) {
       const self = this;
       async function listener(_event, nativeAccount) {
         if (nativeAccount.type != self.providerType) {
@@ -682,14 +678,13 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           cloudFileAccounts.off("accountAdded", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onAccountDeleted({ context, fire }) {
+    onAccountDeleted({ fire }) {
       const self = this;
       async function listener(_event, key, type) {
         if (self.providerType != type) {
@@ -705,9 +700,8 @@ this.cloudFile = class extends ExtensionAPIPersistent {
         unregister: () => {
           cloudFileAccounts.off("accountDeleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

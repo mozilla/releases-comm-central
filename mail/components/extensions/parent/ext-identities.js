@@ -196,7 +196,7 @@ this.identities = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onCreated({ context, fire }) {
+    onCreated({ fire }) {
       async function listener(event, key, identity) {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -208,13 +208,12 @@ this.identities = class extends ExtensionAPIPersistent {
         unregister: () => {
           identitiesTracker.off("account-identity-added", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onUpdated({ context, fire }) {
+    onUpdated({ fire }) {
       async function listener(event, key, changedValues) {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -226,13 +225,12 @@ this.identities = class extends ExtensionAPIPersistent {
         unregister: () => {
           identitiesTracker.off("account-identity-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onDeleted({ context, fire }) {
+    onDeleted({ fire }) {
       async function listener(event, key) {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -244,9 +242,8 @@ this.identities = class extends ExtensionAPIPersistent {
         unregister: () => {
           identitiesTracker.off("account-identity-removed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

@@ -235,7 +235,7 @@ this.windows = class extends ExtensionAPIPersistent {
       },
     }),
 
-    onFocusChanged({ context, fire }) {
+    onFocusChanged({ fire }) {
       const { extension } = this;
       // Keep track of the last windowId used to fire an onFocusChanged event
       let lastOnFocusChangedWindowId;
@@ -276,9 +276,8 @@ this.windows = class extends ExtensionAPIPersistent {
           windowTracker.removeListener("focus", listener);
           windowTracker.removeListener("blur", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

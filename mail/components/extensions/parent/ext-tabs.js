@@ -206,7 +206,7 @@ this.tabs = class extends ExtensionAPIPersistent {
       },
     }),
 
-    onMoved({ context, fire }) {
+    onMoved({ fire }) {
       const { tabManager } = this.extension;
       const moveListener = async event => {
         const nativeTab = event.target;
@@ -229,14 +229,13 @@ this.tabs = class extends ExtensionAPIPersistent {
         unregister() {
           windowTracker.removeListener("TabMove", moveListener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
-    onUpdated({ context, fire }, [filterProps]) {
+    onUpdated({ fire }, [filterProps]) {
       const filter = { ...filterProps };
       const scheduledEvents = [];
 
@@ -393,9 +392,8 @@ this.tabs = class extends ExtensionAPIPersistent {
             windowTracker.removeListener("status", statusListener);
           }
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

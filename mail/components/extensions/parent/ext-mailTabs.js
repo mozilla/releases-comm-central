@@ -150,7 +150,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onDisplayedFolderChanged({ context, fire }) {
+    onDisplayedFolderChanged({ fire }) {
       const { extension } = this;
       const { tabManager, folderManager } = extension;
       async function listener(event, tab, folder) {
@@ -166,13 +166,12 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           uiListener.off("folder-changed", listener);
           uiListener.decrementListeners();
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onSelectedMessagesChanged({ context, fire }) {
+    onSelectedMessagesChanged({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(event, tab, messages) {
@@ -189,9 +188,8 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           uiListener.off("messages-changed", listener);
           uiListener.decrementListeners();
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

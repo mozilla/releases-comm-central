@@ -16,7 +16,7 @@ this.commands = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onCommand({ context, fire }) {
+    onCommand({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       async function listener(eventName, commandName) {
@@ -31,13 +31,12 @@ this.commands = class extends ExtensionAPIPersistent {
         unregister: () => {
           this.off("command", listener);
         },
-        convert(_fire, _context) {
-          fire = _fire;
-          context = _context;
+        convert(newFire) {
+          fire = newFire;
         },
       };
     },
-    onChanged({ context, fire }) {
+    onChanged({ fire }) {
       async function listener(eventName, changeInfo) {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -49,9 +48,8 @@ this.commands = class extends ExtensionAPIPersistent {
         unregister: () => {
           this.off("shortcutChanged", listener);
         },
-        convert(_fire, _context) {
-          fire = _fire;
-          context = _context;
+        convert(newFire) {
+          fire = newFire;
         },
       };
     },

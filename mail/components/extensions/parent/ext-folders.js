@@ -386,7 +386,7 @@ this.folders = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onCreated({ context, fire }) {
+    onCreated({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -401,13 +401,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-created", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onRenamed({ context, fire }) {
+    onRenamed({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -425,13 +424,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-renamed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMoved({ context, fire }) {
+    onMoved({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -449,13 +447,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-moved", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onCopied({ context, fire }) {
+    onCopied({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -473,13 +470,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-copied", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onDeleted({ context, fire }) {
+    onDeleted({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -494,13 +490,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-deleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onFolderInfoChanged({ context, fire }) {
+    onFolderInfoChanged({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -520,13 +515,12 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-info-changed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onUpdated({ context, fire }) {
+    onUpdated({ fire }) {
       const { extension } = this;
       const { folderManager } = extension;
 
@@ -544,9 +538,8 @@ this.folders = class extends ExtensionAPIPersistent {
         unregister: () => {
           folderTracker.off("folder-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

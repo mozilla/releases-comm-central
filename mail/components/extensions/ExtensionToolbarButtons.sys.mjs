@@ -769,7 +769,7 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
   }
 
   PERSISTENT_EVENTS = {
-    onClicked({ context, fire }) {
+    onClicked({ fire }) {
       const { extension } = this;
       const { tabManager, windowManager } = extension;
 
@@ -789,9 +789,8 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         unregister: () => {
           this.off("click", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

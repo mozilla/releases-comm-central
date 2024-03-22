@@ -95,7 +95,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
     // available after fire.wakeup() has fulfilled (ensuring the convert() function
     // has been called).
 
-    onMessageDisplayed({ context, fire }) {
+    onMessageDisplayed({ fire }) {
       const { extension } = this;
       const { tabManager, messageManager } = extension;
       const listener = {
@@ -118,13 +118,12 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("MsgLoaded", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMessagesDisplayed({ context, fire }) {
+    onMessagesDisplayed({ fire }) {
       const { extension } = this;
       const { tabManager } = extension;
       const listener = {
@@ -144,9 +143,8 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         unregister: () => {
           windowTracker.removeListener("MsgsLoaded", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },

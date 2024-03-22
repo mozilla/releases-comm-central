@@ -848,7 +848,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
     // has been called).
 
     // addressBooks.*
-    onAddressBookCreated({ context, fire }) {
+    onAddressBookCreated({ fire }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -860,13 +860,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("address-book-created", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAddressBookUpdated({ context, fire }) {
+    onAddressBookUpdated({ fire }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -878,13 +877,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("address-book-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onAddressBookDeleted({ context, fire }) {
+    onAddressBookDeleted({ fire }) {
       const listener = async (event, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -896,15 +894,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("address-book-deleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
     // contacts.*
-    onContactCreated({ context, fire }) {
+    onContactCreated({ fire }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -916,13 +913,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("contact-created", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onContactUpdated({ context, fire }) {
+    onContactUpdated({ fire }) {
       const listener = async (event, node, changes) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -968,13 +964,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("contact-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onContactDeleted({ context, fire }) {
+    onContactDeleted({ fire }) {
       const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -986,15 +981,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("contact-deleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
 
     // mailingLists.*
-    onMailingListCreated({ context, fire }) {
+    onMailingListCreated({ fire }) {
       const listener = async (event, node) => {
         fire.sync(await addressBookCache.convert(node));
       };
@@ -1003,13 +997,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("mailing-list-created", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMailingListUpdated({ context, fire }) {
+    onMailingListUpdated({ fire }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -1021,13 +1014,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("mailing-list-updated", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMailingListDeleted({ context, fire }) {
+    onMailingListDeleted({ fire }) {
       const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -1039,13 +1031,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("mailing-list-deleted", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMemberAdded({ context, fire }) {
+    onMemberAdded({ fire }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -1057,13 +1048,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("mailing-list-member-added", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
-    onMemberRemoved({ context, fire }) {
+    onMemberRemoved({ fire }) {
       const listener = async (event, parentUID, itemUID) => {
         if (fire.wakeup) {
           await fire.wakeup();
@@ -1075,9 +1065,8 @@ this.addressBook = class extends ExtensionAPIPersistent {
         unregister: () => {
           addressBookCache.off("mailing-list-member-removed", listener);
         },
-        convert(newFire, extContext) {
+        convert(newFire) {
           fire = newFire;
-          context = extContext;
         },
       };
     },
