@@ -75,7 +75,7 @@ function loadExternalGPGMELib() {
     }
 
     if (!libgpgme) {
-      tryLoadGPGME("gpgme.11");
+      tryLoadGPGME("gpgme.11", "");
     }
   }
 
