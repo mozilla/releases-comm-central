@@ -4,7 +4,12 @@
 
 import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 
-var systemOS = Services.appinfo.OS.toLowerCase();
+var log = console.createInstance({
+  prefix: "openpgp",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "openpgp.loglevel",
+});
+
 var abi = ctypes.default_abi;
 
 // Default library paths to look for on macOS
@@ -36,25 +41,27 @@ function tryLoadGPGME(name, suffix) {
     } catch (e) {}
   }
 
-  if (!libgpgme && systemOS !== "winnt") {
+  if (!libgpgme && Services.appinfo.OS !== "WINNT") {
     // try specific additional directories
-
     for (const tryPath of ADDITIONAL_LIB_PATHS) {
       try {
         libgpgmePath = tryPath + "/" + filename;
         libgpgme = ctypes.open(libgpgmePath);
-
         if (libgpgme) {
           break;
         }
       } catch (e) {}
     }
   }
+
+  if (libgpgme) {
+    log.debug(`Loaded GPGME from ${libgpgmePath}`);
+  }
 }
 
 function loadExternalGPGMELib() {
   if (!libgpgme) {
-    if (systemOS === "winnt") {
+    if (Services.appinfo.OS === "WINNT") {
       tryLoadGPGME("libgpgme6-11", "");
 
       if (!libgpgme) {
@@ -217,13 +224,13 @@ function enableGPGMELibJS() {
     init() {
       // GPGME 1.9.0 released 2017-03-28 is the first version that
       // supports GPGME_DECRYPT_UNWRAP, requiring >= gpg 2.1.12
-      // const versionPtr = this.gpgme_check_version("1.9.0");
-      // const version = versionPtr.readString();
+      const version = this.gpgme_check_version("1.9.0").readString();
 
       const gpgExe = Services.prefs.getStringPref(
         "mail.openpgp.alternative_gpg_path"
       );
       if (!gpgExe) {
+        // Use the normal gpg executable.
         return true;
       }
 
@@ -233,6 +240,13 @@ function enableGPGMELibJS() {
         null
       );
       const success = extResult === this.GPG_ERR_NO_ERROR;
+      if (success) {
+        log.debug(`Using external OpenPGP engine; v${version}: ${gpgExe}`);
+      } else {
+        log.error(
+          `Could not use external OpenPGP engine; v${version}: ${gpgExe} - ${extResult}`
+        );
+      }
       return success;
     },
 
