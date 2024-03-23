@@ -71,8 +71,7 @@ add_task(async function testStripSignatures() {
     errorObj,
     fingerPrintObj,
     false,
-    [],
-    false
+    []
   );
   Assert.equal(result, 0);
 
@@ -100,8 +99,7 @@ add_task(async function testKeyWithUnicodeComment() {
     errorObj,
     fingerPrintObj,
     false,
-    [],
-    false
+    []
   );
   Assert.equal(result, 0);
 
@@ -127,8 +125,7 @@ add_task(async function testBinaryKey() {
     errorObj,
     fingerPrintObj,
     false,
-    [],
-    false
+    []
   );
   Assert.equal(result, 0);
 

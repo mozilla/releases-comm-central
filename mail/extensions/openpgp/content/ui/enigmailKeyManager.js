@@ -628,7 +628,6 @@ async function enigmailImportFromClipbrd() {
       outParam
     );
     if (confirmImport) {
-      // import
       EnigmailKeyRing.importKey(
         window,
         false,
@@ -639,7 +638,6 @@ async function enigmailImportFromClipbrd() {
         null,
         false,
         [],
-        true,
         outParam.acceptance
       );
       var keyList = preview.map(function (a) {
@@ -826,7 +824,6 @@ function enigmailImportKeysFromUrl() {
             null,
             false,
             [],
-            true,
             outParam.acceptance
           );
           errorMsgObj.preview = preview;

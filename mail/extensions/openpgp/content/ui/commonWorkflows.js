@@ -170,7 +170,6 @@ async function EnigmailCommon_importObjectFromFile(what) {
           resultKeys,
           false, // minimize
           [], // filter
-          true, // allow prompt for permissive
           autoAcceptance
         );
 

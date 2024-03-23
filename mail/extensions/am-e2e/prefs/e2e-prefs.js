@@ -97,6 +97,10 @@ pref("mail.smime.accept_insecure_sha1_message_signatures", false);
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 
+// Allow import of problematic OpenPGP keys, if import otherwise fails.
+// Don't enable, unless you know how to manually clean up failures in OpenPGP storage.
+pref("mail.openpgp.allow_permissive_import", false);
+
 // Hide prefs and menu entries from non-advanced users
 pref("temp.openpgp.advancedUser", false);
 

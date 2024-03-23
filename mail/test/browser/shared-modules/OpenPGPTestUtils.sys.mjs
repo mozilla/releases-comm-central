@@ -232,8 +232,7 @@ export const OpenPGPTestUtils = {
       errorObj,
       fingerPrintObj,
       false,
-      [],
-      false
+      []
     );
 
     if (result !== 0) {

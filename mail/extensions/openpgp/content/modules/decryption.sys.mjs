@@ -241,8 +241,7 @@ export var EnigmailDecryption = {
         errorMsgObj,
         {}, // importedKeysObj
         false,
-        [],
-        false // don't use prompt for permissive
+        []
       );
       if (exitCodeObj.value === 0) {
         statusFlagsObj.value |= lazy.EnigmailConstants.IMPORTED_KEY;
@@ -582,7 +581,6 @@ export var EnigmailDecryption = {
                 null,
                 false,
                 [],
-                false, // don't use prompt for permissive
                 outParam.acceptance
               );
               statusFlagsObj.value = lazy.EnigmailConstants.IMPORTED_KEY;

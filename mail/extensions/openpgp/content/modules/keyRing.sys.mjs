@@ -415,6 +415,12 @@ export var EnigmailKeyRing = {
     const contents = MailStringUtils.uint8ArrayToByteString(data);
     let res;
     let tryAgain;
+
+    const allowPermissive = Services.prefs.getBoolPref(
+      "mail.openpgp.allow_permissive_import",
+      false
+    );
+
     let permissive = false;
     do {
       tryAgain = false;
@@ -436,7 +442,7 @@ export var EnigmailKeyRing = {
       }
 
       if (failed) {
-        if (!permissive) {
+        if (!permissive && allowPermissive) {
           if (
             Services.prompt.confirm(
               win,
@@ -746,9 +752,6 @@ export var EnigmailKeyRing = {
    * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
-   * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
-   *                                                    the user is asked to allow an optional
-   *                                                    permissive import attempt.
    * @param {string} acceptance - Acceptance for the keys to import,
    *                                   which are new, or still have acceptance "undecided".
    *
@@ -767,7 +770,6 @@ export var EnigmailKeyRing = {
     importedKeysObj,
     minimizeKey = false,
     limitedUids = [],
-    allowPermissiveFallbackWithPrompt = true,
     acceptance = null
   ) {
     const cApi = lazy.EnigmailCryptoAPI();
@@ -782,7 +784,6 @@ export var EnigmailKeyRing = {
         importedKeysObj,
         minimizeKey,
         limitedUids,
-        allowPermissiveFallbackWithPrompt,
         acceptance
       )
     );
@@ -800,9 +801,6 @@ export var EnigmailKeyRing = {
    * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
-   * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
-   *                                                    the user is asked to allow an optional
-   *                                                    permissive import attempt.
    * @param acceptance      String   - The new acceptance value for the imported keys,
    *                                   which are new, or still have acceptance "undecided".
    *
@@ -821,11 +819,15 @@ export var EnigmailKeyRing = {
     importedKeysObj,
     minimizeKey = false,
     limitedUids = [],
-    allowPermissiveFallbackWithPrompt = true,
     acceptance = null
   ) {
     lazy.EnigmailLog.DEBUG(
       `keyRing.sys.mjs: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
+    );
+
+    const allowPermissiveFallbackWithPrompt = Services.prefs.getBoolPref(
+      "mail.openpgp.allow_permissive_import",
+      false
     );
 
     var pgpBlock;
@@ -964,7 +966,6 @@ export var EnigmailKeyRing = {
             null,
             false,
             limitedUids,
-            true,
             outParam.acceptance
           );
         } catch (ex) {
@@ -1019,7 +1020,6 @@ export var EnigmailKeyRing = {
               null,
               false,
               limitedUids,
-              true,
               outParam.acceptance
             );
           } catch (ex) {
