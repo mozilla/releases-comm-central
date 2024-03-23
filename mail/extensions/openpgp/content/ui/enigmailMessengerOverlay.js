@@ -212,6 +212,7 @@ Enigmail.msg = {
       "decryptInlinePG",
       "brokenExchangeProgress",
       "hasNestedEncryptedParts",
+      "hasNestedSignedParts",
       "hasConflictingKeyOpenPGP",
     ]) {
       this.removeNotification(value);
@@ -2958,6 +2959,33 @@ Enigmail.msg = {
         detail: { messageDecryptDone: true },
       })
     );
+
+    // Should we notify the user about available signed nested parts?
+    if (
+      EnigmailSingletons.isRecentUriWithNestedSignedPart(
+        Enigmail.msg.getCurrentMsgUriSpec()
+      )
+    ) {
+      const buttons = [
+        {
+          "l10n-id": "openpgp-show-signed-parts",
+          popup: null,
+          callback() {
+            top.viewSignedPart(Enigmail.msg.getCurrentMsgUriSpec());
+            return true; // keep notification
+          },
+        },
+      ];
+
+      Enigmail.msg.notificationBox.appendNotification(
+        "hasNestedSignedParts",
+        {
+          label: { "l10n-id": "openpgp-has-nested-signed-parts" },
+          priority: Enigmail.msg.notificationBox.PRIORITY_INFO_HIGH,
+        },
+        buttons
+      );
+    }
   },
 
   async notifyEndAllAttachments() {

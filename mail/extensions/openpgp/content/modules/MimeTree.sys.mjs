@@ -1296,6 +1296,22 @@ export function getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
 }
 
 /**
+ * Return the contents of a message.
+ *
+ * @param {string} url - the URL to load and parse
+ * @param {MimeTreeFromUrlCallback} callbackFunc - the callback function that is
+ *   called asynchronously when parsing is complete.
+ */
+export function getMessageFromUrl(url, callbackFunc) {
+  function onData(data) {
+    callbackFunc(data);
+  }
+  const chan = lazy.EnigmailStreams.createChannel(url);
+  const bufferListener = lazy.EnigmailStreams.newStringStreamListener(onData);
+  chan.asyncOpen(bufferListener, null);
+}
+
+/**
  * Parse a MIME message and return a tree structure of MimeTreePart.
  *
  * @param {string} mimeStr - string of a MIME message

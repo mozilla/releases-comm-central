@@ -457,6 +457,7 @@ MimeVerify.prototype = {
     this.returnData(this.signedData);
 
     if (!this.isAllowedSigPart(this.mimePartNumber, this.msgUriSpec)) {
+      lazy.EnigmailSingletons.addUriWithNestedSignedPart(this.msgUriSpec);
       return;
     }
 

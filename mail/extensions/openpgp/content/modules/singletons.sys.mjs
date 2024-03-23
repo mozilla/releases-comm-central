@@ -26,6 +26,7 @@ export var EnigmailSingletons = {
   },
 
   urisWithNestedEncryptedParts: [],
+  urisWithNestedSignedParts: [],
 
   maxRecentSubEncryptionUrisToRemember: 10,
 
@@ -41,6 +42,32 @@ export var EnigmailSingletons = {
 
   isRecentUriWithNestedEncryptedPart(uri) {
     return this.urisWithNestedEncryptedParts.includes(uri);
+  },
+
+  /**
+   * Remember the given uri in our list of recently seen uris that
+   * contain a nested signed part.
+   *
+   * @param {string} uri - The URI spec to remember.
+   */
+  addUriWithNestedSignedPart(uri) {
+    if (
+      this.urisWithNestedSignedParts.length >
+      this.maxRecentSubEncryptionUrisToRemember
+    ) {
+      this.urisWithNestedSignedParts.shift(); // remove oldest
+    }
+    this.urisWithNestedSignedParts.push(uri);
+  },
+
+  /**
+   * Check if the given uri was recently remembered as an uri with a
+   * nested signed part.
+   *
+   * @param {string} uri - The URI spec to remember.
+   */
+  isRecentUriWithNestedSignedPart(uri) {
+    return this.urisWithNestedSignedParts.includes(uri);
   },
 };
 

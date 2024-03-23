@@ -17,8 +17,14 @@ ChromeUtils.defineESModuleGetters(this, {
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
 });
 
-const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
+const { getMimeTreeFromUrl, getMessageFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailStringUtils",
+  "resource:///modules/MailStringUtils.jsm"
 );
 
 function GetNextNMessages(folder) {
@@ -575,43 +581,40 @@ function SaveAsTemplate(uri) {
   }
 }
 
+/**
+ * Save the given string to a file, then open it as an .eml file.
+ *
+ * @param {string} data - The message data.
+ */
+async function msgOpenMessageFromString(data) {
+  const path = await IOUtils.createUniqueFile(
+    PathUtils.tempDir,
+    "subPart.eml",
+    0o600
+  );
+  await IOUtils.write(path, MailStringUtils.byteStringToUint8Array(data));
+  const tempFile = await IOUtils.getFile(path);
+
+  // Delete file on exit, because Windows locks the file
+  const extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+  const url = Services.io
+    .getProtocolHandler("file")
+    .QueryInterface(Ci.nsIFileProtocolHandler)
+    .newFileURI(tempFile);
+
+  MailUtils.openEMLFile(window, tempFile, url);
+}
+
 function viewEncryptedPart(message) {
   let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
 
   // Strip out the message-display parameter to ensure that attached emails
   // display the message source, not the processed HTML.
-  url = url.replace(/type=application\/x-message-display&/, "");
-
-  /**
-   * Save the given string to a file, then open it as an .eml file.
-   *
-   * @param {string} data - The message data.
-   */
-  const msgOpenMessageFromString = function (data) {
-    const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-    tempFile.append("subPart.eml");
-    tempFile.createUnique(0, 0o600);
-
-    const outputStream = Cc[
-      "@mozilla.org/network/file-output-stream;1"
-    ].createInstance(Ci.nsIFileOutputStream);
-    outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
-    outputStream.write(data, data.length);
-    outputStream.close();
-
-    // Delete file on exit, because Windows locks the file
-    const extAppLauncher = Cc[
-      "@mozilla.org/uriloader/external-helper-app-service;1"
-    ].getService(Ci.nsPIExternalAppLauncher);
-    extAppLauncher.deleteTemporaryFileOnExit(tempFile);
-
-    const url = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .newFileURI(tempFile);
-
-    MailUtils.openEMLFile(window, tempFile, url);
-  };
+  url = url.replace(/type=application\/x-message-display&?/, "");
 
   function recursiveEmitEncryptedParts(mimeTree) {
     for (const part of mimeTree.subParts) {
@@ -634,16 +637,54 @@ function viewEncryptedPart(message) {
   return true;
 }
 
-function viewEncryptedParts(messages) {
-  if (!messages?.length) {
-    dump("viewEncryptedParts(): No messages selected.\n");
-    return false;
+function viewSignedPart(message) {
+  let url = MailServices.mailSession.ConvertMsgURIToMsgURL(message, msgWindow);
+
+  // Strip out the message-display parameter to ensure that attached emails
+  // display the message source, not the processed HTML.
+  url = url.replace(/type=application\/x-message-display&?/, "");
+
+  function getConditionalHdr(mimeTree, hdr, label) {
+    const val = mimeTree.headers._rawHeaders.get(hdr);
+    return val ? label + val + "\r\n" : "";
   }
 
-  if (messages.length > 1) {
-    dump("viewEncryptedParts(): Too many messages selected.\n");
-    return false;
+  function recursiveEmitSignedParts(mimeTree) {
+    for (const part of mimeTree.subParts) {
+      const ct = part.headers.contentType.type;
+      if (ct == "multipart/signed") {
+        let hdr = "";
+        hdr += getConditionalHdr(mimeTree, "date", "Date: ");
+        hdr += getConditionalHdr(mimeTree, "from", "From: ");
+        hdr += getConditionalHdr(mimeTree, "sender", "Sender: ");
+        hdr += getConditionalHdr(mimeTree, "to", "To: ");
+        hdr += getConditionalHdr(mimeTree, "cc", "Cc: ");
+        hdr += getConditionalHdr(mimeTree, "subject", "Subject: ");
+        hdr += getConditionalHdr(mimeTree, "reply-to", "Reply-To: ");
+
+        const boundary = part.parent.headers.contentType.get("boundary");
+        function finalizeProcessing(data) {
+          let msg = "";
+          const separator = "--" + boundary + "\r\n";
+          const pos1 = data.indexOf(separator);
+          if (pos1 != -1) {
+            const pos2 = data.indexOf(separator, pos1 + boundary.length);
+            if (pos2 != -1) {
+              msg = data.substring(pos1 + separator.length, pos2);
+            }
+          }
+
+          if (msg) {
+            msgOpenMessageFromString(hdr + msg);
+          }
+        }
+        getMessageFromUrl(url, finalizeProcessing);
+        continue;
+      }
+      recursiveEmitSignedParts(part);
+    }
   }
 
-  return viewEncryptedPart(messages[0]);
+  getMimeTreeFromUrl(url, true, recursiveEmitSignedParts);
+  return true;
 }

@@ -333,7 +333,7 @@ var commandController = {
 
         // Strip out the message-display parameter to ensure that attached emails
         // display the message source, not the processed HTML.
-        url = url.replace(/type=application\/x-message-display&/, "");
+        url = url.replace(/type=application\/x-message-display&?/, "");
         window.openDialog(
           "chrome://messenger/content/viewSource.xhtml",
           "_blank",
