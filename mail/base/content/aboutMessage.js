@@ -175,10 +175,6 @@ function displayMessage(uri, viewWrapper) {
 
   messageHistory.push(uri);
 
-  // This is needed for registering transactions on the window.
-  dbViewWrapperListener.messenger ??= parent.messenger;
-  dbViewWrapperListener.msgWindow ??= parent.msgWindow;
-
   if (!gViewWrapper) {
     if (gFolder) {
       if (viewWrapper) {
