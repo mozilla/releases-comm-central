@@ -17,7 +17,7 @@ var {
   open_compose_with_reply,
   FormatHelper,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 
 var {
@@ -28,7 +28,7 @@ var {
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var sendFormatPreference;

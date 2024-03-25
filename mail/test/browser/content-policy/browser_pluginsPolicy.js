@@ -10,7 +10,7 @@
 "use strict";
 
 var { open_content_tab_with_url } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 
 var {
@@ -25,10 +25,10 @@ var {
   set_open_message_behavior,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { promise_new_window } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var { MailE10SUtils } = ChromeUtils.importESModule(

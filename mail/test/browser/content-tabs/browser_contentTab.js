@@ -6,20 +6,20 @@
 
 var { assert_content_tab_has_favicon, open_content_tab_with_url } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+    "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
   );
 var { assert_element_visible, assert_element_not_visible } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/DOMHelpers.sys.mjs"
+    "resource://testing-common/mail/DOMHelpers.sys.mjs"
   );
 
 var { be_in_folder, inboxFolder } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var { assert_tab_has_title, close_popup, wait_for_popup_to_open } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
 
 var url =

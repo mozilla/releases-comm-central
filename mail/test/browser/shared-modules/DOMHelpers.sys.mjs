@@ -5,7 +5,7 @@
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  mc: "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs",
+  mc: "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs",
 });
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";

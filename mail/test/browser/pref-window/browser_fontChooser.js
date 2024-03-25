@@ -13,13 +13,13 @@
 "use strict";
 
 var { content_tab_e } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var { close_pref_tab, open_pref_tab } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PrefTabHelpers.sys.mjs"
+  "resource://testing-common/mail/PrefTabHelpers.sys.mjs"
 );
 var { wait_for_frame_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var { Preferences } = ChromeUtils.importESModule(

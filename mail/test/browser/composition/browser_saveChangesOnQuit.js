@@ -17,7 +17,7 @@ var {
   open_compose_with_forward,
   open_compose_with_reply,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -29,17 +29,17 @@ var {
   get_special_folder,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 var { get_notification, wait_for_notification_to_show } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+    "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
   );
 var { promise_new_window } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var CANCEL = 1;

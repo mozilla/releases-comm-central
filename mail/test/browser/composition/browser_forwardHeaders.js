@@ -15,7 +15,7 @@ var {
   open_compose_with_forward,
   open_compose_with_forward_as_attachments,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
   add_message_sets_to_folders,
@@ -28,7 +28,7 @@ var {
   select_click_row,
   select_shift_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.importESModule(
   "resource:///modules/gloda/MimeMessage.sys.mjs"

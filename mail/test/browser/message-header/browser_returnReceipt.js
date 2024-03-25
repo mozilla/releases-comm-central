@@ -17,10 +17,10 @@ var {
   get_about_message,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { assert_notification_displayed } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 
 var folder;

@@ -10,7 +10,7 @@
 "use strict";
 
 var { ensure_card_exists } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
+  "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -19,7 +19,7 @@ var {
   create_message,
   get_about_3pane,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var folder;

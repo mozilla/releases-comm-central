@@ -20,7 +20,7 @@
 "use strict";
 
 var { ensure_card_exists, ensure_no_card_exists } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
+  "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
 var {
   add_message_sets_to_folders,
@@ -53,7 +53,7 @@ var {
   wait_for_blank_content_pane,
   wait_for_folder_events,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

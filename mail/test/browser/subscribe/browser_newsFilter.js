@@ -13,14 +13,14 @@ var {
   shutdownNNTPServer,
   startupNNTPServer,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NNTPHelpers.sys.mjs"
+  "resource://testing-common/mail/NNTPHelpers.sys.mjs"
 );
 var {
   check_newsgroup_displayed,
   enter_text_in_search_box,
   open_subscribe_window_from_context_menu,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/SubscribeWindowHelpers.sys.mjs"
+  "resource://testing-common/mail/SubscribeWindowHelpers.sys.mjs"
 );
 
 /**

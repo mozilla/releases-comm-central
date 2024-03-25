@@ -6,12 +6,12 @@ import {
   content_tab_e,
   open_content_tab_with_url,
   promise_content_tab_load,
-} from "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs";
+} from "resource://testing-common/mail/ContentTabHelpers.sys.mjs";
 
-import * as fdh from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
-import * as wh from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
+import * as fdh from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
+import * as wh from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
-import * as EventUtils from "resource://testing-common/mozmill/EventUtils.sys.mjs";
+import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 var mc = fdh.mc;

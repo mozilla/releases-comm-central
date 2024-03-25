@@ -18,17 +18,17 @@ const {
   plan_for_message_display,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 const {
   get_notification_button,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"

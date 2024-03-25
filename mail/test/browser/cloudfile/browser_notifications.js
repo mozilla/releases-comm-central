@@ -9,11 +9,11 @@
 "use strict";
 
 var { select_attachments } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
+  "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var { gMockCloudfileManager, MockCloudfileAccount } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+    "resource://testing-common/mail/CloudfileHelpers.sys.mjs"
   );
 var {
   add_attachments,
@@ -22,7 +22,7 @@ var {
   open_compose_new_mail,
   delete_attachment,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
   assert_notification_displayed,
@@ -30,10 +30,10 @@ var {
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

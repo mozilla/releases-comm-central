@@ -12,26 +12,26 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 var { promise_content_tab_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var { remove_email_account } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NewMailAccountHelpers.sys.mjs"
+  "resource://testing-common/mail/NewMailAccountHelpers.sys.mjs"
 );
 var { openAccountProvisioner, openAccountSetup } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+  "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
 var { input_value } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
+  "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 var { click_through_appmenu, click_menus_in_sequence } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back

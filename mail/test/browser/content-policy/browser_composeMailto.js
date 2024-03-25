@@ -5,17 +5,17 @@
 "use strict";
 
 var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var { open_content_tab_with_url } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var { input_value } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
+  "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 var { click_menus_in_sequence, promise_modal_dialog, promise_new_window } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 
 var gCwc;

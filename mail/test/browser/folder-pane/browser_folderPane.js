@@ -21,7 +21,7 @@ var {
   expand_folder,
   get_about_3pane,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var { MailUtils } = ChromeUtils.importESModule(

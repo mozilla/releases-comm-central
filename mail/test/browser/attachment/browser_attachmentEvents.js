@@ -11,14 +11,14 @@
 "use strict";
 
 var { select_attachments } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
+  "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var { add_attachments, close_compose_window, open_compose_new_mail } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 
 var kAttachmentsAdded = "attachments-added";

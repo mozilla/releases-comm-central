@@ -25,10 +25,10 @@ var {
   open_compose_with_forward,
   open_compose_with_reply,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var { open_content_tab_with_url } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var {
   assert_nothing_selected,
@@ -42,21 +42,21 @@ var {
   set_open_message_behavior,
   wait_for_message_display_completion,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { input_value } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
+  "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 var {
   get_notification_button,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 var { click_menus_in_sequence, promise_modal_dialog } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 
 var { MailServices } = ChromeUtils.importESModule(

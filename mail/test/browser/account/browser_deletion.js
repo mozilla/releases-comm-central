@@ -9,7 +9,7 @@
 "use strict";
 
 var { open_advanced_settings, remove_account } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+  "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

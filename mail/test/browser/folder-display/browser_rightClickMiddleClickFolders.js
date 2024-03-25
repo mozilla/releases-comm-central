@@ -29,7 +29,7 @@ var {
   set_context_menu_background_tabs,
   switch_tab,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var folderA, folderB, folderC;

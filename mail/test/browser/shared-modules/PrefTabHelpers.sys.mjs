@@ -7,9 +7,9 @@
  * Helpers to deal with the preferences tab.
  */
 
-import { mc } from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+import { mc } from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
-import { open_content_tab_with_click } from "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs";
+import { open_content_tab_with_click } from "resource://testing-common/mail/ContentTabHelpers.sys.mjs";
 
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 

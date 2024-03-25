@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as folderDisplayHelper from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+import * as folderDisplayHelper from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
-import * as wh from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
+import * as wh from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";

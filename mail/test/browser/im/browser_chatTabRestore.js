@@ -5,7 +5,7 @@
 "use strict";
 
 var { assert_tab_mode_name } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 /**

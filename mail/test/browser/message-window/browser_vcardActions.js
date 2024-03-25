@@ -9,7 +9,7 @@
 "use strict";
 
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
+  "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
 
 async function openMessageFromFile(file) {

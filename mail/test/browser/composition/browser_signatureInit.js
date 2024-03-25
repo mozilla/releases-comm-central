@@ -11,7 +11,7 @@
 
 var { close_compose_window, get_compose_body, open_compose_new_mail } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 
 var kHtmlPref = "mail.identity.default.compose_html";

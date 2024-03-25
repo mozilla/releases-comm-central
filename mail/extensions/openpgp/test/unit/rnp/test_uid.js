@@ -9,7 +9,7 @@
 "use strict";
 
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 const { EnigmailFuncs } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/funcs.sys.mjs"

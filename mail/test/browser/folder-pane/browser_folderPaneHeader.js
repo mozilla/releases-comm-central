@@ -11,7 +11,7 @@ const { XULStoreUtils } = ChromeUtils.importESModule(
 
 var { add_message_sets_to_folders, be_in_folder, create_thread } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
 
 let tabmail,

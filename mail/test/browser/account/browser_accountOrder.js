@@ -10,7 +10,7 @@
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+    "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 
 var { MailServices } = ChromeUtils.importESModule(

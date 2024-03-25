@@ -11,7 +11,7 @@
 
 var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
 
 function getMsgBodyTxt(msgc) {

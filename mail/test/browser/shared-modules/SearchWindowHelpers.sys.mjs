@@ -6,13 +6,13 @@ import {
   get_about_3pane,
   mc,
   right_click_on_folder,
-} from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+} from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
-import { promise_new_window } from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
+import { promise_new_window } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
-import * as EventUtils from "resource://testing-common/mozmill/EventUtils.sys.mjs";
+import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 /**

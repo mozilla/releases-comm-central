@@ -10,7 +10,7 @@ requestLongerTimeout(3);
 
 var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 
 add_task(async function test_style_buttons() {

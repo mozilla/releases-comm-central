@@ -9,15 +9,15 @@
 "use strict";
 
 var { create_ldap_address_book } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AddressBookHelpers.sys.mjs"
+  "resource://testing-common/mail/AddressBookHelpers.sys.mjs"
 );
 var { be_in_folder, create_folder, make_message_sets_in_folders } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+    "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
 var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/NNTPHelpers.sys.mjs"
+    "resource://testing-common/mail/NNTPHelpers.sys.mjs"
   );
 
 var {
@@ -27,11 +27,11 @@ var {
   wait_for_existing_window,
   wait_for_window_focused,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var { gMockPromptService } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/PromptHelpers.sys.mjs"
+  "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

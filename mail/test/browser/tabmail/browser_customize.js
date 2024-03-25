@@ -9,16 +9,16 @@
 "use strict";
 
 const { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 const { click_through_appmenu } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 const { promise_element_visible, promise_element_invisible } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/DOMHelpers.sys.mjs"
+    "resource://testing-common/mail/DOMHelpers.sys.mjs"
   );
 
 add_setup(function () {

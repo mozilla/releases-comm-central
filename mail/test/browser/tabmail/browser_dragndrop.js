@@ -27,7 +27,7 @@ var {
   wait_for_message_display_completion,
   wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var {
   drag_n_drop_element,
@@ -35,10 +35,10 @@ var {
   synthesize_drag_start,
   synthesize_drag_over,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/MouseEventHelpers.sys.mjs"
+  "resource://testing-common/mail/MouseEventHelpers.sys.mjs"
 );
 var { promise_new_window } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var folder;

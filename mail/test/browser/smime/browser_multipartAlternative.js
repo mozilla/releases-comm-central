@@ -12,7 +12,7 @@
 
 var { close_compose_window, get_msg_source, open_compose_with_reply } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 var {
   be_in_folder,
@@ -24,7 +24,7 @@ var {
   smimeUtils_loadCertificateAndKey,
   smimeUtils_loadPEMCertificate,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var gDrafts;

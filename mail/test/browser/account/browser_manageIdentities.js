@@ -10,7 +10,7 @@
 
 var { click_account_tree_row, get_account_tree_row, openAccountSettings } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+    "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -18,7 +18,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 
 var gPopAccount, gOriginalAccountCount, gIdentitiesWin;

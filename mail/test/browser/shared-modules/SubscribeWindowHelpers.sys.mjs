@@ -5,17 +5,17 @@
 import {
   get_about_3pane,
   right_click_on_folder,
-} from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+} from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
 import {
   input_value,
   delete_all_existing,
-} from "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs";
+} from "resource://testing-common/mail/KeyboardHelpers.sys.mjs";
 
 import {
   click_menus_in_sequence,
   promise_modal_dialog,
-} from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
+} from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 

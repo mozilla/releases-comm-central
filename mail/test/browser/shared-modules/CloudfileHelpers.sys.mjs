@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as fdh from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+import * as fdh from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { cloudFileAccounts } from "resource:///modules/cloudFileAccounts.sys.mjs";

@@ -5,13 +5,13 @@
 import {
   get_about_message,
   mc,
-} from "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs";
+} from "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs";
 
-import { gMockCloudfileManager } from "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs";
+import { gMockCloudfileManager } from "resource://testing-common/mail/CloudfileHelpers.sys.mjs";
 
-import { promise_new_window } from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
-import { get_notification } from "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs";
-import * as EventUtils from "resource://testing-common/mozmill/EventUtils.sys.mjs";
+import { promise_new_window } from "resource://testing-common/mail/WindowHelpers.sys.mjs";
+import { get_notification } from "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs";
+import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";

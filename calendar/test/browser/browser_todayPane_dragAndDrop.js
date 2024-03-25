@@ -14,7 +14,7 @@ const {
   create_message,
   inboxFolder,
   select_click_row,
-} = ChromeUtils.importESModule("resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs");
+} = ChromeUtils.importESModule("resource://testing-common/mail/FolderDisplayHelpers.sys.mjs");
 const { SyntheticPartLeaf } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

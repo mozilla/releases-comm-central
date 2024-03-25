@@ -4,7 +4,7 @@
 
 var { close_compose_window, open_compose_new_mail } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 var { maybeOnSpellCheck } = ChromeUtils.importESModule(
   "resource://testing-common/AsyncSpellCheckTestHelper.sys.mjs"

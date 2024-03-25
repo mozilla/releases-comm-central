@@ -9,16 +9,16 @@
  */
 
 const { open_compose_new_mail } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 
 const { get_notification, wait_for_notification_to_show } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+    "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
   );
 
 const { OpenPGPTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/OpenPGPTestUtils.sys.mjs"
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 
 const { MailServices } = ChromeUtils.importESModule(

@@ -6,14 +6,14 @@
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+    "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 var { close_popup, wait_for_popup_to_open } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var { content_tab_e } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

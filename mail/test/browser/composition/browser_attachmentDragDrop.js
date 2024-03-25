@@ -10,11 +10,11 @@
 "use strict";
 
 var { CloudFileTestProvider } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+  "resource://testing-common/mail/CloudfileHelpers.sys.mjs"
 );
 var { open_compose_new_mail, close_compose_window } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
   );
 var {
   add_message_to_folder,
@@ -25,7 +25,7 @@ var {
   inboxFolder,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

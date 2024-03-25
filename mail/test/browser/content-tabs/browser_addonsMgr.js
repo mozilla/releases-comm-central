@@ -5,11 +5,11 @@
 "use strict";
 
 var { promise_content_tab_load } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 var { click_through_appmenu, promise_modal_dialog } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 
 add_task(async function test_open_addons_with_url() {

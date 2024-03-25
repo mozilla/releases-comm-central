@@ -12,7 +12,7 @@ var {
   create_detached_attachment,
   create_enclosure_attachment,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
+  "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -24,7 +24,7 @@ var {
   select_click_row,
   wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var aboutMessage = get_about_message();

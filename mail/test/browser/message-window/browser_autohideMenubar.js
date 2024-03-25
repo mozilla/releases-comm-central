@@ -17,7 +17,7 @@ var {
   select_click_row,
   toggle_main_menu,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var menuFolder;

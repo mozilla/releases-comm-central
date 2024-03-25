@@ -33,7 +33,7 @@ var {
   switch_tab,
   wait_for_blank_content_pane,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var folderA, folderB, setA, setB;

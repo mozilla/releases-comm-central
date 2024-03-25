@@ -10,7 +10,7 @@ import {
   sendString,
   synthesizeKey,
   synthesizeMouseAtCenter,
-} from "resource://testing-common/mozmill/EventUtils.sys.mjs";
+} from "resource://testing-common/mail/EventUtils.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CalDateTime } from "resource:///modules/CalDateTime.sys.mjs";

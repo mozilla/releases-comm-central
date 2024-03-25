@@ -18,7 +18,7 @@ var {
   make_message_sets_in_folders,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var {
   assert_constraints_expressed,
@@ -30,7 +30,7 @@ var {
   toggle_quick_filter_bar,
   cleanup_qfb_button,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/QuickFilterBarHelpers.sys.mjs"
+  "resource://testing-common/mail/QuickFilterBarHelpers.sys.mjs"
 );
 
 var folder;

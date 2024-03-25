@@ -11,13 +11,13 @@
 "use strict";
 
 var { NNTP_PORT, setupLocalServer } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NNTPHelpers.sys.mjs"
+  "resource://testing-common/mail/NNTPHelpers.sys.mjs"
 );
 var { promise_modal_dialog } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 var { click_menus_in_sequence } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

@@ -6,13 +6,13 @@
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+    "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
   );
 var { FAKE_SERVER_HOSTNAME } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { input_value, delete_all_existing } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/KeyboardHelpers.sys.mjs"
+  "resource://testing-common/mail/KeyboardHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(

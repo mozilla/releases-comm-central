@@ -15,11 +15,11 @@ ChromeUtils.defineLazyGetter(this, "brandShortName", () =>
 );
 
 var { select_attachments } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
+  "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var { gMockCloudfileManager, MockCloudfileAccount } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+    "resource://testing-common/mail/CloudfileHelpers.sys.mjs"
   );
 var {
   add_cloud_attachments,
@@ -27,7 +27,7 @@ var {
   close_compose_window,
   open_compose_new_mail,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -35,7 +35,7 @@ var {
   FAKE_SERVER_HOSTNAME,
   get_special_folder,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { MockFilePicker } = SpecialPowers;
 

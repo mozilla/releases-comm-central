@@ -11,7 +11,7 @@ var {
   create_deleted_attachment,
   create_detached_attachment,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AttachmentHelpers.sys.mjs"
+  "resource://testing-common/mail/AttachmentHelpers.sys.mjs"
 );
 var {
   add_message_to_folder,
@@ -21,7 +21,7 @@ var {
   get_about_message,
   select_click_row,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
 var textAttachment =

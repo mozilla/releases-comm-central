@@ -14,7 +14,7 @@ var {
   open_advanced_settings,
   remove_account,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/AccountManagerHelpers.sys.mjs"
+  "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -22,7 +22,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 var { content_tab_e } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ContentTabHelpers.sys.mjs"
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 
 var gPopAccount, gOriginalAccountCount;

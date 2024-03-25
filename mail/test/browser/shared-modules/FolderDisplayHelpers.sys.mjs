@@ -5,12 +5,12 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-import * as EventUtils from "resource://testing-common/mozmill/EventUtils.sys.mjs";
+import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 import {
   promise_new_window,
   wait_for_existing_window,
   wait_for_window_focused,
-} from "resource://testing-common/mozmill/WindowHelpers.sys.mjs";
+} from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
@@ -26,7 +26,7 @@ import {
 } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 import { MessageInjection } from "resource://testing-common/mailnews/MessageInjection.sys.mjs";
 import { SmimeUtils } from "resource://testing-common/mailnews/SmimeUtils.sys.mjs";
-import { dump_view_state } from "resource://testing-common/mozmill/ViewHelpers.sys.mjs";
+import { dump_view_state } from "resource://testing-common/mail/ViewHelpers.sys.mjs";
 
 var nsMsgViewIndex_None = 0xffffffff;
 

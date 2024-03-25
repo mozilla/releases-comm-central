@@ -9,7 +9,7 @@ const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 const { gMockCloudfileManager } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/CloudfileHelpers.sys.mjs"
+  "resource://testing-common/mail/CloudfileHelpers.sys.mjs"
 );
 const {
   add_attachments,
@@ -18,10 +18,10 @@ const {
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/ComposeHelpers.sys.mjs"
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
 );
 const { wait_for_notification_to_stop } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.sys.mjs"
+  "resource://testing-common/mail/NotificationBoxHelpers.sys.mjs"
 );
 const { cloudFileAccounts } = ChromeUtils.importESModule(
   "resource:///modules/cloudFileAccounts.sys.mjs"

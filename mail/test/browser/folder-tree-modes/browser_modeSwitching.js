@@ -14,7 +14,7 @@ var {
   make_message_sets_in_folders,
   toggle_main_menu,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var { MailTelemetryForTests } = ChromeUtils.importESModule(
   "resource:///modules/MailGlue.sys.mjs"
@@ -24,7 +24,7 @@ var { TelemetryTestUtils } = ChromeUtils.importESModule(
 );
 var { click_menus_in_sequence, click_through_appmenu, close_popup_sequence } =
   ChromeUtils.importESModule(
-    "resource://testing-common/mozmill/WindowHelpers.sys.mjs"
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
   );
 
 var unreadFolder;

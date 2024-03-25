@@ -10,14 +10,14 @@
 "use strict";
 
 var { be_in_folder, create_folder } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.sys.mjs"
+  "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 var {
   assert_search_window_folder_displayed,
   close_search_window,
   open_search_window,
 } = ChromeUtils.importESModule(
-  "resource://testing-common/mozmill/SearchWindowHelpers.sys.mjs"
+  "resource://testing-common/mail/SearchWindowHelpers.sys.mjs"
 );
 
 var folderA, folderB;
