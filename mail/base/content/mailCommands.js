@@ -15,16 +15,11 @@ ChromeUtils.defineESModuleGetters(this, {
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
 const { getMimeTreeFromUrl, getMessageFromUrl } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/MimeTree.sys.mjs"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailStringUtils",
-  "resource:///modules/MailStringUtils.jsm"
 );
 
 function GetNextNMessages(folder) {
