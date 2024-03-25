@@ -39,9 +39,6 @@ var { EnigmailTrust } = ChromeUtils.importESModule(
 var { PgpSqliteDb2 } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
-var { EnigmailLog } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/log.sys.mjs"
-);
 var { EnigmailKeyRing } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
@@ -58,11 +55,7 @@ var { EnigmailKeyserverURIs } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyserverUris.sys.mjs"
 );
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
@@ -92,8 +85,6 @@ var gTimeoutId = null;
 window.addEventListener("load", enigmailKeyManagerLoad);
 
 function enigmailKeyManagerLoad() {
-  EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
-
   // Close the key manager if GnuPG is not available
   EnigmailCore.init();
 
@@ -154,8 +145,6 @@ function onDialogClose() {
 }
 
 function loadkeyList() {
-  EnigmailLog.DEBUG("enigmailKeyManager.js: loadkeyList\n");
-
   sortTree();
   gKeyListView.applyFilter(0);
   document.getElementById("pleaseWait").hidePopup();
@@ -169,7 +158,6 @@ function clearKeyCache() {
 }
 
 function refreshKeys() {
-  EnigmailLog.DEBUG("enigmailKeyManager.js: refreshKeys\n");
   var keyList = getSelectedKeys();
   gEnigLastSelectedKeys = [];
   for (var i = 0; i < keyList.length; i++) {
@@ -198,8 +186,6 @@ function reloadKeys() {
 }
 
 function buildKeyList(refresh) {
-  EnigmailLog.DEBUG("enigmailKeyManager.js: buildKeyList\n");
-
   var keyListObj = {};
 
   if (refresh) {
@@ -794,7 +780,6 @@ function enigmailImportKeysFromUrl() {
   }
   var p = new Promise(function (resolve, reject) {
     var cbFunc = async function (data) {
-      EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
       var errorMsgObj = {};
 
       var preview = await EnigmailKey.getKeyListFromKeyBlock(
