@@ -1678,7 +1678,20 @@ function CommandUpdate_UndoRedo() {
 }
 
 function SetupUndoRedoCommand(command) {
-  const folder = document.getElementById("tabmail")?.currentTabInfo.folder;
+  let mainWindow;
+  let folder = null;
+  const tabmail = document.getElementById("tabmail");
+  if (tabmail) {
+    folder = tabmail.currentTabInfo.folder;
+    mainWindow = window;
+  } else {
+    mainWindow = window.opener || Services.wm.getMostRecentWindow("mail:3pane");
+    // There may not be a "main" window if an .eml file was double-clicked.
+    if (!mainWindow) {
+      return false;
+    }
+    folder = document.getElementById("messageBrowser")?.contentWindow?.gFolder;
+  }
   if (!folder?.server.canUndoDeleteOnServer) {
     return false;
   }
@@ -1687,11 +1700,11 @@ function SetupUndoRedoCommand(command) {
   let txnType;
   try {
     if (command == "cmd_undo") {
-      canUndoOrRedo = messenger.canUndo();
-      txnType = messenger.getUndoTransactionType();
+      canUndoOrRedo = mainWindow.messenger.canUndo();
+      txnType = mainWindow.messenger.getUndoTransactionType();
     } else {
-      canUndoOrRedo = messenger.canRedo();
-      txnType = messenger.getRedoTransactionType();
+      canUndoOrRedo = mainWindow.messenger.canRedo();
+      txnType = mainWindow.messenger.getRedoTransactionType();
     }
   } catch (ex) {
     // If this fails, assume we can't undo or redo.
