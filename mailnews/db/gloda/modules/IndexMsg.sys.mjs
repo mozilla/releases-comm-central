@@ -2678,7 +2678,7 @@ export var GlodaMsgIndexer = {
      *  and remove the folder from our URI table.  Currently, if a folder that
      *  contains other folders is deleted, we may either receive one
      *  notification for the folder that is deleted, or a notification for the
-     *  folder and one for each of its descendents.  This depends upon the
+     *  folder and one for each of its descendants.  This depends upon the
      *  underlying account implementation, so we explicitly handle each case.
      *  Namely, we treat it as if we're only planning on getting one, but we
      *  handle if the children are already gone for some reason.
@@ -2704,12 +2704,12 @@ export var GlodaMsgIndexer = {
           }
         };
 
-        const descendentFolders = aFolder.descendants;
+        const descendantFolders = aFolder.descendants;
         // (the order of operations does not matter; child, non-child, whatever.)
         // delete the parent
         delFunc(aFolder, this.indexer);
-        // delete all its descendents
-        for (const folder of descendentFolders) {
+        // delete all its descendants
+        for (const folder of descendantFolders) {
           delFunc(folder, this.indexer);
         }
 
@@ -2762,25 +2762,25 @@ export var GlodaMsgIndexer = {
       const specialFolderFlags =
         Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Junk;
       if (newFolder.isSpecialFolder(specialFolderFlags, true)) {
-        const descendentFolders = newFolder.descendants;
+        const descendantFolders = newFolder.descendants;
 
         // First thing to do: make sure we don't index the resulting folder and
-        //  its descendents.
+        //  its descendants.
         GlodaMsgIndexer.resetFolderIndexingPriority(newFolder);
-        for (const folder of descendentFolders) {
+        for (const folder of descendantFolders) {
           GlodaMsgIndexer.resetFolderIndexingPriority(folder);
         }
 
         // Remove from the index messages from the original folder
         this.folderDeleted(aOrigFolder);
       } else {
-        const descendentFolders = aOrigFolder.descendants;
+        const descendantFolders = aOrigFolder.descendants;
 
         const origURI = aOrigFolder.URI;
         // this rename is straightforward.
         GlodaDatastore.renameFolder(aOrigFolder, aNewURI);
 
-        for (const folder of descendentFolders) {
+        for (const folder of descendantFolders) {
           const oldSubURI = folder.URI;
           // mangle a new URI from the old URI.  we could also try and do a
           //  parallel traversal of the new folder hierarchy, but that seems like

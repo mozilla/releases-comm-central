@@ -59,7 +59,7 @@ BOOL setKeyAndValue(nsAutoString keyName, const WCHAR* subKey,
   return retValue;
 }
 
-// Delete a key and all of its descendents.
+// Delete a key and all of its descendants.
 
 LONG recursiveDeleteKey(HKEY hKeyParent,            // Parent of key to delete
                         const WCHAR* lpszKeyChild)  // Key to delete

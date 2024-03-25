@@ -73,8 +73,8 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   void GetUnverifiedSubFolders(nsIMsgFolder* parentFolder,
                                nsCOMArray<nsIMsgImapMailFolder>& aFoldersArray);
   void GetUnverifiedFolders(nsCOMArray<nsIMsgImapMailFolder>& aFolderArray);
-  bool NoDescendentsAreVerified(nsIMsgFolder* parentFolder);
-  bool AllDescendentsAreNoSelect(nsIMsgFolder* parentFolder);
+  bool NoDescendantsAreVerified(nsIMsgFolder* parentFolder);
+  bool AllDescendantsAreNoSelect(nsIMsgFolder* parentFolder);
 
   nsresult GetStringBundle();
   static nsresult AlertUser(const nsAString& aString, nsIMsgMailNewsUrl* aUrl);

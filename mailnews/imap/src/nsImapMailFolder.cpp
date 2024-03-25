@@ -2177,10 +2177,10 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
   return rv;
 }
 
-// check if folder is the trash, or a descendent of the trash
+// check if folder is the trash, or a descendant of the trash
 // so we can tell if the folders we're deleting from it should
 // be *really* deleted.
-bool nsImapMailFolder::TrashOrDescendentOfTrash(nsIMsgFolder* folder) {
+bool nsImapMailFolder::TrashOrDescendantOfTrash(nsIMsgFolder* folder) {
   NS_ENSURE_TRUE(folder, false);
   nsCOMPtr<nsIMsgFolder> parent;
   nsCOMPtr<nsIMsgFolder> curFolder = folder;
@@ -2209,7 +2209,7 @@ nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   }
 
   // "this" is the folder we're deleting from
-  bool deleteNoTrash = TrashOrDescendentOfTrash(this) || !DeleteIsMoveToTrash();
+  bool deleteNoTrash = TrashOrDescendantOfTrash(this) || !DeleteIsMoveToTrash();
   bool confirmDeletion = true;
 
   nsCOMPtr<nsIImapService> imapService =

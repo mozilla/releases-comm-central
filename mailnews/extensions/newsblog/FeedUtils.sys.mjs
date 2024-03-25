@@ -1074,7 +1074,7 @@ export var FeedUtils = {
     this.updateFolderChangeInFeedsDS(newFolder, aOrigFolder, null, null);
 
     // There may be subfolders, but we only get a single notification; iterate
-    // over all descendent folders of the folder whose location has changed.
+    // over all descendant folders of the folder whose location has changed.
     for (const newSubFolder of newFolder.descendants) {
       FeedUtils.updateFolderChangeInFeedsDS(
         newSubFolder,

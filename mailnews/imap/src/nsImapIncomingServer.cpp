@@ -1464,7 +1464,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
           explicitlyVerify)) ||
         ((NS_SUCCEEDED(currentFolder->GetHasSubFolders(&hasSubFolders)) &&
           hasSubFolders) &&
-         !NoDescendentsAreVerified(currentFolder))) {
+         !NoDescendantsAreVerified(currentFolder))) {
       bool isNamespace;
       currentImapFolder->GetIsNamespace(&isNamespace);
       if (!isNamespace)  // don't list namespaces explicitly
@@ -1533,7 +1533,7 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsCString& folderUri,
   return false;
 }
 
-bool nsImapIncomingServer::NoDescendentsAreVerified(
+bool nsImapIncomingServer::NoDescendantsAreVerified(
     nsIMsgFolder* parentFolder) {
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   nsresult rv = parentFolder->GetSubFolders(subFolders);
@@ -1547,7 +1547,7 @@ bool nsImapIncomingServer::NoDescendentsAreVerified(
         if (NS_SUCCEEDED(rv) && childVerified) {
           return false;
         }
-        if (!NoDescendentsAreVerified(child)) {
+        if (!NoDescendantsAreVerified(child)) {
           return false;
         }
       }
@@ -1557,7 +1557,7 @@ bool nsImapIncomingServer::NoDescendentsAreVerified(
   return true;
 }
 
-bool nsImapIncomingServer::AllDescendentsAreNoSelect(
+bool nsImapIncomingServer::AllDescendantsAreNoSelect(
     nsIMsgFolder* parentFolder) {
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   nsresult rv = parentFolder->GetSubFolders(subFolders);
@@ -1573,7 +1573,7 @@ bool nsImapIncomingServer::AllDescendentsAreNoSelect(
         if (!isNoSelect) {
           return false;
         }
-        if (!AllDescendentsAreNoSelect(child)) {
+        if (!AllDescendantsAreNoSelect(child)) {
           return false;
         }
       }

@@ -439,7 +439,7 @@ export class ImapIncomingServer extends MsgIncomingServer {
       if (
         !this.usingSubscription ||
         imapFolder.explicitlyVerify ||
-        (folder.hasSubFolders && this._noDescendentsAreVerified(folder))
+        (folder.hasSubFolders && this._noDescendantsAreVerified(folder))
       ) {
         imapFolder.explicitlyVerify = false;
         imapFolder.list();
@@ -474,12 +474,12 @@ export class ImapIncomingServer extends MsgIncomingServer {
    * @param {nsIMsgFolder} parentFolder - The folder to check.
    * @returns {nsIMsgFolder[]}
    */
-  _noDescendentsAreVerified(parentFolder) {
+  _noDescendantsAreVerified(parentFolder) {
     for (const folder of parentFolder.subFolders) {
       const imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       if (
         imapFolder.verifiedAsOnlineFolder ||
-        !this._noDescendentsAreVerified(folder)
+        !this._noDescendantsAreVerified(folder)
       ) {
         return false;
       }

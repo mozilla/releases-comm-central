@@ -422,7 +422,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   virtual bool DeleteIsMoveToTrash();
   nsresult GetFolder(const nsACString& name, nsIMsgFolder** pFolder);
   nsresult GetTrashFolder(nsIMsgFolder** pTrashFolder);
-  bool TrashOrDescendentOfTrash(nsIMsgFolder* folder);
+  bool TrashOrDescendantOfTrash(nsIMsgFolder* folder);
   static bool ShouldCheckAllFolders(nsIImapIncomingServer* imapServer);
   nsresult GetServerKey(nsACString& serverKey);
   nsresult DisplayStatusMsg(nsIImapUrl* aImapUrl, const nsAString& msg);

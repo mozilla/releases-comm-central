@@ -1292,7 +1292,7 @@ FeedParser.prototype = {
   },
 
   /**
-   * Returns first matching descendent of element, or null.
+   * Returns first matching descendant of element, or null.
    *
    * @param {Element} element - DOM element to search.
    * @param {string} namespace - Namespace of the search tag.
