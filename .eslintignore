@@ -66,3 +66,7 @@ mail/components/im/all-im.js
 mail/extensions/am-e2e/prefs/e2e-prefs.js
 mail/locales/en-US/all-l10n.js
 mail/components/compose/composer.js
+
+# Ignore files downloaded/generated for building documentation
+docs/_venv
+docs/_build
