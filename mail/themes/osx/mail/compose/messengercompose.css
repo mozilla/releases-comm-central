@@ -18,7 +18,7 @@
     appearance: auto;
 
     #compose-toolbox {
-      appearance none;
+      appearance: none;
       background: transparent;
 
       /* This is conceptually a background, but putting this on a
