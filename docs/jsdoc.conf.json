@@ -138,7 +138,7 @@
 
       "../suite"
     ],
-    "includePattern": ".+\\.m?js(doc|m)?$",
+    "includePattern": ".+\\.m?js(doc)?$",
     "excludePattern": "(^|\\/|\\\\)_"
   },
   "opts": {
