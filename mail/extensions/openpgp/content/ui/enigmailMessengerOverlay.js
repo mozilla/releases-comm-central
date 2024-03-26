@@ -258,7 +258,7 @@ Enigmail.msg = {
    * Check that handler for multipart/signed is set to Enigmail.
    * if handler is different, change it and reload message.
    *
-   * @return {boolean}
+   * @returns {boolean}
    *  - true if handler is OK
    *  - false if handler was changed and message is reloaded
    */
