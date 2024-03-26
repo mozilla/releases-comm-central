@@ -48,11 +48,11 @@ done
 
 # Download artifacts from dependencies and build the .desktop file.
 (
-source /scripts/venv/bin/activate
-python3 /scripts/build_desktop_file.py -o "$WORKSPACE/org.mozilla.thunderbird.desktop" \
-  -t "/scripts/org.mozilla.thunderbird.desktop.jinja2" \
-  -l "$WORKSPACE/l10n-central" \
-  -L "$WORKSPACE/l10n-changesets.json" \
+source "${SCRIPT_DIR}/venv/bin/activate"
+python3 "${SCRIPT_DIR}/build_desktop_file.py" -o "${WORKSPACE}/org.mozilla.thunderbird.desktop" \
+  -t "${SCRIPT_DIR}/org.mozilla.thunderbird.desktop.jinja2" \
+  -l "${WORKSPACE}/l10n-central" \
+  -L "${WORKSPACE}/l10n-changesets.json" \
   -f "mail/branding/thunderbird/brand.ftl" \
   -f "mail/messenger/flatpak.ftl"
 )
@@ -74,7 +74,7 @@ apt-get update
 cp -v "$SCRIPT_DIR/tmpdir.sh" "$SOURCE_DEST"
 
 # Generate snapcraft manifest
-sed -e "s/@VERSION@/${VERSION}/g" -e "s/@BUILD_NUMBER@/${BUILD_NUMBER}/g" "${PRODUCT}.snapcraft.yaml.in" > "${WORKSPACE}/snapcraft.yaml"
+sed -e "s/@VERSION@/${VERSION}/g" -e "s/@BUILD_NUMBER@/${BUILD_NUMBER}/g" "${SCRIPT_DIR}/${PRODUCT}.snapcraft.yaml.in" > "${WORKSPACE}/snapcraft.yaml"
 cd "${WORKSPACE}"
 
 # Make sure snapcraft knows we're building for amd64

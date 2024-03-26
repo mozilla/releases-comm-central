@@ -1,6 +1,7 @@
 # /!\ The base image must follow the version of the `coreXX` package
 # https://forum.snapcraft.io/t/issues-dockerizing-a-snapcraft-build-process/30294/5
 FROM ubuntu:jammy
+MAINTAINER daniel@thunderbird.net
     
 # Install dependencies and generate locales
 RUN apt-get update && \
@@ -24,6 +25,7 @@ RUN apt-get update && \
 ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US:en" \
     LC_ALL="en_US.UTF-8" \
+    VENV_DIR="/scripts" \
     SNAP="/snap/snapcraft/current" \
     SNAP_NAME="snapcraft" \
     SNAP_ARCH="amd64" \
@@ -42,8 +44,15 @@ WORKDIR /scripts/
 # Copy everything in the docker/tb-snap folder but the Dockerfile
 COPY [^D]* /scripts/
 
+# Copy required recipes
+# %include comm/taskcluster/docker/recipes
+COPY topsrcdir/comm/taskcluster/docker/recipes/make_venv.sh /scripts/make_venv.sh
+COPY topsrcdir/comm/taskcluster/docker/recipes/fluent_requirements.txt /scripts/fluent_requirements.txt
+COPY topsrcdir/comm/taskcluster/docker/recipes/build_desktop_file.py /scripts/build_desktop_file.py
+COPY topsrcdir/comm/taskcluster/docker/recipes/org.mozilla.thunderbird.desktop.jinja2 /scripts/org.mozilla.thunderbird.desktop.jinja2
+
 # Set up Python virtual environment
-RUN /scripts/make_venv.sh
+RUN /scripts/make_venv.sh /scripts/fluent_requirements.txt
 
 # Set a default command useful for debugging
 CMD ["/bin/bash", "--login"]
