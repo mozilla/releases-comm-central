@@ -58,6 +58,7 @@ job-defaults:
                 by-project:
                     comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}/releasenotes/"
                     default: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}beta/releasenotes/"
+            RAW_FILE_URL: "{config_params[comm_head_repository]}/raw-file/{config_params[comm_head_rev]}"
         chain-of-trust: true
 
 jobs:

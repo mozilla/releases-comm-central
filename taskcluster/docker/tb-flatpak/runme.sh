@@ -10,15 +10,15 @@ test "$BUILD_NUMBER"
 test "$CANDIDATES_DIR"
 test "$L10N_CHANGESETS"
 test "$FLATPAK_BRANCH"
-test "$MANIFEST_URL"
 test "$RELEASE_NOTES_URL"
+test "$RAW_FILE_URL"
 
 # Optional environment variables
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"
 : ARTIFACTS_DIR                 "${ARTIFACTS_DIR:=/home/worker/artifacts}"
 
 # Populate remaining environment variables
-SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TARGET_TAR_XZ_FULL_PATH="$ARTIFACTS_DIR/target.flatpak.tar.xz"
 SOURCE_DEST="${WORKSPACE}/source"
 DISTRIBUTION_DIR="$SOURCE_DEST/distribution"
@@ -52,7 +52,7 @@ $CURL -o "${WORKSPACE}/thunderbird.tar.bz2" \
 
 # Fetch list of Thunderbird locales
 $CURL -o "${WORKSPACE}/l10n-changesets.json" "$L10N_CHANGESETS"
-locales=$(python3 "$SCRIPT_DIRECTORY/extract_locales_from_l10n_json.py" "${WORKSPACE}/l10n-changesets.json")
+locales=$(python3 "$SCRIPT_DIR/extract_locales_from_l10n_json.py" "${WORKSPACE}/l10n-changesets.json")
 
 # Fetch langpack extension for each locale
 mkdir -p "$DISTRIBUTION_DIR"
@@ -64,19 +64,19 @@ done
 
 # Download artifacts from dependencies and build the .desktop file.
 (
-source /scripts/venv/bin/activate
-python3 /scripts/build_desktop_file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
-  -t "/scripts/org.mozilla.Thunderbird.desktop.jinja2" \
-  -l "$WORKSPACE/l10n-central" \
-  -L "$WORKSPACE/l10n-changesets.json" \
+source "${SCRIPT_DIR}/venv/bin/activate"
+python3 "${SCRIPT_DIR}/build_desktop_file.py" -o "${WORKSPACE}/org.mozilla.Thunderbird.desktop" \
+  -t "${SCRIPT_DIR}/org.mozilla.thunderbird.desktop.jinja2" \
+  -l "${WORKSPACE}/l10n-central" \
+  -L "${WORKSPACE}/l10n-changesets.json" \
   -f "mail/branding/thunderbird/brand.ftl" \
   -f "mail/messenger/flatpak.ftl"
 )
 
 # Generate AppData XML from template, add various 
-envsubst < "$SCRIPT_DIRECTORY/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
-cp -v "$SCRIPT_DIRECTORY/distribution.ini" "$WORKSPACE"
-cp -v "$SCRIPT_DIRECTORY/launch_script.sh" "$WORKSPACE"
+envsubst < "$SCRIPT_DIR/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
+cp -v "$SCRIPT_DIR/distribution.ini" "$WORKSPACE"
+cp -v "$SCRIPT_DIR/launch_script.sh" "$WORKSPACE"
 cd "${WORKSPACE}"
 
 # Fetch and install Firefox base app (as user, not system-wide)
