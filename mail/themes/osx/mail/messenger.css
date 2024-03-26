@@ -8,6 +8,43 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media (-moz-bool-pref: "mail.theme.macos.native-theme") {
+  /* TODO: Share this with Linux, which effectively does ~the same */
+  @media not (prefers-contrast) {
+    :root:not([lwtheme]) {
+      --toolbar-field-border-color: transparent;
+      --toolbar-field-background-color: light-dark(rgba(0, 0, 0, .05), rgba(0, 0, 0, .3));
+      --toolbar-field-color: inherit;
+      @media (prefers-color-scheme: light) {
+        --toolbar-bgcolor: white;
+        --search-bar-background: #fafafa;
+      }
+    }
+  }
+
+  :root[tabsintitlebar]:not([lwtheme]) {
+    -moz-default-appearance: -moz-mac-unified-toolbar-window;
+    appearance: auto;
+
+    #navigation-toolbox {
+      background: transparent;
+
+      /* This is conceptually a background, but putting this on a
+       * pseudo-element avoids it from suppressing the chrome-content separator
+       * border, etc */
+      &::after {
+        -moz-default-appearance: -moz-window-titlebar;
+        appearance: auto;
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+    }
+  }
+}
+
 #mail-menubar,
 #mailContext {
   -moz-context-properties: fill, stroke;

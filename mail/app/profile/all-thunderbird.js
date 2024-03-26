@@ -1406,6 +1406,10 @@ pref("mailnews.imap.jsmodule", false);
 // 3: text only
 pref("toolbar.unifiedtoolbar.buttonstyle", 0);
 
+#ifdef XP_MACOSX
+pref("mail.theme.macos.native-theme", false);
+#endif
+
 // Bug 1773079 : check if true causes issues for Thunderbird
 // prevent JS from monkeying with window focus, etc
 pref("dom.disable_window_flip", true);
