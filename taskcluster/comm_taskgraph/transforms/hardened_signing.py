@@ -39,7 +39,7 @@ def add_hardened_sign_config(config, jobs):
             "hardened-sign-config",
             {"hardened-signing-type": hardened_signing_type},
         )
-        if type(evaluated) != list:
+        if not isinstance(evaluated, list):
             raise Exception("hardened-sign-config must be a list")
 
         for sign_cfg in evaluated:

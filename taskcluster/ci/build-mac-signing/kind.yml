@@ -22,12 +22,11 @@ only-for-attributes:
 only-for-build-platforms:
     - macosx64-shippable/opt
     - macosx64/opt
+    - macosx64-rust/opt
     - macosx64/debug
 
 jobs:
     build-mac-signing:
         from-deps:
             group-by: single-with-filters
-        treeherder:
-            symbol: BMS
         enable-signing-routes: false

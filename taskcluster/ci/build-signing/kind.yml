@@ -23,6 +23,7 @@ only-for-attributes:
 not-for-build-platforms:
     - macosx64-shippable/opt
     - macosx64/opt
+    - macosx64-rust/opt
     - macosx64/debug
 
 jobs:
