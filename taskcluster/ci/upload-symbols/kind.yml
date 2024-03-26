@@ -28,7 +28,7 @@ jobs:
         from-deps:
             group-by: platform
         worker-type: b-linux-gcp
-        use-system-python: false
+        use-python: default
         worker:
             docker-image: {in-tree: "debian12-base"}
             max-run-time: 900

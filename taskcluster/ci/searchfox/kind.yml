@@ -24,7 +24,7 @@ job-defaults:
         tier: 2
     run-on-projects: []
     optimization: null
-    use-system-python: false
+    use-python: default
 
 jobs:
     linux64-searchfox/debug:
