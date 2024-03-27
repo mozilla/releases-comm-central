@@ -3231,7 +3231,14 @@ var folderPane = {
       // Ignore known errors from canceled warning dialogs.
       const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
       if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
-        throw ex;
+        if (ex.result == Cr.NS_ERROR_FILE_NO_DEVICE_SPACE) {
+          // folder could not be deleted due to low space
+          // outOfDiskSpace message is too restricted to downloading
+          // operation so we created a new generic message, outOfDiskSpaceGeneric
+          folder.throwAlertMsg("outOfDiskSpaceGeneric", top.msgWindow);
+        } else {
+          throw ex;
+        }
       }
     }
   },
