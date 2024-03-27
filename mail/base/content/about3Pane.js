@@ -4775,7 +4775,7 @@ var threadPane = {
     if (!gDBView) {
       return;
     }
-    this.updateSortIndicator(sortController.getCurrentSortColumnId());
+    this.updateSortIndicator(gViewWrapper.primarySortColumnId);
   },
 
   /**
@@ -5079,7 +5079,7 @@ var threadPane = {
    * @param {object} data - The detail of the custom event.
    */
   onSortChanged(data) {
-    const curSortColumnId = sortController.getCurrentSortColumnId();
+    const curSortColumnId = gViewWrapper.primarySortColumnId;
     const newSortColumnId = data.column;
 
     // A click happened on the column that is already used to sort the list.
@@ -6207,91 +6207,6 @@ var sortController = {
     gViewWrapper.sortDescending();
     threadPane.ensureThreadStateForQuickSearchView();
     threadTree.style.scrollBehavior = null;
-  },
-  getCurrentSortColumnId() {
-    const sortKey = gViewWrapper.primarySortType;
-    let columnID;
-
-    switch (sortKey) {
-      // In the case of None, we default to the date column. This appears to be
-      // the case in such instances as Global search, so don't complain about
-      // it.
-      case Ci.nsMsgViewSortType.byNone:
-      case Ci.nsMsgViewSortType.byDate:
-        columnID = "dateCol";
-        break;
-      case Ci.nsMsgViewSortType.byReceived:
-        columnID = "receivedCol";
-        break;
-      case Ci.nsMsgViewSortType.byAuthor:
-        columnID = "senderCol";
-        break;
-      case Ci.nsMsgViewSortType.byRecipient:
-        columnID = "recipientCol";
-        break;
-      case Ci.nsMsgViewSortType.bySubject:
-        columnID = "subjectCol";
-        break;
-      case Ci.nsMsgViewSortType.byLocation:
-        columnID = "locationCol";
-        break;
-      case Ci.nsMsgViewSortType.byAccount:
-        columnID = "accountCol";
-        break;
-      case Ci.nsMsgViewSortType.byUnread:
-        columnID = "unreadButtonColHeader";
-        break;
-      case Ci.nsMsgViewSortType.byStatus:
-        columnID = "statusCol";
-        break;
-      case Ci.nsMsgViewSortType.byTags:
-        columnID = "tagsCol";
-        break;
-      case Ci.nsMsgViewSortType.bySize:
-        columnID = "sizeCol";
-        break;
-      case Ci.nsMsgViewSortType.byPriority:
-        columnID = "priorityCol";
-        break;
-      case Ci.nsMsgViewSortType.byFlagged:
-        columnID = "flaggedCol";
-        break;
-      case Ci.nsMsgViewSortType.byThread:
-        columnID = "threadCol";
-        break;
-      case Ci.nsMsgViewSortType.byId:
-        columnID = "idCol";
-        break;
-      case Ci.nsMsgViewSortType.byJunkStatus:
-        columnID = "junkStatusCol";
-        break;
-      case Ci.nsMsgViewSortType.byAttachments:
-        columnID = "attachmentCol";
-        break;
-      case Ci.nsMsgViewSortType.byCustom:
-        {
-          const curCustomColumn = gDBView.curCustomColumn;
-          if (threadPane.columns.some(c => c.id == curCustomColumn)) {
-            columnID = curCustomColumn;
-          } else {
-            dump(
-              "getCurrentSortColumnId: custom sort key but no handler for column '" +
-                columnID +
-                "'\n"
-            );
-            columnID = "dateCol";
-          }
-        }
-        break;
-      case Ci.nsMsgViewSortType.byCorrespondent:
-        columnID = "correspondentCol";
-        break;
-      default:
-        dump("unsupported sort key: " + sortKey + "\n");
-        columnID = "dateCol";
-        break;
-    }
-    return columnID;
   },
 };
 

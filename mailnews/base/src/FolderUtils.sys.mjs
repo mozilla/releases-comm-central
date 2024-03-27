@@ -6,6 +6,12 @@
  * This file contains helper methods for dealing with nsIMsgFolders.
  */
 
+const OUTGOING_FOLDER_FLAGS =
+  Ci.nsMsgFolderFlags.SentMail |
+  Ci.nsMsgFolderFlags.Drafts |
+  Ci.nsMsgFolderFlags.Queue |
+  Ci.nsMsgFolderFlags.Templates;
+
 export var FolderUtils = {
   allAccountsSorted,
   compareAccounts,
@@ -17,6 +23,7 @@ export var FolderUtils = {
   canRenameDeleteJunkMail,
   isSmartTagsFolder,
   isSmartVirtualFolder,
+  OUTGOING_FOLDER_FLAGS,
 };
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";

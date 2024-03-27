@@ -368,7 +368,10 @@ FolderDisplayWidget.prototype = {
    *  will not get this notification if the view was re-created, for example.
    */
   onSortChanged() {
-    UpdateSortIndicators(this.view.primarySortType, this.view.primarySortOrder);
+    UpdateSortIndicators(
+      this.view.primarySortColumnId,
+      this.view.primarySortOrder
+    );
   },
 
   /**

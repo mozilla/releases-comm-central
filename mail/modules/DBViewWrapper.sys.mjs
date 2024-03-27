@@ -9,6 +9,8 @@ import {
   MailViewManager,
 } from "resource:///modules/MailViewManager.sys.mjs";
 import { SearchSpec } from "resource:///modules/SearchSpec.sys.mjs";
+import { ThreadPaneColumns } from "chrome://messenger/content/thread-pane-columns.mjs";
+import { FolderUtils } from "resource:///modules/FolderUtils.sys.mjs";
 
 import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
 
@@ -1537,11 +1539,6 @@ DBViewWrapper.prototype = {
     );
   },
 
-  OUTGOING_FOLDER_FLAGS:
-    Ci.nsMsgFolderFlags.SentMail |
-    Ci.nsMsgFolderFlags.Drafts |
-    Ci.nsMsgFolderFlags.Queue |
-    Ci.nsMsgFolderFlags.Templates,
   /**
    * @returns true if the folder is an outgoing folder by virtue of being a
    *     sent mail folder, drafts folder, queue folder, or template folder,
@@ -1550,7 +1547,10 @@ DBViewWrapper.prototype = {
   get isOutgoingFolder() {
     return (
       this.displayedFolder &&
-      this.displayedFolder.isSpecialFolder(this.OUTGOING_FOLDER_FLAGS, true)
+      this.displayedFolder.isSpecialFolder(
+        FolderUtils.OUTGOING_FOLDER_FLAGS,
+        true
+      )
     );
   },
   /**
@@ -1596,6 +1596,96 @@ DBViewWrapper.prototype = {
     if (this._viewUpdateDepth < 0) {
       this._viewUpdateDepth = 0;
     }
+  },
+
+  get primarySortColumnId() {
+    const sortKey = this.primarySortType;
+    let columnID;
+
+    switch (sortKey) {
+      // In the case of None, we default to the date column. This appears to be
+      // the case in such instances as Global search, so don't complain about
+      // it.
+      case Ci.nsMsgViewSortType.byNone:
+      case Ci.nsMsgViewSortType.byDate:
+        columnID = "dateCol";
+        break;
+      case Ci.nsMsgViewSortType.byReceived:
+        columnID = "receivedCol";
+        break;
+      case Ci.nsMsgViewSortType.byAuthor:
+        columnID = "senderCol";
+        break;
+      case Ci.nsMsgViewSortType.byRecipient:
+        columnID = "recipientCol";
+        break;
+      case Ci.nsMsgViewSortType.bySubject:
+        columnID = "subjectCol";
+        break;
+      case Ci.nsMsgViewSortType.byLocation:
+        columnID = "locationCol";
+        break;
+      case Ci.nsMsgViewSortType.byAccount:
+        columnID = "accountCol";
+        break;
+      case Ci.nsMsgViewSortType.byUnread:
+        columnID = "unreadButtonColHeader";
+        break;
+      case Ci.nsMsgViewSortType.byStatus:
+        columnID = "statusCol";
+        break;
+      case Ci.nsMsgViewSortType.byTags:
+        columnID = "tagsCol";
+        break;
+      case Ci.nsMsgViewSortType.bySize:
+        columnID = "sizeCol";
+        break;
+      case Ci.nsMsgViewSortType.byPriority:
+        columnID = "priorityCol";
+        break;
+      case Ci.nsMsgViewSortType.byFlagged:
+        columnID = "flaggedCol";
+        break;
+      case Ci.nsMsgViewSortType.byThread:
+        columnID = "threadCol";
+        break;
+      case Ci.nsMsgViewSortType.byId:
+        columnID = "idCol";
+        break;
+      case Ci.nsMsgViewSortType.byJunkStatus:
+        columnID = "junkStatusCol";
+        break;
+      case Ci.nsMsgViewSortType.byAttachments:
+        columnID = "attachmentCol";
+        break;
+      case Ci.nsMsgViewSortType.byCustom:
+        {
+          const curCustomColumn = this.dbView.curCustomColumn;
+          if (
+            ThreadPaneColumns.getCustomColumns().some(
+              c => c.id == curCustomColumn
+            )
+          ) {
+            columnID = curCustomColumn;
+          } else {
+            dump(
+              "getCurrentSortColumnId: custom sort key but no handler for column '" +
+                columnID +
+                "'\n"
+            );
+            columnID = "dateCol";
+          }
+        }
+        break;
+      case Ci.nsMsgViewSortType.byCorrespondent:
+        columnID = "correspondentCol";
+        break;
+      default:
+        dump("unsupported sort key: " + sortKey + "\n");
+        columnID = "dateCol";
+        break;
+    }
+    return columnID;
   },
 
   /**

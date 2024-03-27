@@ -15,8 +15,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
+  FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
 });
 
 /**
@@ -290,10 +290,7 @@ const DEFAULT_COLUMNS = [
  * @returns {boolean} True if the folder is Outgoing.
  */
 const isOutgoing = folder => {
-  return folder.isSpecialFolder(
-    lazy.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
-    true
-  );
+  return folder.isSpecialFolder(lazy.FolderUtils.OUTGOING_FOLDER_FLAGS, true);
 };
 
 /**
