@@ -4775,9 +4775,7 @@ var threadPane = {
     if (!gDBView) {
       return;
     }
-    this.updateSortIndicator(
-      sortController.convertSortTypeToColumnID(gViewWrapper.primarySortType)
-    );
+    this.updateSortIndicator(sortController.getCurrentSortColumnId());
   },
 
   /**
@@ -5081,9 +5079,7 @@ var threadPane = {
    * @param {object} data - The detail of the custom event.
    */
   onSortChanged(data) {
-    const curSortColumnId = sortController.convertSortTypeToColumnID(
-      gViewWrapper.primarySortType
-    );
+    const curSortColumnId = sortController.getCurrentSortColumnId();
     const newSortColumnId = data.column;
 
     // A click happened on the column that is already used to sort the list.
@@ -6212,12 +6208,9 @@ var sortController = {
     threadPane.ensureThreadStateForQuickSearchView();
     threadTree.style.scrollBehavior = null;
   },
-  convertSortTypeToColumnID(sortKey) {
+  getCurrentSortColumnId() {
+    const sortKey = gViewWrapper.primarySortType;
     let columnID;
-
-    // Hack to turn this into an integer, if it was a string.
-    // It would be a string if it came from XULStore.json.
-    sortKey = sortKey - 0;
 
     switch (sortKey) {
       // In the case of None, we default to the date column. This appears to be
@@ -6276,19 +6269,18 @@ var sortController = {
         columnID = "attachmentCol";
         break;
       case Ci.nsMsgViewSortType.byCustom:
-        // TODO: either change try() catch to if (property exists) or restore
-        // the ThreadPaneColumns.getColumnHandler() check.
-        try {
-          // ThreadPaneColumns.getColumnHandler throws an error when the ID is not handled
-          columnID = gDBView.curCustomColumn;
-        } catch (e) {
-          // error - means no handler
-          dump(
-            "ConvertSortTypeToColumnID: custom sort key but no handler for column '" +
-              columnID +
-              "'\n"
-          );
-          columnID = "dateCol";
+        {
+          const curCustomColumn = gDBView.curCustomColumn;
+          if (threadPane.columns.some(c => c.id == curCustomColumn)) {
+            columnID = curCustomColumn;
+          } else {
+            dump(
+              "getCurrentSortColumnId: custom sort key but no handler for column '" +
+                columnID +
+                "'\n"
+            );
+            columnID = "dateCol";
+          }
         }
         break;
       case Ci.nsMsgViewSortType.byCorrespondent:
