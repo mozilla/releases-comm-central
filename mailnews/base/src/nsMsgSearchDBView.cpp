@@ -7,7 +7,6 @@
 #include "nsMsgSearchDBView.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgThread.h"
-#include "nsQuickSort.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgCopyService.h"
 #include "nsMsgUtils.h"

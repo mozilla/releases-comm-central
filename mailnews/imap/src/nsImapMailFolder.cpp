@@ -52,7 +52,6 @@
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapServerSink.h"
 #include "nsIMsgAccountManager.h"
-#include "nsQuickSort.h"
 #include "nsIImapMockChannel.h"
 #include "nsNetUtil.h"
 #include "nsImapNamespace.h"

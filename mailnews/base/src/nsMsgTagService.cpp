@@ -10,7 +10,6 @@
 #include "nsMsgI18N.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsMsgDBView.h"  // for labels migration
-#include "nsQuickSort.h"
 #include "nsMsgUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"

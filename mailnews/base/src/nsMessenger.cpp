@@ -13,7 +13,6 @@
 #include "nsIStringStream.h"
 #include "nsLocalFile.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsQuickSort.h"
 #include "nsNativeCharsetUtils.h"
 #include "mozilla/Path.h"
 #include "mozilla/Components.h"

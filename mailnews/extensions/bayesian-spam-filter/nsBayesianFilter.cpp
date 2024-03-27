@@ -7,7 +7,6 @@
 #include "nsIInputStream.h"
 #include "nsIStreamListener.h"
 #include "nsNetUtil.h"
-#include "nsQuickSort.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"  // for GetMessageServiceFromURI
 #include "prnetdb.h"
