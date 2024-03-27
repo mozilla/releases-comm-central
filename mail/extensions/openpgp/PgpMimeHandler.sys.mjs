@@ -3,60 +3,38 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /**
- *  Module for handling PGP/MIME encrypted and/or signed messages
- *  implemented as an XPCOM object
+ * Module for handling PGP/MIME encrypted and/or signed messages
+ * implemented as an XPCOM object.
+ * Data is processed from libmime -> nsPgpMimeProxy.
  */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
 });
 
-////////////////////////////////////////////////////////////////////
-// handler for PGP/MIME encrypted and PGP/MIME signed messages
-// data is processed from libmime -> nsPgpMimeProxy
-
-var gConv;
-var inStream;
+var log = console.createInstance({
+  prefix: "openpgp",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "openpgp.loglevel",
+});
 
 var gLastEncryptedUri = "";
 
-const throwErrors = {
-  onDataAvailable() {
-    throw new Error("error");
-  },
-  onStartRequest() {
-    throw new Error("error");
-  },
-  onStopRequest() {
-    throw new Error("error");
-  },
-};
-
 /**
- * UnknownProtoHandler is a default handler for unknown protocols. It ensures that the
- * signed message part is always displayed without any further action.
+ * UnknownProtoHandler is a default handler for unknown protocols. It ensures
+ * that the signed message part is always displayed without any further action.
  */
-function UnknownProtoHandler() {
-  if (!gConv) {
-    gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-      Ci.nsIStringInputStream
-    );
-  }
-
-  if (!inStream) {
-    inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+class UnknownProtoHandler {
+  constructor() {
+    this.inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
   }
-}
 
-UnknownProtoHandler.prototype = {
   onStartRequest(request) {
     this.proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.bound = lazy.EnigmailMime.getBoundary(this.proxy.contentType);
@@ -67,16 +45,24 @@ UnknownProtoHandler.prototype = {
         2: after message
     */
     this.readMode = 0;
-  },
+  }
+
+  onStopRequest() {}
 
   onDataAvailable(p1, p2, p3, p4) {
     this.processData(p1, p2, p3, p4);
-  },
+  }
 
+  /**
+   * @param {nsIRequest} req
+   * @param {nsIInputStream} stream
+   * @param {integer} offset
+   * @param {integer} count
+   */
   processData(req, stream, offset, count) {
     if (count > 0) {
-      inStream.init(stream);
-      const data = inStream.read(count);
+      this.inStream.init(stream);
+      const data = this.inStream.read(count);
       const l = data.replace(/\r\n/g, "\n").split(/\n/);
 
       if (data.search(/\n$/) >= 0) {
@@ -104,21 +90,18 @@ UnknownProtoHandler.prototype = {
         }
       }
     }
-  },
-
-  onStopRequest() {},
-};
-
-export function PgpMimeHandler() {
-  lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: PgpMimeHandler()\n"); // always log this one
+  }
 }
 
-PgpMimeHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-  inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
-  ),
+/**
+ * @implements {nsIStreamListener}
+ */
+export class PgpMimeHandler {
+  QueryInterface = ChromeUtils.generateQI(["nsIStreamListener"]);
 
+  /**
+   * @param {nsIRequest} request
+   */
   onStartRequest(request) {
     const proxy = request.QueryInterface(Ci.nsIPgpMimeProxy);
     const ct = proxy.contentType;
@@ -126,11 +109,7 @@ PgpMimeHandler.prototype = {
 
     lazy.EnigmailCore.init();
 
-    lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: onStartRequest\n");
-    lazy.EnigmailLog.DEBUG("pgpmimeHandler.js: ct= " + ct + "\n");
-
     let cth = null;
-
     if (ct.search(/^multipart\/encrypted/i) === 0) {
       if (uri) {
         gLastEncryptedUri = uri.spec;
@@ -146,7 +125,8 @@ PgpMimeHandler.prototype = {
         // S/MIME signed message
         if (uri.spec !== gLastEncryptedUri) {
           // if message is displayed then handle like S/MIME message
-          return this.handleSmime(proxy, uri);
+          this.handleSmime(proxy, uri);
+          return;
         }
 
         // otherwise just make sure message body is returned
@@ -157,41 +137,55 @@ PgpMimeHandler.prototype = {
     }
 
     if (!cth) {
-      lazy.EnigmailLog.ERROR(
-        "pgpmimeHandler.js: unknown protocol for content-type: " + ct + "\n"
-      );
+      log.warn(`Unknown protocol: ${ct}`);
       cth = new UnknownProtoHandler();
     }
 
-    if (cth) {
-      this._onDataAvailable = cth.onDataAvailable.bind(cth);
-      this._onStopRequest = cth.onStopRequest.bind(cth);
-      return cth.onStartRequest(request, uri);
-    }
+    this._onDataAvailable = cth.onDataAvailable.bind(cth);
+    this._onStopRequest = cth.onStopRequest.bind(cth);
+    cth.onStartRequest(request, uri);
+  }
 
-    return null;
-  },
-
-  onDataAvailable(req, stream, offset, count) {
-    if (this._onDataAvailable) {
-      this._onDataAvailable(req, stream, offset, count);
-    }
-  },
-
+  /**
+   * @param {nsIRequest} request
+   * @param {integer} status
+   */
   onStopRequest(request, status) {
     if (this._onStopRequest) {
       this._onStopRequest(request, status);
     }
     delete this._onDataAvailable;
     delete this._onStopRequest;
-  },
+  }
+
+  /**
+   * @param {nsIRequest} req
+   * @param {nsIInputStream} stream
+   * @param {integer} offset
+   * @param {integer} count
+   */
+  onDataAvailable(req, stream, offset, count) {
+    if (this._onDataAvailable) {
+      this._onDataAvailable(req, stream, offset, count);
+    }
+  }
 
   /**
    * @param {sIPgpMimeProxy} proxy
    * @param {nsIURI} uri
    */
   handleSmime(proxy, uri) {
-    this.contentHandler = throwErrors;
+    this.contentHandler = {
+      onDataAvailable() {
+        throw new Error("handleSmime error");
+      },
+      onStartRequest() {
+        throw new Error("handleSmime error");
+      },
+      onStopRequest() {
+        throw new Error("handleSmime error");
+      },
+    };
     proxy.mailChannel?.openpgpSink?.handleSMimeMessage(uri.spec);
-  },
-};
+  }
+}
