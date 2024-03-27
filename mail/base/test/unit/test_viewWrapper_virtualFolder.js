@@ -173,10 +173,7 @@ add_task(async function test_virtual_folder_multi_sortorder_persistence() {
 
   verify_messages_in_view([setOne, setTwo], viewWrapper);
   viewWrapper.showThreaded = true;
-  viewWrapper.sort(
-    Ci.nsMsgViewSortType.bySubject,
-    Ci.nsMsgViewSortOrder.ascending
-  );
+  viewWrapper.sort("subjectCol", Ci.nsMsgViewSortOrder.ascending);
 
   viewWrapper.close();
   await view_open(viewWrapper, virtFolder);

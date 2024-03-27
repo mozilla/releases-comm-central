@@ -258,10 +258,9 @@ function searchOnLoad() {
   // and set up the user's desired sort. This synthetic view is not backed by
   // a db, so secondary sorts and custom columns are not supported here.
   const sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
-  let sortType, sortOrder;
+  let isSortable, sortOrder;
   if (sortCol) {
-    sortType =
-      Ci.nsMsgViewSortType[gFolderDisplay.BUILTIN_SORT_COLUMNS.get(sortCol.id)];
+    isSortable = gFolderDisplay.BUILTIN_SORT_COLUMNS.has(sortCol.id);
     sortOrder =
       sortCol.getAttribute("sortDirection") == "descending"
         ? Ci.nsMsgViewSortOrder.descending
@@ -270,8 +269,8 @@ function searchOnLoad() {
 
   gFolderDisplay.view.openSearchView();
 
-  if (sortType) {
-    gFolderDisplay.view.sort(sortType, sortOrder);
+  if (isSortable) {
+    gFolderDisplay.view.sort(sortCol.id, sortOrder);
   }
 
   if (window.arguments && window.arguments[0]) {

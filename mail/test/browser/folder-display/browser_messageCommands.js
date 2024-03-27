@@ -550,7 +550,7 @@ async function yearly_archive(keep_structure) {
   await make_display_unthreaded();
 
   const win = get_about_3pane();
-  win.sortController.sortThreadPane("byDate");
+  win.sortController.sortThreadPane("dateCol");
   win.sortController.sortAscending();
 
   const identity = MailServices.accounts.getFirstIdentityForServer(

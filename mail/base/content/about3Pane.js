@@ -5093,14 +5093,9 @@ var threadPane = {
       return;
     }
 
-    // If the new sort column is a custom column, we need to pass the id of the
-    // custom column, instead of the the general "byCustom" sortName.
-    const newSortColumnData = this.columns.find(c => c.id == newSortColumnId);
-    const sortName = newSortColumnData.custom
-      ? newSortColumnId
-      : newSortColumnData.sortKey;
-    sortController.sortThreadPane(sortName);
-    this.updateSortIndicator(newSortColumnId);
+    if (sortController.sortThreadPane(newSortColumnId)) {
+      this.updateSortIndicator(newSortColumnId);
+    }
   },
 
   /**
@@ -6066,19 +6061,36 @@ var sortController = {
         this.groupBySort();
         break;
       default:
-        if (event.target.value in Ci.nsMsgViewSortType) {
-          this.sortThreadPane(event.target.value);
-          threadPane.restoreSortIndicator();
+        {
+          const column = threadPane.columns.find(
+            c => c.sortKey == event.target.value
+          );
+          if (column && this.sortThreadPane(column.id)) {
+            threadPane.restoreSortIndicator();
+          }
         }
         break;
     }
   },
-  sortThreadPane(sortName) {
-    // The sortName is either a sortKey (see Ci.nsMsgViewSortType and
-    // DEFAULT_COLUMNS in thread-pane-columns.js), or the id of a custom column.
-    // TODO: Using the columnId as input whould be a lot more obvious, here and
-    // in gViewWrapper.sort(), because now sortType could be a string or an int.
-    const sortType = Ci.nsMsgViewSortType[sortName] ?? sortName;
+  sortByThread() {
+    threadPane.updateListRole(false);
+    gViewWrapper.showThreaded = true;
+    this.sortThreadPane("dateCol");
+  },
+  /**
+   * Sorts the thread pane by the provided columnId.
+   *
+   * @param {string} newSortColumnId
+   * @returns {boolean} if sorting was successful
+   */
+  sortThreadPane(newSortColumnId) {
+    const newSortColumn = threadPane.columns.find(
+      c => c.sortKey && c.id == newSortColumnId
+    );
+    if (!newSortColumn) {
+      return false;
+    }
+    const newSortType = Ci.nsMsgViewSortType[newSortColumn.sortKey];
 
     const grouped = gViewWrapper.showGroupedBySort;
     gViewWrapper._threadExpandAll = Boolean(
@@ -6087,11 +6099,11 @@ var sortController = {
 
     if (!grouped) {
       threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
-      gViewWrapper.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+      gViewWrapper.sort(newSortColumnId, Ci.nsMsgViewSortOrder.ascending);
       threadTree.style.scrollBehavior = null;
       // Respect user's last expandAll/collapseAll choice, post sort direction change.
       threadPane.restoreThreadState();
-      return;
+      return true;
     }
 
     // legacy behavior dictates we un-group-by-sort if we were.  this probably
@@ -6107,7 +6119,16 @@ var sortController = {
     // So, first set the desired sortType and sortOrder, then set viewFlags in
     // batch mode, then apply it all (open a new view) with endViewUpdate().
     gViewWrapper.beginViewUpdate();
-    gViewWrapper._sort = [[sortType, Ci.nsMsgViewSortOrder.ascending]];
+    // Note: this.dbView still remembers the last secondery sort, before group
+    // sort was entered. If we do not specify a secondary sort here, dbView.open()
+    // will use the new primary sort and the old (!) secondary sort. Let's push
+    // the current primary sort as the new secondary sort. The clocking mechanism
+    // in DBViewWrapper._createView() will then do the right thing.
+    const [curPrimarySort] = gViewWrapper._sort;
+    gViewWrapper._sort = [
+      [newSortType, Ci.nsMsgViewSortOrder.ascending, newSortColumnId],
+      curPrimarySort,
+    ];
     gViewWrapper.showGroupedBySort = false;
     gViewWrapper.endViewUpdate();
 
@@ -6117,6 +6138,7 @@ var sortController = {
     if (gViewWrapper.isVirtual) {
       gViewWrapper.dbView.viewFlags = gViewWrapper.viewFlags;
     }
+    return true;
   },
   reverseSortThreadPane() {
     const grouped = gViewWrapper.showGroupedBySort;

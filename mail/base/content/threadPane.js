@@ -223,9 +223,8 @@ function HandleColumnClick(columnID) {
     return;
   }
 
-  let sortKey = gFolderDisplay.BUILTIN_SORT_COLUMNS.get(columnID);
-  if (!sortKey) {
-    // This must be a custom column, get its sortKey, if any.
+  if (!gFolderDisplay.BUILTIN_SORT_COLUMNS.has(columnID)) {
+    // This must be a custom column, check if it exists and is sortable.
     const customColumn = ThreadPaneColumns.getCustomColumns().find(
       c => c.id == columnID
     );
@@ -235,8 +234,7 @@ function HandleColumnClick(columnID) {
       );
       return;
     }
-    sortKey = customColumn.sortKey;
-    if (!sortKey) {
+    if (!customColumn.sortKey) {
       return;
     }
   }
@@ -244,16 +242,7 @@ function HandleColumnClick(columnID) {
   if (gFolderDisplay.view.primarySortColumnId == columnID) {
     MsgReverseSortThreadPane();
   } else {
-    // TODO: Will become unnecessary if viewWrapper.sort() accepts a columnId
-    //       and handles custom columns internally.
-    const sortType = Ci.nsMsgViewSortType[sortKey];
-    if (!sortType) {
-      return;
-    }
-    if (sortType == Ci.nsMsgViewSortType.byCustom) {
-      gDBView.curCustomColumn = columnID;
-    }
-    MsgSortThreadPane(sortType);
+    MsgSortThreadPane(columnID);
   }
 }
 
@@ -316,22 +305,12 @@ function ThreadPaneKeyDown(event) {
   ThreadPaneDoubleClick();
 }
 
-/**
- * Sorts the tread pane by the given sortType.
- *
- * The sortType was originaly a unique identifier. After adding support for custom
- * columns, sortType also uses Ci.nsMsgViewSortType.byCustom, which is a catch-all
- * identifier for all custom columns. The *actual* custom column which is sorted
- * by is stored in gDBView.curCustomColumn.
- *
- * @param { nsMsgViewSortType } sortType
- */
-function MsgSortThreadPane(sortType) {
+function MsgSortThreadPane(columnId) {
   gFolderDisplay.view._threadExpandAll = Boolean(
     gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
   );
 
-  gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+  gFolderDisplay.view.sort(columnId, Ci.nsMsgViewSortOrder.ascending);
 }
 
 function MsgReverseSortThreadPane() {

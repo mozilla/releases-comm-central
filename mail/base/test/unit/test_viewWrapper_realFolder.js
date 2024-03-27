@@ -194,10 +194,7 @@ add_task(async function test_real_folder_threading_grouped_by_sort() {
     Ci.nsMsgViewFlagsType.kGroupBySort,
     "View group-by-sort bit should be set."
   );
-  viewWrapper.sort(
-    Ci.nsMsgViewSortType.byDate,
-    Ci.nsMsgViewSortOrder.ascending
-  );
+  viewWrapper.sort("dateCol", Ci.nsMsgViewSortOrder.ascending);
   // expand everyone
   view_expand_all(viewWrapper);
   viewWrapper.endViewUpdate();

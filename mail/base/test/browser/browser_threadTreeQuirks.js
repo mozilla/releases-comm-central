@@ -295,7 +295,7 @@ add_task(async function testMessagePaneSelection() {
     folderURI: folderB.URI,
   });
   about3Pane.sortController.sortUnthreaded();
-  about3Pane.sortController.sortThreadPane("byDate");
+  about3Pane.sortController.sortThreadPane("dateCol");
   about3Pane.sortController.sortDescending();
 
   threadTree.table.body.focus();

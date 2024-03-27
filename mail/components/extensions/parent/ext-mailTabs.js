@@ -18,6 +18,9 @@ ChromeUtils.defineESModuleGetters(this, {
 var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
+var { ThreadPaneColumns } = ChromeUtils.importESModule(
+  "chrome://messenger/content/thread-pane-columns.mjs"
+);
 
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
@@ -266,7 +269,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
     async function updateMailTab(nativeTab, properties) {
       const about3Pane = nativeTab.chromeBrowser.contentWindow;
 
-      let {
+      const {
         displayedFolder,
         layout,
         folderPaneVisible,
@@ -281,16 +284,46 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         await setFolder(nativeTab, folder, true);
       }
 
+      const getColumnId = sortKey => {
+        if (sortKey == "byNone") {
+          return "idCol";
+        }
+
+        // TODO: Allow to specify *which* custom column. Evaluate to use
+        // columnIds here as well.
+        if (sortKey == "byCustom") {
+          const customColumn = about3Pane.gViewWrapper.dbView.curCustomColumn;
+          if (
+            ThreadPaneColumns.getDefaultColumns().some(
+              c => c.custom && c.id == customColumn
+            )
+          ) {
+            return customColumn;
+          }
+          dump(
+            `updateMailTab: custom sort type but no handler for column: ${customColumn} \n`
+          );
+          return null;
+        }
+
+        const column = ThreadPaneColumns.getDefaultColumns().find(
+          c => !c.custom && c.sortKey == sortKey
+        );
+        if (!column) {
+          return null;
+        }
+        return column.id;
+      };
+
       if (sortType) {
-        // Change "foo" to "byFoo".
-        sortType = "by" + sortType[0].toUpperCase() + sortType.substring(1);
-        if (
-          sortType in Ci.nsMsgViewSortType &&
-          sortOrder &&
-          sortOrder in Ci.nsMsgViewSortOrder
-        ) {
+        const sortColumnId = getColumnId(
+          // Change "foo" to "byFoo".
+          "by" + sortType[0].toUpperCase() + sortType.substring(1)
+        );
+
+        if (sortColumnId && sortOrder && sortOrder in Ci.nsMsgViewSortOrder) {
           about3Pane.gViewWrapper.sort(
-            Ci.nsMsgViewSortType[sortType],
+            sortColumnId,
             Ci.nsMsgViewSortOrder[sortOrder]
           );
         }

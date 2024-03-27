@@ -18,6 +18,30 @@ var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
 var nsMsgViewIndex_None = 0xffffffff;
 
+function getSortStatusFromView(dbView) {
+  const primarySort = [
+    dbView.sortType,
+    dbView.sortOrder,
+    dbView.curCustomColumn,
+  ];
+  const secondarySort = [
+    dbView.secondarySortType,
+    dbView.secondarySortOrder,
+    dbView.secondaryCustomColumn,
+  ];
+  // Ignore secondary sort, if it is for the same column, or byNone.
+  if (
+    secondarySort[0] == Ci.nsMsgViewSortType.byNone ||
+    (secondarySort[0] != Ci.nsMsgViewSortType.byCustom &&
+      secondarySort[0] == primarySort[0]) ||
+    (secondarySort[0] == Ci.nsMsgViewSortType.byCustom &&
+      secondarySort[2] == primarySort[2])
+  ) {
+    return [primarySort];
+  }
+  return [primarySort, secondarySort];
+}
+
 /**
  * Helper singleton for DBViewWrapper that tells instances when something
  *  interesting is happening to the folder(s) they care about.  The rationale
@@ -515,6 +539,22 @@ DBViewWrapper.prototype = {
    *  not just a bunch of message headers randomly crammed in.
    */
   kUnderlyingSearchView: 4,
+
+  /**
+   * Returns the sortType of the column assoziated with the given columnId.
+   *
+   * @param {string} columnId
+   * @returns {integer?} the sort type as defined by Ci.nsMsgViewSortType, if any
+   */
+  getSortType(columnId) {
+    const column = ThreadPaneColumns.getDefaultColumns().find(
+      c => c.sortKey && c.id == columnId
+    );
+    if (column) {
+      return Ci.nsMsgViewSortType[column.sortKey];
+    }
+    return undefined;
+  },
 
   /**
    * @returns true if the folder being displayed is backed by a single 'real'
@@ -1131,7 +1171,8 @@ DBViewWrapper.prototype = {
       viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort
         ? 0
         : this._sort.length - 1;
-    let [sortType, sortOrder, sortCustomCol] = this._getSortDetails(index);
+    const [sortType, sortOrder] = this._sort[index];
+
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
     if (this.isSingleFolder) {
@@ -1166,9 +1207,6 @@ DBViewWrapper.prototype = {
       // and for a synthetic folder, displayedFolder is null anyways
       dbView.open(this.displayedFolder, sortType, sortOrder, viewFlags);
     }
-    if (sortCustomCol) {
-      dbView.curCustomColumn = sortCustomCol;
-    }
 
     // we all know it's a tree view, make sure the interface is available
     //  so no one else has to do this.
@@ -1179,12 +1217,16 @@ DBViewWrapper.prototype = {
     if (!(viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)) {
       // clock through the rest of the sorts, if there are any
       for (let iSort = this._sort.length - 2; iSort >= 0; iSort--) {
-        [sortType, sortOrder, sortCustomCol] = this._getSortDetails(iSort);
-        if (sortCustomCol) {
-          dbView.curCustomColumn = sortCustomCol;
-        }
-        dbView.sort(sortType, sortOrder);
+        const [_sortType, _sortOrder, _sortColumnId] = this._sort[iSort];
+        dbView.curCustomColumn =
+          _sortType == Ci.nsMsgViewSortType.byCustom ? _sortColumnId : "";
+        dbView.sort(_sortType, _sortOrder);
       }
+      this._sort = getSortStatusFromView(dbView);
+    } else {
+      // We currently do not cache any secondary sort information for group sorts
+      // in this._sort, which is tested by test_viewWrapper_logic.js.
+      this._sort = getSortStatusFromView(dbView).slice(0, 1);
     }
 
     return dbView;
@@ -1655,7 +1697,8 @@ DBViewWrapper.prototype = {
    */
   get isSortedAscending() {
     return (
-      this._sort.length && this._sort[0][1] == Ci.nsMsgViewSortOrder.ascending
+      this._sort.length &&
+      this.primarySortOrder == Ci.nsMsgViewSortOrder.ascending
     );
   },
   /**
@@ -1663,7 +1706,8 @@ DBViewWrapper.prototype = {
    */
   get isSortedDescending() {
     return (
-      this._sort.length && this._sort[0][1] == Ci.nsMsgViewSortOrder.descending
+      this._sort.length &&
+      this.primarySortOrder == Ci.nsMsgViewSortOrder.descending
     );
   },
   /**
@@ -1675,7 +1719,7 @@ DBViewWrapper.prototype = {
     if (!this._sort.length) {
       return false;
     }
-    const sortType = this._sort[0][0];
+    const sortType = this.primarySortType;
     return (
       sortType == Ci.nsMsgViewSortType.byDate ||
       sortType == Ci.nsMsgViewSortType.byReceived ||
@@ -1686,12 +1730,15 @@ DBViewWrapper.prototype = {
 
   sortAscending() {
     if (!this.isSortedAscending) {
-      this.magicSort(this._sort[0][0], Ci.nsMsgViewSortOrder.ascending);
+      this.magicSort(this.primarySortColumnId, Ci.nsMsgViewSortOrder.ascending);
     }
   },
   sortDescending() {
     if (!this.isSortedDescending) {
-      this.magicSort(this._sort[0][0], Ci.nsMsgViewSortOrder.descending);
+      this.magicSort(
+        this.primarySortColumnId,
+        Ci.nsMsgViewSortOrder.descending
+      );
     }
   },
 
@@ -1702,33 +1749,42 @@ DBViewWrapper.prototype = {
    *  on the underlying db view!  If you do not, make sure to fight us every
    *   step of the way, because we will keep clobbering your manually applied
    *   sort.
-   * For secondary and multiple custom column support, a byCustom aSortType and
-   *  aSecondaryType must be the column name string.
+   *
+   * @param {string} aSortColumnId
+   * @param {nsMsgViewSortOrderValue} aSortOrder
+   * @param {string} aSecondaryColumnId
+   * @param {nsMsgViewSortOrderValue} aSecondaryOrder
    */
-  sort(aSortType, aSortOrder, aSecondaryType, aSecondaryOrder) {
+  sort(aSortColumnId, aSortOrder, aSecondaryColumnId, aSecondaryOrder) {
     // For sort changes, do not make a random selection if there is not
     // actually anything selected; some views do this (looking at xfvf).
     if (this.dbView.selection && this.dbView.selection.count == 0) {
       this.dbView.selection.currentIndex = -1;
     }
 
-    this._sort = [[aSortType, aSortOrder]];
-    if (aSecondaryType != null && aSecondaryOrder != null) {
-      this._sort.push([aSecondaryType, aSecondaryOrder]);
+    // Convert sortTypes to columnIds for dbView.sort().
+    this._sort = [[this.getSortType(aSortColumnId), aSortOrder, aSortColumnId]];
+    if (aSecondaryColumnId) {
+      this._sort.push([
+        this.getSortType(aSecondaryColumnId),
+        aSecondaryOrder,
+        aSecondaryColumnId,
+      ]);
     }
+
     // make sure the sort won't make the view angry...
     this._ensureValidSort();
     // if we are not in a view update, invoke the sort.
     if (this._viewUpdateDepth == 0 && this.dbView) {
       for (let iSort = this._sort.length - 1; iSort >= 0; iSort--) {
         // apply them in the reverse order
-        const [sortType, sortOrder, sortCustomCol] =
-          this._getSortDetails(iSort);
-        if (sortCustomCol) {
-          this.dbView.curCustomColumn = sortCustomCol;
-        }
+        const [sortType, sortOrder, sortColumnId] = this._sort[iSort];
+        this.dbView.curCustomColumn =
+          sortType == Ci.nsMsgViewSortType.byCustom ? sortColumnId : "";
         this.dbView.sort(sortType, sortOrder);
       }
+      this._sort = getSortStatusFromView(this.dbView);
+
       // (only generate the event since we're not in a update batch)
       this.listener.onSortChanged();
     }
@@ -1737,35 +1793,16 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * Logic that compensates for custom column identifiers being provided as
-   *  sort types.
-   *
-   * @returns [sort type, sort order, sort custom column name]
-   */
-  _getSortDetails(aIndex) {
-    let [sortType, sortOrder] = this._sort[aIndex];
-    let sortCustomColumn = null;
-    const sortTypeType = typeof sortType;
-    if (sortTypeType != "number") {
-      sortCustomColumn = sortTypeType == "string" ? sortType : sortType.id;
-      sortType = Ci.nsMsgViewSortType.byCustom;
-      // Set correct sortType.
-      this._sort[aIndex][0] = sortType;
-    }
-
-    return [sortType, sortOrder, sortCustomColumn];
-  },
-
-  /**
    * Accumulates implied secondary sorts based on multiple calls to this method.
    *  This is intended to be hooked up to be controlled by the UI.
    * Because we are lazy, we actually just poke the view's sort method and save
    *  the apparent secondary sort.  This also allows perfect compliance with the
    *  way this used to be implemented!
-   * For secondary and multiple custom column support, a byCustom aSortType must
-   *  be the column name string.
+   *
+   * @param {string} aSortColumnId
+   * @param {nsMsgViewSortOrderValue} aSortOrder
    */
-  magicSort(aSortType, aSortOrder) {
+  magicSort(aSortColumnId, aSortOrder) {
     if (this.dbView) {
       // For sort changes, do not make a random selection if there is not
       // actually anything selected; some views do this (looking at xfvf).
@@ -1773,30 +1810,19 @@ DBViewWrapper.prototype = {
         this.dbView.selection.currentIndex = -1;
       }
 
-      // so, the thing we just set obviously will be there
-      this._sort = [[aSortType, aSortOrder]];
-      // (make sure it is valid...)
+      // So, the thing we just set obviously will be there.
+      this._sort = [
+        [this.getSortType(aSortColumnId), aSortOrder, aSortColumnId],
+      ];
+      // Make sure it is valid...
       this._ensureValidSort();
-      // get sort details, handle custom column as string sortType
-      const [sortType, sortOrder, sortCustomCol] = this._getSortDetails(0);
-      if (sortCustomCol) {
-        this.dbView.curCustomColumn = sortCustomCol;
-      }
-      // apply the sort to see what happens secondary-wise
+      const [sortType, sortOrder, sortColumnId] = this._sort[0];
+      this.dbView.curCustomColumn =
+        sortType == Ci.nsMsgViewSortType.byCustom ? sortColumnId : "";
       this.dbView.sort(sortType, sortOrder);
-      // there is only a secondary sort if it's not none and not the same.
-      if (
-        this.dbView.secondarySortType != Ci.nsMsgViewSortType.byNone &&
-        (this.dbView.secondarySortType != sortType ||
-          (this.dbView.secondarySortType == Ci.nsMsgViewSortType.byCustom &&
-            this.dbView.secondaryCustomColumn != sortCustomCol))
-      ) {
-        this._sort.push([
-          this.dbView.secondaryCustomColumn || this.dbView.secondarySortType,
-          this.dbView.secondarySortOrder,
-        ]);
-      }
-      // only tell our listener if we're not in a view update batch
+      this._sort = getSortStatusFromView(this.dbView);
+
+      // Only tell our listener if we're not in a view update batch.
       if (this._viewUpdateDepth == 0) {
         this.listener.onSortChanged();
       }
@@ -1826,7 +1852,7 @@ DBViewWrapper.prototype = {
           sortType == Ci.nsMsgViewSortType.byNone ||
           sortType == Ci.nsMsgViewSortType.bySize
         ) {
-          this._sort = [[Ci.nsMsgViewSortType.byDate, this._sort[0][1]]];
+          this._sort = [[Ci.nsMsgViewSortType.byDate, this.primarySortOrder]];
           break;
         }
       }

@@ -86,10 +86,7 @@ add_task(async function test_sort_primary() {
   const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
-  viewWrapper.sort(
-    Ci.nsMsgViewSortType.byDate,
-    Ci.nsMsgViewSortOrder.ascending
-  );
+  viewWrapper.sort("dateCol", Ci.nsMsgViewSortOrder.ascending);
   assert_equals(
     viewWrapper.dbView.sortType,
     Ci.nsMsgViewSortType.byDate,
@@ -103,10 +100,7 @@ add_task(async function test_sort_primary() {
     true
   );
 
-  viewWrapper.sort(
-    Ci.nsMsgViewSortType.byAuthor,
-    Ci.nsMsgViewSortOrder.descending
-  );
+  viewWrapper.sort("senderCol", Ci.nsMsgViewSortOrder.descending);
   assert_equals(
     viewWrapper.dbView.sortType,
     Ci.nsMsgViewSortType.byAuthor,
@@ -132,9 +126,9 @@ add_task(async function test_sort_secondary_explicit() {
 
   await view_open(viewWrapper, folder);
   viewWrapper.sort(
-    Ci.nsMsgViewSortType.byAuthor,
+    "senderCol",
     Ci.nsMsgViewSortOrder.ascending,
-    Ci.nsMsgViewSortType.bySubject,
+    "subjectCol",
     Ci.nsMsgViewSortOrder.descending
   );
   // check once for what we just did, then again after refreshing to make
@@ -179,14 +173,8 @@ add_task(async function test_sort_secondary_implicit() {
   const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
-  viewWrapper.magicSort(
-    Ci.nsMsgViewSortType.bySubject,
-    Ci.nsMsgViewSortOrder.descending
-  );
-  viewWrapper.magicSort(
-    Ci.nsMsgViewSortType.byAuthor,
-    Ci.nsMsgViewSortOrder.ascending
-  );
+  viewWrapper.magicSort("subjectCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.magicSort("senderCol", Ci.nsMsgViewSortOrder.ascending);
   // check once for what we just did, then again after refreshing to make
   //  sure the sort order 'stuck'
   for (let i = 0; i < 2; i++) {
@@ -233,7 +221,7 @@ add_task(async function test_sort_group_by_sort() {
   // - start out by being in an illegal (for group-by-sort) sort mode and
   //  switch to group-by-sort.
   // (sorting changes are synchronous)
-  viewWrapper.sort(Ci.nsMsgViewSortType.byId, Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort("idCol", Ci.nsMsgViewSortOrder.descending);
   await view_group_by_sort(viewWrapper, true);
 
   // there should have been no explosion, and we should have changed to date
@@ -247,9 +235,9 @@ add_task(async function test_sort_group_by_sort() {
   await view_group_by_sort(viewWrapper, false);
 
   viewWrapper.sort(
-    Ci.nsMsgViewSortType.byDate,
+    "dateCol",
     Ci.nsMsgViewSortOrder.descending,
-    Ci.nsMsgViewSortType.byId,
+    "idCol",
     Ci.nsMsgViewSortOrder.descending
   );
 
@@ -268,10 +256,7 @@ add_task(async function test_sort_group_by_sort() {
 
   // - try and make group-by-sort sort by something illegal
   // (we're still in group-by-sort mode)
-  viewWrapper.magicSort(
-    Ci.nsMsgViewSortType.byId,
-    Ci.nsMsgViewSortOrder.descending
-  );
+  viewWrapper.magicSort("idCol", Ci.nsMsgViewSortOrder.descending);
   assert_equals(
     viewWrapper.primarySortType,
     Ci.nsMsgViewSortType.byDate,
