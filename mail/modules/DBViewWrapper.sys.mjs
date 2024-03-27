@@ -1599,93 +1599,39 @@ DBViewWrapper.prototype = {
   },
 
   get primarySortColumnId() {
-    const sortKey = this.primarySortType;
-    let columnID;
+    const sortType = this.primarySortType;
+    const defaultSortType = "dateCol";
 
-    switch (sortKey) {
+    // Handle special cases first.
+    if (sortType == Ci.nsMsgViewSortType.byNone) {
       // In the case of None, we default to the date column. This appears to be
       // the case in such instances as Global search, so don't complain about
       // it.
-      case Ci.nsMsgViewSortType.byNone:
-      case Ci.nsMsgViewSortType.byDate:
-        columnID = "dateCol";
-        break;
-      case Ci.nsMsgViewSortType.byReceived:
-        columnID = "receivedCol";
-        break;
-      case Ci.nsMsgViewSortType.byAuthor:
-        columnID = "senderCol";
-        break;
-      case Ci.nsMsgViewSortType.byRecipient:
-        columnID = "recipientCol";
-        break;
-      case Ci.nsMsgViewSortType.bySubject:
-        columnID = "subjectCol";
-        break;
-      case Ci.nsMsgViewSortType.byLocation:
-        columnID = "locationCol";
-        break;
-      case Ci.nsMsgViewSortType.byAccount:
-        columnID = "accountCol";
-        break;
-      case Ci.nsMsgViewSortType.byUnread:
-        columnID = "unreadButtonColHeader";
-        break;
-      case Ci.nsMsgViewSortType.byStatus:
-        columnID = "statusCol";
-        break;
-      case Ci.nsMsgViewSortType.byTags:
-        columnID = "tagsCol";
-        break;
-      case Ci.nsMsgViewSortType.bySize:
-        columnID = "sizeCol";
-        break;
-      case Ci.nsMsgViewSortType.byPriority:
-        columnID = "priorityCol";
-        break;
-      case Ci.nsMsgViewSortType.byFlagged:
-        columnID = "flaggedCol";
-        break;
-      case Ci.nsMsgViewSortType.byThread:
-        columnID = "threadCol";
-        break;
-      case Ci.nsMsgViewSortType.byId:
-        columnID = "idCol";
-        break;
-      case Ci.nsMsgViewSortType.byJunkStatus:
-        columnID = "junkStatusCol";
-        break;
-      case Ci.nsMsgViewSortType.byAttachments:
-        columnID = "attachmentCol";
-        break;
-      case Ci.nsMsgViewSortType.byCustom:
-        {
-          const curCustomColumn = this.dbView.curCustomColumn;
-          if (
-            ThreadPaneColumns.getCustomColumns().some(
-              c => c.id == curCustomColumn
-            )
-          ) {
-            columnID = curCustomColumn;
-          } else {
-            dump(
-              "getCurrentSortColumnId: custom sort key but no handler for column '" +
-                columnID +
-                "'\n"
-            );
-            columnID = "dateCol";
-          }
-        }
-        break;
-      case Ci.nsMsgViewSortType.byCorrespondent:
-        columnID = "correspondentCol";
-        break;
-      default:
-        dump("unsupported sort key: " + sortKey + "\n");
-        columnID = "dateCol";
-        break;
+      return defaultSortType;
     }
-    return columnID;
+
+    if (sortType == Ci.nsMsgViewSortType.byCustom) {
+      const curCustomColumn = this.dbView.curCustomColumn;
+      if (
+        ThreadPaneColumns.getCustomColumns().some(c => c.id == curCustomColumn)
+      ) {
+        return curCustomColumn;
+      }
+      dump(
+        `primarySortColumnId: custom sort type but no handler for column: ${curCustomColumn} \n`
+      );
+      return defaultSortType;
+    }
+
+    const column = ThreadPaneColumns.getDefaultColumns().find(
+      c => !c.custom && Ci.nsMsgViewSortType[c.sortKey] == sortType
+    );
+    if (column) {
+      return column.id;
+    }
+
+    dump(`primarySortColumnId: unsupported sort type: ${sortType} \n`);
+    return defaultSortType;
   },
 
   /**
