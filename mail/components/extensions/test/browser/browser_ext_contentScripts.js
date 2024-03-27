@@ -301,15 +301,15 @@ add_task(async function testRegister() {
   await extension.startup();
 
   await extension.awaitMessage(); // register
+  // Registering a script will not inject it into already open tabs, wait a moment
+  // to make sure we still get the unchanged values.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
   await checkContent(tab1.browser, UNCHANGED_VALUES);
 
   // Tab 2: loads after the script is registered.
   const tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
   await awaitBrowserLoaded(tab2.browser, CONTENT_PAGE + "?tab2");
-  // Despite the fact we've just waited for the page to load, sometimes the
-  // content script mechanism gets triggered late. Wait a moment.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 1000));
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 128, 0)",
     color: "rgb(255, 255, 255)",
@@ -372,23 +372,25 @@ add_task(async function testManifest() {
   // Tab 1: loads before the script is registered.
   const tab1 = window.openContentTab(CONTENT_PAGE + "?tab1");
   await awaitBrowserLoaded(tab1.browser, CONTENT_PAGE + "?tab1");
-  // Despite the fact we've just waited for the page to load, sometimes the
-  // content script mechanism gets triggered late. Wait a moment.
+
+  // The extension is not running, no script should be injected, wait a moment to
+  // make sure we still get the unchanged values.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 1000));
+  await checkContent(tab1.browser, UNCHANGED_VALUES);
 
   await extension.startup();
 
-  await checkContent(tab1.browser, UNCHANGED_VALUES);
+  // The extension started and the content script defined in the manifest should
+  // be injected into the already open tab.
+  await checkContent(tab1.browser, {
+    backgroundColor: "rgb(0, 255, 0)",
+    textContent: "Hey look, the script ran!",
+  });
 
   // Tab 2: loads after the script is registered.
   const tab2 = window.openContentTab(CONTENT_PAGE + "?tab2");
   await awaitBrowserLoaded(tab2.browser, CONTENT_PAGE + "?tab2");
-  // Despite the fact we've just waited for the page to load, sometimes the
-  // content script mechanism gets triggered late. Wait a moment.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 1000));
-
   await checkContent(tab2.browser, {
     backgroundColor: "rgb(0, 255, 0)",
     textContent: "Hey look, the script ran!",
