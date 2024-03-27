@@ -14,6 +14,10 @@ ChromeUtils.defineESModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.sys.mjs",
 });
 
+const { ThreadPaneColumns } = ChromeUtils.importESModule(
+  "chrome://messenger/content/thread-pane-columns.mjs"
+);
+
 var gDBView;
 var nsMsgKey_None = 0xffffffff;
 var nsMsgViewIndex_None = 0xffffffff;
@@ -142,40 +146,28 @@ FolderDisplayWidget.prototype = {
   // @{
 
   /**
-   * The map of all stock sortable columns and their sortType. The key must
-   * match the column's xul <treecol> id.
+   * A Map of all stock sortable columns, mapping their column ids and their
+   * sortType. Since it only includes built-in columns, this can be cached.
+   *
+   * @type {Map<string, string>}
    */
-  COLUMNS_MAP: new Map([
-    ["accountCol", "byAccount"],
-    ["attachmentCol", "byAttachments"],
-    ["senderCol", "byAuthor"],
-    ["correspondentCol", "byCorrespondent"],
-    ["dateCol", "byDate"],
-    ["flaggedCol", "byFlagged"],
-    ["idCol", "byId"],
-    ["junkStatusCol", "byJunkStatus"],
-    ["locationCol", "byLocation"],
-    ["priorityCol", "byPriority"],
-    ["receivedCol", "byReceived"],
-    ["recipientCol", "byRecipient"],
-    ["sizeCol", "bySize"],
-    ["statusCol", "byStatus"],
-    ["subjectCol", "bySubject"],
-    ["tagsCol", "byTags"],
-    ["threadCol", "byThread"],
-    ["unreadButtonColHeader", "byUnread"],
-  ]),
+  BUILTIN_SORT_COLUMNS: new Map(
+    ThreadPaneColumns.getDefaultColumns()
+      .filter(c => !c.custom && c.sortKey)
+      .map(c => [c.id, c.sortKey])
+  ),
 
   /**
-   * The map of stock non-sortable columns. The key must match the column's
-   *  xul <treecol> id.
+   * A Set of all stock unsortable columns. Since it only includes built-in
+   * columns, this can be cached.
+   *
+   * @type {Set<string>}
    */
-  COLUMNS_MAP_NOSORT: new Set([
-    "selectCol",
-    "totalCol",
-    "unreadCol",
-    "deleteCol",
-  ]),
+  BUILTIN_NOSORT_COLUMNS: new Set(
+    ThreadPaneColumns.getDefaultColumns()
+      .filter(c => !c.custom && !c.sortKey)
+      .map(c => c.id)
+  ),
 
   // @}
 

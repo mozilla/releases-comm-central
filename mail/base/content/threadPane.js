@@ -11,6 +11,7 @@
 /* exported ThreadPaneKeyDown ThreadPaneOnDragStart UpdateSortIndicators */
 
 ChromeUtils.defineESModuleGetters(this, {
+  ThreadPaneColumns: "chrome://messenger/content/thread-pane-columns.mjs",
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",
 });
 
@@ -218,42 +219,40 @@ function HandleColumnClick(columnID) {
     return;
   }
 
-  if (gFolderDisplay.COLUMNS_MAP_NOSORT.has(columnID)) {
+  if (gFolderDisplay.BUILTIN_NOSORT_COLUMNS.has(columnID)) {
     return;
   }
 
-  let sortType = gFolderDisplay.COLUMNS_MAP.get(columnID);
-  const curCustomColumn = gDBView.curCustomColumn;
-  if (!sortType) {
-    // If the column isn't in the map, check if it's a custom column.
-    try {
-      // Test for the columnHandler (an error is thrown if it does not exist).
-      gDBView.getColumnHandler(columnID);
-
-      // Handler is registered - set column to be the current custom column.
-      gDBView.curCustomColumn = columnID;
-      sortType = "byCustom";
-    } catch (ex) {
+  let sortKey = gFolderDisplay.BUILTIN_SORT_COLUMNS.get(columnID);
+  if (!sortKey) {
+    // This must be a custom column, get its sortKey, if any.
+    const customColumn = ThreadPaneColumns.getCustomColumns().find(
+      c => c.id == columnID
+    );
+    if (!customColumn) {
       dump(
-        "HandleColumnClick: No custom column handler registered for " +
-          "columnID: " +
-          columnID +
-          " - " +
-          ex +
-          "\n"
+        `HandleColumnClick: No custom column handler registered for columnID: ${columnID}\n`
       );
+      return;
+    }
+    sortKey = customColumn.sortKey;
+    if (!sortKey) {
       return;
     }
   }
 
-  const viewWrapper = gFolderDisplay.view;
-  if (
-    viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
-    (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
-      curCustomColumn == columnID)
-  ) {
+  if (gFolderDisplay.view.primarySortColumnId == columnID) {
     MsgReverseSortThreadPane();
   } else {
+    // TODO: Will become unnecessary if viewWrapper.sort() accepts a columnId
+    //       and handles custom columns internally.
+    const sortType = Ci.nsMsgViewSortType[sortKey];
+    if (!sortType) {
+      return;
+    }
+    if (sortType == Ci.nsMsgViewSortType.byCustom) {
+      gDBView.curCustomColumn = columnID;
+    }
     MsgSortThreadPane(sortType);
   }
 }
@@ -317,8 +316,17 @@ function ThreadPaneKeyDown(event) {
   ThreadPaneDoubleClick();
 }
 
-function MsgSortThreadPane(sortName) {
-  const sortType = Ci.nsMsgViewSortType[sortName];
+/**
+ * Sorts the tread pane by the given sortType.
+ *
+ * The sortType was originaly a unique identifier. After adding support for custom
+ * columns, sortType also uses Ci.nsMsgViewSortType.byCustom, which is a catch-all
+ * identifier for all custom columns. The *actual* custom column which is sorted
+ * by is stored in gDBView.curCustomColumn.
+ *
+ * @param { nsMsgViewSortType } sortType
+ */
+function MsgSortThreadPane(sortType) {
   gFolderDisplay.view._threadExpandAll = Boolean(
     gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
   );

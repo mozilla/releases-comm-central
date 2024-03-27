@@ -260,7 +260,8 @@ function searchOnLoad() {
   const sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
   let sortType, sortOrder;
   if (sortCol) {
-    sortType = Ci.nsMsgViewSortType[gFolderDisplay.COLUMNS_MAP.get(sortCol.id)];
+    sortType =
+      Ci.nsMsgViewSortType[gFolderDisplay.BUILTIN_SORT_COLUMNS.get(sortCol.id)];
     sortOrder =
       sortCol.getAttribute("sortDirection") == "descending"
         ? Ci.nsMsgViewSortOrder.descending

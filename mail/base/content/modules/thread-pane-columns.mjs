@@ -509,6 +509,7 @@ function addCustomColumn(id, properties) {
     hidden,
     icon,
     sortable,
+    sortKey: sortable ? "byCustom" : undefined,
     custom: true,
     iconCellDefinitions,
     iconHeaderUrl,
