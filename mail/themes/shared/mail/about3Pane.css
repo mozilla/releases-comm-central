@@ -619,14 +619,14 @@ body {
     background-color: var(--folderpane-unread-new-count-background);
   }
 
-  .unread.children.collapsed > .container > & {
+  .unread.children.collapsed:has(ul > .unread) > .container > & {
     color: var(--folderpane-unread-count-background);
     background-color: transparent;
     border: 1px solid var(--folderpane-unread-count-background);
     padding-block: 0;
   }
 
-  .new-messages.unread.children.collapsed > .container > & {
+  .new-messages.unread.children.collapsed:has(ul > .new-messages) > .container > & {
     color: var(--folderpane-unread-new-count-background);
     border-color: var(--folderpane-unread-new-count-background);
   }
