@@ -5,19 +5,23 @@
  */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
+
+const log = console.createInstance({
+  prefix: "openpgp",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "openpgp.loglevel",
 });
 
 const gMimeHashAlgorithms = [
@@ -35,7 +39,9 @@ const ENC_TYPE_MSG = 0;
 const ENC_TYPE_ATTACH_BINARY = 1;
 
 export var EnigmailEncryption = {
-  // return object on success, null on failure
+  /**
+   * @returns {?object} object on success, null on failure
+   */
   getCryptParams(
     fromMailAddr,
     toMailAddr,
@@ -55,12 +61,6 @@ export var EnigmailEncryption = {
     result.encryptToSender = false;
     result.armor = false;
     result.senderKeyIsExternal = false;
-
-    lazy.EnigmailLog.DEBUG(
-      "encryption.sys.mjs: getCryptParams: hashAlgorithm=" +
-        hashAlgorithm +
-        "\n"
-    );
 
     try {
       fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
@@ -88,7 +88,7 @@ export var EnigmailEncryption = {
     // need the OpenPGP signature encoding that includes the message
     // except when combining GPG signing with RNP encryption.
 
-    var detachedSig =
+    const detachedSig =
       (usePgpMime || sendFlags & lazy.EnigmailConstants.SEND_ATTACHMENT) &&
       signMsg &&
       !encryptMsg;
@@ -189,16 +189,11 @@ export var EnigmailEncryption = {
   /**
    * Determine why a given key cannot be used for signing.
    *
-   * @param {string} keyId - key ID
-   *
-   * @returns {string} The reason(s) as message to display to the user, or
+   * @param {string} keyId - Key ID.
+   * @returns {string} the reason(s) as message to display to the user, or
    *   an empty string in case the key is valid.
    */
   determineInvSignReason(keyId) {
-    lazy.EnigmailLog.DEBUG(
-      "errorHandling.sys.mjs: determineInvSignReason: keyId: " + keyId + "\n"
-    );
-
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
@@ -209,23 +204,17 @@ export var EnigmailEncryption = {
     if (!r.keyValid) {
       return r.reason;
     }
-
     return "";
   },
 
   /**
    * Determine why a given key cannot be used for encryption.
    *
-   * @param {string} keyId - key ID
-   *
-   * @returns {string} The reason(s) as message to display to the user, or
+   * @param {string} keyId - Key ID.
+   * @returns {string} the reason(s) as message to display to the user, or
    *   an empty string in case the key is valid.
    */
   determineInvRcptReason(keyId) {
-    lazy.EnigmailLog.DEBUG(
-      "errorHandling.sys.mjs: determineInvRcptReason: keyId: " + keyId + "\n"
-    );
-
     const key = lazy.EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return lazy.l10n.formatValueSync("key-error-key-id-not-found", {
@@ -236,37 +225,30 @@ export var EnigmailEncryption = {
     if (!r.keyValid) {
       return r.reason;
     }
-
     return "";
   },
 
   /**
    * Determine if the sender key ID or user ID can be used for signing and/or
-   * encryption
+   * encryption.
    *
-   * @param {integer} sendFlags - The send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
-   * @param {string} fromKeyId - The sender key ID
-   *
+   * @param {integer} sendFlags - The send Flags; need to contain SEND_SIGNED
+   *   and/or SEND_ENCRYPTED.
+   * @param {string} fromKeyId - The sender key ID.
+   * @param {boolean} isExternalGnuPG - Whether external GnuPG is used.
    * @returns {object} object
-   *         - keyId:    String - the found key ID, or null if fromMailAddr is not valid
-   *         - errorMsg: String - the error message if key not valid, or null if key is valid
+   * @returns {?string} object.keyId - The found key ID, or null if fromMailAddr
+   *   is not valid.
+   * @returns {?string} object.errorMsg - The error message if key not valid.
    */
   async determineOwnKeyUsability(sendFlags, fromKeyId, isExternalGnuPG) {
-    lazy.EnigmailLog.DEBUG(
-      "encryption.sys.mjs: determineOwnKeyUsability: sendFlags=" +
-        sendFlags +
-        ", sender=" +
-        fromKeyId +
-        "\n"
-    );
-
     let foundKey = null;
     const ret = {
       errorMsg: null,
     };
 
     if (!fromKeyId) {
-      return ret;
+      throw new Error("fromKeyId must be set");
     }
 
     const sign = !!(sendFlags & lazy.EnigmailConstants.SEND_SIGNED);
@@ -277,9 +259,10 @@ export var EnigmailEncryption = {
       foundKey = lazy.EnigmailKeyRing.getKeyById(fromKeyId);
     }
 
-    // even for isExternalGnuPG we require that the public key is available
+    // Even for isExternalGnuPG we require that the public key is available.
     if (!foundKey) {
       ret.errorMsg = this.determineInvSignReason(fromKeyId);
+      log.debug(`Could not find key ${fromKeyId} - ${ret.errorMsg}`);
       return ret;
     }
 
@@ -293,6 +276,9 @@ export var EnigmailEncryption = {
           {
             keySpec: fromKeyId,
           }
+        );
+        log.debug(
+          `Found key ${fromKeyId} - but it's not personal - ${ret.errorMsg}`
         );
         return ret;
       }
@@ -311,6 +297,7 @@ export var EnigmailEncryption = {
         // If we already have a reason for the key not being valid,
         // use that as error message.
         ret.errorMsg = v.reason;
+        log.debug(`Key ${fromKeyId} not valid for signing - ${ret.errorMsg}`);
       }
     }
 
@@ -336,6 +323,9 @@ export var EnigmailEncryption = {
         // If we already have a reason for the key not being valid,
         // use that as error message.
         ret.errorMsg = v.reason;
+        log.debug(
+          `Key ${fromKeyId} not valid for encryption - ${ret.errorMsg}`
+        );
       }
     }
 
@@ -344,17 +334,21 @@ export var EnigmailEncryption = {
         // Only if we don't have an error message yet.
         ret.errorMsg = this.determineInvSignReason(fromKeyId);
       }
+      log.debug(`Can't sign with ${fromKeyId} - ${ret.errorMsg}`);
     } else if (encrypt && !canEncrypt) {
       if (!ret.errorMsg) {
         // Only if we don't have an error message yet.
         ret.errorMsg = this.determineInvRcptReason(fromKeyId);
       }
+      log.debug(`Can't encrypt with ${fromKeyId} - ${ret.errorMsg}`);
     }
 
     return ret;
   },
 
-  // return 0 on success, non-zero on failure
+  /**
+   * @returns {integer} 0 on success, non-zero on failure.
+   */
   encryptMessageStart(
     win,
     uiFlags,
@@ -367,19 +361,9 @@ export var EnigmailEncryption = {
     statusFlagsObj,
     errorMsgObj
   ) {
-    lazy.EnigmailLog.DEBUG(
-      "encryption.sys.mjs: encryptMessageStart: uiFlags=" +
-        uiFlags +
-        ", from " +
-        fromMailAddr +
-        " to " +
-        toMailAddr +
-        ", hashAlgorithm=" +
-        hashAlgorithm +
-        " (" +
-        sendFlags +
-        ")\n"
-    );
+    if (!listener) {
+      throw new Error("listener must be set");
+    }
 
     // This code used to call determineOwnKeyUsability, and return on
     // failure. But now determineOwnKeyUsability is an async function,
@@ -398,9 +382,6 @@ export var EnigmailEncryption = {
     errorMsgObj.value = "";
 
     if (!sendFlags) {
-      lazy.EnigmailLog.DEBUG(
-        "encryption.sys.mjs: encryptMessageStart: NO ENCRYPTION!\n"
-      );
       errorMsgObj.value = lazy.l10n.formatValueSync("not-required");
       return 0;
     }
@@ -422,10 +403,6 @@ export var EnigmailEncryption = {
 
     if (!encryptArgs) {
       return -1;
-    }
-
-    if (!listener) {
-      throw new Error("unexpected no listener");
     }
 
     const resultStatus = {};
@@ -453,6 +430,6 @@ export var EnigmailEncryption = {
   },
 
   encryptMessage() {
-    throw new Error("Not implemented");
+    throw new Error("Not implemented.");
   },
 };
