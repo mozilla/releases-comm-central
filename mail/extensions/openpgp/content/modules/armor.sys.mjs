@@ -8,13 +8,13 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
 });
 
-// Locates STRing in TEXT occurring only at the beginning of a line
+/**
+ * Locates string in text occurring only at the beginning of a line.
+ */
 function indexOfArmorDelimiter(text, str, offset) {
   let currentOffset = offset;
-
   while (currentOffset < text.length) {
     const loc = text.indexOf(str, currentOffset);
 
@@ -24,7 +24,6 @@ function indexOfArmorDelimiter(text, str, offset) {
 
     currentOffset = loc + str.length;
   }
-
   return -1;
 }
 
@@ -49,15 +48,17 @@ export var EnigmailArmor = {
    * Locates offsets bracketing PGP armored block in text,
    * starting from given offset, and returns block type string.
    *
-   * @param text:          String - ASCII armored text
-   * @param offset:        Number - offset to start looking for block
-   * @param indentStr:     String - prefix that is used for all lines (such as "> ")
-   * @param beginIndexObj: Object - o.value will contain offset of first character of block
-   * @param endIndexObj:   Object - o.value will contain offset of last character of block (newline)
-   * @param indentStrObj:  Object - o.value will contain indent of 1st line
-   *
-   * @returns String - type of block found (e.g. MESSAGE, PUBLIC KEY)
-   *           If no block is found, an empty String is returned;
+   * @param {string} text - ASCII armored text
+   * @param {integer} offset - Offset to start looking for block
+   * @param {string} indentStr -Prefix that is used for all lines (such as "> ")
+   * @param {object} beginIndexObj - beginIndexObj.value will contain offset
+   *   of first character of block
+   * @param {object} endIndexObj - endIndexObj.value will contain offset of
+   *   last character of block (newline)
+   * @param {object} indentStrObj - indentStrObj.value will contain indent
+   *   of 1st line
+   * @returns {string} the type of block found (e.g. MESSAGE, PUBLIC KEY)
+   *   If no block is found, an empty string is returned.
    */
   locateArmoredBlock(
     text,
@@ -67,14 +68,6 @@ export var EnigmailArmor = {
     endIndexObj,
     indentStrObj
   ) {
-    lazy.EnigmailLog.DEBUG(
-      "armor.sys.mjs: Enigmail.locateArmoredBlock: " +
-        offset +
-        ", '" +
-        indentStr +
-        "'\n"
-    );
-
     beginIndexObj.value = -1;
     endIndexObj.value = -1;
 
@@ -139,11 +132,6 @@ export var EnigmailArmor = {
     var blockType = "";
     if (matches && matches.length > 1) {
       blockType = matches[1];
-      lazy.EnigmailLog.DEBUG(
-        "armor.sys.mjs: Enigmail.locateArmoredBlock: blockType=" +
-          blockType +
-          "\n"
-      );
     }
 
     if (blockType == "UNVERIFIED MESSAGE") {
@@ -165,17 +153,15 @@ export var EnigmailArmor = {
   },
 
   /**
-   * locateArmoredBlocks returns an array of ASCII Armor block positions
+   * Returns an array of ASCII Armor block positions. Ff no block was found,
+   * an empty array is returned
    *
-   * @param text: String - text containing ASCII armored block(s)
-   *
-   * @returns Array of objects with the following structure:
-   *        obj.begin:     Number
-   *        obj.end:       Number
-   *        obj.indent:    String
-   *        obj.blocktype: String
-   *
-   *       if no block was found, an empty array is returned
+   * @param {string} text - Text containing ASCII armored block(s).
+   * @returns {object[]} blocks - An array of objects.
+   * @returns {integer} blocks[].begin
+   * @returns {integer} blocks[].end
+   * @returns {string} blocks[].indent
+   * @returns {string} blocks[].blocktype
    */
   locateArmoredBlocks(text) {
     var beginObj = {};
@@ -205,17 +191,10 @@ export var EnigmailArmor = {
       i = endObj.value;
     }
 
-    lazy.EnigmailLog.DEBUG(
-      "armor.sys.mjs: locateArmorBlocks: Found " + blocks.length + " Blocks\n"
-    );
     return blocks;
   },
 
   extractSignaturePart(signatureBlock, part) {
-    lazy.EnigmailLog.DEBUG(
-      "armor.sys.mjs: Enigmail.extractSignaturePart: part=" + part + "\n"
-    );
-
     return searchBlankLine(signatureBlock, function (offset) {
       return indexOfNewline(signatureBlock, offset + 1, function (offset) {
         var beginIndex = signatureBlock.indexOf(
@@ -272,15 +251,13 @@ export var EnigmailArmor = {
    * Remove all headers from an OpenPGP Armored message and replace them
    * with a set of new headers.
    *
-   * @param armorText: String - ASCII armored message
-   * @param headers:   Object - key/value pairs of new headers to insert
-   *
-   * @returns String - new armored message
+   * @param {string} armorText - ASCII armored message
+   * @param {object} headers - A key/value pairs of new headers to insert.
+   * @returns {string} a new armored message.
    */
   replaceArmorHeaders(armorText, headers) {
     const text = armorText.replace(/\r\n/g, "\n");
     let i = text.search(/\n/);
-
     if (i < 0) {
       return armorText;
     }
@@ -302,9 +279,9 @@ export var EnigmailArmor = {
   /**
    * Get a list of all headers found in an armor message
    *
-   * @param text String - ASCII armored message
-   *
-   * @returns Object: key/value pairs of headers. All keys are in lowercase.
+   * @param {string} text - ASCII armored message.
+   * @param {object} headers - A key/value pairs of new headers to insert.
+   *   All keys are lowercase.
    */
   getArmorHeaders(text) {
     const headers = {};
@@ -339,7 +316,8 @@ export var EnigmailArmor = {
   },
 
   /**
-   * Split armored blocks into an array of strings
+   * Split armored blocks into an array of strings.
+   * @param {string} keyBlockStr
    */
   splitArmoredBlocks(keyBlockStr) {
     const myRe = /-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/g;
@@ -355,7 +333,6 @@ export var EnigmailArmor = {
     }
 
     retArr.push(keyBlockStr.substring(startIndex));
-
     return retArr;
   },
 };
