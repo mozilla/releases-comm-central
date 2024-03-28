@@ -38,6 +38,13 @@ class AccountHubControllerClass {
   #currentView = null;
 
   /**
+   * The close button for the modal.
+   *
+   * @type {?HTMLElement}
+   */
+  #closeButton;
+
+  /**
    * Object containing all strings to trigger the needed methods for the various
    * views.
    */
@@ -62,9 +69,9 @@ class AccountHubControllerClass {
     document.body.appendChild(element);
     this.#modal = element.modal;
 
-    const closeButton = this.#modal.querySelector("#closeButton");
-    closeButton.hidden = !MailServices.accounts.accounts.length;
-    closeButton.addEventListener("click", () => this.#modal.close());
+    this.#closeButton = this.#modal.querySelector("#closeButton");
+    this.#closeButton.hidden = !MailServices.accounts.accounts.length;
+    this.#closeButton.addEventListener("click", () => this.#modal.close());
 
     // Listen from closing requests coming from child elements.
     this.#modal.addEventListener(
@@ -152,7 +159,6 @@ class AccountHubControllerClass {
       this.#currentView.initUI();
       return;
     }
-
     view = document.createElement(id);
     this.#modal.appendChild(view);
     this.#currentView = view;
@@ -178,6 +184,10 @@ class AccountHubControllerClass {
     // view.
     if (!this.#reset()) {
       return;
+    }
+
+    if (type == "START") {
+      this.#closeButton.hidden = !MailServices.accounts.accounts.length;
     }
 
     this.#views[type].call();

@@ -8,6 +8,15 @@ const { AccountCreationUtils } = ChromeUtils.importESModule(
 const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
+
+const { CreateInBackend } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/CreateInBackend.sys.mjs"
+);
+
+const { ConfigVerifier } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
+);
+
 const { GuessConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/GuessConfig.sys.mjs"
 );
@@ -19,7 +28,7 @@ const { OAuth2Providers } = ChromeUtils.importESModule(
   "resource:///modules/OAuth2Providers.sys.mjs"
 );
 
-const { CancelledException, gAccountSetupLogger, standardPorts } =
+const { CancelledException, gAccountSetupLogger, standardPorts, assert } =
   AccountCreationUtils;
 
 class AccountHubEmail extends HTMLElement {
@@ -206,6 +215,15 @@ class AccountHubEmail extends HTMLElement {
   #cancelButton;
 
   /**
+   * Store methods to interrupt abortable operations like testing
+   * a server configuration or installing an add-on.
+   *
+   * @type {Abortable}
+   */
+  // eslint-disable-next-line no-unused-private-class-members
+  #abortable;
+
+  /**
    * The current Account Config object based on the users form element inputs.
    *
    * @type {AccountConfig}
@@ -213,13 +231,11 @@ class AccountHubEmail extends HTMLElement {
   #currentConfig;
 
   /**
-   * Store methods to interrupt abortable operations like testing
-   * a server configuration or installing an add-on.
+   * A Config Verifier object that verfies the currentConfig
    *
-   * @type {Object}
+   * @type {ConfigVerifier}
    */
-  // eslint-disable-next-line no-unused-private-class-members
-  #abortable;
+  #configVerifier;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -303,7 +319,20 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "loading":
         this.#emailLoadingSubview.hidden = false;
-        this.setFooterButtons("loading");
+        this.setFooterButtons();
+        this.querySelector("#addingAccountTitle").hidden = false;
+        this.querySelector("#addingAccountSubheader").hidden = false;
+        this.querySelector("#lookupEmailConfigurationTitle").hidden = true;
+        this.querySelector("#lookupEmailConfigurationSubheader").hidden = true;
+
+        break;
+      case "lookup":
+        this.#emailLoadingSubview.hidden = false;
+        this.setFooterButtons();
+        this.querySelector("#addingAccountTitle").hidden = true;
+        this.querySelector("#addingAccountSubheader").hidden = true;
+        this.querySelector("#lookupEmailConfigurationTitle").hidden = false;
+        this.querySelector("#lookupEmailConfigurationSubheader").hidden = false;
         break;
       default:
         // Set the email view as the default view.
@@ -378,6 +407,12 @@ class AccountHubEmail extends HTMLElement {
       this.#outgoingUsername.disabled = event.target.value == 1;
     });
 
+    // Set the continue button which attempts to validate and add the email
+    // account.
+    this.#continueButton.addEventListener("click", () => {
+      this.onContinue();
+    });
+
     // Set the manual email config button. This should hide the current email
     // form and display the manual configuration email form.
     this.#manualConfigButton.addEventListener("click", () => {
@@ -388,6 +423,18 @@ class AccountHubEmail extends HTMLElement {
 
     // Set the Cancel button.
     this.#cancelButton.addEventListener("click", () => {
+      // Go back to the main account hub view.
+      this.dispatchEvent(
+        new CustomEvent("open-view", {
+          bubbles: true,
+          composed: true,
+          detail: { type: "START" },
+        })
+      );
+    });
+
+    // Set the Finsh button.
+    this.#finishButton.addEventListener("click", () => {
       // Go back to the main account hub view.
       this.dispatchEvent(
         new CustomEvent("open-view", {
@@ -464,9 +511,11 @@ class AccountHubEmail extends HTMLElement {
   /**
    * Make OAuth2 visible as an authentication method when a hostname that
    * OAuth2 can be used with is entered.
+   *
+   * @param {AccountConfig} [accountConfig] - Complete Account Config.
    */
-  #adjustOAuth2Visibility() {
-    this.#currentConfig = this.getManualUserConfig();
+  #adjustOAuth2Visibility(accountConfig) {
+    this.#currentConfig = accountConfig || this.getManualUserConfig();
     this.#currentConfig.incoming.oauthSettings = {};
     this.#currentConfig.outgoing.oauthSettings = {};
 
@@ -513,9 +562,10 @@ class AccountHubEmail extends HTMLElement {
    * manual edit, unless the user entered a non-standard port.
    *
    * @param {boolean} incoming - True if incoming port, else outgoing port.
+   * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
    */
-  #adjustPortToSSLAndProtocol(incoming) {
-    const config = this.getManualUserConfig();
+  #adjustPortToSSLAndProtocol(incoming, accountConfig) {
+    const config = accountConfig || this.getManualUserConfig();
     const configDirection = incoming ? config.incoming : config.outgoing;
 
     if (configDirection.port && !standardPorts.includes(configDirection.port)) {
@@ -634,6 +684,73 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Updates the manual edit fields with the confirmed AccountConfig from
+   * guessConfig.
+   *
+   * @param {AccountConfig} config - The config to present to the user.
+   */
+  #updateManualEmailFields(config) {
+    assert(config instanceof AccountConfig);
+    this.#currentConfig = config;
+
+    const isExchange = config.incoming.type == "exchange";
+
+    // Incoming server.
+    this.querySelector("#incomingProtocolExchange").hidden = !isExchange;
+    this.#incomingProtocol.value = Sanitizer.translate(
+      config.incoming.type,
+      { imap: 1, pop3: 2, exchange: 3 },
+      1
+    );
+    this.#incomingHostname.value = config.incoming.hostname;
+    this.#incomingConnectionSecurity.value = Sanitizer.enum(
+      config.incoming.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+    this.#incomingAuthenticationMethod.value = Sanitizer.enum(
+      config.incoming.auth,
+      [0, 3, 4, 5, 6, 10],
+      0
+    );
+    this.#incomingUsername.value = config.incoming.username;
+
+    // If a port number was specified other than "Auto"
+    if (config.incoming.port) {
+      this.#incomingPort.value = config.incoming.port;
+    } else {
+      this.#adjustPortToSSLAndProtocol(true, config);
+    }
+
+    // Outgoing server.
+
+    this.#outgoingHostname.value = config.outgoing.hostname;
+    this.#outgoingUsername.value = config.outgoing.username;
+
+    this.#outgoingConnectionSecurity.value = Sanitizer.enum(
+      config.outgoing.socketType,
+      [0, 1, 2, 3],
+      0
+    );
+    this.#outgoingAuthenticationMethod.value = Sanitizer.enum(
+      config.outgoing.auth,
+      [0, 1, 3, 4, 5, 6, 10],
+      0
+    );
+
+    // If a port number was specified other than "Auto"
+    if (config.outgoing.port) {
+      this.#outgoingPort.value = config.outgoing.port;
+    } else {
+      this.#adjustPortToSSLAndProtocol(false, config);
+    }
+
+    this.#adjustOAuth2Visibility(config);
+
+    return config;
+  }
+
+  /**
    * This enables the buttons which allow the user to proceed
    * once they have entered enough information on manual config.
    *
@@ -663,7 +780,7 @@ class AccountHubEmail extends HTMLElement {
    */
   async testManualConfig() {
     // Show loading view.
-    this.initUI("loading");
+    this.initUI("lookup");
 
     // Clear error notifications.
     this.clearNotifications();
@@ -677,9 +794,12 @@ class AccountHubEmail extends HTMLElement {
           `progress callback host: ${hostname}, port: ${port}, type: ${type}`
         );
       },
-      () => {
-        // TODO: Success - Refill and validate inputs, enable continue button.
+      config => {
+        // This will validate and fill all of the form fields, as well as
+        // enable the continue button.
         this.#abortable = null;
+        this.initUI("manualEmail");
+        this.#currentConfig = this.#updateManualEmailFields(config);
         this.#validateManualConfigForm();
       },
       error => {
@@ -690,7 +810,6 @@ class AccountHubEmail extends HTMLElement {
           return;
         }
         gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
-
         // Load the manual config view again and show an error notification.
         this.initUI("manualEmail");
         this.showErrorNotification("account-hub-find-settings-failed", "");
@@ -782,6 +901,170 @@ class AccountHubEmail extends HTMLElement {
     return config;
   }
 
+  /**
+   * Returns an AccountConfig object with any missing fields that were not
+   * not part of the manual config form, as well as additional fields required
+   * by the backend account creator.
+   *
+   * @returns {AccountConfig}
+   */
+  getCompleteConfig() {
+    const result = this.#currentConfig.copy();
+
+    AccountConfig.replaceVariables(
+      result,
+      this.#realName.value,
+      this.#email.value,
+      this.#password.value
+    );
+
+    return result;
+  }
+
+  /**
+   * Called when the "Continue" button is pressed after manual account form
+   * fields are complete (or email password form is complete).
+   */
+  onContinue() {
+    gAccountSetupLogger.debug("Create button clicked.");
+
+    const completeConfig = this.getCompleteConfig();
+    // TODO: Open security warning dialog before resuming account creation.
+
+    try {
+      this.validateAndFinish(completeConfig);
+    } catch (error) {
+      // TODO: Show custom error notification for account creation error.
+    }
+  }
+
+  /**
+   * Called from the "onContinue" function, does final validation on the
+   * the complete config that is provided by the user and modified by helper.
+   *
+   * @param {AccountConfig} completeConfig - The completed config
+   */
+  async validateAndFinish(completeConfig) {
+    if (
+      completeConfig.incoming.type == "exchange" &&
+      "addonAccountType" in completeConfig.incoming
+    ) {
+      completeConfig.incoming.type = completeConfig.incoming.addonAccountType;
+    }
+
+    if (CreateInBackend.checkIncomingServerAlreadyExists(completeConfig)) {
+      // TODO: Return an error notification if the incoming server already exists.
+      return;
+    }
+
+    if (completeConfig.outgoing.addThisServer) {
+      const existingServer =
+        CreateInBackend.checkOutgoingServerAlreadyExists(completeConfig);
+      if (existingServer) {
+        completeConfig.outgoing.addThisServer = false;
+        completeConfig.outgoing.existingServerKey = existingServer.key;
+      }
+    }
+
+    this.clearNotifications();
+    this.initUI("loading");
+
+    const telemetryKey =
+      this.#currentConfig.source == AccountConfig.kSourceXML ||
+      this.#currentConfig.source == AccountConfig.kSourceExchange
+        ? this.#currentConfig.subSource
+        : this.#currentConfig.source;
+
+    // This verifies the the current config and, if needed, opens up an
+    // additional window for authentication.
+    this.#configVerifier = new ConfigVerifier(window.msgWindow);
+
+    try {
+      const successfulConfig = await this.#configVerifier.verifyConfig(
+        completeConfig,
+        completeConfig.source != AccountConfig.kSourceXML
+      );
+      // The auth might have changed, so we should update the current config.
+      this.#currentConfig.incoming.auth = successfulConfig.incoming.auth;
+      this.#currentConfig.outgoing.auth = successfulConfig.outgoing.auth;
+      this.#currentConfig.incoming.username =
+        successfulConfig.incoming.username;
+      this.#currentConfig.outgoing.username =
+        successfulConfig.outgoing.username;
+
+      // We loaded dynamic client registration, fill this data back in to the
+      // config set.
+      if (successfulConfig.incoming.oauthSettings) {
+        this.#currentConfig.incoming.oauthSettings =
+          successfulConfig.incoming.oauthSettings;
+      }
+      if (successfulConfig.outgoing.oauthSettings) {
+        this.#currentConfig.outgoing.oauthSettings =
+          successfulConfig.outgoing.oauthSettings;
+      }
+
+      this.#currentConfig = completeConfig;
+      this.finishEmailAccountAddition(completeConfig);
+
+      Services.telemetry.keyedScalarAdd(
+        "tb.account.successful_email_account_setup",
+        telemetryKey,
+        1
+      );
+    } catch (error) {
+      // If we get no message, then something other than VerifyLogon failed.
+
+      // For an Exchange server, some known configurations can
+      // be disabled (per user or domain or server).
+      // Warn the user if the open protocol we tried didn't work.
+      if (
+        ["imap", "pop3"].includes(completeConfig.incoming.type) &&
+        completeConfig.incomingAlternatives.some(i => i.type == "exchange")
+      ) {
+        // TODO: Show exchange config not verifiable error notification.
+      } else {
+        // const msg = e.message || e.toString();
+        // TODO: Show account not created error notification.
+      }
+      this.#configVerifier.cleanup();
+      this.initUI("manualEmail");
+
+      Services.telemetry.keyedScalarAdd(
+        "tb.account.failed_email_account_setup",
+        telemetryKey,
+        1
+      );
+    }
+  }
+
+  /**
+   * Created the account in the backend and starts loading messages. This
+   * method also leads to the account added view where the user can add more
+   * accounts (calendar, address book, etc.)
+   * @param {AccountConfig} completeConfig - The completed config
+   */
+  async finishEmailAccountAddition(completeConfig) {
+    gAccountSetupLogger.debug("Creating account in backend.");
+    const emailAccount = await CreateInBackend.createAccountInBackend(
+      completeConfig
+    );
+    emailAccount.incomingServer.getNewMessages(
+      emailAccount.incomingServer.rootFolder,
+      window.msgWindow,
+      null
+    );
+
+    // Add custom text on view header for current user.
+    this.querySelector("#accountAddedSubheader").textContent = this
+      .#currentConfig.identity.realName
+      ? this.#currentConfig.identity.realName +
+        " " +
+        this.#currentConfig.incoming.username
+      : this.#currentConfig.incoming.username;
+
+    this.#configVerifier.cleanup();
+    this.initUI("emailAdded");
+  }
   /**
    * Show an error notification in-case something went wrong.
    *
@@ -880,9 +1163,13 @@ class AccountHubEmail extends HTMLElement {
     this.#backButton.hidden = true;
     this.#cancelButton.hidden = true;
 
-    // Reset the footer icons to base two column buttons
-    this.querySelector("#accountHubEmailFooter").childNodes[0].className =
-      "dialog-menu-container two-columns";
+    // Reset the footer icons to base two column buttons. We remove
+    // center-column ( and can remove any additional column lengths ).
+    const footerElementClassList = this.querySelector(
+      "#accountHubEmailFooterMenu"
+    ).classList;
+    footerElementClassList.remove("center-column");
+    footerElementClassList.add("two-columns");
 
     let footerButtons;
 
@@ -932,15 +1219,17 @@ class AccountHubEmail extends HTMLElement {
         this.querySelector("#footerButtonsLeftColumn").hidden = true;
         this.querySelector("#footerButtonsCenterColumn").hidden = false;
         this.querySelector("#footerButtonsRightColumn").hidden = true;
-        this.querySelector("#accountHubEmailFooter").childNodes[0].className =
-          "dialog-menu-container center-column";
+        footerElementClassList.replace("two-columns", "center-column");
         this.#finishButton.hidden = false;
 
         // Add the footer buttons to the end of email added subview.
         footerButtons = this.querySelector("#accountHubEmailFooter");
-        this.#emailLoadingSubview.append(footerButtons);
+        this.#emailAddedSubview.append(footerButtons);
         break;
       default:
+        this.querySelector("#footerButtonsLeftColumn").hidden = true;
+        this.querySelector("#footerButtonsCenterColumn").hidden = true;
+        this.querySelector("#footerButtonsRightColumn").hidden = true;
         break;
     }
   }

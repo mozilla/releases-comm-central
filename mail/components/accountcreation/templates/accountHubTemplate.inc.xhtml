@@ -178,7 +178,7 @@
     </div>
 
     <footer id="accountHubEmailFooter" class="hub-footer">
-      <menu class="dialog-menu-container two-columns">
+      <menu id="accountHubEmailFooterMenu" class="dialog-menu-container two-columns">
         <li id="footerButtonsLeftColumn">
           <button
             id="emailCancelButton"
@@ -529,14 +529,15 @@
   </form>
 
   <!-- Account Hub Email Added Subview -->
-  <div id="emailAddedSubview" hidden="hidden">
+  <div id="emailAddedSubview" class="account-hub-grid" hidden="hidden">
     <header class="hub-header">
       <h1
         id="accountAddedTitle"
         class="sub-view-title"
-        data-l10n-id="account-hub-account-added-title">
+        data-l10n-id="account-hub-email-account-added-title">
       </h1>
-      <h1 id="accountAddedSubheader" class="sub-view-subheader"></h1>
+      <p id="accountAddedSubheader" class="sub-view-subheader">
+      </p>
     </header>
 
     <div class="hub-body">
@@ -544,29 +545,30 @@
   </div>
 
   <!-- Account Hub Email Loading Subview -->
-  <div id="emailLoadingSubview" hidden="hidden">
+  <div id="emailLoadingSubview" class="account-hub-grid" hidden="hidden">
     <header class="hub-header">
-      <!-- <h1
+      <h1
           id="lookupEmailConfigurationTitle"
           class="sub-view-title"
           data-l10n-id="account-hub-lookup-email-configuration-title"
-          hidden="hidden"></h1> -->
+          hidden="hidden">
+      </h1>
       <h1
         id="addingAccountTitle"
         class="sub-view-title"
         data-l10n-id="account-hub-adding-account-title">
       </h1>
-      <!-- <h1
+      <p
           id="lookupEmailConfigurationSubheader"
           class="sub-view-subheader"
-          data-l10n-id="account-hub-trying-server-names-subheader"
+          data-l10n-id="account-hub-lookup-email-configuration-subheader"
           hidden="hidden">
-        </h1> -->
-      <h1
+      </p>
+      <p
         id="addingAccountSubheader"
         class="sub-view-subheader"
         data-l10n-id="account-hub-adding-account-subheader">
-      </h1>
+      </p>
     </header>
 
     <div class="hub-body">

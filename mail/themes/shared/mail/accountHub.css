@@ -61,7 +61,8 @@ dialog {
 }
 
 .account-hub-view:not([hidden]),
-.account-hub-form {
+.account-hub-form,
+.account-hub-grid {
   display: grid;
   grid-template: "header" min-content
                  "body" minmax(auto, 1fr)
