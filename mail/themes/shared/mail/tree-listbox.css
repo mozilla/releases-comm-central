@@ -693,46 +693,53 @@ table[is="tree-view-table"] tr.selected td.current-cell {
   outline: 1px dashed var(--selected-item-text-color);
 }
 
-table[is="tree-view-table"] td {
-  max-width: 0;
-  height: inherit;
-  overflow-x: clip;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0 6px;
-  position: relative;
-  user-select: none;
-  box-sizing: border-box;
-
-  &:is(.button-column, .tree-view-row-select) {
-    padding: 0;
-    text-align: center;
+table[is="tree-view-table"] {
+  tbody tr[is="thread-row"] td:not([colspan="2"]) button:not(.twisty) {
+    height: 100%;
+    width: 100%;
   }
 
-  &.button-column[colspan="2"] {
-    text-align: start;
-
-    & img {
-      margin-inline-start: var(--table-row-cell-img-margin-inline-start);
-    }
-  }
-
-  #threadTree &.button-column[colspan="2"] button {
-    margin-inline-start: var(--table-row-cell-button-margin-inline-start);
-
-    &.tree-button-delete {
-      margin-inline-start: calc(var(--table-row-cell-button-margin-inline-start) + 2px);
-    }
-  }
-
-  & div:not(.recipient-avatar) {
-    overflow: hidden;
+  td {
+    max-width: 0;
+    height: inherit;
+    overflow-x: clip;
     text-overflow: ellipsis;
-  }
+    white-space: nowrap;
+    padding: 0 6px;
+    position: relative;
+    user-select: none;
+    box-sizing: border-box;
 
-  &.current-cell {
-    outline: 1px dashed var(--focus-outline-color);
-    outline-offset: -2px;
+    &:is(.button-column, .tree-view-row-select) {
+      padding: 0;
+      text-align: center;
+    }
+
+    &.button-column[colspan="2"] {
+      text-align: start;
+
+      & img {
+        margin-inline-start: var(--table-row-cell-img-margin-inline-start);
+      }
+    }
+
+    #threadTree &.button-column[colspan="2"] button {
+      margin-inline-start: var(--table-row-cell-button-margin-inline-start);
+
+      &.tree-button-delete {
+        padding-inline: 2px;
+      }
+    }
+
+    & div:not(.recipient-avatar) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.current-cell {
+      outline: 1px dashed var(--focus-outline-color);
+      outline-offset: -2px;
+    }
   }
 }
 
