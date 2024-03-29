@@ -107,6 +107,7 @@ macosx64-rust/opt:
         extra-config:
             extra_mozconfig_content:
                 - ac_add_options --enable-thunderbird-rust
+                - ac_add_options --disable-gtest-in-build
     use-sccache: true
     run-on-projects: ['comm-central']
     fetches:

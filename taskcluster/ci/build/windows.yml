@@ -245,6 +245,7 @@ win64-rust/opt:
             mozconfig_platform: win64
             extra_mozconfig_content:
                 - ac_add_options --enable-thunderbird-rust
+                - ac_add_options --disable-gtest-in-build
     use-sccache: true
     run-on-projects: ['comm-central']
     optimization:
