@@ -36,7 +36,7 @@ job-defaults:
         command:
             - /bin/bash
             - -cx
-            - ./runme.sh
+            - ./repack.sh
         env:
             VERSION: "{release_config[version]}"
             BUILD_NUMBER: "{release_config[build_number]}"

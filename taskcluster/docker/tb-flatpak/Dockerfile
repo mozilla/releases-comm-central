@@ -1,5 +1,5 @@
 FROM freedesktopsdk/flatpak:22.08-x86_64
-MAINTAINER tb-builds@thunderbird.net
+MAINTAINER daniel@thunderbird.net
 
 # Create scripts directory
 RUN mkdir /scripts/

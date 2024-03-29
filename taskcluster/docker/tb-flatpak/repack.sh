@@ -50,9 +50,10 @@ rm -rf ~/.local/share/flatpak/
 $CURL -o "${WORKSPACE}/thunderbird.tar.bz2" \
     "${CANDIDATES_DIR}/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/en-US/thunderbird-${VERSION}.tar.bz2"
 
-# Fetch list of Thunderbird locales
-$CURL -o "${WORKSPACE}/l10n-changesets.json" "$L10N_CHANGESETS"
-locales=$(python3 "$SCRIPT_DIR/extract_locales_from_l10n_json.py" "${WORKSPACE}/l10n-changesets.json")
+# Download locale information and extract locales to be included in snap
+$CURL -o "${WORKSPACE}/onchange-locales" "${RAW_FILE_URL}/mail/locales/onchange-locales"
+$CURL -o "${WORKSPACE}/l10n-changesets.json" "${RAW_FILE_URL}/mail/locales/l10n-changesets.json"
+locales=$(< "${WORKSPACE}/onchange-locales" sed "s/ja-JP-mac//")
 
 # Fetch langpack extension for each locale
 mkdir -p "$DISTRIBUTION_DIR"
@@ -166,7 +167,6 @@ flatpak build-finish build                                      \
         --socket=cups                                           \
         --require-version=0.10.3                                \
         --persist=.thunderbird                                  \
-        --env=DICPATH=/usr/share/hunspell                       \
         --filesystem=xdg-download:rw                            \
         --filesystem=~/.gnupg                                   \
         --filesystem=xdg-run/gnupg:ro                           \
