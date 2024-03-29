@@ -27,6 +27,7 @@ jobs-from:
 job-defaults:
     attributes:
         retrigger: true
+    use-python: default
     optimization:
         by-test-platform:
             .*-tsan.*/opt:
