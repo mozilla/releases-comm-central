@@ -141,25 +141,21 @@
 //!
 //! [pinned]: https://doc.rust-lang.org/std/pin/index.html
 
-#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::comparison_chain, clippy::missing_safety_doc)]
 
-extern crate alloc;
-
-use alloc::alloc::*;
-use alloc::{boxed::Box, vec::Vec};
-use core::borrow::*;
-use core::cmp::*;
-use core::convert::TryFrom;
-use core::convert::TryInto;
-use core::hash::*;
-use core::iter::FromIterator;
-use core::marker::PhantomData;
-use core::ops::Bound;
-use core::ops::{Deref, DerefMut, RangeBounds};
-use core::ptr::NonNull;
-use core::slice::IterMut;
-use core::{fmt, mem, ptr, slice};
+use std::alloc::*;
+use std::borrow::*;
+use std::cmp::*;
+use std::convert::TryFrom;
+use std::convert::TryInto;
+use std::hash::*;
+use std::iter::FromIterator;
+use std::marker::PhantomData;
+use std::ops::Bound;
+use std::ops::{Deref, DerefMut, RangeBounds};
+use std::ptr::NonNull;
+use std::slice::IterMut;
+use std::{fmt, io, mem, ptr, slice};
 
 use impl_details::*;
 
@@ -314,13 +310,11 @@ impl Header {
 
 #[cfg(not(feature = "gecko-ffi"))]
 impl Header {
-    #[inline]
     #[allow(clippy::unnecessary_cast)]
     fn cap(&self) -> usize {
         self._cap as usize
     }
 
-    #[inline]
     fn set_cap(&mut self, cap: usize) {
         self._cap = assert_size(cap);
     }
@@ -670,11 +664,6 @@ impl<T> ThinVec<T> {
         self.header().cap()
     }
 
-    /// Returns `true` if the vector has the capacity to hold any element.
-    pub fn has_capacity(&self) -> bool {
-        !self.is_singleton()
-    }
-
     /// Forces the length of the vector to `new_len`.
     ///
     /// This is a low-level operation that maintains none of the normal
@@ -760,7 +749,7 @@ impl<T> ThinVec<T> {
         if self.is_singleton() {
             // A prerequisite of `Vec::set_len` is that `new_len` must be
             // less than or equal to capacity(). The same applies here.
-            debug_assert!(len == 0, "invalid set_len({}) on empty ThinVec", len);
+            assert!(len == 0, "invalid set_len({}) on empty ThinVec", len);
         } else {
             self.header_mut().set_len(len)
         }
@@ -1128,7 +1117,7 @@ impl<T> ThinVec<T> {
             min_cap_bytes.next_power_of_two() as usize
         };
 
-        let cap = (bytes - core::mem::size_of::<Header>()) / elem_size;
+        let cap = (bytes - std::mem::size_of::<Header>()) / elem_size;
         unsafe {
             self.reallocate(cap);
         }
@@ -1970,7 +1959,7 @@ impl<T> FromIterator<T> for ThinVec<T> {
     #[inline]
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> ThinVec<T> {
         let mut vec = ThinVec::new();
-        vec.extend(iter);
+        vec.extend(iter.into_iter());
         vec
     }
 }
@@ -2017,7 +2006,7 @@ impl<T, const N: usize> From<[T; N]> for ThinVec<T> {
     /// assert_eq!(ThinVec::from([1, 2, 3]), thin_vec![1, 2, 3]);
     /// ```
     fn from(s: [T; N]) -> ThinVec<T> {
-        core::iter::IntoIterator::into_iter(s).collect()
+        std::iter::IntoIterator::into_iter(s).collect()
     }
 }
 
@@ -2259,11 +2248,11 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
 
 impl<T> ExactSizeIterator for IntoIter<T> {}
 
-impl<T> core::iter::FusedIterator for IntoIter<T> {}
+impl<T> std::iter::FusedIterator for IntoIter<T> {}
 
 // SAFETY: the length calculation is trivial, we're an array! And if it's wrong we're So Screwed.
 #[cfg(feature = "unstable")]
-unsafe impl<T> core::iter::TrustedLen for IntoIter<T> {}
+unsafe impl<T> std::iter::TrustedLen for IntoIter<T> {}
 
 impl<T> Drop for IntoIter<T> {
     #[inline]
@@ -2425,9 +2414,9 @@ impl<'a, T> ExactSizeIterator for Drain<'a, T> {}
 
 // SAFETY: we need to keep track of this perfectly Or Else anyway!
 #[cfg(feature = "unstable")]
-unsafe impl<T> core::iter::TrustedLen for Drain<'_, T> {}
+unsafe impl<T> std::iter::TrustedLen for Drain<'_, T> {}
 
-impl<T> core::iter::FusedIterator for Drain<'_, T> {}
+impl<T> std::iter::FusedIterator for Drain<'_, T> {}
 
 impl<'a, T> Drop for Drain<'a, T> {
     fn drop(&mut self) {
@@ -2614,22 +2603,21 @@ impl<T> Drain<'_, T> {
 /// Write is implemented for `ThinVec<u8>` by appending to the vector.
 /// The vector will grow as needed.
 /// This implementation is identical to the one for `Vec<u8>`.
-#[cfg(feature = "std")]
-impl std::io::Write for ThinVec<u8> {
+impl io::Write for ThinVec<u8> {
     #[inline]
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.extend_from_slice(buf);
         Ok(buf.len())
     }
 
     #[inline]
-    fn write_all(&mut self, buf: &[u8]) -> std::io::Result<()> {
+    fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
         self.extend_from_slice(buf);
         Ok(())
     }
 
     #[inline]
-    fn flush(&mut self) -> std::io::Result<()> {
+    fn flush(&mut self) -> io::Result<()> {
         Ok(())
     }
 }
@@ -2639,11 +2627,10 @@ impl std::io::Write for ThinVec<u8> {
 #[cfg(test)]
 mod tests {
     use super::{ThinVec, MAX_CAP};
-    use crate::alloc::{string::ToString, vec};
 
     #[test]
     fn test_size_of() {
-        use core::mem::size_of;
+        use std::mem::size_of;
         assert_eq!(size_of::<ThinVec<u8>>(), size_of::<&u8>());
 
         assert_eq!(size_of::<Option<ThinVec<u8>>>(), size_of::<&u8>());
@@ -2831,7 +2818,6 @@ mod tests {
             assert_eq!(v.into_iter().count(), 0);
 
             let v = ThinVec::<i32>::new();
-            #[allow(clippy::never_loop)]
             for _ in v.into_iter() {
                 unreachable!();
             }
@@ -2841,7 +2827,6 @@ mod tests {
             let mut v = ThinVec::<i32>::new();
             assert_eq!(v.drain(..).len(), 0);
 
-            #[allow(clippy::never_loop)]
             for _ in v.drain(..) {
                 unreachable!()
             }
@@ -2855,7 +2840,6 @@ mod tests {
             let mut v = ThinVec::<i32>::new();
             assert_eq!(v.splice(.., []).len(), 0);
 
-            #[allow(clippy::never_loop)]
             for _ in v.splice(.., []) {
                 unreachable!()
             }
@@ -3019,12 +3003,8 @@ mod std_tests {
     #![allow(clippy::reversed_empty_ranges)]
 
     use super::*;
-    use crate::alloc::{
-        format,
-        string::{String, ToString},
-    };
-    use core::mem::size_of;
-    use core::usize;
+    use std::mem::size_of;
+    use std::usize;
 
     struct DropCounter<'a> {
         count: &'a mut u32,
@@ -3682,7 +3662,7 @@ mod std_tests {
     fn test_splice_forget() {
         let mut v = thin_vec![1, 2, 3, 4, 5];
         let a = [10, 11, 12];
-        ::core::mem::forget(v.splice(2..4, a.iter().cloned()));
+        ::std::mem::forget(v.splice(2..4, a.iter().cloned()));
         assert_eq!(v, &[1, 2]);
     }
 
@@ -4201,7 +4181,7 @@ mod std_tests {
                 let v: ThinVec<$typename> = ThinVec::with_capacity(1 /* ensure allocation */);
                 let head_ptr: *mut $typename = v.data_raw();
                 assert_eq!(
-                    head_ptr as usize % core::mem::align_of::<$typename>(),
+                    head_ptr as usize % std::mem::align_of::<$typename>(),
                     0,
                     "expected Header::data<{}> to be aligned",
                     stringify!($typename)
@@ -4209,8 +4189,8 @@ mod std_tests {
             }};
         }
 
-        const HEADER_SIZE: usize = core::mem::size_of::<Header>();
-        assert_eq!(2 * core::mem::size_of::<usize>(), HEADER_SIZE);
+        const HEADER_SIZE: usize = std::mem::size_of::<Header>();
+        assert_eq!(2 * std::mem::size_of::<usize>(), HEADER_SIZE);
 
         #[repr(C, align(128))]
         struct Funky<T>(T);
