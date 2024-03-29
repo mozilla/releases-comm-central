@@ -1,0 +1,28 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIStreamListener;
+
+[uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
+interface IEwsFolderCallbacks : nsISupports
+{
+  void recordRootFolder(in AUTF8String id);
+
+  void create(in AUTF8String id, in AUTF8String parentId, in AString name, in unsigned long flags);
+  void update(in AUTF8String id, in AUTF8String name);
+  void delete(in AUTF8String id);
+
+  void updateState(in AUTF8String syncStateToken);
+  void onError();
+};
+
+[uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
+interface IEwsClient : nsISupports
+{
+  void initialize(in AUTF8String endpoint, in AUTF8String username, in AString password);
+
+  void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
+};

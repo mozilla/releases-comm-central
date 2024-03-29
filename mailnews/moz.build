@@ -23,6 +23,7 @@ DIRS += [
     "local/src",
     "mime",
     "news",
+    "protocols",
     "search/public",
     "search/src",
 ]

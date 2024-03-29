@@ -1,0 +1,18 @@
+[package]
+name = "ews_xpcom"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+base64 = "0.21.3"
+ews = { version = "0.1.0", path = "ews" }
+futures = "0.3.28"
+fxhash = "0.2.1"
+moz_http = { version = "0.1.0", path = "../moz_http" }
+moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
+nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
+nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
+url = "2.5.0"
+xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

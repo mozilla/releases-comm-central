@@ -10,5 +10,4 @@ name = "xpcom_async"
 mozilla-central-workspace-hack = { version = "0.1", features = [], optional = true }
 xpcom = { path = "../../../xpcom/rust/xpcom" }
 nserror = { path = "../../../xpcom/rust/nserror" }
-
-thin-vec = "0.2.13"
+thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }

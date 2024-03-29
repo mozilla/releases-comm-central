@@ -1454,6 +1454,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "ews"
+version = "0.1.0"
+dependencies = [
+ "quick-xml",
+ "serde",
+ "xml_struct",
+]
+
+[[package]]
+name = "ews_xpcom"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "ews",
+ "futures",
+ "fxhash",
+ "moz_http",
+ "moz_task",
+ "nserror",
+ "nsstring",
+ "url",
+ "xpcom",
+]
+
+[[package]]
 name = "fallible-iterator"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1902,6 +1927,7 @@ dependencies = [
  "data_storage",
  "dom",
  "encoding_glue",
+ "ews_xpcom",
  "fallible_collections",
  "fluent",
  "fluent-fallback",
@@ -3091,7 +3117,6 @@ dependencies = [
  "mozilla-central-workspace-hack",
  "nserror",
  "nsstring",
- "thin-vec",
  "thiserror",
  "url",
  "xpcom",
@@ -3854,6 +3879,16 @@ name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
+
+[[package]]
+name = "quick-xml"
+version = "0.31.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1004a344b30a54e2ee58d66a71b32d2db2feb0a31f9a2d302bf0536f15de2a33"
+dependencies = [
+ "memchr",
+ "serde",
+]
 
 [[package]]
 name = "quote"
@@ -4735,9 +4770,9 @@ dependencies = [
 
 [[package]]
 name = "thin-vec"
-version = "0.2.13"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a38c90d48152c236a3ab59271da4f4ae63d678c5d7ad6b7714d7cb9760be5e4b"
+checksum = "aac81b6fd6beb5884b0cf3321b8117e6e5d47ecb6fc89f414cfdcca8b2fe2dd8"
 
 [[package]]
 name = "thiserror"
@@ -5673,6 +5708,26 @@ name = "xml-rs"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
+
+[[package]]
+name = "xml_struct"
+version = "0.1.0"
+source = "git+https://github.com/thunderbird/xml_struct.git?rev=ace285b5848750064d4f5ad30ddc0c0bff53d8a9#ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+dependencies = [
+ "quick-xml",
+ "thiserror",
+ "xml_struct_derive",
+]
+
+[[package]]
+name = "xml_struct_derive"
+version = "0.1.0"
+source = "git+https://github.com/thunderbird/xml_struct.git?rev=ace285b5848750064d4f5ad30ddc0c0bff53d8a9#ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "xmldecl"

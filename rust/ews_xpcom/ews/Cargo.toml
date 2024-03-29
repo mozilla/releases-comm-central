@@ -1,0 +1,11 @@
+[package]
+name = "ews"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+quick-xml = { version = "0.31.0", features = ["serialize"] }
+serde = { version = "1.0.193", features = ["derive"] }
+xml_struct = { git = "https://github.com/thunderbird/xml_struct.git", rev = "ace285b5848750064d4f5ad30ddc0c0bff53d8a9", version = "0.1.0" }

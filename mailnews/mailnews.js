@@ -1169,3 +1169,8 @@ pref("mail.export.loglevel", "Warn");
 // When true, disk cache is used for messages not in offline store. If false,
 // memory cache is used instead. Both use the cache2 implementation.
 pref("mail.imap.use_disk_cache2", true);
+
+#ifdef MOZ_THUNDERBIRD_RUST
+// Enable support for Microsoft Exchange via Exchange Web Services.
+pref("experimental.mail.ews.enabled", false);
+#endif
