@@ -5,7 +5,7 @@
 #ifndef nsAutoSyncState_h__
 #define nsAutoSyncState_h__
 
-#include "MailNewsTypes.h"
+#include "MailNewsTypes2.h"
 #include "nsIAutoSyncState.h"
 #include "nsIUrlListener.h"
 #include "nsIWeakReferenceUtils.h"

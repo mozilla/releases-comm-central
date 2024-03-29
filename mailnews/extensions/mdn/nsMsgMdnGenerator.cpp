@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgMdnGenerator.h"
+#include "MailNewsTypes.h"
 #include "nsImapCore.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgAccountManager.h"
@@ -18,7 +19,6 @@
 #include "nsISmtpService.h"  // for actually sending the message...
 #include "nsComposeStrings.h"
 #include "nsISmtpServer.h"
-#include "nsIPrompt.h"
 #include "nsIMsgCompUtils.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"

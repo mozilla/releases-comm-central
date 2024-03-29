@@ -6,15 +6,12 @@
 #ifndef nsImapUndoTxn_h__
 #define nsImapUndoTxn_h__
 
-#include "mozilla/Attributes.h"
 #include "nsIMsgFolder.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIUrlListener.h"
 #include "nsMsgTxn.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsIMsgOfflineImapOperation.h"
-#include "nsCOMPtr.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsCOMArray.h"
 

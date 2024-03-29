@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // for pre-compiled headers
+#include "MailNewsTypes.h"
 #include "nsMimeTypes.h"
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
@@ -11,7 +11,6 @@
 #include "nsIImapFlagAndUidState.h"
 #include "nsImapNamespace.h"
 #include "nsImapUtils.h"
-#include "nsCRT.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Logging.h"
 
@@ -21,8 +20,7 @@ extern mozilla::LazyLogModule IMAP;  // defined in nsImapProtocol.cpp
 
 nsImapServerResponseParser::nsImapServerResponseParser(
     nsImapProtocol& imapProtocolConnection)
-    : nsImapGenericParser(),
-      fReportingErrors(true),
+    : fReportingErrors(true),
       fCurrentFolderReadOnly(false),
       fCurrentLineContainedFlagInfo(false),
       fServerIsNetscape3xServer(false),

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsSyncRunnableHelpers.h"
+#include "nsComponentManagerUtils.h"
 #include "nsImapCore.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgIncomingServer.h"
@@ -573,12 +574,12 @@ void OAuth2ThreadHelper::Connect() {
   }
 }
 
-nsresult OAuth2ThreadHelper::OnSuccess(const nsACString& aOAuth2String) {
+nsresult OAuth2ThreadHelper::OnSuccess(const nsACString& aBearerToken) {
   MOZ_ASSERT(NS_IsMainThread(), "Can't touch JS off-main-thread");
   MonitorAutoLock lockGuard(mMonitor);
 
   MOZ_ASSERT(mOAuth2Support, "Should not be here if no OAuth2 support");
-  mOAuth2String = aOAuth2String;
+  mOAuth2String = aBearerToken;
   mMonitor.Notify();
   return NS_OK;
 }

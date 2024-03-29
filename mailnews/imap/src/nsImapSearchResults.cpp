@@ -3,11 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // for pre-compiled headers
-
 #include "nsImapSearchResults.h"
+#include "plstr.h"
 #include "prmem.h"
-#include "nsCRT.h"
 
 nsImapSearchResultSequence::nsImapSearchResultSequence() {}
 
@@ -57,15 +55,17 @@ int32_t nsImapSearchResultIterator::GetNextMessageNumber() {
     returnValue = atoi(fPositionInCurrentLine);
 
     // eat the current number
-    while (isdigit(*++fPositionInCurrentLine))
-      ;
+    while (isdigit(*++fPositionInCurrentLine)) {
+    }
 
     if (*fPositionInCurrentLine == 0xD)  // found CR, no more digits on line
     {
       fCurrentLine = (char*)fSequence.SafeElementAt(++fSequenceIndex);
       fPositionInCurrentLine = fCurrentLine;
-    } else  // eat the space
+    } else {
+      // eat the space
       fPositionInCurrentLine++;
+    }
   }
 
   return returnValue;

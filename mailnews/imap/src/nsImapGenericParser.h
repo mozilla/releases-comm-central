@@ -11,6 +11,8 @@ shell parser
 #ifndef nsImapGenericParser_H
 #define nsImapGenericParser_H
 
+#include <stdint.h>
+
 #define WHITESPACE " \015\012"  // token delimiter
 
 class nsImapGenericParser {

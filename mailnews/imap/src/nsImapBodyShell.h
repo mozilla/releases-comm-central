@@ -10,10 +10,8 @@ nsImapBodyShell and associated classes
 #ifndef IMAPBODY_H
 #define IMAPBODY_H
 
-#include "mozilla/Attributes.h"
 #include "nsImapCore.h"
-#include "nsString.h"
-#include "nsRefPtrHashtable.h"
+#include "nsRefCountedHashtable.h"
 #include "nsTArray.h"
 
 class nsImapProtocol;

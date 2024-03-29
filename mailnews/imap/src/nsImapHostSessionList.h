@@ -6,10 +6,10 @@
 #ifndef _nsImapHostSessionList_H_
 #define _nsImapHostSessionList_H_
 
-#include "mozilla/Attributes.h"
 #include "nsImapCore.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsIObserver.h"
+#include "nsTString.h"
 #include "nsWeakReference.h"
 #include "nspr.h"
 

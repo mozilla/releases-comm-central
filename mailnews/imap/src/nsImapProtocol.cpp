@@ -31,7 +31,6 @@
 #include "nsIPipe.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgMessageFlags.h"
-#include "nsTextFormatter.h"
 #include "nsTransportUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgI18N.h"

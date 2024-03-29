@@ -6,13 +6,13 @@
 #ifndef _nsImapOfflineSync_H_
 #define _nsImapOfflineSync_H_
 
-#include "mozilla/Attributes.h"
 #include "nsIMsgDatabase.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgOfflineImapOperation.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgFolder.h"
 #include "nsCOMArray.h"
+#include "nsCOMPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIImapOfflineSync.h"
 

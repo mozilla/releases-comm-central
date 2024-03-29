@@ -15,7 +15,6 @@
 #include "nsIMsgIdentity.h"
 #include "nsIMsgWindow.h"
 #include "nsIMimeHeaders.h"
-#include "nsString.h"
 #include "MailNewsTypes2.h"
 
 #define eNeverSendOp ((int32_t)0)

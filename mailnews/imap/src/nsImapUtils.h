@@ -6,8 +6,8 @@
 #ifndef NS_IMAPUTILS_H
 #define NS_IMAPUTILS_H
 
-#include "nsString.h"
-#include "MailNewsTypes.h"
+#include "nsTString.h"
+#include "MailNewsTypes2.h"
 #include "nsTArray.h"
 #include "nsIMailboxSpec.h"
 #include "nsCOMPtr.h"

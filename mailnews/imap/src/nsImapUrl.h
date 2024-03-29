@@ -6,7 +6,6 @@
 #ifndef nsImapUrl_h___
 #define nsImapUrl_h___
 
-#include "mozilla/Attributes.h"
 #include "nsIImapUrl.h"
 #include "nsCOMPtr.h"
 #include "nsMsgMailNewsUrl.h"

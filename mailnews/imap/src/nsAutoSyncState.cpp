@@ -11,7 +11,6 @@
 #include "nsIAutoSyncManager.h"
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;

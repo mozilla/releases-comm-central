@@ -52,7 +52,6 @@
 #include "nsIMsgMailSession.h"
 #include "nsIStreamConverterService.h"
 #include "nsIAutoSyncManager.h"
-#include "nsThreadUtils.h"
 #include "nsNetUtil.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgPluggableStore.h"

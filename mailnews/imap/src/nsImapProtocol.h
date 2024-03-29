@@ -6,7 +6,6 @@
 #ifndef nsImapProtocol_h___
 #define nsImapProtocol_h___
 
-#include "mozilla/Attributes.h"
 #include "nsIImapProtocol.h"
 #include "nsIImapUrl.h"
 
@@ -15,7 +14,6 @@
 #include "nsIAsyncOutputStream.h"
 #include "nsIAsyncInputStream.h"
 #include "nsImapCore.h"
-#include "nsString.h"
 #include "nsIProgressEventSink.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsISocketTransport.h"
@@ -33,8 +31,6 @@
 #include "nsIInputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsCOMArray.h"
-#include "nsIThread.h"
-#include "nsIRunnable.h"
 #include "nsIImapMockChannel.h"
 #include "nsILoadGroup.h"
 #include "nsCOMPtr.h"
@@ -48,7 +44,6 @@
 #include "nsSyncRunnableHelpers.h"
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIProtocolProxyCallback.h"
-#include "nsIStringBundle.h"
 #include "nsHashPropertyBag.h"
 #include "nsMailChannel.h"
 
@@ -59,10 +54,10 @@ class nsIPrefBranch;
 
 #define kDownLoadCacheSize 16000u  // was 1536 - try making it bigger
 
-typedef struct _msg_line_info {
+using msg_line_info = struct _msg_line_info {
   const char* adoptedMessageLine;
   uint32_t uidOfMessage;
-} msg_line_info;
+};
 
 class nsMsgImapLineDownloadCache : public nsIImapHeaderInfo,
                                    public nsByteArray {

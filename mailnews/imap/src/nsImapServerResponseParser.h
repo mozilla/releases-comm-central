@@ -6,13 +6,12 @@
 #ifndef _nsIMAPServerResponseParser_H_
 #define _nsIMAPServerResponseParser_H_
 
-#include "mozilla/Attributes.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsImapSearchResults.h"
-#include "nsString.h"
-#include "MailNewsTypes.h"
+#include "MailNewsTypes2.h"
 #include "nsTArray.h"
 #include "nsImapUtils.h"
+#include "prmem.h"
 
 class nsImapSearchResultIterator;
 class nsIImapFlagAndUidState;

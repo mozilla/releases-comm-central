@@ -10,7 +10,6 @@
 #include "nsIMsgMessageService.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
-#include "nsString.h"
 #include "nsIProtocolHandler.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIContentHandler.h"

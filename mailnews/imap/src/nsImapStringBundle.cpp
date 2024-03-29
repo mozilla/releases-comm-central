@@ -8,7 +8,6 @@
 #include "nsString.h"
 #include "nsIStringBundle.h"
 #include "nsImapStringBundle.h"
-#include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
 
 #define IMAP_MSGS_URL "chrome://messenger/locale/imapMsgs.properties"

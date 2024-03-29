@@ -3,11 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // for pre-compiled headers
+#include "MailNewsTypes.h"
 
 #include "nsImapCore.h"
 #include "nsImapFlagAndUidState.h"
-#include "nsMsgUtils.h"
 #include "prcmon.h"
 #include "nspr.h"
 
@@ -132,9 +131,10 @@ NS_IMETHODIMP nsImapFlagAndUidState::ExpungeByIndex(uint32_t msgIndex) {
 
   PR_CEnterMonitor(this);
   msgIndex--;  // msgIndex is 1-relative
-  if (fFlags[msgIndex] &
-      kImapMsgDeletedFlag)  // see if we already had counted this one as deleted
+  if (fFlags[msgIndex] & kImapMsgDeletedFlag) {
+    // see if we already had counted this one as deleted
     fNumberDeleted--;
+  }
   fUids.RemoveElementAt(msgIndex);
   fFlags.RemoveElementAt(msgIndex);
   PR_CExitMonitor(this);
@@ -145,8 +145,10 @@ NS_IMETHODIMP nsImapFlagAndUidState::ExpungeByIndex(uint32_t msgIndex) {
 NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(uint32_t uid,
                                                     imapMessageFlagsType flags,
                                                     uint32_t zeroBasedIndex) {
-  if (uid == nsMsgKey_None)  // ignore uid of -1
+  if (uid == nsMsgKey_None) {
+    // ignore uid of -1
     return NS_OK;
+  }
   // check for potential overflow in buffer size for uid array
   if (zeroBasedIndex > 0x3FFFFFFF) return NS_ERROR_INVALID_ARG;
   PR_CEnterMonitor(this);
@@ -189,8 +191,9 @@ uint32_t nsImapFlagAndUidState::GetHighestNonDeletedUID() {
   do {
     if (msgIndex <= 0) return (0);
     msgIndex--;
-    if (fUids[msgIndex] && !(fFlags[msgIndex] & kImapMsgDeletedFlag))
+    if (fUids[msgIndex] && !(fFlags[msgIndex] & kImapMsgDeletedFlag)) {
       return fUids[msgIndex];
+    }
   } while (msgIndex > 0);
   return 0;
 }
@@ -204,10 +207,8 @@ bool nsImapFlagAndUidState::IsLastMessageUnseen() {
   if (msgIndex <= 0) return false;
   msgIndex--;
   // if last message is deleted, it was probably filtered the last time around
-  if (fUids[msgIndex] &&
-      (fFlags[msgIndex] & (kImapMsgSeenFlag | kImapMsgDeletedFlag)))
-    return false;
-  return true;
+  return !(fUids[msgIndex] &&
+           (fFlags[msgIndex] & (kImapMsgSeenFlag | kImapMsgDeletedFlag)));
 }
 
 // find a message flag given a key with non-recursive binary search, since some
@@ -256,8 +257,9 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
       if (((oldValue.Length() == existingCustomFlagPos + customFlagLen) ||
            (oldValue.CharAt(existingCustomFlagPos + customFlagLen) == ' ')) &&
           ((existingCustomFlagPos == 0) ||
-           (oldValue.CharAt(existingCustomFlagPos - 1) == ' ')))
+           (oldValue.CharAt(existingCustomFlagPos - 1) == ' '))) {
         return NS_OK;
+      }
       // else, advance to next flag
       existingCustomFlagPos = oldValue.Find(
           customFlagString, existingCustomFlagPos + customFlagLen);
