@@ -37,9 +37,7 @@ codespell:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: codespell.yml
+        skip-unless-mozlint: codespell.yml
 
 eslint:
     description: JS lint check
@@ -55,9 +53,7 @@ eslint:
             ln -s ../tools/lint/eslint/eslint-plugin-spidermonkey-js node_modules &&
             ./mach commlint -v -l eslint -f treeherder -f json:/builds/worker/mozlint.json comm/
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: eslint.yml
+        skip-unless-mozlint: eslint.yml
 
 file-perm:
     description: Check for incorrect permissions on source files
@@ -73,9 +69,7 @@ file-perm:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: file-perm.yml
+        skip-unless-mozlint: file-perm.yml
 
 file-whitespace:
     description: Check for trailing whitespaces and Windows CR
@@ -91,9 +85,7 @@ file-whitespace:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: file-whitespace.yml
+        skip-unless-mozlint: file-whitespace.yml
 
 fluent-lint:
     description: Check for problems with Fluent files.
@@ -105,9 +97,7 @@ fluent-lint:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: fluent-lint.yml
+        skip-unless-mozlint: fluent-lint.yml
 
 license:
     description: Check for license blocks in source files.
@@ -119,9 +109,7 @@ license:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: license.yml
+        skip-unless-mozlint: license.yml
 
 l10n-conflicts:
     description: l10n tests for strings with errors and conflicts with cross-channel
@@ -135,9 +123,7 @@ l10n-conflicts:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: l10n.yml
+        skip-unless-mozlint: l10n.yml
 
 localization:
     description: l10n tests for strings with errors
@@ -150,9 +136,7 @@ localization:
     attributes:
         code-review: false
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: l10n.yml
+        skip-unless-mozlint: l10n.yml
 
 lintpref:
     description: Check for duplicates between all.js and StaticPrefList.yaml.
@@ -164,9 +148,7 @@ lintpref:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: lintpref.yml
+        skip-unless-mozlint: lintpref.yml
 
 mingw-cap:
     description: lint for MinGW Capitalization issues
@@ -178,9 +160,7 @@ mingw-cap:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: mingw-capitalization.yml
+        skip-unless-mozlint: mingw-capitalization.yml
 
 py-black:
     description: black run over the gecko codebase
@@ -192,9 +172,7 @@ py-black:
               -f json:/builds/worker/mozlint.json
               comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: black.yml
+        skip-unless-mozlint: black.yml
 
 py-ruff:
     description: Run ruff over the codebase
@@ -206,9 +184,7 @@ py-ruff:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: ruff.yml
+        skip-unless-mozlint: ruff.yml
 
 rustfmt:
     description: rustfmt on the Rust code
@@ -222,9 +198,7 @@ rustfmt:
         toolchain:
             - linux64-rust
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: rustfmt.yml
+        skip-unless-mozlint: rustfmt.yml
 
 shellcheck:
     description: shellcheck run over the Thunderbird codebase
@@ -237,9 +211,7 @@ shellcheck:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: shellcheck.yml
+        skip-unless-mozlint: shellcheck.yml
 
 stylelint:
     description: CSS lint check
@@ -254,9 +226,7 @@ stylelint:
             -f json:/builds/worker/mozlint.json
             comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: stylelint.yml
+        skip-unless-mozlint: stylelint.yml
 
 trojan-source:
     description: Trojan Source attack - CVE-2021-42572
@@ -269,9 +239,7 @@ trojan-source:
               -f json:/builds/worker/mozlint.json
               comm/*
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: trojan-source.yml
+        skip-unless-mozlint: trojan-source.yml
 
 yaml:
     description: yamllint run over the taskcluster configuration
@@ -285,6 +253,4 @@ yaml:
             comm/taskcluster
             comm/.*.yml
     optimization:
-        skip-unless-mozlint:
-            root-path: comm
-            mozlint-config: yaml.yml
+        skip-unless-mozlint: yaml.yml
