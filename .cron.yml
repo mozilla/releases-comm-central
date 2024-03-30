@@ -77,16 +77,6 @@ jobs:
       when: [{hour: 8, minute: 30}]
       # when: []
 
-    - name: are-we-esmified-yet
-      job:
-          type: decision-task
-          treeherder-symbol: are-we-esmified-yet
-          target-tasks-method: are-we-esmified-yet
-      run-on-projects:
-          - comm-central
-      when: [{hour: 0, minute: 15}]
-      # when: []
-
     - name: l10n-cross-channel
       job:
           type: decision-task
