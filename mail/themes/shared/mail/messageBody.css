@@ -78,6 +78,11 @@ mailattachcount {
   text-decoration: underline;
 }
 
+.moz-txt-formfeed {
+  display: block;
+  height: 100vh;
+}
+
 /* Ignore named pages when printing. */
 @media print {
   * { page: auto !important; }
