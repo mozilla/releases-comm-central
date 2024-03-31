@@ -6,7 +6,6 @@
 
 .mail-toolbox,
 .contentTabToolbox {
-  appearance: none;
   background-color: var(--toolbar-bgcolor);
 
   :root[lwtheme] & {

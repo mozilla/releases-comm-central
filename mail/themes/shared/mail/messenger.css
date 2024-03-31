@@ -71,10 +71,6 @@ hr {
   pointer-events: none;
 }
 
-#navigation-toolbox {
-  appearance: none;
-}
-
 :root[lwtheme] #navigation-toolbox,
 :root[lwtheme] #compose-toolbox {
   background-color: var(--lwt-accent-color);
@@ -1302,10 +1298,6 @@ panel[type="arrow"].panel-block-padding::part(content) {
 
 .text-container description {
   margin-block-end: 1em;
-}
-
-#viewSource-toolbox {
-  appearance: none;
 }
 
 /* Print UI, mostly from browser.css */

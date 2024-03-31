@@ -121,7 +121,6 @@
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
-  appearance: none;
   color: WindowText;
   margin-inline: 3px;
   padding-block: 4px;

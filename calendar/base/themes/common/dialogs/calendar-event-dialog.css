@@ -41,10 +41,6 @@
   display: none;
 }
 
-#event-toolbar:not(-moz-lwtheme) {
-  appearance: none;
-}
-
 /*--------------------------------------------------------------------
  *   Event dialog toolbar buttons
  *-------------------------------------------------------------------*/
@@ -327,7 +323,6 @@ label.label {
 }
 
 #FormatToolbox {
-  appearance: none;
   padding-inline: 4px;
 }
 

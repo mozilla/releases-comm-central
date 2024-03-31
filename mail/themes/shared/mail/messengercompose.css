@@ -333,7 +333,6 @@
 
 #compose-toolbox {
   :root[lwtheme] & {
-    appearance: none;
     position: relative;
     color: var(--toolbar-color, inherit);
 
@@ -484,7 +483,6 @@
 }
 
 #FormatToolbox {
-  appearance: none;
   grid-area: format-toolbar;
 }
 

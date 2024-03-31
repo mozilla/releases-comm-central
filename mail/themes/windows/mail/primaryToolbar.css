@@ -4,11 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/primaryToolbar.css");
 
-#navigation-toolbox,
-#toolbar-menubar {
-  appearance: none;
-}
-
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";

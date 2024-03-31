@@ -155,12 +155,7 @@ toolbarbutton.formatting-button {
 /* ::::: address book sidebar ::::: */
 
 #compose-toolbox {
-  appearance: none;
   border-bottom: 1px solid var(--chrome-content-separator-color);
-}
-
-:root:not([lwtheme]) toolbar {
-  appearance: none;
 }
 
 #compose-toolbox > toolbar:not([type="menubar"]) {
