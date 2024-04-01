@@ -22,12 +22,6 @@
   background-color: -moz-OddTreeRow;
 }
 
-#mailContent {
-  appearance: auto;
-  -moz-default-appearance: toolbox;
-  background-color: -moz-Dialog;
-}
-
 /* ..... status bar adjustments ..... */
 
 #threadTree {
