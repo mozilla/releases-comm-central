@@ -194,7 +194,7 @@ img[overflowing][shrinktofit] {
 .moz-mime-attachment-size {
   vertical-align: top;
   width: 10ch;
-  text-align: start;
+  text-align: end;
 }
 
 .moz-mime-attachment-file,
