@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * Portions Copyright (C) Philipp Kewisch, 2021 */
 
 /**
  * This is ical.js from <https://github.com/kewisch/ical.js>.
@@ -14,29 +15,6 @@
  * Current ical.js git revision:
  * https://github.com/darktrojan/ical.js/commit/0f1af2444b82708bb3a0a6b05d834884dedd8109
  */
-
-export function unwrapSetter(type, val, innerFunc, thisObj) {
-    return innerFunc.call(thisObj || this, unwrapSingle(type, val));
-}
-
-function unwrapSingle(type, val) {
-    if (!val || !val.wrappedJSObject) {
-        return null;
-    } else if (val.wrappedJSObject.innerObject instanceof type) {
-        return val.wrappedJSObject.innerObject;
-    } else {
-        var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-        Cu.reportError("Unknown " + (type.icalclass || type) + " passed at " + cal.STACK(10));
-        return null;
-    }
-}
-
-// -- start ical.js --
-
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * Portions Copyright (C) Philipp Kewisch, 2021 */
 
 export var ICAL = {};
 

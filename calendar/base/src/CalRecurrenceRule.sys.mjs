@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
@@ -147,16 +147,9 @@ CalRecurrenceRule.prototype = {
     prop.setValue(this.innerObject);
     return new lazy.CalIcalProperty(prop);
   },
-  set icalProperty(rawval) {
+  set icalProperty(val) {
     this.ensureMutable();
-    unwrapSetter(
-      ICAL.Property,
-      rawval,
-      function (val) {
-        this.innerObject = val.getFirstValue();
-      },
-      this
-    );
+    this.innerObject = val.wrappedJSObject.innerObject.getFirstValue();
   },
 
   get type() {
@@ -192,23 +185,13 @@ CalRecurrenceRule.prototype = {
     }
     return null;
   },
-  set untilDate(rawval) {
+  set untilDate(val) {
     this.ensureMutable();
-    unwrapSetter(
-      ICAL.Time,
-      rawval,
-      function (val) {
-        if (
-          val.timezone != ICAL.Timezone.utcTimezone &&
-          val.timezone != ICAL.Timezone.localTimezone
-        ) {
-          val = val.convertToZone(ICAL.Timezone.utcTimezone);
-        }
-
-        this.innerObject.until = val;
-      },
-      this
-    );
+    val = val.wrappedJSObject.innerObject;
+    if (val.timezone != ICAL.Timezone.utcTimezone && val.timezone != ICAL.Timezone.localTimezone) {
+      val = val.convertToZone(ICAL.Timezone.utcTimezone);
+    }
+    this.innerObject.until = val;
   },
 
   get isByCount() {

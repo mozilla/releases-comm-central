@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
@@ -98,29 +98,23 @@ CalIcalProperty.prototype = {
       val && typeof val == "object" && "icalclass" in val && val.icalclass == "icaltime";
     return isIcalTime ? new lazy.CalDateTime(val) : null;
   },
-  set valueAsDatetime(rawval) {
-    unwrapSetter(
-      ICAL.Time,
-      rawval,
-      function (val) {
-        if (
-          val &&
-          val.zone &&
-          val.zone != ICAL.Timezone.utcTimezone &&
-          val.zone != ICAL.Timezone.localTimezone
-        ) {
-          this.innerObject.setParameter("TZID", val.zone.tzid);
-          if (this.parent) {
-            const tzref = new lazy.CalTimezone(val.zone);
-            this.parent.addTimezoneReference(tzref);
-          }
-        } else {
-          this.innerObject.removeParameter("TZID");
-        }
-        this.innerObject.setValue(val);
-      },
-      this
-    );
+  set valueAsDatetime(val) {
+    val = val?.wrappedJSObject.innerObject;
+    if (
+      val &&
+      val.zone &&
+      val.zone != ICAL.Timezone.utcTimezone &&
+      val.zone != ICAL.Timezone.localTimezone
+    ) {
+      this.innerObject.setParameter("TZID", val.zone.tzid);
+      if (this.parent) {
+        const tzref = new lazy.CalTimezone(val.zone);
+        this.parent.addTimezoneReference(tzref);
+      }
+    } else {
+      this.innerObject.removeParameter("TZID");
+    }
+    this.innerObject.setValue(val);
   },
 
   get propertyName() {
@@ -400,7 +394,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set startTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "dtstart"), this);
+    this._setTimeAttr("dtstart", val.wrappedJSObject.innerObject);
   },
 
   get endTime() {
@@ -408,7 +402,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set endTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "dtend"), this);
+    this._setTimeAttr("dtend", val.wrappedJSObject.innerObject);
   },
 
   get duration() {
@@ -421,7 +415,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set dueTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "due"), this);
+    this._setTimeAttr("due", val.wrappedJSObject.innerObject);
   },
 
   get stampTime() {
@@ -429,7 +423,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set stampTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "dtstamp"), this);
+    this._setTimeAttr("dtstamp", val.wrappedJSObject.innerObject);
   },
 
   get createdTime() {
@@ -437,7 +431,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set createdTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "created"), this);
+    this._setTimeAttr("created", val.wrappedJSObject.innerObject);
   },
 
   get completedTime() {
@@ -445,7 +439,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set completedTime(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "completed"), this);
+    this._setTimeAttr("completed", val.wrappedJSObject.innerObject);
   },
 
   get lastModified() {
@@ -453,7 +447,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set lastModified(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "last-modified"), this);
+    this._setTimeAttr("last-modified", val.wrappedJSObject.innerObject);
   },
 
   get recurrenceId() {
@@ -461,7 +455,7 @@ calIcalComponent.prototype = {
     return val ? new lazy.CalDateTime(val) : null;
   },
   set recurrenceId(val) {
-    unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "recurrence-id"), this);
+    this._setTimeAttr("recurrence-id", val.wrappedJSObject.innerObject);
   },
 
   serializeToICS() {

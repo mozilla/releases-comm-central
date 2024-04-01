@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL, unwrapSetter } from "resource:///modules/calendar/Ical.sys.mjs";
+import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -84,16 +84,8 @@ CalDateTime.prototype = {
   get timezone() {
     return new lazy.CalTimezone(this.innerObject.zone);
   },
-  set timezone(rawval) {
-    unwrapSetter(
-      ICAL.Timezone,
-      rawval,
-      function (val) {
-        this.innerObject.zone = val;
-        return val;
-      },
-      this
-    );
+  set timezone(val) {
+    this.innerObject.zone = val.wrappedJSObject.innerObject;
   },
 
   resetTo(year, month, day, hour, minute, second, timezone) {
