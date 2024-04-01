@@ -96,24 +96,26 @@ export var EnigmailDecryption = {
   },
 
   /**
-   *  Decrypts a PGP ciphertext and returns the the plaintext
+   * Decrypts a PGP ciphertext and returns the the plaintext.
    *
-   *in  @parent a window object
-   *in  @uiFlags see flag options in EnigmailConstants, UI_INTERACTIVE, UI_ALLOW_KEY_IMPORT
-   *in  @cipherText a string containing a PGP Block
-   *out @signatureObj
-   *out @exitCodeObj contains the exit code
-   *out @statusFlagsObj see status flags in nslEnigmail.idl, GOOD_SIGNATURE, BAD_SIGNATURE
-   *out @keyIdObj holds the key id
-   *out @userIdObj holds the user id
-   *out @sigDetailsObj
-   *out @errorMsgObj  error string
-   *out @blockSeparationObj
-   *out @extraDetailsObj .value contains a JSON with (optional) additional data:
-   *      encryptedTo, packetDump
-   *
-   * @returns string plaintext ("" if error)
-   *
+   * @param {?window} parent - A window object.
+   * @param {integer} uiFlags - See flag options in EnigmailConstants,
+   *   UI_INTERACTIVE, UI_ALLOW_KEY_IMPORT.
+   * @param {string} cipherText - A string containing a PGP block.
+   * @param {Date} msgDate - Message date.
+   * @param {object} signatureObj
+   * @param {object} exitCodeObj - Contains the exit code.
+   * @param {object} statusFlagsObj - Status flags in nslEnigmail.idl,
+   *   GOOD_SIGNATURE, BAD_SIGNATURE.
+   * @param {object} keyIdObj - Holds the key id.
+   * @param {object} userIdObj - Holds the user id.
+   * @param {object} sigDetailsObj - Holds the signature details.
+   * @param {object} errorMsgObj - Error string.
+   * @param {object} blockSeparationObj
+   * @param {object} extraDetailsObj
+   * @param {JSON} extraDetailsObj.value - JSON string with
+   *   with (optional) additional data: encryptedTo, packetDump.
+   * @returns {string} plaintext ("" if error)
    */
   decryptMessage(
     parent,
