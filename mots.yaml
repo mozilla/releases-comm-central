@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2023-07-25T13:22:32.577271'
+updated_at: '2024-04-02T08:39:25.973204'
 hashes:
-  config: 97bff047b38524143e1b60762b607a5f2118da65
-  export: 7d0e20b811ab7b1947a09e8b03c314ce25539e93
+  config: 369a0ceb69babc360c3d8a96451498b8bdcf871c
+  export: 3216e27337ab57f48be41f8d07ebd1bef0c39f4d
 export:
   path: ./docs/mots/index.md
   format: md
@@ -46,12 +46,10 @@ people:
     bmo_id: 217596
     name: alta88
     nick: alta88
-  - &ba
-    bmo_id: 653537
+  - bmo_id: 653537
     name: Berna Alp
     nick: ba
-  - &BenB
-    bmo_id: 22599
+  - bmo_id: 22599
     name: Ben Bucksch
     nick: BenB
   - &benc
@@ -62,6 +60,10 @@ people:
     bmo_id: 369370
     name: Benedikt Pfeifer
     nick: benediktp
+  - &Bogomil
+    bmo_id: 359734
+    name: Bogomil Shopov
+    nick: Bogomil
   - &bwinton
     bmo_id: 339434
     name: Blake Winton
@@ -110,8 +112,7 @@ people:
     bmo_id: 403756
     name: Mike Conley
     nick: mconley
-  - &micah
-    bmo_id: 704774
+  - bmo_id: 704774
     name: micah
     nick: micah
   - &mkmelin
@@ -166,6 +167,10 @@ people:
     bmo_id: 550104
     name: John Bieling
     nick: TbSync
+  - &tdulcet
+    bmo_id: 616861
+    name: Teal Dulcet
+    nick: tdulcet
   - &thunderbirdcouncil
     name: Thunderbird Council
     nick: thunderbird_council
@@ -177,11 +182,15 @@ people:
 modules:
   - name: Thunderbird Council
     machine_name: 00-thunderbird_council
-    description: The Thunderbird Council is the elected governing body for the Thunderbird
+    description: "The Thunderbird Council is the elected governing body for the Thunderbird
       Project, including the code modules that develop the code in Thunderbird product(s).
-      It is the top-level module of the project, and Peers are members of the Council.
-    owners: [*ba]
-    peers: [*micah, *sdk, *TbSync, *BenB, *clokep, *Fallen]
+      It is the top-level module of the project, and Peers are members of the Council.\n
+      To read the details about the qualifications and expectations of Council members,
+      please see the [Council Bylaws on GitHub](https://github.com/thunderbird/council-docs/blob/main/BY_LAWS.md#election-procedure).\n
+      Below you can find a list of all current council members along with their bugzilla.mozilla.org
+      \\(BMO\\) handle.\nTo contact the council members, please email <council@thunderbird.net>."
+    owners: [*sdk]
+    peers: [*TbSync, *clokep, *Fallen, *tdulcet, *KaiE, *Bogomil]
     includes: [README.md]
     excludes:
       - suite/**

@@ -33,6 +33,12 @@ The Thunderbird Council is the elected governing body for the Thunderbird
 Project, including the code modules that develop the code in Thunderbird
 product\(s\)\. It is the top\-level module of the project, and Peers are
 members of the Council\.
+ To read the details about the qualifications and expectations of Council
+members, please see the \[Council Bylaws on GitHub\]\(https://github\.com/thund
+erbird/council\-docs/blob/main/BY\_LAWS\.md\#election\-procedure\)\.
+ Below you can find a list of all current council members along with their
+bugzilla\.mozilla\.org \\\(BMO\\\) handle\.
+To contact the council members, please email \<council@thunderbird\.net\>\.
 
 ```{list-table}
 ---
@@ -41,15 +47,15 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Berna Alp (ba)](https://people.mozilla.org/s?query=ba)
+    * [Danny Colin (sdk)](https://people.mozilla.org/s?query=sdk)
 * - Peer(s)
   -
-    * [micah (micah)](https://people.mozilla.org/s?query=micah)
-    * [Danny Colin (sdk)](https://people.mozilla.org/s?query=sdk)
     * [John Bieling (TbSync)](https://people.mozilla.org/s?query=TbSync)
-    * [Ben Bucksch (BenB)](https://people.mozilla.org/s?query=BenB)
     * [Patrick Cloke (clokep)](https://people.mozilla.org/s?query=clokep)
     * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
+    * [Teal Dulcet (tdulcet)](https://people.mozilla.org/s?query=tdulcet)
+    * [Kai Engert (KaiE)](https://people.mozilla.org/s?query=KaiE)
+    * [Bogomil Shopov (Bogomil)](https://people.mozilla.org/s?query=Bogomil)
 * - Includes
   -
     * README.md
@@ -69,7 +75,7 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Thunderbird Council (thunderbird_council)](https://source-docs.thunderbird.net/en/latest/mots/index.html#thunderbird-council)
+    * [Thunderbird Council (thunderbird_council)](https://people.mozilla.org/s?query=thunderbird_council)
 * - Peer(s)
   -
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
