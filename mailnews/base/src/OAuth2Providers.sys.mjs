@@ -17,6 +17,8 @@ const GOOGLE_SCOPES =
 const FASTMAIL_SCOPES =
   "https://www.fastmail.com/dev/protocol-imap https://www.fastmail.com/dev/protocol-pop https://www.fastmail.com/dev/protocol-smtp https://www.fastmail.com/dev/protocol-carddav https://www.fastmail.com/dev/protocol-caldav";
 const COMCAST_SCOPES = "https://email.comcast.net/ profile openid";
+const MICROSOFT_SCOPES =
+  "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/EWS.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access";
 
 /**
  * Map of hostnames to [issuer, scope].
@@ -47,20 +49,13 @@ var kHostnames = new Map([
   ["pop.aol.com", ["login.aol.com", "mail-w"]],
   ["smtp.aol.com", ["login.aol.com", "mail-w"]],
 
+  ["outlook.office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
+  ["smtp.office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
   [
-    "outlook.office365.com",
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
-    ],
+    "autodiscover-s.outlook.com",
+    ["login.microsoftonline.com", MICROSOFT_SCOPES],
   ],
-  [
-    "smtp.office365.com",
-    [
-      "login.microsoftonline.com",
-      "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access",
-    ],
-  ],
+  ["autodiscover.hotmail.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
 
   ["imap.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
   ["pop.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],

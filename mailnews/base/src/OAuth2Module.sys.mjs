@@ -26,27 +26,39 @@ OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
   initFromSmtp(aServer) {
-    return this._initPrefs(
+    return this._initFromPrefs(
       "mail.smtpserver." + aServer.key + ".",
       aServer.username,
       aServer.hostname
     );
   },
+
   initFromMail(aServer) {
-    return this._initPrefs(
+    return this._initFromPrefs(
       "mail.server." + aServer.key + ".",
       aServer.username,
       aServer.hostName
     );
   },
+
   initFromABDirectory(aDirectory, aHostname) {
-    this._initPrefs(
+    this._initFromPrefs(
       aDirectory.dirPrefId + ".",
       aDirectory.getStringValue("carddav.username", "") || aDirectory.UID,
       aHostname
     );
   },
-  _initPrefs(root, aUsername, aHostname) {
+
+  initFromHostname(aHostname, aUsername) {
+    const details = OAuth2Providers.getHostnameDetails(aHostname);
+    if (!details) {
+      return false;
+    }
+
+    return this._init(details[0], details[1], aHostname, aUsername);
+  },
+
+  _initFromPrefs(root, aUsername, aHostname) {
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
 
@@ -70,6 +82,10 @@ OAuth2Module.prototype = {
       return false;
     }
 
+    return this._init(issuer, scope, aHostname, aUsername);
+  },
+
+  _init(issuer, scope, aHostname, aUsername) {
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
@@ -183,43 +199,75 @@ OAuth2Module.prototype = {
   },
 
   connect(aWithUI, aListener) {
-    const oldRefreshToken = this._oauth.refreshToken;
-    const promptlistener = {
+    this._fetchAccessToken(aListener, aWithUI, true);
+  },
+
+  getAccessToken(aListener) {
+    this._fetchAccessToken(aListener, true, false);
+  },
+
+  /**
+   * Gets a current access token for the provider.
+   *
+   * @param {msgIOAuth2ModuleListener} listener - The listener for the results
+   *   of authentication.
+   * @param {bool} shouldPrompt - If true and user input is needed to complete
+   *   authentication (such as logging in to the provider), prompt the user.
+   *   Otherwise, return an error.
+   * @param {bool} shouldMakeSaslToken - If true, return an access token
+   *   formatted for use with SASL XOAUTH2. Otherwise, return the access token
+   *   unmodified.
+   */
+  _fetchAccessToken(listener, shouldPrompt, shouldMakeSaslToken) {
+    // NOTE: `onPromptStartAsync` and `onPromptAuthAvailable` have _different_
+    // values for `this` due to differences in how arrow functions bind `this`
+    // (i.e., to the surrounding lexical scope rather than the object of which)
+    // they are a member).
+    const promptListener = {
       onPromptStartAsync(callback) {
         this.onPromptAuthAvailable(callback);
       },
 
       onPromptAuthAvailable: callback => {
-        this._oauth.connect(aWithUI, false).then(
+        const oldRefreshToken = this._oauth.refreshToken;
+
+        this._oauth.connect(shouldPrompt, false).then(
           async () => {
             if (this._oauth.refreshToken != oldRefreshToken) {
-              // Refresh token changed, save it.
+              // Refresh token changed; save it.
               await this.setRefreshToken(this._oauth.refreshToken);
             }
-            aListener.onSuccess(
-              btoa(
-                `user=${this._username}\x01auth=Bearer ${this._oauth.accessToken}\x01\x01`
-              )
-            );
+
+            let retval = this._oauth.accessToken;
+            if (shouldMakeSaslToken) {
+              // Pre-format the return value for an SASL XOAUTH2 client response
+              // if that's what the consumer is expecting.
+              retval = btoa(
+                `user=${this._username}\x01auth=Bearer ${retval}\x01\x01`
+              );
+            }
+
+            listener.onSuccess(retval);
             callback?.onAuthResult(true);
           },
           () => {
-            aListener.onFailure(Cr.NS_ERROR_ABORT);
+            listener.onFailure(Cr.NS_ERROR_ABORT);
             callback?.onAuthResult(false);
           }
         );
       },
       onPromptCanceled() {
-        aListener.onFailure(Cr.NS_ERROR_ABORT);
+        listener.onFailure(Cr.NS_ERROR_ABORT);
       },
       onPromptStart() {},
     };
 
-    const asyncprompter = Cc[
+    const asyncPrompter = Cc[
       "@mozilla.org/messenger/msgAsyncPrompter;1"
     ].getService(Ci.nsIMsgAsyncPrompter);
-    const promptkey = this._loginOrigin + "/" + this._username;
-    asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
+
+    const promptKey = `${this._loginOrigin}/${this._username}`;
+    asyncPrompter.queueAsyncAuthPrompt(promptKey, false, promptListener);
   },
 };
 

@@ -15,8 +15,7 @@ interface nsISmtpServer;
 [scriptable, uuid(9a088b49-bc13-4f99-9478-053a6a43e370)]
 interface msgIOAuth2ModuleListener : nsISupports {
   /**
-   * Called on successful OAuth2 authentication with the base64-encoded
-   * string to send as the client initial response for SASL XOAUTH2.
+   * Called on successful OAuth2 authentication.
    */
   void onSuccess(in ACString aBearerToken);
 
@@ -33,22 +32,50 @@ interface msgIOAuth2Module : nsISupports {
   /**
    * Initialize the OAuth2 parameters from an SMTP server, and return whether or
    * not we can authenticate with OAuth2.
+   *
+   * If the prefs for the server don't include an OAuth2 config, but one could
+   * be found among the known OAuth2 providers using the server's hostname,
+   * this config is used instead and stored in the server's prefs.
    */
   bool initFromSmtp(in nsISmtpServer aSmtpServer);
 
   /**
    * Initialize the OAuth2 parameters from an incoming server, and return
    * whether or not we can authenticate with OAuth2.
+   *
+   * If the prefs for the server don't include an OAuth2 config, but one could
+   * be found among the known OAuth2 providers using the server's hostname,
+   * this config is used instead and stored in the server's prefs.
    */
   bool initFromMail(in nsIMsgIncomingServer aServer);
 
   /**
-   * Connect to the OAuth2 server to get an access token.
-   * @param aWithUI   If false, do not allow a dialog to be popped up to query
-   *                  for a password.
-   * @param aCallback Listener that handles the async response.
+   * Initialize the OAuth2 parameters using the provided hostname and username,
+   * and return whether or not we can authenticate with OAuth2.
+   */
+  bool initFromHostname(in AUTF8String aHostname, in AUTF8String aUsername);
+
+  /**
+   * Connect to the OAuth2 server to get an access token encoded for use with
+   * SASL XOAUTH2.
+   *
+   * @param aWithUI         If false, do not allow a dialog to be popped up to
+   *                        guide the user through the provider's login process.
+   * @param aCallback       Listener that handles the async response.
    */
   void connect(in boolean aWithUI, in msgIOAuth2ModuleListener aCallback);
+
+  /**
+   * Fetches a current OAuth2 access token, refreshing the session with the
+   * provider if needed.
+   *
+   * Note that unlike `connect()`, this method calls the listener with the raw
+   * token (for use in e.g. an HTTP request), without any additional formatting
+   * or encoding.
+   *
+   * @param listener - A listener for receiving the retrieved access token.
+   */
+  void getAccessToken(in msgIOAuth2ModuleListener listener);
 };
 
 %{C++

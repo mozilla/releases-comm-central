@@ -28,6 +28,87 @@ const {
 } = AccountCreationUtils;
 
 /**
+ * Initiates a fetch of the given URL, using either OAuth2 or Basic
+ * authentication.
+ *
+ * OAuth2 will be tried first, before falling back onto Basic auth if either:
+ *  - we do not have an OAuth2 configuration for this provider, or
+ *  - we failed to get an OAuth2 access token to use in the fetch (e.g., because
+ *    the user cancelled the interactive login process).
+ *
+ * A deep copy of `callArgs` is always done before modifying it, so it can be
+ * reused between calls.
+ *
+ * @param {ParallelCall} call - The abortable call to register the FetchHTTP
+ *                              object with.
+ * @param {string} url - The URL to fetch.
+ * @param {string} username - The username to use for Basic auth and OAuth2.
+ * @param {string} password - The password to use for Basic auth.
+ * @param {object} callArgs - The arguments to use when creating the new
+ *                            FetchHTTP object. This object is not expected to
+ *                            include any authentication parameters or headers.
+ */
+function startFetchWithAuth(call, url, username, password, callArgs) {
+  // Creates a new FetchHTTP object with the given arguments, registers it with
+  // the abortable call, and initiates the fetch.
+  function setUpAndStart(args) {
+    const fetch = new lazy.FetchHTTP(
+      url,
+      args,
+      call.successCallback(),
+      call.errorCallback()
+    );
+    call.setAbortable(fetch);
+    fetch.start();
+  }
+
+  // Start a fetch with Basic auth using the credentials provided by the
+  // consumer.
+  function fetchWithBasicAuth() {
+    const args = deepCopy(callArgs);
+    args.username = username;
+    args.password = password;
+
+    setUpAndStart(call, args);
+  }
+
+  const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
+    Ci.msgIOAuth2Module
+  );
+
+  // Initialize an OAuth2 module and determine whether we support a provider
+  // associated with the provided domain.
+  const uri = Services.io.newURI(url);
+  const isOAuth2Available = oauth2Module.initFromHostname(uri.host, username);
+  if (isOAuth2Available) {
+    oauth2Module.getAccessToken({
+      onSuccess: token => {
+        gAccountSetupLogger.debug(
+          "Exchange Autodiscover: Successfully retrieved an OAuth2 token"
+        );
+
+        // Adapt the call args so we auth via OAuth2. We need to clone the args
+        // in case we need to fall back to Basic auth in order to avoid any
+        // potential side effects.
+        const args = deepCopy(callArgs);
+        args.headers.Authorization = `Bearer ${token}`;
+
+        setUpAndStart(args);
+      },
+      onFailure: () => {
+        gAccountSetupLogger.warn(
+          "Exchange Autodiscover: Could not retrieve an OAuth2 token; falling back to Basic auth"
+        );
+        fetchWithBasicAuth();
+      },
+    });
+  } else {
+    // If we can't do OAuth2 for this domain, fall back to Basic auth.
+    fetchWithBasicAuth();
+  }
+}
+
+/**
  * Tries to get a configuration from an MS Exchange server
  * using Microsoft AutoDiscover protocol.
  *
@@ -103,12 +184,9 @@ export function fetchConfigFromExchange(
       // Compare bug 1454325 comment 15.
       "Content-Type": "text/xml; charset=utf-8",
     },
-    username: username || emailAddress,
-    password,
     allowAuthPrompt: false,
   };
   let call;
-  let fetch;
 
   const successive = new SuccessiveAbortable();
   const priority = new PriorityOrderAbortable(function (xml, call) {
@@ -128,38 +206,23 @@ export function fetchConfigFromExchange(
     );
   }, errorCallback); // all failed
 
+  const authUsername = username || emailAddress;
+
   call = priority.addCall();
   call.foundMsg = "url1";
-  fetch = new lazy.FetchHTTP(
-    url1,
-    callArgs,
-    call.successCallback(),
-    call.errorCallback()
-  );
-  fetch.start();
-  call.setAbortable(fetch);
+  startFetchWithAuth(call, url1, authUsername, password, callArgs);
 
   call = priority.addCall();
   call.foundMsg = "url2";
-  fetch = new lazy.FetchHTTP(
-    url2,
-    callArgs,
-    call.successCallback(),
-    call.errorCallback()
-  );
-  fetch.start();
-  call.setAbortable(fetch);
+  startFetchWithAuth(call, url2, authUsername, password, callArgs);
 
   call = priority.addCall();
   call.foundMsg = "url3";
   const call3ErrorCallback = call.errorCallback();
-  // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
-  const call3Args = deepCopy(callArgs);
-  delete call3Args.username;
-  delete call3Args.password;
+  // url3 is HTTP (not HTTPS), so don't authenticate. Even MS spec demands so.
   const fetch3 = new lazy.FetchHTTP(
     url3,
-    call3Args,
+    callArgs,
     call.successCallback(),
     ex => {
       // url3 is an HTTP URL that will redirect to the real one, usually a
@@ -177,15 +240,18 @@ export function fetchConfigFromExchange(
       const originalDomain = Services.eTLD.getBaseDomainFromHost(domain);
 
       function fetchRedirect() {
+        // Note: We need the call to be added here so `priority` does not
+        // believe it has exhausted all of its calls when we move into further
+        // async layers.
         const fetchCall = priority.addCall();
-        const fetch = new lazy.FetchHTTP(
+        // Now that we're on an HTTPS URL, try again with authentication.
+        startFetchWithAuth(
+          fetchCall,
           redirectURL,
-          callArgs, // now with auth
-          fetchCall.successCallback(),
-          fetchCall.errorCallback()
+          authUsername,
+          password,
+          callArgs
         );
-        fetchCall.setAbortable(fetch);
-        fetch.start();
       }
 
       const kSafeDomains = ["office365.com", "outlook.com"];

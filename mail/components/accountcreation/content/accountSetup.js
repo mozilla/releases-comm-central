@@ -775,6 +775,9 @@ var gAccountSetup = {
       case AccountConfig.kSourceExchange: {
         return "account-setup-success-settings-exchange";
       }
+      case AccountConfig.kSourceGuess: {
+        return "account-setup-success-guess";
+      }
       default: {
         throw new Error(`Unexpected source: ${config.source}`);
       }

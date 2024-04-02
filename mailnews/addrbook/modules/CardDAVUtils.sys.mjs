@@ -110,14 +110,10 @@ export var CardDAVUtils = {
     headers["Content-Type"] = contentType;
     if (oAuth) {
       headers.Authorization = await new Promise((resolve, reject) => {
-        oAuth.connect(true, {
+        oAuth.getAccessToken(true, {
           onSuccess(token) {
-            resolve(
-              // `token` is a base64-encoded string for SASL XOAUTH2. That is
-              // not what we want, extract just the Bearer token part.
-              // (See OAuth2Module.connect.)
-              atob(token).split("\x01")[1].slice(5)
-            );
+            // Format the token as an HTTP Authorization header value.
+            resolve(`Bearer ${token}`);
           },
           onFailure: reject,
         });
@@ -370,13 +366,9 @@ export var CardDAVUtils = {
       // Implement msgIOAuth2Module.connect, which CardDAVUtils.makeRequest expects.
       requestParams.oAuth = {
         QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
-        connect(withUI, listener) {
+        getAccessToken(withUI, listener) {
           oAuth.connect(withUI, false).then(
-            () =>
-              listener.onSuccess(
-                // String format based on what OAuth2Module has.
-                btoa(`\x01auth=Bearer ${oAuth.accessToken}`)
-              ),
+            () => listener.onSuccess(oAuth.accessToken),
             () => listener.onFailure(Cr.NS_ERROR_ABORT)
           );
         },
