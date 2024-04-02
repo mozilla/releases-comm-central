@@ -35,7 +35,7 @@ dependencies.
 
 Under the hood, this command runs `./mach tb-rust sync` to ensure the
 workspace's dependencies are up to date, then completely recreates
-`comm/rust/.cargo/config.in` and `comm/third_party/rust/`.
+`comm/rust/.cargo/config.toml.in` and `comm/third_party/rust/`.
 
 </div>
 

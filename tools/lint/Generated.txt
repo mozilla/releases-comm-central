@@ -1,7 +1,7 @@
 comm/mailnews/extensions/newsblog/test/unit/resources/feeds-missing-timestamp/feeds.json
 comm/mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeditems.json
 comm/mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json
-comm/rust/.cargo/config.in
+comm/rust/.cargo/config.toml.in
 comm/rust/Cargo.toml
 comm/rust/Cargo.lock
 comm/rust/checksums.json

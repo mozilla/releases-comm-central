@@ -18,9 +18,9 @@ from mozbuild.vendor.vendor_rust import VendorRust
 config_footer = """
 # Take advantage of the fact that cargo will treat lines starting with #
 # as comments to add preprocessing directives. This file can thus by copied
-# as-is to $topsrcdir/.cargo/config with no preprocessing to be used there
+# as-is to $topsrcdir/.cargo/config.toml with no preprocessing to be used there
 # (for e.g. independent tasks building rust code), or be preprocessed by
-# the build system to produce a .cargo/config with the right content.
+# the build system to produce a .cargo/config.toml with the right content.
 #define REPLACE_NAME vendored-sources
 #define VENDORED_DIRECTORY comm/third_party/rust
 # We explicitly exclude the following section when preprocessing because
@@ -193,7 +193,7 @@ def check_vendored_dependencies(topsrcdir):
     Checks current checksums of Cargo.toml files against
     the saved values. Returns a list of mismatched paths.
 
-    :rtype: hlist[str]: List of paths to Cargo.toml files
+    :rtype: List[str]: List of paths to Cargo.toml files
     """
     checksums_file = os.path.join(topsrcdir, "comm", "rust", "checksums.json")
     try:
@@ -248,7 +248,7 @@ def run_tb_rust_vendor(command_context):
 
     run_tb_cargo_sync(command_context)
     workspace = os.path.join(command_context.topsrcdir, "comm", "rust")
-    config = os.path.join(workspace, ".cargo", "config.in")
+    config = os.path.join(workspace, ".cargo", "config.toml.in")
     third_party = os.path.join(command_context.topsrcdir, "comm", "third_party", "rust")
 
     if os.path.exists(third_party):
