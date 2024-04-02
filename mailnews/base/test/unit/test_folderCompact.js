@@ -44,13 +44,13 @@ var gExpectedFolder3Size;
 // Transfer message keys between function calls.
 var gMsgKeys = [];
 
-// nsIMsgCopyServiceListener implementation
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListenerWrap = {
-  SetMessageKey(aKey) {
+  setMessageKey(aKey) {
     const hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
-  OnStopCopy(aStatus) {
+  onStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
   },

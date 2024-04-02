@@ -429,12 +429,15 @@ this.messages = class extends ExtensionAPIPersistent {
                     /* isDraftOrTemplate */ false,
                     /* aMsgFlags */ Ci.nsMsgMessageFlags.Read,
                     /* aMsgKeywords */ "",
+                    /** @implements {nsIMsgCopyServiceListener} */
                     {
-                      OnStartCopy() {},
-                      OnProgress() {},
-                      SetMessageKey() {},
-                      GetMessageId() {},
-                      OnStopCopy(status) {
+                      onStartCopy() {},
+                      onProgress() {},
+                      setMessageKey() {},
+                      getMessageId() {
+                        return null;
+                      },
+                      onStopCopy(status) {
                         if (status == Cr.NS_OK) {
                           resolve();
                         } else {
@@ -459,12 +462,15 @@ this.messages = class extends ExtensionAPIPersistent {
                 msgHeaders,
                 destinationFolder,
                 isMove && sourceFolder.canDeleteMessages,
+                /** @implements {nsIMsgCopyServiceListener} */
                 {
-                  OnStartCopy() {},
-                  OnProgress() {},
-                  SetMessageKey() {},
-                  GetMessageId() {},
-                  OnStopCopy(status) {
+                  onStartCopy() {},
+                  onProgress() {},
+                  setMessageKey() {},
+                  getMessageId() {
+                    return null;
+                  },
+                  onStopCopy(status) {
                     if (status == Cr.NS_OK) {
                       resolve();
                     } else {
@@ -924,12 +930,15 @@ this.messages = class extends ExtensionAPIPersistent {
                     /* msgWindow */ null,
                     /* deleteStorage */ skipTrash,
                     /* isMove */ false,
+                    /** @implements {nsIMsgCopyServiceListener} */
                     {
-                      OnStartCopy() {},
-                      OnProgress() {},
-                      SetMessageKey() {},
-                      GetMessageId() {},
-                      OnStopCopy(status) {
+                      onStartCopy() {},
+                      onProgress() {},
+                      setMessageKey() {},
+                      getMessageId() {
+                        return null;
+                      },
+                      onStopCopy(status) {
                         if (status == Cr.NS_OK) {
                           resolve();
                         } else {
@@ -1025,10 +1034,11 @@ this.messages = class extends ExtensionAPIPersistent {
                 /* isDraftOrTemplate */ false,
                 /* aMsgFlags */ flags,
                 /* aMsgKeywords */ tags,
+                /** @implements {nsIMsgCopyServiceListener} */
                 {
-                  OnStartCopy() {},
-                  OnProgress() {},
-                  SetMessageKey(aKey) {
+                  onStartCopy() {},
+                  onProgress() {},
+                  setMessageKey(aKey) {
                     /* Note: Not fired for offline IMAP. Add missing
                      * if (aCopyState) {
                      *  ((nsImapMailCopyState*)aCopyState)->m_listener->SetMessageKey(fakeKey);
@@ -1041,8 +1051,10 @@ this.messages = class extends ExtensionAPIPersistent {
                       finish(msgHdrs.get(newKey));
                     }
                   },
-                  GetMessageId() {},
-                  OnStopCopy(status) {
+                  getMessageId() {
+                    return null;
+                  },
+                  onStopCopy(status) {
                     if (status == Cr.NS_OK) {
                       if (newKey && msgHdrs.has(newKey)) {
                         finish(msgHdrs.get(newKey));

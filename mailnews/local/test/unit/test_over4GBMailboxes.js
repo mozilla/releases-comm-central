@@ -290,7 +290,7 @@ add_task(async function copyIntoOver4GiB_fail_check() {
 
   const copiedMessageHeaderKeys = []; // Accumulated MsgHdrKeys for listener.
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       copiedMessageHeaderKeys.push(aKey);
     },
   });
@@ -341,7 +341,7 @@ add_task(async function copyIntoOver4GiB_success_check1() {
   const file = do_get_file("../../../data/mime-torture");
   const copiedMessageHeaderKeys = []; // Accumulated MsgHdrKeys for listener.
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       copiedMessageHeaderKeys.push(aKey);
     },
   });
@@ -368,7 +368,7 @@ add_task(async function copyIntoOver4GiB_success_check2() {
   const file = do_get_file("../../../data/mime-torture");
   const copiedMessageHeaderKeys = []; // Accumulated MsgHdrKeys for listener.
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       copiedMessageHeaderKeys.push(aKey);
     },
   });

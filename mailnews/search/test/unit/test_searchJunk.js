@@ -284,14 +284,17 @@ function run_test() {
 }
 
 var hdr;
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey(aKey) {
     hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
   },
-  SetMessageId() {},
-  OnStopCopy() {
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     testJunkSearch();
   },
 };

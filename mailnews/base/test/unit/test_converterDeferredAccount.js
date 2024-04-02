@@ -39,14 +39,15 @@ var gServer2;
 // {nsIMsgIncomingServer} server to convert.
 var gServer;
 
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListenerWrap = {
-  SetMessageKey(aKey) {
+  setMessageKey(aKey) {
     const hdr = gInbox.GetMessageHeader(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
-  OnStopCopy(aStatus) {
+  onStopCopy(aStatus) {
     // Check: message successfully copied.
-    Assert.equal(aStatus, 0);
+    Assert.equal(aStatus, 0, "message should be copied successfully");
   },
 };
 

@@ -311,12 +311,15 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
       srcFolder.folder,
       dstFolder.folder,
       isMove,
+      /** @implements {nsIMsgCopyServiceListener} */
       {
-        OnStartCopy() {},
-        OnProgress() {},
-        SetMessageKey() {},
-        GetMessageId() {},
-        OnStopCopy(status) {
+        onStartCopy() {},
+        onProgress() {},
+        setMessageKey() {},
+        getMessageId() {
+          return null;
+        },
+        onStopCopy(status) {
           MailServices.mfn.removeListener(listener);
           resolve({
             status,

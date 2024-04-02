@@ -23,7 +23,7 @@ interface nsIMsgSendListener : nsISupports {
     /**
      * Notify the observer that progress as occurred for the message send
      */
-    void onProgress(in string aMsgID, in uint32_t aProgress, in uint32_t aProgressMax);
+    void onSendProgress(in string aMsgID, in uint32_t aProgress, in uint32_t aProgressMax);
 
     /**
      * Notify the observer with a status message for the message send

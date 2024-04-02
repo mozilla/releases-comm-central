@@ -112,7 +112,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove) {
   // the storage/trash. We should get only the move/copy notification if we aren't.
   var isTrashFolder = srcFolder.getFlag(Ci.nsMsgFolderFlags.Trash);
   if (!isMove && (deleteStorage || isTrashFolder)) {
-    // We won't be getting any OnStopCopy notification in this case
+    // We won't be getting any onStopCopy notification in this case
     gCurrStatus = kStatus.onStopCopyDone;
     gExpectedEvents = [[MailServices.mfn.msgsDeleted, items]];
   } else {
@@ -153,7 +153,7 @@ function renameFolder(folder, newName) {
 }
 
 function deleteFolder(folder, child) {
-  // We won't be getting any OnStopCopy notification at all
+  // We won't be getting any onStopCopy notification at all
   // XXX delete to trash should get one, but we'll need to pass the listener
   // somehow to deleteSelf
   gCurrStatus = kStatus.onStopCopyDone;

@@ -539,7 +539,7 @@ add_task(async function test_sendLater() {
         null,
         true,
         false,
-        { OnStopCopy: resolve },
+        { onStopCopy: resolve },
         false
       );
     });

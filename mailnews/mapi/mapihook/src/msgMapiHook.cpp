@@ -55,25 +55,19 @@ class MAPISendListener : public nsIMsgSendListener,
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  /* void OnStartSending (in string aMsgID, in uint32_t aMsgSize); */
   NS_IMETHOD OnStartSending(const char* aMsgID, uint32_t aMsgSize) {
     return NS_OK;
   }
 
-  /* void OnProgress (in string aMsgID, in uint32_t aProgress, in uint32_t
-   * aProgressMax); */
-  NS_IMETHOD OnProgress(const char* aMsgID, uint32_t aProgress,
-                        uint32_t aProgressMax) {
+  NS_IMETHOD OnSendProgress(const char* aMsgID, uint32_t aProgress,
+                            uint32_t aProgressMax) {
     return NS_OK;
   }
 
-  /* void OnStatus (in string aMsgID, in wstring aMsg); */
   NS_IMETHOD OnStatus(const char* aMsgID, const char16_t* aMsg) {
     return NS_OK;
   }
 
-  /* void OnStopSending (in string aMsgID, in nsresult aStatus, in wstring aMsg,
-   * in nsIFile returnFile); */
   NS_IMETHOD OnStopSending(const char* aMsgID, nsresult aStatus,
                            const char16_t* aMsg, nsIFile* returnFile) {
     mozilla::ReentrantMonitorAutoEnter mon(*this);
@@ -82,20 +76,16 @@ class MAPISendListener : public nsIMsgSendListener,
     return NS_OK;
   }
 
-  /* void OnTransportSecurityError( in string msgID, in nsresult status, in
-   * nsITransportSecurityInfo secInfo, in ACString location); */
   NS_IMETHOD OnTransportSecurityError(const char* msgID, nsresult status,
                                       nsITransportSecurityInfo* secInfo,
                                       nsACString const& location) {
     return NS_OK;
   }
 
-  /* void OnSendNotPerformed */
   NS_IMETHOD OnSendNotPerformed(const char* aMsgID, nsresult aStatus) {
     return OnStopSending(aMsgID, aStatus, nullptr, nullptr);
   }
 
-  /* void OnGetDraftFolderURI (); */
   NS_IMETHOD OnGetDraftFolderURI(const char* aMsgID,
                                  const nsACString& aFolderURI) {
     return NS_OK;

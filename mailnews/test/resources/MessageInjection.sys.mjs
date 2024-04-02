@@ -357,13 +357,15 @@ export class MessageInjection {
         MessageInjection.get_nsIMsgFolder(source),
         MessageInjection.get_nsIMsgFolder(target),
         true,
+        /** @implements {nsIMsgCopyServiceListener} */
         {
-          /* nsIMsgCopyServiceListener implementation */
-          OnStartCopy() {},
-          OnProgress() {},
-          SetMessageKey() {},
-          SetMessageId() {},
-          OnStopCopy(status) {
+          onStartCopy() {},
+          onProgress() {},
+          setMessageKey() {},
+          getMessageId() {
+            return null;
+          },
+          onStopCopy(status) {
             if (Components.isSuccessCode(status)) {
               resolve();
             } else {

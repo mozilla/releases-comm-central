@@ -186,14 +186,17 @@ function run_test() {
   addSearchTerm("c", true, false, true); // " && (C"
   addSearchTerm("d", false, true, false); // " || D)"
 
+  /** @implements {nsIMsgCopyServiceListener} */
   var copyListener = {
-    OnStartCopy() {},
-    OnProgress() {},
-    SetMessageKey(aKey) {
+    onStartCopy() {},
+    onProgress() {},
+    setMessageKey(aKey) {
       gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId() {},
-    OnStopCopy() {
+    getMessageId() {
+      return null;
+    },
+    onStopCopy() {
       testSearch();
     },
   };

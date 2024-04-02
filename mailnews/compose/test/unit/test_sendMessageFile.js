@@ -25,10 +25,14 @@ var kTo = "to@foo.invalid";
 
 function msl() {}
 
+/**
+ * @implements {nsIMsgSendListener}
+ * @implements {nsIMsgCopyServiceListener}
+ */
 msl.prototype = {
   // nsIMsgSendListener
   onStartSending() {},
-  onProgress() {},
+  onSendProgress() {},
   onStatus() {},
   onStopSending(aMsgID, aStatus) {
     try {
@@ -59,11 +63,13 @@ msl.prototype = {
   onTransportSecurityError() {},
 
   // nsIMsgCopyServiceListener
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  GetMessageId() {},
-  OnStopCopy(aStatus) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder

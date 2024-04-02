@@ -113,9 +113,14 @@ const filterActionCopyDecrypt = {
 };
 
 /**
- * filter action for to encrypt a mail to a specific key
+ * Filter action for to encrypt a mail to a specific key.
  */
 const filterActionEncrypt = {
+  /**
+   * @param {nsIMsgDbHdr[]} aMsgHdrs
+   * @param {string} aActionValue - Key ID or recipient email address.
+   * @param {nsIMsgCopyServiceListener} aListener
+   */
   async applyAction(aMsgHdrs, aActionValue, aListener) {
     // Ensure KeyRing is loaded.
     lazy.EnigmailCore.init();
@@ -139,8 +144,8 @@ const filterActionEncrypt = {
     if (keyObj === null && aListener) {
       lazy.EnigmailLog.DEBUG("filters.sys.mjs: no valid key - aborting\n");
 
-      aListener.OnStartCopy();
-      aListener.OnStopCopy(1);
+      aListener.onStartCopy();
+      aListener.onStopCopy(Cr.NS_ERROR_ABORT);
 
       return;
     }

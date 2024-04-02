@@ -391,10 +391,10 @@ SendOperationListener::OnStartSending(const char* aMsgID, uint32_t aMsgSize) {
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnProgress(const char* aMsgID, uint32_t aProgress,
-                                  uint32_t aProgressMax) {
+SendOperationListener::OnSendProgress(const char* aMsgID, uint32_t aProgress,
+                                      uint32_t aProgressMax) {
 #ifdef NS_DEBUG
-  printf("SendOperationListener::OnProgress()\n");
+  printf("SendOperationListener::OnSendProgress()\n");
 #endif
   return NS_OK;
 }

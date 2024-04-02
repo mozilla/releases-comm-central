@@ -363,14 +363,14 @@ export class MessageSend {
   notifyListenerOnStartCopy() {
     lazy.MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
-      this._sendListener.OnStartCopy();
+      this._sendListener.onStartCopy();
     }
   }
 
   notifyListenerOnProgressCopy(progress, progressMax) {
     lazy.MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
-      this._sendListener.OnProgress(progress, progressMax);
+      this._sendListener.onProgress(progress, progressMax);
     }
   }
 
@@ -1055,7 +1055,7 @@ export class MessageSend {
     lazy.setTimeout(() => {
       try {
         if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
-          this._sendListener.OnStopCopy(0);
+          this._sendListener.onStopCopy(0);
         }
       } catch (e) {
         // Ignore the return value of OnStopCopy. Non-zero nsresult will throw

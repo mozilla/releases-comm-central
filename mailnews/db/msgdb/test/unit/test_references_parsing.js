@@ -107,16 +107,19 @@ function run_test() {
   return true;
 }
 
+/** @implements {nsIMsgCopyServiceListener} */
 var messageHeaderGetterListener = {
   msgKey: null,
 
-  OnStartCopy() {},
-  OnProgress() {},
-  GetMessageId() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  getMessageId() {
+    return null;
+  },
+  setMessageKey(aKey) {
     this.msgKey = aKey;
   },
-  OnStopCopy() {
+  onStopCopy() {
     test_references_header_parsing(
       localAccountUtils.inboxFolder.GetMessageHeader(this.msgKey)
     );

@@ -50,7 +50,7 @@ add_setup(function () {
 
 add_task(async function copyFolder1() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
@@ -66,7 +66,7 @@ add_task(async function copyFolder1() {
 
 add_task(async function copyFolder2() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
@@ -82,7 +82,7 @@ add_task(async function copyFolder2() {
 
 add_task(async function getLocalMessage1() {
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
@@ -104,7 +104,7 @@ add_task(async function getLocalMessage2() {
   gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
   const file = do_get_file("../../../data/draft1");
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
@@ -125,7 +125,7 @@ add_task(async function copyMessages() {
   gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
   const folder1 = IMAPPump.inbox.getChildNamed("empty 1");
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });
@@ -144,7 +144,7 @@ add_task(async function copyMessages() {
 add_task(async function moveMessages() {
   const folder2 = IMAPPump.inbox.getChildNamed("empty 2");
   const copyListener = new PromiseTestUtils.PromiseCopyListener({
-    SetMessageKey(aKey) {
+    setMessageKey(aKey) {
       gLastKey = aKey;
     },
   });

@@ -16,14 +16,17 @@ var hdr;
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
+  /** @implements {nsIMsgCopyServiceListener} */
   var copyListener = {
-    OnStartCopy() {},
-    OnProgress() {},
-    SetMessageKey(aKey) {
+    onStartCopy() {},
+    onProgress() {},
+    setMessageKey(aKey) {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId() {},
-    OnStopCopy() {
+    getMessageId() {
+      return null;
+    },
+    onStopCopy() {
       continueTest();
     },
   };

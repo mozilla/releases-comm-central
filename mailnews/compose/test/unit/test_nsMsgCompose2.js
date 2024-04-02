@@ -10,6 +10,7 @@ const gSLAll = new Array(numSendListenerFunctions + 1);
 
 function sendListener() {}
 
+/** @implements {nsIMsgSendListener} */
 sendListener.prototype = {
   mReceived: 0,
   mAutoRemoveItem: 0,
@@ -20,7 +21,7 @@ sendListener.prototype = {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
-  onProgress() {
+  onSendProgress() {
     this.mReceived |= 0x02;
     if (this.mAutoRemoveItem == 0x02) {
       gMsgCompose.removeMsgSendListener(this);
@@ -60,7 +61,7 @@ sendListener.prototype = {
 
 function NotifySendListeners() {
   gMsgCompose.onStartSending(null, null);
-  gMsgCompose.onProgress(null, null, null);
+  gMsgCompose.onSendProgress(null, null, null);
   gMsgCompose.onStatus(null, null);
   gMsgCompose.onStopSending(null, null, null, null);
   gMsgCompose.onGetDraftFolderURI(null, null);

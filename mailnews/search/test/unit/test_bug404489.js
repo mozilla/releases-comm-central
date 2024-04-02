@@ -92,12 +92,15 @@ function run_test() {
   return true;
 }
 
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  SetMessageId() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     continue_test();
   },
 };

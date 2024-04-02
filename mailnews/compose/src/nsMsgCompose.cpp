@@ -2973,15 +2973,16 @@ NS_IMETHODIMP nsMsgCompose::OnStartSending(const char* aMsgID,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompose::OnProgress(const char* aMsgID, uint32_t aProgress,
-                                       uint32_t aProgressMax) {
+NS_IMETHODIMP nsMsgCompose::OnSendProgress(const char* aMsgID,
+                                           uint32_t aProgress,
+                                           uint32_t aProgressMax) {
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
   while (iter.HasMore()) {
     externalSendListener = iter.GetNext();
-    externalSendListener->OnProgress(aMsgID, aProgress, aProgressMax);
+    externalSendListener->OnSendProgress(aMsgID, aProgress, aProgressMax);
   }
   return NS_OK;
 }
@@ -3104,14 +3105,14 @@ nsresult nsMsgComposeSendListener::OnStartSending(const char* aMsgID,
   return NS_OK;
 }
 
-nsresult nsMsgComposeSendListener::OnProgress(const char* aMsgID,
-                                              uint32_t aProgress,
-                                              uint32_t aProgressMax) {
+nsresult nsMsgComposeSendListener::OnSendProgress(const char* aMsgID,
+                                                  uint32_t aProgress,
+                                                  uint32_t aProgressMax) {
   nsresult rv;
   nsCOMPtr<nsIMsgSendListener> composeSendListener =
       do_QueryReferent(mWeakComposeObj, &rv);
   if (NS_SUCCEEDED(rv) && composeSendListener)
-    composeSendListener->OnProgress(aMsgID, aProgress, aProgressMax);
+    composeSendListener->OnSendProgress(aMsgID, aProgress, aProgressMax);
   return NS_OK;
 }
 

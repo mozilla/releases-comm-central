@@ -77,6 +77,11 @@ MessageArchiver.canArchive = function (messages, isSingleFolder) {
 // only allow one active archiver.
 let gIsArchiving = false;
 
+/**
+ * @implements {nsIUrlListener}
+ * @implements {nsIMsgCopyServiceListener}
+ * @implements {nsIMsgOperationListener}
+ */
 MessageArchiver.prototype = {
   archiveMessages(aMsgHdrs) {
     if (!aMsgHdrs.length) {
@@ -328,7 +333,7 @@ MessageArchiver.prototype = {
         this.msgWindow,
         true
       );
-      return; // continues with OnStopCopy
+      return; // continues with onStopCopy
     }
     this.processNextBatch(); // next batch
   },
@@ -347,13 +352,15 @@ MessageArchiver.prototype = {
   },
 
   // also implements nsIMsgCopyServiceListener, but we only care
-  // about the OnStopCopy
+  // about the onStopCopy
   // @implements {nsIMsgCopyServiceListener}
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  GetMessageId() {},
-  OnStopCopy(aStatus) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy(aStatus) {
     if (Components.isSuccessCode(aStatus)) {
       this.processNextBatch();
     } else {

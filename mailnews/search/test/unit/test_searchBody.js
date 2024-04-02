@@ -201,12 +201,15 @@ function fixFile(file) {
   return targetFile;
 }
 
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  SetMessageId() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     var fileName = Files.shift();
     if (fileName) {
       var file = fixFile(do_get_file(fileName));
@@ -277,7 +280,7 @@ function run_test() {
   testValidityTable(news, IsBefore, Body, false);
 
   do_test_pending();
-  copyListener.OnStopCopy(null);
+  copyListener.onStopCopy(null);
 }
 
 // process each test from queue, calls itself upon completion of each search

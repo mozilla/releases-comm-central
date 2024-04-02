@@ -44,16 +44,19 @@ function run_test() {
 
   // Get a message into the local filestore. function testBodySearch() continues the testing after the copy.
   do_test_pending();
-  copyListener.OnStopCopy(null);
+  copyListener.onStopCopy(null);
   return true;
 }
 
+/** @implements {nsIMsgCopyServiceListener} */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  SetMessageId() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     const fileName = Files.shift();
     if (fileName) {
       const file = do_get_file(fileName);

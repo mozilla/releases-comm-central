@@ -10,9 +10,10 @@ var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
+/** @implements {nsIMsgSendListener} */
 const customSendListener = {
   ...copyListener,
-  OnStopCopy() {},
+  onStopCopy() {},
 
   /**
    * Test a mail file is created and has correct content.

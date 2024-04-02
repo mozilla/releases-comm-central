@@ -460,7 +460,7 @@ add_task(async function testChangeDetails() {
       null,
       true,
       false,
-      { OnStopCopy: resolve },
+      { onStopCopy: resolve },
       false
     );
   });
@@ -566,7 +566,7 @@ add_task(async function testChangeAttachments() {
       null,
       true,
       false,
-      { OnStopCopy: resolve },
+      { onStopCopy: resolve },
       false
     );
   });
@@ -755,7 +755,7 @@ add_task(async function testListExpansion() {
       null,
       true,
       false,
-      { OnStopCopy: resolve },
+      { onStopCopy: resolve },
       false
     );
   });
@@ -901,7 +901,7 @@ add_task(async function testMultipleListeners() {
       null,
       true,
       false,
-      { OnStopCopy: resolve },
+      { onStopCopy: resolve },
       false
     );
   });

@@ -59,7 +59,7 @@ function clearFolder(folder) {
       null,
       true,
       false,
-      { OnStopCopy: resolve },
+      { onStopCopy: resolve },
       false
     );
   });

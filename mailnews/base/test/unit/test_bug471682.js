@@ -44,18 +44,23 @@ function run_test() {
   );
 }
 
-// step 2: copy one message into a subfolder to establish an
-//         mbox file time and size
-// nsIMsgCopyServiceListener implementation
+/**
+ * step 2: copy one message into a subfolder to establish an
+ *         mbox file time and size
+ *
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var step2 = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey(aKey) {
     dump("in set message key\n");
     gHdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
   },
-  SetMessageId() {},
-  OnStopCopy() {
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
     MailServices.copy.copyMessages(
@@ -70,20 +75,27 @@ var step2 = {
   },
 };
 
-// step 3: after the copy, delay to allow copy to complete and allow possible
-//         file error time
-// nsIMsgCopyServiceListener implementation
+/**
+ * step 3: after the copy, delay to allow copy to complete and allow possible
+ *         file error time
+ *
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var step3 = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  SetMessageId() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     do_timeout(2000, step4);
   },
 };
 
-// step 4: start a second copy
+/**
+ * step 4: start a second copy
+ */
 function step4() {
   MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
@@ -96,14 +108,19 @@ function step4() {
   );
 }
 
-// step 5:  actual tests of file size and date
-// nsIMsgCopyServiceListener implementation
+/**
+ * step 5: actual tests of file size and date
+ *
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var step5 = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  SetMessageId() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     var dbSize = gSubfolder.msgDatabase.dBFolderInfo.folderSize;
     var dbDate = gSubfolder.msgDatabase.dBFolderInfo.folderDate;
     var filePath = gSubfolder.filePath;

@@ -103,7 +103,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
           null,
           true,
           false,
-          { OnStopCopy: resolve },
+          { onStopCopy: resolve },
           false
         );
       })

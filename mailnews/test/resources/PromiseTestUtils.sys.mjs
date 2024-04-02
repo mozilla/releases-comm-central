@@ -65,35 +65,37 @@ PromiseTestUtils.PromiseCopyListener = function (aWrapped) {
   this._result = { messageKeys: [], messageIds: [] };
 };
 
+/** @implements {nsIMsgCopyServiceListener} */
 PromiseTestUtils.PromiseCopyListener.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
-  OnStartCopy() {
-    if (this.wrapped && this.wrapped.OnStartCopy) {
-      this.wrapped.OnStartCopy();
+  onStartCopy() {
+    if (this.wrapped && this.wrapped.onStartCopy) {
+      this.wrapped.onStartCopy();
     }
   },
-  OnProgress(aProgress, aProgressMax) {
-    if (this.wrapped && this.wrapped.OnProgress) {
-      this.wrapped.OnProgress(aProgress, aProgressMax);
+  onProgress(aProgress, aProgressMax) {
+    if (this.wrapped && this.wrapped.onProgress) {
+      this.wrapped.onProgress(aProgress, aProgressMax);
     }
   },
-  SetMessageKey(aKey) {
-    if (this.wrapped && this.wrapped.SetMessageKey) {
-      this.wrapped.SetMessageKey(aKey);
+  setMessageKey(aKey) {
+    if (this.wrapped && this.wrapped.setMessageKey) {
+      this.wrapped.setMessageKey(aKey);
     }
 
     this._result.messageKeys.push(aKey);
   },
-  SetMessageId(aMessageId) {
-    if (this.wrapped && this.wrapped.SetMessageId) {
-      this.wrapped.SetMessageId(aMessageId);
+  getMessageId() {
+    if (this.wrapped && this.wrapped.getMessageId) {
+      const mid = this.wrapped.getMessageId();
+      this._result.messageIds.push(mid);
+      return mid;
     }
-
-    this._result.messageIds.push(aMessageId);
+    return null;
   },
-  OnStopCopy(aStatus) {
-    if (this.wrapped && this.wrapped.OnStopCopy) {
-      this.wrapped.OnStopCopy(aStatus);
+  onStopCopy(aStatus) {
+    if (this.wrapped && this.wrapped.onStopCopy) {
+      this.wrapped.onStopCopy(aStatus);
     }
 
     if (aStatus == Cr.NS_OK) {

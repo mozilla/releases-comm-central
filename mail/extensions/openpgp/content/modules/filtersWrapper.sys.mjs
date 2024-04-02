@@ -18,6 +18,12 @@ const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
   name: l10n.formatValueSync("filter-decrypt-move-label"),
   value: "movemessage",
+
+  /**
+   * @param {nsIMsgDbHdr[]} aMsgHdrs
+   * @param {string} aActionValue - Action value.
+   * @param {nsIMsgCopyServiceListener} aListener
+   */
   applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
       gEnigmailFilters.moveDecrypt.applyAction(
@@ -28,8 +34,8 @@ const filterActionMoveDecrypt = {
         aMsgWindow
       );
     } else {
-      aListener.OnStartCopy();
-      aListener.OnStopCopy(0);
+      aListener.onStartCopy();
+      aListener.onStopCopy(0);
     }
   },
 
@@ -56,13 +62,19 @@ const filterActionMoveDecrypt = {
 };
 
 /**
- * filter action for creating a decrypted copy of the mail, leaving the original
- * message untouched
+ * Filter action for creating a decrypted copy of the mail, leaving the original
+ * message untouched.
  */
 const filterActionCopyDecrypt = {
   id: EnigmailConstants.FILTER_COPY_DECRYPT,
   name: l10n.formatValueSync("filter-decrypt-copy-label"),
   value: "copymessage",
+
+  /**
+   * @param {nsIMsgDbHdr[]} aMsgHdrs
+   * @param {string} aActionValue - Action value.
+   * @param {nsIMsgCopyServiceListener} aListener
+   */
   applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
       gEnigmailFilters.copyDecrypt.applyAction(
@@ -73,8 +85,8 @@ const filterActionCopyDecrypt = {
         aMsgWindow
       );
     } else {
-      aListener.OnStartCopy();
-      aListener.OnStopCopy(0);
+      aListener.onStartCopy();
+      aListener.onStopCopy(0);
     }
   },
 
@@ -107,6 +119,12 @@ const filterActionEncrypt = {
   id: EnigmailConstants.FILTER_ENCRYPT,
   name: l10n.formatValueSync("filter-encrypt-label"),
   value: "encryptto",
+
+  /**
+   * @param {nsIMsgDbHdr[]} aMsgHdrs
+   * @param {string} aActionValue - Action value.
+   * @param {nsIMsgCopyServiceListener} aListener
+   */
   applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
       gEnigmailFilters.encrypt.applyAction(
@@ -117,8 +135,8 @@ const filterActionEncrypt = {
         aMsgWindow
       );
     } else {
-      aListener.OnStartCopy();
-      aListener.OnStopCopy(0);
+      aListener.onStartCopy();
+      aListener.onStopCopy(0);
     }
   },
 

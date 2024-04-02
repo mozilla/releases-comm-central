@@ -798,7 +798,7 @@ var stateListener = {
 var gSendListener = {
   // nsIMsgSendListener
   onStartSending() {},
-  onProgress() {},
+  onSendProgress() {},
   onStatus() {},
   onStopSending(aMsgID, aStatus) {
     if (Components.isSuccessCode(aStatus)) {

@@ -257,7 +257,7 @@ async function runTest(config) {
         null,
         true,
         false,
-        { OnStopCopy: resolve },
+        { onStopCopy: resolve },
         false
       );
     });

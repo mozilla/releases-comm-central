@@ -62,11 +62,13 @@ function checkPersistentState(folder) {
   });
 }
 
-// nsIMsgCopyServiceListener implementation
+/**
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey(aKey) {
     try {
       const hdr = gLocalFolder2.GetMessageHeader(aKey);
       gMsgHdrs.push({ hdr, ID: hdr.messageId });
@@ -74,8 +76,10 @@ var copyListener = {
       dump("SetMessageKey failed: " + e + "\n");
     }
   },
-  SetMessageId() {},
-  OnStopCopy(aStatus) {
+  getMessageId() {
+    return null;
+  },
+  onStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     // Ugly hack: make sure we don't get stuck in a JS->C++->JS->C++... call stack

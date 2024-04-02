@@ -41,15 +41,19 @@ function run_test() {
   return true;
 }
 
-// nsIMsgCopyServiceListener implementation
+/**
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var copyListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey(aKey) {
     hdrs.push(localAccountUtils.inboxFolder.GetMessageHeader(aKey));
   },
-  SetMessageId() {},
-  OnStopCopy() {
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     if (--messageCount) {
       MailServices.copy.copyFileMessage(
         bugmail1,

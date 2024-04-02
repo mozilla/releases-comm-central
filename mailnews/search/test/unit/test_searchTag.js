@@ -443,14 +443,17 @@ function run_test() {
   MailServices.tags.addTagForKey(Tag1, Tag1, null, null);
   MailServices.tags.addTagForKey(Tag4, Tag4, null, null);
 
+  /** @implements {nsIMsgCopyServiceListener} */
   var copyListener = {
-    OnStartCopy() {},
-    OnProgress() {},
-    SetMessageKey(aKey) {
+    onStartCopy() {},
+    onProgress() {},
+    setMessageKey(aKey) {
       hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     },
-    SetMessageId() {},
-    OnStopCopy() {
+    getMessageId() {
+      return null;
+    },
+    onStopCopy() {
       testKeywordSearch();
     },
   };

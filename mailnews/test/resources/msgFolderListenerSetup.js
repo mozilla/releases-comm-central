@@ -218,22 +218,24 @@ var gMFListener = {
   },
 };
 
-// Copy listener, for proceeding after each operation.
-// @implements {nsIMsgCopyServiceListener}
+/**
+ * Copy listener, for proceeding after each operation.
+ *
+ * @implements {nsIMsgCopyServiceListener}
+ */
 var copyListener = {
   // For copyFileMessage: this should be the folder the message is being stored to
   mFolderStoredIn: null,
   mMessageId: "",
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey(aKey) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey(aKey) {
     gHdrsReceived.push(this.mFolderStoredIn.GetMessageHeader(aKey));
   },
-  GetMessageId(aMessageId) {
-    // eslint-disable-next-line no-unused-vars
-    aMessageId = { value: this.mMessageId };
+  getMessageId() {
+    return this.mMessageId;
   },
-  OnStopCopy(aStatus) {
+  onStopCopy(aStatus) {
     // Check: message successfully copied.
     Assert.equal(aStatus, 0);
     gCurrStatus |= kStatus.onStopCopyDone;

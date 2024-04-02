@@ -70,13 +70,16 @@ add_task(async function test_move_message() {
   close_popup_sequence(popups);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
+  /** @implements {nsIMsgCopyServiceListener} */
   const copyListener = {
     copyDone: false,
-    OnStartCopy() {},
-    OnProgress() {},
-    SetMessageKey() {},
-    SetMessageId() {},
-    OnStopCopy() {
+    onStartCopy() {},
+    onProgress() {},
+    setMessageKey() {},
+    getMessageId() {
+      return null;
+    },
+    onStopCopy() {
       this.copyDone = true;
     },
   };

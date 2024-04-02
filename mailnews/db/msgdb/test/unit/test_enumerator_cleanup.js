@@ -45,12 +45,15 @@ function run_test() {
   return true;
 }
 
+/** @implements {nsIMsgCopyServiceListener} */
 var messageHeaderGetterListener = {
-  OnStartCopy() {},
-  OnProgress() {},
-  GetMessageId() {},
-  SetMessageKey() {},
-  OnStopCopy() {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy() {
     do_timeout(0, test_enumerator_cleanup);
   },
 };

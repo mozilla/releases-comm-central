@@ -167,7 +167,7 @@ add_task(async function test_compose_action_status_after_save() {
         null,
         true,
         false,
-        { OnStopCopy: resolve },
+        { onStopCopy: resolve },
         false
       );
     });

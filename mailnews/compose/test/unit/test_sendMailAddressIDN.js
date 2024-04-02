@@ -56,7 +56,7 @@ function MsgSendListener(aRecipient, originalData) {
 MsgSendListener.prototype = {
   // nsIMsgSendListener
   onStartSending() {},
-  onProgress() {},
+  onSendProgress() {},
   onStatus() {},
   onStopSending(aMsgID, aStatus) {
     try {
@@ -103,11 +103,13 @@ MsgSendListener.prototype = {
   onTransportSecurityError() {},
 
   // nsIMsgCopyServiceListener
-  OnStartCopy() {},
-  OnProgress() {},
-  SetMessageKey() {},
-  GetMessageId() {},
-  OnStopCopy(aStatus) {
+  onStartCopy() {},
+  onProgress() {},
+  setMessageKey() {},
+  getMessageId() {
+    return null;
+  },
+  onStopCopy(aStatus) {
     Assert.equal(aStatus, 0);
     try {
       // Now do a comparison of what is in the sent mail folder

@@ -143,45 +143,44 @@ export var EnigmailPersistentCrypto = {
 
       // The following technique was copied from AttachmentDeleter in Thunderbird's
       // nsMessenger.cpp. There is a "unified" listener which serves as copy and delete
-      // listener. In all cases, the `OnStopCopy()` of the delete listener selects the
+      // listener. In all cases, the `onStopCopy()` of the delete listener selects the
       // replacement message.
-      // The deletion happens in `OnStopCopy()` of the copy listener for local messages
+      // The deletion happens in `onStopCopy()` of the copy listener for local messages
       // and in `OnStopRunningUrl()` for IMAP messages if the folder is displayed since
       // otherwise `OnStopRunningUrl()` doesn't run.
 
       let newKey;
-      let statusCode = 0;
       const destFolder = targetFolderUri
         ? lazy.MailUtils.getExistingFolder(targetFolderUri)
         : msgFolder;
 
+      /** @implements {nsIMsgCopyServiceListener} */
       const copyListener = {
         QueryInterface: ChromeUtils.generateQI([
           "nsIMsgCopyServiceListener",
           "nsIUrlListener",
         ]),
-        GetMessageId() {
-          // Maybe enable this later. Most of the Thunderbird code does not supply this.
-          // messageId = { value: msgHdr.messageId };
-        },
-        SetMessageKey(key) {
-          lazy.EnigmailLog.DEBUG(
-            `persistentCrypto.sys.mjs: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`
-          );
-          newKey = key;
-        },
         applyFlags() {
           const newHdr = destFolder.GetMessageHeader(newKey);
           newHdr.markRead(originalMsgHdr.isRead);
           newHdr.markFlagged(originalMsgHdr.isFlagged);
           newHdr.subject = originalMsgHdr.subject;
         },
-        OnStartCopy() {},
-        OnStopCopy(status) {
-          statusCode = status;
-          if (statusCode !== 0) {
+
+        onStartCopy() {},
+        getMessageId() {
+          return null;
+        },
+        setMessageKey(key) {
+          lazy.EnigmailLog.DEBUG(
+            `persistentCrypto.sys.mjs: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`
+          );
+          newKey = key;
+        },
+        onStopCopy(status) {
+          if (!Components.isSuccessCode(status)) {
             lazy.EnigmailLog.ERROR(
-              `persistentCrypto.sys.mjs: ${statusCode} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`
+              `persistentCrypto.sys.mjs: ${status} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`
             );
             reject();
             return;
@@ -192,7 +191,7 @@ export var EnigmailPersistentCrypto = {
           } catch (ex) {}
 
           lazy.EnigmailLog.DEBUG(
-            "persistentCrypto.sys.mjs: copyMessageToFolder: Triggering deletion from OnStopCopy()\n"
+            "persistentCrypto.sys.mjs: copyMessageToFolder: Triggering deletion from onStopCopy()\n"
           );
           this.applyFlags();
 
