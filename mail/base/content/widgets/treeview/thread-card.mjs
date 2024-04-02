@@ -78,30 +78,37 @@ class ThreadCard extends TreeViewTableRow {
 
     this.subjectLine.textContent = data.subject;
     this.subjectLine.title = data.subject;
+
+    // Handle a different style and data if this is a dummy row.
+    if (propertiesSet.has("dummy")) {
+      const unread = Number(data.unread);
+      const total = Number(data.total);
+
+      if (unread) {
+        document.l10n.setAttributes(
+          this.sortHeaderDetails,
+          "threadpane-sort-header-unread-count",
+          {
+            unread,
+            total,
+          }
+        );
+        return;
+      }
+
+      document.l10n.setAttributes(
+        this.sortHeaderDetails,
+        "threadpane-sort-header-count",
+        {
+          total,
+        }
+      );
+      return;
+    }
+
     this.senderLine.textContent = data.sender;
     this.senderLine.title = data.sender;
     this.dateLine.textContent = data.date;
-
-    if (propertiesSet.has("dummy")) {
-      if (data.unread) {
-        document.l10n.setAttributes(
-          this.sortHeaderDetails,
-          "threadpane-sort-header-unread",
-          {
-            unread: data.unread,
-            total: data.total,
-          }
-        );
-      } else {
-        document.l10n.setAttributes(
-          this.sortHeaderDetails,
-          "threadpane-sort-header",
-          {
-            total: data.total,
-          }
-        );
-      }
-    }
 
     let tagColor;
     const matchesTags = [];

@@ -987,6 +987,7 @@ var dbViewWrapperListener = {
       }
       window.threadPane.setTreeView(gViewWrapper.dbView);
       window.threadPane.restoreSortIndicator();
+      window.threadPane.restoreThreadState();
       window.threadPaneHeader.onFolderSelected();
       window.threadPane.isFirstScroll = true;
       window.threadPane.scrollDetected = false;

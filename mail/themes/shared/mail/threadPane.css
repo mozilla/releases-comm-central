@@ -463,11 +463,10 @@ tr[is="thread-card"] .sort-header-details {
 
   & .sort-header-details {
     display: inline-block;
-    font-size: 0.9rem;
     font-weight: 500;
     color: var(--layout-color-2);
 
-    & .sort-header-count {
+    & > span {
       font-weight: 700;
     }
   }

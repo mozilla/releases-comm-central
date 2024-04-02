@@ -589,17 +589,21 @@ apply-current-view-to-folder-with-children-message = Apply the current folder’
 # Variables:
 # $unread (Number) - Number of unread messages in thread.
 # $total (Number) - Number of messages in thread.
-threadpane-sort-header-unread =
-  { $total ->
-    [one] <span data-l10n-name="threadpane-sort-header-unread-count">{ $unread }</span> unread of <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> message
-    *[other] <span data-l10n-name="threadpane-sort-header-unread-count">{ $unread }</span> unread of <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> messages
+threadpane-sort-header-unread-count =
+  { $unread ->
+    [one] <span>1</span> unread
+    *[other] <span>{ $unread }</span> unread
+  } of { $total ->
+    [one] <span>1</span> message
+    *[other] <span>{ $total }</span> messages
   }
+
 # Variables:
 # $total (Number) - Number of messages in thread.
-threadpane-sort-header =
+threadpane-sort-header-count =
   { $total ->
-    [one] <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> message
-    *[other] <span data-l10n-name="threadpane-sort-header-total-count">{ $total }</span> messages
+    [one] <span>1</span> message
+    *[other] <span>{ $total }</span> messages
   }
 
 threadpane-card-menu-button =
