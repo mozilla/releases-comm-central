@@ -110,7 +110,7 @@ export var CardDAVUtils = {
     headers["Content-Type"] = contentType;
     if (oAuth) {
       headers.Authorization = await new Promise((resolve, reject) => {
-        oAuth.getAccessToken(true, {
+        oAuth.getAccessToken({
           onSuccess(token) {
             // Format the token as an HTTP Authorization header value.
             resolve(`Bearer ${token}`);
@@ -366,8 +366,8 @@ export var CardDAVUtils = {
       // Implement msgIOAuth2Module.connect, which CardDAVUtils.makeRequest expects.
       requestParams.oAuth = {
         QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
-        getAccessToken(withUI, listener) {
-          oAuth.connect(withUI, false).then(
+        getAccessToken(listener) {
+          oAuth.connect(true, false).then(
             () => listener.onSuccess(oAuth.accessToken),
             () => listener.onFailure(Cr.NS_ERROR_ABORT)
           );
