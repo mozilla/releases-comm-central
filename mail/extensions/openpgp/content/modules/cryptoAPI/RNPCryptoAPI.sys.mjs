@@ -14,12 +14,10 @@ Services.scriptloader.loadSubScript(
 
 /* global CryptoAPI */
 
-import { EnigmailLog } from "chrome://openpgp/content/modules/log.sys.mjs";
-
 import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sys.mjs";
 
 /**
- * RNP implementation of CryptoAPI
+ * RNP implementation of CryptoAPI.
  */
 class RNPCryptoAPI extends CryptoAPI {
   constructor() {
@@ -30,7 +28,7 @@ class RNPCryptoAPI extends CryptoAPI {
   /**
    * Get the list of all known keys (including their secret keys).
    *
-   * @param {string[]} [onlyKeys] - Only load data for thse specified key IDs.
+   * @param {string[]} [onlyKeys] - Only load data for these specified key IDs.
    * @returns {Promise<object[]>} the keys
    */
   async getKeys(onlyKeys = null) {
@@ -77,6 +75,20 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
+  /**
+   * @param {window} win
+   * @param {string} keyBlock - An block of OpenPGP key data.
+   * @param {string} acceptance - The key acceptance level that should
+   *   be assigned to imported public keys.
+   * @param {boolean} permissive - Whether it's allowed to fall back
+   *   to a permissive import, if strict import fails.
+   *   See RNP documentation for RNP_LOAD_SAVE_PERMISSIVE.
+   * @param {string[] limitedFPRs - This is a filtering parameter.
+   *   If the array is empty, all keys will be imported.
+   *   If the array contains at least one entry, a key will be imported
+   *   only if its fingerprint (of the primary key) is listed in this
+   *   array.
+   */
   async importPubkeyBlockAutoAcceptAPI(
     win,
     keyBlock,
@@ -99,7 +111,7 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Export secret key(s) to a file
+   * Export secret key(s) to a file.
    *
    * @param {string} keyId - Specification by fingerprint or keyID.
    * @param {boolean} minimalKey - if true, reduce key to minimum required.
@@ -113,7 +125,6 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   *
    * @param {byte} byteData - The encrypted data.
    * @returns {?string} the name of the attached file, or null.
    */
@@ -146,7 +157,6 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   *
    * @param {string} encrypted - The encrypted data.
    * @param {object} options - Decryption options.
    * @returns {Promise<object>} the object with decryptedData and
@@ -158,8 +168,6 @@ class RNPCryptoAPI extends CryptoAPI {
    *     by throwing an Error (subclass?) for failures to decrypt.
    */
   async decrypt(encrypted, options) {
-    EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decrypt()\n`);
-
     return RNP.decrypt(encrypted, options);
   }
 
@@ -168,11 +176,9 @@ class RNPCryptoAPI extends CryptoAPI {
    * @param {string} encrypted - The encrypted data.
    * @param {object} options - Decryption options.
    * @returns {Promise<object>} the object with decryptedData and
-   *   status information
+   *   status information.
    */
   async decryptMime(encrypted, options) {
-    EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decryptMime()\n`);
-
     // write something to gpg such that the process doesn't get stuck
     if (encrypted.length === 0) {
       encrypted = "NO DATA\n";
@@ -186,20 +192,12 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   *
    * @param {string} signed - The signed data.
    * @param {object} options - Decryption options.
-   *
    * @returns {Promise<object>} the object with decryptedData and
-   *   status information
+   *   status information.
    */
   async verifyMime(signed, options) {
-    EnigmailLog.DEBUG(`rnp-cryptoAPI.js: verifyMime()\n`);
-
-    //options.noOutput = true;
-    //options.verifyOnly = true;
-    //options.uiFlags = EnigmailConstants.UI_PGP_MIME;
-
     if (!options.mimeSignatureData) {
       throw new Error("inline verify not yet implemented");
     }
