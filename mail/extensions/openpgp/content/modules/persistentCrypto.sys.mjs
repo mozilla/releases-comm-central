@@ -15,26 +15,29 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailEncryption: "chrome://openpgp/content/modules/encryption.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
+});
 
 export var EnigmailPersistentCrypto = {
   /***
-   * cryptMessage
-   *
    * Decrypts a message and copy it to a folder. If targetKey is
    * not null, it encrypts a message to the target key afterwards.
    *
-   * @param {nsIMsgDBHdr} hdr - message to process
-   * @param {string} destFolder - target folder URI
-   * @param {boolean} move - true for move, false for copy
-   * @param {KeyObject} targetKey - target key if encryption is requested
-   *
-   * @returns {nsMsgKey} Message key of the new message
+   * @param {nsIMsgDBHdr} hdr - Message to process.
+   * @param {string} destFolder - Target folder URI.
+   * @param {boolean} move - true for move, false for copy.
+   * @param {KeyObject} targetKey - Target key if encryption is requested.
+   * @returns {nsMsgKey} message key of the new message.
    **/
   async cryptMessage(hdr, destFolder, move, targetKey) {
     return new Promise(function (resolve, reject) {
@@ -99,14 +102,13 @@ export var EnigmailPersistentCrypto = {
    * Copies an email message to a folder, which is a modified copy of an
    * existing message, optionally creating a new message ID.
    *
-   * @param {nsIMsgDBHdr} originalMsgHdr - Header of the original message
-   * @param {string} targetFolderUri - Target folder URI
+   * @param {nsIMsgDBHdr} originalMsgHdr - Header of the original message.
+   * @param {string} targetFolderUri - Target folder URI.
    * @param {boolean} deleteOrigMsg - Should the original message be deleted?
-   * @param {string} content - New message content
-   * @param {string} newMessageIdPrefix - If this is non-null, create a new message ID
-   *                                       by adding this prefix.
-   *
-   * @returns {nsMsgKey} Message key of the new message
+   * @param {string} content - New message content.
+   * @param {string} newMessageIdPrefix - If this is non-null, create a new
+   *   messageID by adding this prefix.
+   * @returns {nsMsgKey} message key of the new message
    */
   async copyMessageToFolder(
     originalMsgHdr,
@@ -115,7 +117,6 @@ export var EnigmailPersistentCrypto = {
     content,
     newMessageIdPrefix
   ) {
-    lazy.EnigmailLog.DEBUG("persistentCrypto.sys.mjs: copyMessageToFolder()\n");
     return new Promise((resolve, reject) => {
       if (newMessageIdPrefix) {
         content = this.changeMessageId(content, newMessageIdPrefix);
@@ -172,15 +173,12 @@ export var EnigmailPersistentCrypto = {
           return null;
         },
         setMessageKey(key) {
-          lazy.EnigmailLog.DEBUG(
-            `persistentCrypto.sys.mjs: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`
-          );
           newKey = key;
         },
         onStopCopy(status) {
           if (!Components.isSuccessCode(status)) {
-            lazy.EnigmailLog.ERROR(
-              `persistentCrypto.sys.mjs: ${status} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`
+            lazy.log.warn(
+              `Replacing message FAILED; folder=${destFolder.URI}, key=${originalMsgHdr.messageKey}/${newKey}`
             );
             reject();
             return;
@@ -190,15 +188,9 @@ export var EnigmailPersistentCrypto = {
             tempFile.remove();
           } catch (ex) {}
 
-          lazy.EnigmailLog.DEBUG(
-            "persistentCrypto.sys.mjs: copyMessageToFolder: Triggering deletion from onStopCopy()\n"
-          );
           this.applyFlags();
 
           if (deleteOrigMsg) {
-            lazy.EnigmailLog.DEBUG(
-              `persistentCrypto.sys.mjs: copyMessageToFolder: Deleting old message with key ${originalMsgHdr.messageKey}\n`
-            );
             msgFolder.deleteMessages(
               [originalMsgHdr],
               null,
@@ -281,7 +273,6 @@ class CryptMessageIntoFolder extends MimeTreeDecrypter {
     const exitCodeObj = {};
     const statusFlagsObj = {};
     const errorMsgObj = {};
-    lazy.EnigmailLog.DEBUG("persistentCrypto.sys.mjs: Encrypting message.\n");
 
     const inputMsg = mimeTreeToString(mimeTree, false);
 
@@ -301,9 +292,7 @@ class CryptMessageIntoFolder extends MimeTreeDecrypter {
         errorMsgObj
       );
     } catch (ex) {
-      lazy.EnigmailLog.DEBUG(
-        "persistentCrypto.sys.mjs: Encryption failed: " + ex + "\n"
-      );
+      lazy.log.error("Encrypting message FAILED.", ex);
       return null;
     }
 
