@@ -522,15 +522,19 @@ var MessageWindowController = {
       return;
     }
 
+    // There may not be a "main" window if an .eml file was double-clicked.
+    let mainWindow;
     switch (command) {
       case "cmd_getNewMessages":
         MsgGetMessage();
         break;
       case "cmd_undo":
-        messenger.undo(msgWindow);
+        mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+        mainWindow?.messenger.undo(msgWindow);
         break;
       case "cmd_redo":
-        messenger.redo(msgWindow);
+        mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+        mainWindow?.messenger.redo(msgWindow);
         break;
       case "cmd_getMsgsForAuthAccounts":
         MsgGetMessagesForAllAuthenticatedAccounts();
@@ -611,6 +615,13 @@ function SetupCommandUpdateHandlers() {
     0,
     messageBrowser.contentWindow.commandController
   );
+  // Use the main window's transaction manager.
+  // There may not be a "main" window if an .eml file was double-clicked.
+  const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  if (mainWindow) {
+    window.msgWindow.transactionManager =
+      mainWindow.msgWindow.transactionManager;
+  }
 }
 
 function UnloadCommandUpdateHandlers() {

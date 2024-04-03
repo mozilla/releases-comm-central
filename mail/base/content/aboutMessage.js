@@ -175,6 +175,11 @@ function displayMessage(uri, viewWrapper) {
 
   messageHistory.push(uri);
 
+  if (parent == top) {
+    // This is needed for registering transactions on stand-alone windows.
+    dbViewWrapperListener.msgWindow = parent.msgWindow;
+  }
+
   if (!gViewWrapper) {
     if (gFolder) {
       if (viewWrapper) {
