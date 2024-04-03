@@ -6,22 +6,28 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
+});
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
 });
 
 export var OpenPGPMasterpass = {
   _initDone: false,
   _sdr: null,
 
-  getSDR() {
+  _getSDR() {
     if (!this._sdr) {
       try {
         this._sdr = Cc["@mozilla.org/security/sdr;1"].getService(
           Ci.nsISecretDecoderRing
         );
       } catch (ex) {
-        lazy.EnigmailLog.writeException("masterpass.sys.mjs", ex);
+        lazy.log.error(`Getting secret decoder ring FAILED.`, ex);
       }
     }
     return this._sdr;
@@ -141,7 +147,7 @@ export var OpenPGPMasterpass = {
       return;
     }
 
-    const sdr = this.getSDR();
+    const sdr = this._getSDR();
     if (!sdr) {
       throw new Error("Failed to obtain the SDR service.");
     }
@@ -256,6 +262,10 @@ export var OpenPGPMasterpass = {
     return this.cachedPassword;
   },
 
+  /**
+   * Check if the password is in cache.
+   * @returns {Promise<void>}
+   */
   async ensurePasswordIsCached() {
     if (this.cachedPassword) {
       return;
@@ -275,10 +285,11 @@ export var OpenPGPMasterpass = {
     await this._ensurePasswordCreatedAndCached();
   },
 
-  // This function may trigger password creation, if necessary
+  /**
+   * This function may trigger password creation, if necessary.
+   * @returns {Promise<string>} the OpenPGP password.
+   */
   async retrieveOpenPGPPassword() {
-    lazy.EnigmailLog.DEBUG("masterpass.sys.mjs: retrieveMasterPassword()\n");
-
     await this.ensurePasswordIsCached();
     return this.cachedPassword;
   },
