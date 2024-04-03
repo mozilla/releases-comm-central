@@ -664,15 +664,6 @@ function enableRefresh() {
 // ------------------ onCommand Functions  -----------------
 
 /*
-function signKey() {
-  if (EnigmailWindows.signKey(window, gUserId, gKeyId)) {
-    enableRefresh();
-    reloadData(false);
-  }
-}
-*/
-
-/*
 function manageUids() {
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
 

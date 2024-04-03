@@ -341,38 +341,6 @@ Enigmail.hdrView = {
     );
   },
 
-  editKeyExpiry() {
-    EnigmailWindows.editKeyExpiry(
-      window,
-      [Enigmail.msg.securityInfo.userId],
-      [Enigmail.msg.securityInfo.keyId]
-    );
-    ReloadMessage();
-  },
-
-  editKeyTrust() {
-    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
-
-    EnigmailWindows.editKeyTrust(
-      window,
-      [Enigmail.msg.securityInfo.userId],
-      [key.keyId]
-    );
-    ReloadMessage();
-  },
-
-  signKey() {
-    const key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
-
-    EnigmailWindows.signKey(
-      window,
-      Enigmail.msg.securityInfo.userId,
-      key.keyId,
-      null
-    );
-    ReloadMessage();
-  },
-
   msgHdrViewLoad() {
     this.messageListener = {
       onStartHeaders() {
