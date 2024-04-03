@@ -4,7 +4,6 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
@@ -21,10 +20,6 @@ export var EnigmailCore = {
       return;
     }
 
-    initializeLogDirectory();
-
-    lazy.EnigmailLog.DEBUG("core.sys.mjs: startup()\n");
-
     await lazy.PgpSqliteDb2.checkDatabaseStructure();
 
     this.factories = [];
@@ -33,7 +28,6 @@ export var EnigmailCore = {
     //EnigmailFiltersWrapper.onStartup();
 
     lazy.EnigmailMimeEncrypt.init();
-    //EnigmailOverlays.startup();
     this.factories.push(new Factory(lazy.EnigmailMimeEncrypt.Handler));
 
     this._initialized = true;
@@ -43,19 +37,6 @@ export var EnigmailCore = {
 ///////////////////////////////////////////////////////////////////////////////
 // Enigmail encryption/decryption service
 ///////////////////////////////////////////////////////////////////////////////
-
-function initializeLogDirectory() {
-  const dir = Services.prefs.getCharPref("temp.openpgp.logDirectory", "");
-  if (!dir) {
-    return;
-  }
-
-  lazy.EnigmailLog.setLogLevel(5);
-  lazy.EnigmailLog.setLogDirectory(dir);
-  lazy.EnigmailLog.DEBUG(
-    "core.sys.mjs: Logging debug output to " + dir + "/enigdbug.txt\n"
-  );
-}
 
 class Factory {
   constructor(component) {
