@@ -27,7 +27,6 @@ openpgp.jar:
   content/openpgp/modules/keyRing.sys.mjs          (content/modules/keyRing.sys.mjs)
   content/openpgp/modules/keyserver.sys.mjs        (content/modules/keyserver.sys.mjs)
   content/openpgp/modules/keyserverUris.sys.mjs    (content/modules/keyserverUris.sys.mjs)
-  content/openpgp/modules/log.sys.mjs              (content/modules/log.sys.mjs)
   content/openpgp/modules/masterpass.sys.mjs       (content/modules/masterpass.sys.mjs)
   content/openpgp/modules/mimeDecrypt.sys.mjs      (content/modules/mimeDecrypt.sys.mjs)
   content/openpgp/modules/mimeEncrypt.sys.mjs      (content/modules/mimeEncrypt.sys.mjs)
