@@ -10,9 +10,6 @@ var { CommonUtils } = ChromeUtils.importESModule(
 var { EnigmailFuncs } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/funcs.sys.mjs"
 );
-var { EnigmailLog } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/log.sys.mjs"
-);
 var { EnigmailKey } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/key.sys.mjs"
 );
