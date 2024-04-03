@@ -97,6 +97,10 @@
     list-style-image: var(--icon-app-menu-badged);
   }
 
+  &[badge-status="addon-alert"] {
+    list-style-image: var(--icon-app-menu-addon);
+  }
+
   & .toolbarbutton-text {
     display: none;
   }

@@ -699,15 +699,16 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
     background-size: contain;
     border: none;
     box-shadow: none;
+    min-width: 12px;
+    min-height: 12px;
+    padding: 0;
   }
 
   &:is([badge-status="update-available"], [badge-status="update-downloading"],
        [badge-status="update-manual"], [badge-status="update-other-instance"],
        [badge-status="update-restart"]) > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-    margin-top: -3px !important;
-    margin-inline-end: -2px !important;
-    min-width: 12px;
-    min-height: 12px;
+    margin-top: -4px !important;
+    margin-inline-end: -3px !important;
     -moz-context-properties: fill;
     fill: var(--color-green-60);
     background-image: var(--icon-notification-sm);
@@ -715,10 +716,9 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   }
 
   &[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
-    height: 12px;
+    margin-top: -3px !important;
     margin-inline-end: -5px !important;
     background-image: var(--icon-warning-sm);
-    box-shadow: none;
     border-radius: 0;
     -moz-context-properties: fill, stroke;
     fill: var(--color-amber-30);
