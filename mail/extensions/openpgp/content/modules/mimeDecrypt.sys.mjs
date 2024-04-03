@@ -18,12 +18,17 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
 });
-
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
+});
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
@@ -33,10 +38,6 @@ const ENCODING_BASE64 = 1;
 const ENCODING_QP = 2;
 
 const LAST_MSG = EnigmailSingletons.lastDecryptedMessage;
-
-var gDebugLogLevel = 3;
-
-var gNumProc = 0;
 
 export var EnigmailMimeDecrypt = {
   /**
@@ -92,7 +93,6 @@ export var EnigmailMimeDecrypt = {
 // data is processed from libmime -> nsPgpMimeProxy
 
 function MimeDecryptHandler() {
-  lazy.EnigmailLog.DEBUG("mimeDecrypt.sys.mjs: MimeDecryptHandler()\n"); // always log this one
   this.initOk = false;
   this.boundary = "";
   this.pipe = null;
@@ -126,15 +126,6 @@ MimeDecryptHandler.prototype = {
 
   onStartRequest(request) {
     lazy.EnigmailCore.init();
-    lazy.EnigmailLog.DEBUG("mimeDecrypt.sys.mjs: onStartRequest\n"); // always log this one
-
-    ++gNumProc;
-    if (gNumProc > Services.prefs.getIntPref("temp.openpgp.maxNumProcesses")) {
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: number of parallel requests above threshold - ignoring request\n"
-      );
-      return;
-    }
 
     this.initOk = true;
     const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
@@ -159,13 +150,7 @@ MimeDecryptHandler.prototype = {
     }
 
     this.uri = mimeSvc.messageURI;
-    if (this.uri) {
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: onStartRequest: uri='" + this.uri.spec + "'\n"
-      );
-    } else {
-      lazy.EnigmailLog.DEBUG("mimeDecrypt.sys.mjs: onStartRequest: uri=null\n");
-    }
+
     this.pipe = null;
     this.closePipe = false;
     this.exitCode = null;
@@ -200,7 +185,6 @@ MimeDecryptHandler.prototype = {
   processData(data) {
     // detect MIME part boundary
     if (data.includes(this.boundary)) {
-      LOCAL_DEBUG("mimeDecrypt.sys.mjs: processData: found boundary\n");
       ++this.mimePartCount;
       this.headerMode = 1;
       return;
@@ -265,11 +249,11 @@ MimeDecryptHandler.prototype = {
   },
 
   /**
-   * Try to determine if data is base64 endoded
+   * Try to determine if data is base64 encoded.
+   * @pparam {string} str
+   * @returns {boolean} true if base64 encoded.
    */
   isBase64Encoding(str) {
-    let ret = false;
-
     str = str.replace(/[\r\n]/, "");
     if (str.search(/^[A-Za-z0-9+/=]+$/) === 0) {
       const excess = str.length % 4;
@@ -278,13 +262,12 @@ MimeDecryptHandler.prototype = {
       try {
         atob(str);
         // if the conversion succeeds, we have a base64 encoded message
-        ret = true;
+        return true;
       } catch (ex) {
         // not a base64 encoded
       }
     }
-
-    return ret;
+    return false;
   },
 
   /**
@@ -293,15 +276,10 @@ MimeDecryptHandler.prototype = {
    * @param {string} str - The data to cache.
    */
   cacheData(str) {
-    if (gDebugLogLevel > 4) {
-      LOCAL_DEBUG("mimeDecrypt.sys.mjs: cacheData: " + str.length + "\n");
-    }
     this.outQueue += str;
   },
 
   processBase64Message() {
-    LOCAL_DEBUG("mimeDecrypt.sys.mjs: processBase64Message\n");
-
     try {
       this.base64Cache = lazy.EnigmailData.decodeBase64(this.base64Cache);
     } catch (ex) {
@@ -309,14 +287,13 @@ MimeDecryptHandler.prototype = {
     }
 
     const lines = this.base64Cache.replace(/\r\n/g, "\n").split(/\n/);
-
     for (let i = 0; i < lines.length; i++) {
       this.processData(lines[i] + "\r\n");
     }
   },
 
   /**
-   * Determine if we are reloading the same message as the previous one
+   * Determine if we are reloading the same message as the previous one.
    *
    * @returns {boolean} true if we're reloading the same message.
    */
@@ -344,8 +321,6 @@ MimeDecryptHandler.prototype = {
   },
 
   onStopRequest(request) {
-    LOCAL_DEBUG("mimeDecrypt.sys.mjs: onStopRequest\n");
-    --gNumProc;
     if (!this.initOk) {
       return;
     }
@@ -391,9 +366,6 @@ MimeDecryptHandler.prototype = {
             this.uri.spec.search(/[&?]header=(filter|enigmailFilter)(&.*)?$/) >
             0
           ) {
-            lazy.EnigmailLog.DEBUG(
-              "mimeDecrypt.sys.mjs: onStopRequest: detected incoming message processing\n"
-            );
             return;
           }
         }
@@ -417,15 +389,11 @@ MimeDecryptHandler.prototype = {
           }
         }
       } catch (ex) {
-        console.warn(`Error processing ${this.msgUriSpec}`, ex);
+        lazy.log.warn(`Error processing ${this.msgUriSpec} FAILED.`, ex);
       }
     }
 
     const spec = this.uri ? this.uri.spec : null;
-    lazy.EnigmailLog.DEBUG(
-      `mimeDecrypt.sys.mjs: checking MIME structure for ${this.mimePartNumber} / ${spec}\n`
-    );
-
     if (
       !this.allowNestedDecrypt &&
       !lazy.EnigmailMime.isRegularMimeStructure(
@@ -436,6 +404,9 @@ MimeDecryptHandler.prototype = {
     ) {
       EnigmailSingletons.addUriWithNestedEncryptedPart(this.msgUriSpec);
       // ignore, do not display
+      lazy.log.debug(
+        `Found uri with nested encrypted part: ${this.msgUriSpec}`
+      );
       return;
     }
 
@@ -449,9 +420,7 @@ MimeDecryptHandler.prototype = {
       // limit output to 100 times message size to avoid DoS attack
       const maxOutput = this.outQueue.length * 100;
 
-      lazy.EnigmailLog.DEBUG("mimeDecryp.sys.mjs: starting decryption\n");
-      //EnigmailLog.DEBUG(this.outQueue + "\n");
-
+      lazy.log.debug(`Starting decryption: ${this.msgUriSpec}`);
       const options = { maxOutputLength: maxOutput };
       if (mimeSvc.mailChannel) {
         const { headerNames, headerValues } = mimeSvc.mailChannel;
@@ -468,14 +437,10 @@ MimeDecryptHandler.prototype = {
       }
 
       if (!options.fromAddr) {
-        var win2 = Services.wm.getMostRecentWindow(null);
-        options.fromAddr = lazy.EnigmailDecryption.getFromAddr(win2);
+        options.fromAddr = lazy.EnigmailDecryption.getFromAddr(
+          Services.wm.getMostRecentWindow(null)
+        );
       }
-
-      const cApi = lazy.EnigmailCryptoAPI();
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: got API: " + cApi.api_name + "\n"
-      );
 
       // The processing of a contained signed message must be able to
       // check that this parent object is encrypted. We set the msg ID
@@ -483,6 +448,7 @@ MimeDecryptHandler.prototype = {
       LAST_MSG.lastMessageURI = currMsg;
       LAST_MSG.mimePartNumber = this.mimePartNumber;
 
+      const cApi = lazy.EnigmailCryptoAPI();
       this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));
 
       if (!this.returnStatus) {
@@ -513,14 +479,18 @@ MimeDecryptHandler.prototype = {
               lazy.EnigmailConstants.EXPIRED_SIGNATURE |
               lazy.EnigmailConstants.EXPIRED_KEY_SIGNATURE)
           ) {
+            lazy.log.debug(
+              `Decrypting MIME succeeded, but verification failed.`
+            );
             this.returnStatus.statusFlags |=
               lazy.EnigmailConstants.DECRYPTION_OKAY;
           } else {
+            lazy.log.debug(`Decrypting MIME failed.`);
             this.returnStatus.statusFlags |=
               lazy.EnigmailConstants.DECRYPTION_FAILED;
           }
         } else {
-          // no data
+          lazy.log.debug("Decrypting MIME failure. Got no data.");
           this.returnStatus.statusFlags |=
             lazy.EnigmailConstants.DECRYPTION_FAILED;
         }
@@ -533,15 +503,16 @@ MimeDecryptHandler.prototype = {
         this.returnStatus.statusFlags &
         lazy.EnigmailConstants.DECRYPTION_FAILED;
 
-      // don't return decrypted data if decryption failed (because it's likely an MDC error),
-      // unless we are called for permanent decryption
+      // Don't return decrypted data if decryption failed (because it's likely
+      // an MDC error), unless we are called for permanent decryption.
       if (decError) {
         this.decryptedData = "";
       }
 
       this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
 
-      // HACK: remove filename from 1st HTML and plaintext parts to make TB display message without attachment
+      // HACK: remove filename from 1st HTML and plaintext parts to make TB
+      // display message without attachment.
       this.decryptedData = this.decryptedData.replace(
         /^Content-Disposition: inline; filename="msg.txt"/m,
         "Content-Disposition: inline"
@@ -557,8 +528,8 @@ MimeDecryptHandler.prototype = {
       );
       this.returnData(mimeSvc, prefix + this.decryptedData);
 
-      // don't remember the last message if it contains an embedded PGP/MIME message
-      // to avoid ending up in a loop
+      // Don't remember the last message if it contains an embedded PGP/MIME
+      // message to avoid ending up in a loop.
       if (
         this.mimePartNumber === "1" &&
         this.decryptedData.search(
@@ -575,9 +546,6 @@ MimeDecryptHandler.prototype = {
       }
 
       this.decryptedData = "";
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: onStopRequest: process terminated\n"
-      ); // always log this one
       this.proc = null;
     } else {
       this.returnStatus = LAST_MSG.lastStatus;
@@ -595,19 +563,13 @@ MimeDecryptHandler.prototype = {
    * @param {nsIMsgOpenPGPSink} sink - The sink to use.
    */
   displayStatus(sink) {
-    lazy.EnigmailLog.DEBUG("mimeDecrypt.sys.mjs: displayStatus()\n");
-
     if (this.exitCode === null || this.statusDisplayed) {
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: displayStatus: nothing to display\n"
-      );
+      lazy.log.debug("No decryption status to display.");
       return;
     }
 
     try {
-      lazy.EnigmailLog.DEBUG(
-        "mimeDecrypt.sys.mjs: displayStatus for uri " + this.uri?.spec + "\n"
-      );
+      lazy.log.debug(`Will display status for ${this.uri?.spec}`);
       if (sink && this.uri && !this.backgroundJob) {
         if (this.decryptedHeaders) {
           sink.modifyMessageHeaders(
@@ -644,22 +606,11 @@ MimeDecryptHandler.prototype = {
       }
       this.statusDisplayed = true;
     } catch (ex) {
-      console.warn("Displaying status failed!", ex);
+      lazy.log.error("Displaying status FAILED.", ex);
     }
-    LOCAL_DEBUG("mimeDecrypt.sys.mjs: displayStatus done\n");
   },
 
   handleResult(exitCode) {
-    LOCAL_DEBUG("mimeDecrypt.sys.mjs: done: " + exitCode + "\n");
-
-    if (gDebugLogLevel > 4) {
-      LOCAL_DEBUG(
-        "mimeDecrypt.sys.mjs: done: decrypted data='" +
-          this.decryptedData +
-          "'\n"
-      );
-    }
-
     // ensure newline at the end of the stream
     if (!this.decryptedData.endsWith("\n")) {
       this.decryptedData += "\r\n";
@@ -681,12 +632,7 @@ MimeDecryptHandler.prototype = {
       var hdr = this.decryptedData.substr(0, i).split(/\r?\n/);
       for (let j = 0; j < hdr.length; j++) {
         if (hdr[j].search(/^\s*content-type:\s+text\/(plain|html)/i) >= 0) {
-          LOCAL_DEBUG(
-            "mimeDecrypt.sys.mjs: done: adding multipart/mixed around " +
-              hdr[j] +
-              "\n"
-          );
-
+          lazy.log.debug(`Adding multipart/mixed around ${hdr[j]}`);
           this.addWrapperToDecryptedResult();
           mightNeedWrapper = false;
           break;
@@ -749,12 +695,10 @@ MimeDecryptHandler.prototype = {
     return headers.extractHeader("content-type", false);
   },
 
-  // return data to libMime
+  /**
+   * Return (send) data to libmime.
+   */
   returnData(mimeSvc, data) {
-    lazy.EnigmailLog.DEBUG(
-      "mimeDecrypt.sys.mjs: returnData: " + data.length + " bytes\n"
-    );
-
     let proto = null;
     const ct = this.extractContentType(data);
     if (ct && ct.search(/multipart\/signed/i) >= 0) {
@@ -766,9 +710,7 @@ MimeDecryptHandler.prototype = {
       proto.search(/application\/(pgp|pkcs7|x-pkcs7)-signature/i) >= 0
     ) {
       try {
-        lazy.EnigmailLog.DEBUG(
-          "mimeDecrypt.sys.mjs: returnData: using direct verification\n"
-        );
+        // Using direct verification.
         mimeSvc.contentType = ct;
         mimeSvc.mimePart = mimeSvc.mimePart + ".1";
         const veri = lazy.EnigmailVerify.newVerifier(proto);
@@ -776,13 +718,13 @@ MimeDecryptHandler.prototype = {
         veri.onTextData(data);
         veri.onStopRequest(mimeSvc, 0);
       } catch (ex) {
-        console.error("Return data failed.", ex);
+        lazy.log.error("Return data FAILED.", ex);
       }
     } else {
       try {
         mimeSvc.outputDecryptedData(data, data.length);
       } catch (ex) {
-        console.error("Output decrypted data failed.", ex);
+        lazy.log.error("Output decrypted data FAILED.", ex);
       }
     }
   },
@@ -824,7 +766,7 @@ MimeDecryptHandler.prototype = {
         ).messageHeader;
         msgDbHdr.subject = this.decryptedHeaders.get("subject");
       } catch (e) {
-        console.warn(`Updating subject FAILED for ${this.uri.spec}`);
+        lazy.log.error(`Updating subject FAILED for ${this.uri.spec}`);
       }
     }
   },
@@ -855,12 +797,3 @@ MimeDecryptHandler.prototype = {
     }
   },
 };
-
-////////////////////////////////////////////////////////////////////
-// General-purpose functions, not exported
-
-function LOCAL_DEBUG(str) {
-  if (gDebugLogLevel) {
-    lazy.EnigmailLog.DEBUG(str);
-  }
-}
