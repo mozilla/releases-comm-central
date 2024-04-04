@@ -457,10 +457,9 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "Contact A <contact.a@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "Contact A <contact.a@invalid>",
+  ]);
 
   // Contact B, first email address.
 
@@ -480,10 +479,9 @@ add_task(async function test_context_menu_compose() {
 
   writeMenu.menupopup.activateItem(subMenuItems[0]);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "Contact B <contact.b@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "Contact B <contact.b@invalid>",
+  ]);
 
   // Contact B, second email address.
 
@@ -503,10 +501,9 @@ add_task(async function test_context_menu_compose() {
 
   writeMenu.menupopup.activateItem(subMenuItems[1]);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "Contact B <b.contact@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "Contact B <b.contact@invalid>",
+  ]);
 
   // Contact C, second and only email address.
 
@@ -518,10 +515,9 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "Contact C <c.contact@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "Contact C <c.contact@invalid>",
+  ]);
 
   // Contact D, no email address.
 
@@ -541,7 +537,7 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(await composeWindowPromise, "List <List>");
+  await checkComposeWindow(await composeWindowPromise, ["List <List>"]);
 
   // Contact A and Contact D.
 
@@ -554,10 +550,9 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "Contact A <contact.a@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "Contact A <contact.a@invalid>",
+  ]);
 
   // Contact B and Contact C.
 
@@ -570,11 +565,10 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
+  await checkComposeWindow(await composeWindowPromise, [
     "Contact B <contact.b@invalid>",
-    "Contact C <c.contact@invalid>"
-  );
+    "Contact C <c.contact@invalid>",
+  ]);
 
   // Contact B and List.
 
@@ -587,11 +581,10 @@ add_task(async function test_context_menu_compose() {
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
   menu.activateItem(writeMenuItem);
 
-  await checkComposeWindow(
-    await composeWindowPromise,
+  await checkComposeWindow(await composeWindowPromise, [
     "Contact B <contact.b@invalid>",
-    "List <List>"
-  );
+    "List <List>",
+  ]);
 
   await closeAddressBookWindow();
 

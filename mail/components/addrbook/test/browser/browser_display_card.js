@@ -172,10 +172,9 @@ add_task(async function testDisplay() {
 
   let composeWindowPromise = BrowserTestUtils.domWindowOpened();
   EventUtils.synthesizeMouseAtCenter(items[0].querySelector("a"), {}, abWindow);
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "basic person <basic@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "basic person <basic@invalid>",
+  ]);
 
   // Other sections.
   Assert.ok(BrowserTestUtils.isHidden(phoneNumbersSection));
@@ -234,10 +233,9 @@ add_task(async function testDisplay() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
   EventUtils.synthesizeMouseAtCenter(items[2].querySelector("a"), {}, abWindow);
-  await checkComposeWindow(
-    await composeWindowPromise,
-    "complex person <tertiary@invalid>"
-  );
+  await checkComposeWindow(await composeWindowPromise, [
+    "complex person <tertiary@invalid>",
+  ]);
 
   // Phone numbers section.
   Assert.ok(BrowserTestUtils.isVisible(phoneNumbersSection));
@@ -937,10 +935,9 @@ async function checkActionButtons(
 
     const composeWindowPromise = BrowserTestUtils.domWindowOpened();
     EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
-    await checkComposeWindow(
-      await composeWindowPromise,
-      `${displayName} <${primaryEmail}>`
-    );
+    await checkComposeWindow(await composeWindowPromise, [
+      `${displayName} <${primaryEmail}>`,
+    ]);
 
     // Search. Do this before the event test to stop a strange macOS failure.
     Assert.ok(

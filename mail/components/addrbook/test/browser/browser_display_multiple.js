@@ -357,11 +357,10 @@ async function checkActionButtons(
 
     const composeWindowPromise = BrowserTestUtils.domWindowOpened();
     EventUtils.synthesizeMouseAtCenter(writeButton, {}, abWindow);
-    await checkComposeWindow(
-      await composeWindowPromise,
+    await checkComposeWindow(await composeWindowPromise, [
       ...listAddresses,
-      ...cardAddresses
-    );
+      ...cardAddresses,
+    ]);
   }
 
   if (eventAddresses.length) {

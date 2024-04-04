@@ -118,21 +118,21 @@ ABView.prototype = {
     }
 
     // Do the sort.
-    if (sortColumn == this.sortColumn && !resort) {
-      if (sortDirection == this.sortDirection) {
-        return;
-      }
-      this._rowMap.reverse();
-    } else {
-      this._rowMap.sort((a, b) => {
-        const aText = a.getText(sortColumn);
-        const bText = b.getText(sortColumn);
-        if (sortDirection == "descending") {
-          return this.collator.compare(bText, aText);
-        }
-        return this.collator.compare(aText, bText);
-      });
+    if (
+      sortColumn == this.sortColumn &&
+      sortDirection == this.sortDirection &&
+      !resort
+    ) {
+      return;
     }
+    this._rowMap.sort((a, b) => {
+      const aText = a.getText(sortColumn);
+      const bText = b.getText(sortColumn);
+      if (sortDirection == "descending") {
+        return this.collator.compare(bText, aText);
+      }
+      return this.collator.compare(aText, bText);
+    });
 
     // Restore what was selected.
     if (this._tree) {

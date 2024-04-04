@@ -443,7 +443,22 @@ async function toggleLayout() {
   await new Promise(resolve => abWindow.setTimeout(resolve));
 }
 
-async function checkComposeWindow(composeWindow, ...expectedAddresses) {
+/**
+ * Waits for a compose window to be ready, then checks the "To" addresses
+ * match those given, then closes the window, waiting for focus to return to
+ * the previous window.
+ *
+ * @param {Window} composeWindow - A just-opened compose window.
+ * @param {string[]} expectedAddresses - An array of recipients that should
+ *   appear in the To section of the window.
+ * @param {Window} [nextWindow] - The window to return to after `composeWindow`
+ *   closes. If not given, this is the main application window.
+ */
+async function checkComposeWindow(
+  composeWindow,
+  expectedAddresses,
+  nextWindow = window
+) {
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
   const composeDocument = composeWindow.document;
   const toAddrRow = composeDocument.getElementById("addressRowTo");
@@ -456,7 +471,7 @@ async function checkComposeWindow(composeWindow, ...expectedAddresses) {
 
   await Promise.all([
     BrowserTestUtils.closeWindow(composeWindow),
-    BrowserTestUtils.waitForEvent(window, "activate"),
+    BrowserTestUtils.waitForEvent(nextWindow, "activate"),
   ]);
 }
 
