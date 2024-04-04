@@ -108,4 +108,3 @@ FINAL_TARGET_FILES.defaults.settings.thunderbird["search-config-icons"] += [
     "search-config-icons/fed4f021-ff3e-942a-010e-afa43fda2136",
     "search-config-icons/fed4f021-ff3e-942a-010e-afa43fda2136.meta.json",
 ]
-
