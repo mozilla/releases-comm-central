@@ -1248,7 +1248,7 @@ export async function delete_via_popup() {
     "DeleteOrMoveMsgFailed"
   );
   const win = get_about_3pane();
-  const ctxDelete = win.document.getElementById("mailContext-delete");
+  const ctxDelete = win.document.getElementById("navContext-delete");
   if (AppConstants.platform == "macosx") {
     // We need to use click() since the synthesizeMouseAtCenter doesn't work for
     // context menu items on macos.

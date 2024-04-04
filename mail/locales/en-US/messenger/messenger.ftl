@@ -212,6 +212,46 @@ appmenu-addons-and-themes =
 
 ## Context menu
 
+context-menu-mark-read =
+    .aria-label = Mark as Read
+    .tooltiptext = Mark as Read
+
+context-menu-mark-unread =
+    .aria-label = Mark as Unread
+    .tooltiptext = Mark as Unread
+
+context-menu-mark-reply =
+    .aria-label = Reply
+    .tooltiptext = Reply
+
+context-menu-archive =
+    .aria-label = Archive
+    .tooltiptext = Archive
+
+context-menu-mark-junk =
+    .aria-label = Mark as Junk
+    .tooltiptext = Mark as Junk
+
+mail-context-menu-open =
+    .label = Open
+    .accesskey = O
+
+mail-context-menu-reply =
+    .label = Reply
+    .accesskey = R
+
+mail-context-menu-forward-redirect =
+    .label = Forward and Redirect
+    .accesskey = F
+
+mail-context-menu-organize =
+    .label = Organize
+    .accesskey = g
+
+mail-context-menu-threads =
+    .label = Threads
+    .accesskey = T
+
 context-menu-redirect-msg =
     .label = Redirect
 
@@ -221,21 +261,25 @@ context-menu-cancel-msg =
 
 # Variables:
 # $count (Number) - Number of selected messages.
-mail-context-delete-messages =
+mail-context-messages-delete =
     .label =
         { $count ->
             [one] Delete Message
            *[other] Delete Selected Messages
         }
+    .tooltiptext =
+        { mail-context-messages-delete.label }
 
 # Variables:
 # $count (Number) - Number of selected messages.
-mail-context-undelete-messages =
+mail-context-messages-undelete =
     .label =
         { $count ->
             [one] Undelete Message
            *[other] Undelete Selected Messages
         }
+    .tooltiptext =
+        { mail-context-messages-undelete.label }
 
 context-menu-decrypt-to-folder2 =
     .label = Create Decrypted Copy In

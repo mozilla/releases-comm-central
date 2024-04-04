@@ -71,6 +71,7 @@ var mailContextMenu = {
     "mailContext-openConversation": "cmd_openConversation",
     "mailContext-replyNewsgroup": "cmd_replyGroup",
     "mailContext-replySender": "cmd_replySender",
+    "navContext-reply": "cmd_replyall",
     "mailContext-replyAll": "cmd_replyall",
     "mailContext-replyList": "cmd_replylist",
     "mailContext-forward": "cmd_forward",
@@ -85,6 +86,7 @@ var mailContextMenu = {
     "mailContext-tagRemoveAll": "cmd_removeTags",
     "mailContext-markReadByDate": "cmd_markReadByDate",
     "mailContext-markFlagged": "cmd_markAsFlagged",
+    "navContext-archive": "cmd_archive",
     "mailContext-archive": "cmd_archive",
     "mailContext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-decryptToFolder": "cmd_copyDecryptedTo",
@@ -99,10 +101,13 @@ var mailContextMenu = {
   // More commands handled by commandController, except these ones get
   // disabled instead of hidden.
   _alwaysVisibleCommands: {
+    "navContext-markRead": "cmd_markAsRead",
     "mailContext-markRead": "cmd_markAsRead",
+    "navContext-markUnread": "cmd_markAsUnread",
     "mailContext-markUnread": "cmd_markAsUnread",
     "mailContext-markThreadAsRead": "cmd_markThreadAsRead",
     "mailContext-markAllRead": "cmd_markAllRead",
+    "navContext-markAsJunk": "cmd_markAsJunk",
     "mailContext-markAsJunk": "cmd_markAsJunk",
     "mailContext-markAsNotJunk": "cmd_markAsNotJunk",
     "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
@@ -338,7 +343,7 @@ var mailContextMenu = {
     }
 
     showItem(
-      "mailContext-delete",
+      "navContext-delete",
       commandController.isCommandEnabled("cmd_deleteMessage")
     );
 
@@ -368,7 +373,6 @@ var mailContextMenu = {
       (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
     );
     setSingleSelection("mailContext-forward", !onSpecialItem);
-    setSingleSelection("mailContext-forwardAsMenu", !onSpecialItem);
     showItem(
       "mailContext-multiForwardAsAttachment",
       numSelectedMessages > 1 &&
@@ -403,11 +407,16 @@ var mailContextMenu = {
         calendarDeactivator.isCalendarActivated
     );
 
+    const contextDelete = document.getElementById("navContext-delete");
+    contextDelete.setAttribute(
+      "active",
+      !!(message.flags & Ci.nsMsgMessageFlags.IMAPDeleted)
+    );
     document.l10n.setAttributes(
-      document.getElementById("mailContext-delete"),
+      contextDelete,
       message.flags & Ci.nsMsgMessageFlags.IMAPDeleted
-        ? "mail-context-undelete-messages"
-        : "mail-context-delete-messages",
+        ? "mail-context-messages-undelete"
+        : "mail-context-messages-delete",
       {
         count: numSelectedMessages,
       }
@@ -497,7 +506,7 @@ var mailContextMenu = {
     }
 
     switch (event.target.id) {
-      case "mailContext-delete":
+      case "navContext-delete":
         commandController.doCommand(
           event.shiftKey ? "cmd_shiftDeleteMessage" : "cmd_deleteMessage"
         );

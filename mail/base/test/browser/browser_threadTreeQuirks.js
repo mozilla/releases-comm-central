@@ -376,9 +376,11 @@ add_task(async function testNonSelectionContextMenu() {
   const openNewTabItem = about3Pane.document.getElementById(
     "mailContext-openNewTab"
   );
-  const replyItem = about3Pane.document.getElementById(
-    "mailContext-replySender"
+  const openMenu = about3Pane.document.getElementById("mailContext-open");
+  const openMenuPopup = about3Pane.document.getElementById(
+    "mailContext-openPopup"
   );
+  const replyItem = about3Pane.document.getElementById("navContext-reply");
 
   about3Pane.restoreState({
     messagePaneVisible: true,
@@ -407,10 +409,6 @@ add_task(async function testNonSelectionContextMenu() {
     threadTree.addEventListener("select", reportBadSelectEvent);
     messagePaneBrowser.addEventListener("load", reportBadLoad, true);
 
-    const shownPromise = BrowserTestUtils.waitForEvent(
-      mailContext,
-      "popupshown"
-    );
     EventUtils.synthesizeMouseAtCenter(
       threadTree
         .getRowAtIndex(testIndex)
@@ -418,7 +416,7 @@ add_task(async function testNonSelectionContextMenu() {
       { type: "contextmenu" },
       about3Pane
     );
-    await shownPromise;
+    await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
 
     Assert.ok(about3Pane.mailContextMenu.selectionIsOverridden);
     Assert.deepEqual(
@@ -440,12 +438,15 @@ add_task(async function testNonSelectionContextMenu() {
       "correct row has .context-menu-target"
     );
 
-    const hiddenPromise = BrowserTestUtils.waitForEvent(
-      mailContext,
-      "popuphidden"
-    );
-    mailContext.activateItem(itemToActivate);
-    await hiddenPromise;
+    if (itemToActivate === openNewTabItem) {
+      openMenu.openMenu(true);
+      await BrowserTestUtils.waitForPopupEvent(openMenuPopup, "shown");
+      openMenuPopup.activateItem(openNewTabItem);
+      await BrowserTestUtils.waitForPopupEvent(openMenuPopup, "hidden");
+    } else {
+      mailContext.activateItem(itemToActivate);
+    }
+    await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
 
     Assert.ok(!about3Pane.mailContextMenu.selectionIsOverridden);
     Assert.equal(

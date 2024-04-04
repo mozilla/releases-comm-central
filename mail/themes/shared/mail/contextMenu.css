@@ -145,28 +145,60 @@ menu > .menu-right {
   margin-inline-end: 3px;
 }
 
-/* browser navigation context menu in content pages */
-#context-navigation {
+/* navigation buttons in context menu */
+#context-navigation,
+#mailContext-navigation {
+  --indicator-background: transparent;
+
   & > .menuitem-iconic {
     -moz-box-flex: 1;
     -moz-box-pack: center;
     -moz-box-align: center;
     flex: 1 0 auto;
     margin: var(--menu-item-margin);
-    border-radius: 3px;
+    padding: 0;
+    border-radius: var(--button-border-radius);
+
+    &[_moz-menuactive] {
+      /* Override the menu-shared.css rule. */
+      &[disabled="true"] {
+        background-color: transparent;
+      }
+
+      &:not([disabled="true"]) {
+        color: inherit;
+        background-color: var(--arrowpanel-dimmed);
+      }
+    }
 
     & > .menu-iconic-left {
       appearance: none;
+      position: relative;
+      flex-direction: column;
       margin: 0 auto;
       padding: 0;
 
       & > .menu-iconic-icon {
-        width: 1.25em;
-        height: auto;
         margin: 7px;
-        -moz-context-properties: fill;
-        fill: currentColor;
+        -moz-context-properties: fill, stroke;
+        fill: color-mix(in srgb, currentColor 20%, transparent);
+        stroke: currentColor;
       }
+
+      &::after {
+        content: '';
+        box-sizing: border-box;
+        background-color: var(--indicator-background);
+        border-radius: 4px;
+        width: 12px;
+        height: 4px;
+        margin-block: -6px 1px;
+      }
+    }
+
+    &[active="true"] > .menu-iconic-left {
+      color: AccentColor;
+      --indicator-background: AccentColor;
     }
 
     & > .menu-iconic-text,
@@ -176,20 +208,45 @@ menu > .menu-right {
   }
 }
 
+#navContext-markRead,
+#navContext-markUnread {
+  list-style-image: var(--icon-unread);
+
+  &[disabled="true"] {
+    display: none;
+  }
+}
+
+#navContext-reply {
+  list-style-image: var(--icon-reply);
+}
+
+#navContext-archive {
+  list-style-image: var(--icon-archive);
+}
+
+#navContext-markAsJunk {
+  list-style-image: var(--icon-spam);
+}
+
+#navContext-delete {
+  list-style-image: var(--icon-trash);
+}
+
 #browserContext-back {
-  list-style-image: url("chrome://messenger/skin/icons/browser-back.svg");
+  list-style-image: var(--icon-nav-back);
 }
 
 #browserContext-forward {
-  list-style-image: url("chrome://messenger/skin/icons/browser-forward.svg");
+  list-style-image: var(--icon-nav-forward);
 }
 
 #browserContext-reload {
-  list-style-image: url("chrome://global/skin/icons/reload.svg");
+  list-style-image: var(--icon-restore);
 }
 
 #browserContext-stop {
-  list-style-image: url("chrome://global/skin/icons/close.svg");
+  list-style-image: var(--icon-close);
 }
 
 #browserContext-back:-moz-locale-dir(rtl),

@@ -7,22 +7,6 @@
              onpopupshowing="return browserContextOnShowing(event);"
              onpopuphiding="browserContextOnHiding(event);">
     <!-- Browser navigation -->
-#ifdef XP_MACOSX
-    <menuitem id="browserContext-back"
-              data-l10n-id="content-tab-menu-back-mac"
-              command="Browser:Back"/>
-    <menuitem id="browserContext-forward"
-              data-l10n-id="content-tab-menu-forward-mac"
-              command="Browser:Forward"/>
-    <menuitem id="browserContext-reload"
-              tooltip="dynamic-shortcut-tooltip"
-              data-l10n-id="content-tab-menu-reload-mac"
-              command="cmd_reload"/>
-    <menuitem id="browserContext-stop"
-              tooltip="dynamic-shortcut-tooltip"
-              data-l10n-id="content-tab-menu-stop-mac"
-              command="cmd_stop"/>
-#else
     <menugroup id="context-navigation">
         <menuitem id="browserContext-back"
                   data-l10n-id="content-tab-menu-back"
@@ -45,7 +29,6 @@
                   data-l10n-id="content-tab-menu-stop"
                   command="cmd_stop"/>
     </menugroup>
-#endif
     <menuseparator id="browserContext-sep-navigation"/>
     <!-- Spellchecking suggestions -->
     <menuitem id="browserContext-spell-no-suggestions"

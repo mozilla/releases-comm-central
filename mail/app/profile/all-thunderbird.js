@@ -1406,6 +1406,9 @@ pref("mailnews.imap.jsmodule", false);
 // 3: text only
 pref("toolbar.unifiedtoolbar.buttonstyle", 0);
 
+// Enable on macOS the non-native context menus
+pref("widget.macos.native-context-menus", false);
+
 #ifdef XP_MACOSX
 #ifdef NIGHTLY_BUILD
 pref("mail.theme.macos.native-theme", true);
