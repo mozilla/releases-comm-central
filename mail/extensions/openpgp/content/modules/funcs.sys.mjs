@@ -4,18 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/*
+/**
  * Common Enigmail crypto-related GUI functionality
  */
 
 /* eslint-enable valid-jsdoc */
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
-const lazy = {};
-ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
-});
 
 var gTxtConverter = null;
 
@@ -40,12 +35,7 @@ export var EnigmailFuncs = {
     while ((qStart = mailAddrs.indexOf('"')) >= 0) {
       qEnd = mailAddrs.indexOf('"', qStart + 1);
       if (qEnd < 0) {
-        lazy.EnigmailLog.ERROR(
-          "funcs.sys.mjs: stripEmail: Unmatched quote in mail address: '" +
-            mailAddresses +
-            "'\n"
-        );
-        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+        throw new Error(`Unmatched quote in mail address: ${mailAddresses}`);
       }
 
       mailAddrs =
@@ -64,12 +54,9 @@ export var EnigmailFuncs = {
 
     // having two <..> <..> in one email, or things like <a@b.c,><d@e.f> is an error
     if (mailAddrs.search(MatchAddr) < 0) {
-      lazy.EnigmailLog.ERROR(
-        "funcs.sys.mjs: stripEmail: Invalid <..> brackets in mail address: '" +
-          mailAddresses +
-          "'\n"
+      throw new Error(
+        `Invalid <..> brackets in mail address: ${mailAddresses}`
       );
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     // We know that the "," and the < > are at the right places, thus we can split by ","
@@ -116,46 +103,9 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Hide all menu entries and other XUL elements that are considered for
-   * advanced users. The XUL items must contain 'advanced="true"' or
-   * 'advanced="reverse"'.
-   *
-   * @param {Element} obj - XUL tree element.
-   * @param {string} attribute - Attribute to set or remove (i.e. "hidden" or "collapsed")
-   * @param {object} dummy - Anything.
-   */
-  collapseAdvanced(obj, attribute) {
-    lazy.EnigmailLog.DEBUG("funcs.sys.mjs: collapseAdvanced:\n");
-
-    var advancedUser = Services.prefs.getBoolPref("temp.openpgp.advancedUser");
-
-    obj = obj.firstChild;
-    while (obj) {
-      if ("getAttribute" in obj) {
-        if (obj.getAttribute("advanced") == "true") {
-          if (advancedUser) {
-            obj.removeAttribute(attribute);
-          } else {
-            obj.setAttribute(attribute, "true");
-          }
-        } else if (obj.getAttribute("advanced") == "reverse") {
-          if (advancedUser) {
-            obj.setAttribute(attribute, "true");
-          } else {
-            obj.removeAttribute(attribute);
-          }
-        }
-      }
-
-      obj = obj.nextSibling;
-    }
-  },
-
-  /**
-   * this function tries to mimic the Thunderbird plaintext viewer
+   * This function tries to mimic the Thunderbird plaintext viewer.
    *
    * @param {string} plainTxt - Containing the plain text data.
-   *
    * @returns {string} HTML markup to display mssage.
    */
   formatPlaintextMsg(plainTxt) {
@@ -267,13 +217,9 @@ export var EnigmailFuncs = {
    * e.g. ContentType: xyz; Aa=b; cc=d
    *
    * @param {string} data - Data containing a single header.
-   *
    * @returns {object[][]} and array of arrays containing pairs of aa/b and cc/d
    */
   getHeaderData(data) {
-    lazy.EnigmailLog.DEBUG(
-      "funcs.sys.mjs: getHeaderData: " + data.substr(0, 100) + "\n"
-    );
     var a = data.split(/\n/);
     var res = [];
     for (let i = 0; i < a.length; i++) {
@@ -288,13 +234,6 @@ export var EnigmailFuncs = {
         if (m) {
           // m[2]: identifier / m[6]: data
           res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
-          lazy.EnigmailLog.DEBUG(
-            "funcs.sys.mjs: getHeaderData: " +
-              m[2].toLowerCase() +
-              " = " +
-              res[m[2].toLowerCase()] +
-              "\n"
-          );
         }
       }
       if (i === 0 && !a[i].includes(";")) {
@@ -308,7 +247,8 @@ export var EnigmailFuncs = {
   },
 
   /**
-   * Get the text for the encrypted subject (either configured by user or default)
+   * Get the text for the encrypted subject.
+   * @returns {string}
    */
   getProtectedSubjectText() {
     return "...";

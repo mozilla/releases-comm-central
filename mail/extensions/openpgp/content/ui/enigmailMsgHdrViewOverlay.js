@@ -68,16 +68,6 @@ Enigmail.hdrView = {
 
   hdrViewLoad() {
     this.msgHdrViewLoad();
-
-    const addrPopup = document.getElementById("emailAddressPopup");
-    if (addrPopup) {
-      addrPopup.addEventListener(
-        "popupshowing",
-        Enigmail.hdrView.displayAddressPopup.bind(addrPopup)
-      );
-    }
-
-    // Thunderbird
     const attCtx = document.getElementById("attachmentItemContext");
     if (attCtx) {
       attCtx.addEventListener(
@@ -85,11 +75,6 @@ Enigmail.hdrView = {
         this.onShowAttachmentContextMenu.bind(Enigmail.hdrView)
       );
     }
-  },
-
-  displayAddressPopup(event) {
-    const target = event.target;
-    EnigmailFuncs.collapseAdvanced(target, "hidden");
   },
 
   statusBarHide() {
