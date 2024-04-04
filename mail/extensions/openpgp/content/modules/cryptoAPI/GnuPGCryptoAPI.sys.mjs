@@ -13,10 +13,8 @@ Services.scriptloader.loadSubScript(
 /* global CryptoAPI */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
 });
 
 /**
@@ -30,27 +28,24 @@ class GnuPGCryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Get the list of all knwn keys (including their secret keys)
+   * Get the list of all known keys (including their secret keys).
    *
-   * @param {Array of String} onlyKeys: [optional] only load data for specified key IDs
-   *
-   * @returns {Promise<Array of Object>}
+   * @param {string[]} [onlyKeys] - Only load data for specified key IDs.
+   * @returns {Promise<object[]>}
    */
   async getKeys() {
-    throw new Error("Not implemented");
+    throw new Error("getKeys not implemented");
   }
 
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {string}  keyId:            space-separated list of key IDs
-   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
-   *
-   * @returns {Promise<Array of Object>} - see extractSignatures()
+   * @param {string} _keyIds - Space-separated list of key IDs.
+   * @param {boolean} ignoreUnknownUid - If true, filter out unknown signer's UIDs.
+   * @returns {Promise<object[]>} - see extractSignatures()
    */
-  async getKeySignatures(keyId) {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
-    throw new Error("Not implemented");
+  async getKeySignatures(_keyIds) {
+    throw new Error("getKeySignatures not implemented");
   }
 
   /**
@@ -58,124 +53,85 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *
    * @param {KeyObj}  keyObj:           the signatures of this key will be returned
    * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
-   *
-   * @returns {Promise<Array of Object>} - see extractSignatures()
+   * @returns {Promise<object[]>} - see extractSignatures()
    */
   async getKeyObjSignatures() {
-    throw new Error("Not implemented");
+    throw new Error("getKeyObjSignatures not implemented");
   }
 
   /**
    * Export the minimum key for the public key object:
    * public key, primary user ID, newest encryption subkey
    *
-   * @param {string} fpr: - a single FPR
-   * @param {string} email: - [optional] the email address of the desired user ID.
-   *                                     If the desired user ID cannot be found or is not valid, use the primary UID instead
-   * @param {Array<number>} subkeyDates: [optional] remove subkeys with specific creation Dates
-   *
-   * @returns {Promise<object>}:
-   *    - exitCode (0 = success)
-   *    - errorMsg (if exitCode != 0)
-   *    - keyData: BASE64-encded string of key data
+   * @param {string} _fpr - A single fingerprint.
+   * @param {string} [_email] - The email address of the desired user ID.
+   *   If the desired user ID cannot be found or is not valid, use the primary
+   *   UID instead
+   * @param {integer[]} [_subkeyDates] - Remove subkeys with specific creation
+   *   dates.
+   * @returns {Promise<object>} object
+   * @returns {integer} object.exitCode - 0 = success.
+   * @returns {string} object.errorMsg - Error message, if exitCode != 0.
+   * @returns {string} object.keyData - BASE64-encoded string of key data.
    */
-  async getMinimalPubKey(fpr) {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: getMinimalPubKey: ${fpr}\n`);
-    throw new Error("Not implemented");
+  async getMinimalPubKey(_fpr, _email, _subkeyDates) {
+    throw new Error("getMinimalPubKey not implemented");
   }
 
   /**
    * Export secret key(s) to a file
    *
-   * @param {string}  keyId      Specification by fingerprint or keyID
-   * @param {boolean} minimalKey - if true, reduce key to minimum required
-   *
-   * @returns {object}:
-   *   - {Number} exitCode:  result code (0: OK)
-   *   - {String} keyData:   ASCII armored key data material
-   *   - {String} errorMsg:  error message in case exitCode !== 0
+   * @param {string} _keyId - Specification by fingerprint or keyID.
+   * @param {boolean} _minimalKey - If true, reduce key to minimum required.
+   * @returns {Promise<object>} object
+   * @returns {integer} object.exitCode - 0 = success
+   * @returns {string} object.errorMsg - Error message, if exitCode != 0.
+   * @returns {string} object.keyData - ASCII armored key data material.
    */
-
-  async extractSecretKey() {
-    throw new Error("Not implemented");
+  async extractSecretKey(_keyId, _minimalKey) {
+    throw new Error("extractSecretKey not implemented");
   }
 
   /**
-   *
-   * @param {byte} byteData - The encrypted data
-   *
-   * @returns {String or null} - the name of the attached file
+   * @param {byte} _byteData - The encrypted data
+   * @returns {?string} the name of the attached file.
    */
-
-  async getFileName() {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: getFileName()\n`);
-    throw new Error("Not implemented");
+  async getFileName(_byteData) {
+    throw new Error("getFileName not implemented");
   }
 
   /**
-   *
-   * @param {Path} filePath - The signed file
-   * @param {Path} sigPath - The signature to verify
-   *
-   * @returns {Promise<string>} - A message from the verification.
-   *
-   * Use Promise.catch to handle failed verifications.
-   * The message will be an error message in this case.
+   * Verify attachment.
    */
-
   async verifyAttachment() {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: verifyAttachment()\n`);
-    throw new Error("Not implemented");
+    throw new Error("verifyAttachment not implemented");
   }
 
   /**
-   *
-   * @param {Bytes}  encrypted     The encrypted data
-   *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
+   * Decrypt attachment.
    */
-
   async decryptAttachment() {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
-    throw new Error("Not implemented");
+    throw new Error("decryptAttachment not implemented");
   }
 
   /**
    *
-   * @param {string} encrypted - The encrypted data
-   * @param {object} options - Decryption options
-   *
-   * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
+   * Decrypt.
    */
-
   async decrypt() {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
-    throw new Error("Not implemented");
+    throw new Error("Decrypt not implemented");
   }
 
   /**
-   *
-   * @param {string} encrypted - The encrypted data
-   * @param {object} options - Decryption options
-   *
+   * @param {string} encrypted - The encrypted data.
+   * @param {object} options - Decryption options.
    * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
+   *   status information.
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
    */
-
   async decryptMime(encrypted, options) {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: decryptMime()\n`);
-
     // write something to gpg such that the process doesn't get stuck
     if (encrypted.length === 0) {
       encrypted = "NO DATA\n";
@@ -184,38 +140,31 @@ class GnuPGCryptoAPI extends CryptoAPI {
     options.noOutput = false;
     options.verifyOnly = false;
     options.uiFlags = lazy.EnigmailConstants.UI_PGP_MIME;
-
     return this.decrypt(encrypted, options);
   }
 
   /**
-   *
-   * @param {string} signed - The signed data
-   * @param {object} options - Decryption options
-   *
+   * @param {string} signed - The signed data.
+   * @param {object} options - Decryption options.
    * @returns {Promise<object>} - Return object with decryptedData and
-   * status information
+   *   status information.
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
    */
-
   async verifyMime(signed, options) {
-    lazy.EnigmailLog.DEBUG(`gnupg.js: verifyMime()\n`);
-
     options.noOutput = true;
     options.verifyOnly = true;
     options.uiFlags = lazy.EnigmailConstants.UI_PGP_MIME;
-
     return this.decrypt(signed, options);
   }
 
   async getKeyListFromKeyBlockAPI() {
-    throw new Error("Not implemented");
+    throw new Error("getKeyListFromKeyBlockAPI not implemented");
   }
 
   async genKey() {
-    throw new Error("GnuPG genKey() not implemented");
+    throw new Error("genKey not implemented");
   }
 
   async deleteKey() {
