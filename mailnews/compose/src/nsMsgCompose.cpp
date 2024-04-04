@@ -232,7 +232,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char* originalScheme,
                                         Element* element) {
   nsresult rv;
 
-  nsAutoString objURL;
+  nsAutoCString objURL;
 
   if (!originalScheme || !originalPath)  // Having a null host is OK.
     return false;
@@ -240,12 +240,15 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char* originalScheme,
   RefPtr<HTMLImageElement> image = HTMLImageElement::FromNode(element);
   RefPtr<HTMLAnchorElement> anchor = HTMLAnchorElement::FromNode(element);
 
-  if (image)
-    image->GetSrc(objURL);
-  else if (anchor)
+  if (image) {
+    nsAutoString src;
+    image->GetSrc(src);
+    objURL = NS_ConvertUTF16toUTF8(src);
+  } else if (anchor) {
     anchor->GetHref(objURL);
-  else
+  } else {
     return false;
+  }
 
   if (!objURL.IsEmpty()) {
     nsCOMPtr<nsIURI> uri;
