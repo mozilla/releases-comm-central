@@ -987,14 +987,20 @@ export async function right_click_on_row(aViewIndex) {
  * Middle-click on the tree-view in question, presumably opening a new message
  *  tab.
  *
+ * @param {integer} aViewIndex - The index of a selected row.
+ * @param {boolean} shiftPressed - Whether the shift key has been pressed.
  * @returns [The new tab, the message that you clicked on.]
  */
-export async function middle_click_on_row(aViewIndex) {
+export async function middle_click_on_row(aViewIndex, shiftPressed) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const win = get_about_3pane();
   const row = await _get_row_at_index(aViewIndex);
-  EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
+  EventUtils.synthesizeMouseAtCenter(
+    row,
+    { button: 1, shiftKey: shiftPressed },
+    win
+  );
 
   return [
     mc.document.getElementById("tabmail").tabInfo[
