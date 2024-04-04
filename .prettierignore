@@ -128,3 +128,4 @@ mailnews/extensions/newsblog/test/unit/resources/feeds-missing-timestamp/feeds.j
 mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeditems.json
 mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json
 rust/checksums.json
+mail/app/settings/dumps/
