@@ -320,30 +320,36 @@ async function checkContextMenu(index, expectedStates, itemToActivate) {
   const contextMenu = about3Pane.document.getElementById("mailContext");
   const row = threadTree.getRowAtIndex(index);
 
-  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".subject-line"),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "shown");
 
   for (const [id, checkedState] of Object.entries(expectedStates)) {
-    assertCheckedState(about3Pane.document.getElementById(id), checkedState);
+    assertCheckedState(
+      about3Pane.document.getElementById(id),
+      checkedState,
+      id
+    );
   }
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(
-    contextMenu,
-    "popuphidden"
-  );
   if (itemToActivate) {
-    contextMenu.activateItem(
-      about3Pane.document.getElementById(itemToActivate)
-    );
+    const item = about3Pane.document.getElementById(itemToActivate);
+    if (item.parentElement != contextMenu) {
+      item.parentElement.parentElement.openMenu(true);
+      await BrowserTestUtils.waitForPopupEvent(item.parentElement, "shown");
+      item.parentElement.activateItem(item);
+      await BrowserTestUtils.waitForPopupEvent(item.parentElement, "hidden");
+    } else {
+      contextMenu.activateItem(item);
+    }
   } else {
     contextMenu.hidePopup();
   }
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(contextMenu, "hidden");
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
 }
 
 async function checkMessageMenu(expectedStates) {
@@ -362,19 +368,25 @@ async function checkMessageMenu(expectedStates) {
   await shownPromise;
 
   for (const [id, checkedState] of Object.entries(expectedStates)) {
-    assertCheckedState(document.getElementById(id), checkedState);
+    assertCheckedState(document.getElementById(id), checkedState, id);
   }
 
   messageMenu.menupopup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(messageMenu.menupopup, "hidden");
 }
 
-function assertCheckedState(menuItem, checkedState) {
+function assertCheckedState(menuItem, checkedState, itemId) {
   if (checkedState) {
-    Assert.equal(menuItem.getAttribute("checked"), "true");
+    Assert.equal(
+      menuItem.getAttribute("checked"),
+      "true",
+      `Menu item ${itemId} should be checked`
+    );
   } else {
     Assert.ok(
       !menuItem.hasAttribute("checked") ||
-        menuItem.getAttribute("checked") == "false"
+        menuItem.getAttribute("checked") == "false",
+      `Menu item ${itemId} should not be checked`
     );
   }
 }

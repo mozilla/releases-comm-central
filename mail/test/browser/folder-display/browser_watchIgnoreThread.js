@@ -79,6 +79,8 @@ add_task(async function test_ignore_thread() {
 
   // Ignore this thread.
   EventUtils.synthesizeKey("K", { shiftKey: false, accelKey: false });
+  // Ignore command is moved to an animation frame to avoid a sync reflow.
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
 
   // The first msg in the next thread should now be selected.
   const t2root = thread2.getMsgHdr(0);
