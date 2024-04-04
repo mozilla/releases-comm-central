@@ -1,0 +1,5128 @@
+{
+  "data": [
+    {
+      "orders": [],
+      "schema": 1707824831520,
+      "recordType": "engineOrders",
+      "id": "3e1fed64-5ec7-4b1c-bedc-741fe3c59bc3",
+      "last_modified": 1707833224345
+    },
+    {
+      "base": {
+        "name": "Bing",
+        "urls": {
+          "search": {
+            "base": "https://www.bing.com/search",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "trending": {
+            "base": "https://www.bing.com/osjson.aspx"
+          },
+          "suggestions": {
+            "base": "https://www.bing.com/osjson.aspx",
+            "params": [
+              {
+                "name": "form",
+                "value": "OSDJAS"
+              }
+            ],
+            "searchTermParamName": "query"
+          }
+        },
+        "aliases": ["bing"],
+        "classification": "general"
+      },
+      "schema": 1706918405822,
+      "variants": [
+        {
+          "environment": {
+            "locales": [
+              "ach",
+              "af",
+              "an",
+              "ar",
+              "ast",
+              "az",
+              "bn",
+              "bs",
+              "ca",
+              "ca-valencia",
+              "cak",
+              "cs",
+              "cy",
+              "da",
+              "de",
+              "dsb",
+              "el",
+              "en-CA",
+              "en-GB",
+              "en-US",
+              "eo",
+              "es-CL",
+              "es-ES",
+              "es-MX",
+              "eu",
+              "fa",
+              "ff",
+              "fi",
+              "fr",
+              "fur",
+              "fy-NL",
+              "gd",
+              "gl",
+              "gn",
+              "gu-IN",
+              "he",
+              "hi-IN",
+              "hr",
+              "hsb",
+              "hy-AM",
+              "ia",
+              "id",
+              "is",
+              "it",
+              "ja",
+              "ja-JP-macos",
+              "ka",
+              "kab",
+              "km",
+              "kn",
+              "lij",
+              "lo",
+              "lt",
+              "meh",
+              "mk",
+              "ms",
+              "my",
+              "nb-NO",
+              "ne-NP",
+              "nl",
+              "nn-NO",
+              "oc",
+              "pa-IN",
+              "pt-BR",
+              "rm",
+              "ro",
+              "sc",
+              "sco",
+              "son",
+              "sq",
+              "sr",
+              "sv-SE",
+              "te",
+              "th",
+              "tl",
+              "tr",
+              "trs",
+              "uk",
+              "ur",
+              "uz",
+              "wo",
+              "xh",
+              "zh-CN"
+            ]
+          }
+        }
+      ],
+      "identifier": "bing",
+      "recordType": "engine",
+      "id": "05645095-d26e-4f20-9137-f24a14a23f28",
+      "last_modified": 1707833224310
+    },
+    {
+      "base": {
+        "name": "Google",
+        "urls": {
+          "search": {
+            "base": "https://www.google.com/search",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "trending": {
+            "base": "https://www.google.com/complete/search",
+            "method": "GET",
+            "params": [
+              {
+                "name": "client",
+                "value": "firefox"
+              },
+              {
+                "name": "channel",
+                "value": "ftr"
+              }
+            ],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://www.google.com/complete/search",
+            "params": [
+              {
+                "name": "client",
+                "value": "firefox"
+              },
+              {
+                "name": "channel",
+                "experimentConfig": "search_rich_suggestions"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "aliases": ["google"],
+        "classification": "general"
+      },
+      "schema": 1702901739026,
+      "variants": [
+        {
+          "environment": {
+            "allRegionsAndLocales": true
+          }
+        }
+      ],
+      "identifier": "google",
+      "recordType": "engine",
+      "id": "7ace4aa1-e762-4f4b-87b9-b23b3c3a930b",
+      "last_modified": 1702906502757
+    },
+    {
+      "base": {
+        "name": "DuckDuckGo",
+        "urls": {
+          "search": {
+            "base": "https://duckduckgo.com/",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://ac.duckduckgo.com/ac/",
+            "params": [
+              {
+                "name": "type",
+                "value": "list"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "aliases": ["duckduckgo", "ddg"],
+        "classification": "general"
+      },
+      "schema": 1702901739665,
+      "variants": [
+        {
+          "environment": {
+            "allRegionsAndLocales": true
+          }
+        }
+      ],
+      "identifier": "ddg",
+      "recordType": "engine",
+      "id": "04e99a38-13ee-47d8-8aa4-64482b3dea99",
+      "last_modified": 1702906502754
+    },
+    {
+      "base": {
+        "name": "百度",
+        "urls": {
+          "search": {
+            "base": "https://www.baidu.com/baidu",
+            "params": [
+              {
+                "name": "ie",
+                "value": "utf-8"
+              }
+            ],
+            "searchTermParamName": "wd"
+          },
+          "suggestions": {
+            "base": "https://www.baidu.com/su",
+            "params": [
+              {
+                "name": "ie",
+                "value": "utf-8"
+              },
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "wd"
+          }
+        },
+        "aliases": ["百度", "baidu"],
+        "classification": "general"
+      },
+      "schema": 1702901740286,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["zh-CN"]
+          }
+        }
+      ],
+      "identifier": "baidu",
+      "recordType": "engine",
+      "id": "ad58537f-f397-46ec-a1a8-935e12f0aab6",
+      "last_modified": 1702906502749
+    },
+    {
+      "base": {
+        "name": "Wikipedia (en)",
+        "urls": {
+          "search": {
+            "base": "https://en.wikipedia.org/wiki/Special:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://en.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901740904,
+      "variants": [
+        {
+          "environment": {
+            "excludedLocales": [
+              "af",
+              "an",
+              "ar",
+              "ast",
+              "az",
+              "be",
+              "bg",
+              "bn",
+              "br",
+              "bs",
+              "ca",
+              "ca-valencia",
+              "cs",
+              "cy",
+              "da",
+              "de",
+              "dsb",
+              "el",
+              "eo",
+              "cak",
+              "es-AR",
+              "es-CL",
+              "es-ES",
+              "es-MX",
+              "trs",
+              "et",
+              "eu",
+              "fa",
+              "fi",
+              "fr",
+              "ff",
+              "son",
+              "fy-NL",
+              "ga-IE",
+              "gd",
+              "gl",
+              "gn",
+              "gu-IN",
+              "hi-IN",
+              "he",
+              "hr",
+              "hsb",
+              "hu",
+              "hy-AM",
+              "ia",
+              "id",
+              "is",
+              "ja",
+              "ja-JP-macos",
+              "ka",
+              "kab",
+              "kk",
+              "km",
+              "kn",
+              "ko",
+              "it",
+              "fur",
+              "sc",
+              "lij",
+              "lo",
+              "lt",
+              "ltg",
+              "lv",
+              "mk",
+              "mr",
+              "ms",
+              "my",
+              "nb-NO",
+              "ne-NP",
+              "nl",
+              "nn-NO",
+              "oc",
+              "pa-IN",
+              "pl",
+              "szl",
+              "pt-BR",
+              "pt-PT",
+              "rm",
+              "ro",
+              "ru",
+              "si",
+              "sk",
+              "sl",
+              "sq",
+              "sr",
+              "sv-SE",
+              "ta",
+              "te",
+              "th",
+              "tl",
+              "tr",
+              "uk",
+              "ur",
+              "uz",
+              "vi",
+              "wo",
+              "zh-CN",
+              "zh-TW"
+            ],
+            "allRegionsAndLocales": true
+          }
+        }
+      ],
+      "identifier": "wikipedia",
+      "recordType": "engine",
+      "id": "7f6d23c2-191e-483e-af3a-ce6451e3a8dd",
+      "last_modified": 1702906502744
+    },
+    {
+      "base": {
+        "name": "Wikipedia (af)",
+        "urls": {
+          "search": {
+            "base": "https://af.wikipedia.org/wiki/Spesiaal:Soek",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://af.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901741515,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["af"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-af",
+      "recordType": "engine",
+      "id": "9dcc6d57-1b00-4cdc-bc11-d70593a3da30",
+      "last_modified": 1702906502739
+    },
+    {
+      "base": {
+        "name": "Biquipedia (an)",
+        "urls": {
+          "search": {
+            "base": "https://an.wikipedia.org/wiki/Especial:Mirar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://an.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901742155,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["an"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-an",
+      "recordType": "engine",
+      "id": "1c2173e4-1ad3-4347-900a-17f4103c6bbe",
+      "last_modified": 1702906502736
+    },
+    {
+      "base": {
+        "name": "ويكيبيديا (ar)",
+        "urls": {
+          "search": {
+            "base": "https://ar.wikipedia.org/wiki/خاص:بحث",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ar.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901742756,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ar"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ar",
+      "recordType": "engine",
+      "id": "3ed57e7f-df2a-4bb0-aecf-10327d5ff1ea",
+      "last_modified": 1702906502733
+    },
+    {
+      "base": {
+        "name": "Wikipedia (ast)",
+        "urls": {
+          "search": {
+            "base": "https://ast.wikipedia.org/wiki/Especial:Gueta",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ast.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901743369,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ast"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ast",
+      "recordType": "engine",
+      "id": "e5f07079-9153-4104-a8b9-a9d15ff75853",
+      "last_modified": 1702906502729
+    },
+    {
+      "base": {
+        "name": "Vikipediya (az)",
+        "urls": {
+          "search": {
+            "base": "https://az.wikipedia.org/wiki/Xüsusi:Axtar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://az.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901743987,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["az"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-az",
+      "recordType": "engine",
+      "id": "2230b4af-8fdf-4aa0-a496-5178b25382ed",
+      "last_modified": 1702906502726
+    },
+    {
+      "base": {
+        "name": "Уикипедия (bg)",
+        "urls": {
+          "search": {
+            "base": "https://bg.wikipedia.org/wiki/Специални:Търсене",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://bg.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901744580,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["bg"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-bg",
+      "recordType": "engine",
+      "id": "6324bcb4-9aad-4aa2-b10c-f320ae1242c3",
+      "last_modified": 1702906502723
+    },
+    {
+      "base": {
+        "name": "Wikipedia (br)",
+        "urls": {
+          "search": {
+            "base": "https://br.wikipedia.org/wiki/Dibar:Klask",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://br.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901745178,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["br"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-br",
+      "recordType": "engine",
+      "id": "c9266f36-f954-44df-924b-a1c205f66d7c",
+      "last_modified": 1702906502718
+    },
+    {
+      "base": {
+        "name": "Wikipedia (bs)",
+        "urls": {
+          "search": {
+            "base": "https://bs.wikipedia.org/wiki/Posebno:Pretraga",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://bs.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901745796,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["bs"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-bs",
+      "recordType": "engine",
+      "id": "c88785cc-48de-4f07-a40f-5d6564de3183",
+      "last_modified": 1702906502715
+    },
+    {
+      "base": {
+        "name": "Wicipedia (cy)",
+        "urls": {
+          "search": {
+            "base": "https://cy.wikipedia.org/wiki/Arbennig:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://cy.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901746399,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["cy"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-cy",
+      "recordType": "engine",
+      "id": "0df7934b-5903-4382-ae3d-d898ac0487aa",
+      "last_modified": 1702906502711
+    },
+    {
+      "base": {
+        "name": "Wikipedia (da)",
+        "urls": {
+          "search": {
+            "base": "https://da.wikipedia.org/wiki/Speciel:Søgning",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://da.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901746995,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["da"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-da",
+      "recordType": "engine",
+      "id": "ae42fcaa-ddee-4212-acb9-8bc15d09a39d",
+      "last_modified": 1702906502707
+    },
+    {
+      "base": {
+        "name": "Wikipedia (de)",
+        "urls": {
+          "search": {
+            "base": "https://de.wikipedia.org/wiki/Spezial:Suche",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://de.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901747613,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["de"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-de",
+      "recordType": "engine",
+      "id": "def1d4ba-b8c8-46c4-9800-134b989ca058",
+      "last_modified": 1702906502704
+    },
+    {
+      "base": {
+        "name": "Wikipedija (dsb)",
+        "urls": {
+          "search": {
+            "base": "https://dsb.wikipedia.org/wiki/Specialne:Pytaś",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://dsb.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901748278,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["dsb"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-dsb",
+      "recordType": "engine",
+      "id": "c8a9299d-c9d2-4bf3-8f94-812d38af35f7",
+      "last_modified": 1702906502701
+    },
+    {
+      "base": {
+        "name": "Wikipedia (el)",
+        "urls": {
+          "search": {
+            "base": "https://el.wikipedia.org/wiki/Ειδικό:Αναζήτηση",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://el.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901748903,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["el"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-el",
+      "recordType": "engine",
+      "id": "6ebc40f2-9307-4e58-8fd7-0e1a23b80723",
+      "last_modified": 1702906502698
+    },
+    {
+      "base": {
+        "name": "Vikipedio (eo)",
+        "urls": {
+          "search": {
+            "base": "https://eo.wikipedia.org/wiki/Specialaĵo:Serĉi",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://eo.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901749556,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["eo"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-eo",
+      "recordType": "engine",
+      "id": "25b42f42-d6e4-4193-be32-b4ca61cb55c7",
+      "last_modified": 1702906502695
+    },
+    {
+      "base": {
+        "name": "Vikipeedia (et)",
+        "urls": {
+          "search": {
+            "base": "https://et.wikipedia.org/wiki/Eri:Otsimine",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://et.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901750177,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["et"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-et",
+      "recordType": "engine",
+      "id": "87388ad0-c470-4a90-b79d-231e28b86eda",
+      "last_modified": 1702906502691
+    },
+    {
+      "base": {
+        "name": "Wikipedia (eu)",
+        "urls": {
+          "search": {
+            "base": "https://eu.wikipedia.org/wiki/Berezi:Bilatu",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://eu.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901750807,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["eu"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-eu",
+      "recordType": "engine",
+      "id": "0d6704d1-3aed-420c-8c16-6aeefede499f",
+      "last_modified": 1702906502688
+    },
+    {
+      "base": {
+        "name": "ویکی‌پدیا (fa)",
+        "urls": {
+          "search": {
+            "base": "https://fa.wikipedia.org/wiki/ویژه:جستجو",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://fa.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901751455,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["fa"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-fa",
+      "recordType": "engine",
+      "id": "ce737d17-06f0-46f2-8c88-97f796ad88dc",
+      "last_modified": 1702906502685
+    },
+    {
+      "base": {
+        "name": "Wikipedia (fi)",
+        "urls": {
+          "search": {
+            "base": "https://fi.wikipedia.org/wiki/Toiminnot:Haku",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://fi.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901752065,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["fi"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-fi",
+      "recordType": "engine",
+      "id": "0820d593-6616-476a-ab3d-763c4d14dcc6",
+      "last_modified": 1702906502682
+    },
+    {
+      "base": {
+        "name": "Wikipedy (fy)",
+        "urls": {
+          "search": {
+            "base": "https://fy.wikipedia.org/wiki/Wiki:Sykje",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://fy.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901752745,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["fy-NL"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-fy-NL",
+      "recordType": "engine",
+      "id": "4a6a7952-460d-4951-a011-9fc414f2569a",
+      "last_modified": 1702906502679
+    },
+    {
+      "base": {
+        "name": "Vicipéid (ga)",
+        "urls": {
+          "search": {
+            "base": "https://ga.wikipedia.org/wiki/Speisialta:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ga.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901753350,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ga-IE"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ga-IE",
+      "recordType": "engine",
+      "id": "d8d0e94c-27e7-42b1-a5e2-b24198021234",
+      "last_modified": 1702906502675
+    },
+    {
+      "base": {
+        "name": "Uicipeid (gd)",
+        "urls": {
+          "search": {
+            "base": "https://gd.wikipedia.org/wiki/Sònraichte:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://gd.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901753945,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["gd"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-gd",
+      "recordType": "engine",
+      "id": "df26225d-6726-4630-94ce-7a398598139b",
+      "last_modified": 1702906502672
+    },
+    {
+      "base": {
+        "name": "Wikipedia (gl)",
+        "urls": {
+          "search": {
+            "base": "https://gl.wikipedia.org/wiki/Especial:Procurar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://gl.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901754558,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["gl"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-gl",
+      "recordType": "engine",
+      "id": "cd385c40-96bc-43c4-9f30-eff738828401",
+      "last_modified": 1702906502668
+    },
+    {
+      "base": {
+        "name": "Vikipetã (gn)",
+        "urls": {
+          "search": {
+            "base": "https://gn.wikipedia.org/wiki/Mba'echĩchĩ:Buscar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://gn.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901755160,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["gn"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-gn",
+      "recordType": "engine",
+      "id": "b66515df-d7b1-403c-b0df-22a5ce9dd07f",
+      "last_modified": 1702906502665
+    },
+    {
+      "base": {
+        "name": "ויקיפדיה",
+        "urls": {
+          "search": {
+            "base": "https://he.wikipedia.org/wiki/מיוחד:חיפוש",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://he.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901755766,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["he"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-he",
+      "recordType": "engine",
+      "id": "f96aab0d-3562-445c-a70f-5805ea1d25fe",
+      "last_modified": 1702906502662
+    },
+    {
+      "base": {
+        "name": "Wikipedija (hr)",
+        "urls": {
+          "search": {
+            "base": "https://hr.wikipedia.org/wiki/Posebno:Traži",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://hr.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901756375,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hr"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-hr",
+      "recordType": "engine",
+      "id": "eb03a427-1f71-4df9-b609-a36064d2d0e2",
+      "last_modified": 1702906502658
+    },
+    {
+      "base": {
+        "name": "Wikipedija (hsb)",
+        "urls": {
+          "search": {
+            "base": "https://hsb.wikipedia.org/wiki/Specialnje:Pytać",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://hsb.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901756979,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hsb"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-hsb",
+      "recordType": "engine",
+      "id": "5235d5f1-e04d-4ba3-b53b-35a8d09d2142",
+      "last_modified": 1702906502655
+    },
+    {
+      "base": {
+        "name": "Wikipédia (hu)",
+        "urls": {
+          "search": {
+            "base": "https://hu.wikipedia.org/wiki/Speciális:Keresés",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://hu.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901757634,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hu"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-hu",
+      "recordType": "engine",
+      "id": "9a10f883-2da7-4070-8a73-543153bdd52c",
+      "last_modified": 1702906502651
+    },
+    {
+      "base": {
+        "name": "Wikipedia (ia)",
+        "urls": {
+          "search": {
+            "base": "https://ia.wikipedia.org/wiki/Special:Recerca",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ia.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901758249,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ia"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ia",
+      "recordType": "engine",
+      "id": "6787b684-aa4f-48d2-9673-fce3b528c71c",
+      "last_modified": 1702906502647
+    },
+    {
+      "base": {
+        "name": "Wikipedia (id)",
+        "urls": {
+          "search": {
+            "base": "https://id.wikipedia.org/wiki/Istimewa:Pencarian",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://id.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901758856,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["id"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-id",
+      "recordType": "engine",
+      "id": "163da4a0-e59f-423a-bebc-3ec3bd68b941",
+      "last_modified": 1702906502644
+    },
+    {
+      "base": {
+        "name": "Wikipedia (is)",
+        "urls": {
+          "search": {
+            "base": "https://is.wikipedia.org/wiki/Kerfissíða:Leit",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://is.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901759494,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["is"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-is",
+      "recordType": "engine",
+      "id": "26ca2f38-0472-45de-83fd-78d67aaecd22",
+      "last_modified": 1702906502640
+    },
+    {
+      "base": {
+        "name": "ვიკიპედია (ka)",
+        "urls": {
+          "search": {
+            "base": "https://ka.wikipedia.org/wiki/სპეციალური:ძიება",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ka.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901760115,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ka"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ka",
+      "recordType": "engine",
+      "id": "ca784382-7beb-4a93-b211-745d4d71ec6c",
+      "last_modified": 1702906502636
+    },
+    {
+      "base": {
+        "name": "Wikipedia (kab)",
+        "urls": {
+          "search": {
+            "base": "https://kab.wikipedia.org/wiki/Uslig:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://kab.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901760752,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["kab"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-kab",
+      "recordType": "engine",
+      "id": "e6f20ba5-3013-4b18-ad7a-351a64e62ec4",
+      "last_modified": 1702906502632
+    },
+    {
+      "base": {
+        "name": "Уикипедия (kk)",
+        "urls": {
+          "search": {
+            "base": "https://kk.wikipedia.org/wiki/Арнайы:Іздеу",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://kk.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901761359,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["kk"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-kk",
+      "recordType": "engine",
+      "id": "15f00a29-0d68-4ff1-89d1-5e58b95618b7",
+      "last_modified": 1702906502628
+    },
+    {
+      "base": {
+        "name": "វីគីភីឌា (km)",
+        "urls": {
+          "search": {
+            "base": "https://km.wikipedia.org/wiki/ពិសេស:ស្វែងរក",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://km.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901761969,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["km"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-km",
+      "recordType": "engine",
+      "id": "c8a7bec0-7f33-44e1-9521-363530993acc",
+      "last_modified": 1702906502625
+    },
+    {
+      "base": {
+        "name": "Wikipedia (kn)",
+        "urls": {
+          "search": {
+            "base": "https://kn.wikipedia.org/wiki/ವಿಶೇಷ:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://kn.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901762594,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["kn"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-kn",
+      "recordType": "engine",
+      "id": "ce510c56-9d5e-416c-aef0-277bfbaac464",
+      "last_modified": 1702906502622
+    },
+    {
+      "base": {
+        "name": "Wikipedia (lij)",
+        "urls": {
+          "search": {
+            "base": "https://lij.wikipedia.org/wiki/Speçiale:Riçerca",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://lij.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901763202,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["lij"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-lij",
+      "recordType": "engine",
+      "id": "5ec04310-966d-40da-af5b-f24383d40c8a",
+      "last_modified": 1702906502619
+    },
+    {
+      "base": {
+        "name": "ວິກິພີເດຍ (lo)",
+        "urls": {
+          "search": {
+            "base": "https://lo.wikipedia.org/wiki/ພິເສດ:ຊອກຫາ",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://lo.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901763817,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["lo"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-lo",
+      "recordType": "engine",
+      "id": "515c4522-284d-468f-926a-eb7eb8a55e22",
+      "last_modified": 1702906502615
+    },
+    {
+      "base": {
+        "name": "Wikipedia (lt)",
+        "urls": {
+          "search": {
+            "base": "https://lt.wikipedia.org/wiki/Specialus:Paieška",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://lt.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901764432,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["lt"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-lt",
+      "recordType": "engine",
+      "id": "774990fb-aabc-4008-86d3-adf12f89ccd4",
+      "last_modified": 1702906502612
+    },
+    {
+      "base": {
+        "name": "Vikipedeja (ltg)",
+        "urls": {
+          "search": {
+            "base": "https://ltg.wikipedia.org/wiki/Seviškuo:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ltg.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901765044,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ltg"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ltg",
+      "recordType": "engine",
+      "id": "52871fd0-a24a-443b-a2d4-17eb09951691",
+      "last_modified": 1702906502609
+    },
+    {
+      "base": {
+        "name": "Vikipēdija",
+        "urls": {
+          "search": {
+            "base": "https://lv.wikipedia.org/wiki/Special:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://lv.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901765673,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["lv"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-lv",
+      "recordType": "engine",
+      "id": "395b6c93-f7ff-47b8-b895-6f7bb99f9c56",
+      "last_modified": 1702906502606
+    },
+    {
+      "base": {
+        "name": "Википедија (mk)",
+        "urls": {
+          "search": {
+            "base": "https://mk.wikipedia.org/wiki/Специјална:Барај",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://mk.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901766290,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["mk"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-mk",
+      "recordType": "engine",
+      "id": "a3aa8882-cbb0-4002-b0fc-b6ff5cdb9d92",
+      "last_modified": 1702906502602
+    },
+    {
+      "base": {
+        "name": "विकिपीडिया (mr)",
+        "urls": {
+          "search": {
+            "base": "https://mr.wikipedia.org/wiki/विशेष:शोधा",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://mr.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901766916,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["mr"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-mr",
+      "recordType": "engine",
+      "id": "09f48c9b-b420-4312-8c60-aeb4358e0b97",
+      "last_modified": 1702906502599
+    },
+    {
+      "base": {
+        "name": "Wikipedia (ms)",
+        "urls": {
+          "search": {
+            "base": "https://ms.wikipedia.org/wiki/Khas:Gelintar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ms.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901767543,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ms"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ms",
+      "recordType": "engine",
+      "id": "7039c888-4bd6-4b82-a164-ca3bfc93b24c",
+      "last_modified": 1702906502595
+    },
+    {
+      "base": {
+        "name": "Wikipedia (my)",
+        "urls": {
+          "search": {
+            "base": "https://my.wikipedia.org/wiki/Special:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://my.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901768156,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["my"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-my",
+      "recordType": "engine",
+      "id": "0616dd06-2bfd-46f0-9870-832a1db8a622",
+      "last_modified": 1702906502592
+    },
+    {
+      "base": {
+        "name": "Wikipedia (nl)",
+        "urls": {
+          "search": {
+            "base": "https://nl.wikipedia.org/wiki/Speciaal:Zoeken",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://nl.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901768793,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["nl"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-nl",
+      "recordType": "engine",
+      "id": "9e423eca-df00-4385-ab15-4e61bc220b05",
+      "last_modified": 1702906502588
+    },
+    {
+      "base": {
+        "name": "Wikipèdia (oc)",
+        "urls": {
+          "search": {
+            "base": "https://oc.wikipedia.org/wiki/Especial:Recèrca",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://oc.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901769405,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["oc"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-oc",
+      "recordType": "engine",
+      "id": "e3e2c4a1-4914-4a27-96f8-63fb6a90f490",
+      "last_modified": 1702906502585
+    },
+    {
+      "base": {
+        "name": "Wikipedia (rm)",
+        "urls": {
+          "search": {
+            "base": "https://rm.wikipedia.org/wiki/Spezial:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://rm.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901770011,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["rm"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-rm",
+      "recordType": "engine",
+      "id": "4042df85-6b55-4a40-9c3f-ef74b05ef5be",
+      "last_modified": 1702906502581
+    },
+    {
+      "base": {
+        "name": "Wikipedia (ro)",
+        "urls": {
+          "search": {
+            "base": "https://ro.wikipedia.org/wiki/Special:Căutare",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ro.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901770632,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ro"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ro",
+      "recordType": "engine",
+      "id": "c2f3213e-f43f-4776-b1cb-b70d8457b6c7",
+      "last_modified": 1702906502577
+    },
+    {
+      "base": {
+        "name": "Википедия (ru)",
+        "urls": {
+          "search": {
+            "base": "https://ru.wikipedia.org/wiki/Служебная:Поиск",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ru.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901771244,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ru"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ru",
+      "recordType": "engine",
+      "id": "8f2b997a-8bfe-436d-9393-b9abb52522ef",
+      "last_modified": 1702906502574
+    },
+    {
+      "base": {
+        "name": "Wikipedia (si)",
+        "urls": {
+          "search": {
+            "base": "https://si.wikipedia.org/wiki/විශේෂ:ගවේෂණය",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://si.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901771856,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["si"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-si",
+      "recordType": "engine",
+      "id": "6a54dc6e-623a-4839-afd7-224e06d7ba73",
+      "last_modified": 1702906502571
+    },
+    {
+      "base": {
+        "name": "Wikipédia (sk)",
+        "urls": {
+          "search": {
+            "base": "https://sk.wikipedia.org/wiki/Špeciálne:Hľadanie",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://sk.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901772461,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sk"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-sk",
+      "recordType": "engine",
+      "id": "f9d77028-e386-4093-aacd-a8c2a56acbc0",
+      "last_modified": 1702906502568
+    },
+    {
+      "base": {
+        "name": "Wikipedija (sl)",
+        "urls": {
+          "search": {
+            "base": "https://sl.wikipedia.org/wiki/Posebno:Iskanje",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://sl.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901773075,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sl"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-sl",
+      "recordType": "engine",
+      "id": "887d2a1b-7275-4a4e-afa2-9157eb98a7d5",
+      "last_modified": 1702906502565
+    },
+    {
+      "base": {
+        "name": "Wikipedia (sq)",
+        "urls": {
+          "search": {
+            "base": "https://sq.wikipedia.org/wiki/Speciale:Kërkim",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://sq.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901773681,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sq"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-sq",
+      "recordType": "engine",
+      "id": "bc8c03e7-747a-408c-a0ee-6598ca9fad4a",
+      "last_modified": 1702906502561
+    },
+    {
+      "base": {
+        "name": "Википедија (sr)",
+        "urls": {
+          "search": {
+            "base": "https://sr.wikipedia.org/wiki/Посебно:Претражи",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://sr.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901774302,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sr"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-sr",
+      "recordType": "engine",
+      "id": "d381964d-d1e3-4378-962c-6ac5b89161f8",
+      "last_modified": 1702906502558
+    },
+    {
+      "base": {
+        "name": "Wikipedia (sv)",
+        "urls": {
+          "search": {
+            "base": "https://sv.wikipedia.org/wiki/Special:Sök",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://sv.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901774920,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sv-SE"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-sv-SE",
+      "recordType": "engine",
+      "id": "d0708bee-d246-4eb9-81ff-50d5947837ec",
+      "last_modified": 1702906502555
+    },
+    {
+      "base": {
+        "name": "விக்கிப்பீடியா (ta)",
+        "urls": {
+          "search": {
+            "base": "https://ta.wikipedia.org/wiki/சிறப்பு:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ta.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901775549,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ta"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ta",
+      "recordType": "engine",
+      "id": "78ed73b5-4afd-467e-b7ee-c96658f345c6",
+      "last_modified": 1702906502552
+    },
+    {
+      "base": {
+        "name": "వికీపీడియా (te)",
+        "urls": {
+          "search": {
+            "base": "https://te.wikipedia.org/wiki/ప్రత్యేక:అన్వేషణ",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://te.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901776173,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["te"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-te",
+      "recordType": "engine",
+      "id": "391eb3c6-de7a-4aaf-8027-3ad1b8c3c00a",
+      "last_modified": 1702906502548
+    },
+    {
+      "base": {
+        "name": "วิกิพีเดีย",
+        "urls": {
+          "search": {
+            "base": "https://th.wikipedia.org/wiki/พิเศษ:ค้นหา",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://th.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901776774,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["th"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-th",
+      "recordType": "engine",
+      "id": "5c7903a3-5a44-41a0-aac2-fc26fe8f8fe7",
+      "last_modified": 1702906502545
+    },
+    {
+      "base": {
+        "name": "Wikipedia (tl)",
+        "urls": {
+          "search": {
+            "base": "https://tl.wikipedia.org/wiki/Natatangi:Maghanap",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://tl.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901777391,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["tl"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-tl",
+      "recordType": "engine",
+      "id": "d0c8b2f5-accc-45f4-adf4-a7377692869b",
+      "last_modified": 1702906502542
+    },
+    {
+      "base": {
+        "name": "Wikipedia (tr)",
+        "urls": {
+          "search": {
+            "base": "https://tr.wikipedia.org/wiki/Özel:Ara",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://tr.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901777988,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["tr"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-tr",
+      "recordType": "engine",
+      "id": "8885ffbb-f450-4642-8204-ed9128b29e51",
+      "last_modified": 1702906502539
+    },
+    {
+      "base": {
+        "name": "Вікіпедія (uk)",
+        "urls": {
+          "search": {
+            "base": "https://uk.wikipedia.org/wiki/Спеціальна:Пошук",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://uk.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901778586,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["uk"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-uk",
+      "recordType": "engine",
+      "id": "3b65a693-177a-4bd2-9d66-8c038e005800",
+      "last_modified": 1702906502536
+    },
+    {
+      "base": {
+        "name": "ویکیپیڈیا (ur)",
+        "urls": {
+          "search": {
+            "base": "https://ur.wikipedia.org/wiki/خاص:تلاش",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ur.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901779213,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ur"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ur",
+      "recordType": "engine",
+      "id": "52a714ba-0471-47be-9557-fc5fe9c9ff50",
+      "last_modified": 1702906502533
+    },
+    {
+      "base": {
+        "name": "Vikipediya (uz)",
+        "urls": {
+          "search": {
+            "base": "https://uz.wikipedia.org/wiki/Maxsus:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://uz.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901779828,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["uz"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-uz",
+      "recordType": "engine",
+      "id": "1b07d255-6f2c-4e2d-a4b4-b0e99aae39e9",
+      "last_modified": 1702906502529
+    },
+    {
+      "base": {
+        "name": "Wikipedia (vi)",
+        "urls": {
+          "search": {
+            "base": "https://vi.wikipedia.org/wiki/Đặc_biệt:Tìm_kiếm",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://vi.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901780448,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["vi"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-vi",
+      "recordType": "engine",
+      "id": "5b6f0a3f-1f94-473d-8bcc-c48984523b0c",
+      "last_modified": 1702906502525
+    },
+    {
+      "base": {
+        "name": "Wikipedia (wo)",
+        "urls": {
+          "search": {
+            "base": "https://wo.wikipedia.org/wiki/Jagleel:Ceet",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://wo.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901781072,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["wo"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-wo",
+      "recordType": "engine",
+      "id": "3f1ba3c7-23f1-4ca1-aa0c-623fcae80ddd",
+      "last_modified": 1702906502521
+    },
+    {
+      "base": {
+        "name": "维基百科",
+        "urls": {
+          "search": {
+            "base": "https://zh.wikipedia.org/wiki/Special:搜索",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://zh.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901781680,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["zh-CN"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-zh-CN",
+      "recordType": "engine",
+      "id": "c0f736ce-c219-4388-a242-48168237e3f5",
+      "last_modified": 1702906502518
+    },
+    {
+      "base": {
+        "name": "Wikipedia (zh)",
+        "urls": {
+          "search": {
+            "base": "https://zh.wikipedia.org/wiki/Special:搜索",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              },
+              {
+                "name": "variant",
+                "value": "zh-tw"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://zh.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901782303,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["zh-TW"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-zh-TW",
+      "recordType": "engine",
+      "id": "864df79e-c03d-47ee-aacf-06242cffe951",
+      "last_modified": 1702906502515
+    },
+    {
+      "base": {
+        "name": "Вікіпедыя (be)",
+        "urls": {
+          "search": {
+            "base": "https://be.wikipedia.org/wiki/Адмысловае:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://be.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901782971,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["be"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-be",
+      "recordType": "engine",
+      "id": "5327659a-3b79-4071-95b5-b86f7cc25a25",
+      "last_modified": 1702906502510
+    },
+    {
+      "base": {
+        "name": "Вікіпэдыя (be-tarask)",
+        "urls": {
+          "search": {
+            "base": "https://be-tarask.wikipedia.org/wiki/Спэцыяльныя:Пошук",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://be-tarask.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901783595,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["be"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-be-tarask",
+      "recordType": "engine",
+      "id": "d7cb9b4b-f53a-49ea-ae04-27172fb108e9",
+      "last_modified": 1702906502506
+    },
+    {
+      "base": {
+        "name": "উইকিপিডিয়া (bn)",
+        "urls": {
+          "search": {
+            "base": "https://bn.wikipedia.org/wiki/বিশেষ:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://bn.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901784204,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["bn", "bn-BD", "bn-IN"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-bn",
+      "recordType": "engine",
+      "id": "a0a95a2c-83b7-4507-a4e9-5632ca9825dd",
+      "last_modified": 1702906502503
+    },
+    {
+      "base": {
+        "name": "Viquipèdia (ca)",
+        "urls": {
+          "search": {
+            "base": "https://ca.wikipedia.org/wiki/Especial:Cerca",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ca.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901784840,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ca", "ca-valencia"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ca",
+      "recordType": "engine",
+      "id": "7ed640c7-bc86-45dc-b07a-f7d8b5a8e079",
+      "last_modified": 1702906502499
+    },
+    {
+      "base": {
+        "name": "Wikipedia (es)",
+        "urls": {
+          "search": {
+            "base": "https://es.wikipedia.org/wiki/Especial:Buscar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://es.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901785455,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["cak", "es-AR", "es-CL", "es-ES", "es-MX", "trs"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-es",
+      "recordType": "engine",
+      "id": "82025e38-8eda-48c2-b844-2b5e7d489c34",
+      "last_modified": 1702906502496
+    },
+    {
+      "base": {
+        "name": "Wikipedie (cs)",
+        "urls": {
+          "search": {
+            "base": "https://cs.wikipedia.org/wiki/Speciální:Hledání",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://cs.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901786063,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["cs"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-cz",
+      "recordType": "engine",
+      "id": "2574b200-f878-4b0c-b7e0-49804b3f4b8e",
+      "last_modified": 1702906502493
+    },
+    {
+      "base": {
+        "name": "Wikipédia (fr)",
+        "urls": {
+          "search": {
+            "base": "https://fr.wikipedia.org/wiki/Spécial:Recherche",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://fr.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901786670,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ff", "fr", "son"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-fr",
+      "recordType": "engine",
+      "id": "a0261c4c-7b60-42c5-b35b-00ab57c5fbc4",
+      "last_modified": 1702906502488
+    },
+    {
+      "base": {
+        "name": "વિકિપીડિયા (gu)",
+        "urls": {
+          "search": {
+            "base": "https://gu.wikipedia.org/wiki/વિશેષ:શોધ",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://gu.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901787288,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["gu-IN"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-gu",
+      "recordType": "engine",
+      "id": "ede0b78c-500a-4d1b-8236-cd5e7ceee815",
+      "last_modified": 1702906502485
+    },
+    {
+      "base": {
+        "name": "विकिपीडिया (hi)",
+        "urls": {
+          "search": {
+            "base": "https://hi.wikipedia.org/wiki/विशेष:खोज",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://hi.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901787905,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hi-IN"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-hi",
+      "recordType": "engine",
+      "id": "8fc18864-53e1-47b4-8730-2e67962c7b32",
+      "last_modified": 1702906502482
+    },
+    {
+      "base": {
+        "name": "Wikipedia (hy)",
+        "urls": {
+          "search": {
+            "base": "https://hy.wikipedia.org/wiki/Սպասարկող:Որոնել",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://hy.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901788513,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hy-AM"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-hy",
+      "recordType": "engine",
+      "id": "c6286785-b61b-4288-aec1-9a7820c32694",
+      "last_modified": 1702906502479
+    },
+    {
+      "base": {
+        "name": "Wikipedia (it)",
+        "urls": {
+          "search": {
+            "base": "https://it.wikipedia.org/wiki/Speciale:Ricerca",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://it.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901789119,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["fur", "it", "sc"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-it",
+      "recordType": "engine",
+      "id": "de65dd23-0d4b-4bf0-bd97-0f536e184ded",
+      "last_modified": 1702906502476
+    },
+    {
+      "base": {
+        "name": "Wikipedia (ja)",
+        "urls": {
+          "search": {
+            "base": "https://ja.wikipedia.org/wiki/特別:検索",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ja.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901789723,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ja", "ja-JP-macos"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ja",
+      "recordType": "engine",
+      "id": "a6bbf9df-acd4-47ea-9d26-6382b587c9c3",
+      "last_modified": 1702906502473
+    },
+    {
+      "base": {
+        "name": "위키백과 (ko)",
+        "urls": {
+          "search": {
+            "base": "https://ko.wikipedia.org/wiki/특수기능:찾기",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ko.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901790335,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ko"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-kr",
+      "recordType": "engine",
+      "id": "831d7fed-79d2-4aac-9481-826300a03d65",
+      "last_modified": 1702906502470
+    },
+    {
+      "base": {
+        "name": "Wikipedia (no)",
+        "urls": {
+          "search": {
+            "base": "https://no.wikipedia.org/wiki/Spesial:Søk",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://no.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901790944,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["nb-NO"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-NO",
+      "recordType": "engine",
+      "id": "607d401f-70cd-4810-b9b5-497d5a9489f6",
+      "last_modified": 1702906502467
+    },
+    {
+      "base": {
+        "name": "विकिपीडिया (ne)",
+        "urls": {
+          "search": {
+            "base": "https://ne.wikipedia.org/wiki/विशेष:Search",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://ne.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901791565,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ne-NP"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-ne",
+      "recordType": "engine",
+      "id": "dd1c5a28-733d-46b4-ae5e-fff82f94aec9",
+      "last_modified": 1702906502465
+    },
+    {
+      "base": {
+        "name": "Wikipedia (nn)",
+        "urls": {
+          "search": {
+            "base": "https://nn.wikipedia.org/wiki/Spesial:Søk",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://nn.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901792200,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["nn-NO"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-NN",
+      "recordType": "engine",
+      "id": "c3462c25-acc1-4003-a57b-3931bfacdce5",
+      "last_modified": 1702906502462
+    },
+    {
+      "base": {
+        "name": "Wikipedia (pa)",
+        "urls": {
+          "search": {
+            "base": "https://pa.wikipedia.org/wiki/ਖ਼ਾਸ:ਖੋਜੋ",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://pa.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901792817,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pa-IN"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-pa",
+      "recordType": "engine",
+      "id": "fa428a75-44d5-4f21-84bd-64935d483540",
+      "last_modified": 1702906502459
+    },
+    {
+      "base": {
+        "name": "Wikipedia (pt)",
+        "urls": {
+          "search": {
+            "base": "https://pt.wikipedia.org/wiki/Especial:Pesquisar",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://pt.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901793438,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pt-BR", "pt-PT"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-pt",
+      "recordType": "engine",
+      "id": "f2e04c1b-b19f-40d9-841d-9b48b7ba9da2",
+      "last_modified": 1702906502456
+    },
+    {
+      "base": {
+        "name": "Wikipedia (pl)",
+        "urls": {
+          "search": {
+            "base": "https://pl.wikipedia.org/wiki/Specjalna:Szukaj",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://pl.wikipedia.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "aliases": ["wikipedia"],
+        "classification": "unknown"
+      },
+      "schema": 1702901794065,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pl", "szl"]
+          }
+        }
+      ],
+      "identifier": "wikipedia-pl",
+      "recordType": "engine",
+      "id": "980cba80-0c46-4c05-8df0-aaea23d57732",
+      "last_modified": 1702906502453
+    },
+    {
+      "base": {
+        "name": "Amazon.com",
+        "urls": {
+          "search": {
+            "base": "https://www.amazon.com/s",
+            "searchTermParamName": "k"
+          }
+        },
+        "aliases": ["amazon"],
+        "classification": "unknown"
+      },
+      "notes": "Amazon.com (us only)",
+      "schema": 1702901802672,
+      "variants": [
+        {
+          "environment": {
+            "regions": ["us"]
+          }
+        }
+      ],
+      "identifier": "amazondotcom-us",
+      "recordType": "engine",
+      "id": "788a2ded-6872-4742-8115-c14dde7a18f9",
+      "last_modified": 1702906502412
+    },
+    {
+      "base": {
+        "name": "Amazon.co.jp",
+        "urls": {
+          "search": {
+            "base": "https://www.amazon.co.jp/exec/obidos/external-search/",
+            "params": [
+              {
+                "name": "mode",
+                "value": "blended"
+              },
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "field-keywords"
+          }
+        },
+        "aliases": ["amazon"],
+        "classification": "unknown"
+      },
+      "schema": 1702901805111,
+      "variants": [
+        {
+          "environment": {
+            "regions": ["jp"]
+          }
+        }
+      ],
+      "identifier": "amazon-jp",
+      "recordType": "engine",
+      "id": "9d089e46-dc94-4d4f-8f17-cc07b59aa9e4",
+      "last_modified": 1702906502401
+    },
+    {
+      "base": {
+        "name": "Wolne Lektury",
+        "urls": {
+          "search": {
+            "base": "https://wolnelektury.pl/szukaj/",
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://wolnelektury.pl/katalog/jtags/",
+            "params": [
+              {
+                "name": "mozhint",
+                "value": "1"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901811217,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pl", "szl"]
+          }
+        }
+      ],
+      "identifier": "wolnelektury-pl",
+      "recordType": "engine",
+      "id": "42348cb0-69a9-4451-8bd6-71bad5bc4e3f",
+      "last_modified": 1702906502368
+    },
+    {
+      "base": {
+        "name": "Allegro",
+        "urls": {
+          "search": {
+            "base": "https://allegro.pl/listing",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "string"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901811834,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pl", "szl"]
+          }
+        }
+      ],
+      "identifier": "allegro-pl",
+      "recordType": "engine",
+      "id": "3cc3f699-284a-4320-b131-395d9b218ade",
+      "last_modified": 1702906502364
+    },
+    {
+      "base": {
+        "name": "Qwant",
+        "urls": {
+          "search": {
+            "base": "https://www.qwant.com/",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://api.qwant.com/api/suggest/",
+            "params": [
+              {
+                "name": "client",
+                "value": "opensearch"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "aliases": ["qwant"],
+        "classification": "general"
+      },
+      "schema": 1702901816102,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["fr"]
+          }
+        }
+      ],
+      "identifier": "qwant",
+      "recordType": "engine",
+      "id": "2e62746e-b90a-42ee-b0f2-9ed0e1e2eaf0",
+      "last_modified": 1702906502343
+    },
+    {
+      "base": {
+        "name": "Seznam",
+        "urls": {
+          "search": {
+            "base": "https://search.seznam.cz/",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://suggest.seznam.cz/fulltext_ff",
+            "searchTermParamName": "phrase"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901816717,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["cs"]
+          }
+        }
+      ],
+      "identifier": "seznam-cz",
+      "recordType": "engine",
+      "id": "b0cdb724-b7df-47d0-8ead-93aa0a8f60a2",
+      "last_modified": 1702906502339
+    },
+    {
+      "base": {
+        "name": "楽天市場",
+        "urls": {
+          "search": {
+            "base": "https://pt.afl.rakuten.co.jp/c/013ca98b.cd7c5f0c/",
+            "params": [
+              {
+                "name": "sv",
+                "value": "2"
+              },
+              {
+                "name": "p",
+                "value": "0"
+              }
+            ],
+            "searchTermParamName": "sitem"
+          }
+        },
+        "charset": "EUC-JP",
+        "classification": "unknown"
+      },
+      "schema": 1702901819182,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ja", "ja-JP-macos"]
+          }
+        }
+      ],
+      "identifier": "rakuten",
+      "recordType": "engine",
+      "id": "ab6f7178-b0be-452a-82f2-f5df8df2d836",
+      "last_modified": 1702906502326
+    },
+    {
+      "base": {
+        "name": "Azerdict",
+        "urls": {
+          "search": {
+            "base": "https://azerdict.com/english/",
+            "searchTermParamName": "word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901819798,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["az"]
+          }
+        }
+      ],
+      "identifier": "azerdict",
+      "recordType": "engine",
+      "id": "786aa916-a331-4b0c-8099-85927dd87be8",
+      "last_modified": 1702906502323
+    },
+    {
+      "base": {
+        "name": "Ordbok",
+        "urls": {
+          "search": {
+            "base": "https://ordbok.uib.no/perl/ordbok.cgi",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Mozilla-search"
+              }
+            ],
+            "searchTermParamName": "OPP"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901820444,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["nb-NO", "nn-NO"]
+          }
+        }
+      ],
+      "identifier": "bok-NO",
+      "recordType": "engine",
+      "id": "7ed2240b-b161-4b49-a7fe-35db89544f74",
+      "last_modified": 1702906502320
+    },
+    {
+      "base": {
+        "name": "Ceneje.si",
+        "urls": {
+          "search": {
+            "base": "https://www.ceneje.si/search_new.aspx",
+            "params": [
+              {
+                "name": "FF-SearchBox",
+                "value": "1"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901821058,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sl"]
+          }
+        }
+      ],
+      "identifier": "ceneji",
+      "recordType": "engine",
+      "id": "5e515970-4129-48fc-b0d0-8a61c92903d2",
+      "last_modified": 1702906502317
+    },
+    {
+      "base": {
+        "name": "Cốc Cốc",
+        "urls": {
+          "search": {
+            "base": "https://coccoc.com/search",
+            "params": [
+              {
+                "name": "s",
+                "value": "ff"
+              },
+              {
+                "name": "utm_source",
+                "value": "firefox"
+              }
+            ],
+            "searchTermParamName": "query"
+          },
+          "suggestions": {
+            "base": "https://coccoc.com/composer/autocomplete",
+            "params": [
+              {
+                "name": "of",
+                "value": "b"
+              },
+              {
+                "name": "s",
+                "value": "ff"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901821664,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["vi"]
+          }
+        }
+      ],
+      "identifier": "coccoc",
+      "recordType": "engine",
+      "id": "20104daa-cb8a-40b9-a8c5-2433f4476c3e",
+      "last_modified": 1702906502314
+    },
+    {
+      "base": {
+        "name": "다음",
+        "urls": {
+          "search": {
+            "base": "https://search.daum.net/search",
+            "params": [
+              {
+                "name": "w",
+                "value": "tot"
+              },
+              {
+                "name": "nil_ch",
+                "value": "ffsr"
+              }
+            ],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://suggest.search.daum.net/sushi/opensearch/pc",
+            "params": [
+              {
+                "name": "DA",
+                "value": "JU2"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901822275,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ko"]
+          }
+        }
+      ],
+      "identifier": "daum-kr",
+      "recordType": "engine",
+      "id": "3330e927-6733-4239-9738-b41c5c460b11",
+      "last_modified": 1702906502311
+    },
+    {
+      "base": {
+        "name": "Ecosia",
+        "urls": {
+          "search": {
+            "base": "https://www.ecosia.org/search",
+            "params": [],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://ac.ecosia.org/autocomplete",
+            "params": [
+              {
+                "name": "type",
+                "value": "list"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "general"
+      },
+      "schema": 1702901822899,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["de"]
+          }
+        }
+      ],
+      "identifier": "ecosia",
+      "recordType": "engine",
+      "id": "e8e4a7e3-aead-43e3-887d-4064a186bd70",
+      "last_modified": 1702906502308
+    },
+    {
+      "base": {
+        "name": "EUdict Eng->Cro",
+        "urls": {
+          "search": {
+            "base": "https://eudict.com/",
+            "params": [
+              {
+                "name": "lang",
+                "value": "engcro"
+              }
+            ],
+            "searchTermParamName": "word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901823499,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hr"]
+          }
+        }
+      ],
+      "identifier": "eudict",
+      "recordType": "engine",
+      "id": "8fe5af92-3b6d-4cbe-a736-4cad01a21efe",
+      "last_modified": 1702906502306
+    },
+    {
+      "base": {
+        "name": "Am Faclair Beag",
+        "urls": {
+          "search": {
+            "base": "https://www.faclair.com/",
+            "searchTermParamName": "txtSearch"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901824109,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["gd"]
+          }
+        }
+      ],
+      "identifier": "faclair-beag",
+      "recordType": "engine",
+      "id": "d21e561b-64ae-4a33-b2f0-c4a490a5cf82",
+      "last_modified": 1702906502303
+    },
+    {
+      "base": {
+        "name": "Gule sider",
+        "urls": {
+          "search": {
+            "base": "https://www.gulesider.no/search",
+            "params": [
+              {
+                "name": "what",
+                "value": "all"
+              },
+              {
+                "name": "cmpid",
+                "value": "fre_partner_fire_gssbtop"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901824715,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["nb-NO", "nn-NO"]
+          }
+        }
+      ],
+      "identifier": "gulesider-NO",
+      "recordType": "engine",
+      "id": "0f9d78f8-e8ad-40be-8f50-b71d5da0f4cc",
+      "last_modified": 1702906502300
+    },
+    {
+      "base": {
+        "name": "LEO Eng-Deu",
+        "urls": {
+          "search": {
+            "base": "https://dict.leo.org/englisch-deutsch/{searchTerms}"
+          },
+          "suggestions": {
+            "base": "https://dict.leo.org/dictQuery/m-query/conf/ende/query.conf/strlist.json",
+            "params": [
+              {
+                "name": "sort",
+                "value": "PLa"
+              },
+              {
+                "name": "shortQuery",
+                "value": "undefined"
+              },
+              {
+                "name": "noDescription",
+                "value": "undefined"
+              },
+              {
+                "name": "noQueryURLs",
+                "value": "undefined"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901825311,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["de", "dsb", "hsb", "rm"]
+          }
+        }
+      ],
+      "identifier": "leo_ende_de",
+      "recordType": "engine",
+      "id": "2669ab65-3d93-4432-a960-90413be80ae0",
+      "last_modified": 1702906502297
+    },
+    {
+      "base": {
+        "name": "พจนานุกรม ลองดู",
+        "urls": {
+          "search": {
+            "base": "https://dict.longdo.org/",
+            "params": [
+              {
+                "name": "src",
+                "value": "moz"
+              }
+            ],
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://search.longdo.com/Suggest/HeadSearch",
+            "params": [
+              {
+                "name": "ds",
+                "value": "head"
+              },
+              {
+                "name": "fxjson",
+                "value": "1"
+              }
+            ],
+            "searchTermParamName": "key"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901825919,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["th"]
+          }
+        }
+      ],
+      "identifier": "longdo",
+      "recordType": "engine",
+      "id": "fcc54178-e432-4d2b-820e-50f389bfb396",
+      "last_modified": 1702906502295
+    },
+    {
+      "base": {
+        "name": "Mapy.cz",
+        "urls": {
+          "search": {
+            "base": "https://www.mapy.cz/",
+            "params": [
+              {
+                "name": "sourceid",
+                "value": "Searchmodule_3"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901826526,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["cs"]
+          }
+        }
+      ],
+      "identifier": "mapy-cz",
+      "recordType": "engine",
+      "id": "1ad708f0-5736-4f65-aeb4-31e5eca1c598",
+      "last_modified": 1702906502292
+    },
+    {
+      "base": {
+        "name": "MercadoLibre Argentina",
+        "urls": {
+          "search": {
+            "base": "https://www.mercadolibre.com.ar/jm/search",
+            "searchTermParamName": "as_word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901827142,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["es-AR"]
+          }
+        }
+      ],
+      "identifier": "mercadolibre",
+      "recordType": "engine",
+      "id": "8111d157-e064-40fa-993d-e1d972534754",
+      "last_modified": 1702906502289
+    },
+    {
+      "base": {
+        "name": "MercadoLibre Chile",
+        "urls": {
+          "search": {
+            "base": "https://www.mercadolibre.cl/jm/search",
+            "searchTermParamName": "as_word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901827757,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["es-CL"]
+          }
+        }
+      ],
+      "identifier": "mercadolibre-cl",
+      "recordType": "engine",
+      "id": "5659791c-6637-4ba9-b46b-83f16df084cd",
+      "last_modified": 1702906502286
+    },
+    {
+      "base": {
+        "name": "MercadoLibre Mexico",
+        "urls": {
+          "search": {
+            "base": "https://www.mercadolibre.com.mx/jm/search",
+            "searchTermParamName": "as_word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901828372,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["es-MX"]
+          }
+        }
+      ],
+      "identifier": "mercadolibre-mx",
+      "recordType": "engine",
+      "id": "162c9f26-f269-4b8e-b75f-01cf3c15e177",
+      "last_modified": 1702906502283
+    },
+    {
+      "base": {
+        "name": "MercadoLivre",
+        "urls": {
+          "search": {
+            "base": "https://www.mercadolivre.com.br/jm/search",
+            "searchTermParamName": "as_word"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901829001,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pt-BR"]
+          }
+        }
+      ],
+      "identifier": "mercadolivre",
+      "recordType": "engine",
+      "id": "62453dfa-0d82-4961-b6e2-241647aa04b6",
+      "last_modified": 1702906502281
+    },
+    {
+      "base": {
+        "name": "네이버",
+        "urls": {
+          "search": {
+            "base": "https://search.naver.com/search.naver",
+            "params": [
+              {
+                "name": "where",
+                "value": "nexearch"
+              },
+              {
+                "name": "frm",
+                "value": "ff"
+              },
+              {
+                "name": "sm",
+                "value": "oss"
+              },
+              {
+                "name": "ie",
+                "value": "utf8"
+              }
+            ],
+            "searchTermParamName": "query"
+          },
+          "suggestions": {
+            "base": "https://ac.search.naver.com/nx/ac",
+            "params": [
+              {
+                "name": "of",
+                "value": "os"
+              },
+              {
+                "name": "ie",
+                "value": "utf-8"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901829625,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ko"]
+          }
+        }
+      ],
+      "identifier": "naver-kr",
+      "recordType": "engine",
+      "id": "88d22607-619b-4c7a-8708-bb0caef15e18",
+      "last_modified": 1702906502278
+    },
+    {
+      "base": {
+        "name": "Odpiralni Časi",
+        "urls": {
+          "search": {
+            "base": "https://www.odpiralnicasi.com/spots",
+            "params": [
+              {
+                "name": "source",
+                "value": "1"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901830238,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sl"]
+          }
+        }
+      ],
+      "identifier": "odpiralni",
+      "recordType": "engine",
+      "id": "2039744c-adce-459b-a547-e3dba931c2a0",
+      "last_modified": 1702906502275
+    },
+    {
+      "base": {
+        "name": "Pazaruvaj",
+        "urls": {
+          "search": {
+            "base": "https://www.pazaruvaj.com/CategorySearch.php",
+            "searchTermParamName": "st"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901830856,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["bg"]
+          }
+        }
+      ],
+      "identifier": "pazaruvaj",
+      "recordType": "engine",
+      "id": "ddf4875a-61d4-4677-8aad-74fb3ef2e1df",
+      "last_modified": 1702906502272
+    },
+    {
+      "base": {
+        "name": "Priberam",
+        "urls": {
+          "search": {
+            "base": "https://www.priberam.pt/dlpo/firefox.aspx",
+            "searchTermParamName": "pal"
+          }
+        },
+        "charset": "ISO-8859-15",
+        "classification": "unknown"
+      },
+      "schema": 1702901831479,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["pt-PT"]
+          }
+        }
+      ],
+      "identifier": "priberam",
+      "recordType": "engine",
+      "id": "4bc3282e-f318-443c-8b2f-c144205657d4",
+      "last_modified": 1702906502270
+    },
+    {
+      "base": {
+        "name": "Prisjakt",
+        "urls": {
+          "search": {
+            "base": "https://www.prisjakt.nu/search",
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://www.prisjakt.nu/plugins/opensearch/suggestions.php",
+            "searchTermParamName": "search"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901832077,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sv-SE"]
+          }
+        }
+      ],
+      "identifier": "prisjakt-sv-SE",
+      "recordType": "engine",
+      "id": "e4f4c143-7b0a-4ae5-b461-cd22da9da90a",
+      "last_modified": 1702906502267
+    },
+    {
+      "base": {
+        "name": "Readmoo 讀墨電子書",
+        "urls": {
+          "search": {
+            "base": "https://readmoo.com/search/keyword",
+            "params": [
+              {
+                "name": "pi",
+                "value": "0"
+              },
+              {
+                "name": "st",
+                "value": "true"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901832677,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["zh-TW"]
+          }
+        }
+      ],
+      "identifier": "readmoo",
+      "recordType": "engine",
+      "id": "f1570611-5dfa-4028-851c-fafaa8324bbd",
+      "last_modified": 1702906502264
+    },
+    {
+      "base": {
+        "name": "Salidzini.lv",
+        "urls": {
+          "search": {
+            "base": "https://www.salidzini.lv/search.php",
+            "params": [
+              {
+                "name": "utm_source",
+                "value": "firefox-plugin"
+              }
+            ],
+            "searchTermParamName": "q"
+          },
+          "suggestions": {
+            "base": "https://www.salidzini.lv/search_suggest_opensearch.php",
+            "searchTermParamName": "q"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901833283,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ltg", "lv"]
+          }
+        }
+      ],
+      "identifier": "salidzinilv",
+      "recordType": "engine",
+      "id": "883c6f10-cac4-4dc0-b631-9a28cbadda49",
+      "last_modified": 1702906502262
+    },
+    {
+      "base": {
+        "name": "Tyda.se",
+        "urls": {
+          "search": {
+            "base": "https://tyda.se/",
+            "searchTermParamName": "w"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901833893,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["sv-SE"]
+          }
+        }
+      ],
+      "identifier": "tyda-sv-SE",
+      "recordType": "engine",
+      "id": "511f0050-e322-456f-9f15-acafef69c898",
+      "last_modified": 1702906502259
+    },
+    {
+      "base": {
+        "name": "Vatera.hu",
+        "urls": {
+          "search": {
+            "base": "https://www.vatera.hu/listings/index.php",
+            "params": [
+              {
+                "name": "c",
+                "value": "0"
+              },
+              {
+                "name": "td",
+                "value": "on"
+              }
+            ],
+            "searchTermParamName": "q"
+          }
+        },
+        "charset": "ISO-8859-2",
+        "classification": "unknown"
+      },
+      "schema": 1702901834503,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["hu"]
+          }
+        }
+      ],
+      "identifier": "vatera",
+      "recordType": "engine",
+      "id": "ede75b07-cdc0-485b-8a9c-8282f15c4ede",
+      "last_modified": 1702906502256
+    },
+    {
+      "base": {
+        "name": "విక్షనరీ (te)",
+        "urls": {
+          "search": {
+            "base": "https://te.wiktionary.org/wiki/ప్రత్యేక:అన్వేషణ",
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://te.wiktionary.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              },
+              {
+                "name": "namespace",
+                "value": "0"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901835109,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["te"]
+          }
+        }
+      ],
+      "identifier": "wiktionary-te",
+      "recordType": "engine",
+      "id": "45b4556e-8133-40c8-9a9b-63bc3ad91f53",
+      "last_modified": 1702906502253
+    },
+    {
+      "base": {
+        "name": "Wikiccionari (oc)",
+        "urls": {
+          "search": {
+            "base": "https://oc.wiktionary.org/wiki/Especial:Recèrca",
+            "searchTermParamName": "search"
+          },
+          "suggestions": {
+            "base": "https://oc.wiktionary.org/w/api.php",
+            "params": [
+              {
+                "name": "action",
+                "value": "opensearch"
+              },
+              {
+                "name": "namespace",
+                "value": "0"
+              }
+            ],
+            "searchTermParamName": "search"
+          }
+        },
+        "classification": "unknown"
+      },
+      "schema": 1702901835738,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["oc"]
+          }
+        }
+      ],
+      "identifier": "wiktionary",
+      "recordType": "engine",
+      "id": "7c9d2fc3-1e6b-40f6-80ad-080bd94fe24b",
+      "last_modified": 1702906502251
+    },
+    {
+      "base": {
+        "name": "Yahoo! JAPAN",
+        "urls": {
+          "search": {
+            "base": "https://search.yahoo.co.jp/search",
+            "params": [
+              {
+                "name": "ei",
+                "value": "UTF-8"
+              }
+            ],
+            "searchTermParamName": "p"
+          }
+        },
+        "classification": "general"
+      },
+      "schema": 1702901836360,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ja", "ja-JP-macos"]
+          }
+        }
+      ],
+      "identifier": "yahoo-jp",
+      "recordType": "engine",
+      "id": "d45d4cf0-6ce3-4419-a160-ae2ada64c3e8",
+      "last_modified": 1702906502248
+    },
+    {
+      "base": {
+        "name": "Yahoo!オークション",
+        "urls": {
+          "search": {
+            "base": "https://auctions.yahoo.co.jp/search/search",
+            "params": [
+              {
+                "name": "ei",
+                "value": "EUC-JP"
+              },
+              {
+                "name": "fr",
+                "value": "mozff"
+              }
+            ],
+            "searchTermParamName": "p"
+          }
+        },
+        "charset": "EUC-JP",
+        "classification": "unknown"
+      },
+      "schema": 1702901836972,
+      "variants": [
+        {
+          "environment": {
+            "locales": ["ja", "ja-JP-macos"]
+          }
+        }
+      ],
+      "identifier": "yahoo-jp-auctions",
+      "recordType": "engine",
+      "id": "3d422460-2ea0-43df-b10d-2e8c9e42462d",
+      "last_modified": 1702906502244
+    },
+    {
+      "schema": 1702901837584,
+      "recordType": "defaultEngines",
+      "globalDefault": "google",
+      "specificDefaults": [
+        {
+          "default": "baidu",
+          "environment": {
+            "locales": ["zh-CN"],
+            "regions": ["cn"]
+          }
+        }
+      ],
+      "id": "f3891684-2348-4e7a-9765-0c5d2d0ab1b9",
+      "last_modified": 1702906502241
+    }
+  ],
+  "timestamp": 1707833224345
+}
