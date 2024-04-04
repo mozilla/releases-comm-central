@@ -16,8 +16,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+});
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -115,7 +121,8 @@ export var EnigmailDecryption = {
    * @param {object} extraDetailsObj
    * @param {JSON} extraDetailsObj.value - JSON string with
    *   with (optional) additional data: encryptedTo, packetDump.
-   * @returns {string} plaintext ("" if error)
+   * @returns {string} the plaintext. Returns "" if error, or if this was
+   *   called just to verify a signed message.)
    */
   decryptMessage(
     parent,
@@ -132,27 +139,16 @@ export var EnigmailDecryption = {
     blockSeparationObj,
     extraDetailsObj
   ) {
-    lazy.EnigmailLog.DEBUG(
-      "decryption.sys.mjs: decryptMessage(" +
-        cipherText.length +
-        " bytes, " +
-        uiFlags +
-        ")\n"
-    );
+    lazy.log.debug(`Decrypting message: ${cipherText}`);
 
     if (!cipherText) {
       return "";
     }
 
-    //var interactive = uiFlags & EnigmailConstants.UI_INTERACTIVE;
-    var allowImport = false; // uiFlags & EnigmailConstants.UI_ALLOW_KEY_IMPORT;
+    var allowImport = false;
     var unverifiedEncryptedOK =
       uiFlags & lazy.EnigmailConstants.UI_UNVERIFIED_ENC_OK;
     var oldSignature = signatureObj.value;
-
-    lazy.EnigmailLog.DEBUG(
-      "decryption.sys.mjs: decryptMessage: oldSignature=" + oldSignature + "\n"
-    );
 
     signatureObj.value = "";
     exitCodeObj.value = -1;
@@ -173,13 +169,16 @@ export var EnigmailDecryption = {
       endIndexObj,
       indentStrObj
     );
+
+    lazy.log.debug(`Block type: ${blockType}`);
+
     if (!blockType || blockType == "SIGNATURE") {
       // return without displaying a message
+      lazy.log.debug("Nothing to decrypt.");
       return "";
     }
 
     var publicKey = blockType == "PUBLIC KEY BLOCK";
-
     var verifyOnly = blockType == "SIGNED MESSAGE";
     var isEncrypted = blockType == "MESSAGE";
 
@@ -212,9 +211,7 @@ export var EnigmailDecryption = {
 
     // HACK to better support messages from Outlook: if there are empty lines, drop them
     if (pgpBlock.search(/MESSAGE-----\r?\n\r?\nVersion/) >= 0) {
-      lazy.EnigmailLog.DEBUG(
-        "decryption.sys.mjs: decryptMessage: apply Outlook empty line workaround\n"
-      );
+      lazy.log.debug("Applying Outlook empty line workaround.");
       pgpBlock = pgpBlock.replace(/\r?\n\r?\n/g, "\n");
     }
 
@@ -226,14 +223,15 @@ export var EnigmailDecryption = {
     if (publicKey) {
       // TODO: import key into our scratch area for new, unknown keys
       if (!allowImport) {
+        lazy.log.debug("Not allowed to automatically import public key.");
         errorMsgObj.value = lazy.l10n.formatValueSync("key-in-message-body");
         statusFlagsObj.value |= lazy.EnigmailConstants.DISPLAY_MESSAGE;
         statusFlagsObj.value |= lazy.EnigmailConstants.INLINE_KEY;
-
         return "";
       }
 
       // Import public key
+      const importedKeysObj = {};
       exitCodeObj.value = lazy.EnigmailKeyRing.importKey(
         parent,
         true,
@@ -241,11 +239,12 @@ export var EnigmailDecryption = {
         false,
         "",
         errorMsgObj,
-        {}, // importedKeysObj
+        importedKeysObj,
         false,
         []
       );
       if (exitCodeObj.value === 0) {
+        lazy.log.debug(`Imported keys: ${importedKeysObj.value}`);
         statusFlagsObj.value |= lazy.EnigmailConstants.IMPORTED_KEY;
       }
       return "";
@@ -259,27 +258,16 @@ export var EnigmailDecryption = {
         lazy.EnigmailConstants.SIGNATURE_ARMOR
       );
       if (oldSignature && newSignature != oldSignature) {
-        lazy.EnigmailLog.ERROR(
-          "enigmail.js: Enigmail.decryptMessage: Error - signature mismatch " +
-            newSignature +
-            "\n"
+        lazy.log.debug(
+          `Verify signature FAILED: ${newSignature} != ${oldSignature}`
         );
         errorMsgObj.value = lazy.l10n.formatValueSync("sig-mismatch");
         statusFlagsObj.value |= lazy.EnigmailConstants.DISPLAY_MESSAGE;
-
         return "";
       }
     }
 
     lazy.EnigmailCore.init();
-
-    /*
-    if (EnigmailKeyRing.isGeneratingKey()) {
-      errorMsgObj.value = "Error - key generation not yet completed";
-      statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
-      return "";
-    }
-    */
 
     // limit output to 100 times message size to avoid DoS attack
     var maxOutput = pgpBlock.length * 100;
@@ -293,15 +281,14 @@ export var EnigmailDecryption = {
     };
     const cApi = lazy.EnigmailCryptoAPI();
     const result = cApi.sync(cApi.decrypt(pgpBlock, options));
-    lazy.EnigmailLog.DEBUG(
-      "decryption.sys.mjs: decryptMessage: decryption finished\n"
-    );
     if (!result) {
-      console.warn("Decryption message finished with no result.");
+      lazy.log.warn("Decryption message finished with no result.");
       return "";
     }
 
     let plainText = this.getPlaintextFromDecryptResult(result);
+    lazy.log.debug(`Decrypted; key=${result.keyId}, plainText=${plainText}`);
+
     exitCodeObj.value = result.exitCode;
     statusFlagsObj.value = result.statusFlags;
     errorMsgObj.value = result.errorMsg;
@@ -315,6 +302,7 @@ export var EnigmailDecryption = {
         encryptedTo: result.encToDetails,
         packetDump: "packetDump" in result ? result.packetDump : "",
       });
+      lazy.log.debug(`Extra decryption details: ${extraDetailsObj.value}`);
     }
     blockSeparationObj.value = result.blockSeparation;
 
@@ -323,14 +311,10 @@ export var EnigmailDecryption = {
     }
 
     if (exitCodeObj.value === 0) {
-      // Normal return
-
-      const doubleDashSeparator = Services.prefs.getBoolPref(
-        "doubleDashSeparator",
-        false
-      );
-
-      if (doubleDashSeparator && plainText.search(/(\r|\n)-- +(\r|\n)/) < 0) {
+      if (
+        Services.prefs.getBoolPref("temp.openpgp.doubleDashSeparator", false) &&
+        plainText.search(/(\r|\n)-- +(\r|\n)/) < 0
+      ) {
         // Workaround for MsgCompose stripping trailing spaces from sig separator
         plainText = plainText.replace(/(\r|\n)--(\r|\n)/, "$1-- $2");
       }
@@ -359,7 +343,7 @@ export var EnigmailDecryption = {
       );
     }
 
-    var pubKeyId = keyIdObj.value;
+    const pubKeyId = keyIdObj.value;
 
     if (statusFlagsObj.value & lazy.EnigmailConstants.BAD_SIGNATURE) {
       if (verifyOnly && indentStrObj.value) {
@@ -399,9 +383,7 @@ export var EnigmailDecryption = {
           innerKeyBlock = innerKeyBlock.replace(/- -----/g, "-----");
 
           statusFlagsObj.value |= EnigmailConstants.INLINE_KEY;
-          EnigmailLog.DEBUG(
-            "decryption.sys.mjs: decryptMessage: innerKeyBlock found\n"
-          );
+          lazy.log.debug(`Found inner key block: ${innerKeyBlock}`);
         }
       }
 
@@ -466,9 +448,7 @@ export var EnigmailDecryption = {
   },
 
   inlineInnerVerification(parent, uiFlags, text, statusObject) {
-    lazy.EnigmailLog.DEBUG("decryption.sys.mjs: inlineInnerVerification()\n");
-
-    if (text && text.indexOf("-----BEGIN PGP SIGNED MESSAGE-----") === 0) {
+    if (text?.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
       var status = newStatusObject();
       var newText = EnigmailDecryption.decryptMessage(
         parent,
@@ -501,17 +481,23 @@ export var EnigmailDecryption = {
     return text;
   },
 
+  /**
+   * @param {object} result - Result object.
+   */
   isDecryptFailureResult(result) {
     if (result.statusFlags & lazy.EnigmailConstants.MISSING_MDC) {
-      lazy.EnigmailLog.DEBUG("Bad message: missing MDC");
+      lazy.log.debug("Bad message: missing MDC.");
     } else if (result.statusFlags & lazy.EnigmailConstants.DECRYPTION_FAILED) {
-      lazy.EnigmailLog.DEBUG("Cannot decrypt message");
+      lazy.log.debug("Cannot decrypt message.");
     } else if (result.decryptedData) {
       return false;
     }
     return true;
   },
 
+  /**
+   * @param {object} result - Result object.
+   */
   getPlaintextFromDecryptResult(result) {
     if (this.isDecryptFailureResult(result)) {
       return "";
@@ -528,18 +514,9 @@ export var EnigmailDecryption = {
     statusFlagsObj,
     errorMsgObj
   ) {
-    lazy.EnigmailLog.DEBUG(
-      "decryption.sys.mjs: decryptAttachment(parent=" +
-        parent +
-        ", outFileName=" +
-        outFile.path +
-        ")\n"
-    );
-
     const attachmentHead = byteData.substr(0, 200);
     if (attachmentHead.match(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/)) {
-      // attachment appears to be a PGP key file
-
+      lazy.log("The attachment appears to be a PGP key file.");
       if (
         !Services.prompt.confirmEx(
           parent,
@@ -564,6 +541,7 @@ export var EnigmailDecryption = {
         );
         exitCodeObj.keyList = preview;
         if (preview && errorMsgObj.value === "") {
+          lazy.log.debug(`Found ${preview.length} keys to import.`);
           if (preview.length > 0) {
             let confirmImport = false;
             const outParam = {};
@@ -592,9 +570,8 @@ export var EnigmailDecryption = {
             }
           }
         } else {
-          console.warn(
-            "Failed to obtain key list from key block in decrypted attachment. " +
-              errorMsgObj.value
+          lazy.log.debug(
+            `Getting key list from key block FAILED; ${errorMsgObj.value}`
           );
         }
       } else {
@@ -605,10 +582,12 @@ export var EnigmailDecryption = {
       return true;
     }
 
+    lazy.log.debug(`Decrypting attachment to ${outFile.path}`);
+
     const cApi = lazy.EnigmailCryptoAPI();
     const result = await cApi.decryptAttachment(byteData);
     if (!result) {
-      console.warn("Decrypt attachment finished with no result.");
+      lazy.log.warn("Decrypt attachment finished with no result.");
       return false;
     }
 
@@ -623,7 +602,6 @@ export var EnigmailDecryption = {
       );
       return true;
     }
-
     return false;
   },
 };
