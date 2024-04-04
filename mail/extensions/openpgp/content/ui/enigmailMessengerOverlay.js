@@ -19,13 +19,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-const { getMimeTreeFromUrl } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/MimeTree.sys.mjs"
-);
 
 ChromeUtils.defineESModuleGetters(this, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs",
@@ -36,31 +29,25 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
-
   EnigmailFixExchangeMsg:
     "chrome://openpgp/content/modules/fixExchangeMsg.sys.mjs",
-
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.sys.mjs",
-
   EnigmailKeyserverURIs:
     "chrome://openpgp/content/modules/keyserverUris.sys.mjs",
-
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
-
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
-
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
+  getMimeTreeFromUrl: "chrome://openpgp/content/modules/MimeTree.sys.mjs",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
@@ -110,8 +97,6 @@ Enigmail.msg = {
   messengerStartup() {
     Enigmail.msg.messagePane = document.getElementById("messagepane");
 
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");
-
     Enigmail.msg.savedHeaders = null;
 
     Enigmail.msg.decryptButton = document.getElementById(
@@ -157,8 +142,6 @@ Enigmail.msg = {
 
   /*
   viewSecurityInfo(event, displaySmimeMsg) {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: viewSecurityInfo\n");
-
     if (event && event.button !== 0) {
       return;
     }
@@ -177,17 +160,9 @@ Enigmail.msg = {
     EnigmailSingletons.clearLastDecryptedMessage();
   },
 
-  messageReload(noShowReload) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: messageReload: " + noShowReload + "\n"
-    );
-
+  messageReload() {
     this.clearLastMessage();
     ReloadMessage();
-  },
-
-  messengerClose() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messengerClose()\n");
   },
 
   reloadCompleteMsg() {
@@ -195,18 +170,7 @@ Enigmail.msg = {
     ReloadMessage();
   },
 
-  setAttachmentReveal(attachmentList) {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: setAttachmentReveal\n");
-
-    var revealBox = document.getElementById("enigmailRevealAttachments");
-    if (revealBox) {
-      // there are situations when evealBox is not yet present
-      revealBox.setAttribute("hidden", !attachmentList ? "true" : "false");
-    }
-  },
-
   messageCleanup() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
     for (const value of [
       "decryptInlinePGReminder",
       "decryptInlinePG",
@@ -228,8 +192,6 @@ Enigmail.msg = {
       element.hidden = true;
       element.removeAttribute("keyid");
     }
-
-    this.setAttachmentReveal(null);
 
     Enigmail.msg.decryptedMessage = null;
     Enigmail.msg.securityInfo = null;
@@ -261,7 +223,6 @@ Enigmail.msg = {
   },
 
   messageFrameUnload() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageFrameUnload\n");
     Enigmail.msg.savedHeaders = null;
     Enigmail.msg.messageCleanup();
   },
@@ -294,34 +255,12 @@ Enigmail.msg = {
   },
 
   /**
-   * Determine if Autocrypt is enabled for the currently selected message
-   */
-  /*
-  isAutocryptEnabled() {
-    try {
-      let email = EnigmailFuncs.stripEmail(
-        gFolderDisplay.selectedMessage.recipients
-      ).toLowerCase();
-      let identity = MailServices.accounts.allIdentities.find(id =>
-        id.email?.toLowerCase() == email
-      );
-
-      if (identity) {
-        let acct = EnigmailFuncs.getAccountForIdentity(identity);
-        return acct.incomingServer.getBoolValue("enableAutocrypt");
-      }
-    } catch (ex) {}
-
-    return false;
-  },
-  */
-
-  /***
-   * check that handler for multipart/signed is set to Enigmail.
-   * if handler is different, change it and reload message
+   * Check that handler for multipart/signed is set to Enigmail.
+   * if handler is different, change it and reload message.
    *
-   * @return: - true if handler is OK
-   *          - false if handler was changed and message is reloaded
+   * @return {boolean}
+   *  - true if handler is OK
+   *  - false if handler was changed and message is reloaded
    */
   checkPgpmimeHandler() {
     if (
@@ -331,7 +270,6 @@ Enigmail.msg = {
       this.messageReload();
       return false;
     }
-
     return true;
   },
 
@@ -359,11 +297,7 @@ Enigmail.msg = {
 
   // analyse message header and decrypt/verify message
   async messageDecrypt(event, isAuto) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: messageDecrypt: " + event + "\n"
-    );
-
-    event = !!event;
+    const interactive = !!event;
 
     this.mimeParts = null;
 
@@ -378,7 +312,7 @@ Enigmail.msg = {
       contentType.search(/application\/pgp-encrypted/i) > 0
     ) {
       this.movePEPsubject();
-      await this.messageDecryptCb(event, isAuto, null);
+      await this.messageDecryptCb(interactive, isAuto, null);
       await this.notifyMessageDecryptDone();
       return;
     } else if (
@@ -386,20 +320,20 @@ Enigmail.msg = {
       contentType.search(/application\/pgp-signature/i) > 0
     ) {
       this.movePEPsubject();
-      await this.messageDecryptCb(event, isAuto, null);
+      await this.messageDecryptCb(interactive, isAuto, null);
       await this.notifyMessageDecryptDone();
       return;
     }
 
     const url = this.getCurrentMsgUrl();
     if (!url) {
-      await Enigmail.msg.messageDecryptCb(event, isAuto, null);
+      await Enigmail.msg.messageDecryptCb(interactive, isAuto, null);
       await Enigmail.msg.notifyMessageDecryptDone();
       return;
     }
     await new Promise(resolve => {
       getMimeTreeFromUrl(url.spec, false, async function (mimeMsg) {
-        await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
+        await Enigmail.msg.messageDecryptCb(interactive, isAuto, mimeMsg);
         await Enigmail.msg.notifyMessageDecryptDone();
         resolve();
       });
@@ -407,22 +341,15 @@ Enigmail.msg = {
   },
 
   /***
-   * walk through the (sub-) mime tree and determine PGP/MIME encrypted and signed message parts
+   * Walk through the (sub-) mime tree and determine PGP/MIME encrypted and
+   * signed message parts
    *
-   * @param mimePart:  parent object to walk through
-   * @param resultObj: object containing two arrays. The resultObj must be pre-initialized by the caller
-   *                    - encrypted
-   *                    - signed
+   * @param {object} mimePart - Parent object to walk through (see createPartObj).
+   * @param {object} resultObj - An object containing two arrays.
+   * @param {string[]} resultObj.encrypted - Encrypted partNums.
+   * @param {string[]} resultObj.signed - Signed partNums.
    */
   enumerateMimeParts(mimePart, resultObj) {
-    EnigmailLog.DEBUG(
-      'enumerateMimeParts: partNum="' + mimePart.partNum + '"\n'
-    );
-    EnigmailLog.DEBUG("                    " + mimePart.fullContentType + "\n");
-    EnigmailLog.DEBUG(
-      "                    " + mimePart.subParts.length + " subparts\n"
-    );
-
     try {
       var ct = mimePart.fullContentType;
       if (typeof ct == "string") {
@@ -437,21 +364,15 @@ Enigmail.msg = {
       // catch exception if no headers or no content-type defined.
     }
 
-    var i;
-    for (i in mimePart.subParts) {
+    for (const i in mimePart.subParts) {
       this.enumerateMimeParts(mimePart.subParts[i], resultObj);
     }
   },
 
   async messageDecryptCb(event, isAuto, mimeMsg) {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageDecryptCb:\n");
-
     let contentType = "";
     try {
       if (!mimeMsg) {
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: messageDecryptCb: mimeMsg is null\n"
-        );
         try {
           contentType = currentHeaderData["content-type"].headerValue;
         } catch (ex) {
@@ -509,13 +430,6 @@ Enigmail.msg = {
           }
         }
         Enigmail.msg.savedHeaders[headerName] = headerValue;
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: header " +
-            headerName +
-            ": '" +
-            headerValue +
-            "'\n"
-        );
       }
 
       var msgSigned =
@@ -528,21 +442,13 @@ Enigmail.msg = {
         EnigmailMime.getProtocol(mimeMsg.fullContentType).search(
           /^application\/pgp-encrypted/i
         ) === 0;
+
       var resultObj = {
         encrypted: [],
         signed: [],
       };
-
       if (mimeMsg.subParts.length > 0) {
         this.enumerateMimeParts(mimeMsg, resultObj);
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: embedded objects: " +
-            resultObj.encrypted.join(", ") +
-            " / " +
-            resultObj.signed.join(", ") +
-            "\n"
-        );
-
         msgSigned = msgSigned || resultObj.signed.length > 0;
         msgEncrypted = msgEncrypted || resultObj.encrypted.length > 0;
 
@@ -635,12 +541,6 @@ Enigmail.msg = {
           } else {
             this.buggyMailType = "iPGMail";
           }
-
-          // signal that the structure matches to save the content later on
-          EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay: messageDecryptCb: enabling MS-Exchange hack\n"
-          );
-
           await this.buggyMailHeader();
           return;
         }
@@ -683,10 +583,7 @@ Enigmail.msg = {
         isAuto
       );
     } catch (ex) {
-      EnigmailLog.writeException(
-        "enigmailMessengerOverlay.js: messageDecryptCb",
-        ex
-      );
+      console.error("Parsing inline-PGP failed.", ex);
     }
   },
 
@@ -794,15 +691,7 @@ Enigmail.msg = {
     isAuto,
     pbMessageIndex = "0"
   ) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: messageParse: " + interactive + "\n"
-    );
-
     var bodyElement = this.getBodyElement(pbMessageIndex);
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: bodyElement=" + bodyElement + "\n"
-    );
-
     if (!bodyElement) {
       return;
     }
@@ -970,21 +859,15 @@ Enigmail.msg = {
         /( )(;-\)|:-\)|;\)|:\)|:-\(|:\(|:-\\|:-P|:-D|:-\[|:-\*|>:o|8-\)|:-\$|:-X|=-O|:-!|O:-\)|:'\()( )/g
       );
       if (msgText.search(r) >= 0) {
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: messageParse: performing emoticons fixing\n"
-        );
+        // Fixing emoticons.
         msgText = msgText.replace(r, "$2");
       }
     }
 
     // ignoring text following armored block
 
-    //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: msgText='"+msgText+"'\n");
-
     var mailNewsUrl = EnigmailMsgRead.getUrlFromUriSpec(msgUriSpec);
-
     var urlSpec = mailNewsUrl ? mailNewsUrl.spec : "";
-
     const retry = 1;
 
     await Enigmail.msg.messageParseCallback(
@@ -1076,24 +959,6 @@ Enigmail.msg = {
     isAuto,
     pbMessageIndex
   ) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: messageParseCallback: " +
-        interactive +
-        ", " +
-        interactive +
-        ", importOnly=" +
-        importOnly +
-        ", charset=" +
-        charset +
-        ", msgUrl=" +
-        messageUrl +
-        ", retry=" +
-        retry +
-        ", signature='" +
-        signature +
-        "'\n"
-    );
-
     if (!msgText) {
       return;
     }
@@ -1126,11 +991,6 @@ Enigmail.msg = {
     const armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
     if ("charset" in armorHeaders) {
       charset = armorHeaders.charset;
-      EnigmailLog.DEBUG(
-        "enigmailMessengerOverlay.js: messageParseCallback: OVERRIDING charset=" +
-          charset +
-          "\n"
-      );
     }
 
     var exitCodeObj = {};
@@ -1159,9 +1019,6 @@ Enigmail.msg = {
       blockSeparationObj,
       extraDetailsObj
     );
-
-    //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: plainText='"+plainText+"'\n");
-
     exitCode = exitCodeObj.value;
     newSignature = signatureObj.value;
 
@@ -1171,12 +1028,6 @@ Enigmail.msg = {
 
     statusFlags = statusFlagsObj.value;
     extStatusFlags = statusFlagsObj.ext;
-
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: messageParseCallback: newSignature='" +
-        newSignature +
-        "'\n"
-    );
 
     var errorMsg = errorMsgObj.value;
 
@@ -1547,8 +1398,6 @@ Enigmail.msg = {
    * Extract the subject from the 1st content line and move it to the subject line
    */
   movePEPsubject() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: movePEPsubject:\n");
-
     const bodyElement = this.getBodyElement();
     if (
       bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) ===
@@ -1587,12 +1436,8 @@ Enigmail.msg = {
   /**
    * Fix broken PGP/MIME messages from MS-Exchange by replacing the broken original
    * message with a fixed copy.
-   *
-   * no return
    */
   async fixBuggyExchangeMail() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
-
     await this.notificationBox.appendNotification(
       "brokenExchangeProgress",
       {
@@ -1604,13 +1449,8 @@ Enigmail.msg = {
 
     const msg = gMessage;
     EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType)
-      .then(msgKey => {
+      .then(_msgKey => {
         // Display the new message which now has the key msgKey.
-        EnigmailLog.DEBUG(
-          "enigmailMessengerOverlay.js: fixBuggyExchangeMail: _success: msgKey=" +
-            msgKey +
-            "\n"
-        );
         // TODO: scope is about:message, and this doesn't work
         // parent.gDBView.selectMsgByKey(msgKey);
         // ReloadMessage();
@@ -1628,7 +1468,7 @@ Enigmail.msg = {
   },
 
   /**
-   * Hide attachments containing OpenPGP keys
+   * Hide attachments containing OpenPGP keys.
    */
   hidePgpKeys() {
     const keys = [];
@@ -1656,7 +1496,6 @@ Enigmail.msg = {
 
         // build new attachment list
 
-        /* global gBuildAttachmentsForCurrentMsg: true */
         const orig = gBuildAttachmentsForCurrentMsg;
         gBuildAttachmentsForCurrentMsg = false;
         displayAttachmentsForExpandedView();
@@ -1677,14 +1516,6 @@ Enigmail.msg = {
   },
 
   getDecryptedMessage(contentType, includeHeaders) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: getDecryptedMessage: " +
-        contentType +
-        ", " +
-        includeHeaders +
-        "\n"
-    );
-
     if (!Enigmail.msg.decryptedMessage) {
       return "No decrypted message found!\n";
     }
@@ -1699,8 +1530,6 @@ Enigmail.msg = {
     var headerName;
 
     if (contentType == "message/rfc822") {
-      // message/rfc822
-
       if (includeHeaders) {
         try {
           var msg = gMessage;
@@ -1836,13 +1665,6 @@ Enigmail.msg = {
     callbackFunction,
     isAuto
   ) {
-    EnigmailLog.WRITE(
-      "enigmailMessengerOverlay.js: msgDirectDecrypt: contentEncoding=" +
-        contentEncoding +
-        ", signature=" +
-        signature +
-        "\n"
-    );
     const mailNewsUrl = this.getCurrentMsgUrl();
     if (!mailNewsUrl) {
       return;
@@ -1896,22 +1718,13 @@ Enigmail.msg = {
           const data = Enigmail.msg.trimIfEncrypted(
             this.data.substring(start, end + 1)
           );
-          EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay.js: data: >" + data.substr(0, 100) + "<\n"
-          );
 
           const currentMsgURL = Enigmail.msg.getCurrentMsgUrl();
           const urlSpec = currentMsgURL ? currentMsgURL.spec : "";
 
           const l = urlSpec.length;
           if (urlSpec.substr(0, l) != mailNewsUrl.spec.substr(0, l)) {
-            EnigmailLog.ERROR(
-              "enigmailMessengerOverlay.js: Message URL mismatch " +
-                currentMsgURL +
-                " vs. " +
-                urlSpec +
-                "\n"
-            );
+            console.warn(`Msg url mismatch: ${currentMsgURL} vs ${urlSpec}`);
             this._reject(`Msg url mismatch: ${currentMsgURL} vs ${urlSpec}`);
             return;
           }
@@ -1984,7 +1797,10 @@ Enigmail.msg = {
     }
   },
 
-  // handle a selected attachment (decrypt & open or save)
+  /**
+   * Handle a selected attachment (decrypt & open or save).
+   * @param {string} actionType
+   */
   handleAttachmentSel(actionType) {
     const contextMenu = document.getElementById("attachmentItemContext");
     const anAttachment = contextMenu.attachments[0];
@@ -2003,15 +1819,10 @@ Enigmail.msg = {
   },
 
   /**
-   * save the original file plus the signature file to disk and then verify the signature
+   * Save the original file plus the signature file to disk and then verify
+   * the signature.
    */
   async verifyDetachedSignature(anAttachment) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: verifyDetachedSignature: url=" +
-        anAttachment.url +
-        "\n"
-    );
-
     EnigmailCore.init();
 
     var origAtt, signatureAtt;
@@ -2173,14 +1984,6 @@ Enigmail.msg = {
   },
 
   handleAttachment(actionType, attachment) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: handleAttachment: actionType=" +
-        actionType +
-        ", attachment(url)=" +
-        attachment.url +
-        "\n"
-    );
-
     const bufferListener = EnigmailStreams.newStringStreamListener(
       async data => {
         Enigmail.msg.decryptAttachmentCallback([
@@ -2199,10 +2002,6 @@ Enigmail.msg = {
   },
 
   setAttachmentName(attachment, newLabel, index) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: setAttachmentName (" + newLabel + "):\n"
-    );
-
     var attList = document.getElementById("attachmentList");
     if (attList) {
       var attNode = attList.firstChild;
@@ -2226,10 +2025,6 @@ Enigmail.msg = {
   },
 
   async decryptAttachmentCallback(cbArray) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: decryptAttachmentCallback:\n"
-    );
-
     var callbackArg = cbArray[0];
 
     var exitCodeObj = {};
@@ -2277,7 +2072,6 @@ Enigmail.msg = {
           callbackArg.actionType.substr(11, 10)
         );
       }
-      Enigmail.msg.setAttachmentReveal(null);
       return;
     } else {
       // open
@@ -2439,63 +2233,10 @@ Enigmail.msg = {
       .loadURI(Services.io.newURI(url));
   },
 
-  // retrieves the most recent navigator window (opens one if need be)
-  loadURLInNavigatorWindow(url, aOpenFlag) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: loadURLInNavigatorWindow: " +
-        url +
-        ", " +
-        aOpenFlag +
-        "\n"
-    );
-
-    var navWindow;
-
-    // if this is a browser window, just use it
-    if ("document" in top) {
-      var possibleNavigator = top.document.getElementById("main-window");
-      if (
-        possibleNavigator &&
-        possibleNavigator.getAttribute("windowtype") == "navigator:browser"
-      ) {
-        navWindow = top;
-      }
-    }
-
-    // if not, get the most recently used browser window
-    if (!navWindow) {
-      var wm = Services.wm;
-      navWindow = wm.getMostRecentWindow("navigator:browser");
-    }
-
-    if (navWindow) {
-      if ("fixupAndLoadURIString" in navWindow) {
-        navWindow.fixupAndLoadURIString(url);
-      } else {
-        navWindow._content.location.href = url;
-      }
-    } else if (aOpenFlag) {
-      // if no browser window available and it's ok to open a new one, do so
-      navWindow = window.open(url, "Enigmail");
-    }
-
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: loadURLInNavigatorWindow: navWindow=" +
-        navWindow +
-        "\n"
-    );
-
-    return navWindow;
-  },
-
   /**
    * Open an encrypted attachment item.
    */
   attachmentItemClick(event) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: attachmentItemClick: event=" + event + "\n"
-    );
-
     const attachment = event.currentTarget.attachment;
     if (this.checkEncryptedAttach(attachment)) {
       if (event.button === 0 && event.detail == 2) {
@@ -2506,8 +2247,11 @@ Enigmail.msg = {
     }
   },
 
-  // decrypted and copy/move all selected messages in a target folder
-
+  /**
+   * Decrypted and copy/move all selected messages in a target folder.
+   * @param {nsIMsgFolder} destFolder - Destination folder.
+   * @param {boolean} move - true for move, false for copy.
+   */
   async decryptToFolder(destFolder, move) {
     const msgHdrs = gDBView.getSelectedMsgHdrs();
     if (!msgHdrs || msgHdrs.length === 0) {
@@ -2549,7 +2293,6 @@ Enigmail.msg = {
   },
 
   onUnloadEnigmail() {
-    window.removeEventListener("unload", Enigmail.msg.messengerClose);
     window.removeEventListener(
       "unload-enigmail",
       Enigmail.msg.onUnloadEnigmail
@@ -2572,8 +2315,6 @@ Enigmail.msg = {
         elem.setAttribute(c.attrib, c.value);
       }
     }
-
-    this.messengerClose();
 
     if (Enigmail.columnHandler) {
       Enigmail.columnHandler.onUnloadEnigmail();
@@ -3400,10 +3141,6 @@ Enigmail.msg = {
 window.addEventListener(
   "load-enigmail",
   Enigmail.msg.messengerStartup.bind(Enigmail.msg)
-);
-window.addEventListener(
-  "unload",
-  Enigmail.msg.messengerClose.bind(Enigmail.msg)
 );
 window.addEventListener(
   "unload-enigmail",

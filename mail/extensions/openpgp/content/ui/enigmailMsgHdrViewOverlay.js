@@ -99,8 +99,6 @@ Enigmail.hdrView = {
     /* elements might not have been set yet, so we try and ignore */
     try {
       this.reset();
-
-      Enigmail.msg.setAttachmentReveal(null);
       if (Enigmail.msg.securityInfo) {
         Enigmail.msg.securityInfo.statusFlags = 0;
       }
@@ -157,18 +155,6 @@ Enigmail.hdrView = {
 
     if (!replaceUid && userId) {
       replaceUid = userId.replace(/\n.*$/gm, "");
-    }
-
-    if (
-      Enigmail.msg.savedHeaders &&
-      "x-pgp-encoding-format" in Enigmail.msg.savedHeaders &&
-      Enigmail.msg.savedHeaders["x-pgp-encoding-format"].search(
-        /partitioned/i
-      ) === 0
-    ) {
-      if (currentAttachments && currentAttachments.length) {
-        Enigmail.msg.setAttachmentReveal(currentAttachments);
-      }
     }
 
     if (userId && replaceUid) {
