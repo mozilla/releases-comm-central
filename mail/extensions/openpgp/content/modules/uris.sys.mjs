@@ -4,65 +4,41 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-const lazy = {};
-
-ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailLog: "chrome://openpgp/content/modules/log.sys.mjs",
-});
-
-const encryptedUris = [];
+const encryptedUris = new Set();
 
 export var EnigmailURIs = {
-  /*
-   * remember the fact a URI is encrypted
+  /**
+   * Remember the fact a URI is encrypted.
    *
-   * @param String msgUri
-   *
-   * @return null
+   * @param {string} uri
    */
   rememberEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG(
-      "uris.sys.mjs: rememberEncryptedUri: uri=" + uri + "\n"
-    );
-    if (!encryptedUris.includes(uri)) {
-      encryptedUris.push(uri);
-    }
+    encryptedUris.add(uri);
   },
 
-  /*
-   * unremember the fact a URI is encrypted
+  /**
+   * Unremember/forget the fact a URI is encrypted.
    *
-   * @param String msgUri
-   *
-   * @return null
+   * @param {string} uri
    */
   forgetEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG(
-      "uris.sys.mjs: forgetEncryptedUri: uri=" + uri + "\n"
-    );
-    const pos = encryptedUris.indexOf(uri);
-    if (pos >= 0) {
-      encryptedUris.splice(pos, 1);
-    }
+    encryptedUris.delete(uri);
   },
 
-  /*
-   * determine if a URI was remembered as encrypted
+  /**
+   * Determine if a URI was remembered as encrypted.
    *
-   * @param String msgUri
-   *
-   * @return: Boolean true if yes, false otherwise
+   * @param {string} uri
+   * @return {boolean} true if yes, false otherwise.
    */
   isEncryptedUri(uri) {
-    lazy.EnigmailLog.DEBUG("uris.sys.mjs: isEncryptedUri: uri=" + uri + "\n");
-    return encryptedUris.includes(uri);
+    return encryptedUris.has(uri);
   },
 
   /**
    * Determine message number and folder from mailnews URI.
    *
-   * @param {nsIURI} url - nsIURI object.
-   *
+   * @param {nsIURI} url - nsIURI of the message.
    * @returns {?object} obj
    * @returns {string} obj.msgNum - The message number, or "" if no URI scheme fits.
    * @returns {string} obj.folder - The folder (or newsgroup) name.
@@ -79,12 +55,6 @@ export var EnigmailURIs = {
     if (!url) {
       return null;
     }
-
-    lazy.EnigmailLog.DEBUG(
-      "uris.sys.mjs: msgIdentificationFromUrl: url.pathQueryRef=" +
-        ("path" in url ? url.path : url.pathQueryRef) +
-        "\n"
-    );
 
     let msgNum = "";
     let msgFolder = "";
@@ -105,14 +75,6 @@ export var EnigmailURIs = {
       msgNum = pathQueryRef.replace(/(.*[?&]key=)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = pathQueryRef.replace(/(.*[?&]group=)([^&]+)(&.*)?/, "$2");
     }
-
-    lazy.EnigmailLog.DEBUG(
-      "uris.sys.mjs: msgIdentificationFromUrl: msgNum=" +
-        msgNum +
-        " / folder=" +
-        msgFolder +
-        "\n"
-    );
 
     return {
       msgNum,
