@@ -234,7 +234,7 @@ add_task(async function testSortBySubject() {
     messagePaneVisible: true,
     folderURI: folderH.URI,
   });
-  goDoCommand("cmd_sort", { target: { value: "bySubject" } });
+  goDoCommand("cmd_sort", { target: { value: "subjectCol" } });
 
   await subtest();
 });

@@ -46,7 +46,11 @@ add_setup(async function () {
   });
 });
 
-add_task(async function () {
+/**
+ * Tests selection and scroll position when sorting the tree by clicking on a
+ * column header.
+ */
+add_task(async function testColumnHeaderClick() {
   const messagesByDate = [...testFolder.messages];
   const messagesBySubject = messagesByDate
     .slice()
@@ -205,6 +209,118 @@ add_task(async function () {
     ],
     { currentIndex: 83, where: "first" }
   );
+});
+
+async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
+  async function doMenu(itemName, itemValue) {
+    EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
+    await BrowserTestUtils.waitForPopupEvent(menuPopup, "shown");
+    sortMenu.openMenu(true);
+    await BrowserTestUtils.waitForPopupEvent(sortMenuPopup, "shown");
+
+    sortMenuPopup.activateItem(
+      sortMenuPopup.querySelector(
+        `menuitem[name="${itemName}"][value="${itemValue}"]`
+      )
+    );
+
+    await BrowserTestUtils.waitForPopupEvent(sortMenuPopup, "hidden");
+    await BrowserTestUtils.waitForPopupEvent(menuPopup, "hidden");
+  }
+
+  function checkSort(type, order, grouping) {
+    const {
+      primarySortType,
+      primarySortOrder,
+      showThreaded,
+      showUnthreaded,
+      showGroupedBySort,
+    } = about3Pane.gViewWrapper;
+    Assert.equal(primarySortType, Ci.nsMsgViewSortType[type], "sort type");
+    Assert.equal(primarySortOrder, Ci.nsMsgViewSortOrder[order], "sort order");
+    Assert.equal(showThreaded, grouping == "threaded", "grouping is threaded");
+    Assert.equal(
+      showUnthreaded,
+      grouping == "unthreaded",
+      "grouping is unthreaded"
+    );
+    Assert.equal(
+      showGroupedBySort,
+      grouping == "grouped",
+      "grouping is grouped"
+    );
+  }
+
+  checkSort("byDate", "ascending", "threaded");
+
+  await doMenu("sortby", "subjectCol");
+  checkSort("bySubject", "ascending", "threaded");
+
+  await doMenu("sortdirection", "descending");
+  checkSort("bySubject", "descending", "threaded");
+
+  await doMenu("sortdirection", "ascending");
+  checkSort("bySubject", "ascending", "threaded");
+
+  await doMenu("sortby", "flaggedCol");
+  checkSort("byFlagged", "ascending", "threaded");
+
+  await doMenu("sortby", "junkStatusCol");
+  checkSort("byJunkStatus", "ascending", "threaded");
+
+  await doMenu("sortby", "dateCol");
+  checkSort("byDate", "ascending", "threaded");
+
+  await doMenu("threaded", "unthreaded");
+  checkSort("byDate", "ascending", "unthreaded");
+
+  await doMenu("group", "group");
+  checkSort("byDate", "ascending", "grouped");
+
+  await doMenu("threaded", "threaded");
+  checkSort("byDate", "ascending", "threaded");
+
+  for (const menuitem of sortMenuPopup.querySelectorAll(
+    `menuitem[name="sortby"]`
+  )) {
+    Assert.equal(
+      menuitem.disabled,
+      [
+        "receivedCol",
+        "idCol",
+        "priorityCol",
+        "senderCol",
+        "recipientCol",
+        "sizeCol",
+        "statusCol",
+        "tagsCol",
+      ].includes(menuitem.value),
+      `${menuitem.value} is hidden`
+    );
+  }
+}
+
+/**
+ * Tests the sort is applied when using the View menu.
+ */
+add_task(async function testViewMenu() {
+  const viewMenu = document.getElementById("menu_View");
+  const sortMenu = document.getElementById("viewSortMenu");
+  await subtestMenu(viewMenu, viewMenu.menupopup, sortMenu, sortMenu.menupopup);
+}).skip(AppConstants.platform == "macosx");
+
+/**
+ * Tests the sort is applied when using the Message List Header menu.
+ */
+add_task(async function testMessageListHeaderMenu() {
+  const headerButton = about3Pane.document.getElementById(
+    "threadPaneDisplayButton"
+  );
+  const headerPopup = about3Pane.document.getElementById(
+    "threadPaneDisplayContext"
+  );
+  const sortMenu = about3Pane.document.getElementById("threadPaneSortMenu");
+  await subtestMenu(headerButton, headerPopup, sortMenu, sortMenu.menupopup);
 });
 
 async function clickHeader(header, type, order) {

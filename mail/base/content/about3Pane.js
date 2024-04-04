@@ -3712,7 +3712,7 @@ var threadPaneHeader = {
 
     const hiddenColumns = threadPane.columns
       .filter(c => c.hidden)
-      .map(c => c.sortKey);
+      .map(c => c.id);
 
     // Update menuitem to reflect sort key.
     for (const menuitem of event.target.querySelectorAll(`[name="sortby"]`)) {
@@ -6070,7 +6070,7 @@ var sortController = {
       default:
         {
           const column = threadPane.columns.find(
-            c => c.sortKey == event.target.value
+            c => c.id == event.target.value
           );
           if (column && this.sortThreadPane(column.id)) {
             threadPane.restoreSortIndicator();
