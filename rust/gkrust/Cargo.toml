@@ -38,7 +38,6 @@ dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }
 dom = { path = "../../../dom/base/rust" }
-dom_fragmentdirectives = { path = "../../../dom/base/fragmentdirectives" }
 encoding_glue = { path = "../../../intl/encoding_glue" }
 fallible_collections = { version = "0.4", features = ['rust_1_57'] }
 fluent = { version = "0.16.0", features = ['fluent-pseudo'] }
