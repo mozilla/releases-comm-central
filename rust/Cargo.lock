@@ -1269,6 +1269,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "dom_fragmentdirectives"
+version = "0.1.0"
+dependencies = [
+ "nsstring",
+ "percent-encoding",
+ "thin-vec",
+]
+
+[[package]]
 name = "dtoa"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1926,6 +1935,7 @@ dependencies = [
  "data-encoding-ffi",
  "data_storage",
  "dom",
+ "dom_fragmentdirectives",
  "encoding_glue",
  "ews_xpcom",
  "fallible_collections",
@@ -2017,6 +2027,7 @@ dependencies = [
  "data_storage",
  "detect_win32k_conflicts",
  "dom",
+ "dom_fragmentdirectives",
  "encoding_glue",
  "fallible_collections",
  "fluent",
