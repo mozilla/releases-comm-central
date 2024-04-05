@@ -18,14 +18,14 @@
   --folder-pane-icon-kebab: var(--icon-kebab);
 
   @media not (prefers-contrast) {
-    --foldertree-background: var(--color-gray-05);
+    --foldertree-background: var(--color-gray-10);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
     --folderpane-total-count-background: var(--color-gray-20);
     --folderpane-total-count-text: var(--color-gray-90);
     --folderpane-unread-new-count-background: var(--color-blue-60);
-    --treeitem-background-selected: var(--color-gray-20);
-    --treeitem-background-hover: var(--color-gray-10);
+    --treeitem-background-selected: var(--color-gray-30);
+    --treeitem-background-hover: var(--color-gray-20);
     --treeitem-text-active: var(--color-white);
     --treeitem-background-active: var(--color-blue-50);
     --in-content-item-selected-unfocused: var(--color-gray-20);
@@ -47,7 +47,6 @@
   }
 
   &[lwt-tree] {
-    --foldertree-background: var(--sidebar-background-color);
     --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
     --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
     --treeitem-text-active: var(--sidebar-highlight-text-color);
@@ -149,7 +148,7 @@ body {
   min-width: 100px;
   overflow: hidden;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
-  color: var(--sidebar-text-color, inherit);
+  color: var(--sidebar-text-color, var(--layout-color-1));
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -218,7 +217,7 @@ body {
   justify-content: space-between;
   gap: var(--folder-tree-header-gap);
   background-color: var(--sidebar-background-color, var(--foldertree-background));
-  color: var(--layout-color-2);
+  color: inherit;
   padding: var(--folder-tree-header-padding);
   z-index: 1;
 }
@@ -253,6 +252,33 @@ body {
 
 #folderTree {
   overflow-y: auto;
+
+  @media not (prefers-contrast) {
+    & {
+      position: relative;
+    }
+
+    &::before,
+    &::after {
+      display: block;
+      content: "";
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      pointer-events: none;
+    }
+
+    &::before {
+      position: sticky;
+      background-image: radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .15), rgba(0, 0, 0, 0));
+    }
+
+    &::after {
+      position: absolute;
+      background-color: var(--sidebar-background-color, var(--foldertree-background));
+    }
+  }
 
   &,
   & ul {
@@ -524,6 +550,16 @@ body {
   fill: currentColor;
   cursor: default;
   padding-inline-start: var(--indent);
+
+  @media (prefers-reduced-motion: no-preference) {
+    & {
+      transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+
+      .icon {
+        transition: fill 300ms ease, stroke 300ms ease;
+      }
+    }
+  }
 
   li.selected > & {
     background-color: var(--treeitem-background-selected);
