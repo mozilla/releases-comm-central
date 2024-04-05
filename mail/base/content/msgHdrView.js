@@ -1446,7 +1446,7 @@ function outputTags(headerEntry, headerValue) {
  */
 function outputMessageIds(headerEntry, headerValue) {
   headerEntry.enclosingBox.clear();
-  for (const id of headerValue.split(/\s+/)) {
+  for (const id of headerValue.match(/<[^>]*>/g)) {
     headerEntry.enclosingBox.addId(id);
   }
   headerEntry.enclosingBox.buildView();

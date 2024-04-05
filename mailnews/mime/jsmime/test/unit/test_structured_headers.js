@@ -222,6 +222,10 @@ define(function (require) {
         "<asd@asd.com>,<asdf@asdf.com>,<asdfg@asdfg.com>",
         "<asd@asd.com> <asdf@asdf.com> <asdfg@asdfg.com>",
       ],
+      [
+        "<foo@test>\n <foo1@test>,<bar@test>",
+        "<foo@test> <foo1@test> <bar@test>",
+      ],
       // Test for bug 1197686
       [
         "<asd@asd.com><asdf@asdf.com><asdfg@asdfg.com>",

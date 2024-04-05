@@ -265,18 +265,17 @@ const JsMIMEstructuredHeaders = function () {
   });
   structuredEncoders.set("Content-Transfer-Encoding", writeUnstructured);
 
-  // Some clients like outlook.com send non-compliant References headers that
-  // separate values using commas. Also, some clients don't separate References
-  // with spaces, since these are optional according to RFC2822. So here we
-  // preprocess these headers (see bug 1154521 and bug 1197686).
+  /**
+   * Some clients like outlook.com send non-compliant References headers that
+   * separate values using commas. Also, some clients don't separate References
+   * with spaces, since these are optional according to RFC2822. So here we
+   * preprocess these headers (see bug 1154521 and bug 1197686).
+   *
+   * @param {string[]} values
+   * @returns {string} the message ids; properly space separated.
+   */
   function preprocessMessageIDs(values) {
-    const msgId = /<[^>]*>/g;
-    let match;
-    const ids = [];
-    while ((match = msgId.exec(values)) !== null) {
-      ids.push(match[0]);
-    }
-    return ids.join(" ");
+    return values[0].match(/<[^>]*>/g)?.join(" ");
   }
   structuredDecoders.set("References", preprocessMessageIDs);
   structuredDecoders.set("In-Reply-To", preprocessMessageIDs);
