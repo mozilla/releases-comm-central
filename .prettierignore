@@ -102,6 +102,7 @@ mailnews/base/prefs/content/removeAccount.xhtml
 
 # Documentation Jinja templates
 docs/_templates/**
+docs/_build/**
 
 ##############################################################################
 # The list below is copied from ThirdPartyPaths.txt. Prettier doesn't currently
