@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-env worker */
 /* globals ctypes */
 
 // We are in a worker, wait for our message then execute the wanted method.
-/* import-globals-from /toolkit/components/workerloader/require.js */
-importScripts("resource://gre/modules/workers/require.js");
-const PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
+
+import { PromiseWorker } from "resource://gre/modules/workers/PromiseWorker.mjs";
 
 // These constants are luckily shared, but with different names
 const NS_T_TXT = 16; // DNS_TYPE_TXT
 const NS_T_SRV = 33; // DNS_TYPE_SRV
 const NS_T_MX = 15; // DNS_TYPE_MX
 
-// For Linux and Mac.
+/**
+ * DNS API for *nix.
+ */
 class load_libresolv {
   library = null;
 
@@ -23,7 +23,11 @@ class load_libresolv {
     this._open(os);
   }
 
-  // Tries to find and load library.
+  /**
+   * Tries to find and load library.
+   *
+   * @param {string} os - Operating System.
+   */
   _open(os) {
     function findLibrary() {
       let lastException = null;
@@ -42,44 +46,41 @@ class load_libresolv {
       const tried = [];
       for (const candidate of candidates) {
         try {
-          const name = ctypes.libraryName(candidate.name) + candidate.suffix;
-          tried.push(name);
-          return ctypes.open(name);
+          const libName = ctypes.libraryName(candidate.name) + candidate.suffix;
+          tried.push(libName);
+          return ctypes.open(libName);
         } catch (ex) {
           lastException = ex;
         }
       }
-      throw new Error(
-        "Could not find libresolv in any of " +
-          tried +
-          " Exception: " +
-          lastException +
-          "\n"
-      );
+      throw new Error(`Couldn't find libresolv; tried: ${tried}`, {
+        cause: lastException,
+      });
     }
 
-    // Declaring functions to be able to call them.
+    /**
+     * Declaring functions to be able to call them.
+     *
+     * @param {string[]} aSymbolNames - OS function names.
+     * @param {*} aArgs - Arguments to the call.
+     */
     function declare(aSymbolNames, ...aArgs) {
       let lastException = null;
       if (!Array.isArray(aSymbolNames)) {
         aSymbolNames = [aSymbolNames];
       }
 
-      for (const name of aSymbolNames) {
+      for (const symbolName of aSymbolNames) {
         try {
-          return library.declare(name, ...aArgs);
+          return library.declare(symbolName, ...aArgs);
         } catch (ex) {
           lastException = ex;
         }
       }
       library.close();
-      throw new Error(
-        "Failed to declare " +
-          aSymbolNames +
-          " Exception: " +
-          lastException +
-          "\n"
-      );
+      throw new Error(`Failed to declare: ${aSymbolNames}`, {
+        cause: lastException,
+      });
     }
 
     const library = (this.library = findLibrary());
@@ -146,8 +147,16 @@ class load_libresolv {
     this.library = null;
   }
 
-  // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
-  // returns it.
+  /**
+   * Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
+   * returns it.
+   *
+   * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
+   * @param {string} aAnswer - Data.
+   * @param {index} aIdx - Size, e.g. NS_HFIXEDSZ.
+   * @param {integer} aLength - Data length.
+   * @returns {SRVRecord|TXTRecord|MXRecord}
+   */
   _mapAnswer(aTypeID, aAnswer, aIdx, aLength) {
     if (aTypeID == NS_T_SRV) {
       const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
@@ -164,12 +173,13 @@ class load_libresolv {
       );
       const host = hostlen > -1 ? hostbuf.readString() : null;
       return new SRVRecord(prio, weight, host, port);
-    } else if (aTypeID == NS_T_TXT) {
+    }
+    if (aTypeID == NS_T_TXT) {
       // TODO should only read dataLength characters.
       const data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
-
       return new TXTRecord(data.readString());
-    } else if (aTypeID == NS_T_MX) {
+    }
+    if (aTypeID == NS_T_MX) {
       const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
 
       const hostbuf = ctypes.char.array(this.NS_MAXCDNAME)();
@@ -183,11 +193,17 @@ class load_libresolv {
       const host = hostlen > -1 ? hostbuf.readString() : null;
       return new MXRecord(prio, host);
     }
-    return {};
+    return null;
   }
 
-  // Performs a DNS query for aTypeID on a certain address (aName) and returns
-  // array of records of aTypeID.
+  /**
+   * Performs a DNS query for aTypeID on a certain address (aName) and returns
+   * array of records of aTypeID.
+   *
+   * @param {string} aName - Address.
+   * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
+   * @returns {SRVRecord[]|TXTRecord[]|MXRecord[]}
+   */
   lookup(aName, aTypeID) {
     const qname = ctypes.char.array()(aName);
     const answer = ctypes.unsigned_char.array(this.QUERYBUF_SIZE)();
@@ -243,7 +259,9 @@ class load_libresolv {
   }
 }
 
-// For Windows.
+/**
+ * DNS API for Windows.
+ */
 class load_dnsapi {
   library = null;
 
@@ -251,15 +269,15 @@ class load_dnsapi {
     this._open();
   }
 
-  // Tries to find and load library.
+  /**
+   * Tries to find and load library.
+   */
   _open() {
     function declare(aSymbolName, ...aArgs) {
       try {
         return library.declare(aSymbolName, ...aArgs);
       } catch (ex) {
-        throw new Error(
-          "Failed to declare " + aSymbolName + " Exception: " + ex + "\n"
-        );
+        throw new Error(`Failed to declare: ${aSymbolName}`, { cause: ex });
       }
     }
 
@@ -326,8 +344,14 @@ class load_dnsapi {
     this.library = null;
   }
 
-  // Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
-  // returns it.
+  /**
+   * Maps record to SRVRecord, TXTRecord, or MXRecord according to aTypeID and
+   * returns it.
+   *
+   * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
+   * @param {object} aData - Raw data to map to a specific type.
+   * @returns {SRVRecord|TXTRecord|MXRecord}
+   */
   _mapAnswer(aTypeID, aData) {
     if (aTypeID == NS_T_SRV) {
       const srvdata = ctypes.cast(aData, this.DNS_SRV_DATA);
@@ -338,21 +362,29 @@ class load_dnsapi {
         srvdata.pNameTarget.readString(),
         srvdata.wPort
       );
-    } else if (aTypeID == NS_T_TXT) {
+    }
+    if (aTypeID == NS_T_TXT) {
       const txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
       if (txtdata.dwStringCount > 0) {
         return new TXTRecord(txtdata.pStringArray[0].readString());
       }
-    } else if (aTypeID == NS_T_MX) {
+    }
+    if (aTypeID == NS_T_MX) {
       const mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
 
       return new MXRecord(mxdata.wPriority, mxdata.pNameTarget.readString());
     }
-    return {};
+    return null;
   }
 
-  // Performs a DNS query for aTypeID on a certain address (aName) and returns
-  // array of records of aTypeID (e.g. SRVRecord, TXTRecord, or MXRecord).
+  /**
+   * Performs a DNS query for aTypeID on a certain address (aName) and returns
+   * array of records of aTypeID (e.g. SRVRecord, TXTRecord, or MXRecord).
+   *
+   * @param {string} aName - Address.
+   * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
+   * @returns {SRVRecord[]|TXTRecord[]|MXRecord[]}
+   */
   lookup(aName, aTypeID) {
     const queryResultsSet = this.PDNS_RECORD();
     const qname = ctypes.jschar.array()(aName);
@@ -391,38 +423,56 @@ class load_dnsapi {
   }
 }
 
-// Used to make results of different libraries consistent for SRV queries.
-function SRVRecord(aPrio, aWeight, aHost, aPort) {
-  this.prio = aPrio;
-  this.weight = aWeight;
-  this.host = aHost;
-  this.port = aPort;
+/**
+ * Represents and SRV record.
+ * Used to make results of different libraries consistent for SRV queries.
+ *
+ * @param {integer} prio
+ * @param {integer} weight
+ * @param {string} host
+ * @param {?integer} port
+ */
+function SRVRecord(prio, weight, host, port) {
+  this.prio = prio;
+  this.weight = weight;
+  this.host = host.toLowerCase();
+  this.port = port;
 }
 
-// Used to make results of different libraries consistent for TXT queries.
-function TXTRecord(aData) {
-  this.data = aData;
+/**
+ * Represents a TXT record.
+ * Used to make results of different libraries consistent for TXT queries.
+ *
+ * @param {string} data
+ */
+function TXTRecord(data) {
+  this.data = data;
 }
 
-// Used to make results of different libraries consistent for MX queries.
-function MXRecord(aPrio, aHost) {
-  this.prio = aPrio;
-  this.host = aHost;
+/**
+ * Represents an MX record.
+ * Used to make results of different libraries consistent for MX queries.
+ *
+ * @param {integer} prio
+ * @param {string} host
+ */
+function MXRecord(prio, host) {
+  this.prio = prio;
+  this.host = host.toLowerCase();
 }
 
 const worker = new PromiseWorker.AbstractWorker();
-worker.dispatch = function (aMethod, aArgs = []) {
-  return self[aMethod](...aArgs);
+worker.dispatch = (method, args = []) => {
+  return worker[method](...args); // Call worker.execute()
 };
-worker.postMessage = function (...aArgs) {
-  self.postMessage(...aArgs);
+worker.execute = (os, method, args) => {
+  const DNS = os == "WINNT" ? new load_dnsapi() : new load_libresolv(os);
+  return DNS[method].apply(DNS, args);
+};
+worker.postMessage = function (...args) {
+  self.postMessage(...args);
 };
 worker.close = function () {
   self.close();
 };
 self.addEventListener("message", msg => worker.handleMessage(msg));
-
-function execute(aOS, aMethod, aArgs) {
-  const DNS = aOS == "WINNT" ? new load_dnsapi() : new load_libresolv(aOS);
-  return DNS[aMethod].apply(DNS, aArgs);
-}
