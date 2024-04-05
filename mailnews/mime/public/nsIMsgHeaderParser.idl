@@ -91,7 +91,7 @@ interface nsIMsgHeaderParser : nsISupports {
    */
   Array<msgIAddressObject> parseEncodedHeader(in ACString aEncodedHeader,
                           [optional] in string aHeaderCharset,
-                          [optional] in bool aPreserveGroups);
+                          [optional] in boolean aPreserveGroups);
 
   /**
    * Parse an address-based header that has not yet been 2047-decoded and does not
@@ -115,7 +115,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @return                An array corresponding to the header description.
    */
    Array<msgIAddressObject> parseDecodedHeader(in AString aDecodedHeader,
-                          [optional] in bool aPreserveGroups);
+                          [optional] in boolean aPreserveGroups);
 
   /**
    * Given an array of addresses, make a MIME header suitable for emission.

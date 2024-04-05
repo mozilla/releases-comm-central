@@ -48,7 +48,7 @@ interface msgIStructuredHeaders : nsISupports {
    *
    * @param aHeaderName     The name of the header to retrieve.
    */
-  bool hasHeader(in string aHeaderName);
+  boolean hasHeader(in string aHeaderName);
 
   /**
    * Retrieve the value of the header as if it is an unstructured header. Such

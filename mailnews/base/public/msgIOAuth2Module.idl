@@ -37,7 +37,7 @@ interface msgIOAuth2Module : nsISupports {
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
    */
-  bool initFromSmtp(in nsISmtpServer aSmtpServer);
+  boolean initFromSmtp(in nsISmtpServer aSmtpServer);
 
   /**
    * Initialize the OAuth2 parameters from an incoming server, and return
@@ -47,13 +47,13 @@ interface msgIOAuth2Module : nsISupports {
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
    */
-  bool initFromMail(in nsIMsgIncomingServer aServer);
+  boolean initFromMail(in nsIMsgIncomingServer aServer);
 
   /**
    * Initialize the OAuth2 parameters using the provided hostname and username,
    * and return whether or not we can authenticate with OAuth2.
    */
-  bool initFromHostname(in AUTF8String aHostname, in AUTF8String aUsername);
+  boolean initFromHostname(in AUTF8String aHostname, in AUTF8String aUsername);
 
   /**
    * Connect to the OAuth2 server to get an access token encoded for use with

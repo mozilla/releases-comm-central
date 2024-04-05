@@ -36,5 +36,5 @@ interface nsIAbDirSearchListener : nsISupports {
    * @param location If status is an NSS error code, this holds the location
    *                 of the failed operation ("<host>:<port>").
    */
-  void onSearchFinished(in nsresult status, in bool complete, in nsITransportSecurityInfo secInfo, in ACString location);
+  void onSearchFinished(in nsresult status, in boolean complete, in nsITransportSecurityInfo secInfo, in ACString location);
 };

@@ -75,8 +75,8 @@ interface nsIMsgNewsFolder : nsISupports {
    * is wanted, it is the responsibility of the caller to manage it explicitly
    * with nsIMsgAsyncPrompter.
    */
-  bool getAuthenticationCredentials(in nsIMsgWindow aMsgWindow,
-    in bool mayPrompt, in bool mustPrompt);
+  boolean getAuthenticationCredentials(in nsIMsgWindow aMsgWindow,
+    in boolean mayPrompt, in boolean mustPrompt);
 
   /// The username that should be used for this group
   attribute ACString groupUsername;

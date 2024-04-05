@@ -36,7 +36,7 @@ interface nsIAbAutoCompleteResult : nsIAutoCompleteResult {
    * trigger a new query, instead simply filtering the previous results.
    * If false, the directory will be present in asyncDirectories.
    */
-  bool isCompleteResult(in long index);
+  boolean isCompleteResult(in long index);
 
   /**
    * The template used to build the query for this search. Optional.

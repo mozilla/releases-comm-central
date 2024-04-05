@@ -107,7 +107,7 @@ interface nsIMsgIncomingServer : nsISupports {
 
   // Perform specific tasks (reset flags, remove files, etc) for account user/server name changes.
   void onUserOrHostNameChanged(in AUTF8String oldName, in AUTF8String newName,
-                               in bool hostnameChanged);
+                               in boolean hostnameChanged);
 
   /// cleartext utf16 version of the password
   attribute AString password;

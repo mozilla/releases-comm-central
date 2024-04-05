@@ -19,7 +19,7 @@ interface nsIImapOfflineSync : nsISupports {
   void init(in nsIMsgWindow window,
             in nsIUrlListener listener,
             in nsIMsgFolder folder,
-            in bool isPseudoOffline);
+            in boolean isPseudoOffline);
 
   void processNextOperation();
 };

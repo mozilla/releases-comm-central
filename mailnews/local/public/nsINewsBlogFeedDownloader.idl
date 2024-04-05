@@ -13,7 +13,7 @@ interface nsINewsBlogFeedDownloader : nsISupports
 {
   void downloadFeed(in nsIMsgFolder aFolder,
                     in nsIUrlListener aUrlListener,
-                    in bool aIsBiff,
+                    in boolean aIsBiff,
                     in nsIMsgWindow aMsgWindow);
 
   /**

@@ -17,12 +17,12 @@ interface nsICMSSecureMessage : nsISupports
   /**
    * Return true if the certificate can be used for encrypting emails.
    */
-  bool canBeUsedForEmailEncryption(in nsIX509Cert cert);
+  boolean canBeUsedForEmailEncryption(in nsIX509Cert cert);
 
   /**
    * Return true if the certificate can be used for signing emails.
    */
-  bool canBeUsedForEmailSigning(in nsIX509Cert cert);
+  boolean canBeUsedForEmailSigning(in nsIX509Cert cert);
 };
 
 %{C++

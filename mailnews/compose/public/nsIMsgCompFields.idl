@@ -19,7 +19,7 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute AString to;
   attribute AString cc;
   attribute AString bcc;
-  readonly attribute bool hasRecipients;
+  readonly attribute boolean hasRecipients;
 
   attribute AString fcc;
   attribute AString fcc2;
