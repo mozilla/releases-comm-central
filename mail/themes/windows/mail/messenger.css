@@ -105,10 +105,8 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
   margin-inline-end: 0;
 }
 
-/* Has to be !important to overrule toolkit's dropmarker.css for the
-   dropmarker[disabled="true"] case. */
 .toolbarbutton-menu-dropmarker {
-  padding-inline-start: 3px !important;
+  padding-inline-start: 3px;
 }
 
 .sidebar-header .toolbarbutton-text:not([value]) {

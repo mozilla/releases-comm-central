@@ -15,5 +15,5 @@
 /* Customization options */
 
 .message-header-buttons-only-icons .toolbarbutton-menu-dropmarker {
-  padding-inline-start: 0 !important;
+  padding-inline-start: 0;
 }
