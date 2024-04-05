@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIStreamListener;
+interface IEwsIncomingServer;
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
 interface IEwsFolderCallbacks : nsISupports
@@ -22,7 +23,7 @@ interface IEwsFolderCallbacks : nsISupports
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
 {
-  void initialize(in AUTF8String endpoint, in AUTF8String username, in AString password);
+  void initialize(in AUTF8String endpoint, in IEwsIncomingServer server);
 
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
 };

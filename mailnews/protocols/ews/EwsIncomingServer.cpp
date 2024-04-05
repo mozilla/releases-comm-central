@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsIncomingServer.h"
+#include "EwsService.h"
 #include "nsIMsgWindow.h"
 #include "nsPrintfCString.h"
+#include "plbase64.h"
 
 const char* ID_PROPERTY = "ewsId";
 const char* SYNC_STATE_PROPERTY = "ewsSyncStateToken";
@@ -12,12 +14,11 @@ const char* SYNC_STATE_PROPERTY = "ewsSyncStateToken";
 class FolderSyncListener : public IEwsFolderCallbacks {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_IEWSFOLDERCALLBACKS
 
   FolderSyncListener(RefPtr<EwsIncomingServer> server,
                      RefPtr<nsIMsgWindow> window)
       : mServer(std::move(server)), mWindow(std::move(window)) {}
-
-  NS_DECL_IEWSFOLDERCALLBACKS
 
  protected:
   virtual ~FolderSyncListener() = default;
@@ -61,7 +62,8 @@ NS_IMETHODIMP FolderSyncListener::Delete(const nsACString& id) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP FolderSyncListener::UpdateState(const nsACString& syncStateToken) {
+NS_IMETHODIMP FolderSyncListener::UpdateState(
+    const nsACString& syncStateToken) {
   return mServer->SetCharValue(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
@@ -69,6 +71,35 @@ NS_IMETHODIMP FolderSyncListener::OnError(void) {
   NS_ERROR("Error occurred while syncing EWS folders");
 
   return NS_ERROR_FAILURE;
+}
+
+class OAuthListener : public msgIOAuth2ModuleListener {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_MSGIOAUTH2MODULELISTENER
+
+  OAuthListener(RefPtr<IEwsAuthStringListener> listener)
+      : mListener(std::move(listener)) {}
+
+ protected:
+  virtual ~OAuthListener() = default;
+
+ private:
+  RefPtr<IEwsAuthStringListener> mListener;
+};
+
+NS_IMPL_ISUPPORTS(OAuthListener, msgIOAuth2ModuleListener)
+
+NS_IMETHODIMP OAuthListener::OnSuccess(const nsACString& aBearerToken) {
+  nsCString authString;
+  authString.AppendLiteral("Bearer ");
+  authString.Append(aBearerToken);
+
+  return mListener->OnAuthAvailable(authString);
+}
+
+NS_IMETHODIMP OAuthListener::OnFailure(nsresult aError) {
+  return mListener->OnError(aError);
 }
 
 NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
@@ -80,7 +111,7 @@ EwsIncomingServer::EwsIncomingServer() = default;
 
 EwsIncomingServer::~EwsIncomingServer() {}
 
-/*
+/**
  * Creates a new folder with the specified parent, name, and flags.
  */
 nsresult EwsIncomingServer::CreateFolderWithDetails(const nsACString& id,
@@ -121,7 +152,7 @@ nsresult EwsIncomingServer::CreateFolderWithDetails(const nsACString& id,
   return NS_OK;
 }
 
-/*
+/**
  * Locates the folder associated with this server which has the remote (EWS)
  * ID specified, if any.
  */
@@ -229,7 +260,7 @@ NS_IMETHODIMP EwsIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
   auto listener = RefPtr(new FolderSyncListener(this, RefPtr(aMsgWindow)));
   rv = client->SyncFolderHierarchy(listener, syncStateToken);
 
-  // TODO: Fetch message headers for all folders
+  // TODO: Fetch message headers for all folders.
 
   return rv;
 }
@@ -248,15 +279,38 @@ NS_IMETHODIMP EwsIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) {
 NS_IMETHODIMP
 EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
                                nsIMsgWindow* aMsgWindow, nsIURI** _retval) {
-  NS_WARNING("VerifyLogon");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  // TODO: Actually verify that logging in works.
+
+  // At this point, consumers are pretty lax about what expected from this
+  // method. The URI is returned solely so that consumers can make some minor
+  // changes to its in-flight behavior. For EWS, we don't use URLs with side
+  // effects, so that's all useless and we can give back whatever we feel like.
+  nsCString hostname;
+  nsresult rv = GetHostName(hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString spec;
+  spec.AssignLiteral("ews://");
+  spec.Append(hostname);
+
+  RefPtr<nsIURI> uri;
+  rv = EwsService::NewURI(spec, getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Notify the caller that verification has succeeded. This is the one thing we
+  // actually need to do to fulfill our contract.
+  aUrlListener->OnStopRunningUrl(uri, NS_OK);
+
+  uri.forget(_retval);
+
+  return NS_OK;
 }
 
-/*
+/**
  * Gets or creates an instance of the EWS client interface, allowing us to
  * perform operations against the relevant EWS instance.
  */
-nsresult EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
+NS_IMETHODIMP EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   NS_ENSURE_ARG_POINTER(ewsClient);
 
   nsresult rv;
@@ -270,30 +324,96 @@ nsresult EwsIncomingServer::GetEwsClient(IEwsClient** ewsClient) {
   rv = GetCharValue("ews_url", endpoint);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString username;
-  rv = GetUsername(username);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString password;
-  rv = GetPassword(password);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // `GetPassword()` only checks the password value already stored as part of
-  // this server object. If this is the first time it's being requested this
-  // run, we need to check with the login manager.
-  if (password.IsEmpty()) {
-    rv = GetPasswordWithoutUI();
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = GetPassword(password);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
   // Set up the client object with access details.
-  client->Initialize(endpoint, username, password);
+  client->Initialize(endpoint, this);
   NS_ENSURE_SUCCESS(rv, rv);
 
   client.forget(ewsClient);
 
   return NS_OK;
+}
+
+NS_IMETHODIMP EwsIncomingServer::GetAuthString(
+    IEwsAuthStringListener* listener) {
+  // Build an auth token for our preferred auth method.
+  nsMsgAuthMethodValue authMethod;
+  nsresult rv = GetAuthMethod(&authMethod);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (authMethod == nsMsgAuthMethod::OAuth2) {
+    if (!mOAuth2Module) {
+      mOAuth2Module = do_CreateInstance(MSGIOAUTH2MODULE_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      bool isOAuthSupported = false;
+      rv = mOAuth2Module->InitFromMail(this, &isOAuthSupported);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      if (!isOAuthSupported) {
+        NS_ERROR(
+            "OAuth2 auth is preferred, but OAuth is not supported for this "
+            "domain");
+      }
+    }
+
+    return mOAuth2Module->GetAccessToken(new OAuthListener(listener));
+  }
+
+  if (authMethod == nsMsgAuthMethod::NTLM) {
+    NS_WARNING(
+        "NTLM is selected as the preferred auth mechanism; this is not yet "
+        "supported for EWS");
+    // TODO: We have code for supporting NTLM in Thunderbird and EWS supports
+    // NTLM as an auth method, so we should figure out how this works.
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+
+  if (authMethod == nsMsgAuthMethod::passwordCleartext) {
+    nsCString username;
+    rv = GetUsername(username);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsString password;
+    rv = GetPassword(password);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // `GetPassword()` only checks the password value already stored as part of
+    // this server object. If this is the first time it's being requested this
+    // run, we need to check with the login manager.
+    if (password.IsEmpty()) {
+      rv = GetPasswordWithoutUI();
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      rv = GetPassword(password);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    // Build an HTTP Authorization header value for Basic auth with the
+    // retrieved credentials.
+    nsCString credentials;
+    credentials.Assign(username);
+    credentials.AppendLiteral(":");
+    AppendUTF16toUTF8(password, credentials);
+
+    char* encoded =
+        PL_Base64Encode(credentials.Data(), credentials.Length(), nullptr);
+    if (!encoded) {
+      // `PL_Base64Encode` allocates a return buffer of appropriate size. If we
+      // got back null, we're running into memory issues.
+      NS_ERROR("Failed to b64encode EWS credentials");
+      return NS_ERROR_UNEXPECTED;
+    }
+
+    nsCString authString;
+    authString.AssignLiteral("Basic ");
+    authString.Append(encoded);
+
+    return listener->OnAuthAvailable(authString);
+  }
+
+  NS_ERROR(
+      "Exchange Web Services only supports authentication via OAuth2, "
+      "NTLM, or HTTP basic auth");
+
+  return NS_ERROR_FAILURE;
 }

@@ -1,0 +1,39 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface IEwsClient;
+
+[uuid(dca19e42-eafc-11ee-a44c-b42e99ed15ca)]
+interface IEwsAuthStringListener : nsISupports
+{
+  void onAuthAvailable(in ACString authString);
+  void onError(in nsresult err);
+};
+
+/**
+ * IEwsIncomingServer is intended as a workaround for limitations in the folder
+ * lookup service.
+ *
+ * EWS folders require an EWS client object in order to fetch new messages. The
+ * folder itself, however, does not have access to all of the details needed to
+ * create such a client. This information is part of the incoming server.
+ *
+ * Due to depending on the folder lookup service to create new folders, it is
+ * not possible to give the folder a direct handle to its associated server, so
+ * we are forced to go through XPCOM.
+ */
+[uuid(3b22cadc-da49-11ee-99b2-b42e99ed15ca)]
+interface IEwsIncomingServer : nsISupports
+{
+  IEwsClient getEwsClient();
+
+  /**
+   * Gets a value suitable for use as the body of an HTTP `Authorization`
+   * header, based on the settings and credentials available to the server
+   * object.
+   */
+  void getAuthString(in IEwsAuthStringListener listener);
+};

@@ -7,6 +7,7 @@ SOURCES += [
     "EwsIncomingServer.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
+    "EwsUrl.cpp",
 ]
 
 XPCOM_MANIFESTS += [
@@ -17,6 +18,7 @@ XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
     "IEwsClient.idl",
+    "IEwsIncomingServer.idl",
 ]
 
 FINAL_LIBRARY = "mail"

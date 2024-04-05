@@ -6,6 +6,8 @@
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_INCOMING_SERVER_H
 
 #include "IEwsClient.h"
+#include "IEwsIncomingServer.h"
+#include "msgIOAuth2Module.h"
 #include "nsMsgIncomingServer.h"
 
 #define EWS_INCOMING_SERVER_IID                      \
@@ -17,9 +19,11 @@
 
 class FolderSyncListener;
 
-class EwsIncomingServer : public nsMsgIncomingServer {
+class EwsIncomingServer : public nsMsgIncomingServer,
+                          public IEwsIncomingServer {
  public:
   NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_IEWSINCOMINGSERVER
 
   EwsIncomingServer();
 
@@ -28,11 +32,12 @@ class EwsIncomingServer : public nsMsgIncomingServer {
  protected:
   virtual ~EwsIncomingServer();
 
+  // nsMsgIncomingServer
   nsresult CreateFolderWithDetails(const nsACString& id,
                                    const nsACString& parentId,
-                                   const nsAString& name,
-                                   uint32_t flags);
+                                   const nsAString& name, uint32_t flags);
 
+  // nsIMsgIncomingServer
   NS_IMETHOD GetLocalStoreType(nsACString& aLocalStoreType) override;
   NS_IMETHOD GetLocalDatabaseType(nsACString& aLocalDatabaseType) override;
 
@@ -44,10 +49,10 @@ class EwsIncomingServer : public nsMsgIncomingServer {
                          nsIURI** _retval) override;
 
  private:
-  nsresult FindFolderWithId(const nsACString& id, nsIMsgFolder **_retval);
-  nsresult GetEwsClient(IEwsClient** ewsClient);
+  nsresult FindFolderWithId(const nsACString& id, nsIMsgFolder** _retval);
 
-  friend class EwsFolder;
+  RefPtr<msgIOAuth2Module> mOAuth2Module;
+
   friend class FolderSyncListener;
 };
 

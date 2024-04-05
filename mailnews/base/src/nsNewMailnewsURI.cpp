@@ -20,6 +20,7 @@
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpUrl.h"
+#include "../../protocols/ews/EwsService.h"
 #include "../src/nsCidProtocolHandler.h"
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
@@ -121,13 +122,11 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .SetSpec(aSpec)
         .Finalize(aURI);
   }
-  #if defined(MOZ_THUNDERBIRD_RUST)
+#if defined(MOZ_THUNDERBIRD_RUST)
   if (scheme.EqualsLiteral("ews")) {
-    return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
-        .SetSpec(aSpec)
-        .Finalize(aURI);
+    return EwsService::NewURI(aSpec, aURI);
   }
-  #endif
+#endif
 
   rv = NS_ERROR_UNKNOWN_PROTOCOL;  // Let M-C handle it by default.
 

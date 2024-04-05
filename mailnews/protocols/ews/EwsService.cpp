@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsService.h"
+#include "nsIMsgMailNewsUrl.h"
 #include "nsNetUtil.h"
 
 NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService, nsIProtocolHandler)
@@ -10,6 +11,23 @@ NS_IMPL_ISUPPORTS(EwsService, nsIMsgMessageService, nsIProtocolHandler)
 EwsService::EwsService() = default;
 
 EwsService::~EwsService() = default;
+
+nsresult EwsService::NewURI(const nsACString& spec, nsIURI** _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+
+  nsresult rv;
+  nsCOMPtr<nsIURI> newUri =
+      do_CreateInstance("@mozilla.org/messenger/url;1?type=ews", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUri = do_QueryInterface(newUri);
+  rv = mailnewsUri->SetSpecInternal(spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  newUri.forget(_retval);
+
+  return rv;
+}
 
 NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
                                       nsIStreamListener* aCopyListener,
@@ -48,8 +66,7 @@ NS_IMETHODIMP EwsService::SaveMessageToDisk(
 NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
                                        nsIMsgWindow* aMsgWindow,
                                        nsIURI** _retval) {
-  NS_WARNING("GetUrlForUri");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return EwsService::NewURI(aMessageURI, _retval);
 }
 
 NS_IMETHODIMP EwsService::Search(nsIMsgSearchSession* aSearchSession,

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use base64::{engine::general_purpose::STANDARD, Engine};
+use std::ops::Deref as _;
+
 use ews::{
     types::{
         folders::{BaseFolderId, Folder},
@@ -11,20 +12,20 @@ use ews::{
     CustomError, EwsClient,
 };
 use fxhash::FxHashMap;
-use moz_http::Client;
 use nserror::{nsresult, NS_ERROR_FAILURE};
 use nsstring::{nsCString, nsString};
 use url::Url;
 use xpcom::{
-    interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderCallbacks},
+    interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderCallbacks, IEwsIncomingServer},
     RefPtr,
 };
 
+use crate::AuthStringListener;
+
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
-    pub username: String,
-    pub password: String,
-    pub client: Client,
+    pub auth_source: RefPtr<IEwsIncomingServer>,
+    pub client: moz_http::Client,
 }
 
 impl XpComEwsClient {
@@ -136,6 +137,17 @@ impl XpComEwsClient {
         }
 
         Ok(())
+    }
+
+    async fn get_auth_string(&self) -> Result<String, nsresult> {
+        let listener = AuthStringListener::new();
+
+        unsafe { self.auth_source.GetAuthString(&*listener.coerce()) }.to_result()?;
+
+        // Safety: Although the `Deref` impl for `RefPtr` doesn't decrease the
+        // reference count, its `Drop` implem does, meaning we don't
+        // accidentally leak the listener into the memory.
+        listener.deref().await
     }
 
     /// Builds a map from remote folder ID to distinguished folder ID.
@@ -368,8 +380,7 @@ impl EwsClient for XpComEwsClient {
     async fn make_request(&self, body: &[u8]) -> Result<String, Self::Error> {
         // TODO: Currently only supports Basic authentication. Adjustments will
         // be needed in the client struct as well as the calling interfaces.
-        let credentials = format!("{}:{}", self.username, self.password);
-        let auth_string = format!("Basic {}", STANDARD.encode(credentials.as_bytes()));
+        let auth_string = self.get_auth_string().await?;
 
         let response = self
             .client
