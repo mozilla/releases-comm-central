@@ -637,6 +637,64 @@
             </aside>
           </div>
 
+          <!-- EWS -->
+          <div
+            id="resultsOption-ews"
+            class="content-blocking-category results-option"
+          >
+            <label class="toggle-container-with-text">
+              <input
+                id="resultSelect-ews"
+                type="radio"
+                value="ews"
+                name="resultsServerType"
+                onchange="gAccountSetup.onResultServerTypeChanged();"
+              />
+              <span
+                class="strong"
+                data-l10n-id="account-setup-result-ews-name"
+              ></span>
+              <p
+                class="result-indent"
+                data-l10n-id="account-setup-result-ews-description"
+              ></p>
+            </label>
+            <aside class="result-details">
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/inbox.svg"
+                  alt=""
+                />
+                <div id="incomingTitle-ews" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-incoming-title"></h4>
+                </div>
+                <div id="incomingInfo-ews" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/outbox.svg"
+                  alt=""
+                />
+                <div id="outgoingTitle-ews" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+                </div>
+                <div id="outgoingInfo-ews" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/contact.svg"
+                  alt=""
+                />
+                <div class="result-details-title">
+                  <h4 data-l10n-id="account-setup-username-title"></h4>
+                </div>
+                <div id="usernameInfo-ews" class="result-host-info"></div>
+              </section>
+            </aside>
+          </div>
+
           <!-- EXCHANGE -->
           <div
             id="resultsOption-exchange"
@@ -650,10 +708,13 @@
                 name="resultsServerType"
                 onchange="gAccountSetup.onResultServerTypeChanged();"
               />
-              <span class="strong"> Exchange/Office365 </span>
+              <span
+                class="strong"
+                data-l10n-id="account-setup-result-exchange-name"
+              ></span>
               <p
                 class="result-indent"
-                data-l10n-id="account-setup-result-exchange2-description"
+                data-l10n-id="account-setup-result-exchange-description"
               ></p>
             </label>
             <aside class="result-details">
@@ -708,12 +769,17 @@
                   <option value="1">IMAP</option>
                   <option value="2">POP3</option>
                   <option
-                    id="incomingProtocolExchange"
+                    data-l10n-id="account-setup-result-ews-shortname"
+                    id="incomingProtocolEws"
                     value="3"
                     hidden="hidden"
-                  >
-                    Exchange
-                  </option>
+                  ></option>
+                  <option
+                    data-l10n-id="account-setup-result-exchange-shortname"
+                    id="incomingProtocolExchange"
+                    value="4"
+                    hidden="hidden"
+                  ></option>
                 </select>
               </div>
             </aside>

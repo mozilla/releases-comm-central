@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <clientConfig>
-  <emailProvider id="example-imap.com">
-    <domain>example-imap.com</domain>
+  <emailProvider id="imap.test">
+    <domain>imap.test</domain>
     <displayName>Example Två</displayName>
     <incomingServer type="imap">
       <hostname>localhost</hostname>
       <port>1993</port>
       <socketType>plain</socketType>
-      <username>john.doe@example-imap.com</username>
+      <username>john.doe@imap.test</username>
       <password>abc12345</password>
       <authentication>plain</authentication>
     </incomingServer>
@@ -15,7 +15,7 @@
       <hostname>localhost</hostname>
       <port>1587</port>
       <socketType>plain</socketType>
-      <username>john.doe@example-imap.com</username>
+      <username>john.doe@imap.test</username>
       <password>abc12345</password>
       <authentication>plain</authentication>
       <addThisServer>true</addThisServer>

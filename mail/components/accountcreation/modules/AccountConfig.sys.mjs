@@ -78,7 +78,7 @@ AccountConfig.prototype = {
    */
   createNewIncoming() {
     return {
-      // { String-enum: "pop3", "imap", "nntp", "exchange" }
+      // { String-enum: "pop3", "imap", "nntp", "exchange", "ews" }
       type: null,
       hostname: null,
       // { Integer }
@@ -326,6 +326,12 @@ AccountConfig.prototype = {
   /**
    * Sort the config alternatives such that exchange is the last of the
    * alternatives.
+   *
+   * Note this method is expected to be called in the final stages of the
+   * Exchange Autodiscover process, before we set a specific server type if we
+   * natively support the specific flavour of Exchange, so filtering on
+   * "exchange" should work regardless of whether we support the server natively
+   * or through an addon.
    */
   preferStandardProtocols() {
     const alternatives = this.incomingAlternatives;

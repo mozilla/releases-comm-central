@@ -183,8 +183,15 @@ account-setup-result-imap-description = Keep your folders and emails synced on y
 
 account-setup-result-pop-description = Keep your folders and emails on your computer
 
+# Note: Exchange and Exchange Web Services are the name of products/brands.
+account-setup-result-ews-name = Exchange Web Services
+account-setup-result-ews-shortname = Exchange
+account-setup-result-ews-description = Use Microsoft Exchange Web Services to sync your folders and emails
+
 # Note: Exchange, Office365 are the name of products.
-account-setup-result-exchange2-description = Use the Microsoft Exchange server or Office365 cloud services
+account-setup-result-exchange-name = Exchange/Microsoft 365 (third-party)
+account-setup-result-exchange-shortname = Exchange (third-party)
+account-setup-result-exchange-description = Use the Microsoft Exchange server or Microsoft 365 cloud services
 
 account-setup-incoming-title = Incoming
 

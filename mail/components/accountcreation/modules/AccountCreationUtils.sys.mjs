@@ -705,6 +705,7 @@ export const AccountCreationUtils = {
   gAccountSetupLogger,
   getStringBundle,
   NotReached,
+  ParallelAbortable,
   PriorityOrderAbortable,
   PromiseAbortable,
   readURLasUTF8,

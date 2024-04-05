@@ -42,6 +42,7 @@ var {
   Exception,
   gAccountSetupLogger,
   NotReached,
+  ParallelAbortable,
   PriorityOrderAbortable,
   UserCancelledException,
 } = AccountCreationUtils;
@@ -283,6 +284,10 @@ var gAccountSetup = {
     gMainWindow.document
       .getElementById("tabmail")
       .registerTabMonitor(this.tabMonitor);
+
+    // Only show the option to use EWS if the experimental pref is turned on.
+    document.getElementById("incomingProtocolEws").hidden =
+      !Services.prefs.getBoolPref("experimental.mail.ews.enabled", false);
 
     // We did everything, now we can update the variable.
     this.isInited = true;
@@ -639,33 +644,85 @@ var gAccountSetup = {
     this.switchToMode("find-config");
     this.startLoadingState("account-setup-looking-up-settings");
 
-    const self = this;
-    let call = null;
-    let fetch = null;
+    // We use several discovery mechanisms running in parallel in order to avoid
+    // excess delays if several of them in a row fail to find an appropriate
+    // configuration.
+    const discoveryTasks = new ParallelAbortable();
+    this._abortable = discoveryTasks;
 
-    const priority = (this._abortable = new PriorityOrderAbortable(
-      function (config) {
-        // success
-        self._abortable = null;
-        self.stopLoadingState(self._getConfigSourceStringName(config));
-        self.foundConfig(config);
-      },
-      function (e) {
-        // all failed
-        if (e instanceof CancelledException) {
-          self.onStartOver();
+    // Set up abortable calls before kicking off tasks so that our observer is
+    // guaranteed to not miss completion of any of them.
+    const priorityCall = discoveryTasks.addCall();
+    const autodiscoverCall = discoveryTasks.addCall();
+
+    // Wait for both our priority discovery and Autodiscover search to complete
+    // before deciding on a configuration to ensure we get an Exchange config if
+    // one exists.
+    discoveryTasks.addAllFinishedObserver(() => {
+      let config;
+
+      // All abortable tasks have completed.
+      this._abortable = null;
+
+      if (priorityCall.succeeded) {
+        // One of the priority-ordered discovery mechanisms has succeeded. If
+        // that mechanism did not produce an Exchange configuration and
+        // Autodiscover also succeeded, we will add any Exchange configuration
+        // it produced as an alternative.
+        config = priorityCall.result;
+
+        const hasExchangeConfigAlready = [
+          config.incoming,
+          ...config.incomingAlternatives,
+        ].some(incoming => incoming.type == "exchange");
+
+        if (!hasExchangeConfigAlready && autodiscoverCall.succeeded) {
+          const autodiscoverConfig = autodiscoverCall.result;
+
+          const exchangeIncoming = [
+            autodiscoverConfig.incoming,
+            ...autodiscoverConfig.incomingAlternatives,
+          ].find(incoming => incoming.type == "exchange");
+
+          if (exchangeIncoming) {
+            config.incomingAlternatives.push(exchangeIncoming);
+          }
+        }
+      } else {
+        // None of the priority-ordered mechanisms produced a config. If
+        // Autodiscover also produced nothing, we make a best effort to guess a
+        // valid configuration.
+        if (!autodiscoverCall.succeeded) {
+          const initialConfig = new AccountConfig();
+          this._prefillConfig(initialConfig);
+          // `_guessConfig()` will call `foundConfig()` for us if it succeeds.
+          this._guessConfig(domain, initialConfig);
           return;
         }
 
-        // guess config
-        const initialConfig = new AccountConfig();
-        self._prefillConfig(initialConfig);
-        self._guessConfig(domain, initialConfig);
+        config = autodiscoverCall.result;
       }
-    ));
+
+      this.stopLoadingState(this._getConfigSourceStringName(config));
+      this.foundConfig(config);
+    });
+
+    // We prefer some discovery mechanisms over others to allow for local
+    // configuration and to attempt to favor more up-to-date/accurate configs.
+    // These will be run in parallel for speed, with successful discovery from a
+    // source resulting in all lower-priority sources being cancelled. The
+    // highest-priority mechanism to succeed wins.
+    const priorityQueue = new PriorityOrderAbortable(
+      priorityCall.successCallback(),
+      priorityCall.errorCallback()
+    );
+    priorityCall.setAbortable(priorityQueue);
 
     try {
-      call = priority.addCall();
+      let call = null;
+      let fetch = null;
+
+      call = priorityQueue.addCall();
       gAccountSetupLogger.debug(
         "Looking up configuration: Thunderbird installation…"
       );
@@ -676,7 +733,7 @@ var gAccountSetup = {
       );
       call.setAbortable(fetch);
 
-      call = priority.addCall();
+      call = priorityQueue.addCall();
       gAccountSetupLogger.debug("Looking up configuration: Email provider…");
       fetch = FetchConfig.fromISP(
         domain,
@@ -686,7 +743,7 @@ var gAccountSetup = {
       );
       call.setAbortable(fetch);
 
-      call = priority.addCall();
+      call = priorityQueue.addCall();
       gAccountSetupLogger.debug(
         "Looking up configuration: Thunderbird installation…"
       );
@@ -697,7 +754,7 @@ var gAccountSetup = {
       );
       call.setAbortable(fetch);
 
-      call = priority.addCall();
+      call = priorityQueue.addCall();
       gAccountSetupLogger.debug(
         "Looking up configuration: Incoming mail domain…"
       );
@@ -709,18 +766,21 @@ var gAccountSetup = {
       );
       call.setAbortable(fetch);
 
-      call = priority.addCall();
+      // Microsoft Autodiscover is outside the priority ordering, as most of
+      // those mechanisms are unlikely to produce an Exchange configuration even
+      // when using Exchange is possible. Autodiscover should always produce an
+      // Exchange config if available, so we want it to always complete.
       gAccountSetupLogger.debug("Looking up configuration: Exchange server…");
-      fetch = fetchConfigFromExchange(
+      const autodiscoverTask = fetchConfigFromExchange(
         domain,
         emailAddress,
         this._exchangeUsername,
         this._password,
         confirmExchange,
-        call.successCallback(),
+        autodiscoverCall.successCallback(),
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.
-          const errorCallback = call.errorCallback();
+          const errorCallback = autodiscoverCall.errorCallback();
           if (e instanceof CancelledException) {
             errorCallback(e);
           } else if (allErrors && allErrors.some(e => e.code == 401)) {
@@ -742,7 +802,7 @@ var gAccountSetup = {
           }
         }
       );
-      call.setAbortable(fetch);
+      autodiscoverCall.setAbortable(autodiscoverTask);
     } catch (e) {
       this.onStop();
       // e.g. when entering an invalid domain like "c@c.-com"
@@ -842,6 +902,10 @@ var gAccountSetup = {
       return;
     }
 
+    if (Services.prefs.getBoolPref("experimental.mail.ews.enabled", false)) {
+      this._ewsifyConfig(config);
+    }
+
     config.addons = [];
     const successCallback = () => {
       this._abortable = null;
@@ -853,6 +917,48 @@ var gAccountSetup = {
       successCallback();
       this.showErrorNotification(e, true);
     });
+  },
+
+  /**
+   * Makes a configuration including an "exchange" incoming server suitable for
+   * use with our internal Exchange Web Services implementation.
+   *
+   * @param {AccountConfig} config - The configuration to revise.
+   */
+  _ewsifyConfig(config) {
+    // At present, account setup code uses the "exchange" incoming server type
+    // to store a configuration suitable for OWL. In order to avoid breaking
+    // OWL (which uses some config fields in an idiosyncratic manner), we use
+    // the "ews" type. So that both are presented in the UI, we duplicate the
+    // "exchange" config and adjust its fields as needed.
+    const exchangeIncoming = [
+      config.incoming,
+      ...config.incomingAlternatives,
+    ].find(incoming => incoming.type == "exchange");
+    if (!exchangeIncoming) {
+      return;
+    }
+
+    const ewsIncoming = structuredClone(exchangeIncoming);
+    ewsIncoming.type = "ews";
+
+    if (ewsIncoming.oauthSettings) {
+      // OWL uses these fields in such a way that their values won't work with
+      // our OAuth2 implementation. Replace them with settings from our OAuth2
+      // implementation.
+      const oauthSettings = OAuth2Providers.getHostnameDetails(
+        ewsIncoming.hostname
+      );
+
+      if (oauthSettings) {
+        [ewsIncoming.oauthSettings.issuer, ewsIncoming.oauthSettings.scope] =
+          oauthSettings;
+      } else {
+        ewsIncoming.oauthSettings = null;
+      }
+    }
+
+    config.incomingAlternatives.push(ewsIncoming);
   },
 
   /**
@@ -1120,7 +1226,7 @@ var gAccountSetup = {
 
     // Filter out Protcols we don't currently support
     let protocols = config.incomingAlternatives.filter(protocol =>
-      ["imap", "pop3", "exchange"].includes(protocol.type)
+      ["imap", "pop3", "exchange", "ews"].includes(protocol.type)
     );
     protocols.unshift(config.incoming);
     protocols = protocols.reduce((found, nextEl) => {
@@ -1530,7 +1636,8 @@ var gAccountSetup = {
       {
         1: "imap",
         2: "pop3",
-        3: "exchange",
+        3: "ews", // This is our internal EWS implementation.
+        4: "exchange", // This is for any external Exchange plugins.
         0: null,
       }
     );
