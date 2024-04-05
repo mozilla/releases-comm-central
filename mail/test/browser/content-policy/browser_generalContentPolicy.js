@@ -131,7 +131,7 @@ var TESTS = [
     type: "Video",
     description: "video served over http should be blocked",
     shouldBeBlocked: true,
-    body: '<video id="testelement" src="' + url + 'video.ogv"/>\n',
+    body: '<video id="testelement" src="' + url + 'video.webm"/>\n',
     webPage: "remotevideo.html",
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
