@@ -378,7 +378,11 @@
                 persist="visible-columns ordinals widths sort-active sort-direction height"
                 context="taskitem-context-menu"
                 onselect="taskDetailsView.onSelect(event);"/>
-          <splitter id="calendar-task-view-splitter" collapse="none" persist="state" class="calendar-splitter"/>
+          <splitter id="calendar-task-view-splitter"
+                    class="calendar-splitter"
+                    collapse="none"
+                    persist="state"
+                    orient="vertical"/>
           <vbox id="calendar-task-details-container"
                 flex="1"
                 persist="height"
