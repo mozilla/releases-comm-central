@@ -444,7 +444,7 @@ export class MessengerContentHandler {
         );
       } else if (/^mid:/i.test(uri)) {
         getOrOpen3PaneWindow().then(() => {
-          lazy.MailUtils.openMessageByMessageId(uri.slice(4));
+          lazy.MailUtils.openMessageForMessageId(uri.slice(4));
         });
       } else if (/^(mailbox|imap|news)-message:\/\//.test(uri)) {
         getOrOpen3PaneWindow().then(() => {

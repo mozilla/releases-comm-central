@@ -30,7 +30,7 @@ function launchBrowser(url, event) {
 
   if (/^mid:/i.test(url)) {
     const { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
-    MailUtils.openMessageByMessageId(url.slice(4));
+    MailUtils.openMessageForMessageId(url.slice(4));
     return;
   }
 

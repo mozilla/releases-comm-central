@@ -3221,20 +3221,28 @@ const gMessageHeader = {
     const id = event.currentTarget.closest(".header-message-id").id;
     if (event.button == 0) {
       // Remove the < and > symbols.
-      OpenMessageForMessageId(id.substring(1, id.length - 1));
+      MailUtils.openMessageForMessageId(
+        id.substring(1, id.length - 1),
+        gFolder?.server,
+        window
+      );
     }
   },
 
   openMessage(event) {
     const id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenMessageForMessageId(id.substring(1, id.length - 1));
+    MailUtils.openMessageForMessageId(
+      id.substring(1, id.length - 1),
+      gFolder?.server,
+      window
+    );
   },
 
   openBrowser(event) {
     const id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    OpenBrowserWithMessageId(id.substring(1, id.length - 1));
+    MailUtils.openBrowserWithMessageId(id.substring(1, id.length - 1));
   },
 
   copyMessageId(event) {
@@ -3289,64 +3297,6 @@ function MarkSelectedMessagesFlagged(markFlagged) {
       ? Ci.nsMsgViewCommandType.flagMessages
       : Ci.nsMsgViewCommandType.unflagMessages
   );
-}
-
-/**
- * Take the message id from the messageIdNode and use the url defined in the
- * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
- * (%mid is replaced by the message id).
- * @param {string} messageId - The message id to open.
- */
-function OpenBrowserWithMessageId(messageId) {
-  var browserURL = Services.prefs.getStringPref(
-    "mailnews.messageid_browser.url"
-  );
-  browserURL = browserURL.replace(/%mid/, encodeURIComponent(messageId));
-  try {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(browserURL));
-  } catch (ex) {
-    console.error(
-      "Failed to open message-id in browser; browserURL=" + browserURL
-    );
-  }
-}
-
-/**
- * Take the message id from the messageIdNode, search for the corresponding
- * message in all folders starting with the current selected folder, then the
- * current account followed by the other accounts and open corresponding
- * message if found.
- * @param {string} messageId - The message id to open.
- */
-function OpenMessageForMessageId(messageId) {
-  const startServer = gFolder?.server;
-
-  window.setCursor("wait");
-  const msgHdr = MailUtils.getMsgHdrForMsgId(messageId, startServer);
-  window.setCursor("auto");
-
-  // If message was found open corresponding message.
-  if (msgHdr) {
-    if (parent.location == "about:3pane") {
-      // Message in 3pane.
-      parent.selectMessage(msgHdr);
-    } else {
-      // Message in tab, standalone message window.
-      const uri = msgHdr.folder.getUriForMsg(msgHdr);
-      window.displayMessage(uri);
-    }
-    return;
-  }
-  const messageIdStr = "<" + messageId + ">";
-  const bundle = document.getElementById("bundle_messenger");
-  const errorTitle = bundle.getString("errorOpenMessageForMessageIdTitle");
-  const errorMessage = bundle.getFormattedString(
-    "errorOpenMessageForMessageIdMessage",
-    [messageIdStr]
-  );
-  Services.prompt.alert(window, errorTitle, errorMessage);
 }
 
 /**

@@ -431,30 +431,6 @@ export var MailUtils = {
   },
 
   /**
-   * Open a message from a message id.
-   *
-   * @param {string} msgId - The message id string without the brackets.
-   */
-  openMessageByMessageId(msgId) {
-    const msgHdr = this.getMsgHdrForMsgId(msgId);
-    if (msgHdr) {
-      this.displayMessage(msgHdr);
-      return;
-    }
-    const bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/messenger.properties"
-    );
-    const errorTitle = bundle.GetStringFromName(
-      "errorOpenMessageForMessageIdTitle"
-    );
-    const errorMessage = bundle.formatStringFromName(
-      "errorOpenMessageForMessageIdMessage",
-      [msgId]
-    );
-    Services.prompt.alert(null, errorTitle, errorMessage);
-  },
-
-  /**
    * Open the given .eml file.
    *
    * @param {DOMWindow} win - The window which the file is being opened within.
@@ -822,6 +798,63 @@ export var MailUtils = {
       }
     }
     return null;
+  },
+
+  /**
+   * Recursively search for message id in all msg folders and open the first
+   * matching message found.
+   *
+   * @param {string} msgId - The message id string without the brackets.
+   * @param {nsIMsgIncomingServer} [startServer] - The server to check first.
+   * @param {DOMWindow} [window] - The message window to load the message into.
+   */
+  openMessageForMessageId(msgId, startServer, window) {
+    window?.setCursor("wait");
+    const msgHdr = this.getMsgHdrForMsgId(msgId, startServer);
+    window?.setCursor("auto");
+
+    // If message was found open corresponding message.
+    if (msgHdr) {
+      if (window) {
+        if (window.parent.location == "about:3pane") {
+          // Message in 3pane.
+          window.parent.selectMessage(msgHdr);
+        } else {
+          // Message in tab, standalone message window.
+          const uri = msgHdr.folder.getUriForMsg(msgHdr);
+          window.displayMessage(uri);
+        }
+      } else {
+        this.displayMessage(msgHdr);
+      }
+      return;
+    }
+    const bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    Services.prompt.alert(
+      window,
+      bundle.GetStringFromName("errorOpenMessageForMessageIdTitle"),
+      bundle.formatStringFromName("errorOpenMessageForMessageIdMessage", [
+        `<${msgId}>`,
+      ])
+    );
+  },
+
+  /**
+   * Take the message id from the messageIdNode and use the url defined in the
+   * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
+   * (%mid is replaced by the message id).
+   * @param {string} messageId - The message id to open.
+   */
+  openBrowserWithMessageId(messageId) {
+    let browserURL = Services.prefs.getStringPref(
+      "mailnews.messageid_browser.url"
+    );
+    browserURL = browserURL.replace(/%mid/, encodeURIComponent(messageId));
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(Services.io.newURI(browserURL));
   },
 };
 
