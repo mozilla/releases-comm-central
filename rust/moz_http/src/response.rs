@@ -13,7 +13,7 @@ use crate::error::Error;
 
 /// The status code of an HTTP response.
 #[derive(Debug, Clone, Copy)]
-pub struct StatusCode(u32);
+pub struct StatusCode(pub u32);
 
 impl StatusCode {
     /// Check if status is within 400-499.

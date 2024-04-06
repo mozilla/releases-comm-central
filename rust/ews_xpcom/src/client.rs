@@ -5,15 +5,16 @@
 use std::ops::Deref as _;
 
 use ews::{
-    types::{
-        folders::{BaseFolderId, Folder},
-        ResponseClass,
-    },
-    CustomError, EwsClient,
+    get_folder::GetFolder,
+    soap,
+    sync_folder_hierarchy::{Change, SyncFolderHierarchy},
+    BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse, ResponseClass,
 };
 use fxhash::FxHashMap;
+use moz_http::StatusCode;
 use nserror::{nsresult, NS_ERROR_FAILURE};
 use nsstring::{nsCString, nsString};
+use thiserror::Error;
 use url::Url;
 use xpcom::{
     interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderCallbacks, IEwsIncomingServer},
@@ -48,7 +49,7 @@ impl XpComEwsClient {
             .unwrap_or_else(|err| {
                 // TODO: We need better error handling, including reporting back
                 // failure to authenticate.
-                eprintln!("error while syncing: {err}");
+                eprintln!("error while syncing: {err:?}");
 
                 unsafe {
                     callbacks.OnError();
@@ -60,7 +61,7 @@ impl XpComEwsClient {
         self,
         callbacks: RefPtr<IEwsFolderCallbacks>,
         mut sync_state_token: Option<String>,
-    ) -> Result<(), nsresult> {
+    ) -> Result<(), XpComEwsError> {
         // If we have received no sync state, assume that this is the first time
         // syncing this account. In that case, we need to determine which
         // folders are "well-known" (e.g., inbox, trash, etc.) so we can flag
@@ -72,11 +73,14 @@ impl XpComEwsClient {
         };
 
         loop {
+            eprintln!("about to call sync");
             // Folder sync returns results in batches, with sync state providing
             // the mechanism by which we can specify the next batch to receive.
-            let message = ews::sync_folder_hierarchy(
-                &self,
-                Some(BaseFolderId::DistinguishedFolderId {
+            let op = Operation::SyncFolderHierarchy(SyncFolderHierarchy {
+                folder_shape: FolderShape {
+                    base_shape: BaseShape::IdOnly,
+                },
+                sync_folder_id: Some(BaseFolderId::DistinguishedFolderId {
                     // Folder sync can happen starting with any folder, but we
                     // always choose "msgfolderroot" as sync is recursive and
                     // this simplifies managing sync state. There is a "root"
@@ -85,9 +89,22 @@ impl XpComEwsClient {
                     id: "msgfolderroot".to_string(),
                     change_key: None,
                 }),
-                sync_state_token,
-            )
-            .await?;
+                sync_state: sync_state_token,
+            });
+
+            let response = self.perform_operation(op).await?;
+            let message = if let OperationResponse::SyncFolderHierarchyResponse(response) = response
+            {
+                response
+                    .response_messages
+                    .sync_folder_hierarchy_response_message
+                    .into_iter()
+                    .next()
+                    .unwrap()
+            } else {
+                eprintln!("did not receive SyncFolderHierarchyResponse");
+                return Err(NS_ERROR_FAILURE.into());
+            };
 
             let mut create_ids = Vec::new();
             let mut update_ids = Vec::new();
@@ -97,19 +114,19 @@ impl XpComEwsClient {
             // further details when creating or updating folders as well.
             for change in message.changes.inner {
                 match change {
-                    ews::Change::Create { folder } => {
+                    Change::Create { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
                             eprintln!("creating {folder_id:?}");
                             create_ids.push(folder_id.id)
                         }
                     }
-                    ews::Change::Update { folder } => {
+                    Change::Update { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
                             eprintln!("updating {folder_id:?}");
                             update_ids.push(folder_id.id)
                         }
                     }
-                    ews::Change::Delete(folder_id) => {
+                    Change::Delete(folder_id) => {
                         eprintln!("deleting {folder_id:?}");
 
                         delete_ids.push(folder_id.id)
@@ -157,7 +174,7 @@ impl XpComEwsClient {
     async fn get_well_known_folder_map(
         &self,
         callbacks: &RefPtr<IEwsFolderCallbacks>,
-    ) -> Result<FxHashMap<String, &str>, nsresult> {
+    ) -> Result<FxHashMap<String, &str>, XpComEwsError> {
         const DISTINGUISHED_IDS: &[&str] = &[
             "msgfolderroot",
             "inbox",
@@ -166,7 +183,6 @@ impl XpComEwsClient {
             "outbox",
             "sentitems",
             "junkemail",
-            "archiveinbox",
         ];
 
         let ids = DISTINGUISHED_IDS
@@ -179,7 +195,21 @@ impl XpComEwsClient {
 
         // Fetch all distinguished folder IDs at once, since we have few enough
         // that they fit within Microsoft's recommended batch size of ten.
-        let messages = ews::get_folder(self, ids).await?;
+        let op = Operation::GetFolder(GetFolder {
+            folder_shape: FolderShape {
+                base_shape: BaseShape::IdOnly,
+            },
+            folder_ids: ids,
+        });
+
+        let response = self.perform_operation(op).await?;
+        let messages = if let OperationResponse::GetFolderResponse(response) = response {
+            response.response_messages.get_folder_response_message
+        } else {
+            eprintln!("did not receive a GetFolderResponse");
+            return Err(NS_ERROR_FAILURE.into());
+        };
+
         let map = DISTINGUISHED_IDS
             .iter()
             .zip(messages)
@@ -224,7 +254,7 @@ impl XpComEwsClient {
         delete_ids: Vec<String>,
         sync_state: &str,
         well_known_map: &Option<FxHashMap<String, &str>>,
-    ) -> Result<(), nsresult> {
+    ) -> Result<(), XpComEwsError> {
         if !create_ids.is_empty() {
             let created = self.batch_get_folders(create_ids).await?;
             for folder in created {
@@ -263,7 +293,7 @@ impl XpComEwsClient {
                         .to_result()?;
                     }
 
-                    _ => return Err(NS_ERROR_FAILURE),
+                    _ => return Err(NS_ERROR_FAILURE.into()),
                 }
             }
         }
@@ -286,7 +316,7 @@ impl XpComEwsClient {
                         unsafe { callbacks.Update(&*id, &*display_name) }.to_result()?;
                     }
 
-                    _ => return Err(NS_ERROR_FAILURE),
+                    _ => return Err(NS_ERROR_FAILURE.into()),
                 }
             }
         }
@@ -297,10 +327,12 @@ impl XpComEwsClient {
         }
 
         let sync_state = nsCString::from(sync_state);
-        unsafe { callbacks.UpdateState(&*sync_state) }.to_result()
+        unsafe { callbacks.UpdateState(&*sync_state) }.to_result()?;
+
+        Ok(())
     }
 
-    async fn batch_get_folders(&self, ids: Vec<String>) -> Result<Vec<Folder>, nsresult> {
+    async fn batch_get_folders(&self, ids: Vec<String>) -> Result<Vec<Folder>, XpComEwsError> {
         let mut folders = Vec::with_capacity(ids.len());
         let mut ids = ids.into_iter().peekable();
         let mut buf = Vec::with_capacity(10);
@@ -331,8 +363,21 @@ impl XpComEwsClient {
 
             // Execute the request and collect all mail folders found in the
             // response.
-            let mut fetched = ews::get_folder(self, to_fetch)
-                .await?
+            let op = Operation::GetFolder(GetFolder {
+                folder_shape: FolderShape {
+                    base_shape: BaseShape::AllProperties,
+                },
+                folder_ids: to_fetch,
+            });
+
+            let response = self.perform_operation(op).await?;
+            let messages = if let OperationResponse::GetFolderResponse(response) = response {
+                response.response_messages.get_folder_response_message
+            } else {
+                return Err(NS_ERROR_FAILURE.into());
+            };
+
+            let mut fetched = messages
                 .into_iter()
                 .filter_map(|message| {
                     message
@@ -372,31 +417,36 @@ impl XpComEwsClient {
 
         Ok(folders)
     }
-}
 
-impl EwsClient for XpComEwsClient {
-    type Error = XpComEwsError;
-
-    async fn make_request(&self, body: &[u8]) -> Result<String, Self::Error> {
-        // TODO: Currently only supports Basic authentication. Adjustments will
-        // be needed in the client struct as well as the calling interfaces.
+    async fn perform_operation(&self, op: Operation) -> Result<OperationResponse, XpComEwsError> {
         let auth_string = self.get_auth_string().await?;
+
+        let envelope = soap::Envelope { body: op };
+        let body = envelope.as_xml_document()?;
 
         let response = self
             .client
             .post(&self.endpoint)?
-            .header("authorization", &auth_string)
-            .body(body, "application/xml")
+            .header("Authorization", &auth_string)
+            .body(body.as_slice(), "application/xml")
             .send()
             .await?;
 
-        eprintln!("response status: {:?}", response.status());
-
         // TODO: Better error handling is needed, including responding to
         // statuses other than 200.
-        let body = std::str::from_utf8(response.body()).map_err(|_| NS_ERROR_FAILURE)?;
+        let body = std::str::from_utf8(response.body()).map_err(|_| {
+            eprintln!("could not decode body");
+            NS_ERROR_FAILURE
+        })?;
 
-        Ok(String::from(body))
+        let StatusCode(status_code) = response.status()?;
+        if status_code != 200 {
+            eprintln!("response status: {}\nresponse body: {}", status_code, body);
+        }
+
+        let envelope: soap::Envelope<OperationResponse> = soap::Envelope::from_xml_document(body)?;
+
+        Ok(envelope.body)
     }
 }
 
@@ -416,28 +466,24 @@ fn distinguished_id_to_flag(id: &&str) -> nsMsgFolderFlagType {
     }
 }
 
-pub(crate) struct XpComEwsError(nsresult);
+#[derive(Debug, Error)]
+pub(crate) enum XpComEwsError {
+    #[error("an error occurred in an XPCOM call")]
+    XpCom(#[from] nsresult),
 
-impl CustomError for XpComEwsError {
-    fn make_custom(_error: &str) -> Self {
-        Self(NS_ERROR_FAILURE)
-    }
+    #[error("an error occurred during HTTP transport")]
+    Http(#[from] moz_http::Error),
+
+    #[error("an error occurred while (de)serializing")]
+    Ews(#[from] ews::Error),
 }
 
 impl From<XpComEwsError> for nsresult {
     fn from(value: XpComEwsError) -> Self {
-        value.0
-    }
-}
-
-impl From<nsresult> for XpComEwsError {
-    fn from(value: nsresult) -> Self {
-        Self(value)
-    }
-}
-
-impl From<moz_http::Error> for XpComEwsError {
-    fn from(_value: moz_http::Error) -> Self {
-        Self(NS_ERROR_FAILURE)
+        match value {
+            XpComEwsError::XpCom(inner) => inner,
+            XpComEwsError::Http(_) => NS_ERROR_FAILURE,
+            XpComEwsError::Ews(_) => NS_ERROR_FAILURE,
+        }
     }
 }

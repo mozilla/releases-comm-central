@@ -5,7 +5,51 @@
 use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
-use super::{items::Items, BaseShape};
+pub(crate) const MESSAGES_NS_URI: &str =
+    "http://schemas.microsoft.com/exchange/services/2006/messages";
+pub(crate) const SOAP_NS_URI: &str = "http://schemas.xmlsoap.org/soap/envelope/";
+pub(crate) const TYPES_NS_URI: &str = "http://schemas.microsoft.com/exchange/services/2006/types";
+
+/// The folder properties which should be included in the response.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/foldershape>.
+#[derive(Debug, XmlSerialize)]
+pub struct FolderShape {
+    #[xml_struct(ns_prefix = "t")]
+    pub base_shape: BaseShape,
+}
+
+/// The item properties which should be included in the response.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemshape>.
+#[derive(Debug, XmlSerialize)]
+pub struct ItemShape {
+    #[xml_struct(ns_prefix = "t")]
+    pub base_shape: BaseShape,
+}
+
+/// The base set of properties to be returned in response to our request.
+/// Additional properties may be specified by the parent element.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/baseshape>.
+#[derive(Debug, Default, XmlSerialize)]
+#[xml_struct(text)]
+pub enum BaseShape {
+    IdOnly,
+
+    #[default]
+    Default,
+
+    AllProperties,
+}
+
+/// Attribute to a response message describing a response status.
+#[derive(Debug, Deserialize, PartialEq)]
+pub enum ResponseClass {
+    Success,
+    Warning,
+    Error,
+}
 
 /// An identifier for a remote folder.
 #[derive(Debug, XmlSerialize)]
@@ -27,8 +71,6 @@ pub enum BaseFolderId {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid>.
     DistinguishedFolderId {
-        // This should probably be an enum, but this is a proof of concept and
-        // I'm not writing all of those out right now.
         #[xml_struct(attribute)]
         id: String,
 
@@ -37,32 +79,24 @@ pub enum BaseFolderId {
     },
 }
 
-#[derive(Debug, Deserialize, XmlSerialize)]
+/// The unique identifier of a folder.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folderid>
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct FolderId {
     #[serde(rename = "@Id")]
-    #[xml_struct(attribute)]
     pub id: String,
 
     #[serde(rename = "@ChangeKey")]
-    #[xml_struct(attribute)]
     pub change_key: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct RootFolder {
-    pub folders: Option<Folders>,
-    pub items: Option<Items>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Folders {
-    #[serde(default, rename = "$value")]
-    pub inner: Vec<Folder>,
-}
-
-#[derive(Debug, Deserialize)]
+/// The representation of a folder in an EWS operation.
+#[derive(Debug, Deserialize, PartialEq)]
 pub enum Folder {
+    /// A calendar folder in a mailbox.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/calendarfolder>
     #[serde(rename_all = "PascalCase")]
     CalendarFolder {
         folder_id: FolderId,
@@ -72,6 +106,10 @@ pub enum Folder {
         total_count: Option<u32>,
         child_folder_count: Option<u32>,
     },
+
+    /// A contacts folder in a mailbox.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/contactsfolder>
     #[serde(rename_all = "PascalCase")]
     ContactsFolder {
         folder_id: FolderId,
@@ -81,6 +119,10 @@ pub enum Folder {
         total_count: Option<u32>,
         child_folder_count: Option<u32>,
     },
+
+    /// A folder in a mailbox.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folder>
     #[serde(rename_all = "PascalCase")]
     Folder {
         folder_id: FolderId,
@@ -91,6 +133,10 @@ pub enum Folder {
         child_folder_count: Option<u32>,
         unread_count: Option<u32>,
     },
+
+    /// A search folder in a mailbox.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/searchfolder>
     #[serde(rename_all = "PascalCase")]
     SearchFolder {
         folder_id: FolderId,
@@ -100,6 +146,10 @@ pub enum Folder {
         total_count: Option<u32>,
         child_folder_count: Option<u32>,
     },
+
+    /// A task folder in a mailbox.
+    ///
+    /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/tasksfolder>
     #[serde(rename_all = "PascalCase")]
     TasksFolder {
         folder_id: FolderId,
@@ -109,21 +159,4 @@ pub enum Folder {
         total_count: Option<u32>,
         child_folder_count: Option<u32>,
     },
-}
-
-#[derive(Clone, Copy, Debug, XmlSerialize)]
-#[xml_struct(text)]
-pub enum Traversal {
-    Shallow,
-    Deep,
-    SoftDeleted,
-}
-
-/// The folder properties to include in the response.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/foldershape>.
-#[derive(Debug, XmlSerialize)]
-pub struct FolderShape {
-    #[xml_struct(ns_prefix = "t")]
-    pub base_shape: BaseShape,
 }
