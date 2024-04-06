@@ -78,7 +78,7 @@ class OAuthListener : public msgIOAuth2ModuleListener {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_MSGIOAUTH2MODULELISTENER
 
-  OAuthListener(RefPtr<IEwsAuthStringListener> listener)
+  explicit OAuthListener(RefPtr<IEwsAuthStringListener> listener)
       : mListener(std::move(listener)) {}
 
  protected:
