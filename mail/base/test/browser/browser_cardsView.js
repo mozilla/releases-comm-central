@@ -158,11 +158,14 @@ add_task(async function testSwitchToCardsView() {
   const tableRow = threadTree.getRowAtIndex(1);
   const tableData = tableRow.querySelector(".thread-card-container");
   const rowHeight = getComputedStyle(tableRow).getPropertyValue("height");
-  const containerHeight =
-    getComputedStyle(tableData).getPropertyValue("height");
+  const containerHeightNoPadding = getComputedStyle(tableData)
+    .getPropertyValue("height")
+    .slice(0, -2);
+  // Add 4 px of padding to the computed height.
+  const containerHeight = parseFloat(containerHeightNoPadding) + 4;
   Assert.equal(
     rowHeight,
-    containerHeight,
+    `${containerHeight}px`,
     "The message and content container height should be the same"
   );
 

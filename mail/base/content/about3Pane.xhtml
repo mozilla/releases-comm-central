@@ -276,54 +276,59 @@
     <template id="threadPaneCardTemplate">
       <td>
         <div class="thread-card-container">
-          <div class="thread-card-row">
-            <span class="account-indicator"></span>
-            <span class="sender"></span>
-            <img class="state replied" src="" data-l10n-id="threadpane-message-replied" />
-            <img class="state forwarded" src="" data-l10n-id="threadpane-message-forwarded" />
-            <img class="state redirected" src="" data-l10n-id="threadpane-message-redirected" />
-            <span class="date"></span>
-            <button type="button"
-                    class="button icon-button icon-only tree-button-more"
-                    aria-hidden="true"
-                    data-l10n-id="threadpane-card-menu-button"
-                    tabindex="-1">
-            </button>
+          <div class="thread-card-column">
+            <img class="read-status" src="" alt="" />
           </div>
-          <div class="thread-card-row">
-            <div class="thread-card-subject-container">
-              <span class="subject"></span>
+          <div class="thread-card-column">
+            <div class="thread-card-row">
+              <span class="account-indicator"></span>
+              <span class="sender"></span>
+              <img class="state replied" src="" data-l10n-id="threadpane-message-replied" />
+              <img class="state forwarded" src="" data-l10n-id="threadpane-message-forwarded" />
+              <img class="state redirected" src="" data-l10n-id="threadpane-message-redirected" />
+              <span class="date"></span>
+              <button type="button"
+                      class="button icon-button icon-only tree-button-more"
+                      aria-hidden="true"
+                      data-l10n-id="threadpane-card-menu-button"
+                      tabindex="-1">
+              </button>
             </div>
-          </div>
-          <div class="thread-card-row thread-card-last-row">
-            <span class="sort-header-details"></span>
-            <button type="button"
-                    class="button button-flat button-reset twisty"
-                    aria-hidden="true"
-                    tabindex="-1">
-              <div class="thread-indicator-content">
-                <img src="" alt="" class="replies-icon" />
-                <span class="thread-replies"></span>
-                <img src="" alt="" class="twisty-icon" />
+            <div class="thread-card-row">
+              <div class="thread-card-subject-container">
+                <span class="subject"></span>
               </div>
-            </button>
-            <div class="thread-card-icon-info">
-              <img class="attachment-icon" src="" data-l10n-id="tree-list-view-row-attach" />
-              <div class="thread-card-tags-info">
-                <img class="tag-icon" src="" alt="" hidden="hidden" />
-                <img class="tag-icon" src="" alt="" hidden="hidden" />
-                <img class="tag-icon" src="" alt="" hidden="hidden" />
-                <span class="tag-more" hidden="hidden"></span>
-              </div>
-              <button class="button-spam tree-button-spam"
-                      data-l10n-id="tree-list-view-row-spam"
+            </div>
+            <div class="thread-card-row thread-card-last-row">
+              <span class="sort-header-details"></span>
+              <button type="button"
+                      class="button button-flat button-reset twisty"
                       aria-hidden="true"
                       tabindex="-1">
+                <div class="thread-indicator-content">
+                  <img src="" alt="" class="replies-icon" />
+                  <span class="thread-replies"></span>
+                  <img src="" alt="" class="twisty-icon" />
+                </div>
               </button>
-              <button class="button-star tree-button-flag"
-                      aria-hidden="true"
-                      tabindex="-1">
-              </button>
+              <div class="thread-card-icon-info">
+                <img class="attachment-icon" src="" data-l10n-id="tree-list-view-row-attach" />
+                <div class="thread-card-tags-info">
+                  <img class="tag-icon" src="" alt="" hidden="hidden" />
+                  <img class="tag-icon" src="" alt="" hidden="hidden" />
+                  <img class="tag-icon" src="" alt="" hidden="hidden" />
+                  <span class="tag-more" hidden="hidden"></span>
+                </div>
+                <button class="button-spam tree-button-spam"
+                        data-l10n-id="tree-list-view-row-spam"
+                        aria-hidden="true"
+                        tabindex="-1">
+                </button>
+                <button class="button-star tree-button-flag"
+                        aria-hidden="true"
+                        tabindex="-1">
+                </button>
+              </div>
             </div>
           </div>
         </div>

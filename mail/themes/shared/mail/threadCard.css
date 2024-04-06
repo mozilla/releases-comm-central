@@ -1,0 +1,676 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --thread-card-block: 2px;
+  --thread-card-inline: 8px;
+  --thread-child-start: 20px;
+  --thread-card-content-block: 3px;
+  --thread-card-content-inline: 6px;
+  --thread-card-content-radius: 6px;
+  --thread-card-content-gap: 3px;
+  --thread-line-height: 100%;
+  --read-status-unread: var(--icon-dot-sm);
+  --read-status-new: var(--icon-sparkle-star-sm);
+  --read-status-icon: var(--read-status-unread);
+  --read-status-size: 16px;
+  --indicator-width: 4px;
+  --indicator-height-offset: 6px;
+  --indicator-gap: 3px;
+  --inset-inline-start: 0;
+
+  &[uidensity="compact"] {
+    --thread-card-block: 1px;
+    --thread-card-inline: 5px;
+    --thread-child-start: 8px;
+    --thread-card-content-block: 1px;
+    --thread-card-content-inline: 3px;
+    --thread-card-content-radius: 3px;
+    --thread-card-content-gap: 1px;
+    --read-status-unread: var(--icon-dot-xs);
+    --read-status-new: var(--icon-sparkle-star-xs);
+    --read-status-size: 12px;
+    --indicator-width: 3px;
+    --indicator-gap: 2px;
+  }
+
+  &[uidensity="touch"] {
+    --thread-card-block: 3px;
+    --thread-card-inline: 8px;
+    --thread-child-start: 22px;
+    --thread-card-content-block: 6px;
+    --thread-card-content-inline: 9px;
+    --thread-card-content-gap: 6px;
+  }
+
+  @media not (prefers-contrast) {
+    --thread-pane-background: light-dark(var(--color-gray-05), var(--color-black));
+    --thread-card-background: var(--layout-background-0);
+    --thread-card-border: light-dark(
+      color-mix(in srgb, var(--thread-card-background) 90%, black),
+      color-mix(in srgb, var(--thread-card-background) 90%, white)
+    );
+    --thread-card-border-hover: light-dark(var(--color-blue-30), var(--color-blue-80));
+    --thread-card-hover: light-dark(var(--color-blue-40), var(--color-blue-70));
+    --thread-card-focus: light-dark(var(--color-blue-70), var(--color-blue-40));
+    --focus-outline: transparent;
+    --indicator-background: transparent;
+    --indicator-border: transparent;
+    --read-status-fill: transparent;
+    --read-status-stroke: transparent;
+    --new-subject-color: light-dark(var(--color-blue-60), var(--color-blue-40));
+    --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
+    --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
+    /* Selection Colors */
+    --thread-card-background-current: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-blue-50)),
+      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-blue-90))
+    );
+    --thread-card-background-selected: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-blue-50)),
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-blue-90))
+    );
+    --thread-card-background-selected-current: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-blue-50)),
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-blue-90))
+    );
+    --thread-card-border-selected: light-dark(var(--color-blue-50), var(--color-blue-70));
+    --indicator-background-selected: var(--color-blue-50);
+    --indicator-border-selected: light-dark(var(--color-blue-70), var(--color-blue-40));
+    /* Spam Colors */
+    --thread-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
+    --thread-card-hover-spam: light-dark(var(--color-red-40), var(--color-red-70));
+    --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --thread-card-background-current-spam: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-red-50)),
+      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-red-90))
+    );
+    --thread-card-background-selected-spam: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-red-50)),
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-red-90))
+    );
+    --thread-card-background-selected-current-spam: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-red-50)),
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-red-90))
+    );
+    --thread-card-border-selected-spam: light-dark(var(--color-red-50), var(--color-red-70));
+    --indicator-background-selected-spam: var(--color-red-50);
+    --indicator-border-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    /* Unfocused Colors */
+    --thread-card-background-current-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-90))
+    );
+    --thread-card-background-selected-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-90))
+    );
+    --thread-card-background-selected-current-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-90))
+    );
+    --thread-card-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-80));
+    --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
+    --indicator-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-60));
+  }
+
+  @media (prefers-contrast) {
+    --thread-pane-background: color-mix(in srgb, Canvas 90%, CanvasText);
+    --thread-card-background: Canvas;
+    --thread-card-border: CanvasText;
+    --thread-card-border-hover: SelectedItem;
+    --thread-card-hover: transparent;
+    --thread-card-focus: SelectedItem;
+    --focus-outline: SelectedItem;
+    --indicator-background: Canvas;
+    --indicator-border: Canvas;
+    --read-status-fill: transparent;
+    --read-status-stroke: transparent;
+    --new-subject-color: AccentColor;
+    --thread-line-color: CanvasText;
+    --new-color: SelectedItem;
+    /* Selection Colors */
+    --thread-card-background-current: color-mix(in srgb, Canvas 95%, SelectedItem);
+    --thread-card-background-selected: color-mix(in srgb, Canvas 90%, SelectedItem);
+    --thread-card-background-selected-current: SelectedItem;
+    --thread-card-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
+    --indicator-background-selected: SelectedItem;
+    --indicator-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
+    /* Spam Colors */
+    --focus-outline-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --thread-card-border-hover-spam: var(--color-red-50);
+    --thread-card-hover-spam: transparent;
+    --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --thread-card-background-current-spam: color-mix(in srgb, Canvas 80%, var(--color-red-50));
+    --thread-card-background-selected-spam: color-mix(in srgb, Canvas 70%, var(--color-red-50));
+    --thread-card-background-selected-current-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --thread-card-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
+    --indicator-background-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --indicator-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
+    /* Unfocused Colors */
+    --thread-card-background-current-unfocused: color-mix(in srgb, Canvas 90%, CanvasText);
+    --thread-card-background-selected-unfocused: color-mix(in srgb, Canvas 80%, CanvasText);
+    --thread-card-background-selected-current-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
+    --thread-card-border-selected-unfocused: CanvasText;
+    --indicator-background-selected-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
+    --indicator-border-selected-unfocused: color-mix(in srgb, Canvas 50%, CanvasText);
+  }
+}
+
+#threadTree[rows="thread-card"] {
+  background-color: var(--thread-pane-background);
+  padding-block: var(--thread-card-block);
+
+  /* Default Card */
+  & tr[is="thread-card"] {
+    outline-color: transparent;
+    background-color: var(--thread-pane-background);
+
+    /* Unread Message */
+    &[data-properties~="unread"] {
+      --read-status-fill: var(--color-green-40);
+      --read-status-stroke: var(--color-green-60);
+
+      & :is(.sender, .subject) {
+        font-weight: bold;
+      }
+
+      /* New Message */
+      &[data-properties~="new"] {
+        --read-status-icon: var(--read-status-new);
+        --read-status-fill: var(--color-yellow-30);
+        --read-status-stroke: var(--color-amber-50);
+
+        & .subject {
+          color: var(--new-subject-color);
+        }
+      }
+    }
+
+    &[data-properties~="hasUnread"] {
+      & .replies-icon,
+      & .thread-replies {
+        font-weight: bold;
+        color: var(--new-color);
+        fill: color-mix(in srgb, currentColor 20%, transparent);
+        stroke: currentColor;
+      }
+
+      & button.twisty {
+        background-color: var(--layout-background-2);
+        border-color: var(--layout-background-4);
+
+        &::before {
+          position: absolute;
+          inset-inline-start: -3px;
+          inset-block-start: -3px;
+          content: var(--icon-sparkle-star-xs);
+          -moz-context-properties: fill, stroke;
+          fill: var(--color-yellow-30);
+          stroke: var(--color-amber-50);
+          overflow: visible;
+        }
+
+        & .thread-replies {
+          font-weight: bold;
+          color: var(--unread-color);
+        }
+      }
+
+      &:not([data-properties~="hasNew"]) {
+        & .replies-icon,
+        & .thread-replies {
+          color: var(--unread-color);
+        }
+
+        & .twisty::before {
+          overflow: visible;
+          content: var(--icon-dot-xs);
+          fill: var(--color-green-50);
+          stroke: var(--color-green-60);
+        }
+      }
+    }
+
+    & td {
+      padding-inline: var(--thread-card-inline);
+      padding-block: var(--thread-card-block);
+
+      @media (-moz-overlay-scrollbars) {
+        padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
+      }
+
+      & button {
+        min-height: 16px;
+        min-width: 16px;
+        opacity: 0.7;
+
+        &:hover {
+          opacity: 1;
+        }
+
+        &.twisty {
+          width: auto;
+          height: auto;
+          min-width: 12px;
+          min-height: 13px;
+          padding: 0;
+          border: 1px solid transparent;
+          position: relative;
+          overflow: visible;
+
+          &::before {
+            position: absolute;
+            inset-inline-start: -3px;
+            inset-block-start: -3px;
+            -moz-context-properties: fill, stroke;
+            z-index: 10;
+          }
+
+          &:hover {
+            background-color: var(--layout-background-2);
+            border-color: var(--layout-background-4);
+          }
+
+          & .thread-indicator-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 0.9rem;
+            font-weight: 700;
+            position: relative;
+            padding: 2px 3px;
+            border-radius: var(--button-border-radius);
+          }
+
+          & img {
+            display: inline-block;
+          }
+
+          & .replies-icon {
+            height: 12px;
+            width: 12px;
+            margin: 1px;
+            content: var(--icon-replies-xs);
+          }
+
+          & .thread-replies {
+            margin: 0 2px;
+          }
+
+          & .twisty-icon {
+            height: 10px;
+            width: 10px;
+          }
+        }
+      }
+
+      & .thread-card-container {
+        background-color: var(--thread-card-background);
+        border-radius: var(--thread-card-content-radius);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        height: 100%;
+        padding-inline: var(--thread-card-content-inline);
+        padding-inline-start: 3px; /* Keep the start indicator close to the front */
+        box-sizing: border-box;
+        border: 1px solid var(--thread-card-border);
+        position: relative;
+        overflow: visible;
+        isolation: isolate;
+
+        &::before {
+          position: absolute;
+          content: "";
+          inset-block: var(--indicator-height-offset);
+          inset-inline-start: calc(var(--indicator-width) * -1 - var(--indicator-gap));
+          background-color: var(--indicator-background);
+          border: 1px solid var(--indicator-border);
+          border-radius: var(--indicator-width);
+          width: var(--indicator-width);
+          box-sizing: border-box;
+        }
+
+        & .thread-card-column {
+          display: grid;
+          gap: var(--thread-pane-container-gap);
+          box-sizing: border-box;
+          position: relative;
+          padding-block: var(--thread-card-content-block);
+        }
+
+        & .thread-card-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--thread-card-content-gap);
+          padding: 0;
+          margin: 0;
+          line-height: 1.3;
+          position: relative;
+          isolation: isolate;
+
+          &:not(.thread-card-last-row) {
+            margin-inline-start: 3px;
+          }
+        }
+
+        & .state,
+        & .sort-header-details {
+          display: none;
+        }
+
+        & .read-status {
+          content: var(--read-status-icon);
+          height: var(--read-status-size);
+          width: var(--read-status-size);
+          -moz-context-properties: fill, stroke;
+          fill: var(--read-status-fill);
+          stroke: var(--read-status-stroke);
+        }
+
+        & .thread-card-icon-info {
+          display: flex;
+          margin-inline-start: auto;
+          align-items: center;
+          justify-content: space-between;
+          gap: 6px;
+        }
+
+        /**
+        * Don't display this when only one account is added or when the user has
+        * disabled it in the settings.
+        * TODO: Create a way for the user to select a color to associate with each
+        * added account. Use that account color as the var(--acount-color) variable
+        * and create a toggle to show/hide this indicator.
+        */
+        & .account-indicator {
+          display: none;
+          box-sizing: border-box;
+          background-color: var(--account-color);
+          border: 1px solid color-mix(in srgb, var(--account-color) 80%, black);
+          border-radius: 4px;
+          width: 4px;
+          height: 12px;
+          margin-inline-end: -3px;
+        }
+
+        & :is(.sender, .subject) {
+          flex: 1 1 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        & .sender {
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+
+        & .date {
+          flex: 0 0 auto;
+          white-space: nowrap;
+          font-size: 0.95rem;
+          opacity: 0.85;
+        }
+
+        & .tree-button-more {
+          --button-padding: 0;
+          color: inherit;
+          opacity: .5;
+          background-image: var(--icon-kebab);
+          -moz-context-properties: fill, stroke;
+          fill: currentColor;
+          stroke: currentColor;
+
+          &:hover,
+          &:focus {
+            background-color: color-mix(in srgb, currentColor 10%, transparent);
+            border-color: transparent;
+            opacity: 1;
+          }
+
+          &:active {
+            background-color: color-mix(in srgb, currentColor 30%, transparent);
+            border-color: transparent;
+            opacity: 1;
+          }
+        }
+
+        & .tag-icon {
+          -moz-context-properties: fill, stroke;
+          fill: color-mix(in srgb, light-dark(white, black) 50%, var(--tag-color, currentColor));
+          stroke: var(--tag-color, currentColor);
+        }
+
+        & .is-outgoing [data-properties~="outgoing"] & > .sender {
+          background-position-x: 0;
+          background-position-y: center;
+          background-repeat: no-repeat;
+          background-image: var(--icon-nav-forward);
+          -moz-context-properties: stroke, fill-opacity;
+          stroke: currentColor;
+          fill-opacity: 0.3;
+          padding-inline-start: 18px;
+
+          &:dir(rtl) {
+            background-image: var(--icon-nav-back);
+            background-position-x: 100%
+          }
+        }
+      }
+    }
+
+    @media (prefers-contrast) {
+      &:is(:hover, :focus, :focus-within, :focus-visible, .current) {
+        & .thread-card-container {
+          outline: 2px solid var(--focus-outline);
+        }
+      }
+
+      &.current.selected .thread-card-container {
+        --thread-pane-flag-fill: SelectedItemText;
+        --thread-pane-flag-stroke: SelectedItemText;
+        --thread-pane-spam-fill: SelectedItemText;
+        --thread-pane-spam-stroke: SelectedItemText;
+        --new-subject-color: SelectedItemText;
+        color: SelectedItemText;
+        outline-offset: -4px;
+        outline-color: SelectedItemText;
+      }
+    }
+
+    & [data-properties~="dummy"] > td > .thread-card-container > &:first-child {
+      display: none;
+    }
+  }
+
+  /* Thread Children */
+  & tr[is="thread-card"][data-properties~="thread-children"] {
+    & td {
+      --circle-size: 12px;
+      padding-inline-start: calc(var(--thread-child-start) + var(--circle-size));
+
+      &::after {
+        position: absolute;
+        content: var(--icon-dot-xs);
+        height: var(--circle-size);
+        width: var(--circle-size);
+        inset-block: calc(50% - var(--circle-size) / 2);
+        inset-inline-start: calc((var(--thread-card-inline) * 2) - var(--circle-size) / 2);
+        -moz-context-properties: fill, stroke;
+        fill: var(--thread-pane-background);
+        stroke: var(--thread-line-color);
+      }
+
+      &::before {
+        display: block;
+        content: "";
+        position: absolute;
+        height: var(--thread-line-height);
+        --line-width: 1px;
+        width: var(--line-width);
+        border-inline-start: var(--line-width) dashed var(--thread-line-color);
+        inset-inline-start: calc((var(--thread-card-inline) * 2) - var(--line-width) / 2);
+        inset-block: 0;
+      }
+    }
+
+    &:has(+ tr:not([data-properties~="thread-children"])),
+    &:last-child {
+      --thread-line-height: 50%;
+    }
+  }
+
+  /* Grouped By Sort */
+  &[data-show-grouped-by-sort~="true"] {
+
+    & button.twisty :is(.replies-icon, .thread-replies) {
+      display: none;
+    }
+
+    /* Sort Headers */
+    & tr[is="thread-card"][data-properties~="dummy"] {
+      --thread-card-background: var(--thread-pane-background);
+      --thread-card-border: var(--thread-pane-background);
+      --indicator-background: var(--thread-pane-background);
+      --indicator-border: var(--thread-pane-background);
+      --inset-inline-start: 0;
+
+      & .read-status,
+      & .thread-card-column:first-of-type,
+      & .thread-card-row:first-of-type,
+      & .thread-card-indicator-content,
+      & .thread-card-icon-info {
+        display: none;
+      }
+
+      & .thread-card-column {
+        align-content: center;
+      }
+
+      & .thread-card-row:not(.thread-card-last-row) {
+        margin-inline-start: 0;
+      }
+
+      & .subject {
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: var(--layout-color-2);
+      }
+
+      & .sort-header-details {
+        display: inline-block;
+        font-weight: 500;
+        color: var(--layout-color-2);
+
+        & > span {
+          font-weight: 700;
+        }
+      }
+
+      & .thread-card-container {
+        padding-inline: 0;
+        grid-template-columns: 1fr;
+      }
+
+      &.collapsed {
+        & .thread-card-container {
+          border-bottom: 1px solid light-dark(var(--color-gray-20), var(--color-gray-80));
+          border-radius: 0;
+        }
+      }
+
+      &:hover {
+        & .thread-card-container {
+          box-shadow: none;
+        }
+      }
+
+      &:is(:hover, :focus, :focus-within, .current, .selected, .current.selected) {
+        --thread-card-background: var(--thread-pane-background);
+        --thread-card-border: var(--thread-pane-background);
+        --indicator-background: var(--thread-pane-background);
+        --indicator-border: var(--thread-pane-background);
+        --inset-inline-start: -6px;
+      }
+    }
+
+    & tr[is="thread-card"][data-properties~="thread-children"] {
+      & td {
+        padding-inline-start: var(--thread-card-inline);
+
+        &::before,
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+
+  /* Hover */
+  & tr[is="thread-card"]:is(:hover, :focus, :focus-within) {
+    --thread-card-border: var(--thread-card-border-hover);
+    --thread-card-background: var(--thread-card-background-current);
+
+    & .thread-card-container {
+      box-shadow: 0 0 5px var(--thread-card-hover);
+    }
+  }
+
+  /* Selection */
+  &:is(:focus, :focus-within) tr[is="thread-card"] {
+    &.current {
+      --thread-card-background: var(--thread-card-background-current);
+      --thread-card-border: var(--thread-card-focus);
+    }
+
+    &.selected {
+      --thread-card-background: var(--thread-card-background-selected);
+      --thread-card-border: var(--thread-card-border-selected);
+      --indicator-background: var(--indicator-background-selected);
+      --indicator-border: var(--indicator-border-selected);
+      --inset-inline-start: calc(0 - var(--indicator-width) - var(--indicator-gap));
+
+      &.current {
+        --thread-card-background: var(--thread-card-background-selected-current);
+        --thread-card-border: var(--thread-card-focus);
+      }
+    }
+  }
+
+  /* Spam */
+  & tr[is="thread-card"][data-properties~="junk"] {
+    --focus-outline: var(--focus-outline-spam);
+    --thread-card-border-hover: var(--thread-card-border-hover-spam);
+    --thread-card-background-current: var(--thread-card-background-current-spam);
+    --thread-card-hover: var(--thread-card-hover-spam);
+    --thread-card-background-current: var(--thread-card-background-current-spam);
+    --thread-card-background-selected: var(--thread-card-background-selected-spam);
+    --thread-card-background-selected-current: var(--thread-card-background-selected-current-spam);
+    --thread-card-border-selected: var(--thread-card-border-selected-spam);
+    --thread-card-focus: var(--thread-card-focus-spam);
+    --indicator-background-selected: var(--indicator-background-selected-spam);
+    --indicator-border-selected: var(--indicator-border-selected-spam);
+  }
+
+  /* Unfocused */
+  &:not(:focus, :focus-within) tr[is="thread-card"],
+  &:not(:focus, :focus-within) tr[is="thread-card"][data-properties~="junk"] {
+    &.current {
+      --thread-card-background: var(--thread-card-background-current-unfocused);
+    }
+
+    &.selected {
+      --thread-card-background: var(--thread-card-background-selected-unfocused);
+      --thread-card-border: var(--thread-card-border-selected-unfocused);
+      --indicator-background: var(--indicator-background-selected-unfocused);
+      --indicator-border: var(--indicator-border-selected-unfocused);
+    }
+
+    &.selected.current {
+      --thread-card-background: var(--thread-card-background-selected-current-unfocused);
+    }
+  }
+}

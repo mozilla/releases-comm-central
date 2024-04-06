@@ -2,58 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/shared/threadCard.css");
+
 :root {
-  --thread-pane-container-gap: 3px;
   --thread-pane-header-padding: 3px;
-  --indicator-icon-offset-inline: 7px;
-  --indicator-icon-offset-block: 3px;
-  --thread-card-inline: 12px;
-  --thread-card-inline-doubled: calc(var(--thread-card-inline) * 2);
-  --thread-line-height: 100%;
+  --thread-pane-container-gap: 3px;
+  --tree-row-padding: 3px;
 
   &[uidensity="compact"] {
     --thread-pane-container-gap: 0;
-    --indicator-icon-offset-block: 1px;
   }
 
   &[uidensity="touch"] {
     --thread-pane-header-padding: 6px;
-    --indicator-icon-offset-block: 6px;
   }
 
   @media not (prefers-contrast) {
-    --thread-pane-flag-fill: var(--color-orange-30);
-    --thread-pane-flag-stroke: var(--color-orange-60);
-    --thread-pane-unread-fill: var(--color-green-60);
-    --thread-pane-unread-stroke: var(--color-green-60);
-    --thread-pane-spam-fill: var(--color-red-50);
-    --thread-pane-spam-stroke: var(--color-red-70);
-    --thread-card-background: var(--layout-background-1);
-    --thread-card-background-children: light-dark(var(--color-gray-05), color-mix(in srgb, var(--color-gray-90) 80%, var(--color-black)));
-    --thread-card-border-color: var(--layout-border-0);
-    --thread-card-shadow-color: light-dark(rgba(0, 0, 0, .25), rgba(0, 0, 0, 1));
-    --thread-card-shadow-children: inset 0 6px 6px -6px var(--thread-card-shadow-color);
-    --thread-card-shadow-children-inverse: inset 0 -6px 6px -8px var(--thread-card-shadow-color);
-    --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
-    --tags-base-background-color: var(--layout-background-0);
-    --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
-
-    @media (prefers-color-scheme: dark) {
-      --thread-pane-flag-fill: var(--color-orange-40);
-      --thread-pane-flag-stroke: var(--color-orange-50);
-      --thread-pane-unread-fill: var(--color-green-50);
-      --thread-pane-unread-stroke: var(--color-green-50);
-      --thread-pane-spam-fill: var(--color-red-40);
-      --thread-pane-spam-stroke: var(--color-red-50);
-    }
-  }
-
-  @media (prefers-contrast) {
-    --thread-line-color: currentColor;
-    --thread-card-background-children: Canvas;
-    --thread-card-border-color: color-mix(in srgb, Canvas 50%, CanvasText);
-    --tags-base-background-color: SelectedItemText;
-    --new-color: SelectedItem;
+    --thread-pane-flag-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
+    --thread-pane-flag-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
+    --thread-pane-unread-fill: light-dark(var(--color-green-60), var(--color-green-50));
+    --thread-pane-unread-stroke: light-dark(var(--color-green-60), var(--color-green-50));
+    --thread-pane-spam-fill: light-dark(var(--color-red-50), var(--color-red-40));
+    --thread-pane-spam-stroke: light-dark(var(--color-red-70), var(--color-red-50));
   }
 }
 
@@ -77,7 +47,7 @@
   }
 
   & [data-properties~="dummy"] {
-    &:not(:hover, .selected) {
+    &:not([is="thread-card"], :hover, .selected) {
       background-color: var(--layout-background-2);
     }
 
@@ -184,16 +154,6 @@
 #threadTree button:not(.button-column-picker) img {
   display: block;
   margin-inline: auto;
-}
-
-#threadTree[rows="thread-card"] button {
-  min-height: 16px;
-  min-width: 16px;
-  opacity: 0.7;
-
-  &:hover {
-    opacity: 1;
-  }
 }
 
 tr[is="thread-row"] {
@@ -438,44 +398,6 @@ tr[is="thread-row"] {
   padding-inline-start: 22px;
 }
 
-tr[is="thread-card"] .state {
-  display: none;
-}
-
-tr[is="thread-card"] .sort-header-details {
-  display: none;
-}
-
-[data-show-grouped-by-sort~="true"] tr[is="thread-card"][data-properties~="dummy"] {
-  & .thread-card-row:not(.thread-card-last-row) {
-    margin-inline-start: 0;
-  }
-
-  & .thread-card-last-row {
-    justify-content: space-between;
-  }
-
-  & .subject {
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--layout-color-2);
-  }
-
-  & .sort-header-details {
-    display: inline-block;
-    font-weight: 500;
-    color: var(--layout-color-2);
-
-    & > span {
-      font-weight: 700;
-    }
-  }
-
-  & .thread-card-icon-info {
-    display: none;
-  }
-}
-
 /* Icons variations for message state in subject column */
 
 tr[data-properties~="new"] .subject-line img {
@@ -550,101 +472,6 @@ tr[is="thread-row"] .twisty {
   color: var(--tree-view-color);
 }
 
-tr[is="thread-card"][data-properties~="hasUnread"] {
-  &:not([data-properties~="hasNew"]) {
-    & .replies-icon,
-    & .thread-replies {
-      color: var(--unread-color);
-    }
-
-    & .twisty::before {
-      overflow: visible;
-      content: var(--icon-dot-xs);
-      fill: var(--color-green-50);
-      stroke: var(--color-green-60);
-    }
-  }
-
-  & .replies-icon,
-  & .thread-replies {
-    font-weight: bold;
-    color: var(--new-color);
-    fill: color-mix(in srgb, currentColor 20%, transparent);
-    stroke: currentColor;
-  }
-
-  & .twisty::before {
-    overflow: visible;
-    content: var(--icon-sparkle-star-xs);
-    fill: var(--color-yellow-30);
-    stroke: var(--color-amber-50);
-  }
-}
-
-#threadTree tr[is="thread-card"] button.twisty {
-  width: auto;
-  height: auto;
-  min-width: 12px;
-  min-height: 13px;
-  padding: 0;
-  border: 1px solid transparent;
-  position: relative;
-  overflow: visible;
-
-  &::before {
-    position: absolute;
-    inset-inline-start: -3px;
-    inset-block-start: -3px;
-    -moz-context-properties: fill, stroke;
-    z-index: 10;
-  }
-
-  &:hover {
-    background-color: var(--layout-background-2);
-    border-color: var(--layout-background-4);
-  }
-
-  [data-properties~="hasUnread"] & {
-    opacity: 1;
-  }
-
-  .thread-indicator-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    font-size: 0.9rem;
-    font-weight: 700;
-    position: relative;
-    padding: 2px 3px;
-    border-radius: var(--button-border-radius);
-
-    [data-properties~="hasUnread"] & {
-      background-color: var(--layout-background-2);
-      border-color: var(--layout-background-4);
-    }
-  }
-
-  img {
-    display: inline-block;
-  }
-
-  .replies-icon {
-    height: 12px;
-    width: 12px;
-    margin: 1px;
-    content: var(--icon-replies-xs);
-  }
-
-  .thread-replies {
-    margin: 0 2px;
-  }
-
-  .twisty-icon {
-    height: 10px;
-    width: 10px;
-  }
-}
-
 tr:is([is="thread-row"], [is="thread-card"]) {
 
   &:not(.children) .twisty {
@@ -714,25 +541,6 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
   opacity: 1;
 }
 
-#threadTree tr[is="thread-card"] .tree-button-more {
-  --button-padding: 0;
-  opacity: .5;
-  background-image: var(--icon-kebab);
-
-  &:hover,
-  &:focus {
-    background-color: color-mix(in srgb, currentColor 10%, transparent);
-    border-color: transparent;
-    opacity: 1;
-  }
-
-  &:active {
-    background-color: color-mix(in srgb, currentColor 30%, transparent);
-    border-color: transparent;
-    opacity: 1;
-  }
-}
-
 /* Vertical view variations */
 #threadTree tr[data-properties~="junk"] :is(.state, .attachment-icon, .button-star) {
   display: none;
@@ -773,290 +581,6 @@ tr[data-properties~="outgoing"] .correspondentcol-column {
 
 tr[data-properties~="outgoing"].selected .correspondentcol-column {
   fill-opacity: 0.6;
-}
-
-/* Cards View */
-
-#threadTree[rows="thread-card"] {
-  background-color: var(--thread-card-background);
-
-  &[data-show-grouped-by-sort~="true"] {
-    button.twisty :is(.replies-icon, .thread-replies) {
-      display: none;
-    }
-
-    & tbody [data-properties~="thread-children"] {
-      &:not([data-properties~="unread"]) {
-        & .thread-card-container::after {
-          --indicator-icon-fill: transparent;
-          --indicator-icon-stroke: transparent;
-        }
-      }
-
-      & .thread-card-container {
-        padding-inline-start: var(--thread-card-inline-doubled);
-        margin-inline-start: 0;
-
-        &::after {
-          inset-inline-start: var(--indicator-icon-offset-inline);
-          inset-block-start: var(--indicator-icon-offset-block);
-          --indicator-icon-offset-inline: revert;
-          --indicator-icon-offset-block: revert;
-        }
-
-        &::before {
-          display: none;
-        }
-      }
-    }
-  }
-}
-
-tr[is="thread-card"] {
-
-  &[aria-expanded="true"] + tr[data-properties~="thread-children"] {
-    box-shadow: var(--thread-card-shadow-children);
-
-    &:has(+ tr:not([data-properties~="thread-children"])) {
-      box-shadow: var(--thread-card-shadow-children),
-                  var(--thread-card-shadow-children-inverse);
-    }
-  }
-
-  & .thread-card-container {
-    border-bottom: 1px solid var(--thread-card-border-color);
-  }
-
-  & td {
-    padding: 0;
-  }
-
-  &[data-properties~="new"] {
-    --indicator-icon: var(--icon-sparkle-star-sm);
-    --indicator-icon-fill: var(--color-yellow-30);
-    --indicator-icon-stroke: var(--color-amber-50);
-    position: relative;
-
-    &[data-properties~="thread-children"] .thread-card-container::after {
-      --indicator-icon: var(--icon-sparkle-star-sm);
-      --indicator-icon-fill: var(--color-yellow-30);
-      --indicator-icon-stroke: var(--color-amber-50);
-    }
-  }
-
-  &[data-properties~="unread"] {
-    &:not([data-properties~="new"]) {
-      --indicator-icon: var(--icon-dot-sm);
-      --indicator-icon-fill: var(--color-green-40);
-      --indicator-icon-stroke: var(--color-green-60);
-
-      &[data-properties~="thread-children"] .thread-card-container::after {
-        --indicator-icon: var(--icon-dot-sm);
-        --indicator-icon-fill: var(--color-green-40);
-        --indicator-icon-stroke: var(--color-green-60);
-      }
-    }
-
-    &[data-properties~="thread-children"] .thread-card-container::after {
-      --indicator-icon-offset-inline: calc(var(--thread-card-inline) - 8px);
-    }
-  }
-
-  &[data-properties~="thread-children"] {
-    &:not(.selected, :hover) {
-      background-color: var(--thread-card-background-children);
-    }
-
-    & .thread-card-container {
-      padding-inline: var(--thread-card-inline);
-      margin-inline-start: var(--thread-card-inline-doubled);
-
-      &::after {
-        --indicator-icon-offset-inline: calc(var(--thread-card-inline) - 6px);
-        --indicator-icon-offset-block: calc(50% - 8px);
-        --indicator-icon: var(--icon-dot-xs);
-        --indicator-icon-fill: var(--thread-card-background-children);
-        --indicator-icon-stroke: var(--thread-line-color);
-      }
-
-      &::before {
-        display: block;
-        content: "";
-        position: absolute;
-        height: var(--thread-line-height);
-        width: 1px;
-        border-inline-start: 1px dashed var(--thread-line-color);
-        /* Placement uses rem units due to pixels not being able to be split in half. */
-        inset-inline-start: calc(var(--thread-card-inline) - 0.025rem);
-        inset-block: 0;
-      }
-    }
-
-    & + tr:not([data-properties~="thread-children"]) .thread-card-container {
-      border-top: 1px solid var(--thread-card-border-color);
-    }
-
-    &:has(+ tr:not([data-properties~="thread-children"])),
-    &:last-child {
-      --thread-line-height: 50%;
-      box-shadow: var(--thread-card-shadow-children-inverse);
-
-      & .thread-card-container {
-        border-bottom: none;
-      }
-    }
-
-    &:not([data-properties~="unread"]) {
-      &:hover {
-        & .thread-card-container::after {
-          --indicator-icon-fill: var(--listbox-hover);
-        }
-      }
-
-      &.selected {
-        & .thread-card-container::after {
-          --indicator-icon-fill: var(--card-view-background-selected-unfocused);
-        }
-
-        &:focus-within {
-          & .thread-card-container::after {
-            --indicator-icon-fill: var(--card-view-background-selected-focused);
-          }
-        }
-      }
-    }
-  }
-}
-
-.thread-card-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--thread-pane-container-gap);
-  height: 100%;
-  padding-inline-start: var(--thread-card-inline-doubled);
-  padding-inline-end: var(--thread-card-inline);
-  box-sizing: border-box;
-
-  &::after {
-    position: absolute;
-    content: var(--indicator-icon);
-    inset-inline-start: var(--indicator-icon-offset-inline);
-    inset-block-start: var(--indicator-icon-offset-block);
-    -moz-context-properties: fill, stroke;
-    fill: var(--indicator-icon-fill);
-    stroke: var(--indicator-icon-stroke);
-  }
-
-  @media (-moz-overlay-scrollbars) {
-    padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
-  }
-
-  /**
-   * Don't display this when only one account is added or when the user has
-   * disabled it in the settings.
-   * TODO: Create a way for the user to select a color to associate with each
-   * added account. Use that account color as the var(--acount-color) variable
-   * and create a toggle to show/hide this indicator.
-   */
-  & .account-indicator {
-    display: none;
-    box-sizing: border-box;
-    background-color: var(--account-color);
-    border: 1px solid color-mix(in srgb, var(--account-color) 80%, black);
-    border-radius: 4px;
-    width: 4px;
-    height: 12px;
-    margin-inline-end: -3px;
-  }
-
-  & .sender {
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  & .date {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    font-size: 0.95rem;
-    opacity: 0.85;
-  }
-
-  #threadTree [data-properties~="unread"] & :is(.sender, .subject) {
-    font-weight: bold;
-  }
-
-  #threadTree [data-properties~="new"]:not(.selected) & :is(.subject, .date) {
-    color: var(--new-folder-color);
-  }
-}
-
-.thread-card-subject-container {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex: 1 1 0;
-
-  & .sender {
-    font-weight: 400;
-  }
-
-  & .subject {
-    font-size: 1.1rem;
-    font-weight: normal;
-    flex: 1 1 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.thread-card-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 0;
-  margin: 0;
-  line-height: 1.3;
-
-  &:not(.thread-card-last-row) {
-    margin-inline-start: 3px;
-  }
-
-  & > :is(.sender, .subject) {
-    flex: 1 1 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  & > .thread-card-icon-info {
-    display: flex;
-    margin-inline-start: auto;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-  }
-
-  .is-outgoing [data-properties~="outgoing"] & > .sender {
-    background-position-x: 0;
-    background-position-y: center;
-    background-repeat: no-repeat;
-    background-image: var(--icon-nav-forward);
-    -moz-context-properties: stroke, fill-opacity;
-    stroke: currentColor;
-    fill-opacity: 0.3;
-    padding-inline-start: 18px;
-
-    &:dir(rtl) {
-      background-image: var(--icon-nav-back);
-      background-position-x: 100%
-    }
-  }
-
-  [data-properties~="dummy"] > td > .thread-card-container > &:first-child {
-    display: none;
-  }
 }
 
 /* Header bar */

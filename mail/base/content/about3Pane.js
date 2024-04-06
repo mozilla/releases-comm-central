@@ -4589,21 +4589,32 @@ var threadPane = {
     const cardClass = customElements.get("thread-card");
     const currentFontSize = UIFontSize.size;
     const cardRows = 3;
+    const cardRowConstant = Math.round(1.43 * cardRows * currentFontSize); // subject line-height * line-height * cardRows * current font-size
+    let lineGap;
+    let densityPaddingConstant;
     let cardRowHeight;
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
         rowClass.ROW_HEIGHT = 18;
         // Calculation based on card components:
-        // currentFontSize, subject height, line height, and number of rows.
-        cardRowHeight = Math.round(currentFontSize * 1.3 * 1.1 * cardRows);
+        lineGap = 1;
+        densityPaddingConstant = 3; // card padding-block + 2 * row padding-block
+        cardRowHeight =
+          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
         break;
       case UIDensity.MODE_TOUCH:
-        rowClass.ROW_HEIGHT = 32;
-        cardRowHeight = (currentFontSize + 7) * cardRows + 12;
+        rowClass.ROW_HEIGHT = 30;
+        lineGap = 6;
+        densityPaddingConstant = 12; // card padding-block + 2 * row padding-block
+        cardRowHeight =
+          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
         break;
       default:
-        rowClass.ROW_HEIGHT = 26;
-        cardRowHeight = (currentFontSize + 7) * cardRows + 6;
+        rowClass.ROW_HEIGHT = 24;
+        lineGap = 3;
+        densityPaddingConstant = 7; // card padding-block + 2 * row padding-block
+        cardRowHeight =
+          cardRowConstant + lineGap * cardRows + densityPaddingConstant;
         break;
     }
     cardClass.ROW_HEIGHT = Math.max(cardRowHeight, 50);
