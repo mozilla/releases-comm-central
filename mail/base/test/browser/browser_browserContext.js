@@ -68,7 +68,9 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   }
 
   const browserContext = doc.getElementById("browserContext");
-  const isMac = AppConstants.platform == "macosx";
+  const isMacWithNativeContextMenus =
+    AppConstants.platform == "macosx" &&
+    Services.prefs.getBoolPref("widget.macos.native-context-menus", true);
   const isWebPage =
     browser.currentURI.schemeIs("http") || browser.currentURI.schemeIs("https");
   const isExtensionPage = browser.currentURI.schemeIs("moz-extension");
@@ -88,7 +90,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
 
   const expectedContextItems = [];
   if (isWebPage || isExtensionPage) {
-    if (isMac) {
+    if (isMacWithNativeContextMenus) {
       // Mac has the nav items directly in the context menu and not in the horizontal
       // context-navigation menugroup.
       expectedContextItems.push(

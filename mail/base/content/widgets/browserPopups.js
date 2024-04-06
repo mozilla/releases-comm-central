@@ -510,7 +510,10 @@ class nsContextMenu {
   }
   initBackForwardMenuItemTooltip(menuItemId, l10nId, shortcutId) {
     // On macOS regular menuitems are used and the shortcut isn't added.
-    if (AppConstants.platform == "macosx") {
+    if (
+      AppConstants.platform == "macosx" &&
+      Services.prefs.getBoolPref("widget.macos.native-context-menus", true)
+    ) {
       return;
     }
 
@@ -556,7 +559,10 @@ class nsContextMenu {
     this.showItem("browserContext-stop", shouldShowNavItems && !stopped);
     this.showItem("browserContext-sep-navigation", shouldShowNavItems);
 
-    if (AppConstants.platform == "macosx") {
+    if (
+      AppConstants.platform == "macosx" &&
+      Services.prefs.getBoolPref("widget.macos.native-context-menus", true)
+    ) {
       this.showItem("browserContext-back", shouldShowNavItems);
       this.showItem("browserContext-forward", shouldShowNavItems);
     } else {
