@@ -2998,10 +2998,13 @@ const gMessageHeader = {
     document.getElementById("messageIdContext-openMessageForMsgId").hidden =
       `<${gMessage.messageId}>` == element.id;
 
-    // We don't want to show "Open Browser With Message-ID" for non-nntp
-    // messages.
+    // Show "Open Browser With Message-ID" only for nntp messages or mailing
+    // lists hosted by Google.
     document.getElementById("messageIdContext-openBrowserWithMsgId").hidden =
-      !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false);
+      !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) &&
+      !currentHeaderData["list-archive"]?.headerValue.includes(
+        "<https://groups.google.com/"
+      );
 
     const popup = document.getElementById("messageIdContext");
     popup.headerField = element;
@@ -3295,11 +3298,10 @@ function MarkSelectedMessagesFlagged(markFlagged) {
  * @param {string} messageId - The message id to open.
  */
 function OpenBrowserWithMessageId(messageId) {
-  var browserURL = Services.prefs.getComplexValue(
-    "mailnews.messageid_browser.url",
-    Ci.nsIPrefLocalizedString
-  ).data;
-  browserURL = browserURL.replace(/%mid/, messageId);
+  var browserURL = Services.prefs.getStringPref(
+    "mailnews.messageid_browser.url"
+  );
+  browserURL = browserURL.replace(/%mid/, encodeURIComponent(messageId));
   try {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
