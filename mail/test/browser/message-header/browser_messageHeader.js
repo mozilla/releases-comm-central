@@ -757,7 +757,7 @@ add_task(async function test_add_contact_from_context_menu() {
       "List-Post": "<https://example.test/lists/gocats/post>",
       "List-Owner":
         "<mailto:gocats+owner@example.test?subject=gocats-list>, <https://example.test/lists/gocats/owner>",
-      "List-Archive": "<https://example.test/lists/gocats/archive>",
+      "List-Archive": "<https://example.test/lists/gocats/archive ",
       "Archived-At": "<https://example.test/mid/123@example.org>",
     },
   });

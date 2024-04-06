@@ -815,7 +815,9 @@
           li.classList.add("header-message-url");
 
           // URLs are usually surrounded by <>.
-          const url = urlText.replace(/\s*^<([^>]+)>\s*/, "$1");
+          const url = urlText
+            .replace(/\s*^<([^>]+)>\s*/, "$1")
+            .replace(/[<>\s]/g, "");
           if (!/^(https?|mailto):/.test(url)) {
             li.textContent = urlText;
           } else {
