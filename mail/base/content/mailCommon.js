@@ -981,18 +981,20 @@ var dbViewWrapperListener = {
   onFolderLoading() {},
   onSearching() {},
   onCreatedView() {
-    if (window.threadTree) {
-      for (const col of ThreadPaneColumns.getCustomColumns()) {
-        gViewWrapper.dbView.addColumnHandler(col.id, col.handler);
-      }
-      window.threadPane.setTreeView(gViewWrapper.dbView);
-      window.threadPane.restoreSortIndicator();
-      window.threadPane.restoreThreadState();
-      window.threadPaneHeader.onFolderSelected();
-      window.threadPane.isFirstScroll = true;
-      window.threadPane.scrollDetected = false;
-      window.threadPane.scrollToLatestRowIfNoSelection();
+    if (!window.threadTree) {
+      return;
     }
+
+    for (const col of ThreadPaneColumns.getCustomColumns()) {
+      gViewWrapper.dbView.addColumnHandler(col.id, col.handler);
+    }
+    window.threadPane.setTreeView(gViewWrapper.dbView);
+    window.threadPane.restoreSortIndicator();
+    window.threadPane.restoreThreadState();
+    window.threadPaneHeader.onFolderSelected();
+    window.threadPane.isFirstScroll = true;
+    window.threadPane.scrollDetected = false;
+    window.threadPane.scrollToLatestRowIfNoSelection();
   },
   onDestroyingView(folderIsComingBack) {
     if (!window.threadTree) {
@@ -1020,8 +1022,7 @@ var dbViewWrapperListener = {
       return;
     }
 
-    // There is no persisted thread last expanded state for synthetic views.
-    if (all && !gViewWrapper.isSynthetic) {
+    if (all) {
       window.threadPane.restoreThreadState();
     }
 

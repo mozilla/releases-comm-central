@@ -4771,18 +4771,22 @@ var threadPane = {
    * Restore the collapsed or expanded state of threads.
    */
   restoreThreadState() {
-    if (
-      gViewWrapper._threadExpandAll &&
-      !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
-    ) {
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+    // There is no persisted thread last expanded state for synthetic views.
+    if (!gViewWrapper.isSynthetic && gViewWrapper.isSingleFolder) {
+      if (
+        gViewWrapper._threadExpandAll &&
+        !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
+      ) {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.expandAll);
+      }
+      if (
+        !gViewWrapper._threadExpandAll &&
+        gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
+      ) {
+        gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
+      }
     }
-    if (
-      !gViewWrapper._threadExpandAll &&
-      gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
-    ) {
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-    }
+
     threadTree.dataset.showGroupedBySort = gViewWrapper.showGroupedBySort;
   },
 
