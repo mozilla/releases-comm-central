@@ -9,6 +9,7 @@
 #filter substitution
 
 [localization] @AB_CD@.jar:
+  preview/accountSetup-preview.ftl                                      (../components/accountcreation/content/accountSetup-preview.ftl)
   browser                                                               (%browser/**/*.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 

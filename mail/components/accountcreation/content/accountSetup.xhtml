@@ -29,6 +29,8 @@
       rel="localization"
       href="messenger/accountcreation/accountSetup.ftl"
     />
+    <!-- Untranslated -->
+    <link rel="localization" href="preview/accountSetup-preview.ftl" />
 
     <script
       defer="defer"
@@ -708,13 +710,10 @@
                 name="resultsServerType"
                 onchange="gAccountSetup.onResultServerTypeChanged();"
               />
-              <span
-                class="strong"
-                data-l10n-id="account-setup-result-exchange-name"
-              ></span>
+              <span class="strong"> Exchange/Office365 </span>
               <p
                 class="result-indent"
-                data-l10n-id="account-setup-result-exchange-description"
+                data-l10n-id="account-setup-result-exchange2-description"
               ></p>
             </label>
             <aside class="result-details">
@@ -775,11 +774,12 @@
                     hidden="hidden"
                   ></option>
                   <option
-                    data-l10n-id="account-setup-result-exchange-shortname"
                     id="incomingProtocolExchange"
                     value="4"
                     hidden="hidden"
-                  ></option>
+                  >
+                    Exchange
+                  </option>
                 </select>
               </div>
             </aside>
