@@ -22,7 +22,6 @@
   background-color: var(--layout-background-2);
   display: flex;
   flex-direction: column;
-  min-height: 6ex;
 }
 
 #calendar-task-details-attachment-row > hbox {
