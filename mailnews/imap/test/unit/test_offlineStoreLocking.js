@@ -8,8 +8,6 @@
  */
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
-
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
@@ -25,16 +23,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var gIMAPTrashFolder, gMsgImapInboxFolder;
 var gMovedMsgId;
 
-var gAlertResolve;
-var gGotAlert = new Promise(resolve => {
-  gAlertResolve = resolve;
-});
-
-/* exported alert to alertTestUtils.js */
-function alertPS(parent, aDialogTitle, aText) {
-  gAlertResolve(aText);
-}
-
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
   messages.forEach(function (message) {
@@ -48,7 +36,6 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 var gStreamedHdr = null;
 
 add_setup(async function () {
-  registerAlertTestUtils();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
@@ -118,6 +105,11 @@ add_task(async function compactOneFolder() {
   //  message being marked for offline use.
   //  Luckily, compaction compacts the offline store first, so it should
   //  lock the offline store.
+  // NOTE (BenC, Apr 2024): I'm not sure this test is really testing what it
+  // claims to. There is folder locking, but not really msgStore locking.
+  // This could be an issue, but it really needs a deep dive to explore it
+  // properly. I suspect the test might be borked, but the rationale behind
+  // the test is reasonable.
   IMAPPump.inbox.msgDatabase.markOffline(msgHdr.messageKey, false, null);
   const msgURI = msgHdr.folder.getUriForMsg(msgHdr);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
@@ -125,7 +117,7 @@ add_task(async function compactOneFolder() {
   //  compaction are finished. dummyMsgWindow is required to make the backend
   //  compact the offline store.
   const compactUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.compact(compactUrlListener, gDummyMsgWindow);
+  IMAPPump.inbox.compact(compactUrlListener, null);
   // Stream the message w/o a stream listener in an attempt to get the url
   //  started more quickly, while the compact is still going on.
   const urlListener = new PromiseTestUtils.PromiseUrlListener({});
@@ -190,11 +182,11 @@ add_task(async function testOfflineBodyCopy() {
   const enumerator = gIMAPTrashFolder.msgDatabase.enumerateMessages();
   const msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   gMovedMsgId = msgHdr.messageId;
-  const compactionListener = new PromiseTestUtils.PromiseUrlListener();
-  // NOTE: calling compact() even if msgStore doesn't support compaction.
-  // It should be a safe no-op, and we're just testing that the listener is
-  // still invoked.
-  IMAPPump.inbox.compact(compactionListener, gDummyMsgWindow);
+
+  // Lock the folder (using any old nsISupports-based object).
+  const locker = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.acquireSemaphore(locker);
+
   const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gIMAPTrashFolder,
@@ -205,6 +197,9 @@ add_task(async function testOfflineBodyCopy() {
     null,
     true
   );
+  await copyListener.promise;
+
+  IMAPPump.inbox.releaseSemaphore(locker);
 
   // Verify that the moved Msg is not offline.
   try {
@@ -214,26 +209,6 @@ add_task(async function testOfflineBodyCopy() {
   } catch (ex) {
     throw new Error(ex);
   }
-  await compactionListener.promise;
-  await copyListener.promise;
-});
-
-add_task(async function test_checkAlert() {
-  // Check if testing maildir which doesn't produce an the alert like mbox.
-  // If so, don't wait for an alert.
-  const storageCID = Services.prefs.getCharPref(
-    "mail.serverDefaultStoreContractID"
-  );
-  if (storageCID == "@mozilla.org/msgstore/maildirstore;1") {
-    return;
-  }
-
-  const alertText = await gGotAlert;
-  Assert.ok(
-    alertText.startsWith(
-      "The folder 'Inbox on Mail for ' cannot be compacted because another operation is in progress. Please try again later."
-    )
-  );
 });
 
 add_task(function teardown() {

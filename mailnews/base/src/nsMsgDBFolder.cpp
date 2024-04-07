@@ -64,6 +64,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
+#include "mozilla/ScopeExit.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
@@ -1481,6 +1482,10 @@ nsresult nsMsgDBFolder::StartNewOfflineMessage() {
 }
 
 nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
+  // Whatever happens, we want to unlock the folder.
+  auto guard = mozilla::MakeScopeExit(
+      [&] { ReleaseSemaphore(static_cast<nsIMsgFolder*>(this)); });
+
   nsMsgKey messageKey;
 
   nsresult rv1, rv2;
@@ -1537,11 +1542,9 @@ nsresult nsMsgDBFolder::EndNewOfflineMessage(nsresult status) {
         (messageSize - (uint32_t)curStorePos) >
             (uint32_t)m_numOfflineMsgLines) {
       mDatabase->MarkOffline(messageKey, false, nullptr);
-      // we should truncate the offline store at messageOffset
-      ReleaseSemaphore(static_cast<nsIMsgFolder*>(this));
       rv1 = rv2 = NS_OK;
       if (msgStore) {
-        // DiscardNewMessage now closes the stream all the time.
+        // DiscardNewMessage closes the stream.
         rv1 = msgStore->DiscardNewMessage(m_tempMessageStream, m_offlineHeader);
         m_tempMessageStream = nullptr;  // avoid accessing closed stream
       } else {
