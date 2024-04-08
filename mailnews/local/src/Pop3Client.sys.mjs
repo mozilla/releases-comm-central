@@ -498,6 +498,7 @@ export class Pop3Client {
    * Write this._uidlMap into popstate.dat.
    *
    * @param {boolean} [resetFlag] - If true, reset _uidlMapChanged to false.
+   * @throws {DOMException} for I/O errors writing to popstate.dat.
    */
   async _writeUidlState(resetFlag) {
     if (!this._uidlMapChanged) {
@@ -1218,7 +1219,7 @@ export class Pop3Client {
         }
         this._sendNoopIfInactive();
       },
-      () => {
+      async () => {
         if (!this._downloadMail) {
           const numberOfMessages = this._messagesToHandle.filter(
             // No receivedAt means we're seeing it for the first time.
@@ -1275,7 +1276,7 @@ export class Pop3Client {
         this._uidlMap = this._newUidlMap;
 
         this._sink.setMsgsToDownload(this._messagesToDownload.length);
-        this._actionHandleMessage();
+        await this._actionHandleMessage();
         this._updateProgress();
       }
     );
@@ -1323,7 +1324,7 @@ export class Pop3Client {
    * Consume a message from this._messagesToHandle, decide to send TOP, RETR or
    * DELE request.
    */
-  _actionHandleMessage = () => {
+  _actionHandleMessage = async () => {
     this._currentMessage = this._messagesToHandle.shift();
     if (
       this._messagesToHandle.length > 0 &&
@@ -1332,7 +1333,13 @@ export class Pop3Client {
     ) {
       // Update popstate.dat every 20 messages, so that even if an error
       // happens, no need to re-download all messages.
-      this._writeUidlState();
+      try {
+        await this._writeUidlState();
+      } catch (e) {
+        this._logger.error("Writing UIDL state FAILED.", e);
+        this._actionDone(Cr.NS_ERROR_FAILURE);
+        return;
+      }
     }
     if (this._currentMessage) {
       switch (this._currentMessage.status) {
@@ -1624,7 +1631,12 @@ export class Pop3Client {
       // Put _currentMessage back to the queue to prevent loss of popstate.
       this._messagesToHandle.unshift(this._currentMessage);
     }
-    this._writeUidlState(true);
+    try {
+      await this._writeUidlState(true);
+    } catch (e) {
+      this._logger.error("Done but writing UIDL state FAILED.", e);
+      status = Cr.NS_ERROR_FAILURE;
+    }
     // Normally we clean up after QUIT response.
     await this.quit(() => this._cleanUp(status));
     // If we didn't receive QUIT response after 3 seconds, clean up anyway.
@@ -1645,7 +1657,7 @@ export class Pop3Client {
     const runningUrl = {};
     this.runningUri.GetUrlState(runningUrl);
     if (runningUrl.value) {
-      this.urlListener.OnStopRunningUrl(this.runningUri, status);
+      this.urlListener?.OnStopRunningUrl(this.runningUri, status);
     }
     this.runningUri.SetUrlState(false, Cr.NS_OK);
     this.onDone?.(status);
