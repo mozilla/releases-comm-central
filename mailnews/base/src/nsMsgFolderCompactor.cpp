@@ -542,7 +542,7 @@ nsresult nsFolderCompactState::FinishCompact() {
   int64_t fileSize = 0;
   rv = m_file->Clone(getter_AddRefs(cloneFile));
   if (NS_SUCCEEDED(rv)) rv = cloneFile->GetFileSize(&fileSize);
-  bool tempFileRightSize = ((uint64_t)fileSize > m_totalMsgSize);
+  bool tempFileRightSize = ((uint64_t)fileSize >= m_totalMsgSize);
   NS_WARNING_ASSERTION(tempFileRightSize,
                        "temp file not of expected size in compact");
 
