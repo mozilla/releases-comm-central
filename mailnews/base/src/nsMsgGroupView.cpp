@@ -462,7 +462,9 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
 
   // If grouped, we need to clone the group thread hash table.
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
-    if (mIsXFVirtual) {
+    // If this is any kind of nsMsgSearchDBView, either cross-folder or synthetic
+    // (no message database).
+    if (mIsXFVirtual || !m_db) {
       for (auto iter = m_groupsTable.Iter(); !iter.Done(); iter.Next()) {
         newMsgDBView->m_groupsTable.InsertOrUpdate(
             iter.Key(),
