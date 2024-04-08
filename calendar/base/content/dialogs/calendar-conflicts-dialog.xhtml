@@ -24,12 +24,12 @@
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
     <script defer="defer" src="chrome://calendar/content/calendar-conflicts-dialog.js"></script>
   </head>
-  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <dialog>
-      <vbox id="conflicts-vbox" flex="1">
-        <vbox id="item-box" flex="1" />
-        <description id="conflicts-description" style="max-width: 40em; margin-top: 1ex" />
-      </vbox>
-    </dialog>
-  </html:body>
+  <body>
+    <xul:dialog>
+      <div id="conflicts-vbox">
+        <div id="item-box"></div>
+      </div>
+      <p id="conflicts-description"></p>
+    </xul:dialog>
+  </body>
 </html>

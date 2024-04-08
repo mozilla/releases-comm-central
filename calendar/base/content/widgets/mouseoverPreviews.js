@@ -125,8 +125,8 @@ function getToDoStatusString(aToDo) {
  * PRIVATE: Called when a user hovers over a todo element and the text for the
  * mouse overis changed.
  *
- * @param {calIToDo} toDoItem - the item to create the preview for
- * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
+ * @param {calIToDo} toDoItem - The item to create the preview for.
+ * @param {boolean} [aIsTooltip=true] - Enable if used for tooltip composition.
  */
 function getPreviewForTask(toDoItem, aIsTooltip = true) {
   if (toDoItem) {
@@ -228,8 +228,8 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
  * box (recurring or multiday events may be displayed by more than one event box
  * for different days), or null if should compute next instance from now.
  *
- * @param {calIEvent} aEvent - the item to create the preview for
- * @param {boolean}   aIsTooltip   enabled if used for tooltip composition (default)
+ * @param {calIEvent} aEvent - The item to create the preview for.
+ * @param {boolean} [aIsTooltip=true] - Enable if used for tooltip composition.
  */
 function getPreviewForEvent(aEvent, aIsTooltip = true) {
   let event = aEvent;
@@ -308,14 +308,12 @@ function boxAppendBodySeparator(vbox) {
  */
 function boxAppendBody(box, textString, aIsTooltip) {
   const type = aIsTooltip ? "description" : "vbox";
-  const xulDescription = document.createXULElement(type);
-  xulDescription.setAttribute("class", "tooltipBody");
-  if (!aIsTooltip) {
-    xulDescription.setAttribute("flex", "1");
-  }
+  const elem = document.createXULElement(type);
+  elem.classList.add("tooltipBody");
+  elem.classList.toggle("notTooltip", !aIsTooltip);
   const docFragment = cal.view.textToHtmlDocumentFragment(textString, document);
-  xulDescription.appendChild(docFragment);
-  box.appendChild(xulDescription);
+  elem.appendChild(docFragment);
+  box.appendChild(elem);
 }
 
 /**
@@ -348,10 +346,10 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
 /**
  * PRIVATE: create empty 2-column table for header fields, and append it to box.
  *
- * @param  {Node}  box  The node to create a column table for
+ * @param {Node}  box  The node to create a column table for
  */
 function boxInitializeHeaderTable(box) {
-  const table = document.createElementNS("http://www.w3.org/1999/xhtml", "table");
+  const table = document.createElement("table");
   table.setAttribute("class", "tooltipHeaderTable");
   box.appendChild(table);
 }
@@ -367,7 +365,7 @@ function boxInitializeHeaderTable(box) {
 function boxAppendLabeledText(box, labelProperty, textString) {
   const labelText = cal.l10n.getCalString(labelProperty);
   const table = box.querySelector("table");
-  const row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+  const row = document.createElement("tr");
 
   row.appendChild(createTooltipHeaderLabel(labelText));
   row.appendChild(createTooltipHeaderDescription(textString));
@@ -382,7 +380,7 @@ function boxAppendLabeledText(box, labelProperty, textString) {
  * @returns {Node} The node
  */
 function createTooltipHeaderLabel(text) {
-  const labelCell = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
+  const labelCell = document.createElement("th");
   labelCell.setAttribute("class", "tooltipHeaderLabel");
   labelCell.textContent = text;
   return labelCell;

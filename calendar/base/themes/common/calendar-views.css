@@ -1008,9 +1008,26 @@ calendar-event-box:hover :is(.gripbar-start, .gripbar-end) {
   margin: 0pt;
 }
 
+.tooltipBody.notTooltip {
+  flex: 1 1 0;
+  overflow: auto;
+}
+
+#conflicts-vbox {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 250px;
+  overflow: hidden;
+  margin: 2px 4px;
+}
+
 #conflicts-vbox .tooltipBody {
   overflow: auto;
-  min-height: 250px;
+}
+
+#conflicts-description {
+  max-width: 40em;
+  margin-top: 1ex;
 }
 
 #calendar-view-context-menu[type="event"] .todo-only,
