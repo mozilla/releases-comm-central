@@ -73,12 +73,9 @@ export class MailLinkParent extends JSWindowActorParent {
   }
 
   _handleNewsLink({ data }) {
-    Services.ww.openWindow(
-      null,
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      Services.io.newURI(data)
+    lazy.MailUtils.handleNewsUri(
+      data,
+      Services.wm.getMostRecentWindow("mail:3pane")
     );
   }
 }

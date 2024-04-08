@@ -856,6 +856,119 @@ export var MailUtils = {
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(Services.io.newURI(browserURL));
   },
+
+  /**
+   * If the 'news' URI contains a message-id, retrieve the corresponding
+   * message from the server, save it in a temporary EML file, and display it
+   * in a new tab or message window.
+   * For URIs that identify a newsgroup, ask to subscribe, if necessary, and
+   * open the group in the folder pane.
+   * If no host is specified in the URI, the server of the first NNTP account
+   * is used.
+   *
+   * @param {string} uri - The 'news' URI to open.
+   * @param {DOMWindow} win - The window which the URI is being opened within.
+   */
+  handleNewsUri(uri, win) {
+    // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-2.2}
+    const url = new URL(uri);
+    if (url.pathname.length <= 1) {
+      return;
+    }
+
+    // Treat deprecated 'snews' URIs exactly as 'news' URIs.
+    // @see {@link https://datatracker.ietf.org/doc/html/rfc5538#section-8.1}
+    if (url.protocol == "snews:") {
+      url.protocol = "news:";
+    }
+
+    const firstNntpServer = lazy.MailServices.accounts.accounts.find(
+      account => account.incomingServer.type == "nntp"
+    )?.incomingServer;
+
+    // 'news' URIs identifying a newsgroup.
+
+    const identifier = decodeURIComponent(url.pathname.slice(1));
+    if (!identifier.includes("@")) {
+      if (identifier.includes("*")) {
+        console.warn(`Unsupported news URI: ${url}`);
+        return;
+      }
+
+      const server = url.hostname
+        ? lazy.MailServices.accounts.findServer("", url.hostname, "nntp")
+        : firstNntpServer;
+      if (!server) {
+        console.warn(`Unknown news server: ${url.hostname}`);
+        return;
+      }
+
+      if (
+        !server
+          .QueryInterface(Ci.nsINntpIncomingServer)
+          .containsNewsgroup(identifier)
+      ) {
+        const bundle = Services.strings.createBundle(
+          "chrome://messenger/locale/news.properties"
+        );
+        const result = Services.prompt.confirm(
+          win,
+          null,
+          bundle.formatStringFromName("autoSubscribeText", [identifier])
+        );
+        if (!result) {
+          return;
+        }
+        server.subscribeToNewsgroup(identifier);
+      }
+      this.displayFolderIn3Pane(server.findGroup(identifier).URI);
+      return;
+    }
+
+    // URIs that contain a message-ID.
+
+    if (!url.hostname) {
+      if (!firstNntpServer) {
+        console.warn("No news server set up.");
+        return;
+      }
+      url.hostname = firstNntpServer.hostName;
+      url.port = firstNntpServer.port;
+    }
+    if (!url.port) {
+      url.port = Ci.nsINntpUrl.DEFAULT_NNTP_PORT;
+    }
+
+    const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    tempFile.append("newsuri.eml");
+    tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+    const extAppLauncher = Cc[
+      "@mozilla.org/uriloader/external-helper-app-service;1"
+    ].getService(Ci.nsPIExternalAppLauncher);
+    extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+    const messageService = Cc[
+      "@mozilla.org/messenger/messageservice;1?type=news"
+    ].getService(Ci.nsIMsgMessageService);
+    const urlListener = {
+      OnStopRunningUrl(url, aExitCode) {
+        if (!Components.isSuccessCode(aExitCode) || tempFile.fileSize <= 0) {
+          console.warn(`Could not open URI ${url.asciiSpec}`);
+          return;
+        }
+        MailUtils.openEMLFile(win, tempFile, Services.io.newFileURI(tempFile));
+      },
+    };
+    messageService.SaveMessageToDisk(
+      url.href,
+      tempFile,
+      false,
+      urlListener,
+      {},
+      true,
+      null
+    );
+  },
 };
 
 /**

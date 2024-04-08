@@ -453,9 +453,13 @@ export class MessengerContentHandler {
           );
           lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
         });
-      } else if (/^imap:/i.test(uri) || /^s?news:/i.test(uri)) {
+      } else if (/^imap:/i.test(uri)) {
         getOrOpen3PaneWindow().then(() => {
           openURI(cmdLine.resolveURI(uri));
+        });
+      } else if (/^s?news:/i.test(uri)) {
+        getOrOpen3PaneWindow().then(win => {
+          lazy.MailUtils.handleNewsUri(uri, win);
         });
       } else if (
         // While the leading web+ and ext+ identifiers may be case insensitive,

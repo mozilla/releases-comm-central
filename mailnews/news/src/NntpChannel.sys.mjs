@@ -7,7 +7,6 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   NntpUtils: "resource:///modules/NntpUtils.sys.mjs",
 });
 
@@ -171,30 +170,6 @@ export class NntpChannel extends MailChannel {
       return;
     }
 
-    if (this._groupName && !this._server.containsNewsgroup(this._groupName)) {
-      const bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/news.properties"
-      );
-      const win = Services.wm.getMostRecentWindow("mail:3pane");
-      const result = Services.prompt.confirm(
-        win,
-        null,
-        bundle.formatStringFromName("autoSubscribeText", [this._groupName])
-      );
-      if (!result) {
-        return;
-      }
-      this._server.subscribeToNewsgroup(this._groupName);
-      const folder = this._server.findGroup(this._groupName);
-      lazy.MailUtils.displayFolderIn3Pane(folder.URI);
-    }
-
-    if (this._groupName && !this._articleNumber && !this._messageId) {
-      const folder = this._server.findGroup(this._groupName);
-      lazy.MailUtils.displayFolderIn3Pane(folder.URI);
-      return;
-    }
-
     if (url.searchParams.has("part")) {
       const converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
@@ -276,10 +251,12 @@ export class NntpChannel extends MailChannel {
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);
+        this.URI.SetUrlState(true, Cr.NS_OK);
         this._pending = true;
       },
       onStopRequest: (request, status) => {
         this._listener.onStopRequest(this, status);
+        this.URI.SetUrlState(false, status);
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}

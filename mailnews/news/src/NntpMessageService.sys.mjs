@@ -200,14 +200,13 @@ class BaseMessageService {
       groupName = url.searchParams.get("group");
       key = url.searchParams.get("key");
     }
-    groupName = groupName ? decodeURIComponent(groupName) : null;
-    const server = MailServices.accounts
-      .findServer("", host, "nntp")
-      .QueryInterface(Ci.nsINntpIncomingServer);
-    let folder;
+    let folder = null;
     if (groupName) {
-      folder = server.rootFolder
-        .getChildNamed(groupName)
+      const server = MailServices.accounts
+        .findServer("", host, "nntp")
+        ?.QueryInterface(Ci.nsINntpIncomingServer);
+      folder = server?.rootFolder
+        .getChildNamed(decodeURIComponent(groupName))
         .QueryInterface(Ci.nsIMsgNewsFolder);
     }
     return [folder, key];
