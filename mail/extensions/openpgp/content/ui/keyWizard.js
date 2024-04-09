@@ -101,8 +101,8 @@ async function initKeyWiz() {
   // Switch directly to the create screen if requested by the user.
   if (window.arguments[0].isCreate) {
     document.getElementById("openPgpKeyChoices").value = 0;
-
     switchSection(true);
+    return;
   }
 
   // Switch directly to the import screen if requested by the user.
@@ -578,11 +578,15 @@ async function validateExpiration() {
 function resizeDialog() {
   // Check if the attribute is not null. This can be removed after the full
   // conversion of the Key Manager into a SubDialog in Bug 1652537.
-  if (gSubDialog && gSubDialog._topDialog) {
+  if (gSubDialog?._topDialog) {
     gSubDialog._topDialog.resizeVertically();
-  } else {
-    window.sizeToContent();
+    return;
   }
+
+  window.resizeTo(
+    window.outerWidth,
+    document.body.scrollHeight + window.outerHeight - window.innerHeight + 6
+  );
 }
 
 /**

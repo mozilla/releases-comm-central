@@ -110,6 +110,8 @@ description {
 
 .openpgp-key-name {
   font-size: 0.9em;
+  text-wrap: auto;
+  padding-inline-end: 6px;
 }
 
 .openpgp-image-btn .button-icon {
@@ -124,10 +126,14 @@ description {
 
 .extra-information-label {
   display: grid;
-  grid-template-columns: auto max-content;
+  grid-template-columns: auto minmax(360px, max-content);
   row-gap: 5px;
-  align-items: center;
+  align-items: baseline;
   margin-inline-end: 10px;
+
+  & > label:not(.extra-information-label-type) {
+    text-wrap: wrap;
+  }
 }
 
 .extra-information-label-type {
