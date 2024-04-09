@@ -29,6 +29,7 @@ function updateWindow(win) {
     win.document.documentElement.style.removeProperty("font-size");
     UIFontSize.updateMessageBrowser(browser);
     UIFontSize.updateAppMenuButton(win);
+    win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
     return;
   }
 
@@ -42,6 +43,7 @@ function updateWindow(win) {
     Services.console.logStringMessage(
       `Unsupported font size: ${UIFontSize.prefValue}`
     );
+    win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
     return;
   }
 
