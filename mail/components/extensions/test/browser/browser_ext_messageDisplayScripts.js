@@ -649,3 +649,229 @@ add_task(async function testContentScriptRegister() {
     "messagesModify"
   );
 });
+
+/**
+ * Tests if scripts are correctly injected according to their runAt option.
+ */
+add_task(async function testRunAt() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        // Report script results.
+        browser.runtime.onMessage.addListener((message, sender) => {
+          if (message?.runAt) {
+            window.sendMessage(`ScriptLoaded:${message.runAt}`, {
+              senderTabId: sender.tab.id,
+              ...message,
+            });
+          }
+        });
+
+        const registeredScripts = new Set();
+        registeredScripts.add(
+          await browser.messageDisplayScripts.register({
+            runAt: "document_start",
+            js: [{ file: "start.js" }],
+          })
+        );
+
+        registeredScripts.add(
+          await browser.messageDisplayScripts.register({
+            runAt: "document_end",
+            js: [{ file: "end.js" }],
+          })
+        );
+
+        registeredScripts.add(
+          await browser.messageDisplayScripts.register({
+            runAt: "document_idle",
+            js: [{ file: "idle.js" }],
+          })
+        );
+
+        browser.test.onMessage.addListener(async message => {
+          switch (message) {
+            case "Unregister":
+              for (const registeredScript of registeredScripts) {
+                await registeredScript.unregister();
+              }
+              browser.test.notifyPass("finished");
+              break;
+          }
+        });
+
+        browser.test.sendMessage("Ready");
+      },
+      "start.js": () => {
+        browser.runtime.sendMessage({
+          runAt: "document_start",
+          readyState: document?.readyState,
+          document: !!document,
+          body: !!document?.body,
+          textContent:
+            document.querySelector(".moz-text-flowed")?.textContent ?? "",
+        });
+      },
+      "end.js": () => {
+        browser.runtime.sendMessage({
+          runAt: "document_end",
+          readyState: document?.readyState,
+          document: !!document,
+          body: !!document?.body,
+          textContent:
+            document.querySelector(".moz-text-flowed")?.textContent ?? "",
+        });
+      },
+      "idle.js": () => {
+        browser.runtime.sendMessage({
+          runAt: "document_idle",
+          readyState: document?.readyState,
+          document: !!document,
+          body: !!document?.body,
+          textContent:
+            document.querySelector(".moz-text-flowed")?.textContent ?? "",
+        });
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["messagesModify", "<all_urls>"],
+    },
+  });
+
+  about3Pane.threadTree.selectedIndex = 2;
+  await awaitBrowserLoaded(messagePane);
+
+  extension.startup();
+  await extension.awaitMessage("Ready");
+
+  function verifyResult(result, expected_individual) {
+    const expected_standard = [
+      {
+        runAt: "document_start",
+        readyState: "loading",
+        document: true,
+        body: false,
+      },
+      {
+        runAt: "document_end",
+        readyState: "interactive",
+        document: true,
+        body: true,
+      },
+      {
+        runAt: "document_idle",
+        readyState: "complete",
+        document: true,
+        body: true,
+      },
+    ];
+    for (let i = 0; i < result.length; i++) {
+      Assert.equal(
+        expected_standard[i].runAt,
+        result[i].runAt,
+        `The 'runAt' value for state #${i} should be correct`
+      );
+      Assert.equal(
+        expected_standard[i].readyState,
+        result[i].readyState,
+        `The 'readyState' value at state #${i} should be correct`
+      );
+      Assert.equal(
+        expected_standard[i].document,
+        result[i].document,
+        `The document element at state #${i} ${
+          expected_standard[i].document ? "should" : "should not"
+        } exist`
+      );
+      Assert.equal(
+        expected_standard[i].body,
+        result[i].body,
+        `The body element at state #${i} ${
+          expected_standard[i].body ? "should" : "should not"
+        } exist`
+      );
+      Assert.equal(
+        expected_individual[i].textContent.trim(),
+        result[i].textContent.trim(),
+        `The content at state #${i} should be correct`
+      );
+    }
+  }
+
+  // Select a new message.
+  const firstLoadPromise = Promise.all([
+    extension.awaitMessage("ScriptLoaded:document_start"),
+    extension.awaitMessage("ScriptLoaded:document_end"),
+    extension.awaitMessage("ScriptLoaded:document_idle"),
+  ]);
+  about3Pane.threadTree.selectedIndex = 3;
+  verifyResult(await firstLoadPromise, [
+    { textContent: "" },
+    { textContent: "Hello Pete Price!" },
+    { textContent: "Hello Pete Price!" },
+  ]);
+
+  // Select a different message.
+  const secondLoadPromise = Promise.all([
+    extension.awaitMessage("ScriptLoaded:document_start"),
+    extension.awaitMessage("ScriptLoaded:document_end"),
+    extension.awaitMessage("ScriptLoaded:document_idle"),
+  ]);
+  about3Pane.threadTree.selectedIndex = 4;
+  verifyResult(await secondLoadPromise, [
+    { textContent: "" },
+    { textContent: "Hello Neil Nagel!" },
+    { textContent: "Hello Neil Nagel!" },
+  ]);
+
+  // Open the message in a new tab.
+  const thirdLoadPromise = Promise.all([
+    extension.awaitMessage("ScriptLoaded:document_start"),
+    extension.awaitMessage("ScriptLoaded:document_end"),
+    extension.awaitMessage("ScriptLoaded:document_idle"),
+  ]);
+  const messageTab = await openMessageInTab(messages.at(-6));
+  verifyResult(await thirdLoadPromise, [
+    { textContent: "" },
+    { textContent: "Hello Lilia Lowe!" },
+    { textContent: "Hello Lilia Lowe!" },
+  ]);
+  Assert.equal(tabmail.tabInfo.length, 2);
+
+  // Open a content tab. The message display scripts should not be injected.
+  // If they DO get injected, we will end up with 3 additional messages from the
+  // extension and the test will fail.
+  const contentTab = window.openContentTab("http://mochi.test:8888/");
+  Assert.equal(tabmail.tabInfo.length, 3);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Closing this tab should bring us back to the message in a tab.
+  tabmail.closeTab(contentTab);
+  Assert.equal(tabmail.tabInfo.length, 2);
+  Assert.equal(tabmail.currentTabInfo, messageTab);
+
+  // Open the message in a new window.
+  const fourthLoadPromise = Promise.all([
+    extension.awaitMessage("ScriptLoaded:document_start"),
+    extension.awaitMessage("ScriptLoaded:document_end"),
+    extension.awaitMessage("ScriptLoaded:document_idle"),
+  ]);
+  const newWindow = await openMessageInWindow(messages.at(-7));
+  verifyResult(await fourthLoadPromise, [
+    { textContent: "" },
+    { textContent: "Hello Johnny Jones!" },
+    { textContent: "Hello Johnny Jones!" },
+  ]);
+
+  // Unregister.
+  extension.sendMessage("Unregister");
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  // Close the new tab.
+  tabmail.closeTab(messageTab);
+  await BrowserTestUtils.closeWindow(newWindow);
+});

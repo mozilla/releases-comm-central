@@ -540,12 +540,12 @@ var messageProgressListener = {
     ) {
       return;
     }
-
     // Clear the previously displayed message.
-    const previousDocElement =
-      getMessagePaneBrowser().contentDocument?.documentElement;
-    if (previousDocElement) {
-      previousDocElement.style.display = "none";
+    // Note: Using .hidden = true or .style.display = "none" causes white
+    // flicker in dark mode.
+    const previousBodyElement = getMessagePaneBrowser().contentDocument?.body;
+    if (previousBodyElement) {
+      previousBodyElement.innerHTML = "";
     }
     ClearAttachmentList();
     gMessageNotificationBar.clearMsgNotifications();
@@ -563,6 +563,10 @@ var messageProgressListener = {
    * @see {nsIMailProgressListener}
    */
   onHeadersComplete(mailChannel) {
+    window.dispatchEvent(
+      new CustomEvent("MsgLoading", { detail: gMessage, bubbles: true })
+    );
+
     const domWindow = getMessagePaneBrowser().docShell.DOMWindow;
     domWindow.addEventListener(
       "DOMContentLoaded",
