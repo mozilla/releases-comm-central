@@ -55,6 +55,13 @@ interface nsIMsgFolder : nsISupports {
   readonly attribute AString abbreviatedName;
   readonly attribute AString prettyPath;
 
+%{C++
+  /**
+   * C++ shortcut to folder URI, for logging and debugging.
+   */
+  nsCString URI();
+%}
+
   /**
    * Set pretty name again from original name,
    * typically used when locale changes.

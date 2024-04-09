@@ -106,6 +106,8 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
   NS_DECL_NSIMSGTRAITCLASSIFICATIONLISTENER
 
+  nsCString URI() { return mURI; }  // C++ Shortcut.
+
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element);
   NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement* element);
 

@@ -2634,6 +2634,14 @@ nsMsgDBFolder::GetURI(nsACString& name) {
   return NS_OK;
 }
 
+// Generic nsIMsgFolder implementation.
+nsCString nsIMsgFolder::URI() {
+  nsCString uri;
+  DebugOnly<nsresult> rv = GetURI(uri);
+  MOZ_ASSERT(NS_SUCCEEDED(rv));
+  return uri;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 #if 0
 typedef bool
