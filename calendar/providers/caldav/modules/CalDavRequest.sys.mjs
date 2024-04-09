@@ -10,10 +10,6 @@ import {
 } from "resource:///modules/caldav/CalDavUtils.sys.mjs";
 import { CalDavSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 
-/* exported CalDavGenericRequest, CalDavLegacySAXRequest, CalDavItemRequest,
-            CalDavDeleteItemRequest, CalDavPropfindRequest, CalDavHeaderRequest,
-            CalDavPrincipalPropertySearchRequest, CalDavOutboxRequest, CalDavFreeBusyRequest */
-
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
 const MIME_TEXT_XML = "text/xml; charset=utf-8";

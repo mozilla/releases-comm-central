@@ -69,30 +69,6 @@ class CalDavOAuth extends OAuth2 {
   }
 
   /**
-   * Wait for the calendar window to appear.
-   *
-   * This is a workaround for bug 901329: If the calendar window isn't loaded yet the master
-   * password prompt will show just the buttons and possibly hang. If we postpone until the window
-   * is loaded, all is well.
-   *
-   * @returns {Promise} A promise resolved without value when the window is loaded
-   */
-  waitForCalendarWindow() {
-    return new Promise(resolve => {
-      // eslint-disable-next-line func-names, require-jsdoc
-      function postpone() {
-        const win = cal.window.getCalendarWindow();
-        if (!win || win.document.readyState != "complete") {
-          setTimeout(postpone, 0);
-        } else {
-          resolve();
-        }
-      }
-      setTimeout(postpone, 0);
-    });
-  }
-
-  /**
    * Promisified version of |connect|, using all means necessary to gracefully display the
    * authentication prompt.
    *
@@ -100,36 +76,33 @@ class CalDavOAuth extends OAuth2 {
    * @param {boolean} aRefresh - Force refresh the token TODO default false
    * @returns {Promise} A promise resolved when the OAuth process is completed
    */
-  promiseConnect(aWithUI = true, aRefresh = true) {
-    return this.waitForCalendarWindow().then(() => {
-      return new Promise((resolve, reject) => {
-        const self = this;
-        const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
-          Ci.nsIMsgAsyncPrompter
-        );
-        asyncprompter.queueAsyncAuthPrompt(this.id, false, {
-          onPromptStartAsync(callback) {
-            this.onPromptAuthAvailable(callback);
-          },
+  promiseConnect = (aWithUI = true, aRefresh = true) => {
+    return new Promise((resolve, reject) => {
+      const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
+        Ci.nsIMsgAsyncPrompter
+      );
+      asyncprompter.queueAsyncAuthPrompt(this.id, false, {
+        onPromptStartAsync(callback) {
+          this.onPromptAuthAvailable(callback);
+        },
 
-          onPromptAuthAvailable(callback) {
-            self.connect(aWithUI, aRefresh).then(
-              () => {
-                callback?.onAuthResult(true);
-                resolve();
-              },
-              () => {
-                callback?.onAuthResult(false);
-                reject(Cr.NS_ERROR_ABORT);
-              }
-            );
-          },
-          onPromptCanceled: reject,
-          onPromptStart() {},
-        });
+        onPromptAuthAvailable(callback) {
+          this.connect(aWithUI, aRefresh).then(
+            () => {
+              callback?.onAuthResult(true);
+              resolve();
+            },
+            () => {
+              callback?.onAuthResult(false);
+              reject(Cr.NS_ERROR_ABORT);
+            }
+          );
+        },
+        onPromptCanceled: reject,
+        onPromptStart() {},
       });
     });
-  }
+  };
 
   /**
    * Prepare the given channel for an OAuth request
