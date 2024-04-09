@@ -70,6 +70,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
+  /* TODO: ActiveCaption and InactiveCaption don't seem to work. */
   :root[tabsintitlebar]:not([lwtheme]) #navigation-toolbox {
     background-color: ActiveCaption;
     color: CaptionText;

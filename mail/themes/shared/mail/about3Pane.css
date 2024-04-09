@@ -69,7 +69,7 @@
   }
 
   @media (prefers-contrast) {
-    :root:not([lwtheme]) {
+    &:not([lwtheme]) {
       --folderpane-unread-count-background: var(--selected-item-color);
       --folderpane-unread-count-text: var(--selected-item-text-color);
       --folderpane-total-count-background: var(--selected-item-color);

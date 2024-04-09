@@ -25,7 +25,7 @@
   }
 
   @media (prefers-contrast) {
-    :root:not([lwtheme]) & {
+    &:not([lwtheme]) {
       --spaces-bg-color: -moz-Dialog;
       --spaces-bg-image: none;
       --spaces-border-color: var(--splitter-color);
