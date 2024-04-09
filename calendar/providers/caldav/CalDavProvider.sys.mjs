@@ -140,32 +140,18 @@ class CalDavDetector {
       return null;
     }
 
-    let dnshost = location.host;
     const secure = location.schemeIs("http") ? "" : "s";
-    let dnsres = await DNS.srv(`_caldav${secure}._tcp.${dnshost}`);
+    const host = `_caldav${secure}._tcp.${location.host}`;
+    const dnsres = await DNS.srv(host);
 
     if (!dnsres.length) {
-      let basedomain;
-      try {
-        basedomain = Services.eTLD.getBaseDomain(location);
-      } catch (e) {
-        // If we can't get a base domain just skip it.
-      }
-
-      if (basedomain && basedomain != location.host) {
-        cal.LOG(`[CalDavProvider] ${location.host} has no SRV entry, trying ${basedomain}`);
-        dnsres = await DNS.srv(`_caldav${secure}._tcp.${basedomain}`);
-        dnshost = basedomain;
-      }
-    }
-
-    if (!dnsres.length) {
+      cal.LOG(`[CalDavProvider] Found no SRV record for for ${host}`);
       return null;
     }
     dnsres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
     // Determine path from TXT, if available.
-    let pathres = await DNS.txt(`_caldav${secure}._tcp.${dnshost}`);
+    let pathres = await DNS.txt(host);
     pathres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
     pathres = pathres.filter(result => result.data.startsWith("path="));
     // Get the string after `path=`.

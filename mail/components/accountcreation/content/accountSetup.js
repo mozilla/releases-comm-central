@@ -2572,11 +2572,11 @@ var gAccountSetup = {
     // Detect linked address books.
     await this.fetchAddressBooks();
 
-    // Update the notification and start detecting linked calendars.
     document.l10n.setAttributes(
       notification.messageText,
       "account-setup-looking-up-calendars"
     );
+    // Detect linked calendars.
     await this.fetchCalendars();
 
     // Update the connected services description if we have at least one address
@@ -2606,7 +2606,10 @@ var gAccountSetup = {
         false
       );
     } catch (ex) {
-      gAccountSetupLogger.error(ex);
+      gAccountSetupLogger.debug(
+        `Found no address books for ${this._email} on ${this._hostname}.`,
+        ex
+      );
     }
 
     const hideAddressBookUI = !this.addressBooks.length;
@@ -2728,7 +2731,10 @@ var gAccountSetup = {
         {}
       );
     } catch (ex) {
-      gAccountSetupLogger.error(ex);
+      gAccountSetupLogger.debug(
+        `Found no calendars for ${this._email} on ${this._hostname}.`,
+        ex
+      );
     }
 
     const hideCalendarUI = !this.calendars.size;
