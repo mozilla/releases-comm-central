@@ -126,8 +126,8 @@
     --thread-card-hover: transparent;
     --thread-card-focus: SelectedItem;
     --focus-outline: SelectedItem;
-    --indicator-background: Canvas;
-    --indicator-border: Canvas;
+    --indicator-background: transparent;
+    --indicator-border: transparent;
     --read-status-fill: transparent;
     --read-status-stroke: transparent;
     --new-subject-color: AccentColor;
@@ -533,10 +533,9 @@
     }
 
     @media (prefers-contrast) {
-      &:is(:hover, :focus, :focus-within, :focus-visible, .current) {
-        & .thread-card-container {
-          outline: 2px solid var(--focus-outline);
-        }
+      &:is(:hover, :focus, :focus-within, :focus-visible, .current) .thread-card-container {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: -3px;
       }
 
       &.current.selected .thread-card-container {
