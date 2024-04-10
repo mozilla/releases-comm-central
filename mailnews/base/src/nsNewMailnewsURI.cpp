@@ -20,7 +20,7 @@
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpUrl.h"
-#include "../../protocols/ews/EwsService.h"
+#include "../../protocols/ews/src/EwsService.h"
 #include "../src/nsCidProtocolHandler.h"
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,

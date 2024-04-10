@@ -14,6 +14,10 @@ XPCOM_MANIFESTS += [
     "components.conf",
 ]
 
+# Usually IDL files would live in a separate "public" directory. However, in
+# this case, IDL files don't describe APIs that we would like to be public for
+# other components to interact with, but that we have to expose in order to
+# interact with Rust.
 XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
