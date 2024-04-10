@@ -76,7 +76,8 @@ class CalDavOAuth extends OAuth2 {
    * @param {boolean} aRefresh - Force refresh the token TODO default false
    * @returns {Promise} A promise resolved when the OAuth process is completed
    */
-  promiseConnect = (aWithUI = true, aRefresh = true) => {
+  promiseConnect(aWithUI = true, aRefresh = true) {
+    const self = this;
     return new Promise((resolve, reject) => {
       const asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
         Ci.nsIMsgAsyncPrompter
@@ -85,9 +86,8 @@ class CalDavOAuth extends OAuth2 {
         onPromptStartAsync(callback) {
           this.onPromptAuthAvailable(callback);
         },
-
         onPromptAuthAvailable(callback) {
-          this.connect(aWithUI, aRefresh).then(
+          self.connect(aWithUI, aRefresh).then(
             () => {
               callback?.onAuthResult(true);
               resolve();
@@ -102,7 +102,7 @@ class CalDavOAuth extends OAuth2 {
         onPromptStart() {},
       });
     });
-  };
+  }
 
   /**
    * Prepare the given channel for an OAuth request
