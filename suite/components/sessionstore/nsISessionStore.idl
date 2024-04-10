@@ -86,12 +86,14 @@ interface nsISessionStore : nsISupports
    * @returns a JSON string representing the state of the tab
    *         (note: doesn't contain cookies - if you need them, use getWindowState instead).
    */
+  [noscript]
   AString getTabState(in nsINode aTab);
 
   /**
    * @param aTab   is the tabbrowser tab whose state is to be set.
    * @param aState is a JSON string representing a session state.
    */
+  [noscript]
   void setTabState(in nsINode aTab, in AString aState);
 
   /**
@@ -104,6 +106,7 @@ interface nsISessionStore : nsISupports
    * @param aRelated is a flag to be passed to addTab().
    * @returns a reference to the newly created tab, or null if opening a window.
    */
+  [noscript]
   nsINode duplicateTab(in nsIDOMWindow aWindow, in nsINode aTab,
                           [optional] in long aDelta,
                           [optional] in boolean aRelated);
@@ -126,12 +129,14 @@ interface nsISessionStore : nsISupports
    * @param aIndex  is the index of the tab to be restored (FIFO ordered).
    * @returns a reference to the reopened tab.
    */
+  [noscript]
   nsINode undoCloseTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
 
   /**
    * @param aWindow is the browser window associated with the closed tab.
    * @param aIndex  is the index of the closed tab to be removed (FIFO ordered).
    */
+  [noscript]
   nsINode forgetClosedTab(in nsIDOMWindow aWindow, in unsigned long aIndex);
 
   /**
@@ -158,6 +163,7 @@ interface nsISessionStore : nsISupports
    * @throws NS_ERROR_INVALID_ARG
    *   when aIndex does not map to a closed window
    */
+  [noscript]
   nsINode forgetClosedWindow(in unsigned long aIndex);
 
   /**
@@ -187,6 +193,7 @@ interface nsISessionStore : nsISupports
    *
    * @returns A string value or an empty string if none is set.
    */
+  [noscript]
   AString getTabValue(in nsINode aTab, in AString aKey);
 
   /**
@@ -194,12 +201,14 @@ interface nsISessionStore : nsISupports
    * @param aKey         is the value's name.
    * @param aStringValue is the value itself (use toSource/eval before setting JS objects).
    */
+  [noscript]
   void setTabValue(in nsINode aTab, in AString aKey, in AString aStringValue);
 
   /**
    * @param aTab is the tabbrowser tab to get the value for.
    * @param aKey is the value's name.
    */
+  [noscript]
   void deleteTabValue(in nsINode aTab, in AString aKey);
 
   /**
