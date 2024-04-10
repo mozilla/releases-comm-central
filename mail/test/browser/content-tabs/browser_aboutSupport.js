@@ -595,15 +595,16 @@ add_task(async function test_open_links_in_about_support() {
   );
   await promise_content_tab_element_display(tab, elem);
 
-  EventUtils.synthesizeMouseAtCenter(elem, { clickCount: 1 }, elem.ownerGlobal);
-
   const tabmail = document.getElementById("tabmail");
-  const event = await BrowserTestUtils.waitForEvent(
+  const eventPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
     "TabOpen"
   );
+  EventUtils.synthesizeMouseAtCenter(elem, { clickCount: 1 }, elem.ownerGlobal);
+  const event = await eventPromise;
+
   const browser = event.detail.tabInfo.linkedBrowser;
-  Assert.ok(browser.getAttribute("remote") !== true);
+  Assert.ok(!browser.hasAttribute("remote"));
   close_tab(event.detail.tabInfo);
   close_tab(tab);
 });
