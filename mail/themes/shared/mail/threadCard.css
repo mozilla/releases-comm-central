@@ -10,6 +10,7 @@
   --thread-card-content-inline: 6px;
   --thread-card-content-radius: 6px;
   --thread-card-content-gap: 3px;
+  --thread-indicator-content-padding: 2px 3px;
   --thread-line-height: 100%;
   --read-status-unread: var(--icon-dot-sm);
   --read-status-new: var(--icon-sparkle-star-sm);
@@ -28,6 +29,7 @@
     --thread-card-content-inline: 3px;
     --thread-card-content-radius: 3px;
     --thread-card-content-gap: 1px;
+    --thread-indicator-content-padding: 1px 3px;
     --read-status-unread: var(--icon-dot-xs);
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
@@ -42,6 +44,7 @@
     --thread-card-content-block: 6px;
     --thread-card-content-inline: 9px;
     --thread-card-content-gap: 6px;
+    --thread-indicator-content-padding: 3px;
   }
 
   @media not (prefers-contrast) {
@@ -326,6 +329,7 @@
           border: 1px solid transparent;
           position: relative;
           overflow: visible;
+          border-radius: var(--button-border-radius);
 
           &::before {
             position: absolute;
@@ -347,8 +351,7 @@
             font-size: 0.9rem;
             font-weight: 700;
             position: relative;
-            padding: 2px 3px;
-            border-radius: var(--button-border-radius);
+            padding: var(--thread-indicator-content-padding);
           }
 
           & img {

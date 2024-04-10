@@ -475,7 +475,7 @@ table[is="tree-view-table"] {
       }
     }
 
-    & div:not(.recipient-avatar) {
+    & div:not(.recipient-avatar, .thread-card-icon-info, .thread-card-last-row) {
       overflow: hidden;
       text-overflow: ellipsis;
     }
