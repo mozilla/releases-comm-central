@@ -373,9 +373,16 @@ var mailContextMenu = {
       (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
     );
     setSingleSelection("mailContext-forward", !onSpecialItem);
+    document.l10n.setAttributes(
+      document.getElementById("mailContext-forwardAsAttachment"),
+      "mail-context-menu-forward-as-attachment",
+      {
+        count: numSelectedMessages,
+      }
+    );
     showItem(
-      "mailContext-multiForwardAsAttachment",
-      numSelectedMessages > 1 &&
+      "mailContext-forwardAsAttachment",
+      numSelectedMessages &&
         commandController.isCommandEnabled("cmd_forwardAttachment")
     );
 

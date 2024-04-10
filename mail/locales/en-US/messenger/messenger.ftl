@@ -244,6 +244,24 @@ mail-context-menu-forward-redirect =
     .label = Forward and Redirect
     .accesskey = F
 
+mail-context-menu-forward-forward =
+    .label = Forward
+    .accesskey = F
+
+mail-context-menu-forward-as-inline =
+    .label = As Inline
+    .accesskey = I
+
+# Variables:
+# $count (Number) - Number of selected messages.
+mail-context-menu-forward-as-attachment =
+    .label =
+        { $count ->
+            [one] As Attachment
+           *[other] As Attachments
+        }
+    .accesskey = A
+
 mail-context-menu-organize =
     .label = Organize
     .accesskey = g

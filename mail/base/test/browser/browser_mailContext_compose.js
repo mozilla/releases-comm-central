@@ -134,7 +134,7 @@ add_task(async function testThreadPane() {
   threadTree.selectedIndices = [0, 5];
   await promiseComposeWindow(
     openMenu,
-    "mailContext-multiForwardAsAttachment",
+    "mailContext-forwardAsAttachment",
     Ci.nsIMsgCompType.ForwardAsAttachment,
     {
       attachments: [testMessages[0].subject, testMessages[5].subject],
