@@ -583,3 +583,27 @@ add_task(async function test_send_via_email_private() {
   await close_compose_window(cwc);
   close_tab(tab);
 });
+
+/**
+ * Ensure that opening links in about:support doesn't crash the process
+ * See: bug 1843741
+ */
+add_task(async function test_open_links_in_about_support() {
+  const tab = await open_about_support();
+  const elem = tab.browser.contentDocument.querySelector(
+    "[href='about:buildconfig']"
+  );
+  await promise_content_tab_element_display(tab, elem);
+
+  EventUtils.synthesizeMouseAtCenter(elem, { clickCount: 1 }, elem.ownerGlobal);
+
+  const tabmail = document.getElementById("tabmail");
+  const event = await BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
+  const browser = event.detail.tabInfo.linkedBrowser;
+  Assert.ok(browser.getAttribute("remote") !== true);
+  close_tab(event.detail.tabInfo);
+  close_tab(tab);
+});

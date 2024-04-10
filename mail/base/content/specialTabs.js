@@ -829,7 +829,11 @@ var specialTabs = {
         // get here via createContentWindowInFrame(). The remoteness must be set
         // before aTab.panel.appendChild(clone), otherwise the browser will get
         // a docShell, which runs into a MOZ_ASSERT later (see Bug 1770105).
-        aTab.browser.setAttribute("remote", "true");
+        // We must ensure the context is a parent window that is already
+        // marked as remote (see Bug 1843741)
+        if (aArgs.openWindowInfo?.isRemote) {
+          aTab.browser.setAttribute("remote", "true");
+        }
       }
       if (aArgs.userContextId) {
         aTab.browser.setAttribute("usercontextid", aArgs.userContextId);
