@@ -31,7 +31,7 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "d23ab55eab684b46f46e1da177c8814f6103a009", optional = true }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "7b1021714989bedef3d40a843a516273db38beaa", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8ff972c8e2ec1782ff262ac4071c0415e69b1367", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.12.0", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
@@ -92,15 +92,16 @@ unic-langid = { version = "0.9", features = ['likelysubtags'] }
 unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
 unicode-bidi = { version = "0.3.15" }
 unicode-bidi-ffi = { path = "../../../intl/bidi/rust/unicode-bidi-ffi" }
-uniffi = { version = "0.25.2" }
-uniffi-example-arithmetic = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
+uniffi = { workspace = true }
+uniffi-example-arithmetic = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "d52c5460ae42ecad1e73a5b394ac96d48f4769de", optional = true }
 uniffi-example-custom-types = { path = "../../../toolkit/components/uniffi-example-custom-types", optional = true }
-uniffi-example-geometry = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
-uniffi-example-rondpoint = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
-uniffi-example-sprites = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
-uniffi-example-todolist = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "afb29ebdc1d9edf15021b1c5332fc9f285bbe13b", optional = true }
+uniffi-example-geometry = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "d52c5460ae42ecad1e73a5b394ac96d48f4769de", optional = true }
+uniffi-example-rondpoint = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "d52c5460ae42ecad1e73a5b394ac96d48f4769de", optional = true }
+uniffi-example-sprites = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "d52c5460ae42ecad1e73a5b394ac96d48f4769de", optional = true }
+uniffi-example-todolist = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "d52c5460ae42ecad1e73a5b394ac96d48f4769de", optional = true }
 uniffi-fixture-callbacks = { path = "../../../toolkit/components/uniffi-fixture-callbacks", optional = true }
 uniffi-fixture-external-types = { path = "../../../toolkit/components/uniffi-fixture-external-types", optional = true }
+uniffi-fixture-refcounts = { path = "../../../toolkit/components/uniffi-fixture-refcounts", optional = true }
 url = { version = "2.5.0" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
