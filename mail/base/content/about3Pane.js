@@ -3719,7 +3719,7 @@ var threadPaneHeader = {
       const sortKey = menuitem.getAttribute("value");
       menuitem.setAttribute(
         "checked",
-        gViewWrapper.primarySortType == Ci.nsMsgViewSortType[sortKey]
+        gViewWrapper.primarySortColumnId == sortKey
       );
       if (hiddenColumns.includes(sortKey)) {
         menuitem.setAttribute("disabled", "true");
