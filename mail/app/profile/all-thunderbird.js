@@ -1371,6 +1371,12 @@ pref("identity.fxaccounts.autoconfig.uri", "https://accounts.stage.mozaws.net");
 pref("identity.fxaccounts.remote.root", "https://accounts.stage.mozaws.net");
 // The value of the context query parameter passed in FxA requests.
 pref("identity.fxaccounts.contextParam", "fx_desktop_v3");
+// Whether to use the oauth flow for desktop or not
+pref("identity.fxaccounts.oauth.enabled", false);
+// The remote URL of the FxA Profile Server
+pref("identity.fxaccounts.remote.profile.uri", "https://profile.stage.mozaws.net/v1");
+// The remote URL of the FxA OAuth Server
+pref("identity.fxaccounts.remote.oauth.uri", "https://oauth.stage.mozaws.net/v1");
 // Token server used by the FxA Sync identity.
 pref("identity.sync.tokenserver.uri", "https://token.stage.mozaws.net/1.0/sync/1.5");
 // Adds stage server to the white list, because we need it.
