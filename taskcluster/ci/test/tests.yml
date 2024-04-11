@@ -181,6 +181,6 @@ mochitest-thunderbird:
             default: default
     instance-size:
         by-test-platform:
-            linux.*64-tsan.*/opt: xlarge  # runs out of memory on default/m3.large
+            linux.*64-tsan.*/opt: xlarge-noscratch  # runs out of memory on default/m3.large
             default: default
     allow-software-gl-layers: false
