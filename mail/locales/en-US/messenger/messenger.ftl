@@ -248,8 +248,8 @@ mail-context-menu-forward-forward =
     .label = Forward
     .accesskey = F
 
-mail-context-menu-forward-as-inline =
-    .label = As Inline
+mail-context-menu-forward-inline =
+    .label = Inline
     .accesskey = I
 
 # Variables:
