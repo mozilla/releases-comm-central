@@ -18,9 +18,25 @@ var { delete_mail_marked_as_junk, mark_selected_messages_as_junk } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/JunkHelpers.sys.mjs"
   );
+var { GlodaMsgIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/IndexMsg.sys.mjs"
+);
+var { GlodaIndexer } = ChromeUtils.importESModule(
+  "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+);
 
 // One folder's enough
 var folder = null;
+
+async function indexMsgs() {
+  console.info("Triggering Gloda Index");
+  GlodaMsgIndexer.indexingSweepNeeded = true;
+  await TestUtils.waitForCondition(
+    () => !GlodaIndexer.indexing,
+    "waiting for Gloda to finish indexing",
+    2000
+  );
+}
 
 add_setup(async function () {
   folder = await create_folder("JunkCommandsA");
@@ -63,6 +79,11 @@ add_task(async function test_delete_junk_messages() {
   );
   // Mark these messages as junk
   mark_selected_messages_as_junk();
+
+  // Index messages after they have been set as junk, to get around the error
+  // "Exception while attempting to mark message with gloda state afterdb commit"
+  await indexMsgs();
+
   // Now delete junk mail
   await delete_mail_marked_as_junk(NUM_MESSAGES_TO_JUNK);
   Assert.equal(
