@@ -23,15 +23,6 @@ var { EnigmailFuncs } = ChromeUtils.importESModule(
 var { EnigmailArmor } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/armor.sys.mjs"
 );
-var { EnigmailData } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/data.sys.mjs"
-);
-var { EnigmailDialog } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/dialog.sys.mjs"
-);
-var { EnigmailWindows } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/windows.sys.mjs"
-);
 var { EnigmailKeyRing } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
@@ -46,9 +37,6 @@ var { EnigmailDecryption } = ChromeUtils.importESModule(
 );
 var { EnigmailEncryption } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/encryption.sys.mjs"
-);
-var { EnigmailWkdLookup } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/wkdLookup.sys.mjs"
 );
 var { EnigmailMsgRead } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/msgRead.sys.mjs"
@@ -564,31 +552,12 @@ Enigmail.msg = {
     }
   },
 
-  getSecurityParams(compFields = null) {
-    if (!compFields) {
-      if (!gMsgCompose) {
-        return null;
-      }
-
-      compFields = gMsgCompose.compFields;
-    }
-
-    return compFields.composeSecure;
-  },
-
-  setSecurityParams(newSecurityParams) {
-    if (!gMsgCompose || !gMsgCompose.compFields) {
-      return;
-    }
-    gMsgCompose.compFields.composeSecure = newSecurityParams;
-  },
-
   // Used on send failure, to reset the pre-send modifications
   resetUpdatedFields() {
     this.removeAttachedKey();
 
     // reset subject
-    const p = Enigmail.msg.getSecurityParams();
+    const p = gMsgCompose?.compFields.composeSecure;
     if (p && EnigmailMimeEncrypt.isEnigmailCompField(p)) {
       const si = p.wrappedJSObject;
       if (si.originalSubject) {
@@ -613,7 +582,7 @@ Enigmail.msg = {
   },
 
   /**
-   * Determine if Enigmail is enabled for the account
+   * Determine if OpenPGP is enabled for the account.
    */
   isEnigmailEnabledForIdentity() {
     return !!gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
@@ -624,14 +593,6 @@ Enigmail.msg = {
    */
   isAutocryptEnabled() {
     return false;
-    /*
-    if (Enigmail.msg.wasEnigmailEnabledForIdentity()) {
-      let srv = this.getCurrentIncomingServer();
-      return (srv ? srv.getBoolValue("enableAutocrypt") : false);
-    }
-
-    return false;
-    */
   },
 
   processFinalState() {},
@@ -659,18 +620,17 @@ Enigmail.msg = {
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
       var toAddrList = [];
-      var arrLen = {};
       var recList;
       if (compFields.to) {
-        recList = compFields.splitRecipients(compFields.to, true, arrLen);
+        recList = compFields.splitRecipients(compFields.to, true);
         this.addRecipients(toAddrList, recList);
       }
       if (compFields.cc) {
-        recList = compFields.splitRecipients(compFields.cc, true, arrLen);
+        recList = compFields.splitRecipients(compFields.cc, true);
         this.addRecipients(toAddrList, recList);
       }
       if (compFields.bcc) {
-        recList = compFields.splitRecipients(compFields.bcc, true, arrLen);
+        recList = compFields.splitRecipients(compFields.bcc, true);
         this.addRecipients(toAddrList, recList);
       }
 
@@ -897,7 +857,7 @@ Enigmail.msg = {
 
     if (!doEncrypt) {
       try {
-        const p = Enigmail.msg.getSecurityParams();
+        const p = gMsgCompose?.compFields.composeSecure;
         if (EnigmailMimeEncrypt.isEnigmailCompField(p)) {
           p.wrappedJSObject.sendFlags = 0;
         }
@@ -939,14 +899,14 @@ Enigmail.msg = {
     }
 
     let secInfo;
-    const param = Enigmail.msg.getSecurityParams();
+    const param = gMsgCompose?.compFields.composeSecure;
     if (EnigmailMimeEncrypt.isEnigmailCompField(param)) {
       secInfo = param.wrappedJSObject;
     } else {
       try {
         secInfo = EnigmailMimeEncrypt.createMimeEncrypt(param);
-        if (secInfo) {
-          Enigmail.msg.setSecurityParams(secInfo);
+        if (secInfo && gMsgCompose) {
+          gMsgCompose.compFields.composeSecure = secInfo;
         }
       } catch (ex) {
         console.error("Saving draft FAILED.", ex);
@@ -967,18 +927,6 @@ Enigmail.msg = {
     }
 
     return true;
-  },
-
-  createEnigmailSecurityFields() {
-    const newSecurityInfo = EnigmailMimeEncrypt.createMimeEncrypt(
-      Enigmail.msg.getSecurityParams()
-    );
-
-    if (!newSecurityInfo) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
-    }
-
-    Enigmail.msg.setSecurityParams(newSecurityInfo);
   },
 
   getEncryptionFlags() {
@@ -1016,7 +964,7 @@ Enigmail.msg = {
       // make sure the sendFlags are reset before the message is processed
       // (it may have been set by a previously cancelled send operation!)
 
-      const si = Enigmail.msg.getSecurityParams();
+      const si = gMsgCompose?.compFields.composeSecure;
 
       if (EnigmailMimeEncrypt.isEnigmailCompField(si)) {
         si.sendFlags = 0;
@@ -1027,8 +975,7 @@ Enigmail.msg = {
           if (newSecurityInfo) {
             newSecurityInfo.sendFlags = 0;
             newSecurityInfo.originalSubject = gMsgCompose.compFields.subject;
-
-            Enigmail.msg.setSecurityParams(newSecurityInfo);
+            gMsgCompose.compFields.composeSecure = newSecurityInfo;
           }
         } catch (ex) {
           console.error(ex);
@@ -1039,20 +986,27 @@ Enigmail.msg = {
     return newSecurityInfo;
   },
 
+  /**
+   * Determine message recipients.
+   *
+   * @param {integer} sendFlags - Send flags.
+   * @returns {Promise<?object>} details - Details, or null if OpenPGP not set
+   *   up for the current identity.
+   * @returns {integer} details.sendFlags
+   * @returns {string} details.fromAddr
+   * @returns {string[]} details.toAddrList - To and Cc addresses.
+   * @returns {integer[]} details.bccAddrList
+   */
   async determineMsgRecipients(sendFlags) {
     let fromAddr = gCurrentIdentity.email;
     const toAddrList = [];
-    let recList;
     const bccAddrList = [];
-    const arrLen = {};
 
     if (!Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      return true;
+      return null;
     }
 
     let optSendFlags = 0;
-    const msgCompFields = gMsgCompose.compFields;
-
     if (Services.prefs.getBoolPref("temp.openpgp.encryptToSelf")) {
       optSendFlags |= EnigmailConstants.SEND_ENCRYPT_TO_SELF;
     }
@@ -1064,22 +1018,29 @@ Enigmail.msg = {
       fromAddr = userIdValue;
     }
 
-    const splitRecipients = msgCompFields.splitRecipients;
-
-    if (msgCompFields.to.length > 0) {
-      recList = splitRecipients(msgCompFields.to, true, arrLen);
+    if (gMsgCompose.compFields.to) {
+      const recList = gMsgCompose.compFields.splitRecipients(
+        gMsgCompose.compFields.to,
+        true
+      );
       this.addRecipients(toAddrList, recList);
     }
 
-    if (msgCompFields.cc.length > 0) {
-      recList = splitRecipients(msgCompFields.cc, true, arrLen);
+    if (gMsgCompose.compFields.cc) {
+      const recList = gMsgCompose.compFields.splitRecipients(
+        gMsgCompose.compFields.cc,
+        true
+      );
       this.addRecipients(toAddrList, recList);
     }
 
-    // We allow sending to BCC recipients, we assume the user interface
-    // has warned the user that there is no privacy of BCC recipients.
-    if (msgCompFields.bcc.length > 0) {
-      recList = splitRecipients(msgCompFields.bcc, true, arrLen);
+    // We allow sending to Bcc recipients, we assume the user interface
+    // has warned the user that there is no privacy of Bcc recipients.
+    if (gMsgCompose.compFields.bcc) {
+      const recList = gMsgCompose.compFields.splitRecipients(
+        gMsgCompose.compFields.bcc,
+        true
+      );
       this.addRecipients(bccAddrList, recList);
     }
 
@@ -1116,9 +1077,12 @@ Enigmail.msg = {
     newSecurityInfo,
     autocryptGossipHeaders
   ) {
-    if (!newSecurityInfo) {
-      this.createEnigmailSecurityFields(Enigmail.msg.getSecurityParams());
-      newSecurityInfo = Enigmail.msg.getSecurityParams().wrappedJSObject;
+    if (!newSecurityInfo && gMsgCompose) {
+      gMsgCompose.compFields.composeSecure =
+        EnigmailMimeEncrypt.createMimeEncrypt(
+          gMsgCompose.compFields.composeSecure
+        );
+      newSecurityInfo = gMsgCompose.compFields.composeSecure.wrappedJSObject;
     }
 
     newSecurityInfo.originalSubject = gMsgCompose.compFields.subject;
@@ -1147,13 +1111,14 @@ Enigmail.msg = {
    * @param {nsIMsgCompDeliverMode} msgSendType
    */
   async prepareSendMsg(msgSendType) {
-    const SIGN = EnigmailConstants.SEND_SIGNED;
-    const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
-    const DeliverMode = Ci.nsIMsgCompDeliverMode;
-
-    var ioService = Services.io;
-    // EnigSend: Handle both plain and encrypted messages below
-    var isOffline = ioService && ioService.offline;
+    if (
+      !gMsgCompose.compFields.to &&
+      !gMsgCompose.compFields.cc &&
+      !gMsgCompose.compFields.bcc &&
+      !gMsgCompose.compFields.newsgroups
+    ) {
+      throw new Error("No recipients specified!");
+    }
 
     const senderKeyIsGnuPG =
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
@@ -1162,28 +1127,15 @@ Enigmail.msg = {
     let sendFlags = this.getEncryptionFlags();
 
     switch (msgSendType) {
-      case DeliverMode.SaveAsDraft:
-      case DeliverMode.SaveAsTemplate:
-      case DeliverMode.AutoSaveAsDraft:
+      case Ci.nsIMsgCompDeliverMode.SaveAsDraft:
+      case Ci.nsIMsgCompDeliverMode.SaveAsTemplate:
+      case Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft:
         // Saving drafts is simpler and works differently than the rest of
         // OpenPGP. All rules except account-settings are ignored.
         return this.saveDraftMessage(senderKeyIsGnuPG);
     }
 
     this.unsetAdditionalHeader("x-enigmail-draft-status");
-
-    const msgCompFields = gMsgCompose.compFields;
-
-    if (
-      msgCompFields.to === "" &&
-      msgCompFields.cc === "" &&
-      msgCompFields.bcc === ""
-    ) {
-      // Don't attempt to send message if no recipient specified.
-      var bundle = document.getElementById("bundle_composeMsgs");
-      Services.prompt.alert(window, null, bundle.getString("noRecipients"));
-      return false;
-    }
 
     const senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
 
@@ -1237,7 +1189,7 @@ Enigmail.msg = {
       return false;
     }
 
-    let newSecurityInfo = this.resetDirty();
+    const newSecurityInfo = this.resetDirty();
     this.dirty = 1;
 
     try {
@@ -1245,8 +1197,8 @@ Enigmail.msg = {
 
       // fill fromAddr, toAddrList, bcc etc
       const rcpt = await this.determineMsgRecipients(sendFlags);
-      if (typeof rcpt === "boolean") {
-        return rcpt;
+      if (!rcpt) {
+        return true;
       }
       sendFlags = rcpt.sendFlags;
 
@@ -1267,6 +1219,8 @@ Enigmail.msg = {
         await this.attachOwnKey(senderKeyId);
       }
 
+      const SIGN = EnigmailConstants.SEND_SIGNED;
+      const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
       const autocryptGossipHeaders = await this.getAutocryptGossip();
 
       var usingPGPMime =
@@ -1311,19 +1265,18 @@ Enigmail.msg = {
       }
 
       if (sendFlags & (ENCRYPT | SIGN) && usingPGPMime) {
-        // Use PGP/MIME
-        newSecurityInfo = this.prepareSecurityInfo(
+        // Use PGP/MIME.
+        const composeSecure = this.prepareSecurityInfo(
           sendFlags,
           uiFlags,
           rcpt,
           newSecurityInfo,
           autocryptGossipHeaders
         );
-        newSecurityInfo.recipients = toAddrStr;
-        newSecurityInfo.bccRecipients = bccAddrStr;
+        composeSecure.recipients = toAddrStr;
+        composeSecure.bccRecipients = bccAddrStr;
       } else if (!this.processed && sendFlags & (ENCRYPT | SIGN)) {
-        // use inline PGP
-
+        // Use inline PGP.
         const sendInfo = {
           sendFlags,
           fromAddr: rcpt.fromAddr,
@@ -1339,14 +1292,14 @@ Enigmail.msg = {
       }
 
       // update the list of attachments
-      Attachments2CompFields(msgCompFields);
+      Attachments2CompFields(gMsgCompose.compFields);
 
       if (
         !this.prepareSending(
           sendFlags,
           rcpt.toAddrList.join(", "),
           toAddrStr + ", " + bccAddrStr,
-          isOffline
+          Services.io.offline
         )
       ) {
         return false;
@@ -1561,7 +1514,7 @@ Enigmail.msg = {
   },
 
   /**
-   * set non-standard message Header
+   * Set non-standard message Header.
    *
    * @param {string} hdr - Header type (e.g. X-Enigmail-Version)
    * @param {string} val - Header data (e.g. 1.2.3.4)
@@ -2008,17 +1961,16 @@ Enigmail.msg = {
   },
 
   checkInlinePgpReply(head, tail) {
-    const CT = Ci.nsIMsgCompType;
     let hLines = head.search(/[^\s>]/) < 0 ? 0 : 1;
 
     if (hLines > 0) {
       switch (gMsgCompose.type) {
-        case CT.Reply:
-        case CT.ReplyAll:
-        case CT.ReplyToSender:
-        case CT.ReplyToGroup:
-        case CT.ReplyToSenderAndGroup:
-        case CT.ReplyToList: {
+        case Ci.nsIMsgCompType.Reply:
+        case Ci.nsIMsgCompType.ReplyAll:
+        case Ci.nsIMsgCompType.ReplyToSender:
+        case Ci.nsIMsgCompType.ReplyToGroup:
+        case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
+        case Ci.nsIMsgCompType.ReplyToList: {
           // if head contains at only a few line of text, we assume it's the
           // header above the quote (e.g. XYZ wrote:) and the user's signature
 
@@ -2270,8 +2222,8 @@ Enigmail.composeStateListener = {
     }
 
     // ensure that securityInfo is set back to S/MIME flags (especially required if draft was saved)
-    if (gSMFields) {
-      Enigmail.msg.setSecurityParams(gSMFields);
+    if (gSMFields && gMsgCompose) {
+      gMsgCompose.compFields.composeSecure = gSMFields;
     }
   },
 

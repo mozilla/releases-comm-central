@@ -365,10 +365,7 @@ export var EnigmailEncryption = {
       throw new Error("listener must be set");
     }
 
-    // This code used to call determineOwnKeyUsability, and return on
-    // failure. But now determineOwnKeyUsability is an async function,
-    // and calling it from here with await results in a deadlock.
-    // Instead we perform this check in Enigmail.msg.prepareSendMsg.
+    // prepareSendMsg has already checked own key is usable.
 
     var hashAlgo =
       gMimeHashAlgorithms[
