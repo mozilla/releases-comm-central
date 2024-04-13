@@ -4,9 +4,6 @@
 
 fonts-dialog-title = Fonts
 
-fonts-window-close =
-    .key = w
-
 # Variables:
 #   $name {string, "Arial"} - Name of the default font
 fonts-label-default =

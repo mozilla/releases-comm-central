@@ -4,9 +4,6 @@
 
 cookies-dialog-title = Cookies
 
-window-close-key =
-    .key = w
-
 window-focus-search-key =
     .key = f
 
