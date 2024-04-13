@@ -69,6 +69,10 @@
   content: var(--icon-search);
 }
 
+.qfb-clear-button-icon {
+  content: var(--icon-close);
+}
+
 @container threadPane (max-width: 499px) {
   #qfb-qs-textbox {
     min-width: 200px;

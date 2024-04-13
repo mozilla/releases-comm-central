@@ -27,9 +27,14 @@ const Template = ({ label, disabled }) => html`
     <form>
       <input type="search" placeholder="" required="required" />
       <div aria-hidden="true"><slot name="placeholder"></slot></div>
-      <button class="button button-flat icon-button">
-        <slot name="button"></slot>
-      </button>
+      <div class="search-button-group">
+        <button id="clear-button" class="button button-flat icon-button" hidden="true" tabindex="-1" type="reset">
+          <slot name="clear-button"></slot>
+        </button>
+        <button id="search-button" class="button button-flat icon-button">
+          <slot name="search-button"></slot>
+        </button>
+      <div>
     </form>
   </template>
   <search-bar
@@ -42,8 +47,14 @@ const Template = ({ label, disabled }) => html`
       >Search Field Placeholder <kbd>Ctrl</kbd> + <kbd>K</kbd>
     </span>
     <img
+      alt="Clear"
+      slot="clear-button"
+      class="clear-button"
+      src="chrome://messenger/skin/icons/new/compact/close.svg"
+    />
+    <img
       alt="Search"
-      slot="button"
+      slot="search-button"
       class="search-button"
       src="chrome://messenger/skin/icons/new/compact/search.svg"
     />

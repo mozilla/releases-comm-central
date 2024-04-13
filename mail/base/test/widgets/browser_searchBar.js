@@ -14,6 +14,11 @@ const waitForRender = () => {
     window.requestAnimationFrame(resolve);
   });
 };
+const typeAndWaitForAutocomplete = async key => {
+  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  await BrowserTestUtils.synthesizeKey(key, {}, browser);
+  return eventPromise;
+};
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -71,14 +76,6 @@ add_task(async function test_focus() {
 });
 
 add_task(async function test_autocompleteEvent() {
-  const typeAndWaitForAutocomplete = async key => {
-    const eventPromise = BrowserTestUtils.waitForEvent(
-      searchBar,
-      "autocomplete"
-    );
-    await BrowserTestUtils.synthesizeKey(key, {}, browser);
-    return eventPromise;
-  };
   searchBar.focus();
   let event = await typeAndWaitForAutocomplete("T");
   is(event.detail, "T", "Autocomplete for T");
@@ -111,7 +108,7 @@ add_task(async function test_searchEventFromButton() {
   input.value = "Lorem ipsum";
 
   const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
-  searchBar.shadowRoot.querySelector("button").click();
+  searchBar.shadowRoot.querySelector("#search-button").click();
   const event = await eventPromise;
 
   is(event.detail, "Lorem ipsum", "Event contains search query");
@@ -135,7 +132,7 @@ add_task(async function test_searchEventPreventDefault() {
   );
 
   const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
-  searchBar.shadowRoot.querySelector("button").click();
+  searchBar.shadowRoot.querySelector("#search-button").click();
   await eventPromise;
   await waitForRender();
 
@@ -208,7 +205,7 @@ add_task(async function test_reset() {
 
 add_task(async function test_disabled() {
   const input = searchBar.shadowRoot.querySelector("input");
-  const button = searchBar.shadowRoot.querySelector("button");
+  const button = searchBar.shadowRoot.querySelector("#search-button");
 
   ok(!input.disabled, "Input enabled");
   ok(!button.disabled, "Button enabled");
@@ -236,4 +233,50 @@ add_task(async function test_clearWithEscape() {
 
   is(event.detail, "", "Autocomplete event with empty value");
   is(input.value, "", "Input was cleared");
+});
+
+add_task(async function test_clearButtonVisibility() {
+  const button = searchBar.shadowRoot.querySelector("#clear-button");
+
+  ok(BrowserTestUtils.isHidden(button), "Clear Button is hidden initially");
+
+  searchBar.focus();
+  const event = await typeAndWaitForAutocomplete("T");
+  is(event.detail, "T", "Autocomplete for T");
+  ok(
+    BrowserTestUtils.isVisible(button),
+    "Clear Button is visible after text is entered"
+  );
+
+  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  await BrowserTestUtils.synthesizeKey("KEY_Escape", {}, browser);
+  await eventPromise;
+  ok(
+    BrowserTestUtils.isHidden(button),
+    "Clear Button is hidden after input is cleared"
+  );
+});
+
+add_task(async function test_clearButton() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  const button = searchBar.shadowRoot.querySelector("#clear-button");
+  searchBar.focus();
+
+  const event = await typeAndWaitForAutocomplete("T");
+  is(event.detail, "T", "Autocomplete for T");
+  ok(
+    BrowserTestUtils.isVisible(button),
+    "Clear Button is visible after text is entered"
+  );
+  await waitForRender();
+
+  EventUtils.synthesizeMouseAtCenter(button, {}, searchBar.shadowRoot);
+  button.click();
+  await waitForRender();
+
+  is(input.value, "", "Input was cleared");
+  ok(
+    BrowserTestUtils.isHidden(button),
+    "Clear Button is hidden after text is cleared"
+  );
 });

@@ -13,7 +13,8 @@
  * @attribute {number} maxlength - Max length of the input in the search field.
  * @slot placeholder - Content displayed as placeholder. When not provided, the
  *   value of the label attribute is shown as placeholder.
- * @slot button - Content displayed on the search button.
+ * @slot clear-button - Content displayed on the clear button.
+ * @slot search-button - Content displayed on the search button.
  * @fires {CustomEvent} search - Event when a search should be executed. detail
  *   holds the search term.
  * @fires {CustomEvent} autocomplete - Auto complete update. detail holds the
@@ -37,11 +38,18 @@ export class SearchBar extends HTMLElement {
   #input = null;
 
   /**
+   * Reference to the clear button in the form.
+   *
+   * @type {?HTMLButtonElement}
+   */
+  #clearButton = null;
+
+  /**
    * Reference to the search button in the form.
    *
    * @type {?HTMLButtonElement}
    */
-  #button = null;
+  #searchButton = null;
 
   #onSubmit = event => {
     event.preventDefault();
@@ -62,7 +70,9 @@ export class SearchBar extends HTMLElement {
     const autocompleteEvent = new CustomEvent("autocomplete", {
       detail: this.#input.value,
     });
+
     this.dispatchEvent(autocompleteEvent);
+    this.#clearButton.hidden = !this.#input.value;
   };
 
   connectedCallback() {
@@ -76,11 +86,13 @@ export class SearchBar extends HTMLElement {
       .getElementById("searchBarTemplate")
       .content.cloneNode(true);
     this.#input = template.querySelector("input");
-    this.#button = template.querySelector("button");
+    this.#searchButton = template.querySelector("#search-button");
+    this.#clearButton = template.querySelector("#clear-button");
 
     template.querySelector("form").addEventListener("submit", this, {
       passive: false,
     });
+    template.querySelector("form").addEventListener("reset", this);
 
     this.#input.setAttribute("aria-label", this.getAttribute("label"));
     this.#input.setAttribute("maxlength", this.getAttribute("maxlength"));
@@ -95,6 +107,8 @@ export class SearchBar extends HTMLElement {
       "href",
       "chrome://messenger/skin/shared/search-bar.css"
     );
+    this.l10n = new DOMLocalization(["messenger/searchbar.ftl"]);
+    this.l10n.connectRoot(shadowRoot);
     shadowRoot.append(styles, template);
   }
 
@@ -111,7 +125,7 @@ export class SearchBar extends HTMLElement {
       case "disabled": {
         const isDisabled = this.hasAttribute("disabled");
         this.#input.disabled = isDisabled;
-        this.#button.disabled = isDisabled;
+        this.#searchButton.disabled = isDisabled;
       }
     }
   }
@@ -123,6 +137,10 @@ export class SearchBar extends HTMLElement {
         break;
       case "input":
         this.#onInput(event);
+        break;
+      case "reset":
+        this.reset();
+        this.#onInput();
         break;
       case "keyup":
         if (event.key === "Escape" && this.#input.value) {
@@ -147,6 +165,7 @@ export class SearchBar extends HTMLElement {
    */
   reset() {
     this.#input.value = "";
+    this.#clearButton.hidden = true;
   }
 }
 customElements.define("search-bar", SearchBar);

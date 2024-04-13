@@ -73,6 +73,10 @@
     content: var(--icon-search);
   }
 
+  & .clear-button-icon {
+    content: var(--icon-close);
+  }
+
   & .button-icon {
     content: var(--icon-extension);
   }

@@ -36,18 +36,29 @@ input {
   }
 }
 
-.button {
+.search-button-group {
   position: absolute;
   inset-inline-end: 0;
   inset-block: 0;
+  padding-block-start: 2px;
   color: inherit;
   display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
 
-  &.button-flat.icon-button {
-    padding: 4px;
+  #clear-button:hover {
+    background-color: transparent;
+  }
+
+  & .button-flat.icon-button {
+    padding: 2px;
     margin: 0;
+    pointer-events: auto;
+
+    &:last-of-type {
+      padding: 4px;
+    }
 
     &:focus-visible {
       outline-offset: -1px;

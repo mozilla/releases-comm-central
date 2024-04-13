@@ -10,12 +10,20 @@
       <form>
         <input type="search" placeholder="" required="required"/>
         <div aria-hidden="true"><slot name="placeholder"></slot></div>
-        <button class="button button-flat icon-button"><slot name="button"></slot></button>
+        <div class="search-button-group">
+          <button data-l10on-id="search-bar-clear-button" id="clear-button" class="button button-flat icon-button" hidden="hidden" tabindex="-1" type="reset">
+            <slot name="clear-button"></slot>
+          </button>
+          <button id="search-button" class="button button-flat icon-button">
+            <slot name="search-button"></slot>
+          </button>
+        </div>
       </form>
     </template>
     <search-bar label="Search">
       <span slot="placeholder">Placeholder</span>
-      <img slot="button" src="chrome://messenger/skin/icons/new/compact/search.svg" alt="Search"/>
+      <img slot="clear-button" src="chrome://messenger/skin/icons/new/compact/close.svg" alt="Clear" />
+      <img slot="search-button" src="chrome://messenger/skin/icons/new/compact/search.svg" alt="Search" />
     </search-bar>
   </body>
 </html>
