@@ -18,7 +18,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
   GPGME: "chrome://openpgp/content/modules/GPGME.sys.mjs",
-  newEnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.sys.mjs",
+  EnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
@@ -2156,9 +2156,7 @@ function createAndSortKeyList(
   }
 
   gKeyListObj.keyList = gKeyListObj.keyList.concat(
-    keyList.map(k => {
-      return lazy.newEnigmailKeyObj(k);
-    })
+    keyList.map(k => new lazy.EnigmailKeyObj(k))
   );
 
   // update the quick index for sorting keys
