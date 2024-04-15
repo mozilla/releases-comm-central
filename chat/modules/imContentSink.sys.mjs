@@ -322,8 +322,8 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  * A function to modify text nodes.
  *
  * @callback TextModifier
- * @param {Node} - The text node to modify.
- * @returns {int} - The number of nodes added.
+ * @param {Node} node - The text node to modify.
+ * @returns {int} The number of nodes added.
  *
  *    -1 if the current textnode was deleted
  *    0 if the node count is unchanged
