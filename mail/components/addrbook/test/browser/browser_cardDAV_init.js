@@ -237,6 +237,45 @@ add_task(function testNoWellKnown() {
   );
 });
 
+/**
+ * Test a CardDAV server which returns a 207 response for /.well-known/carddav,
+ * but includes no useful information but a 404 status for the requested current
+ * user principal. Test that we continue to query the root, where the correct
+ * information is returned.
+ */
+add_task(function testAppleCardDAVServer() {
+  return wrappedTest(
+    () => {
+      CardDAVServer.server.registerPathHandler(
+        "/.well-known/carddav",
+        (request, response) => {
+          response.setStatusLine("1.1", 207, "Multi-Status");
+          response.setHeader("Content-Type", "text/xml");
+          response.write(
+            `<multistatus xmlns="DAV:">
+            <response>
+              <href>/.well-known/carddav/</href>
+              <propstat>
+                <prop>
+                  <current-user-principal/>
+                </prop>
+                <status>HTTP/1.1 404 Not Found</status>
+              </propstat>
+            </response>
+          </multistatus>`.replace(/>\s+</g, "><")
+          );
+        }
+      );
+    },
+    {
+      url: "/",
+      password: "alice",
+      expectedStatus: null,
+      expectedBooks: DEFAULT_BOOKS,
+    }
+  );
+});
+
 /** Test cancelling the password prompt when it appears. */
 add_task(function testPasswordCancelled() {
   return wrappedTest(null, {
