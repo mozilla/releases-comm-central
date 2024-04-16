@@ -1,0 +1,19 @@
+Directory ./icaljs contains a bundled version of ical.js, which has been obtained from:
+https://github.com/kewisch/ical.js/
+
+For licensing information, please refer to the included documentation.
+
+[tag 7fb7b51f1b36d49b576a359ee178d85e6d4b192a]
+
+Updating:
+- cd $topsrcdir/comm
+- ../mach vendor -r <tag_name> third_party/icaljs/moz.yaml
+- Review the changes
+- Commit the changes
+- Run ./mach xpcshell-test comm/calendar
+
+
+The tag information in this file is automatically updated. The moz.yaml file
+is automatically updated. If upstream changes require updating moz.build, that
+must be done with a manual step.
+

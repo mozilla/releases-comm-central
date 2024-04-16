@@ -1,0 +1,89 @@
+---
+# Version of this schema
+schema: 1
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories
+  product: Calendar
+  component: ICAL.js Integration
+# Document the source of externally hosted code
+origin:
+
+  # Short name of the package/library
+  name: ical.js
+
+  description: ical.js is a pure JavaScript parser for ics (rfc5545) and vcard (rfc6350) data.
+
+  # Full URL for the package's homepage/etc
+  # Usually different from repository url
+  url: https://github.com/darktrojan/ical.js
+
+  # Human-readable identifier for this version/release
+  # Generally "version NNN", "tag SSS", "bookmark SSS"
+  release: 0f1af2444b82708bb3a0a6b05d834884dedd8109 (2023-09-14T22:47:01Z).
+
+  # Revision to pull in
+  # Must be a long or short commit SHA (long preferred)
+  revision: 0f1af2444b82708bb3a0a6b05d834884dedd8109
+
+  # The package's license, where possible using the mnemonic from
+  # https://spdx.org/licenses/
+  # Multiple licenses can be specified (as a YAML list)
+  # A "LICENSE" file must exist containing the full license text
+  license: MPL-2.0
+
+  # If the package's license is specified in a particular file,
+  # this is the name of the file.
+  # optional
+  license-file: LICENSE
+
+# Configuration for the automated vendoring system.
+# optional
+vendoring:
+
+  # Repository URL to vendor from
+  # eg. https://github.com/kinetiknz/nestegg
+  # Any repository host can be specified here, however initially we'll only
+  # support automated vendoring from selected sources.
+  url: https://github.com/darktrojan/ical.js
+
+  # Type of hosting for the upstream repository
+  # Valid values are 'gitlab', 'github', googlesource
+  source-hosting: github
+  tracking: commit
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  # Files/paths that will not be vendored from the upstream repository
+  # Implicitly contains ".git", and ".gitignore"
+  # optional
+  exclude:
+    - .git
+
+  keep:
+    - make_bundle.sh
+    - moz.yaml
+    - LICENSE
+
+  update-actions:
+    - action: run-script
+      script: 'make_bundle.sh'
+      cwd: '{yaml_dir}'
+
+    #- action: replace-in-file-regex
+    #  file: '{yaml_dir}/../README.icaljs'
+    #  pattern: '\[tag v[0-9\.]+\]'
+    #  with: '[tag {revision}]'
+
+    - action: move-file
+      from: 'build/ical.js'
+      to: '../../../comm/calendar/base/modules/Ical.sys.mjs'
+
+    - action: delete-path
+      path: 'build'
+
+    - action: delete-path
+      path: 'node_modules'
