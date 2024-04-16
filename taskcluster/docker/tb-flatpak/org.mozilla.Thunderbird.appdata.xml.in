@@ -59,6 +59,11 @@
     <mediatype>x-scheme-handler/mid</mediatype>
   </provides>
 
+  <branding>
+    <color type="primary" scheme_preference="light">#99c1f1</color>
+    <color type="primary" scheme_preference="dark">#043571</color>
+  </branding>
+
   <content_rating type="oars-1.1" />
   <url type="homepage">https://www.thunderbird.net/</url>
   <url type="bugtracker">https://bugzilla.mozilla.org/</url>
