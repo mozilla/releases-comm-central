@@ -48,6 +48,7 @@ DIRS += [
 
 TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
     "../../../mailnews/test/fakeserver/Auth.sys.mjs",
+    "../../../mailnews/test/fakeserver/EwsServer.sys.mjs",
     "../../../mailnews/test/fakeserver/Imapd.sys.mjs",
     "../../../mailnews/test/fakeserver/Maild.sys.mjs",
     "../../../mailnews/test/fakeserver/Nntpd.sys.mjs",
