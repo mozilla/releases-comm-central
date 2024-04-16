@@ -263,7 +263,9 @@ add_task(async function test_keypress_on_columns() {
   const about3Pane = tabmail.currentAbout3Pane;
 
   // Select the first row.
-  const row = about3Pane.threadTree.getRowAtIndex(0);
+  const row = await TestUtils.waitForCondition(() =>
+    about3Pane.threadTree.getRowAtIndex(0)
+  );
   EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
 
   // Press SHIFT+TAB and LEFT to focus on the column picker.
