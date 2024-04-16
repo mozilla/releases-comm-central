@@ -242,36 +242,51 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
   NS_ENSURE_ARG_POINTER(aResult);
   if (aFolderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
-  nsCOMPtr<nsIFile> path;
-  nsCOMPtr<nsIMsgFolder> child;
-  nsresult rv = aParent->GetFilePath(getter_AddRefs(path));
-  if (NS_FAILED(rv)) return rv;
-  // Get a directory based on our current path.
-  rv = CreateDirectoryForFolder(path);
-  if (NS_FAILED(rv)) return rv;
-
-  // Now we have a valid directory or we have returned.
   // Make sure the new folder name is valid
   nsAutoString safeFolderName(aFolderName);
   NS_MsgHashIfNecessary(safeFolderName);
 
+  // Register the subfolder in memory before creating any on-disk file or
+  // directory for the folder. This way, we don't run the risk of getting in a
+  // situation where `nsMsgBrkMBoxStore::DiscoverSubFolders` (which
+  // `AddSubfolder` ends up indirectly calling) gets confused because there are
+  // files for a folder it doesn't have on record (see Bug 1889653). `GetFlags`
+  // and `SetFlags` in `AddSubfolder` will fail because we have no db at this
+  // point but mFlags is set.
+  nsCOMPtr<nsIMsgFolder> child;
+  nsresult rv = aParent->AddSubfolder(safeFolderName, getter_AddRefs(child));
+  if (!child || NS_FAILED(rv)) {
+    return rv;
+  }
+
+  nsCOMPtr<nsIFile> path;
+  rv = aParent->GetFilePath(getter_AddRefs(path));
+  if (NS_FAILED(rv)) {
+    aParent->PropagateDelete(child, false);
+    return rv;
+  }
+  // Get a directory based on our current path.
+  rv = CreateDirectoryForFolder(path);
+  if (NS_FAILED(rv)) {
+    aParent->PropagateDelete(child, false);
+    return rv;
+  }
+
   path->Append(safeFolderName);
   bool exists;
   path->Exists(&exists);
-  if (exists)  // check this because localized names are different from disk
-               // names
+  // check this because localized names are different from disk names
+  if (exists) {
+    aParent->PropagateDelete(child, false);
     return NS_MSG_FOLDER_EXISTS;
+  }
 
   rv = path->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // GetFlags and SetFlags in AddSubfolder will fail because we have no db at
-  // this point but mFlags is set.
-  rv = aParent->AddSubfolder(safeFolderName, getter_AddRefs(child));
-  if (!child || NS_FAILED(rv)) {
-    path->Remove(false);
+  if (NS_FAILED(rv)) {
+    aParent->PropagateDelete(child, false);
     return rv;
   }
+
   // Create an empty database for this mail folder, set its name from the user
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
@@ -292,7 +307,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
       unusedDB->Close(true);
       aParent->UpdateSummaryTotals(true);
     } else {
-      path->Remove(false);
+      aParent->PropagateDelete(child, true);
       rv = NS_MSG_CANT_CREATE_FOLDER;
     }
   }
