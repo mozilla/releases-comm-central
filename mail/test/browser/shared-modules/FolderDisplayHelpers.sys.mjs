@@ -1262,14 +1262,19 @@ export async function delete_via_popup() {
   await wait_for_folder_events();
 }
 
+/**
+ * @deprecated Use BrowserTestUtils.waitForPopupEvent directly.
+ * @param {XULPopupElement} popupElem
+ */
 export async function wait_for_popup_to_open(popupElem) {
-  if (popupElem.state != "open") {
-    await BrowserTestUtils.waitForEvent(popupElem, "popupshown");
-  }
+  await BrowserTestUtils.waitForPopupEvent(popupElem, "shown");
 }
 
 /**
  * Close the open pop-up.
+ *
+ * @param {DOMWindow} aWin
+ * @param {XULPopupElement} elem
  */
 export async function close_popup(aWin, elem) {
   // if it was already closing, just leave
@@ -1279,9 +1284,8 @@ export async function close_popup(aWin, elem) {
 
   if (elem.state != "hiding") {
     // Actually close the popup because it's not closing/closed.
-    const hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
     elem.hidePopup();
-    await hiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(elem, "hidden");
     await new Promise(resolve => aWin.requestAnimationFrame(resolve));
   }
 }

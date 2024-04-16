@@ -25,7 +25,6 @@ var {
   select_click_row,
   switch_tab,
   wait_for_message_display_completion,
-  wait_for_popup_to_open,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
@@ -345,14 +344,17 @@ async function _synthesizeRecentlyClosedMenu() {
   );
 
   const tabContextMenu = document.getElementById("tabContextMenu");
-  await wait_for_popup_to_open(tabContextMenu);
+  await BrowserTestUtils.waitForPopupEvent(tabContextMenu, "shown");
 
   const recentlyClosedTabs = document.getElementById(
     "tabContextMenuRecentlyClosed"
   );
 
   recentlyClosedTabs.openMenu(true);
-  await wait_for_popup_to_open(recentlyClosedTabs.menupopup);
+  await BrowserTestUtils.waitForPopupEvent(
+    recentlyClosedTabs.menupopup,
+    "shown"
+  );
 
   return recentlyClosedTabs;
 }
@@ -405,19 +407,25 @@ add_task(async function test_tab_recentlyClosed() {
   const menu = await _synthesizeRecentlyClosedMenu();
 
   // Check if the context menu was populated correctly...
-  Assert.ok(menu.itemCount == 12, "Failed to populate context menu");
+  Assert.equal(menu.itemCount, 12, "Failed to populate context menu");
   for (let idx = 0; idx < 10; idx++) {
-    Assert.ok(
-      tabTitles[idx] == menu.getItemAtIndex(idx).label,
-      "Tab Title does not match Menu item"
+    Assert.equal(
+      tabTitles[idx],
+      menu.getItemAtIndex(idx).label,
+      `Tab Title ${idx} does not match Menu item`
     );
   }
 
   // Restore the most recently closed tab
+  let tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
   menu.menupopup.activateItem(menu.getItemAtIndex(0));
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
+  await tabOpenPromise;
   await wait_for_message_display_completion(window);
   assert_number_of_tabs_open(3);
   await assert_selected_and_displayed(msgHdrsInFolder[14]);
@@ -425,19 +433,25 @@ add_task(async function test_tab_recentlyClosed() {
   // The context menu should now contain one item less.
   await _synthesizeRecentlyClosedMenu();
 
-  Assert.ok(menu.itemCount == 11, "Failed to populate context menu");
+  Assert.equal(menu.itemCount, 11, "Failed to populate context menu again");
   for (let idx = 0; idx < 9; idx++) {
-    Assert.ok(
-      tabTitles[idx + 1] == menu.getItemAtIndex(idx).label,
-      "Tab Title does not match Menu item"
+    Assert.equal(
+      tabTitles[idx + 1],
+      menu.getItemAtIndex(idx).label,
+      `Tab Title ${idx} does not match Menu item 2`
     );
   }
 
   // Now we restore an "random" tab.
+  tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
   menu.menupopup.activateItem(menu.getItemAtIndex(5));
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
+  await tabOpenPromise;
   await wait_for_message_display_completion(window);
   assert_number_of_tabs_open(4);
   await assert_selected_and_displayed(msgHdrsInFolder[8]);
@@ -445,20 +459,27 @@ add_task(async function test_tab_recentlyClosed() {
   // finally restore all tabs
   await _synthesizeRecentlyClosedMenu();
 
-  Assert.ok(menu.itemCount == 10, "Failed to populate context menu");
-  Assert.ok(
-    tabTitles[1] == menu.getItemAtIndex(0).label,
-    "Tab Title does not match Menu item"
+  Assert.equal(menu.itemCount, 10, "Failed to populate context menu 3");
+  Assert.equal(
+    tabTitles[1],
+    menu.getItemAtIndex(0).label,
+    "Second tab title does not match menu item"
   );
-  Assert.ok(
-    tabTitles[7] == menu.getItemAtIndex(5).label,
-    "Tab Title does not match Menu item"
+  Assert.equal(
+    tabTitles[7],
+    menu.getItemAtIndex(5).label,
+    "Eigth tab title does not match menu item"
   );
 
+  tabOpenPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
   menu.menupopup.activateItem(menu.getItemAtIndex(menu.itemCount - 1));
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
+  await tabOpenPromise;
   await wait_for_message_display_completion(window);
 
   // out of the 16 tab, we closed all except two. As the history can store
