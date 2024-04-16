@@ -16,7 +16,7 @@ kind-dependencies:
 job-defaults:
     description: Generates snap by repackaging the existing .tar.bz2
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [beta, release]
+    run-on-releases: [beta, esr115]
     shipping-phase: promote
     scopes: []
     treeherder:

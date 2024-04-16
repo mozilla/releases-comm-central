@@ -41,11 +41,11 @@ jobs:
                     thunderbird-beta-latest: installer
                     thunderbird-beta-msi-latest-ssl: msi
                     thunderbird-beta-msix-latest-ssl: msix
-                release.*:
-                    thunderbird-latest-ssl: installer-ssl
-                    thunderbird-latest: installer
-                    thunderbird-msi-latest-ssl: msi
-                    thunderbird-msix-latest-ssl: msix
+                release.*: {}  # disable until monthly release launch
+                # thunderbird-latest-ssl: installer-ssl
+                # thunderbird-latest: installer
+                # thunderbird-msi-latest-ssl: msi
+                # thunderbird-msix-latest-ssl: msix
                 esr115:
                     # when there is one ESR branch both sets of aliases work
                     # when there are two ESR branches ...
