@@ -8,7 +8,6 @@
 
 @AB_CD@.jar:
 % locale chat @AB_CD@ %locale/@AB_CD@/chat/
-	locale/@AB_CD@/chat/accounts.dtd	(%accounts.dtd)
 	locale/@AB_CD@/chat/accounts.properties (%accounts.properties)
 	locale/@AB_CD@/chat/imtooltip.properties (%imtooltip.properties)
 	locale/@AB_CD@/chat/commands.properties (%commands.properties)

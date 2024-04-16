@@ -2,10 +2,9 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [ <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
-%accountsDTD; %brandDTD; %chatDTD; ]>
+%brandDTD; %chatDTD; ]>
 
 <html
   id="accountManager"
@@ -18,7 +17,9 @@
   persist="width height screenX screenY"
 >
   <head>
-    <title>&accountsWindow.title;</title>
+    <title data-l10n-id="accounts-window-title"></title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="chat/accounts.ftl" />
     <link rel="stylesheet" href="chrome://global/skin/global.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/imRichlistbox.css" />
@@ -62,44 +63,37 @@
     <commandset id="accountsCommands">
       <command
         id="cmd_connect"
-        accesskey="&account.connect.accesskey;"
-        label="&account.connect.label;"
+        data-l10n-id="account-connect"
         oncommand="gAccountManager.connect()"
       />
       <command
         id="cmd_disconnect"
-        label="&account.disconnect.label;"
-        accesskey="&account.disconnect.accesskey;"
+        data-l10n-id="account-disconnect"
         oncommand="gAccountManager.disconnect()"
       />
       <command
         id="cmd_cancelReconnection"
-        label="&account.cancelReconnection.label;"
-        accesskey="&account.cancelReconnection.accesskey;"
+        data-l10n-id="account-cancel-reconnection"
         oncommand="gAccountManager.cancelReconnection()"
       />
       <command
         id="cmd_copyDebugLog"
-        label="&account.copyDebugLog.label;"
-        accesskey="&account.copyDebugLog.accesskey;"
+        data-l10n-id="account-copy-debug-log"
         oncommand="gAccountManager.copyDebugLog();"
       />
       <command
         id="cmd_edit"
-        label="&account.edit.label;"
-        accesskey="&account.edit.accesskey;"
+        data-l10n-id="account-edit"
         oncommand="gAccountManager.edit()"
       />
       <command
         id="cmd_new"
-        label="&accountManager.newAccount.label;"
-        accesskey="&accountManager.newAccount.accesskey;"
+        data-l10n-id="account-manager-new-account"
         oncommand="gAccountManager.new()"
       />
       <command
         id="cmd_close"
-        label="&accountManager.close.label;"
-        accesskey="&accountManager.close.accesskey;"
+        data-l10n-id="account-manager-close"
         oncommand="gAccountManager.close()"
       />
     </commandset>
@@ -110,7 +104,7 @@
       <key
         id="key_close3"
         command="cmd_close"
-        key="&accountManager.close.commandkey;"
+        data-l10n-id="account-manager-close-command"
         modifiers="accel,shift"
       />
     </keyset>
@@ -220,11 +214,12 @@
           <vbox id="noAccountInnerBox" flex="1">
             <label
               id="noAccountTitle"
-              value="&accountManager.noAccount.title;"
+              data-l10n-id="account-manager-no-account-title"
             />
-            <description id="noAccountDesc"
-              >&accountManager.noAccount.description;</description
-            >
+            <description
+              id="noAccountDesc"
+              data-l10n-id="account-manager-no-account-description"
+            />
           </vbox>
         </hbox>
       </vbox>

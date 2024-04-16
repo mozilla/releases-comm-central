@@ -50,7 +50,8 @@
         // Prevent from loading an account wizard
         event.stopPropagation();
       });
-
+      MozXULElement.insertFTLIfNeeded("branding/brand.ftl");
+      MozXULElement.insertFTLIfNeeded("chat/accounts.ftl");
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
@@ -65,17 +66,16 @@
               </vbox>
               <vbox flex="1" align="start">
                 <label crop="end" class="accountName"></label>
-                <label class="connecting" crop="end" value="&account.connecting;"></label>
+                <label class="connecting" crop="end" data-l10n-id="account-connecting"></label>
                 <label class="connected" crop="end"></label>
-                <label class="disconnecting" crop="end" value="&account.disconnecting;"></label>
-                <label class="disconnected" crop="end" value="&account.disconnected;"></label>
+                <label class="disconnecting" crop="end" data-l10n-id="account-disconnecting"></label>
+                <label class="disconnected" crop="end" data-l10n-id="account-disconnected"></label>
                 <description class="error error-description"></description>
                 <description class="error error-reconnect"></description>
                 <spacer flex="1"></spacer>
               </vbox>
-              <checkbox label="&account.autoSignOn.label;"
+              <checkbox data-l10n-id="account-auto-sign-on"
                         class="autoSignOn"
-                        accesskey="&account.autoSignOn.accesskey;"
                         oncommand="gAccountManager.autologin()"></checkbox>
             </hbox>
             <hbox flex="1" class="account-buttons">
@@ -85,8 +85,7 @@
               <button command="cmd_edit"></button>
             </hbox>
           </vbox>
-          `,
-          ["chrome://chat/locale/accounts.dtd"]
+          `
         )
       );
       this._buttons = this.querySelector(".account-buttons");
