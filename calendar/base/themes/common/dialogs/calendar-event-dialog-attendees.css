@@ -22,6 +22,7 @@
 }
 
 event-attendee {
+  flex: 0 0 21px;
   height: 21px;
   padding: 0 4px 1px;
   display: flex;
