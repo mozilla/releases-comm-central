@@ -4589,12 +4589,12 @@ var threadPane = {
     const currentFontSize = UIFontSize.size;
     const cardRows = 3;
     const cardRowConstant = Math.round(1.43 * cardRows * currentFontSize); // subject line-height * line-height * cardRows * current font-size
+    let rowHeight = Math.ceil(currentFontSize * 1.4);
     let lineGap;
     let densityPaddingConstant;
     let cardRowHeight;
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        rowClass.ROW_HEIGHT = 18;
         // Calculation based on card components:
         lineGap = 1;
         densityPaddingConstant = 3; // card padding-block + 2 * row padding-block
@@ -4602,14 +4602,14 @@ var threadPane = {
           cardRowConstant + lineGap * cardRows + densityPaddingConstant;
         break;
       case UIDensity.MODE_TOUCH:
-        rowClass.ROW_HEIGHT = 30;
+        rowHeight = rowHeight + 13;
         lineGap = 6;
         densityPaddingConstant = 12; // card padding-block + 2 * row padding-block
         cardRowHeight =
           cardRowConstant + lineGap * cardRows + densityPaddingConstant;
         break;
       default:
-        rowClass.ROW_HEIGHT = 24;
+        rowHeight = rowHeight + 7;
         lineGap = 3;
         densityPaddingConstant = 7; // card padding-block + 2 * row padding-block
         cardRowHeight =
@@ -4617,6 +4617,7 @@ var threadPane = {
         break;
     }
     cardClass.ROW_HEIGHT = Math.max(cardRowHeight, 50);
+    rowClass.ROW_HEIGHT = Math.max(rowHeight, 18);
   },
 
   /**
