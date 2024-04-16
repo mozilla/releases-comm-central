@@ -64,8 +64,8 @@
   --search-field-placeholder: color-mix(in srgb, currentColor 50%, transparent);
   --search-focus-outline-color: var(--focus-outline-color);
   --search-outline-offset: -1px;
-  --selected-item-color: light-dark(var(--color-blue-60), var(--color-blue-50));
-  --selected-item-text-color: var(--color-white);
+  --selected-item-color: var(--sidebar-highlight-background-color, AccentColor);
+  --selected-item-text-color: var(--sidebar-highlight-text-color, AccentColorText);
   --splitter-color: var(--sidebar-border-color, var(--layout-border-0));
   --sidebar-border-color: var(--layout-border-0);
 
@@ -106,8 +106,7 @@
   --toolbarbutton-checked-background: light-dark(var(--lwt-toolbarbutton-hover-background,
                                                  rgba(200, 200, 200, .5)),
                                                  rgba(0, 0, 0, .25));
-  --toolbarbutton-icon-fill-attention: light-dark(var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff),
-                                                  var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff));
+  --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, AccentColor);
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-color: var(--layout-color-1);
   --toolbar-field-background-color: var(--layout-background-1);
@@ -150,9 +149,8 @@
   }
 
   &[lwt-tree] {
-    --select-focus-background-color: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --select-focus-text-color: var(--sidebar-highlight-text-color,
-                                   var(--sidebar-text-color));
+    --select-focus-background-color: var(--sidebar-highlight-background-color, AccentColor);
+    --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
     --row-grouped-header-bg-color-selected: light-dark(var(--sidebar-highlight-background-color,
