@@ -260,8 +260,10 @@ add_task(async function testModificationUpdatesUI() {
   Assert.equal(cardsList.view.rowCount, 1);
 
   // Display a card.
-
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  const row0 = await TestUtils.waitForCondition(() =>
+    cardsList.getRowAtIndex(0)
+  );
+  EventUtils.synthesizeMouseAtCenter(row0, {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
