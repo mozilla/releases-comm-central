@@ -809,7 +809,10 @@ add_task(async function testGoogleEscaping() {
   Assert.equal(cardsList.view.rowCount, 1);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  const row = await TestUtils.waitForCondition(() =>
+    cardsList.getRowAtIndex(0)
+  );
+  EventUtils.synthesizeMouseAtCenter(row, {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
