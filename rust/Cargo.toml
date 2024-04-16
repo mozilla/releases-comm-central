@@ -74,10 +74,3 @@ viaduct = { git = "https://github.com/mozilla/application-services", rev = "e6cc
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
 mio = { path = "../../third_party/rust/mio-0.6.23" }
-
-[patch."https://github.com/mozilla/uniffi-rs.git"]
-uniffi = "0.27.1"
-uniffi_bindgen = "0.27.1"
-uniffi_build = "0.27.1"
-uniffi_macros = "0.27.1"
-weedle2 = "=5.0.0"
