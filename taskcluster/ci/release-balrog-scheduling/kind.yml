@@ -33,7 +33,8 @@ jobs:
                     production:
                         by-release-type:
                             beta: [43]
-                            release: [17829]
+                            release: [17892]
+                            esr115: [17829]
                             default: []
                     staging:
                         by-release-type:
