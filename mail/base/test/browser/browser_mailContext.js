@@ -376,17 +376,20 @@ add_task(async function testSingleMessage() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(0),
-    { type: "contextmenu" },
-    about3Pane
+  const row0 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "singleMessageTree");
 
   // Open the menu through the keyboard.
 
-  const row = threadTree.getRowAtIndex(0);
+  const row = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
+  );
   row.focus();
   EventUtils.synthesizeMouseAtCenter(
     row,
@@ -487,7 +490,7 @@ add_task(async function testMultipleMessages() {
   await TestUtils.waitForTick(); // Wait for rows to be added.
 
   // Sometimes a bit more waiting is needed.
-  await TestUtils.waitForCondition(
+  const row2 = await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(2),
     "waiting for rows to be added"
   );
@@ -504,11 +507,7 @@ add_task(async function testMultipleMessages() {
   );
 
   // Open the menu from the thread pane.
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(2),
-    { type: "contextmenu" },
-    about3Pane
-  );
+  EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleMessagesTree");
 
@@ -517,11 +516,11 @@ add_task(async function testMultipleMessages() {
   threadTree.scrollToIndex(5, true);
   threadTree.selectedIndices = [5];
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(5),
-    { type: "contextmenu" },
-    about3Pane
+  const row5 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(5),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row5, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "collapsedThreadTree");
 
@@ -595,22 +594,22 @@ add_task(async function testDraftsFolder() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(0),
-    { type: "contextmenu" },
-    about3Pane
+  const row0 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "draftsFolderTree");
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(2),
-    { type: "contextmenu" },
-    about3Pane
+  const row2 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleDraftsFolderTree");
 });
@@ -659,22 +658,22 @@ add_task(async function testTemplatesFolder() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(0),
-    { type: "contextmenu" },
-    about3Pane
+  const row0 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "templatesFolderTree");
 
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(2),
-    { type: "contextmenu" },
-    about3Pane
+  const row2 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "multipleTemplatesFolderTree");
 });
@@ -723,11 +722,11 @@ add_task(async function testListMessage() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(0),
-    { type: "contextmenu" },
-    about3Pane
+  const row0 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "listFolderTree");
 });
@@ -794,11 +793,11 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(9),
-    { type: "contextmenu" },
-    about3Pane
+  const row9 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(9),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row9, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolderDraftTree");
 
@@ -826,11 +825,11 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from the thread pane.
 
-  EventUtils.synthesizeMouseAtCenter(
-    threadTree.getRowAtIndex(5),
-    { type: "contextmenu" },
-    about3Pane
+  const row5 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(5),
+    "waiting for rows to be added"
   );
+  EventUtils.synthesizeMouseAtCenter(row5, { type: "contextmenu" }, about3Pane);
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   checkMenuitems(mailContext, "syntheticFolderTree");
 
