@@ -12,6 +12,10 @@
   content: var(--icon-search);
 }
 
+.clear-button-icon {
+  content: var(--icon-close);
+}
+
 .palette-search {
   display: block;
   margin: 12px 0;
