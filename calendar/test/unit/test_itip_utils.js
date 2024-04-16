@@ -806,7 +806,7 @@ add_task(function test_getImipTransport() {
   // With X-MOZ-INVITED-ATTENDEE property.
   const account2 = MailServices.accounts.createAccount();
   const identity2 = MailServices.accounts.createIdentity();
-  identity2.email = "id2@example.com";
+  identity2.email = "ID2@example.com";
   account2.addIdentity(identity2);
   account2.incomingServer = MailServices.accounts.createIncomingServer(
     "id2",
@@ -814,7 +814,7 @@ add_task(function test_getImipTransport() {
     "imap"
   );
 
-  event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:id2@example.com");
+  event.setProperty("X-MOZ-INVITED-ATTENDEE", "MAILTO:id2@EXAMPLE.com");
 
   const customTransport = cal.itip.getImipTransport(event);
   Assert.ok(customTransport);

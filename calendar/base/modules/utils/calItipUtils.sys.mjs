@@ -1380,9 +1380,9 @@ export var itip = {
     const id = item.getProperty("X-MOZ-INVITED-ATTENDEE");
 
     if (id) {
-      const email = id.split("mailto:").join("");
+      const email = id.replace(/^mailto:/i, "").toLowerCase();
       const identity = MailServices.accounts.allIdentities.find(
-        identity => identity.email == email
+        identity => identity.email.toLowerCase() == email
       );
 
       if (identity) {
