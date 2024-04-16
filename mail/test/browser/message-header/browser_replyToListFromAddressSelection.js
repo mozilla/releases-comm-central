@@ -35,7 +35,6 @@ function addMessageToFolder(aFolder) {
   var msgId = Services.uuid.generateUUID() + "@mozillamessaging.invalid";
 
   var source =
-    "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
     "Delivered-To: <tinderbox_identity333@foo.invalid>\n" +

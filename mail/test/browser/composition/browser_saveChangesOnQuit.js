@@ -64,7 +64,6 @@ function msgSource(aSubject, aContentType) {
   const msgId = Services.uuid.generateUUID() + "@invalid";
 
   return (
-    "From - Sun Apr 07 22:47:11 2013\r\n" +
     "X-Mozilla-Status: 0001\r\n" +
     "X-Mozilla-Status2: 00000000\r\n" +
     "Message-ID: <" +

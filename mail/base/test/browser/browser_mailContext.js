@@ -253,8 +253,7 @@ add_setup(async function () {
     .createLocalSubfolder("mailContextMailingList")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   listFolder.addMessage(
-    "From - Mon Jan 01 00:00:00 2001\n" +
-      "To: Mailing List <list@example.com>\n" +
+    "To: Mailing List <list@example.com>\n" +
       "Date: Mon, 01 Jan 2001 00:00:00 +0100\n" +
       "List-Help: <https://list.example.com>\n" +
       "List-Post: <mailto:list@example.com>\n" +

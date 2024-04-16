@@ -227,7 +227,6 @@ function addToFolder(aSubject, aBody, aFolder) {
 
   gMsgNo++;
   const source =
-    "From - Sat Nov  1 12:39:54 2008\n" +
     "X-Mozilla-Status: 0001\n" +
     "X-Mozilla-Status2: 00000000\n" +
     "Message-ID: <" +

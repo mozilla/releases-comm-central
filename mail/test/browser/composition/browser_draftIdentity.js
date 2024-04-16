@@ -85,7 +85,6 @@ add_setup(async function () {
 function create_draft(aFrom, aIdKey) {
   const msgCount = gDrafts.getTotalMessages(false);
   const source =
-    "From - Wed Mar 01 01:02:03 2017\n" +
     "X-Mozilla-Status: 0000\n" +
     "X-Mozilla-Status2: 00000000\n" +
     "X-Mozilla-Keys:\n" +

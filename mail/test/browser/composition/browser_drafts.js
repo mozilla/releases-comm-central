@@ -259,8 +259,7 @@ add_task(async function test_edit_draft_mime_from() {
   draftsFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .addMessage(
-      "From - Sun Oct 01 01:02:03 2023\n" +
-        "X-Mozilla-Status: 0000\n" +
+      "X-Mozilla-Status: 0000\n" +
         "X-Mozilla-Status2: 00000000\n" +
         "X-Mozilla-Keys:\n" +
         `X-Account-Key: ${accounts.key}\n` +

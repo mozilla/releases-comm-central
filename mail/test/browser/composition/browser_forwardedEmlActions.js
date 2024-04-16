@@ -38,7 +38,6 @@ add_setup(async function () {
   folder = await create_folder("FwdedEmlTest");
 
   const source =
-    "From - Mon Apr  16 22:55:33 2012\n" +
     "Date: Mon, 16 Apr 2012 22:55:33 +0300\n" +
     "From: Mr Example <example@invalid>\n" +
     "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:14.0) Gecko/20120331 Thunderbird/14.0a1\n" +
