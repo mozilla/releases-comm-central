@@ -13,6 +13,28 @@ export class AccountManager {
   }
 
   /**
+   * Get the WebExtension server type for the given server.
+   *
+   * @param {nsIMsgIncomingServer} server - The server to retrieve the type for.
+   * @returns {string}
+   */
+  getType(server) {
+    // Skip unified accounts.
+    if (server.hostName == "smart mailboxes") {
+      return null;
+    }
+
+    const type = server.type;
+    if (["imap", "pop3", "nntp"].includes(type)) {
+      return type;
+    }
+    if (type != "none") {
+      return null;
+    }
+    return this.extension.manifestVersion < 3 ? "none" : "local";
+  }
+
+  /**
    * Converts an nsIMsgAccount to a simple object
    *
    * @param {nsIMsgAccount} account - The account to be converted.
@@ -26,7 +48,9 @@ export class AccountManager {
     account = account.QueryInterface(Ci.nsIMsgAccount);
 
     const server = account.incomingServer;
-    if (server.type == "im") {
+    const type = this.getType(server);
+    // If the type is not supported by the API (i.e. "im"), bail out.
+    if (!type) {
       return null;
     }
 
@@ -34,7 +58,7 @@ export class AccountManager {
     const mailAccount = {
       id: account.key,
       name: server.prettyName,
-      type: server.type,
+      type,
       rootFolder: this.extension.folderManager.convert(rootFolder, account.key),
       identities: account.identities.map(identity =>
         convertMailIdentity(account, identity)

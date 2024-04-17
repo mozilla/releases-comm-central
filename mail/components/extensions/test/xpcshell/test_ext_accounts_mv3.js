@@ -29,7 +29,7 @@ add_task(async function test_accounts() {
         {
           id: account1Id,
           name: account1Name,
-          type: "none",
+          type: "local",
           rootFolder: {
             accountId: account1Id,
             name: "Root",
@@ -92,7 +92,7 @@ add_task(async function test_accounts() {
           {
             id: account1Id,
             name: account1Name,
-            type: "none",
+            type: "local",
             rootFolder: {
               accountId: account1Id,
               name: "Root",

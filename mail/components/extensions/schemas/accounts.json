@@ -61,6 +61,22 @@
         "id": "MailAccountId",
         "type": "string",
         "description": "A unique id representing a :ref:`accounts.MailAccount`."
+      },
+      {
+        "id": "MailAccountType",
+        "description": "The type of an account.",
+        "choices": [
+          {
+            "max_manifest_version": 2,
+            "type": "string",
+            "enum": ["imap", "pop3", "nntp", "none"]
+          },
+          {
+            "min_manifest_version": 3,
+            "type": "string",
+            "enum": ["imap", "pop3", "nntp", "local"]
+          }
+        ]
       }
     ],
     "functions": [
