@@ -9,14 +9,16 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
-use thin_vec::ThinVec;
-
 use nserror::nsresult;
+use thin_vec::ThinVec;
 use xpcom::interfaces::{nsIChannel, nsIStreamListener};
 use xpcom::{RefPtr, XpCom};
 
 mod buffering_listener;
 use crate::buffering_listener::BufferingStreamListener;
+
+mod sleep;
+pub use self::sleep::*;
 
 /// A wrapper providing a native Rust [`Future`] for asynchronous operations on
 /// XPCOM interfaces.

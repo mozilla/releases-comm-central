@@ -5806,6 +5806,7 @@ dependencies = [
 name = "xpcom_async"
 version = "0.1.0"
 dependencies = [
+ "cstr",
  "mozilla-central-workspace-hack",
  "nserror",
  "thin-vec",
