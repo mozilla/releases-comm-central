@@ -9,19 +9,19 @@
   --viewBackground: var(--layout-background-0);
   --viewBorderColor: var(--layout-border-0);
   --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
-  --viewHighlightBorderColor: var(--color-blue-50);
+  --viewHighlightBorderColor: color-mix(in srgb, var(--selected-item-color) 70%, transparent);
   --viewTodayColor: inherit;
   --viewTodayBackground: var(--layout-background-1);
-  --viewTodayLabelColor: var(--color-white);
-  --viewTodayLabelBackground: var(--color-blue-50);
+  --viewTodayLabelColor: var(--selected-item-text-color);
+  --viewTodayLabelBackground: var(--selected-item-color);
   --viewTodayOffBackground: color-mix(in srgb, var(--viewTodayBackground) 95%, black);
-  --viewTodayDayLabelBackground: var(--color-blue-10);
+  --viewTodayDayLabelBackground: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
   --viewTodayWeekendBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewWeekendBackground));
   --viewWeekendBackground: var(--color-ink-10);
-  --viewHeaderSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewBackground));
-  --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewBackground));
-  --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--color-blue-20) 20%, var(--viewTodayOffBackground));
-  --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--color-blue-10) 20%, var(--viewMonthOtherBackground));
+  --viewHeaderSelectedBackground: var(--selected-item-color);
+  --viewDayBoxSelectedBackground: color-mix(in srgb, var(--selected-item-color) 20%, var(--viewBackground));
+  --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--selected-item-color) 20%, var(--viewTodayOffBackground));
+  --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--selected-item-color) 20%, var(--viewMonthOtherBackground));
   --viewMonthOtherBackground: var(--layout-background-2);
   --viewMonthDayBoxSelectedColor: var(--layout-color-1);
   --viewMonthDayBoxLabelColor: var(--layout-color-1);
@@ -77,11 +77,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --viewTodayDayLabelBackground: color-mix(in srgb, var(--color-blue-90) 30%, var(--viewBackground));
-    --viewHeaderSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
-    --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewBackground));
-    --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--color-blue-80) 20%, var(--viewTodayOffBackground));
-    --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--color-blue-90) 20%, var(--viewMonthOtherBackground));
+    --viewHeaderSelectedBackground: color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground));
+    --viewDayBoxSelectedBackground: color-mix(in srgb, var(--selected-item-color) 25%, var(--viewBackground));
+    --viewDayBoxOffSelectedBackground: color-mix(in srgb, var(--selected-item-color) 15%, var(--viewTodayOffBackground));
+    --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--selected-item-color) 15%, var(--viewMonthOtherBackground));
     --viewMonthDayOffLabelBackground: color-mix(in srgb, var(--viewWeekendBackground) 95%, var(--color-ink-30));
     --viewOffTimeBackground: color-mix(in srgb, var(--viewBackground) 95%, var(--color-ink-30));
     --viewWeekendBackground: color-mix(in srgb, var(--viewBackground) 80%, var(--color-ink-40));
@@ -557,8 +556,12 @@ calendar-event-column,
   background-color: var(--viewTodayBackground);
 }
 
-.day-column-today .day-column-heading {
-  color: var(--viewTodayLabelBackground);
+.day-column-heading {
+  .day-column-today &,
+  .day-column-selected & {
+    color: var(--selected-item-color);
+    font-weight: bold;
+  }
 }
 
 .day-column-today.day-column-weekend:not(.day-column-selected) :is(
@@ -568,57 +571,64 @@ calendar-event-column,
   background-color: var(--viewTodayWeekendBackground);
 }
 
-.day-column-selected :is(
-  calendar-header-container,
-  .multiday-hour-box,
-  .day-column-heading
-) {
-  background-color: var(--viewHeaderSelectedBackground);
-  border-inline: 1px solid var(--viewHighlightBorderColor);
+.day-column-selected {
+  & :is(
+    calendar-header-container,
+    .multiday-hour-box
+  ) {
+    background-color: var(--viewDayBoxSelectedBackground);
+    border-inline: 1px solid var(--viewHighlightBorderColor);
+  }
+
+  & .day-column-heading {
+    border-inline: 1px solid var(--viewHighlightBorderColor);
+  }
 }
 
-.multiday-hour-box.multiday-hour-box-off-time {
-  background-color: var(--viewOffTimeBackground);
-}
+.multiday-hour-box-off-time {
+  .multiday-hour-box& {
+    background-color: var(--viewOffTimeBackground);
 
-.day-column-weekend .multiday-hour-box.multiday-hour-box-off-time {
-  background-color: var(--viewMonthDayOffLabelBackground);
-}
+    .day-column-weekend & {
+      background-color: var(--viewMonthDayOffLabelBackground);
+    }
 
-.day-column-today .multiday-hour-box.multiday-hour-box-off-time {
-  background-color: var(--viewTodayOffBackground);
-}
+    .day-column-today & {
+      background-color: var(--viewTodayOffBackground);
+    }
 
-.day-column-selected .multiday-hour-box.multiday-hour-box-off-time {
-  background-color: var(--viewDayBoxOffSelectedBackground);
+    .day-column-selected & {
+      background-color: var(--viewDayBoxOffSelectedBackground);
+    }
+  }
 }
 
 .fgdragbox {
   -moz-box-orient: inherit;
   display: none;
-}
 
-.fgdragbox[dragging="true"] {
-  display: flex;
-  background: var(--viewDragboxBackground);
-  border: 5px var(--viewBackground);
-  opacity: 0.5;
-  min-height: 2px;
-  min-width: 2px;
+  &[dragging="true"] {
+    display: flex;
+    background: var(--viewDragboxBackground);
+    border: 5px var(--viewBackground);
+    opacity: 0.5;
+    min-height: 2px;
+    min-width: 2px;
+  }
 }
 
 .fgdragcontainer {
   -moz-box-orient: inherit;
   display: none;
-}
 
-.fgdragcontainer[dragging="true"] {
-  display: flex;
-  /* This is a workaround for a stack bug and display: hidden in underlying
-   * elements -- the display: hidden bits get misrendered as being on top.
-   * Setting an opacity here forces a view to be created for this element, too.
-   */
-  opacity: 0.9999;
+  &[dragging="true"] {
+    display: flex;
+    /* This is a workaround for a stack bug and display: hidden in underlying
+     * elements -- the display: hidden bits get misrendered as being on top.
+     * Setting an opacity here forces a view to be created for this element, too.
+     */
+    opacity: 0.9999;
+  }
 }
 
 .fgdragbox-label {
@@ -685,29 +695,28 @@ calendar-editable-item[selected="true"].calendar-color-box {
 calendar-day-label {
   color: var(--viewColor);
   background-color: var(--viewBackground);
-}
 
-calendar-day-label[relation="today"] {
-  background-color: var(--viewTodayDayLabelBackground);
-  color: var(--viewTodayColor);
+  &[relation="today"] {
+    color: var(--selected-item-color);
+  }
 }
 
 .calendar-day-label-name {
   text-align: center;
+  font-weight: bold;
 }
 
 /* Multiweek/Month View */
 calendar-month-view,
 calendar-multiweek-view {
-  padding: 0px 2px 2px;
+  padding: 0 2px 2px;
   /* Only have a single child. Grid display will automatically stretch to fill
    * the given space. */
   display: grid;
-}
 
-calendar-month-view[hidden],
-calendar-multiweek-view[hidden] {
-  display: none;
+  &[hidden] {
+    display: none;
+  }
 }
 
 .monthtable {
@@ -730,36 +739,33 @@ calendar-multiweek-view[hidden] {
   /* Complete the end borders. */
   border-inline-end: 1px solid var(--viewBorderColor);
   border-block-end: 1px solid var(--viewBorderColor);
-}
 
-.monthtable :is(tbody, thead, tr, td, th) {
-  /* Allow the calendar-month-day-box and calendar-day-label elements be the
-   * children of the grid. */
-  display: contents;
-}
+  & :is(tbody, thead, tr, td, th) {
+    /* Allow the calendar-month-day-box and calendar-day-label elements be the
+     * children of the grid. */
+    display: contents;
+  }
 
-.monthtable :is(tr, th, td)[hidden] {
-  /* NOTE: Need this CSS rule because the hidden attribute behaviour is
-   * overridden by the "display: contents" rule above. */
-  display: none;
-}
+  & :is(tr, th, td)[hidden] {
+    /* NOTE: Need this CSS rule because the hidden attribute behaviour is
+     * overridden by the "display: contents" rule above. */
+    display: none;
+  }
 
-.monthtable :is(td, th) > * {
-  /* Hidden overflow ensures each cell has the same width/height, even when the
-   * space becomes limited, because this allows the cells to shrink. */
-  overflow: hidden;
-}
+  & :is(td, th) > * {
+    /* Hidden overflow ensures each cell has the same width/height, even when the
+     * space becomes limited, because this allows the cells to shrink. */
+    overflow: hidden;
+    /* Every cell in the body gets a starting border, which acts as the end border
+     * for the previous cell. */
+    border: 1px solid transparent;
+    border-inline-start: 1px solid var(--viewBorderColor);
+    border-block-start: 1px solid var(--viewBorderColor);
+  }
 
-.monthtable :is(td, th) > * {
-  /* Every cell in the body gets a starting border, which acts as the end border
-   * for the previous cell. */
-  border: 1px solid transparent;
-  border-inline-start: 1px solid var(--viewBorderColor);
-  border-block-start: 1px solid var(--viewBorderColor);
-}
-
-.monthtable calendar-day-label {
-  display: block;
+  & calendar-day-label {
+    display: block;
+  }
 }
 
 calendar-month-day-box {
@@ -819,7 +825,7 @@ calendar-month-day-box {
 }
 
 .calendar-month-day-box-date-label[relation="today"] {
-  color: var(--color-white);
+  color: var(--viewTodayLabelColor);
   position: relative;
   font-weight: bold;
   background-color: var(--viewTodayLabelBackground);

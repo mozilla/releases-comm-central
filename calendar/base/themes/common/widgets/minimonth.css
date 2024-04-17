@@ -26,14 +26,14 @@ calendar-minimonth {
   --mmDayTodayColor: var(--color-gray-90);
   --mmDayTodayBackground: color-mix(in srgb, var(--color-ink-40) 20%, transparent);
   --mmDayTodayBorderColor: transparent;
-  --mmDaySelectedColor: var(--color-blue-60);
-  --mmDaySelectedBackground: var(--color-blue-10);
-  --mmDaySelectedBorderColor: var(--color-blue-50);
-  --mmDaySelectedTodayBackground: var(--color-blue-10);
-  --mmDaySelectedTodayBorderColor: var(--color-blue-50);
+  --mmDaySelectedColor: var(--selected-item-color);
+  --mmDaySelectedBackground: color-mix(in srgb, var(--selected-item-color) 40%, transparent);
+  --mmDaySelectedBorderColor: color-mix(in srgb, var(--selected-item-color) 70%, transparent);
+  --mmDaySelectedTodayBackground: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
+  --mmDaySelectedTodayBorderColor: color-mix(in srgb, var(--selected-item-color) 70%, transparent);
   --mmDayBorderRadius: 3px;
   --mmDayPadding: 4px;
-  --mmDayBusyColor: var(--color-blue-50);
+  --mmDayBusyColor: var(--selected-item-color);
   --mmDayBusyIndicatorSize: 4px;
 }
 
@@ -77,11 +77,6 @@ calendar-minimonth {
     --mmDayOtherColor: var(--color-gray-50);
     --mmDayOtherBackground: transparent;
     --mmDayOtherBorderColor: transparent;
-    --mmDaySelectedColor: var(--color-ink-10);
-    --mmDaySelectedBackground: color-mix(in srgb, var(--color-blue-40) 20%, transparent);
-    --mmDaySelectedBorderColor: var(--color-blue-50);
-    --mmDaySelectedTodayBackground: color-mix(in srgb, var(--color-blue-40) 30%, transparent);
-    --mmDaySelectedTodayBorderColor: var(--color-blue-50);
     --mmDayWeekColor: var(--color-ink-40);
   }
 }
