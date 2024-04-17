@@ -4768,11 +4768,16 @@ var threadPane = {
   },
 
   /**
-   * Restore the collapsed or expanded state of threads.
+   * Set the correct style attributes in the threadTree and, if setState
+   * is true, restore the collapsed or expanded state of threads that is being
+   * held in gViewWrapper._threadExpandAll.
+   *
+   * @param {boolean} [setState=true] - Actually set the collapsed/expanded
+   *   state.
    */
-  restoreThreadState() {
+  restoreThreadState(setState = true) {
     // There is no persisted thread last expanded state for synthetic views.
-    if (!gViewWrapper.isSynthetic && gViewWrapper.isSingleFolder) {
+    if (!gViewWrapper.isSynthetic && setState) {
       if (
         gViewWrapper._threadExpandAll &&
         !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
@@ -6217,10 +6222,12 @@ var sortController = {
   sortThreaded() {
     threadPane.updateListRole(false);
     gViewWrapper.showThreaded = true;
+    threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
   },
   groupBySort() {
     threadPane.updateListRole(false);
     gViewWrapper.showGroupedBySort = true;
+    threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
   },
   sortUnthreaded() {
     threadPane.updateListRole(true);
