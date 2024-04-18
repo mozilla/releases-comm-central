@@ -84,7 +84,7 @@ var calendarTaskButtonDNDObserver;
           false
         );
       });
-      item.setProperty("DESCRIPTION", content);
+      item.descriptionText = content;
     },
 
     /**

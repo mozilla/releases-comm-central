@@ -121,7 +121,7 @@ var calendarExtract = {
     const item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
-    item.setProperty("DESCRIPTION", content);
+    item.descriptionText = content;
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);

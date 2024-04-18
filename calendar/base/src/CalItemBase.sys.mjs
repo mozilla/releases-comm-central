@@ -394,7 +394,7 @@ calItemBase.prototype = {
   },
 
   set descriptionText(text) {
-    this.setProperty("DESCRIPTION", text);
+    this.setProperty("DESCRIPTION", text ? text.replace(/\r/g, "") : null);
     if (text) {
       this.setPropertyParameter("DESCRIPTION", "ALTREP", null);
     } // else: property parameter deleted by setProperty(..., null)
