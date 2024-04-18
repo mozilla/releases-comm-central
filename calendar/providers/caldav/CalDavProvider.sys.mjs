@@ -270,10 +270,9 @@ class CalDavDetector {
     if (resourceType.has("C:calendar")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is a calendar`);
       return [this.handleCalendar(target, resprops)];
-    } else if (resourceType.has("D:principal")) {
-      cal.LOG(`[CalDavProvider] ${target.spec} is a principal, looking at home set`);
-      const homeSet = resprops["C:calendar-home-set"];
-      const homeSetUrl = Services.io.newURI(homeSet, null, target);
+    } else if (resprops["C:calendar-home-set"]?.length) {
+      cal.LOG(`[CalDavProvider] ${target.spec} has a home set, looking at it`);
+      const homeSetUrl = Services.io.newURI(resprops["C:calendar-home-set"][0], null, target);
       return this.handleHomeSet(homeSetUrl);
     } else if (resprops["D:current-user-principal"]) {
       cal.LOG(
@@ -299,7 +298,7 @@ class CalDavDetector {
    * @returns {Promise<calICalendar[] | null>} An array of calendars or null.
    */
   async handlePrincipal(location) {
-    const props = ["D:resourcetype", "C:calendar-home-set"];
+    const props = ["C:calendar-home-set"];
     const request = new CalDavPropfindRequest(this.session, null, location, props);
     cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
 
@@ -310,9 +309,6 @@ class CalDavDetector {
 
     if (response.authError) {
       throw new cal.provider.detection.AuthFailedError();
-    } else if (!response.firstProps["D:resourcetype"].has("D:principal")) {
-      cal.LOG(`[CalDavProvider] ${target.spec} is not a principal collection`);
-      return null;
     } else if (homeSets) {
       const calendars = [];
       for (const homeSet of homeSets) {

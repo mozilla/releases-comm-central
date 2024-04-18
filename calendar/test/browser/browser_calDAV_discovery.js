@@ -174,6 +174,149 @@ add_task(async function testWellKnown() {
 });
 
 /**
+ * Test that the magic URL /.well-known/caldav works, even if the server returns
+ * a 404 status for the resourcetype property (as done by iCloud.com).
+ * Verify successfull discovery, if current-user-principal and calendar-home-set
+ * are returned by the principal request.
+ */
+add_task(async function testWellKnown_noResourceType_earlyCalendarHomeSet() {
+  CalDAVServer.open("alice", "alice");
+  // Return a 404 status for the resourcetype property. Return a 200 status for
+  // current-user-principal and calendar-home-set. Implementation should then use
+  // the available calendar-home-set.
+  CalDAVServer.server.registerPathHandler("/principals/", (_request, response) => {
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="DAV:">
+          <response>
+            <href>/principals/</href>
+            <propstat>
+              <prop>
+                <current-user-principal xmlns="DAV:">
+                  <href>/principals/me/</href>
+                </current-user-principal>
+                <calendar-home-set xmlns="urn:ietf:params:xml:ns:caldav">
+                  <href>/calendars/me/</href>
+                </calendar-home-set>
+              </prop>
+              <status>HTTP/1.1 200 OK</status>
+           </propstat>
+           <propstat>
+            <prop>
+              <resourcetype xmlns="DAV:"/>
+            </prop>
+            <status>HTTP/1.1 404 Not Found</status>
+          </propstat>
+          </response>
+        </multistatus>`.replace(/>\s+</g, "><")
+    );
+  });
+  // This should not be executed. Any empty response will cause the test to fail.
+  CalDAVServer.server.registerPathHandler("/principals/me/", () => {
+    Assert.report(
+      true,
+      undefined,
+      undefined,
+      "The current-user-principal (/principal/me/) returned by the /principal/ request should have been ignored, if a calendar-home-set was returned as well."
+    );
+  });
+  await openWizard({
+    username: "alice",
+    url: CalDAVServer.origin,
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: CalDAVServer.url,
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+      },
+    ],
+  });
+
+  CalDAVServer.close();
+});
+
+/**
+ * Test that the magic URL /.well-known/caldav works, even if the server returns
+ * a 404 status for the resourcetype property (as done by iCloud.com).
+ * Verify successfull discovery, if only the current-user-principal is returned
+ * by the principal request.
+ */
+add_task(async function testWellKnown_noResourceType() {
+  CalDAVServer.open("alice", "alice");
+  // Return a 404 status for the resourcetype property. Return a 200 status for
+  // current-user-principal.
+  CalDAVServer.server.registerPathHandler("/principals/", (request, response) => {
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="DAV:">
+          <response>
+            <href>/principals/</href>
+            <propstat>
+              <prop>
+                <current-user-principal xmlns="DAV:">
+                  <href>/principals/me/</href>
+                </current-user-principal>
+              </prop>
+              <status>HTTP/1.1 200 OK</status>
+           </propstat>
+           <propstat>
+            <prop>
+              <resourcetype xmlns="DAV:"/>
+            </prop>
+            <status>HTTP/1.1 404 Not Found</status>
+          </propstat>
+          </response>
+        </multistatus>`.replace(/>\s+</g, "><")
+    );
+  });
+  // Return a 404 status for the resourcetype property. Return a 200 status for
+  // calendar-home-set.
+  CalDAVServer.server.registerPathHandler("/principals/me/", (request, response) => {
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(
+      `<multistatus xmlns="DAV:">
+          <response>
+            <href>/principals/me/</href>
+            <propstat>
+              <prop>
+                <calendar-home-set xmlns="urn:ietf:params:xml:ns:caldav">
+                  <href>/calendars/me/</href>
+                </calendar-home-set>
+              </prop>
+              <status>HTTP/1.1 200 OK</status>
+           </propstat>
+           <propstat>
+            <prop>
+              <resourcetype xmlns="DAV:"/>
+            </prop>
+            <status>HTTP/1.1 404 Not Found</status>
+          </propstat>
+          </response>
+        </multistatus>`.replace(/>\s+</g, "><")
+    );
+  });
+
+  await openWizard({
+    username: "alice",
+    url: CalDAVServer.origin,
+    password: "alice",
+    expectedCalendars: [
+      {
+        uri: CalDAVServer.url,
+        name: "CalDAV Test",
+        color: "rgb(255, 128, 0)",
+      },
+    ],
+  });
+
+  CalDAVServer.close();
+});
+
+/**
  * Tests calendars with only the "read" "current-user-privilege-set" are
  * flagged read-only.
  */
