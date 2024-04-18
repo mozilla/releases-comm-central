@@ -21,9 +21,9 @@ files_changed:
     - comm/mail/base/content/about3Pane.js
     - comm/mail/base/content/about3Pane.xhtml
 filters: [target_tasks_method]
-head_ref: FIREFOX_RELEASE_120_BASE
-head_repository: https://hg.mozilla.org/releases/mozilla-beta
-head_rev: e2b2510f97612093f381ee1f4220e71ff949d845
+head_ref: FIREFOX_120_0_1_RELEASE
+head_repository: https://hg.mozilla.org/releases/mozilla-release
+head_rev: d80eefe94738ab6bd35cca64747d877c49337318
 head_tag: ''
 hg_branch: default
 level: '3'
@@ -45,11 +45,11 @@ release_partner_build_number: 1
 release_partner_config: {}
 release_partners: []
 release_product:
-release_type: beta
+release_type: release
 repository_type: hg
 required_signoffs: []
 signoff_urls: {}
-target_tasks_method: mozilla_beta_tasks
+target_tasks_method: mozilla_release_tasks
 tasks_for: hg-push
 test_manifest_loader: default
 try_mode:

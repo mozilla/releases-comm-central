@@ -15,7 +15,7 @@ comm_head_rev: bd719e91319162b001bf11e363cdf06b65ef2831
 comm_src_path: comm/
 do_not_optimize: []
 enable_always_target: [docker-image]
-existing_tasks: []
+existing_tasks: {}
 files_changed:
     - dom/html/HTMLDetailsElement.cpp
     - gfx/thebes/gfxUserFontSet.cpp

@@ -14,16 +14,142 @@ comm_head_repository: https://hg.mozilla.org/releases/comm-release
 comm_head_rev: 5fef80a909002a7ff1e94299c0e0f212233f91d4
 comm_src_path: comm/
 do_not_optimize: []
-existing_tasks: {}
+existing_tasks:
+    build-linux-shippable/opt: LIqL7xSHTiGo8SCOtgIB8A
+    build-linux-shippable/opt-upload-symbols: bZb7eA5jQpOLdG94iQLOKg
+    build-linux64-shippable/opt: DZk4BUxcTSSmGLFz9EgjEA
+    build-linux64-shippable/opt-upload-symbols: ITVcYUIUR3aUl6qzd6OPIg
+    build-linux64/debug: KH1E3NVATW-k60miKOkncg
+    build-mac-notarization-macosx64-shippable/opt: bVO3OdnPQL26CnMnWx1Fwg
+    build-mac-signing-macosx64-shippable/opt: QpL1rX7jQ9ucrR7gzrwwng
+    build-macosx64-aarch64-shippable/opt: EwiOrbfBSMS-UC7XtXuqNA
+    build-macosx64-aarch64-shippable/opt-upload-symbols: VsKdR5b7TUK1TihFeR0ISw
+    build-macosx64-shippable/opt: Alp550RfRxaE2CHYSr9n9g
+    build-macosx64-x64-shippable/opt: FQvFu_xTS4-Vqq7uLE8Vcg
+    build-macosx64-x64-shippable/opt-upload-symbols: XQ7D9Q-bRS6mv3oY7vkMcw
+    build-signing-linux-shippable/opt: EhhShyNqS0CCG-1Nag0aag
+    build-signing-linux64-shippable/opt: GyA1Scw9QhecJUlIxgVBig
+    build-signing-win32-shippable/opt: Fy8nrxnsRV6l8e9UrA8ELQ
+    build-signing-win64-shippable/opt: R0A4l93jSMOzSsfHv4EaBA
+    build-win32-shippable/opt: PV4BaS4TSnSXNEduqceLpg
+    build-win32-shippable/opt-upload-symbols: GEOxpyZHSWKNz6DdGWVphQ
+    build-win64-shippable/opt: dA8Pm8ZpRD6hR8FEdyBfWg
+    build-win64-shippable/opt-upload-symbols: TQ714fsLQi-i6ilrPM-x0A
+    repackage-linux-shippable/opt: aJcMZh6KRU6TILYmGs8UGg
+    repackage-linux64-shippable/opt: MoARKRrrSpaQoAOkERcQ1A
+    repackage-macosx64-shippable/opt: EthF8PGXQsGIFy8vmJXkUw
+    repackage-msi-win32-shippable/opt: VF0MPqg6RvSURoKZs4coEA
+    repackage-msi-win64-shippable/opt: fcZe2FaUQxqOeQ7yzGDeDw
+    repackage-shippable-l10n-msix-win32-shippable/opt: YBnx1m8XSQWFhLHbDdx13Q
+    repackage-shippable-l10n-msix-win64-shippable/opt: VyltlrQ2RBu6hAH0nZ3rVg
+    repackage-signing-msi-win32-shippable/opt: EU9sx4a2SrCBYYZE9xKegw
+    repackage-signing-msi-win64-shippable/opt: KBZDzKGHSJmlvCXX5QCGBQ
+    repackage-signing-shippable-l10n-msix-win32-shippable/opt: XDcVScdmRKuHffVZz1oBIw
+    repackage-signing-shippable-l10n-msix-win64-shippable/opt: cFp8ynMqRAuN0e3eCGqyRw
+    repackage-signing-win32-shippable/opt: S1HOnjhRSc-FiVswUWSRrw
+    repackage-signing-win64-shippable/opt: EvgRwbHbToOWdTgNpCEhDg
+    repackage-win32-shippable/opt: H1ueJZLaR1mMoTw-ho-4aw
+    repackage-win64-shippable/opt: czhatiTWT7qZgLx_vQxO7g
+    shippable-l10n-linux64-shippable-1/opt: NYBEY8soRq-6gdDiHuHJTQ
+    shippable-l10n-linux64-shippable-10/opt: T2yLpk-qSZaQuM9r9tBm-w
+    shippable-l10n-linux64-shippable-11/opt: M93t34aETYGWDnamo31ALQ
+    shippable-l10n-linux64-shippable-12/opt: Pz71JN48QkSuJDs4lZcsDA
+    shippable-l10n-linux64-shippable-13/opt: bGsJZpHbQaeqUur-KucYdA
+    shippable-l10n-linux64-shippable-2/opt: Nf8A9520To2OUSkmKDvEqw
+    shippable-l10n-linux64-shippable-3/opt: AvsovHAxTFGRjLTRPtyoZA
+    shippable-l10n-linux64-shippable-4/opt: KTmK5PfBSUS_miEKWyf5Yw
+    shippable-l10n-linux64-shippable-5/opt: fdd_KJyDQ_O9IXWcPw7fog
+    shippable-l10n-linux64-shippable-6/opt: Jsdh-9wKTy2_e_7XUFwctg
+    shippable-l10n-linux64-shippable-7/opt: JNtord3sSHiWCYVwHy3Bjg
+    shippable-l10n-linux64-shippable-8/opt: LFu62u4HQ7qFD6Bi23Mcpw
+    shippable-l10n-linux64-shippable-9/opt: HVrQaopIStK2yZ9NJ3J4Ew
+    shippable-l10n-pre-shippable-l10n-pre/opt: ObJxrX3YQCKUPENIqyiqMw
+    source-test-mozlint-codespell: RKChtqbcTKmyPZv0N9UFcQ
+    source-test-mozlint-eslint: XzrWgK9vQUeqZLWB-hkteQ
+    source-test-mozlint-file-perm: F8KtVkhrSNebArqJjjeT_A
+    source-test-mozlint-file-whitespace: KeKWvat4QLeX8mEm4Uw55A
+    source-test-mozlint-license: JT3cjqa5RiiAvYUlrn5ODQ
+    source-test-mozlint-lintpref: Sil4BbO2RqioVghhTmAOFg
+    source-test-mozlint-localization: Ddq-Jq2PS26GKCMloCE6Pw
+    source-test-mozlint-py-black: Om7WeoHMSKinpKAN8PW7cQ
+    source-test-mozlint-py-ruff: OelwSmGaSbC1hNXm_nMODQ
+    source-test-mozlint-stylelint: db_sSPLKRv6t6Y5IfE482Q
+    source-test-mozlint-trojan-source: blAqMv3SRomOKr6J0rY3Sw
+    source-test-mozlint-yaml: QbXcRdxbQb-Et8M4g5sAVw
+    source-test-python-comm_taskgraph-tests: ZskBs7KoRZOoZ88eoVOsNg
+    source-test-taskgraph-diff: C9nrz1DuSmWju3HnYfaAoQ
+    test-linux1804-64-shippable-qr/opt-gtest-1proc: Xt1ve6daQx21Z9Q3MLBLow
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-1: FPjAjESuQOecvH0ytNVrJw
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-2: HAK7CmpoRqC_EtUp4va40g
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-3: MAuDj_daRNSyuNTniuvETw
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-4: RwXP6V10QMiamt9afqXE0w
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-5: H4ApngNYSAaUJhx4fMS52g
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-6: WA2vaQ-rRryViCWNcQE9FA
+    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-7: Ds95vm_YTryiThuNv7PZ1Q
+    test-linux1804-64-shippable-qr/opt-xpcshell-1: JNMFQyNMTDqQWpC5_7GU2Q
+    test-linux1804-64-shippable-qr/opt-xpcshell-2: cEzuCnk9R4OPIDBB4J4C_w
+    test-linux1804-64-shippable-qr/opt-xpcshell-3: EsIzsGPCRR2FpWePigv9wg
+    test-linux1804-64-shippable-qr/opt-xpcshell-4: QHII9gUASdy8oPFYZdArMQ
+    test-linux1804-64-shippable-qr/opt-xpcshell-5: eGeP24JnRI6v4SwKJqFEHQ
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-1: GAkJ6jo3RtKAxq7tDLdO5w
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-2: NNtjO571RvKc3px7aWCIbw
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-3: C_iAlmmzRvGKBIwS7gXC4A
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-4: YPpiQAVvRm6ruQxLksMMqw
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-5: eA2ptFnvR2-LmEf39YxZUQ
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-6: D4J12rK3Qk-Rd8CIVnUVkA
+    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-7: Id9_xuz8RymrCRz9NgH9Nw
+    test-macosx1015-64-shippable-qr/opt-xpcshell-1: XPzN-TspQZOyUfWi7xdt-g
+    test-macosx1015-64-shippable-qr/opt-xpcshell-2: CWLludPZTTm7UK3eQc0vYQ
+    test-macosx1015-64-shippable-qr/opt-xpcshell-3: d0LoUvfURQC8ewdCpsYIww
+    test-macosx1015-64-shippable-qr/opt-xpcshell-4: etV_kpSoQJ60lBzrS2ToIA
+    test-macosx1015-64-shippable-qr/opt-xpcshell-5: By_etuV2QS2fGnBP5skH8A
+    test-windows11-32-2009-shippable-qr/opt-gtest-1proc: DR62AeivQDuZuZfTf_r74g
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-1: RDTLX9uvRl2JjPZbaw1RBw
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-2: Nfx4mYZkRZeDRBzJn3AOcQ
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-3: ZI77a07HRySQW_clWwsqIQ
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-4: Kb5GGVDpQTCxnZjxUB-xdA
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-5: TDnwqYClR1C6ZtMYm8j2EQ
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-6: L0hh0FGXQkSHoF_lViHnWw
+    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-7: aq3kT9JkTNaHfhJGRBLllg
+    test-windows11-32-2009-shippable-qr/opt-xpcshell-1: SDb-anmeSGuxOfdZv23I8w
+    test-windows11-32-2009-shippable-qr/opt-xpcshell-2: N2WCXyjKQrWGPSjUcO_V5w
+    test-windows11-32-2009-shippable-qr/opt-xpcshell-3: GSZ2tcZtRzOkllzYuGouFw
+    test-windows11-32-2009-shippable-qr/opt-xpcshell-4: Qf4YSPrdR6CdmPnynv9skA
+    test-windows11-32-2009-shippable-qr/opt-xpcshell-5: IM_zHhUkR22TgrDZBaI_EA
+    test-windows11-64-2009-shippable-qr/opt-gtest-1proc: R7DBpbm1TsuvtKhhlu-JBA
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-1: B_9w6Ei_QY6TAiWVF629mQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-2: bTYjgQtKQk2ekLzNFaLN2w
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-3: cTVHLljWQPa95hx8x2bocQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-4: IYK702QyQSGBaeDYe3zdwA
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-5: Tf39QcdTSV6Y593QWlyugQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-6: Bt-8u4XpR1y9h83sWPAFjw
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-7: dLLXMf1DRW-eW852CdM-xQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-1: Li0-BzWoQY-QsC3vwlFyhQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-2: JPj6U5v1TySJTpqSwhI49w
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-3: KImGEl3vT7mIjQvHBxyYZQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-4: OhQOvFzoTt-l6OVF03f_Tw
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-5: Nc7XACkSTYG5QpeFc8FSkw
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-6: acEAsBPbSEmMoFz7v_9CFQ
+    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-7: Rv5mPtN_Sb2q1hs80iTIlA
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-1: Jkk4tqICTum06pftaOfCGA
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-2: TepyBpTyS2aKjA-W_Fjhxg
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-3: ElzFqcHKROirTtxv6sUqqQ
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-4: du_yQumSTUeig3fdrlmqVg
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-5: OXiQ-hz7TwGs34MsJHpRzw
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-1: KysiFGhgTj6jkqdmJsyfsw
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-2: OKHFWeaLTXyXnEHwoc9MTA
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-3: c3lVFTLtTPa9Ock2w0ccmw
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-4: PrZ4ZKDeTnWNTiCAe2-GQw
+    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-5: bW9ZPog3SKOUOQpb40Rpuw
 files_changed:
     - dom/html/HTMLDetailsElement.cpp
     - gfx/thebes/gfxUserFontSet.cpp
     - comm/mail/base/content/about3Pane.js
     - comm/mail/base/content/about3Pane.xhtml
 filters: [target_tasks_method]
-head_ref: FIREFOX_RELEASE_120_BASE
-head_repository: https://hg.mozilla.org/releases/mozilla-beta
-head_rev: e2b2510f97612093f381ee1f4220e71ff949d845
+head_ref: FIREFOX_120_0_1_RELEASE
+head_repository: https://hg.mozilla.org/releases/mozilla-release
+head_rev: d80eefe94738ab6bd35cca64747d877c49337318
 head_tag: ''
 hg_branch: default
 level: '3'
@@ -45,7 +171,7 @@ release_partner_build_number: 1
 release_partner_config: {}
 release_partners:
 release_product: thunderbird
-release_type: beta
+release_type: release
 repository_type: hg
 required_signoffs: []
 signoff_urls: {}
