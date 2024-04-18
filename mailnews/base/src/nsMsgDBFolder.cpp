@@ -1261,17 +1261,19 @@ nsMsgDBFolder::AddMessageDispositionState(
 nsresult nsMsgDBFolder::AddMarkAllReadUndoAction(nsIMsgWindow* msgWindow,
                                                  nsMsgKey* thoseMarked,
                                                  uint32_t numMarked) {
-  RefPtr<nsMsgReadStateTxn> readStateTxn = new nsMsgReadStateTxn();
-  if (!readStateTxn) return NS_ERROR_OUT_OF_MEMORY;
+  NS_ENSURE_ARG_POINTER(msgWindow);
 
+  nsCOMPtr<nsITransactionManager> txnMgr;
+  msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
+  if (!txnMgr) {
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  RefPtr<nsMsgReadStateTxn> readStateTxn = new nsMsgReadStateTxn();
   nsresult rv = readStateTxn->Init(this, numMarked, thoseMarked);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = readStateTxn->SetTransactionType(nsIMessenger::eMarkAllMsg);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsITransactionManager> txnMgr;
-  rv = msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = txnMgr->DoTransaction(readStateTxn);
