@@ -810,6 +810,15 @@
     }
 
     /**
+     * Because the font size changed, resetting the cached size of
+     * longWeekdayTotalPixels before calling the resize routine.
+     */
+    onFontSizeChange() {
+      delete this.longWeekdayTotalPixels;
+      super.onFontSizeChange();
+    }
+
+    /**
      * Re-render the view.
      */
     relayout() {

@@ -269,6 +269,9 @@
           this.onResize();
         }
       });
+      window.addEventListener("uifontsizechange", () => {
+        this.onFontSizeChange();
+      });
 
       // Add a preference observer to monitor changes.
       Services.prefs.addObserver("calendar.", this.mPrefObserver);
@@ -296,6 +299,16 @@
     onResize() {
       // Child classes should provide the implementation.
       throw new Error(this.constructor.name + ".onResize not implemented");
+    }
+
+    /**
+     * Called when the font size of the UI changes. Triggers a resize if the
+     * view is active.
+     */
+    onFontSizeChange() {
+      if (gCurrentMode == "calendar" && this.isVisible()) {
+        this.onResize();
+      }
     }
 
     /**

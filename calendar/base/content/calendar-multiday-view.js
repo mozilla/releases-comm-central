@@ -2310,6 +2310,15 @@
     }
 
     /**
+     * Because the font size changed, tell the resize code to recalculate the
+     * heading text sizes.
+     */
+    onFontSizeChange() {
+      this.headingDatesChanged = true;
+      super.onFontSizeChange();
+    }
+
+    /**
      * Perform an operation on the header that may cause it to resize, such that
      * the view can adjust itself accordingly.
      *

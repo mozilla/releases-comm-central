@@ -340,23 +340,23 @@
   align-items: center;
   justify-content: center;
   margin: 0;
-}
 
-.day-column-heading > * {
-  flex: 0 0 auto;
-}
-
-.day-column-heading {
   position: sticky;
   z-index: 2;
   inset-block-start: 0;
   inset-inline-start: auto;
+  overflow-x: hidden;
+
+  & > * {
+    flex: 0 0 auto;
+  }
+
+  .multiday-grid-rotated & {
+    inset-block-start: auto;
+    inset-inline-start: 0;
+  }
 }
 
-.multiday-grid-rotated .day-column-heading {
-  inset-block-start: auto;
-  inset-inline-start: 0;
-}
 
 calendar-header-container {
   position: sticky;
