@@ -388,3 +388,21 @@ export class MockEWSServer {
     return this.#mSerializer.serializeToString(resDoc);
   }
 }
+
+/**
+ * Create a list of `RemoteFolder`s, representing well-known folders typically
+ * synchronised first from an EWS server.
+ *
+ * @returns {RemoteFolder[]} A list of well-known folders.
+ */
+export function getWellKnownFolders() {
+  return [
+    new RemoteFolder("root", null, "Root", "msgfolderroot"),
+    new RemoteFolder("inbox", "root", "Inbox", "inbox"),
+    new RemoteFolder("deleteditems", "root", "Deleted Items", "deleteditems"),
+    new RemoteFolder("drafts", "root", "Drafts", "drafts"),
+    new RemoteFolder("outbox", "root", "Outbox", "outbox"),
+    new RemoteFolder("sentitems", "root", "Sent", "sentitems"),
+    new RemoteFolder("junkemail", "root", "Junk", "junkemail"),
+  ];
+}
