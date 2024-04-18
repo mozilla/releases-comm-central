@@ -116,6 +116,21 @@ menupopup {
   & > menuseparator {
     padding-inline: 8px;
   }
+
+  &.no-accel-menupopup > :is(menu, menuitem) > .menu-accel-container {
+    display: none;
+  }
+
+  /* NOTE: the menuitem children must be constructed with the menuitem-iconic
+   * class so that this rule can hide the icon container. */
+  &.no-icon-menupopup > :is(menu, menuitem) > .menu-iconic-left {
+    display: none;
+  }
+
+  /* Allways show the extension icons. */
+  &.no-icon-menupopup > menuitem[image^="moz-extension"] > .menu-iconic-left {
+    display: flex;
+  }
 }
 
 #ContentSelectDropdown {

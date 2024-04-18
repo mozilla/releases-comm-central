@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-  <menupopup id="mailContext" needsgutter="true">
+  <menupopup id="mailContext" class="no-icon-menupopup">
     <!-- Browser navigation -->
     <menugroup id="mailContext-navigation">
       <menuitem id="navContext-markRead"
@@ -105,7 +105,8 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-open"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-openPopup">
+      <menupopup id="mailContext-openPopup"
+                 class="no-icon-menupopup">
         <menuitem id="mailContext-openNewTab"
                   class="menuitem-iconic"
                   label="&contextOpenNewTab.label;"
@@ -130,7 +131,8 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-reply"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-replyPopup">
+      <menupopup id="mailContext-replyPopup"
+                 class="no-icon-menupopup">
         <menuitem id="mailContext-replyNewsgroup"
                   class="menuitem-iconic"
                   label="&contextReplyNewsgroup2.label;"
@@ -153,14 +155,18 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-forward-redirect"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-forwardRedirectPopup">
+      <menupopup id="mailContext-forwardRedirectPopup"
+                 class="no-icon-menupopup">
         <menuitem id="mailContext-forward"
+                  class="menuitem-iconic"
                   data-l10n-id="mail-context-menu-forward-forward"
                   data-l10n-attrs="accesskey"/>
         <menuitem id="mailContext-forwardAsInline"
+                  class="menuitem-iconic"
                   data-l10n-id="mail-context-menu-forward-inline"
                   data-l10n-attrs="accesskey"/>
         <menuitem id="mailContext-forwardAsAttachment"
+                  class="menuitem-iconic"
                   data-l10n-id="mail-context-menu-forward-as-attachment"
                   data-l10n-args='{"count": 0}'
                   data-l10n-attrs="accesskey"/>
@@ -285,7 +291,8 @@
           class="menu-iconic"
           data-l10n-id="mail-context-menu-organize"
           data-l10n-attrs="accesskey">
-      <menupopup id="mailContext-organizePopup">
+      <menupopup id="mailContext-organizePopup"
+                 class="no-icon-menupopup">
         <menuitem id="mailContext-copyMessageUrl"
                   class="menuitem-iconic"
                   label="&copyMessageLocation.label;"
@@ -316,11 +323,14 @@
               class="menu-iconic hide-when-calendar-deactivated"
               label="&calendar.context.convertmenu.label;"
               accesskey="&calendar.context.convertmenu.accesskey.mail;">
-          <menupopup id="mailContext-calendar-convert-menupopup">
+          <menupopup id="mailContext-calendar-convert-menupopup"
+                     class="no-icon-menupopup">
             <menuitem id="mailContext-calendar-convert-event-menuitem"
+                      class="menuitem-iconic"
                       label="&calendar.context.convertmenu.event.label;"
                       accesskey="&calendar.context.convertmenu.event.accesskey;"/>
             <menuitem id="mailContext-calendar-convert-task-menuitem"
+                      class="menuitem-iconic"
                       label="&calendar.context.convertmenu.task.label;"
                       accesskey="&calendar.context.convertmenu.task.accesskey;"/>
           </menupopup>
