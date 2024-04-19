@@ -144,8 +144,11 @@
     --toolbar-bgcolor: rgba(255, 255, 255, 0.4);
     --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
     --toolbarbutton-icon-fill-opacity: 1;
-
     --tabline-color: var(--lwt-tab-line-color, currentColor);
+
+    &:not([lwt-tree]) {
+      --search-bar-border-color: color-mix(in srgb, currentColor 50%, transparent);
+    }
   }
 
   &[lwt-tree] {
