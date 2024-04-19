@@ -4,7 +4,7 @@
 
 :root {
   --listbox-selected-outline: none;
-  --tree-header-table-height: calc(1.7em + 7px);
+  --tree-header-table-height: 30px;
   --tree-header-cell-padding: 6px;
   --tree-header-cell-indent: 0;
   --list-item-min-height: 26px;
@@ -15,7 +15,7 @@
   --table-row-cell-button-margin-inline-start: 4px;
 
   &[uidensity="compact"] {
-    --tree-header-table-height: max(27px, 1.4em);
+    --tree-header-table-height: 27px;
     --tree-header-cell-padding: 3px;
     --tree-header-cell-indent: 3px;
     --list-item-min-height: 18px;
@@ -28,7 +28,7 @@
   }
 
   &[uidensity="touch"] {
-    --tree-header-table-height: calc(2em + 13px);
+    --tree-header-table-height: 36px;
     --tree-header-cell-padding: 9px;
     --tree-header-cell-indent: -3px;
     --list-item-min-height: 32px;

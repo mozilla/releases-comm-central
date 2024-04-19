@@ -379,9 +379,9 @@ tr[is="thread-row"] {
   & .subject-line {
     margin-inline-start: calc(16px * var(--thread-level));
     pointer-events: none;
-    /* To avoid vertical cut off of characters, JS in about3Pane's densityChange
-      that needs to be updated if line height value is changed.*/
-    line-height: 1.4;
+    /* Line height px exception to avoid vertical cut off of characters. This
+       should follow and match the density variation height of the row. */
+    line-height: 22px;
 
     & img {
       visibility: hidden;
