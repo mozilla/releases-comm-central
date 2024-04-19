@@ -8,7 +8,13 @@
  *   https://ircv3.net/specs/extensions/sasl-3.2
  */
 
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "_", () =>
+  l10nHelper("chrome://chat/locale/irc.properties")
+);
 
 export var ircSASL = {
   name: "SASL AUTHENTICATE",
@@ -90,8 +96,11 @@ export var ircSASL = {
       // ERR_SASLFAIL
       // Sent when the SASL authentication fails because of invalid credentials
       // or other errors not explicitly mentioned by other numerics.
-      this.WARN("Authentication with SASL failed.");
-      this.removeCAP("sasl");
+      this.ERROR("Authentication with SASL failed.");
+      this.gotDisconnected(
+        Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
+        lazy._("connection.error.invalidUserPassword")
+      );
       return true;
     },
 
