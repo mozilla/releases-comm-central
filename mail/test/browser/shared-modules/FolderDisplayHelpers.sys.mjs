@@ -715,9 +715,8 @@ export async function click_tree_row(aTree, aRowIndex) {
 async function _get_row_at_index(aViewIndex) {
   const win = get_about_3pane();
   const tree = win.document.getElementById("threadTree");
-  Assert.greater(
-    tree.view.rowCount,
-    aViewIndex,
+  await TestUtils.waitForCondition(
+    () => aViewIndex < tree.view.rowCount,
     `index ${aViewIndex} must exist to be clicked on`
   );
   tree.scrollToIndex(aViewIndex, true);

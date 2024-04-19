@@ -28,6 +28,7 @@ var folderToStoreMessages;
 
 add_setup(async function () {
   folderToStoreMessages = await create_folder("QuoteTestFolder");
+  registerCleanupFunction(() => folderToStoreMessages.deleteSelf(null));
 });
 
 add_task(async function test_quoteMessage() {

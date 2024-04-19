@@ -7450,7 +7450,7 @@ async function ComposeChangeLanguage(languages) {
   if (gSpellCheckingEnabled && checker?.spellCheckPending) {
     await new Promise(resolve => {
       Services.obs.addObserver(function observe(subject, topic) {
-        if (subject == gMsgCompose.editor) {
+        if (!gMsgCompose || subject == gMsgCompose.editor) {
           Services.obs.removeObserver(observe, topic);
           resolve();
         }
