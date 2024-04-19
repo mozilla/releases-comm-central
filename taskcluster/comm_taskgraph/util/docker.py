@@ -18,7 +18,7 @@ COMM_IMAGE_DIR = os.path.join(COMM, "taskcluster", "docker")
 def register():
     logger.info("Registering comm docker image definition path.")
     utildocker.image_paths.register(
-        "comm/taskcluster/ci/docker-image/docker-image.yml", COMM_IMAGE_DIR
+        "comm/taskcluster/kinds/docker-image/docker-image.yml", COMM_IMAGE_DIR
     )
 
 

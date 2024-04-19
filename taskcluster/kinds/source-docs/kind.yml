@@ -42,4 +42,4 @@ jobs:
         optimization:
             skip-unless-changed:
                 - comm/docs/**
-                - comm/taskcluster/ci/source-docs/*.yml
+                - comm/taskcluster/kinds/source-docs/*.yml

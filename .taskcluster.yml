@@ -246,12 +246,12 @@ tasks:
                                 cd /builds/worker/checkouts/gecko &&
                                 ln -s /builds/worker/artifacts artifacts &&
                                 ./mach --log-no-times taskgraph action-callback
-                                --root=comm/taskcluster/ci
+                                --root=comm/taskcluster
                             else: >
                                 cd /builds/worker/checkouts/gecko &&
                                 ln -s /builds/worker/artifacts artifacts &&
                                 ./mach --log-no-times taskgraph decision
-                                --root=comm/taskcluster/ci
+                                --root=comm/taskcluster
                                 --pushlog-id='${push.pushlog_id}'
                                 --pushdate='${push.pushdate}'
                                 --project='${repository.project}'

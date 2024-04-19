@@ -3,4 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 loader: comm_taskgraph.loader.reference:loader
-reference-base-path: taskcluster/ci
+reference-base-path: taskcluster/kinds
