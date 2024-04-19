@@ -70,13 +70,6 @@ function checkPrefGetters(stats, max, knownProblematicPrefs = {}) {
     }
   }
 
-  // This pref will be accessed by mozJSComponentLoader when loading modules,
-  // which fails TV runs since they run the test multiple times without restarting.
-  // We just ignore this pref, since it's for testing only anyway.
-  if (knownProblematicPrefs["browser.startup.record"]) {
-    delete knownProblematicPrefs["browser.startup.record"];
-  }
-
   const unusedPrefs = Object.keys(knownProblematicPrefs);
   is(
     unusedPrefs.length,
@@ -106,11 +99,6 @@ add_task(async function startup() {
   const knownProblematicPrefs = {
     // These are all similar values to Firefox, check with the equivalent
     // file in Firefox.
-    "browser.startup.record": {
-      // This pref is accessed in Nighly and debug builds only.
-      min: 200,
-      max: 400,
-    },
     "network.loadinfo.skip_type_assertion": {
       // This is accessed in debug only.
     },
