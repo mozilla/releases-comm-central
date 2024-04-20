@@ -171,7 +171,7 @@ export class PgpMimeHandler {
   }
 
   /**
-   * @param {sIPgpMimeProxy} proxy
+   * @param {nsIPgpMimeProxy} proxy
    * @param {nsIURI} uri
    */
   handleSmime(proxy, uri) {
