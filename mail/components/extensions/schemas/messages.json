@@ -375,6 +375,31 @@
       {
         "name": "list",
         "type": "function",
+        "min_manifest_version": 3,
+        "description": "Gets all messages in a folder.",
+        "async": "callback",
+        "permissions": ["accountsRead"],
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.MessageList"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "list",
+        "type": "function",
+        "max_manifest_version": 2,
         "description": "Gets all messages in a folder.",
         "async": "callback",
         "permissions": ["accountsRead"],
@@ -386,7 +411,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.list() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -847,6 +871,7 @@
       {
         "name": "move",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Moves messages to a specified folder. If the messages cannot be removed from the source folder, they will be copied instead of moved. Moving external messages will throw an <em>ExtensionError</em>.",
         "async": true,
         "permissions": ["accountsRead", "messagesMove"],
@@ -866,7 +891,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.move() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -876,8 +900,32 @@
         ]
       },
       {
+        "name": "move",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Moves messages to a specified folder. If the messages cannot be removed from the source folder, they will be copied instead of moved. Moving external messages will throw an <em>ExtensionError</em>.",
+        "async": true,
+        "permissions": ["accountsRead", "messagesMove"],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to move.",
+            "items": {
+              "$ref": "messages.MessageId"
+            }
+          },
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId",
+            "description": "The folder to move the messages to."
+          }
+        ]
+      },
+      {
         "name": "copy",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Copies messages to a specified folder.",
         "async": true,
         "permissions": ["accountsRead", "messagesMove"],
@@ -897,11 +945,33 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.copy() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
+            "description": "The folder to copy the messages to."
+          }
+        ]
+      },
+      {
+        "name": "copy",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Copies messages to a specified folder.",
+        "async": true,
+        "permissions": ["accountsRead", "messagesMove"],
+        "parameters": [
+          {
+            "name": "messageIds",
+            "type": "array",
+            "description": "The IDs of the messages to copy.",
+            "items": {
+              "$ref": "messages.MessageId"
+            }
+          },
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId",
             "description": "The folder to copy the messages to."
           }
         ]
@@ -932,6 +1002,7 @@
       {
         "name": "import",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Imports a message into a local Thunderbird folder. To import a message into an IMAP folder, add it to a local folder first and then move it to the IMAP folder.",
         "async": "callback",
         "permissions": ["accountsRead", "messagesImport"],
@@ -949,11 +1020,46 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: messages.import() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
+            "description": "The folder to import the messages into."
+          },
+          {
+            "name": "properties",
+            "$ref": "messages.MessageProperties",
+            "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.MessageHeader"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "import",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Imports a message into a local Thunderbird folder. To import a message into an IMAP folder, add it to a local folder first and then move it to the IMAP folder.",
+        "async": "callback",
+        "permissions": ["accountsRead", "messagesImport"],
+        "parameters": [
+          {
+            "name": "file",
+            "type": "object",
+            "isInstanceOf": "File",
+            "additionalProperties": true
+          },
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId",
             "description": "The folder to import the messages into."
           },
           {

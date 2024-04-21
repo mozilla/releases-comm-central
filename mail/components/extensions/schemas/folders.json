@@ -505,8 +505,37 @@
       {
         "name": "create",
         "type": "function",
+        "min_manifest_version": 3,
         "permissions": ["accountsFolders"],
-        "description": "Creates a new subfolder in the specified folder or at the root of the specified account.",
+        "description": "Creates a new subfolder in the specified folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "childName",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "create",
+        "type": "function",
+        "max_manifest_version": 2,
+        "permissions": ["accountsFolders"],
+        "description": "Creates a new subfolder in the specified folder, or at the root of the specified account.",
         "async": "callback",
         "parameters": [
           {
@@ -516,12 +545,10 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.create() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
@@ -546,6 +573,7 @@
       {
         "name": "rename",
         "type": "function",
+        "max_manifest_version": 2,
         "permissions": ["accountsFolders"],
         "description": "Renames a folder.",
         "async": "callback",
@@ -557,7 +585,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.rename() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -580,8 +607,37 @@
         ]
       },
       {
+        "name": "rename",
+        "type": "function",
+        "min_manifest_version": 3,
+        "permissions": ["accountsFolders"],
+        "description": "Renames a folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "newName",
+            "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "move",
         "type": "function",
+        "max_manifest_version": 2,
         "permissions": ["accountsFolders"],
         "description": "Moves the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
         "async": "callback",
@@ -593,7 +649,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -606,13 +661,87 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.move() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
+                "$ref": "accounts.MailAccount"
+              }
+            ]
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "move",
+        "type": "function",
+        "min_manifest_version": 3,
+        "permissions": ["accountsFolders"],
+        "description": "Moves the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "sourceFolderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "destinationFolderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "copy",
+        "type": "function",
+        "max_manifest_version": 2,
+        "permissions": ["accountsFolders"],
+        "description": "Copies the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "source",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          },
+          {
+            "name": "destination",
+            "choices": [
+              {
+                "$ref": "folders.MailFolderId"
+              },
+              {
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
+                "$ref": "folders.MailFolder"
+              },
+              {
+                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
             ]
@@ -632,40 +761,18 @@
       {
         "name": "copy",
         "type": "function",
+        "min_manifest_version": 3,
         "permissions": ["accountsFolders"],
         "description": "Copies the given source folder into the given destination folder. Throws if the destination already contains a folder with the name of the source folder.",
         "async": "callback",
         "parameters": [
           {
-            "name": "source",
-            "choices": [
-              {
-                "$ref": "folders.MailFolderId"
-              },
-              {
-                "max_manifest_version": 2,
-                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its source parameter, instead of a full MailFolder object.",
-                "$ref": "folders.MailFolder"
-              }
-            ]
+            "name": "sourceFolderId",
+            "$ref": "folders.MailFolderId"
           },
           {
-            "name": "destination",
-            "choices": [
-              {
-                "$ref": "folders.MailFolderId"
-              },
-              {
-                "max_manifest_version": 2,
-                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify a MailFolderId for its destination parameter, instead of a full MailFolder object.",
-                "$ref": "folders.MailFolder"
-              },
-              {
-                "max_manifest_version": 2,
-                "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.copy() requires to specify the MailFolderId of the account's rootFolder for its destination parameter, instead of a full MailAccount object.",
-                "$ref": "accounts.MailAccount"
-              }
-            ]
+            "name": "destinationFolderId",
+            "$ref": "folders.MailFolderId"
           },
           {
             "type": "function",
@@ -683,6 +790,7 @@
         "name": "delete",
         "permissions": ["accountsFolders", "messagesDelete"],
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Deletes a folder.",
         "async": true,
         "parameters": [
@@ -693,7 +801,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.delete() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -702,9 +809,24 @@
         ]
       },
       {
+        "name": "delete",
+        "permissions": ["accountsFolders", "messagesDelete"],
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Deletes a folder.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          }
+        ]
+      },
+      {
         "name": "update",
         "permissions": ["accountsFolders"],
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Updates properties of a folder.",
         "async": true,
         "parameters": [
@@ -715,7 +837,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.update() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -736,8 +857,35 @@
         ]
       },
       {
+        "name": "update",
+        "permissions": ["accountsFolders"],
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Updates properties of a folder.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "updateProperties",
+            "type": "object",
+            "description": "The properties to update.",
+            "properties": {
+              "isFavorite": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Sets or clears the favorite status."
+              }
+            }
+          }
+        ]
+      },
+      {
         "name": "getFolderInfo",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Get additional information about a folder.",
         "async": "callback",
         "parameters": [
@@ -748,7 +896,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderInfo() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -767,8 +914,32 @@
         ]
       },
       {
+        "name": "getFolderInfo",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Get additional information about a folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolderInfo"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getFolderCapabilities",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Get capability information about a folder.",
         "async": "callback",
         "parameters": [
@@ -779,7 +950,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getFolderCapabilities() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -798,8 +968,32 @@
         ]
       },
       {
+        "name": "getFolderCapabilities",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Get capability information about a folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolderCapabilities"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getParentFolders",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Get all parent folders as a flat ordered array. The first array entry is the direct parent.",
         "async": "callback",
         "parameters": [
@@ -810,7 +1004,6 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getParentFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
@@ -839,10 +1032,43 @@
         ]
       },
       {
+        "name": "getParentFolders",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Get all parent folders as a flat ordered array. The first array entry is the direct parent.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <value>false</value>.",
+            "optional": true,
+            "default": false,
+            "type": "boolean"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getSubFolders",
         "type": "function",
         "min_manifest_version": 3,
-        "description": "Get the subfolders of the specified folder or account.",
+        "description": "Get the subfolders of the specified folder.",
         "async": "callback",
         "parameters": [
           {
@@ -980,6 +1206,7 @@
         "name": "markAsRead",
         "permissions": ["accountsFolders"],
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Marks all messages in a folder as read.",
         "async": false,
         "parameters": [
@@ -990,11 +1217,24 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.markAsRead() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ]
+          }
+        ]
+      },
+      {
+        "name": "markAsRead",
+        "permissions": ["accountsFolders"],
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Marks all messages in a folder as read.",
+        "async": false,
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
           }
         ]
       }
