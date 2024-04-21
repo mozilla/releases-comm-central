@@ -92,6 +92,7 @@ export var EnigmailVerify = {
 
 /**
  * MimeVerify constructor.
+ *
  * @param {?string} protocol - Type, like application/pgp-signature.
  */
 function MimeVerify(protocol) {
@@ -107,6 +108,7 @@ function MimeVerify(protocol) {
 /**
  * MimeVerify implementation.
  * Used to verify the signature of PGP/MIME signed messages.
+ *
  * @implements {nsIStreamListener}
  */
 MimeVerify.prototype = {
@@ -305,6 +307,7 @@ MimeVerify.prototype = {
   /**
    * Determine content-transfer-encoding of mime part, assuming that whole
    * message is in this.keepData.
+   *
    * @returns {string} the content-transfer-encoding.
    */
   getContentTransferEncoding() {

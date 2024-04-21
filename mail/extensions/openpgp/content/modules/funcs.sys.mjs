@@ -248,6 +248,7 @@ export var EnigmailFuncs = {
 
   /**
    * Get the text for the encrypted subject.
+   *
    * @returns {string}
    */
   getProtectedSubjectText() {

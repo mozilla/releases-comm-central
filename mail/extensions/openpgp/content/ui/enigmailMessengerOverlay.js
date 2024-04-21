@@ -1799,6 +1799,7 @@ Enigmail.msg = {
 
   /**
    * Handle a selected attachment (decrypt & open or save).
+   *
    * @param {string} actionType
    */
   handleAttachmentSel(actionType) {
@@ -2249,6 +2250,7 @@ Enigmail.msg = {
 
   /**
    * Decrypted and copy/move all selected messages in a target folder.
+   *
    * @param {nsIMsgFolder} destFolder - Destination folder.
    * @param {boolean} move - true for move, false for copy.
    */

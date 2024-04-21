@@ -156,15 +156,10 @@ export var EnigmailMime = {
    * Extract the subject from the 1st line of the message body, if the message body starts
    * with: "Subject: ...\r?\n\r?\n".
    *
-   * @param msgBody - String: message body
-   *
-   * @returns
-   * if subject is found:
-   *  Object:
-   *    - messageBody - String: message body without subject
-   *    - subject     - String: extracted subject
-   *
-   * if subject not found: null
+   * @param {string} msgBody - Message body
+   * @returns {?object} result object, if subject is found - otherwise null.
+   * @returns {string} result.messageBody - Message body without subject.
+   * @returns {string} result.subject - Extracted subject.
    */
   extractSubjectFromBody(msgBody) {
     const m = msgBody.match(/^(\r?\n?Subject: [^\r\n]+\r?\n\r?\n)/i);
@@ -178,7 +173,6 @@ export var EnigmailMime = {
         subject,
       };
     }
-
     return null;
   },
 
@@ -215,9 +209,8 @@ export var EnigmailMime = {
   /**
    * Get the part number from a URI spec (e.g. mailbox:///folder/xyz?part=1.2.3.5)
    *
-   * @param spec: String - the URI spec to inspect
-   *
-   * @returns String: the mime part number (or "" if none found)
+   * @param {string} spec -The URI spec to inspect.
+   * @returns {string} the mime part number (or "" if none found)
    */
   getMimePartNumber(spec) {
     const m = spec.match(/([\?&]part=)(\d+(\.\d+)*)/);
@@ -233,11 +226,10 @@ export var EnigmailMime = {
    * Try to determine if the message structure is a known MIME structure,
    * based on the MIME part number and the uriSpec.
    *
-   * @param mimePartNumber: String - the MIME part we are requested to decrypt
-   * @param uriSpec:        String - the URI spec of the message (or msg part) loaded by TB
-   *
-   * @returns Boolean: true: regular message structure, MIME part is safe to be decrypted
-   *                  false: otherwise
+   * @param {string} mimePartNumber - The MIME part we are requested to decrypt
+   * @param {string} uriSpec - The URI spec of the message (or msg part) loaded.
+   * @returns {boolean} true for regular message structure where MIME part is
+   *   safe to be decrypted. false otherwise.
    */
   isRegularMimeStructure(mimePartNumber, uriSpec, acceptSubParts = false) {
     if (mimePartNumber.length === 0) {

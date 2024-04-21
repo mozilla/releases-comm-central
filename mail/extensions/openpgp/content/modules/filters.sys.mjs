@@ -38,7 +38,7 @@ var gNewMailListenerInitiated = false;
  */
 const filterActionMoveDecrypt = {
   /**
-   * @param {nsIMsgDBHdr{[]} hdrs - Messages to apply to.
+   * @param {nsIMsgDBHdr[]} hdrs - Messages to apply to.
    * @param {string} actionValue - Action value.
    */
   async applyAction(hdrs, actionValue) {
@@ -75,7 +75,7 @@ const filterActionMoveDecrypt = {
  */
 const filterActionCopyDecrypt = {
   /**
-   * @param {nsIMsgDBHdr{[]} hdrs - Messages to apply to.
+   * @param {nsIMsgDBHdr[]} hdrs - Messages to apply to.
    * @param {string} actionValue - Action value.
    */
   async applyAction(hdrs, actionValue) {
@@ -106,12 +106,7 @@ const filterActionCopyDecrypt = {
  */
 const filterActionEncrypt = {
   /**
-   * @param {nsIMsgDbHdr[]} aMsgHdrs
-   * @param {string} aActionValue - Key ID or recipient email address.
-   * @param {nsIMsgCopyServiceListener} aListener
-   */
-  /**
-   * @param {nsIMsgDBHdr{[]} hdrs - Messages to apply to.
+   * @param {nsIMsgDBHdr[]} hdrs - Messages to apply to.
    * @param {string} actionValue - Action value.
    * @param {nsIMsgCopyServiceListener} listener
    */

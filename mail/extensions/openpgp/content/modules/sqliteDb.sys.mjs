@@ -35,6 +35,7 @@ export var PgpSqliteDb2 = {
 
   /**
    * Check database structure is ok.
+   *
    * @throws {Error} if the structure is not ok.
    */
   async checkDatabaseStructure() {
@@ -201,6 +202,7 @@ export var PgpSqliteDb2 = {
   },
 
   /**
+   * @param {OpenedConnection} conn - Connection.
    * @param {string} fingerprint - Fingerprint; must be lowercase already.
    */
   async _deleteAcceptanceNoTransaction(conn, fingerprint) {
@@ -412,9 +414,9 @@ export var PgpSqliteDb2 = {
 };
 
 /**
- * Use a promise to open the Enigmail database.
+ * Use a promise to open the OpenPGP database.
  *
- * it's possible that there will be an NS_ERROR_STORAGE_BUSY
+ * It's possible that there will be an NS_ERROR_STORAGE_BUSY
  * so we're willing to retry for a little while.
  *
  * @param {string} filename - Path of the sqlite database.

@@ -30,12 +30,13 @@ const ENIG_DEFAULT_LDAP_PORT = "389";
 
 /**
  * @typedef {object} KeySrvListener
- * @property {?function(integer)} onProgress - Only implemented for download().
- * @property {function} onCancel - The body will be set by the callee.
+ * @property {?function(integer):void} onProgress - Only implemented for download().
+ * @property {Function} onCancel - The body will be set by the callee.
  */
 
 /**
  * Create a localized UI error string for the errId code.
+ *
  * @param {string} errId
  * @returns {string} a localized error string.
  */
@@ -217,8 +218,8 @@ const accessHkpInternal = {
    * Upload, search or download keys from a keyserver
    *
    * @param {integer} actionFlag - Keyserver Action Flags: from EnigmailConstants.
-   * @param {string} keyId - Space-separated list of search terms or key IDs.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
+   * @param {string} keyId - Space-separated list of search terms or key IDs.
    * @param {KeySrvListener} [listener]
    * @returns {Promise<string[]>|Promise<integer>} an array of imported key
    *   fingerprints, or status code.
@@ -367,9 +368,10 @@ const accessHkpInternal = {
   /**
    * Download keys from a keyserver
    *
+   * @param {boolean} autoImport - Whether to autoimport.
    * @param {string} keyIDs - Space-separated list of search terms or key IDs.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
-   * @param {KeySrvListener} [listener]
+   * @param {?KeySrvListener} [listener]
    * @returns {Promise<object>}
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
@@ -974,8 +976,8 @@ const accessVksServer = {
    * Upload, search or download keys from a keyserver
    *
    * @param {integer} actionFlag - Keyserver Action Flags: from EnigmailConstants.
+   * @param {?string} keyserver - Keyserver URL (optionally incl. protocol).
    * @param {string} keyId - Space-separated list of search terms or key IDs.
-   * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
    * @param {KeySrvListener} [listener]
    * @returns {Promise<integer>} status id.
    */
@@ -1120,9 +1122,10 @@ const accessVksServer = {
   /**
    * Download keys from a keyserver.
    *
+   * @param {boolean} autoImport - Whether to auto import.
    * @param {string} keyIDs - Space-separated list of search terms or key IDs.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
-   * @param {KeySrvListener} [listener]
+   * @param {?KeySrvListener} [listener]
    * @returns {Promise<object>}
    */
   async download(autoImport, keyIDs, keyserver, listener = null) {
@@ -1256,9 +1259,9 @@ const accessVksServer = {
   },
 
   /**
-   * Search for keys on a keyserver
+   * Search for keys on a keyserver.
    *
-   * @param searchTerm:  String  - search term
+   * @param {string} searchTerm - Search term.
    * @param {string} keyserver - Keyserver URL (optionally incl. protocol).
    * @param {KeySrvListener} [listener]
    * @returns {Promise<object>} found

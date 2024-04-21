@@ -30,10 +30,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
   /**
    * Get the list of all known keys (including their secret keys).
    *
-   * @param {string[]} [onlyKeys] - Only load data for specified key IDs.
+   * @param {string[]} [_onlyKeys] - Only load data for specified key IDs.
    * @returns {Promise<object[]>}
    */
-  async getKeys() {
+  async getKeys(_onlyKeys) {
     throw new Error("getKeys not implemented");
   }
 
@@ -41,21 +41,21 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * Obtain signatures for a given set of key IDs.
    *
    * @param {string} _keyIds - Space-separated list of key IDs.
-   * @param {boolean} ignoreUnknownUid - If true, filter out unknown signer's UIDs.
+   * @param {boolean} _ignoreUnknownUid - If true, filter out unknown signer's UIDs.
    * @returns {Promise<object[]>} - see extractSignatures()
    */
-  async getKeySignatures(_keyIds) {
+  async getKeySignatures(_keyIds, _ignoreUnknownUid) {
     throw new Error("getKeySignatures not implemented");
   }
 
   /**
    * Obtain signatures for a given key.
    *
-   * @param {KeyObj}  keyObj:           the signatures of this key will be returned
-   * @param {boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
+   * @param {KeyObj} _keyObj - The signatures of this key will be returned.
+   * @param {boolean} _ignoreUnknownUid - If true, filter out unknown signer's UIDs
    * @returns {Promise<object[]>} - see extractSignatures()
    */
-  async getKeyObjSignatures() {
+  async getKeyObjSignatures(_keyObj, _ignoreUnknownUid) {
     throw new Error("getKeyObjSignatures not implemented");
   }
 

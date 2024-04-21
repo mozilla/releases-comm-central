@@ -29,7 +29,7 @@ export var EnigmailURIs = {
    * Determine if a URI was remembered as encrypted.
    *
    * @param {string} uri
-   * @return {boolean} true if yes, false otherwise.
+   * @returns {boolean} true if yes, false otherwise.
    */
   isEncryptedUri(uri) {
     return encryptedUris.has(uri);

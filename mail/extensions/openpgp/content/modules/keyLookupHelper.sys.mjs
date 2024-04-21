@@ -335,13 +335,11 @@ export var KeyLookupHelper = {
    * This function will perform discovery of new or updated OpenPGP
    * keys using various mechanisms.
    *
-   * @param {string} mode - "interactive-import" or "silent-collection"
-   * @param {string} email - search for keys for this email address,
-   *                         (parameter allowed to be null or empty)
-   * @param {string[]} keyIds - KeyIDs that should be updated.
-   *                            (parameter allowed to be null or empty)
-   *
-   * @returns {boolean} - Returns true if at least one key was imported.
+   * @param {string} mode - "interactive-import" or "silent-collection".
+   * @param {window} window - The window to use.
+   * @param {?string} email - Search for keys for this email address.
+   * @param {?string[]} keyIds - KeyIDs that should be updated.
+   * @returns {boolean} true if at least one key was imported.
    */
   async fullOnlineDiscovery(mode, window, email, keyIds) {
     // Try to get updates for all existing keys from keyserver,

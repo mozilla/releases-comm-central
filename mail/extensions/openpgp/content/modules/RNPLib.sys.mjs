@@ -229,9 +229,9 @@ function enableRNPLibJS() {
     /**
      * Load a keyring file into the global ffi context.
      *
-     * @param {string} filename - The file to load
-     * @param keyringFlag - either RNP_LOAD_SAVE_PUBLIC_KEYS
-     *                      or RNP_LOAD_SAVE_SECRET_KEYS
+     * @param {string} filename - The file to load.
+     * @param {integer} keyringFlag - Either RNP_LOAD_SAVE_PUBLIC_KEYS
+     *   or RNP_LOAD_SAVE_SECRET_KEYS.
      */
     async loadFile(filename, keyringFlag) {
       const in_file = await this.createInputFromPath(filename);
@@ -246,9 +246,9 @@ function enableRNPLibJS() {
      * If the file couldn't be opened, fall back to a backup file,
      * by appending ".old" to filename.
      *
-     * @param {string} filename - The file to load
-     * @param keyringFlag - either RNP_LOAD_SAVE_PUBLIC_KEYS
-     *                      or RNP_LOAD_SAVE_SECRET_KEYS
+     * @param {string} filename - The file to load.
+     * @param {integer} keyringFlag - Either RNP_LOAD_SAVE_PUBLIC_KEYS
+     *   or RNP_LOAD_SAVE_SECRET_KEYS.
      */
     async loadWithFallback(filename, keyringFlag) {
       let loadBackup = false;

@@ -250,7 +250,8 @@ MimeDecryptHandler.prototype = {
 
   /**
    * Try to determine if data is base64 encoded.
-   * @pparam {string} str
+   *
+   * @param {string} str - String to test.
    * @returns {boolean} true if base64 encoded.
    */
   isBase64Encoding(str) {

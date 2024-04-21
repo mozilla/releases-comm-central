@@ -61,17 +61,17 @@ class RNPCryptoAPI extends CryptoAPI {
    * Export the minimum key for the public key object:
    * public key, primary user ID, newest encryption subkey
    *
-   * @param {string} fpr - A a single fingerprint.
-   * @param {string} [email] - The email address of the desired user ID.
+   * @param {string} _fpr - A a single fingerprint.
+   * @param {string} [_email] - The email address of the desired user ID.
    *   If the desired user ID cannot be found or is not valid, use the primary
    *   UID instead
-   * @param {integer[]} [subkeyDates] - Remove subkeys with specific creation Dates.
+   * @param {integer[]} [_subkeyDates] - Remove subkeys with specific creation Dates.
    * @returns {Promise<object>} result
    * @returns {integer} result.exitCode - 0 for success.
    * @returns {string} result.errorMsg - Error message, if exitCode != 0.
    * @returns {string} result.keyData - key data in base64.
    */
-  async getMinimalPubKey() {
+  async getMinimalPubKey(_fpr, _email, _subkeyDates) {
     throw new Error("Not implemented");
   }
 
@@ -83,7 +83,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @param {boolean} permissive - Whether it's allowed to fall back
    *   to a permissive import, if strict import fails.
    *   See RNP documentation for RNP_LOAD_SAVE_PERMISSIVE.
-   * @param {string[] limitedFPRs - This is a filtering parameter.
+   * @param {string[]} limitedFPRs - This is a filtering parameter.
    *   If the array is empty, all keys will be imported.
    *   If the array contains at least one entry, a key will be imported
    *   only if its fingerprint (of the primary key) is listed in this
@@ -113,37 +113,36 @@ class RNPCryptoAPI extends CryptoAPI {
   /**
    * Export secret key(s) to a file.
    *
-   * @param {string} keyId - Specification by fingerprint or keyID.
-   * @param {boolean} minimalKey - if true, reduce key to minimum required.
+   * @param {string} _keyId - Specification by fingerprint or keyID.
+   * @param {boolean} _minimalKey - if true, reduce key to minimum required.
    * @returns {Promise<object>} result
    * @returns {integer} result.exitCode - 0 for success
    * @returns {string} result.errorMsg - Error message, if exitCode != 0.
    * @returns {string} result.keyData - key data in base64
    */
-  async extractSecretKey() {
+  async extractSecretKey(_keyId, _minimalKey) {
     throw new Error("extractSecretKey not implemented");
   }
 
   /**
-   * @param {byte} byteData - The encrypted data.
+   * @param {byte} _byteData - The encrypted data.
    * @returns {?string} the name of the attached file, or null.
    */
-  async getFileName() {
+  async getFileName(_byteData) {
     throw new Error("getFileName not implemented");
   }
 
   /**
    *
-   * @param {Path} filePath - The signed file.
-   * @param {Path} sigPath - The signature to verify.
+   * @param {string} _filePath - The signed file.
+   * @param {string} _sigPath - The signature to verify.
    * @returns {Promise<string>} - A message from the verification.
    */
-  async verifyAttachment() {
+  async verifyAttachment(_filePath, _sigPath) {
     throw new Error("verifyAttachment not implemented");
   }
 
   /**
-   *
    * @param {byte[]} encrypted - The encrypted data.
    *
    * @returns {Promise<object>} the object with decryptedData and

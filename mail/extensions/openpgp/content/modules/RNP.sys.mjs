@@ -2668,7 +2668,7 @@ export var RNP = {
    * a canonical representation of them.
    *
    * @param {string} fingerprint - Key fingerprint.
-   * @param {...string} - Key blocks.
+   * @param {...string} keyBlocks - Key blocks.
    * @returns {string} the resulting public key of the blocks
    */
   async mergePublicKeyBlocks(fingerprint, ...keyBlocks) {
@@ -3417,7 +3417,7 @@ export var RNP = {
    * that exactly matches the given userId.
    *
    * @param {rnp_key_handle_t} key - RNP key handle.
-   * @param {string} uidString - The userID to include.
+   * @param {string} userId - The userID to include.
    * @returns {string} The encoded key, or the empty string on failure.
    */
   getSuitableEncryptKeyAsAutocrypt(key, userId) {
@@ -4772,7 +4772,7 @@ export var RNP = {
    *
    * @param {rnp_key_handle_t} primHandle - The handle of a primary key.
    * @param {?rnp_key_handle_t} subHandle - The handle of an encryption subkey or null.
-   * @param {string} uidString - The userID to include.
+   * @param {string} userId - The userID to include.
    * @returns {string} The encoded key, or the empty string on failure.
    */
   getAutocryptKeyB64ByHandle(primHandle, subHandle, userId) {

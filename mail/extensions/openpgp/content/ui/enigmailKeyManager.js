@@ -1206,13 +1206,12 @@ var gKeyListView = {
   },
 
   /**
-   * add UIDs for a given key to key view
+   * Add UIDs for a given key to key view
    *
-   * @param uidType: String - one of uid (user ID), uat (photo)
-   * @param keyNum:  Number - index of key in gKeyList
-   * @param realRow: Number - index of row in keyViewList (i.e. without filter)
-   *
-   * @returns Number: number of UIDs added
+   * @param {string} uidType - One of uid (user ID), uat (photo).
+   * @param {integer} keyNum -Index of key in gKeyList.
+   * @param {integer} realRow - Index of row in keyViewList (i.e. without filter)
+   * @returns {integer} the number of UIDs added.
    */
   appendUids(uidType, keyNum, realRow, parentRow) {
     const keyObj = gKeyList[keyNum];
@@ -1237,7 +1236,7 @@ var gKeyListView = {
   },
 
   /**
-   * Reload key list entirely
+   * Reload key list entirely.
    */
   keysRefreshed() {
     this.keyViewList = [];
@@ -1260,9 +1259,10 @@ var gKeyListView = {
   },
 
   /**
-   * If no search term is entered, decide which keys to display
+   * If no search term is entered, decide which keys to display.
    *
-   * @returns array of keyNums (= display some keys) or null (= display ALL keys)
+   * @returns {?integer[]} array of keyNums (= display some keys)
+   *   or null (= display ALL keys).
    */
   showOrHideAllKeys() {
     var showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
@@ -1285,9 +1285,10 @@ var gKeyListView = {
   },
 
   /**
-   * Search for keys that match filter criteria
+   * Search for keys that match filter criteria.
    *
-   * @returns array of keyNums (= display some keys) or null (= display ALL keys)
+   * @returns {?integer[]} array of keyNums (= display some keys)
+   *   or null (= display ALL keys).
    */
   getFilteredKeys() {
     let searchTxt = gSearchInput.value;
@@ -1385,10 +1386,10 @@ var gKeyListView = {
   },
 
   /**
-   * Trigger re-displaying the list of keys and apply a filter
+   * Trigger re-displaying the list of keys and apply a filter.
    *
-   * @param selectedRow: Number - the row that is currently selected or
-   *                     clicked on
+   * @param {integer} selectedRow - The row that is currently selected or
+   *   clicked on.
    */
   applyFilter(selectedRow) {
     const keyDisplayList = this.getFilteredKeys();
@@ -1412,7 +1413,7 @@ var gKeyListView = {
   },
 
   /**
-   * Re-calculate the row count and instruct the view to update
+   * Re-calculate the row count and instruct the view to update.
    */
   adjustRowCount(newRowCount, selectedRow) {
     if (this.rowCount === newRowCount) {
@@ -1428,8 +1429,8 @@ var gKeyListView = {
   /**
    * Determine the row object from the a filtered row number
    *
-   * @param row: Number - row number of displayed (=filtered) list
-   * @returns Object: keyViewList entry of corresponding row
+   * @param {integer} row - Row number of displayed (=filtered) list.
+   * @returns {?object} keyViewList entry of corresponding row.
    */
   getFilteredRow(row) {
     const r = this.keyFilterList[row];

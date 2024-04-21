@@ -3,22 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 
 export var EnigmailDialog = {
   /**
-   * Displays a dialog with success/failure information after importing
-   * keys.
+   * Displays a dialog with success/failure information after importing keys.
    *
-   * @param win:           nsIWindow - parent window to display modal dialog; can be null
-   * @param keyList:       Array of String - imported keyIDs
-   *
-   * @return: 0-2: button Number pressed
-   *          -1: ESC or close window button pressed
-   *
+   * @param {window} win - Parent window to display modal dialog; can be null
+   * @param {string} keyList - Imported keyIDs.
+   * @returns {integer} the button number pressed. 0-2.
+   *  -1: ESC or close window button pressed.
    */
   keyImportDlg(win, keyList) {
     var result = {
@@ -48,12 +44,10 @@ export var EnigmailDialog = {
    * User is allowed to automatically accept new/undecided keys.
    *
    * @param {nsIDOMWindow} parentWindow - Parent window.
-   * @param {object[]} keyPreview - Key details. See EnigmailKey.getKeyListFromKeyBlock().
-   * @param {EnigmailKeyObj[]} - Array of key objects.
+   * @param {EnigmailKeyObj[]} keyPreview - Key details. See EnigmailKey.getKeyListFromKeyBlock().
    * @param {object} outputParams - Out parameters.
    * @param {string} outputParams.acceptance contains the decision. If confirmed.
    * @returns {boolean} true if user confirms import
-   *
    */
   confirmPubkeyImport(parentWindow, keyPreview, outputParams) {
     const args = {

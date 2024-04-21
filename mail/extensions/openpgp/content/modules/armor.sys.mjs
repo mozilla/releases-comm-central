@@ -280,7 +280,7 @@ export var EnigmailArmor = {
    * Get a list of all headers found in an armor message
    *
    * @param {string} text - ASCII armored message.
-   * @param {object} headers - A key/value pairs of new headers to insert.
+   * @returns {object} an object that has key/value pairs of new headers to insert.
    *   All keys are lowercase.
    */
   getArmorHeaders(text) {
@@ -317,7 +317,9 @@ export var EnigmailArmor = {
 
   /**
    * Split armored blocks into an array of strings.
+   *
    * @param {string} keyBlockStr
+   * @returns {string[]} the key blocks.
    */
   splitArmoredBlocks(keyBlockStr) {
     const myRe = /-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/g;

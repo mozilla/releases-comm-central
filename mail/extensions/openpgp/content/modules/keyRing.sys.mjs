@@ -35,10 +35,10 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
 /**
  * @typedef KeyList
  * @property {EnigmailKeyObj[]} keyList
- * @property {object[]} keyList - Used for quickly sorting the keys.
- * @property {string} keyList[].userId - User ID in lower case.
- * @property {string} keyList[].keyId - Key ID.
- * @property {integer} keyList[].keyNum
+ * @property {object[]} keySortList - Used for quickly sorting the keys.
+ * @property {string} keySortList[].userId - User ID in lower case.
+ * @property {string} keySortList[].keyId - Key ID.
+ * @property {integer} keySortList[].keyNum
  */
 
 /** @type {KeyList} */
@@ -126,11 +126,11 @@ export var EnigmailKeyRing = {
   /**
    * Get all key objects that match a given email address.
    *
-   * @param {string} searchTerm - An email address to match against all UIDs
+   * @param {string} email - An email address to match against all UIDs
    *   of the keys. An empty string will return no result.
-   * @param {boolean} [onlyValidUid =true] - If true (default), invalid (e.g. revoked)
+   * @param {boolean} [onlyValidUid=true] - If true (default), invalid (e.g. revoked)
    *   UIDs are not matched.
-   * @param {boolean} [allowExpired=false} - If true, expired keys are matched.
+   * @param {boolean} [allowExpired=false] - If true, expired keys are matched.
    * @returns {EnigmailKeyObj[]} the found keys.
    */
   getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
@@ -211,6 +211,7 @@ export var EnigmailKeyRing = {
    * Currently, the cache isn't refreshed automatically.
    * Set this.emailAddressesWithSecretKey to null when starting a new
    * operation that needs fresh information.
+   *
    * @param {string} emailAddr
    */
   async hasSecretKeyForEmail(emailAddr) {
@@ -360,15 +361,16 @@ export var EnigmailKeyRing = {
   /**
    * Import a secret key from the given file.
    *
-   * @param {nsIFile} file - ASCII armored file containing the revocation.
    * @param {window} win - parent window
    * @param {Function} passCB - a callback function that will be called if the user needs
    *   to enter a passphrase to unlock a secret key. See passphrasePromptCallback
    *   for the function signature.
+   * @param {boolean} keepPassphrases - Whether to keep passphrases.
+   * @param {nsIFile} inputFile - ASCII armored file containing the revocation.
    * @param {object} errorMsgObj - errorMsgObj.value will contain an error
    *   message in case of failures
    * @param {object} importedKeysObj - importedKeysObj.value will contain
-   *   an array of the FPRs imported
+   *   an array of the FPRs imported.
    */
   async importSecKeyFromFile(
     win,
@@ -529,9 +531,9 @@ export var EnigmailKeyRing = {
    *   to export (full keys).
    * @param {string[]} idArrayReduced - array of key IDs or fingerprints
    *   to export (reduced keys, non-self signatures stripped).
-   * @param {String[]] idArrayMinimal - array of key IDs or fingerprints
+   * @param {string[]} idArrayMinimal - array of key IDs or fingerprints
    *   to export (minimal keys, user IDs and non-self signatures stripped).
-   * @param {String or nsIFile} outputFile - output file name or Object - or NULL
+   * @param {string|nsIFile|null} outputFile - output file name or Object.
    * @param {object} exitCodeObj - o.value will contain exit code
    * @param {object} errorMsgObj - o.value will contain error message
    * @returns {string}  the key block data if outputFile is null; "" if a file
@@ -2019,7 +2021,7 @@ function updateSortList() {
  * Delete a set of keys from the key cache. Does not rebuild key indexes.
  * Not found keys are skipped.
  *
- * @param {string[] keyList - Key IDs (or fpr) to delete.
+ * @param {string[]} keyList - Key IDs (or fpr) to delete.
  * @returns {EnigmailKeyObj[]} the deleted key objects.
  */
 

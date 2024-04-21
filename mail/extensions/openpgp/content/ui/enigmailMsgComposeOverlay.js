@@ -599,6 +599,7 @@ Enigmail.msg = {
 
   /**
    * Check if encryption is possible (have keys for everyone or not).
+   *
    * @returns {object} details. Details of invalid keys.
    * @returns {object[]} details.errArray
    * @returns {string[]} details.errArray[].addr email address.

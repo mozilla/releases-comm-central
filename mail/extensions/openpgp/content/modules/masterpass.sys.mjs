@@ -264,6 +264,7 @@ export var OpenPGPMasterpass = {
 
   /**
    * Check if the password is in cache.
+   *
    * @returns {Promise<void>}
    */
   async ensurePasswordIsCached() {
@@ -287,6 +288,7 @@ export var OpenPGPMasterpass = {
 
   /**
    * This function may trigger password creation, if necessary.
+   *
    * @returns {Promise<string>} the OpenPGP password.
    */
   async retrieveOpenPGPPassword() {

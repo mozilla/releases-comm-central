@@ -14,26 +14,23 @@ export var EnigmailStreams = {
   /**
    * Create a new channel from a URL or URI.
    *
-   * @param url: String, nsIURI or nsIFile -  URL specification
-   *
-   * @return: channel
+   * @param {string|nsIURI|nsIFile} url - URL specification.
+   * @returns {nsIChannel}
    */
   createChannel(url) {
     const c = lazy.NetUtil.newChannel({
       uri: url,
       loadUsingSystemPrincipal: true,
     });
-
     return c;
   },
 
   /**
-   * create an nsIStreamListener object to read String data from an nsIInputStream
+   * Create an nsIStreamListener object to read String data from an nsIInputStream
    *
-   * @onStopCallback: Function - function(data) that is called when the stream has stopped
-   *                             string data is passed as |data|
-   *
-   * @return: the nsIStreamListener to pass to the stream
+   * @param {function(string):void} onStopCallback - Function that is called when
+   *   the stream has stopped string data is passed in.
+   * @returns {nsIStreamListener} the nsIStreamListener to pass to the stream.
    */
   newStringStreamListener(onStopCallback) {
     const listener = {
@@ -58,20 +55,19 @@ export var EnigmailStreams = {
       this.inStream.setInputStream(stream);
       this.data += this.inStream.readBytes(count);
     };
-
     return listener;
   },
 
   /**
-   * create a nsIInputStream object that is fed with string data
+   * Create a nsIInputStream object that is fed with string data.
    *
-   * @uri:            nsIURI - object representing the URI that will deliver the data
-   * @contentType:    String - the content type as specified in nsIChannel
-   * @contentCharset: String - the character set; automatically determined if null
-   * @data:           String - the data to feed to the stream
-   * @loadInfo        nsILoadInfo - loadInfo (optional)
-   *
-   * @returns nsIChannel object
+   * @param {nsIURI} uri - Object representing the URI that will deliver the data.
+   * @param {string} contentType - The content type as specified in nsIChannel.
+   * @param {?string} contentCharset - The character set; automatically
+   *   determined if null.
+   * @param {string} data - The data to feed to the stream.
+   * @param {nsILoadInfo} loadInfo - Loadinfo.
+   * @returns {nsIChannel} the channel.
    */
   newStringChannel(uri, contentType, contentCharset, data, loadInfo) {
     if (!loadInfo) {

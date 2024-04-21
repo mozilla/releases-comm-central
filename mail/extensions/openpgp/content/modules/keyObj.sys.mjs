@@ -74,6 +74,7 @@ export class EnigmailKeyObj {
 
   /**
    * Contains all UIDs (including the primary UID).
+   *
    * @type {object[]} ids
    * @type {string} ids[].userId - User ID.
    * @type {string} ids[].keyTrust - Trust level of user ID.
@@ -85,6 +86,7 @@ export class EnigmailKeyObj {
 
   /**
    * Subkeys.
+   *
    * @type {object[]} keys
    * @type {string} keys[].keyId - Subkey ID (16 digits (8-byte)).
    * @type {string} keys[].expiry - Expiry date as printable string.

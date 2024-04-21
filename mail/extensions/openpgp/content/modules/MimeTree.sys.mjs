@@ -1204,8 +1204,6 @@ export function mimeTreeToString(mimeTreePart, includeHeaders) {
  * @param {boolean} getBody - if true, delivers the body of each MimeTreePart
  * @param {MimeTreeFromUrlCallback} callbackFunc - the callback function that is
  *   called asynchronously when parsing is complete.
- *
- * @returns undefined
  */
 export function getMimeTreeFromUrl(url, getBody = false, callbackFunc) {
   function onData(data) {
