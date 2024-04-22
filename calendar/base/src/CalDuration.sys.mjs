@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
+import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
 export function CalDuration(innerObject) {
   this.innerObject = innerObject || new ICAL.Duration();

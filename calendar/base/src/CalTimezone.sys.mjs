@@ -4,7 +4,7 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
-import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
+import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
 const lazy = {};
 

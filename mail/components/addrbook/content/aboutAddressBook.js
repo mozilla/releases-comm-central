@@ -20,6 +20,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 ChromeUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.importESModule("resource:///modules/ABQueryUtils.sys.mjs");
 });
+ChromeUtils.defineLazyGetter(this, "ICAL", function () {
+  return ChromeUtils.importESModule(
+    "resource:///modules/calendar/Ical.sys.mjs"
+  ).default;
+});
 
 ChromeUtils.defineESModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.sys.mjs",
@@ -29,7 +34,6 @@ ChromeUtils.defineESModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
-  ICAL: "resource:///modules/calendar/Ical.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",

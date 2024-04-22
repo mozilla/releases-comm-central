@@ -9,7 +9,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   VCardPropertyEntry: "resource:///modules/VCardUtils.sys.mjs",
 });
 
-const { ICAL } = ChromeUtils.importESModule(
+const { default: ICAL } = ChromeUtils.importESModule(
   "resource:///modules/calendar/Ical.sys.mjs"
 );
 

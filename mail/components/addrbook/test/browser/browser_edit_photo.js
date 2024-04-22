@@ -8,7 +8,7 @@ const { CardDAVDirectory } = ChromeUtils.importESModule(
 const { CardDAVServer } = ChromeUtils.importESModule(
   "resource://testing-common/CardDAVServer.sys.mjs"
 );
-const { ICAL } = ChromeUtils.importESModule(
+const { default: ICAL } = ChromeUtils.importESModule(
   "resource:///modules/calendar/Ical.sys.mjs"
 );
 

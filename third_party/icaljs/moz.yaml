@@ -16,15 +16,15 @@ origin:
 
   # Full URL for the package's homepage/etc
   # Usually different from repository url
-  url: https://github.com/darktrojan/ical.js
+  url: https://github.com/kewisch/ical.js
 
   # Human-readable identifier for this version/release
   # Generally "version NNN", "tag SSS", "bookmark SSS"
-  release: 0f1af2444b82708bb3a0a6b05d834884dedd8109 (2023-09-14T22:47:01Z).
+  release: 2f880d30313805620eeea00f470c0b954c011090 (2024-04-21T14:59:15Z).
 
   # Revision to pull in
   # Must be a long or short commit SHA (long preferred)
-  revision: 0f1af2444b82708bb3a0a6b05d834884dedd8109
+  revision: 2f880d30313805620eeea00f470c0b954c011090
 
   # The package's license, where possible using the mnemonic from
   # https://spdx.org/licenses/
@@ -45,7 +45,7 @@ vendoring:
   # eg. https://github.com/kinetiknz/nestegg
   # Any repository host can be specified here, however initially we'll only
   # support automated vendoring from selected sources.
-  url: https://github.com/darktrojan/ical.js
+  url: https://github.com/kewisch/ical.js
 
   # Type of hosting for the upstream repository
   # Valid values are 'gitlab', 'github', googlesource
@@ -57,15 +57,17 @@ vendoring:
     - spurious-check
     - update-moz-build
 
-  # Files/paths that will not be vendored from the upstream repository
-  # Implicitly contains ".git", and ".gitignore"
-  # optional
   exclude:
-    - .git
+    - '**'
+
+  include:
+    - lib
+    - package-lock.json
+    - package.json
+    - rollup.config.js
 
   keep:
     - make_bundle.sh
-    - moz.yaml
     - LICENSE
 
   update-actions:
@@ -73,17 +75,29 @@ vendoring:
       script: 'make_bundle.sh'
       cwd: '{yaml_dir}'
 
-    #- action: replace-in-file-regex
-    #  file: '{yaml_dir}/../README.icaljs'
-    #  pattern: '\[tag v[0-9\.]+\]'
-    #  with: '[tag {revision}]'
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.icaljs'
+      pattern: '\[revision [0-9a-f\.]+\]'
+      with: '[revision {revision}]'
 
     - action: move-file
-      from: 'build/ical.js'
-      to: '../../../comm/calendar/base/modules/Ical.sys.mjs'
+      from: 'dist/ical.js'
+      to: '../../calendar/base/modules/Ical.sys.mjs'
 
     - action: delete-path
-      path: 'build'
+      path: 'dist'
 
     - action: delete-path
       path: 'node_modules'
+
+    - action: delete-path
+      path: 'lib'
+
+    - action: delete-path
+      path: 'package-lock.json'
+
+    - action: delete-path
+      path: 'package.json'
+
+    - action: delete-path
+      path: 'rollup.config.js'

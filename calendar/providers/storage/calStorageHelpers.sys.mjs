@@ -6,7 +6,7 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 import { CalTimezone } from "resource:///modules/CalTimezone.sys.mjs";
 
-import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
+import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
 // Storage flags. These are used in the Database |flags| column to give
 // information about the item's features. For example, if the item has

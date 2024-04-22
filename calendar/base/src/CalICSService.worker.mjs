@@ -7,7 +7,7 @@
  */
 
 // eslint-disable-next-line mozilla/reject-import-system-module-from-non-system
-import { ICAL } from "resource:///modules/calendar/Ical.sys.mjs";
+import ICAL from "resource:///modules/calendar/Ical.sys.mjs";
 
 ICAL.design.strict = false;
 
