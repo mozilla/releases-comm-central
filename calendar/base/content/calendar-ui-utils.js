@@ -146,9 +146,6 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
       if (aOnCommand) {
         menuitem.setAttribute("oncommand", aOnCommand);
       }
-      if (aCalendarMenuParent.localName == "menupopup") {
-        menuitem.setAttribute("type", "checkbox");
-      }
       if (calendarToUse && calendarToUse.id == calendar.id) {
         indexToSelect = index;
       }
@@ -173,6 +170,7 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
   let item = null;
   if (aParent.localName == "menupopup") {
     item = document.createXULElement("menuitem");
+    item.setAttribute("type", "checkbox");
     item.setAttribute("label", aLabel);
     if (aValue) {
       item.setAttribute("value", aValue);

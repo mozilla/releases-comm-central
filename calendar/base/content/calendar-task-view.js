@@ -244,13 +244,15 @@ var taskDetailsView = {
     }
     for (const cat of categoryList) {
       const menuitem = document.createXULElement("menuitem");
-      menuitem.setAttribute("class", "menuitem-iconic calendar-category");
+      menuitem.setAttribute("class", "calendar-category");
       menuitem.setAttribute("label", cat);
       menuitem.setAttribute("value", cat);
       menuitem.setAttribute("type", maxCount === null || maxCount > 1 ? "checkbox" : "radio");
       if (itemCategories.includes(cat)) {
         menuitem.setAttribute("checked", "true");
       }
+      const cssSafeId = cal.view.formatStringForCSSRule(cat);
+      menuitem.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
       categoryPopup.appendChild(menuitem);
     }
   },

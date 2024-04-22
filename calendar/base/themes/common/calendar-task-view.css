@@ -233,3 +233,33 @@
 .input-container html|input {
   flex-grow: 1;
 }
+
+#task-actions-category-popup > menuitem,
+#calendar-context-calendar-menupopup > menuitem {
+  padding-inline-start: 4px;
+
+  & .menu-iconic-left {
+    margin-inline-end: 3px;
+  }
+
+  & .menu-iconic-text {
+    padding-inline-start: 15px;
+    background-image: var(--icon-circle-small);
+    background-position: left center;
+    background-repeat: no-repeat;
+    -moz-context-properties: fill;
+    fill: var(--item-color);
+
+    &:dir(rtl) {
+      background-position-x: right;
+    }
+  }
+
+  & .menu-iconic-icon {
+    display: inline;
+  }
+}
+
+#task-actions-category-textbox {
+  margin-inline: 4px;
+}
