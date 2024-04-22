@@ -16,10 +16,7 @@ xpcshell:
     description: "xpcshell test run"
     suite:
         category: xpcshell
-        name:
-            by-variant:
-                msix: xpcshell-msix
-                default: xpcshell
+        name: xpcshell
     target:
         by-test-platform:
             windows11-64.*:
