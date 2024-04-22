@@ -462,8 +462,8 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
 
   // If grouped, we need to clone the group thread hash table.
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
-    // If this is any kind of nsMsgSearchDBView, either cross-folder or synthetic
-    // (no message database).
+    // If this is any kind of nsMsgSearchDBView, either cross-folder or
+    // synthetic (no message database).
     if (mIsXFVirtual || !m_db) {
       for (auto iter = m_groupsTable.Iter(); !iter.Done(); iter.Next()) {
         newMsgDBView->m_groupsTable.InsertOrUpdate(
@@ -677,7 +677,7 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
       thread->RemoveChildAt(0);
       if (viewIndexOfThread != nsMsgKey_None) {
         RemoveByIndex(viewIndexOfThread);
-        if (m_deletingRows)
+        if (m_deletingRows && !mIndicesToNoteChange.Contains(viewIndexOfThread))
           mIndicesToNoteChange.AppendElement(viewIndexOfThread);
       }
     } else if (rootDeleted) {
