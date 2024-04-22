@@ -52,7 +52,6 @@ add_task(async function test_quoteMessage() {
       { label: "QuoteTestFolder" },
     ]
   );
-  await BrowserTestUtils.closeWindow(msgc);
 
   // Select message and click reply.
   await select_click_row(0);
@@ -91,4 +90,5 @@ add_task(async function test_quoteMessage() {
   );
 
   await close_compose_window(cwc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
