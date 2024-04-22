@@ -260,10 +260,10 @@ export var Socket = {
 
   disconnected: true,
 
-  startTLS() {
-    this.transport.tlsSocketControl
+  async startTLS() {
+    await this.transport.tlsSocketControl
       .QueryInterface(Ci.nsITLSSocketControl)
-      .StartTLS();
+      .asyncStartTLS();
   },
 
   // If using the ping functionality, this should be called whenever a message is

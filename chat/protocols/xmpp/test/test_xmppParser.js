@@ -107,7 +107,7 @@ counsel?</value>\
   },
 ];
 
-function testXMPPParser() {
+add_task(function testXMPPParser() {
   for (const current of TEST_DATA) {
     const listener = {
       onXMLError(aString) {
@@ -124,12 +124,56 @@ function testXMPPParser() {
     parser.onDataAvailable(current.input);
     parser.destroy();
   }
+});
 
-  run_next_test();
-}
+add_task(async function testXMPPParser_async() {
+  for (const current of TEST_DATA.filter(test => !test.isError)) {
+    const { resolve, promise } = Promise.withResolvers();
+    const listener = {
+      onXMLError(error) {
+        ok(false, `${error} - ${current.description}}`);
+      },
+      LOG() {},
+      startLegacyAuth() {},
+      onXmppStanza(stanza) {
+        equal(current.output, stanza.getXML(), current.description);
+        ok(!current.isError, current.description);
+        resolve();
+        return promise;
+      },
+    };
+    const parser = new XMPPParser(listener);
+    parser.onDataAvailable(current.input);
+    await promise;
+    parser.destroy();
+  }
+});
 
-function run_test() {
-  add_test(testXMPPParser);
-
-  run_next_test();
-}
+add_task(async function testXMPPParser_asyncRejection() {
+  const { reject, promise } = Promise.withResolvers();
+  const testError = new Error("Stanza handling test error");
+  const [testData] = TEST_DATA;
+  const listener = {
+    onXMLError(error) {
+      ok(false, `${error} in rejection test`);
+    },
+    LOG() {},
+    startLegacyAuth() {},
+    onXmppStanza(stanza) {
+      equal(
+        testData.output,
+        stanza.getXML(),
+        "Stanza should have parsed as expected"
+      );
+      reject(testError);
+      return promise;
+    },
+  };
+  ok(!testData.isError, "Selected test data should be for a valid stanza");
+  const parser = new XMPPParser(listener);
+  parser.onDataAvailable(testData.input);
+  // We can't await the promise itself, since that would handle the rejection,
+  // and we want to ensure it's not unhandled.
+  await Promise.resolve();
+  parser.destroy();
+});

@@ -419,13 +419,19 @@ XMPPSession.prototype = {
       this.onXmppStanza = this.stanzaListeners.startAuth;
       this.onXmppStanza(aStanza);
     },
-    startTLS(aStanza) {
+    async startTLS(aStanza) {
       if (aStanza.localName != "proceed") {
         this._networkError(lazy._("connection.error.failedToStartTLS"));
         return;
       }
 
-      this.startTLS();
+      try {
+        await this.startTLS();
+      } catch (error) {
+        this.ERROR("Error starting TLS", error);
+        this._networkError(lazy._("connection.error.failedToStartTLS"));
+        return;
+      }
       this._encrypted = true;
       this.startStream();
       this.onXmppStanza = this.stanzaListeners.startAuth;

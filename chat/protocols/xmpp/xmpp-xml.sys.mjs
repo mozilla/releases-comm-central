@@ -484,10 +484,12 @@ XMPPParser.prototype = {
       if (this._node.isXmppStanza()) {
         this._logReceivedData(this._node.convertToString());
         try {
-          this._listener.onXmppStanza(this._node);
+          const result = this._listener.onXmppStanza(this._node);
+          if (result && "then" in result) {
+            result.catch(console.error);
+          }
         } catch (e) {
           console.error(e);
-          dump(e + "\n");
         }
       } else {
         this._listener.onXMLError(
