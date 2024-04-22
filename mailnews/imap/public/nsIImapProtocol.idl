@@ -52,7 +52,8 @@ interface nsIImapProtocol : nsISupports {
    * @param aHostSessionList host session list service
    * @param aServer imap server the protocol object will be talking to
    */
-  void Initialize(in nsIImapHostSessionList aHostSessionList, in nsIImapIncomingServer aServer);
+  [noscript] void Initialize(in nsIImapHostSessionList aHostSessionList,
+                             in nsIImapIncomingServer aServer);
 
   void NotifyBodysToDownload(in Array<nsMsgKey> keys);
 

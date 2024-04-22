@@ -101,7 +101,7 @@ interface nsIMsgComposeNotificationType : nsISupports
 native nsString(nsString);
 [ref] native nsStringRef(nsString);
 
-[scriptable, uuid(c6544b6b-06dd-43ac-89b5-949d7c81bb7b)]
+[scriptable, builtinclass, uuid(c6544b6b-06dd-43ac-89b5-949d7c81bb7b)]
 interface nsIMsgCompose : nsIMsgSendListener {
 
   /**

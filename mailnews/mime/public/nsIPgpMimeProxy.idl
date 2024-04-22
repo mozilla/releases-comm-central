@@ -24,7 +24,7 @@ native MimeDecodeCallbackFun(MimeDecodeCallbackFun);
  * nsIPgpMimeProxy is a proxy for a (JS-)addon for OpenPGP/MIME decryption
  */
 
-[scriptable, uuid(815c4fbe-0e7c-45b6-8324-f7044c7252ac)]
+[scriptable, builtinclass, uuid(815c4fbe-0e7c-45b6-8324-f7044c7252ac)]
 interface nsIPgpMimeProxy : nsIStreamListener
 {
   /**
