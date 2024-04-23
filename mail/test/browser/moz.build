@@ -18,6 +18,7 @@ BROWSER_CHROME_MANIFESTS += [
     "folder-tree-modes/browser.ini",
     "folder-widget/browser.ini",
     "global-search-bar/browser.ini",
+    "global-ui/browser.ini",
     "im/browser.ini",
     "import/browser.ini",
     "junk-commands/browser.ini",

@@ -1455,7 +1455,7 @@ ChromeUtils.defineESModuleGetters(this, {
      * @type {?Window}
      */
     get currentAbout3Pane() {
-      if (this.currentTabInfo.mode.name == "mail3PaneTab") {
+      if (this.currentTabInfo?.mode.name == "mail3PaneTab") {
         return this.currentTabInfo.chromeBrowser.contentWindow;
       }
       return null;

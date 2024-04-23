@@ -24,7 +24,7 @@ function updateWindow(win) {
 
   if (
     UIFontSize.prefValue == UIFontSize.DEFAULT ||
-    UIFontSize.prefValue == UIFontSize.user_value
+    UIFontSize.prefValue == UIFontSize.osValue
   ) {
     win.document.documentElement.style.removeProperty("font-size");
     UIFontSize.updateMessageBrowser(browser);
@@ -38,8 +38,12 @@ function updateWindow(win) {
     UIFontSize.prefValue < UIFontSize.MIN_VALUE ||
     UIFontSize.prefValue > UIFontSize.MAX_VALUE
   ) {
-    // Reset to the default font size.
-    UIFontSize.size = 0;
+    // Enfore the min or max value since resetting to 0 would cause the wrong
+    // value coming from the OS to be used.
+    UIFontSize.size =
+      UIFontSize.prefValue < UIFontSize.MIN_VALUE
+        ? UIFontSize.MIN_VALUE
+        : UIFontSize.MAX_VALUE;
     Services.console.logStringMessage(
       `Unsupported font size: ${UIFontSize.prefValue}`
     );
@@ -82,7 +86,7 @@ export const UIFontSize = {
   // (e.g.: 14.345px). By rounding to an INT, we can always go back the original
   // default font size and the rounding doesn't affect the actual sizing but
   // only the value shown to the user.
-  user_value: 0,
+  osValue: 0,
 
   // Keeps track of the custom value while in safe mode.
   safe_mode_value: 0,
@@ -110,8 +114,19 @@ export const UIFontSize = {
    */
   get size() {
     // If the pref is set to 0, it means the user never changed font size so we
-    // return the default OS font size.
-    return this.prefValue || this.user_value;
+    // should use the default OS font size.
+    const size = this.prefValue || this.osValue;
+
+    // Fail safe to avoid UI lockdown in case the OS value is wrongly calculated
+    // and the value returned is smaller or bigger than the defined thresholds.
+    if (size < this.MIN_VALUE) {
+      return this.MIN_VALUE;
+    }
+    if (size > this.MAX_VALUE) {
+      return this.MAX_VALUE;
+    }
+
+    return size;
   },
 
   /**
@@ -127,13 +142,19 @@ export const UIFontSize = {
         "font.size.monospace." + langGroup,
         this.size
       );
-      return monospaceSize + (this.size - this.user_value);
+      return Math.max(
+        Math.min(monospaceSize, this.size),
+        monospaceSize + (this.size - this.osValue)
+      );
     }
     const variableSize = Services.prefs.getIntPref(
       "font.size.variable." + langGroup,
       this.size
     );
-    return variableSize + (this.size - this.user_value);
+    return Math.max(
+      Math.min(variableSize, this.size),
+      variableSize + (this.size - this.osValue)
+    );
   },
 
   /**
@@ -153,13 +174,13 @@ export const UIFontSize = {
 
     // Fetch the default font size defined by the OS as soon as we register the
     // first window. Don't do it again if we already have a value.
-    if (!this.user_value) {
+    if (!this.osValue) {
       const style = win
         .getComputedStyle(win.document.documentElement)
         .getPropertyValue("font-size");
 
       // Store the rounded default value.
-      this.user_value = Math.round(parseFloat(style));
+      this.osValue = Math.round(parseFloat(style));
     }
 
     registeredWindows.add(win);
@@ -234,7 +255,7 @@ export const UIFontSize = {
       return;
     }
 
-    if (this.prefValue == this.DEFAULT || this.prefValue == this.user_value) {
+    if (this.prefValue == this.DEFAULT || this.prefValue == this.osValue) {
       browser.contentDocument?.body?.style.removeProperty("font-size");
       // Update the state indicator here only after we cleared the font size
       // from the message browser.
@@ -256,26 +277,6 @@ export const UIFontSize = {
     // body content in order to let our inline style take effect.
     if (isPlainText) {
       isPlainText.style.removeProperty("font-size");
-    }
-  },
-
-  observe(win, topic) {
-    // Observe any new window or dialog that is opened and register it to
-    // inherit the font sizing variation.
-    switch (topic) {
-      // FIXME! Temporarily disabled until we can properly manage all dialogs.
-      // case "domwindowopened":
-      //   win.addEventListener(
-      //     "load",
-      //     () => {
-      //       this.registerWindow(win);
-      //     },
-      //     { once: true }
-      //   );
-      //   break;
-
-      default:
-        break;
     }
   },
 
@@ -340,5 +341,3 @@ XPCOMUtils.defineLazyPreferenceGetter(
   null,
   updateAllWindows
 );
-
-Services.ww.registerNotification(UIFontSize);
