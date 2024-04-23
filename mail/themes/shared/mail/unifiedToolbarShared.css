@@ -74,7 +74,7 @@
   }
 
   & .clear-button-icon {
-    content: var(--icon-close);
+    content: var(--icon-clear);
   }
 
   & .button-icon {

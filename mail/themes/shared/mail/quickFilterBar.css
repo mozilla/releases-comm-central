@@ -70,7 +70,7 @@
 }
 
 .qfb-clear-button-icon {
-  content: var(--icon-close);
+  content: var(--icon-clear);
 }
 
 @container threadPane (max-width: 499px) {

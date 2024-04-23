@@ -7,13 +7,17 @@
   <form>
     <input type="search" placeholder="" required="required" />
     <div aria-hidden="true"><slot name="placeholder"></slot></div>
-    <div class="search-button-group">
-      <button data-l10n-id="search-bar-clear-button" id="clear-button" class="button button-flat icon-button" hidden="hidden" tabindex="-1" type="reset">
-        <slot name="clear-button"></slot>
-      </button>
-      <button id="search-button" class="button button-flat icon-button">
-        <slot name="search-button"></slot>
-      </button>
-    </div>
+    <button id="clear-button"
+            type="reset"
+            class="button button-flat icon-button"
+            data-l10n-id="search-bar-clear-button"
+            hidden="hidden"
+            tabindex="-1">
+      <slot name="clear-button"></slot>
+    </button>
+    <button id="search-button"
+            class="button button-flat icon-button">
+      <slot name="search-button"></slot>
+    </button>
   </form>
 </template>

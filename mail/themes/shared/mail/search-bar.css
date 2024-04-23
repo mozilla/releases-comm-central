@@ -7,12 +7,16 @@
 @import url("chrome://messenger/skin/widgets.css");
 
 form {
-  --padding-block: 6px;
-  --search-icon-clearance: 30px;
+  --search-padding: 6px;
+  --search-buttons-padding: 52px;
   position: relative;
-  min-height: max(1.2em, calc(1.2em + 2 * var(--padding-block)));
+  min-height: max(1.2em, calc(1.2em + 2 * var(--search-padding)));
   height: 100%;
   color: var(--search-bar-color);
+
+  &:has(#clear-button[hidden]) {
+    --search-buttons-padding: 30px;
+  }
 }
 
 input {
@@ -24,7 +28,7 @@ input {
   color: var(--search-bar-color);
   border: 1px solid var(--search-bar-border-color);
   border-radius: var(--button-border-radius);
-  padding-inline: var(--padding-block) var(--search-icon-clearance);
+  padding-inline: var(--search-padding) var(--search-buttons-padding);
   background-color: var(--search-bar-background);
 
   &:focus-visible {
@@ -36,29 +40,18 @@ input {
   }
 }
 
-.search-button-group {
+.button {
   position: absolute;
   inset-inline-end: 0;
   inset-block: 0;
-  padding-block-start: 2px;
   color: inherit;
   display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
+  flex-direction: column;
+  justify-content: space-around;
 
-  #clear-button:hover {
-    background-color: transparent;
-  }
-
-  & .button-flat.icon-button {
-    padding: 2px;
+  &.button-flat.icon-button {
+    padding: 4px;
     margin: 0;
-    pointer-events: auto;
-
-    &:last-of-type {
-      padding: 4px;
-    }
 
     &:focus-visible {
       outline-offset: -1px;
@@ -68,6 +61,14 @@ input {
       }
     }
   }
+
+  #clear-button& {
+    height: 22px;
+    /* Width of the search button. */
+    inset-inline-end: 26px;
+    margin-block: auto;
+    padding: 2px;
+  }
 }
 
 div {
@@ -76,7 +77,7 @@ div {
   pointer-events: none;
   color: var(--search-field-placeholder);
   inset-inline-start: 1ch;
-  inset-inline-end: var(--search-icon-clearance);
+  inset-inline-end: var(--search-buttons-padding);
   flex-direction: column;
   justify-content: space-around;
   text-overflow: clip;
