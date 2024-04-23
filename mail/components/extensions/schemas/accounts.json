@@ -88,15 +88,45 @@
       {
         "name": "list",
         "type": "function",
+        "min_manifest_version": 3,
         "description": "Returns all mail accounts. They will be returned in the same order as used in Thunderbird's folder pane.",
         "async": "callback",
         "parameters": [
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>true</value>.",
+            "optional": true,
+            "default": false,
+            "type": "boolean",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>false</value>."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "accounts.MailAccount"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "list",
+        "type": "function",
+        "max_manifest_version": 2,
+        "description": "Returns all mail accounts. They will be returned in the same order as used in Thunderbird's folder pane.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "includeFolders",
             "optional": true,
             "default": true,
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>true</value>."
           },
           {
             "type": "function",
@@ -116,6 +146,7 @@
       {
         "name": "get",
         "type": "function",
+        "min_manifest_version": 3,
         "description": "Returns details of the requested account, or <value>null</value> if it doesn't exist.",
         "async": "callback",
         "parameters": [
@@ -125,10 +156,41 @@
           },
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>.",
+            "optional": true,
+            "default": false,
+            "type": "boolean",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>false</value>."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "accounts.MailAccount",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "max_manifest_version": 2,
+        "description": "Returns details of the requested account, or <value>null</value> if it doesn't exist.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "accountId",
+            "$ref": "MailAccountId"
+          },
+          {
+            "name": "includeFolders",
             "optional": true,
             "default": true,
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>."
           },
           {
             "type": "function",

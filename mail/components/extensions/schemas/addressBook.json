@@ -343,25 +343,25 @@
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from local address books. Defaults to true."
+            "description": "Whether to include results from local address books. Defaults to <value>true</value>."
           },
           "includeRemote": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from remote address books. Defaults to true."
+            "description": "Whether to include results from remote address books. Defaults to <value>true</value>."
           },
           "includeReadOnly": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from read-only address books. Defaults to true."
+            "description": "Whether to include results from read-only address books. Defaults to <value>true</value>."
           },
           "includeReadWrite": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from read-write address books. Defaults to true."
+            "description": "Whether to include results from read-write address books. Defaults to <value>true</value>."
           }
         }
       },

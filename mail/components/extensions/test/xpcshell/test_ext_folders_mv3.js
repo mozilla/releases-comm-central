@@ -17,7 +17,7 @@ add_task(
       "background.js": async () => {
         const [accountId, IS_IMAP] = await window.waitForMessage();
 
-        const account = await browser.accounts.get(accountId);
+        const account = await browser.accounts.get(accountId, true);
         const rootFolder = account.rootFolder;
         browser.test.assertEq(3, rootFolder.subFolders.length);
 
@@ -337,7 +337,7 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_favorite() {
         );
       }
 
-      const account = await browser.accounts.get(accountId);
+      const account = await browser.accounts.get(accountId, true);
       const rootFolder = account.rootFolder;
       const folders = await browser.folders.getSubFolders(rootFolder.id, false);
       const InfoTestFolder = folders.find(f => f.name == "InfoTest");
@@ -560,7 +560,7 @@ add_task(
       "background.js": async () => {
         const [accountId] = await window.waitForMessage();
 
-        const account = await browser.accounts.get(accountId);
+        const account = await browser.accounts.get(accountId, true);
         const rootFolder = account.rootFolder;
         const accountFolders = rootFolder.subFolders;
         browser.test.assertEq(
@@ -652,7 +652,7 @@ add_task(
     const files = {
       "background.js": async () => {
         const [accountId] = await window.waitForMessage();
-        const account = await browser.accounts.get(accountId);
+        const account = await browser.accounts.get(accountId, true);
         const rootFolder = account.rootFolder;
 
         // Create a new root folder in the account.
@@ -733,7 +733,14 @@ add_task(
           );
 
           // Check subfolders.
-          testSubFolders(folder.subFolders, expected);
+          browser.test.assertEq(
+            expected.subFolders,
+            !!folder.subFolders,
+            "The folders subFolders should be present as expected."
+          );
+          if (expected.subFolders) {
+            testSubFolders(folder.subFolders, expected);
+          }
 
           // Check parent folders.
           const parents = await browser.folders.getParentFolders(folder.id);
@@ -787,7 +794,7 @@ add_task(
             accountId,
             depth,
             basePath,
-            subFolders: true,
+            subFolders: false,
           });
 
           const subsTrue = await browser.folders.getSubFolders(
@@ -806,7 +813,7 @@ add_task(
             accountId,
             depth,
             basePath,
-            subFolders: true,
+            subFolders: 1, // Only the direct subFolder level is returned.
           });
           testSubFolders(subsFalse, {
             accountId,

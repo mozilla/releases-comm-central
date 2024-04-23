@@ -445,19 +445,50 @@
       {
         "name": "get",
         "type": "function",
+        "min_manifest_version": 3,
         "description": "Returns the specified folder.",
         "async": "callback",
         "parameters": [
           {
-            "name": "folder",
+            "name": "folderId",
             "$ref": "folders.MailFolderId"
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <value>true</value>.",
             "optional": true,
+            "type": "boolean",
+            "default": false,
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <value>false</value>."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "max_manifest_version": 2,
+        "description": "Returns the specified folder.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "includeSubFolders",
+            "optional": true,
+            "type": "boolean",
             "default": true,
-            "type": "boolean"
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <value>true</value>."
           },
           {
             "type": "function",
@@ -787,7 +818,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders . Defaults to <value>false</value>.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <value>false</value>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -810,6 +841,40 @@
       {
         "name": "getSubFolders",
         "type": "function",
+        "min_manifest_version": 3,
+        "description": "Get the subfolders of the specified folder or account.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "folderId",
+            "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "includeSubFolders",
+            "optional": true,
+            "type": "boolean",
+            "default": false,
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <value>false</value>."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getSubFolders",
+        "type": "function",
+        "max_manifest_version": 2,
         "description": "Get the subfolders of the specified folder or account.",
         "async": "callback",
         "parameters": [
@@ -820,12 +885,10 @@
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify a MailFolderId instead of a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: folders.getSubFolders() requires to specify the MailFolderId of the account's rootFolder, instead of a full MailAccount object.",
                 "$ref": "accounts.MailAccount"
               }
@@ -833,10 +896,10 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders . Defaults to <value>true</value>.",
             "optional": true,
+            "type": "boolean",
             "default": true,
-            "type": "boolean"
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <value>true</value>."
           },
           {
             "type": "function",

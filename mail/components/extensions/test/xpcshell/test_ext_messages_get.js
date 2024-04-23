@@ -197,7 +197,7 @@ add_task(async function test_plain_mv3() {
 
   const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      const accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list(true);
       browser.test.assertEq(1, accounts.length);
 
       for (const account of accounts) {

@@ -172,7 +172,7 @@ add_task(async function test_update() {
     }
 
     const [accountId] = await window.waitForMessage();
-    const { rootFolder } = await browser.accounts.get(accountId);
+    const { rootFolder } = await browser.accounts.get(accountId, true);
     const folder = rootFolder.subFolders[0];
 
     await browser.mailTabs.update({ displayedFolderId: folder.id });

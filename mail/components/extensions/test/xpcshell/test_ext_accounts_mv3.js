@@ -22,8 +22,8 @@ add_task(async function test_accounts() {
         "The default account should be null, as none is defined."
       );
 
-      // Check that all folders are included by default.
-      const result1 = await browser.accounts.list();
+      // Check that folders are included on request.
+      const result1 = await browser.accounts.list(true);
       browser.test.assertEq(1, result1.length);
       window.assertDeepEqual(
         {
@@ -63,11 +63,21 @@ add_task(async function test_accounts() {
         );
       }
 
+      // Test that excluding folders works by default.
+      const result1WithOutFoldersDefault = await browser.accounts.list();
+      for (const account of result1WithOutFoldersDefault) {
+        browser.test.assertEq(
+          undefined,
+          account.rootFolder.subFolders,
+          "Folders not included"
+        );
+      }
+
       const [account2Id, account2Name] = await window.sendMessage(
         "create account 2"
       );
       // The new account is defined as default and should be returned first.
-      const result2 = await browser.accounts.list();
+      const result2 = await browser.accounts.list(true);
       browser.test.assertEq(2, result2.length);
       window.assertDeepEqual(
         [
@@ -117,9 +127,9 @@ add_task(async function test_accounts() {
         result2
       );
 
-      const result3 = await browser.accounts.get(account1Id);
+      const result3 = await browser.accounts.get(account1Id, true);
       window.assertDeepEqual(result1[0], result3);
-      const result4 = await browser.accounts.get(account2Id);
+      const result4 = await browser.accounts.get(account2Id, true);
       window.assertDeepEqual(result2[0], result4);
 
       const result3WithoutFolders = await browser.accounts.get(
@@ -141,9 +151,26 @@ add_task(async function test_accounts() {
         "Folders not included"
       );
 
+      const result3WithoutFoldersDefault = await browser.accounts.get(
+        account1Id
+      );
+      browser.test.assertEq(
+        undefined,
+        result3WithoutFoldersDefault.rootFolder.subFolders,
+        "Folders not included"
+      );
+      const result4WithoutFoldersDefault = await browser.accounts.get(
+        account2Id
+      );
+      browser.test.assertEq(
+        undefined,
+        result4WithoutFoldersDefault.rootFolder.subFolders,
+        "Folders not included"
+      );
+
       await window.sendMessage("create folders");
 
-      const result5 = await browser.accounts.get(account1Id);
+      const result5 = await browser.accounts.get(account1Id, true);
       const platformInfo = await browser.runtime.getPlatformInfo();
       window.assertDeepEqual(
         [
@@ -182,7 +209,7 @@ add_task(async function test_accounts() {
         await browser.messages.list(folder.id);
       }
 
-      const result6 = await browser.accounts.get(account2Id);
+      const result6 = await browser.accounts.get(account2Id, true);
       window.assertDeepEqual(
         [
           {
