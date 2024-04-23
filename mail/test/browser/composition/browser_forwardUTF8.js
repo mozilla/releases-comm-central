@@ -96,7 +96,6 @@ async function forwardViaFolder(aFilePath) {
       { label: "FolderWithUTF8" },
     ]
   );
-  await BrowserTestUtils.closeWindow(msgc);
 
   const msg = await select_click_row(0);
   await assert_selected_and_displayed(window, msg);
@@ -114,6 +113,7 @@ async function forwardViaFolder(aFilePath) {
   await close_compose_window(fwdWin);
 
   await press_delete(window);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 add_task(async function test_utf8_forwarding_from_opened_file() {
