@@ -29,6 +29,10 @@ ChromeUtils.defineLazyGetter(lazy, "_prefs", function () {
   return Services.prefs.getBranch(PREF_TASKBAR_BRANCH);
 });
 
+ChromeUtils.defineLazyGetter(lazy, "_selfPath", function () {
+  return Services.dirsvc.get("XREExeF", Ci.nsIFile).path;
+});
+
 function _getString(aName) {
   return lazy._stringBundle.GetStringFromName(aName);
 }
@@ -67,9 +71,9 @@ export var WinTaskbarJumpList = {
    * Startup, shutdown, and update
    */
 
-  startup() {
+  async startup() {
     // exit if this isn't win7 or higher.
-    if (!this._initTaskbar()) {
+    if (!(await this._initTaskbar())) {
       return;
     }
 
@@ -105,102 +109,34 @@ export var WinTaskbarJumpList = {
    * List building
    */
 
-  _buildList() {
+  async _buildList() {
     // anything to build?
     if (!this._showTasks) {
       // don't leave the last list hanging on the taskbar.
-      this._deleteActiveJumpList();
-      return;
-    }
-
-    if (!this._startBuild()) {
+      await this._deleteActiveJumpList();
       return;
     }
 
     if (this._showTasks) {
-      this._buildTasks();
+      const taskDescriptions = this._tasks.map(task => {
+        return {
+          title: task.title,
+          description: task.description,
+          path: lazy._selfPath,
+          arguments: task.args,
+          fallbackIconIndex: task.iconIndex,
+        };
+      });
+      await this._builder.populateJumpList(taskDescriptions, "", []);
     }
-
-    this._commitBuild();
   },
 
   /**
    * Taskbar api wrappers
    */
 
-  _startBuild() {
-    // This is useful if there are any async tasks pending. Since we don't right
-    // now, it's just harmless.
-    this._builder.abortListBuild();
-    // Since our list is static right now, we won't actually get back any
-    // removed items.
-    const removedItems = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    return this._builder.initListBuild(removedItems);
-  },
-
-  _commitBuild() {
-    this._builder.commitListBuild(succeed => {
-      if (!succeed) {
-        this._builder.abortListBuild();
-      }
-    });
-  },
-
-  _buildTasks() {
-    if (this._tasks.length > 0) {
-      var items = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-      for (const item of this._tasks.map(task =>
-        this._createHandlerAppItem(task)
-      )) {
-        items.appendElement(item);
-      }
-      this._builder.addListToBuild(
-        this._builder.JUMPLIST_CATEGORY_TASKS,
-        items
-      );
-    }
-  },
-
   _deleteActiveJumpList() {
-    this._builder.deleteActiveList();
-  },
-
-  /**
-   * Jump list item creation helpers
-   */
-
-  _createHandlerAppItem(aTask) {
-    const file = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
-
-    // XXX where can we grab this from in the build? Do we need to?
-    file.append("thunderbird.exe");
-
-    const handlerApp = Cc[
-      "@mozilla.org/uriloader/local-handler-app;1"
-    ].createInstance(Ci.nsILocalHandlerApp);
-    handlerApp.executable = file;
-    // handlers default to the leaf name if a name is not specified
-    const title = aTask.title;
-    if (title && title.length != 0) {
-      handlerApp.name = title;
-    }
-    handlerApp.detailedDescription = aTask.description;
-    handlerApp.appendParameter(aTask.args);
-
-    const item = Cc["@mozilla.org/windows-jumplistshortcut;1"].createInstance(
-      Ci.nsIJumpListShortcut
-    );
-    item.app = handlerApp;
-    item.iconIndex = aTask.iconIndex;
-    return item;
-  },
-
-  _createSeparatorItem() {
-    return Cc["@mozilla.org/windows-jumplistseparator;1"].createInstance(
-      Ci.nsIJumpListSeparator
-    );
+    return this._builder.clearJumpList();
   },
 
   /**
@@ -216,9 +152,9 @@ export var WinTaskbarJumpList = {
    * Init and shutdown utilities
    */
 
-  _initTaskbar() {
+  async _initTaskbar() {
     this._builder = lazy._taskbarService.createJumpListBuilder(false);
-    if (!this._builder || !this._builder.available) {
+    if (!this._builder || !(await this._builder.isAvailable())) {
       return false;
     }
 
