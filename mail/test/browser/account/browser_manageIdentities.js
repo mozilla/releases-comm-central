@@ -21,6 +21,10 @@ const { OpenPGPTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
 );
 
+const { MockFilePicker } = ChromeUtils.importESModule(
+  "resource://testing-common/MockFilePicker.sys.mjs"
+);
+
 var gPopAccount, gOriginalAccountCount, gIdentitiesWin;
 
 /**
@@ -240,6 +244,60 @@ async function test_identity_idx(idx) {
     const keyDetailsDialog = await keyDetailsDialogLoaded;
     info(`Key details dialog for key 0x${keyId} loaded`);
     keyDetailsDialog.close();
+
+    // Now click the "More" button and try out some actions.
+    const moreButton = identityWin.document.querySelector(
+      `#openPgpOption${keyId} button.openpgp-more-btn`
+    );
+    EventUtils.synthesizeMouseAtCenter(moreButton, {}, identityWin);
+    const moreButtonMenupopup = moreButton.querySelector(
+      ".more-button-menupopup"
+    );
+    await BrowserTestUtils.waitForPopupEvent(moreButtonMenupopup, "shown");
+
+    const saveFile = await IOUtils.getFile(PathUtils.tempDir, `0x${keyId}`);
+    MockFilePicker.init(identityWin.browsingContext);
+    MockFilePicker.setFiles([saveFile]);
+    MockFilePicker.returnValue = MockFilePicker.returnOK;
+
+    const backupSecretKey = moreButtonMenupopup.querySelector(
+      `[data-l10n-id="openpgp-key-backup-key"]`
+    );
+    EventUtils.synthesizeMouseAtCenter(backupSecretKey, {}, identityWin);
+
+    // The picker opens to select files.
+    // Then the "Choose a password to backup your OpenPGP key" dialog opens.
+    const backupKeyPasswordDialog =
+      await BrowserTestUtils.domWindowOpenedAndLoaded();
+
+    EventUtils.synthesizeMouseAtCenter(
+      backupKeyPasswordDialog.document.getElementById("pw1"),
+      {},
+      backupKeyPasswordDialog
+    );
+    EventUtils.sendString("SECR1", backupKeyPasswordDialog);
+    EventUtils.synthesizeMouseAtCenter(
+      backupKeyPasswordDialog.document.getElementById("pw2"),
+      {},
+      backupKeyPasswordDialog
+    );
+    EventUtils.sendString("SECR1", backupKeyPasswordDialog);
+
+    backupKeyPasswordDialog.document.querySelector("dialog").acceptDialog();
+
+    /* eslint-disable mozilla/no-arbitrary-setTimeout */
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const fileContent = await IOUtils.readUTF8(saveFile.path);
+    Assert.ok(
+      fileContent.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----"),
+      "secret key file should start ok"
+    );
+    Assert.ok(
+      fileContent.endsWith("-----END PGP PRIVATE KEY BLOCK-----\r\n"),
+      "secret key file should end ok"
+    );
+
+    await IOUtils.remove(saveFile.path);
   }
 
   Assert.equal(

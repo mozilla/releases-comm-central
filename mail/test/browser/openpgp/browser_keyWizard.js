@@ -179,7 +179,7 @@ add_task(async function generate_new_key() {
 });
 
 /**
- * Import a previously exported secret OpenPGP Key.
+ * Import an OpenPGP secret key from file.
  */
 add_task(async function import_secret_key() {
   // Open the key wizard from the "Add Key" button.

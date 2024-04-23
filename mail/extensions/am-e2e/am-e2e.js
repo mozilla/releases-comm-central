@@ -1041,6 +1041,7 @@ async function reloadOpenPgpUI() {
     document.l10n.setAttributes(more, "openpgp-key-man-key-more");
 
     const menupopup = document.createXULElement("menupopup");
+    menupopup.classList.add("more-button-menupopup");
 
     const copyItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(copyItem, "openpgp-key-copy-key");
@@ -1452,7 +1453,7 @@ async function openPgpSendKeyEmail(keyId) {
  * @param {string} keyId - The ID of the selected OpenPGP Key.
  */
 async function openPgpExportPublicKey(keyId) {
-  const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+  const outFile = await EnigmailKeyRing.promptKeyExport2AsciiFilename(
     window,
     await document.l10n.formatValue("export-to-file"),
     `${gIdentity.fullName}_${gIdentity.email}-${keyId}-pub.asc`
@@ -1496,7 +1497,7 @@ async function openPgpExportPublicKey(keyId) {
  * @param {string} keyFpr - The fingerprint of the selected OpenPGP Key.
  */
 async function openPgpExportSecretKey(keyId, keyFpr) {
-  const outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+  const outFile = await EnigmailKeyRing.promptKeyExport2AsciiFilename(
     window,
     await document.l10n.formatValue("export-keypair-to-file"),
     `${gIdentity.fullName}_${gIdentity.email}-${keyId}-secret.asc`
