@@ -293,11 +293,8 @@ NS_IMETHODIMP nsImapService::FetchMimePart(
       msgurl->RegisterListener(aUrlListener);
 
       if (!mimePart.IsEmpty()) {
-        nsAutoCString msgKey;
-        msgKey.AppendInt(key);
-        return FetchMimePart(imapUrl, nsIImapUrl::nsImapMsgFetch, folder,
-                             imapMessageSink, aURL, aDisplayConsumer, msgKey,
-                             mimePart);
+        return FetchMimePartInternal(imapUrl, folder, imapMessageSink, aURL,
+                                     aDisplayConsumer, key, mimePart);
       }
     }
   }
@@ -374,9 +371,9 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
         NS_ENSURE_SUCCESS(rv, rv);
 
         nsCOMPtr<nsIURI> dummyURI;
-        return FetchMimePart(imapUrl, nsIImapUrl::nsImapMsgFetch, folder,
-                             imapMessageSink, getter_AddRefs(dummyURI),
-                             aDisplayConsumer, msgKey, mimePart);
+        return FetchMimePartInternal(imapUrl, folder, imapMessageSink,
+                                     getter_AddRefs(dummyURI), aDisplayConsumer,
+                                     key, mimePart);
       }
 
       nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(imapUrl));
@@ -440,14 +437,17 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
   return rv;
 }
 
-nsresult nsImapService::FetchMimePart(
-    nsIImapUrl* aImapUrl, nsImapAction aImapAction,
-    nsIMsgFolder* aImapMailFolder, nsIImapMessageSink* aImapMessage,
-    nsIURI** aURL, nsISupports* aDisplayConsumer,
-    const nsACString& messageIdentifierList, const nsACString& mimePart) {
+nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
+                                              nsIMsgFolder* aImapMailFolder,
+                                              nsIImapMessageSink* aImapMessage,
+                                              nsIURI** aURL,
+                                              nsISupports* aDisplayConsumer,
+                                              nsMsgKey msgKey,
+                                              const nsACString& mimePart) {
   NS_ENSURE_ARG_POINTER(aImapUrl);
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
   NS_ENSURE_ARG_POINTER(aImapMessage);
+  MOZ_ASSERT(msgKey != nsMsgKey_None);
 
   // create a protocol instance to handle the request.
   // NOTE: once we start working with multiple connections, this step will be
@@ -455,16 +455,12 @@ nsresult nsImapService::FetchMimePart(
   // the request.
   nsAutoCString urlSpec;
   nsresult rv = SetImapUrlSink(aImapMailFolder, aImapUrl);
-  nsImapAction actionToUse = aImapAction;
-  if (actionToUse == nsImapUrl::nsImapOpenMimePart)
-    actionToUse = nsIImapUrl::nsImapMsgFetch;
 
   nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(aImapUrl));
-  if (aImapMailFolder && msgurl && !messageIdentifierList.IsEmpty()) {
+  if (aImapMailFolder && msgurl) {
     bool useLocalCache = false;
-    aImapMailFolder->HasMsgOffline(
-        strtoul(PromiseFlatCString(messageIdentifierList).get(), nullptr, 10),
-        &useLocalCache);
+    rv = aImapMailFolder->HasMsgOffline(msgKey, &useLocalCache);
+    NS_ENSURE_SUCCESS(rv, rv);
     msgurl->SetMsgIsInLocalCache(useLocalCache);
   }
   rv = aImapUrl->SetImapMessageSink(aImapMessage);
@@ -478,7 +474,7 @@ nsresult nsImapService::FetchMimePart(
     rv = msgurl->SetSpecInternal(urlSpec);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = aImapUrl->SetImapAction(actionToUse /* nsIImapUrl::nsImapMsgFetch */);
+    rv = aImapUrl->SetImapAction(nsIImapUrl::nsImapMsgFetch);
     if (aImapMailFolder && aDisplayConsumer) {
       nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
       rv = aImapMailFolder->GetServer(getter_AddRefs(aMsgIncomingServer));
@@ -501,11 +497,7 @@ nsresult nsImapService::FetchMimePart(
       // docshell to treat this load as if it were a user click event. Then the
       // dispatching stuff will be much happier.
       RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(url);
-      loadState->SetLoadFlags(aImapAction == nsImapUrl::nsImapOpenMimePart
-                                  ? nsIWebNavigation::LOAD_FLAGS_IS_LINK
-                                  : nsIWebNavigation::LOAD_FLAGS_NONE);
-      if (aImapAction == nsImapUrl::nsImapOpenMimePart)
-        loadState->SetLoadType(LOAD_LINK);
+      loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
       loadState->SetFirstParty(false);
       loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
       rv = docShell->LoadURI(loadState, false);

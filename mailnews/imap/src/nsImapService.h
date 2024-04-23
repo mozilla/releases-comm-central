@@ -80,12 +80,11 @@ class nsImapService : public nsIImapService,
   static nsresult SetImapUrlSink(nsIMsgFolder* aMsgFolder,
                                  nsIImapUrl* aImapUrl);
 
-  nsresult FetchMimePart(nsIImapUrl* aImapUrl, nsImapAction aImapAction,
-                         nsIMsgFolder* aImapMailFolder,
-                         nsIImapMessageSink* aImapMessage, nsIURI** aURL,
-                         nsISupports* aDisplayConsumer,
-                         const nsACString& messageIdentifierList,
-                         const nsACString& mimePart);
+  nsresult FetchMimePartInternal(nsIImapUrl* aImapUrl,
+                                 nsIMsgFolder* aImapMailFolder,
+                                 nsIImapMessageSink* aImapMessage,
+                                 nsIURI** aURL, nsISupports* aDisplayConsumer,
+                                 nsMsgKey msgKey, const nsACString& mimePart);
 
   nsresult FolderCommand(nsIMsgFolder* imapMailFolder,
                          nsIUrlListener* urlListener, const char* aCommand,
