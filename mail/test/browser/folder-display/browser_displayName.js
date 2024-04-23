@@ -29,17 +29,26 @@ var messages = [
   {
     name: "from_display_name_unquoted",
     headers: { From: "Carter Burke <cburke@wyutani.invalid>" },
-    expected: { column: "from", value: "Carter Burke" },
+    expected: {
+      column: "from",
+      value: "Carter Burke <cburke@wyutani.invalid>",
+    },
   },
   {
     name: "from_display_name_quoted",
     headers: { From: '"Ellen Ripley" <eripley@wyutani.invalid>' },
-    expected: { column: "from", value: "Ellen Ripley" },
+    expected: {
+      column: "from",
+      value: "Ellen Ripley <eripley@wyutani.invalid>",
+    },
   },
   {
     name: "from_display_name_with_comma",
     headers: { From: '"William Gorman, Lt." <wgorman@uscmc.invalid>' },
-    expected: { column: "from", value: "William Gorman, Lt." },
+    expected: {
+      column: "from",
+      value: "William Gorman, Lt. <wgorman@uscmc.invalid>",
+    },
   },
   {
     name: "from_email_raw",
@@ -56,17 +65,26 @@ var messages = [
   {
     name: "to_display_name_unquoted",
     headers: { To: "Carter Burke <cburke@wyutani.invalid>" },
-    expected: { column: "recipients", value: "Carter Burke" },
+    expected: {
+      column: "recipients",
+      value: "Carter Burke <cburke@wyutani.invalid>",
+    },
   },
   {
     name: "to_display_name_quoted",
     headers: { To: '"Ellen Ripley" <eripley@wyutani.invalid>' },
-    expected: { column: "recipients", value: "Ellen Ripley" },
+    expected: {
+      column: "recipients",
+      value: "Ellen Ripley <eripley@wyutani.invalid>",
+    },
   },
   {
     name: "to_display_name_with_comma",
     headers: { To: '"William Gorman, Lt." <wgorman@uscmc.invalid>' },
-    expected: { column: "recipients", value: "William Gorman, Lt." },
+    expected: {
+      column: "recipients",
+      value: "William Gorman, Lt. <wgorman@uscmc.invalid>",
+    },
   },
   {
     name: "to_email_raw",
@@ -85,7 +103,11 @@ var messages = [
         "Carter Burke <cburke@wyutani.invalid>, " +
         "Dwayne Hicks <dhicks@uscmc.invalid>",
     },
-    expected: { column: "recipients", value: "Carter Burke, Dwayne Hicks" },
+    expected: {
+      column: "recipients",
+      value:
+        "Carter Burke <cburke@wyutani.invalid>, Dwayne Hicks <dhicks@uscmc.invalid>",
+    },
   },
 
   // Address book tests
@@ -97,7 +119,10 @@ var messages = [
   {
     name: "from_in_abook_no_pdn",
     headers: { From: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>" },
-    expected: { column: "from", value: "Rebeccah Jorden" },
+    expected: {
+      column: "from",
+      value: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
+    },
   },
   {
     name: "to_in_abook_pdn",
@@ -107,7 +132,10 @@ var messages = [
   {
     name: "to_in_abook_no_pdn",
     headers: { To: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>" },
-    expected: { column: "recipients", value: "Rebeccah Jorden" },
+    expected: {
+      column: "recipients",
+      value: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
+    },
   },
   {
     name: "to_in_abook_multiple_mixed_pdn",
@@ -116,7 +144,10 @@ var messages = [
         "Al Apone <aapone@uscmc.invalid>, " +
         "Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
     },
-    expected: { column: "recipients", value: "Sarge, Rebeccah Jorden" },
+    expected: {
+      column: "recipients",
+      value: "Sarge, Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
+    },
   },
 
   // Esoteric tests; these mainly test that we're getting the expected info back
@@ -128,7 +159,10 @@ var messages = [
         "Carter Burke <cburke@wyutani.invalid>, " +
         "Dwayne Hicks <dhicks@uscmc.invalid>",
     },
-    expected: { column: "from", value: "Carter Burke et al." },
+    expected: {
+      column: "from",
+      value: "Carter Burke <cburke@wyutani.invalid> et al.",
+    },
   },
   {
     name: "from_missing",
@@ -151,12 +185,18 @@ var messages = [
       From: "Carter Burke <cburke@wyutani.invalid>",
       Sender: "The Company <thecompany@wyutani.invalid>",
     },
-    expected: { column: "from", value: "Carter Burke" },
+    expected: {
+      column: "from",
+      value: "Carter Burke <cburke@wyutani.invalid>",
+    },
   },
   {
     name: "sender_and_no_from_display_name",
     headers: { From: null, Sender: "The Company <thecompany@wyutani.invalid>" },
-    expected: { column: "from", value: "The Company" },
+    expected: {
+      column: "from",
+      value: "The Company <thecompany@wyutani.invalid>",
+    },
   },
   {
     name: "to_missing",
@@ -179,12 +219,18 @@ var messages = [
       To: "Carter Burke <cburke@wyutani.invalid>",
       Cc: "The Company <thecompany@wyutani.invalid>",
     },
-    expected: { column: "recipients", value: "Carter Burke" },
+    expected: {
+      column: "recipients",
+      value: "Carter Burke <cburke@wyutani.invalid>",
+    },
   },
   {
     name: "cc_and_no_to_display_name",
     headers: { To: null, Cc: "The Company <thecompany@wyutani.invalid>" },
-    expected: { column: "recipients", value: "The Company" },
+    expected: {
+      column: "recipients",
+      value: "The Company <thecompany@wyutani.invalid>",
+    },
   },
 ];
 

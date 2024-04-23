@@ -198,7 +198,13 @@ Services.prefs.addObserver("mail.displayname.version", () => {
 Services.prefs.addObserver("mail.showCondensedAddresses", () => {
   Services.prefs.setIntPref(
     "mail.displayname.version",
-    Services.prefs.getIntPref("mail.displayname.version") + 1
+    Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+  );
+});
+Services.prefs.addObserver("mail.addressDisplayFormat", () => {
+  Services.prefs.setIntPref(
+    "mail.displayname.version",
+    Services.prefs.getIntPref("mail.displayname.version", 0) + 1
   );
 });
 

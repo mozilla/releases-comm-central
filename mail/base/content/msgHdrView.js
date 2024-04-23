@@ -80,13 +80,6 @@ var gMinNumberOfHeaders = 0;
 var gDummyHeaderIdIndex = 0;
 var gBuildAttachmentsForCurrentMsg = false;
 var gBuiltExpandedView = false;
-var gHeadersShowReferences = false;
-
-/**
- * Show the friendly display names for people I know,
- * instead of the name + email address.
- */
-var gShowCondensedEmailAddresses;
 
 /**
  * Other components may listen to on start header & on end header notifications
@@ -401,19 +394,8 @@ async function OnLoadMsgHeaderPane() {
   gMinNumberOfHeaders = Services.prefs.getIntPref(
     "mailnews.headers.minNumHeaders"
   );
-  gShowCondensedEmailAddresses = Services.prefs.getBoolPref(
-    "mail.showCondensedAddresses"
-  );
-  gHeadersShowReferences = Services.prefs.getBoolPref(
-    "mailnews.headers.showReferences"
-  );
 
   Services.obs.addObserver(MsgHdrViewObserver, "remote-content-blocked");
-  Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
-  Services.prefs.addObserver(
-    "mailnews.headers.showReferences",
-    MsgHdrViewObserver
-  );
 
   initializeHeaderViewTables();
 
@@ -457,14 +439,6 @@ function OnUnloadMsgHeaderPane() {
   }
 
   Services.obs.removeObserver(MsgHdrViewObserver, "remote-content-blocked");
-  Services.prefs.removeObserver(
-    "mail.showCondensedAddresses",
-    MsgHdrViewObserver
-  );
-  Services.prefs.removeObserver(
-    "mailnews.headers.showReferences",
-    MsgHdrViewObserver
-  );
 
   clearFolderDBListener();
   ClearPendingReadTimer();
@@ -480,20 +454,7 @@ function OnUnloadMsgHeaderPane() {
 
 var MsgHdrViewObserver = {
   observe(subject, topic, data) {
-    // verify that we're changing the mail pane config pref
-    if (topic == "nsPref:changed") {
-      // We don't need to call ReloadMessage() in either of these conditions
-      // because a preference observer for these preferences already does it.
-      if (data == "mail.showCondensedAddresses") {
-        gShowCondensedEmailAddresses = Services.prefs.getBoolPref(
-          "mail.showCondensedAddresses"
-        );
-      } else if (data == "mailnews.headers.showReferences") {
-        gHeadersShowReferences = Services.prefs.getBoolPref(
-          "mailnews.headers.showReferences"
-        );
-      }
-    } else if (topic == "remote-content-blocked") {
+    if (topic == "remote-content-blocked") {
       const browser = getMessagePaneBrowser();
       if (
         browser.browsingContext.id == data ||
@@ -1324,7 +1285,7 @@ function UpdateExpandedMessageHeaders() {
         headerName == "references" &&
         !(
           gViewAllHeaders ||
-          gHeadersShowReferences ||
+          Services.prefs.getBoolPref("mailnews.headers.showReferences") ||
           gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false)
         )
       ) {

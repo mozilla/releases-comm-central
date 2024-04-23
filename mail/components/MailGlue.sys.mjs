@@ -1181,6 +1181,7 @@ function reportPreferences() {
     "mail.mailnews.scroll_to_new_message",
     "mail.prompt_purge_threshhold",
     "mail.purge.ask",
+    "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",
     "mailnews.database.global.indexer.enabled",
     "mailnews.mark_message_read.auto",

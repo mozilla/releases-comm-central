@@ -293,11 +293,36 @@ add_task(async function testGroupedBySortByAuthor() {
   info("Check the cell values for display.");
 
   const expectedRows = [
-    { totalCol: "3", unreadCol: "3", newCol: "3", subjectCol: authors[0][0] },
-    { totalCol: "3", unreadCol: "1", newCol: "1", subjectCol: authors[1][0] },
-    { totalCol: "1", unreadCol: "1", newCol: "1", subjectCol: authors[2][0] },
-    { totalCol: "2", unreadCol: "2", newCol: "2", subjectCol: authors[3][0] },
-    { totalCol: "3", unreadCol: "3", newCol: "3", subjectCol: authors[4][0] },
+    {
+      totalCol: "3",
+      unreadCol: "3",
+      newCol: "3",
+      subjectCol: `${authors[0][0]} <${authors[0][1]}>`,
+    },
+    {
+      totalCol: "3",
+      unreadCol: "1",
+      newCol: "1",
+      subjectCol: `${authors[1][0]} <${authors[1][1]}>`,
+    },
+    {
+      totalCol: "1",
+      unreadCol: "1",
+      newCol: "1",
+      subjectCol: `${authors[2][0]} <${authors[2][1]}>`,
+    },
+    {
+      totalCol: "2",
+      unreadCol: "2",
+      newCol: "2",
+      subjectCol: `${authors[3][0]} <${authors[3][1]}>`,
+    },
+    {
+      totalCol: "3",
+      unreadCol: "3",
+      newCol: "3",
+      subjectCol: `${authors[4][0]} <${authors[4][1]}>`,
+    },
   ];
   assertCellTexts(dbView, expectedRows);
 
@@ -306,8 +331,14 @@ add_task(async function testGroupedBySortByAuthor() {
   dbView.toggleOpenState(3);
   assertCellTexts(dbView, [
     ...expectedRows.slice(0, 4),
-    { senderCol: authors[3][0], subjectCol: expectedThreads[3][0].subject },
-    { senderCol: authors[3][0], subjectCol: expectedThreads[3][1].subject },
+    {
+      senderCol: `${authors[3][0]} <${authors[3][1]}>`,
+      subjectCol: expectedThreads[3][0].subject,
+    },
+    {
+      senderCol: `${authors[3][0]} <${authors[3][1]}>`,
+      subjectCol: expectedThreads[3][1].subject,
+    },
     ...expectedRows.slice(4),
   ]);
 

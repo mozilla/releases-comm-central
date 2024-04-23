@@ -235,6 +235,8 @@ pref("mail.addr_book.mapit_url.5.name", "chrome://messenger-region/locale/region
 pref("mail.addr_book.mapit_url.5.format", "chrome://messenger-region/locale/region.properties");
 pref("mailnews.start_page.url", "chrome://messenger-region/locale/region.properties");
 pref("mail.accountwizard.deferstorage", false);
+// 0: name + email | 1: email only | 2: name only.
+pref("mail.addressDisplayFormat", 0);
 // |false|: Show both name and address, even for people in my addressbook.
 pref("mail.showCondensedAddresses", false);
 #endif

@@ -43,6 +43,7 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Preferences.h"
 #include "nsTArray.h"
 #include "mozilla/intl/OSPreferences.h"
 #include "mozilla/intl/LocaleService.h"
@@ -78,12 +79,6 @@ nsString nsMsgDBView::m_connectorPattern;
 nsCOMPtr<nsIStringBundle> nsMsgDBView::mMessengerStringBundle;
 
 static const uint32_t kMaxNumSortColumns = 2;
-
-static void GetCachedName(const nsCString& unparsedString,
-                          int32_t displayVersion, nsACString& cachedName);
-
-static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
-                             const nsAString& newName);
 
 // viewSortInfo is context data passed into the sort comparison functions -
 // FnSortIdUint32 for comparing numeric fields, FnSortIdKey for everything
@@ -284,6 +279,80 @@ static nsresult GetDisplayNameInAddressBook(const nsACString& emailAddress,
   return rv;
 }
 
+/**
+ * Generate a full expanded address string with the "Full name <email>" format.
+ */
+static nsString ExpandAddress(const nsString& name,
+                              const nsACString& emailAddress) {
+  if (name.IsEmpty() && emailAddress.IsEmpty()) {
+    return nsString();
+  }
+
+  nsString displayName;
+  displayName.Assign(name);
+
+  // We don't have a name, just return the email address.
+  if (displayName.IsEmpty()) {
+    CopyUTF8toUTF16(emailAddress, displayName);
+    return displayName;
+  }
+
+  // No email address, just return the name.
+  if (emailAddress.IsEmpty()) {
+    return displayName;
+  }
+
+  // We got both, compose the full string.
+  displayName.AppendLiteral(" <");
+  AppendUTF8toUTF16(emailAddress, displayName);
+  displayName.Append('>');
+  return displayName;
+}
+
+/**
+ * Ensure we're safeguarding from spoofing attempt on the recipients name.
+ */
+static nsString NoSpoofingSender(const nsString& name,
+                                 const nsACString& emailAddress) {
+  int32_t atPos;
+  if ((atPos = name.FindChar('@')) == kNotFound ||
+      name.FindChar('.', atPos) == kNotFound) {
+    return name;
+  }
+
+  // Found @ followed by a dot, so this looks like a spoofing case.
+  return ExpandAddress(name, emailAddress);
+}
+
+/**
+ * Get the sender full address base on the user's preference.
+ */
+static nsString GetSenderFullAddress(const nsString& name,
+                                     const nsACString& emailAddress) {
+  int32_t addressDisplayFormat =
+      mozilla::Preferences::GetInt("mail.addressDisplayFormat", 0);
+
+  nsString fullAddress;
+  if (addressDisplayFormat == 0) {
+    // Full name + address.
+    fullAddress = ExpandAddress(name, emailAddress);
+  } else if (addressDisplayFormat == 1 && !emailAddress.IsEmpty()) {
+    // Only email.
+    CopyUTF8toUTF16(emailAddress, fullAddress);
+  } else if (addressDisplayFormat == 2 && !name.IsEmpty()) {
+    // Only name.
+    fullAddress = NoSpoofingSender(name, emailAddress);
+  } else {
+    // Try to automatically generate a name from the data we get.
+    if (name.IsEmpty()) {
+      CopyUTF8toUTF16(emailAddress, fullAddress);
+    } else {
+      fullAddress = NoSpoofingSender(name, emailAddress);
+    }
+  }
+  return fullAddress;
+}
+
 /*
  * The unparsedString has following format:
  * "version|displayname"
@@ -321,8 +390,8 @@ static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
 
 nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
   nsCString unparsedAuthor;
-  bool showCondensedAddresses = false;
   int32_t currentDisplayNameVersion = 0;
+  bool showCondensedAddresses = false;
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
 
   prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
@@ -354,27 +423,14 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
 
   ExtractFirstAddress(addresses, name, emailAddress);
 
-  if (showCondensedAddresses)
+  if (showCondensedAddresses) {
     GetDisplayNameInAddressBook(emailAddress, aSenderString);
+  }
 
+  // If the sender string is empty it means we don't have a display name or a
+  // saved address matching in the address book.
   if (aSenderString.IsEmpty()) {
-    // We can't use the display name in the card; use the name contained in
-    // the header or email address.
-    if (name.IsEmpty()) {
-      CopyUTF8toUTF16(emailAddress, aSenderString);
-    } else {
-      int32_t atPos;
-      if ((atPos = name.FindChar('@')) == kNotFound ||
-          name.FindChar('.', atPos) == kNotFound) {
-        aSenderString = name;
-      } else {
-        // Found @ followed by a dot, so this looks like a spoofing case.
-        aSenderString = name;
-        aSenderString.AppendLiteral(" <");
-        AppendUTF8toUTF16(emailAddress, aSenderString);
-        aSenderString.Append('>');
-      }
-    }
+    aSenderString = GetSenderFullAddress(name, emailAddress);
   }
 
   if (multipleAuthors) {
@@ -468,27 +524,14 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
     nsCString& curAddress = emails[i];
     nsString& curName = names[i];
 
-    if (showCondensedAddresses)
+    if (showCondensedAddresses) {
       GetDisplayNameInAddressBook(curAddress, recipient);
+    }
 
+    // If the recipient string is empty it means we don't have a display name or
+    // a saved address matching in the address book.
     if (recipient.IsEmpty()) {
-      // We can't use the display name in the card; use the name contained in
-      // the header or email address.
-      if (curName.IsEmpty()) {
-        CopyUTF8toUTF16(curAddress, recipient);
-      } else {
-        int32_t atPos;
-        if ((atPos = curName.FindChar('@')) == kNotFound ||
-            curName.FindChar('.', atPos) == kNotFound) {
-          recipient = curName;
-        } else {
-          // Found @ followed by a dot, so this looks like a spoofing case.
-          recipient = curName;
-          recipient.AppendLiteral(" <");
-          AppendUTF8toUTF16(curAddress, recipient);
-          recipient.Append('>');
-        }
-      }
+      recipient = GetSenderFullAddress(curName, curAddress);
     }
 
     // Add ', ' between each recipient.

@@ -77,6 +77,7 @@ Preferences.addAll([
   { id: "mailnews.labels.color.4", type: "string" },
   { id: "mailnews.labels.description.5", type: "wstring" },
   { id: "mailnews.labels.color.5", type: "string" },
+  { id: "mail.addressDisplayFormat", type: "int" },
   { id: "mail.showCondensedAddresses", type: "bool" },
   { id: "mailnews.mark_message_read.auto", type: "bool" },
   { id: "mailnews.mark_message_read.delay", type: "bool" },

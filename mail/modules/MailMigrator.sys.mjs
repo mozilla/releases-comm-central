@@ -28,7 +28,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 41;
+    const UI_VERSION = 42;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -251,6 +251,15 @@ export var MailMigrator = {
         ) {
           Services.prefs.setIntPref("mailnews.default_news_sort_order", 1);
         }
+      }
+
+      if (currentUIVersion < 42) {
+        // Update the display name version pref so we force clear the cache of
+        // sender names.
+        Services.prefs.setIntPref(
+          "mail.displayname.version",
+          Services.prefs.getIntPref("mail.displayname.version", 0) + 1
+        );
       }
 
       // Migration tasks that may take a long time are not run immediately, but

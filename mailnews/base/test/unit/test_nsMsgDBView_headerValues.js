@@ -20,28 +20,34 @@ var messageInjection = new MessageInjection({ mode: "local" });
 // and the second element is a map of column names to expected values when
 // requesting the cell text for a given column name.
 var tests = [
-  [{ from: "John Doe <db@tinderbox.invalid>" }, { senderCol: "John Doe" }],
-  [{ from: '"Doe, John" <db@tinderbox.invalid>' }, { senderCol: "Doe, John" }],
+  [
+    { from: "John Doe <db@tinderbox.invalid>" },
+    { senderCol: "John Doe <db@tinderbox.invalid>" },
+  ],
+  [
+    { from: '"Doe, John" <db@tinderbox.invalid>' },
+    { senderCol: "Doe, John <db@tinderbox.invalid>" },
+  ],
   // Multiple senders are indicated with 'et al.' suffix.
   [
     { from: "John Doe <db@tinderbox.invalid>, Sally Ann <db@null.invalid>" },
-    { senderCol: "John Doe et al." },
+    { senderCol: "John Doe <db@tinderbox.invalid> et al." },
   ],
   [
     { from: "=?UTF-8?Q?David_H=C3=A5s=C3=A4ther?= <db@null.invalid>" },
-    { senderCol: "David Håsäther" },
+    { senderCol: "David Håsäther <db@null.invalid>" },
   ],
   [
     { from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>" },
-    { senderCol: "Håsäther, David" },
+    { senderCol: "Håsäther, David <db@null.invalid>" },
   ],
   [
     { from: '"Håsäther, David" <db@null.invalid>' },
-    { senderCol: "Håsäther, David" },
+    { senderCol: "Håsäther, David <db@null.invalid>" },
   ],
   [
     { from: "David Håsäther <db@null.invalid>" },
-    { senderCol: "David Håsäther" },
+    { senderCol: "David Håsäther <db@null.invalid>" },
   ],
   [
     {
@@ -54,21 +60,21 @@ var tests = [
       from: "John Doe \xF5  <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-1" },
     },
-    { senderCol: "John Doe õ" },
+    { senderCol: "John Doe õ <db@null.invalid>" },
   ],
   [
     {
       from: "John Doe \xF5 <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-2" },
     },
-    { senderCol: "John Doe ő" },
+    { senderCol: "John Doe ő <db@null.invalid>" },
   ],
   [
     {
       from: "=?UTF-8?Q?H=C3=A5s=C3=A4ther=2C_David?= <db@null.invalid>",
       clobberHeaders: { "Content-type": "text/plain; charset=ISO-8859-2" },
     },
-    { senderCol: "Håsäther, David" },
+    { senderCol: "Håsäther, David <db@null.invalid>" },
   ],
 ];
 

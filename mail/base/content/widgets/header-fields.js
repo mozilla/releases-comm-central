@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gMessageHeader, gShowCondensedEmailAddresses, gMessage */
+/* global gMessageHeader, gMessage */
 
 {
   const { MailServices } = ChromeUtils.importESModule(
@@ -487,10 +487,13 @@
         this.cardDetails.card
       );
 
+      const showCondensedAddress = Services.prefs.getBoolPref(
+        "mail.showCondensedAddresses"
+      );
       // Show only the display name if we have a valid card and the user wants
       // to show a condensed header (without the full email address) for saved
       // contacts.
-      if (gShowCondensedEmailAddresses && displayName) {
+      if (showCondensedAddress && displayName) {
         this.email.textContent = displayName;
         this.email.setAttribute("title", this.#recipient.fullAddress);
       } else {
@@ -499,7 +502,7 @@
       }
 
       if (this.dataset.headerName == "from") {
-        if (gShowCondensedEmailAddresses) {
+        if (showCondensedAddress) {
           this.nameLine.textContent =
             displayName || this.displayName || this.fullAddress;
         } else {

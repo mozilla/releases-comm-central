@@ -344,6 +344,7 @@ var preferenceObserver = {
   _topics: [
     "mail.inline_attachments",
     "mail.show_headers",
+    "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",
     "mailnews.display.disallow_mime_handlers",
     "mailnews.display.html_as",

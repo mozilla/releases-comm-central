@@ -109,6 +109,26 @@ add_task(async () => {
 });
 
 add_task(async () => {
+  await testRadioButtons("paneGeneral", "changeAddressDisplayFormat", {
+    pref: "mail.addressDisplayFormat",
+    states: [
+      {
+        id: "displayFull",
+        prefValue: 0,
+      },
+      {
+        id: "displayEmail",
+        prefValue: 1,
+      },
+      {
+        id: "displayName",
+        prefValue: 2,
+      },
+    ],
+  });
+});
+
+add_task(async () => {
   await testCheckboxes("paneGeneral", "fontsGroup", {
     checkboxID: "displayGlyph",
     pref: "mail.display_glyph",
