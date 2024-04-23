@@ -441,7 +441,10 @@ add_task(async function testSingleMessage() {
 
   threadTree.scrollToIndex(60, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
-  Assert.ok(!row.parentNode, "Row element should no longer be attached");
+  await TestUtils.waitForCondition(
+    () => !row.parentNode,
+    "waiting for row element to no longer be attached"
+  );
   Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
   Assert.ok(
     !threadTree.getRowAtIndex(threadTree.currentIndex),
