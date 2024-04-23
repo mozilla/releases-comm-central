@@ -26,6 +26,7 @@ job-defaults:
               type: file
     run:
         sparse-profile: mozharness
+        comm-checkout: true
     treeherder:
         symbol: UVCnext
         kind: test
