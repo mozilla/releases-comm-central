@@ -18,6 +18,10 @@ readme = "README.md"
 [dependencies]
 thiserror = "1.0.57"
 
+[dependencies.log]
+version = "0.4.21"
+features = ["std"]
+
 [dependencies.quick-xml]
 version = "0.31.0"
 features = [

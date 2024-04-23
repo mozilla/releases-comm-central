@@ -8,10 +8,9 @@ use ews::{
     get_folder::GetFolder,
     soap,
     sync_folder_hierarchy::{Change, SyncFolderHierarchy},
-    BaseFolderId, BaseShape, Folder, FolderShape, Operation, OperationResponse, ResponseClass,
+    BaseFolderId, BaseShape, Folder, FolderShape, Operation, ResponseClass,
 };
 use fxhash::FxHashMap;
-use moz_http::StatusCode;
 use nserror::{nsresult, NS_ERROR_FAILURE};
 use nsstring::{nsCString, nsString};
 use thiserror::Error;
@@ -73,10 +72,9 @@ impl XpComEwsClient {
         };
 
         loop {
-            eprintln!("about to call sync");
             // Folder sync returns results in batches, with sync state providing
             // the mechanism by which we can specify the next batch to receive.
-            let op = Operation::SyncFolderHierarchy(SyncFolderHierarchy {
+            let op = SyncFolderHierarchy {
                 folder_shape: FolderShape {
                     base_shape: BaseShape::IdOnly,
                 },
@@ -90,21 +88,15 @@ impl XpComEwsClient {
                     change_key: None,
                 }),
                 sync_state: sync_state_token,
-            });
+            };
 
             let response = self.perform_operation(op).await?;
-            let message = if let OperationResponse::SyncFolderHierarchyResponse(response) = response
-            {
-                response
-                    .response_messages
-                    .sync_folder_hierarchy_response_message
-                    .into_iter()
-                    .next()
-                    .unwrap()
-            } else {
-                eprintln!("did not receive SyncFolderHierarchyResponse");
-                return Err(NS_ERROR_FAILURE.into());
-            };
+            let message = response
+                .response_messages
+                .sync_folder_hierarchy_response_message
+                .into_iter()
+                .next()
+                .unwrap();
 
             let mut create_ids = Vec::new();
             let mut update_ids = Vec::new();
@@ -116,21 +108,15 @@ impl XpComEwsClient {
                 match change {
                     Change::Create { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
-                            eprintln!("creating {folder_id:?}");
                             create_ids.push(folder_id.id)
                         }
                     }
                     Change::Update { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
-                            eprintln!("updating {folder_id:?}");
                             update_ids.push(folder_id.id)
                         }
                     }
-                    Change::Delete(folder_id) => {
-                        eprintln!("deleting {folder_id:?}");
-
-                        delete_ids.push(folder_id.id)
-                    }
+                    Change::Delete(folder_id) => delete_ids.push(folder_id.id),
                 }
             }
 
@@ -195,20 +181,15 @@ impl XpComEwsClient {
 
         // Fetch all distinguished folder IDs at once, since we have few enough
         // that they fit within Microsoft's recommended batch size of ten.
-        let op = Operation::GetFolder(GetFolder {
+        let op = GetFolder {
             folder_shape: FolderShape {
                 base_shape: BaseShape::IdOnly,
             },
             folder_ids: ids,
-        });
+        };
 
         let response = self.perform_operation(op).await?;
-        let messages = if let OperationResponse::GetFolderResponse(response) = response {
-            response.response_messages.get_folder_response_message
-        } else {
-            eprintln!("did not receive a GetFolderResponse");
-            return Err(NS_ERROR_FAILURE.into());
-        };
+        let messages = response.response_messages.get_folder_response_message;
 
         let map = DISTINGUISHED_IDS
             .iter()
@@ -363,19 +344,15 @@ impl XpComEwsClient {
 
             // Execute the request and collect all mail folders found in the
             // response.
-            let op = Operation::GetFolder(GetFolder {
+            let op = GetFolder {
                 folder_shape: FolderShape {
                     base_shape: BaseShape::AllProperties,
                 },
                 folder_ids: to_fetch,
-            });
+            };
 
             let response = self.perform_operation(op).await?;
-            let messages = if let OperationResponse::GetFolderResponse(response) = response {
-                response.response_messages.get_folder_response_message
-            } else {
-                return Err(NS_ERROR_FAILURE.into());
-            };
+            let messages = response.response_messages.get_folder_response_message;
 
             let mut fetched = messages
                 .into_iter()
@@ -418,33 +395,27 @@ impl XpComEwsClient {
         Ok(folders)
     }
 
-    async fn perform_operation(&self, op: Operation) -> Result<OperationResponse, XpComEwsError> {
+    async fn perform_operation<Op>(&self, op: Op) -> Result<Op::Response, XpComEwsError>
+    where
+        Op: Operation,
+    {
         let auth_string = self.get_auth_string().await?;
 
         let envelope = soap::Envelope { body: op };
-        let body = envelope.as_xml_document()?;
+        let request_body = envelope.as_xml_document()?;
 
         let response = self
             .client
             .post(&self.endpoint)?
             .header("Authorization", &auth_string)
-            .body(body.as_slice(), "application/xml")
+            .body(request_body.as_slice(), "application/xml")
             .send()
-            .await?;
+            .await?
+            .error_from_status()?;
 
-        // TODO: Better error handling is needed, including responding to
-        // statuses other than 200.
-        let body = std::str::from_utf8(response.body()).map_err(|_| {
-            eprintln!("could not decode body");
-            NS_ERROR_FAILURE
-        })?;
-
-        let StatusCode(status_code) = response.status()?;
-        if status_code != 200 {
-            eprintln!("response status: {}\nresponse body: {}", status_code, body);
-        }
-
-        let envelope: soap::Envelope<OperationResponse> = soap::Envelope::from_xml_document(body)?;
+        let response_body = response.body();
+        let envelope: soap::Envelope<Op::Response> =
+            soap::Envelope::from_xml_document(response_body)?;
 
         Ok(envelope.body)
     }

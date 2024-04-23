@@ -48,24 +48,24 @@
 //!
 //! ### Examples
 //!
-//! ```
+//! ```edition2018
 //! # #[derive(Debug)] pub struct Yak(String);
 //! # impl Yak { fn shave(&mut self, _: u32) {} }
 //! # fn find_a_razor() -> Result<u32, u32> { Ok(1) }
 //! use log::{info, warn};
 //!
 //! pub fn shave_the_yak(yak: &mut Yak) {
-//!     info!(target: "yak_events", "Commencing yak shaving for {yak:?}");
+//!     info!(target: "yak_events", "Commencing yak shaving for {:?}", yak);
 //!
 //!     loop {
 //!         match find_a_razor() {
 //!             Ok(razor) => {
-//!                 info!("Razor located: {razor}");
+//!                 info!("Razor located: {}", razor);
 //!                 yak.shave(razor);
 //!                 break;
 //!             }
 //!             Err(err) => {
-//!                 warn!("Unable to locate a razor: {err}, retrying");
+//!                 warn!("Unable to locate a razor: {}, retrying", err);
 //!             }
 //!         }
 //!     }
@@ -88,41 +88,39 @@
 //!
 //! ## Structured logging
 //!
-//! If you enable the `kv` feature you can associate structured values
+//! If you enable the `kv_unstable` feature you can associate structured values
 //! with your log records. If we take the example from before, we can include
 //! some additional context besides what's in the formatted message:
 //!
-//! ```
-//! # use serde::Serialize;
+//! ```edition2018
+//! # #[macro_use] extern crate serde;
 //! # #[derive(Debug, Serialize)] pub struct Yak(String);
 //! # impl Yak { fn shave(&mut self, _: u32) {} }
 //! # fn find_a_razor() -> Result<u32, std::io::Error> { Ok(1) }
-//! # #[cfg(feature = "kv_serde")]
+//! # #[cfg(feature = "kv_unstable_serde")]
 //! # fn main() {
-//! use log::{info, warn};
+//! use log::{info, warn, as_serde, as_error};
 //!
 //! pub fn shave_the_yak(yak: &mut Yak) {
-//!     info!(target: "yak_events", yak:serde; "Commencing yak shaving");
+//!     info!(target: "yak_events", yak = as_serde!(yak); "Commencing yak shaving");
 //!
 //!     loop {
 //!         match find_a_razor() {
 //!             Ok(razor) => {
-//!                 info!(razor; "Razor located");
+//!                 info!(razor = razor; "Razor located");
 //!                 yak.shave(razor);
 //!                 break;
 //!             }
-//!             Err(e) => {
-//!                 warn!(e:err; "Unable to locate a razor, retrying");
+//!             Err(err) => {
+//!                 warn!(err = as_error!(err); "Unable to locate a razor, retrying");
 //!             }
 //!         }
 //!     }
 //! }
 //! # }
-//! # #[cfg(not(feature = "kv_serde"))]
+//! # #[cfg(not(feature = "kv_unstable_serde"))]
 //! # fn main() {}
 //! ```
-//!
-//! See the [`kv`] module documentation for more details.
 //!
 //! # Available logging implementations
 //!
@@ -151,14 +149,10 @@
 //!     * [win_dbg_logger]
 //!     * [db_logger]
 //!     * [log-to-defmt]
-//!     * [logcontrol-log]
 //! * For WebAssembly binaries:
 //!     * [console_log]
 //! * For dynamic libraries:
 //!     * You may need to construct an FFI-safe wrapper over `log` to initialize in your libraries
-//! * Utilities:
-//!     * [log_err]
-//!     * [log-reload]
 //!
 //! # Implementing a Logger
 //!
@@ -166,7 +160,7 @@
 //! logs all messages at the [`Error`][level_link], [`Warn`][level_link] or
 //! [`Info`][level_link] levels to stdout:
 //!
-//! ```
+//! ```edition2018
 //! use log::{Record, Level, Metadata};
 //!
 //! struct SimpleLogger;
@@ -199,7 +193,7 @@
 //! provide a function that wraps a call to [`set_logger`] and
 //! [`set_max_level`], handling initialization of the logger:
 //!
-//! ```
+//! ```edition2018
 //! # use log::{Level, Metadata};
 //! # struct SimpleLogger;
 //! # impl log::Log for SimpleLogger {
@@ -229,7 +223,7 @@
 //! identical to `set_logger` except that it takes a `Box<Log>` rather than a
 //! `&'static Log`:
 //!
-//! ```
+//! ```edition2018
 //! # use log::{Level, LevelFilter, Log, SetLoggerError, Metadata};
 //! # struct SimpleLogger;
 //! # impl log::Log for SimpleLogger {
@@ -247,7 +241,9 @@
 //!
 //! # Compile time filters
 //!
-//! Log levels can be statically disabled at compile time by enabling one of these Cargo features:
+//! Log levels can be statically disabled at compile time via Cargo features. Log invocations at
+//! disabled levels will be skipped and will not even be present in the resulting binary.
+//! This level is configured separately for release and debug builds. The features are:
 //!
 //! * `max_level_off`
 //! * `max_level_error`
@@ -255,19 +251,15 @@
 //! * `max_level_info`
 //! * `max_level_debug`
 //! * `max_level_trace`
-//!
-//! Log invocations at disabled levels will be skipped and will not even be present in the
-//! resulting binary. These features control the value of the `STATIC_MAX_LEVEL` constant. The
-//! logging macros check this value before logging a message. By default, no levels are disabled.
-//!
-//! It is possible to override this level for release builds only with the following features:
-//!
 //! * `release_max_level_off`
 //! * `release_max_level_error`
 //! * `release_max_level_warn`
 //! * `release_max_level_info`
 //! * `release_max_level_debug`
 //! * `release_max_level_trace`
+//!
+//! These features control the value of the `STATIC_MAX_LEVEL` constant. The logging macros check
+//! this value before logging a message. By default, no levels are disabled.
 //!
 //! Libraries should avoid using the max level features because they're global and can't be changed
 //! once they're set.
@@ -325,14 +317,11 @@
 //! [log-to-defmt]: https://docs.rs/log-to-defmt/*/log_to_defmt/
 //! [console_log]: https://docs.rs/console_log/*/console_log/
 //! [structured-logger]: https://docs.rs/structured-logger/latest/structured_logger/
-//! [logcontrol-log]: https://docs.rs/logcontrol-log/*/logcontrol_log/
-//! [log_err]: https://docs.rs/log_err/*/log_err/
-//! [log-reload]: https://docs.rs/log-reload/*/log_reload/
 
 #![doc(
     html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png",
     html_favicon_url = "https://www.rust-lang.org/favicon.ico",
-    html_root_url = "https://docs.rs/log/0.4.21"
+    html_root_url = "https://docs.rs/log/0.4.20"
 )]
 #![warn(missing_docs)]
 #![deny(missing_debug_implementations, unconditional_recursion)]
@@ -345,17 +334,18 @@
 #[cfg(all(not(feature = "std"), not(test)))]
 extern crate core as std;
 
-use std::cfg;
+use std::cmp;
 #[cfg(feature = "std")]
 use std::error;
+use std::fmt;
+use std::mem;
 use std::str::FromStr;
-use std::{cmp, fmt, mem};
 
 #[macro_use]
 mod macros;
 mod serde;
 
-#[cfg(feature = "kv")]
+#[cfg(feature = "kv_unstable")]
 pub mod kv;
 
 #[cfg(target_has_atomic = "ptr")]
@@ -476,17 +466,26 @@ impl PartialOrd<LevelFilter> for Level {
     }
 }
 
+fn ok_or<T, E>(t: Option<T>, e: E) -> Result<T, E> {
+    match t {
+        Some(t) => Ok(t),
+        None => Err(e),
+    }
+}
+
 impl FromStr for Level {
     type Err = ParseLevelError;
     fn from_str(level: &str) -> Result<Level, Self::Err> {
-        LOG_LEVEL_NAMES
-            .iter()
-            .position(|&name| name.eq_ignore_ascii_case(level))
-            .into_iter()
-            .filter(|&idx| idx != 0)
-            .map(|idx| Level::from_usize(idx).unwrap())
-            .next()
-            .ok_or(ParseLevelError(()))
+        ok_or(
+            LOG_LEVEL_NAMES
+                .iter()
+                .position(|&name| name.eq_ignore_ascii_case(level))
+                .into_iter()
+                .filter(|&idx| idx != 0)
+                .map(|idx| Level::from_usize(idx).unwrap())
+                .next(),
+            ParseLevelError(()),
+        )
     }
 }
 
@@ -588,11 +587,13 @@ impl PartialOrd<Level> for LevelFilter {
 impl FromStr for LevelFilter {
     type Err = ParseLevelError;
     fn from_str(level: &str) -> Result<LevelFilter, Self::Err> {
-        LOG_LEVEL_NAMES
-            .iter()
-            .position(|&name| name.eq_ignore_ascii_case(level))
-            .map(|p| LevelFilter::from_usize(p).unwrap())
-            .ok_or(ParseLevelError(()))
+        ok_or(
+            LOG_LEVEL_NAMES
+                .iter()
+                .position(|&name| name.eq_ignore_ascii_case(level))
+                .map(|p| LevelFilter::from_usize(p).unwrap()),
+            ParseLevelError(()),
+        )
     }
 }
 
@@ -689,7 +690,7 @@ impl<'a> MaybeStaticStr<'a> {
 /// The following example shows a simple logger that displays the level,
 /// module path, and message of any `Record` that is passed to it.
 ///
-/// ```
+/// ```edition2018
 /// struct SimpleLogger;
 ///
 /// impl log::Log for SimpleLogger {
@@ -723,7 +724,7 @@ pub struct Record<'a> {
     module_path: Option<MaybeStaticStr<'a>>,
     file: Option<MaybeStaticStr<'a>>,
     line: Option<u32>,
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     key_values: KeyValues<'a>,
 }
 
@@ -731,11 +732,11 @@ pub struct Record<'a> {
 // `#[derive(Debug)]` on `Record`. It also
 // provides a useful `Debug` implementation for
 // the underlying `Source`.
-#[cfg(feature = "kv")]
+#[cfg(feature = "kv_unstable")]
 #[derive(Clone)]
 struct KeyValues<'a>(&'a dyn kv::Source);
 
-#[cfg(feature = "kv")]
+#[cfg(feature = "kv_unstable")]
 impl<'a> fmt::Debug for KeyValues<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut visitor = f.debug_map();
@@ -796,7 +797,7 @@ impl<'a> Record<'a> {
         self.file.map(|s| s.get())
     }
 
-    /// The source file containing the message, if it is a `'static` string.
+    /// The module path of the message, if it is a `'static` string.
     #[inline]
     pub fn file_static(&self) -> Option<&'static str> {
         match self.file {
@@ -812,14 +813,14 @@ impl<'a> Record<'a> {
     }
 
     /// The structured key-value pairs associated with the message.
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     #[inline]
     pub fn key_values(&self) -> &dyn kv::Source {
         self.key_values.0
     }
 
     /// Create a new [`RecordBuilder`](struct.RecordBuilder.html) based on this record.
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     #[inline]
     pub fn to_builder(&self) -> RecordBuilder {
         RecordBuilder {
@@ -846,7 +847,7 @@ impl<'a> Record<'a> {
 ///
 /// # Examples
 ///
-/// ```
+/// ```edition2018
 /// use log::{Level, Record};
 ///
 /// let record = Record::builder()
@@ -861,7 +862,7 @@ impl<'a> Record<'a> {
 ///
 /// Alternatively, use [`MetadataBuilder`](struct.MetadataBuilder.html):
 ///
-/// ```
+/// ```edition2018
 /// use log::{Record, Level, MetadataBuilder};
 ///
 /// let error_metadata = MetadataBuilder::new()
@@ -904,8 +905,8 @@ impl<'a> RecordBuilder<'a> {
                 module_path: None,
                 file: None,
                 line: None,
-                #[cfg(feature = "kv")]
-                key_values: KeyValues(&None::<(kv::Key, kv::Value)>),
+                #[cfg(feature = "kv_unstable")]
+                key_values: KeyValues(&Option::None::<(kv::Key, kv::Value)>),
             },
         }
     }
@@ -974,7 +975,7 @@ impl<'a> RecordBuilder<'a> {
     }
 
     /// Set [`key_values`](struct.Record.html#method.key_values)
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     #[inline]
     pub fn key_values(&mut self, kvs: &'a dyn kv::Source) -> &mut RecordBuilder<'a> {
         self.record.key_values = KeyValues(kvs);
@@ -1012,7 +1013,7 @@ impl<'a> Default for RecordBuilder<'a> {
 ///
 /// # Examples
 ///
-/// ```
+/// ```edition2018
 /// use log::{Record, Level, Metadata};
 ///
 /// struct MyLogger;
@@ -1066,7 +1067,7 @@ impl<'a> Metadata<'a> {
 ///
 /// # Example
 ///
-/// ```
+/// ```edition2018
 /// let target = "myApp";
 /// use log::{Level, MetadataBuilder};
 /// let metadata = MetadataBuilder::new()
@@ -1190,10 +1191,10 @@ where
     }
 
     fn log(&self, record: &Record) {
-        self.as_ref().log(record);
+        self.as_ref().log(record)
     }
     fn flush(&self) {
-        self.as_ref().flush();
+        self.as_ref().flush()
     }
 }
 
@@ -1207,10 +1208,10 @@ where
     }
 
     fn log(&self, record: &Record) {
-        self.as_ref().log(record);
+        self.as_ref().log(record)
     }
     fn flush(&self) {
-        self.as_ref().flush();
+        self.as_ref().flush()
     }
 }
 
@@ -1316,7 +1317,7 @@ pub fn set_boxed_logger(logger: Box<dyn Log>) -> Result<(), SetLoggerError> {
 ///
 /// # Examples
 ///
-/// ```
+/// ```edition2018
 /// use log::{error, info, warn, Record, Level, Metadata, LevelFilter};
 ///
 /// static MY_LOGGER: MyLogger = MyLogger;
@@ -1457,15 +1458,7 @@ impl error::Error for ParseLevelError {}
 ///
 /// If a logger has not been set, a no-op implementation is returned.
 pub fn logger() -> &'static dyn Log {
-    // Acquire memory ordering guarantees that current thread would see any
-    // memory writes that happened before store of the value
-    // into `STATE` with memory ordering `Release` or stronger.
-    //
-    // Since the value `INITIALIZED` is written only after `LOGGER` was
-    // initialized, observing it after `Acquire` load here makes both
-    // write to the `LOGGER` static and initialization of the logger
-    // internal state synchronized with current thread.
-    if STATE.load(Ordering::Acquire) != INITIALIZED {
+    if STATE.load(Ordering::SeqCst) != INITIALIZED {
         static NOP: NopLogger = NopLogger;
         &NOP
     } else {
@@ -1486,24 +1479,67 @@ pub mod __private_api;
 /// should compare the level against this value.
 ///
 /// [`logger`]: fn.logger.html
-pub const STATIC_MAX_LEVEL: LevelFilter = match cfg!(debug_assertions) {
-    false if cfg!(feature = "release_max_level_off") => LevelFilter::Off,
-    false if cfg!(feature = "release_max_level_error") => LevelFilter::Error,
-    false if cfg!(feature = "release_max_level_warn") => LevelFilter::Warn,
-    false if cfg!(feature = "release_max_level_info") => LevelFilter::Info,
-    false if cfg!(feature = "release_max_level_debug") => LevelFilter::Debug,
-    false if cfg!(feature = "release_max_level_trace") => LevelFilter::Trace,
-    _ if cfg!(feature = "max_level_off") => LevelFilter::Off,
-    _ if cfg!(feature = "max_level_error") => LevelFilter::Error,
-    _ if cfg!(feature = "max_level_warn") => LevelFilter::Warn,
-    _ if cfg!(feature = "max_level_info") => LevelFilter::Info,
-    _ if cfg!(feature = "max_level_debug") => LevelFilter::Debug,
-    _ => LevelFilter::Trace,
-};
+pub const STATIC_MAX_LEVEL: LevelFilter = MAX_LEVEL_INNER;
+
+const MAX_LEVEL_INNER: LevelFilter = get_max_level_inner();
+
+const fn get_max_level_inner() -> LevelFilter {
+    #[allow(unreachable_code)]
+    {
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_off"))]
+        {
+            return LevelFilter::Off;
+        }
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_error"))]
+        {
+            return LevelFilter::Error;
+        }
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_warn"))]
+        {
+            return LevelFilter::Warn;
+        }
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_info"))]
+        {
+            return LevelFilter::Info;
+        }
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_debug"))]
+        {
+            return LevelFilter::Debug;
+        }
+        #[cfg(all(not(debug_assertions), feature = "release_max_level_trace"))]
+        {
+            return LevelFilter::Trace;
+        }
+        #[cfg(feature = "max_level_off")]
+        {
+            return LevelFilter::Off;
+        }
+        #[cfg(feature = "max_level_error")]
+        {
+            return LevelFilter::Error;
+        }
+        #[cfg(feature = "max_level_warn")]
+        {
+            return LevelFilter::Warn;
+        }
+        #[cfg(feature = "max_level_info")]
+        {
+            return LevelFilter::Info;
+        }
+        #[cfg(feature = "max_level_debug")]
+        {
+            return LevelFilter::Debug;
+        }
+
+        LevelFilter::Trace
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    use super::{Level, LevelFilter, ParseLevelError, STATIC_MAX_LEVEL};
+    extern crate std;
+    use super::{Level, LevelFilter, ParseLevelError};
+    use tests::std::string::ToString;
 
     #[test]
     fn test_levelfilter_from_str() {
@@ -1617,54 +1653,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg_attr(not(debug_assertions), ignore)]
-    fn test_static_max_level_debug() {
-        if cfg!(feature = "max_level_off") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Off);
-        } else if cfg!(feature = "max_level_error") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Error);
-        } else if cfg!(feature = "max_level_warn") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Warn);
-        } else if cfg!(feature = "max_level_info") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Info);
-        } else if cfg!(feature = "max_level_debug") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Debug);
-        } else {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Trace);
-        }
-    }
-
-    #[test]
-    #[cfg_attr(debug_assertions, ignore)]
-    fn test_static_max_level_release() {
-        if cfg!(feature = "release_max_level_off") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Off);
-        } else if cfg!(feature = "release_max_level_error") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Error);
-        } else if cfg!(feature = "release_max_level_warn") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Warn);
-        } else if cfg!(feature = "release_max_level_info") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Info);
-        } else if cfg!(feature = "release_max_level_debug") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Debug);
-        } else if cfg!(feature = "release_max_level_trace") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Trace);
-        } else if cfg!(feature = "max_level_off") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Off);
-        } else if cfg!(feature = "max_level_error") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Error);
-        } else if cfg!(feature = "max_level_warn") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Warn);
-        } else if cfg!(feature = "max_level_info") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Info);
-        } else if cfg!(feature = "max_level_debug") {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Debug);
-        } else {
-            assert_eq!(STATIC_MAX_LEVEL, LevelFilter::Trace);
-        }
-    }
-
-    #[test]
     #[cfg(feature = "std")]
     fn test_error_trait() {
         use super::SetLoggerError;
@@ -1757,16 +1745,16 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     fn test_record_key_values_builder() {
         use super::Record;
-        use crate::kv::{self, VisitSource};
+        use kv::{self, Visitor};
 
-        struct TestVisitSource {
+        struct TestVisitor {
             seen_pairs: usize,
         }
 
-        impl<'kvs> VisitSource<'kvs> for TestVisitSource {
+        impl<'kvs> Visitor<'kvs> for TestVisitor {
             fn visit_pair(
                 &mut self,
                 _: kv::Key<'kvs>,
@@ -1780,7 +1768,7 @@ mod tests {
         let kvs: &[(&str, i32)] = &[("a", 1), ("b", 2)];
         let record_test = Record::builder().key_values(&kvs).build();
 
-        let mut visitor = TestVisitSource { seen_pairs: 0 };
+        let mut visitor = TestVisitor { seen_pairs: 0 };
 
         record_test.key_values().visit(&mut visitor).unwrap();
 
@@ -1788,7 +1776,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "kv")]
+    #[cfg(feature = "kv_unstable")]
     fn test_record_key_values_get_coerce() {
         use super::Record;
 

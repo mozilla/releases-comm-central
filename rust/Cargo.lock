@@ -1465,8 +1465,9 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=9df4d168969dc2df91bb64d41dafa184ace5630d#9df4d168969dc2df91bb64d41dafa184ace5630d"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=cad3dd7d0763ddfeb336481fd2ba0c5632c932f5#cad3dd7d0763ddfeb336481fd2ba0c5632c932f5"
 dependencies = [
+ "log",
  "quick-xml",
  "serde",
  "thiserror",
@@ -2839,9 +2840,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.20"
+version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 
 [[package]]
 name = "mach"

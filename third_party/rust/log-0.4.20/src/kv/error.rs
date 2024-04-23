@@ -11,8 +11,7 @@ enum Inner {
     #[cfg(feature = "std")]
     Boxed(std_support::BoxedError),
     Msg(&'static str),
-    #[cfg(feature = "value-bag")]
-    Value(crate::kv::value::inner::Error),
+    Value(value_bag::Error),
     Fmt,
 }
 
@@ -24,23 +23,21 @@ impl Error {
         }
     }
 
-    // Not public so we don't leak the `crate::kv::value::inner` API
-    #[cfg(feature = "value-bag")]
-    pub(super) fn from_value(err: crate::kv::value::inner::Error) -> Self {
+    // Not public so we don't leak the `value_bag` API
+    pub(super) fn from_value(err: value_bag::Error) -> Self {
         Error {
             inner: Inner::Value(err),
         }
     }
 
-    // Not public so we don't leak the `crate::kv::value::inner` API
-    #[cfg(feature = "value-bag")]
-    pub(super) fn into_value(self) -> crate::kv::value::inner::Error {
+    // Not public so we don't leak the `value_bag` API
+    pub(super) fn into_value(self) -> value_bag::Error {
         match self.inner {
             Inner::Value(err) => err,
-            #[cfg(feature = "kv_std")]
-            _ => crate::kv::value::inner::Error::boxed(self),
-            #[cfg(not(feature = "kv_std"))]
-            _ => crate::kv::value::inner::Error::msg("error inspecting a value"),
+            #[cfg(feature = "kv_unstable_std")]
+            _ => value_bag::Error::boxed(self),
+            #[cfg(not(feature = "kv_unstable_std"))]
+            _ => value_bag::Error::msg("error inspecting a value"),
         }
     }
 }
@@ -50,11 +47,10 @@ impl fmt::Display for Error {
         use self::Inner::*;
         match &self.inner {
             #[cfg(feature = "std")]
-            Boxed(err) => err.fmt(f),
-            #[cfg(feature = "value-bag")]
-            Value(err) => err.fmt(f),
-            Msg(msg) => msg.fmt(f),
-            Fmt => fmt::Error.fmt(f),
+            &Boxed(ref err) => err.fmt(f),
+            &Value(ref err) => err.fmt(f),
+            &Msg(ref msg) => msg.fmt(f),
+            &Fmt => fmt::Error.fmt(f),
         }
     }
 }

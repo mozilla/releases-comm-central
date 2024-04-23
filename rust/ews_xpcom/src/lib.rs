@@ -167,7 +167,7 @@ impl Future for &AuthStringListener {
                 // by immutable reference, so we're stuck getting a ref to the
                 // `Result` and cloning.
                 std::task::Poll::Ready(result.clone())
-            },
+            }
             None => {
                 self.waker.replace(Some(cx.waker().clone()));
                 std::task::Poll::Pending

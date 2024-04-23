@@ -35,20 +35,42 @@ pub struct ItemShape {
 #[derive(Debug, Default, XmlSerialize)]
 #[xml_struct(text)]
 pub enum BaseShape {
+    /// Only the IDs of any items or folders returned.
     IdOnly,
 
+    /// The default set of properties for the relevant item or folder.
+    ///
+    /// The properties returned are dependent on the type of item or folder. See
+    /// the EWS documentation for details.
     #[default]
     Default,
 
+    /// All properties of an item or folder.
     AllProperties,
 }
 
-/// Attribute to a response message describing a response status.
+/// The success/failure status of an operation.
 #[derive(Debug, Deserialize, PartialEq)]
 pub enum ResponseClass {
     Success,
     Warning,
     Error,
+}
+
+/// An error code describing the error encountered in processing a request, if
+/// any.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsecode>
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct ResponseCode(pub String);
+
+impl<T> From<T> for ResponseCode
+where
+    T: ToString,
+{
+    fn from(value: T) -> Self {
+        Self(value.to_string())
+    }
 }
 
 /// An identifier for a remote folder.
@@ -159,4 +181,23 @@ pub enum Folder {
         total_count: Option<u32>,
         child_folder_count: Option<u32>,
     },
+}
+
+/// Structured data for diagnosing or responding to an EWS error.
+///
+/// Because the possible contents of this field are not documented, any XML
+/// contained in the field is provided as text for debugging purposes. Known
+/// fields which are relevant for programmatic error responses should be
+/// provided as additional fields of this structure.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/messagexml>
+#[derive(Debug, PartialEq)]
+#[non_exhaustive]
+pub struct MessageXml {
+    /// A text representation of the contents of the field.
+    pub content: String,
+
+    /// The duration in milliseconds to wait before making additional requests
+    /// if the server is throttling operations.
+    pub back_off_milliseconds: Option<usize>,
 }
