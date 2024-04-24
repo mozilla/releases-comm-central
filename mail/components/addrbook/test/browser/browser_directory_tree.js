@@ -63,7 +63,7 @@ add_task(async function test_additions_and_removals() {
 
   // Check the initial order.
 
-  checkDirectoryDisplayed(null);
+  await checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }
@@ -72,7 +72,7 @@ add_task(async function test_additions_and_removals() {
   // Add one book, *not* using the UI, and check that we don't move to it.
 
   const newBook1 = createAddressBook("New Book 1");
-  checkDirectoryDisplayed(null);
+  await checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1 },
@@ -82,7 +82,7 @@ add_task(async function test_additions_and_removals() {
   // Add another book, using the UI, and check that we move to the new book.
 
   const newBook2 = await createAddressBookWithUI("New Book 2");
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1 },
@@ -94,7 +94,7 @@ add_task(async function test_additions_and_removals() {
 
   const list1 = newBook1.addMailList(createMailingList("New Book 1 - List 1"));
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -105,7 +105,7 @@ add_task(async function test_additions_and_removals() {
 
   const list3 = newBook1.addMailList(createMailingList("New Book 1 - List 3"));
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -117,7 +117,7 @@ add_task(async function test_additions_and_removals() {
 
   const list0 = newBook1.addMailList(createMailingList("New Book 1 - List 0"));
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -130,7 +130,7 @@ add_task(async function test_additions_and_removals() {
 
   const list2 = newBook1.addMailList(createMailingList("New Book 1 - List 2"));
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -147,7 +147,7 @@ add_task(async function test_additions_and_removals() {
   await closeAddressBookWindow();
   abWindow = await openAddressBookWindow();
 
-  checkDirectoryDisplayed(null);
+  await checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -159,10 +159,10 @@ add_task(async function test_additions_and_removals() {
     { level: 1, directory: historyBook }
   );
 
-  openDirectory(newBook2);
+  await openDirectory(newBook2);
 
   const list4 = newBook2.addMailList(createMailingList("New Book 2 - List 4"));
-  checkDirectoryDisplayed(newBook2);
+  await checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -178,7 +178,7 @@ add_task(async function test_additions_and_removals() {
   // Add a new list, using the UI, and check that we move to it.
 
   const list5 = await createMailingListWithUI(newBook2, "New Book 2 - List 5");
-  checkDirectoryDisplayed(list5);
+  await checkDirectoryDisplayed(list5);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -193,7 +193,7 @@ add_task(async function test_additions_and_removals() {
   );
 
   const list6 = await createMailingListWithUI(newBook2, "New Book 2 - List 6");
-  checkDirectoryDisplayed(list6);
+  await checkDirectoryDisplayed(list6);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -211,7 +211,7 @@ add_task(async function test_additions_and_removals() {
 
   newBook1.deleteDirectory(list3);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(list6);
+  await checkDirectoryDisplayed(list6);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -232,14 +232,14 @@ add_task(async function test_additions_and_removals() {
     {},
     abWindow
   );
-  checkDirectoryDisplayed(list5);
+  await checkDirectoryDisplayed(list5);
 
   // Delete the displayed list, and check that we move to the next list under
   // the same book.
 
   newBook2.deleteDirectory(list5);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(list6);
+  await checkDirectoryDisplayed(list6);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -256,7 +256,7 @@ add_task(async function test_additions_and_removals() {
   // book.
   newBook2.deleteDirectory(list6);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(list4);
+  await checkDirectoryDisplayed(list4);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -272,7 +272,7 @@ add_task(async function test_additions_and_removals() {
 
   await promiseDirectoryRemoved(newBook2.URI);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(historyBook);
+  await checkDirectoryDisplayed(historyBook);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -285,10 +285,10 @@ add_task(async function test_additions_and_removals() {
   // Select a list in the first book, then delete the book. Check that we
   // move to the next book.
 
-  openDirectory(list1);
+  await openDirectory(list1);
   await promiseDirectoryRemoved(newBook1.URI);
   await new Promise(r => abWindow.setTimeout(r));
-  checkDirectoryDisplayed(historyBook);
+  await checkDirectoryDisplayed(historyBook);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }
@@ -814,11 +814,11 @@ add_task(async function test_startup_directory() {
   // No changes should be made to the prefs.
 
   let abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed();
+  await checkDirectoryDisplayed();
   await checkMenuItem(0, true);
   await checkMenuItem(1, false);
   await checkMenuItem(2, false);
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   await closeAddressBookWindow();
   Assert.ok(!Services.prefs.prefHasUserValue(URI_PREF));
 
@@ -826,23 +826,23 @@ add_task(async function test_startup_directory() {
   // The last-used book should be saved.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed();
+  await checkDirectoryDisplayed();
   await checkMenuItem(0, true);
   await checkMenuItem(1, false);
   await checkMenuItem(2, false);
   Services.prefs.setBoolPref(DEFAULT_PREF, false);
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   await closeAddressBookWindow();
   Assert.equal(Services.prefs.getStringPref(URI_PREF), personalBook.URI);
 
   // The last-used book should open.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed(personalBook);
+  await checkDirectoryDisplayed(personalBook);
   await checkMenuItem(0, false);
   await checkMenuItem(1, false);
   await checkMenuItem(2, false);
-  openDirectory(historyBook);
+  await openDirectory(historyBook);
   await closeAddressBookWindow();
   Assert.equal(Services.prefs.getStringPref(URI_PREF), historyBook.URI);
 
@@ -850,11 +850,11 @@ add_task(async function test_startup_directory() {
   // We'll set a default directory again.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed(historyBook);
+  await checkDirectoryDisplayed(historyBook);
   await checkMenuItem(0, false);
   await checkMenuItem(1, false);
   await checkMenuItem(2, false, true);
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   await closeAddressBookWindow();
   Assert.ok(Services.prefs.getBoolPref(DEFAULT_PREF));
   Assert.equal(Services.prefs.getStringPref(URI_PREF), historyBook.URI);
@@ -862,7 +862,7 @@ add_task(async function test_startup_directory() {
   // Check that the saved default opens. Change the default.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed(historyBook);
+  await checkDirectoryDisplayed(historyBook);
   await checkMenuItem(0, false);
   await checkMenuItem(2, true);
   await checkMenuItem(1, false, true);
@@ -873,7 +873,7 @@ add_task(async function test_startup_directory() {
   // Check that the saved default opens. Change the default to All Address Books.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed(personalBook);
+  await checkDirectoryDisplayed(personalBook);
   await checkMenuItem(1, true);
   await checkMenuItem(2, false);
   await checkMenuItem(0, false, true);
@@ -884,7 +884,7 @@ add_task(async function test_startup_directory() {
   // Check that the saved default opens. Clear the default.
 
   abWindow = await openAddressBookWindow();
-  checkDirectoryDisplayed();
+  await checkDirectoryDisplayed();
   await checkMenuItem(1, false);
   await checkMenuItem(2, false);
   await checkMenuItem(0, true, true);

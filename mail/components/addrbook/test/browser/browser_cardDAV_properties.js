@@ -49,7 +49,7 @@ add_task(async () => {
   const abDocument = abWindow.document;
   const booksList = abWindow.booksList;
 
-  openDirectory(directory);
+  await openDirectory(directory);
 
   Assert.equal(booksList.rowCount, 4);
   Assert.equal(booksList.getIndexForUID(directory.UID), 2);

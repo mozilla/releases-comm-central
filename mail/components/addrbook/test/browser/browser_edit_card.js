@@ -755,7 +755,7 @@ add_task(async function test_basic_edit() {
   book.addCard(createContact("contact", "1"));
 
   const abWindow = await openAddressBookWindow();
-  openDirectory(book);
+  await openDirectory(book);
 
   const abDocument = abWindow.document;
   const booksList = abDocument.getElementById("books");
@@ -1165,7 +1165,7 @@ add_task(async function test_special_fields() {
   let abDocument = abWindow.document;
   let createContactButton = abDocument.getElementById("toolbarCreateContact");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -1203,7 +1203,7 @@ add_task(async function test_special_fields() {
   abDocument = abWindow.document;
   createContactButton = abDocument.getElementById("toolbarCreateContact");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -1240,7 +1240,7 @@ add_task(async function test_generate_display_name() {
   const cancelEditButton = abDocument.getElementById("cancelEditButton");
   const saveEditButton = abDocument.getElementById("saveEditButton");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -1392,7 +1392,7 @@ add_task(async function test_prefer_display_name() {
   // Make a new card. Check the default value is true.
   // The display name shouldn't be affected by first and last name if the field
   // is not empty.
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
 
   checkInputValues({ DisplayName: "", PreferDisplayName: true });
@@ -1511,7 +1511,7 @@ add_task(async function test_toolbar_state() {
 
 add_task(async function test_delete_button() {
   const abWindow = await openAddressBookWindow();
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
 
   const abDocument = abWindow.document;
   const searchInput = abDocument.getElementById("searchInput");
@@ -1594,7 +1594,7 @@ add_task(async function test_delete_button() {
   list.addCard(listContact);
   await new Promise(resolve => abWindow.setTimeout(resolve));
 
-  openDirectory(list);
+  await openDirectory(list);
   Assert.equal(cardsList.view.rowCount, 1);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
@@ -1695,7 +1695,7 @@ add_task(async function test_name_fields() {
   book.addCard(createContact("contact2", "lastname2"));
 
   const abWindow = await openAddressBookWindow();
-  openDirectory(book);
+  await openDirectory(book);
 
   const abDocument = abWindow.document;
   const cardsList = abDocument.getElementById("cards");
@@ -2034,7 +2034,7 @@ add_task(async function test_email_fields() {
   book.addCard(createContact("contact2", "lastname2"));
 
   const abWindow = await openAddressBookWindow();
-  openDirectory(book);
+  await openDirectory(book);
 
   const abDocument = abWindow.document;
   const cardsList = abDocument.getElementById("cards");
@@ -2364,7 +2364,7 @@ add_task(async function test_vCard_fields() {
   const contact2 = createContact("contact2", "lastname");
   book.addCard(contact2);
 
-  openDirectory(book);
+  await openDirectory(book);
 
   const cardsList = abDocument.getElementById("cards");
   const searchInput = abDocument.getElementById("searchInput");
@@ -2886,7 +2886,7 @@ add_task(async function test_vCard_minimal() {
 
   const createContactButton = abDocument.getElementById("toolbarCreateContact");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -2942,7 +2942,7 @@ add_task(async function test_type_selection() {
   const contact1 = createContact("contact1", "lastname");
   book.addCard(contact1);
 
-  openDirectory(book);
+  await openDirectory(book);
 
   const editButton = abDocument.getElementById("editButton");
   const saveEditButton = abDocument.getElementById("saveEditButton");
@@ -3097,7 +3097,7 @@ add_task(async function test_support_types_uppercase() {
 `)
   );
 
-  openDirectory(book);
+  await openDirectory(book);
 
   // First open the edit and check that the values are shown.
   // Do not change anything.
@@ -3183,7 +3183,7 @@ add_task(async function test_special_date_field() {
 
   const createContactButton = abDocument.getElementById("toolbarCreateContact");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -3369,7 +3369,7 @@ add_task(async function testGoogleEscaping() {
   const cardsList = abDocument.getElementById("cards");
   const detailsPane = abDocument.getElementById("detailsPane");
 
-  openDirectory(googleBook);
+  await openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await editContactAtIndex(0, {});
@@ -3416,7 +3416,7 @@ add_task(async function testNickname() {
   const cardsList = abDocument.getElementById("cards");
   const detailsPane = abDocument.getElementById("detailsPane");
 
-  openDirectory(book);
+  await openDirectory(book);
   Assert.equal(cardsList.view.rowCount, 1);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await editContactAtIndex(0, {});
@@ -3440,7 +3440,7 @@ add_task(async function test_remove_button() {
   const contact1 = createContact("contact1", "lastname");
   book.addCard(contact1);
 
-  openDirectory(book);
+  await openDirectory(book);
 
   await editContactAtIndex(0, {});
   const detailsPane = abDocument.getElementById("detailsPane");

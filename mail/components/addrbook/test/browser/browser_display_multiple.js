@@ -40,7 +40,7 @@ add_setup(async function () {
 
 add_task(async function testSelectMultiple() {
   const abWindow = await openAddressBookWindow();
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
 
   const abDocument = abWindow.document;
   const cardsList = abDocument.getElementById("cards");

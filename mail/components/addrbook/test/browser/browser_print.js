@@ -33,7 +33,7 @@ add_setup(async function () {
 add_task(async function testFileMenuBooks() {
   const abWindow = getAddressBookWindow();
 
-  openAllAddressBooks();
+  await openAllAddressBooks();
   abWindow.booksList.focus();
 
   await printFromFileMenu();
@@ -68,7 +68,7 @@ add_task(async function testFileMenuCards() {
   const abWindow = getAddressBookWindow();
   const cardsList = abWindow.cardsPane.cardsList;
 
-  openAllAddressBooks();
+  await openAllAddressBooks();
   cardsList.focus();
 
   await printFromFileMenu();
@@ -88,7 +88,7 @@ add_task(async function testCardsContext() {
   const abWindow = getAddressBookWindow();
   const cardsList = abWindow.cardsPane.cardsList;
 
-  openAllAddressBooks();
+  await openAllAddressBooks();
 
   await showCardsContext(0, "cardContextPrint");
   await checkPrintPreview(contactA);

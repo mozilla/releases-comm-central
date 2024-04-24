@@ -276,7 +276,7 @@ add_task(async function test_drop_on_books_list() {
   checkCardsInDirectory(destList);
 
   Assert.equal(booksList.rowCount, 7);
-  openDirectory(sourceBook);
+  await openDirectory(sourceBook);
 
   // Check drag effect set correctly for dragging a card.
 
@@ -395,7 +395,7 @@ add_task(async function test_drop_on_books_list() {
   // This test doesn't actually catch the bug it was written for, but maybe
   // one day it will catch something.
 
-  openDirectory(destBook);
+  await openDirectory(destBook);
   Assert.equal(cardsList.view.rowCount, 3);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   doDragToBooksList(0, 2, {}, "none");

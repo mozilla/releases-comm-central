@@ -65,14 +65,27 @@ registerCleanupFunction(function () {
   });
 });
 
+async function waitForCardsListReady(list) {
+  Assert.ok(list, "The cardList should exists after opening an address book.");
+  if (list.isReady) {
+    return;
+  }
+  const eventName = "_treerowbufferfillAbListReady";
+  list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+  await BrowserTestUtils.waitForEvent(list, eventName);
+}
+
 async function openAddressBookWindow() {
-  return new Promise(resolve => {
+  const abWindow = await new Promise(resolve => {
     window.openTab("addressBookTab", {
       onLoad(event, browser) {
         resolve(browser.contentWindow);
       },
     });
   });
+  const cardsList = abWindow.cardsPane.cardsList;
+  await waitForCardsListReady(cardsList);
+  return abWindow;
 }
 
 function closeAddressBookWindow() {
@@ -102,13 +115,16 @@ async function openAllAddressBooks() {
     {},
     abWindow
   );
-  await new Promise(r => abWindow.setTimeout(r));
+  const cardsList = abWindow.cardsPane.cardsList;
+  await waitForCardsListReady(cardsList);
 }
 
-function openDirectory(directory) {
+async function openDirectory(directory) {
   const abWindow = getAddressBookWindow();
   const row = abWindow.booksList.getRowForUID(directory.UID);
   EventUtils.synthesizeMouseAtCenter(row.querySelector("span"), {}, abWindow);
+  const cardsList = abWindow.cardsPane.cardsList;
+  await waitForCardsListReady(cardsList);
 }
 
 function createAddressBook(dirName, type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
@@ -166,7 +182,7 @@ function createMailingList(name) {
 }
 
 async function createMailingListWithUI(mlParent, mlName) {
-  openDirectory(mlParent);
+  await openDirectory(mlParent);
 
   const newAddressBookPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
@@ -197,10 +213,11 @@ async function createMailingListWithUI(mlParent, mlName) {
   return list;
 }
 
-function checkDirectoryDisplayed(directory) {
+async function checkDirectoryDisplayed(directory) {
   const abWindow = getAddressBookWindow();
   const booksList = abWindow.document.getElementById("books");
   const cardsList = abWindow.cardsPane.cardsList;
+  await waitForCardsListReady(cardsList);
 
   if (directory) {
     Assert.equal(
@@ -214,8 +231,8 @@ function checkDirectoryDisplayed(directory) {
   }
 }
 
-function checkCardsListed(...expectedCards) {
-  checkNamesListed(
+async function checkCardsListed(...expectedCards) {
+  await checkNamesListed(
     ...expectedCards.map(card =>
       card.isMailList ? card.dirName : card.displayName
     )
@@ -223,6 +240,7 @@ function checkCardsListed(...expectedCards) {
 
   const abWindow = getAddressBookWindow();
   const cardsList = abWindow.document.getElementById("cards");
+  await waitForCardsListReady(cardsList);
   for (let i = 0; i < expectedCards.length; i++) {
     const row = cardsList.getRowAtIndex(i);
     Assert.equal(
@@ -245,10 +263,11 @@ function checkCardsListed(...expectedCards) {
   }
 }
 
-function checkNamesListed(...expectedNames) {
+async function checkNamesListed(...expectedNames) {
   const abWindow = getAddressBookWindow();
   const cardsList = abWindow.document.getElementById("cards");
   const expectedCount = expectedNames.length;
+  await waitForCardsListReady(cardsList);
 
   Assert.equal(
     cardsList.view.rowCount,
@@ -271,9 +290,11 @@ function checkNamesListed(...expectedNames) {
   }
 }
 
-function checkPlaceholders(expectedVisible = []) {
+async function checkPlaceholders(expectedVisible = []) {
   const abWindow = getAddressBookWindow();
-  const placeholder = abWindow.cardsPane.cardsList.placeholder;
+  const cardsList = abWindow.document.getElementById("cards");
+  const placeholder = cardsList.placeholder;
+  await waitForCardsListReady(cardsList);
 
   if (!expectedVisible.length) {
     Assert.ok(
@@ -377,8 +398,10 @@ async function doSearch(searchString, ...expectedCards) {
   }
 
   await viewChangePromise;
-  checkCardsListed(...expectedCards);
-  checkPlaceholders(expectedCards.length ? [] : ["placeholderNoSearchResults"]);
+  await checkCardsListed(...expectedCards);
+  await checkPlaceholders(
+    expectedCards.length ? [] : ["placeholderNoSearchResults"]
+  );
 }
 
 /**

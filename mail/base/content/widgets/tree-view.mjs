@@ -115,6 +115,9 @@ class TreeView extends HTMLElement {
    */
   #bufferFillIdleCallbackHandle = null;
 
+  get isReady() {
+    return !this.#bufferFillIdleCallbackHandle;
+  }
   /**
    * The virtualized table containing our rows.
    *

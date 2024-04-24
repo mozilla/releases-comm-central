@@ -67,7 +67,7 @@ add_task(async function testCreateCard() {
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const deleteButton = abDocument.getElementById("detailsDeleteButton");
 
-  openDirectory(book);
+  await openDirectory(book);
 
   // First, create a new contact.
 
@@ -166,7 +166,7 @@ add_task(async function testCreateCardWithUIDChange() {
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const deleteButton = abDocument.getElementById("detailsDeleteButton");
 
-  openDirectory(book);
+  await openDirectory(book);
 
   // First, create a new contact.
 
@@ -256,7 +256,7 @@ add_task(async function testModificationUpdatesUI() {
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const cancelEditButton = abDocument.getElementById("cancelEditButton");
 
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
   Assert.equal(cardsList.view.rowCount, 1);
 
   // Display a card.

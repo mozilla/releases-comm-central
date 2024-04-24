@@ -100,7 +100,7 @@ add_setup(async function () {
  */
 add_task(async function testDisplay() {
   const abWindow = await openAddressBookWindow();
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
 
   const abDocument = abWindow.document;
   const cardsList = abDocument.getElementById("cards");
@@ -621,7 +621,7 @@ add_task(async function testReadOnlyActions() {
 
   // Check contacts with the book displayed.
 
-  openDirectory(readOnlyBook);
+  await openDirectory(readOnlyBook);
   Assert.equal(cardsList.view.rowCount, 3);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
@@ -719,7 +719,7 @@ add_task(async function testReadOnlyActions() {
 
   // Check contacts with the list displayed.
 
-  openDirectory(readOnlyList);
+  await openDirectory(readOnlyList);
   Assert.equal(cardsList.view.rowCount, 1);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
@@ -732,7 +732,7 @@ add_task(async function testReadOnlyActions() {
 
   // Check contacts with All Address Books displayed.
 
-  openAllAddressBooks();
+  await openAllAddressBooks();
   Assert.equal(cardsList.view.rowCount, 6);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
@@ -805,7 +805,7 @@ add_task(async function testGoogleEscaping() {
   const otherInfoSection = abDocument.getElementById("otherInfo");
   const selectedCardsSection = abDocument.getElementById("selectedCards");
 
-  openDirectory(googleBook);
+  await openDirectory(googleBook);
   Assert.equal(cardsList.view.rowCount, 1);
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 

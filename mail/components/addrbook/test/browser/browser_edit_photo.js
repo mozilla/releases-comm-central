@@ -208,7 +208,7 @@ function setInputValues(changes) {
 
 add_setup(async function () {
   await openAddressBookWindow();
-  openDirectory(personalBook);
+  await openDirectory(personalBook);
 });
 
 registerCleanupFunction(async function cleanUp() {
@@ -230,7 +230,7 @@ async function subtest_add_photo(book) {
   const dialog = abWindow.document.getElementById("photoDialog");
   const { saveButton } = dialog;
 
-  openDirectory(book);
+  await openDirectory(book);
 
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
@@ -446,7 +446,7 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
   const dialog = abWindow.document.getElementById("photoDialog");
   const { discardButton } = dialog;
 
-  openDirectory(book);
+  await openDirectory(book);
 
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.ok(

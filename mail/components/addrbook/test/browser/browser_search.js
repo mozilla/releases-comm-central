@@ -48,7 +48,7 @@ add_task(async () => {
 
   // All address books.
 
-  checkCardsListed(
+  await checkCardsListed(
     cards.daniel,
     cards.danielle,
     cards.jonathan,
@@ -57,22 +57,22 @@ add_task(async () => {
     cards.nathan,
     cards.susanah
   );
-  checkPlaceholders();
+  await checkPlaceholders();
 
   // Personal address book.
 
-  openDirectory(personalBook);
-  checkCardsListed(cards.daniel, cards.jonathan, cards.nathan);
-  checkPlaceholders();
+  await openDirectory(personalBook);
+  await checkCardsListed(cards.daniel, cards.jonathan, cards.nathan);
+  await checkPlaceholders();
 
   await doSearch("daniel", cards.daniel);
   await doSearch("nathan", cards.jonathan, cards.nathan);
 
   // History address book.
 
-  openDirectory(historyBook);
-  checkCardsListed();
-  checkPlaceholders(["placeholderNoSearchResults"]);
+  await openDirectory(historyBook);
+  await checkCardsListed();
+  await checkPlaceholders(["placeholderNoSearchResults"]);
 
   await doSearch(
     null,
@@ -87,9 +87,9 @@ add_task(async () => {
 
   // All address books.
 
-  openAllAddressBooks();
-  checkCardsListed(cards.jonathan, cards.nathan);
-  checkPlaceholders();
+  await openAllAddressBooks();
+  await checkCardsListed(cards.jonathan, cards.nathan);
+  await checkPlaceholders();
 
   await doSearch(
     null,

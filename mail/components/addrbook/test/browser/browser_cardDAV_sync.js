@@ -50,8 +50,8 @@ add_task(async () => {
   // This test becomes unreliable if we don't pause for a moment.
   await new Promise(resolve => abWindow.setTimeout(resolve, 500));
 
-  openDirectory(directory);
-  checkNamesListed();
+  await openDirectory(directory);
+  await checkNamesListed();
 
   const menu = abDocument.getElementById("bookContext");
   const menuItem = abDocument.getElementById("bookContextSynchronize");
@@ -90,7 +90,7 @@ add_task(async () => {
   Assert.notEqual(davDirectory._syncTimer, null, "first sync scheduled");
   let currentSyncTimer = davDirectory._syncTimer;
 
-  checkNamesListed("First");
+  await checkNamesListed("First");
 
   CardDAVServer.putCardInternal(
     "second.vcf",
@@ -110,7 +110,7 @@ add_task(async () => {
   );
   currentSyncTimer = davDirectory._syncTimer;
 
-  checkNamesListed("First", "Second");
+  await checkNamesListed("First", "Second");
 
   CardDAVServer.deleteCardInternal("second.vcf");
   CardDAVServer.putCardInternal(
@@ -130,7 +130,7 @@ add_task(async () => {
     "third sync not the same as the second"
   );
 
-  checkNamesListed("First", "Third");
+  await checkNamesListed("First", "Third");
 
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(directory.URI);

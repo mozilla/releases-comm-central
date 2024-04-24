@@ -138,7 +138,7 @@ add_task(async function testCreateWithEvent() {
  */
 add_task(async function testDisplayCard() {
   await window.toAddressBook(["cmd_displayContact", writableCard]);
-  checkDirectoryDisplayed(writableBook);
+  await checkDirectoryDisplayed(writableBook);
   await notInEditingMode();
 
   // let abWindow = getAddressBookWindow();
@@ -154,7 +154,7 @@ add_task(async function testDisplayCard() {
  */
 add_task(async function testEditCardWritable() {
   await window.toAddressBook(["cmd_editContact", writableCard]);
-  checkDirectoryDisplayed(writableBook);
+  await checkDirectoryDisplayed(writableBook);
   await inEditingMode();
 
   // let abWindow = getAddressBookWindow();
@@ -170,7 +170,7 @@ add_task(async function testEditCardWritable() {
  */
 add_task(async function testEditCardReadOnly() {
   await window.toAddressBook(["cmd_editContact", readOnlyCard]);
-  checkDirectoryDisplayed(readOnlyBook);
+  await checkDirectoryDisplayed(readOnlyBook);
   await notInEditingMode();
 
   // let abWindow = getAddressBookWindow();

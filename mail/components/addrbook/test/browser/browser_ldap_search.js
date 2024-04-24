@@ -60,16 +60,16 @@ add_task(async () => {
 
   // Search for some people in the LDAP directory.
 
-  openDirectory(book);
-  checkPlaceholders(["placeholderSearchOnly"]);
+  await openDirectory(book);
+  await checkPlaceholders(["placeholderSearchOnly"]);
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.sendString("holmes", abWindow);
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed();
-  checkPlaceholders(["placeholderSearching"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.mycroft);
@@ -78,8 +78,8 @@ add_task(async () => {
 
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
   await waitForCountChange(2);
-  checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
-  checkPlaceholders();
+  await checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
+  await checkPlaceholders();
 
   // Check that displaying an LDAP card works without error.
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
@@ -93,36 +93,36 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed();
-  checkPlaceholders(["placeholderSearching"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(1);
-  checkNamesListed("John Watson");
-  checkPlaceholders();
+  await checkNamesListed("John Watson");
+  await checkPlaceholders();
 
   // Now move back to the "All Address Books" view and search again.
   // The search string is retained when switching books.
 
-  openAllAddressBooks();
-  checkNamesListed();
+  await openAllAddressBooks();
+  await checkNamesListed();
   Assert.equal(searchBox.value, "john");
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed();
-  checkPlaceholders(["placeholderSearching"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(1);
-  checkNamesListed("John Watson");
-  checkPlaceholders();
+  await checkNamesListed("John Watson");
+  await checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -130,16 +130,16 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed();
-  checkPlaceholders(["placeholderSearching"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.irene);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(1);
-  checkNamesListed("Irene Adler");
-  checkPlaceholders();
+  await checkNamesListed("Irene Adler");
+  await checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -147,16 +147,16 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed("jonathan");
-  checkPlaceholders();
+  await checkNamesListed("jonathan");
+  await checkPlaceholders();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(2);
-  checkNamesListed("John Watson", "jonathan");
-  checkPlaceholders();
+  await checkNamesListed("John Watson", "jonathan");
+  await checkPlaceholders();
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -164,16 +164,16 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkNamesListed();
-  checkPlaceholders(["placeholderSearching"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderSearching"]);
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultDone();
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(noSearchResults)
   );
-  checkNamesListed();
-  checkPlaceholders(["placeholderNoSearchResults"]);
+  await checkNamesListed();
+  await checkPlaceholders(["placeholderNoSearchResults"]);
 
   await closeAddressBookWindow();
   personalBook.deleteCards(cardsToRemove);

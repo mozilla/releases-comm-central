@@ -30,111 +30,111 @@ add_task(async function test_additions_and_removals() {
 
   await openAllAddressBooks();
   info("Performing check #1");
-  checkCardsListed(contactA1, contactB1);
+  await checkCardsListed(contactA1, contactB1);
 
   // While in bookA, add a contact and list. Check that they show up.
-  openDirectory(bookA);
-  checkCardsListed(contactA1);
+  await openDirectory(bookA);
+  await checkCardsListed(contactA1);
   const contactA2 = bookA.addCard(createContact("contact", "A2")); // Add A2.
-  checkCardsListed(contactA1, contactA2);
+  await checkCardsListed(contactA1, contactA2);
   const listC = bookA.addMailList(createMailingList("list C")); // Add C.
-  checkDirectoryDisplayed(bookA);
-  checkCardsListed(contactA1, contactA2, listC);
+  await checkDirectoryDisplayed(bookA);
+  await checkCardsListed(contactA1, contactA2, listC);
   listC.addCard(contactA1);
-  checkCardsListed(contactA1, contactA2, listC);
+  await checkCardsListed(contactA1, contactA2, listC);
 
   await openAllAddressBooks();
   info("Performing check #2");
-  checkCardsListed(contactA1, contactA2, contactB1, listC);
+  await checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in listC, add a member and remove a member. Check that they show up
   // or disappear as appropriate.
-  openDirectory(listC);
-  checkCardsListed(contactA1);
+  await openDirectory(listC);
+  await checkCardsListed(contactA1);
   listC.addCard(contactA2);
-  checkCardsListed(contactA1, contactA2);
+  await checkCardsListed(contactA1, contactA2);
   await deleteRowWithPrompt(0);
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
   Assert.equal(cardsList.currentIndex, 0);
 
   await openAllAddressBooks();
   info("Performing check #3");
-  checkCardsListed(contactA1, contactA2, contactB1, listC);
+  await checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in bookA, delete a contact. Check it disappears.
-  openDirectory(bookA);
-  checkCardsListed(contactA1, contactA2, listC);
+  await openDirectory(bookA);
+  await checkCardsListed(contactA1, contactA2, listC);
   await deleteRowWithPrompt(0); // Delete A1.
-  checkCardsListed(contactA2, listC);
+  await checkCardsListed(contactA2, listC);
   Assert.equal(cardsList.currentIndex, 0);
   // Now do some things in an unrelated book. Check nothing changes here.
   const contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
-  checkCardsListed(contactA2, listC);
+  await checkCardsListed(contactA2, listC);
   const listD = bookB.addMailList(createMailingList("list D")); // Add D.
-  checkDirectoryDisplayed(bookA);
-  checkCardsListed(contactA2, listC);
+  await checkDirectoryDisplayed(bookA);
+  await checkCardsListed(contactA2, listC);
   listD.addCard(contactB1);
-  checkCardsListed(contactA2, listC);
+  await checkCardsListed(contactA2, listC);
 
   await openAllAddressBooks();
   info("Performing check #4");
-  checkCardsListed(contactA2, contactB1, contactB2, listC, listD);
+  await checkCardsListed(contactA2, contactB1, contactB2, listC, listD);
 
   // While in listC, do some things in an unrelated list. Check nothing
   // changes here.
-  openDirectory(listC);
-  checkCardsListed(contactA2);
+  await openDirectory(listC);
+  await checkCardsListed(contactA2);
   listD.addCard(contactB2);
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
   listD.deleteCards([contactB1]);
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
   bookB.deleteCards([contactB1]);
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
 
   await openAllAddressBooks();
   info("Performing check #5");
-  checkCardsListed(contactA2, contactB2, listC, listD);
+  await checkCardsListed(contactA2, contactB2, listC, listD);
 
   // While in bookA, do some things in an unrelated book. Check nothing
   // changes here.
-  openDirectory(bookA);
-  checkCardsListed(contactA2, listC);
+  await openDirectory(bookA);
+  await checkCardsListed(contactA2, listC);
   bookB.deleteDirectory(listD); // Delete D.
-  checkDirectoryDisplayed(bookA);
-  checkCardsListed(contactA2, listC);
+  await checkDirectoryDisplayed(bookA);
+  await checkCardsListed(contactA2, listC);
   await deleteRowWithPrompt(1); // Delete C.
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
 
   // While in "All Address Books", make some changes and check that things
   // appear or disappear as appropriate.
   await openAllAddressBooks();
   info("Performing check #6");
-  checkCardsListed(contactA2, contactB2);
+  await checkCardsListed(contactA2, contactB2);
   const listE = bookB.addMailList(createMailingList("list E")); // Add E.
-  checkDirectoryDisplayed(null);
-  checkCardsListed(contactA2, contactB2, listE);
+  await checkDirectoryDisplayed(null);
+  await checkCardsListed(contactA2, contactB2, listE);
   listE.addCard(contactB2);
-  checkCardsListed(contactA2, contactB2, listE);
+  await checkCardsListed(contactA2, contactB2, listE);
   listE.deleteCards([contactB2]);
-  checkCardsListed(contactA2, contactB2, listE);
+  await checkCardsListed(contactA2, contactB2, listE);
   bookB.deleteDirectory(listE); // Delete E.
-  checkDirectoryDisplayed(null);
-  checkCardsListed(contactA2, contactB2);
+  await checkDirectoryDisplayed(null);
+  await checkCardsListed(contactA2, contactB2);
   await deleteRowWithPrompt(1);
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
   Assert.equal(cardsList.currentIndex, 0);
   bookA.deleteCards([contactA2]);
-  checkCardsListed();
+  await checkCardsListed();
   Assert.equal(cardsList.currentIndex, -1);
 
   // While in "All Address Books", delete a directory that has contacts and
   // mailing lists. They should disappear.
   const contactA3 = bookA.addCard(createContact("contact", "A3")); // Add A3.
-  checkCardsListed(contactA3);
+  await checkCardsListed(contactA3);
   const listF = bookA.addMailList(createMailingList("list F")); // Add F.
-  checkCardsListed(contactA3, listF);
+  await checkCardsListed(contactA3, listF);
   await promiseDirectoryRemoved(bookA.URI);
-  checkCardsListed();
+  await checkCardsListed();
 
   abWindow.close();
 
@@ -148,25 +148,25 @@ add_task(async function test_insertion_order() {
   await openAddressBookWindow();
 
   const bookA = createAddressBook("book A");
-  openDirectory(bookA);
-  checkCardsListed();
+  await openDirectory(bookA);
+  await checkCardsListed();
   const contactA2 = bookA.addCard(createContact("contact", "A2"));
-  checkCardsListed(contactA2);
+  await checkCardsListed(contactA2);
   const contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
-  checkCardsListed(contactA1, contactA2);
+  await checkCardsListed(contactA1, contactA2);
   const contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
-  checkCardsListed(contactA1, contactA2, contactA5);
+  await checkCardsListed(contactA1, contactA2, contactA5);
   const contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.
-  checkCardsListed(contactA1, contactA2, contactA3, contactA5);
+  await checkCardsListed(contactA1, contactA2, contactA3, contactA5);
 
   // Flip sort direction.
   await showSortMenu("sort", "GeneratedName descending");
 
-  checkCardsListed(contactA5, contactA3, contactA2, contactA1);
+  await checkCardsListed(contactA5, contactA3, contactA2, contactA1);
   const contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
-  checkCardsListed(contactA5, contactA4, contactA3, contactA2, contactA1);
+  await checkCardsListed(contactA5, contactA4, contactA3, contactA2, contactA1);
   const contactA7 = bookA.addCard(createContact("contact", "A7")); // Add first.
-  checkCardsListed(
+  await checkCardsListed(
     contactA7,
     contactA5,
     contactA4,
@@ -175,7 +175,7 @@ add_task(async function test_insertion_order() {
     contactA1
   );
   const contactA0 = bookA.addCard(createContact("contact", "A0")); // Add last.
-  checkCardsListed(
+  await checkCardsListed(
     contactA7,
     contactA5,
     contactA4,
@@ -189,7 +189,7 @@ add_task(async function test_insertion_order() {
   contactA3.lastName = "contact A3";
   contactA3.primaryEmail = "contact.A6@invalid";
   bookA.modifyCard(contactA3); // Rename, should change position.
-  checkCardsListed(
+  await checkCardsListed(
     contactA7,
     contactA3, // Actually A6.
     contactA5,
@@ -202,7 +202,7 @@ add_task(async function test_insertion_order() {
   // Restore original sort direction.
   await showSortMenu("sort", "GeneratedName ascending");
 
-  checkCardsListed(
+  await checkCardsListed(
     contactA0,
     contactA1,
     contactA2,
@@ -242,7 +242,7 @@ add_task(async function test_name_column() {
     GENERATE_DISPLAY_NAME
   );
 
-  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+  await checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
 
   // Select the "delta foxtrot" contact. This should remain selected throughout.
   cardsList.selectedIndex = 2;
@@ -250,7 +250,7 @@ add_task(async function test_name_column() {
 
   // Change the format to last, first.
   await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "foxtrot, delta",
     "mike, charlie",
     "november, echo",
@@ -262,7 +262,7 @@ add_task(async function test_name_column() {
 
   // Change the format to first last.
   await showSortMenu("format", GENERATE_FIRST_LAST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "alpha tango",
     "bravo zulu",
     "charlie mike",
@@ -274,7 +274,7 @@ add_task(async function test_name_column() {
   // Flip the order to descending.
   await showSortMenu("sort", "GeneratedName descending");
 
-  checkNamesListed(
+  await checkNamesListed(
     "echo november",
     "delta foxtrot",
     "charlie mike",
@@ -285,7 +285,7 @@ add_task(async function test_name_column() {
 
   // Change the format to last, first.
   await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "zulu, bravo",
     "tango, alpha",
     "november, echo",
@@ -296,18 +296,18 @@ add_task(async function test_name_column() {
 
   // Change the format to display name.
   await showSortMenu("format", GENERATE_DISPLAY_NAME);
-  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
+  await checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
   Assert.equal(cardsList.selectedIndex, 2);
 
   // Sort by email address, ascending.
   await showSortMenu("sort", "EmailAddresses ascending");
 
-  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+  await checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
   Assert.equal(cardsList.selectedIndex, 3);
 
   // Change the format to last, first.
   await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "tango, alpha",
     "zulu, bravo",
     "mike, charlie",
@@ -318,7 +318,7 @@ add_task(async function test_name_column() {
 
   // Change the format to first last.
   await showSortMenu("format", GENERATE_FIRST_LAST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "alpha tango",
     "bravo zulu",
     "charlie mike",
@@ -329,13 +329,13 @@ add_task(async function test_name_column() {
 
   // Change the format to display name.
   await showSortMenu("format", GENERATE_DISPLAY_NAME);
-  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+  await checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
   Assert.equal(cardsList.selectedIndex, 3);
 
   // Restore original sort column and direction.
   await showSortMenu("sort", "GeneratedName ascending");
 
-  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+  await checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
   Assert.equal(cardsList.selectedIndex, 2);
 
   await closeAddressBookWindow();
@@ -358,29 +358,29 @@ add_task(async function test_persistence() {
   Services.prefs.clearUserPref("mail.addr_book.lastnamefirst");
 
   await openAddressBookWindow();
-  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+  await checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
 
   info("sorting by GeneratedName, descending");
   await showSortMenu("sort", "GeneratedName descending");
-  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
+  await checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
 
   await closeAddressBookWindow();
   info("address book closed, reopening");
   await openAddressBookWindow();
-  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
+  await checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
 
   info("sorting by EmailAddresses, ascending");
   await showSortMenu("sort", "EmailAddresses ascending");
-  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+  await checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
 
   await closeAddressBookWindow();
   info("address book closed, reopening");
   await openAddressBookWindow();
-  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
+  await checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
 
   info("setting name format to first last");
   await showSortMenu("format", Ci.nsIAbCard.GENERATE_FIRST_LAST_ORDER);
-  checkNamesListed(
+  await checkNamesListed(
     "alpha tango",
     "bravo zulu",
     "charlie mike",
@@ -391,7 +391,7 @@ add_task(async function test_persistence() {
   await closeAddressBookWindow();
   info("address book closed, reopening");
   await openAddressBookWindow();
-  checkNamesListed(
+  await checkNamesListed(
     "alpha tango",
     "bravo zulu",
     "charlie mike",
@@ -445,7 +445,7 @@ add_task(async function test_context_menu_compose() {
     "cardContextWriteSeparator"
   );
 
-  openDirectory(book);
+  await openDirectory(book);
 
   // Contact A, first and only email address.
 
@@ -645,7 +645,7 @@ add_task(async function test_context_menu_edit() {
   }
 
   info("Testing Normal Book");
-  openDirectory(normalBook);
+  await openDirectory(normalBook);
   await checkEditItems(0, false); // normal contact
   await checkEditItems(1, false, true); // normal list
 
@@ -654,20 +654,20 @@ add_task(async function test_context_menu_edit() {
   await checkEditItems(1, true); // normal contact + normal list
 
   info("Testing Normal List");
-  openDirectory(normalList);
+  await openDirectory(normalList);
   await checkEditItems(0, false); // normal contact
 
   info("Testing Read-Only Book");
-  openDirectory(readOnlyBook);
+  await openDirectory(readOnlyBook);
   await checkEditItems(0, true); // read-only contact
   await checkEditItems(1, true, true); // read-only list
 
   info("Testing Read-Only List");
-  openDirectory(readOnlyList);
+  await openDirectory(readOnlyList);
   await checkEditItems(0, true); // read-only contact
 
   info("Testing All Address Books");
-  openAllAddressBooks();
+  await openAllAddressBooks();
   await checkEditItems(0, false); // normal contact
   await checkEditItems(1, false, true); // normal list
   await checkEditItems(2, true); // read-only contact
@@ -748,7 +748,7 @@ add_task(async function test_context_menu_delete() {
   }
 
   info("Testing Normal Book");
-  openDirectory(normalBook);
+  await openDirectory(normalBook);
   await checkDeleteItems(0, false, true, false); // normal contact
   await checkDeleteItems(1, false, true, false); // normal list
 
@@ -757,20 +757,20 @@ add_task(async function test_context_menu_delete() {
   await checkDeleteItems(1, false, true, false); // normal contact + normal list
 
   info("Testing Normal List");
-  openDirectory(normalList);
+  await openDirectory(normalList);
   await checkDeleteItems(0, true, false, false); // normal contact
 
   info("Testing Read-Only Book");
-  openDirectory(readOnlyBook);
+  await openDirectory(readOnlyBook);
   await checkDeleteItems(0, false, true, true); // read-only contact
   await checkDeleteItems(1, false, true, true); // read-only list
 
   info("Testing Read-Only List");
-  openDirectory(readOnlyList);
+  await openDirectory(readOnlyList);
   await checkDeleteItems(0, true, false, true); // read-only contact
 
   info("Testing All Address Books");
-  openAllAddressBooks();
+  await openAllAddressBooks();
   await checkDeleteItems(0, false, true, false); // normal contact
   await checkDeleteItems(1, false, true, false); // normal list
   await checkDeleteItems(2, false, true, true); // read-only contact
@@ -895,7 +895,7 @@ add_task(async function test_layout() {
     "GeneratedName",
     "ascending"
   );
-  checkNamesListed(
+  await checkNamesListed(
     "contact four",
     "contact one",
     "contact three",
@@ -915,7 +915,7 @@ add_task(async function test_layout() {
     "EmailAddresses",
     "ascending"
   );
-  checkNamesListed(
+  await checkNamesListed(
     "contact one",
     "contact four",
     "contact two",
@@ -934,7 +934,7 @@ add_task(async function test_layout() {
     "EmailAddresses",
     "descending"
   );
-  checkNamesListed(
+  await checkNamesListed(
     "contact three",
     "contact two",
     "contact four",
@@ -1008,7 +1008,7 @@ add_task(async function test_layout() {
     "EmailAddresses",
     "descending"
   );
-  checkNamesListed(
+  await checkNamesListed(
     "contact three",
     "contact two",
     "contact four",
@@ -1059,29 +1059,29 @@ add_task(async function test_placeholders() {
 
   info("checking all address books");
   await openAllAddressBooks();
-  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+  await checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
 
   info("checking writable book");
   await openDirectory(writableBook);
-  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+  await checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
 
   const writableList = writableBook.addMailList(
     createMailingList("Writable List")
   );
-  checkPlaceholders();
+  await checkPlaceholders();
 
   info("checking writable list");
   await openDirectory(writableList);
-  checkPlaceholders(["placeholderEmptyBook"]);
+  await checkPlaceholders(["placeholderEmptyBook"]);
 
   info("checking writable book");
   await openDirectory(writableBook);
   writableBook.deleteDirectory(writableList);
-  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+  await checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
 
   info("checking read-only book");
   await openDirectory(readOnlyBook);
-  checkPlaceholders(["placeholderEmptyBook"]);
+  await checkPlaceholders(["placeholderEmptyBook"]);
 
   // This wouldn't happen but we need to check the state in a read-only list.
   readOnlyBook.setBoolValue("readOnly", false);
@@ -1089,22 +1089,22 @@ add_task(async function test_placeholders() {
     createMailingList("Read-Only List")
   );
   readOnlyBook.setBoolValue("readOnly", true);
-  checkPlaceholders();
+  await checkPlaceholders();
 
   info("checking read-only list");
   await openDirectory(readOnlyList);
-  checkPlaceholders(["placeholderEmptyBook"]);
+  await checkPlaceholders(["placeholderEmptyBook"]);
 
   info("checking read-only book");
   await openDirectory(readOnlyBook);
   readOnlyBook.setBoolValue("readOnly", false);
   readOnlyBook.deleteDirectory(readOnlyList);
   readOnlyBook.setBoolValue("readOnly", true);
-  checkPlaceholders(["placeholderEmptyBook"]);
+  await checkPlaceholders(["placeholderEmptyBook"]);
 
   info("checking button opens a new contact to edit");
   await openAllAddressBooks();
-  checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
+  await checkPlaceholders(["placeholderEmptyBook", "placeholderCreateContact"]);
   EventUtils.synthesizeMouseAtCenter(placeholderCreateContact, {}, abWindow);
 
   await TestUtils.waitForCondition(
