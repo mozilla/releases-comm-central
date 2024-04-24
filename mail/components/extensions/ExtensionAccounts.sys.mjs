@@ -418,9 +418,8 @@ export class FolderManager {
   }
 
   get(accountId, path) {
-    return MailServices.folderLookup.getFolderForURL(
-      folderPathToURI(accountId, path)
-    );
+    const { folder } = getFolder({ accountId, path });
+    return folder;
   }
 }
 
