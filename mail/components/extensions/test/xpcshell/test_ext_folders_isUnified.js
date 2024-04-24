@@ -7,21 +7,46 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
+var { SmartServerUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartServerUtils.sys.mjs"
+);
 
 add_setup(async function setup() {
   const account1 = createAccount("pop3");
   const rootFolder1 = account1.incomingServer.rootFolder;
   const inbox1 = rootFolder1.subFolders.find(f => f.prettyName == "Inbox");
-  await createMessages(inbox1, 12);
-  await createSubfolder(inbox1, "testFolder1");
-  await createSubfolder(rootFolder1, "localFolder1");
 
   const account2 = createAccount("pop3");
   const rootFolder2 = account2.incomingServer.rootFolder;
   const inbox2 = rootFolder2.subFolders.find(f => f.prettyName == "Inbox");
+
+  const smartServer = SmartServerUtils.getSmartServer();
+  const smartInboxFolder = smartServer.rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Inbox
+  );
+  Assert.equal(
+    0,
+    smartInboxFolder.getNumUnread(false),
+    "Unread count of the unified inbox folder before adding messages should be correct"
+  );
+
+  await createMessages(inbox1, 12);
+  await createSubfolder(inbox1, "testFolder1");
+  await createSubfolder(rootFolder1, "localFolder1");
+
   await createMessages(inbox2, 8);
   await createSubfolder(inbox2, "testFolder2");
   await createSubfolder(rootFolder2, "localFolder2");
+  await TestUtils.waitForTick();
+
+  Assert.equal(
+    20,
+    smartInboxFolder.getNumUnread(false),
+    "Unread count of the unified inbox folder after adding messages should be correct"
+  );
 
   // Mark some messages as unread in inbox1
   const messages = inbox1.messages;
@@ -31,6 +56,13 @@ add_setup(async function setup() {
     msg.markRead(true);
     count--;
   }
+  await TestUtils.waitForTick();
+
+  Assert.equal(
+    15,
+    smartInboxFolder.getNumUnread(false),
+    "Unread count of the unified inbox folder after marking some messages as read should be correct"
+  );
 });
 
 add_task(async function test_folder_isUnified() {
@@ -490,21 +522,19 @@ add_task(async function test_folder_isUnified() {
         info1,
         `Return value for folders.getFolderInfo() for the inbox of account1 should be correct.`
       );
-      // Also check the unified inbox folder
-      /* Does not work, FIXED IN D207959.
+      // Check the unified inbox folder.
       const unifiedInboxInfo = await browser.folders.getFolderInfo(
-        unifiedInboxFolder.id,
+        unifiedInboxFolder.id
       );
       window.assertDeepEqual(
         {
-          "totalMessageCount": 20,
-          "unreadMessageCount": 15,
-          "newMessageCount": 15
+          totalMessageCount: 20,
+          unreadMessageCount: 15,
+          newMessageCount: 0,
         },
         unifiedInboxInfo,
-        `Return value for folders.getFolderInfo() for the unified inbox folder should be correct.`,
+        `Return value for folders.getFolderInfo() for the unified inbox folder should be correct.`
       );
-      */
 
       // Mark the unified inbox as read.
       await browser.folders.markAsRead(unifiedInboxFolder.id);
@@ -768,6 +798,13 @@ add_task(async function test_folder_isUnified_getParentFolders_MV3() {
         ],
         parentFolders,
         `Return value of getParentFolders() excluding subfolders should be correct`
+      );
+
+      // Test getFolderInfo() throws for the unified mailbox root folder.
+      await browser.test.assertRejects(
+        browser.folders.getFolderInfo(parentFolders[0].id),
+        `folders.getFolderInfo() failed, not supported for root folders`,
+        "folders.getFolderInfo() should reject for the unified mailbox root folders"
       );
 
       browser.test.notifyPass("finished");

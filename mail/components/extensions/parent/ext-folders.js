@@ -1090,6 +1090,12 @@ this.folders = class extends ExtensionAPIPersistent {
         async getFolderInfo(target) {
           const { folder } = getFolder(target);
 
+          if (folder.isServer) {
+            throw new ExtensionError(
+              `folders.getFolderInfo() failed, not supported for root folders`
+            );
+          }
+
           // Support quota names containing "STORAGE" or "MESSAGE", which are
           // defined in RFC2087. Excluding unusual quota names containing items
           // like "MAILBOX" and "LEVEL".
