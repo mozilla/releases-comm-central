@@ -1184,9 +1184,7 @@ add_task(async function test_list_all_address_book() {
 
   info("Check that no address book suffix is present.");
   Assert.ok(
-    !(await TestUtils.waitForCondition(() => cardsList.getRowAtIndex(0)).then(
-      row => row.querySelector(".address-book-name")
-    )),
+    !cardsList.getRowAtIndex(0).querySelector(".address-book-name"),
     "No address book suffix is present."
   );
   Assert.ok(
@@ -1230,9 +1228,7 @@ add_task(async function test_list_all_address_book() {
   present for another book besides All Address Book`);
   await openDirectory(secondBook);
   Assert.ok(
-    !(await TestUtils.waitForCondition(() => cardsList.getRowAtIndex(0)).then(
-      row => row.querySelector(".address-book-name")
-    )),
+    !cardsList.getRowAtIndex(0).querySelector(".address-book-name"),
     "Address book suffix is only present in All Address Book."
   );
 
