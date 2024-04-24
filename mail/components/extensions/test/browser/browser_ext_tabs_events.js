@@ -84,7 +84,7 @@ add_task(async () => {
             }
             return actualArgs;
           },
-          async pageLoad(tab, active = true) {
+          async pageLoad(tab, type, active = true) {
             // @see https://github.com/eslint/eslint/issues/17807
             // eslint-disable-next-line no-constant-condition
             while (true) {
@@ -113,7 +113,7 @@ add_task(async () => {
                 id: tab,
                 windowId: initialWindow,
                 active,
-                mailTab: false,
+                type,
               }
             );
           },
@@ -135,7 +135,6 @@ add_task(async () => {
         const initialTabs = await browser.tabs.query({});
         browser.test.assertEq(1, initialTabs.length);
         browser.test.assertEq(0, initialTabs[0].index);
-        browser.test.assertTrue(initialTabs[0].mailTab);
         browser.test.assertEq("mail", initialTabs[0].type);
         const [{ id: initialTab, windowId: initialWindow }] = initialTabs;
 
@@ -147,7 +146,6 @@ add_task(async () => {
               index: 1,
               windowId: initialWindow,
               active: true,
-              mailTab: false,
               type: "content",
             },
           ],
@@ -161,11 +159,10 @@ add_task(async () => {
           index: 1,
           windowId: initialWindow,
           active: true,
-          mailTab: false,
           type: "content",
         });
         browser.test.assertTrue(contentTab1 != initialTab);
-        await listener.pageLoad(contentTab1);
+        await listener.pageLoad(contentTab1, "content");
         browser.test.assertEq(
           "content",
           (await browser.tabs.get(contentTab1)).type
@@ -196,21 +193,45 @@ add_task(async () => {
           index: 2,
           windowId: initialWindow,
           active: true,
-          mailTab: false,
           type: "content",
         });
+
         const locContentTabUpdateInfo = await locContentTabUpdateInfoPromise;
+        browser.test.assertEq(
+          3,
+          locContentTabUpdateInfo.length,
+          "locContentTabUpdateInfo should have the correct length"
+        );
+        browser.test.assertEq(
+          3,
+          primedContentTabUpdateInfo.length,
+          "primedContentTabUpdateInfo should have the correct length"
+        );
+        browser.test.assertEq(
+          locContentTabUpdateInfo[0],
+          primedContentTabUpdateInfo[0],
+          "tabId should be identical for the normal and the primed extension"
+        );
         window.assertDeepEqual(
-          locContentTabUpdateInfo,
-          primedContentTabUpdateInfo,
-          "primed onUpdated event and non-primed onUpdeated event should receive the same values",
+          locContentTabUpdateInfo[1],
+          primedContentTabUpdateInfo[1],
+          "change information of the primed onUpdated event and non-primed onUpdeated event should be identical",
+          { strict: true }
+        );
+        // Since primedContentTabUpdateInfo is from a MV3 extension, it does not
+        // return the mailTab property. Manually add it, to match the value of
+        // locContentTabUpdateInfo, which is returned from a MV2 extension.
+        window.assertDeepEqual(
+          locContentTabUpdateInfo[2],
+          { ...primedContentTabUpdateInfo[2], mailTab: false },
+          "tab information of the primed onUpdated event and non-primed onUpdeated event should be identical",
           { strict: true }
         );
 
         browser.test.assertTrue(
           ![initialTab, contentTab1].includes(contentTab2)
         );
-        await listener.pageLoad(contentTab2);
+        await listener.pageLoad(contentTab2, "content");
         browser.test.assertEq(
           "content",
           (await browser.tabs.get(contentTab2)).type
@@ -224,7 +245,6 @@ add_task(async () => {
               index: 3,
               windowId: initialWindow,
               active: true,
-              mailTab: false,
               type: "calendar",
             },
           ],
@@ -236,7 +256,6 @@ add_task(async () => {
           index: 3,
           windowId: initialWindow,
           active: true,
-          mailTab: false,
           type: "calendar",
         });
         browser.test.assertTrue(
@@ -251,7 +270,6 @@ add_task(async () => {
               index: 4,
               windowId: initialWindow,
               active: true,
-              mailTab: false,
               type: "tasks",
             },
           ],
@@ -263,7 +281,6 @@ add_task(async () => {
           index: 4,
           windowId: initialWindow,
           active: true,
-          mailTab: false,
           type: "tasks",
         });
         browser.test.assertTrue(
@@ -278,7 +295,6 @@ add_task(async () => {
               index: 5,
               windowId: initialWindow,
               active: true,
-              mailTab: true,
               type: "mail",
             },
           ],
@@ -290,7 +306,6 @@ add_task(async () => {
           index: 5,
           windowId: initialWindow,
           active: true,
-          mailTab: true,
           type: "mail",
         });
         browser.test.assertTrue(
@@ -311,7 +326,6 @@ add_task(async () => {
               index: 6,
               windowId: initialWindow,
               active: true,
-              mailTab: false,
               type: "messageDisplay",
             },
           ],
@@ -324,7 +338,6 @@ add_task(async () => {
           index: 6,
           windowId: initialWindow,
           active: true,
-          mailTab: false,
           type: "messageDisplay",
         });
         browser.test.assertTrue(
@@ -337,7 +350,7 @@ add_task(async () => {
             folderTab,
           ].includes(messageTab1)
         );
-        await listener.pageLoad(messageTab1);
+        await listener.pageLoad(messageTab1, "messageDisplay");
 
         browser.test.log(
           "Open a second message in a tab. In the background, just because."
@@ -349,7 +362,6 @@ add_task(async () => {
               index: 7,
               windowId: initialWindow,
               active: false,
-              mailTab: false,
               type: "messageDisplay",
             },
           ],
@@ -361,7 +373,6 @@ add_task(async () => {
           index: 7,
           windowId: initialWindow,
           active: false,
-          mailTab: false,
           type: "messageDisplay",
         });
         browser.test.assertTrue(
@@ -375,7 +386,7 @@ add_task(async () => {
             messageTab1,
           ].includes(messageTab2)
         );
-        await listener.pageLoad(messageTab2, false);
+        await listener.pageLoad(messageTab2, "messageDisplay", false);
 
         browser.test.log(
           "Activate each of the tabs in a somewhat random order to test the onActivated event."

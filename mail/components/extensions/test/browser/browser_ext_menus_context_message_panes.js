@@ -67,7 +67,7 @@ async function subtest_message_panes(manifest) {
         ? { id: null, messages: [{ subject: gMessage.subject }] }
         : undefined,
     },
-    { active: true, index: 0, mailTab: true }
+    { active: true, index: 0, type: "mail" }
   );
 
   info("Test the message pane in the 3-pane tab.");
@@ -83,7 +83,7 @@ async function subtest_message_panes(manifest) {
     {
       active: true,
       index: 0,
-      mailTab: true,
+      type: "mail",
     }
   );
 
@@ -103,7 +103,7 @@ async function subtest_message_panes(manifest) {
     {
       active: true,
       index: 1,
-      mailTab: false,
+      type: "messageDisplay",
     }
   );
 
@@ -126,7 +126,7 @@ async function subtest_message_panes(manifest) {
     {
       active: true,
       index: 0,
-      mailTab: false,
+      type: "messageDisplay",
     }
   );
 

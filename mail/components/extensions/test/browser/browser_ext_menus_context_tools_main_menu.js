@@ -70,7 +70,7 @@ add_task(async function test_tools_menu_mv2() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 2,
     }
@@ -86,7 +86,7 @@ add_task(async function test_compose_tools_menu_mv2() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 2,
     }
@@ -101,7 +101,7 @@ add_task(async function test_messagewindow_tools_menu_mv2() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 2,
     }
@@ -118,7 +118,7 @@ add_task(async function test_tools_menu_mv3() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 3,
     }
@@ -134,7 +134,7 @@ add_task(async function test_compose_tools_menu_mv3() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 3,
     }
@@ -149,7 +149,7 @@ add_task(async function test_messagewindow_tools_menu_mv3() {
     {
       menuItemId: "tools_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 3,
     }

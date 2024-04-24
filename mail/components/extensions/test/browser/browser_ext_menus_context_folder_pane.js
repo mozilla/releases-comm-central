@@ -54,7 +54,7 @@ async function subtest_folder_pane(manifest) {
         ? { accountId: gAccount.key, path: "/Trash" }
         : undefined,
     },
-    { active: true, index: 0, mailTab: true }
+    { active: true, index: 0, type: "mail" }
   );
 
   await openMenuPopup(menu, folderTree.rows[0].querySelector(".container"), {
@@ -72,7 +72,7 @@ async function subtest_folder_pane(manifest) {
         ? { id: gAccount.key, type: "none" }
         : undefined,
     },
-    { active: true, index: 0, mailTab: true }
+    { active: true, index: 0, type: "mail" }
   );
 
   await extension.unload();

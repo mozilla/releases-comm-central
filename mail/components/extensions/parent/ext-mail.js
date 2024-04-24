@@ -1053,7 +1053,9 @@ class Tab extends TabBase {
     const result = super.convert(fallback);
     result.spaceId = this.spaceId;
     result.type = this.type;
-    result.mailTab = result.type == "mail";
+    if (this.extension.manifestVersion < 3) {
+      result.mailTab = result.type == "mail";
+    }
 
     // These properties are not useful to Thunderbird extensions and are not returned.
     for (const key of [

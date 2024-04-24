@@ -31,7 +31,7 @@ add_setup(async () => {
 });
 
 async function subtest_tab(manifest) {
-  async function checkTabEvent(index, active, mailTab) {
+  async function checkTabEvent(index, active, type) {
     await openMenuPopup(menu, tabs[index], {
       type: "contextmenu",
     });
@@ -41,7 +41,7 @@ async function subtest_tab(manifest) {
     await checkShownEvent(
       extension,
       { menuIds: ["tab"], contexts: ["tab"] },
-      { active, index, mailTab }
+      { active, index, type }
     );
   }
 
@@ -51,17 +51,19 @@ async function subtest_tab(manifest) {
   await extension.awaitMessage("menus-created");
 
   const tabmail = document.getElementById("tabmail");
-  window.openContentTab("about:config");
-  window.openContentTab("about:mozilla");
+  const configTab = window.openContentTab("about:config");
+  await awaitBrowserLoaded(configTab.browser, "about:config");
+  const mozillaTab = window.openContentTab("about:mozilla");
+  await awaitBrowserLoaded(mozillaTab.browser, "about:mozilla");
   tabmail.openTab("mail3PaneTab", { folderURI: gFolders[0].URI });
 
   const tabs = document.getElementById("tabmail-tabs").allTabs;
   const menu = document.getElementById("tabContextMenu");
 
-  await checkTabEvent(0, false, true);
-  await checkTabEvent(1, false, false);
-  await checkTabEvent(2, false, false);
-  await checkTabEvent(3, true, true);
+  await checkTabEvent(0, false, "mail");
+  await checkTabEvent(1, false, "special");
+  await checkTabEvent(2, false, "special");
+  await checkTabEvent(3, true, "mail");
 
   await extension.unload();
 

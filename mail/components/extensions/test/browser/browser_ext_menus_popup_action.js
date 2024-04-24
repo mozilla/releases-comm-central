@@ -79,7 +79,7 @@ add_task(async function test_browser_action_menu_popup_mv2() {
       pageUrl: /^mailbox\:/,
       menuItemId: "browser_action_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 2,
       browser_action: {
@@ -102,7 +102,7 @@ add_task(async function test_browser_action_menu_popup_message_window_mv2() {
       pageUrl: /^mailbox\:/,
       menuItemId: "browser_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 2,
       browser_action: {
@@ -129,7 +129,7 @@ add_task(async function test_message_display_action_menu_popup_pane_mv2() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 2,
       message_display_action: {
@@ -151,7 +151,7 @@ add_task(async function test_message_display_action_menu_popup_tab_mv2() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 1, mailTab: false },
+    { active: true, index: 1, type: "messageDisplay" },
     {
       manifest_version: 2,
       message_display_action: {
@@ -175,7 +175,7 @@ add_task(async function test_message_display_action_menu_popup_window_mv2() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 2,
       message_display_action: {
@@ -199,7 +199,7 @@ add_task(async function test_compose_action_menu_popup_mv2() {
       pageUrl: "about:blank?compose",
       menuItemId: "compose_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 2,
       compose_action: {
@@ -223,7 +223,7 @@ add_task(async function test_compose_action_menu_popup_formattoolbar_mv2() {
       pageUrl: "about:blank?compose",
       menuItemId: "compose_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 2,
       compose_action: {
@@ -247,7 +247,7 @@ add_task(async function test_browser_action_menu_popup_mv3() {
       pageUrl: /^mailbox\:/,
       menuItemId: "action_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 3,
       action: {
@@ -270,7 +270,7 @@ add_task(async function test_browser_action_menu_popup_message_window_mv3() {
       pageUrl: /^mailbox\:/,
       menuItemId: "action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 3,
       action: {
@@ -297,7 +297,7 @@ add_task(async function test_message_display_action_menu_popup_pane_mv3() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 0, mailTab: true },
+    { active: true, index: 0, type: "mail" },
     {
       manifest_version: 3,
       message_display_action: {
@@ -319,7 +319,7 @@ add_task(async function test_message_display_action_menu_popup_tab_mv3() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 1, mailTab: false },
+    { active: true, index: 1, type: "messageDisplay" },
     {
       manifest_version: 3,
       message_display_action: {
@@ -343,7 +343,7 @@ add_task(async function test_message_display_action_menu_popup_window_mv3() {
       pageUrl: /^mailbox\:/,
       menuItemId: "message_display_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageDisplay" },
     {
       manifest_version: 3,
       message_display_action: {
@@ -368,7 +368,7 @@ add_task(async function test_compose_action_menu_popup_mv3() {
       pageUrl: "about:blank?compose",
       menuItemId: "compose_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 3,
       compose_action: {
@@ -392,7 +392,7 @@ add_task(async function test_compose_action_menu_popup_formattoolbar_mv3() {
       pageUrl: "about:blank?compose",
       menuItemId: "compose_action_menu",
     },
-    { active: true, index: 0, mailTab: false },
+    { active: true, index: 0, type: "messageCompose" },
     {
       manifest_version: 3,
       compose_action: {

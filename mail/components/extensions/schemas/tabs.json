@@ -109,6 +109,7 @@
           "mailTab": {
             "type": "boolean",
             "optional": true,
+            "max_manifest_version": 2,
             "description": "Whether the tab is a 3-pane tab."
           },
           "spaceId": {
@@ -426,7 +427,8 @@
               "mailTab": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab is a Thunderbird 3-pane tab."
+                "max_manifest_version": 2,
+                "description": "Whether the tab is a Thunderbird 3-pane tab.  If specified, the ``queryInfo.type`` property will be ignored"
               },
               "spaceId": {
                 "type": "integer",
@@ -447,7 +449,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Match tabs against the given tab type or types. Ignored if ``queryInfo.mailTab`` is specified."
+                "description": "Match tabs against the given tab type or types."
               },
               "active": {
                 "type": "boolean",

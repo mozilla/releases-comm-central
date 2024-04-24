@@ -56,7 +56,7 @@ async function rightClickOnContent(menu, selector, browser) {
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
- * @param {boolean} expectedTab.mailTab
+ * @param {string} expectedTab.type
  */
 async function checkShownEvent(extension, expectedInfo, expectedTab) {
   const [info, tab] = await extension.awaitMessage("onShown");
@@ -128,7 +128,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
 
   Assert.equal(tab.active, expectedTab.active, "tab is active");
   Assert.equal(tab.index, expectedTab.index, "tab index");
-  Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
+  Assert.equal(tab.type, expectedTab.type, "tab type is correct");
 }
 
 /**
@@ -146,7 +146,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
- * @param {boolean} expectedTab.mailTab
+ * @param {string} expectedTab.type
  */
 async function checkClickedEvent(extension, expectedInfo, expectedTab) {
   const [info, tab] = await extension.awaitMessage("onClicked");
@@ -174,7 +174,7 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
 
   Assert.equal(tab.active, expectedTab.active, "tab is active");
   Assert.equal(tab.index, expectedTab.index, "tab index");
-  Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
+  Assert.equal(tab.type, expectedTab.type, "tab type is correct");
 }
 
 async function getMenuExtension(manifest) {

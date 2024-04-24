@@ -65,7 +65,7 @@ add_task(async function test_content_mv2() {
     {
       active: true,
       index: 0,
-      mailTab: true,
+      type: "mail",
     }
   );
 
@@ -93,7 +93,7 @@ add_task(async function test_content_tab_mv2() {
     {
       active: true,
       index: 1,
-      mailTab: false,
+      type: "content",
     }
   );
 
@@ -133,7 +133,7 @@ add_task(async function test_content_window_mv2() {
     {
       active: true,
       index: 0,
-      mailTab: false,
+      type: "content",
     }
   );
 
@@ -175,7 +175,7 @@ add_task(async function test_content_mv3() {
     {
       active: true,
       index: 0,
-      mailTab: true,
+      type: "mail",
     }
   );
 
@@ -203,7 +203,7 @@ add_task(async function test_content_tab_mv3() {
     {
       active: true,
       index: 1,
-      mailTab: false,
+      type: "content",
     }
   );
 
@@ -243,7 +243,7 @@ add_task(async function test_content_window_mv3() {
     {
       active: true,
       index: 0,
-      mailTab: false,
+      type: "content",
     }
   );
 
