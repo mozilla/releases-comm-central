@@ -13,6 +13,7 @@ ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
+  VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
 var { CachedFolder, folderURIToPath, getFolder, specialUseMap, getSpecialUse } =
   ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
@@ -1232,7 +1233,15 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          folder.markAllMessagesRead(null);
+          if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+            for (const searchFolder of VirtualFolderHelper.wrapVirtualFolder(
+              folder
+            ).searchFolders) {
+              searchFolder.markAllMessagesRead(null);
+            }
+          } else {
+            folder.markAllMessagesRead(null);
+          }
         },
       },
     };

@@ -591,30 +591,28 @@ add_task(async function test_folder_isUnified() {
       await browser.folders.markAsRead(unifiedInboxFolder.id);
 
       // Verify.
-      /* Does not work, FIXED IN D208012.
-      const updatedInfo1 = await browser.folders.getFolderInfo(inbox1.id)
+      const updatedInfo1 = await browser.folders.getFolderInfo(inbox1.id);
       window.assertDeepEqual(
         {
-          "totalMessageCount": 12,
-          "unreadMessageCount": 0,
-          "newMessageCount": 0
+          totalMessageCount: 12,
+          unreadMessageCount: 0,
+          newMessageCount: 0,
         },
         updatedInfo1,
-        `Return value for folders.getFolderInfo() for the updated inbox of account1 should be correct.`,
+        `Return value for folders.getFolderInfo() for the updated inbox of account1 should be correct.`
       );
       const updatedUnifiedInboxInfo = await browser.folders.getFolderInfo(
-        unifiedInboxFolder.id,
+        unifiedInboxFolder.id
       );
       window.assertDeepEqual(
         {
-          "totalMessageCount": 20,
-          "unreadMessageCount": 0,
-          "newMessageCount": 0
+          totalMessageCount: 20,
+          unreadMessageCount: 0,
+          newMessageCount: 0,
         },
         updatedUnifiedInboxInfo,
-        `Return value for folders.getFolderInfo() for the updated unified inbox folder should be correct.`,
+        `Return value for folders.getFolderInfo() for the updated unified inbox folder should be correct.`
       );
-      */
 
       browser.test.notifyPass("finished");
     },
