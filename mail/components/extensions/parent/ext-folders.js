@@ -12,8 +12,9 @@ var { MailServices } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+  SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
 });
-var { CachedFolder, folderURIToPath, getFolder, specialUseMap } =
+var { CachedFolder, folderURIToPath, getFolder, specialUseMap, getSpecialUse } =
   ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
@@ -244,40 +245,37 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
 
   // The schema file allows destination to be either a MailFolder or a
   // MailAccount.
-  const srcFolder = getFolder(source);
-  const dstFolder = getFolder(destination);
+  const { folder: srcFolder } = getFolder(source);
+  const {
+    folder: dstFolder,
+    path: dstFolderPath,
+    accountKey: dstFolderAccountKey,
+  } = getFolder(destination);
 
-  if (!dstFolder.folder.canCreateSubfolders) {
+  if (!dstFolder.canCreateSubfolders) {
     throw new ExtensionError(
-      `${functionName} failed, cannot create subfolders in ${dstFolder.folder.prettyName}`
+      `${functionName} failed, cannot create subfolders in ${dstFolder.prettyName}`
     );
   }
 
-  if (isMove && !srcFolder.folder.deletable) {
+  if (isMove && !srcFolder.deletable) {
     throw new ExtensionError(
-      `${functionName} failed, cannot delete source folder ${srcFolder.folder.prettyName}`
+      `${functionName} failed, cannot delete source folder ${srcFolder.prettyName}`
     );
   }
 
-  if (dstFolder.folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+  if (dstFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
     throw new ExtensionError(
-      `The destination used in ${functionName} cannot be a search folder`
+      `The destination used in ${functionName} cannot be a virtual search folder`
     );
   }
 
   if (
-    dstFolder.folder.hasSubFolders &&
-    dstFolder.folder.subFolders.find(
-      f => f.prettyName == srcFolder.folder.prettyName
-    )
+    dstFolder.hasSubFolders &&
+    dstFolder.subFolders.find(f => f.prettyName == srcFolder.prettyName)
   ) {
     throw new ExtensionError(
-      `${functionName} failed, because ${
-        srcFolder.folder.prettyName
-      } already exists in ${folderURIToPath(
-        dstFolder.accountId,
-        dstFolder.folder.URI
-      )}`
+      `${functionName} failed, because ${srcFolder.prettyName} already exists in ${dstFolderPath}`
     );
   }
 
@@ -288,8 +286,8 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
         if (
           _destination != null ||
           _isMove != isMove ||
-          _srcFolder.URI != srcFolder.folder.URI ||
-          _dstFolder.URI != dstFolder.folder.URI
+          _srcFolder.URI != srcFolder.URI ||
+          _dstFolder.URI != dstFolder.URI
         ) {
           return;
         }
@@ -308,8 +306,8 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
       MailServices.mfn.folderMoveCopyCompleted
     );
     MailServices.copy.copyFolder(
-      srcFolder.folder,
-      dstFolder.folder,
+      srcFolder,
+      dstFolder,
       isMove,
       /** @implements {nsIMsgCopyServiceListener} */
       {
@@ -335,7 +333,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
     throw new ExtensionError(`${functionName} failed for unknown reasons`);
   }
 
-  return extension.folderManager.convert(rv.folder, dstFolder.accountId);
+  return extension.folderManager.convert(rv.folder, dstFolderAccountKey);
 }
 
 /**
@@ -630,12 +628,27 @@ this.folders = class extends ExtensionAPIPersistent {
           // Prepare folders, which are to be searched.
           const parentFolders = [];
           if (queryInfo.folderId) {
-            const { folder, accountId } = getFolder(queryInfo.folderId);
-            if (!queryInfo.accountId || queryInfo.accountId == accountId) {
+            const { folder, accountKey } = getFolder(queryInfo.folderId);
+            if (!queryInfo.accountId || queryInfo.accountId == accountKey) {
               parentFolders.push({
                 rootFolder: folder,
-                accountId,
+                accountId: accountKey,
               });
+            }
+          } else if (queryInfo.isUnified) {
+            const smartServer = SmartServerUtils.getSmartServer();
+            const smartAccount =
+              MailServices.accounts.findAccountForServer(smartServer);
+            if (smartAccount) {
+              for (const folder of smartServer.rootFolder.subFolders) {
+                // Require unified folders to have a special use.
+                if (getSpecialUse(folder.flags).length) {
+                  parentFolders.push({
+                    rootFolder: folder,
+                    accountId: smartAccount.key,
+                  });
+                }
+              }
             }
           } else {
             for (const account of MailServices.accounts.accounts) {
@@ -710,6 +723,14 @@ this.folders = class extends ExtensionAPIPersistent {
               }
 
               if (queryInfo.isRoot != null && queryInfo.isRoot != isServer) {
+                continue;
+              }
+
+              if (
+                queryInfo.isUnified != null &&
+                queryInfo.isUnified !=
+                  (folder.server.hostName == "smart mailboxes")
+              ) {
                 continue;
               }
 
@@ -849,11 +870,11 @@ this.folders = class extends ExtensionAPIPersistent {
           );
         },
         async get(folderId, includeSubFolders) {
-          const { folder, accountId } = getFolder(folderId);
+          const { folder, accountKey } = getFolder(folderId);
           if (includeSubFolders) {
             return context.extension.folderManager.traverseSubfolders(
               folder,
-              accountId
+              accountKey
             );
           }
           return context.extension.folderManager.convert(folder);
@@ -861,11 +882,21 @@ this.folders = class extends ExtensionAPIPersistent {
         async create(destination, childName) {
           // The schema file allows parent to be either a MailFolder or a
           // MailAccount.
-          const { folder: parentFolder, accountId } = getFolder(destination);
+          const {
+            folder: parentFolder,
+            accountKey,
+            isUnified,
+          } = getFolder(destination);
+
+          if (isUnified) {
+            throw new ExtensionError(
+              `The destination used in folders.create() cannot be a unified mailbox folder`
+            );
+          }
 
           if (parentFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
             throw new ExtensionError(
-              `The destination used in folders.create() cannot be a search folder`
+              `The destination used in folders.create() cannot be a virtual search folder`
             );
           }
 
@@ -881,7 +912,7 @@ this.folders = class extends ExtensionAPIPersistent {
           ) {
             throw new ExtensionError(
               `folders.create() failed, because ${childName} already exists in ${folderURIToPath(
-                accountId,
+                accountKey,
                 parentFolder.URI
               )}`
             );
@@ -896,13 +927,13 @@ this.folders = class extends ExtensionAPIPersistent {
           const childFolder = await childFolderPromise;
           return context.extension.folderManager.convert(
             childFolder,
-            accountId
+            accountKey
           );
         },
         async rename(target, newName) {
-          const { folder, accountId } = getFolder(target);
+          const { folder, accountKey, isUnified } = getFolder(target);
 
-          if (!folder.canRename) {
+          if (!folder.canRename || isUnified) {
             const name = folder.isServer ? "Root" : folder.prettyName;
             throw new ExtensionError(
               `folders.rename() failed, the folder ${name} cannot be renamed`
@@ -912,7 +943,7 @@ this.folders = class extends ExtensionAPIPersistent {
           if (folder.parent.subFolders.find(f => f.prettyName == newName)) {
             throw new ExtensionError(
               `folders.rename() failed, because ${newName} already exists in ${folderURIToPath(
-                accountId,
+                accountKey,
                 folder.parent.URI
               )}`
             );
@@ -925,7 +956,7 @@ this.folders = class extends ExtensionAPIPersistent {
           folder.rename(newName, null);
 
           const newFolder = await newFolderPromise;
-          return context.extension.folderManager.convert(newFolder, accountId);
+          return context.extension.folderManager.convert(newFolder, accountKey);
         },
         async move(source, destination) {
           return doMoveCopyOperation(
@@ -1116,7 +1147,8 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getParentFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-          let { folder, accountId } = getFolder(target);
+          let { folder, accountKey } = getFolder(target);
+
           const parentFolders = [];
           // MV3 considers the rootFolder as a true folder.
           while (
@@ -1127,35 +1159,35 @@ this.folders = class extends ExtensionAPIPersistent {
 
             if (includeSubFolders) {
               parentFolders.push(
-                folderManager.traverseSubfolders(folder, accountId)
+                folderManager.traverseSubfolders(folder, accountKey)
               );
             } else {
-              parentFolders.push(folderManager.convert(folder, accountId));
+              parentFolders.push(folderManager.convert(folder, accountKey));
             }
           }
           return parentFolders;
         },
         async getSubFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-          const { folder, accountId } = getFolder(target);
+          let { folder, accountKey } = getFolder(target);
+          const directSubFolders = folderManager.getDirectSubfolders(folder);
+
+          // If the folder is a virtual folder, its subfolders could belong to a
+          // different account. Ignore the accountKey.
+          if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+            accountKey = null;
+          }
+
           const subFolders = [];
-          if (folder.hasSubFolders) {
-            // Use the same order as used by Thunderbird.
-            const directSubFolders = [...folder.subFolders].sort((a, b) =>
-              a.sortOrder == b.sortOrder
-                ? a.name.localeCompare(b.name)
-                : a.sortOrder - b.sortOrder
-            );
-            for (const directSubFolder of directSubFolders) {
-              if (includeSubFolders) {
-                subFolders.push(
-                  folderManager.traverseSubfolders(directSubFolder, accountId)
-                );
-              } else {
-                subFolders.push(
-                  folderManager.convert(directSubFolder, accountId)
-                );
-              }
+          for (const directSubFolder of directSubFolders) {
+            if (includeSubFolders) {
+              subFolders.push(
+                folderManager.traverseSubfolders(directSubFolder, accountKey)
+              );
+            } else {
+              subFolders.push(
+                folderManager.convert(directSubFolder, accountKey)
+              );
             }
           }
           return subFolders;

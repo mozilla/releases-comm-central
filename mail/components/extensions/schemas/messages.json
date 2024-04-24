@@ -649,7 +649,7 @@
       {
         "name": "query",
         "type": "function",
-        "description": "Gets all messages that have the specified properties, or all messages if no properties are specified.",
+        "description": "Gets all messages that have the specified properties, or all messages if no properties are specified. Messages of unified mailbox folders are not included by default (as that could double the amount of returned messages), but explicitly specifying a unified mailbox folder is supported.",
         "async": "callback",
         "parameters": [
           {

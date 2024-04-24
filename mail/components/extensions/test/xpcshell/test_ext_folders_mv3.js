@@ -201,7 +201,7 @@ add_task(
           // Test reject on deleting non-existing folder.
           await browser.test.assertRejects(
             browser.folders.delete(`${accountId}://missing`),
-            `Folder not found: /missing`,
+            `Folder not found: ${accountId}://missing`,
             "browser.folders.delete threw exception"
           );
 

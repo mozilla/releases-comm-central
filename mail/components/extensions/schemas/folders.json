@@ -24,6 +24,7 @@
         "properties": {
           "accountId": {
             "$ref": "accounts.MailAccountId",
+            "optional": true,
             "description": "The id of the account this folder belongs to."
           },
           "id": {
@@ -40,6 +41,11 @@
             "type": "boolean",
             "optional": true,
             "description": "Whether this folder is a root folder."
+          },
+          "isUnified": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a unified mailbox folder."
           },
           "isVirtual": {
             "type": "boolean",
@@ -337,15 +343,20 @@
                 "optional": true,
                 "description": "Whether the folder is a favorite folder, or not."
               },
-              "isVirtual": {
-                "type": "boolean",
-                "optional": true,
-                "description": "Whether this folder is a virtual search folder, or not."
-              },
               "isRoot": {
                 "type": "boolean",
                 "optional": true,
                 "description": "Whether the folder is a root folder, or not."
+              },
+              "isUnified": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a unified mailbox folder, or not. Note: Unified mailbox folders are always skipped, unless this property is set to <value>true</value>"
+              },
+              "isVirtual": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a virtual search folder, or not."
               },
               "limit": {
                 "type": "integer",

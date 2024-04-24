@@ -1645,15 +1645,15 @@ export class MessageQuery {
           'Querying by folder requires the "accountsRead" permission'
         );
       }
-      const { folder, accountId } = getFolder(queryFolder);
-      if (!queryAccountId || queryAccountId == accountId) {
+      const { folder, accountKey } = getFolder(queryFolder);
+      if (!queryAccountId || queryAccountId == accountKey) {
         folders.push(folder);
       }
     } else {
       includeSubFolders = true;
       for (const account of MailServices.accounts.accounts) {
-        const accountId = account.key;
-        if (!queryAccountId || queryAccountId == accountId) {
+        const accountKey = account.key;
+        if (!queryAccountId || queryAccountId == accountKey) {
           folders.push(account.incomingServer.rootFolder);
         }
       }
