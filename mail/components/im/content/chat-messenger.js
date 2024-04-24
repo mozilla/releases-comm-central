@@ -1499,7 +1499,7 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
-      notification.closeButtonEl?.remove();
+      notification.closeButton?.remove();
       notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");
@@ -1573,7 +1573,7 @@ var chatHandler = {
         },
         [acceptButton, denyButton]
       );
-      notification.closeButtonEl?.remove();
+      notification.closeButton?.remove();
       notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");
@@ -1638,7 +1638,7 @@ var chatHandler = {
           conversation: aSubject.conversationName,
         }
       );
-      notification.closeButtonEl?.remove();
+      notification.closeButton?.remove();
       notification.dismissable = false;
       if (!gChatTab) {
         const tabmail = document.getElementById("tabmail");

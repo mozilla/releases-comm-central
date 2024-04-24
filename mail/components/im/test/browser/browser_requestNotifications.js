@@ -32,7 +32,7 @@ add_task(async function testGrantingBuddyRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   ok(!notification.dimissable, "Can't dismiss without interacting");
-  ok(!notification.closeButtonEl, "Can't dismiss without interacting");
+  ok(!notification.closeButton, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
     notification.eventCallback = () => {
       resolve();
@@ -182,7 +182,7 @@ add_task(async function testGrantingChatRequest() {
   const notification = notificationBox.getNotificationWithValue(value);
   ok(notification, "notification shown");
   ok(!notification.dimissable, "Can't dismiss without interacting");
-  ok(!notification.closeButtonEl, "Can't dismiss without interacting");
+  ok(!notification.closeButton, "Can't dismiss without interacting");
   const closePromise = new Promise(resolve => {
     notification.eventCallback = () => {
       resolve();

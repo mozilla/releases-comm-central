@@ -418,7 +418,7 @@ async function checkFocusCycling(win, options) {
 
   if (options.notifications) {
     // Focus inside the notification.
-    const closeButton = (secondNotification || firstNotification).closeButtonEl;
+    const closeButton = (secondNotification || firstNotification).closeButton;
     closeButton.focus();
 
     goBackward();

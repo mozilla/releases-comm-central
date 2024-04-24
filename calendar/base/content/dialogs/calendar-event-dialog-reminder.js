@@ -196,7 +196,7 @@ async function setupMaxReminders() {
       },
       null
     );
-    notification.closeButtonEl.hidden = true;
+    notification.closeButton.hidden = true;
   } else {
     gReminderNotification.removeAllNotifications();
   }
