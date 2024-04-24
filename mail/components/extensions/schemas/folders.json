@@ -836,6 +836,44 @@
         ]
       },
       {
+        "name": "getUnifiedFolder",
+        "type": "function",
+        "description": "Get one of the special unified mailbox folders, which are virtual search folders and return the content from all mail accounts.",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The requested unified mailbox folder type.",
+            "enum": [
+              "inbox",
+              "drafts",
+              "sent",
+              "trash",
+              "templates",
+              "archives",
+              "junk"
+            ]
+          },
+          {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <value>false</value>.",
+            "optional": true,
+            "default": false,
+            "type": "boolean"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "folders.MailFolder"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "markAsRead",
         "permissions": ["accountsFolders"],
         "type": "function",

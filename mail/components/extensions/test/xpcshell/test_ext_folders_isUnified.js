@@ -258,6 +258,41 @@ add_task(async function test_folder_isUnified() {
           `The path of unified ${test.use} folder should be correct`
         );
 
+        // Verify the folder can be queried directly as well.
+        const [unifiedFolderQueried] = await browser.folders.query({
+          isUnified: true,
+          specialUse: [test.use],
+        });
+        browser.test.assertTrue(
+          unifiedFolderQueried,
+          `Should have found the unified ${test.use} folder using folders.query()`
+        );
+        window.assertDeepEqual(
+          unifiedFolderQueried,
+          unifiedFolder,
+          `The unified ${test.use} folder retrieved via folders.query() should be consistent`,
+          {
+            strict: true,
+          }
+        );
+
+        // Verify getUnifiedFolder() without subfolders (default).
+        const unifiedFolderGetter = await browser.folders.getUnifiedFolder(
+          test.use
+        );
+        browser.test.assertTrue(
+          unifiedFolderGetter,
+          `Should have found the unified ${test.use} folder using folders.getUnifiedFolder()`
+        );
+        window.assertDeepEqual(
+          unifiedFolderGetter,
+          unifiedFolder,
+          `The unified ${test.use} folder retrieved via folders.getUnifiedFolder() should be consistent`,
+          {
+            strict: true,
+          }
+        );
+
         // Check that unified mailbox folders can be used with folders.get().
         // Since the folders returned by folders.query() do not include subfolders,
         // they are not requested here as well.
@@ -287,6 +322,22 @@ add_task(async function test_folder_isUnified() {
           test.subFolders,
           folderWithSubfolders.subFolders,
           `The found subfolders for the unified ${test.use} folder should be correct`,
+          {
+            strict: true,
+          }
+        );
+
+        // Verify getUnifiedFolder() with subfolders.
+        const unifiedFolderGetterWithSubs =
+          await browser.folders.getUnifiedFolder(test.use, true);
+        browser.test.assertTrue(
+          unifiedFolderGetterWithSubs,
+          `Should have found the unified ${test.use} folder using folders.getUnifiedFolder() with subfolders`
+        );
+        window.assertDeepEqual(
+          unifiedFolderGetterWithSubs,
+          folderWithSubfolders,
+          `The unified ${test.use} folder retrieved via folders.getUnifiedFolder() with subfolders should be consistent`,
           {
             strict: true,
           }

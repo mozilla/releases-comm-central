@@ -1198,6 +1198,31 @@ this.folders = class extends ExtensionAPIPersistent {
           }
           return subFolders;
         },
+        async getUnifiedFolder(requestedType, includeSubFolders) {
+          const { folderManager } = context.extension;
+          const [smartFlag] = [...specialUseMap]
+            .filter(([, type]) => type == requestedType)
+            .map(([flag]) => flag);
+          if (!smartFlag) {
+            throw new ExtensionError(
+              `folders.getUnifiedFolder() failed, the requested type ${requestedType} is unknown`
+            );
+          }
+
+          const smartServer = SmartServerUtils.getSmartServer();
+          const smartFolder =
+            smartServer.rootFolder.getFolderWithFlags(smartFlag);
+          if (!smartFolder) {
+            throw new ExtensionError(
+              `folders.getUnifiedFolder() failed, the folder for the requested type ${requestedType} does not exist`
+            );
+          }
+
+          if (includeSubFolders) {
+            return folderManager.traverseSubfolders(smartFolder);
+          }
+          return folderManager.convert(smartFolder);
+        },
         markAsRead(target) {
           const { folder, path } = getFolder(target);
 
