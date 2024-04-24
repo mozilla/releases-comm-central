@@ -214,7 +214,11 @@ mork_size morkFile::WriteNewlines(morkEnv* ev, mork_count inNewlines)
 
     mork_size quantumSize = quantum * mork_kNewlineSize;
     mdb_size bytesWritten;
-    this->Write(ev->AsMdbEnv(), morkFile_kNewlines, quantumSize, &bytesWritten);
+    nsresult rc = this->Write(ev->AsMdbEnv(), morkFile_kNewlines, quantumSize,
+                              &bytesWritten);
+    if (NS_FAILED(rc)) {
+      NS_WARNING("Write failed");
+    }
     outSize += quantumSize;
     inNewlines -= quantum;
   }
@@ -255,7 +259,12 @@ morkFile::Put(nsIMdbEnv* mev, const void* inBuf, mdb_size inSize, mdb_pos inPos,
     mdb_pos outPos;
 
     Seek(mev, inPos, &outPos);
-    if (ev->Good()) Write(mev, inBuf, inSize, outActualSize);
+    if (ev->Good()) {
+      nsresult rc = Write(mev, inBuf, inSize, outActualSize);
+      if (NS_FAILED(rc)) {
+        NS_WARNING("Write failed");
+      }
+    }
     outErr = ev->AsErr();
   }
   return outErr;
@@ -326,10 +335,17 @@ morkStdioFile::~morkStdioFile()  // assert CloseStdioFile() executed earlier
 
     mStdioFile_File = 0;
 
+    // When we set mStdioFile_File to 0, we must call
+    this->SetFileActive(morkBool_kFalse);
+    this->SetFileIoOpen(morkBool_kFalse);
+    // to set the file as not open and not active after a
+    // MORK_FILECLOSE operation
     this->CloseFile(ev);
     this->MarkShut();
-  } else
+  } else {
+    NS_WARNING("Non-node passed to CloseStdioFile");
     this->NonNodeError(ev);
+  }
 }
 
 // } ===== end morkNode methods =====
@@ -394,6 +410,8 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
 // are renamed to become the old file, so that better transactional
 // behavior is exhibited by the file, so crashes protect old files.
 // Note that AcquireBud() is an illegal operation on readonly files.
+
+// We should not call this without setting mFile_Name.
 {
   NS_ENSURE_ARG(acquiredFile);
   MORK_USED_1(ioHeap);
@@ -410,9 +428,9 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
       PathChar* name = mFile_Name;
       if (name) {
         if (MORK_FILECLOSE(file) >= 0) {
+          mStdioFile_File = 0;
           this->SetFileActive(morkBool_kFalse);
           this->SetFileIoOpen(morkBool_kFalse);
-          mStdioFile_File = 0;
 
           file = MORK_FILEOPEN(
               name, "wb+");  // open for write, discarding old content
@@ -421,12 +439,21 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
             this->SetFileActive(morkBool_kTrue);
             this->SetFileIoOpen(morkBool_kTrue);
             this->SetFileFrozen(morkBool_kFalse);
-          } else
+          } else {
             this->new_stdio_file_fault(ev);
-        } else
+            mStdioFile_File = 0;
+            this->SetFileActive(morkBool_kFalse);
+            this->SetFileIoOpen(morkBool_kFalse);
+          }
+        } else {
           this->new_stdio_file_fault(ev);
-      } else
+          mStdioFile_File = 0;
+          this->SetFileActive(morkBool_kFalse);
+          this->SetFileIoOpen(morkBool_kFalse);
+        }
+      } else {
         this->NilFileNameError(ev);
+      }
 
       // #endif /*MORK_WIN*/
 
@@ -448,33 +475,27 @@ morkStdioFile::AcquireBud(nsIMdbEnv* mdbev, nsIMdbHeap* ioHeap,
 mork_pos morkStdioFile::Length(morkEnv* ev) const {
   mork_pos outPos = 0;
 
-  if (this->IsOpenAndActiveFile()) {
-    FILE* file = (FILE*)mStdioFile_File;
-    if (file) {
-      long start = MORK_FILETELL(file);
-      if (start >= 0) {
-        long fore = MORK_FILESEEK(file, 0, SEEK_END);
-        if (fore >= 0) {
-          long eof = MORK_FILETELL(file);
-          if (eof >= 0) {
-            long back = MORK_FILESEEK(file, start, SEEK_SET);
-            if (back >= 0)
-              outPos = eof;
-            else
-              this->new_stdio_file_fault(ev);
-          } else
-            this->new_stdio_file_fault(ev);
-        } else
-          this->new_stdio_file_fault(ev);
-      } else
-        this->new_stdio_file_fault(ev);
-    } else if (mFile_Thief)
-      mFile_Thief->Eof(ev->AsMdbEnv(), &outPos);
-    else
-      this->NewMissingIoError(ev);
-  } else
+  if (!this->IsOpenAndActiveFile()) {
     this->NewFileDownError(ev);
+    return outPos;
+  }
+  FILE* file = (FILE*)mStdioFile_File;
 
+  if (file) {
+    long start, fore, eof, back;
+    if ((start = MORK_FILETELL(file)) >= 0 &&
+        (fore = MORK_FILESEEK(file, 0, SEEK_END)) >= 0 &&
+        (eof = MORK_FILETELL(file)) >= 0 &&
+        (back = MORK_FILESEEK(file, start, SEEK_SET)) >= 0) {
+      outPos = eof;
+    } else {
+      this->new_stdio_file_fault(ev);
+    }
+  } else if (mFile_Thief)
+    mFile_Thief->Eof(ev->AsMdbEnv(), &outPos);
+  else {
+    this->NewMissingIoError(ev);
+  }
   return outPos;
 }
 
@@ -561,11 +582,17 @@ morkStdioFile::Write(nsIMdbEnv* mdbev, const void* inBuf, mork_size inSize,
       mozilla::Unused << fwrite(inBuf, 1, inSize, file);
       if (!ferror(file))
         outCount = inSize;
-      else
+      else {
+        NS_WARNING("fwrite failed");
         this->new_stdio_file_fault(ev);
-    } else if (mFile_Thief)
-      mFile_Thief->Write(mdbev, inBuf, inSize, &outCount);
-    else
+      }
+    } else if (mFile_Thief) {
+      nsresult rc = mFile_Thief->Write(mdbev, inBuf, inSize, &outCount);
+      // This error is not caught?
+      if (NS_FAILED(rc)) {
+        NS_WARNING("Write failed");
+      }
+    } else
       this->NewMissingIoError(ev);
   } else
     this->NewFileDownError(ev);
@@ -594,6 +621,9 @@ morkStdioFile::Flush(nsIMdbEnv* mdbev) {
 // ````` ````` ````` `````   ````` ````` ````` `````
 // protected: // protected non-poly morkStdioFile methods
 
+// This is called when I/O error fails for stdio operation.
+// E.g., network timeout for referencing a message storage on
+// a remote network.
 void morkStdioFile::new_stdio_file_fault(morkEnv* ev) const {
   FILE* file = (FILE*)mStdioFile_File;
 
@@ -656,8 +686,12 @@ void morkStdioFile::OpenStdio(morkEnv* ev, const PathChar* inName,
               this->SetFileActive(morkBool_kTrue);
               this->SetFileIoOpen(morkBool_kTrue);
               this->SetFileFrozen(frozen);
-            } else
+            } else {
+              mStdioFile_File = 0;
+              this->SetFileActive(morkBool_kFalse);
+              this->SetFileIoOpen(morkBool_kFalse);
               this->new_stdio_file_fault(ev);
+            }
           }
         } else
           ev->NewError("no file name");
@@ -686,8 +720,9 @@ void morkStdioFile::UseStdio(morkEnv* ev, void* ioFile, const PathChar* inName,
             this->SetFileActive(morkBool_kTrue);
             this->SetFileFrozen(inFrozen);
           }
-        } else
+        } else {
           ev->NilPointerError();
+        }
       } else
         ev->NewError("file already active");
     } else
@@ -704,8 +739,10 @@ void morkStdioFile::CloseStdio(morkEnv* ev)
 {
   if (mStdioFile_File && this->FileActive() && this->FileIoOpen()) {
     FILE* file = (FILE*)mStdioFile_File;
-    if (MORK_FILECLOSE(file) < 0) this->new_stdio_file_fault(ev);
-
+    if (MORK_FILECLOSE(file) < 0) {
+      NS_WARNING("MORK_FILECLOSE(file) failed");
+      this->new_stdio_file_fault(ev);
+    }
     mStdioFile_File = 0;
     this->SetFileActive(morkBool_kFalse);
     this->SetFileIoOpen(morkBool_kFalse);
@@ -721,9 +758,15 @@ morkStdioFile::Steal(nsIMdbEnv* ev, nsIMdbFile* ioThief)
   morkEnv* mev = morkEnv::FromMdbEnv(ev);
   if (mStdioFile_File && FileActive() && FileIoOpen()) {
     FILE* file = (FILE*)mStdioFile_File;
-    if (MORK_FILECLOSE(file) < 0) new_stdio_file_fault(mev);
+
+    if (MORK_FILECLOSE(file) < 0) {
+      NS_WARNING("MORK_FILECLOSE(file) failed");
+      new_stdio_file_fault(mev);
+    }
 
     mStdioFile_File = 0;
+    this->SetFileActive(morkBool_kFalse);
+    this->SetFileIoOpen(morkBool_kFalse);
   }
   SetThief(mev, ioThief);
   return NS_OK;

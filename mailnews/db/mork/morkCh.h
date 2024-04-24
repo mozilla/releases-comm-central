@@ -93,17 +93,17 @@ extern const mork_flags morkCh_Type[]; /* 256 byte predicate bits ch map */
 
 #  define morkCh_GetFlags(c) (morkCh_Type[(mork_ch)(c)])
 
-#  define morkFlags_IsDigit(f) ((f)&morkCh_kD)
-#  define morkFlags_IsHex(f) ((f)&morkCh_kX)
-#  define morkFlags_IsValue(f) ((f)&morkCh_kV)
-#  define morkFlags_IsWhite(f) ((f)&morkCh_kW)
-#  define morkFlags_IsName(f) ((f)&morkCh_kN)
-#  define morkFlags_IsMore(f) ((f)&morkCh_kM)
+#  define morkFlags_IsDigit(f) ((f) & morkCh_kD)
+#  define morkFlags_IsHex(f) ((f) & morkCh_kX)
+#  define morkFlags_IsValue(f) ((f) & morkCh_kV)
+#  define morkFlags_IsWhite(f) ((f) & morkCh_kW)
+#  define morkFlags_IsName(f) ((f) & morkCh_kN)
+#  define morkFlags_IsMore(f) ((f) & morkCh_kM)
 #  define morkFlags_IsAlpha(f) ((f) & (morkCh_kL | morkCh_kU))
 #  define morkFlags_IsAlphaNum(f) ((f) & (morkCh_kL | morkCh_kU | morkCh_kD))
 
-#  define morkFlags_IsUpper(f) ((f)&morkCh_kU)
-#  define morkFlags_IsLower(f) ((f)&morkCh_kL)
+#  define morkFlags_IsUpper(f) ((f) & morkCh_kU)
+#  define morkFlags_IsLower(f) ((f) & morkCh_kL)
 
 /* ````` character case (e.g. for case insensitive operations) ````` */
 

@@ -465,11 +465,16 @@ void morkWriter::WriteAtomSpaceAsDict(morkEnv* ev, morkAtomSpace* ioSpace) {
               yarn.mYarn_Fill + size + morkWriter_kYarnEscapeSlop + 4;
           this->IndentOverMaxLine(ev, pending, morkWriter_kDictAliasDepth);
           mork_size bytesWritten;
-          stream->Write(mdbev, buf, size + 1, &bytesWritten);  //  + '('
+          nsresult rc =
+              stream->Write(mdbev, buf, size + 1, &bytesWritten);  //  + '('
+          if (NS_FAILED(rc)) {
+            NS_WARNING("Write failed");
+          }
           mWriter_LineSize += bytesWritten;
 
           pending -= (size + 1);
           this->IndentOverMaxLine(ev, pending, morkWriter_kDictAliasValueDepth);
+          // Putc sets an error in morkEnv object if something goes wrong.
           stream->Putc(ev, '=');  // start alias
           ++mWriter_LineSize;
 

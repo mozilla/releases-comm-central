@@ -560,6 +560,7 @@ void morkParser::ReadRow(morkEnv* ev, int c)
           }  // switch
         }    // while
 
+        // XXX: What about already EOF and/or error here.
         if (ev->Good()) {
           if ((c = this->NextChar(ev)) == '!')
             this->ReadRowPos(ev);
@@ -622,7 +623,8 @@ void morkParser::ReadTable(morkEnv* ev)
   else if (ev->Good() && c != EOF)
     mParser_Stream->Ungetc(c);
 
-  if (ev->Good() && this->ReadMid(ev, &mParser_TableMid)) {
+  // We should not call ReadMid() if c == EOF
+  if (c != EOF && ev->Good() && this->ReadMid(ev, &mParser_TableMid)) {
     mParser_InTable = morkBool_kTrue;
     this->OnNewTable(ev, *mParser_TableSpan.AsPlace(), mParser_TableMid,
                      cutAllTableRows);
@@ -656,7 +658,7 @@ void morkParser::ReadTable(morkEnv* ev)
             //   break;
 
           default:
-            ev->NewWarning("unexpected byte in table");
+            ev->NewError("unexpected byte in table");
             break;
         }
       }
@@ -670,7 +672,8 @@ void morkParser::ReadTable(morkEnv* ev)
       mParser_State = morkParser_kBrokenState;
     else if (c == EOF)
       mParser_State = morkParser_kDoneState;
-  }
+    return;
+  }  // if
 }
 
 mork_id morkParser::ReadHex(morkEnv* ev, int* outNextChar)
@@ -719,7 +722,8 @@ mork_id morkParser::ReadHex(morkEnv* ev, int* outNextChar)
 }
 
 /*static*/ void morkParser::UnexpectedEofError(morkEnv* ev) {
-  ev->NewWarning("unexpected eof");
+  // This should be an error. (corrupted file system, etc.)
+  ev->NewError("unexpected eof");
 }
 
 morkBuf* morkParser::ReadValue(morkEnv* ev) {
@@ -798,7 +802,7 @@ void morkParser::ReadDictForm(morkEnv* ev) {
       }
     }
   }
-  ev->NewWarning("unexpected byte in dict form");
+  ev->NewError("unexpected byte in dict form");
 }
 
 void morkParser::ReadCellForm(morkEnv* ev, int c) {
@@ -813,7 +817,7 @@ void morkParser::ReadCellForm(morkEnv* ev, int c) {
   } else if (nextChar == '^') {
     cellForm = this->ReadHex(ev, &nextChar);
   } else {
-    ev->NewWarning("unexpected byte in cell form");
+    ev->NewError("unexpected byte in cell form");
     return;
   }
   // ### not sure about this. Which form should we set?
@@ -822,7 +826,7 @@ void morkParser::ReadCellForm(morkEnv* ev, int c) {
     OnCellForm(ev, cellForm);
     return;
   }
-  ev->NewWarning("unexpected byte in cell form");
+  ev->NewError("unexpected byte in cell form");
 }
 
 void morkParser::ReadAlias(morkEnv* ev)
@@ -918,7 +922,8 @@ void morkParser::ReadMeta(morkEnv* ev, int inEndMeta)
 }
 
 /*static*/ void morkParser::UnexpectedByteInMetaWarning(morkEnv* ev) {
-  ev->NewWarning("unexpected byte in meta");
+  // This should be an error (maybe I/O error).
+  ev->NewError("unexpected byte in meta");
 }
 
 /*static*/ void morkParser::NonParserTypeError(morkEnv* ev) {
@@ -994,6 +999,11 @@ void morkParser::ReadGroup(morkEnv* mev) {
         if (mev->Good()) {
           this->OnNewGroup(mev, mParser_GroupSpan.mSpan_Start, mParser_GroupId);
 
+          // XXX What is the correct way to handle, false return from
+          // Readcontent?
+          // I think if this returns false, the next OnGroupCommitEnd should not
+          // be called, but rather this should be flagged one way or the other.
+          //
           this->ReadContent(mev, /*inInsideGroup*/ morkBool_kTrue);
 
           this->OnGroupCommitEnd(mev, mParser_GroupSpan);
@@ -1099,7 +1109,7 @@ void morkParser::ReadDict(morkEnv* ev)
         break;
 
       default:
-        ev->NewWarning("unexpected byte in dict");
+        ev->NewError("unexpected byte in dict");
         break;
     }
   }
@@ -1166,6 +1176,8 @@ void morkParser::StartSpanOnThisByte(morkEnv* mev, morkSpan* ioSpan) {
   }
 }
 
+// What happens if ReadContent returns false, i.e., could not grok the
+// content?
 mork_bool morkParser::ReadContent(morkEnv* ev, mork_bool inInsideGroup) {
   int c;
   mork_bool keep_going = true;
@@ -1203,7 +1215,7 @@ mork_bool morkParser::ReadContent(morkEnv* ev, mork_bool inInsideGroup) {
         //   break;
 
       default:
-        ev->NewWarning("unexpected byte in ReadContent()");
+        ev->NewError("unexpected byte in ReadContent()");
         break;
     }
   }

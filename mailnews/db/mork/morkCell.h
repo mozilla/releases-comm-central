@@ -17,7 +17,7 @@
 #define morkDelta_kColumnMask (~(mork_column)morkDelta_kChangeMask)
 #define morkDelta_Init(self, cl, ch) \
   ((self) = ((cl) << morkDelta_kShift) | (ch))
-#define morkDelta_Change(self) ((mork_change)((self)&morkDelta_kChangeMask))
+#define morkDelta_Change(self) ((mork_change)((self) & morkDelta_kChangeMask))
 #define morkDelta_Column(self) ((self) >> morkDelta_kShift)
 
 class morkCell {  // minimal cell format

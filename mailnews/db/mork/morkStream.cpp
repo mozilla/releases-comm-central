@@ -146,7 +146,13 @@ mork_size morkStream::PutIndent(morkEnv* ev, mork_count inDepth)
     if (ev->Good()) {
       outLength = inDepth;
       mdb_size bytesWritten;
-      if (inDepth) this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+      if (inDepth) {
+        nsresult rc =
+            this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+        if (NS_FAILED(rc)) {
+          NS_WARNING("Write failed");
+        }
+      }
     }
   }
   return outLength;
@@ -169,7 +175,13 @@ mork_size morkStream::PutByteThenIndent(morkEnv* ev, int inByte,
     if (ev->Good()) {
       outLength = inDepth;
       mdb_size bytesWritten;
-      if (inDepth) this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+      if (inDepth) {
+        nsresult rc =
+            this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+        if (NS_FAILED(rc)) {
+          NS_WARNING("Write failed");
+        }
+      }
     }
   }
   return outLength;
@@ -190,14 +202,25 @@ mork_size morkStream::PutStringThenIndent(morkEnv* ev, const char* inString,
   if (inString) {
     mork_size length = strlen(inString);
     if (length && ev->Good())  // any bytes to write?
-      this->Write(mev, inString, length, &bytesWritten);
+    {
+      nsresult rc = this->Write(mev, inString, length, &bytesWritten);
+      if (NS_FAILED(rc)) {
+        NS_WARNING("Write failed");
+      }
+    }
   }
 
   if (ev->Good()) {
     this->PutLineBreak(ev);
     if (ev->Good()) {
       outLength = inDepth;
-      if (inDepth) this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+      if (inDepth) {
+        nsresult rc =
+            this->Write(mev, morkStream_kSpaces, inDepth, &bytesWritten);
+        if (NS_FAILED(rc)) {
+          NS_WARNING("Write failed");
+        }
+      }
     }
   }
   return outLength;
@@ -211,7 +234,10 @@ mork_size morkStream::PutString(morkEnv* ev, const char* inString) {
     outSize = strlen(inString);
     if (outSize && ev->Good())  // any bytes to write?
     {
-      this->Write(mev, inString, outSize, &bytesWritten);
+      nsresult rc = this->Write(mev, inString, outSize, &bytesWritten);
+      if (NS_FAILED(rc)) {
+        NS_WARNING("Write failed");
+      }
     }
   }
   return outSize;
@@ -227,7 +253,10 @@ mork_size morkStream::PutStringThenNewline(morkEnv* ev, const char* inString)
     outSize = strlen(inString);
     if (outSize && ev->Good())  // any bytes to write?
     {
-      this->Write(mev, inString, outSize, &bytesWritten);
+      nsresult rc = this->Write(mev, inString, outSize, &bytesWritten);
+      if (NS_FAILED(rc)) {
+        NS_WARNING("Write failed");
+      }
       if (ev->Good()) outSize += this->PutLineBreak(ev);
     }
   }
