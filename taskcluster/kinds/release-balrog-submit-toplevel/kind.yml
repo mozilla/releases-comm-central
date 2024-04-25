@@ -45,7 +45,7 @@ jobs:
                 by-release-type:
                     beta: ["thunderbird-beta-cdntest", "thunderbird-beta-localtest"]
                     release(-rc)?: ["thunderbird-release-cdntest", "thunderbird-release-localtest"]
-                    esr115: ["thunderbird-release115-cdntest", "thunderbird-release115-localtest"]
+                    esr115: ["thunderbird-esr115-cdntest", "thunderbird-esr115-localtest"]
                     default: []
             platforms: ["linux", "linux64", "macosx64", "win32", "win64"]
         treeherder:
