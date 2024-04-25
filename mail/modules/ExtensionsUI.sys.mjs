@@ -487,8 +487,6 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-blocked": {
-        const window = getTopWindow();
-        await window.ensureCustomElements("moz-support-link");
         // Dismiss the progress notification.  Note that this is bad if
         // there are multiple simultaneous installs happening, see
         // bug 1329884 for a longer explanation.
