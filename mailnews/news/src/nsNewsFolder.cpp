@@ -1420,31 +1420,22 @@ NS_IMETHODIMP nsMsgNewsFolder::GetLocalMsgStream(nsIMsgDBHdr* hdr,
   return GetMsgInputStream(hdr, stream);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadBegin(nsMsgKey key) {
+NS_IMETHODIMP nsMsgNewsFolder::NotifyArticleDownloaded(uint32_t articleNumber,
+                                                       nsACString const& data) {
   if (!m_downloadMessageForOfflineUse) {
     return NS_OK;
   }
-  nsresult rv = GetMessageHeader(key, getter_AddRefs(m_offlineHeader));
+  nsresult rv =
+      GetMessageHeader(articleNumber, getter_AddRefs(m_offlineHeader));
   NS_ENSURE_SUCCESS(rv, rv);
-  return StartNewOfflineMessage();  // Sets up m_tempMessageStream et al.
-}
-
-NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(nsACString const& line) {
-  nsresult rv = NS_OK;
+  StartNewOfflineMessage();  // Sets up m_tempMessageStream et al.
   if (m_tempMessageStream) {
-    m_numOfflineMsgLines++;
+    m_numOfflineMsgLines += data.CountChar('\n');
+
     uint32_t count = 0;
-    rv = m_tempMessageStream->Write(line.BeginReading(), line.Length(), &count);
-    NS_ENSURE_SUCCESS(rv, rv);
+    rv = m_tempMessageStream->Write(data.BeginReading(), data.Length(), &count);
     m_tempMessageStreamBytesWritten += count;
-  }
-
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadEnd(nsresult status) {
-  if (m_tempMessageStream) {
-    return EndNewOfflineMessage(status);
+    return EndNewOfflineMessage(rv);
   }
   return NS_OK;
 }

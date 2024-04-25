@@ -6,10 +6,6 @@
 #include "nsISupports.idl"
 #include "nsIMsgFolder.idl"
 
-%{C++
-#include "nsTArray.h"
-%}
-
 interface nsIMsgWindow;
 interface nsINntpIncomingServer;
 
@@ -112,29 +108,14 @@ interface nsIMsgNewsFolder : nsISupports {
   void getNextNMessages(in nsIMsgWindow aMsgWindow);
 
   /**
-   * Begin loading a message into the folder's offline store.
-   * @param key - the key of the message being loaded (the folder must
-   *              already have the message in it's DB)
-   */
-  void notifyDownloadBegin(in nsMsgKey key);
-
-  /**
-   * Feed the next line of a message into the folder, to be invoked multiple
-   * times between notifyDownloadBegin() and notifyDownloadEnd().
+   * Feed the article (message) into the folder, allowing offline storage
+   * to take place if configured.
    *
-   * @param line - a single line of data to append to the message, including
-   *               end-of-line terminator.
+   * @param articleNumber - The article being loaded. It must already be in
+   *   the database.
+   * @param data - Article data, including end-of-line terminators.
    */
-  void notifyDownloadedLine(in ACString line);
-
-  /**
-   * Finish loading a message into the folder. If an error occurs, the
-   * folder hears about it via this function, and should abort the message.
-   *
-   * @param status - NS_OK if the operation was completed, an error code
-   *                 otherwise.
-   */
-  void notifyDownloadEnd(in nsresult status);
+  void notifyArticleDownloaded(in unsigned long articleNumber, in ACString data);
 
   void notifyFinishedDownloadinghdrs();
 

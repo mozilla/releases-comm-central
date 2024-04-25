@@ -4317,14 +4317,8 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
   }
 
   // adoptedMessageLine is actually a string with a lot of message lines,
-  // separated by native line terminators we need to count the number of
-  // MSG_LINEBREAK's to determine how much to increment m_numOfflineMsgLines by.
-  const char* nextLine = adoptedMessageLine;
-  do {
-    m_numOfflineMsgLines++;
-    nextLine = PL_strstr(nextLine, MSG_LINEBREAK);
-    if (nextLine) nextLine += MSG_LINEBREAK_LEN;
-  } while (nextLine && *nextLine);
+  nsDependentCString data(adoptedMessageLine);
+  m_numOfflineMsgLines += data.CountChar('\n');
 
   if (m_tempMessageStream) {
     rv = m_tempMessageStream->Write(adoptedMessageLine,
