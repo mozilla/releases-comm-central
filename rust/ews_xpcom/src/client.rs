@@ -42,7 +42,8 @@ impl XpComEwsClient {
         callbacks: RefPtr<IEwsFolderCallbacks>,
         sync_state_token: Option<String>,
     ) {
-        // Call an inner function to perform the operation in order to
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
         self.sync_folder_hierarchy_inner(callbacks.clone(), sync_state_token)
             .await
             .unwrap_or_else(|err| {
@@ -90,7 +91,7 @@ impl XpComEwsClient {
                 sync_state: sync_state_token,
             };
 
-            let response = self.perform_operation(op).await?;
+            let response = self.make_operation_request(op).await?;
             let message = response
                 .response_messages
                 .sync_folder_hierarchy_response_message
@@ -188,7 +189,7 @@ impl XpComEwsClient {
             folder_ids: ids,
         };
 
-        let response = self.perform_operation(op).await?;
+        let response = self.make_operation_request(op).await?;
         let messages = response.response_messages.get_folder_response_message;
 
         let map = DISTINGUISHED_IDS
@@ -351,7 +352,7 @@ impl XpComEwsClient {
                 folder_ids: to_fetch,
             };
 
-            let response = self.perform_operation(op).await?;
+            let response = self.make_operation_request(op).await?;
             let messages = response.response_messages.get_folder_response_message;
 
             let mut fetched = messages
@@ -395,29 +396,90 @@ impl XpComEwsClient {
         Ok(folders)
     }
 
-    async fn perform_operation<Op>(&self, op: Op) -> Result<Op::Response, XpComEwsError>
+    /// Makes a request to the EWS endpoint to perform an operation.
+    ///
+    /// If the request is throttled, it will be retried after the delay given in
+    /// the response.
+    async fn make_operation_request<Op>(&self, op: Op) -> Result<Op::Response, XpComEwsError>
     where
         Op: Operation,
     {
-        let auth_string = self.get_auth_string().await?;
-
         let envelope = soap::Envelope { body: op };
         let request_body = envelope.as_xml_document()?;
 
-        let response = self
-            .client
-            .post(&self.endpoint)?
-            .header("Authorization", &auth_string)
-            .body(request_body.as_slice(), "application/xml")
-            .send()
-            .await?
-            .error_from_status()?;
+        // Loop in case we need to retry the request after a delay.
+        loop {
+            // Fetch the auth string for each request in case of token
+            // expiration between requests.
+            let auth_string = self.get_auth_string().await?;
 
-        let response_body = response.body();
-        let envelope: soap::Envelope<Op::Response> =
-            soap::Envelope::from_xml_document(response_body)?;
+            let response = self
+                .client
+                .post(&self.endpoint)?
+                .header("Authorization", &auth_string)
+                .body(request_body.as_slice(), "application/xml")
+                .send()
+                .await?;
 
-        Ok(envelope.body)
+            let response_body = response.body();
+
+            // Don't immediately propagate in case the error represents a
+            // throttled request, which we can address with retry.
+            let op_result: Result<soap::Envelope<Op::Response>, _> =
+                soap::Envelope::from_xml_document(&response_body);
+
+            break match op_result {
+                Ok(envelope) => Ok(envelope.body),
+                Err(err) => {
+                    // Check first to see if the request has been throttled and
+                    // needs to be retried.
+                    let backoff_delay_ms = maybe_get_backoff_delay_ms(&err);
+                    if let Some(backoff_delay_ms) = backoff_delay_ms {
+                        log::debug!(
+                            "request throttled, will retry after {backoff_delay_ms} milliseconds"
+                        );
+
+                        xpcom_async::sleep(backoff_delay_ms).await?;
+                        continue;
+                    }
+
+                    if matches!(err, ews::Error::Deserialize(_)) {
+                        // If deserialization failed, the most likely cause is
+                        // that our request failed and the response body was not
+                        // an EWS XML response. In that case, prefer the
+                        // HTTP-derived error, which includes the status code
+                        // and full response body.
+                        response.error_from_status()?;
+                    }
+
+                    Err(err.into())
+                }
+            };
+        }
+    }
+}
+
+/// Gets the time to wait before retrying a throttled request, if any.
+///
+/// When an Exchange server throttles a request, the response will specify a
+/// delay which should be observed before the request is retried.
+fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
+    if let ews::Error::RequestFault(fault) = err {
+        // We successfully sent a request, but it was rejected for some reason.
+        // Whatever the reason, retry if we're provided with a backoff delay.
+        let delay = fault
+            .as_ref()
+            .detail
+            .as_ref()?
+            .message_xml
+            .as_ref()?
+            .back_off_milliseconds?;
+
+        // There's no maximum delay documented, so we clamp the incoming value
+        // just to be on the safe side.
+        Some(u32::try_from(delay).unwrap_or(u32::MAX))
+    } else {
+        None
     }
 }
 
@@ -447,14 +509,4 @@ pub(crate) enum XpComEwsError {
 
     #[error("an error occurred while (de)serializing")]
     Ews(#[from] ews::Error),
-}
-
-impl From<XpComEwsError> for nsresult {
-    fn from(value: XpComEwsError) -> Self {
-        match value {
-            XpComEwsError::XpCom(inner) => inner,
-            XpComEwsError::Http(_) => NS_ERROR_FAILURE,
-            XpComEwsError::Ews(_) => NS_ERROR_FAILURE,
-        }
-    }
 }

@@ -8,6 +8,7 @@ base64 = "0.21.3"
 ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "cad3dd7d0763ddfeb336481fd2ba0c5632c932f5", version = "0.1.0" }
 futures = "0.3.28"
 fxhash = "0.2.1"
+log = "0.4.21"
 moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
@@ -16,5 +17,6 @@ quick-xml = { version = "0.31.0", features = ["serde"] }
 thiserror = "1.0.56"
 url = "2.5.0"
 xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
+xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

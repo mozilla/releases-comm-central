@@ -1483,6 +1483,7 @@ dependencies = [
  "ews",
  "futures",
  "fxhash",
+ "log",
  "moz_http",
  "moz_task",
  "nserror",
@@ -1491,6 +1492,7 @@ dependencies = [
  "thiserror",
  "url",
  "xpcom",
+ "xpcom_async",
 ]
 
 [[package]]
