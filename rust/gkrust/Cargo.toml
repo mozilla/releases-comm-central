@@ -31,7 +31,7 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "7b1021714989bedef3d40a843a516273db38beaa", optional = true }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "cc58f92f28015e4e25eba9e482007cf464c10474", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8ff972c8e2ec1782ff262ac4071c0415e69b1367", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.12.0", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
