@@ -1426,3 +1426,7 @@ pref("mail.theme.macos.native-theme", false);
 // Bug 1773079 : check if true causes issues for Thunderbird
 // prevent JS from monkeying with window focus, etc
 pref("dom.disable_window_flip", true);
+
+// LightweightThemeConsumer.sys.mjs needs this pref, even if it has no effect in
+// Thunderbird.
+pref("browser.theme.dark-private-windows", true);
