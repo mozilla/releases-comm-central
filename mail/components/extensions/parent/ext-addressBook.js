@@ -1093,25 +1093,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
           false
         );
       },
-      async quickSearch(parentId, queryInfo) {
+      async query(queryInfo) {
         const { getSearchTokens, getModelQuery, generateQueryURI } =
           ChromeUtils.importESModule(
             "resource:///modules/ABQueryUtils.sys.mjs"
           );
-
-        let searchString;
-        if (typeof queryInfo == "string") {
-          searchString = queryInfo;
-          queryInfo = {
-            includeRemote: true,
-            includeLocal: true,
-            includeReadOnly: true,
-            includeReadWrite: true,
-          };
-        } else {
-          searchString = queryInfo.searchString;
-        }
-
+        const searchString = queryInfo.searchString || "";
         const searchWords = getSearchTokens(searchString);
         if (searchWords.length == 0) {
           return [];
@@ -1122,10 +1109,12 @@ this.addressBook = class extends ExtensionAPIPersistent {
         const searchQuery = generateQueryURI(searchFormat, searchWords);
 
         let booksToSearch;
-        if (parentId == null) {
+        if (queryInfo.parentId == null) {
           booksToSearch = [...addressBookCache.addressBooks.values()];
         } else {
-          booksToSearch = [addressBookCache.findAddressBookById(parentId)];
+          booksToSearch = [
+            addressBookCache.findAddressBookById(queryInfo.parentId),
+          ];
         }
 
         const results = [];
@@ -1160,6 +1149,19 @@ this.addressBook = class extends ExtensionAPIPersistent {
         await Promise.all(promises);
 
         return addressBookCache.convert(results, false);
+      },
+      async quickSearch(parentId, queryInfo) {
+        if (typeof queryInfo == "string") {
+          const searchString = queryInfo;
+          queryInfo = {
+            searchString,
+            includeRemote: true,
+            includeLocal: true,
+            includeReadOnly: true,
+            includeReadWrite: true,
+          };
+        }
+        return this.query({ ...queryInfo, parentId });
       },
       get(id) {
         return addressBookCache.convert(

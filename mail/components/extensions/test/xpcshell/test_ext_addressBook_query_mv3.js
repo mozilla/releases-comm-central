@@ -23,71 +23,97 @@ add_setup(async () => {
   });
 });
 
-add_task(async function test_quickSearch() {
+add_task(async function test_query_mv3() {
   async function background() {
     const book1 = await browser.addressBooks.create({ name: "book1" });
     const book2 = await browser.addressBooks.create({ name: "book2" });
 
     const book1contacts = {
-      charlie: await browser.contacts.create(book1, { FirstName: "charlie" }),
-      juliet: await browser.contacts.create(book1, { FirstName: "juliet" }),
-      mike: await browser.contacts.create(book1, { FirstName: "mike" }),
-      oscar: await browser.contacts.create(book1, { FirstName: "oscar" }),
-      papa: await browser.contacts.create(book1, { FirstName: "papa" }),
-      romeo: await browser.contacts.create(book1, { FirstName: "romeo" }),
-      victor: await browser.contacts.create(book1, { FirstName: "victor" }),
+      charlie: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "charlie",
+      }),
+      juliet: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "juliet",
+      }),
+      mike: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "mike",
+      }),
+      oscar: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "oscar",
+      }),
+      papa: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "papa",
+      }),
+      romeo: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "romeo",
+      }),
+      victor: await browser.addressBooks.contacts.create(book1, {
+        FirstName: "victor",
+      }),
     };
 
     const book2contacts = {
-      bigBird: await browser.contacts.create(book2, {
+      bigBird: await browser.addressBooks.contacts.create(book2, {
         FirstName: "Big",
         LastName: "Bird",
       }),
-      cookieMonster: await browser.contacts.create(book2, {
+      cookieMonster: await browser.addressBooks.contacts.create(book2, {
         FirstName: "Cookie",
         LastName: "Monster",
       }),
-      elmo: await browser.contacts.create(book2, { FirstName: "Elmo" }),
-      grover: await browser.contacts.create(book2, { FirstName: "Grover" }),
-      oscarTheGrouch: await browser.contacts.create(book2, {
+      elmo: await browser.addressBooks.contacts.create(book2, {
+        FirstName: "Elmo",
+      }),
+      grover: await browser.addressBooks.contacts.create(book2, {
+        FirstName: "Grover",
+      }),
+      oscarTheGrouch: await browser.addressBooks.contacts.create(book2, {
         FirstName: "Oscar",
         LastName: "The Grouch",
       }),
     };
 
     // A search string without a match in either book.
-    let results = await browser.contacts.quickSearch("snuffleupagus");
+    let results = await browser.addressBooks.contacts.query({
+      searchString: "snuffleupagus",
+    });
     browser.test.assertEq(0, results.length);
 
-    // A search string with a match in the book we're searching.
-    results = await browser.contacts.quickSearch(book1, "mike");
-    browser.test.assertEq(1, results.length);
-    browser.test.assertEq(book1contacts.mike, results[0].id);
-
-    // A search string passed via queryInfo
-    results = await browser.contacts.quickSearch(book1, {
+    // A search string with a match in the book we are searching.
+    results = await browser.addressBooks.contacts.query({
+      parentId: book1,
       searchString: "mike",
     });
     browser.test.assertEq(1, results.length);
     browser.test.assertEq(book1contacts.mike, results[0].id);
 
     // A search string with a match in the book we're not searching.
-    results = await browser.contacts.quickSearch(book1, "elmo");
+    results = await browser.addressBooks.contacts.query({
+      parentId: book1,
+      searchString: "elmo",
+    });
     browser.test.assertEq(0, results.length);
 
     // A search string with a match in both books.
-    results = await browser.contacts.quickSearch(book1, "oscar");
+    results = await browser.addressBooks.contacts.query({
+      parentId: book1,
+      searchString: "oscar",
+    });
     browser.test.assertEq(1, results.length);
     browser.test.assertEq(book1contacts.oscar, results[0].id);
 
     // A search string with a match in both books. Looking in all books.
-    results = await browser.contacts.quickSearch("oscar");
+    results = await browser.addressBooks.contacts.query({
+      searchString: "oscar",
+    });
     browser.test.assertEq(2, results.length);
     browser.test.assertEq(book1contacts.oscar, results[0].id);
     browser.test.assertEq(book2contacts.oscarTheGrouch, results[1].id);
 
     // No valid search strings.
-    results = await browser.contacts.quickSearch("  ");
+    results = await browser.addressBooks.contacts.query({
+      searchString: "  ",
+    });
     browser.test.assertEq(0, results.length);
 
     await browser.addressBooks.delete(book1);
@@ -98,7 +124,10 @@ add_task(async function test_quickSearch() {
 
   const extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["addressBooks"] },
+    manifest: {
+      manifest_version: 3,
+      permissions: ["addressBooks"],
+    },
   });
 
   await extension.startup();
@@ -106,7 +135,7 @@ add_task(async function test_quickSearch() {
   await extension.unload();
 });
 
-add_task(async function test_quickSearch_types() {
+add_task(async function test_query_types_mv3() {
   // If nsIAbLDAPDirectory doesn't exist in our build options, someone has
   // specified --disable-ldap
   if (!("nsIAbLDAPDirectory" in Ci)) {
@@ -166,37 +195,42 @@ add_task(async function test_quickSearch_types() {
         "Should have seen all expected cards"
       );
     }
-    // No arguments should get cards from all address books.
-    let results = await browser.contacts.quickSearch("contact");
-    checkCards(results, ["personal", "history", "LDAP"]);
+    // String argument should not be allowed in MV3.
+    await browser.test.assertThrows(
+      () => browser.addressBooks.contacts.query("contact"),
+      /Incorrect argument types for addressBooks\.contacts\.query/,
+      "browser.addressBooks.contacts.quickSearch() should reject, if an invalid queryInfo is used."
+    );
 
-    // An empty argument should get cards from all address books.
-    results = await browser.contacts.quickSearch({ searchString: "contact" });
+    // Not specifying parentId should get cards from all address books.
+    let results = await browser.addressBooks.contacts.query({
+      searchString: "contact",
+    });
     checkCards(results, ["personal", "history", "LDAP"]);
 
     // Skip remote address books.
-    results = await browser.contacts.quickSearch({
+    results = await browser.addressBooks.contacts.query({
       searchString: "contact",
       includeRemote: false,
     });
     checkCards(results, ["personal", "history"]);
 
     // Skip local address books.
-    results = await browser.contacts.quickSearch({
+    results = await browser.addressBooks.contacts.query({
       searchString: "contact",
       includeLocal: false,
     });
     checkCards(results, ["LDAP"]);
 
     // Skip read-only address books.
-    results = await browser.contacts.quickSearch({
+    results = await browser.addressBooks.contacts.query({
       searchString: "contact",
       includeReadOnly: false,
     });
     checkCards(results, ["personal"]);
 
     // Skip read-write address books.
-    results = await browser.contacts.quickSearch({
+    results = await browser.addressBooks.contacts.query({
       searchString: "contact",
       includeReadWrite: false,
     });
@@ -207,14 +241,17 @@ add_task(async function test_quickSearch_types() {
 
   const extension = ExtensionTestUtils.loadExtension({
     background,
-    manifest: { permissions: ["addressBooks"] },
+    manifest: {
+      manifest_version: 3,
+      permissions: ["addressBooks"],
+    },
   });
 
   const startupPromise = extension.startup();
 
   // This for loop handles returning responses for LDAP. It should run once
   // for each test that queries the remote address book.
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     await LDAPServer.read(LDAPServer.BindRequest);
     LDAPServer.writeBindResponse();
 

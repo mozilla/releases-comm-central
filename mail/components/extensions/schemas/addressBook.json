@@ -328,10 +328,16 @@
         "description": "Object defining a query for :ref:`contacts.quickSearch`.",
         "type": "object",
         "properties": {
+          "parentId": {
+            "type": "string",
+            "min_manifest_version": 3,
+            "optional": true,
+            "description": "The id of the address book to search. If not specified, all address books are searched."
+          },
           "searchString": {
             "type": "string",
             "optional": true,
-            "description": "One or more space-separated terms to search for."
+            "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <value>mail.addr_book.quicksearchquery.format</value>)."
           },
           "includeLocal": {
             "type": "boolean",
@@ -470,6 +476,7 @@
       },
       {
         "name": "quickSearch",
+        "max_manifest_version": 2,
         "type": "function",
         "async": "callback",
         "parameters": [
@@ -506,6 +513,32 @@
           }
         ],
         "description": "Gets all contacts matching ``queryInfo`` in the address book with the id ``parentId``."
+      },
+      {
+        "name": "query",
+        "min_manifest_version": 3,
+        "type": "function",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "queryInfo",
+            "$ref": "QueryInfo"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "ContactNode"
+                }
+              }
+            ]
+          }
+        ],
+        "description": "Gets all contacts matching ``queryInfo``."
       },
       {
         "name": "get",
