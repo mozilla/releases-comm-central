@@ -12,11 +12,15 @@ menupopup {
     margin: 1px;
   }
 
+  & > :is(menu, menuitem)[disabled="true"][_moz-menuactive="true"] {
+    background-color: transparent !important;
+  }
+
   & > menu::after {
     line-height: 0;
   }
 
-  & > :is(menu, menuitem) > .menu-text {
+  &[needsgutter] > :is(menu, menuitem) > .menu-text {
     margin-inline-start: 21px;
   }
 
@@ -65,6 +69,24 @@ menupopup {
     &.menuitem-iconic::before {
       display: none;
     }
+  }
+}
+
+.menu-right,
+.menu-accel-container {
+  margin-inline-end: 0;
+}
+
+.menu-accel-container {
+  opacity: 0.5;
+
+  menupopup[type="arrow"] & {
+    margin-inline-end: 0;
+  }
+
+  menuitem:not([disabled="true"]):hover &,
+  menuitem:not([disabled="true"]):focus & {
+    opacity: 1;
   }
 }
 

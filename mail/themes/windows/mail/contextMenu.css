@@ -15,9 +15,24 @@ menupopup {
     }
   }
 
-  &[needsgutter] menu:not([icon], .menu-iconic),
-  &[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+  & > :is(menu, menuitem) {
+    padding-block: var(--menuitem-vertical-padding);
+  }
+
+  menulist > & > :is(menu, menuitem) {
+    padding-inline-end: 5px;
+  }
+
+  &[needsgutter] > menu:not([icon], .menu-iconic),
+  &[needsgutter] > menuitem:not([checked="true"], [icon], .menuitem-iconic),
+  menubar > menu
+    &:not([needsgutter]) > :is(menu:not(.menu-iconic),menuitem:not(.menuitem-iconic)) {
     padding-inline-start: 32px;
+  }
+
+  /* Override menu.css rule. */
+  &:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+    padding-inline-start: 8px;
   }
 
   & > :is(menu, menuitem):not([needsgutter]) >

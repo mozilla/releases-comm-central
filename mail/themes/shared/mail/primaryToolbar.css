@@ -170,8 +170,7 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-#button-getAllNewMsg,
-#menu_getnewmsgs_all_accounts {
+#button-getAllNewMsg {
   list-style-image: var(--icon-download);
 }
 
