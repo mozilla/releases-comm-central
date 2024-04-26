@@ -60,10 +60,6 @@
     border-top-color: rgba(255, 255, 255, 0.45);
     border-bottom-color: rgba(0, 0, 0, 0.35);
   }
-
-  :root:not([lwtheme]) & > toolbar {
-    background-color: #cfcfcf;
-  }
 }
 
 #composeToolbar2 {
