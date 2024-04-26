@@ -9,6 +9,8 @@ To make this a story, all that's missing is an object exported as default with a
 
 If the story is for a custom element, make sure to also import the file that declares the custom element. Storybook is set up so you can import files in `mail/` by just starting the import path with `mail/`. The default export object should have a second property `component` containing the tag name of the custom element. This is used to find the related JSDoc documentation.
 
+If storybook should generate an overview docs page, we need to tag the component with the `"autodocs"` tag.
+
 So far we'd end up with this `example-widget.stories.mjs`:
 ```js
 /* This Source Code Form is subject to the terms of the Mozilla Public
@@ -20,6 +22,7 @@ import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line imp
 export default {
   title: "Widgets/Example Widget",
   component: "example-widget",
+  tags: ["autodocs"],
 };
 ```
 
@@ -43,6 +46,7 @@ import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line imp
 export default {
   title: "Widgets/Example Widget",
   component: "example-widget",
+  tags: ["autodocs"],
 };
 
 const ExampleWidgetTemplate = () => html`
@@ -70,6 +74,7 @@ import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line imp
 export default {
   title: "Widgets/Example Widget",
   component: "example-widget",
+  tags: ["autodocs"],
 };
 
 const ExampleWidgetTemplate = ({ title }) => html`
@@ -103,6 +108,7 @@ import "mail/base/content/widgets/example-widget.mjs"; //eslint-disable-line imp
 export default {
   title: "Widgets/Example Widget",
   component: "example-widget",
+  tags: ["autodocs"],
 };
 
 const ExampleWidgetTemplate = ({ title }) => html`

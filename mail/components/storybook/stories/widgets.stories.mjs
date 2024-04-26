@@ -9,6 +9,7 @@ import "mail/themes/shared/mail/icons.css"; //eslint-disable-line import/no-unas
 
 export default {
   title: "Design System/Widgets",
+  tags: ["autodocs"],
 };
 
 export const Widgets = () => html`

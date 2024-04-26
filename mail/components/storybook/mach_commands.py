@@ -79,11 +79,11 @@ def build_storybook_manifest(command_context):
     print("Build ChromeMap backend")
     run_mach(command_context, "build-backend", backend=["ChromeMap"])
     config_environment = command_context.config_environment
-    storybook_chrome_map_path = "mail/components/storybook/.storybook/chrome-map.js"
+    storybook_chrome_map_path = "mail/components/storybook/.storybook/chrome-map.mjs"
     chrome_map_path = mozpath.join(config_environment.topobjdir, "chrome-map.json")
     with open(chrome_map_path, "r") as chrome_map_f:
         with open(storybook_chrome_map_path, "w") as storybook_chrome_map_f:
-            storybook_chrome_map_f.write("module.exports = ")
+            storybook_chrome_map_f.write("export default ")
             storybook_chrome_map_f.write(chrome_map_f.read())
             storybook_chrome_map_f.write(";")
 

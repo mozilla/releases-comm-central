@@ -9,6 +9,7 @@ import "mail/base/content/widgets/listbox/tree-listbox.mjs"; //eslint-disable-li
 export default {
   title: "Widgets/Tree/Tree Listbox",
   component: "tree-listbox",
+  tags: ["autodocs"],
 };
 
 export const Tree = () => html`

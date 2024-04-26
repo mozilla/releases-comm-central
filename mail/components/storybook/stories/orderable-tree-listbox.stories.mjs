@@ -9,6 +9,7 @@ import "mail/base/content/widgets/listbox/orderable-tree-listbox.mjs"; //eslint-
 export default {
   title: "Widgets/Tree/Orderable Tree Listbox",
   component: "orderable-tree-listbox",
+  tags: ["autodocs"],
 };
 
 export const Tree = () => html`

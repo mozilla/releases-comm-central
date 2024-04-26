@@ -14,6 +14,7 @@ import "mail/themes/shared/mail/widgets.css";
 export default {
   title: "Widgets/Search Bar",
   component: "search-bar",
+  tags: ["autodocs"],
   argTypes: {
     disabled: {
       control: "boolean",

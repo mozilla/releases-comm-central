@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* eslint-env node */
 
-const [prefixMap, aliasMap, sourceMap] = require("./chrome-map.js");
+import chromeMap from "./chrome-map.mjs";
+// Storybook somehow loads us in a cursed semi-mjs land where default exports
+// work more like the old commonJS workaround.
+const [ prefixMap, aliasMap, sourceMap ] = chromeMap.default;
 
-function rewriteChromeUri(uri) {
+export function rewriteChromeUri(uri) {
   if (uri in aliasMap) {
     return rewriteChromeUri(aliasMap[uri]);
   }
@@ -26,5 +29,3 @@ function rewriteChromeUri(uri) {
   }
   return "";
 }
-
-module.exports = rewriteChromeUri;

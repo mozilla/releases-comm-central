@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* eslint-env node */
 
-const path = require("path");
-const webpack = require("webpack");
-const rewriteChromeUri = require("./chrome-uri-utils.js");
+import path from "path";
+import webpack from "webpack";
+import { rewriteChromeUri } from "./chrome-uri-utils.mjs";
 
 // ./mach environment --format json
 // topobjdir should be the build location
 
-module.exports = {
+export default {
   stories: [
     "../stories/**/*.stories.mdx",
     "../stories/**/*.stories.@(mjs|jsx|ts|tsx)",
@@ -20,7 +20,10 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/addon-a11y"
   ],
-  framework: "@storybook/web-components",
+  framework: {
+    name: "@storybook/web-components-webpack5",
+    options: {},
+  },
   webpackFinal: async (config, { configType }) => {
     // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
     // You can change the configuration based on that.
@@ -28,8 +31,10 @@ module.exports = {
 
     // Make whatever fine-grained changes you need
     const projectRoot = path.resolve(__dirname, "../../../../");
-    config.resolve.alias.mail = `${projectRoot}/mail`;
-    config.resolve.alias.comm = projectRoot;
+    config.resolve.alias = {
+      mail: `${projectRoot}/mail`,
+      comm: projectRoot,
+    };
 
     config.plugins.push(
       // Rewrite chrome:// URI imports to file system paths.
@@ -54,8 +59,5 @@ module.exports = {
 
     // Return the altered config
     return config;
-  },
-  core: {
-    builder: "webpack5",
   },
 };

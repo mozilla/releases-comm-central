@@ -36,7 +36,7 @@
 # Ignore Storybook generated files
 ^mail/components/storybook/node_modules/
 ^mail/components/storybook/storybook-static/
-^mail/components/storybook/.storybook/chrome-map.js
+^mail/components/storybook/.storybook/chrome-map.mjs
 ^mail/components/storybook/custom-elements.json
 
 # Ignore third_party npm files

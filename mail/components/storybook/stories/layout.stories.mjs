@@ -7,6 +7,7 @@ import "mail/themes/shared/mail/layout.css"; //eslint-disable-line import/no-una
 
 export default {
   title: "Design System/Layout Colors",
+  tags: ["autodocs"],
 };
 
 function createColor(colorName) {
