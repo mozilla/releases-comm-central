@@ -1085,6 +1085,395 @@ this.addressBook = class extends ExtensionAPIPersistent {
     const { extension } = context;
     const { tabManager } = extension;
 
+    const getContactsApi = () => ({
+      list(parentId) {
+        const parentNode = addressBookCache.findAddressBookById(parentId);
+        return addressBookCache.convert(
+          addressBookCache.getContacts(parentNode),
+          false
+        );
+      },
+      async quickSearch(parentId, queryInfo) {
+        const { getSearchTokens, getModelQuery, generateQueryURI } =
+          ChromeUtils.importESModule(
+            "resource:///modules/ABQueryUtils.sys.mjs"
+          );
+
+        let searchString;
+        if (typeof queryInfo == "string") {
+          searchString = queryInfo;
+          queryInfo = {
+            includeRemote: true,
+            includeLocal: true,
+            includeReadOnly: true,
+            includeReadWrite: true,
+          };
+        } else {
+          searchString = queryInfo.searchString;
+        }
+
+        const searchWords = getSearchTokens(searchString);
+        if (searchWords.length == 0) {
+          return [];
+        }
+        const searchFormat = getModelQuery(
+          "mail.addr_book.quicksearchquery.format"
+        );
+        const searchQuery = generateQueryURI(searchFormat, searchWords);
+
+        let booksToSearch;
+        if (parentId == null) {
+          booksToSearch = [...addressBookCache.addressBooks.values()];
+        } else {
+          booksToSearch = [addressBookCache.findAddressBookById(parentId)];
+        }
+
+        const results = [];
+        const promises = [];
+        for (const book of booksToSearch) {
+          if (
+            (book.item.isRemote && !queryInfo.includeRemote) ||
+            (!book.item.isRemote && !queryInfo.includeLocal) ||
+            (book.item.readOnly && !queryInfo.includeReadOnly) ||
+            (!book.item.readOnly && !queryInfo.includeReadWrite)
+          ) {
+            continue;
+          }
+          promises.push(
+            new Promise(resolve => {
+              book.item.search(searchQuery, searchString, {
+                onSearchFinished() {
+                  resolve();
+                },
+                onSearchFoundCard(contact) {
+                  if (contact.isMailList) {
+                    return;
+                  }
+                  results.push(
+                    addressBookCache._makeContactNode(contact, book.item)
+                  );
+                },
+              });
+            })
+          );
+        }
+        await Promise.all(promises);
+
+        return addressBookCache.convert(results, false);
+      },
+      get(id) {
+        return addressBookCache.convert(
+          addressBookCache.findContactById(id),
+          false
+        );
+      },
+      async getPhoto(id) {
+        return getPhotoFile(id);
+      },
+      async setPhoto(id, file) {
+        return setPhotoFile(id, file);
+      },
+      create(parentId, id, createData) {
+        const parentNode = addressBookCache.findAddressBookById(parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot create a contact in a read-only address book"
+          );
+        }
+
+        let card;
+        // A specified vCard is winning over any individual standard property.
+        if (createData.vCard) {
+          try {
+            card = VCardUtils.vCardToAbCard(createData.vCard, id);
+          } catch (ex) {
+            throw new ExtensionError(
+              `Invalid vCard data: ${createData.vCard}.`
+            );
+          }
+        } else {
+          card = flatPropertiesToAbCard(createData, id);
+        }
+        // Add custom properties to the property bag.
+        addProperties(card, createData);
+
+        // Check if the new card has an enforced UID.
+        if (card.vCardProperties.getFirstValue("uid")) {
+          let duplicateExists = false;
+          try {
+            // Second argument is only a hint, all address books are checked.
+            addressBookCache.findContactById(card.UID, parentId);
+            duplicateExists = true;
+          } catch (ex) {
+            // Do nothing. We want this to throw because no contact was found.
+          }
+          if (duplicateExists) {
+            throw new ExtensionError(`Duplicate contact id: ${card.UID}`);
+          }
+        }
+
+        const newCard = parentNode.item.addCard(card);
+        return newCard.UID;
+      },
+      update(id, updateData) {
+        const node = addressBookCache.findContactById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot modify a contact in a read-only address book"
+          );
+        }
+
+        // A specified vCard is winning over any individual standard property.
+        // While a vCard is replacing the entire contact, specified standard
+        // properties only update single entries (setting a value to null
+        // clears it / promotes the next value of the same kind).
+        let card;
+        if (updateData.vCard) {
+          let vCardUID;
+          try {
+            card = new AddrBookCard();
+            card.UID = node.item.UID;
+            card.setProperty(
+              "_vCard",
+              VCardUtils.translateVCard21(updateData.vCard)
+            );
+            vCardUID = card.vCardProperties.getFirstValue("uid");
+          } catch (ex) {
+            throw new ExtensionError(
+              `Invalid vCard data: ${updateData.vCard}.`
+            );
+          }
+          if (vCardUID && vCardUID != node.item.UID) {
+            throw new ExtensionError(
+              `The card's UID ${node.item.UID} may not be changed: ${updateData.vCard}.`
+            );
+          }
+        } else {
+          // Get the current vCardProperties, build a propertyMap and create
+          // vCardParsed which allows to identify all currently exposed entries
+          // based on the typeName used in VCardUtils.sys.mjs (e.g. adr.work).
+          const vCardProperties = vCardPropertiesFromCard(node.item);
+          const vCardParsed = VCardUtils._parse(vCardProperties.entries);
+          const propertyMap = vCardProperties.toPropertyMap();
+
+          // Save the old exposed state.
+          const oldProperties = VCardProperties.fromPropertyMap(propertyMap);
+          const oldParsed = VCardUtils._parse(oldProperties.entries);
+          // Update the propertyMap.
+          for (const [name, value] of Object.entries(updateData)) {
+            propertyMap.set(name, value);
+          }
+          // Save the new exposed state.
+          const newProperties = VCardProperties.fromPropertyMap(propertyMap);
+          const newParsed = VCardUtils._parse(newProperties.entries);
+
+          // Evaluate the differences and update the still existing entries,
+          // mark removed items for deletion.
+          const deleteLog = [];
+          for (const typeName of oldParsed.keys()) {
+            if (typeName == "version") {
+              continue;
+            }
+            for (let idx = 0; idx < oldParsed.get(typeName).length; idx++) {
+              if (
+                newParsed.has(typeName) &&
+                idx < newParsed.get(typeName).length
+              ) {
+                const originalIndex = vCardParsed.get(typeName)[idx].index;
+                const newEntryIndex = newParsed.get(typeName)[idx].index;
+                vCardProperties.entries[originalIndex] =
+                  newProperties.entries[newEntryIndex];
+                // Mark this item as handled.
+                newParsed.get(typeName)[idx] = null;
+              } else {
+                deleteLog.push(vCardParsed.get(typeName)[idx].index);
+              }
+            }
+          }
+
+          // Remove entries which have been marked for deletion.
+          for (const deleteIndex of deleteLog.sort((a, b) => a < b)) {
+            vCardProperties.entries.splice(deleteIndex, 1);
+          }
+
+          // Add new entries.
+          for (const typeName of newParsed.keys()) {
+            if (typeName == "version") {
+              continue;
+            }
+            for (const newEntry of newParsed.get(typeName)) {
+              if (newEntry) {
+                vCardProperties.addEntry(newProperties.entries[newEntry.index]);
+              }
+            }
+          }
+
+          // Create a new card with the original UID from the updated vCardProperties.
+          card = VCardUtils.vCardToAbCard(
+            vCardProperties.toVCard(),
+            node.item.UID
+          );
+        }
+
+        // Clone original properties and update custom properties.
+        addProperties(card, updateData, node.item.properties);
+
+        parentNode.item.modifyCard(card);
+      },
+      delete(id) {
+        const node = addressBookCache.findContactById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot delete a contact in a read-only address book"
+          );
+        }
+
+        parentNode.item.deleteCards([node.item]);
+      },
+
+      // The module name is addressBook as defined in ext-mail.json.
+      onCreated: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onContactCreated",
+        extensionApi: this,
+      }).api(),
+      onUpdated: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onContactUpdated",
+        extensionApi: this,
+      }).api(),
+      onDeleted: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onContactDeleted",
+        extensionApi: this,
+      }).api(),
+    });
+
+    const getMailingListsApi = () => ({
+      list(parentId) {
+        const parentNode = addressBookCache.findAddressBookById(parentId);
+        return addressBookCache.convert(
+          addressBookCache.getMailingLists(parentNode),
+          false
+        );
+      },
+      get(id) {
+        return addressBookCache.convert(
+          addressBookCache.findMailingListById(id),
+          false
+        );
+      },
+      create(parentId, { name, nickName, description }) {
+        const parentNode = addressBookCache.findAddressBookById(parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot create a mailing list in a read-only address book"
+          );
+        }
+        const mailList = Cc[
+          "@mozilla.org/addressbook/directoryproperty;1"
+        ].createInstance(Ci.nsIAbDirectory);
+        mailList.isMailList = true;
+        mailList.dirName = name;
+        mailList.listNickName = nickName === null ? "" : nickName;
+        mailList.description = description === null ? "" : description;
+
+        const newMailList = parentNode.item.addMailList(mailList);
+        return newMailList.UID;
+      },
+      update(id, { name, nickName, description }) {
+        const node = addressBookCache.findMailingListById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot modify a mailing list in a read-only address book"
+          );
+        }
+        node.item.dirName = name;
+        node.item.listNickName = nickName === null ? "" : nickName;
+        node.item.description = description === null ? "" : description;
+        node.item.editMailListToDatabase(null);
+      },
+      delete(id) {
+        const node = addressBookCache.findMailingListById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot delete a mailing list in a read-only address book"
+          );
+        }
+        parentNode.item.deleteDirectory(node.item);
+      },
+
+      listMembers(id) {
+        const node = addressBookCache.findMailingListById(id);
+        return addressBookCache.convert(
+          addressBookCache.getListContacts(node),
+          false
+        );
+      },
+      addMember(id, contactId) {
+        const node = addressBookCache.findMailingListById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot add to a mailing list in a read-only address book"
+          );
+        }
+        const contactNode = addressBookCache.findContactById(contactId);
+        node.item.addCard(contactNode.item);
+      },
+      removeMember(id, contactId) {
+        const node = addressBookCache.findMailingListById(id);
+        const parentNode = addressBookCache.findAddressBookById(node.parentId);
+        if (parentNode.item.readOnly) {
+          throw new ExtensionUtils.ExtensionError(
+            "Cannot remove from a mailing list in a read-only address book"
+          );
+        }
+        const contactNode = addressBookCache.findContactById(contactId);
+
+        node.item.deleteCards([contactNode.item]);
+      },
+
+      // The module name is addressBook as defined in ext-mail.json.
+      onCreated: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onMailingListCreated",
+        extensionApi: this,
+      }).api(),
+      onUpdated: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onMailingListUpdated",
+        extensionApi: this,
+      }).api(),
+      onDeleted: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onMailingListDeleted",
+        extensionApi: this,
+      }).api(),
+      onMemberAdded: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onMemberAdded",
+        extensionApi: this,
+      }).api(),
+      onMemberRemoved: new EventManager({
+        context,
+        module: "addressBook",
+        event: "onMemberRemoved",
+        extensionApi: this,
+      }).api(),
+    });
+
     return {
       addressBooks: {
         async openUI() {
@@ -1184,408 +1573,11 @@ this.addressBook = class extends ExtensionAPIPersistent {
             },
           }).api(),
         },
+        contacts: getContactsApi(),
+        mailingLists: getMailingListsApi(),
       },
-      contacts: {
-        list(parentId) {
-          const parentNode = addressBookCache.findAddressBookById(parentId);
-          return addressBookCache.convert(
-            addressBookCache.getContacts(parentNode),
-            false
-          );
-        },
-        async quickSearch(parentId, queryInfo) {
-          const { getSearchTokens, getModelQuery, generateQueryURI } =
-            ChromeUtils.importESModule(
-              "resource:///modules/ABQueryUtils.sys.mjs"
-            );
-
-          let searchString;
-          if (typeof queryInfo == "string") {
-            searchString = queryInfo;
-            queryInfo = {
-              includeRemote: true,
-              includeLocal: true,
-              includeReadOnly: true,
-              includeReadWrite: true,
-            };
-          } else {
-            searchString = queryInfo.searchString;
-          }
-
-          const searchWords = getSearchTokens(searchString);
-          if (searchWords.length == 0) {
-            return [];
-          }
-          const searchFormat = getModelQuery(
-            "mail.addr_book.quicksearchquery.format"
-          );
-          const searchQuery = generateQueryURI(searchFormat, searchWords);
-
-          let booksToSearch;
-          if (parentId == null) {
-            booksToSearch = [...addressBookCache.addressBooks.values()];
-          } else {
-            booksToSearch = [addressBookCache.findAddressBookById(parentId)];
-          }
-
-          const results = [];
-          const promises = [];
-          for (const book of booksToSearch) {
-            if (
-              (book.item.isRemote && !queryInfo.includeRemote) ||
-              (!book.item.isRemote && !queryInfo.includeLocal) ||
-              (book.item.readOnly && !queryInfo.includeReadOnly) ||
-              (!book.item.readOnly && !queryInfo.includeReadWrite)
-            ) {
-              continue;
-            }
-            promises.push(
-              new Promise(resolve => {
-                book.item.search(searchQuery, searchString, {
-                  onSearchFinished() {
-                    resolve();
-                  },
-                  onSearchFoundCard(contact) {
-                    if (contact.isMailList) {
-                      return;
-                    }
-                    results.push(
-                      addressBookCache._makeContactNode(contact, book.item)
-                    );
-                  },
-                });
-              })
-            );
-          }
-          await Promise.all(promises);
-
-          return addressBookCache.convert(results, false);
-        },
-        get(id) {
-          return addressBookCache.convert(
-            addressBookCache.findContactById(id),
-            false
-          );
-        },
-        async getPhoto(id) {
-          return getPhotoFile(id);
-        },
-        async setPhoto(id, file) {
-          return setPhotoFile(id, file);
-        },
-        create(parentId, id, createData) {
-          const parentNode = addressBookCache.findAddressBookById(parentId);
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot create a contact in a read-only address book"
-            );
-          }
-
-          let card;
-          // A specified vCard is winning over any individual standard property.
-          if (createData.vCard) {
-            try {
-              card = VCardUtils.vCardToAbCard(createData.vCard, id);
-            } catch (ex) {
-              throw new ExtensionError(
-                `Invalid vCard data: ${createData.vCard}.`
-              );
-            }
-          } else {
-            card = flatPropertiesToAbCard(createData, id);
-          }
-          // Add custom properties to the property bag.
-          addProperties(card, createData);
-
-          // Check if the new card has an enforced UID.
-          if (card.vCardProperties.getFirstValue("uid")) {
-            let duplicateExists = false;
-            try {
-              // Second argument is only a hint, all address books are checked.
-              addressBookCache.findContactById(card.UID, parentId);
-              duplicateExists = true;
-            } catch (ex) {
-              // Do nothing. We want this to throw because no contact was found.
-            }
-            if (duplicateExists) {
-              throw new ExtensionError(`Duplicate contact id: ${card.UID}`);
-            }
-          }
-
-          const newCard = parentNode.item.addCard(card);
-          return newCard.UID;
-        },
-        update(id, updateData) {
-          const node = addressBookCache.findContactById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot modify a contact in a read-only address book"
-            );
-          }
-
-          // A specified vCard is winning over any individual standard property.
-          // While a vCard is replacing the entire contact, specified standard
-          // properties only update single entries (setting a value to null
-          // clears it / promotes the next value of the same kind).
-          let card;
-          if (updateData.vCard) {
-            let vCardUID;
-            try {
-              card = new AddrBookCard();
-              card.UID = node.item.UID;
-              card.setProperty(
-                "_vCard",
-                VCardUtils.translateVCard21(updateData.vCard)
-              );
-              vCardUID = card.vCardProperties.getFirstValue("uid");
-            } catch (ex) {
-              throw new ExtensionError(
-                `Invalid vCard data: ${updateData.vCard}.`
-              );
-            }
-            if (vCardUID && vCardUID != node.item.UID) {
-              throw new ExtensionError(
-                `The card's UID ${node.item.UID} may not be changed: ${updateData.vCard}.`
-              );
-            }
-          } else {
-            // Get the current vCardProperties, build a propertyMap and create
-            // vCardParsed which allows to identify all currently exposed entries
-            // based on the typeName used in VCardUtils.sys.mjs (e.g. adr.work).
-            const vCardProperties = vCardPropertiesFromCard(node.item);
-            const vCardParsed = VCardUtils._parse(vCardProperties.entries);
-            const propertyMap = vCardProperties.toPropertyMap();
-
-            // Save the old exposed state.
-            const oldProperties = VCardProperties.fromPropertyMap(propertyMap);
-            const oldParsed = VCardUtils._parse(oldProperties.entries);
-            // Update the propertyMap.
-            for (const [name, value] of Object.entries(updateData)) {
-              propertyMap.set(name, value);
-            }
-            // Save the new exposed state.
-            const newProperties = VCardProperties.fromPropertyMap(propertyMap);
-            const newParsed = VCardUtils._parse(newProperties.entries);
-
-            // Evaluate the differences and update the still existing entries,
-            // mark removed items for deletion.
-            const deleteLog = [];
-            for (const typeName of oldParsed.keys()) {
-              if (typeName == "version") {
-                continue;
-              }
-              for (let idx = 0; idx < oldParsed.get(typeName).length; idx++) {
-                if (
-                  newParsed.has(typeName) &&
-                  idx < newParsed.get(typeName).length
-                ) {
-                  const originalIndex = vCardParsed.get(typeName)[idx].index;
-                  const newEntryIndex = newParsed.get(typeName)[idx].index;
-                  vCardProperties.entries[originalIndex] =
-                    newProperties.entries[newEntryIndex];
-                  // Mark this item as handled.
-                  newParsed.get(typeName)[idx] = null;
-                } else {
-                  deleteLog.push(vCardParsed.get(typeName)[idx].index);
-                }
-              }
-            }
-
-            // Remove entries which have been marked for deletion.
-            for (const deleteIndex of deleteLog.sort((a, b) => a < b)) {
-              vCardProperties.entries.splice(deleteIndex, 1);
-            }
-
-            // Add new entries.
-            for (const typeName of newParsed.keys()) {
-              if (typeName == "version") {
-                continue;
-              }
-              for (const newEntry of newParsed.get(typeName)) {
-                if (newEntry) {
-                  vCardProperties.addEntry(
-                    newProperties.entries[newEntry.index]
-                  );
-                }
-              }
-            }
-
-            // Create a new card with the original UID from the updated vCardProperties.
-            card = VCardUtils.vCardToAbCard(
-              vCardProperties.toVCard(),
-              node.item.UID
-            );
-          }
-
-          // Clone original properties and update custom properties.
-          addProperties(card, updateData, node.item.properties);
-
-          parentNode.item.modifyCard(card);
-        },
-        delete(id) {
-          const node = addressBookCache.findContactById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot delete a contact in a read-only address book"
-            );
-          }
-
-          parentNode.item.deleteCards([node.item]);
-        },
-
-        // The module name is addressBook as defined in ext-mail.json.
-        onCreated: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onContactCreated",
-          extensionApi: this,
-        }).api(),
-        onUpdated: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onContactUpdated",
-          extensionApi: this,
-        }).api(),
-        onDeleted: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onContactDeleted",
-          extensionApi: this,
-        }).api(),
-      },
-      mailingLists: {
-        list(parentId) {
-          const parentNode = addressBookCache.findAddressBookById(parentId);
-          return addressBookCache.convert(
-            addressBookCache.getMailingLists(parentNode),
-            false
-          );
-        },
-        get(id) {
-          return addressBookCache.convert(
-            addressBookCache.findMailingListById(id),
-            false
-          );
-        },
-        create(parentId, { name, nickName, description }) {
-          const parentNode = addressBookCache.findAddressBookById(parentId);
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot create a mailing list in a read-only address book"
-            );
-          }
-          const mailList = Cc[
-            "@mozilla.org/addressbook/directoryproperty;1"
-          ].createInstance(Ci.nsIAbDirectory);
-          mailList.isMailList = true;
-          mailList.dirName = name;
-          mailList.listNickName = nickName === null ? "" : nickName;
-          mailList.description = description === null ? "" : description;
-
-          const newMailList = parentNode.item.addMailList(mailList);
-          return newMailList.UID;
-        },
-        update(id, { name, nickName, description }) {
-          const node = addressBookCache.findMailingListById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot modify a mailing list in a read-only address book"
-            );
-          }
-          node.item.dirName = name;
-          node.item.listNickName = nickName === null ? "" : nickName;
-          node.item.description = description === null ? "" : description;
-          node.item.editMailListToDatabase(null);
-        },
-        delete(id) {
-          const node = addressBookCache.findMailingListById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot delete a mailing list in a read-only address book"
-            );
-          }
-          parentNode.item.deleteDirectory(node.item);
-        },
-
-        listMembers(id) {
-          const node = addressBookCache.findMailingListById(id);
-          return addressBookCache.convert(
-            addressBookCache.getListContacts(node),
-            false
-          );
-        },
-        addMember(id, contactId) {
-          const node = addressBookCache.findMailingListById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot add to a mailing list in a read-only address book"
-            );
-          }
-          const contactNode = addressBookCache.findContactById(contactId);
-          node.item.addCard(contactNode.item);
-        },
-        removeMember(id, contactId) {
-          const node = addressBookCache.findMailingListById(id);
-          const parentNode = addressBookCache.findAddressBookById(
-            node.parentId
-          );
-          if (parentNode.item.readOnly) {
-            throw new ExtensionUtils.ExtensionError(
-              "Cannot remove from a mailing list in a read-only address book"
-            );
-          }
-          const contactNode = addressBookCache.findContactById(contactId);
-
-          node.item.deleteCards([contactNode.item]);
-        },
-
-        // The module name is addressBook as defined in ext-mail.json.
-        onCreated: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onMailingListCreated",
-          extensionApi: this,
-        }).api(),
-        onUpdated: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onMailingListUpdated",
-          extensionApi: this,
-        }).api(),
-        onDeleted: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onMailingListDeleted",
-          extensionApi: this,
-        }).api(),
-        onMemberAdded: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onMemberAdded",
-          extensionApi: this,
-        }).api(),
-        onMemberRemoved: new EventManager({
-          context,
-          module: "addressBook",
-          event: "onMemberRemoved",
-          extensionApi: this,
-        }).api(),
-      },
+      contacts: getContactsApi(),
+      mailingLists: getMailingListsApi(),
     };
   }
 };

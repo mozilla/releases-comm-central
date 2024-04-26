@@ -309,7 +309,18 @@
     ]
   },
   {
+    "namespace": "addressBooks.contacts",
+    "min_manifest_version": 3,
+    "$import": "contacts"
+  },
+  {
+    "namespace": "addressBooks.mailingLists",
+    "min_manifest_version": 3,
+    "$import": "mailingLists"
+  },
+  {
     "namespace": "contacts",
+    "max_manifest_version": 2,
     "permissions": ["addressBooks"],
     "types": [
       {
@@ -671,6 +682,7 @@
   },
   {
     "namespace": "mailingLists",
+    "max_manifest_version": 2,
     "permissions": ["addressBooks"],
     "types": [
       {
