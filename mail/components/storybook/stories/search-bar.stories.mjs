@@ -7,6 +7,7 @@ import { action } from "@storybook/addon-actions";
 /* eslint-disable import/no-unassigned-import */
 import "mail/base/content/widgets/search-bar.mjs";
 import "mail/themes/shared/mail/colors.css";
+import "mail/themes/shared/mail/variables.css";
 import "mail/themes/shared/mail/layout.css";
 import "mail/themes/shared/mail/widgets.css";
 /* eslint-enable import/no-unassigned-import */
@@ -31,6 +32,7 @@ const Template = ({ label, disabled }) => html`
       <button
         id="clear-button"
         type="reset"
+        data-l10n-id="search-bar-clear-button"
         class="button button-flat icon-button"
         hidden="hidden"
         tabindex="-1"

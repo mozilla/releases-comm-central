@@ -18,7 +18,8 @@ export default {
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/addon-a11y"
+    "@storybook/addon-a11y",
+    path.resolve(__dirname, "addon-fluent"),
   ],
   framework: {
     name: "@storybook/web-components-webpack5",
