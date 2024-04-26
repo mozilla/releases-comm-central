@@ -297,7 +297,14 @@ this.spaces = class extends ExtensionAPI {
             for (const [key, value] of Object.entries(
               updatedButtonProperties
             )) {
-              if (value != null) {
+              // In MV2 all optional but unset properties have a null value here
+              // and need to be ignored, reset happens via an empty string. In MV3
+              // we use "optional": "omit-key-if-missing" and unset properties
+              // are omitted and null is an allowed value to enforce a reset.
+              if (
+                context.extension.manifest.manifest_version > 2 ||
+                value != null
+              ) {
                 spaceData.buttonProperties[key] = value;
                 changes = true;
               }

@@ -22,8 +22,9 @@ add_setup(() => {
  *   @param {?object} permissions - Permissions assigned to the extension.
  */
 async function test_space(background, config = {}) {
+  const manifest_version = config.manifestVersion || 3;
   const manifest = {
-    manifest_version: 3,
+    manifest_version,
     browser_specific_settings: {
       gecko: {
         id: "spaces_toolbar@mochi.test",
@@ -231,6 +232,8 @@ async function test_space(background, config = {}) {
 add_task(async function test_add_update_remove() {
   async function background() {
     const manifest = browser.runtime.getManifest();
+    const propertyClearValue = manifest.manifest_version == 2 ? "" : null;
+
     const extensionIcon = manifest.icons
       ? browser.runtime.getURL(manifest.icons[16])
       : "chrome://messenger/content/extension.svg";
@@ -330,7 +333,7 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): Removing the badge.");
     await browser.spaces.update(space_2.id, {
-      badgeText: "",
+      badgeText: propertyClearValue,
     });
     delete expected_space_2.badgeText;
     delete expected_space_2.badgeBackgroundColor;
@@ -345,7 +348,7 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): Removing the title.");
     await browser.spaces.update(space_2.id, {
-      title: "",
+      title: propertyClearValue,
     });
     expected_space_2.title = "Generated extension";
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
@@ -385,11 +388,19 @@ add_task(async function test_add_update_remove() {
 
     browser.test.notifyPass();
   }
-  await test_space(background, { selectedTheme: "default" });
-  await test_space(background, {
-    selectedTheme: "default",
-    manifestIcons: { 16: "manifest.png" },
-  });
+  // Manifest V2 and V3 have a different schema for the SpaceButtonProperties,
+  // test them both.
+  for (const manifestVersion of [2, 3]) {
+    await test_space(background, {
+      manifestVersion,
+      selectedTheme: "default",
+    });
+    await test_space(background, {
+      manifestVersion,
+      selectedTheme: "default",
+      manifestIcons: { 16: "manifest.png" },
+    });
+  }
 });
 
 add_task(async function test_open_reload_close() {
@@ -446,6 +457,7 @@ add_task(async function test_open_reload_close() {
 add_task(async function test_icons() {
   async function background() {
     const manifest = browser.runtime.getManifest();
+    const propertyClearValue = manifest.manifest_version == 2 ? "" : null;
     const extensionIcon = manifest.icons
       ? browser.runtime.getURL(manifest.icons[16])
       : "chrome://messenger/content/extension.svg";
@@ -481,7 +493,7 @@ add_task(async function test_icons() {
 
     // Clearing defaultIcons.
     await browser.spaces.update(space_1.id, {
-      defaultIcons: "",
+      defaultIcons: propertyClearValue,
     });
     expected_space_1.icons = {
       default: null,
@@ -598,7 +610,7 @@ add_task(async function test_icons() {
 
     // Clearing defaultIcons and setting themeIcons.
     await browser.spaces.update(space_3.id, {
-      defaultIcons: "",
+      defaultIcons: propertyClearValue,
       themeIcons: [
         {
           dark: "dark3.png",
@@ -660,7 +672,7 @@ add_task(async function test_icons() {
       expected_space_4,
     ]);
     await browser.spaces.update(space_4.id, {
-      defaultIcons: "",
+      defaultIcons: propertyClearValue,
     });
     expected_space_4.icons = {
       default: `url("${extensionIcon}")`,
@@ -677,23 +689,39 @@ add_task(async function test_icons() {
     browser.test.notifyPass();
   }
 
-  // Test with and without icons defined in the manifest.
-  for (const manifestIcons of [null, { 16: "manifest16.png" }]) {
-    const dark_theme = await AddonManager.getAddonByID(
-      "thunderbird-compact-dark@mozilla.org"
-    );
-    await dark_theme.enable();
-    await test_space(background, { selectedTheme: "light", manifestIcons });
+  // Manifest V2 and V3 have a different schema for the SpaceButtonProperties,
+  // test them both.
+  for (const manifestVersion of [2, 3]) {
+    // Test with and without icons defined in the manifest.
+    for (const manifestIcons of [null, { 16: "manifest16.png" }]) {
+      const dark_theme = await AddonManager.getAddonByID(
+        "thunderbird-compact-dark@mozilla.org"
+      );
+      await dark_theme.enable();
+      await test_space(background, {
+        selectedTheme: "light",
+        manifestIcons,
+        manifestVersion,
+      });
 
-    const light_theme = await AddonManager.getAddonByID(
-      "thunderbird-compact-light@mozilla.org"
-    );
-    await light_theme.enable();
-    await test_space(background, { selectedTheme: "dark", manifestIcons });
+      const light_theme = await AddonManager.getAddonByID(
+        "thunderbird-compact-light@mozilla.org"
+      );
+      await light_theme.enable();
+      await test_space(background, {
+        selectedTheme: "dark",
+        manifestIcons,
+        manifestVersion,
+      });
 
-    // Disabling a theme will enable the default theme.
-    await light_theme.disable();
-    await test_space(background, { selectedTheme: "default", manifestIcons });
+      // Disabling a theme will enable the default theme.
+      await light_theme.disable();
+      await test_space(background, {
+        selectedTheme: "default",
+        manifestIcons,
+        manifestVersion,
+      });
+    }
   }
 });
 
