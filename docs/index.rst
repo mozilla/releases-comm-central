@@ -24,6 +24,8 @@ Thunderbird Source Tree Documentation
 
    architecture/index
 
+   frontend/index
+
 
 Indices and tables
 ==================
