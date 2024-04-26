@@ -168,7 +168,10 @@ module.exports = {
         "calendar/base/modules/utils/calDateTimeFormatter.sys.mjs",
         "calendar/base/modules/utils/calIteratorUtils.sys.mjs",
         "calendar/base/src/CalMetronome.sys.mjs",
+
         "chat/modules/imContentSink.sys.mjs",
+
+        "mail/modules/QuickFilterManager.sys.mjs",
       ],
       excludedFiles: [".eslintrc.js"],
       extends: ["plugin:mozilla/valid-jsdoc"],

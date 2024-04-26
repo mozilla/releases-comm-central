@@ -17,81 +17,80 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 /**
- * Shallow object copy.
- */
-function shallowObjCopy(obj) {
-  const newObj = {};
-  for (const key in obj) {
-    newObj[key] = obj[key];
-  }
-  return newObj;
-}
-
-/**
  * Should the filter be visible when there's no previous state to propagate it
- *  from?  The idea is that when session persistence is working this should only
- *  ever affect the first time Thunderbird is started up.  Although opening
- *  additional 3-panes will likely trigger this unless we go out of our way to
- *  implement propagation across those boundaries (and we're not).
+ * from? The idea is that when session persistence is working this should only
+ * ever affect the first time Thunderbird is started up. Although opening
+ * additional 3-panes will likely trigger this unless we go out of our way to
+ * implement propagation across those boundaries (and we're not).
  */
 var FILTER_VISIBILITY_DEFAULT = true;
 
 /**
- * Represents the state of a quick filter bar.  This mainly decorates the
- *  manipulation of the filter states with support of tracking the filter most
- *  recently manipulated so we can maintain a very limited undo stack of sorts.
+ * Represents the state of a quick filter bar. This mainly decorates the
+ * manipulation of the filter states with support of tracking the filter most
+ * recently manipulated so we can maintain a very limited undo stack of sorts.
  */
-export function QuickFilterState(aTemplateState, aJsonedState) {
-  if (aJsonedState) {
-    this.filterValues = aJsonedState.filterValues;
-    this.visible = aJsonedState.visible;
-  } else if (aTemplateState) {
-    this.filterValues = QuickFilterManager.propagateValues(
-      aTemplateState.filterValues
-    );
-    this.visible = aTemplateState.visible;
-  } else {
-    this.filterValues = QuickFilterManager.getDefaultValues();
-    this.visible = FILTER_VISIBILITY_DEFAULT;
+export class QuickFilterState {
+  /**
+   * @param {object} [aTemplateState]
+   * @param {object} [aJsonedState] - State persisted as JSON as returned by
+   *   persistToObj.
+   */
+  constructor(aTemplateState, aJsonedState) {
+    if (aJsonedState) {
+      this.filterValues = aJsonedState.filterValues;
+      this.visible = aJsonedState.visible;
+    } else if (aTemplateState) {
+      this.filterValues = QuickFilterManager.propagateValues(
+        aTemplateState.filterValues
+      );
+      this.visible = aTemplateState.visible;
+    } else {
+      this.filterValues = QuickFilterManager.getDefaultValues();
+      this.visible = FILTER_VISIBILITY_DEFAULT;
+    }
+    this.#lastFilterAttr = null;
   }
-  this._lastFilterAttr = null;
-}
-
-QuickFilterState.prototype = {
-  /**
-   * Maps filter names to their current states.  We rely on QuickFilterManager
-   *  to do most of the interesting manipulation of this value.
-   */
-  filterValues: null,
-  /**
-   * Is the filter bar visible?  Always inherited from the template regardless
-   *  of stickyness.
-   */
-  visible: null,
 
   /**
-   * Get a filter state and update lastFilterAttr appropriately.  This is
-   *  intended for use when the filter state is a rich object whose state
-   *  cannot be updated just by clobbering as provided by |setFilterValue|.
+   * Maps filter names to their current states. We rely on QuickFilterManager
+   * to do most of the interesting manipulation of this value.
    *
-   * @param aName The name of the filter we are retrieving.
-   * @param [aNoChange=false] Is this actually a change for the purposes of
-   *     lastFilterAttr purposes?
+   * @type {?Object<string, any>}
+   */
+  filterValues = null;
+  /**
+   * Is the filter bar visible? Always inherited from the template regardless
+   * of stickyness.
+   *
+   * @type {?boolean}
+   */
+  visible = null;
+
+  /**
+   * Get a filter state and update lastFilterAttr appropriately. This is
+   * intended for use when the filter state is a rich object whose state
+   * cannot be updated just by clobbering as provided by |setFilterValue|.
+   *
+   * @param {string} aName - The name of the filter we are retrieving.
+   * @param {boolean} [aNoChange=false] - Is this actually a change for the
+   *   purposes of lastFilterAttr purposes?
+   * @returns {any} Value of the filter.
    */
   getFilterValue(aName, aNoChange) {
     if (!aNoChange) {
-      this._lastFilterAttr = aName;
+      this.#lastFilterAttr = aName;
     }
     return this.filterValues[aName];
-  },
+  }
 
   /**
    * Set a filter state and update lastFilterAttr appropriately.
    *
-   * @param aName The name of the filter we are setting.
-   * @param aValue The value to set; null/undefined implies deletion.
-   * @param [aNoChange=false] Is this actually a change for the purposes of
-   *     lastFilterAttr purposes?
+   * @param {string} aName - The name of the filter we are setting.
+   * @param {?any} aValue - The value to set; null/undefined implies deletion.
+   * @param {boolean} [aNoChange=false] Is this actually a change for the
+   *   purposes of lastFilterAttr purposes?
    */
   setFilterValue(aName, aValue, aNoChange) {
     if (aValue == null) {
@@ -101,75 +100,102 @@ QuickFilterState.prototype = {
 
     this.filterValues[aName] = aValue;
     if (!aNoChange) {
-      this._lastFilterAttr = aName;
+      this.#lastFilterAttr = aName;
     }
-  },
+  }
 
   /**
-   * Track the last filter that was affirmatively applied.  If you hit escape
-   *  and this value is non-null, we clear the referenced filter constraint.
-   *  If you hit escape and the value is null, we clear all filters.
+   * Track the last filter that was affirmatively applied. If you hit escape
+   * and this value is non-null, we clear the referenced filter constraint.
+   * If you hit escape and the value is null, we clear all filters.
    */
-  _lastFilterAttr: null,
+  #lastFilterAttr = null;
 
   /**
    * The user hit escape; based on _lastFilterAttr and whether there are any
-   *  applied filters, change our constraints.  First press clears the last
-   *  added constraint (if any), second press (or if no last constraint) clears
-   *  the state entirely.
+   * applied filters, change our constraints. First press clears the last
+   * added constraint (if any), second press (or if no last constraint) clears
+   * the state entirely.
    *
-   * @returns true if we relaxed the state, false if there was nothing to relax.
+   * @returns {boolean} true if we relaxed the state, false if there was nothing
+   *   to relax.
    */
   userHitEscape() {
-    if (this._lastFilterAttr) {
+    if (this.#lastFilterAttr) {
       // it's possible the UI state the last attribute has already been cleared,
-      //  in which case we want to fall through...
+      // in which case we want to fall through...
       if (
         QuickFilterManager.clearFilterValue(
-          this._lastFilterAttr,
+          this.#lastFilterAttr,
           this.filterValues
         )
       ) {
-        this._lastFilterAttr = null;
+        this.#lastFilterAttr = null;
         return true;
       }
     }
 
     return QuickFilterManager.clearAllFilterValues(this.filterValues);
-  },
+  }
 
   /**
    * Clear the state without going through any undo-ish steps like
-   *  |userHitEscape| tries to do.
+   * |userHitEscape| tries to do.
    */
   clear() {
     QuickFilterManager.clearAllFilterValues(this.filterValues);
-  },
+  }
 
   /**
    * Create the search terms appropriate to the current filter states.
+   *
+   * @param {nsIMsgSearchSession} aTermCreator
    */
   createSearchTerms(aTermCreator) {
     return QuickFilterManager.createSearchTerms(
       this.filterValues,
       aTermCreator
     );
-  },
+  }
 
+  /**
+   * @returns {object} State of the filter as an object.
+   */
   persistToObj() {
     return {
       filterValues: this.filterValues,
       visible: this.visible,
     };
-  },
-};
+  }
+}
+
+/**
+ * @typedef {object} SearchListener
+ * @property {function(object): object} onSearchStart - Takes the current
+ *   state and returns the scratch.
+ *   This function should initialize the scratch object that will be passed to
+ *   onSearchMessage and onSearchDone. This is an attempt to provide a
+ *   friendly API that provides debugging support by dumping the state of
+ *   said object when things go wrong.
+ * @property {function(object, nsIMsgDBHdr, nsIFolder): undefined} onSearchMessage -
+ *   Processes messages reported as search hits. Its only context is the
+ *   object you returned from onSearchStart passed in as first parameter. Take
+ *   the hint and try and keep this method efficient! We will catch all
+ *   exceptions for you and report errors. We will also handle forcing GCs as
+ *   appropriate.
+ * @property {function(object, object, boolean): object} onSearchDone -
+ *   Takes the current state, the scratch object and the success value,
+ *   returning [new state for your filter, should call reflectInDOM, should
+ *   treat the state as if it is a result of user action].
+ *   This ends up looking exactly the same as the postFilterProcess handler.
+ */
 
 /**
  * An nsIMsgSearchNotify listener wrapper to facilitate faceting of messages
- *  being returned by a search.  We have to use a listener because the
- *  nsMsgDBView includes presentation logic and unless we force all of its
- *  results to be fully expanded (and dummy headers ignored), we can't get
- *  at all the messages reliably.
+ * being returned by a search. We have to use a listener because the
+ * nsMsgDBView includes presentation logic and unless we force all of its
+ * results to be fully expanded (and dummy headers ignored), we can't get
+ * at all the messages reliably.
  *
  * We need to provide a wrapper so that:
  * - We can provide better error handling support.
@@ -179,52 +205,36 @@ QuickFilterState.prototype = {
  *
  * It is nice that we have a wrapper so that:
  * - We can provide context to the thing we are calling that it does not need
- *  to maintain.
- *
- * The listener should implement the following methods:
- *
- * - function onSearchStart(aCurState) returning aScratch.
- *   This function should initialize the scratch object that will be passed to
- *    onSearchMessage and onSearchDone.  This is an attempt to provide a
- *    friendly API that provides debugging support by dumping the state of
- *    said object when things go wrong.
- *
- * - function onSearchMessage(aScratch, aMsgHdr, aFolder)
- *   Processes messages reported as search hits.  Its only context is the
- *    object you returned from onSearchStart.  Take the hint and try and keep
- *    this method efficient!  We will catch all exceptions for you and report
- *    errors.  We will also handle forcing GCs as appropriate.
- *
- * - function onSearchDone(aCurState, aScratch, aSuccess) returning
- *    [new state for your filter, should call reflectInDOM, should treat the
- *     state as if it is a result of user action].
- *   This ends up looking exactly the same as the postFilterProcess handler
- *
- * @param aFilterer The QuickFilterState instance.
- * @param aListener The thing on which we invoke methods.
+ *   to maintain.
  */
-export function QuickFilterSearchListener(
-  aViewWrapper,
-  aFilterer,
-  aFilterDef,
-  aListener,
-  aMuxer
-) {
-  this.filterer = aFilterer;
-  this.filterDef = aFilterDef;
-  this.listener = aListener;
-  this.muxer = aMuxer;
+export class QuickFilterSearchListener {
+  /**
+   *
+   * @param {DBViewWrapper} aViewWrapper
+   * @param {QuickFilterState} aFilterer - The QuickFilterState instance.
+   * @param {FilterDefinition} aFilterDef - The filter definition.
+   * @param {SearchListener} aListener - The thing on which we invoke methods.
+   * @param {object} aMuxer - The frontend handler for the quick filter bar (
+   *   quickFilterBar in quickFilterBar.js).
+   */
+  constructor(aViewWrapper, aFilterer, aFilterDef, aListener, aMuxer) {
+    this.filterer = aFilterer;
+    this.filterDef = aFilterDef;
+    this.listener = aListener;
+    this.muxer = aMuxer;
 
-  this.session = aViewWrapper.search.session;
+    this.session = aViewWrapper.search.session;
 
-  this.scratch = null;
-  this.count = 0;
-  this.started = false;
+    this.scratch = null;
+    this.count = 0;
+    this.started = false;
 
-  this.session.registerListener(this, Ci.nsIMsgSearchSession.allNotifications);
-}
+    this.session.registerListener(
+      this,
+      Ci.nsIMsgSearchSession.allNotifications
+    );
+  }
 
-QuickFilterSearchListener.prototype = {
   onNewSearch() {
     this.started = true;
     const curState =
@@ -232,15 +242,15 @@ QuickFilterSearchListener.prototype = {
         ? this.filterer.filterValues[this.filterDef.name]
         : null;
     this.scratch = this.listener.onSearchStart(curState);
-  },
+  }
 
   onSearchHit(aMsgHdr, aFolder) {
     // GC sanity demands that we trigger a GC if we have seen a large number
-    //  of headers.  Because we are driven by the search mechanism which likes
-    //  to time-slice when it has a lot of messages on its plate, it is
-    //  conceivable something else may trigger a GC for us.  Unfortunately,
-    //  we can't guarantee it, as XPConnect does not inform memory pressure,
-    //  so it's us to stop-gap it.
+    // of headers. Because we are driven by the search mechanism which likes
+    // to time-slice when it has a lot of messages on its plate, it is
+    // conceivable something else may trigger a GC for us. Unfortunately,
+    // we can't guarantee it, as XPConnect does not inform memory pressure,
+    // so it's us to stop-gap it.
     this.count++;
     if (!(this.count % 4096)) {
       Cu.forceGC();
@@ -251,10 +261,10 @@ QuickFilterSearchListener.prototype = {
     } catch (ex) {
       console.error(ex);
     }
-  },
+  }
 
   onSearchDone(aStatus) {
-    // it's possible we will see the tail end of an existing search. ignore.
+    // It's possible we will see the tail end of an existing search. Ignore.
     if (!this.started) {
       return;
     }
@@ -279,123 +289,131 @@ QuickFilterSearchListener.prototype = {
     if (update) {
       this.muxer.reflectFiltererState(this.filterDef.name);
     }
-  },
-};
+  }
+}
 
 /**
- * Extensible mechanism for defining filters for the quick filter bar.  This
+ * @typedef {object} FilterDefinition
+ * @property {string} name - The name of your filter. This is the name
+ *   of the attribute we cram your state into the state dictionary as, so
+ *   the key thing is that it doesn't conflict with other id's.
+ * @property {string} domId The id of the DOM node that you have
+ *   overlaid into the quick filter bar.
+ * @property {function(nsIMsgSearchSession, object, object): ?SearchListener} appendTerms -
+ *   Third parameter is the state.
+ *   The function to invoke to contribute your terms to the list of
+ *   search terms in the second parameter. Your function will not be
+ *   invoked if you do
+ *   not have any currently persisted state (as is the case if null or
+ *   undefined was set). If you have nothing to add, then don't do
+ *   anything. If you do add terms, the first term you add needs to have
+ *   the booleanAnd flag set to true. You may optionally return a SearchListener
+ *   if you want to process all of the messages returned by the filter; doing
+ *   so is not cheap, so don't do that lightly. (Tag faceting uses this.)
+ * @property {function(): undefined} [getDefaults] - Function that returns the
+ *   default state for the filter. If the function is not defined or the
+ *   returned value is == undefined/null, no state is set.
+ * @property {function(object, boolean): ?object} [propagateState] - A
+ *   function that takes the state from another QuickFilterState instance
+ *   for this definition and propagates it to a new state which it returns.
+ *   You would use this to keep the 'sticky' bits of state that you want to
+ *   persist between folder changes and when new tabs are opened. The
+ *   second argument tells you if the user wants all the filters still
+ *   applied or not. When false, the idea is you might keep things like
+ *   which text fields to filter on, but not the text to filter. When true,
+ *   you would keep the text to filter on too. Return undefined if you do
+ *   not want any state stored in the new filter state. If you do not
+ *   define this function and the second argument would be true, we will
+ *   propagate your state verbatim; accordingly functions using rich object
+ *   state must implement this method.
+ * @property {function(object): Array.<object, boolean>} [clearState] - Function to reset the
+ *   the filter's value for the given state, returning a tuple of the new
+ *   state and a boolean flag indicating whether there was actually state to
+ *   clear. This is used when the user decides to reset the state of the
+ *   filter bar or (just one specific filter). If omitted, we just delete
+ *   the filter state entirely, so you only need to define this if you have
+ *   some sticky meta-state you want to maintain. Return undefined for the
+ *   state value if you do not need any state kept around.
+ * @property {function(Document, object, Node): undefined} [domBindExtra] -
+ *   Function invoked at initial UI binding of the quick filter bar after
+ *   we add a command listener to whatever is identified by domId (the third
+ *   argument). If you have additional widgets to hook up, this is where you
+ *   do it. The document and muxer (second argument) are provided to assist in
+ *   this endeavor. Use the muxer's getFilterValueForMutation/setFilterValue/
+ *   updateSearch methods from any event handlers you register.
+ * @property {function(object, Node, Event, Document): Array.<object, boolean>} [onCommand] -
+ *   The first argument is the state.
+ *   If omitted, the default handler assumes your widget has a "checked"
+ *   state that should set your state value to true when checked and delete
+ *   the state when unchecked. Implement this function if that is not what
+ *   you need. The function should return a tuple of [new state, should
+ *   update the search] as its result.
+ * @property {function(Node, any, Document, object, any): undefined} [reflectInDOM] -
+ *   If omitted, we assume the widget referenced by domId has a checked
+ *   attribute and assign the filter value coerced to a boolean to the
+ *   checked attribute. Otherwise we call your function and it's up to you
+ *   to reflect your state. The first argument is the node referred to by domId.
+ *   This function will be called when the tab changes, folder changes, or
+ *   if we called postFilterProcess and you returned a value != undefined. The
+ *   second argument is the filter value, followed by the document, muxer and
+ *   call ID.
+ * @property {function(object, DBViewWrapper, boolean): Array.<object, boolean, boolean>} [postFilterProcess] -
+ *   Invoked after all of the message headers for the view have been
+ *   displayed, allowing your code to perform some kind of faceting or other
+ *   clever logic. Return a tuple of [new state, should call reflectInDOM,
+ *   should treat as if the user modified the state]. We call this _even
+ *   when there is no filter_ applied. The first argument is the state. We
+ *   tell you what's happening via the third argument; true means we have
+ *   applied some terms, false means not. It's vitally important that you do
+ *   not just facet things willy nilly unless there is expected user payoff
+ *   and they opted in. Our tagging UI only facets when the user clicked the
+ *   tag facet. If you write an extension that provides really sweet
+ *   visualizations or something like that and the user installs you knowing
+ *   what's what, that is also cool, we just can't do it in core for now.
+ */
+
+/**
+ * Extensible mechanism for defining filters for the quick filter bar. This
  * is the spiritual successor to the mailViewManager and quickSearchManager.
  *
  * The manager includes and requires UI-relevant metadata for use by its
- * counterparts in quickFilterBar.js.  New filters are expected to contribute
+ * counterparts in quickFilterBar.js. New filters are expected to contribute
  * DOM nodes to the overlay and tell us about them using their id during
  * registration.
  *
  * We support two types of filtery things.
  * - Filters via defineFilter.
- * - Text filters via defineTextFilter.  These always take the filter text as
+ * - Text filters via defineTextFilter. These always take the filter text as
  *   a parameter.
- *
- * If you are an adventurous extension developer and want to add a magic
- * text filter that does the whole "from:bob to:jim subject:shoes" what you
- * will want to do is register a normal filter and collapse the normal text
- * filter text-box.  You add your own text box, etc.
  */
 export var QuickFilterManager = {
   /**
    * List of filter definitions, potentially prioritized.
+   *
+   * @type {FilterDefinition[]}
    */
   filterDefs: [],
   /**
    * Keys are filter definition names, values are the filter defs.
+   *
+   * @type {Object<string, FilterDefinition>}
    */
   filterDefsByName: {},
   /**
    * The DOM id of the text widget that should get focused when the user hits
-   *  control-f or the equivalent.  This is here so it can get clobbered.
+   * control-f or the equivalent. This is here so it can get clobbered.
+   *
+   * @type {?string}
    */
   textBoxDomId: null,
 
   /**
    * Define a new filter.
    *
-   * Filter states must always be JSON serializable.  A state of undefined means
+   * Filter states must always be JSON serializable. A state of undefined means
    * that we are not persisting any state for your filter.
    *
-   * @param {string} aFilterDef.name The name of your filter.  This is the name
-   *     of the attribute we cram your state into the state dictionary as, so
-   *     the key thing is that it doesn't conflict with other id's.
-   * @param {string} aFilterDef.domId The id of the DOM node that you have
-   *     overlaid into the quick filter bar.
-   * @param {function(aTermCreator, aTerms, aState)} aFilterDef.appendTerms
-   *     The function to invoke to contribute your terms to the list of
-   *     search terms in aTerms.  Your function will not be invoked if you do
-   *     not have any currently persisted state (as is the case if null or
-   *     undefined was set).  If you have nothing to add, then don't do
-   *     anything.  If you do add terms, the first term you add needs to have
-   *     the booleanAnd flag set to true.  You may optionally return a listener
-   *     that complies with the documentation on QuickFilterSearchListener if
-   *     you want to process all of the messages returned by the filter; doing
-   *     so is not cheap, so don't do that lightly.  (Tag faceting uses this.)
-   * @param {function()} [aFilterDef.getDefaults] Function that returns the
-   *     default state for the filter.  If the function is not defined or the
-   *     returned value is == undefined/null, no state is set.
-   * @param {function(aTemplState, aSticky)} [aFilterDef.propagateState] A
-   *     function that takes the state from another QuickFilterState instance
-   *     for this definition and propagates it to a new state which it returns.
-   *     You would use this to keep the 'sticky' bits of state that you want to
-   *     persist between folder changes and when new tabs are opened.  The
-   *     aSticky argument tells you if the user wants all the filters still
-   *     applied or not.  When false, the idea is you might keep things like
-   *     which text fields to filter on, but not the text to filter.  When true,
-   *     you would keep the text to filter on too.  Return undefined if you do
-   *     not want any state stored in the new filter state.  If you do not
-   *     define this function and aSticky would be true, we will propagate your
-   *     state verbatim; accordingly functions using rich object state must
-   *     implement this method.
-   * @param {function(aState)} [aFilterDef.clearState] Function to reset the
-   *     the filter's value for the given state, returning a tuple of the new
-   *     state and a boolean flag indicating whether there was actually state to
-   *     clear.  This is used when the user decides to reset the state of the
-   *     filter bar or (just one specific filter).  If omitted, we just delete
-   *     the filter state entirely, so you only need to define this if you have
-   *     some sticky meta-state you want to maintain.  Return undefined for the
-   *     state value if you do not need any state kept around.
-   * @param {function(aDocument, aMuxer, aNode)} [aFilterDef.domBindExtra]
-   *     Function invoked at initial UI binding of the quick filter bar after
-   *     we add a command listener to whatever is identified by domId.  If you
-   *     have additional widgets to hook up, this is where you do it.  aDocument
-   *     and aMuxer are provided to assist in this endeavor.  Use aMuxer's
-   *     getFilterValueForMutation/setFilterValue/updateSearch methods from any
-   *     event handlers you register.
-   * @param {function(aState, aNode, aEvent, aDocument)} [aFilterDef.onCommand]
-   *     If omitted, the default handler assumes your widget has a "checked"
-   *     state that should set your state value to true when checked and delete
-   *     the state when unchecked.  Implement this function if that is not what
-   *     you need.  The function should return a tuple of [new state, should
-   *     update the search] as its result.
-   * @param {function(aDomNode, aFilterValue, aDoc, aMuxer, aCallId)}
-   *     [aFilterDef.reflectInDOM]
-   *     If omitted, we assume the widget referenced by domId has a checked
-   *     attribute and assign the filter value coerced to a boolean to the
-   *     checked attribute.  Otherwise we call your function and it's up to you
-   *     to reflect your state.  aDomNode is the node referred to by domId.
-   *     This function will be called when the tab changes, folder changes, or
-   *     if we called postFilterProcess and you returned a value != undefined.
-   * @param {function(aState, aViewWrapper, aFiltering)}
-   *     [aFilterDef.postFilterProcess]
-   *     Invoked after all of the message headers for the view have been
-   *     displayed, allowing your code to perform some kind of faceting or other
-   *     clever logic.  Return a tuple of [new state, should call reflectInDOM,
-   *     should treat as if the user modified the state].  We call this _even
-   *     when there is no filter_ applied.  We tell you what's happening via
-   *     aFiltering; true means we have applied some terms, false means not.
-   *     It's vitally important that you do not just facet things willy nilly
-   *     unless there is expected user payoff and they opted in.  Our tagging UI
-   *     only facets when the user clicked the tag facet.  If you write an
-   *     extension that provides really sweet visualizations or something like
-   *     that and the user installs you knowing what's what, that is also cool,
-   *     we just can't do it in core for now.
+   * @param {FilterDefinition} aFilterDef - Filter definition.
    */
   defineFilter(aFilterDef) {
     this.filterDefs.push(aFilterDef);
@@ -403,11 +421,11 @@ export var QuickFilterManager = {
   },
 
   /**
-   * Remove a filter from existence by name.  This is for extensions to disable
-   *  existing filters and not a dynamic jetpack-like lifecycle.  It falls to
-   *  the code calling killFilter to deal with the DOM nodes themselves for now.
+   * Remove a filter from existence by name. This is for extensions to disable
+   * existing filters and not a dynamic jetpack-like lifecycle. It falls to the
+   * code calling killFilter to deal with the DOM nodes themselves for now.
    *
-   * @param aName The name of the filter to kill.
+   * @param {string} aName - The name of the filter to kill.
    */
   killFilter(aName) {
     const filterDef = this.filterDefsByName[aName];
@@ -417,10 +435,10 @@ export var QuickFilterManager = {
 
   /**
    * Propagate values from an existing state into a new state based on
-   *  propagation rules.  For use by QuickFilterState.
+   * propagation rules. For use by QuickFilterState.
    *
-   * @param aTemplValues A set of existing filterValues.
-   * @returns The new filterValues state.
+   * @param {object} aTemplValues - A set of existing filterValues.
+   * @returns {object} The new filterValues state.
    */
   propagateValues(aTemplValues) {
     const values = {};
@@ -449,7 +467,7 @@ export var QuickFilterManager = {
   /**
    * Get the set of default filterValues for the current set of defined filters.
    *
-   * @returns Thew new filterValues state.
+   * @returns {object} The new filterValues state.
    */
   getDefaultValues() {
     const values = {};
@@ -467,8 +485,11 @@ export var QuickFilterManager = {
   /**
    * Reset the state of a single filter given the provided values.
    *
-   * @returns true if we actually cleared some state, false if there was nothing
-   *     to clear.
+   * @param {string} aFilterName - Name of the filter to clear values for.
+   * @param {object} aValues - Values to clear for each filter. Must have a key
+   *   for aFilterName.
+   * @returns {boolean} true if we actually cleared some state, false if there
+   *   was nothing to clear.
    */
   clearFilterValue(aFilterName, aValues) {
     const filterDef = this.filterDefsByName[aFilterName];
@@ -494,8 +515,9 @@ export var QuickFilterManager = {
   /**
    * Reset the state of all filters given the provided values.
    *
-   * @returns true if we actually cleared something, false if there was nothing
-   *     to clear.
+   * @param {object} aFilterValues - The values to clear by filter.
+   * @returns {boolean} true if we actually cleared something, false if there
+   *   was nothing to clear.
    */
   clearAllFilterValues(aFilterValues) {
     let didClearSomething = false;
@@ -512,6 +534,10 @@ export var QuickFilterManager = {
    *
    * We only invoke appendTerms on filters that have state in aFilterValues,
    * as per the contract.
+   *
+   * @param {object} aFilterValues - The values to clear by filter.
+   * @param {nsIMsgSearchSession} aTermCreator
+   * @returns {Array.<?string[], Array.<Array.<SearchListener, FilterDefinition>>>}
    */
   createSearchTerms(aFilterValues, aTermCreator) {
     const searchTerms = [],
@@ -615,7 +641,7 @@ QuickFilterManager.defineFilter({
           ? Ci.nsMsgSearchOp.IsInAB
           : Ci.nsMsgSearchOp.IsntInAB;
         // It's an AND if we're the first book (so the boolean affects the
-        //  group as a whole.)
+        // group as a whole.)
         // It's the negation of whether we're filtering otherwise; demorgans.
         term.booleanAnd = firstBook || !aFilterValue;
         term.beginsGrouping = firstBook;
@@ -632,7 +658,7 @@ QuickFilterManager.defineFilter({
 /**
  * It's a tag filter that sorta facets! Stealing gloda's thunder! Woo!
  *
- * Filter on message tags?  Meanings:
+ * Filter on message tags? Meanings:
  * - true: Yes, must have at least one tag on it.
  * - false: No, no tags on it!
  * - dictionary where keys are tag keys and values are tri-state with null
@@ -646,8 +672,8 @@ var TagFacetingFilter = {
   callID: "",
 
   /**
-   * @returns true if the constaint is only on has tags/does not have tags,
-   *     false if there are specific tag constraints in play.
+   * @returns {boolean} true if the constaint is only on has tags/does not have
+   *   tags, false if there are specific tag constraints in play.
    */
   isSimple(aFilterValue) {
     // it's the simple case if the value is just a boolean
@@ -668,10 +694,10 @@ var TagFacetingFilter = {
 
   /**
    * Because we support both inclusion and exclusion we can produce up to two
-   *  groups.  One group for inclusion, one group for exclusion.  To get listed
-   *  the message must have any/all of the tags marked for inclusion,
-   *  (depending on mode), but it cannot have any of the tags marked for
-   *  exclusion.
+   * groups. One group for inclusion, one group for exclusion. To get listed
+   * the message must have any/all of the tags marked for inclusion,
+   * (depending on mode), but it cannot have any of the tags marked for
+   * exclusion.
    */
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     if (aFilterValue == null) {
@@ -777,7 +803,7 @@ var TagFacetingFilter = {
   },
   onSearchDone(aCurState, aKeywordMap) {
     // we are an async operation; if the user turned off the tag facet already,
-    //  then leave that state intact...
+    // then leave that state intact...
     if (aCurState == null) {
       return [null, false, false];
     }
@@ -808,7 +834,7 @@ var TagFacetingFilter = {
       // Could be an object, need to convert.
       return !!aOld;
     }
-    return shallowObjCopy(aOld);
+    return Object.assign({}, aOld);
   },
 
   /**
@@ -977,7 +1003,7 @@ QuickFilterManager.defineFilter({
 });
 
 /**
- * The traditional quick-search text filter now with added gloda upsell!  We
+ * The traditional quick-search text filter now with added gloda upsell! We
  * are mildly extensible in case someone wants to add more specific text filter
  * criteria to toggle, but otherwise are intended to be taken out of the
  * picture entirely by extensions implementing more featureful text searches.
@@ -989,16 +1015,16 @@ export var MessageTextFilter = {
   name: "text",
   domId: "qfb-qs-textbox",
   /**
-   * Parse the string into terms/phrases by finding matching double-quotes.  If
+   * Parse the string into terms/phrases by finding matching double-quotes. If
    * we find a quote that doesn't have a friend, we assume the user was going
-   * to put a quote at the end of the string.  (This is important because we
+   * to put a quote at the end of the string. (This is important because we
    * update using a timer and this results in stable behavior.)
    *
    * This code is cloned from gloda's GlodaMsgSearcher.sys.mjs and known good (enough :).
    * I did change the friendless quote situation, though.
    *
-   * @param aSearchString The phrase to parse up.
-   * @returns A list of terms.
+   * @param {string} aSearchString The phrase to parse up.
+   * @returns {string[]} A list of terms.
    */
   _parseSearchString(aSearchString) {
     aSearchString = aSearchString.trim();
@@ -1043,8 +1069,8 @@ export var MessageTextFilter = {
 
   /**
    * For each search phrase, build a group that contains all our active text
-   *  filters OR'ed together.  So if the user queries for 'foo bar' with
-   *  sender and recipient enabled, we build:
+   * filters OR'ed together. So if the user queries for 'foo bar' with
+   * sender and recipient enabled, we build:
    * ("foo" sender OR "foo" recipient) AND ("bar" sender OR "bar" recipient)
    */
   appendTerms(aTermCreator, aTerms, aFilterValue) {
@@ -1084,10 +1110,7 @@ export var MessageTextFilter = {
     }
   },
   getDefaults() {
-    const states = {};
-    for (const name in this._defaultStates) {
-      states[name] = this._defaultStates[name];
-    }
+    const states = Object.assign({}, this._defaultStates);
     return {
       text: null,
       states,
@@ -1096,7 +1119,7 @@ export var MessageTextFilter = {
   propagateState(aOld, aSticky) {
     return {
       text: aSticky ? aOld.text : null,
-      states: shallowObjCopy(aOld.states),
+      states: Object.assign({}, aOld.states),
     };
   },
   clearState(aState) {
@@ -1106,9 +1129,9 @@ export var MessageTextFilter = {
   },
 
   /**
-   * We need to create and bind our expando-bar toggle buttons.  We also need to
-   *  add a special down keypress handler that escapes the textbox into the
-   *  thread pane.
+   * We need to create and bind our expando-bar toggle buttons. We also need to
+   * add a special down keypress handler that escapes the textbox into the
+   * thread pane.
    */
   domBindExtra(aDocument, aMuxer, aNode) {
     // -- Keypresses for focus transferral and upsell
@@ -1245,14 +1268,14 @@ export var MessageTextFilter = {
 
   /**
    * In order to do our upsell we need to know when we are not getting any
-   *  results.
+   * results.
    */
   postFilterProcess(aState, aViewWrapper, aFiltering) {
     // If we're not filtering, not filtering on text, there are results, or
-    //  gloda is not enabled so upselling makes no sense, then bail.
+    // gloda is not enabled so upselling makes no sense, then bail.
     // (Currently we always return "nosale" to make sure our panel is closed;
-    //  this might be overkill but unless it becomes a performance problem, it
-    //  keeps us safe from weird stuff.)
+    // this might be overkill but unless it becomes a performance problem, it
+    // keeps us safe from weird stuff.)
     if (
       !aFiltering ||
       !aState.text ||
@@ -1263,16 +1286,38 @@ export var MessageTextFilter = {
     }
 
     // since we're filtering, filtering on text, and there are no results, tell
-    //  the upsell code to get bizzay
+    // the upsell code to get bizzay
     return [aState, "upsell", false];
   },
 
-  /** maps text filter names to whether they are enabled by default (bool)  */
+  /**
+   * Maps text filter names to whether they are enabled by default.
+   *
+   * @type {Object<string, boolean>}
+   */
   _defaultStates: {},
-  /** maps text filter name to text filter def */
+  /**
+   * Maps text filter name to text filter def.
+   *
+   * @type {Object<string, object>}
+   */
   textFilterDefs: {},
-  /** maps dom id to text filter def */
+  /**
+   * Maps dom id to text filter def.
+   *
+   * @type {Object<string, object>}
+   */
   textFilterDefsByDomId: {},
+  /**
+   * Add a message field available for text filtering.
+   *
+   * @param {object} aTextDef - Text filter definition.
+   * @param {string} aTextDef.name - Name of the filter.
+   * @param {string} aTextDef.domId - ID of the filter control in the quick
+   *   filter bar.
+   * @param {boolean} aTextDef.defaultState - Default state of the filter.
+   * @param {nsMsgSearchAttrib} aTextDef.attrib - Attribute to filter by.
+   */
   defineTextFilter(aTextDef) {
     this.textFilterDefs[aTextDef.name] = aTextDef;
     this.textFilterDefsByDomId[aTextDef.domId] = aTextDef;
@@ -1322,7 +1367,7 @@ QuickFilterManager.defineFilter({
 
   /**
    * Our state is meaningless; we implement this to avoid clearState ever
-   *  thinking we were a facet.
+   * thinking we were a facet.
    */
   clearState() {
     return [null, false];
@@ -1353,11 +1398,11 @@ QuickFilterManager.defineFilter({
   },
   /**
    * We slightly abuse the filtering hook to figure out how many messages there
-   *  are and whether a filter is active.  What makes this reasonable is that
-   *  a more complicated widget that visualized the results as a timeline would
-   *  definitely want to be hooked up like this.  (Although they would want
-   *  to implement propagateState since the state they store would be pretty
-   *  expensive.)
+   * are and whether a filter is active. What makes this reasonable is that
+   * a more complicated widget that visualized the results as a timeline would
+   * definitely want to be hooked up like this. (Although they would want
+   * to implement propagateState since the state they store would be pretty
+   * expensive.)
    */
   postFilterProcess(aState, aViewWrapper, aFiltering) {
     return [aFiltering ? aViewWrapper.dbView.numMsgsInView : null, true, false];
