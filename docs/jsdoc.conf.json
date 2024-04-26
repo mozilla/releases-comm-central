@@ -3,6 +3,17 @@
   "recurseDepth": 10,
   "source": {
     "exclude": [
+      "../calendar/base/calendar.js",
+      "../calendar/base/content/calendar-base-view.js",
+      "../calendar/base/content/calendar-task-tree-view.js",
+      "../calendar/base/content/dialogs/calendar-event-dialog-attendees.js",
+      "../calendar/base/content/dialogs/calendar-event-dialog-recurrence.js",
+      "../calendar/base/content/widgets/calendar-filter.js",
+      "../calendar/base/content/widgets/calendar-invitation-panel.js",
+      "../calendar/base/content/widgets/calendar-notifications-setting.js",
+      "../calendar/base/content/widgets/datetimepickers.js",
+      "../calendar/base/modules/utils/calDateTimeFormatter.sys.mjs",
+      "../calendar/base/modules/utils/calIteratorUtils.sys.mjs",
       "../calendar/extract/CalExtractParser.sys.mjs",
       "../calendar/providers/caldav/modules/CalDavRequest.sys.mjs",
       "../calendar/providers/caldav/modules/CalDavSession.sys.mjs",
