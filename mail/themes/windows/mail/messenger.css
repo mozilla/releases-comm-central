@@ -8,6 +8,38 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
+/* UI Density customization */
+:root {
+  --menuitem-vertical-padding: 3px;
+  &[uidensity="compact"] {
+    --menuitem-vertical-padding: 1px;
+  }
+
+  &[uidensity="touch"] {
+    --menuitem-vertical-padding: 8px;
+  }
+}
+
+menupopup > menu,
+menupopup > menuitem {
+  padding-block: var(--menuitem-vertical-padding);
+}
+
+menulist > menupopup > menu,
+menulist > menupopup > menuitem {
+  padding-inline-end: 5px;
+}
+
+menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
+  padding-inline-start: 1em;
+}
+
+menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+menupopup:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+  padding-inline-start: 32px;
+}
+
 .folderMenuItem > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: flex;

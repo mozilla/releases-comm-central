@@ -184,6 +184,11 @@ toolbarbutton > menupopup menuitem {
   }
 }
 
+menupopup menu[disabled="true"][_moz-menuactive="true"],
+menupopup menuitem[disabled="true"][_moz-menuactive="true"] {
+  background-color: transparent !important;
+}
+
 menulist > menupopup menu .menu-right,
 toolbarbutton > menupopup menu .menu-right {
   appearance: none;
@@ -436,6 +441,24 @@ legend {
   margin-bottom: 5px;
   margin-inline-start: -5px;
   font-weight: bold;
+}
+
+.menu-right,
+.menu-accel-container {
+  margin-inline-end: 0;
+}
+
+.menu-accel-container {
+  opacity: 0.5;
+
+  menupopup[type="arrow"] & {
+    margin-inline-end: 0;
+  }
+
+  menuitem:not([disabled="true"]):hover &,
+  menuitem:not([disabled="true"]):focus & {
+    opacity: 1;
+  }
 }
 
 /* UI Density customization */

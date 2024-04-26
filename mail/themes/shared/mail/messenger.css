@@ -1556,8 +1556,3 @@ printpreview-pagination:focus-within,
     }
   }
 }
-
-/* Hide either Read or Unread. */
-menuitem[key="key_toggleRead"][disabled="true"] {
-  display: none;
-}

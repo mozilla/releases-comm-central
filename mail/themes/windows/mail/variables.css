@@ -12,79 +12,70 @@
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDLightShadow;
+}
 
-  /* UI Density customization */
-  --menuitem-vertical-padding: 3px;
-
-  &[uidensity="compact"] {
-    --menuitem-vertical-padding: 1px;
-  }
-
-  &[uidensity="touch"] {
-    --menuitem-vertical-padding: 8px;
-  }
-
-  @media not (prefers-contrast) {
+@media not (prefers-contrast) {
+  :root {
     --toolbar-non-lwt-bgimage: none;
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   }
+}
 
-  @media (prefers-color-scheme: dark) {
-    &[lwtheme] {
-      --autocomplete-popup-highlight-color: var(--lwt-text-color);
-      --dark-lwt-highlight-color: #0a84ff;
-    }
-
-    &[lwtheme]:not([lwt-tree]) menupopup {
-      --panel-background: var(--arrowpanel-background) !important;
-      --panel-color: var(--arrowpanel-color) !important;
-      --panel-border-color: var(--arrowpanel-border-color) !important;
-      --menu-color: var(--arrowpanel-color) !important;
-      --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
-      --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
-    }
+@media (prefers-color-scheme: dark) {
+  :root[lwtheme] {
+    --autocomplete-popup-highlight-color: var(--lwt-text-color);
+    --dark-lwt-highlight-color: #0a84ff;
   }
 
-  @media (prefers-contrast) {
-    &:not([lwtheme]) {
-      --lwt-tabs-border-color: ThreeDShadow;
-      --item-focus-selected-border-color: SelectedItemText;
-      --new-folder-color: Highlight;
-      --menuitem-vertical-padding: 3px;
-      --arrowpanel-dimmed: SelectedItem;
-      --arrowpanel-dimmed-further: SelectedItem;
-      --toolbar-field-focus-border-color: SelectedItem;
+  :root[lwtheme]:not([lwt-tree]) menupopup {
+    --panel-background: var(--arrowpanel-background) !important;
+    --panel-color: var(--arrowpanel-color) !important;
+    --panel-border-color: var(--arrowpanel-border-color) !important;
+    --menu-color: var(--arrowpanel-color) !important;
+    --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
+    --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
+  }
+}
 
-      & .themeable-full,
-      & .themeable-brighttext,
-      & #navigation-toolbox > toolbar,
-      & #todaypane-new-event-button,
-      & #CardViewBox {
-        --toolbarbutton-hover-background: SelectedItem;
-        --toolbarbutton-hover-bordercolor: SelectedItemText !important;
-        --toolbarbutton-active-background: SelectedItem;
-        --toolbarbutton-active-bordercolor: SelectedItemText;
-        --toolbarbutton-checked-background: SelectedItem;
-        --toolbarbutton-icon-fill-attention: SelectedItem;
-      }
+@media (prefers-contrast) {
+  :root:not([lwtheme]) {
+    --lwt-tabs-border-color: ThreeDShadow;
+    --item-focus-selected-border-color: SelectedItemText;
+    --new-folder-color: Highlight;
+    --menuitem-vertical-padding: 3px;
+    --arrowpanel-dimmed: SelectedItem;
+    --arrowpanel-dimmed-further: SelectedItem;
+    --toolbar-field-focus-border-color: SelectedItem;
 
-      & .toolbarbutton-1.message-header-view-button {
-        --toolbarbutton-header-bordercolor: WindowText;
-        --toolbarbutton-active-bordercolor: WindowText;
-      }
+    & .themeable-full,
+    & .themeable-brighttext,
+    & #navigation-toolbox > toolbar,
+    & #todaypane-new-event-button,
+    & #CardViewBox {
+      --toolbarbutton-hover-background: SelectedItem;
+      --toolbarbutton-hover-bordercolor: SelectedItemText !important;
+      --toolbarbutton-active-background: SelectedItem;
+      --toolbarbutton-active-bordercolor: SelectedItemText;
+      --toolbarbutton-checked-background: SelectedItem;
+      --toolbarbutton-icon-fill-attention: SelectedItem;
+    }
 
-      & .toolbarbutton-1:not(.qfb-tag-button):hover,
-      & #calendar-add-task-button:hover,
-      & #todaypane-new-event-button:hover,
-      & .toolbarbutton-1[checked="true"],
-      & .toolbarbutton-menubutton-button:hover {
-        color: SelectedItemText !important;
-      }
+    & .toolbarbutton-1.message-header-view-button {
+      --toolbarbutton-header-bordercolor: WindowText;
+      --toolbarbutton-active-bordercolor: WindowText;
+    }
 
-      & menulist {
-        --toolbarbutton-hover-background: ButtonFace;
-      }
+    & .toolbarbutton-1:not(.qfb-tag-button):hover,
+    & #calendar-add-task-button:hover,
+    & #todaypane-new-event-button:hover,
+    & .toolbarbutton-1[checked="true"],
+    & .toolbarbutton-menubutton-button:hover {
+      color: SelectedItemText !important;
+    }
+
+    & menulist {
+      --toolbarbutton-hover-background: ButtonFace;
     }
   }
 }
