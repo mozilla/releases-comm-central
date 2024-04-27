@@ -42,8 +42,8 @@ function setIgnoreStatusFromMimePart(mimePart) {
  *   for the message.
  * @param {"ok"|"notok"|null} encryptedState - The encrypted state of the
  *   message.
- * @param {"ok"|"notok"|"verified"|"unverified"|"unknown"|"mismatch"|null}
- *   signedState - The signed state of the message.
+ * @param {"ok"|"notok"|"verified"|"unverified"|"unknown"|"mismatch"|null} signedState -
+     The signed state of the message.
  * @param {boolean} forceShow - Show the box if unsigned and unencrypted.
  * @param {string} mimePartNumber - Should be set to the MIME part number
  *   that triggers this status update. If the value matches a currently
