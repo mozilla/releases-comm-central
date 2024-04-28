@@ -108,6 +108,7 @@ function getAttachmentKeywords(mailData, keywordsInCsv) {
 
 /**
  * Worker message event handler.
+ *
  * @param {Event} event - "message" posted from parent.
  */
 self.onmessage = function (event) {

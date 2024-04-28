@@ -64,7 +64,7 @@ export class AttachmentInfo {
    *   been detached to file or is a link attachment.
    * @param {object} options.message - The message object associated to this
    *   attachment.
-   * @param {function} [updateAttachmentsDisplayFn] - An optional callback
+   * @param {Function} [updateAttachmentsDisplayFn] - An optional callback
    *   function that is called to update the attachment display at appropriate
    *   times.
    */
@@ -503,7 +503,7 @@ export class AttachmentInfo {
    * is accessible. For http and file urls, fetch() will have the size
    * in the content-length header.
    *
-   * @returns {Boolean}
+   * @returns {boolean}
    *   true if the attachment is empty or error, false otherwise.
    */
   async isEmpty() {

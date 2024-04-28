@@ -43,11 +43,12 @@ export var MailViewManager = {
    * We define our own little view definition abstraction because some day this
    *  functionality may want to be generalized to be usable by gloda as well.
    *
-   * @param aViewDef The view definition, three attributes are required:
-   * - name: A string name for the view, for debugging purposes only.  This
-   *         should not be localized!
-   * - index: The index to assign to the view.
-   * - makeTerms: A function to invoke that returns a list of search terms.
+   * @param {object} aViewDef - The view definition.
+   * @param {string} aViewDef.name - Name for the view, for debugging
+   *   purposes only. This should not be localized!
+   * @param {integer} aViewDef.index - The index to assign to the view.
+   * @param {Function} aViewDef.makeTerms - A function to invoke that returns
+   *   a list of search terms.
    */
   defineView(aViewDef) {
     this._views[aViewDef.index] = aViewDef;
@@ -84,12 +85,12 @@ export var MailViewManager = {
   /**
    * Return the view definition associated with the given view index.
    *
-   * @param aViewIndex If the value is an integer it references the built-in
-   *      view with the view index from MailViewConstants, or if the index
-   *      is >= MailViewConstants.kViewItemFirstCustom, it is a reference to
-   *      a custom view definition.  If the value is a string, it is the name
-   *      of a custom view.  The string case is mainly intended for testing
-   *      purposes.
+   * @param {integer|string} aViewIndex - If the value is an integer it
+   *    references the built-in view with the view index from MailViewConstants,
+   *    or if the index is >= MailViewConstants.kViewItemFirstCustom, it is a
+   *    reference to a custom view definition.  If the value is a string, it is
+   *    the name of a custom view.
+   *    The string case is mainly intended for testing purposes.
    */
   getMailViewByIndex(aViewIndex) {
     if (typeof aViewIndex == "string") {

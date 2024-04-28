@@ -308,7 +308,7 @@ export var PluralForm = {
    *        The number to decide which plural form to use
    * @param aWords
    *        A semi-colon (;) separated string of words to pick the plural form
-   * @return The appropriate plural form of the word
+   * @returns The appropriate plural form of the word
    */
   get get() {
     // This method will lazily load to avoid perf when it is first needed and
@@ -332,7 +332,7 @@ export var PluralForm = {
    *
    * @param aRuleNum
    *        The plural rule number to create functions
-   * @return A pair: [function that gets the right plural form,
+   * @returns A pair: [function that gets the right plural form,
    *                  function that returns the number of plural forms]
    */
   makeGetter(aRuleNum) {
@@ -390,7 +390,7 @@ export var PluralForm = {
   /**
    * Get the number of forms for the current plural rule
    *
-   * @return The number of forms
+   * @returns The number of forms
    */
   get numForms() {
     // We lazily load numForms, so trigger the init logic with get()
@@ -401,7 +401,7 @@ export var PluralForm = {
   /**
    * Get the plural rule number for the current app locale
    *
-   * @return The plural rule number
+   * @returns The plural rule number
    */
   get ruleNum() {
     return LOCALE_PLURAL_NUMBER[Services.locale.appLocaleAsBCP47] ?? 0;

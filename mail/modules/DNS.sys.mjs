@@ -56,6 +56,7 @@ export const DNS = {
 
   /**
    * Look up SRV records for hostname.
+   *
    * @param {string} hostname
    * @returns {Promise<SRVRecord[]> records.
    */
@@ -65,6 +66,7 @@ export const DNS = {
 
   /**
    * Look up TXT records for hostname.
+   *
    * @param {string} hostname
    * @returns {Promise<TXTRecord[]> records.
    */
@@ -74,6 +76,7 @@ export const DNS = {
 
   /**
    * Look up MX records for hostname.
+   *
    * @param {string} hostname
    * @returns {Promise<MXRecord[]> records.
    */

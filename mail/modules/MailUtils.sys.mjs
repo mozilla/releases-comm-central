@@ -182,10 +182,10 @@ export var MailUtils = {
    *      is used, and the window is brought to the front
    *    - if no 3pane windows are open, a standalone window is opened instead
    *      of a tab
-   * @param {Boolean} [forceTab] - Boolean that let us know when the middle
+   * @param {boolean} [forceTab] - Boolean that let us know when the middle
    *   click button triggered the event. We then proceed to open the message in
    *   a new tab.
-   * @param {Boolean} [shiftPressed] - We take into account if the user pressed
+   * @param {boolean} [shiftPressed] - We take into account if the user pressed
    *   the shift key to know how to open a message in a new tab.
    */
   displayMessages(
@@ -249,7 +249,7 @@ export var MailUtils = {
    *      is used, and the window is brought to the front
    *    - if no 3pane windows are open, a standalone window is opened instead
    *      of a tab
-   * @param {Boolean} [shiftPressed] - We take into account if the user pressed
+   * @param {boolean} [shiftPressed] - We take into account if the user pressed
    *   the shift key to know how to open a message in a new tab. We only look at
    *   the loadInBackground preferefence if this value is provided.
    */
@@ -845,6 +845,7 @@ export var MailUtils = {
    * Take the message id from the messageIdNode and use the url defined in the
    * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
    * (%mid is replaced by the message id).
+   *
    * @param {string} messageId - The message id to open.
    */
   openBrowserWithMessageId(messageId) {
@@ -974,6 +975,7 @@ export var MailUtils = {
 /**
  * A class that listens to notifications about folders, and deals with them
  * appropriately.
+ *
  * @implements {nsIObserver}
  */
 class FolderNotificationManager {
