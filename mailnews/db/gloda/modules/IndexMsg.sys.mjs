@@ -739,15 +739,13 @@ export var GlodaMsgIndexer = {
         Ci.nsMsgSearchScope.offlineMail,
         this._indexingFolder
       );
-      const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-      const nsMsgSearchOp = Ci.nsMsgSearchOp;
 
       // first term: (GLODA_MESSAGE_ID_PROPERTY Is 0
       let searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = false; // actually don't care here
       searchTerm.beginsGrouping = true;
-      searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
-      searchTerm.op = nsMsgSearchOp.Is;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
+      searchTerm.op = Ci.nsMsgSearchOp.Is;
       let value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.status = 0;
@@ -758,8 +756,8 @@ export var GlodaMsgIndexer = {
       // second term: || GLODA_MESSAGE_ID_PROPERTY Is GLODA_OLD_BAD_MESSAGE_ID
       searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = false; // OR
-      searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
-      searchTerm.op = nsMsgSearchOp.Is;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
+      searchTerm.op = Ci.nsMsgSearchOp.Is;
       value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.status = GLODA_OLD_BAD_MESSAGE_ID;
@@ -771,8 +769,8 @@ export var GlodaMsgIndexer = {
       searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = false;
       searchTerm.endsGrouping = true;
-      searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
-      searchTerm.op = nsMsgSearchOp.Isnt;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
+      searchTerm.op = Ci.nsMsgSearchOp.Isnt;
       value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.status = 0;
@@ -785,8 +783,8 @@ export var GlodaMsgIndexer = {
       //  the header property.
       searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = true;
-      searchTerm.attrib = nsMsgSearchAttrib.HdrProperty;
-      searchTerm.op = nsMsgSearchOp.Isnt;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
+      searchTerm.op = Ci.nsMsgSearchOp.Isnt;
       value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.str = JUNK_SPAM_SCORE_STR;
@@ -800,8 +798,8 @@ export var GlodaMsgIndexer = {
           // third term: && Status Is nsMsgMessageFlags.Offline
           searchTerm = searchSession.createTerm();
           searchTerm.booleanAnd = true;
-          searchTerm.attrib = nsMsgSearchAttrib.MsgStatus;
-          searchTerm.op = nsMsgSearchOp.Is;
+          searchTerm.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
+          searchTerm.op = Ci.nsMsgSearchOp.Is;
           value = searchTerm.value;
           value.attrib = searchTerm.attrib;
           value.status = Ci.nsMsgMessageFlags.Offline;
@@ -812,8 +810,8 @@ export var GlodaMsgIndexer = {
         // fourth term: && Status Isnt nsMsgMessageFlags.Expunged
         searchTerm = searchSession.createTerm();
         searchTerm.booleanAnd = true;
-        searchTerm.attrib = nsMsgSearchAttrib.MsgStatus;
-        searchTerm.op = nsMsgSearchOp.Isnt;
+        searchTerm.attrib = Ci.nsMsgSearchAttrib.MsgStatus;
+        searchTerm.op = Ci.nsMsgSearchOp.Isnt;
         value = searchTerm.value;
         value.attrib = searchTerm.attrib;
         value.status = Ci.nsMsgMessageFlags.Expunged;
@@ -844,18 +842,16 @@ export var GlodaMsgIndexer = {
         Ci.nsMsgSearchScope.offlineMail,
         this._indexingFolder
       );
-      const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-      const nsMsgSearchOp = Ci.nsMsgSearchOp;
 
       // first term: (GLODA_MESSAGE_ID_PROPERTY > GLODA_FIRST_VALID_MESSAGE_ID-1
       let searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = false; // actually don't care here
       searchTerm.beginsGrouping = true;
-      searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
       // use != 0 if we're allow pre-bad ids.
       searchTerm.op = aAllowPreBadIds
-        ? nsMsgSearchOp.Isnt
-        : nsMsgSearchOp.IsGreaterThan;
+        ? Ci.nsMsgSearchOp.Isnt
+        : Ci.nsMsgSearchOp.IsGreaterThan;
       let value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.status = aAllowPreBadIds ? 0 : GLODA_FIRST_VALID_MESSAGE_ID - 1;
@@ -867,8 +863,8 @@ export var GlodaMsgIndexer = {
       searchTerm = searchSession.createTerm();
       searchTerm.booleanAnd = true;
       searchTerm.endsGrouping = true;
-      searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
-      searchTerm.op = nsMsgSearchOp.Isnt;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
+      searchTerm.op = Ci.nsMsgSearchOp.Isnt;
       value = searchTerm.value;
       value.attrib = searchTerm.attrib;
       value.status = this.kMessageFilthy;

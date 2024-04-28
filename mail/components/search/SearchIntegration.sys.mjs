@@ -382,13 +382,11 @@ var SearchSupport = {
           Ci.nsMsgSearchScope.offlineMail,
           this._currentFolderToIndex
         );
-        const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-        const nsMsgSearchOp = Ci.nsMsgSearchOp;
         // first term: (_hdrIndexProperty < reindexTime)
         const searchTerm = searchSession.createTerm();
         searchTerm.booleanAnd = false; // actually don't care here
-        searchTerm.attrib = nsMsgSearchAttrib.Uint32HdrProperty;
-        searchTerm.op = nsMsgSearchOp.IsLessThan;
+        searchTerm.attrib = Ci.nsMsgSearchAttrib.Uint32HdrProperty;
+        searchTerm.op = Ci.nsMsgSearchOp.IsLessThan;
         const value = searchTerm.value;
         value.attrib = searchTerm.attrib;
         searchTerm.hdrProperty = this._hdrIndexedProperty;
