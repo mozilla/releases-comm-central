@@ -67,6 +67,5 @@ mail/extensions/am-e2e/prefs/e2e-prefs.js
 mail/locales/en-US/all-l10n.js
 mail/components/compose/composer.js
 
-# Ignore files downloaded/generated for building documentation
-docs/_venv
-docs/_build
+# Ignore the jsdoc config file
+docs/jsdoc.conf.js

@@ -4,7 +4,6 @@
 
 # Configuration file for the Sphinx documentation builder.
 
-import json
 import os
 import sys
 
@@ -36,21 +35,7 @@ extensions = [
 ]
 
 js_source_path = "../"
-jsdoc_config_path = "jsdoc.conf.json"
-
-# Exclude third-party directories from JSDoc parsing
-third_party_paths = []
-with open("../tools/lint/ThirdPartyPaths.txt", "r") as file:
-    third_party_paths = ["../" + path.removeprefix("comm/").rstrip() for path in file]
-with open(jsdoc_config_path, "r+") as file:
-    # Extend list of excluded JSDoc paths with third-party paths
-    jsdoc_conf = json.load(file)
-    jsdoc_conf["source"]["exclude"].extend(third_party_paths)
-
-    # Write excluded paths back to JSDoc config
-    file.seek(0)
-    json.dump(jsdoc_conf, file)
-    file.truncate()
+jsdoc_config_path = "jsdoc.conf.js"
 
 myst_enable_extensions = [
     "deflist",

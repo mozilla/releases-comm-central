@@ -46,6 +46,4 @@ third_party/asn1js/node_modules/
 \.ruff_cache/
 
 # Built documentation
-docs/_build
-docs/_venv
 ^rust/target/

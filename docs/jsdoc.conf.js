@@ -1,4 +1,24 @@
-{
+"use strict";
+
+const path = require("path");
+const fs = require("fs");
+
+function readFile(path) {
+  return fs
+    .readFileSync(path, { encoding: "utf-8" })
+    .split("\n")
+    .filter(p => p && !p.startsWith("#"))
+    .map(p => p.replace(/^comm\//, "../"));
+}
+
+const ignorePatterns = [
+  ...readFile(
+    path.join(__dirname, "..", "tools", "lint", "ThirdPartyPaths.txt")
+  ),
+  ...readFile(path.join(__dirname, "..", "tools", "lint", "Generated.txt")),
+];
+
+module.exports = {
   "plugins": [],
   "recurseDepth": 10,
   "source": {
@@ -146,7 +166,9 @@
       "../mailnews/test/resources/MessageGenerator.sys.mjs",
       "../mailnews/test/resources/ServerTestUtils.sys.mjs",
 
-      "../suite"
+      "../suite",
+
+      ...ignorePatterns,
     ],
     "includePattern": ".+\\.m?js(doc)?$",
     "excludePattern": "(^|\\/|\\\\)_"
@@ -154,4 +176,4 @@
   "opts": {
     "recurse": true
   }
-}
+};
