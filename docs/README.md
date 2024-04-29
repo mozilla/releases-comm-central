@@ -15,4 +15,3 @@ Command Arguments:
 -  -j JOBS, --jobs JOBS  Distribute the build over N processes in parallel.
 -  --verbose             Run Sphinx in verbose mode
 -  --no-autodoc          Disable generating Python/JS API documentation
-

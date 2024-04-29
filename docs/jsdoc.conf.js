@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 "use strict";
 
 const path = require("path");
@@ -19,10 +23,10 @@ const ignorePatterns = [
 ];
 
 module.exports = {
-  "plugins": [],
-  "recurseDepth": 10,
-  "source": {
-    "exclude": [
+  plugins: [],
+  recurseDepth: 10,
+  source: {
+    exclude: [
       "../calendar/base/calendar.js",
       "../calendar/base/content/calendar-base-view.js",
       "../calendar/base/content/calendar-task-tree-view.js",
@@ -170,10 +174,10 @@ module.exports = {
 
       ...ignorePatterns,
     ],
-    "includePattern": ".+\\.m?js(doc)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
+    includePattern: ".+\\.m?js(doc)?$",
+    excludePattern: "(^|\\/|\\\\)_",
   },
-  "opts": {
-    "recurse": true
-  }
+  opts: {
+    recurse: true,
+  },
 };

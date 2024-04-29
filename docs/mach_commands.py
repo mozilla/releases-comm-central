@@ -11,6 +11,7 @@ import time
 from functools import partial
 
 import sentry_sdk
+
 from mach.decorators import Command, CommandArgument
 
 
@@ -20,12 +21,8 @@ from mach.decorators import Command, CommandArgument
     virtualenv_name="tb_docs",
     description="Generate and serve documentation from the tree.",
 )
-@CommandArgument(
-    "--format", default="html", dest="fmt", help="Documentation format to write."
-)
-@CommandArgument(
-    "--outdir", default=None, metavar="DESTINATION", help="Where to write output."
-)
+@CommandArgument("--format", default="html", dest="fmt", help="Documentation format to write.")
+@CommandArgument("--outdir", default=None, metavar="DESTINATION", help="Where to write output.")
 @CommandArgument(
     "--no-open",
     dest="auto_open",
@@ -44,8 +41,7 @@ from mach.decorators import Command, CommandArgument
     "--http",
     default="localhost:5500",
     metavar="ADDRESS",
-    help="Serve documentation on the specified host and port, "
-         'default "localhost:5500".',
+    help="Serve documentation on the specified host and port, " 'default "localhost:5500".',
 )
 @CommandArgument(
     "-j",
@@ -61,15 +57,15 @@ from mach.decorators import Command, CommandArgument
     help="Disable generating Python/JS API documentation",
 )
 def build_docs(
-        command_context,
-        fmt="html",
-        outdir=None,
-        auto_open=True,
-        serve=True,
-        http=None,
-        jobs=None,
-        verbose=None,
-        no_autodoc=False,
+    command_context,
+    fmt="html",
+    outdir=None,
+    auto_open=True,
+    serve=True,
+    http=None,
+    jobs=None,
+    verbose=None,
+    no_autodoc=False,
 ):
     import webbrowser
 
@@ -80,19 +76,17 @@ def build_docs(
 
     docdir = os.path.normpath(os.path.join(command_context.topsrcdir, "comm/docs"))
 
-    #if no_autodoc:
+    # if no_autodoc:
     #    toggle_no_autodoc()
 
     status, warnings = _run_sphinx(docdir, savedir, fmt=fmt, jobs=jobs, verbose=verbose)
     if status != 0:
         print(_dump_sphinx_backtrace())
         return die(
-            "failed to generate documentation:\n"
-            "%s: sphinx return code %d" % (docdir, status)
+            "failed to generate documentation:\n" "%s: sphinx return code %d" % (docdir, status)
         )
     else:
         print("\nGenerated documentation:\n%s" % savedir)
-    msg = ""
 
     if not serve:
         index_path = os.path.join(savedir, "index.html")
@@ -110,9 +104,7 @@ def build_docs(
 
     server = Server()
     for src in [docdir]:
-        run_sphinx = partial(
-            _run_sphinx, src, savedir, fmt=fmt, jobs=jobs, verbose=verbose
-        )
+        run_sphinx = partial(_run_sphinx, src, savedir, fmt=fmt, jobs=jobs, verbose=verbose)
         server.watch(src, run_sphinx)
 
     server.serve(
