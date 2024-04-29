@@ -43,10 +43,6 @@ appmenu-new-account-panel =
   .label = New Account
   .accesskey = N
 
-appmenu-create-new-mail-account =
-  .label = Get a New Email
-  .accesskey = G
-
 appmenu-new-mail-account =
   .label = Existing Email
   .accesskey = E

@@ -19,7 +19,6 @@ DIRS += [
     "extensions",
     "im",
     "migration",
-    "newmailaccount",
     "preferences",
     "prompts",
     "search",

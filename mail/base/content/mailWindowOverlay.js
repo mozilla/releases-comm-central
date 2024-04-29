@@ -55,18 +55,9 @@ Object.defineProperty(this, "BrowserConsoleManager", {
 var gDisallow_classes_no_html = 1;
 
 /**
- * Disable the new account menu item if the account preference is locked.
- * The other affected areas are the account central, the account manager
- * dialog, and the account provisioner window.
+ * Init the New menu.
  */
 function menu_new_init() {
-  // If the account provisioner is pref'd off, we shouldn't display the menu
-  // item.
-  ShowMenuItem(
-    "newCreateEmailAccountMenuItem",
-    Services.prefs.getBoolPref("mail.provider.enabled")
-  );
-
   // If we don't have a folder, just get out of here and leave the menu as it is.
   const folder = document.getElementById("tabmail")?.currentTabInfo.folder;
   if (!folder) {

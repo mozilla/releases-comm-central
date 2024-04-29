@@ -890,8 +890,7 @@ menulist {
   list-style-image: var(--icon-add);
 }
 
-#appmenu_newNewMsgCmd,
-#appmenu_newCreateEmailAccountMenuItem {
+#appmenu_newNewMsgCmd {
   list-style-image: var(--icon-new-mail);
 }
 

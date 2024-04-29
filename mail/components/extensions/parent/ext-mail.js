@@ -1312,8 +1312,6 @@ class TabmailTab extends Tab {
         const currentURI = this.nativeTab.browser.currentURI;
         if (currentURI?.schemeIs("about")) {
           switch (currentURI.filePath) {
-            case "accountprovisioner":
-              return "accountProvisioner";
             case "blank":
               return "content";
             default:
@@ -1331,7 +1329,6 @@ class TabmailTab extends Tab {
       case "tasks":
       case "chat":
         return this.nativeTab.mode.name;
-      case "provisionerCheckoutTab":
       case "glodaFacet":
       case "preferencesTab":
         return "special";

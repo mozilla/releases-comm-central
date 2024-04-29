@@ -75,8 +75,4 @@ CO01:
         # rather than the product
         - about-paragraph
         - about-paragraph-consider-donation
-        # accountProvisioner.ftl - Refers to agreements made between the Org and
-        # third parties
-        - account-provisioner-mail-account-description
-        - account-provisioner-domain-description
     files: []

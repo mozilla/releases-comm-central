@@ -249,12 +249,6 @@ var gAccountSetup = {
     this._okCallback = onSetupComplete;
     this._msgWindow = gMainWindow.msgWindow;
 
-    // If the account provisioner is preffed off, don't display the account
-    // provisioner button.
-    if (!Services.prefs.getBoolPref("mail.provider.enabled")) {
-      document.getElementById("provisionerButton").hidden = true;
-    }
-
     // Disable the remember password checkbox if the pref is false.
     if (!Services.prefs.getBoolPref("signon.rememberSignons")) {
       const passwordCheckbox = document.getElementById("rememberPassword");
@@ -618,7 +612,6 @@ var gAccountSetup = {
 
     document.getElementById("continueButton").disabled = !isValidForm;
     document.getElementById("manualConfigButton").hidden = !isValidForm;
-    document.getElementById("provisionerButton").hidden = email.value;
   },
 
   /**

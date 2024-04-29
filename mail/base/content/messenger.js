@@ -6,7 +6,6 @@
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/addrbook/content/addressBookTab.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
-/* import-globals-from ../../components/newmailaccount/content/provisionerCheckout.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
 /* import-globals-from glodaFacetTab.js */
 /* import-globals-from mailCore.js */
@@ -178,8 +177,6 @@ var gMailInit = {
     specialTabs.openSpecialTabsOnStartup();
     tabmail.registerTabType(addressBookTabType);
     tabmail.registerTabType(preferencesTabType);
-    // provisionerCheckoutTabType is defined in provisionerCheckout.js
-    tabmail.registerTabType(provisionerCheckoutTabType);
 
     // Depending on the pref, hide/show the gloda toolbar search widgets.
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -223,7 +220,6 @@ var gMailInit = {
     switch (event.data) {
       case "account-created":
       case "account-created-in-backend":
-      case "account-created-from-provisioner":
         // Set the pref to false in case it was previously changed.
         Services.prefs.setBoolPref("app.use_without_mail_account", false);
         loadPostAccountWizard();
@@ -464,8 +460,7 @@ function switchToMailTab() {
 
 /**
  * Trigger the initialization of the entire UI. Called after the okCallback of
- * the emailWizard during a first run, or directly from the accountProvisioner
- * in case a user configures a new email account on first run.
+ * the emailWizard during a first run.
  */
 async function loadPostAccountWizard() {
   InitMsgWindow();

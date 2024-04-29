@@ -45,10 +45,6 @@ AboutRedirector.prototype = {
       url: "chrome://messenger/content/accountcreation/accountSetup.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
-    accountprovisioner: {
-      url: "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",
-      flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
-    },
     addressbook: {
       url: "chrome://messenger/content/addressbook/aboutAddressBook.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,

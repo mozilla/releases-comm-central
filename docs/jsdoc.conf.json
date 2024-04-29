@@ -97,7 +97,6 @@
       "../mail/test/browser/folder-display/browser_watchIgnoreThread.js",
       "../mail/test/browser/folder-widget/browser_messageFilters.js",
       "../mail/test/browser/message-header/browser_messageHeader.js",
-      "../mail/test/browser/newmailaccount/browser_newmailaccount.js",
       "../mail/test/browser/shared-modules/ComposeHelpers.sys.mjs",
 
       "../mailnews/addrbook/modules/LDAPMessage.sys.mjs",

@@ -52,12 +52,6 @@ export async function openAccountSetup() {
   return tab;
 }
 
-export async function openAccountProvisioner() {
-  const tab = await open_content_tab_with_url("about:accountprovisioner");
-  await promise_content_tab_load(tab, "about:accountprovisioner", 10000);
-  return tab;
-}
-
 /**
  * Click a row in the account settings tree.
  *

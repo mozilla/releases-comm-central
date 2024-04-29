@@ -14,7 +14,6 @@ const fileMenuData = {
   "calendar-new-task-menuitem": { hidden: true },
   menu_newFolder: { hidden: ["mailMessageTab", "contentTab"] },
   menu_newVirtualFolder: { hidden: ["mailMessageTab", "contentTab"] },
-  newCreateEmailAccountMenuItem: {},
   newMailAccountMenuItem: {},
   newIMAccountMenuItem: {},
   newFeedAccountMenuItem: {},

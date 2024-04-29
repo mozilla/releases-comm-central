@@ -27,7 +27,6 @@ BROWSER_CHROME_MANIFESTS += [
     "message-reader/browser.ini",
     "message-window/browser.ini",
     "multiple-identities/browser.ini",
-    "newmailaccount/browser.ini",
     "notification/browser.ini",
     "openpgp/browser.ini",
     "openpgp/composition/browser.ini",
