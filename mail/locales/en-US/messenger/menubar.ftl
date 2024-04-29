@@ -156,6 +156,10 @@ menu-spaces-toolbar-button =
 
 ## File
 
+file-new-email-account =
+    .label = Email Account…
+    .accesskey = E
+
 file-new-newsgroup-account =
     .label = Newsgroup Account…
     .accesskey = N

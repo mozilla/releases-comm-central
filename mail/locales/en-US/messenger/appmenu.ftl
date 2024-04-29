@@ -43,8 +43,8 @@ appmenu-new-account-panel =
   .label = New Account
   .accesskey = N
 
-appmenu-new-mail-account =
-  .label = Existing Email
+appmenu-new-email-account =
+  .label = Email
   .accesskey = E
 
 appmenu-new-calendar =
