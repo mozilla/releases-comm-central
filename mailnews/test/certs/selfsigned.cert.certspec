@@ -1,0 +1,3 @@
+issuer:selfsigned.test.test
+subject:selfsigned.test.test
+extension:subjectAlternativeName:selfsigned.test.test

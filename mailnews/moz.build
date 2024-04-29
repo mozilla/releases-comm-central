@@ -78,8 +78,11 @@ TESTING_JS_MODULES.mailnews.certs += [
     "test/certs/dav.key",
     "test/certs/expired.cert",
     "test/certs/expired.key",
+    "test/certs/notyetvalid.cert",
+    "test/certs/notyetvalid.key",
     "test/certs/oauth.cert",
     "test/certs/oauth.key",
+    "test/certs/selfsigned.cert",
     "test/certs/valid.cert",
     "test/certs/valid.key",
 ]

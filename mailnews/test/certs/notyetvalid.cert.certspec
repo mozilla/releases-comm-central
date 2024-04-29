@@ -1,0 +1,4 @@
+subject:notyetvalid.test.test
+extension:extKeyUsage:serverAuth
+extension:subjectAlternativeName:notyetvalid.test.test
+validity:20900105-20900106

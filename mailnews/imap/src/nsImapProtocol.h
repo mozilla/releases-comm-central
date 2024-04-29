@@ -293,6 +293,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void AlertUserEvent(const char* message);
   void AlertUserEventFromServer(const char* aServerEvent,
                                 bool aForIdle = false);
+  void AlertCertError(nsITransportSecurityInfo* securityInfo);
 
   void ProgressEventFunctionUsingName(const char* aMsgId);
   void ProgressEventFunctionUsingNameWithString(const char* aMsgName,

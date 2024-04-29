@@ -4834,6 +4834,7 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
                 Log("CreateNewLineFromSocket", nullptr, logMsg.get());
 
                 mailNewsUrl->SetFailedSecInfo(securityInfo);
+                AlertCertError(securityInfo);
               }
             }
           }
@@ -5107,6 +5108,18 @@ void nsImapProtocol::AlertUserEventFromServer(const char* aServerEvent,
       m_imapServerSink->FEAlertFromServer(nsDependentCString(aServerEvent),
                                           mailnewsUrl);
     }
+  }
+}
+
+void nsImapProtocol::AlertCertError(nsITransportSecurityInfo* securityInfo) {
+  if (m_imapServerSink) {
+    bool suppressErrorMsg = false;
+
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningUrl);
+    if (mailnewsUrl) mailnewsUrl->GetSuppressErrorMsgs(&suppressErrorMsg);
+
+    if (!suppressErrorMsg)
+      m_imapServerSink->FEAlertCertError(securityInfo, mailnewsUrl);
   }
 }
 

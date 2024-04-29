@@ -1733,6 +1733,14 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
   return AlertUser(fullMessage, aUrl);
 }
 
+NS_IMETHODIMP nsImapIncomingServer::FEAlertCertError(
+    nsITransportSecurityInfo* securityInfo, nsIMsgMailNewsUrl* url) {
+  nsCOMPtr<nsIMsgMailSession> mailSession =
+      do_GetService("@mozilla.org/messenger/services/session;1");
+  mailSession->AlertCertError(securityInfo, url);
+  return NS_OK;
+}
+
 #define IMAP_MSGS_URL "chrome://messenger/locale/imapMsgs.properties"
 
 nsresult nsImapIncomingServer::GetStringBundle() {

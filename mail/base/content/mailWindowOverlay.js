@@ -1530,21 +1530,6 @@ function GetNewMsgs(server, folder) {
   server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
 }
 
-function InformUserOfCertError(secInfo, targetSite) {
-  const params = {
-    exceptionAdded: false,
-    securityInfo: secInfo,
-    prefetchCert: true,
-    location: targetSite,
-  };
-  window.openDialog(
-    "chrome://pippki/content/exceptionDialog.xhtml",
-    "",
-    "chrome,centerscreen,modal",
-    params
-  );
-}
-
 /**
  * A listener to be passed to the url object of the server request being issued
  * to detect the bad server certificates.
@@ -1566,7 +1551,7 @@ class TransportErrorUrlListener {
       if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
         const mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
         const secInfo = mailNewsUrl.failedSecInfo;
-        InformUserOfCertError(secInfo, url.asciiHostPort);
+        MailServices.mailSession.alertCertError(secInfo, mailNewsUrl);
       }
     } catch (e) {
       // It's not an NSS error.

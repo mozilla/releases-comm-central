@@ -11,6 +11,7 @@ interface nsIMsgMailNewsUrl;
 interface nsIImapProtocol;
 interface nsIImapUrl;
 interface nsIImapMockChannel;
+interface nsITransportSecurityInfo;
 
 /**
  * nsIImapServerSink is designed to be used as a proxy to the application's UI
@@ -109,6 +110,15 @@ interface nsIImapServerSink : nsISupports {
    * @param url            The running url.
    */
   void fEAlertFromServer(in ACString aServerString, in nsIMsgMailNewsUrl aUrl);
+
+  /**
+   * Alerts the user with a certificate error.
+   *
+   * @param securityInfo - The security information about the operation.
+   * @param url - The running url.
+   */
+  void fEAlertCertError(in nsITransportSecurityInfo securityInfo,
+                        in nsIMsgMailNewsUrl url);
 
   void commitNamespaces();
 

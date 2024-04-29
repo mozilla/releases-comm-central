@@ -228,6 +228,20 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgMailSession::AlertCertError(nsITransportSecurityInfo* securityInfo,
+                                 nsIMsgMailNewsUrl* url) {
+  nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener>>::ForwardIterator iter(
+      mFeedbackListeners);
+  nsCOMPtr<nsIMsgUserFeedbackListener> listener;
+  while (iter.HasMore()) {
+    listener = iter.GetNext();
+    listener->OnCertError(securityInfo, url);
+  }
+
+  return NS_OK;
+}
+
 nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 

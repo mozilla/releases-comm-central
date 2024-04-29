@@ -6,6 +6,7 @@
 #include "nsISupports.idl"
 
 interface nsIMsgMailNewsUrl;
+interface nsITransportSecurityInfo;
 
 /**
  * Implement this interface to subscribe to errors and warnings passed out via
@@ -25,4 +26,15 @@ interface nsIMsgUserFeedbackListener : nsISupports {
    *                    null, regardless of the value returned.
    */
   boolean onAlert(in AString aMessage, [optional] in nsIMsgMailNewsUrl aUrl);
+
+  /**
+   * Call to inform the listeners of a certificate error. The listener should
+   * alert the user about the error and (if appropriate) allow the user to add
+   * a certificate override.
+   *
+   * @param securityInfo - The security information about the operation.
+   * @param url - Mailnews url which is relevant to the operation.
+   */
+  void onCertError(in nsITransportSecurityInfo securityInfo,
+                   in nsIMsgMailNewsUrl url);
 };

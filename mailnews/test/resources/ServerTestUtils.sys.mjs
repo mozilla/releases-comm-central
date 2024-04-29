@@ -100,18 +100,22 @@ async function getCertificate(name) {
     Ci.nsIX509CertDB
   );
 
-  // Import `name.key`. We have to use the key file as an nsIFile, so get its
-  // resource URL and resolve that to a file.
-  const keyPath = Services.io
-    .getProtocolHandler("resource")
-    .QueryInterface(Ci.nsISubstitutingProtocolHandler)
-    .resolveURI(
-      Services.io.newURI(`resource://testing-common/mailnews/certs/${name}.key`)
+  if (name != "selfsigned") {
+    // Import `name.key`. We have to use the key file as an nsIFile, so get its
+    // resource URL and resolve that to a file.
+    const keyPath = Services.io
+      .getProtocolHandler("resource")
+      .QueryInterface(Ci.nsISubstitutingProtocolHandler)
+      .resolveURI(
+        Services.io.newURI(
+          `resource://testing-common/mailnews/certs/${name}.key`
+        )
+      );
+    certDB.importPKCS12File(
+      Services.io.newURI(keyPath).QueryInterface(Ci.nsIFileURL).file,
+      ""
     );
-  certDB.importPKCS12File(
-    Services.io.newURI(keyPath).QueryInterface(Ci.nsIFileURL).file,
-    ""
-  );
+  }
 
   // Import `name.cert`. For this we can just fetch the contents.
   const response = await fetch(
@@ -121,7 +125,10 @@ async function getCertificate(name) {
   certText = certText.replace("-----BEGIN CERTIFICATE-----", "");
   certText = certText.replace("-----END CERTIFICATE-----", "");
   certText = certText.replaceAll(/\s/g, "");
-  const cert = certDB.addCertFromBase64(certText, "CT,,");
+  const cert = certDB.addCertFromBase64(
+    certText,
+    name == "selfsigned" ? ",," : "CT,,"
+  );
   certCache.set(name, cert);
 
   return cert;
@@ -146,11 +153,24 @@ const serverDefs = {
       baseOptions: { extensions: ["RFC2195"], tlsCertFile: "valid" },
       hostname: "test.test",
       port: 993,
+      aliases: [["mitm.test.test", 993]],
     },
     expiredTLS: {
       type: "imap",
       baseOptions: { extensions: ["RFC2195"], tlsCertFile: "expired" },
       hostname: "expired.test.test",
+      port: 993,
+    },
+    notYetValidTLS: {
+      type: "imap",
+      baseOptions: { extensions: ["RFC2195"], tlsCertFile: "notyetvalid" },
+      hostname: "notyetvalid.test.test",
+      port: 993,
+    },
+    selfSignedTLS: {
+      type: "imap",
+      baseOptions: { extensions: ["RFC2195"], tlsCertFile: "selfsigned" },
+      hostname: "selfsigned.test.test",
       port: 993,
     },
     oAuth: {
@@ -186,6 +206,7 @@ const serverDefs = {
       },
       hostname: "test.test",
       port: 995,
+      aliases: [["mitm.test.test", 995]],
     },
     expiredTLS: {
       type: "pop3",
@@ -195,6 +216,26 @@ const serverDefs = {
         tlsCertFile: "expired",
       },
       hostname: "expired.test.test",
+      port: 995,
+    },
+    notYetValidTLS: {
+      type: "pop3",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "notyetvalid",
+      },
+      hostname: "notyetvalid.test.test",
+      port: 995,
+    },
+    selfSignedTLS: {
+      type: "pop3",
+      baseOptions: {
+        username: "user",
+        password: "password",
+        tlsCertFile: "selfsigned",
+      },
+      hostname: "selfsigned.test.test",
       port: 995,
     },
     oAuth: {

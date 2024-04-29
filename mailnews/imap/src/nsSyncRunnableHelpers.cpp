@@ -432,6 +432,8 @@ NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertWithName, const char*,
                        nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertFromServer, const nsACString&,
                        nsIMsgMailNewsUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertCertError,
+                       nsITransportSecurityInfo*, nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, CommitNamespaces)
 NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AsyncGetPassword, nsIImapProtocol*, bool,
                        nsAString&)
