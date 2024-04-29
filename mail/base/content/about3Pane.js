@@ -2208,6 +2208,18 @@ var folderPane = {
   },
 
   /**
+   * Get the first row inside a specifc mode, even if it is hidden.
+   *
+   * @param {string} modeName
+   * @returns {FolderTreeRow}
+   */
+  getFirstRowForMode(modeName) {
+    // Look in the mode's container. The container may or may not be
+    // attached to the document at this point.
+    return this._modes[modeName].containerList.querySelector("li");
+  },
+
+  /**
    * Loop through all currently active modes and call the required function if
    * it exists.
    *
@@ -5781,6 +5793,20 @@ function restoreState({
 }
 
 /**
+ * Ensures the given row is visible and all its parent folders are expanded.
+ * @param {FolderTreeRow} row
+ */
+function ensureFolderTreeRowIsVisible(row) {
+  let collapsedAncestor = row.parentNode.closest("#folderTree li.collapsed");
+  while (collapsedAncestor) {
+    folderTree.expandRow(collapsedAncestor);
+    collapsedAncestor = collapsedAncestor.parentNode.closest(
+      "#folderTree li.collapsed"
+    );
+  }
+}
+
+/**
  * Set up the given folder to be selected in the folder pane.
  * @param {nsIMsgFolder|string} folder - The folder to display, or its URI.
  */
@@ -5797,13 +5823,7 @@ function displayFolder(folder) {
     return;
   }
 
-  let collapsedAncestor = row.parentNode.closest("#folderTree li.collapsed");
-  while (collapsedAncestor) {
-    folderTree.expandRow(collapsedAncestor);
-    collapsedAncestor = collapsedAncestor.parentNode.closest(
-      "#folderTree li.collapsed"
-    );
-  }
+  ensureFolderTreeRowIsVisible(row);
   folderTree.selectedRow = row;
 }
 

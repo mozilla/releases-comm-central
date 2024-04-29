@@ -3,6 +3,12 @@
     "namespace": "mailTabs",
     "types": [
       {
+        "id": "FolderMode",
+        "description": "A supported folder mode in the folder pane.",
+        "type": "string",
+        "enum": ["all", "unified", "tags", "unread", "favorite", "recent"]
+      },
+      {
         "id": "MailTab",
         "type": "object",
         "properties": {
@@ -17,7 +23,7 @@
           },
           "sortType": {
             "type": "string",
-            "description": "**Note:** ``sortType`` and ``sortOrder`` depend on each other, so both should be present, or neither.",
+            "description": "The primary sort column of the message list.",
             "optional": true,
             "enum": [
               "none",
@@ -44,31 +50,49 @@
           },
           "sortOrder": {
             "type": "string",
-            "description": "**Note:** ``sortType`` and ``sortOrder`` depend on each other, so both should be present, or neither.",
+            "description": "The sort order of the message list.",
             "optional": true,
             "enum": ["none", "ascending", "descending"]
           },
           "viewType": {
             "type": "string",
+            "description": "Group mode of the message list.",
             "optional": true,
             "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
           },
           "layout": {
             "type": "string",
+            "description": "The arrangement of the folder pane, message list pane, and message display pane.",
             "enum": ["standard", "wide", "vertical"]
+          },
+          "folderMode": {
+            "description": "The folder mode of the currently displayed folder.",
+            "$ref": "mailTabs.FolderMode",
+            "optional": true
+          },
+          "folderModesEnabled": {
+            "type": "array",
+            "description": "The enabled folder modes in the folder pane, and their sort order.",
+            "minItems": 1,
+            "optional": true,
+            "items": {
+              "$ref": "mailTabs.FolderMode"
+            }
           },
           "folderPaneVisible": {
             "type": "boolean",
+            "description": "Whether the folder pane is visible or not.",
             "optional": true
           },
           "messagePaneVisible": {
             "type": "boolean",
+            "description": "Whether the message pane is visible or not.",
             "optional": true
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
-            "optional": true,
-            "description": "The <permission>accountsRead</permission> permission is required for this property to be included."
+            "description": "The folder displayed in the mail tab. The <permission>accountsRead</permission> permission is required for this property to be included.",
+            "optional": true
           }
         }
       },
@@ -111,6 +135,7 @@
           },
           "viewType": {
             "type": "string",
+            "description": "Sets the group mode of displayed messages.",
             "optional": true,
             "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
           },
@@ -124,6 +149,20 @@
             "type": "boolean",
             "description": "Shows or hides the folder pane.",
             "optional": true
+          },
+          "folderMode": {
+            "description": "Sets the currently used folder mode, enabling it if required. If used without also specifying <value>displayedFolder</value>, the currently selected folder is re-selected in the new folder mode, if possible.",
+            "$ref": "mailTabs.FolderMode",
+            "optional": true
+          },
+          "folderModesEnabled": {
+            "type": "array",
+            "description": "Set the enabled folder modes in the folder pane, and their sort order.",
+            "minItems": 1,
+            "optional": true,
+            "items": {
+              "$ref": "mailTabs.FolderMode"
+            }
           },
           "messagePaneVisible": {
             "type": "boolean",
