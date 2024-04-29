@@ -54,9 +54,10 @@
       color-mix(in srgb, var(--thread-card-background) 90%, black),
       color-mix(in srgb, var(--thread-card-background) 90%, white)
     );
-    --thread-card-border-hover: light-dark(var(--color-blue-30), var(--color-blue-80));
-    --thread-card-hover: light-dark(var(--color-blue-40), var(--color-blue-70));
-    --thread-card-focus: light-dark(var(--color-blue-70), var(--color-blue-40));
+    --thread-card-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
+    --thread-card-border-focus: var(--selected-item-color);
+    --thread-card-hover: var(--selected-item-color);
+    --thread-card-focus: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
     --focus-outline: transparent;
     --indicator-background: transparent;
     --indicator-border: transparent;
@@ -67,20 +68,23 @@
     --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
     /* Selection Colors */
     --thread-card-background-current: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-blue-50)),
-      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-blue-90))
+      color-mix(in srgb, var(--selected-item-color) 5%, var(--thread-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 10%, var(--thread-card-background))
     );
     --thread-card-background-selected: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-blue-50)),
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-blue-90))
+      color-mix(in srgb, var(--selected-item-color) 7%, var(--thread-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 14%, var(--thread-card-background))
     );
     --thread-card-background-selected-current: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-blue-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-blue-90))
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--thread-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 30%, var(--thread-card-background))
     );
-    --thread-card-border-selected: light-dark(var(--color-blue-50), var(--color-blue-70));
-    --indicator-background-selected: var(--color-blue-50);
-    --indicator-border-selected: light-dark(var(--color-blue-70), var(--color-blue-40));
+    --thread-card-border-selected: var(--selected-item-color);
+    --indicator-background-selected: var(--selected-item-color);
+    --indicator-border-selected: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 80%, black),
+      color-mix(in srgb, var(--selected-item-color) 80%, white)
+    );
     /* Spam Colors */
     --thread-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
     --thread-card-hover-spam: light-dark(var(--color-red-40), var(--color-red-70));
@@ -138,6 +142,7 @@
     --thread-card-background-selected: color-mix(in srgb, Canvas 90%, SelectedItem);
     --thread-card-background-selected-current: SelectedItem;
     --thread-card-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
+    --thread-card-border-focus: color-mix(in srgb, CanvasText 20%, SelectedItem);
     --indicator-background-selected: SelectedItem;
     --indicator-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
     /* Spam Colors */
@@ -684,7 +689,7 @@
     --thread-card-background: var(--thread-card-background-current);
 
     & .thread-card-container {
-      box-shadow: 0 0 5px var(--thread-card-hover);
+      box-shadow: 0 0 5px color-mix(in srgb, var(--thread-card-hover) 50%, transparent);
     }
   }
 
@@ -704,7 +709,7 @@
 
       &.current {
         --thread-card-background: var(--thread-card-background-selected-current);
-        --thread-card-border: var(--thread-card-focus);
+        --thread-card-border: var(--thread-card-border-focus);
       }
     }
   }
@@ -719,6 +724,7 @@
     --thread-card-background-selected: var(--thread-card-background-selected-spam);
     --thread-card-background-selected-current: var(--thread-card-background-selected-current-spam);
     --thread-card-border-selected: var(--thread-card-border-selected-spam);
+    --thread-card-border-focus: var(--thread-card-border-selected-spam);
     --thread-card-focus: var(--thread-card-focus-spam);
     --indicator-background-selected: var(--indicator-background-selected-spam);
     --indicator-border-selected: var(--indicator-border-selected-spam);

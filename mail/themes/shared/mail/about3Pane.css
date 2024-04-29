@@ -26,8 +26,8 @@
     --folderpane-unread-new-count-background: var(--color-blue-60);
     --treeitem-background-selected: var(--color-gray-30);
     --treeitem-background-hover: var(--color-gray-20);
-    --treeitem-text-active: var(--color-white);
-    --treeitem-background-active: var(--color-blue-50);
+    --treeitem-text-active: var(--selected-item-text-color);
+    --treeitem-background-active: var(--selected-item-color);
     --in-content-item-selected-unfocused: var(--color-gray-20);
 
     @media (prefers-color-scheme: dark) {
@@ -37,7 +37,6 @@
       --folderpane-total-count-text: var(--color-white);
       --treeitem-background-selected: var(--color-gray-70);
       --treeitem-background-hover: var(--color-gray-60);
-      --treeitem-background-active: var(--color-blue-60);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
       --in-content-primary-button-background: #45a1ff;
       --in-content-primary-button-background-hover: #65c1ff;

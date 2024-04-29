@@ -8,7 +8,7 @@
 
 :host,
 :root {
-  --account-color: AccentColor;
+  --account-color: var(--selected-item-color);
   --transition-duration: 120ms;
   --transition-timing: ease;
   --arrowpanel-background: var(--layout-background-1);
@@ -33,11 +33,11 @@
   --button-margin: 6px;
   --button-padding: 6px;
 
-  --button-primary-background-color: AccentColor;
-  --button-primary-hover-background-color: color-mix(in srgb, AccentColor 80%, black);
-  --button-primary-active-background-color: color-mix(in srgb, AccentColor 70%, black);
-  --button-primary-text-color: AccentColorText;
-  --button-primary-border-color: color-mix(in srgb, AccentColor 85%, black);
+  --button-primary-background-color: var(--selected-item-color);
+  --button-primary-hover-background-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
+  --button-primary-active-background-color: color-mix(in srgb, var(--selected-item-color) 70%, black);
+  --button-primary-text-color: var(--selected-item-text-color);
+  --button-primary-border-color: color-mix(in srgb, var(--selected-item-color) 85%, black);
 
   --button-destructive-background-color: var(--color-red-60);
   --button-destructive-hover-background-color: color-mix(in srgb, var(--color-red-50) 50%, var(--color-red-60));
@@ -106,12 +106,12 @@
   --toolbarbutton-checked-background: light-dark(var(--lwt-toolbarbutton-hover-background,
                                                  rgba(200, 200, 200, .5)),
                                                  rgba(0, 0, 0, .25));
-  --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, AccentColor);
+  --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, var(--selected-item-color));
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-color: var(--layout-color-1);
   --toolbar-field-background-color: var(--layout-background-1);
   --toolbar-field-border-color: var(--layout-border-1);
-  --toolbar-field-focus-border-color: AccentColor;
+  --toolbar-field-focus-border-color: var(--selected-item-color);
   --toolbar-field-highlight: var(--selected-item-color);
   --toolbar-field-highlight-color: var(--selected-item-text-color);
   --item-focus-selected-border-color: light-dark(#0060df, #bebebf);
@@ -125,7 +125,7 @@
   --button-primary-active-bgcolor: var(--button-primary-active-background-color);
   --button-primary-color: var(--button-primary-text-color);
 
-  --tabline-color: AccentColor;
+  --tabline-color: var(--selected-item-color);
 
   /* LW-themes enabled */
 
@@ -152,7 +152,6 @@
   }
 
   &[lwt-tree] {
-    --select-focus-background-color: var(--sidebar-highlight-background-color, AccentColor);
     --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
     --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);

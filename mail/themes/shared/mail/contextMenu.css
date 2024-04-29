@@ -212,8 +212,8 @@ menu > .menu-right {
     }
 
     &[active="true"] > .menu-iconic-left {
-      color: AccentColor;
-      --indicator-background: AccentColor;
+      color: var(--selected-item-color);
+      --indicator-background: var(--selected-item-color);
     }
 
     & > .menu-iconic-text,

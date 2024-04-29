@@ -85,7 +85,7 @@
   }
 
   .attachmentList[seltype="multiple"]:focus &[current="true"] {
-    background-color: AccentColor;
+    background-color: var(--selected-item-color);
     outline: none;
 
     &[selected="true"] {

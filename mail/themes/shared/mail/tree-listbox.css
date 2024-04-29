@@ -50,7 +50,7 @@
     --listbox-focused-selected-bg: var(--selected-item-color);
     --listbox-selected-color: var(--selected-item-text-color);
     --listbox-focused-selected-color: var(--selected-item-text-color);
-    --listbox-hover: light-dark(color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-10)), color-mix(in srgb, var(--tree-view-bg) 25%, var(--color-blue-90)));
+    --listbox-hover: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
     --listbox-border-type: dashed;
     --unread-color: var(--layout-color-0);
 

@@ -36,7 +36,7 @@
     }
     /* Apply only in unified toolbar */
     & .search-bar {
-      --windows-accent-outline-color: accentColorText;
+      --windows-accent-outline-color: var(--selected-item-text-color);
     }
   }
 }
