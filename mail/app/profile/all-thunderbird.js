@@ -918,7 +918,8 @@ pref("devtools.toolbox.previousHost", "right");
 pref("devtools.toolbox.selectedTool", "inspector");
 pref("devtools.toolbox.sideEnabled", true);
 pref("devtools.toolbox.zoomValue", "1");
-pref("devtools.toolbox.splitconsoleEnabled", false);
+pref("devtools.toolbox.splitconsole.enabled", true);
+pref("devtools.toolbox.splitconsole.open", false);
 pref("devtools.toolbox.splitconsoleHeight", 100);
 pref("devtools.toolbox.tabsOrder", "");
 pref("devtools.netmonitor.features.newEditAndResend", false);
@@ -942,7 +943,6 @@ pref("devtools.browsertoolbox.scope", "everything");
 // Toolbox Button preferences
 pref("devtools.command-button-pick.enabled", true);
 pref("devtools.command-button-frames.enabled", true);
-pref("devtools.command-button-splitconsole.enabled", true);
 pref("devtools.command-button-responsive.enabled", true);
 pref("devtools.command-button-screenshot.enabled", false);
 pref("devtools.command-button-rulers.enabled", false);
