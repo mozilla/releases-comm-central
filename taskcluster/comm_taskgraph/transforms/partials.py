@@ -13,6 +13,14 @@ logger = logging.getLogger(__name__)
 transforms = TransformSequence()
 
 
+def identify_desired_signing_keys(project, product):
+    if project == "comm-central":
+        return "nightly"
+    if project in ["comm-beta", "comm-release"] or project.startswith("comm-esr"):
+        return "release"
+    return "dep1"
+
+
 @transforms.add
 def update_scopes(config, jobs):
     """
@@ -29,5 +37,10 @@ def update_scopes(config, jobs):
         task = job["task"]
         if MBSDIFF_SCOPE in task["scopes"]:
             task["scopes"].remove(MBSDIFF_SCOPE)
+
+        # The signing keys are dependent on the project name. Set them here.
+        task["payload"]["env"]["SIGNING_CERT"] = identify_desired_signing_keys(
+                config.params["project"], config.params["release_product"]
+        )
 
         yield job
