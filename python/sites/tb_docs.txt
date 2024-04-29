@@ -1,0 +1,7 @@
+pth:tools/lint/eslint/
+pypi:Sphinx==7.2.6
+pypi:sphinx_rtd_theme==2.0.0
+pypi:sphinx-js==3.2.2
+pypi:myst-parser[linkify]==2.0.0
+pypi:fluent.pygments==1.0
+pypi:livereload==2.6.3

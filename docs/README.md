@@ -1,18 +1,18 @@
 # Building documentation locally
 
-This process will improve over time.
+In the top directory (gecko):
 
-For now, manually create a Python virtual environment and install the
-dependencies:
-
-```shell
-make venv
+```sh
+./mach tb-doc
 ```
 
-The virtualenv will be created in **_venv**.
+Command Arguments:
+-  --format FMT          Documentation format to write.
+-  --outdir DESTINATION  Where to write output.
+-  --no-open             Don't automatically open HTML docs in a browser.
+-  --no-serve            Don't serve the generated docs after building.
+-  --http ADDRESS        Serve documentation on the specified host and port, default "localhost:5500".
+-  -j JOBS, --jobs JOBS  Distribute the build over N processes in parallel.
+-  --verbose             Run Sphinx in verbose mode
+-  --no-autodoc          Disable generating Python/JS API documentation
 
-Then to build the documentation:
-
-```shell
-make html
-```
