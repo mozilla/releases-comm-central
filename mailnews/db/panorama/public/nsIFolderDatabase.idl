@@ -1,0 +1,27 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsIFolder;
+interface mozIStorageConnection;
+
+[scriptable, uuid(2842d879-e52f-4812-926c-dfde62b77881)]
+interface nsIFolderDatabase : nsISupports {
+  /**
+   * Open a connection to the database and load in the folders from it.
+   */
+  void loadFolders();
+
+  /**
+   * Get a folder identified by its database row ID.
+   */
+  nsIFolder getFolderById(in unsigned long long id);
+
+  /**
+   * Access to the database for testing purposes only. If you are not a test,
+   * you'll get NS_ERROR_NOT_AVAILABLE instead.
+   */
+  readonly attribute mozIStorageConnection connection;
+};

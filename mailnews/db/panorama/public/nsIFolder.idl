@@ -1,0 +1,61 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(c8d71b1d-f03b-40d9-a986-0e1f53ab6c23)]
+interface nsIFolder : nsISupports {
+  /**
+   * Database identifier for this folder.
+   */
+  readonly attribute unsigned long long id;
+
+  /**
+   * Name of this folder. For root folders, this is the server key.
+   */
+  readonly attribute AUTF8String name;
+
+  /**
+   * Path of this folder. This is the names of all ancestor folders and of
+   * this folder, joined by the `/` character.
+   */
+  readonly attribute AUTF8String path;
+
+  /**
+   * An array of ancestors of this folder, starting with the folder's parent
+   * and ending with the root folder. Or an empty array, if this is the root.
+   */
+  readonly attribute Array<nsIFolder> ancestors;
+
+  /**
+   * The parent folder of this folder, or null if there is no parent.
+   */
+  readonly attribute nsIFolder parent;
+
+  /**
+   * The child folders of this folder, in display order. Display order is
+   * determined by the properties of the children.
+   */
+  readonly attribute Array<nsIFolder> children;
+
+  /**
+   * An array of descendants of this folder, in a depth-first traversal.
+   */
+  readonly attribute Array<nsIFolder> descendants;
+
+  /**
+   * If this folder is a descendant of `other`.
+   */
+  boolean isDescendantOf(in nsIFolder other);
+
+  /**
+   * If this folder is an ancestor of `other`.
+   */
+  boolean isAncestorOf(in nsIFolder other);
+
+  /**
+   * Helper function for making test output readable.
+   */
+  AUTF8String toJSON();
+};

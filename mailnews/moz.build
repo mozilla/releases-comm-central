@@ -31,6 +31,9 @@ DIRS += [
     "search/src",
 ]
 
+if CONFIG["NIGHTLY_BUILD"]:
+    DIRS += ["db/panorama"]
+
 TEST_DIRS += [
     "imap/test",
     "import/test",

@@ -1,0 +1,16 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+XPCSHELL_TESTS_MANIFESTS += [
+    "xpcshell/xpcshell.toml",
+]
+
+output_dir = OBJDIR_FILES._tests.xpcshell.comm.mailnews.db.panorama.test.xpcshell.db
+for db in ["relations"]:
+    GeneratedFile(
+        "xpcshell/db/%s.sqlite" % db,
+        script="/comm/mail/components/addrbook/test/create_sqlite.py",
+        inputs=["xpcshell/db/%s.sql" % db],
+    )
+    output_dir += ["!xpcshell/db/%s.sqlite" % db]

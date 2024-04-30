@@ -1,0 +1,10 @@
+[DEFAULT]
+head = "head.js"
+generated-files = [
+  "db/relations.sqlite",
+]
+support-files = [
+  "db/relations.sqlite",
+]
+
+["test_relations.js"]
