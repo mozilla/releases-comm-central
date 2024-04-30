@@ -43,12 +43,12 @@ add_task(async function testloadMessage() {
     "@mozilla.org/messenger/messageservice;1?type=news"
   ].getService(Ci.nsIMsgMessageService);
 
-  // Pretend to display the message: During the first run, the article is downloaded,
+  // Stream the message: During the first run, the article is downloaded,
   // displayed directly and simultaneously saved in the offline storage.
   {
-    const listener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.loadMessage(uri, listener, null, null, false);
-    const msgText = await listener.promise;
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    msgService.streamMessage(uri, streamListener, null, null, false, "", false);
+    const msgText = await streamListener.promise;
     localserver.closeCachedConnections();
 
     // Correct text? (original file uses LF only, so strip CR)
@@ -60,9 +60,9 @@ add_task(async function testloadMessage() {
 
   // In the second run, the offline store serves as the source of the article.
   {
-    const listener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.loadMessage(uri, listener, null, null, false);
-    let msgText = await listener.promise;
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    msgService.streamMessage(uri, streamListener, null, null, false, "", false);
+    let msgText = await streamListener.promise;
     localserver.closeCachedConnections();
 
     // To compare, need to massage what we got back from DisplayMessage():

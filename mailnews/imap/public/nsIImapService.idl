@@ -52,16 +52,6 @@ interface nsIImapService : nsISupports
                           in nsIUrlListener aUrlListener,
                           in nsIMsgWindow aMsgWindow);
 
-  void fetchMessage(in nsIImapUrl aUrl,
-                    in nsImapState aImapAction,
-                    in nsIMsgFolder aImapMailFolder,
-                    in nsIImapMessageSink aImapMessageSink,
-                    in nsIMsgWindow aMsgWindow,
-                    in nsISupports aConsumer,
-                    in ACString aMessageIdentifierList,
-                    in boolean convertDataToText,
-                    out nsIURI aOutURL);
-
   void noop(in nsIMsgFolder aImapMailFolder,
             in nsIUrlListener aUrlListener,
             out nsIURI aURL);

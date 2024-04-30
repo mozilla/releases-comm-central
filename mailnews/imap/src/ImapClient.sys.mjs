@@ -1858,21 +1858,28 @@ export class ImapClient {
     this.onFree?.();
   };
 
-  /** @see nsIImapProtocol */
+  /**
+   * @see {nsIImapProtocol}
+   * @param {nsMsgKey[]} keys
+   */
   NotifyBodysToDownload(keys) {
     this._logger.debug("NotifyBodysToDownload", keys);
     this._bodysToDownload = keys;
   }
 
+  /** @see {nsIImapProtocol} */
   GetRunningUrl() {
     this._logger.debug("GetRunningUrl");
   }
 
+  /**
+   * @see {nsIImapProtocol}
+   * @returns {nsIImapFlagAndUidState}
+   */
   get flagAndUidState() {
     // The server sequence is 1 based, nsIImapFlagAndUidState sequence is 0 based.
     const getUidOfMessage = index => this._messageUids[index + 1];
     const getMessageFlagsByUid = uid => this._messages.get(uid)?.flags;
-
     return {
       QueryInterface: ChromeUtils.generateQI(["nsIImapFlagAndUidState"]),
       numberOfMessages: this._messages.size,

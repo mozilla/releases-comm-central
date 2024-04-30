@@ -47,7 +47,7 @@ NS_IMETHODIMP EwsService::CopyMessages(
 }
 
 NS_IMETHODIMP EwsService::LoadMessage(const nsACString& aMessageURI,
-                                      nsISupports* aDisplayConsumer,
+                                      nsIDocShell* aDisplayConsumer,
                                       nsIMsgWindow* aMsgWindow,
                                       nsIUrlListener* aUrlListener,
                                       bool aAutodetectCharset) {
@@ -78,7 +78,7 @@ NS_IMETHODIMP EwsService::Search(nsIMsgSearchSession* aSearchSession,
 }
 
 NS_IMETHODIMP EwsService::StreamMessage(
-    const nsACString& aMessageURI, nsISupports* aConsumer,
+    const nsACString& aMessageURI, nsIStreamListener* aStreamListener,
     nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, bool aConvertData,
     const nsACString& aAdditionalHeader, bool aLocalOnly, nsIURI** _retval) {
   NS_WARNING("StreamMessage");

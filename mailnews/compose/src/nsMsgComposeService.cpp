@@ -897,15 +897,10 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   rv = GetMessageServiceFromURI(templateMsgHdrUri, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupports> listenerSupports;
-  helper->QueryInterface(NS_GET_IID(nsISupports),
-                         getter_AddRefs(listenerSupports));
-
   nsCOMPtr<nsIURI> dummyNull;
-  rv = msgService->StreamMessage(
-      templateMsgHdrUri, listenerSupports, aMsgWindow, helper,
-      false,  // convert data
-      EmptyCString(), false, getter_AddRefs(dummyNull));
+  rv = msgService->StreamMessage(templateMsgHdrUri, helper, aMsgWindow, helper,
+                                 false,  // convert data
+                                 ""_ns, false, getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -1297,8 +1292,10 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // Now, just plug the two together and get the hell out of the way!
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
-  return messageService->LoadMessage(aMsgURI, streamListener, aMsgWindow,
-                                     nullptr, autodetectCharset);
+  nsCOMPtr<nsIURI> dummyNull;
+  return messageService->StreamMessage(aMsgURI, streamListener, aMsgWindow,
+                                       nullptr, false, ""_ns, false,
+                                       getter_AddRefs(dummyNull));
 }
 
 NS_IMETHODIMP

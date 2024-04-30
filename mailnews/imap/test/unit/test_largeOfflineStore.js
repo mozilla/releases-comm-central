@@ -20,6 +20,7 @@ Services.prefs.setCharPref(
 );
 
 var gOfflineStoreSize;
+var storageOk = true;
 
 add_setup(async function () {
   setupIMAPPump();
@@ -48,13 +49,15 @@ add_setup(async function () {
     0x10000000f
   );
   const freeDiskSpace = inboxFile.diskSpaceAvailable;
-  Assert.ok(
-    isFileSparse && freeDiskSpace > neededFreeSpace,
-    "This test needs " +
-      mailTestUtils.toMiBString(neededFreeSpace) +
-      " free space to run."
-  );
-});
+  storageOk = isFileSparse && freeDiskSpace > neededFreeSpace;
+  if (!storageOk) {
+    console.warn(
+      "This test needs " +
+        mailTestUtils.toMiBString(neededFreeSpace) +
+        " free space to run."
+    );
+  }
+}).skip(!storageOk);
 
 add_task(async function addOfflineMessages() {
   // Create a couple test messages on the IMAP server.
@@ -99,7 +102,7 @@ add_task(async function addOfflineMessages() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
-});
+}).skip(!storageOk);
 
 add_task(async function check_result() {
   // Call downloadAllForOffline() a second time.
@@ -128,7 +131,7 @@ add_task(async function check_result() {
     // Make sure we don't fall over if we ask to read the message.
     IMAPPump.inbox.getLocalMsgStream(header).close();
   }
-});
+}).skip(!storageOk);
 
 add_task(function teardown() {
   // Free up disk space - if you want to look at the file after running

@@ -4,7 +4,6 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  ImapChannel: "resource:///modules/ImapChannel.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 
@@ -146,52 +145,6 @@ export class ImapService {
         client.renameFolder(folder, newName);
       };
     });
-  }
-
-  fetchMessage(
-    imapUrl,
-    imapAction,
-    folder,
-    msgSink,
-    msgWindow,
-    displayConsumer,
-    msgIds,
-    convertDataToText
-  ) {
-    imapUrl.imapAction = imapAction;
-    imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = msgWindow;
-    if (displayConsumer instanceof Ci.nsIDocShell) {
-      imapUrl
-        .QueryInterface(Ci.nsIMsgMailNewsUrl)
-        .loadURI(
-          displayConsumer.QueryInterface(Ci.nsIDocShell),
-          Ci.nsIWebNavigation.LOAD_FLAGS_NONE
-        );
-    } else {
-      const streamListener = displayConsumer.QueryInterface(
-        Ci.nsIStreamListener
-      );
-      const channel = new lazy.ImapChannel(imapUrl, {
-        QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
-        loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-        securityFlags:
-          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
-      });
-      let listener = streamListener;
-      if (convertDataToText) {
-        const converter = Cc["@mozilla.org/streamConverters;1"].getService(
-          Ci.nsIStreamConverterService
-        );
-        listener = converter.asyncConvertData(
-          "message/rfc822",
-          "*/*",
-          streamListener,
-          channel
-        );
-      }
-      channel.asyncOpen(listener);
-    }
   }
 
   fetchCustomMsgAttribute(folder, msgWindow, attribute, uids) {

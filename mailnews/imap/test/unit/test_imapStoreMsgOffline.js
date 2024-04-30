@@ -73,17 +73,17 @@ add_setup(async function () {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
-});
 
-var gIMAPService;
-
-add_task(async function selectFirstMsg() {
   // We postpone creating the imap service until after we've set the prefs
   //  that it reads on its startup.
   gIMAPService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
+});
 
+var gIMAPService;
+
+add_task(async function selectFirstMsg() {
   const db = IMAPPump.inbox.msgDatabase;
   const msg1 = db.getMsgHdrForMessageID(gMsgId1);
   const listener = new PromiseTestUtils.PromiseUrlListener({
@@ -91,15 +91,18 @@ add_task(async function selectFirstMsg() {
       Assert.equal(aExitCode, 0);
     },
   });
-  // We use the streamListener as a display consumer.
+  // Stream to inbox.
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.loadMessage(
+  gIMAPService.streamMessage(
     IMAPPump.inbox.getUriForMsg(msg1),
     streamListener,
     null,
     listener,
+    false,
+    "",
     false
   );
+  await streamListener.promise;
   await listener.promise;
 });
 
@@ -113,15 +116,18 @@ add_task(async function select2ndMsg() {
       Assert.equal(aExitCode, 0);
     },
   });
-  // We use the streamListener as a display consumer.
+  // Stream to inbox.
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.loadMessage(
+  gIMAPService.streamMessage(
     IMAPPump.inbox.getUriForMsg(msg2),
     streamListener,
     null,
     listener,
+    false,
+    "",
     false
   );
+  await streamListener.promise;
   await listener.promise;
 });
 
@@ -131,15 +137,18 @@ add_task(async function select3rdMsg() {
   const db = IMAPPump.inbox.msgDatabase;
   const msg3 = db.getMsgHdrForMessageID(gMsgId3);
   const listener = new PromiseTestUtils.PromiseUrlListener();
-  // We use the streamListener as a display consumer.
+  // Stream to inbox.
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.loadMessage(
+  gIMAPService.streamMessage(
     IMAPPump.inbox.getUriForMsg(msg3),
     streamListener,
     null,
     listener,
+    false,
+    "",
     false
   );
+  await streamListener.promise;
   await listener.promise;
 });
 

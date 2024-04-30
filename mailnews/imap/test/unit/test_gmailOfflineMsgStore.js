@@ -86,34 +86,16 @@ add_setup(async function () {
   await listener.promise;
 });
 
-add_task(async function selectInboxMsg() {
-  // Select mesasage1 from inbox which makes message1 available in offline store.
-  const imapService = Cc[
-    "@mozilla.org/messenger/messageservice;1?type=imap"
-  ].getService(Ci.nsIMsgMessageService);
-  const db = IMAPPump.inbox.msgDatabase;
-  const msg1 = db.getMsgHdrForMessageID(gMsgId1);
-  const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  imapService.loadMessage(
-    IMAPPump.inbox.getUriForMsg(msg1),
-    streamListener,
-    null,
-    urlListener,
-    false
-  );
-  await urlListener.promise;
-});
-
-add_task(async function StreamMessageInbox() {
+add_task(async function streamMessageInbox() {
   // Stream message1 from inbox.
   const newMsgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   const msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   const streamLister = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamLister, null, null, false, "", false);
-  gImapInboxOfflineStoreSizeInitial = IMAPPump.inbox.filePath.fileSize; // Initial Size of Inbox.
   await streamLister.promise;
+  // Record initial Size of Inbox.
+  gImapInboxOfflineStoreSizeInitial = IMAPPump.inbox.filePath.fileSize;
 });
 
 add_task(async function createAndUpdate() {
@@ -157,33 +139,15 @@ add_task(async function updateFoo() {
   await listener.promise;
 });
 
-add_task(async function selectFooMsg() {
-  // Select message2 from fooFolder, which makes fooFolder a local folder.
-  const imapService = Cc[
-    "@mozilla.org/messenger/messageservice;1?type=imap"
-  ].getService(Ci.nsIMsgMessageService);
-  const msg1 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-  const streamListener = new PromiseTestUtils.PromiseStreamListener();
-  const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  imapService.loadMessage(
-    fooFolder.getUriForMsg(msg1),
-    streamListener,
-    null,
-    urlListener,
-    false
-  );
-  await urlListener.promise;
-});
-
-add_task(async function StreamMessageFoo() {
+add_task(async function streamMessageFoo() {
   // Stream message2 from fooFolder.
   const newMsgHdr = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
   const msgURI = newMsgHdr.folder.getUriForMsg(newMsgHdr);
   const msgServ = MailServices.messageServiceFromURI(msgURI);
   const streamListener = new PromiseTestUtils.PromiseStreamListener();
   msgServ.streamMessage(msgURI, streamListener, null, null, false, "", false);
-  gFooOfflineStoreSizeInitial = fooFolder.filePath.fileSize;
   await streamListener.promise;
+  gFooOfflineStoreSizeInitial = fooFolder.filePath.fileSize;
 });
 
 add_task(async function crossStreaming() {

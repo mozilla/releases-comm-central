@@ -177,8 +177,9 @@ nsresult nsMailboxService::FetchMessage(
 }
 
 NS_IMETHODIMP nsMailboxService::FetchMimePart(
-    nsIURI* aURI, const nsACString& aMessageURI, nsISupports* aDisplayConsumer,
-    nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener, nsIURI** aURL) {
+    nsIURI* aURI, const nsACString& aMessageURI,
+    nsIStreamListener* aStreamListener, nsIMsgWindow* aMsgWindow,
+    nsIUrlListener* aUrlListener, nsIURI** aURL) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(aURI, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -188,23 +189,23 @@ NS_IMETHODIMP nsMailboxService::FetchMimePart(
   // set up the url listener
   if (aUrlListener) msgUrl->RegisterListener(aUrlListener);
 
-  return RunMailboxUrl(msgUrl, aDisplayConsumer);
+  return RunMailboxUrl(msgUrl, aStreamListener);
 }
 
 NS_IMETHODIMP nsMailboxService::LoadMessage(const nsACString& aMessageURI,
-                                            nsISupports* aDisplayConsumer,
+                                            nsIDocShell* aDisplayConsumer,
                                             nsIMsgWindow* aMsgWindow,
                                             nsIUrlListener* aUrlListener,
                                             bool aOverideCharset) {
-  nsCOMPtr<nsIURI> aURL;  // unused...
+  nsCOMPtr<nsIURI> dummyNull;  // unused...
   return FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
                       nullptr, nsIMailboxUrl::ActionFetchMessage,
-                      aOverideCharset, getter_AddRefs(aURL));
+                      aOverideCharset, getter_AddRefs(dummyNull));
 }
 
 NS_IMETHODIMP
 nsMailboxService::StreamMessage(const nsACString& aMessageURI,
-                                nsISupports* aConsumer,
+                                nsIStreamListener* aConsumer,
                                 nsIMsgWindow* aMsgWindow,
                                 nsIUrlListener* aUrlListener,
                                 bool /* aConvertData */,
@@ -307,7 +308,7 @@ NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
 // Takes a mailbox url, this method creates a protocol instance and loads the
 // url into the protocol instance.
 nsresult nsMailboxService::RunMailboxUrl(nsIURI* aMailboxUrl,
-                                         nsISupports* aDisplayConsumer) {
+                                         nsISupports* aConsumer) {
   // create a protocol instance to run the url..
   RefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aMailboxUrl);
   // It implements nsIChannel, and all channels require loadInfo.
@@ -317,7 +318,7 @@ nsresult nsMailboxService::RunMailboxUrl(nsIURI* aMailboxUrl,
       nsIContentPolicy::TYPE_OTHER));
   nsresult rv = protocol->Initialize(aMailboxUrl);
   NS_ENSURE_SUCCESS(rv, rv);
-  return protocol->LoadUrl(aMailboxUrl, aDisplayConsumer);
+  return protocol->LoadUrl(aMailboxUrl, aConsumer);
 }
 
 // This function takes a message uri, converts it into a file path & msgKey

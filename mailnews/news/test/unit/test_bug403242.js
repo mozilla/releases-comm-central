@@ -31,10 +31,10 @@ add_task(async function test403242() {
   const neckoUrl = msgService.getUrlForUri(uri).QueryInterface(Ci.nsINntpUrl);
   Assert.equal(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
 
-  // Pretend to display the message
-  const listener = new PromiseTestUtils.PromiseStreamListener();
-  msgService.loadMessage(uri, listener, null, null, false);
-  const msgText = await listener.promise;
+  // Stream the message.
+  const streamListener = new PromiseTestUtils.PromiseStreamListener();
+  msgService.streamMessage(uri, streamListener, null, null, false, "", false);
+  const msgText = await streamListener.promise;
   localserver.closeCachedConnections();
   server.stop();
 

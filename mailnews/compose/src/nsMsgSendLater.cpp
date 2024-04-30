@@ -610,12 +610,9 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
   m_headersSize = 0;
   PR_FREEIF(mLeftoverBuffer);
 
-  // Now, get our stream listener interface and plug it into the LoadMessage
-  // operation
-  rv = messageService->LoadMessage(messageURI,
-                                   static_cast<nsIStreamListener*>(this),
-                                   nullptr, nullptr, false);
-
+  nsCOMPtr<nsIURI> dummyNull;
+  rv = messageService->StreamMessage(messageURI, this, nullptr, this, false,
+                                     ""_ns, false, getter_AddRefs(dummyNull));
   return rv;
 }
 

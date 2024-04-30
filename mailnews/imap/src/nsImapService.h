@@ -52,6 +52,13 @@ class nsImapService : public nsIImapService,
   virtual ~nsImapService();
   char GetHierarchyDelimiter(nsIMsgFolder* aMsgFolder);
 
+  nsresult FetchMessage(nsIImapUrl* aImapUrl, nsImapAction aImapAction,
+                        nsIMsgFolder* aImapMailFolder,
+                        nsIImapMessageSink* aImapMessage,
+                        nsIMsgWindow* aMsgWindow, nsISupports* aDisplayConsumer,
+                        const nsACString& messageIdentifierList,
+                        bool aConvertDataToText, nsIURI** aURL);
+
   nsresult AddImapFetchToUrl(nsIMsgMailNewsUrl* aUrl,
                              nsIMsgFolder* aImapMailFolder,
                              const nsACString& aMessageIdentifierList,

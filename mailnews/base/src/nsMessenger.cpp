@@ -512,27 +512,24 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
   if (NS_SUCCEEDED(rv)) {
     rv = GetMessageServiceFromURI(aMessageUri, getter_AddRefs(messageService));
     if (NS_SUCCEEDED(rv)) {
+      RefPtr<nsIStreamListener> streamListener = saveListener;
+
       fetchService = do_QueryInterface(messageService);
-      // if the message service has a fetch part service then we know we can
-      // fetch mime parts...
+      nsCOMPtr<nsIURI> dummyNull;
       if (fetchService) {
+        // If the message service has a fetch part service then we know we can
+        // fetch mime parts...
         int32_t partPos = urlString.FindChar('?');
         if (partPos == kNotFound) return NS_ERROR_FAILURE;
         fullMessageUri.Append(Substring(urlString, partPos));
-      }
-
-      nsCOMPtr<nsIStreamListener> convertedListener;
-      saveListener->QueryInterface(NS_GET_IID(nsIStreamListener),
-                                   getter_AddRefs(convertedListener));
-
-      nsCOMPtr<nsIURI> dummyNull;
-      if (fetchService)
-        rv = fetchService->FetchMimePart(URL, fullMessageUri, convertedListener,
+        rv = fetchService->FetchMimePart(URL, fullMessageUri, streamListener,
                                          mMsgWindow, saveListener,
                                          getter_AddRefs(dummyNull));
-      else
-        rv = messageService->LoadMessage(fullMessageUri, convertedListener,
-                                         mMsgWindow, nullptr, false);
+      } else {
+        rv = messageService->StreamMessage(fullMessageUri, streamListener,
+                                           mMsgWindow, nullptr, false, ""_ns,
+                                           false, getter_AddRefs(dummyNull));
+      }
     }  // if we got a message service
   }    // if we created a url
 
@@ -904,8 +901,10 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncConvertData failed");
       if (NS_FAILED(rv)) goto done;
 
-      rv = messageService->LoadMessage(urlString, convertedListener, mMsgWindow,
-                                       nullptr, false);
+      nsCOMPtr<nsIURI> dummyNull;
+      rv = messageService->StreamMessage(urlString, convertedListener,
+                                         mMsgWindow, urlListener, false, ""_ns,
+                                         false, getter_AddRefs(dummyNull));
     }
   } else {
     // ** save as Template
@@ -2295,7 +2294,7 @@ nsresult AttachmentDeleter::InternalStartProcessing(nsMessenger* aMessenger,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIURI> dummyNull;
-  rv = mMessageService->StreamMessage(messageUri, listenerSupports, mMsgWindow,
+  rv = mMessageService->StreamMessage(messageUri, this, mMsgWindow,
                                       listenerUrlListener, true, sHeader, false,
                                       getter_AddRefs(dummyNull));
   NS_ENSURE_SUCCESS(rv, rv);

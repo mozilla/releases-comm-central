@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { ImapUtils } from "resource:///modules/ImapUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  ImapChannel: "resource:///modules/ImapChannel.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
@@ -18,59 +18,72 @@ class BaseMessageService {
 
   _logger = ImapUtils.logger;
 
+  /**
+   * Copy message.
+   *
+   * @param {string} messageUri
+   * @param {nsIStreamListener} copyListener - Listener that already knows about
+   *   the destination folder.
+   * @param {boolean} moveMessage - true for move, false for copy.
+   * @param {nsIUrlListener} urlListener
+   * @param {nsIMsgWindow} msgWindow
+   */
   copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
     this._logger.debug("copyMessage", messageUri, moveMessage);
-    const { serverURI, folder, folderName, key } =
+    const { serverURI, folderName, key } =
       this._decomposeMessageUri(messageUri);
     const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
-      .QueryInterface(Ci.nsIImapUrl);
+      .QueryInterface(Ci.nsIImapUrl)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
     if (urlListener) {
-      imapUrl
-        .QueryInterface(Ci.nsIMsgMailNewsUrl)
-        .RegisterListener(urlListener);
+      imapUrl.RegisterListener(urlListener);
     }
 
-    return MailServices.imap.fetchMessage(
-      imapUrl,
-      moveMessage
-        ? Ci.nsIImapUrl.nsImapOnlineToOfflineMove
-        : Ci.nsIImapUrl.nsImapOnlineToOfflineCopy,
-      folder,
-      folder.QueryInterface(Ci.nsIImapMessageSink),
-      msgWindow,
-      copyListener,
-      key,
-      false,
-      {}
-    );
+    imapUrl.imapAction = moveMessage
+      ? Ci.nsIImapUrl.nsImapOnlineToOfflineMove
+      : Ci.nsIImapUrl.nsImapOnlineToOfflineCopy;
+    imapUrl.msgWindow = msgWindow;
+
+    const channel = new lazy.ImapChannel(imapUrl, {
+      QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
+    });
+    channel.asyncOpen(copyListener);
   }
 
-  loadMessage(messageUri, displayConsumer, msgWindow, urlListener) {
+  /**
+   * When you want a message displayed... this loads it into the docshell
+   * consumer.
+   *
+   * @param {string} messageUri - A uri representing the message to display.
+   * @param {nsIDocShell} docShell - Docshell to load the message into.
+   * @param {?nsIMsgWindow} msgWindow
+   * @param {?nsIUrlListener} urlListener
+   * @param {boolean} autodetectCharset - Whether the character set should be
+   *   auto-detected.
+   */
+  loadMessage(messageUri, docShell, msgWindow, urlListener, autodetectCharset) {
     this._logger.debug("loadMessage", messageUri);
-    const { serverURI, folder, folderName, key } =
+    const { serverURI, folderName, key } =
       this._decomposeMessageUri(messageUri);
     const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
-      .QueryInterface(Ci.nsIImapUrl);
+      .QueryInterface(Ci.nsIImapUrl)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl)
+      .QueryInterface(Ci.nsIMsgI18NUrl);
 
-    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
     if (urlListener) {
-      mailnewsUrl.RegisterListener(urlListener);
+      imapUrl.RegisterListener(urlListener);
     }
+    imapUrl.autodetectCharset = autodetectCharset;
 
-    return MailServices.imap.fetchMessage(
-      imapUrl,
-      Ci.nsIImapUrl.nsImapMsgFetch,
-      folder,
-      folder.QueryInterface(Ci.nsIImapMessageSink),
-      msgWindow,
-      displayConsumer,
-      key,
-      false,
-      {}
-    );
+    imapUrl.imapAction = Ci.nsIImapUrl.nsImapMsgFetch;
+    imapUrl.msgWindow = msgWindow;
+    imapUrl.loadURI(docShell, Ci.nsIWebNavigation.LOAD_FLAGS_NONE);
   }
 
   SaveMessageToDisk(
@@ -87,27 +100,28 @@ class BaseMessageService {
       this._decomposeMessageUri(messageUri);
     const imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
-      .QueryInterface(Ci.nsIImapUrl);
+      .QueryInterface(Ci.nsIImapUrl)
+      .QueryInterface(Ci.nsIMsgMessageUrl)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
 
-    const msgUrl = imapUrl.QueryInterface(Ci.nsIMsgMessageUrl);
-    msgUrl.messageFile = file;
-    msgUrl.AddDummyEnvelope = addDummyEnvelope;
-    msgUrl.canonicalLineEnding = canonicalLineEnding;
-    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    mailnewsUrl.RegisterListener(urlListener);
-    mailnewsUrl.msgIsInLocalCache = folder.hasMsgOffline(key, null, 10);
+    imapUrl.messageFile = file;
+    imapUrl.AddDummyEnvelope = addDummyEnvelope;
+    imapUrl.canonicalLineEnding = canonicalLineEnding;
 
-    return MailServices.imap.fetchMessage(
-      imapUrl,
-      Ci.nsIImapUrl.nsImapSaveMessageToDisk,
-      folder,
-      folder.QueryInterface(Ci.nsIImapMessageSink),
-      msgWindow,
-      mailnewsUrl.getSaveAsListener(addDummyEnvelope, file),
-      key,
-      false,
-      {}
-    );
+    imapUrl.RegisterListener(urlListener);
+    imapUrl.msgIsInLocalCache = folder.hasMsgOffline(key, null, 10);
+
+    imapUrl.imapAction = Ci.nsIImapUrl.nsImapSaveMessageToDisk;
+    imapUrl.msgWindow = msgWindow;
+
+    const streamListener = imapUrl.getSaveAsListener(addDummyEnvelope, file);
+    const channel = new lazy.ImapChannel(imapUrl, {
+      QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
+    });
+    channel.asyncOpen(streamListener);
   }
 
   getUrlForUri(messageUri) {
@@ -128,14 +142,32 @@ class BaseMessageService {
     return imapUrl;
   }
 
+  /**
+   * This method streams a message to the passed in streamListener consumer.
+   *
+   * @param {string} messageUri - The uri of message to stream.
+   * @param {nsIStreamListener} streamListener - A streamlistener listening to
+   *   the message.
+   * @param {nsIMsgWindow} msgWindow - msgWindow for give progress and status feedback
+   * @param {nsIUrlListener} urlListener - Gets notified when url starts and stops
+   * @param {boolean} convertData - Whether to send data though a stream
+       converter converting from message/rfc822 to star/star.
+   * @param {string} additionalHeader - Added to URI, e.g., "header=filter"
+   * @param {boolean} [localOnly=false] - Whether data should be retrieved only
+   *   from local caches. If streaming over the network is required and this
+   *   is true, then an exception is thrown.
+   *   If we're offline, then even if aLocalOnly is false, we won't stream over
+   *   the network.
+   * @returns {nsIURI} the URL that gets run.
+   */
   streamMessage(
     messageUri,
-    consumer,
+    streamListener,
     msgWindow,
     urlListener,
     convertData,
     additionalHeader,
-    localOnly
+    localOnly = false
   ) {
     this._logger.debug("streamMessage", messageUri);
     const { serverURI, folder, folderName, key } =
@@ -144,28 +176,38 @@ class BaseMessageService {
     if (additionalHeader) {
       url += `?header=${additionalHeader}`;
     }
-    const imapUrl = Services.io.newURI(url).QueryInterface(Ci.nsIImapUrl);
+    const imapUrl = Services.io
+      .newURI(url)
+      .QueryInterface(Ci.nsIImapUrl)
+      .QueryInterface(Ci.nsIMsgMailNewsUrl);
     imapUrl.localFetchOnly = localOnly;
 
-    const mailnewsUrl = imapUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    mailnewsUrl.folder = folder;
-    mailnewsUrl.msgWindow = msgWindow;
-    mailnewsUrl.msgIsInLocalCache = folder.hasMsgOffline(key);
+    imapUrl.folder = folder;
+    imapUrl.msgWindow = msgWindow;
+    imapUrl.msgIsInLocalCache = folder.hasMsgOffline(key);
     if (urlListener) {
-      mailnewsUrl.RegisterListener(urlListener);
+      imapUrl.RegisterListener(urlListener);
     }
 
-    return MailServices.imap.fetchMessage(
-      imapUrl,
-      Ci.nsIImapUrl.nsImapMsgFetchPeek,
-      folder,
-      folder.QueryInterface(Ci.nsIImapMessageSink),
-      msgWindow,
-      consumer,
-      key,
-      convertData,
-      {}
-    );
+    const channel = new lazy.ImapChannel(imapUrl, {
+      QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      internalContentPolicy: Ci.nsIContentPolicy.TYPE_OTHER,
+    });
+    let listener = streamListener;
+    if (convertData) {
+      const converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        Ci.nsIStreamConverterService
+      );
+      listener = converter.asyncConvertData(
+        "message/rfc822",
+        "*/*",
+        streamListener,
+        channel
+      );
+    }
+    channel.asyncOpen(listener);
   }
 
   streamHeaders(messageUri, consumer) {

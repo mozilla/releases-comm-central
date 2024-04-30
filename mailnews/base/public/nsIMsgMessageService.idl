@@ -14,7 +14,7 @@ interface nsIMsgFolder;
 interface nsIMsgSearchSession;
 interface nsIMsgDBHdr;
 interface nsIStreamConverter;
-interface nsICacheEntry;
+interface nsIDocShell;
 
 %{C++
 #include "MailNewsTypes.h"
@@ -49,10 +49,10 @@ interface nsIMsgMessageService : nsISupports {
    * @param aMsgWindow
    */
   void copyMessage(in AUTF8String aSrcURI, in nsIStreamListener aCopyListener, in boolean aMoveMessage,
-               in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+                   in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   /**
-   * Copy multiple messages at a time
+   * Copy multiple messages at a time.
    *
    * @param keys
    * @param srcFolder
@@ -70,21 +70,20 @@ interface nsIMsgMessageService : nsISupports {
                       in nsIMsgWindow aMsgWindow);
 
   /**
-   * When you want a message displayed.... this loads it into the consumer.
+   * When you want a message displayed... this loads it into the docshell
+   * consumer.
    *
-   * @param aMessageURI Is a uri representing the message to display.
-   * @param aDisplayConsumer Is (for now) an nsIDocShell which we'll use to load
-   *                         the message into.
-   *                         XXXbz Should it be an nsIWebNavigation or something?
+   * @param aMessageURI - A uri representing the message to display.
+   * @param aDocShell - A nsIDocShell which we'll use to load the message into.
    * @param aMsgWindow
    * @param aUrlListener
-   * @param aAutodetectCharset (optional) if the characterset should be auto-detected.
+   * @param aAutodetectCharset Whether the characterset should be auto-detected.
    */
   void loadMessage(in AUTF8String aMessageURI,
-            in nsISupports aDisplayConsumer,
-            in nsIMsgWindow aMsgWindow,
-            in nsIUrlListener aUrlListener,
-            in boolean aAutodetectCharset);
+                   in nsIDocShell aDocShell,
+                   in nsIMsgWindow aMsgWindow,
+                   in nsIUrlListener aUrlListener,
+                   in boolean aAutodetectCharset);
 
   /**
    * When you want to spool a message out to a file on disk.
@@ -132,27 +131,27 @@ interface nsIMsgMessageService : nsISupports {
    * will create a stream converter from message rfc822 to star/star. It will also tack
    * aAdditionalHeader onto the url (e.g., "header=filter").
    *
-   * @param aMessageURI  uri of message to stream
-   * @param aConsumer    generally, a stream listener listening to the message
-   * @param aMsgWindow   msgWindow for give progress and status feedback
-   * @param aUrlListener gets notified when url starts and stops
-   * @param aConvertData should we create a stream converter?
-   * @param aAdditionalHeader added to URI, e.g., "header=filter"
-   * @param aLocalOnly whether data should be retrieved only from local caches
-   *        If streaming over the network is required and this is true, then
-   *        an exception is thrown. This defaults to false.
-   *
-   * @note If we're offline, then even if aLocalOnly is false, we won't stream over the
-   *       network
+   * @param aMessageURI - The uri of message to stream.
+   * @param aStreamlistener - A streamlistener listening to the message.
+   * @param aMsgWindow - msgWindow for progress and status feedback.
+   * @param aUrlListener - Gets notified when url starts and stops.
+   * @param aConvertData - Whether to send data through a stream converter.
+   * @param aAdditionalHeader - Added to URI, e.g., "header=filter".
+   * @param aLocalOnly - Whether data should be retrieved only from local caches
+   *   If streaming over the network is required and this is true, then
+   *   an exception is thrown. This defaults to false.
+   *   NOTE: If we're offline, then even if aLocalOnly is false, we won't stream
+   *   over the network.
    *
    * @return the URL that gets run
    */
-  nsIURI streamMessage(in AUTF8String aMessageURI, in nsISupports aConsumer,
-                    in nsIMsgWindow aMsgWindow,
-                    in nsIUrlListener aUrlListener,
-                    in boolean aConvertData,
-                    in ACString aAdditionalHeader,
-                    [optional] in boolean aLocalOnly);
+  nsIURI streamMessage(in AUTF8String aMessageURI,
+                       in nsIStreamListener aStreamlistener,
+                       in nsIMsgWindow aMsgWindow,
+                       in nsIUrlListener aUrlListener,
+                       in boolean aConvertData,
+                       in AUTF8String aAdditionalHeader,
+                       [optional] in boolean aLocalOnly);
 
   /**
    * This method streams a message's headers to the passed in consumer.
@@ -164,11 +163,10 @@ interface nsIMsgMessageService : nsISupports {
                          headers.
    * @param aUrlListener gets notified when url starts and stops, if we run a url.
    * @param aLocalOnly whether data should be retrieved only from local caches
-   *        If streaming over the network is required and this is true, then
-   *        an exception is thrown. This defaults to false.
-   *
-   * @note If we're offline, then even if aLocalOnly is false, we won't stream over the
-   *       network
+   *   If streaming over the network is required and this is true, then
+   *   an exception is thrown. This defaults to false.
+   *   NOTE: If we're offline, then even if aLocalOnly is false, we won't stream
+   *   over the network.
    *
    * @return the URL that gets run, if any.
    */
@@ -214,13 +212,14 @@ interface nsIMsgMessageFetchPartService : nsISupports
    *
    * @param aURI url representing the message
    * @param aMessageURI RDF URI including the part to fetch
-   * @param aDisplayConsumer
+   * @param aStreamListener
    * @param aMsgWindow
    * @param aUrlListener
    *
    * @return
    */
-  nsIURI fetchMimePart(in nsIURI aURI, in AUTF8String aMessageUri, in nsISupports aDisplayConsumer,
-            in nsIMsgWindow aMsgWindow,
-            in nsIUrlListener aUrlListener);
+  nsIURI fetchMimePart(in nsIURI aURI, in AUTF8String aMessageUri,
+                       in nsIStreamListener aStreamListener,
+                       in nsIMsgWindow aMsgWindow,
+                       in nsIUrlListener aUrlListener);
 };
