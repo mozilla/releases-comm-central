@@ -70,6 +70,8 @@ typedef struct MimeCMSdata {
   bool decoding_failed;
   bool skip_content;
   uint32_t decoded_bytes;
+  char* decoded_buffer;
+  size_t decoded_buffer_space;
   MimeObject* self;
   bool any_parent_is_encrypted_p;
   bool any_parent_is_signed_p;
@@ -84,12 +86,15 @@ typedef struct MimeCMSdata {
         decoding_failed(false),
         skip_content(false),
         decoded_bytes(0),
+        decoded_buffer(nullptr),
+        decoded_buffer_space(0),
         self(nullptr),
         any_parent_is_encrypted_p(false),
         any_parent_is_signed_p(false) {}
 
   ~MimeCMSdata() {
     if (sender_addr) PR_Free(sender_addr);
+    if (decoded_buffer) PR_Free(decoded_buffer);
 
     // Do an orderly release of nsICMSDecoder and nsICMSMessage //
     if (decoder_context) {
@@ -102,18 +107,31 @@ typedef struct MimeCMSdata {
 /*   SEC_PKCS7DecoderContentCallback for SEC_PKCS7DecoderStart() */
 static void MimeCMS_content_callback(void* arg, const char* buf,
                                      unsigned long length) {
-  int status;
   MimeCMSdata* data = (MimeCMSdata*)arg;
   if (!data) return;
 
   if (!data->output_fn) return;
 
   PR_SetError(0, 0);
-  status = data->output_fn(buf, length, data->output_closure);
-  if (status < 0) {
-    PR_SetError(status, 0);
-    data->output_fn = 0;
-    return;
+
+  if (!data->decoded_buffer) {
+    data->decoded_buffer_space = PR_MAX(4096, length * 2);
+    data->decoded_buffer = (char*)PR_Malloc(data->decoded_buffer_space);
+    memcpy(data->decoded_buffer, buf, length);
+  } else {
+    size_t needed = data->decoded_bytes + length;
+    if (data->decoded_buffer_space < needed) {
+      size_t new_space = needed * 2;
+      char* new_buffer = (char*)PR_Realloc(data->decoded_buffer, new_space);
+      if (!new_buffer) {
+        PR_SetError(PR_OUT_OF_MEMORY_ERROR, 0);
+        data->output_fn = 0;
+        return;
+      }
+      data->decoded_buffer_space = new_space;
+      data->decoded_buffer = new_buffer;
+    }
+    memcpy(data->decoded_buffer + data->decoded_bytes, buf, length);
   }
 
   data->decoded_bytes += length;
@@ -640,6 +658,28 @@ void MimeCMSRequestAsyncSignatureVerification(
                                           aDigestType);
 }
 
+static const char* bufferContains2Newlines(const char* buf, size_t len) {
+  const char* pos = buf;
+  const char* end = buf + len;
+  while (pos < end) {
+    if (*pos == '\n') {
+      if (pos + 1 < end) {
+        if (*(pos + 1) == '\n') {
+          return pos + 2;
+        }
+      }
+    } else if (*pos == '\r') {
+      if (pos + 3 < end) {
+        if (*(pos + 1) == '\n' && *(pos + 2) == '\r' && *(pos + 3) == '\n') {
+          return pos + 4;
+        }
+      }
+    }
+    ++pos;
+  }
+  return nullptr;
+}
+
 static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
   MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
   nsresult rv;
@@ -648,6 +688,16 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
   if (!data || !data->output_fn) {
     return -1;
   }
+
+  // The decrypted data is expected to contain MIME data.
+  // This means, it's expected there is a header section, followed by
+  // two newlines (one empty line after the header), then followed
+  // by the MIME message body.
+  // If there is no header section, the initial section of the message,
+  // until the first empty line, might be hidden.
+  // To avoid that, we'll ensure there's always a header section.
+
+  // Find double newline, with optional carriage return in between.
 
   if (!data->skip_content && !data->decoder_context) {
     // If we don't skip, we should have a context.
@@ -670,6 +720,24 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
     if (NS_FAILED(rv)) status = nsICMSMessageErrors::GENERAL_ERROR;
 
     data->decoder_context = nullptr;
+  }
+
+  if (data->decoded_buffer && data->decoded_bytes) {
+    if (bufferContains2Newlines(data->decoded_buffer, data->decoded_bytes) ==
+        nullptr) {
+      const char* header = "Content-Type: text/plain; charset=utf-8\r\n\r\n";
+      status = data->output_fn(header, strlen(header), data->output_closure);
+    }
+  }
+
+  if (status == nsICMSMessageErrors::SUCCESS) {
+    status = data->output_fn(data->decoded_buffer, data->decoded_bytes,
+                             data->output_closure);
+  }
+  if (status < 0) {
+    PR_SetError(status, 0);
+    data->output_fn = 0;
+    return -1;
   }
 
   nsCOMPtr<nsIX509Cert> certOfInterest;
@@ -764,6 +832,11 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
 static void MimeCMS_free(void* crypto_closure) {
   MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
   if (!data) return;
+
+  if (data->decoded_buffer) {
+    PR_Free(data->decoded_buffer);
+    data->decoded_buffer = nullptr;
+  }
 
   delete data;
 }
