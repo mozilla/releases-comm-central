@@ -2556,7 +2556,11 @@ var folderPane = {
         top.window.document.getElementById("tabmail").currentAbout3Pane ==
         this.window;
     };
-    top.window.document.removeEventListener("TabSelect", tabListener);
+    const unloadListener = () => {
+      top.window.document.removeEventListener("TabSelect", tabListener);
+      window.removeEventListener("unload", unloadListener);
+    };
+    unloadListener();
 
     // For display on main window panel only include quota names containing
     // "STORAGE" or "MESSAGE". This will exclude unusual quota names containing
@@ -2590,6 +2594,7 @@ var folderPane = {
     } else {
       quotaPanel.hidden = false;
       top.window.document.addEventListener("TabSelect", tabListener);
+      window.addEventListener("unload", unloadListener);
 
       top.window.document
         .getElementById("quotaMeter")
