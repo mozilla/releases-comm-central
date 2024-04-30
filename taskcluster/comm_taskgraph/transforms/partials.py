@@ -40,7 +40,7 @@ def update_scopes(config, jobs):
 
         # The signing keys are dependent on the project name. Set them here.
         task["payload"]["env"]["SIGNING_CERT"] = identify_desired_signing_keys(
-                config.params["project"], config.params["release_product"]
+            config.params["project"], config.params["release_product"]
         )
 
         yield job
