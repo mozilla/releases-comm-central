@@ -1344,9 +1344,9 @@ dependencies = [
 
 [[package]]
 name = "encoding_rs"
-version = "0.8.33"
+version = "0.8.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7268b386296a025e474d5140678f75d6de9493ae55a5d709eeb9dd08149945e1"
+checksum = "b45de904aa0b010bce2ab45264d0631681847fa7b6f2eaa7dab7619943bc4f59"
 dependencies = [
  "cfg-if",
 ]
@@ -1424,7 +1424,7 @@ dependencies = [
 [[package]]
 name = "error-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "error-support-macros",
  "lazy_static",
@@ -1436,7 +1436,7 @@ dependencies = [
 [[package]]
 name = "error-support-macros"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2524,11 +2524,12 @@ dependencies = [
 [[package]]
 name = "interrupt-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "lazy_static",
  "parking_lot",
  "rusqlite",
+ "uniffi",
 ]
 
 [[package]]
@@ -3418,7 +3419,7 @@ dependencies = [
 [[package]]
 name = "nss_build_common"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 
 [[package]]
 name = "nsstring"
@@ -4023,9 +4024,10 @@ checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 [[package]]
 name = "relevancy"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "error-support",
+ "interrupt-support",
  "log",
  "md-5",
  "parking_lot",
@@ -4039,7 +4041,7 @@ dependencies = [
 [[package]]
 name = "remote_settings"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "parking_lot",
  "serde",
@@ -4497,13 +4499,14 @@ dependencies = [
 [[package]]
 name = "sql-support"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "ffi-support",
  "interrupt-support",
  "lazy_static",
  "log",
  "nss_build_common",
+ "parking_lot",
  "rusqlite",
  "tempfile",
  "thiserror",
@@ -4654,7 +4657,7 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 [[package]]
 name = "suggest"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "anyhow",
  "chrono",
@@ -4703,7 +4706,7 @@ dependencies = [
 [[package]]
 name = "sync-guid"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "base64",
  "rand",
@@ -4714,7 +4717,7 @@ dependencies = [
 [[package]]
 name = "sync15"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "anyhow",
  "error-support",
@@ -4746,7 +4749,7 @@ dependencies = [
 [[package]]
 name = "tabs"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "anyhow",
  "error-support",
@@ -5295,7 +5298,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "viaduct"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "ffi-support",
  "log",
@@ -5349,7 +5352,7 @@ version = "0.3.100"
 [[package]]
 name = "webext-storage"
 version = "0.1.0"
-source = "git+https://github.com/mozilla/application-services?rev=e6ccfed09ebe663f464a33968f42e656c152e584#e6ccfed09ebe663f464a33968f42e656c152e584"
+source = "git+https://github.com/mozilla/application-services?rev=bf37a5174a1dcb7a890dc35386d58f9b77f82434#bf37a5174a1dcb7a890dc35386d58f9b77f82434"
 dependencies = [
  "anyhow",
  "error-support",
@@ -5890,6 +5893,11 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[patch.unused]]
+name = "any_all_workaround"
+version = "0.1.0"
+source = "git+https://github.com/hsivonen/any_all_workaround?rev=7fb1b7034c9f172aade21ee1c8554e8d8a48af80#7fb1b7034c9f172aade21ee1c8554e8d8a48af80"
 
 [[patch.unused]]
 name = "backtrace"

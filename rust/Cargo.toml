@@ -52,6 +52,7 @@ rure = { path = "../../third_party/rust/rure" }
 cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0" }
 cssparser-macros = { git = "https://github.com/servo/rust-cssparser", rev = "aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
+any_all_workaround = { git = "https://github.com/hsivonen/any_all_workaround", rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80" }
 chardetng = { git = "https://github.com/hsivonen/chardetng", rev = "3484d3e3ebdc8931493aa5df4d7ee9360a90e76b" }
 chardetng_c = { git = "https://github.com/hsivonen/chardetng_c", rev = "ed8a4c6f900a90d4dbc1d64b856e61490a1c3570" }
 coremidi = { git = "https://github.com/chris-zen/coremidi.git", rev = "fc68464b5445caf111e41f643a2e69ccce0b4f83" }
@@ -63,13 +64,13 @@ libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 warp = { git = "https://github.com/seanmonstar/warp", rev = "9d081461ae1167eb321585ce424f4fef6cf0092b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "e6ccfed09ebe663f464a33968f42e656c152e584" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+relevancy = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
 mio = { path = "../../third_party/rust/mio-0.6.23" }
