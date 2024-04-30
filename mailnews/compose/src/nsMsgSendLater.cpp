@@ -611,7 +611,7 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
   PR_FREEIF(mLeftoverBuffer);
 
   nsCOMPtr<nsIURI> dummyNull;
-  rv = messageService->StreamMessage(messageURI, this, nullptr, this, false,
+  rv = messageService->StreamMessage(messageURI, this, nullptr, nullptr, false,
                                      ""_ns, false, getter_AddRefs(dummyNull));
   return rv;
 }
