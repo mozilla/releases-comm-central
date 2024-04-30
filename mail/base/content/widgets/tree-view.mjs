@@ -115,8 +115,18 @@ class TreeView extends HTMLElement {
    */
   #bufferFillIdleCallbackHandle = null;
 
+  /**
+   * Returns true if this tree view is ready for interaction.
+   *
+   * @type {boolean}
+   */
   get isReady() {
-    return !this.#bufferFillIdleCallbackHandle;
+    return (
+      this.hasConnected &&
+      this._view &&
+      (this._height > 0 || this._view.rowCount === 0) &&
+      !this.#bufferFillIdleCallbackHandle
+    );
   }
   /**
    * The virtualized table containing our rows.
