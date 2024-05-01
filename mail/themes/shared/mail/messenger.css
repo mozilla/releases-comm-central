@@ -856,6 +856,10 @@ panelmultiview[transitioning] {
 
 .panel-viewcontainer {
   overflow: hidden;
+  flex-shrink: 0;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
 
   &[panelopen] {
     transition-property: height;
