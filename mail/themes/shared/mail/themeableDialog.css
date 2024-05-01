@@ -20,7 +20,7 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
   --field-border-hover-color: rgba(128, 128, 128, 0.8);
-  --selected-item-color: var(--focus-outline-color);
+  --selected-item-color: AccentColor;
   --primary-focus-border: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
