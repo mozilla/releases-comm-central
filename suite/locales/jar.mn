@@ -52,6 +52,7 @@
   locale/@AB_CD@/communicator/viewZoomOverlay.properties                    (%chrome/common/viewZoomOverlay.properties)
   locale/@AB_CD@/communicator/about.dtd                                     (%chrome/common/about.dtd)
   locale/@AB_CD@/communicator/aboutPrivateBrowsing.dtd                      (%chrome/common/aboutPrivateBrowsing.dtd)
+  locale/@AB_CD@/communicator/aboutSeaMonkey.dtd                            (%chrome/common/aboutSeaMonkey.dtd)
   locale/@AB_CD@/communicator/aboutSessionRestore.dtd                       (%chrome/common/aboutSessionRestore.dtd)
   locale/@AB_CD@/communicator/console/console.dtd                           (%chrome/common/console/console.dtd)
   locale/@AB_CD@/communicator/console/console.properties                    (%chrome/common/console/console.properties)

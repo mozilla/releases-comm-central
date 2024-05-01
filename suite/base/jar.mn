@@ -4,6 +4,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.comm.jar:
 
+toolkit.jar:
+   content/global/aboutSeaMonkey.xhtml                              (content/aboutSeaMonkey.xhtml)
+
 comm.jar:
 % content communicator %content/communicator/ contentaccessible=yes
 % override chrome://browser/content/utilityOverlay.js chrome://communicator/content/utilityOverlay.js
