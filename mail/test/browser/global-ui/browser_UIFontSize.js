@@ -30,6 +30,12 @@ const aboutMessage = get_about_message();
 
 var folder;
 
+async function waitForL10n() {
+  if (document.hasPendingL10nMutations) {
+    await BrowserTestUtils.waitForEvent(document, "L10nMutationsFinished");
+  }
+}
+
 add_setup(async function () {
   // Set a value lower than the minimum allowed font size.
   Services.prefs.setIntPref("mail.uifontsize", 7);
@@ -47,6 +53,20 @@ add_setup(async function () {
     folder.deleteSelf(null);
     Services.prefs.clearUserPref("mail.uifontsize");
   });
+});
+
+add_task(async function testInitialization() {
+  Assert.notEqual(
+    UIFontSize.osValue,
+    0,
+    "Attaching to the first window should initialize the OS value"
+  );
+  Assert.equal(UIFontSize.prefValue, 7, "Pref value should be attached");
+  Assert.notEqual(
+    UIFontSize.isEdited,
+    UIFontSize.isDefault,
+    "isEdited should get initialized"
+  );
 });
 
 add_task(async function testAppMenuGlobalFontSizeInteraction() {
@@ -83,11 +103,17 @@ add_task(async function testAppMenuGlobalFontSizeInteraction() {
     {}
   );
   await fontChangedPromise;
+  await waitForL10n();
   Assert.ok(
     !appMenu
       .querySelector("#appMenu-fontSizeReduce-button")
       .hasAttribute("disabled"),
     "The reduce button should be enabled"
+  );
+  Assert.notEqual(
+    UIFontSize.isEdited,
+    UIFontSize.isDefault,
+    "isEdited and isDefault should be opposites"
   );
 
   Assert.equal(
@@ -112,10 +138,18 @@ add_task(async function testAppMenuGlobalFontSizeInteraction() {
   );
 
   await fontChangedPromise;
+  await waitForL10n();
   Assert.equal(
     appMenu.querySelector("#appMenu-fontSizeReset-button > label").value,
     `${UIFontSize.osValue}px`,
     "The value in the app menu should be reset to the correct default"
+  );
+  Assert.ok(!UIFontSize.isEdited, "isEdited should be false after resetting");
+  Assert.ok(UIFontSize.isDefault, "isDefault should be true after resetting");
+  Assert.equal(
+    UIFontSize.prefValue,
+    UIFontSize.DEFAULT,
+    "Should reset pref to the default value"
   );
 
   await close_popup(window, appMenu);

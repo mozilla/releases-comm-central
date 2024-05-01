@@ -4,96 +4,46 @@
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const langGroup = Services.prefs.getComplexValue(
-  "font.language.group",
-  Ci.nsIPrefLocalizedString
-).data;
-
 const registeredWindows = new Set();
-
-/**
- * Update the font size of the registered window.
- *
- * @param {Window} win - The window to be registered.
- */
-function updateWindow(win) {
-  const tabmail = win.document.getElementById("tabmail");
-  const browser =
-    tabmail?.getBrowserForSelectedTab() ||
-    win.document.getElementById("messagepane");
-
-  if (
-    UIFontSize.prefValue == UIFontSize.DEFAULT ||
-    UIFontSize.prefValue == UIFontSize.osValue
-  ) {
-    win.document.documentElement.style.removeProperty("font-size");
-    UIFontSize.updateMessageBrowser(browser);
-    UIFontSize.updateAppMenuButton(win);
-    win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
-    return;
-  }
-
-  // Prevent any font update if the defined value can make the UI unusable.
-  if (
-    UIFontSize.prefValue < UIFontSize.MIN_VALUE ||
-    UIFontSize.prefValue > UIFontSize.MAX_VALUE
-  ) {
-    // Enfore the min or max value since resetting to 0 would cause the wrong
-    // value coming from the OS to be used.
-    UIFontSize.size =
-      UIFontSize.prefValue < UIFontSize.MIN_VALUE
-        ? UIFontSize.MIN_VALUE
-        : UIFontSize.MAX_VALUE;
-    Services.console.logStringMessage(
-      `Unsupported font size: ${UIFontSize.prefValue}`
-    );
-    win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
-    return;
-  }
-
-  // Add the font size to the HTML document element.
-  win.document.documentElement.style.setProperty(
-    "font-size",
-    `${UIFontSize.prefValue}px`
-  );
-
-  UIFontSize.updateMessageBrowser(browser);
-  UIFontSize.updateAppMenuButton(win);
-
-  win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
-}
 
 /**
  * Loop through all registered windows and update the font size.
  */
 function updateAllWindows() {
   for (const win of registeredWindows) {
-    updateWindow(win);
+    UIFontSize.updateWindow(win);
   }
+  // After we've updated all the windows we can update isEdited.
+  UIFontSize.isEdited = !UIFontSize.isDefault;
 }
 
 /**
  * The object controlling the global font size.
  */
 export const UIFontSize = {
-  // Default value is 0 so we know the font wasn't changed.
+  /**
+   * Default value is 0 so we know the font wasn't changed.
+   */
   DEFAULT: 0,
-  // Font size limit to avoid unusable UI.
+  /**
+   * Font size limit to avoid unusable UI.
+   */
   MIN_VALUE: 9,
   MAX_VALUE: 30,
-  // The default font size of the user's OS, rounded to integer. We use this in
-  // order to prevent issues in case the user has a float default font size
-  // (e.g.: 14.345px). By rounding to an INT, we can always go back the original
-  // default font size and the rounding doesn't affect the actual sizing but
-  // only the value shown to the user.
+  /**
+   * The default font size of the user's OS, rounded to integer. We use this in
+   * order to prevent issues in case the user has a float default font size
+   * (e.g.: 14.345px). By rounding to an INT, we can always go back the original
+   * default font size and the rounding doesn't affect the actual sizing but
+   * only the value shown to the user.
+   */
   osValue: 0,
 
-  // Keeps track of the custom value while in safe mode.
-  safe_mode_value: 0,
-
-  // Keep track of the state of the custom font size. We use this instead of the
-  // size attribute because we need to keep track of when things changed back to
-  // a default state, and using the size attribute wouldn't be accurate.
+  /**
+   * Keep track of the state of the custom font size. We use this instead of the
+   * size attribute because we need to keep track of when things changed back to
+   * a default state, and using the size attribute wouldn't be accurate.
+   */
   isEdited: false,
 
   /**
@@ -103,6 +53,11 @@ export const UIFontSize = {
    */
   set size(size) {
     this.isEdited = true;
+    if (Services.appinfo.inSafeMode) {
+      this.prefValue = size;
+      updateAllWindows();
+      return;
+    }
     Services.prefs.setIntPref("mail.uifontsize", size);
   },
 
@@ -130,6 +85,16 @@ export const UIFontSize = {
   },
 
   /**
+   * True if the current font size matches the default value or the actual OS
+   * size.
+   *
+   * @type {boolean}
+   */
+  get isDefault() {
+    return this.prefValue === this.DEFAULT || this.prefValue === this.osValue;
+  },
+
+  /**
    * Get the font size to be applied to the message browser.
    *
    * @param {boolean} isPlainText - If the current message is in plain text.
@@ -137,6 +102,10 @@ export const UIFontSize = {
    *   the default preferences.
    */
   browserSize(isPlainText) {
+    const langGroup = Services.prefs.getComplexValue(
+      "font.language.group",
+      Ci.nsIPrefLocalizedString
+    ).data;
     if (isPlainText) {
       const monospaceSize = Services.prefs.getIntPref(
         "font.size.monospace." + langGroup,
@@ -164,14 +133,6 @@ export const UIFontSize = {
    * @param {Window} win - The window to be registered.
    */
   registerWindow(win) {
-    // Save the edited pref so we can restore it, and set the user value to the
-    // default if the app is in safe mode to make sure we start from a clean
-    // state.
-    if (Services.appinfo.inSafeMode) {
-      this.safe_mode_value = this.size;
-      this.size = 0;
-    }
-
     // Fetch the default font size defined by the OS as soon as we register the
     // first window. Don't do it again if we already have a value.
     if (!this.osValue) {
@@ -181,19 +142,52 @@ export const UIFontSize = {
 
       // Store the rounded default value.
       this.osValue = Math.round(parseFloat(style));
+
+      if (!this.isDefault) {
+        this.isEdited = true;
+      }
     }
 
     registeredWindows.add(win);
-    win.addEventListener("unload", () => {
-      registeredWindows.delete(win);
-      // If we deregistered all the windows (application is getting closed) and
-      // we're in safe mode, reset the font size value to the original one in
-      // case the user edited the font size while in safe mode.
-      if (!registeredWindows.size && Services.appinfo.inSafeMode) {
-        Services.prefs.setIntPref("mail.uifontsize", this.safe_mode_value);
-      }
-    });
-    updateWindow(win);
+    win.addEventListener(
+      "unload",
+      () => {
+        registeredWindows.delete(win);
+      },
+      { once: true }
+    );
+    this.updateWindow(win);
+  },
+
+  /**
+   * Update the font size of the registered window.
+   *
+   * @param {Window} win - The window to be updated.
+   */
+  updateWindow(win) {
+    const tabmail = win.document.getElementById("tabmail");
+    const browser =
+      tabmail?.getBrowserForSelectedTab() ||
+      win.document.getElementById("messagepane");
+
+    if (this.isDefault) {
+      win.document.documentElement.style.removeProperty("font-size");
+      this.updateMessageBrowser(browser);
+      this.updateAppMenuButton(win);
+      win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
+      return;
+    }
+
+    // Add the font size to the HTML document element.
+    win.document.documentElement.style.setProperty(
+      "font-size",
+      `${this.size}px`
+    );
+
+    this.updateMessageBrowser(browser);
+    this.updateAppMenuButton(win);
+
+    win.dispatchEvent(new win.CustomEvent("uifontsizechange"));
   },
 
   /**
@@ -231,7 +225,7 @@ export const UIFontSize = {
   },
 
   resetSize() {
-    this.size = 0;
+    this.size = this.DEFAULT;
   },
 
   increaseSize() {
@@ -255,11 +249,8 @@ export const UIFontSize = {
       return;
     }
 
-    if (this.prefValue == this.DEFAULT || this.prefValue == this.osValue) {
+    if (this.isDefault) {
       browser.contentDocument?.body?.style.removeProperty("font-size");
-      // Update the state indicator here only after we cleared the font size
-      // from the message browser.
-      this.isEdited = false;
       return;
     }
 
@@ -292,7 +283,7 @@ export const UIFontSize = {
    */
   resizeSubDialog(dialog) {
     // No need to update the dialog size if the font size wasn't changed.
-    if (this.prefValue == this.DEFAULT) {
+    if (this.isDefault) {
       return;
     }
     const docEl = dialog._frame.contentDocument.documentElement;
@@ -331,13 +322,17 @@ export const UIFontSize = {
   },
 };
 
-/**
- * Bind the font size pref change to the updateAllWindows method.
- */
-XPCOMUtils.defineLazyPreferenceGetter(
-  UIFontSize,
-  "prefValue",
-  "mail.uifontsize",
-  null,
-  updateAllWindows
-);
+if (Services.appinfo.inSafeMode) {
+  UIFontSize.prefValue = UIFontSize.DEFAULT;
+} else {
+  /**
+   * Bind the font size pref change to the updateAllWindows method.
+   */
+  XPCOMUtils.defineLazyPreferenceGetter(
+    UIFontSize,
+    "prefValue",
+    "mail.uifontsize",
+    UIFontSize.DEFAULT,
+    updateAllWindows
+  );
+}
