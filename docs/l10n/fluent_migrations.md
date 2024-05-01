@@ -8,7 +8,7 @@ differences are detailed below.
 ## Migration Recipes
 
 When part of Thunderbird’s UI is migrated to Fluent, a migration recipe should
-be included in the same patch that adds new strings to .ftl files. Recipies are
+be included in the same patch that adds new strings to .ftl files. Recipes are
 stored in [comm-central](https://hg.mozilla.org/comm-central/file/tip/python/l10n/tb_fluent_migrations).
 After a patch with migrations landed, it will be run for all locales as part of
 the [Thunderbird Cross-Channel string quarantining process](cross_channel.md).
