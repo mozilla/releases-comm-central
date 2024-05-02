@@ -476,8 +476,9 @@ add_task(async function () {
     "Sender column should be the full name and email address"
   );
 
-  // Prefer email only.
+  // Prefer email only. Changing the preference causes the message to reload.
   Services.prefs.setIntPref("mail.addressDisplayFormat", 1);
+  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
 
   row = about3Pane.threadTree.getRowAtIndex(3);
   Assert.equal(
@@ -491,8 +492,9 @@ add_task(async function () {
     "Sender column should be the email address"
   );
 
-  // Prefer name only.
+  // Prefer name only. Changing the preference causes the message to reload.
   Services.prefs.setIntPref("mail.addressDisplayFormat", 2);
+  await BrowserTestUtils.browserLoaded(messagePaneBrowser);
 
   row = about3Pane.threadTree.getRowAtIndex(3);
   Assert.equal(
