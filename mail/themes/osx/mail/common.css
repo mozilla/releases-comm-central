@@ -18,6 +18,11 @@ xul|button[dlgtype="help"] {
 }
 
 xul|menulist {
+
+  & > xul|menupopup:not([position]) {
+    margin-inline-start: 0;
+  }
+
   & > xul|menupopup > xul|menuitem:where([checked="true"], [selected="true"])::before {
     display: none;
   }
