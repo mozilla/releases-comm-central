@@ -280,3 +280,67 @@ add_task(async function test_clearButton() {
     "Clear Button is hidden after text is cleared"
   );
 });
+
+add_task(async function test_overrideSearchTerm_noFocus() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  const value = "lorem ipsum";
+  input.blur();
+  searchBar.blur();
+  isnot(document.activeElement, searchBar, "Search bar should not be focused");
+  isnot(searchBar.shadowRoot.activeElement, input, "Should not focus input");
+
+  let autocomplete = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  let result = searchBar.overrideSearchTerm(value);
+  ok(result, "Should confirm setting input to value");
+  let event = await autocomplete;
+  is(event.detail, value, "Autocomplete should be sent for overridden value");
+  is(input.value, value, "Input contents should be set to overridden value");
+
+  const failListener = () => {
+    ok(false, "Should not have seen an autocomplete event");
+  };
+  searchBar.addEventListener("autocomplete", failListener, { once: true });
+  result = searchBar.overrideSearchTerm(value);
+  ok(result, "Should confirm the value");
+  is(input.value, value, "Should still have value in input");
+  searchBar.removeEventListener("autocomplete", failListener);
+
+  autocomplete = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  result = searchBar.overrideSearchTerm("");
+  ok(result, "Should accept new value");
+  event = await autocomplete;
+  is(event.detail, "", "Should send autocomplete for empty value");
+  is(input.value, "", "Should have emptied the input");
+});
+
+add_task(async function test_overrideSearchTerm_withFocus() {
+  const input = searchBar.shadowRoot.querySelector("input");
+  const value = "lorem ipsum";
+  const failListener = () => {
+    ok(false, "Should not have seen an autocomplete event");
+  };
+  searchBar.focus();
+  await typeAndWaitForAutocomplete("T");
+  searchBar.addEventListener("autocomplete", failListener);
+
+  let result = searchBar.overrideSearchTerm("foo bar");
+  ok(!result, "Should have refused to override value");
+  is(input.value, "T", "Should not have modified input value");
+
+  searchBar.removeEventListener("autocomplete", failListener);
+  searchBar.reset();
+  searchBar.focus();
+
+  const autocomplete = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+  result = searchBar.overrideSearchTerm(value);
+  ok(result, "Should allow overriding if the search bar is empty");
+  const event = await autocomplete;
+  is(
+    event.detail,
+    value,
+    "Should send autocomplete event for overridden value"
+  );
+  is(input.value, value, "Should apply value to input");
+
+  searchBar.reset();
+});
