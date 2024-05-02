@@ -658,6 +658,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           const about3Pane = nativeTab.chromeBrowser.contentWindow;
 
           const filterer = about3Pane.quickFilterBar.filterer;
+          const oldSearchTerm = filterer.filterValues.text.text;
           filterer.clear();
 
           // Map of QuickFilter state names to possible WebExtensions state names.
@@ -671,8 +672,11 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           filterer.visible = state.show !== false;
           for (const [key, name] of Object.entries(stateMap)) {
             filterer.setFilterValue(key, state[name]);
+            about3Pane.quickFilterBar.updateFiltersSettings(key, state[name]);
           }
 
+          // Filters we have to manually set the state of, since it is generated
+          // in onCommand for the UI based input.
           if (state.tags) {
             filterer.filterValues.tags = {
               mode: "OR",
@@ -690,17 +694,33 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             }
           }
           if (state.text) {
-            filterer.filterValues.text = {
-              states: {
-                recipients: state.text.recipients || false,
-                sender: state.text.author || false,
-                subject: state.text.subject || false,
-                body: state.text.body || false,
-              },
-              text: state.text.text,
+            const states = {
+              recipients: state.text.recipients || false,
+              sender: state.text.author || false,
+              subject: state.text.subject || false,
+              body: state.text.body || false,
             };
+            if (
+              about3Pane.document
+                .getElementById("qfb-qs-textbox")
+                .overrideSearchTerm(state.text.text)
+            ) {
+              filterer.filterValues.text = {
+                states,
+                text: state.text.text,
+              };
+              about3Pane.document.getElementById(
+                "quick-filter-bar-filter-text-bar"
+              ).hidden = !state.text.text;
+            } else {
+              filterer.filterValues.text = {
+                states,
+                text: oldSearchTerm,
+              };
+            }
           }
 
+          about3Pane.quickFilterBar.reflectFiltererState();
           about3Pane.quickFilterBar.updateSearch();
         },
 

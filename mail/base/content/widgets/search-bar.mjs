@@ -167,5 +167,28 @@ export class SearchBar extends HTMLElement {
     this.#input.value = "";
     this.#clearButton.hidden = true;
   }
+
+  /**
+   * Force the search term to a specific string, overriding what the user has
+   * input. Will do nothing if the user is currently typing.
+   *
+   * @param {string} term
+   * @returns {boolean} If the search value was updated.
+   */
+  overrideSearchTerm(term) {
+    if (term === this.#input.value) {
+      return true;
+    }
+    if (
+      this === document.activeElement &&
+      this.#input === this.shadowRoot.activeElement &&
+      this.#input.value
+    ) {
+      return false;
+    }
+    this.#input.value = term;
+    this.#onInput();
+    return true;
+  }
 }
 customElements.define("search-bar", SearchBar);
