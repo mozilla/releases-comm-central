@@ -129,4 +129,132 @@ add_task(async () => {
   await extension.startup();
   await extension.awaitFinish("quickFilter");
   await extension.unload();
+
+  about3Pane.quickFilterBar._testHelperResetFilterState();
+});
+
+add_task(async function test_setQuickFilter_UI() {
+  async function background() {
+    browser.mailTabs.setQuickFilter({
+      show: true,
+      text: {
+        subject: true,
+        text: "test",
+      },
+    });
+    await window.sendMessage("checkState", {
+      show: true,
+      flagged: undefined,
+      text: {
+        subject: true,
+        text: "test",
+      },
+    });
+    browser.mailTabs.setQuickFilter({
+      text: {
+        text: "",
+      },
+    });
+    await window.sendMessage("checkState", {
+      show: true,
+      flagged: undefined,
+      text: {
+        subject: false,
+        text: "",
+      },
+    });
+    browser.mailTabs.setQuickFilter({
+      flagged: true,
+    });
+    await window.sendMessage("checkState", {
+      show: true,
+      flagged: true,
+      text: {
+        subject: false,
+        text: null,
+      },
+    });
+    browser.mailTabs.setQuickFilter({
+      show: false,
+    });
+    await window.sendMessage("checkState", {
+      show: false,
+      flagged: undefined,
+      text: {
+        subject: false,
+        text: null,
+      },
+    });
+    browser.test.notifyPass("quickFilter");
+  }
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  const qfb = about3Pane.quickFilterBar;
+  extension.onMessage("checkState", async state => {
+    Assert.equal(
+      qfb.filterer.visible,
+      Boolean(state.show),
+      "show should be propagated to the filterer"
+    );
+    if (state.show) {
+      Assert.ok(
+        BrowserTestUtils.isVisible(qfb.domNode),
+        "Quick filter bar should be visible when the filter requests it be shown"
+      );
+    } else {
+      Assert.ok(
+        BrowserTestUtils.isHidden(qfb.domNode),
+        "Quick filter bar should be hidden"
+      );
+    }
+    if (state.show) {
+      Assert.equal(
+        qfb.filterer.getFilterValue("text", true).text,
+        state.text.text,
+        "Should set text filter"
+      );
+      Assert.equal(
+        about3Pane.document
+          .getElementById("qfb-qs-textbox")
+          .shadowRoot.querySelector("input").value,
+        state.text.text || "",
+        "Should update the search bar input"
+      );
+      Assert.equal(
+        qfb.filterer.getFilterValue("text", true).states.subject,
+        state.text.subject,
+        "Should set the subject filter"
+      );
+      Assert.equal(
+        about3Pane.document.getElementById("qfb-qs-subject").pressed,
+        state.text.subject,
+        "Should reflect toggle state in UI"
+      );
+      Assert.equal(
+        qfb.filterer.getFilterValue("starred", true),
+        state.flagged,
+        "Should update flagged state"
+      );
+      Assert.equal(
+        about3Pane.document.getElementById("qfb-starred").pressed,
+        Boolean(state.flagged),
+        "Should reflect flagged state"
+      );
+    }
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("quickFilter");
+  await extension.unload();
+
+  about3Pane.quickFilterBar._testHelperResetFilterState();
 });

@@ -432,7 +432,10 @@ var quickFilterBar = {
 
     this.reflectFiltererResults();
 
-    this.domNode.hidden = !this.filterer.visible;
+    if (this.domNode.hidden == this.filterer.visible) {
+      this.domNode.hidden = !this.filterer.visible;
+      window.dispatchEvent(new Event("qfbtoggle"));
+    }
   },
 
   /**
@@ -567,8 +570,6 @@ var quickFilterBar = {
     if (!init) {
       threadTree.table.body.focus();
     }
-
-    window.dispatchEvent(new Event("qfbtoggle"));
   },
 
   /**
