@@ -38,6 +38,7 @@ base64 = { path = "../../build/rust/base64" }
 wasi = { path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
+bindgen = { path = "../../third_party/rust/bindgen" }
 nix = { path = "../../build/rust/nix" }
 indexmap = { path = "../../build/rust/indexmap" }
 derive_more = { path = "../../build/rust/derive_more" }
