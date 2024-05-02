@@ -714,7 +714,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString messageID;
-  rv = msgHdr->GetMessageId(getter_Copies(messageID));
+  rv = msgHdr->GetMessageId(messageID);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // we need to escape the message ID,
@@ -1483,10 +1483,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCString id;
-  rv = hdr->GetMessageId(getter_Copies(id));
-  result.Assign(id);
-  return rv;
+  return hdr->GetMessageId(result);
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::SetSortOrder(int32_t order) {

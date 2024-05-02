@@ -376,7 +376,7 @@ bool nsMsgXFViewThread::IsHdrParentOf(nsIMsgDBHdr* possibleParent,
   nsAutoCString reference;
 
   nsCString messageId;
-  possibleParent->GetMessageId(getter_Copies(messageId));
+  possibleParent->GetMessageId(messageId);
 
   while (referenceToCheck > 0) {
     possibleChild->GetStringReference(referenceToCheck - 1, reference);

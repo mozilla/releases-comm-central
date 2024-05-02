@@ -238,7 +238,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
           dstDB->GetMsgHdrForKey(m_dstKeyArray[i], getter_AddRefs(dstHdr));
         if (dstHdr) {
           nsCString messageId;
-          dstHdr->GetMessageId(getter_Copies(messageId));
+          dstHdr->GetMessageId(messageId);
           dstMessages.AppendElement(dstHdr);
           m_copiedMsgIds.AppendElement(messageId);
         } else {
@@ -338,7 +338,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
         NS_ASSERTION(srcHdr, "fatal ... cannot get old msg header");
         if (srcHdr) {
           nsCString messageId;
-          srcHdr->GetMessageId(getter_Copies(messageId));
+          srcHdr->GetMessageId(messageId);
           m_copiedMsgIds.AppendElement(messageId);
         }
       }
@@ -364,7 +364,7 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnMessageAdded(nsIMsgFolder* parent,
       do_QueryReferent(m_undoing ? m_srcFolder : m_dstFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   if (m_copiedMsgIds.Contains(messageId)) {
     nsMsgKey msgKey;
     msgHdr->GetMessageKey(&msgKey);

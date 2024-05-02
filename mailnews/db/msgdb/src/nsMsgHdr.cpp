@@ -255,7 +255,7 @@ nsresult nsMsgHdr::ParseReferences(const char* references) {
   const char* startNextRef = references;
   nsAutoCString resultReference;
   nsCString messageId;
-  GetMessageId(getter_Copies(messageId));
+  GetMessageId(messageId);
 
   while (startNextRef && *startNextRef) {
     startNextRef = GetNextReference(startNextRef, resultReference,
@@ -292,14 +292,21 @@ NS_IMETHODIMP nsMsgHdr::GetDateInSeconds(uint32_t* aResult) {
   return GetUInt32Column(m_mdb->m_dateColumnToken, aResult);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetMessageId(const char* messageId) {
-  if (messageId && *messageId == '<') {
-    nsAutoCString tempMessageID(messageId + 1);
-    if (tempMessageID.CharAt(tempMessageID.Length() - 1) == '>')
-      tempMessageID.SetLength(tempMessageID.Length() - 1);
-    return SetStringColumn(tempMessageID.get(), m_mdb->m_messageIdColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetMessageId(const nsACString& messageId) {
+  if (!messageId.IsEmpty() && messageId.CharAt(0) == '<') {
+    // Trim `<>' from message ID.
+    size_t substrLength = messageId.Length() - 1;
+    if (messageId.CharAt(messageId.Length() - 1) == '>') {
+      substrLength -= 1;
+    }
+
+    const auto toWrite = Substring(messageId, 1, substrLength);
+    return SetStringColumn(PromiseFlatCString(toWrite).get(),
+                           m_mdb->m_messageIdColumnToken);
   }
-  return SetStringColumn(messageId, m_mdb->m_messageIdColumnToken);
+
+  return SetStringColumn(PromiseFlatCString(messageId).get(),
+                         m_mdb->m_messageIdColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetSubject(const nsACString& subject) {
@@ -307,8 +314,9 @@ NS_IMETHODIMP nsMsgHdr::SetSubject(const nsACString& subject) {
                          m_mdb->m_subjectColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetAuthor(const char* author) {
-  return SetStringColumn(author, m_mdb->m_senderColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetAuthor(const nsACString& author) {
+  return SetStringColumn(PromiseFlatCString(author).get(),
+                         m_mdb->m_senderColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetReferences(const nsACString& references) {
@@ -321,17 +329,20 @@ NS_IMETHODIMP nsMsgHdr::SetReferences(const nsACString& references) {
                          m_mdb->m_referencesColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetRecipients(const char* recipients) {
+NS_IMETHODIMP nsMsgHdr::SetRecipients(const nsACString& recipients) {
   // need to put in rfc822 address parsing code here (or make caller do it...)
-  return SetStringColumn(recipients, m_mdb->m_recipientsColumnToken);
+  return SetStringColumn(PromiseFlatCString(recipients).get(),
+                         m_mdb->m_recipientsColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetCcList(const char* ccList) {
-  return SetStringColumn(ccList, m_mdb->m_ccListColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetCcList(const nsACString& ccList) {
+  return SetStringColumn(PromiseFlatCString(ccList).get(),
+                         m_mdb->m_ccListColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetBccList(const char* bccList) {
-  return SetStringColumn(bccList, m_mdb->m_bccListColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetBccList(const nsACString& bccList) {
+  return SetStringColumn(PromiseFlatCString(bccList).get(),
+                         m_mdb->m_bccListColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetMessageSize(uint32_t messageSize) {
@@ -444,9 +455,9 @@ NS_IMETHODIMP nsMsgHdr::GetLineCount(uint32_t* result) {
   return res;
 }
 
-NS_IMETHODIMP nsMsgHdr::GetAuthor(char** resultAuthor) {
+NS_IMETHODIMP nsMsgHdr::GetAuthor(nsACString& resultAuthor) {
   return m_mdb->RowCellColumnToCharPtr(GetMDBRow(), m_mdb->m_senderColumnToken,
-                                       resultAuthor);
+                                       getter_Copies(resultAuthor));
 }
 
 NS_IMETHODIMP nsMsgHdr::GetSubject(nsACString& resultSubject) {
@@ -454,24 +465,26 @@ NS_IMETHODIMP nsMsgHdr::GetSubject(nsACString& resultSubject) {
                                        getter_Copies(resultSubject));
 }
 
-NS_IMETHODIMP nsMsgHdr::GetRecipients(char** resultRecipients) {
-  return m_mdb->RowCellColumnToCharPtr(
-      GetMDBRow(), m_mdb->m_recipientsColumnToken, resultRecipients);
+NS_IMETHODIMP nsMsgHdr::GetRecipients(nsACString& resultRecipients) {
+  return m_mdb->RowCellColumnToCharPtr(GetMDBRow(),
+                                       m_mdb->m_recipientsColumnToken,
+                                       getter_Copies(resultRecipients));
 }
 
-NS_IMETHODIMP nsMsgHdr::GetCcList(char** resultCCList) {
+NS_IMETHODIMP nsMsgHdr::GetCcList(nsACString& resultCCList) {
   return m_mdb->RowCellColumnToCharPtr(GetMDBRow(), m_mdb->m_ccListColumnToken,
-                                       resultCCList);
+                                       getter_Copies(resultCCList));
 }
 
-NS_IMETHODIMP nsMsgHdr::GetBccList(char** resultBCCList) {
+NS_IMETHODIMP nsMsgHdr::GetBccList(nsACString& resultBCCList) {
   return m_mdb->RowCellColumnToCharPtr(GetMDBRow(), m_mdb->m_bccListColumnToken,
-                                       resultBCCList);
+                                       getter_Copies(resultBCCList));
 }
 
-NS_IMETHODIMP nsMsgHdr::GetMessageId(char** resultMessageId) {
-  return m_mdb->RowCellColumnToCharPtr(
-      GetMDBRow(), m_mdb->m_messageIdColumnToken, resultMessageId);
+NS_IMETHODIMP nsMsgHdr::GetMessageId(nsACString& resultMessageId) {
+  return m_mdb->RowCellColumnToCharPtr(GetMDBRow(),
+                                       m_mdb->m_messageIdColumnToken,
+                                       getter_Copies(resultMessageId));
 }
 
 NS_IMETHODIMP nsMsgHdr::GetMime2DecodedAuthor(nsAString& resultAuthor) {
@@ -679,7 +692,7 @@ bool nsMsgHdr::IsParentOf(nsIMsgDBHdr* possibleChild) {
   nsAutoCString reference;
 
   nsCString messageId;
-  GetMessageId(getter_Copies(messageId));
+  GetMessageId(messageId);
 
   while (referenceToCheck > 0) {
     possibleChild->GetStringReference(referenceToCheck - 1, reference);
@@ -706,7 +719,7 @@ bool nsMsgHdr::IsAncestorOf(nsIMsgDBHdr* possibleChild) {
 
   nsCString messageId;
   // should put < > around message id to make strstr strictly match
-  GetMessageId(getter_Copies(messageId));
+  GetMessageId(messageId);
   return (strstr(references, messageId.get()) != nullptr);
 }
 

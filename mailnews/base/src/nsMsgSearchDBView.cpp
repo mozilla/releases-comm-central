@@ -1154,7 +1154,7 @@ nsresult nsMsgSearchDBView::GetXFThreadFromMsgHdr(nsIMsgDBHdr* msgHdr,
   NS_ENSURE_ARG_POINTER(pThread);
 
   nsAutoCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   *pThread = nullptr;
   m_threadsTable.Get(messageId, pThread);
   // The caller may want to know if we found the thread by the msgHdr's
@@ -1225,7 +1225,7 @@ nsresult nsMsgSearchDBView::AddMsgToHashTables(nsIMsgDBHdr* msgHdr,
   }
 
   nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   m_hdrsTable.InsertOrUpdate(messageId, msgHdr);
   if (!gReferenceOnlyThreading) {
     nsCString subject;
@@ -1260,7 +1260,7 @@ nsresult nsMsgSearchDBView::RemoveMsgFromHashTables(nsIMsgDBHdr* msgHdr) {
   }
 
   nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   m_hdrsTable.Remove(messageId);
   RemoveRefFromHash(messageId);
   if (!gReferenceOnlyThreading) {

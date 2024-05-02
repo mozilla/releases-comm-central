@@ -233,47 +233,53 @@ NS_IMETHODIMP nsMsgFileHdr::GetDateInSeconds(uint32_t* aDateInSeconds) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetMessageId(char** aMessageId) {
+NS_IMETHODIMP nsMsgFileHdr::GetMessageId(nsACString& aMessageId) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aMessageId = strdup(mMessageID.get());
+  aMessageId.Assign(mMessageID);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetMessageId(const char* aMessageId) {
+NS_IMETHODIMP nsMsgFileHdr::SetMessageId(const nsACString& aMessageId) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetCcList(char** aCcList) {
+NS_IMETHODIMP nsMsgFileHdr::GetCcList(nsACString& aCcList) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aCcList = strdup(mCcList.get());
+  aCcList.Assign(mCcList);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetCcList(const char* aCcList) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::SetCcList(const nsACString& aCcList) {
+  return NS_OK;
+}
 
-NS_IMETHODIMP nsMsgFileHdr::GetBccList(char** aBccList) {
+NS_IMETHODIMP nsMsgFileHdr::GetBccList(nsACString& aBccList) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aBccList = strdup(mBccList.get());
+  aBccList.Assign(mBccList);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetBccList(const char* aBccList) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::SetBccList(const nsACString& aBccList) {
+  return NS_OK;
+}
 
-NS_IMETHODIMP nsMsgFileHdr::GetAuthor(char** aAuthor) {
+NS_IMETHODIMP nsMsgFileHdr::GetAuthor(nsACString& aAuthor) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aAuthor = strdup(mAuthor.get());
+  aAuthor.Assign(mAuthor);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetAuthor(const char* aAuthor) { return NS_OK; }
+NS_IMETHODIMP nsMsgFileHdr::SetAuthor(const nsACString& aAuthor) {
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFileHdr::GetSubject(nsACString& aSubject) {
   nsresult rv = ReadFile();
@@ -296,15 +302,15 @@ NS_IMETHODIMP nsMsgFileHdr::SetSubject(const nsACString& aSubject) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetRecipients(char** aRecipients) {
+NS_IMETHODIMP nsMsgFileHdr::GetRecipients(nsACString& aRecipients) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  *aRecipients = strdup(mRecipients.get());
+  aRecipients.Assign(mRecipients);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetRecipients(const char* aRecipients) {
+NS_IMETHODIMP nsMsgFileHdr::SetRecipients(const nsACString& aRecipients) {
   // FIXME: should do assignment (maybe not used but if used, a trap!)
   // Same for all the other unimplemented setters here.
   return NS_ERROR_NOT_IMPLEMENTED;

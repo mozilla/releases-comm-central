@@ -509,7 +509,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
     aFilterAction->GetTargetFolderUri(actionFolderUri);
 
     nsCString msgId;
-    aMsgHdr->GetMessageId(getter_Copies(msgId));
+    aMsgHdr->GetMessageId(msgId);
 
     AutoTArray<nsString, 2> logMoveFormatStrings;
     CopyUTF8toUTF16(msgId, *logMoveFormatStrings.AppendElement());

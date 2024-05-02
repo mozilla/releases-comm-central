@@ -563,14 +563,14 @@ lpnsMapiMessage MsgMapiListContext::GetMessage(nsMsgKey key,
           (lpnsMapiRecipDesc)CoTaskMemAlloc(sizeof(nsMapiRecipDesc));
       memset(message->lpOriginator, 0, sizeof(nsMapiRecipDesc));
       if (message->lpOriginator) {
-        msgHdr->GetAuthor(getter_Copies(author));
+        msgHdr->GetAuthor(author);
         ConvertRecipientsToMapiFormat(EncodedHeader(author),
                                       message->lpOriginator, MAPI_ORIG);
       }
       // Pull out the To/CC info
       nsCString recipients, ccList;
-      msgHdr->GetRecipients(getter_Copies(recipients));
-      msgHdr->GetCcList(getter_Copies(ccList));
+      msgHdr->GetRecipients(recipients);
+      msgHdr->GetCcList(ccList);
 
       nsCOMArray<msgIAddressObject> parsedToRecips = EncodedHeader(recipients);
       nsCOMArray<msgIAddressObject> parsedCCRecips = EncodedHeader(ccList);

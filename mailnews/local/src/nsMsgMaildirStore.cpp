@@ -819,7 +819,7 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   }
 
   nsCString msgID;
-  aNewHdr->GetMessageId(getter_Copies(msgID));
+  aNewHdr->GetMessageId(msgID);
 
   nsCString baseName;
   // For missing or suspiciously-short Message-IDs, use a timestamp

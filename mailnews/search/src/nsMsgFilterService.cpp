@@ -575,7 +575,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr* header,
   header->GetMessageKey(&msgKey);
 
   nsCString msgId;
-  header->GetMessageId(getter_Copies(msgId));
+  header->GetMessageId(msgId);
   // clang-format off
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("(Post) Filter matched message with key %" PRIu32,

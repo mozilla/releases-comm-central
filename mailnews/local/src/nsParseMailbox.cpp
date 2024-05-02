@@ -1252,7 +1252,11 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
                       strncmp(replyTo->value, sender->value, sender->length)))
         m_newMsgHdr->SetStringProperty("replyTo",
                                        nsDependentCString(replyTo->value));
-      if (sender) m_newMsgHdr->SetAuthor(sender->value);
+
+      if (sender) {
+        m_newMsgHdr->SetAuthor(nsDependentCString(sender->value));
+      }
+
       if (recipient == &m_newsgroups) {
         /* In the case where the recipient is a newsgroup, truncate the string
            at the first comma.  This is used only for presenting the thread
@@ -1267,18 +1271,19 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           /* generate a new string that terminates before the , */
           nsAutoCString firstGroup;
           firstGroup.Assign(recipient->value, ch - recipient->value);
-          m_newMsgHdr->SetRecipients(firstGroup.get());
+          m_newMsgHdr->SetRecipients(firstGroup);
         }
-        m_newMsgHdr->SetRecipients(recipient->value);
+
+        m_newMsgHdr->SetRecipients(nsDependentCString(recipient->value));
       } else if (recipient) {
-        m_newMsgHdr->SetRecipients(recipient->value);
+        m_newMsgHdr->SetRecipients(nsDependentCString(recipient->value));
       }
       if (ccList) {
-        m_newMsgHdr->SetCcList(ccList->value);
+        m_newMsgHdr->SetCcList(nsDependentCString(ccList->value));
       }
 
       if (bccList) {
-        m_newMsgHdr->SetBccList(bccList->value);
+        m_newMsgHdr->SetBccList(nsDependentCString(bccList->value));
       }
 
       rv = InternSubject(subject);
@@ -1304,10 +1309,12 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           id = &md5_header;
         }
 
-        if (!rawMsgId.IsEmpty())
-          m_newMsgHdr->SetMessageId(rawMsgId.get());
-        else
-          m_newMsgHdr->SetMessageId(id->value);
+        if (!rawMsgId.IsEmpty()) {
+          m_newMsgHdr->SetMessageId(rawMsgId);
+        } else {
+          m_newMsgHdr->SetMessageId(nsDependentCString(id->value));
+        }
+
         m_mailDB->UpdatePendingAttributes(m_newMsgHdr);
 
         if (!mozstatus && statush) {
@@ -1744,7 +1751,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
   uint32_t numActions = filterActionList.Length();
 
   nsCString msgId;
-  msgHdr->GetMessageId(getter_Copies(msgId));
+  msgHdr->GetMessageId(msgId);
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,

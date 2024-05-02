@@ -2996,7 +2996,7 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     // db/folder listeners that the pseudo-header has become the new
     // header, i.e., the key has changed.
     nsCString newMessageId;
-    newMsgHdr->GetMessageId(getter_Copies(newMessageId));
+    newMsgHdr->GetMessageId(newMessageId);
     nsMsgKey pseudoKey =
         m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
     if (notifier && pseudoKey != nsMsgKey_None) {
@@ -3234,7 +3234,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
   uint32_t numActions = filterActionList.Length();
 
   nsCString msgId;
-  msgHdr->GetMessageId(getter_Copies(msgId));
+  msgHdr->GetMessageId(msgId);
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -3680,7 +3680,7 @@ NS_IMETHODIMP nsImapMailFolder::AddMoveResultPseudoKey(nsMsgKey aMsgKey) {
   rv = mDatabase->GetMsgHdrForKey(aMsgKey, getter_AddRefs(pseudoHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString messageId;
-  pseudoHdr->GetMessageId(getter_Copies(messageId));
+  pseudoHdr->GetMessageId(messageId);
   // err on the side of caution and ignore messages w/o messageid.
   if (messageId.IsEmpty()) return NS_OK;
   m_pseudoHdrs.InsertOrUpdate(messageId, aMsgKey);

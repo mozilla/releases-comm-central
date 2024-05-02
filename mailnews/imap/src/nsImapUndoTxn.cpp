@@ -62,7 +62,7 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
           m_dupKeyArray[i] = pseudoKey;
         }
       }
-      srcHdr->GetMessageId(getter_Copies(messageId));
+      srcHdr->GetMessageId(messageId);
       m_srcMessageIds.AppendElement(messageId);
     }
   }

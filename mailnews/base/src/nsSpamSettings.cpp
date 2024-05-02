@@ -634,7 +634,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
 
   if (aMoveMessage) {
     nsCString msgId;
-    aMsgHdr->GetMessageId(getter_Copies(msgId));
+    aMsgHdr->GetMessageId(msgId);
 
     nsCString junkFolderURI;
     rv = GetSpamFolderURI(junkFolderURI);
@@ -748,7 +748,7 @@ NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr* aMsgHdr,
   // do per-message processing
 
   nsCString author;
-  aMsgHdr->GetAuthor(getter_Copies(author));
+  aMsgHdr->GetAuthor(author);
 
   nsAutoCString authorEmailAddress;
   ExtractEmail(EncodedHeader(author), authorEmailAddress);

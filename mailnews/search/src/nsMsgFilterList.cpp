@@ -338,7 +338,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
         filter->SetScope(nullptr);
         if (NS_SUCCEEDED(matchTermStatus) && result && listener) {
           nsCString msgId;
-          msgHdr->GetMessageId(getter_Copies(msgId));
+          msgHdr->GetMessageId(msgId);
           MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                   ("(Auto) Filter matched message with key %" PRIu32,
                    msgKeyToInt(msgKey)));

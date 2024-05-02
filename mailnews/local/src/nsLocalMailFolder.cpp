@@ -2806,18 +2806,18 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RetrieveHdrOfPartialMessage(
   NS_ENSURE_ARG_POINTER(oldHdr);
   *oldHdr = nullptr;
 
-  char* newMsgId;
-  newHdr->GetMessageId(&newMsgId);
+  nsCString newMsgId;
+  newHdr->GetMessageId(newMsgId);
 
   // Walk through all the selected headers, looking for a matching
   // Message-ID.
   for (uint32_t i = 0; i < mDownloadPartialMessages.Length(); i++) {
     nsCOMPtr<nsIMsgDBHdr> msgDBHdr = mDownloadPartialMessages[i];
-    char* oldMsgId = nullptr;
-    msgDBHdr->GetMessageId(&oldMsgId);
+    nsCString oldMsgId;
+    msgDBHdr->GetMessageId(oldMsgId);
 
     // Return the first match and remove it from the array
-    if (!PL_strcmp(newMsgId, oldMsgId)) {
+    if (newMsgId.Equals(oldMsgId)) {
       msgDBHdr.forget(oldHdr);
       mDownloadPartialMessages.RemoveElementAt(i);
       break;

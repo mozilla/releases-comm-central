@@ -92,7 +92,7 @@ NS_IMETHODIMP nsImapMailDatabase::UpdatePendingAttributes(
     mdbOid outRowId;
 
     nsCString messageId;
-    aNewHdr->GetMessageId(getter_Copies(messageId));
+    aNewHdr->GetMessageId(messageId);
     messageIdYarn.mYarn_Buf = (void*)messageId.get();
     messageIdYarn.mYarn_Fill = messageId.Length();
     messageIdYarn.mYarn_Form = 0;
@@ -144,7 +144,7 @@ nsresult nsImapMailDatabase::GetRowForPendingHdr(nsIMsgDBHdr* pendingHdr,
   nsCOMPtr<nsIMdbRow> pendingRow;
   mdbOid outRowId;
   nsCString messageId;
-  pendingHdr->GetMessageId(getter_Copies(messageId));
+  pendingHdr->GetMessageId(messageId);
   messageIdYarn.mYarn_Buf = (void*)messageId.get();
   messageIdYarn.mYarn_Fill = messageId.Length();
   messageIdYarn.mYarn_Form = 0;
@@ -167,7 +167,7 @@ nsresult nsImapMailDatabase::GetRowForPendingHdr(nsIMsgDBHdr* pendingHdr,
     // XXX we already fetched messageId from the pending hdr, could it have
     // changed by the time we get here?
     nsCString messageId;
-    pendingHdr->GetMessageId(getter_Copies(messageId));
+    pendingHdr->GetMessageId(messageId);
     // we're just going to ignore messages without a message-id. They should be
     // rare. If SPAM messages often didn't have message-id's, they'd be filtered
     // on the server, most likely, and spammers would then start putting in

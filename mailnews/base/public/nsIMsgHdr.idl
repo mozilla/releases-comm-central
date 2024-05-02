@@ -71,12 +71,12 @@ interface nsIMsgDBHdr : nsISupports
     /* common headers */
     attribute PRTime date;
     readonly attribute unsigned long dateInSeconds;
-    attribute string messageId;
-    attribute string ccList;
-    attribute string bccList;
-    attribute string author;
+    attribute AUTF8String messageId;
+    attribute AUTF8String ccList;
+    attribute AUTF8String bccList;
+    attribute AUTF8String author;
     attribute AUTF8String subject;
-    attribute string recipients;
+    attribute AUTF8String recipients;
 
     /* anything below here still has to be fixed */
     void setReferences(in AUTF8String references);

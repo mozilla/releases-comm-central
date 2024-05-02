@@ -95,7 +95,7 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
 
   // extract the e-mail address from the msg hdr
   nsCString author;
-  nsresult rv = aMsgHdr->GetAuthor(getter_Copies(author));
+  nsresult rv = aMsgHdr->GetAuthor(author);
   NS_ENSURE_SUCCESS(rv, false);
 
   nsCString emailAddress;

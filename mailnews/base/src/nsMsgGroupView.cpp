@@ -166,7 +166,7 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
       rv = nsMsgDBView::FetchAuthor(msgHdr, aHashKey);
       break;
     case nsMsgViewSortType::byRecipient:
-      (void)msgHdr->GetRecipients(getter_Copies(cStringKey));
+      msgHdr->GetRecipients(cStringKey);
       CopyASCIItoUTF16(cStringKey, aHashKey);
       break;
     case nsMsgViewSortType::byAccount:

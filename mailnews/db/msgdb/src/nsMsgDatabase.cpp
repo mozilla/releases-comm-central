@@ -1541,7 +1541,7 @@ nsresult nsMsgDatabase::InitExistingDB() {
           if (msgHdr && NS_SUCCEEDED(err)) {
             nsCString messageId;
             nsAutoCString firstReference;
-            msgHdr->GetMessageId(getter_Copies(messageId));
+            msgHdr->GetMessageId(messageId);
             msgHdr->GetStringReference(0, firstReference);
             if (messageId.Equals(firstReference)) {
               err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
@@ -3629,7 +3629,7 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool& newThread) {
         // to corrupt threading.
         if (replyToKey == newHdrKey) {
           // bad references - throw them all away.
-          newHdr->SetMessageId("");
+          newHdr->SetMessageId(""_ns);
           thread = nullptr;
           break;
         }
@@ -3667,7 +3667,7 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool& newThread) {
   // to this message)
   if (!thread && UseCorrectThreading()) {
     nsCString msgId;
-    newHdr->GetMessageId(getter_Copies(msgId));
+    newHdr->GetMessageId(msgId);
 
     thread = dont_AddRef(GetThreadForMessageId(msgId));
     if (thread) {
@@ -4037,7 +4037,7 @@ nsresult nsMsgDatabase::DumpContents() {
       nsCString subject;
 
       msgHdr->GetMessageKey(&key);
-      msgHdr->GetAuthor(getter_Copies(author));
+      msgHdr->GetAuthor(author);
       msgHdr->GetSubject(subject);
       printf("hdr key = %u, author = %s subject = %s\n", key, author.get(),
              subject.get());

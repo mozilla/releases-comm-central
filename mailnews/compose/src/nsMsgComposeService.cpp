@@ -684,7 +684,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
 
   nsCString replyTo;
   mHdrToReplyTo->GetStringProperty("replyTo", replyTo);
-  if (replyTo.IsEmpty()) mHdrToReplyTo->GetAuthor(getter_Copies(replyTo));
+  if (replyTo.IsEmpty()) mHdrToReplyTo->GetAuthor(replyTo);
   compFields->SetTo(NS_ConvertUTF8toUTF16(replyTo));
 
   nsString body;
@@ -825,10 +825,10 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString recipients;
-  aMsgHdr->GetRecipients(getter_Copies(recipients));
+  aMsgHdr->GetRecipients(recipients);
 
   nsAutoCString ccList;
-  aMsgHdr->GetCcList(getter_Copies(ccList));
+  aMsgHdr->GetCcList(ccList);
 
   // Go through the identities to see to whom this was addressed.
   // In case we get no match, this is likely a list/bulk/bcc/spam mail and we
@@ -857,7 +857,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
 
   nsAutoCString replyTo;
   aMsgHdr->GetStringProperty("replyTo", replyTo);
-  if (replyTo.IsEmpty()) aMsgHdr->GetAuthor(getter_Copies(replyTo));
+  if (replyTo.IsEmpty()) aMsgHdr->GetAuthor(replyTo);
   if (replyTo.IsEmpty()) return NS_ERROR_FAILURE;  // nowhere to send the reply
 
   nsCOMPtr<nsIMsgFolder> templateFolder;

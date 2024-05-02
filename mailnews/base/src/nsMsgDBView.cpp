@@ -410,7 +410,7 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
   }
 
   nsCString author;
-  (void)aHdr->GetAuthor(getter_Copies(author));
+  aHdr->GetAuthor(author);
 
   nsCString headerCharset;
   aHdr->GetEffectiveCharset(headerCharset);
@@ -500,7 +500,7 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
   }
 
   nsCString unparsedRecipients;
-  nsresult rv = aHdr->GetRecipients(getter_Copies(unparsedRecipients));
+  aHdr->GetRecipients(unparsedRecipients);
 
   nsCString headerCharset;
   aHdr->GetEffectiveCharset(headerCharset);
@@ -512,6 +512,7 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
 
   uint32_t numAddresses = names.Length();
 
+  nsresult rv;
   nsCOMPtr<nsIAbManager> abManager(
       do_GetService("@mozilla.org/abmanager;1", &rv));
 
@@ -1693,7 +1694,7 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
 
 void nsMsgDBView::RememberDeletedMsgHdr(nsIMsgDBHdr* msgHdr) {
   nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   if (mRecentlyDeletedArrayIndex >= mRecentlyDeletedMsgIds.Length())
     mRecentlyDeletedMsgIds.AppendElement(messageId);
   else
@@ -1705,7 +1706,7 @@ void nsMsgDBView::RememberDeletedMsgHdr(nsIMsgDBHdr* msgHdr) {
 
 bool nsMsgDBView::WasHdrRecentlyDeleted(nsIMsgDBHdr* msgHdr) {
   nsCString messageId;
-  msgHdr->GetMessageId(getter_Copies(messageId));
+  msgHdr->GetMessageId(messageId);
   return mRecentlyDeletedMsgIds.Contains(messageId);
 }
 

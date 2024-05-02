@@ -488,7 +488,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
   // Since we have already parsed all of the headers, we are simply going to
   // set the composition fields and move on.
   nsCString author;
-  mMessage->GetAuthor(getter_Copies(author));
+  mMessage->GetAuthor(author);
 
   nsMsgCompFields* fields = (nsMsgCompFields*)compFields.get();
 

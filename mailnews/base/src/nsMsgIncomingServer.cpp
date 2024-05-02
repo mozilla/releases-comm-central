@@ -2010,7 +2010,7 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
 
   nsAutoCString strHashKey;
   nsCString messageId, subject;
-  aNewHdr->GetMessageId(getter_Copies(messageId));
+  aNewHdr->GetMessageId(messageId);
   strHashKey.Append(messageId);
   aNewHdr->GetSubject(subject);
   // err on the side of caution and ignore messages w/o subject or messageid.

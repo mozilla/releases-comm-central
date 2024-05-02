@@ -406,7 +406,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
 
   switch (attrib) {
     case nsMsgSearchAttrib::Sender:
-      msgToMatch->GetAuthor(getter_Copies(matchString));
+      msgToMatch->GetAuthor(matchString);
       err = aTerm->MatchRfc822String(matchString, charset, &result);
       break;
     case nsMsgSearchAttrib::Subject: {
@@ -427,10 +427,10 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
     case nsMsgSearchAttrib::ToOrCC: {
       bool boolKeepGoing;
       aTerm->GetMatchAllBeforeDeciding(&boolKeepGoing);
-      msgToMatch->GetRecipients(getter_Copies(recipients));
+      msgToMatch->GetRecipients(recipients);
       err = aTerm->MatchRfc822String(recipients, charset, &result);
       if (boolKeepGoing == result) {
-        msgToMatch->GetCcList(getter_Copies(ccList));
+        msgToMatch->GetCcList(ccList);
         err = aTerm->MatchRfc822String(ccList, charset, &result);
       }
       break;
@@ -438,19 +438,19 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
     case nsMsgSearchAttrib::AllAddresses: {
       bool boolKeepGoing;
       aTerm->GetMatchAllBeforeDeciding(&boolKeepGoing);
-      msgToMatch->GetRecipients(getter_Copies(recipients));
+      msgToMatch->GetRecipients(recipients);
       err = aTerm->MatchRfc822String(recipients, charset, &result);
       if (boolKeepGoing == result) {
-        msgToMatch->GetCcList(getter_Copies(ccList));
+        msgToMatch->GetCcList(ccList);
         err = aTerm->MatchRfc822String(ccList, charset, &result);
       }
       if (boolKeepGoing == result) {
-        msgToMatch->GetAuthor(getter_Copies(matchString));
+        msgToMatch->GetAuthor(matchString);
         err = aTerm->MatchRfc822String(matchString, charset, &result);
       }
       if (boolKeepGoing == result) {
         nsCString bccList;
-        msgToMatch->GetBccList(getter_Copies(bccList));
+        msgToMatch->GetBccList(bccList);
         err = aTerm->MatchRfc822String(bccList, charset, &result);
       }
       break;
@@ -483,11 +483,11 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       break;
     }
     case nsMsgSearchAttrib::To:
-      msgToMatch->GetRecipients(getter_Copies(recipients));
+      msgToMatch->GetRecipients(recipients);
       err = aTerm->MatchRfc822String(recipients, charset, &result);
       break;
     case nsMsgSearchAttrib::CC:
-      msgToMatch->GetCcList(getter_Copies(ccList));
+      msgToMatch->GetCcList(ccList);
       err = aTerm->MatchRfc822String(ccList, charset, &result);
       break;
     case nsMsgSearchAttrib::AgeInDays: {
