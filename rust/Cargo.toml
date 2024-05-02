@@ -49,8 +49,6 @@ wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }
 web-sys = { path = "../../build/rust/dummy-web/web-sys" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
-cssparser = { git = "https://github.com/servo/rust-cssparser", rev = "aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0" }
-cssparser-macros = { git = "https://github.com/servo/rust-cssparser", rev = "aaa966d9d6ae70c4b8a62bb5e3a14c068bb7dff0" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 any_all_workaround = { git = "https://github.com/hsivonen/any_all_workaround", rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80" }
 chardetng = { git = "https://github.com/hsivonen/chardetng", rev = "3484d3e3ebdc8931493aa5df4d7ee9360a90e76b" }
