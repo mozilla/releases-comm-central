@@ -5,6 +5,7 @@
 @import url("chrome://messenger/skin/shared/contextMenu.css");
 
 menupopup {
+
   &:not([type="arrow"]) {
     margin: -4px;
   }
@@ -31,8 +32,19 @@ menupopup {
   }
 
   /* Override menu.css rule. */
-  &:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
-    padding-inline-start: 8px;
+  &:not([needsgutter]) {
+
+    & > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+      padding-inline-start: 8px;
+    }
+
+    & > menuitem:is([type="checkbox"],[type="radio"]):not([checked="true"]) > .menu-iconic-left {
+      padding-inline-end: 8px;
+
+      & > .menu-iconic-icon {
+        display: flex;
+      }
+    }
   }
 
   & > :is(menu, menuitem):not([needsgutter]) >
