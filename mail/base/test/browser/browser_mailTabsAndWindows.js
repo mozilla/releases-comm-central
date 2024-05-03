@@ -47,6 +47,7 @@ add_setup(async function () {
   messagesB = [...folderB.messages];
 
   registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
     MailServices.accounts.removeAccount(account, false);
   });
 });
@@ -238,6 +239,7 @@ add_task(async function testTabs() {
     "first message browser should be visible"
   );
 
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
   info("Open some more tabs. These should open in the background.");
 
   window.MsgOpenNewTabForFolders([folderB], {
@@ -467,6 +469,41 @@ add_task(async function testTabs() {
   Assert.ok(
     firstMessagePane.docShellIsActive,
     "first message browser should be visible"
+  );
+
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
+  info("Open a new mail tab. Focus should switch to the new tab.");
+
+  window.OpenMessageInNewTab(messagesB[0], {});
+
+  Assert.equal(tabmail.tabInfo.length, 2);
+  Assert.deepEqual(
+    tabmail.tabInfo.map(t => t.selected),
+    [false, true]
+  );
+
+  const secondOpenedTab = tabmail.tabInfo[1];
+  Assert.equal(secondOpenedTab.mode.name, "mailMessageTab");
+  Assert.equal(secondOpenedTab.mode.tabType.name, "mailTab");
+
+  const secondOpenedChromeBrowser = secondOpenedTab.chromeBrowser;
+  await ensureBrowserLoaded(secondOpenedChromeBrowser);
+  Assert.equal(secondOpenedChromeBrowser.currentURI.spec, "about:message");
+
+  const secondOpenedMessagePane =
+    secondOpenedChromeBrowser.contentDocument.getElementById("messagepane");
+  Assert.equal(
+    secondOpenedMessagePane.currentURI.spec,
+    messageToURL(messagesB[0])
+  );
+  Assert.equal(secondOpenedTab.browser, secondOpenedMessagePane);
+  Assert.equal(secondOpenedTab.linkedBrowser, secondOpenedMessagePane);
+
+  tabmail.closeTab(1);
+  Assert.equal(tabmail.tabInfo.length, 1);
+  Assert.deepEqual(
+    tabmail.tabInfo.map(t => t.selected),
+    [true]
   );
 
   info("Open a content tab.");

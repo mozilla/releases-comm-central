@@ -51,6 +51,7 @@ add_setup(async function () {
   sourceMessageIDs = sourceMessages.map(m => m.messageId);
 
   registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
     MailServices.accounts.removeAccount(account, false);
   });
 });
@@ -392,7 +393,9 @@ add_task(async function testNonSelectionContextMenu() {
   threadTree.selectedIndex = 0;
   await messageLoaded(0);
   await validateTree(15, [0], 0);
-  await subtestOpenTab(1, sourceMessageIDs[5]);
+  // TODO: We need to test opening tabs in the foreground as well, as shift
+  // + open tab allows for this.
+  await subtestOpenTabBackground(1, sourceMessageIDs[5]);
   await subtestReply(6, sourceMessageIDs[10]);
 
   threadTree.selectedIndices = [3, 6, 9];
@@ -401,9 +404,17 @@ add_task(async function testNonSelectionContextMenu() {
     false,
     "about:blank"
   );
-  await subtestOpenTab(0, sourceMessageIDs[0]);
 
-  async function doContextMenu(testIndex, messageId, itemToActivate) {
+  // TODO: We need to test opening tabs in the foreground as well, as shift
+  // + open tab allows for this.
+  await subtestOpenTabBackground(0, sourceMessageIDs[0]);
+
+  async function doContextMenu(
+    testIndex,
+    messageId,
+    itemToActivate,
+    backgroundTab = false
+  ) {
     const originalSelection = threadTree.selectedIndices;
 
     threadTree.addEventListener("select", reportBadSelectEvent);
@@ -438,6 +449,8 @@ add_task(async function testNonSelectionContextMenu() {
       "correct row has .context-menu-target"
     );
 
+    // TODO: Add test here for shift+click functionality, using backgroundTab
+    // parameter.
     if (itemToActivate === openNewTabItem) {
       openMenu.openMenu(true);
       await BrowserTestUtils.waitForPopupEvent(openMenuPopup, "shown");
@@ -449,16 +462,22 @@ add_task(async function testNonSelectionContextMenu() {
     await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
 
     Assert.ok(!about3Pane.mailContextMenu.selectionIsOverridden);
-    Assert.equal(
-      document.activeElement,
-      tabmail.tabInfo[0].chromeBrowser,
-      "about:3pane should have focus after context menu"
-    );
-    Assert.equal(
-      about3Pane.document.activeElement,
-      threadTree.table.body,
-      "table body should have focus after context menu"
-    );
+
+    if (backgroundTab) {
+      Assert.equal(
+        document.activeElement,
+        tabmail.tabInfo[0].chromeBrowser,
+        "about:3pane should have focus after context menu"
+      );
+      Assert.equal(
+        about3Pane.document.activeElement,
+        threadTree.table.body,
+        "table body should have focus after context menu"
+      );
+    } else {
+      // TODO: Test here for shift + click functionality where tab opens in
+      // the foreground.
+    }
 
     // Selection should be restored.
     await validateTree(
@@ -476,7 +495,10 @@ add_task(async function testNonSelectionContextMenu() {
   }
 
   // Opening a new tab should open the clicked-on message, not the selected.
-  async function subtestOpenTab(testIndex, messageId) {
+  async function subtestOpenTabBackground(testIndex, messageId) {
+    // This is pref is temporary, as functionality for using the context menu
+    // will default to opening in the background.
+    Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
     const newAboutMessagePromise = BrowserTestUtils.waitForEvent(
       tabmail,
       "aboutMessageLoaded"
@@ -486,7 +508,7 @@ add_task(async function testNonSelectionContextMenu() {
       );
       return event.target;
     });
-    await doContextMenu(testIndex, messageId, openNewTabItem);
+    await doContextMenu(testIndex, messageId, openNewTabItem, true);
 
     const newAboutMessage = await newAboutMessagePromise;
     Assert.equal(

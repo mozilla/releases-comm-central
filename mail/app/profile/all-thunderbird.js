@@ -543,8 +543,8 @@ pref("dom.disable_window_status_change",          true);
 // 2 - open it in a new tab
 pref("mail.openMessageBehavior", 2);
 // If messages or folders are opened using the context menu or a middle click,
-// should we open them in the foreground or in the background?
-pref("mail.tabs.loadInBackground", true);
+// we open them in the background.
+pref("mail.tabs.loadInBackground", false);
 
 // Tabs
 pref("mail.tabs.tabMinWidth", 100);
