@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root {
+  height: 100%;
+  width: 100%;
+}
+
 html {
   width: 840px;
   height: 650px;
@@ -10,7 +15,13 @@ html {
 }
 
 body {
-  overflow: auto;
+  height: 100%;
+  margin: 0;
+}
+
+dialog {
+  min-height: 100%;
+  min-width: 100%;
 }
 
 body > dialog,
@@ -69,4 +80,29 @@ button {
   max-width: 50em;
   margin-inline: 2em;
   margin-top: 1em;
+}
+
+/* from accountManage.css */
+.input-container:not([hidden="true"]) {
+  display: flex;
+  align-items: center;
+
+  & > .input-inline {
+    flex: 1;
+  }
+
+  & > .plain {
+    flex: 1;
+    background-color: transparent;
+    border-style: none;
+    box-shadow: none !important;
+    outline: none;
+    padding-block: 0;
+  }
+}
+
+/* fixing some in-content style leakage by overriding it with the
+ * themeableDialog.css version */
+tab[visuallyselected="true"] {
+  border-bottom-color: var(--lwt-tab-line-color, var(--tabline-color)) !important;
 }

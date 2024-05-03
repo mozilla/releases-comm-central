@@ -111,6 +111,7 @@
   button:not([disabled="true"]):hover:active,
   menulist:not([disabled="true"],[open="true"]):hover,
   menulist[open="true"]:not([disabled="true"]),
+  select:not([size], [multiple], [disabled]):is(:hover, :active),
   tab:hover,
   tab[visuallyselected="true"] {
     color: var(--button-text-active) !important;
@@ -186,9 +187,15 @@ html|input[type="number"] {
   }
 }
 
+html|input[type="radio"],
+html|input[type="checkbox"] {
+  appearance: auto;
+}
+
 button,
 menulist,
-html|input[type="color"] {
+html|input[type="color"],
+select:not([size], [multiple]) {
   appearance: none;
   min-height: 24px;
   /* !important overrides button.css for disabled and default XUL buttons: */
@@ -237,7 +244,8 @@ button:focus-visible {
 button:not([disabled="true"]):hover,
 menulist:not([disabled="true"],[open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]),
-html|input[type="color"]:not([disabled="true"]):hover {
+html|input[type="color"]:not([disabled="true"]):hover,
+select:not([size], [multiple]):is(:hover, :active) {
   background-color: var(--button-hover-background-color);
 }
 
@@ -275,7 +283,8 @@ button > .button-box > dropmarker {
 }
 
 button[disabled="true"],
-menulist[disabled="true"] {
+menulist[disabled="true"],
+select[disabled]:not([size], [multiple]) {
   opacity: 0.4;
 }
 
@@ -324,6 +333,11 @@ menulist {
       outline: 1px solid var(--selected-item-color);
     }
   }
+}
+
+select:not([size], [multiple]) {
+  /* Padding to account for the 12px dropmarker plus an extra gap to the content. */
+  padding-inline-end: 28px;
 }
 
 .menu-iconic-left {
@@ -394,7 +408,8 @@ checkbox {
     outline-offset: -1px;
 
     & button,
-    & menulist {
+    & menulist,
+    & select:not([size], [multiple]) {
       color: var(--sidebar-text-color) !important;
     }
   }
@@ -461,7 +476,8 @@ richlistbox > richlistitem {
 }
 
 menulist[open="true"],
-menulist:not([disabled="true"], [open="true"]):hover {
+menulist:not([disabled="true"], [open="true"]):hover,
+select:not([size], [multiple]):is(:hover, :active) {
   border-color: var(--button-border-color);
 }
 

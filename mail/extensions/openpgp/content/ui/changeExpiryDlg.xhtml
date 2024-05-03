@@ -8,13 +8,13 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  lightweightthemes="true"
   scrolling="false"
 >
   <head>
     <title data-l10n-id="openpgp-change-expiry-title"></title>
     <link rel="stylesheet" href="chrome://global/skin/global.css" />
-    <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/openpgp/inlineNotification.css"
@@ -26,6 +26,10 @@
     />
 
     <link rel="localization" href="messenger/openpgp/changeExpiryDlg.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
     <script
       defer="defer"
       src="chrome://openpgp/content/ui/changeExpiryDlg.js"
