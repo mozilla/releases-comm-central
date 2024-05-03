@@ -312,6 +312,7 @@ class ExtSearchBook extends AddrBookDirectory {
     this.listNickName = "";
     this.description = "";
     this._dirPrefId = "";
+    this._extension = context.extension;
   }
   /**
    * @see {AddrBookDirectory}
@@ -362,7 +363,8 @@ class ExtSearchBook extends AddrBookDirectory {
       }
       const { results, isCompleteResult } = await this.fire.async(
         await addressBookCache.convert(
-          addressBookCache.addressBooks.get(this.UID)
+          addressBookCache.addressBooks.get(this.UID),
+          this._extension
         ),
         aSearchString,
         aQuery
@@ -370,13 +372,16 @@ class ExtSearchBook extends AddrBookDirectory {
       for (const resultData of results) {
         let card;
         // A specified vCard is winning over any individual standard property.
-        if (resultData.vCard) {
+        // MV3 no longer supports flat properties.
+        if (this._extension.manifest.manifest_version > 2 || resultData.vCard) {
+          const vCard =
+            this._extension.manifest.manifest_version > 2
+              ? resultData
+              : resultData.vCard;
           try {
-            card = VCardUtils.vCardToAbCard(resultData.vCard);
+            card = VCardUtils.vCardToAbCard(vCard);
           } catch (ex) {
-            throw new ExtensionError(
-              `Invalid vCard data: ${resultData.vCard}.`
-            );
+            throw new ExtensionError(`Invalid vCard data: ${vCard}.`);
           }
         } else {
           card = flatPropertiesToAbCard(resultData);
@@ -534,13 +539,13 @@ var addressBookCache = new (class extends EventEmitter {
       `contact with id=${id} could not be found.`
     );
   }
-  async convert(node, complete) {
+  async convert(node, extension, complete) {
     if (node === null) {
       return node;
     }
     if (Array.isArray(node)) {
       const cards = await Promise.allSettled(
-        node.map(i => this.convert(i, complete))
+        node.map(i => this.convert(i, extension, complete))
       );
       return cards.filter(card => card.value).map(card => card.value);
     }
@@ -556,12 +561,21 @@ var addressBookCache = new (class extends EventEmitter {
       if (node.type == "addressBook") {
         copy.mailingLists = await this.convert(
           this.getMailingLists(node),
+          extension,
           true
         );
-        copy.contacts = await this.convert(this.getContacts(node), true);
+        copy.contacts = await this.convert(
+          this.getContacts(node),
+          extension,
+          true
+        );
       }
       if (node.type == "mailingList") {
-        copy.contacts = await this.convert(this.getListContacts(node), true);
+        copy.contacts = await this.convert(
+          this.getListContacts(node),
+          extension,
+          true
+        );
       }
     }
 
@@ -575,18 +589,18 @@ var addressBookCache = new (class extends EventEmitter {
         // Clone the vCardProperties of this contact, so we can manipulate them
         // for the WebExtension, but do not actually change the stored data.
         const vCardProperties = vCardPropertiesFromCard(node.item).clone();
-        copy.properties = {};
+        const properties = {};
 
         // Build a flat property list from vCardProperties.
         for (const [name, value] of vCardProperties.toPropertyMap()) {
-          copy.properties[name] = "" + value;
+          properties[name] = "" + value;
         }
 
         // Return all other exposed properties stored in the nodes property bag.
         for (const property of Array.from(node.item.properties).filter(e =>
           isCustomProperty(e.name)
         )) {
-          copy.properties[property.name] = "" + property.value;
+          properties[property.name] = "" + property.value;
         }
 
         // If this card has no photo vCard entry, but a local photo, add it to its vCard: Thunderbird
@@ -607,9 +621,14 @@ var addressBookCache = new (class extends EventEmitter {
             );
           }
         }
-
         // Add the vCard.
-        copy.properties.vCard = vCardProperties.toVCard();
+        properties.vCard = vCardProperties.toVCard();
+
+        if (extension.manifest.manifest_version < 3) {
+          copy.properties = properties;
+        } else {
+          copy.vCard = properties.vCard;
+        }
 
         let parentNode;
         try {
@@ -848,37 +867,39 @@ this.addressBook = class extends ExtensionAPIPersistent {
     // has been called).
 
     // addressBooks.*
-    onAddressBookCreated({ fire }) {
+    onAddressBookCreated({ fire, context }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(await addressBookCache.convert(node));
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("address-book-created", listener);
       return {
         unregister: () => {
           addressBookCache.off("address-book-created", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
-    onAddressBookUpdated({ fire }) {
+    onAddressBookUpdated({ fire, context }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(await addressBookCache.convert(node));
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("address-book-updated", listener);
       return {
         unregister: () => {
           addressBookCache.off("address-book-updated", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
@@ -901,71 +922,87 @@ this.addressBook = class extends ExtensionAPIPersistent {
     },
 
     // contacts.*
-    onContactCreated({ fire }) {
+    onContactCreated({ fire, context }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(await addressBookCache.convert(node));
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("contact-created", listener);
       return {
         unregister: () => {
           addressBookCache.off("contact-created", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
-    onContactUpdated({ fire }) {
+    onContactUpdated({ fire, context }) {
       const listener = async (event, node, changes) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
         const filteredChanges = {};
-        // Find changes in flat properties stored in the vCard.
-        if (changes.hasOwnProperty("_vCard")) {
-          const oldVCardProperties = VCardProperties.fromVCard(
-            changes._vCard.oldValue
-          ).toPropertyMap();
-          const newVCardProperties = VCardProperties.fromVCard(
-            changes._vCard.newValue
-          ).toPropertyMap();
-          for (const [name, value] of oldVCardProperties) {
-            if (newVCardProperties.get(name) != value) {
-              filteredChanges[name] = {
-                oldValue: value,
-                newValue: newVCardProperties.get(name) ?? null,
-              };
+        // For MV2, report individual changed flat properties stored in the vCard
+        // and in the property bag of the card. MV3 only sees the actual vCard.
+        if (context.extension.manifest.manifest_version < 3) {
+          if (changes.hasOwnProperty("_vCard")) {
+            const oldVCardProperties = VCardProperties.fromVCard(
+              changes._vCard.oldValue
+            ).toPropertyMap();
+            const newVCardProperties = VCardProperties.fromVCard(
+              changes._vCard.newValue
+            ).toPropertyMap();
+            for (const [name, value] of oldVCardProperties) {
+              if (newVCardProperties.get(name) != value) {
+                filteredChanges[name] = {
+                  oldValue: value,
+                  newValue: newVCardProperties.get(name) ?? null,
+                };
+              }
+            }
+            for (const [name, value] of newVCardProperties) {
+              if (
+                !filteredChanges.hasOwnProperty(name) &&
+                oldVCardProperties.get(name) != value
+              ) {
+                filteredChanges[name] = {
+                  oldValue: oldVCardProperties.get(name) ?? null,
+                  newValue: value,
+                };
+              }
             }
           }
-          for (const [name, value] of newVCardProperties) {
+          for (const [name, value] of Object.entries(changes)) {
             if (
               !filteredChanges.hasOwnProperty(name) &&
-              oldVCardProperties.get(name) != value
+              isCustomProperty(name)
             ) {
-              filteredChanges[name] = {
-                oldValue: oldVCardProperties.get(name) ?? null,
-                newValue: value,
-              };
+              filteredChanges[name] = value;
             }
           }
+          fire.sync(
+            await addressBookCache.convert(node, context.extension),
+            filteredChanges
+          );
+        } else if (changes.hasOwnProperty("_vCard")) {
+          fire.sync(
+            await addressBookCache.convert(node, context.extension),
+            changes._vCard.oldValue
+          );
         }
-        for (const [name, value] of Object.entries(changes)) {
-          if (!filteredChanges.hasOwnProperty(name) && isCustomProperty(name)) {
-            filteredChanges[name] = value;
-          }
-        }
-        fire.sync(await addressBookCache.convert(node), filteredChanges);
       };
       addressBookCache.on("contact-updated", listener);
       return {
         unregister: () => {
           addressBookCache.off("contact-updated", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
@@ -988,34 +1025,39 @@ this.addressBook = class extends ExtensionAPIPersistent {
     },
 
     // mailingLists.*
-    onMailingListCreated({ fire }) {
+    onMailingListCreated({ fire, context }) {
       const listener = async (event, node) => {
-        fire.sync(await addressBookCache.convert(node));
+        if (fire.wakeup) {
+          await fire.wakeup();
+        }
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("mailing-list-created", listener);
       return {
         unregister: () => {
           addressBookCache.off("mailing-list-created", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
-    onMailingListUpdated({ fire }) {
+    onMailingListUpdated({ fire, context }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(await addressBookCache.convert(node));
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("mailing-list-updated", listener);
       return {
         unregister: () => {
           addressBookCache.off("mailing-list-updated", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
@@ -1036,20 +1078,21 @@ this.addressBook = class extends ExtensionAPIPersistent {
         },
       };
     },
-    onMemberAdded({ fire }) {
+    onMemberAdded({ fire, context }) {
       const listener = async (event, node) => {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(await addressBookCache.convert(node));
+        fire.sync(await addressBookCache.convert(node, context.extension));
       };
       addressBookCache.on("mailing-list-member-added", listener);
       return {
         unregister: () => {
           addressBookCache.off("mailing-list-member-added", listener);
         },
-        convert(newFire) {
+        convert(newFire, extContext) {
           fire = newFire;
+          context = extContext;
         },
       };
     },
@@ -1090,6 +1133,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
         const parentNode = addressBookCache.findAddressBookById(parentId);
         return addressBookCache.convert(
           addressBookCache.getContacts(parentNode),
+          extension,
           false
         );
       },
@@ -1148,7 +1192,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
         }
         await Promise.all(promises);
 
-        return addressBookCache.convert(results, false);
+        return addressBookCache.convert(results, extension, false);
       },
       async quickSearch(parentId, queryInfo) {
         if (typeof queryInfo == "string") {
@@ -1166,6 +1210,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
       get(id) {
         return addressBookCache.convert(
           addressBookCache.findContactById(id),
+          extension,
           false
         );
       },
@@ -1175,7 +1220,18 @@ this.addressBook = class extends ExtensionAPIPersistent {
       async setPhoto(id, file) {
         return setPhotoFile(id, file);
       },
-      create(parentId, id, createData) {
+      create(arg1, arg2, arg3) {
+        // Manifest V2 and V3 have different parameter configuration.
+        let parentId, id, createData;
+        if (extension.manifest.manifest_version > 2) {
+          parentId = arg1;
+          createData = arg2;
+        } else {
+          parentId = arg1;
+          id = arg2;
+          createData = arg3;
+        }
+
         const parentNode = addressBookCache.findAddressBookById(parentId);
         if (parentNode.item.readOnly) {
           throw new ExtensionUtils.ExtensionError(
@@ -1185,13 +1241,16 @@ this.addressBook = class extends ExtensionAPIPersistent {
 
         let card;
         // A specified vCard is winning over any individual standard property.
-        if (createData.vCard) {
+        // MV3 no longer supports flat properties.
+        if (extension.manifest.manifest_version > 2 || createData.vCard) {
+          const vCard =
+            extension.manifest.manifest_version > 2
+              ? createData
+              : createData.vCard;
           try {
-            card = VCardUtils.vCardToAbCard(createData.vCard, id);
+            card = VCardUtils.vCardToAbCard(vCard, id);
           } catch (ex) {
-            throw new ExtensionError(
-              `Invalid vCard data: ${createData.vCard}.`
-            );
+            throw new ExtensionError(`Invalid vCard data: ${vCard}.`);
           }
         } else {
           card = flatPropertiesToAbCard(createData, id);
@@ -1230,25 +1289,25 @@ this.addressBook = class extends ExtensionAPIPersistent {
         // While a vCard is replacing the entire contact, specified standard
         // properties only update single entries (setting a value to null
         // clears it / promotes the next value of the same kind).
+        // MV3 no longer supports flat properties.
         let card;
-        if (updateData.vCard) {
+        if (extension.manifest.manifest_version > 2 || updateData.vCard) {
+          const vCard =
+            extension.manifest.manifest_version > 2
+              ? updateData
+              : updateData.vCard;
           let vCardUID;
           try {
             card = new AddrBookCard();
             card.UID = node.item.UID;
-            card.setProperty(
-              "_vCard",
-              VCardUtils.translateVCard21(updateData.vCard)
-            );
+            card.setProperty("_vCard", VCardUtils.translateVCard21(vCard));
             vCardUID = card.vCardProperties.getFirstValue("uid");
           } catch (ex) {
-            throw new ExtensionError(
-              `Invalid vCard data: ${updateData.vCard}.`
-            );
+            throw new ExtensionError(`Invalid vCard data: ${vCard}.`);
           }
           if (vCardUID && vCardUID != node.item.UID) {
             throw new ExtensionError(
-              `The card's UID ${node.item.UID} may not be changed: ${updateData.vCard}.`
+              `The card's UID ${node.item.UID} may not be changed: ${vCard}.`
             );
           }
         } else {
@@ -1361,12 +1420,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
         const parentNode = addressBookCache.findAddressBookById(parentId);
         return addressBookCache.convert(
           addressBookCache.getMailingLists(parentNode),
+          extension,
           false
         );
       },
       get(id) {
         return addressBookCache.convert(
           addressBookCache.findMailingListById(id),
+          extension,
           false
         );
       },
@@ -1416,6 +1477,7 @@ this.addressBook = class extends ExtensionAPIPersistent {
         const node = addressBookCache.findMailingListById(id);
         return addressBookCache.convert(
           addressBookCache.getListContacts(node),
+          extension,
           false
         );
       },
@@ -1501,12 +1563,14 @@ this.addressBook = class extends ExtensionAPIPersistent {
         list(complete = false) {
           return addressBookCache.convert(
             [...addressBookCache.addressBooks.values()],
+            extension,
             complete
           );
         },
         get(id, complete = false) {
           return addressBookCache.convert(
             addressBookCache.findAddressBookById(id),
+            extension,
             complete
           );
         },

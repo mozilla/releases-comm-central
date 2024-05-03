@@ -394,7 +394,12 @@
             "description": "Indicates if the object came from a remote address book."
           },
           "properties": {
+            "max_manifest_version": 2,
             "$ref": "ContactProperties"
+          },
+          "vCard": {
+            "min_manifest_version": 3,
+            "type": "string"
           }
         }
       },
@@ -614,6 +619,7 @@
       {
         "name": "create",
         "type": "function",
+        "max_manifest_version": 2,
         "async": "callback",
         "parameters": [
           {
@@ -646,8 +652,39 @@
         "description": "Adds a new contact to the address book with the id ``parentId``."
       },
       {
+        "name": "create",
+        "type": "function",
+        "min_manifest_version": 3,
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "parentId",
+            "type": "string"
+          },
+          {
+            "name": "vCard",
+            "min_manifest_version": 3,
+            "type": "string",
+            "description": "The vCard for the new contact. If it includes an (optional) id and an existing contact has this id already, an exception is thrown."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string",
+                "description": "The ID of the new contact."
+              }
+            ]
+          }
+        ],
+        "description": "Adds a new contact to the address book with the id ``parentId``."
+      },
+      {
         "name": "update",
         "type": "function",
+        "max_manifest_version": 2,
         "async": true,
         "parameters": [
           {
@@ -658,6 +695,24 @@
             "name": "properties",
             "$ref": "ContactProperties",
             "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <value>null</value>. If the provided object includes a ``vCard`` member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the ``vCard`` member instead. "
+          }
+        ],
+        "description": "Updates a contact."
+      },
+      {
+        "name": "update",
+        "type": "function",
+        "min_manifest_version": 3,
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "vCard",
+            "type": "string",
+            "description": "The updated vCard for the contact."
           }
         ],
         "description": "Updates a contact."
@@ -690,6 +745,7 @@
       {
         "name": "onUpdated",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Fired when a contact is changed.",
         "parameters": [
           {
@@ -699,6 +755,22 @@
           {
             "name": "changedProperties",
             "$ref": "PropertyChange"
+          }
+        ]
+      },
+      {
+        "name": "onUpdated",
+        "type": "function",
+        "min_manifest_version": 3,
+        "description": "Fired when a contact is changed.",
+        "parameters": [
+          {
+            "name": "node",
+            "$ref": "ContactNode"
+          },
+          {
+            "name": "oldVCard",
+            "type": "string"
           }
         ]
       },

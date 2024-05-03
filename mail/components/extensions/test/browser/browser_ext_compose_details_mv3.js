@@ -596,10 +596,7 @@ add_task(async function testAutoComplete() {
       const [addressBook] = await browser.addressBooks.list(true);
       const contactId = await browser.addressBooks.contacts.create(
         addressBook.id,
-        {
-          PrimaryEmail: "autocomplete@invalid",
-          DisplayName: "Autocomplete Test",
-        }
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Autocomplete Test\r\nN:;first;;;\r\nEMAIL;PREF=1:autocomplete@invalid\r\nEND:VCARD\r\n`
       );
 
       // Confirm the addrTo field has focus and addrTo and replyTo fields are empty.

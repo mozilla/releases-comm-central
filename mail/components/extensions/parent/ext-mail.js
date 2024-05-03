@@ -1938,7 +1938,8 @@ extensions.on("startup", (type, extension) => {
         findMailingListById: this.addressBookCache.findMailingListById.bind(
           this.addressBookCache
         ),
-        convert: this.addressBookCache.convert.bind(this.addressBookCache),
+        convert: (element, complete) =>
+          this.addressBookCache.convert(element, extension, complete),
       };
     });
   }

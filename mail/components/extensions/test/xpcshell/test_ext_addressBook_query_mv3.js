@@ -28,49 +28,64 @@ add_task(async function test_query_mv3() {
     const book1 = await browser.addressBooks.create({ name: "book1" });
     const book2 = await browser.addressBooks.create({ name: "book2" });
 
+    function vCard(fields = {}) {
+      const first = fields.FirstName ?? "";
+      const last = fields.LastName ?? "";
+      return `BEGIN:VCARD\r\nVERSION:4.0\r\nN:${last};${first};;;\r\nEND:VCARD\r\n`;
+    }
+
     const book1contacts = {
-      charlie: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "charlie",
-      }),
-      juliet: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "juliet",
-      }),
-      mike: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "mike",
-      }),
-      oscar: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "oscar",
-      }),
-      papa: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "papa",
-      }),
-      romeo: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "romeo",
-      }),
-      victor: await browser.addressBooks.contacts.create(book1, {
-        FirstName: "victor",
-      }),
+      charlie: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "charlie" })
+      ),
+      juliet: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "juliet" })
+      ),
+      mike: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "mike" })
+      ),
+      oscar: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "oscar" })
+      ),
+      papa: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "papa" })
+      ),
+      romeo: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "romeo" })
+      ),
+      victor: await browser.addressBooks.contacts.create(
+        book1,
+        vCard({ FirstName: "victor" })
+      ),
     };
 
     const book2contacts = {
-      bigBird: await browser.addressBooks.contacts.create(book2, {
-        FirstName: "Big",
-        LastName: "Bird",
-      }),
-      cookieMonster: await browser.addressBooks.contacts.create(book2, {
-        FirstName: "Cookie",
-        LastName: "Monster",
-      }),
-      elmo: await browser.addressBooks.contacts.create(book2, {
-        FirstName: "Elmo",
-      }),
-      grover: await browser.addressBooks.contacts.create(book2, {
-        FirstName: "Grover",
-      }),
-      oscarTheGrouch: await browser.addressBooks.contacts.create(book2, {
-        FirstName: "Oscar",
-        LastName: "The Grouch",
-      }),
+      bigBird: await browser.addressBooks.contacts.create(
+        book2,
+        vCard({ FirstName: "Big", LastName: "Bird" })
+      ),
+      cookieMonster: await browser.addressBooks.contacts.create(
+        book2,
+        vCard({ FirstName: "Cookie", LastName: "Monster" })
+      ),
+      elmo: await browser.addressBooks.contacts.create(
+        book2,
+        vCard({ FirstName: "Elmo" })
+      ),
+      grover: await browser.addressBooks.contacts.create(
+        book2,
+        vCard({ FirstName: "Grover" })
+      ),
+      oscarTheGrouch: await browser.addressBooks.contacts.create(
+        book2,
+        vCard({ FirstName: "Oscar", LastName: "The Grouch" })
+      ),
     };
 
     // A search string without a match in either book.
@@ -185,13 +200,17 @@ add_task(async function test_query_types_mv3() {
   async function background() {
     function checkCards(cards, expectedNames) {
       browser.test.assertEq(expectedNames.length, cards.length);
-      const expected = new Set(expectedNames);
+      const found = new Set();
       for (const card of cards) {
-        expected.delete(card.properties.FirstName);
+        found.add(
+          expectedNames.findIndex(name =>
+            card.vCard.includes(`FN:${name} contact`)
+          )
+        );
       }
       browser.test.assertEq(
-        0,
-        expected.size,
+        found.size,
+        expectedNames.length,
         "Should have seen all expected cards"
       );
     }
@@ -199,7 +218,7 @@ add_task(async function test_query_types_mv3() {
     await browser.test.assertThrows(
       () => browser.addressBooks.contacts.query("contact"),
       /Incorrect argument types for addressBooks\.contacts\.query/,
-      "browser.addressBooks.contacts.quickSearch() should reject, if an invalid queryInfo is used."
+      "browser.addressBooks.contacts.query() should reject, if an invalid queryInfo is used."
     );
 
     // Not specifying parentId should get cards from all address books.

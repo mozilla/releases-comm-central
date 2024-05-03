@@ -1305,12 +1305,11 @@ add_task(async function test_addressBooks_MV3_event_pages() {
       type: "contact",
       parentId: parentId1,
       id: contactId,
+      readOnly: false,
+      remote: false,
+      vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:add;external;;;\r\nEMAIL;PREF=1:test@invalid\r\nUID:${contactId}\r\nEND:VCARD\r\n`,
     },
-    {
-      type: createdNode.type,
-      parentId: createdNode.parentId,
-      id: createdNode.id,
-    },
+    createdNode,
     "The primed contacts.onCreated event should return the correct values"
   );
   checkPersistentListeners({ primed: false });
@@ -1322,22 +1321,22 @@ add_task(async function test_addressBooks_MV3_event_pages() {
   outsideEvent("updateContact", contactId);
   // The event should have restarted the background.
   await extension.awaitMessage("background started");
-  const [updatedNode, changedProperties] = await extension.awaitMessage(
+  const [updatedNode, oldVCard] = await extension.awaitMessage(
     "addressBooks.contacts.onUpdated received"
   );
   Assert.deepEqual(
     [
-      { type: "contact", parentId: parentId1, id: contactId },
-      { LastName: { oldValue: "add", newValue: "edit" } },
-    ],
-    [
       {
-        type: updatedNode.type,
-        parentId: updatedNode.parentId,
-        id: updatedNode.id,
+        type: "contact",
+        parentId: parentId1,
+        id: contactId,
+        readOnly: false,
+        remote: false,
+        vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:edit;external;;;\r\nEMAIL;PREF=1:test@invalid\r\nUID:${contactId}\r\nEND:VCARD\r\n`,
       },
-      changedProperties,
+      `BEGIN:VCARD\r\nVERSION:4.0\r\nN:add;external;;;\r\nEMAIL;PREF=1:test@invalid\r\nUID:${contactId}\r\nEND:VCARD\r\n`,
     ],
+    [updatedNode, oldVCard],
     "The primed contacts.onUpdated event should return the correct values"
   );
   checkPersistentListeners({ primed: false });
@@ -2275,17 +2274,21 @@ add_task(async function test_addressBooks_mv3() {
       browser.test.assertTrue(Array.isArray(contacts));
       browser.test.assertEq(0, contacts.length);
 
-      newContactId = await browser.addressBooks.contacts.create(firstBookId, {
-        FirstName: "first",
-        LastName: "last",
-        Notes: "Notes",
-        SomethingCustom: "Custom property",
-      });
+      const vCard = `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nEND:VCARD\r\n`;
+      newContactId = await browser.addressBooks.contacts.create(
+        firstBookId,
+        vCard
+      );
       browser.test.assertEq(36, newContactId.length);
       await checkEvents([
         "addressBooks.contacts",
         "onCreated",
-        { type: "contact", parentId: firstBookId, id: newContactId },
+        {
+          type: "contact",
+          parentId: firstBookId,
+          id: newContactId,
+          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
+        },
       ]);
 
       contacts = await browser.addressBooks.contacts.list(firstBookId);
@@ -2306,282 +2309,142 @@ add_task(async function test_addressBooks_mv3() {
       browser.test.assertEq("contact", newContact.type);
       browser.test.assertEq(false, newContact.readOnly);
       browser.test.assertEq(false, newContact.remote);
-      browser.test.assertEq(5, Object.keys(newContact.properties).length);
-      browser.test.assertEq("first", newContact.properties.FirstName);
-      browser.test.assertEq("last", newContact.properties.LastName);
-      browser.test.assertEq("Notes", newContact.properties.Notes);
-      browser.test.assertEq(
-        "Custom property",
-        newContact.properties.SomethingCustom
-      );
       browser.test.assertEq(
         `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
-        newContact.properties.vCard
+        newContact.vCard
       );
 
       // Changing the UID should throw.
-      try {
-        await browser.addressBooks.contacts.update(newContactId, {
-          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:SomethingNew\r\nEND:VCARD\r\n`,
-        });
-        browser.test.fail(
-          `Updating a contact with a vCard with a differnt UID should throw`
-        );
-      } catch (ex) {
-        browser.test.assertEq(
-          `The card's UID ${newContactId} may not be changed: BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:SomethingNew\r\nEND:VCARD\r\n.`,
-          ex.message,
-          `browser.addressBooks.contacts.update threw exception`
-        );
-      }
+      await browser.test.assertRejects(
+        browser.addressBooks.contacts.update(
+          newContactId,
+          `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:SomethingNew\r\nEND:VCARD\r\n`
+        ),
+        new RegExp(`The card's UID ${newContactId} may not be changed`),
+        "Using contacts.update() to change the UID should throw"
+      );
 
-      // Test Custom1.
-      {
-        await browser.addressBooks.contacts.update(newContactId, {
-          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nX-CUSTOM1;VALUE=TEXT:Original custom value\r\nEND:VCARD`,
-        });
-        await checkEvents([
-          "addressBooks.contacts",
-          "onUpdated",
-          { type: "contact", parentId: firstBookId, id: newContactId },
-          {
-            Custom1: { oldValue: null, newValue: "Original custom value" },
-          },
-        ]);
-        const updContact1 = await browser.addressBooks.contacts.get(
-          newContactId
-        );
-        browser.test.assertEq(
-          "Original custom value",
-          updContact1.properties.Custom1
-        );
-
-        await browser.addressBooks.contacts.update(newContactId, {
-          Custom1: "Updated custom value",
-        });
-        await checkEvents([
-          "addressBooks.contacts",
-          "onUpdated",
-          { type: "contact", parentId: firstBookId, id: newContactId },
-          {
-            Custom1: {
-              oldValue: "Original custom value",
-              newValue: "Updated custom value",
-            },
-          },
-        ]);
-        const updContact2 = await browser.addressBooks.contacts.get(
-          newContactId
-        );
-        browser.test.assertEq(
-          "Updated custom value",
-          updContact2.properties.Custom1
-        );
-        browser.test.assertTrue(
-          updContact2.properties.vCard.includes(
-            "X-CUSTOM1;VALUE=TEXT:Updated custom value"
-          ),
-          "vCard should include the correct x-custom1 entry"
-        );
-      }
-
-      // If a vCard and legacy properties are given, vCard must win.
-      await browser.addressBooks.contacts.update(newContactId, {
-        vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
-        FirstName: "Superman",
-        PrimaryEmail: "c.kent@dailyplanet.com",
-        OtherCustom: "Yet another custom property",
-        Notes: "Ignored Notes",
-      });
+      // Test a valid update without including the UID, adding EMAIL.
+      const vCard2 = `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nNOTE:Notes2\r\nN:last2;first2;;;\r\nEND:VCARD\r\n`;
+      await browser.addressBooks.contacts.update(newContactId, vCard2);
       await checkEvents([
         "addressBooks.contacts",
         "onUpdated",
-        { type: "contact", parentId: firstBookId, id: newContactId },
         {
-          PrimaryEmail: { oldValue: null, newValue: "first@last" },
-          LastName: { oldValue: "last", newValue: null },
-          OtherCustom: {
-            oldValue: null,
-            newValue: "Yet another custom property",
-          },
-          Custom1: { oldValue: "Updated custom value", newValue: null },
+          type: "contact",
+          parentId: firstBookId,
+          id: newContactId,
+          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nNOTE:Notes2\r\nN:last2;first2;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
         },
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes\r\nN:last;first;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
       ]);
-
-      let updatedContact = await browser.addressBooks.contacts.get(
+      const updatedContact = await browser.addressBooks.contacts.get(
         newContactId
       );
-      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
-      browser.test.assertEq("first", updatedContact.properties.FirstName);
+      browser.test.assertEq(6, Object.keys(updatedContact).length);
+      browser.test.assertEq(newContactId, updatedContact.id);
+      browser.test.assertEq(firstBookId, updatedContact.parentId);
+      browser.test.assertEq("contact", updatedContact.type);
+      browser.test.assertEq(false, updatedContact.readOnly);
+      browser.test.assertEq(false, updatedContact.remote);
       browser.test.assertEq(
-        "first@last",
-        updatedContact.properties.PrimaryEmail
-      );
-      browser.test.assertTrue(!("LastName" in updatedContact.properties));
-      browser.test.assertTrue(
-        !("Notes" in updatedContact.properties),
-        "The vCard is not specifying Notes and the specified Notes property should be ignored."
-      );
-      browser.test.assertEq(
-        "Custom property",
-        updatedContact.properties.SomethingCustom,
-        "Untouched custom properties should not be changed by updating the vCard"
-      );
-      browser.test.assertEq(
-        "Yet another custom property",
-        updatedContact.properties.OtherCustom,
-        "Custom properties should be added even while updating a vCard"
-      );
-      browser.test.assertEq(
-        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
-        updatedContact.properties.vCard
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nNOTE:Notes2\r\nN:last2;first2;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
+        updatedContact.vCard
       );
 
-      // Manually Remove properties.
-      await browser.addressBooks.contacts.update(newContactId, {
-        LastName: "lastname",
-        PrimaryEmail: null,
-        SecondEmail: "test@invalid.de",
-        SomethingCustom: null,
-        OtherCustom: null,
-      });
+      // Test a valid update including the UID, removing NOTE.
+      const vCard3 = `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nN:last3;first3;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`;
+      await browser.addressBooks.contacts.update(newContactId, vCard3);
       await checkEvents([
         "addressBooks.contacts",
         "onUpdated",
-        { type: "contact", parentId: firstBookId, id: newContactId },
         {
-          LastName: { oldValue: null, newValue: "lastname" },
-          // It is how it is. Defining a 2nd email with no 1st, will make it the first.
-          PrimaryEmail: { oldValue: "first@last", newValue: "test@invalid.de" },
-          SomethingCustom: { oldValue: "Custom property", newValue: null },
-          OtherCustom: {
-            oldValue: "Yet another custom property",
-            newValue: null,
-          },
+          type: "contact",
+          parentId: firstBookId,
+          id: newContactId,
+          vCard: vCard3,
         },
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:first@last.invalid\r\nNOTE:Notes2\r\nN:last2;first2;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
       ]);
+      const updatedContact2 = await browser.addressBooks.contacts.get(
+        newContactId
+      );
+      browser.test.assertEq(6, Object.keys(updatedContact2).length);
+      browser.test.assertEq(newContactId, updatedContact2.id);
+      browser.test.assertEq(firstBookId, updatedContact2.parentId);
+      browser.test.assertEq("contact", updatedContact2.type);
+      browser.test.assertEq(false, updatedContact2.readOnly);
+      browser.test.assertEq(false, updatedContact2.remote);
+      browser.test.assertEq(vCard3, updatedContact2.vCard);
 
-      updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
-      // LastName and FirstName are stored in the same multi field property and changing LastName should not change FirstName.
-      browser.test.assertEq("first", updatedContact.properties.FirstName);
-      browser.test.assertEq("lastname", updatedContact.properties.LastName);
-      browser.test.assertEq(
-        "test@invalid.de",
-        updatedContact.properties.PrimaryEmail
-      );
-      browser.test.assertTrue(
-        !("SomethingCustom" in updatedContact.properties)
-      );
-      browser.test.assertTrue(!("OtherCustom" in updatedContact.properties));
-      browser.test.assertEq(
-        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:lastname;first;;;\r\nEMAIL:test@invalid.de\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
-        updatedContact.properties.vCard
-      );
-
-      // Add an email address, going from 1 to 2.Also remove FirstName, LastName should stay.
-      await browser.addressBooks.contacts.update(newContactId, {
-        FirstName: null,
-        PrimaryEmail: "new1@invalid.de",
-        SecondEmail: "new2@invalid.de",
-      });
-      await checkEvents([
-        "addressBooks.contacts",
-        "onUpdated",
-        { type: "contact", parentId: firstBookId, id: newContactId },
-        {
-          PrimaryEmail: {
-            oldValue: "test@invalid.de",
-            newValue: "new1@invalid.de",
-          },
-          SecondEmail: { oldValue: null, newValue: "new2@invalid.de" },
-          FirstName: { oldValue: "first", newValue: null },
-        },
-      ]);
-
-      updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
-      browser.test.assertEq("lastname", updatedContact.properties.LastName);
-      browser.test.assertEq(
-        "new1@invalid.de",
-        updatedContact.properties.PrimaryEmail
-      );
-      browser.test.assertEq(
-        "new2@invalid.de",
-        updatedContact.properties.SecondEmail
-      );
-      browser.test.assertEq(
-        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:lastname;;;;\r\nEMAIL;PREF=1:new1@invalid.de\r\nUID:${newContactId}\r\nEMAIL:new2@invalid.de\r\nEND:VCARD\r\n`,
-        updatedContact.properties.vCard
+      // Create a card with a fixed UID, but use the no longer supported 2nd id
+      // parameter, which should throw.
+      await browser.test.assertThrows(
+        () =>
+          browser.addressBooks.contacts.create(firstBookId, "123456", vCard),
+        /Incorrect argument types/,
+        "Using the MV2 parameter configuration should throw"
       );
 
-      // Remove and email address, going from 2 to 1.
-      await browser.addressBooks.contacts.update(newContactId, {
-        SecondEmail: null,
-      });
-      await checkEvents([
-        "addressBooks.contacts",
-        "onUpdated",
-        { type: "contact", parentId: firstBookId, id: newContactId },
-        {
-          SecondEmail: { oldValue: "new2@invalid.de", newValue: null },
-        },
-      ]);
-
-      updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(3, Object.keys(updatedContact.properties).length);
-      browser.test.assertEq("lastname", updatedContact.properties.LastName);
-      browser.test.assertEq(
-        "new1@invalid.de",
-        updatedContact.properties.PrimaryEmail
-      );
-      browser.test.assertEq(
-        `BEGIN:VCARD\r\nVERSION:4.0\r\nN:lastname;;;;\r\nEMAIL;PREF=1:new1@invalid.de\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
-        updatedContact.properties.vCard
-      );
-
-      // Set a fixed UID.
-      const fixedContactId = await browser.addressBooks.contacts.create(
+      // Create a card with a fixed UID in the vCard.
+      const fixedContactId = "123456";
+      const vCardWithUID = `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes3\r\nN:last3;first3;;;\r\nUID:${fixedContactId}\r\nEND:VCARD\r\n`;
+      const id = await browser.addressBooks.contacts.create(
         firstBookId,
-        "this is a test",
-        {
-          FirstName: "a",
-          LastName: "test",
-        }
+        vCardWithUID
       );
-      browser.test.assertEq("this is a test", fixedContactId);
+      browser.test.assertEq(
+        fixedContactId,
+        id,
+        "Id of contact with fixed ID should be correct"
+      );
       await checkEvents([
         "addressBooks.contacts",
         "onCreated",
-        { type: "contact", parentId: firstBookId, id: "this is a test" },
+        {
+          type: "contact",
+          parentId: firstBookId,
+          id: fixedContactId,
+          vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes3\r\nN:last3;first3;;;\r\nUID:${fixedContactId}\r\nEND:VCARD\r\n`,
+        },
       ]);
-
       const fixedContact = await browser.addressBooks.contacts.get(
-        "this is a test"
+        fixedContactId
       );
-      browser.test.assertEq("this is a test", fixedContact.id);
+      browser.test.assertEq(6, Object.keys(fixedContact).length);
+      browser.test.assertEq(fixedContactId, fixedContact.id);
+      browser.test.assertEq(firstBookId, fixedContact.parentId);
+      browser.test.assertEq("contact", fixedContact.type);
+      browser.test.assertEq(false, fixedContact.readOnly);
+      browser.test.assertEq(false, fixedContact.remote);
+      browser.test.assertEq(
+        `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes3\r\nN:last3;first3;;;\r\nUID:${fixedContactId}\r\nEND:VCARD\r\n`,
+        fixedContact.vCard
+      );
 
-      await browser.addressBooks.contacts.delete("this is a test");
+      // Delete a contact.
+      await browser.addressBooks.contacts.delete(fixedContactId);
       await checkEvents([
         "addressBooks.contacts",
         "onDeleted",
         firstBookId,
-        "this is a test",
+        fixedContactId,
       ]);
 
-      try {
-        await browser.addressBooks.contacts.create(firstBookId, newContactId, {
-          FirstName: "uh",
-          LastName: "oh",
-        });
-        browser.test.fail(`Adding a contact with a duplicate id should throw`);
-      } catch (ex) {
-        browser.test.assertEq(
-          `Duplicate contact id: ${newContactId}`,
-          ex.message,
-          `browser.addressBooks.contacts.create threw exception`
-        );
-      }
+      // Create a contact in firstBook, having the id from a contact in firstBook.
+      const vCardWithExisting = `BEGIN:VCARD\r\nVERSION:4.0\r\nNOTE:Notes4\r\nN:last4;first4;;;\r\nUID:${newContactId}\r\nEND:VCARD\r\n`;
+      await browser.test.assertRejects(
+        browser.addressBooks.contacts.create(firstBookId, vCardWithExisting),
+        /Duplicate contact id/,
+        "Using an already existing ID should throw"
+      );
+
+      // Create a contact in secondBook, having the id from a contact in firstBook.
+      await browser.test.assertRejects(
+        browser.addressBooks.contacts.create(secondBookId, vCardWithExisting),
+        /Duplicate contact id/,
+        "Using an already existing ID should throw"
+      );
 
       browser.test.assertEq(0, events.length, "No events left unconsumed");
       browser.test.log("Completed contactsTest");
@@ -2694,14 +2557,12 @@ add_task(async function test_addressBooks_mv3() {
       browser.test.assertTrue(Array.isArray(listMembers));
       browser.test.assertEq(1, listMembers.length);
 
+      const vCard = `BEGIN:VCARD\r\nVERSION:4.0\r\nEMAIL;PREF=1:em@il\r\nN:last;second;;;\r\nEND:VCARD\r\n`;
       const anotherContactId = await browser.addressBooks.contacts.create(
         firstBookId,
-        {
-          FirstName: "second",
-          LastName: "last",
-          PrimaryEmail: "em@il",
-        }
+        vCard
       );
+      browser.test.assertEq(36, newContactId.length);
       await checkEvents([
         "addressBooks.contacts",
         "onCreated",
@@ -2847,7 +2708,7 @@ add_task(async function test_addressBooks_mv3() {
       for (const operation of ["get", "update", "delete"]) {
         const args = [newContactId];
         if (operation == "update") {
-          args.push({});
+          args.push("");
         }
 
         try {
