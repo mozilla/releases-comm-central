@@ -26,9 +26,9 @@ git = "https://github.com/gfx-rs/metal-rs"
 rev = "ff8fd3d6dc7792852f8a015458d7e6d42d7fb352"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/gfx-rs/wgpu?rev=2b0e3ed01cfcc4bcccc7fd63b2581b260c00b089"]
+[source."git+https://github.com/gfx-rs/wgpu?rev=d00a69615b74ef75aeb428a7c00fa1a91eb13e97"]
 git = "https://github.com/gfx-rs/wgpu"
-rev = "2b0e3ed01cfcc4bcccc7fd63b2581b260c00b089"
+rev = "d00a69615b74ef75aeb428a7c00fa1a91eb13e97"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/glandium/mio?rev=9a2ef335c366044ffe73b1c4acabe50a1daefe05"]
@@ -114,6 +114,11 @@ replace-with = "vendored-sources"
 [source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=ace285b5848750064d4f5ad30ddc0c0bff53d8a9"]
 git = "https://github.com/thunderbird/xml-struct-rs.git"
 rev = "ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/zakarumych/gpu-descriptor?rev=7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d"]
+git = "https://github.com/zakarumych/gpu-descriptor"
+rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d"
 replace-with = "vendored-sources"
 
 

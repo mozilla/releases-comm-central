@@ -45,11 +45,14 @@ derive_more = { path = "../../build/rust/derive_more" }
 autocfg = { path = "../../third_party/rust/autocfg" }
 goblin = { path = "../../build/rust/goblin" }
 memoffset = { path = "../../build/rust/memoffset" }
+hashbrown = { path = "../../build/rust/hashbrown" }
+libloading = { path = "../../build/rust/libloading" }
 js-sys = { path = "../../build/rust/dummy-web/js-sys" }
 wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }
 web-sys = { path = "../../build/rust/dummy-web/web-sys" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
 rure = { path = "../../third_party/rust/rure" }
+plist = { path = "../../third_party/rust/plist" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }
 any_all_workaround = { git = "https://github.com/hsivonen/any_all_workaround", rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80" }
 chardetng = { git = "https://github.com/hsivonen/chardetng", rev = "3484d3e3ebdc8931493aa5df4d7ee9360a90e76b" }
@@ -72,4 +75,5 @@ tabs = { git = "https://github.com/mozilla/application-services", rev = "bf37a51
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "bf37a5174a1dcb7a890dc35386d58f9b77f82434" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
+gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
 mio = { path = "../../third_party/rust/mio-0.6.23" }
