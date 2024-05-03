@@ -1044,7 +1044,12 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType,
 
   int32_t rowCountBeforeSort = GetSize();
 
-  if (!rowCountBeforeSort) return NS_OK;
+  if (!rowCountBeforeSort) {
+    m_sortType = sortType;
+    m_sortOrder = sortOrder;
+    SaveSortInfo(sortType, sortOrder);
+    return NS_OK;
+  }
 
   if (m_viewFlags & (nsMsgViewFlagsType::kThreadedDisplay |
                      nsMsgViewFlagsType::kGroupBySort)) {

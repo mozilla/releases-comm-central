@@ -191,6 +191,41 @@ add_task(async function test_virtual_folder_multi_sortorder_persistence() {
 });
 
 /**
+ * Make sure the sort order of a virtual folder backed by multiple underlying
+ * folders is set correctly even when no messages are present.
+ */
+add_task(async function test_virtual_folder_multi_sortorder_when_empty() {
+  const viewWrapper = make_view_wrapper();
+
+  const folderOne = await messageInjection.makeEmptyFolder();
+  const folderTwo = await messageInjection.makeEmptyFolder();
+
+  const virtFolder = messageInjection.makeVirtualFolder(
+    [folderOne, folderTwo],
+    {}
+  );
+  await view_open(viewWrapper, virtFolder);
+
+  verify_empty_view(viewWrapper);
+  viewWrapper.showThreaded = true;
+  viewWrapper.sort("subjectCol", Ci.nsMsgViewSortOrder.ascending);
+
+  viewWrapper.close();
+  await view_open(viewWrapper, virtFolder);
+  assert_equals(
+    viewWrapper.primarySortType,
+    Ci.nsMsgViewSortType.bySubject,
+    "should have remembered sort type."
+  );
+  assert_equals(
+    viewWrapper.primarySortOrder,
+    Ci.nsMsgViewSortOrder.ascending,
+    "should have remembered sort order."
+  );
+  virtFolder.parent.propagateDelete(virtFolder, true);
+});
+
+/**
  * Make sure we open a virtual folder backed by multiple underlying folders
  *  correctly; one constraint.
  */
