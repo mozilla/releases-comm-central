@@ -10,7 +10,7 @@
  * handlers, so that the right callback is called when the specified
  * document is loaded.
  *
- * @param aFrame the iframe that we're managing
+ * @param {HTMLIFrameElement} aFrame - The iframe that we're managing.
  */
 export function SummaryFrameManager(aFrame) {
   this.iframe = aFrame;
@@ -40,9 +40,10 @@ SummaryFrameManager.prototype = {
    * called either when the document is loaded, or immediately if the document
    * is already loaded.
    *
-   * @param aUrl the URL to load
-   * @param aCallback the callback to run when the URL has loaded; this function
-   *        is passed a single boolean indicating if the URL was changed
+   * @param {string} aUrl - The URL to load.
+   * @param {function(boolean):void} aCallback - The callback to run when the
+   *   URL has loaded; this function is passed a single boolean indicating if
+   *   the URL was changed.
    */
   loadAndCallback(aUrl, aCallback) {
     this.url = aUrl;
@@ -68,6 +69,9 @@ SummaryFrameManager.prototype = {
     }
   },
 
+  /**
+   * @param {Event} event
+   */
   _onLoad(event) {
     try {
       // Make sure we're responding to the summary frame being loaded, and not
