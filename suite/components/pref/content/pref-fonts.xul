@@ -6,8 +6,7 @@
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="fonts_pane"
-            label="&pref.fonts.title;"
-            script="chrome://communicator/content/pref/pref-fonts.js">
+            label="&pref.fonts.title;">
     <preferences id="fonts_preferences">
       <preference id="font.language.group"
                   name="font.language.group"
@@ -20,13 +19,15 @@
                   type="wstring"/>
     </preferences>
 
+    <script src="chrome://communicator/content/pref/pref-fonts.js"/>
+
     <groupbox>
       <caption align="center">
         <label value="&language.label;"
                accesskey="&language.accesskey;"
                control="selectLangs"/>
         <menulist id="selectLangs" preference="font.language.group"
-                  onsyncfrompreference="document.getElementById('fonts_pane').ReadFontLanguageGroup();">
+                  onsyncfrompreference="return gFontsDialog.readFontLanguageGroup();">
           <menupopup>
             <menuitem value="ar" label="&font.langGroup.arabic;"/>
             <menuitem value="x-armn" label="&font.langGroup.armenian;"/>
@@ -86,7 +87,7 @@
                      control="defaultFontType"/>
             </hbox>
             <menulist id="defaultFontType" flex="1" style="width: 0px;"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);">
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);">
               <menupopup>
                 <menuitem value="serif"
                           label="&useDefaultFontSerif.label;"/>
@@ -95,7 +96,7 @@
               </menupopup>
             </menulist>
             <menulist id="sizeVar" class="small-margin"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontPref(this, 16);">
+                      onsyncfrompreference="return gFontsDialog.readFontPref(this, 16);">
               <menupopup>
                 <menuitem value="8" label="8"/>
                 <menuitem value="9" label="9"/>
@@ -136,7 +137,7 @@
                      control="serif"/>
             </hbox>
             <menulist id="serif" class="prefpanel-font-list"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);"/>
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row align="center">
@@ -146,7 +147,7 @@
                      control="sans-serif"/>
             </hbox>
             <menulist id="sans-serif" class="prefpanel-font-list"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);"/>
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row align="center">
@@ -156,7 +157,7 @@
                      control="cursive"/>
             </hbox>
             <menulist id="cursive" class="prefpanel-font-list"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);"/>
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row align="center">
@@ -166,7 +167,7 @@
                      control="fantasy"/>
             </hbox>
             <menulist id="fantasy" class="prefpanel-font-list"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);"/>
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);"/>
             <spacer/>
           </row>
           <row>
@@ -179,9 +180,9 @@
                      control="monospace"/>
             </hbox>
             <menulist id="monospace" class="prefpanel-font-list"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontSelection(this);"/>
+                      onsyncfrompreference="return gFontsDialog.readFontSelection(this);"/>
             <menulist id="sizeMono"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontPref(this, 12);">
+                      onsyncfrompreference="return gFontsDialog.readFontPref(this, 12);">
               <menupopup>
                 <menuitem value="8" label="8"/>
                 <menuitem value="9" label="9"/>
@@ -223,7 +224,7 @@
                      control="minSize"/>
             </hbox>
             <menulist id="minSize"
-                      onsyncfrompreference="return document.getElementById('fonts_pane').ReadFontPref(this, 0);">
+                      onsyncfrompreference="return gFontsDialog.readFontPref(this, 0);">
               <menupopup>
                 <menuitem value="0" label="&minSize.none;"/>
                 <menuitem value="9" label="9"/>
@@ -253,8 +254,8 @@
               label="&useDocumentFonts.label;"
               accesskey="&useDocumentFonts.accesskey;"
               preference="browser.display.use_document_fonts"
-              onsyncfrompreference="return document.getElementById('fonts_pane').ReadUseDocumentFonts();"
-              onsynctopreference="return document.getElementById('fonts_pane').WriteUseDocumentFonts(this);"/>
+              onsyncfrompreference="return gFontsDialog.readUseDocumentFonts();"
+              onsynctopreference="return gFontsDialog.writeUseDocumentFonts(this);"/>
 
   </prefpane>
 </overlay>
