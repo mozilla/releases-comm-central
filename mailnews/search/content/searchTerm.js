@@ -115,19 +115,18 @@ searchTermContainer.prototype = {
 
   save() {
     var searchTerm = this.searchTerm;
-    var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 
     if (isNaN(this.searchattribute.value)) {
       // is this a custom term?
-      searchTerm.attrib = nsMsgSearchAttrib.Custom;
+      searchTerm.attrib = Ci.nsMsgSearchAttrib.Custom;
       searchTerm.customId = this.searchattribute.value;
     } else {
       searchTerm.attrib = this.searchattribute.value;
     }
 
     if (
-      this.searchattribute.value > nsMsgSearchAttrib.OtherHeader &&
-      this.searchattribute.value < nsMsgSearchAttrib.kNumMsgSearchAttributes
+      this.searchattribute.value > Ci.nsMsgSearchAttrib.OtherHeader &&
+      this.searchattribute.value < Ci.nsMsgSearchAttrib.kNumMsgSearchAttributes
     ) {
       searchTerm.arbitraryHeader = this.searchattribute.label;
     }

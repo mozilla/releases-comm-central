@@ -78,11 +78,10 @@ function onOk() {
 }
 
 function customHeaderOverflow() {
-  var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
   if (
     gArrayHdrs.length >=
-    nsMsgSearchAttrib.kNumMsgSearchAttributes -
-      nsMsgSearchAttrib.OtherHeader -
+    Ci.nsMsgSearchAttrib.kNumMsgSearchAttributes -
+      Ci.nsMsgSearchAttrib.OtherHeader -
       1
   ) {
     if (!gFilterBundle) {

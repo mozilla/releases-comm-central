@@ -25,10 +25,6 @@ window.addEventListener("close", onSearchStop);
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
 
-var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsMsgSearchOp = Ci.nsMsgSearchOp;
-var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-
 var gStatusText;
 var gSearchBundle;
 var gAddressBookBundle;
@@ -151,15 +147,15 @@ function GetScopeForDirectoryURI(aURI) {
 
   if (directory?.isRemote) {
     if (booleanAnd) {
-      return nsMsgSearchScope.LDAPAnd;
+      return Ci.nsMsgSearchScope.LDAPAnd;
     }
-    return nsMsgSearchScope.LDAP;
+    return Ci.nsMsgSearchScope.LDAP;
   }
 
   if (booleanAnd) {
-    return nsMsgSearchScope.LocalABAnd;
+    return Ci.nsMsgSearchScope.LocalABAnd;
   }
-  return nsMsgSearchScope.LocalAB;
+  return Ci.nsMsgSearchScope.LocalAB;
 }
 
 function onEnterInSearchTerm() {
@@ -209,7 +205,7 @@ function onSearch() {
     var attrs;
 
     switch (searchTerm.attrib) {
-      case nsMsgSearchAttrib.Name:
+      case Ci.nsMsgSearchAttrib.Name:
         if (gSearchPhoneticName != "true") {
           attrs = [
             "DisplayName",
@@ -230,13 +226,13 @@ function onSearch() {
           ];
         }
         break;
-      case nsMsgSearchAttrib.DisplayName:
+      case Ci.nsMsgSearchAttrib.DisplayName:
         attrs = ["DisplayName"];
         break;
-      case nsMsgSearchAttrib.Email:
+      case Ci.nsMsgSearchAttrib.Email:
         attrs = ["PrimaryEmail"];
         break;
-      case nsMsgSearchAttrib.PhoneNumber:
+      case Ci.nsMsgSearchAttrib.PhoneNumber:
         attrs = [
           "HomePhone",
           "WorkPhone",
@@ -245,43 +241,43 @@ function onSearch() {
           "CellularNumber",
         ];
         break;
-      case nsMsgSearchAttrib.Organization:
+      case Ci.nsMsgSearchAttrib.Organization:
         attrs = ["Company"];
         break;
-      case nsMsgSearchAttrib.Department:
+      case Ci.nsMsgSearchAttrib.Department:
         attrs = ["Department"];
         break;
-      case nsMsgSearchAttrib.City:
+      case Ci.nsMsgSearchAttrib.City:
         attrs = ["WorkCity"];
         break;
-      case nsMsgSearchAttrib.Street:
+      case Ci.nsMsgSearchAttrib.Street:
         attrs = ["WorkAddress"];
         break;
-      case nsMsgSearchAttrib.Nickname:
+      case Ci.nsMsgSearchAttrib.Nickname:
         attrs = ["NickName"];
         break;
-      case nsMsgSearchAttrib.WorkPhone:
+      case Ci.nsMsgSearchAttrib.WorkPhone:
         attrs = ["WorkPhone"];
         break;
-      case nsMsgSearchAttrib.HomePhone:
+      case Ci.nsMsgSearchAttrib.HomePhone:
         attrs = ["HomePhone"];
         break;
-      case nsMsgSearchAttrib.Fax:
+      case Ci.nsMsgSearchAttrib.Fax:
         attrs = ["FaxNumber"];
         break;
-      case nsMsgSearchAttrib.Pager:
+      case Ci.nsMsgSearchAttrib.Pager:
         attrs = ["PagerNumber"];
         break;
-      case nsMsgSearchAttrib.Mobile:
+      case Ci.nsMsgSearchAttrib.Mobile:
         attrs = ["CellularNumber"];
         break;
-      case nsMsgSearchAttrib.Title:
+      case Ci.nsMsgSearchAttrib.Title:
         attrs = ["JobTitle"];
         break;
-      case nsMsgSearchAttrib.AdditionalEmail:
+      case Ci.nsMsgSearchAttrib.AdditionalEmail:
         attrs = ["SecondEmail"];
         break;
-      case nsMsgSearchAttrib.ScreenName:
+      case Ci.nsMsgSearchAttrib.ScreenName:
         attrs = ["_AimScreenName"];
         break;
       default:
@@ -293,25 +289,25 @@ function onSearch() {
     var opStr;
 
     switch (searchTerm.op) {
-      case nsMsgSearchOp.Contains:
+      case Ci.nsMsgSearchOp.Contains:
         opStr = "c";
         break;
-      case nsMsgSearchOp.DoesntContain:
+      case Ci.nsMsgSearchOp.DoesntContain:
         opStr = "!c";
         break;
-      case nsMsgSearchOp.Is:
+      case Ci.nsMsgSearchOp.Is:
         opStr = "=";
         break;
-      case nsMsgSearchOp.Isnt:
+      case Ci.nsMsgSearchOp.Isnt:
         opStr = "!=";
         break;
-      case nsMsgSearchOp.BeginsWith:
+      case Ci.nsMsgSearchOp.BeginsWith:
         opStr = "bw";
         break;
-      case nsMsgSearchOp.EndsWith:
+      case Ci.nsMsgSearchOp.EndsWith:
         opStr = "ew";
         break;
-      case nsMsgSearchOp.SoundsLike:
+      case Ci.nsMsgSearchOp.SoundsLike:
         opStr = "~=";
         break;
       default:

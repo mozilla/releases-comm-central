@@ -1566,9 +1566,8 @@
       let filterActionStr;
       const actionTarget = this.children[1];
       const actionItem = actionTarget.ruleactiontargetElement;
-      const nsMsgFilterAction = Ci.nsMsgFilterAction;
       switch (aFilterAction.type) {
-        case nsMsgFilterAction.Custom: {
+        case Ci.nsMsgFilterAction.Custom: {
           filterActionStr = aFilterAction.customId;
           if (actionItem) {
             actionItem.children[0].value = aFilterAction.strValue;
@@ -1609,27 +1608,27 @@
           }
           break;
         }
-        case nsMsgFilterAction.MoveToFolder:
-        case nsMsgFilterAction.CopyToFolder:
+        case Ci.nsMsgFilterAction.MoveToFolder:
+        case Ci.nsMsgFilterAction.CopyToFolder:
           actionItem.children[0].value = aFilterAction.targetFolderUri;
           break;
-        case nsMsgFilterAction.Reply:
-        case nsMsgFilterAction.Forward:
+        case Ci.nsMsgFilterAction.Reply:
+        case Ci.nsMsgFilterAction.Forward:
           actionItem.children[0].value = aFilterAction.strValue;
           break;
-        case nsMsgFilterAction.ChangePriority:
+        case Ci.nsMsgFilterAction.ChangePriority:
           actionItem.children[0].value = aFilterAction.priority;
           break;
-        case nsMsgFilterAction.JunkScore:
+        case Ci.nsMsgFilterAction.JunkScore:
           actionItem.children[0].value = aFilterAction.junkScore;
           break;
-        case nsMsgFilterAction.AddTag:
+        case Ci.nsMsgFilterAction.AddTag:
           actionItem.children[0].value = aFilterAction.strValue;
           break;
         default:
           break;
       }
-      if (aFilterAction.type != nsMsgFilterAction.Custom) {
+      if (aFilterAction.type != Ci.nsMsgFilterAction.Custom) {
         filterActionStr = gFilterActionStrings[aFilterAction.type];
       }
       this.mRuleActionType.value = filterActionStr;

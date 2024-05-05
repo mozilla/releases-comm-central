@@ -87,14 +87,11 @@ function markInDatabase(lower, upper) {
   const searchTerms = [];
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, messageFolder);
 
-  const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
-  const nsMsgSearchOp = Ci.nsMsgSearchOp;
-
   let searchTerm = searchSession.createTerm();
-  searchTerm.attrib = nsMsgSearchAttrib.Date;
-  searchTerm.op = nsMsgSearchOp.IsBefore;
+  searchTerm.attrib = Ci.nsMsgSearchAttrib.Date;
+  searchTerm.op = Ci.nsMsgSearchOp.IsBefore;
   let value = searchTerm.value;
-  value.attrib = nsMsgSearchAttrib.Date;
+  value.attrib = Ci.nsMsgSearchAttrib.Date;
   value.date = upper;
   searchTerm.value = value;
   searchTerms.push(searchTerm);
@@ -102,10 +99,10 @@ function markInDatabase(lower, upper) {
   if (lower) {
     searchTerm = searchSession.createTerm();
     searchTerm.booleanAnd = true;
-    searchTerm.attrib = nsMsgSearchAttrib.Date;
-    searchTerm.op = nsMsgSearchOp.IsAfter;
+    searchTerm.attrib = Ci.nsMsgSearchAttrib.Date;
+    searchTerm.op = Ci.nsMsgSearchOp.IsAfter;
     value = searchTerm.value;
-    value.attrib = nsMsgSearchAttrib.Date;
+    value.attrib = Ci.nsMsgSearchAttrib.Date;
     value.date = lower;
     searchTerm.value = value;
     searchTerms.push(searchTerm);
