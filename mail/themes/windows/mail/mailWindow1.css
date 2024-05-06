@@ -188,6 +188,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 .titlebar-min {
+  /* Even though we use appearance: none, -moz-default-appearance is necessary
+   * for Windows 11's "snap layouts" feature, see
+   * DealWithWindowsAppearanceHacks */
+  -moz-default-appearance: -moz-window-button-minimize;
   list-style-image: url("chrome://messenger/skin/window-controls/minimize.svg");
   margin-inline-end: 2px;
 
@@ -201,6 +205,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 .titlebar-max {
+  -moz-default-appearance: -moz-window-button-maximize;
   list-style-image: url("chrome://messenger/skin/window-controls/maximize.svg");
 
   :root[lwtheme-image] & {
@@ -213,6 +218,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 .titlebar-restore {
+  -moz-default-appearance: -moz-window-button-restore;
   list-style-image: url("chrome://messenger/skin/window-controls/restore.svg");
 
   &:-moz-locale-dir(rtl) {
@@ -229,6 +235,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 .titlebar-close {
+  -moz-default-appearance: -moz-window-button-close;
   list-style-image: url("chrome://messenger/skin/window-controls/close.svg");
 
   :root[lwtheme-image] & {
