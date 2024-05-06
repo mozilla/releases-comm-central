@@ -8,11 +8,6 @@
 
 :host,
 :root {
-  --button-background-color: color-mix(in srgb, currentColor 13%, transparent);
-  --button-hover-background-color: color-mix(in srgb, currentColor 17%, transparent);
-  --button-active-background-color: color-mix(in srgb, currentColor 30%, transparent);
-  --button-border-color: color-mix(in srgb, currentColor 17%, transparent);
-  --button-border-radius: 3px;
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
@@ -20,7 +15,6 @@
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, 0.6);
   --field-border-hover-color: rgba(128, 128, 128, 0.8);
-  --selected-item-color: AccentColor;
   --primary-focus-border: -moz-Dialog;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
@@ -28,6 +22,9 @@
 }
 
 :root[lwtheme] {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+
   --box-text-color: var(--color-ink-90);
   --box-background-color: var(--color-white);
   --box-border-color: var(--color-gray-40);
@@ -36,8 +33,6 @@
   --field-border-color: rgba(0, 0, 0, 0.3);
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --primary-focus-border: var(--lwt-accent-color);
-  background-color: var(--lwt-accent-color);
-  color: var(--lwt-text-color);
 
   &[lwtheme-image]:not([lwt-tree]) {
     background-image: var(--lwt-header-image) !important;
@@ -94,14 +89,9 @@
 @media (prefers-contrast) {
   :host,
   :root:not([lwtheme]) {
-    --button-background-color: ButtonFace;
-    --button-hover-background-color: SelectedItem;
-    --button-active-background-color: SelectedItem;
     --button-text-active: SelectedItemText;
-    --button-border-color: ThreeDShadow;
     --field-border-color: ThreeDShadow;
     --field-border-hover-color: SelectedItemText;
-    --selected-item-color: SelectedItem;
     --tab-hover-background: SelectedItem;
     --tab-selected-background: SelectedItem;
   }
@@ -428,11 +418,11 @@ checkbox {
 richlistitem[selected="true"] {
   background-color: var(--tab-selected-background);
   color: inherit;
-}
 
-richlistbox:where(:focus) > richlistitem[selected="true"] {
-  background-color: var(--selected-item-color);
-  color: var(--selected-item-text-color);
+  richlistbox:where(:focus) > & {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
 }
 
 richlistbox[seltype="multiple"]:focus > richlistitem[current="true"] {
