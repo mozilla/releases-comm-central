@@ -892,7 +892,7 @@ class AddrBookImporterController extends ImporterController {
     const elList = document.getElementById("directoryList");
     elList.innerHTML = "";
     this._directories = MailServices.ab.directories.filter(
-      dir => dir.dirType == Ci.nsIAbManager.JS_DIRECTORY_TYPE
+      dir => !dir.readOnly
     );
     for (const directory of this._directories) {
       const label = document.createElement("label");
