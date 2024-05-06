@@ -39,6 +39,14 @@ add_setup(function () {
     do_get_file(smimeDataDirectory + "Dave.p12"),
     "nss"
   );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "../smime-interop/Fran.p12"),
+    "nss"
+  );
+  SmimeUtils.loadCertificateAndKey(
+    do_get_file(smimeDataDirectory + "../smime-interop/Fran-ec.p12"),
+    "nss"
+  );
 });
 
 add_task(async function verifyTestCertsStillValid() {
@@ -158,6 +166,9 @@ const smimeSink = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMESink"]),
 };
 
+const gTextAliceBob = "This is a test message from Alice to Bob.";
+const gTextFran = "This is a test message to Fran.";
+
 /**
  * Note on FILENAMES taken from the NSS test suite:
  * - env: CMS enveloped (encrypted)
@@ -194,7 +205,7 @@ var gMessages = [
     enc: true,
     sig: false,
     sig_good: false,
-    check_text: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA1.multipart.bad.eml",
@@ -207,14 +218,14 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: false,
-    check_text: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA1.multipart.eml",
     enc: false,
     sig: true,
     sig_good: false,
-    check_text: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA1.multipart.mismatch-econtent.eml",
@@ -305,14 +316,14 @@ var gMessages = [
     enc: false,
     sig: true,
     sig_good: false,
-    check_text: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.sig.SHA1.opaque.env.eml",
     enc: true,
     sig: true,
     sig_good: false,
-    check_text: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.sig.SHA256.opaque.eml",
@@ -606,6 +617,36 @@ var gMessages = [
     dave: 1,
     extra: 1,
   },
+  {
+    filename: "../smime-interop/fran-oaep_ossl.env",
+    enc: true,
+    check_text: gTextFran,
+  },
+  {
+    filename: "../smime-interop/fran-oaep-label_ossl.env",
+    enc: true,
+    check_text: gTextFran,
+  },
+  {
+    filename: "../smime-interop/fran-oaep-sha256hash_ossl.env",
+    enc: true,
+    check_text: gTextFran,
+  },
+  {
+    filename: "../smime-interop/fran-oaep-sha256hash-sha256mgf_ossl.env",
+    enc: true,
+    check_text: gTextFran,
+  },
+  {
+    filename: "../smime-interop/fran-ec_ossl-aes128-sha256.env",
+    enc: true,
+    check_text: gTextFran,
+  },
+  {
+    filename: "../smime-interop/fran-ec_ossl-aes256-sha512.env",
+    enc: true,
+    check_text: gTextFran,
+  },
 ];
 
 const gCopyWaiter = Promise.withResolvers();
@@ -660,9 +701,11 @@ add_task(async function check_smime_message() {
     // dump("contents: " + contents + "\n");
 
     if (!msg.sig || msg.sig_good || "check_text" in msg) {
-      const expected = "This is a test message from Alice to Bob.";
-      Assert.ok(contents.includes(expected));
+      Assert.ok(
+        contents.includes("check_text" in msg ? msg.check_text : gTextAliceBob)
+      );
     }
+
     // Check that we're also using the display output.
     Assert.ok(contents.includes("<html>"));
 
