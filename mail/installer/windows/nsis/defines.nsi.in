@@ -38,11 +38,11 @@
 !define InstDirName           "${BrandFullName}"
 
 !define CERTIFICATE_NAME            "Mozilla Corporation"
-!define CERTIFICATE_ISSUER          "DigiCert SHA2 Assured ID Code Signing CA"
+!define CERTIFICATE_ISSUER          "DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1"
 ; Changing the name or issuer requires us to have both the old and the new
 ;  in the registry at the same time, temporarily.
 !define CERTIFICATE_NAME_PREVIOUS   "Mozilla Corporation"
-!define CERTIFICATE_ISSUER_PREVIOUS "DigiCert Assured ID Code Signing CA-1"
+!define CERTIFICATE_ISSUER_PREVIOUS "DigiCert SHA2 Assured ID Code Signing CA"
 
 # ARCH is used when it is necessary to differentiate the x64 registry keys from
 # the x86 registry keys (e.g. the uninstall registry key).
