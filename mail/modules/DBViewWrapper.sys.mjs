@@ -1440,17 +1440,10 @@ DBViewWrapper.prototype = {
   /**
    * Update the view flags to use on the view.  If we are in a view update or
    *  currently don't have a view, we save the view flags for later usage when
-   *  the view gets (re)built.  If we have a view, depending on what's happening
-   *  we may re-create the view or just set the bits.  The rules/reasons are:
-   * - XFVF views can handle the flag changes, just set the flags.
-   * - XFVF threaded/unthreaded change must re-sort, the backend forgot.
-   * - Single-folder virtual folders (quicksearch) can handle viewFlag changes,
-   *    to/from grouped included, so set it.
-   * - Single-folder threaded/unthreaded can handle a change to/from unthreaded/
-   *    threaded, so set it.
-   * - Single-folder can _not_ handle a change between grouped and not-grouped,
-   *    so re-generate the view. Also it can't handle a change involving
-   *    kUnreadOnly or kShowIgnored.
+   *  the view gets (re)built.  If we have a view, depending on what's
+   *  happening we may re-create the view or just set the bits.
+   *
+   * @param {nsMsgViewFlagsTypeValue} aViewFlags
    */
   set _viewFlags(aViewFlags) {
     if (this._viewUpdateDepth || !this.dbView) {
@@ -1464,47 +1457,34 @@ DBViewWrapper.prototype = {
       this.dbView.selection.currentIndex = -1;
     }
 
-    let setViewFlags = true;
-    let reSort = false;
-    const oldFlags = this.dbView.viewFlags;
-    const changedFlags = oldFlags ^ aViewFlags;
-
-    if (this.isVirtual) {
-      if (
-        this.isMultiFolder &&
-        changedFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay &&
-        !(changedFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
-      ) {
-        reSort = true;
-      }
-      if (this.isSingleFolder) {
-        // ugh, and the single folder case needs us to re-apply his sort...
-        reSort = true;
-      }
-    } else {
-      // The regular single folder case.
-      if (
-        changedFlags &
+    // Single-folder can _not_ handle a change between grouped and not-grouped,
+    // so re-generate the view. Also it can't handle a change involving
+    // kUnreadOnly or kShowIgnored (which are not available in virtual
+    // folders).
+    const changedFlags = this.dbView.viewFlags ^ aViewFlags;
+    if (
+      !this.isVirtual &&
+      changedFlags &
         (Ci.nsMsgViewFlagsType.kGroupBySort |
           Ci.nsMsgViewFlagsType.kUnreadOnly |
           Ci.nsMsgViewFlagsType.kShowIgnored)
-      ) {
-        setViewFlags = false;
-      }
-      // ugh, and the single folder case needs us to re-apply his sort...
-      reSort = true;
-    }
-
-    if (setViewFlags) {
-      this.dbView.viewFlags = aViewFlags;
-      if (reSort) {
-        this.dbView.sort(this.dbView.sortType, this.dbView.sortOrder);
-      }
-      this.listener.onSortChanged();
-    } else {
+    ) {
       this.__viewFlags = aViewFlags;
       this._applyViewChanges();
+      return;
     }
+
+    // XFVF views can handle the flag changes, just set the flags.
+    // Single-folder virtual folders (quicksearch) can handle viewFlag changes,
+    // to/from grouped included, so set it.
+    // Single-folder threaded/unthreaded can handle a change to/from
+    // unthreaded/threaded, so set it.
+    this.dbView.viewFlags = aViewFlags;
+    // ugh, and the single folder case needs us to re-apply his sort...
+    if (this.isSingleFolder) {
+      this.dbView.sort(this.dbView.sortType, this.dbView.sortOrder);
+    }
+    this.listener.onSortChanged();
   },
 
   /**

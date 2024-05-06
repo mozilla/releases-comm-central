@@ -39,7 +39,6 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   NS_IMETHOD Close() override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
-  NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange,
                                   const nsACString& property, bool aPreChange,
                                   uint32_t* aStatus,

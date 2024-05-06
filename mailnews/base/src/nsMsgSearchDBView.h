@@ -87,6 +87,8 @@ class nsMsgSearchDBView : public nsMsgGroupView,
       nsMsgViewCommandTypeValue command,
       nsTArray<nsMsgViewIndex> const& selection) override;
 
+  NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
+
  protected:
   virtual ~nsMsgSearchDBView();
   virtual void InternalClose() override;

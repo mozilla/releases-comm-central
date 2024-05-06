@@ -1358,3 +1358,24 @@ nsMsgSearchDBView::GetNumMsgsInView(int32_t* aNumMsgs) {
   *aNumMsgs = m_totalMessagesInView;
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMsgSearchDBView::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
+  nsresult rv = NS_OK;
+  // If the grouping/threading has changed, rebuild the view.
+  constexpr nsMsgViewFlagsTypeValue groupedOrThreaded =
+      (nsMsgViewFlagsType::kGroupBySort | nsMsgViewFlagsType::kThreadedDisplay);
+  if ((m_viewFlags & groupedOrThreaded) != (aViewFlags & groupedOrThreaded)) {
+    rv = RebuildView(aViewFlags);
+    // While threaded and grouped views are sorted as they are rebuilt,
+    // switching to unthreaded simply preserves the sequence of the individual
+    // headers. Therefore, sort in this case (even when coming from grouped,
+    // to get the secondary sort right as well).
+    if (!(aViewFlags & groupedOrThreaded)) {
+      m_sortValid = false;
+      Sort(m_sortType, m_sortOrder);
+    }
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
+  return nsMsgDBView::SetViewFlags(aViewFlags);
+}

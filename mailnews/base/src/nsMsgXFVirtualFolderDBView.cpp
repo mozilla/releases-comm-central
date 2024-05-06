@@ -490,21 +490,6 @@ nsMsgXFVirtualFolderDBView::GetMsgFolder(nsIMsgFolder** aMsgFolder) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
-  nsresult rv = NS_OK;
-  // If the grouping/threading has changed, rebuild the view.
-  if ((m_viewFlags & (nsMsgViewFlagsType::kGroupBySort |
-                      nsMsgViewFlagsType::kThreadedDisplay)) !=
-      (aViewFlags & (nsMsgViewFlagsType::kGroupBySort |
-                     nsMsgViewFlagsType::kThreadedDisplay))) {
-    rv = RebuildView(aViewFlags);
-  }
-
-  nsMsgDBView::SetViewFlags(aViewFlags);
-  return rv;
-}
-
 nsresult nsMsgXFVirtualFolderDBView::GetMessageEnumerator(
     nsIMsgEnumerator** enumerator) {
   return GetViewEnumerator(enumerator);
