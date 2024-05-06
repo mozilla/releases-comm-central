@@ -34,6 +34,11 @@
   padding: 0;
 }
 
+#calendar-event-dialog-inner,
+#calendar-task-dialog-inner {
+  background: -moz-Dialog !important; /* Override LW-theme background images. */
+}
+
 #calendar-event-dialog .todo-only,
 #calendar-task-dialog .event-only,
 #calendar-event-dialog-inner .todo-only,
