@@ -42,8 +42,25 @@ class nsMsgFolderCacheElement : public nsIMsgFolderCacheElement {
   nsMsgFolderCacheElement() = delete;
 
   NS_DECL_ISUPPORTS
+
   NS_IMETHOD GetKey(nsACString& key) override {
     key = mKey;
+    return NS_OK;
+  }
+
+  NS_IMETHOD SetKey(nsACString const& newKey) override {
+    // Update the parent nsMsgFolderCache.
+    Json::Value& root = *mOwner->mRoot;
+    if (root.isMember(PromiseFlatCString(newKey).get())) {
+      return NS_ERROR_FAILURE;  // newKey already exists!
+    }
+    Json::Value obj;
+    if (!root.removeMember(PromiseFlatCString(mKey).get(), &obj)) {
+      return NS_ERROR_NOT_AVAILABLE;  // Key not found.
+    }
+    mKey = newKey;
+    Obj() = obj;
+    mOwner->SetModified();
     return NS_OK;
   }
 
@@ -182,6 +199,10 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* cacheFile, nsIFile* legacyFile) {
 
   // No sign of new-style JSON file. Maybe there's an old panacea.dat we can
   // migrate?
+  if (!legacyFile) {
+    return NS_OK;
+  }
+
   rv = legacyFile->Exists(&exists);
   if (NS_SUCCEEDED(rv) && exists) {
     MOZ_LOG(sFolderCacheLog, LogLevel::Debug,

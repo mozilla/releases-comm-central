@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { FileTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/FileTestUtils.sys.mjs"
+);
+
 /**
  * Sanity checks for nsIMsgFolderCache/nsIMsgFolderCacheElement.
  */
@@ -225,4 +229,49 @@ add_task(async function test_bad_pancea_dat() {
   // The migration should have left everything as it was.
   Assert.ok(legacyFile.exists());
   Assert.ok(!jsonFile.exists());
+});
+
+/**
+ * Test that elements can be renamed.
+ */
+add_task(function test_renaming() {
+  // Create an empty nsIMsgFolderCache object.
+  const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    Ci.nsIMsgFolderCache
+  );
+  const jsonFile = FileTestUtils.getTempFile("foo.json");
+  cache.init(jsonFile);
+
+  // Create some nsIMsgFolderCacheElement objects in it.
+  const e1 = cache.getCacheElement("made/up/ONE", true);
+  e1.setCachedString("foo", "ONE");
+  const e2 = cache.getCacheElement("made/up/TWO", true);
+  e2.setCachedString("foo", "TWO");
+  // This one points at same data as e1.
+  const doomed = cache.getCacheElement(e1.key, false);
+  Assert.equal(doomed.getCachedString("foo"), "ONE");
+
+  // Ensure we can't overwrite keys.
+  Assert.throws(function () {
+    e1.key = e2.key;
+  }, /NS_ERROR_/);
+
+  // Rename a key and make sure it still works.
+  Assert.equal(e1.getCachedString("foo"), "ONE");
+  e1.key = "fancy/new/key";
+  Assert.equal(e1.key, "fancy/new/key");
+  Assert.equal(e1.getCachedString("foo"), "ONE");
+
+  // Duplicate object should now be invalid.
+  Assert.throws(function () {
+    doomed.getCachedString("foo");
+  }, /NS_ERROR_/);
+
+  // Make sure we can look up the new key.
+  const e3 = cache.getCacheElement("fancy/new/key", false);
+  Assert.equal(e3.getCachedString("foo"), "ONE");
+
+  // Done.
+  cache.flush();
+  jsonFile.remove(false);
 });

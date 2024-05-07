@@ -11,7 +11,13 @@
 [scriptable, uuid(c7392b12-f68a-46b2-af5e-d47350bb17c3)]
 interface nsIMsgFolderCacheElement : nsISupports
 {
-  readonly attribute ACString key;
+  /**
+   * The key for this element.
+   * NOTE: writing to this will update the entry in nsIMsgFolderCache,
+   * invalidating any other outstanding nsIMsgFolderCacheElement objects.
+   */
+  attribute AUTF8String key;
+
   // Notes on the getCached...() functions:
   // - They will fail if the property doesn't exist. That is, they'll
   //   throw an exception in JS, or return an NS_ERROR_* code in C++.

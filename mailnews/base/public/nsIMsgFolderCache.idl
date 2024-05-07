@@ -20,16 +20,17 @@ interface nsIMsgFolderCache : nsISupports
   /**
    * Set up the cache, loading/saving to cacheFile.
    * If a new-style cacheFile isn't found, it looks for an old panacea.dat,
-   * specified by legacyFile and migrates it to the new format.
+   * specified by legacyFile (if present) and migrates it to the new format.
    * Neither file has to exist - it'll just start up with an empty cache.
    * nsMsgFolderCache (the only implementation) will autosave to cacheFile
    * when changes are made.
    *
-   * @param cacheFile   File to persist the cache data (folderCache.json).
-   * @param legacyFile  Old panacea.dat file to check for and migrate, if
-   *                    cacheFile doesn't exist.
+   * @param cacheFile              File to persist the cache data in
+   *                               (usually folderCache.json).
+   * @param [optional] legacyFile  Old panacea.dat file to check for and
+   *                               migrate, if cacheFile doesn't exist.
    */
-  void init(in nsIFile cacheFile, in nsIFile legacyFile);
+  void init(in nsIFile cacheFile, [optional] in nsIFile legacyFile);
 
   /**
    * Return an nsIMsgFolderCacheElement for a given folder.
