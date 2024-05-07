@@ -1837,19 +1837,19 @@ DBViewWrapper.prototype = {
       (aViewFlags != null ? aViewFlags : this._viewFlags) &
       Ci.nsMsgViewFlagsType.kGroupBySort
     ) {
-      // We cannot be sorting by thread, id, none, or size.  If we are, switch
-      //  to sorting by date.
-      for (const sortPair of this._sort) {
-        const sortType = sortPair[0];
-        if (
-          sortType == Ci.nsMsgViewSortType.byThread ||
-          sortType == Ci.nsMsgViewSortType.byId ||
-          sortType == Ci.nsMsgViewSortType.byNone ||
-          sortType == Ci.nsMsgViewSortType.bySize
-        ) {
-          this._sort = [[Ci.nsMsgViewSortType.byDate, this.primarySortOrder]];
-          break;
-        }
+      // There is no secondary sort in Grouped-By, as the groups themselves are
+      // always sorted by date. So we validate only the primary sort.
+      const sortType = this._sort[0][0];
+      if (
+        sortType == Ci.nsMsgViewSortType.byThread ||
+        sortType == Ci.nsMsgViewSortType.byId ||
+        sortType == Ci.nsMsgViewSortType.byNone ||
+        sortType == Ci.nsMsgViewSortType.bySize ||
+        sortType == Ci.nsMsgViewSortType.byUnread ||
+        sortType == Ci.nsMsgViewSortType.byJunkStatus ||
+        (sortType == Ci.nsMsgViewSortType.byLocation && this.isSingleFolder)
+      ) {
+        this._sort = [[Ci.nsMsgViewSortType.byDate, this.primarySortOrder]];
       }
     }
   },

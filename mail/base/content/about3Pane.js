@@ -6250,7 +6250,14 @@ var sortController = {
   },
   groupBySort() {
     threadPane.updateListRole(false);
+    // Similar to reverting grouped-by-sort in this.sortThreadPane(), rebuild
+    // the view even for multi-folder search views. These views could
+    // technically handle this themselves by just having their view flags set,
+    // but they are currently unable to cope with sort types that are invalid
+    // in grouped-by-sort (such as bySize).
+    gViewWrapper.beginViewUpdate();
     gViewWrapper.showGroupedBySort = true;
+    gViewWrapper.endViewUpdate();
     threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
   },
   sortUnthreaded() {
