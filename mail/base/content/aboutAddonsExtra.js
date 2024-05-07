@@ -86,9 +86,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
             addon.blocklistState !== STATE_SOFTBLOCKED)))
     ) {
       return {
-        linkText: await document.l10n.formatValue(
-          "add-on-search-alternative-button-label"
-        ),
+        linkId: "add-on-search-alternative-button-label",
         linkUrl: `${alternativeAddonSearchUrl}?id=${encodeURIComponent(
           addon.id
         )}&q=${encodeURIComponent(name)}`,
