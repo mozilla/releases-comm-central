@@ -440,7 +440,7 @@ body {
     &[data-is-busy="true"] > .container > .icon {
       content: var(--icon-clock) !important;
       background-image: none;
-      --icon-color: var(--button-primary-background-color);
+      --icon-color: var(--button-primary-background-color) !important;
 
       @media (prefers-reduced-motion: no-preference) {
         content: var(--icon-loading) !important;
@@ -453,7 +453,7 @@ body {
     &[data-has-error="true"] > .container > .icon {
       content: var(--icon-warning) !important;
       background-image: none;
-      fill: var(--color-amber-30);
+      --icon-color: var(--color-amber-30) !important;
       stroke: var(--color-amber-60);
     }
 
