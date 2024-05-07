@@ -293,6 +293,9 @@ var commandController = {
       }
     },
     cmd_deleteMessage() {
+      if (!MailUtils.confirmDelete(false, gDBView, gFolder)) {
+        return;
+      }
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
@@ -303,6 +306,9 @@ var commandController = {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDeleteMessage() {
+      if (!MailUtils.confirmDelete(true, gDBView, gFolder)) {
+        return;
+      }
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
@@ -502,7 +508,10 @@ var commandController = {
       folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, true);
     const canMove = () =>
       numSelectedMessages >= 1 &&
-      (folder()?.canDeleteMessages || gViewWrapper.isSynthetic);
+      (folder()?.canDeleteMessages || gViewWrapper.isSynthetic) &&
+      !gViewWrapper.isExpandedGroupedByHeaderAtIndex(
+        gDBView.viewIndexForFirstSelectedMsg
+      );
 
     switch (command) {
       case "cmd_cancel":

@@ -24,6 +24,7 @@ var {
   create_thread,
   get_about_3pane,
   get_about_message,
+  get_special_folder,
   make_display_threaded,
   make_display_unthreaded,
   make_message_sets_in_folders,
@@ -48,8 +49,8 @@ var { MailUtils } = ChromeUtils.importESModule(
 );
 
 var unreadFolder, shiftDeleteFolder, threadDeleteFolder;
+var trashFolder, newsgroupFolder;
 var archiveSrcFolder = null;
-
 var tagArray;
 var gAutoRead;
 
@@ -63,6 +64,15 @@ add_setup(async function () {
   unreadFolder = await create_folder("UnreadFolder");
   shiftDeleteFolder = await create_folder("ShiftDeleteFolder");
   threadDeleteFolder = await create_folder("ThreadDeleteFolder");
+  trashFolder = await get_special_folder(
+    Ci.nsMsgFolderFlags.Trash,
+    true,
+    null,
+    false
+  );
+  newsgroupFolder = await create_folder("NewsgroupFolder", [
+    Ci.nsMsgFolderFlags.Newsgroup,
+  ]);
   archiveSrcFolder = await create_folder("ArchiveSrc");
 
   await make_message_sets_in_folders([unreadFolder], [{ count: 2 }]);
@@ -71,6 +81,8 @@ add_setup(async function () {
     [threadDeleteFolder],
     [create_thread(3), create_thread(3), create_thread(3)]
   );
+  await make_message_sets_in_folders([trashFolder], [{ count: 3 }]);
+  await make_message_sets_in_folders([newsgroupFolder], [{ count: 3 }]);
 
   // Create messages from 20 different months, which will mean 2 different
   // years as well.
@@ -469,6 +481,16 @@ add_task(async function roving_multi_message_buttons() {
   await assert_selected_and_displayed(curMessages);
 }).skip(AppConstants.platform == "macosx");
 
+function promise_and_check_alert_dialog(buttonName, warningText) {
+  return BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(win) {
+      const message = win.document.getElementById("infoBody");
+      Assert.equal(message.textContent, warningText);
+      win.document.querySelector("dialog").getButton(buttonName).click();
+    },
+  });
+}
+
 add_task(async function test_shift_delete_prompt() {
   await be_in_folder(shiftDeleteFolder);
   let curMessage = await select_click_row(0);
@@ -476,18 +498,18 @@ add_task(async function test_shift_delete_prompt() {
 
   // First, try shift-deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", true);
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  const warning =
+    "This will delete messages immediately, without saving a copy to Trash. Are you sure you want to continue?";
+  let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
   // We don't use press_delete here because we're not actually deleting this
   // time!
-  SimpleTest.ignoreAllUncaughtExceptions(true);
-  EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true });
-  SimpleTest.ignoreAllUncaughtExceptions(false);
+  EventUtils.synthesizeKey("KEY_Delete", { shiftKey: true });
   await dialogPromise;
   // Make sure we didn't actually delete the message.
   Assert.equal(curMessage, await select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
-  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window, { shiftKey: true });
   await dialogPromise;
   // Make sure we really did delete the message.
@@ -513,24 +535,24 @@ add_task(async function test_thread_delete_prompt() {
   goUpdateCommand("cmd_delete");
   // First, try deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
+  const warning =
+    "This will delete messages in collapsed threads. Are you sure you want to continue?";
+  let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
   // We don't use press_delete here because we're not actually deleting this
   // time!
-  SimpleTest.ignoreAllUncaughtExceptions(true);
-  EventUtils.synthesizeKey("VK_DELETE", {});
-  SimpleTest.ignoreAllUncaughtExceptions(false);
+  EventUtils.synthesizeKey("KEY_Delete");
   await dialogPromise;
   // Make sure we didn't actually delete the message.
   Assert.equal(curMessage, await select_click_row(0));
 
   // Second, try deleting and then accepting the deletion.
-  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, await select_click_row(0));
 
-  // Finally, try shift-deleting when we turned off the prompt.
+  // Finally, try deleting when we turned off the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
   curMessage = await select_click_row(0);
   await press_delete(window);
@@ -539,7 +561,77 @@ add_task(async function test_thread_delete_prompt() {
   Assert.notEqual(curMessage, await select_click_row(0));
 
   Services.prefs.clearUserPref("mail.warn_on_collapsed_thread_operation");
-}).skip(); // TODO: not working
+});
+
+add_task(async function test_delete_from_trash_prompt() {
+  await be_in_folder(trashFolder);
+  let curMessage = await select_click_row(0);
+  goUpdateCommand("cmd_Delete");
+
+  // First, try deleting and then cancelling at the prompt.
+  Services.prefs.setBoolPref("mail.warn_on_delete_from_trash", true);
+  const warning =
+    "This will permanently delete messages from Trash. Are you sure you want to continue?";
+  let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
+  // We don't use press_delete here because we're not actually deleting this
+  // time!
+  EventUtils.synthesizeKey("KEY_Delete");
+  await dialogPromise;
+  // Make sure we didn't actually delete the message.
+  Assert.equal(curMessage, await select_click_row(0));
+
+  // Second, try deleting and then accepting the deletion.
+  dialogPromise = promise_and_check_alert_dialog("accept", warning);
+  await press_delete(window);
+  await dialogPromise;
+  // Make sure we really did delete the message.
+  Assert.notEqual(curMessage, await select_click_row(0));
+
+  // Finally, try deleting when we turned off the prompt.
+  Services.prefs.setBoolPref("mail.warn_on_delete_from_trash", false);
+  curMessage = await select_click_row(0);
+  await press_delete(window);
+
+  // Make sure we really did delete the message.
+  Assert.notEqual(curMessage, await select_click_row(0));
+
+  Services.prefs.clearUserPref("mail.warn_on_delete_from_trash");
+});
+
+add_task(async function test_delete_from_newsgroup_prompt() {
+  await be_in_folder(newsgroupFolder);
+  let curMessage = await select_click_row(0);
+  goUpdateCommand("cmd_Delete");
+
+  // First, try deleting and then cancelling at the prompt.
+  Services.prefs.setBoolPref("news.warn_on_delete", true);
+  const warning =
+    "This will delete messages immediately, without saving a copy to Trash. Are you sure you want to continue?";
+  let dialogPromise = promise_and_check_alert_dialog("cancel", warning);
+  // We don't use press_delete here because we're not actually deleting this
+  // time!
+  EventUtils.synthesizeKey("KEY_Delete");
+  await dialogPromise;
+  // Make sure we didn't actually delete the message.
+  Assert.equal(curMessage, await select_click_row(0));
+
+  // Second, try deleting and then accepting the deletion.
+  dialogPromise = promise_and_check_alert_dialog("accept", warning);
+  await press_delete(window);
+  await dialogPromise;
+  // Make sure we really did delete the message.
+  Assert.notEqual(curMessage, await select_click_row(0));
+
+  // Finally, try deleting when we turned off the prompt.
+  Services.prefs.setBoolPref("news.warn_on_delete", false);
+  curMessage = await select_click_row(0);
+  await press_delete(window);
+
+  // Make sure we really did delete the message.
+  Assert.notEqual(curMessage, await select_click_row(0));
+
+  Services.prefs.clearUserPref("news.warn_on_delete");
+});
 
 add_task(async function test_yearly_archive() {
   await yearly_archive(false);

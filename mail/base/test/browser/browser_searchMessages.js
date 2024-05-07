@@ -346,7 +346,9 @@ add_task(async function () {
     testFolder,
     "DeleteOrMoveMsgCompleted"
   );
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true }, win);
+  await dialogPromise;
   await deletePromise;
   await TestUtils.waitForCondition(
     () => threadTree.view.rowCount == 7,

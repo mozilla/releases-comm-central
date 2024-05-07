@@ -969,6 +969,93 @@ export var MailUtils = {
       null
     );
   },
+
+  /**
+   * Display the appropriate warning to inform in which way messages will be
+   * deleted.
+   *
+   * @param {boolean} deleteStorage - If the messages are about to be deleted
+   *   permanently.
+   * @param {nsIMsgDBView} dbView - The view displaying the messages.
+   * @param {nsIMsgFolder} [folder] - Defaults to the folder of the first
+   *   selected message.
+   * @returns {boolean} - True, if the user confirms the deletion.
+   */
+  confirmDelete(deleteStorage, dbView, folder = null) {
+    if (!folder && dbView.numSelected >= 1) {
+      folder = dbView.hdrForFirstSelectedMessage?.folder;
+    }
+    const trashFolder = folder?.isSpecialFolder(
+      Ci.nsMsgFolderFlags.Trash,
+      true
+    );
+
+    let activePref = "";
+    let warningName = "";
+    const warnTrashDelPref = "mail.warn_on_delete_from_trash";
+    const warnShiftDelPref = "mail.warn_on_shift_delete";
+    const warnCollapsedPref = "mail.warn_on_collapsed_thread_operation";
+    const warnNewsPref = "news.warn_on_delete";
+
+    if (trashFolder && Services.prefs.getBoolPref(warnTrashDelPref, true)) {
+      activePref = warnTrashDelPref;
+      warningName = "confirmMsgDelete.deleteFromTrash.desc";
+    }
+    if (
+      !activePref &&
+      dbView.selection.count != dbView.numSelected &&
+      Services.prefs.getBoolPref(warnCollapsedPref, true)
+    ) {
+      activePref = warnCollapsedPref;
+      warningName = "confirmMsgDelete.collapsed.desc";
+    }
+    if (
+      !activePref &&
+      deleteStorage &&
+      !trashFolder &&
+      Services.prefs.getBoolPref(warnShiftDelPref, true)
+    ) {
+      activePref = warnShiftDelPref;
+      warningName = "confirmMsgDelete.deleteNoTrash.desc";
+    }
+    if (
+      !activePref &&
+      folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, true) &&
+      Services.prefs.getBoolPref(warnNewsPref, true)
+    ) {
+      activePref = warnNewsPref;
+      warningName = "confirmMsgDelete.deleteNoTrash.desc";
+    }
+    if (!activePref) {
+      return true;
+    }
+
+    const messengerBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    const dontAsk = { value: false };
+    if (
+      Services.prompt.confirmEx(
+        Services.wm.getMostRecentWindow(null),
+        messengerBundle.GetStringFromName("confirmMsgDelete.title"),
+        messengerBundle.GetStringFromName(warningName),
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
+        messengerBundle.GetStringFromName("confirmMsgDelete.delete.label"),
+        "",
+        "",
+        messengerBundle.GetStringFromName("confirmMsgDelete.dontAsk.label"),
+        dontAsk
+      ) != 0
+    ) {
+      return false;
+    }
+
+    if (dontAsk.value) {
+      Services.prefs.setBoolPref(activePref, false);
+    }
+    return true;
+  },
 };
 
 /**

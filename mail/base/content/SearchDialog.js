@@ -562,6 +562,14 @@ function onSearchButton(event) {
 }
 
 function MsgDeleteSelectedMessages(aCommandType) {
+  if (
+    !MailUtils.confirmDelete(
+      aCommandType == Ci.nsMsgViewCommandType.deleteNoTrash,
+      gDBView
+    )
+  ) {
+    return;
+  }
   gFolderDisplay.hintAboutToDeleteMessages();
   gFolderDisplay.doCommand(aCommandType);
 }
