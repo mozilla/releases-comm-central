@@ -451,15 +451,25 @@ add_task(async function test_manual_attachment_reminder() {
   const buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
-  await new Promise(resolve => setTimeout(resolve));
+  await TestUtils.waitForCondition(
+    () =>
+      cwc.document.getElementById("cmd_remindLater").getAttribute("checked") ==
+      "false",
+    "The manual reminder should get disabled"
+  );
 
   // We were alerted once and the manual reminder is automatically turned off.
   assert_manual_reminder_state(cwc, false);
 
   // Enable the manual reminder and disable it again to see if it toggles right.
   await click_manual_reminder(cwc, true);
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await TestUtils.waitForCondition(
+    () =>
+      cwc.document.getElementById("cmd_remindLater").getAttribute("checked") ==
+      "true",
+    "The manual reminder should get enabled"
+  );
+
   await click_manual_reminder(cwc, false);
 
   // Now try to send again, there should be no more alert.
@@ -469,7 +479,7 @@ add_task(async function test_manual_attachment_reminder() {
 
   // Delete the leftover draft message.
   await press_delete();
-}).skip(AppConstants.platform == "linux"); // See bug 1535292.
+});
 
 /**
  * Bug 938759
