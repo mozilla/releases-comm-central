@@ -492,6 +492,7 @@ add_task(async function testTabs() {
 
   const secondOpenedMessagePane =
     secondOpenedChromeBrowser.contentDocument.getElementById("messagepane");
+  await ensureBrowserLoaded(secondOpenedMessagePane);
   Assert.equal(
     secondOpenedMessagePane.currentURI.spec,
     messageToURL(messagesB[0])
