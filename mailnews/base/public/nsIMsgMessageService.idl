@@ -95,13 +95,12 @@ interface nsIMsgMessageService : nsISupports {
    * @param aGenerateDummyEnvelope Usually FALSE. Set to TRUE if you want the msg
    *        appended at the end of the file.
    * @param aUrlListener
-   * @param aURL
    * @param canonicalLineEnding
    * @param aMsgWindow
    */
-  void SaveMessageToDisk(in AUTF8String aMessageURI, in nsIFile aFile,
+  void saveMessageToDisk(in AUTF8String aMessageURI, in nsIFile aFile,
                          in boolean aGenerateDummyEnvelope,
-                         in nsIUrlListener aUrlListener, out nsIURI aURL,
+                         in nsIUrlListener aUrlListener,
                          in boolean canonicalLineEnding, in nsIMsgWindow aMsgWindow);
 
   /**

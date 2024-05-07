@@ -847,10 +847,8 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
     if (NS_FAILED(rv)) goto done;
 
     if (saveAsFileType == EML_FILE_TYPE) {
-      nsCOMPtr<nsIURI> dummyNull;
-      rv = messageService->SaveMessageToDisk(
-          aURI, saveAsFile, false, urlListener, getter_AddRefs(dummyNull), true,
-          mMsgWindow);
+      rv = messageService->SaveMessageToDisk(aURI, saveAsFile, false,
+                                             urlListener, true, mMsgWindow);
     } else {
       nsAutoCString urlString(aURI);
 
@@ -936,10 +934,9 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
                                       getter_AddRefs(urlListener));
     if (NS_FAILED(rv)) goto done;
 
-    nsCOMPtr<nsIURI> dummyNull;
-    rv = messageService->SaveMessageToDisk(
-        aURI, tmpFile, needDummyHeader, urlListener, getter_AddRefs(dummyNull),
-        canonicalLineEnding, mMsgWindow);
+    rv = messageService->SaveMessageToDisk(aURI, tmpFile, needDummyHeader,
+                                           urlListener, canonicalLineEnding,
+                                           mMsgWindow);
   }
 
 done:
@@ -1152,10 +1149,8 @@ nsMessenger::SaveMessages(const nsTArray<nsString>& aFilenameArray,
     }
 
     // Ok, now save the message.
-    nsCOMPtr<nsIURI> dummyNull;
     rv = messageService->SaveMessageToDisk(
-        aMessageUriArray[i], saveToFile, false, urlListener,
-        getter_AddRefs(dummyNull), true, mMsgWindow);
+        aMessageUriArray[i], saveToFile, false, urlListener, true, mMsgWindow);
     if (NS_FAILED(rv)) {
       Alert("saveMessageFailed");
       return rv;

@@ -63,7 +63,7 @@ add_task(async function run_the_test() {
   do_test_pending();
   do_timeout(10000, function () {
     do_throw(
-      "SaveMessageToDisk did not complete within 10 seconds" +
+      "saveMessageToDisk did not complete within 10 seconds" +
         "(incorrect messageURI?). ABORTING."
     );
   });
@@ -71,12 +71,12 @@ add_task(async function run_the_test() {
   // Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
   // test also runs successfully on platforms not using CRLF by default.
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  gIMAPService.SaveMessageToDisk(
+  gIMAPService.saveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (inbox.uidnext - 1),
     gSavedMsgFile,
     false,
     promiseUrlListener,
-    {},
+
     true,
     null
   );

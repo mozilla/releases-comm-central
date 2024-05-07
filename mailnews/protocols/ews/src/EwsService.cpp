@@ -55,10 +55,12 @@ NS_IMETHODIMP EwsService::LoadMessage(const nsACString& aMessageURI,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP EwsService::SaveMessageToDisk(
-    const nsACString& aMessageURI, nsIFile* aFile, bool aGenerateDummyEnvelope,
-    nsIUrlListener* aUrlListener, nsIURI** aURL, bool canonicalLineEnding,
-    nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP EwsService::SaveMessageToDisk(const nsACString& aMessageURI,
+                                            nsIFile* aFile,
+                                            bool aGenerateDummyEnvelope,
+                                            nsIUrlListener* aUrlListener,
+                                            bool canonicalLineEnding,
+                                            nsIMsgWindow* aMsgWindow) {
   NS_WARNING("SaveMessageToDisk");
   return NS_ERROR_NOT_IMPLEMENTED;
 }

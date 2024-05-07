@@ -76,16 +76,15 @@ class BaseMessageService {
     this.loadMessage(messageUri, copyListener, msgWindow, urlListener, false);
   }
 
-  SaveMessageToDisk(
+  saveMessageToDisk(
     messageUri,
     file,
     addDummyEnvelope,
     urlListener,
-    outUrl,
     canonicalLineEnding,
     msgWindow
   ) {
-    this._logger.debug("SaveMessageToDisk", messageUri);
+    this._logger.debug("saveMessageToDisk", messageUri);
     const url = this.getUrlForUri(messageUri, msgWindow);
     if (urlListener) {
       url.RegisterListener(urlListener);

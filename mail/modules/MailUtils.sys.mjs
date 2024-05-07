@@ -960,12 +960,11 @@ export var MailUtils = {
         MailUtils.openEMLFile(win, tempFile, Services.io.newFileURI(tempFile));
       },
     };
-    messageService.SaveMessageToDisk(
+    messageService.saveMessageToDisk(
       url.href,
       tempFile,
       false,
       urlListener,
-      {},
       true,
       null
     );

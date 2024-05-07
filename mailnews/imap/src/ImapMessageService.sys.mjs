@@ -86,16 +86,15 @@ class BaseMessageService {
     imapUrl.loadURI(docShell, Ci.nsIWebNavigation.LOAD_FLAGS_NONE);
   }
 
-  SaveMessageToDisk(
+  saveMessageToDisk(
     messageUri,
     file,
     addDummyEnvelope,
     urlListener,
-    outUrl,
     canonicalLineEnding,
     msgWindow
   ) {
-    this._logger.debug("SaveMessageToDisk", messageUri);
+    this._logger.debug("saveMessageToDisk", messageUri);
     const { serverURI, folder, folderName, key } =
       this._decomposeMessageUri(messageUri);
     const imapUrl = Services.io

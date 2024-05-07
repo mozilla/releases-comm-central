@@ -661,10 +661,12 @@ nsresult nsImapService::DecomposeImapURI(const nsACString& aMessageURI,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapService::SaveMessageToDisk(
-    const nsACString& aMessageURI, nsIFile* aFile, bool aAddDummyEnvelope,
-    nsIUrlListener* aUrlListener, nsIURI** aURL, bool canonicalLineEnding,
-    nsIMsgWindow* aMsgWindow) {
+NS_IMETHODIMP nsImapService::SaveMessageToDisk(const nsACString& aMessageURI,
+                                               nsIFile* aFile,
+                                               bool aAddDummyEnvelope,
+                                               nsIUrlListener* aUrlListener,
+                                               bool canonicalLineEnding,
+                                               nsIMsgWindow* aMsgWindow) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsCOMPtr<nsIImapUrl> imapUrl;
   nsMsgKey msgKey;
@@ -700,9 +702,10 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(
     // IMAP code uses UID as msgkey.
     nsAutoCString uid;
     uid.AppendInt(msgKey);
+    nsCOMPtr<nsIURI> dummyNull;
     return FetchMessage(imapUrl, nsIImapUrl::nsImapSaveMessageToDisk, folder,
                         imapMessageSink, aMsgWindow, saveAsListener, uid, false,
-                        aURL);
+                        getter_AddRefs(dummyNull));
   }
   return rv;
 }
