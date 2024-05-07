@@ -684,8 +684,6 @@ richlistitem:not([selected]) .protoIconDimmed {
 }
 
 .conv-logs-header-label {
-  appearance: auto;
-  -moz-default-appearance: treeheadercell;
   margin: 0;
   margin-inline-end: -1px;
   padding-inline-start: 3px;

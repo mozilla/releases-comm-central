@@ -71,7 +71,6 @@
 
 .conv-nicklist-header,
 .conv-logs-header-label {
-  appearance: none;
   margin: 0;
   padding-block: 2px;
   border-bottom: 1px solid ThreeDShadow;
