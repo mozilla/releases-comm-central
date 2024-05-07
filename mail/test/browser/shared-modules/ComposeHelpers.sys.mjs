@@ -1670,7 +1670,11 @@ export class FormatHelper {
     Assert.equal(
       getDifference(bodyBlock, expectBlock, "HTML", 0),
       null,
-      `${assertMessage}: Should be no difference in body content`
+      `${assertMessage}: Should be no difference in body content: bodyblock=${JSON.stringify(
+        bodyBlock,
+        null,
+        2
+      )}`
     );
   }
 

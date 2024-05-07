@@ -359,6 +359,8 @@ const gCommandMap = new Map([
   ["cmd_ul", "InsertUnorderedList"],
   ["cmd_ol", "InsertOrderedList"],
   ["cmd_fontFace", "fontName"],
+  ["cmd_indent", "indent"],
+  ["cmd_outdent", "outdent"],
 
   // This are currently implemented with the help of
   // color selection dialog box in the editor.js.
