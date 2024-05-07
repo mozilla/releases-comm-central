@@ -110,6 +110,7 @@ var FolderNotificationHelper = {
     try {
       aFolder.updateFolder(aMsgWindow);
     } catch (ex) {
+      console.warn(`Update folder ${folderURI} failed.`, ex);
       // uh-oh, that didn't work.  tear down the data structure...
       wrappers.pop();
       if (wrappers.length == 0) {
@@ -224,6 +225,12 @@ var FolderNotificationHelper = {
     }
   },
 
+  /**
+   * @param {nsIMsgFolder} aFolder - The folder that the event is for.
+   * @param {string} aEvent - The event: "FolderLoaded", "AboutToCompact",
+   *   "CompactCompleted", "DeleteOrMoveMsgCompleted", "DeleteOrMoveMsgFailed",
+   *   "RenameCompleted" are handled.
+   */
   onFolderEvent(aFolder, aEvent) {
     if (aEvent == "FolderLoaded") {
       const folderURI = aFolder.URI;
@@ -236,19 +243,7 @@ var FolderNotificationHelper = {
           try {
             widget._folderLoaded(aFolder);
           } catch (ex) {
-            dump(
-              "``` EXCEPTION DURING NOTIFY: " +
-                ex.fileName +
-                ":" +
-                ex.lineNumber +
-                ": " +
-                ex +
-                "\n"
-            );
-            if (ex.stack) {
-              dump("STACK: " + ex.stack + "\n");
-            }
-            console.error(ex);
+            console.error(`_folderLoaded for ${folderURI} failed.`, ex);
           }
         }
         delete this._pendingFolderUriToViewWrapperLists[folderURI];
@@ -848,8 +843,8 @@ DBViewWrapper.prototype = {
       this._prepareToLoadView(msgDatabase, aFolder);
     }
 
+    this.folderLoading = true;
     if (!this.isVirtual) {
-      this.folderLoading = true;
       FolderNotificationHelper.updateFolderAndNotifyOnLoad(
         this.displayedFolder,
         this,
@@ -857,10 +852,12 @@ DBViewWrapper.prototype = {
       );
     }
 
-    // we do this after kicking off the update because this could initiate a
-    //  search which could fight our explicit updateFolder call if the search
-    //  is already outstanding.
-    if (this.shouldShowMessagesForFolderImmediately()) {
+    // We do this after kicking off the update because this could initiate a
+    // search which could fight our explicit updateFolderAndNotifyOnLoad call
+    // if the search is already outstanding.
+    // If folder loaded directly from the updateFolderAndNotifyOnLoad above
+    // no need to enter it once again now.
+    if (this.folderLoading && this.shouldShowMessagesForFolderImmediately()) {
       this._enterFolder();
     }
   },
@@ -964,10 +961,10 @@ DBViewWrapper.prototype = {
    *   there is an obvious hole in this logic because of the virtual folder case
    *   above.
    *
-   * @pre this.folderDisplayed is the folder we are talking about.
+   * Note: this.folderDisplayed is the folder we are talking about.
    *
-   * @returns true if the folder should be shown immediately, false if we should
-   *     wait for updateFolder to complete.
+   * @returns {boolean} true if the folder should be shown immediately
+   *   false if we should wait for updateFolder to complete.
    */
   shouldShowMessagesForFolderImmediately() {
     return (
@@ -1511,13 +1508,11 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * Apply accumulated changes to the view.  If we are in a batch, we do
-   *  nothing, relying on endDisplayUpdate to call us.
+   * Apply accumulated changes to the view.
    */
   _applyViewChanges() {
-    // if we are in a batch, wait for endDisplayUpdate to be called to get us
-    //  out to zero.
     if (this._viewUpdateDepth) {
+      // In a batch, do nothing.
       return;
     }
     // make the dbView stop being a search listener if it is one

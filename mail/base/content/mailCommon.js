@@ -969,8 +969,9 @@ var dbViewWrapperListener = {
    * TODO: Consider retiring this in favor of an folders.onLeavingFolder API
    * event (or something similar) that add-ons could hook into.
    *
+   * @param {nsIMsgFolder} msgFolder
    * @returns {boolean} true if we should mark this folder as read when leaving
-   * it.
+   *   it.
    */
   shouldMarkMessagesReadOnLeavingFolder(msgFolder) {
     return Services.prefs.getBoolPref(
@@ -1017,12 +1018,23 @@ var dbViewWrapperListener = {
   },
   onDisplayingFolder() {},
   onLeavingFolder() {},
+  /**
+   * @param {boolean} all - Whether all messages have now been loaded.
+   *   When false, expect that updateFolder or a search will soon come along
+   *   with another load. The all==false case is needed for good perceived
+   *   performance. Updating the folder can take seconds during which you
+   *   would otherwise not be able to see the message list for the folder, which
+   *   may or may not really change once we get the update from the server.
+   */
   onMessagesLoaded(all) {
     if (!window.threadPane) {
       return;
     }
 
     if (all) {
+      // Opening a cross-folder view grouped by sort in expand-all state
+      // has performance issues. Therefore only expand the groups when all
+      // messages have been loaded, if necessary.
       window.threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
     }
 
