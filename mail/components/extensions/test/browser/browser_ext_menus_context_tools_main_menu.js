@@ -77,7 +77,7 @@ add_task(async function test_tools_menu_mv2() {
   );
 
   toolbar.setAttribute("inactive", initialState);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 add_task(async function test_compose_tools_menu_mv2() {
   const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
@@ -92,7 +92,7 @@ add_task(async function test_compose_tools_menu_mv2() {
     }
   );
   await BrowserTestUtils.closeWindow(testWindow);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 add_task(async function test_messagewindow_tools_menu_mv2() {
   const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
@@ -107,7 +107,7 @@ add_task(async function test_messagewindow_tools_menu_mv2() {
     }
   );
   await BrowserTestUtils.closeWindow(testWindow);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 add_task(async function test_tools_menu_mv3() {
   const toolbar = window.document.getElementById("toolbar-menubar");
   const initialState = toolbar.getAttribute("inactive");
@@ -125,7 +125,7 @@ add_task(async function test_tools_menu_mv3() {
   );
 
   toolbar.setAttribute("inactive", initialState);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 add_task(async function test_compose_tools_menu_mv3() {
   const testWindow = await openComposeWindow(gAccount);
   await focusWindow(testWindow);
@@ -140,7 +140,7 @@ add_task(async function test_compose_tools_menu_mv3() {
     }
   );
   await BrowserTestUtils.closeWindow(testWindow);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 add_task(async function test_messagewindow_tools_menu_mv3() {
   const testWindow = await openMessageInWindow(gMessage);
   await focusWindow(testWindow);
@@ -155,4 +155,4 @@ add_task(async function test_messagewindow_tools_menu_mv3() {
     }
   );
   await BrowserTestUtils.closeWindow(testWindow);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");

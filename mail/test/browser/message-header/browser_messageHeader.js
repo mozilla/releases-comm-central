@@ -418,7 +418,7 @@ add_task(async function enter_msg_hdr_toolbar() {
     "fromRecipient0",
     "The sender is now focused"
   );
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 
 // Full keyboard navigation on OSX only works if Full Keyboard Access setting is
 // set to All Control in System Keyboard Preferences. This also works with the

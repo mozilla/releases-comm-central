@@ -483,7 +483,7 @@ add_task(async function test_setting_send_format() {
       `${boldMessage ? "Bold" : "Plain"} message set as ${sendFormat}`
     );
   }
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 // Can't click menu bar on Mac to change the send format.
 
 add_task(async function test_saving_draft_with_set_format() {
@@ -525,7 +525,7 @@ add_task(async function test_saving_draft_with_set_format() {
       `Bold draft message set as ${sendFormat}`
     );
   }
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 // Can't click menu bar on Mac to change the send format.
 
 add_task(async function test_saving_draft_with_new_preference() {

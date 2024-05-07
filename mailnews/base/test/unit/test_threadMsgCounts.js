@@ -251,7 +251,7 @@ add_task(async function testGroupedBySortByDate() {
   ]);
 
   injection.deleteFolder(folder);
-}).__skipMe = now.getHours() == 0 && now.getMinutes() < 5;
+}).skip(now.getHours() == 0 && now.getMinutes() < 5);
 // (This test will fail if it runs too close to the start of the day.)
 
 add_task(async function testGroupedBySortByAuthor() {

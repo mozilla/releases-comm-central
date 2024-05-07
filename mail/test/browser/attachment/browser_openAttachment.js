@@ -536,7 +536,7 @@ add_task(async function alwaysAskRemember() {
   const file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, false);
-}).__skipMe = !IMPROVEMENTS_PREF_SET;
+}).skip(!IMPROVEMENTS_PREF_SET);
 
 /**
  * Open a content type set to always ask without asking (weird but plausible).
@@ -554,7 +554,7 @@ add_task(async function alwaysAskForget() {
   const file = await verifyAndFetchSavedAttachment();
   file.remove(false);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, true);
-}).__skipMe = !IMPROVEMENTS_PREF_SET;
+}).skip(!IMPROVEMENTS_PREF_SET);
 
 /**
  * Open a content type set to use helper app.

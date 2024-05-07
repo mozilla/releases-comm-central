@@ -201,11 +201,11 @@ async function internal_check_delivery_format(editDraft) {
 
 add_task(async function test_save_delivery_format_with_edit_draft() {
   await internal_check_delivery_format(true);
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 add_task(async function test_save_delivery_format_with_edit_template() {
   await internal_check_delivery_format(false);
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 /**
  * Tests that 'Edit as New' leaves the original message in drafts folder.

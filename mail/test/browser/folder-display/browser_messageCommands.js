@@ -399,7 +399,7 @@ add_task(async function test_mark_thread_as_read() {
   );
 
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
-}).__skipMe = true; // See bug 654362.
+}).skip(); // See bug 654362.
 
 add_task(async function roving_multi_message_buttons() {
   await be_in_folder(unreadFolder);
@@ -467,7 +467,7 @@ add_task(async function roving_multi_message_buttons() {
   EventUtils.synthesizeKey("KEY_Escape", {});
   EventUtils.synthesizeKey("KEY_Escape", {});
   await assert_selected_and_displayed(curMessages);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 
 add_task(async function test_shift_delete_prompt() {
   await be_in_folder(shiftDeleteFolder);

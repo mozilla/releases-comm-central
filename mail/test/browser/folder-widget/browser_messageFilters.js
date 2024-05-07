@@ -137,7 +137,7 @@ add_task(async function key_navigation_test() {
   }
 
   await BrowserTestUtils.closeWindow(filterc);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 
 /*
  * Test that the message filter list shows newsgroup servers.

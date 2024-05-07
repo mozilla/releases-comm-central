@@ -356,7 +356,7 @@ add_task(async function testDeleteItem() {
   });
 
   Services.focus.focusedWindow = window;
-}).__skipMe = AppConstants.DEBUG; // Too unreliable.
+}).skip(AppConstants.DEBUG); // Too unreliable.
 
 /**
  * Tests the "Favorite Folder" item in the menu is checked/unchecked as expected.

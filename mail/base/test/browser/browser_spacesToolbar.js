@@ -885,7 +885,7 @@ add_task(async function testSpacesToolbarMenubar() {
     menuButton.getAttribute("checked") == "true",
     "The menu item is checked"
   );
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 add_task(async function testSpacesToolbarOSX() {
   const size = document
@@ -918,7 +918,7 @@ add_task(async function testSpacesToolbarOSX() {
   window.fullScreen = false;
   await new Promise(resolve => requestAnimationFrame(resolve));
   await styleRemovedPromise;
-}).__skipMe = AppConstants.platform != "macosx";
+}).skip(AppConstants.platform != "macosx");
 
 add_task(async function testSpacesToolbarClearedAlignment() {
   // Hide the spaces toolbar to check if the style it's cleared.

@@ -243,18 +243,18 @@ add_setup(async function () {
  */
 add_task(async function testMenuBarAddEventUndoRedo() {
   return testAddUndoRedoEvent("menu_undo", "menu_redo");
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 /**
  * Tests the menu bar's undo/redo after modifying an event.
  */
 add_task(async function testMenuBarModifyEventUndoRedo() {
   return testModifyUndoRedoEvent("menu_undo", "menu_redo");
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.
 
 /**
  * Tests the menu bar's undo/redo after deleting an event.
  */
 add_task(async function testMenuBarDeleteEventUndoRedo() {
   return testDeleteUndoRedo("menu_undo", "menu_redo");
-}).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
+}).skip(AppConstants.platform == "macosx"); // Can't click menu bar on Mac.

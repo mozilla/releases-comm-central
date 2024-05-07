@@ -117,7 +117,7 @@ add_task(async function test_view_threads_ignored_threads() {
   await select_click_row(0);
   await assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");
 
 /**
  * Test that Watch Thread makes the thread watched.
@@ -151,4 +151,4 @@ add_task(async function test_watch_thread() {
     undefined,
     "Test ran to completion successfully"
   );
-}).__skipMe = AppConstants.platform == "macosx";
+}).skip(AppConstants.platform == "macosx");

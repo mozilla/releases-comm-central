@@ -469,7 +469,7 @@ add_task(async function test_manual_attachment_reminder() {
 
   // Delete the leftover draft message.
   await press_delete();
-}).__skipMe = AppConstants.platform == "linux"; // See bug 1535292.
+}).skip(AppConstants.platform == "linux"); // See bug 1535292.
 
 /**
  * Bug 938759

@@ -817,4 +817,4 @@ add_task(async function testNewEvent() {
   expectedDate.resetTo(2018, 8, 1, expectedDate.hour, 0, 0, cal.dtz.UTC);
 
   await checkEventDialogDate();
-}).__skipMe = new Date().getUTCHours() == 23;
+}).skip(new Date().getUTCHours() == 23);
