@@ -23,6 +23,10 @@ export const SmartServerUtils = {
     // { flag: Ci.nsMsgFolderFlags.Queue, name: "Outbox" },
   ],
 
+  /**
+   * Returns the smart mailbox server, or creates it, if it does not exist yet.
+   * @returns {nsIMsgIncomingServer}
+   */
   getSmartServer() {
     let smartServer = lazy.MailServices.accounts.findServer(
       "nobody",
@@ -119,5 +123,51 @@ export const SmartServerUtils = {
       }
     }
     return smartServer;
+  },
+
+  /**
+   * Returns the smart folder corresponding to the requested flag, or null if it
+   * does not exist. (smart folders are currently created in about3Pane.js)
+   *
+   * @param {nsMsgFolderFlags} smartFlag
+   * @returns {?nsIMsgFolder}
+   */
+  getSmartFolder(smartFlag) {
+    const smartRoot = this.getSmartServer().rootFolder.QueryInterface(
+      Ci.nsIMsgLocalMailFolder
+    );
+    if (!smartRoot) {
+      return null;
+    }
+    return smartRoot.getFolderWithFlags(smartFlag);
+  },
+
+  /**
+   * Returns the tag folder corresponding to the requested tag key, or null if it
+   * does not exist. (tag folders are currently created in about3Pane.js)
+   *
+   * @param {string} tag
+   * @returns {?nsIMsgFolder}
+   */
+  getTagFolder(tag) {
+    const smartRoot = this.getSmartServer().rootFolder.QueryInterface(
+      Ci.nsIMsgLocalMailFolder
+    );
+    if (!smartRoot) {
+      return null;
+    }
+    const smartTags = smartRoot.getChildWithURI(
+      `${smartRoot.URI}/tags`,
+      false,
+      false
+    );
+    if (!smartTags) {
+      return null;
+    }
+    return smartTags.getChildWithURI(
+      `${smartTags.URI}/${encodeURIComponent(tag)}`,
+      false,
+      false
+    );
   },
 };

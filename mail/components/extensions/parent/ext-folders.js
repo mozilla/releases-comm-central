@@ -1210,19 +1210,36 @@ this.folders = class extends ExtensionAPIPersistent {
             );
           }
 
-          const smartServer = SmartServerUtils.getSmartServer();
-          const smartFolder =
-            smartServer.rootFolder.getFolderWithFlags(smartFlag);
+          const smartFolder = SmartServerUtils.getSmartFolder(smartFlag);
           if (!smartFolder) {
             throw new ExtensionError(
               `folders.getUnifiedFolder() failed, the folder for the requested type ${requestedType} does not exist`
             );
           }
-
           if (includeSubFolders) {
             return folderManager.traverseSubfolders(smartFolder);
           }
           return folderManager.convert(smartFolder);
+        },
+        async getTagFolder(requestedTagKey, includeSubFolders) {
+          const { folderManager } = context.extension;
+          const allKeys = MailServices.tags.getAllTags().map(({ key }) => key);
+          if (!allKeys.includes(requestedTagKey)) {
+            throw new ExtensionError(
+              `folders.getTagFolder() failed, the requested tag key ${requestedTagKey} is unknown`
+            );
+          }
+
+          const tagFolder = SmartServerUtils.getTagFolder(requestedTagKey);
+          if (!tagFolder) {
+            throw new ExtensionError(
+              `folders.getTagFolder() failed, the folder for the requested tag key ${requestedTagKey} does not exist`
+            );
+          }
+          if (includeSubFolders) {
+            return folderManager.traverseSubfolders(tagFolder);
+          }
+          return folderManager.convert(tagFolder);
         },
         markAsRead(target) {
           const { folder, path } = getFolder(target);

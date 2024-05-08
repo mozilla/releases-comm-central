@@ -10,9 +10,8 @@ add_setup(async () => {
   const rootFolder = account.incomingServer.rootFolder;
   const trashFolder = rootFolder.getChildNamed("Trash");
 
-  rootFolder.createSubfolder("Test", null);
-  const testFolder = rootFolder.getChildNamed("Test");
-  testFolder.createSubfolder("Test1", null);
+  rootFolder.createSubfolder("Test1", null);
+  const testFolder = rootFolder.getChildNamed("Test1");
   testFolder.createSubfolder("Test2", null);
 
   createMessages(trashFolder, 10);
@@ -32,11 +31,13 @@ add_task(async () => {
       return state;
     }
 
+    const unifiedInbox = await browser.folders.getUnifiedFolder("inbox");
+
     const { id: mailTabId } = await browser.mailTabs.getCurrent();
     const [trashFolder] = await browser.folders.query({ name: "Trash" });
-    const accountId = trashFolder.accountId;
+    const [testFolder] = await browser.folders.query({ name: "Test2" });
 
-    const [test2Folder] = await browser.folders.query({ name: "Test2" });
+    const accountId = trashFolder.accountId;
     const [rootFolder] = await browser.folders.query({
       accountId,
       isRoot: true,
@@ -101,19 +102,19 @@ add_task(async () => {
     // Switch to the test folder and enforce "all" mode.
     await browser.mailTabs.update(mailTabId, {
       folderMode: "all",
-      displayedFolder: test2Folder.id,
+      displayedFolder: testFolder.id,
     });
     await checkState(
       mailTabId,
       {
         folderMode: "all",
         folderModesEnabled: ["unified", "all"],
-        displayedFolder: { id: test2Folder.id },
+        displayedFolder: { id: testFolder.id },
       },
       {
         modeName: "all",
         activeModes: ["smart", "all"],
-        folderUri: `mailbox://${accountId}user@localhost/Test/Test2`,
+        folderUri: `mailbox://${accountId}user@localhost/Test1/Test2`,
       }
     );
 
@@ -132,12 +133,12 @@ add_task(async () => {
       {
         folderMode: "all",
         folderModesEnabled: ["unified", "all", "tags"],
-        displayedFolder: { id: test2Folder.id },
+        displayedFolder: { id: testFolder.id },
       },
       {
         modeName: "all",
         activeModes: ["smart", "all", "tags"],
-        folderUri: `mailbox://${accountId}user@localhost/Test/Test2`,
+        folderUri: `mailbox://${accountId}user@localhost/Test1/Test2`,
       }
     );
 
@@ -200,12 +201,16 @@ add_task(async () => {
     await browser.mailTabs.update(mailTabId, {
       folderMode: "tags",
     });
+    // TODO: Only after the UI loaded the tags container, the virtual tag folders
+    // are created. That code has to be moved from about3pane.js into
+    // SmartServerUtils.sys.mjs
+    const tagFolderLabel1 = await browser.folders.getTagFolder("$label1");
     await checkState(
       mailTabId,
       {
         folderMode: "tags",
         folderModesEnabled: ["recent", "tags", "unified"],
-        displayedFolder: { id: "unified://tags/$label1" },
+        displayedFolder: { id: tagFolderLabel1.id },
       },
       {
         modeName: "tags",
@@ -223,7 +228,7 @@ add_task(async () => {
       {
         folderMode: "tags",
         folderModesEnabled: ["tags"],
-        displayedFolder: { id: "unified://tags/$label1" },
+        displayedFolder: { id: tagFolderLabel1.id },
       },
       {
         modeName: "tags",
@@ -262,7 +267,7 @@ add_task(async () => {
     // throw.
     browser.test.assertRejects(
       browser.mailTabs.update(mailTabId, {
-        displayedFolder: "unified://Inbox",
+        displayedFolder: unifiedInbox.id,
       }),
       /Requested folder is not viewable in any of the enabled folder modes/,
       "Should reject if it is not possible to view the requested folder."
