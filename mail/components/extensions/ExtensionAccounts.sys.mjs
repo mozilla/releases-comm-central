@@ -74,7 +74,7 @@ export class AccountManager {
         account.key
       );
       mailAccount.rootFolder.subFolders = subFolders;
-    } else {
+    } else if (this.extension.manifestVersion < 3) {
       mailAccount.rootFolder.subFolders = null;
     }
 

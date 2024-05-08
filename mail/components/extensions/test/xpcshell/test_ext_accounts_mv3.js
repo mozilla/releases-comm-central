@@ -57,7 +57,7 @@ add_task(async function test_accounts() {
       const result1WithOutFolders = await browser.accounts.list(false);
       for (const account of result1WithOutFolders) {
         browser.test.assertEq(
-          null,
+          undefined,
           account.rootFolder.subFolders,
           "Folders not included"
         );
@@ -127,7 +127,7 @@ add_task(async function test_accounts() {
         false
       );
       browser.test.assertEq(
-        null,
+        undefined,
         result3WithoutFolders.rootFolder.subFolders,
         "Folders not included"
       );
@@ -136,7 +136,7 @@ add_task(async function test_accounts() {
         false
       );
       browser.test.assertEq(
-        null,
+        undefined,
         result4WithoutFolders.rootFolder.subFolders,
         "Folders not included"
       );
