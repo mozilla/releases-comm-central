@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
-  SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
+  SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
 var { CachedFolder, folderURIToPath, getFolder, specialUseMap, getSpecialUse } =
@@ -637,16 +637,19 @@ this.folders = class extends ExtensionAPIPersistent {
               });
             }
           } else if (queryInfo.isUnified) {
-            const smartServer = SmartServerUtils.getSmartServer();
-            const smartAccount =
-              MailServices.accounts.findAccountForServer(smartServer);
-            if (smartAccount) {
-              for (const folder of smartServer.rootFolder.subFolders) {
-                // Require unified folders to have a special use.
-                if (getSpecialUse(folder.flags).length) {
+            const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+            if (smartMailbox.account) {
+              const allowedFolderFlags =
+                SmartMailboxUtils.getFolderTypes().reduce(
+                  (acc, { flag }) => acc | flag,
+                  0
+                );
+              for (const folder of smartMailbox.rootFolder.subFolders) {
+                // Require unified folders to have an allowed folder type.
+                if (allowedFolderFlags & folder.flags) {
                   parentFolders.push({
                     rootFolder: folder,
-                    accountId: smartAccount.key,
+                    accountId: smartMailbox.account.key,
                   });
                 }
               }
@@ -1154,9 +1157,16 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getParentFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-          let { folder, accountKey } = getFolder(target);
+          let { folder, accountKey, isUnified } = getFolder(target);
 
           const parentFolders = [];
+          // Early exit for unified folders. For the WebExtension API, these
+          // folders exist independently of an account, and we do not want to
+          // expose them belonging to a common base account.
+          if (isUnified) {
+            return [];
+          }
+
           // MV3 considers the rootFolder as a true folder.
           while (
             folder.parent != null &&
@@ -1201,16 +1211,19 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getUnifiedFolder(requestedType, includeSubFolders) {
           const { folderManager } = context.extension;
-          const [smartFlag] = [...specialUseMap]
-            .filter(([, type]) => type == requestedType)
-            .map(([flag]) => flag);
-          if (!smartFlag) {
+          const { name: smartFolderName } =
+            SmartMailboxUtils.getFolderTypes().find(
+              ({ type }) => type == requestedType
+            );
+
+          if (!smartFolderName) {
             throw new ExtensionError(
               `folders.getUnifiedFolder() failed, the requested type ${requestedType} is unknown`
             );
           }
 
-          const smartFolder = SmartServerUtils.getSmartFolder(smartFlag);
+          const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+          const smartFolder = smartMailbox.getSmartFolder(smartFolderName);
           if (!smartFolder) {
             throw new ExtensionError(
               `folders.getUnifiedFolder() failed, the folder for the requested type ${requestedType} does not exist`
@@ -1223,14 +1236,17 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getTagFolder(requestedTagKey, includeSubFolders) {
           const { folderManager } = context.extension;
-          const allKeys = MailServices.tags.getAllTags().map(({ key }) => key);
-          if (!allKeys.includes(requestedTagKey)) {
+          const tag = MailServices.tags
+            .getAllTags()
+            .find(t => t.key == requestedTagKey);
+          if (!tag) {
             throw new ExtensionError(
               `folders.getTagFolder() failed, the requested tag key ${requestedTagKey} is unknown`
             );
           }
 
-          const tagFolder = SmartServerUtils.getTagFolder(requestedTagKey);
+          const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+          const tagFolder = smartMailbox.getTagFolder(tag);
           if (!tagFolder) {
             throw new ExtensionError(
               `folders.getTagFolder() failed, the folder for the requested tag key ${requestedTagKey} does not exist`

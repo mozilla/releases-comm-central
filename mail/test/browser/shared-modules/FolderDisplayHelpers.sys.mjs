@@ -14,7 +14,7 @@ import {
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
-import { SmartServerUtils } from "resource:///modules/SmartServerUtils.sys.mjs";
+import { SmartMailboxUtils } from "resource:///modules/SmartMailboxUtils.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import { MailConsts } from "resource:///modules/MailConsts.sys.mjs";
@@ -1233,8 +1233,8 @@ export function middle_click_on_folder(aFolder, shiftPressed) {
  * @returns An nsIMsgFolder representing the smart folder with the given name.
  */
 export function get_smart_folder_named(aFolderName) {
-  const smartServer = SmartServerUtils.getSmartServer();
-  return smartServer.rootFolder.getChildNamed(aFolderName);
+  const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+  return smartMailbox.getSmartFolder(aFolderName);
 }
 
 /**

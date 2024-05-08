@@ -143,7 +143,8 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   about3Pane.folderPane.activeModes = ["all", "tags"];
-  tagsFolder = about3Pane.folderPane._modes.tags._tagsFolder.subFolders[0];
+  tagsFolder =
+    about3Pane.folderPane._modes.tags._smartMailbox.tagsFolder.subFolders[0];
 
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);

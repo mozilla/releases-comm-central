@@ -31,6 +31,7 @@ add_task(async () => {
       return state;
     }
 
+    const tagFolderLabel1 = await browser.folders.getTagFolder("$label1");
     const unifiedInbox = await browser.folders.getUnifiedFolder("inbox");
 
     const { id: mailTabId } = await browser.mailTabs.getCurrent();
@@ -201,10 +202,6 @@ add_task(async () => {
     await browser.mailTabs.update(mailTabId, {
       folderMode: "tags",
     });
-    // TODO: Only after the UI loaded the tags container, the virtual tag folders
-    // are created. That code has to be moved from about3pane.js into
-    // SmartServerUtils.sys.mjs
-    const tagFolderLabel1 = await browser.folders.getTagFolder("$label1");
     await checkState(
       mailTabId,
       {

@@ -4,7 +4,7 @@
 
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-import { SmartServerUtils } from "resource:///modules/SmartServerUtils.sys.mjs";
+import { SmartMailboxUtils } from "resource:///modules/SmartMailboxUtils.sys.mjs";
 import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
 
 var { ExtensionError } = ExtensionUtils;
@@ -499,13 +499,11 @@ function getFolderDetails({ accountId, folderId, path }) {
 
   // Handle unified mailbox folders first, they can only be specified via folderId.
   if (folderId?.startsWith("unified://")) {
-    const smartServer = SmartServerUtils.getSmartServer();
-    const smartAccount =
-      MailServices.accounts.findAccountForServer(smartServer);
-    if (!smartAccount) {
+    const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+    if (!smartMailbox.account) {
       throw new ExtensionError(`Folder not found: ${folderId}`);
     }
-    const accountKey = smartAccount.key;
+    const accountKey = smartMailbox.account.key;
     const path = folderId.substring(9);
     const uri = folderPathToURI(accountKey, path);
     return checkDetails({

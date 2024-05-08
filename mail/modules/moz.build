@@ -33,7 +33,7 @@ EXTRA_JS_MODULES += [
     "SearchSpec.sys.mjs",
     "SessionStoreManager.sys.mjs",
     "ShortcutsManager.sys.mjs",
-    "SmartServerUtils.sys.mjs",
+    "SmartMailboxUtils.sys.mjs",
     "SummaryFrameManager.sys.mjs",
     "TagUtils.sys.mjs",
     "TBDistCustomizer.sys.mjs",

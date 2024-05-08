@@ -46,7 +46,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
-  SmartServerUtils: "resource:///modules/SmartServerUtils.sys.mjs",
+  SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   TagUtils: "resource:///modules/TagUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -781,25 +781,18 @@ var folderPane = {
       active: false,
       canBeCompact: false,
 
-      _folderTypes: SmartServerUtils.folderTypes,
+      _folderTypes: SmartMailboxUtils.getFolderTypes(),
 
       init() {
-        this._smartServer = SmartServerUtils.getSmartServer();
-        const smartRoot = this._smartServer.rootFolder.QueryInterface(
-          Ci.nsIMsgLocalMailFolder
-        );
+        this._smartMailbox = SmartMailboxUtils.getSmartMailbox();
 
         // Add folders to the UI.
         for (const folderType of this._folderTypes) {
-          const folder = smartRoot.getChildWithURI(
-            `${smartRoot.URI}/${folderType.name}`,
-            false,
-            true
-          );
+          const folder = this._smartMailbox.getSmartFolder(folderType.name);
           if (!folder) {
-            // SmartServerUtils.getSmartServer() failed to create the
-            // child folder and printed an error message to the console. No need
-            // for additional error handling here.
+            // SmartMailboxUtils.SmartMailbox() failed to create the child folder
+            // and printed an error message to the console. No need for additional
+            // error handling here.
             continue;
           }
 
@@ -825,7 +818,7 @@ var folderPane = {
 
       regenerateMode() {
         if (this._smartServer) {
-          MailServices.accounts.removeIncomingServer(this._smartServer, true);
+          SmartMailboxUtils.removeAll(true);
         }
         this.init();
       },
@@ -1043,9 +1036,10 @@ var folderPane = {
 
       changeAccountOrder() {
         folderPane._reapplyServerOrder(this.containerList);
-
         for (const smartFolderRow of this.containerList.children) {
-          if (smartFolderRow.dataset.serverKey == this._smartServer.key) {
+          if (
+            smartFolderRow.dataset.serverKey == this._smartMailbox.server.key
+          ) {
             folderPane._reapplyServerOrder(smartFolderRow.childList);
           }
         }
@@ -1301,36 +1295,11 @@ var folderPane = {
       canBeCompact: false,
 
       init() {
-        this._smartServer = MailServices.accounts.findServer(
-          "nobody",
-          "smart mailboxes",
-          "none"
-        );
-        if (!this._smartServer) {
-          this._smartServer = MailServices.accounts.createIncomingServer(
-            "nobody",
-            "smart mailboxes",
-            "none"
-          );
-          // We don't want the "smart" server/account leaking out into the ui in
-          // other places, so set it as hidden.
-          this._smartServer.hidden = true;
-          const account = MailServices.accounts.createAccount();
-          account.incomingServer = this._smartServer;
-        }
-        this._smartServer.prettyName =
-          messengerBundle.GetStringFromName("unifiedAccountName");
-        const smartRoot = this._smartServer.rootFolder.QueryInterface(
-          Ci.nsIMsgLocalMailFolder
-        );
-        this._tagsFolder =
-          smartRoot.getChildWithURI(`${smartRoot.URI}/tags`, false, false) ??
-          smartRoot.createLocalSubfolder("tags");
-        this._tagsFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+        this._smartMailbox = SmartMailboxUtils.getSmartMailbox();
 
         for (const tag of MailServices.tags.getAllTags()) {
           try {
-            const folder = this._getVirtualFolder(tag);
+            const folder = this._smartMailbox.getTagFolder(tag);
             this.containerList.appendChild(
               folderPane._createTagRow(this.name, folder, tag)
             );
@@ -1339,46 +1308,6 @@ var folderPane = {
           }
         }
         MailServices.accounts.saveVirtualFolders();
-      },
-
-      /**
-       * Get or create a virtual folder searching messages for `tag`.
-       *
-       * @param {nsIMsgTag} tag
-       * @returns {nsIMsgFolder}
-       */
-      _getVirtualFolder(tag) {
-        let folder = this._tagsFolder.getChildWithURI(
-          `${this._tagsFolder.URI}/${encodeURIComponent(tag.key)}`,
-          false,
-          false
-        );
-        if (folder) {
-          return folder;
-        }
-
-        folder = this._tagsFolder.createLocalSubfolder(tag.key);
-        folder.flags |= Ci.nsMsgFolderFlags.Virtual;
-        folder.prettyName = tag.tag;
-
-        const msgDatabase = folder.msgDatabase;
-        const folderInfo = msgDatabase.dBFolderInfo;
-
-        folderInfo.setCharProperty(
-          "searchStr",
-          `AND (tag,contains,${tag.key})`
-        );
-        folderInfo.setCharProperty("searchFolderUri", "*");
-        folderInfo.setUint32Property(
-          "searchFolderFlag",
-          Ci.nsMsgFolderFlags.Inbox
-        );
-        folderInfo.setBooleanProperty("searchOnline", false);
-        msgDatabase.summaryValid = true;
-        msgDatabase.close(true);
-
-        this._tagsFolder.notifyFolderAdded(folder);
-        return folder;
       },
 
       /**
@@ -1392,13 +1321,13 @@ var folderPane = {
       changeTagFromPrefChange(prefName) {
         const [, , key] = prefName.split(".");
         if (!MailServices.tags.isValidKey(key)) {
-          const uri = `${this._tagsFolder.URI}/${encodeURIComponent(key)}`;
+          const uri = this._smartMailbox.getTagFolderUriForKey(key);
           folderPane.getRowForFolder(uri)?.remove();
           return;
         }
 
         const tag = MailServices.tags.getAllTags().find(t => t.key == key);
-        const folder = this._getVirtualFolder(tag);
+        const folder = this._smartMailbox.getTagFolder(tag);
         const row = folderPane.getRowForFolder(folder);
         folder.prettyName = tag.tag;
         if (row) {
@@ -1586,7 +1515,7 @@ var folderPane = {
       case "search-folders-changed":
         if (this._modes.smart.active) {
           subject.QueryInterface(Ci.nsIMsgFolder);
-          if (subject.server == this._modes.smart._smartServer) {
+          if (subject.server == this._modes.smart._smartMailbox.server) {
             this._modes.smart.changeSearchedFolders(subject);
           }
         }

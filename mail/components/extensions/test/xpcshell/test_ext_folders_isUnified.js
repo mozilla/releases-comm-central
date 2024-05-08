@@ -10,8 +10,8 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
-var { SmartServerUtils } = ChromeUtils.importESModule(
-  "resource:///modules/SmartServerUtils.sys.mjs"
+var { SmartMailboxUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartMailboxUtils.sys.mjs"
 );
 
 add_setup(async function setup() {
@@ -23,10 +23,8 @@ add_setup(async function setup() {
   const rootFolder2 = account2.incomingServer.rootFolder;
   const inbox2 = rootFolder2.subFolders.find(f => f.prettyName == "Inbox");
 
-  const smartServer = SmartServerUtils.getSmartServer();
-  const smartInboxFolder = smartServer.rootFolder.getFolderWithFlags(
-    Ci.nsMsgFolderFlags.Inbox
-  );
+  const smartMailbox = SmartMailboxUtils.getSmartMailbox();
+  const smartInboxFolder = smartMailbox.getSmartFolder("Inbox");
   Assert.equal(
     0,
     smartInboxFolder.getNumUnread(false),
@@ -650,208 +648,34 @@ add_task(async function test_folder_isUnified_getParentFolders_MV3() {
         "Should have found the unified inbox folder"
       );
 
-      // Get the parent folder including subfolders.
+      // Get the parent folder including subfolders. Should be empty, as we do
+      // not expose the smart account.
       const parentFoldersAndSubFolders = await browser.folders.getParentFolders(
         unifiedInboxFolder.id,
         true
       );
       window.assertDeepEqual(
-        [
-          {
-            name: "Root",
-            specialUse: [],
-            isFavorite: false,
-            isRoot: true,
-            isUnified: true,
-            isVirtual: false,
-            id: "unified://",
-            path: "/",
-            subFolders: [
-              {
-                name: "Inbox",
-                specialUse: ["inbox"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Inbox",
-                path: "/Inbox",
-                subFolders: [
-                  {
-                    name: "Inbox",
-                    specialUse: ["inbox"],
-                    isFavorite: false,
-                    isRoot: false,
-                    isUnified: false,
-                    isVirtual: false,
-                    id: "account1://Inbox",
-                    accountId: "account1",
-                    path: "/Inbox",
-                    subFolders: [
-                      {
-                        name: "testFolder1",
-                        specialUse: [],
-                        isFavorite: false,
-                        isRoot: false,
-                        isUnified: false,
-                        isVirtual: false,
-                        id: "account1://Inbox/testFolder1",
-                        accountId: "account1",
-                        path: "/Inbox/testFolder1",
-                        subFolders: [],
-                      },
-                    ],
-                  },
-                  {
-                    name: "Inbox",
-                    specialUse: ["inbox"],
-                    isFavorite: false,
-                    isRoot: false,
-                    isUnified: false,
-                    isVirtual: false,
-                    id: "account2://Inbox",
-                    accountId: "account2",
-                    path: "/Inbox",
-                    subFolders: [
-                      {
-                        name: "testFolder2",
-                        specialUse: [],
-                        isFavorite: false,
-                        isRoot: false,
-                        isUnified: false,
-                        isVirtual: false,
-                        id: "account2://Inbox/testFolder2",
-                        accountId: "account2",
-                        path: "/Inbox/testFolder2",
-                        subFolders: [],
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                name: "Drafts",
-                specialUse: ["drafts"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Drafts",
-                path: "/Drafts",
-                subFolders: [],
-              },
-              {
-                name: "Templates",
-                specialUse: ["templates"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Templates",
-                path: "/Templates",
-                subFolders: [],
-              },
-              {
-                name: "Sent",
-                specialUse: ["sent"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Sent",
-                path: "/Sent",
-                subFolders: [],
-              },
-              {
-                name: "Archives",
-                specialUse: ["archives"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Archives",
-                path: "/Archives",
-                subFolders: [],
-              },
-              {
-                name: "Junk",
-                specialUse: ["junk"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Junk",
-                path: "/Junk",
-                subFolders: [],
-              },
-              {
-                name: "Trash",
-                specialUse: ["trash"],
-                isFavorite: false,
-                isRoot: false,
-                isUnified: true,
-                isVirtual: true,
-                id: "unified://Trash",
-                path: "/Trash",
-                subFolders: [
-                  {
-                    name: "Trash",
-                    specialUse: ["trash"],
-                    isFavorite: false,
-                    isRoot: false,
-                    isUnified: false,
-                    isVirtual: false,
-                    id: "account1://Trash",
-                    accountId: "account1",
-                    path: "/Trash",
-                    subFolders: [],
-                  },
-                  {
-                    name: "Trash",
-                    specialUse: ["trash"],
-                    isFavorite: false,
-                    isRoot: false,
-                    isUnified: false,
-                    isVirtual: false,
-                    id: "account2://Trash",
-                    accountId: "account2",
-                    path: "/Trash",
-                    subFolders: [],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        [],
         parentFoldersAndSubFolders,
         `Return value of getParentFolders() including subfolders should be correct`
       );
 
-      // Get the parent folder excluding subfolders.
+      // Get the parent folder excluding subfolders. Should be empty, as we do
+      // not expose the smart account.
       const parentFolders = await browser.folders.getParentFolders(
         unifiedInboxFolder.id,
         false
       );
       window.assertDeepEqual(
-        [
-          {
-            name: "Root",
-            specialUse: [],
-            isFavorite: false,
-            isRoot: true,
-            isUnified: true,
-            isVirtual: false,
-            id: "unified://",
-            path: "/",
-          },
-        ],
+        [],
         parentFolders,
         `Return value of getParentFolders() excluding subfolders should be correct`
       );
 
-      // Test getFolderInfo() throws for the unified mailbox root folder.
+      // Test getFolderInfo() throws for the unified mailbox root folder, which
+      // is not exposed to the API.
       await browser.test.assertRejects(
-        browser.folders.getFolderInfo(parentFolders[0].id),
+        browser.folders.getFolderInfo("unified://"),
         `folders.getFolderInfo() failed, not supported for root folders`,
         "folders.getFolderInfo() should reject for the unified mailbox root folders"
       );
