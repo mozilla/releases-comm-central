@@ -5,9 +5,12 @@
 var { mailTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
 );
-var dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
-  Ci.nsIDragService
-);
+
+// No nsIDragService in headless gtk. See bug 1806870.
+var dragService =
+  !Services.env.get("MOZ_HEADLESS") || AppConstants.platform != "linux"
+    ? Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService)
+    : null;
 
 add_task(async function () {
   const account = MailServices.accounts.createLocalMailAccount();
@@ -347,30 +350,34 @@ add_task(async function () {
 
   clearPills();
 
-  // Check that drag and drop to the recipients section works.
+  if (dragService) {
+    // Check that drag and drop to the recipients section works.
 
-  clickOnRow(5, {});
+    clickOnRow(5, {});
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
-  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
-    cardsList,
-    toAddrInput,
-    null,
-    null,
-    sidebarWindow,
-    composeWindow
-  );
-  EventUtils.synthesizeDropAfterDragOver(
-    result,
-    dataTransfer,
-    toAddrInput,
-    composeWindow
-  );
+    dragService.startDragSessionForTests(
+      Ci.nsIDragService.DRAGDROP_ACTION_NONE
+    );
+    const [result, dataTransfer] = EventUtils.synthesizeDragOver(
+      cardsList,
+      toAddrInput,
+      null,
+      null,
+      sidebarWindow,
+      composeWindow
+    );
+    EventUtils.synthesizeDropAfterDragOver(
+      result,
+      dataTransfer,
+      toAddrInput,
+      composeWindow
+    );
 
-  dragService.endDragSession(true);
-  checkPills(toAddrRow, ["năthån test <năthån.test@invalid>"]);
+    dragService.endDragSession(true);
+    checkPills(toAddrRow, ["năthån test <năthån.test@invalid>"]);
 
-  clearPills();
+    clearPills();
+  }
 
   // Check that the "Add to" buttons work.
 
