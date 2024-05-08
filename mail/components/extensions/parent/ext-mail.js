@@ -972,10 +972,41 @@ class TabTracker extends TabTrackerBase {
    * @returns {{ tabId:Integer, windowId:Integer }} The browsing data for the element
    */
   getBrowserData(browser) {
+    const window = browser.ownerGlobal;
+    if (window?.top.document.documentURI === "about:addons") {
+      // When we're loaded into a <browser> inside about:addons, we need to go up
+      // one more level.
+      browser = window.docShell.chromeEventHandler;
+    }
+    // Detect windowless windows, mostly for the background page and xpcshell
+    // tests, where m-c expects -1.
+    if (
+      !window ||
+      window.location.href == "chrome://extensions/content/dummy.xhtml"
+    ) {
+      return { tabId: -1, windowId: -1 };
+    }
+
+    let windowId = windowTracker.getId(browser.ownerGlobal);
+    // Do not return invalid windowIds. windowTracker.getId() just pulls the
+    // outerWindowID, while windowTracker.getWindow() does more checks on the
+    // validity.
+    try {
+      windowTracker.getWindow(windowId);
+    } catch (ex) {
+      windowId = -1;
+    }
     return {
       tabId: this.getBrowserTabId(browser),
-      windowId: windowTracker.getId(browser.ownerGlobal),
+      windowId,
     };
+  }
+
+  getBrowserDataForContext(context) {
+    if (["background", "tab", "popup"].includes(context.viewType)) {
+      return this.getBrowserData(context.xulBrowser);
+    }
+    return { tabId: -1, windowId: -1 };
   }
 
   /**

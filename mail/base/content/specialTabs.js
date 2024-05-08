@@ -838,6 +838,16 @@ var specialTabs = {
       if (aArgs.userContextId) {
         aTab.browser.setAttribute("usercontextid", aArgs.userContextId);
       }
+
+      // Ensure the browser will initially load in the same group as other
+      // browsers from the same extension.
+      if (aArgs.initialBrowsingContextGroupId) {
+        aTab.browser.setAttribute(
+          "initialBrowsingContextGroupId",
+          aArgs.initialBrowsingContextGroupId
+        );
+      }
+
       aTab.panel.setAttribute("id", "contentTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
       aTab.root = clone;
