@@ -213,6 +213,79 @@ add_task(async function testGetDisplayedMessage() {
   await extension.unload();
 });
 
+add_task(async function testGetDisplayedMessageActiveTab() {
+  const files = {
+    "background.js": async () => {
+      const [{ id: firstTabId }] = await browser.mailTabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      // Test getDisplayedMessage().
+      const messageFromFirstTab =
+        await browser.messageDisplay.getDisplayedMessage(firstTabId);
+      const messageFromActiveTab =
+        await browser.messageDisplay.getDisplayedMessage();
+      window.assertDeepEqual(
+        {
+          headerMessageId: "0@made.up.invalid",
+          author: "Andy Anway <andy@anway.invalid>",
+          subject: "Big Meeting Today",
+        },
+        messageFromFirstTab,
+        "The message returned from the first tab should be correct"
+      );
+      window.assertDeepEqual(
+        messageFromFirstTab,
+        messageFromActiveTab,
+        "The message returned from the first tab and the active tab should match",
+        { strict: true }
+      );
+
+      // Test getDisplayedMessages().
+      const messagesFromFirstTab =
+        await browser.messageDisplay.getDisplayedMessages(firstTabId);
+      const messagesFromActiveTab =
+        await browser.messageDisplay.getDisplayedMessages();
+      window.assertDeepEqual(
+        [
+          {
+            headerMessageId: "0@made.up.invalid",
+            author: "Andy Anway <andy@anway.invalid>",
+            subject: "Big Meeting Today",
+          },
+        ],
+        messagesFromFirstTab,
+        "The messages returned from the first tab should be correct"
+      );
+      window.assertDeepEqual(
+        messagesFromFirstTab,
+        messagesFromActiveTab,
+        "The messages returned from the first tab and the active tab should match",
+        { strict: true }
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(gFolder);
+  about3Pane.threadTree.selectedIndex = 0;
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 add_task(async function testOpenMessagesInTabs() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {

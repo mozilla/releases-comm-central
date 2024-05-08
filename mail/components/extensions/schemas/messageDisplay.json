@@ -41,12 +41,13 @@
       {
         "name": "getDisplayedMessage",
         "type": "function",
-        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible). It returns <value>null</value> if no messages are displayed, or if multiple messages are displayed.",
+        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible), or the currently active tab. It returns <value>null</value> if no messages are displayed, or if multiple messages are displayed.",
         "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer",
+            "optional": true,
             "minimum": 1
           },
           {
@@ -71,12 +72,13 @@
       {
         "name": "getDisplayedMessages",
         "type": "function",
-        "description": "Gets an array of the currently displayed messages in the specified tab (even if the tab itself is currently not visible). The array is empty if no messages are displayed.",
+        "description": "Gets an array of the currently displayed messages in the specified tab (even if the tab itself is currently not visible), or the currently active tab. The array is empty if no messages are displayed.",
         "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer",
+            "optional": true,
             "minimum": 1
           },
           {

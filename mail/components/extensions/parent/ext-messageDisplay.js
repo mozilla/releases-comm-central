@@ -161,7 +161,9 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
      */
     async function getMessageDisplayTab(tabId) {
       let msgContentWindow;
-      const tab = tabManager.get(tabId);
+      const tab = tabId
+        ? tabManager.get(tabId)
+        : tabManager.wrapTab(tabTracker.activeTab);
       if (tab?.type == "mail") {
         // In about:3pane only the messageBrowser needs to be checked for its
         // load state. The webBrowser is invalid, the multiMessageBrowser can
