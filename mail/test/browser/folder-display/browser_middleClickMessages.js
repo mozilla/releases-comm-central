@@ -8,7 +8,7 @@
 
 "use strict";
 
-requestLongerTimeout(2);
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 3 : 2);
 
 var {
   add_message_sets_to_folders,
@@ -66,6 +66,8 @@ add_setup(async function () {
   await add_message_sets_to_folders([threadedFolder], [thread]);
 
   registerCleanupFunction(function () {
+    folder.deleteSelf(null);
+    threadedFolder.deleteSelf(null);
     reset_context_menu_background_tabs();
     reset_open_message_behavior();
   });
