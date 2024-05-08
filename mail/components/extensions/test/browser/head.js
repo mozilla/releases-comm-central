@@ -509,42 +509,94 @@ async function checkComposeHeaders(expected) {
     is(subject, "", "subject is empty");
   }
 
-  if (expected.overrideDefaultFcc) {
-    if (expected.overrideDefaultFccFolder) {
+  // MV2
+  if (expected.hasOwnProperty("overrideDefaultFcc")) {
+    if (expected.overrideDefaultFcc) {
+      if (expected.overrideDefaultFccFolder) {
+        const server = MailServices.accounts.getAccount(
+          expected.overrideDefaultFccFolder.accountId
+        ).incomingServer;
+        const rootURI = server.rootFolder.URI;
+        is(
+          rootURI + expected.overrideDefaultFccFolder.path,
+          composeFields.fcc,
+          "fcc should be correct"
+        );
+      } else {
+        ok(
+          composeFields.fcc.startsWith("nocopy://"),
+          "fcc should start with nocopy://"
+        );
+      }
+    } else {
+      is("", composeFields.fcc, "fcc should be empty");
+    }
+  }
+
+  // MV2
+  if (expected.hasOwnProperty("additionalFccFolder")) {
+    if (expected.additionalFccFolder) {
       const server = MailServices.accounts.getAccount(
-        expected.overrideDefaultFccFolder.accountId
+        expected.additionalFccFolder.accountId
       ).incomingServer;
       const rootURI = server.rootFolder.URI;
       is(
-        rootURI + expected.overrideDefaultFccFolder.path,
+        rootURI + expected.additionalFccFolder.path,
+        composeFields.fcc2,
+        "fcc2 should be correct"
+      );
+    } else {
+      ok(
+        composeFields.fcc2 == "" || composeFields.fcc2.startsWith("nocopy://"),
+        "fcc2 should not contain a folder uri"
+      );
+    }
+  }
+
+  // MV3
+  if (expected.hasOwnProperty("overrideDefaultFccFolderId")) {
+    if (expected.overrideDefaultFccFolderId) {
+      // We should not use getFolder() here, because we are actually testing that
+      // function, so let's do it manually.
+      const parts = expected.overrideDefaultFccFolderId.split(":/");
+      const accountId = parts.shift();
+      const path = parts.join(":/");
+      const server = MailServices.accounts.getAccount(accountId).incomingServer;
+      is(
+        `${server.rootFolder.URI}${path}`,
         composeFields.fcc,
         "fcc should be correct"
       );
-    } else {
+    } else if (expected.overrideDefaultFccFolderId == "") {
       ok(
         composeFields.fcc.startsWith("nocopy://"),
         "fcc should start with nocopy://"
       );
+    } else {
+      is("", composeFields.fcc, "fcc should be empty");
     }
-  } else {
-    is("", composeFields.fcc, "fcc should be empty");
   }
 
-  if (expected.additionalFccFolder) {
-    const server = MailServices.accounts.getAccount(
-      expected.additionalFccFolder.accountId
-    ).incomingServer;
-    const rootURI = server.rootFolder.URI;
-    is(
-      rootURI + expected.additionalFccFolder.path,
-      composeFields.fcc2,
-      "fcc2 should be correct"
-    );
-  } else {
-    ok(
-      composeFields.fcc2 == "" || composeFields.fcc2.startsWith("nocopy://"),
-      "fcc2 should not contain a folder uri"
-    );
+  // MV3
+  if (expected.hasOwnProperty("additionalFccFolderId")) {
+    if (expected.additionalFccFolderId) {
+      // We should not use getFolder() here, because we are actually testing that
+      // function, so let's do it manually.
+      const parts = expected.additionalFccFolderId.split(":/");
+      const accountId = parts.shift();
+      const path = parts.join(":/");
+      const server = MailServices.accounts.getAccount(accountId).incomingServer;
+      is(
+        `${server.rootFolder.URI}${path}`,
+        composeFields.fcc2,
+        "fcc2 should be correct"
+      );
+    } else {
+      ok(
+        composeFields.fcc2 == "" || composeFields.fcc2.startsWith("nocopy://"),
+        "fcc2 should not contain a folder uri"
+      );
+    }
   }
 
   if (expected.hasOwnProperty("priority")) {

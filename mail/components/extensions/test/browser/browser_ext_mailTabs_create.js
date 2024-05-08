@@ -212,3 +212,55 @@ add_task(async function test_create() {
 
   tabmail.currentTabInfo.folder = rootFolder;
 });
+
+add_task(async function test_create_mv3() {
+  async function background() {
+    async function testIt(test, expected = test) {
+      const mailTab = await browser.mailTabs.create(test);
+      window.assertDeepEqual(expected, mailTab);
+      await window.sendMessage("checkDisplayedFolder", expected);
+      await browser.tabs.remove(mailTab.id);
+    }
+
+    const [accountId] = await window.waitForMessage();
+    const { rootFolder } = await browser.accounts.get(accountId);
+    const displayedFolder = rootFolder.subFolders[0];
+    delete displayedFolder.subFolders;
+
+    const expected = {
+      displayedFolder,
+    };
+    await testIt({ displayedFolderId: displayedFolder.id }, expected);
+    browser.test.notifyPass("mailTabs");
+  }
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkDisplayedFolder", async expected => {
+    Assert.equal(
+      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      expected.displayedFolder.path,
+      "Should display the correct folder"
+    );
+    extension.sendMessage();
+  });
+
+  await check3PaneState(true, true);
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.currentTabInfo.folder = rootFolder;
+});

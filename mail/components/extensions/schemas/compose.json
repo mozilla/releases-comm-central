@@ -73,7 +73,14 @@
         "type": "object",
         "description": "Used by various functions to represent the state of a message being composed. Note that functions using this type may have a partial implementation.",
         "properties": {
+          "additionalFccFolderId": {
+            "min_manifest_version": 3,
+            "$ref": "folders.MailFolderId",
+            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <value>null</value>.",
+            "optional": "omit-key-if-missing"
+          },
           "additionalFccFolder": {
+            "max_manifest_version": 2,
             "choices": [
               {
                 "$ref": "folders.MailFolderId"
@@ -181,11 +188,13 @@
             "optional": true
           },
           "overrideDefaultFcc": {
+            "max_manifest_version": 2,
             "type": "boolean",
             "optional": true,
             "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <value>false</value> will clear the override. Setting <value>true</value> will throw an <em>ExtensionError</em>, if ``overrideDefaultFccFolder`` is not set as well."
           },
           "overrideDefaultFccFolder": {
+            "max_manifest_version": 2,
             "choices": [
               {
                 "$ref": "folders.MailFolderId"
@@ -200,6 +209,12 @@
             ],
             "optional": true,
             "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
+          },
+          "overrideDefaultFccFolderId": {
+            "min_manifest_version": 3,
+            "$ref": "folders.MailFolderId",
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolderId` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <value>null</value>.",
+            "optional": "omit-key-if-missing"
           },
           "plainTextBody": {
             "type": "string",

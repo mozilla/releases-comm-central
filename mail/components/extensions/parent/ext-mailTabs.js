@@ -287,7 +287,10 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       const fixTbModeName = name => (name == "unified" ? "smart" : name);
 
       const {
+        // MV2
         displayedFolder,
+        // MV3
+        displayedFolderId,
         layout,
         folderPaneVisible,
         messagePaneVisible,
@@ -297,6 +300,11 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         folderModesEnabled,
         folderMode,
       } = properties;
+
+      let folder;
+      if (displayedFolderId || displayedFolder) {
+        folder = getFolder(displayedFolderId || displayedFolder).folder;
+      }
 
       const curFolderMode = about3Pane.folderTree.selectedRow.modeName;
       const curFolderModes = about3Pane.folderPane.activeModes;
@@ -332,7 +340,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         if (
           !newFolderModes.includes(curFolderMode) &&
           !newFolderMode &&
-          !displayedFolder
+          !folder
         ) {
           let row = about3Pane.folderPane.getRowForFolder(selectedFolder);
           // Fallback to the first entry.
@@ -343,7 +351,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         }
       }
 
-      if (!displayedFolder && newFolderMode) {
+      if (!folder && newFolderMode) {
         let row = about3Pane.folderPane.getRowForFolder(
           selectedFolder,
           newFolderMode
@@ -355,9 +363,8 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         await selectFolderRow(about3Pane, row);
       }
 
-      if (displayedFolder) {
+      if (folder) {
         let row;
-        const { folder } = getFolder(displayedFolder);
         // Must stay within the requested folder mode. Otherwise fallback to any
         // of the other enabled folder modes.
         if (newFolderMode) {
@@ -505,15 +512,21 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           const tabParams = {};
 
           // Set folderURI parameter.
-          if (properties.displayedFolder) {
+          if (properties.displayedFolder || properties.displayedFolderId) {
             if (!extension.hasPermission("accountsRead")) {
               throw new ExtensionError(
                 'Setting the displayed folder requires the "accountsRead" permission'
               );
             }
-            const { folder } = getFolder(properties.displayedFolder);
+            const { folder } = getFolder(
+              properties.displayedFolder || properties.displayedFolderId
+            );
             tabParams.folderURI = folder.URI;
-            delete properties.displayedFolder;
+            if (properties.displayedFolder) {
+              delete properties.displayedFolder;
+            } else {
+              delete properties.displayedFolderId;
+            }
           }
 
           // Set pane visibility parameters.

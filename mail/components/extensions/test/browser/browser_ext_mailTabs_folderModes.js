@@ -103,7 +103,7 @@ add_task(async () => {
     // Switch to the test folder and enforce "all" mode.
     await browser.mailTabs.update(mailTabId, {
       folderMode: "all",
-      displayedFolder: testFolder.id,
+      displayedFolderId: testFolder.id,
     });
     await checkState(
       mailTabId,
@@ -123,7 +123,7 @@ add_task(async () => {
     browser.test.assertRejects(
       browser.mailTabs.update(mailTabId, {
         folderMode: "tags",
-        displayedFolder: trashFolder.id,
+        displayedFolderId: trashFolder.id,
       }),
       /Requested folder is not viewable in the requested folder mode/,
       "Should reject requesting an non-matching folder/mode pair"
@@ -264,7 +264,7 @@ add_task(async () => {
     // throw.
     browser.test.assertRejects(
       browser.mailTabs.update(mailTabId, {
-        displayedFolder: unifiedInbox.id,
+        displayedFolderId: unifiedInbox.id,
       }),
       /Requested folder is not viewable in any of the enabled folder modes/,
       "Should reject if it is not possible to view the requested folder."

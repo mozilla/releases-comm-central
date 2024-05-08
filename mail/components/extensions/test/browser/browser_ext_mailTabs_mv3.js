@@ -160,3 +160,63 @@ add_task(async function test_MV3_event_pages() {
 
   await extension.unload();
 });
+
+add_task(async function test_update() {
+  async function background() {
+    async function checkCurrent(expected) {
+      const [current] = await browser.mailTabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      window.assertDeepEqual(expected, current);
+
+      // Check if getCurrent() returns the same.
+      const current2 = await browser.mailTabs.getCurrent();
+      window.assertDeepEqual(expected, current2);
+    }
+
+    const [accountId] = await window.waitForMessage();
+    const { rootFolder } = await browser.accounts.get(accountId);
+    const folder = rootFolder.subFolders[0];
+
+    await browser.mailTabs.update({ displayedFolderId: folder.id });
+    const expected = {
+      displayedFolder: folder,
+    };
+    delete expected.displayedFolder.subFolders;
+
+    await checkCurrent(expected);
+    await window.sendMessage("checkDisplayedFolder", expected);
+    browser.test.notifyPass("mailTabs");
+  }
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkDisplayedFolder", async expected => {
+    Assert.equal(
+      "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
+      expected.displayedFolder.path,
+      "Should display the correct folder"
+    );
+    extension.sendMessage();
+  });
+
+  await check3PaneState(true, true);
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.currentTabInfo.folder = rootFolder;
+});

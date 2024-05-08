@@ -169,17 +169,23 @@
             "description": "Shows or hides the message display pane.",
             "optional": true
           },
+          "displayedFolderId": {
+            "$ref": "folders.MailFolderId",
+            "min_manifest_version": 3,
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
+            "optional": true
+          },
           "displayedFolder": {
             "choices": [
               {
                 "$ref": "folders.MailFolderId"
               },
               {
-                "max_manifest_version": 2,
                 "deprecated": "Support deprecated since Thunderbird 121 and removed in Manifest V3: MailTabProperties.displayedFolder needs to be specified as a MailFolderId instead of as a full MailFolder object.",
                 "$ref": "folders.MailFolder"
               }
             ],
+            "max_manifest_version": 2,
             "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
             "optional": true
           }
