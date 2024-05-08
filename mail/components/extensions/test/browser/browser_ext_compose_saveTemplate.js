@@ -149,7 +149,7 @@ async function runTest(config) {
           to: [`test${i}@test.invalid`],
           subject: `Test${i} save as ${config.expected.mode}`,
           additionalFccFolder:
-            config.expected.fcc.length > 1 ? fccFolder : null,
+            config.expected.fcc.length > 1 ? fccFolder : undefined,
         });
       }
 

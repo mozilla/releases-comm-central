@@ -1180,8 +1180,11 @@ this.folders = class extends ExtensionAPIPersistent {
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
             newMessageCount: folder.msgDatabase.getNewList().length,
-            quota: folderQuota.length > 0 ? folderQuota : null,
           };
+
+          if (folderQuota.length) {
+            mailFolderInfo.quota = folderQuota;
+          }
 
           // MailFolderInfo.favorite property was moved to MailFolder.isFavorite
           // in MV3.

@@ -117,8 +117,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "identities.MailIdentity",
-                "optional": true
+                "choices": [
+                  {
+                    "$ref": "identities.MailIdentity"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }
@@ -207,7 +213,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "identities.MailIdentity"
+                "choices": [
+                  {
+                    "$ref": "identities.MailIdentity"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }

@@ -131,8 +131,15 @@
         "description": "See :doc:`examples/messageLists` for more information.",
         "properties": {
           "id": {
-            "type": "string",
-            "optional": true
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Id of the message list, to be used with :ref:`messages.continueList` or :ref:`messages.abortList`."
           },
           "messages": {
             "type": "array",
@@ -145,11 +152,11 @@
       {
         "id": "MessagePart",
         "type": "object",
-        "description": "Represents an email message \"part\", which could be the whole message",
+        "description": "Represents an email message \"part\", which could be the whole message.",
         "properties": {
           "body": {
             "type": "string",
-            "description": "The content of the part",
+            "description": "The content of the part.",
             "optional": true
           },
           "contentType": {
@@ -175,20 +182,20 @@
           },
           "name": {
             "type": "string",
-            "description": "Name of the part, if it is a file",
+            "description": "Name of the part, if it is a file.",
             "optional": true
           },
           "partName": {
             "type": "string",
             "optional": true,
-            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile`"
+            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile`."
           },
           "parts": {
             "type": "array",
             "items": {
               "$ref": "MessagePart"
             },
-            "description": "Any sub-parts of this part",
+            "description": "Any sub-parts of this part.",
             "optional": true
           },
           "size": {
@@ -211,11 +218,11 @@
           "junk": {
             "type": "boolean",
             "optional": true,
-            "description": "Whether the message is marked as junk. Only supported in :ref:`messages.update`"
+            "description": "Whether the message is marked as junk. Only supported in :ref:`messages.update`."
           },
           "new": {
             "type": "boolean",
-            "description": "Whether the message is marked as new. Only supported in :ref:`messages.import`",
+            "description": "Whether the message is marked as new. Only supported in :ref:`messages.import`.",
             "optional": true
           },
           "read": {
@@ -627,7 +634,7 @@
       {
         "name": "openAttachment",
         "type": "function",
-        "description": "Opens the specified attachment",
+        "description": "Opens the specified attachment.",
         "async": true,
         "parameters": [
           {
@@ -1055,14 +1062,14 @@
             "properties": {
               "tag": {
                 "type": "string",
-                "optional": "true",
+                "optional": true,
                 "description": "Human-readable tag name."
               },
               "color": {
                 "type": "string",
                 "pattern": "^#[0-9a-fA-F]{6}",
                 "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
-                "optional": "true"
+                "optional": true
               }
             }
           }
@@ -1202,14 +1209,14 @@
             "properties": {
               "tag": {
                 "type": "string",
-                "optional": "true",
+                "optional": true,
                 "description": "Human-readable tag name."
               },
               "color": {
                 "type": "string",
                 "pattern": "^#[0-9a-fA-F]{6}",
                 "description": "Tag color in hex format (i.e.: #000080 for navy blue). Value will be stored as upper case.",
-                "optional": "true"
+                "optional": true
               }
             }
           }

@@ -35,7 +35,7 @@ add_task(async function testExternalMessage() {
           attachments: 2,
           size: 9754,
           external: true,
-          read: null,
+          read: undefined,
           recipients: ["Heinz <mueller@example.com>"],
           date: 958796995000,
           body: "This message has one normal attachment and one email attachment",
@@ -48,7 +48,7 @@ add_task(async function testExternalMessage() {
           attachments: 3,
           size: platformInfo.os == "win" ? 6947 : 6825, // Line endings.
           external: true,
-          read: null,
+          read: undefined,
           recipients: ["Heinz Müller <mueller@examples.com>"],
           date: 958606367000,
           body: "Die Hasen und die Frösche",

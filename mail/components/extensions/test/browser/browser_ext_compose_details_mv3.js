@@ -181,7 +181,7 @@ add_task(async function testType() {
         {
           funcName: "beginNew",
           args: [],
-          expected: { type: "new", relatedMessageId: null },
+          expected: { type: "new", relatedMessageId: undefined },
         },
         {
           funcName: "beginReply",
@@ -354,7 +354,7 @@ add_task(async function testFcc() {
 
       // Clear additional fcc.
       await browser.compose.setComposeDetails(createdTab.id, {
-        additionalFccFolderId: null,
+        additionalFccFolderId: undefined,
       });
       await checkWindow(createdTab, {
         overrideDefaultFccFolderId: "",
@@ -363,7 +363,7 @@ add_task(async function testFcc() {
 
       // Clear default override.
       await browser.compose.setComposeDetails(createdTab.id, {
-        overrideDefaultFccFolderId: null,
+        overrideDefaultFccFolderId: undefined,
       });
       await checkWindow(createdTab, {
         overrideDefaultFccFolderId: undefined,

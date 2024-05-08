@@ -435,10 +435,6 @@ async function getComposeDetails(composeWindow, extension) {
     }
   }
 
-  const deliveryFormat = composeWindow.IsHTMLEditor()
-    ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
-    : null;
-
   const body = trimContent(
     editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
   );
@@ -463,7 +459,6 @@ async function getComposeDetails(composeWindow, extension) {
     cc: parseEncodedAddrHeader(composeFields.cc, false),
     bcc: parseEncodedAddrHeader(composeFields.bcc, false),
     type,
-    relatedMessageId,
     replyTo: parseEncodedAddrHeader(composeFields.replyTo, false),
     followupTo: parseEncodedAddrHeader(composeFields.followupTo, false),
     newsgroups: composeFields.newsgroups
@@ -471,7 +466,6 @@ async function getComposeDetails(composeWindow, extension) {
       : [],
     subject: composeFields.subject,
     isPlainText: !composeWindow.IsHTMLEditor(),
-    deliveryFormat,
     body,
     plainTextBody,
     customHeaders,
@@ -486,13 +480,24 @@ async function getComposeDetails(composeWindow, extension) {
       composeWindow.gDSNOptionChanged,
   };
 
-  // IN MV3, these properties are truely optional.
+  const deliveryFormat = composeWindow.IsHTMLEditor()
+    ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
+    : null;
+  if (deliveryFormat) {
+    details.deliveryFormat = deliveryFormat;
+  }
+
+  if (relatedMessageId) {
+    details.relatedMessageId = relatedMessageId;
+  }
+
+  // overrideDefaultFcc is no longer needed in MV3.
   if (extension.manifest.manifest_version < 3) {
     details.additionalFccFolder = additionalFccFolder;
     details.overrideDefaultFcc = overrideDefaultFcc;
-    details.overrideDefaultFccFolder = overrideDefaultFcc
-      ? overrideDefaultFccFolder
-      : null;
+    if (overrideDefaultFcc) {
+      details.overrideDefaultFccFolder = overrideDefaultFccFolder;
+    }
   } else {
     if (additionalFccFolder?.id) {
       details.additionalFccFolderId = additionalFccFolder.id;

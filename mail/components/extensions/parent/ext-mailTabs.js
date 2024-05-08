@@ -63,20 +63,21 @@ function convertMailTab(tab, context) {
     id: tab.id,
     windowId: tab.windowId,
     active: tab.active,
-    sortType: null,
-    sortOrder: null,
-    viewType: null,
     layout: LAYOUTS[gDynamicPaneConfig],
-    folderPaneVisible: null,
-    messagePaneVisible: null,
     folderMode: fixApiModeName(about3Pane.folderTree.selectedRow.modeName),
     folderModesEnabled: about3Pane.folderPane.activeModes.map(fixApiModeName),
   };
 
   mailTabObject.folderPaneVisible = paneLayout.folderPaneVisible;
   mailTabObject.messagePaneVisible = paneLayout.messagePaneVisible;
-  mailTabObject.sortType = SORT_TYPE_MAP.get(gViewWrapper?.primarySortType);
-  mailTabObject.sortOrder = SORT_ORDER_MAP.get(gViewWrapper?.primarySortOrder);
+  const sortType = SORT_TYPE_MAP.get(gViewWrapper?.primarySortType);
+  if (sortType) {
+    mailTabObject.sortType = sortType;
+  }
+  const sortOrder = SORT_ORDER_MAP.get(gViewWrapper?.primarySortOrder);
+  if (sortOrder) {
+    mailTabObject.sortOrder = sortOrder;
+  }
   if (gViewWrapper?.showGroupedBySort) {
     mailTabObject.viewType = "groupedBySortType";
   } else if (gViewWrapper?.showThreaded) {

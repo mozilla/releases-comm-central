@@ -19,7 +19,7 @@
     "types": [
       {
         "id": "MailAccount",
-        "description": "An object describing a mail account, as returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods. The ``folders`` property is only included if requested.",
+        "description": "An object describing a mail account, as returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods.",
         "type": "object",
         "properties": {
           "id": {
@@ -36,16 +36,21 @@
           },
           "folders": {
             "max_manifest_version": 2,
-            "type": "array",
-            "optional": true,
-            "description": "The folders for this account are only included if requested.",
-            "items": {
-              "$ref": "folders.MailFolder"
-            }
+            "description": "The folders for this account. The property may be <value>null</value>, if inclusion of folders had not been requested.",
+            "choices": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "rootFolder": {
             "$ref": "folders.MailFolder",
-            "optional": true,
             "description": "The root folder associated with this account."
           },
           "identities": {
@@ -131,8 +136,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "accounts.MailAccount",
-                "optional": true
+                "choices": [
+                  {
+                    "$ref": "accounts.MailAccount"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }
@@ -157,8 +168,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "accounts.MailAccount",
-                "optional": true
+                "choices": [
+                  {
+                    "$ref": "accounts.MailAccount"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }
@@ -200,7 +217,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "identities.MailIdentity"
+                "choices": [
+                  {
+                    "$ref": "identities.MailIdentity"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }

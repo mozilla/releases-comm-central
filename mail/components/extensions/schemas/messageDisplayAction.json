@@ -200,6 +200,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
@@ -256,7 +257,7 @@
       {
         "name": "getLabel",
         "type": "function",
-        "description": "Gets the label of the messageDisplayAction button.",
+        "description": "Gets the label of the messageDisplayAction button. Returns <value>null</value>, if no label has been set and the title is used.",
         "async": "callback",
         "parameters": [
           {
@@ -281,11 +282,18 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
-                "type": "string",
-                "optional": true
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }
@@ -413,6 +421,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
@@ -494,6 +503,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
@@ -578,6 +588,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",

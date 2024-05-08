@@ -577,15 +577,21 @@
             "optional": true,
             "parameters": [
               {
-                "type": "object",
-                "optional": true,
-                "isInstanceOf": "File",
-                "additionalProperties": true
+                "choices": [
+                  {
+                    "type": "object",
+                    "isInstanceOf": "File",
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }
         ],
-        "description": "Gets the photo associated with this contact, if any."
+        "description": "Gets the photo associated with this contact. Returns <value>null</value>, if no photo is available."
       },
       {
         "name": "setPhoto",

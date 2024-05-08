@@ -142,6 +142,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "window",
@@ -165,6 +166,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "window",
@@ -188,6 +190,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "window",
@@ -211,6 +214,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "windows",
@@ -326,8 +330,7 @@
               {
                 "name": "window",
                 "$ref": "Window",
-                "description": "Contains details about the created window.",
-                "optional": true
+                "description": "Contains details about the created window."
               }
             ]
           }

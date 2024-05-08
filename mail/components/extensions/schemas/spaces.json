@@ -249,6 +249,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
@@ -337,7 +338,6 @@
               {
                 "name": "tab",
                 "$ref": "tabs.Tab",
-                "optional": true,
                 "description": "Details about the opened or activated space tab."
               }
             ]

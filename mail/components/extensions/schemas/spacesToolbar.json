@@ -96,8 +96,7 @@
                 "name": "spaceId",
                 "type": "integer",
                 "description": "The id of the space belonging to the newly created button, as used by the tabs API.",
-                "minimum": 1,
-                "optional": true
+                "minimum": 1
               }
             ]
           }
@@ -163,7 +162,6 @@
               {
                 "name": "tab",
                 "$ref": "tabs.Tab",
-                "optional": true,
                 "description": "Details about the opened or activated tab."
               }
             ]

@@ -219,6 +219,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "tab",
@@ -231,17 +232,19 @@
       {
         "name": "getCurrent",
         "type": "function",
-        "description": "Gets the tab that this script call is being made from. May be undefined if called from a non-tab context (for example: a background page or popup view).",
+        "description": "Gets the tab that this script call is being made from. May be <value>undefined</value> if called from a non-tab context (for example: a background page or popup view).",
         "async": "callback",
         "parameters": [
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "optional": true
+                "optional": true,
+                "description": "This may return undefined"
               }
             ]
           }
@@ -378,7 +381,6 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "optional": true,
                 "description": "Details about the created tab. Will contain the ID of the new tab."
               }
             ]
@@ -404,7 +406,6 @@
             "parameters": [
               {
                 "name": "tab",
-                "optional": true,
                 "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
@@ -533,6 +534,7 @@
           {
             "type": "function",
             "name": "callback",
+            "optional": true,
             "parameters": [
               {
                 "name": "result",
@@ -583,7 +585,6 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "optional": true,
                 "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested."
               }
             ]

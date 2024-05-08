@@ -20,7 +20,7 @@
       {
         "id": "MailFolder",
         "type": "object",
-        "description": "An object describing a folder. The ``subFolders`` property is only included if requested.",
+        "description": "An object describing a folder.",
         "properties": {
           "accountId": {
             "$ref": "accounts.MailAccountId",
@@ -75,11 +75,18 @@
             "description": "The special use of this folder. A folder can have multiple special uses."
           },
           "subFolders": {
-            "type": "array",
-            "description": "Subfolders are only included if requested. They will be returned in the same order as used in Thunderbird's folder pane.",
-            "items": {
-              "$ref": "folders.MailFolder"
-            },
+            "description": "Subfolders of this folder. The property may be <value>null</value>, if inclusion of folders had not been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
+            "choices": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
             "optional": true
           },
           "type": {

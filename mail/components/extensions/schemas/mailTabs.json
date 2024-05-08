@@ -299,7 +299,7 @@
       {
         "name": "getCurrent",
         "type": "function",
-        "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns undefined otherwise.",
+        "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns <value>undefined</value> otherwise.",
         "async": "callback",
         "parameters": [
           {
@@ -309,7 +309,8 @@
             "parameters": [
               {
                 "$ref": "MailTab",
-                "optional": true
+                "optional": true,
+                "description": "This may return undefined"
               }
             ]
           }
@@ -335,7 +336,6 @@
               {
                 "name": "mailTab",
                 "$ref": "MailTab",
-                "optional": true,
                 "description": "Details about the created mail tab. Will contain the ID of the new tab."
               }
             ]
@@ -367,7 +367,6 @@
               {
                 "name": "mailTab",
                 "$ref": "MailTab",
-                "optional": true,
                 "description": "Details about the updated mail tab."
               }
             ]

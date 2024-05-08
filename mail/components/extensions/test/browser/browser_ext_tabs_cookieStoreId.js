@@ -14,7 +14,7 @@ add_task(async function () {
 
   const testCases = [
     {
-      cookieStoreId: null,
+      cookieStoreId: undefined,
       expectedCookieStoreId: "firefox-default",
     },
     {

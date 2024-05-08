@@ -394,7 +394,7 @@
       {
         "name": "getAccount",
         "type": "function",
-        "description": "Retrieve information about a single cloud file account.",
+        "description": "Retrieve information about a single cloud file account, or <value>undefined</value> if it does not exists",
         "allowedContexts": ["content"],
         "async": "callback",
         "parameters": [
@@ -409,7 +409,9 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "CloudFileAccount"
+                "optional": true,
+                "$ref": "CloudFileAccount",
+                "description": "This may return undefined"
               }
             ]
           }
@@ -490,7 +492,9 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "CloudFileAccount"
+                "optional": true,
+                "$ref": "CloudFileAccount",
+                "description": "This may return undefined"
               }
             ]
           }

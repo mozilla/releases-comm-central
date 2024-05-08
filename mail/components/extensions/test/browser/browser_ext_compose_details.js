@@ -174,7 +174,7 @@ add_task(async function testType() {
         {
           funcName: "beginNew",
           args: [],
-          expected: { type: "new", relatedMessageId: null },
+          expected: { type: "new", relatedMessageId: undefined },
         },
         {
           funcName: "beginReply",
@@ -331,7 +331,7 @@ add_task(async function testFcc() {
 
       await checkWindow(createdTab, {
         overrideDefaultFcc: false,
-        overrideDefaultFccFolder: null,
+        overrideDefaultFccFolder: undefined,
         additionalFccFolder: "",
       });
 
@@ -400,7 +400,7 @@ add_task(async function testFcc() {
       });
       await checkWindow(createdTab, {
         overrideDefaultFcc: false,
-        overrideDefaultFccFolder: null,
+        overrideDefaultFccFolder: undefined,
         additionalFccFolder: "",
       });
 
