@@ -47,7 +47,7 @@ var folderInbox, folderSent, folderVirtual, folderA, folderB;
 var columnsB;
 
 // these are for the reset/apply to other/apply to other+child tests.
-var folderSource, folderParent, folderChild1, folderChild2;
+var folderSource, folderParent, folderChild1, folderChild2, folderParentOut;
 
 var useCorrespondent;
 var INBOX_DEFAULTS;
@@ -134,6 +134,14 @@ add_setup(async function () {
   );
   registerCleanupFunction(async () => {
     await delete_messages(messageSet);
+    folderSource.deleteSelf(null);
+    // "?" to allow easier .only() debugging
+    folderParent?.deleteSelf(null);
+    folderSent?.deleteSelf(null);
+    folderVirtual?.deleteSelf(null);
+    folderA?.deleteSelf(null);
+    folderB?.deleteSelf(null);
+    folderParentOut?.deleteSelf(null);
   });
 });
 
@@ -249,6 +257,15 @@ add_task(async function test_column_defaults_inbox() {
   // just use the inbox; comes from FolderDisplayHelpers
   folderInbox = inboxFolder;
   await enter_folder(folderInbox);
+
+  // If columns for FolderDisplayHelpers inboxFolder were not quite
+  // as they should starting off, make sure they are.
+  const columnIds = get_visible_threadtree_columns();
+  for (const colId of columnIds) {
+    if (!INBOX_DEFAULTS.includes(colId)) {
+      await toggleColumn(colId);
+    }
+  }
 
   assert_visible_columns(INBOX_DEFAULTS);
   assert_visible_cards_columns(CARDS_INBOX_DEFAULT);
@@ -838,12 +855,12 @@ add_task(async function test_apply_to_folder_and_children() {
  * also has children. Make sure the folder changes but the children do not.
  */
 add_task(async function test_apply_to_folder_no_children_swapped() {
-  folderParent = await create_folder("ColumnsApplyParentOutgoing");
-  folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
-  folderParent.createSubfolder("Child1", null);
-  folderChild1 = folderParent.getChildNamed("Child1");
-  folderParent.createSubfolder("Child2", null);
-  folderChild2 = folderParent.getChildNamed("Child2");
+  folderParentOut = await create_folder("ColumnsApplyParentOutgoing");
+  folderParentOut.setFlag(Ci.nsMsgFolderFlags.SentMail);
+  folderParentOut.createSubfolder("Child1", null);
+  folderChild1 = folderParentOut.getChildNamed("Child1");
+  folderParentOut.createSubfolder("Child2", null);
+  folderChild2 = folderParentOut.getChildNamed("Child2");
 
   await be_in_folder(folderSource);
 
@@ -864,12 +881,12 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   assert_visible_columns(conExtra);
 
   // Apply to the one dude.
-  await _apply_to_folder_common(false, folderParent);
+  await _apply_to_folder_common(false, folderParentOut);
 
   // Make sure it copied to the parent.
   const conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
-  await be_in_folder(folderParent);
+  await be_in_folder(folderParentOut);
   assert_visible_columns(conExtraSwapped);
 
   // But not the children.
@@ -906,12 +923,12 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   assert_visible_columns(conExtra);
 
   // Apply to the dude and his offspring.
-  await _apply_to_folder_common(true, folderParent);
+  await _apply_to_folder_common(true, folderParentOut);
 
   // Make sure it copied to the parent and his children.
   const conExtraSwapped = [...SENT_DEFAULTS];
   conExtraSwapped[5] = useCorrespondent ? "recipientCol" : "correspondentCol";
-  await be_in_folder(folderParent);
+  await be_in_folder(folderParentOut);
   assert_visible_columns(conExtraSwapped);
   await be_in_folder(folderChild1);
   assert_visible_columns(conExtraSwapped);
@@ -1117,4 +1134,5 @@ add_task(async function test_double_click_column_picker() {
     currentTabInfo,
     "No message was opened in a tab"
   );
+  doubleClickFolder.deleteSelf(null);
 });
