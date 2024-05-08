@@ -54,6 +54,10 @@ async function onLoad() {
     setDialogId(dialog, "calendar-task-summary-dialog");
   }
 
+  // This class is added to ensure the height of the dialog is correct once
+  // everthing has loaded.
+  dialog.classList.add("resize");
+
   // Start setting up the item summary custom element.
   const itemSummary = document.getElementById("calendar-item-summary");
   itemSummary.item = item;
@@ -91,8 +95,9 @@ async function onLoad() {
   }
 
   await document.l10n.translateRoots();
-  window.sizeToContent();
   window.focus();
+  // This class is removed so the dialog can resize correctly.
+  dialog.classList.remove("resize");
   opener.setCursor("auto");
 }
 

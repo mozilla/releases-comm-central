@@ -36,10 +36,13 @@ notification {
 
 #calendar-summary-dialog {
   min-height: 20em;
+
+  &:has(#calendar-event-summary-dialog.resize){
+    height: auto;
+  }
 }
 
 #calendar-event-summary-dialog {
-  height: 100vh;
   overflow-y: scroll;
 }
 
