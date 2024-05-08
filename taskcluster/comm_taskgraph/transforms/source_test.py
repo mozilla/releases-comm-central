@@ -10,8 +10,6 @@ import taskgraph
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.path import match as match_path
 
-from gecko_taskgraph.util.hg import get_json_automationrelevance
-
 logger = logging.getLogger(__name__)
 
 transforms = TransformSequence()
@@ -86,15 +84,12 @@ def changed_clang_format(config, jobs):
 
 @transforms.add
 def set_base_revision_in_tgdiff(config, jobs):
-    # Don't attempt to download 'json-automation' locally as the revision may
-    # not exist in the repository.
     if not os.environ.get("MOZ_AUTOMATION") or taskgraph.fast:
         yield from jobs
         return
 
-    data = get_json_automationrelevance(
-        config.params["comm_head_repository"], config.params["comm_head_rev"]
-    )
+    comm_base_rev = config.params.get("comm_base_rev")
+
     for job in jobs:
         if job["name"] != "taskgraph-diff":
             yield job
@@ -102,7 +97,7 @@ def set_base_revision_in_tgdiff(config, jobs):
 
         job["task-context"] = {
             "from-object": {
-                "base_rev": data["changesets"][0]["parents"][0],
+                "base_rev": comm_base_rev,
             },
             "substitution-fields": [
                 "run.command",
