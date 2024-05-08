@@ -4,12 +4,6 @@
 
 messenger.jar:
     search-extensions/                        (extensions/**)
-#ifdef XP_MACOSX
-    content/messenger/SpotlightIntegration.js (content/SpotlightIntegration.js)
-#endif
-#ifdef XP_WIN
-    content/messenger/WinSearchIntegration.js (content/WinSearchIntegration.js)
-#endif
 
 % resource search-plugins %searchplugins/ contentaccessible=yes
 % resource search-extensions %search-extensions/ contentaccessible=yes

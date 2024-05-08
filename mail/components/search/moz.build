@@ -14,7 +14,18 @@ DIRS += ["public"]
 
 EXTRA_JS_MODULES += [
     "SearchIntegration.sys.mjs",
+    "SearchSupport.sys.mjs",
 ]
+
+if CONFIG["OS_ARCH"] == "Darwin":
+    EXTRA_JS_MODULES += [
+        "SpotlightIntegration.sys.mjs",
+    ]
+
+if CONFIG["OS_ARCH"] == "WINNT":
+    EXTRA_JS_MODULES += [
+        "WinSearchIntegration.sys.mjs",
+    ]
 
 JAR_MANIFESTS += ["jar.mn"]
 
