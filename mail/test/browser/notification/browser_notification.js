@@ -702,8 +702,7 @@ add_task(async function test_click_on_notification() {
  */
 add_task(async function test_revert_to_newmailalert() {
   setupTest();
-  // Set up the gMockAlertsService so that it fails
-  // to send a notification.
+  // Set up the gMockAlertsService so that it fails to send a notification.
   gMockAlertsService._doFail = true;
 
   if (AppConstants.platform == "macosx") {
@@ -711,7 +710,7 @@ add_task(async function test_revert_to_newmailalert() {
     return;
   }
 
-  // We expect the newmailalert.xhtml window...
+  // We expect the newmailalert.xhtml window.
   const alertPromise = promise_new_window("alert:alert");
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 2 }]);
   const win = await alertPromise;

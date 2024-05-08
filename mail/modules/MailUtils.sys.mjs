@@ -417,17 +417,18 @@ export var MailUtils = {
           .showWindow(mail3PaneWindow);
       }
       mail3PaneWindow.focus();
-    } else {
-      const args = { msgHdr };
-      args.wrappedJSObject = args;
-      Services.ww.openWindow(
-        null,
-        "chrome://messenger/content/messenger.xhtml",
-        "",
-        "all,chrome,dialog=no,status,toolbar",
-        args
-      );
+      return;
     }
+
+    const args = { msgHdr };
+    args.wrappedJSObject = args;
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messenger.xhtml",
+      "",
+      "all,chrome,dialog=no,status,toolbar",
+      args
+    );
   },
 
   /**

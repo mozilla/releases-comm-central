@@ -526,6 +526,7 @@ pref("alerts.totalOpenTime", 10000);
 // Disable new windows notifications until they are fully supported by Thunderbird (bug 1838139).
 #ifdef XP_WIN
 pref("alerts.useSystemBackend", false);
+pref("alerts.useSystemBackend.windows.notificationserver.enabled", false);
 #endif
 
 // analyze urls in mail messages for scams

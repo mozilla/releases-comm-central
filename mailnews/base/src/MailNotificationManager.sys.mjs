@@ -341,11 +341,11 @@ export class MailNotificationManager {
           Ci.nsIAlertNotification
         );
         alert.init(
-          cookie, // name
+          cookie,
           "chrome://messenger/skin/icons/new-mail-alert.png",
           title,
           body,
-          true, // clickable
+          true /* text clickable */,
           cookie
         );
         alertsService.showAlert(alert, this);
