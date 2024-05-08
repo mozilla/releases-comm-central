@@ -52,13 +52,7 @@ function search() {
       .createInstance()
       .QueryInterface(Ci.nsILDAPConnection);
 
-    gLdapConnection.init(
-      gLdapServerURL,
-      gLogin,
-      new BindListener(),
-      null,
-      Ci.nsILDAPConnection.VERSION3
-    );
+    gLdapConnection.init(gLdapServerURL, gLogin, new BindListener());
   } catch (ex) {
     console.error(ex);
     window.close();

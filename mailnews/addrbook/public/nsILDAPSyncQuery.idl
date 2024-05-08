@@ -9,19 +9,12 @@ interface nsILDAPURL;
 
 [scriptable, uuid (0308fb36-1dd2-11b2-b16f-8510e8c5311a)]
 interface nsILDAPSyncQuery : nsISupports {
-
   /**
-   * getQueryResults
-   *
    * Create a new LDAP connection do a synchronous LDAP search and return
    * the results.
    * @param aServerURL - LDAP URL with parameters to a LDAP search
    *                     ("ldap://host/base?attributes?one/sub?filter")
-   * @param aProtocolVersion - LDAP protocol version to use for connection
-   *                           (nsILDAPConnection.idl has symbolic constants)
    * @return results
    */
-   wstring getQueryResults (in nsILDAPURL aServerURL,
-                            in unsigned long aProtocolVersion);
-
+   wstring getQueryResults(in nsILDAPURL aServerURL);
 };

@@ -27,11 +27,6 @@ interface nsIAbLDAPDirectory : nsISupports
   attribute ACString replicationFileName;
 
   /**
-   * The version of LDAP protocol in use.
-   */
-  attribute unsigned long protocolVersion;
-
-  /**
    * The SASL mechanism to use to authenticate to the LDAP server
    * If this is an empty string, then a simple bind will be performed
    * A non-zero string is assumed to be the name of the SASL mechanism.

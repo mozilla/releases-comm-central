@@ -69,19 +69,6 @@ export class LDAPDirectory extends AddrBookDirectory {
     );
   }
 
-  get protocolVersion() {
-    return this.getStringValue("protocolVersion", "3") == "3"
-      ? Ci.nsILDAPConnection.VERSION3
-      : Ci.nsILDAPConnection.VERSION2;
-  }
-
-  set protocolVersion(value) {
-    this.setStringValue(
-      "protocolVersion",
-      value == Ci.nsILDAPConnection.VERSION3 ? "3" : "2"
-    );
-  }
-
   get saslMechanism() {
     return this.getStringValue("auth.saslmech");
   }

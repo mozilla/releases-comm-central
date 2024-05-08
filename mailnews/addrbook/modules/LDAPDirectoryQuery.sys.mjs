@@ -113,13 +113,7 @@ export class LDAPDirectoryQuery extends LDAPListenerBase {
       "@mozilla.org/network/ldap-operation;1"
     ].createInstance(Ci.nsILDAPOperation);
 
-    this._connection.init(
-      directory.lDAPURL,
-      directory.authDn,
-      this,
-      null,
-      directory.protocolVersion
-    );
+    this._connection.init(directory.lDAPURL, directory.authDn, this);
     return this.i++;
   }
 

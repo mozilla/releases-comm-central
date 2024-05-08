@@ -119,7 +119,7 @@ add_task(async function test_basic_query() {
 
   // Initialisation is async.
   const initListener = new PromiseInitListener();
-  conn.init(ldapURL, null, initListener, null, Ci.nsILDAPConnection.VERSION3);
+  conn.init(ldapURL, null, initListener);
   await initListener.promise;
 
   // Perform bind.

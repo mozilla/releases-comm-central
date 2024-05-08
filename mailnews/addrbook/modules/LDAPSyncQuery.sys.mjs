@@ -43,12 +43,12 @@ export class LDAPSyncQuery {
   }
 
   /** @see nsILDAPSyncQuery */
-  getQueryResults(ldapUrl, protocolVersion) {
+  getQueryResults(ldapUrl) {
     this._ldapUrl = ldapUrl;
     this._connection = Cc[
       "@mozilla.org/network/ldap-connection;1"
     ].createInstance(Ci.nsILDAPConnection);
-    this._connection.init(ldapUrl, "", this, null, protocolVersion);
+    this._connection.init(ldapUrl, "", this);
 
     this._statusCode = 0;
     this._result = "";

@@ -16,7 +16,7 @@ function getLDAPAttributes(urlSpec) {
   const ldapquery = Cc["@mozilla.org/ldapsyncquery;1"].createInstance(
     Ci.nsILDAPSyncQuery
   );
-  const payload = ldapquery.getQueryResults(url, Ci.nsILDAPConnection.VERSION3);
+  const payload = ldapquery.getQueryResults(url);
   // Returns a string with one attr per line.
   return payload;
 }
