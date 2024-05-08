@@ -46,7 +46,7 @@ add_setup(async function setup() {
     "Unread count of the unified inbox folder after adding messages should be correct"
   );
 
-  // Mark some messages as unread in inbox1
+  // Mark some messages as unread in inbox1.
   const messages = inbox1.messages;
   let count = 5;
   while (messages.hasMoreElements() && count > 0) {
@@ -100,6 +100,104 @@ add_task(async function test_folder_isUnified() {
         unifiedFolders.length,
         "Should have found the correct number of unified mailbox folders"
       );
+      window.assertDeepEqual(
+        [
+          {
+            id: "unified://Inbox",
+            name: "Inbox",
+            path: "/unified/Inbox",
+            specialUse: ["inbox"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "inbox",
+          },
+          {
+            id: "unified://Drafts",
+            name: "Drafts",
+            path: "/unified/Drafts",
+            specialUse: ["drafts"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "drafts",
+          },
+          {
+            id: "unified://Templates",
+            name: "Templates",
+            path: "/unified/Templates",
+            specialUse: ["templates"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "templates",
+          },
+          {
+            id: "unified://Sent",
+            name: "Sent",
+            path: "/unified/Sent",
+            specialUse: ["sent"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "sent",
+          },
+          {
+            id: "unified://Archives",
+            name: "Archives",
+            path: "/unified/Archives",
+            specialUse: ["archives"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "archives",
+          },
+          {
+            id: "unified://Junk",
+            name: "Junk",
+            path: "/unified/Junk",
+            specialUse: ["junk"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "junk",
+          },
+          {
+            id: "unified://Trash",
+            name: "Trash",
+            path: "/unified/Trash",
+            specialUse: ["trash"],
+            isFavorite: false,
+            isRoot: false,
+            isTag: false,
+            isUnified: true,
+            isVirtual: true,
+            accountId: "",
+            type: "trash",
+          },
+        ],
+        unifiedFolders,
+        "Unified mailbox folders returned by query() should be correct."
+      );
+
       const [inbox1] = await browser.folders.query({
         accountId: "account1",
         specialUse: ["inbox"],
@@ -117,7 +215,7 @@ add_task(async function test_folder_isUnified() {
       const tests = [
         {
           use: "inbox",
-          path: "/Inbox",
+          path: "/unified/Inbox",
           numOfMessages: 20,
           subFolders: [
             {
@@ -125,6 +223,7 @@ add_task(async function test_folder_isUnified() {
               specialUse: ["inbox"],
               isFavorite: false,
               isRoot: false,
+              isTag: false,
               isUnified: false,
               isVirtual: false,
               id: "account1://Inbox",
@@ -137,6 +236,7 @@ add_task(async function test_folder_isUnified() {
                   specialUse: [],
                   isFavorite: false,
                   isRoot: false,
+                  isTag: false,
                   isUnified: false,
                   isVirtual: false,
                   id: "account1://Inbox/testFolder1",
@@ -151,6 +251,7 @@ add_task(async function test_folder_isUnified() {
               specialUse: ["inbox"],
               isFavorite: false,
               isRoot: false,
+              isTag: false,
               isUnified: false,
               isVirtual: false,
               id: "account2://Inbox",
@@ -163,6 +264,7 @@ add_task(async function test_folder_isUnified() {
                   specialUse: [],
                   isFavorite: false,
                   isRoot: false,
+                  isTag: false,
                   isUnified: false,
                   isVirtual: false,
                   id: "account2://Inbox/testFolder2",
@@ -176,19 +278,19 @@ add_task(async function test_folder_isUnified() {
         },
         {
           use: "drafts",
-          path: "/Drafts",
+          path: "/unified/Drafts",
           numOfMessages: 0,
           subFolders: [],
         },
         {
           use: "sent",
-          path: "/Sent",
+          path: "/unified/Sent",
           numOfMessages: 0,
           subFolders: [],
         },
         {
           use: "trash",
-          path: "/Trash",
+          path: "/unified/Trash",
           numOfMessages: 0,
           subFolders: [
             {
@@ -196,6 +298,7 @@ add_task(async function test_folder_isUnified() {
               specialUse: ["trash"],
               isFavorite: false,
               isRoot: false,
+              isTag: false,
               isUnified: false,
               isVirtual: false,
               id: "account1://Trash",
@@ -209,6 +312,7 @@ add_task(async function test_folder_isUnified() {
               specialUse: ["trash"],
               isFavorite: false,
               isRoot: false,
+              isTag: false,
               isUnified: false,
               isVirtual: false,
               id: "account2://Trash",
@@ -221,19 +325,19 @@ add_task(async function test_folder_isUnified() {
         },
         {
           use: "archives",
-          path: "/Archives",
+          path: "/unified/Archives",
           numOfMessages: 0,
           subFolders: [],
         },
         {
           use: "junk",
-          path: "/Junk",
+          path: "/unified/Junk",
           numOfMessages: 0,
           subFolders: [],
         },
         {
           use: "templates",
-          path: "/Templates",
+          path: "/unified/Templates",
           numOfMessages: 0,
           subFolders: [],
         },
@@ -476,6 +580,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Archives",
@@ -488,6 +593,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Drafts",
@@ -500,6 +606,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Inbox",
@@ -512,6 +619,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Junk",
@@ -524,6 +632,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Sent",
@@ -536,6 +645,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Templates",
@@ -548,6 +658,7 @@ add_task(async function test_folder_isUnified() {
             specialUse: [],
             isFavorite: false,
             isRoot: false,
+            isTag: false,
             isUnified: false,
             isVirtual: false,
             id: "account1://localFolder1/Trash",
@@ -634,7 +745,7 @@ add_task(async function test_folder_isUnified() {
   await extension.unload();
 });
 
-// Test that the unified root folder is returned in MV3
+// Test that the unified root folder is not exposed in MV3.
 add_task(async function test_folder_isUnified_getParentFolders_MV3() {
   const files = {
     "background.js": async () => {
@@ -676,7 +787,7 @@ add_task(async function test_folder_isUnified_getParentFolders_MV3() {
       // is not exposed to the API.
       await browser.test.assertRejects(
         browser.folders.getFolderInfo("unified://"),
-        `folders.getFolderInfo() failed, not supported for root folders`,
+        `Folder not found: unified://`,
         "folders.getFolderInfo() should reject for the unified mailbox root folders"
       );
 

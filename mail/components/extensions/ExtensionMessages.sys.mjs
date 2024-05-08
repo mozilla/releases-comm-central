@@ -9,7 +9,11 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
-import { getFolder } from "resource:///modules/ExtensionAccounts.sys.mjs";
+import {
+  getFolder,
+  getWildcardVirtualFolders,
+} from "resource:///modules/ExtensionAccounts.sys.mjs";
+
 import {
   MimeTreeEmitter,
   MimeTreeDecrypter,
@@ -644,7 +648,13 @@ export function getMessagesInFolder(folder) {
     const messages = [];
     const wrappedVirtualFolder =
       lazy.VirtualFolderHelper.wrapVirtualFolder(folder);
+
+    const searchFolders = getWildcardVirtualFolders(wrappedVirtualFolder);
     for (const searchFolder of wrappedVirtualFolder.searchFolders) {
+      searchFolders.push(searchFolder);
+    }
+
+    for (const searchFolder of searchFolders) {
       const msgs = searchFolder.msgDatabase.getFilterEnumerator(
         wrappedVirtualFolder.searchTerms
       );

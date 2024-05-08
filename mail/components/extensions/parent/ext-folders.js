@@ -15,8 +15,13 @@ ChromeUtils.defineESModuleGetters(this, {
   SmartMailboxUtils: "resource:///modules/SmartMailboxUtils.sys.mjs",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
-var { CachedFolder, folderURIToPath, getFolder, specialUseMap, getSpecialUse } =
-  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+var {
+  CachedFolder,
+  folderURIToPath,
+  getFolder,
+  specialUseMap,
+  getWildcardVirtualFolders,
+} = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
  * Tracks folder events.
@@ -259,7 +264,7 @@ async function doMoveCopyOperation(source, destination, extension, isMove) {
     );
   }
 
-  if (isMove && !srcFolder.deletable) {
+  if (isMove && !FolderManager.canBeDeleted(srcFolder)) {
     throw new ExtensionError(
       `${functionName} failed, cannot delete source folder ${srcFolder.prettyName}`
     );
@@ -636,9 +641,15 @@ this.folders = class extends ExtensionAPIPersistent {
                 accountId: accountKey,
               });
             }
-          } else if (queryInfo.isUnified) {
+          } else if (queryInfo.isUnified || queryInfo.isTag) {
             const smartMailbox = SmartMailboxUtils.getSmartMailbox();
-            if (smartMailbox.account) {
+            // Unified mailbox folders are disjunct to virtual tag folders.
+            // Manually suppress the case both are specified.
+            if (
+              smartMailbox.account &&
+              queryInfo.isUnified &&
+              !queryInfo.isTag
+            ) {
               const allowedFolderFlags =
                 SmartMailboxUtils.getFolderTypes().reduce(
                   (acc, { flag }) => acc | flag,
@@ -652,6 +663,20 @@ this.folders = class extends ExtensionAPIPersistent {
                     accountId: smartMailbox.account.key,
                   });
                 }
+              }
+            }
+            if (
+              smartMailbox.account &&
+              !queryInfo.isUnified &&
+              queryInfo.isTag
+            ) {
+              const tags = MailServices.tags.getAllTags();
+              for (const tag of tags) {
+                const folder = smartMailbox.getTagFolder(tag);
+                parentFolders.push({
+                  rootFolder: folder,
+                  accountId: smartMailbox.account.key,
+                });
               }
             }
           } else {
@@ -799,14 +824,14 @@ this.folders = class extends ExtensionAPIPersistent {
 
               if (
                 queryInfo.canBeDeleted != null &&
-                queryInfo.canBeDeleted != folder.deletable
+                queryInfo.canBeDeleted != FolderManager.canBeDeleted(folder)
               ) {
                 continue;
               }
 
               if (
                 queryInfo.canBeRenamed != null &&
-                queryInfo.canBeRenamed != folder.canRename
+                queryInfo.canBeRenamed != FolderManager.canBeRenamed(folder)
               ) {
                 continue;
               }
@@ -890,11 +915,18 @@ this.folders = class extends ExtensionAPIPersistent {
             folder: parentFolder,
             accountKey,
             isUnified,
+            isTag,
           } = getFolder(destination);
 
           if (isUnified) {
             throw new ExtensionError(
               `The destination used in folders.create() cannot be a unified mailbox folder`
+            );
+          }
+
+          if (isTag) {
+            throw new ExtensionError(
+              `The destination used in folders.create() cannot be a virtual tag folder`
             );
           }
 
@@ -935,9 +967,9 @@ this.folders = class extends ExtensionAPIPersistent {
           );
         },
         async rename(target, newName) {
-          const { folder, accountKey, isUnified } = getFolder(target);
+          const { folder, accountKey } = getFolder(target);
 
-          if (!folder.canRename || isUnified) {
+          if (!FolderManager.canBeRenamed(folder)) {
             const name = folder.isServer ? "Root" : folder.prettyName;
             throw new ExtensionError(
               `folders.rename() failed, the folder ${name} cannot be renamed`
@@ -990,7 +1022,7 @@ this.folders = class extends ExtensionAPIPersistent {
 
           const { folder } = getFolder(target);
 
-          if (!folder.deletable) {
+          if (!FolderManager.canBeDeleted(folder)) {
             const name = folder.isServer ? "Root" : folder.prettyName;
             throw new ExtensionError(
               `folders.delete() failed, the folder ${name} cannot be deleted`
@@ -1084,8 +1116,8 @@ this.folders = class extends ExtensionAPIPersistent {
           const mailFolderCapabilities = {
             canAddMessages: !!folder.canFileMessages,
             canAddSubfolders: !!folder.canCreateSubfolders,
-            canBeDeleted: !!folder.deletable,
-            canBeRenamed: !!folder.canRename,
+            canBeDeleted: !!FolderManager.canBeDeleted(folder),
+            canBeRenamed: !!FolderManager.canBeRenamed(folder),
             canDeleteMessages: !!folder.canDeleteMessages,
           };
 
@@ -1131,6 +1163,19 @@ this.folders = class extends ExtensionAPIPersistent {
               .filter(quota => !!quota);
           }
 
+          // Virtual folders which search all folders without explicitly stating
+          // their searchfolders, do not correctly report message counts. The
+          // count is updated whenever a search was done in the UI!
+          if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+            const wrappedVirtualFolder =
+              VirtualFolderHelper.wrapVirtualFolder(folder);
+            if (wrappedVirtualFolder.searchFolderURIs == "*") {
+              console.warn(
+                "folders.getFolderInfo() for virtual folders searching all folders may return invalid results"
+              );
+            }
+          }
+
           const mailFolderInfo = {
             totalMessageCount: folder.getTotalMessages(false),
             unreadMessageCount: folder.getNumUnread(false),
@@ -1157,13 +1202,13 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getParentFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-          let { folder, accountKey, isUnified } = getFolder(target);
+          let { folder, accountKey, isUnified, isTag } = getFolder(target);
 
           const parentFolders = [];
-          // Early exit for unified folders. For the WebExtension API, these
-          // folders exist independently of an account, and we do not want to
-          // expose them belonging to a common base account.
-          if (isUnified) {
+          // Early exit for unified mailbox folders and virtual tag folders. For
+          // the WebExtension API, these folders exist independently of an account,
+          // and we do not want to expose them belonging to a common base account.
+          if (isUnified || isTag) {
             return [];
           }
 
@@ -1234,7 +1279,7 @@ this.folders = class extends ExtensionAPIPersistent {
           }
           return folderManager.convert(smartFolder);
         },
-        async getTagFolder(requestedTagKey, includeSubFolders) {
+        async getTagFolder(requestedTagKey) {
           const { folderManager } = context.extension;
           const tag = MailServices.tags
             .getAllTags()
@@ -1252,9 +1297,6 @@ this.folders = class extends ExtensionAPIPersistent {
               `folders.getTagFolder() failed, the folder for the requested tag key ${requestedTagKey} does not exist`
             );
           }
-          if (includeSubFolders) {
-            return folderManager.traverseSubfolders(tagFolder);
-          }
           return folderManager.convert(tagFolder);
         },
         markAsRead(target) {
@@ -1267,10 +1309,13 @@ this.folders = class extends ExtensionAPIPersistent {
           }
 
           if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
-            for (const searchFolder of VirtualFolderHelper.wrapVirtualFolder(
-              folder
-            ).searchFolders) {
-              searchFolder.markAllMessagesRead(null);
+            const virtualFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+            const folders = getWildcardVirtualFolders(virtualFolder);
+            for (const searchFolder of virtualFolder.searchFolders) {
+              folders.push(searchFolder);
+            }
+            for (const folder of folders) {
+              folder.markAllMessagesRead(null);
             }
           } else {
             folder.markAllMessagesRead(null);

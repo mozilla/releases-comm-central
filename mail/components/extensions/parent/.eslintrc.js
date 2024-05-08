@@ -43,6 +43,7 @@ module.exports = {
     MESSAGE_PROTOCOLS: true,
     NOTIFICATION_COLLAPSE_TIME: true,
     ExtensionError: true,
+    FolderManager: true,
     Tab: true,
     TabmailTab: true,
     Window: true,

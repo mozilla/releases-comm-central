@@ -42,6 +42,11 @@
             "optional": true,
             "description": "Whether this folder is a root folder."
           },
+          "isTag": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether this folder is a virtual tag folder."
+          },
           "isUnified": {
             "type": "boolean",
             "optional": true,
@@ -347,6 +352,11 @@
                 "type": "boolean",
                 "optional": true,
                 "description": "Whether the folder is a root folder, or not."
+              },
+              "isTag": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the folder is a virtual tag folder, or not. Note: Virtual tag folders are always skipped, unless this property is set to <value>true</value>"
               },
               "isUnified": {
                 "type": "boolean",
@@ -882,13 +892,6 @@
           {
             "type": "string",
             "description": "The tag key of the requested folder. See :ref:`messages.tags.list()` for the available tags. Throws when specifying an invalid tag key."
-          },
-          {
-            "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <value>false</value>.",
-            "optional": true,
-            "default": false,
-            "type": "boolean"
           },
           {
             "type": "function",
