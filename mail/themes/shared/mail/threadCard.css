@@ -405,6 +405,7 @@
           border-radius: var(--indicator-width);
           width: var(--indicator-width);
           box-sizing: border-box;
+          transform: translateX(calc(var(--thread-card-inline) * -1));
         }
 
         & .thread-card-column {
@@ -532,6 +533,14 @@
           &:dir(rtl) {
             background-image: var(--icon-nav-back);
             background-position-x: 100%
+          }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+          transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+
+          &::before {
+            transition: transform 200ms ease, background-color 300ms ease, border-color 300ms;
           }
         }
       }
@@ -711,6 +720,10 @@
         --thread-card-background: var(--thread-card-background-selected-current);
         --thread-card-border: var(--thread-card-border-focus);
       }
+
+      .thread-card-container::before {
+        transform: translateX(0);
+      }
     }
   }
 
@@ -742,6 +755,10 @@
       --thread-card-border: var(--thread-card-border-selected-unfocused);
       --indicator-background: var(--indicator-background-selected-unfocused);
       --indicator-border: var(--indicator-border-selected-unfocused);
+
+      .thread-card-container::before {
+        transform: translateX(0);
+      }
     }
 
     &.selected.current {
