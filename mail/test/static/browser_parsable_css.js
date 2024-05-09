@@ -48,6 +48,11 @@ const ignoreList = [
     errorMessage: /Unknown property.*overflow-clip-box/i,
     isFromDevTools: false,
   },
+  {
+    sourceName: /\b(html)\.css$/i,
+    errorMessage: /Error in parsing value for ‘content’/i,
+    isFromDevTools: false,
+  },
   // These variables are declared somewhere else, and error when we load the
   // files directly. They're all marked intermittent because their appearance
   // in the error console seems to not be consistent.
