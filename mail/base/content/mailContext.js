@@ -599,11 +599,12 @@ var mailContextMenu = {
         openWebSearch(this.selectionInfo.text);
         break;
 
-      // Open messages
+      // Open messages in the background.
       case "mailContext-openNewTab":
         top.OpenMessageInNewTab(gDBView.hdrForFirstSelectedMessage, {
           event,
           viewWrapper: gViewWrapper,
+          background: true,
         });
         break;
       case "mailContext-openNewWindow":

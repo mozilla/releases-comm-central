@@ -52,8 +52,6 @@ add_setup(async function () {
 });
 
 add_task(async function testOpenNewTab() {
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
-
   let tabPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
     "TabOpen"
@@ -73,11 +71,10 @@ add_task(async function testOpenNewTab() {
   Assert.equal(aboutMessage.gMessage, testMessages[0]);
   tabmail.closeTab(tabInfo);
 
-  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
-
+  // Open tab with shift pressed.
   tabPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
   msgLoadedPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  openAndActivate("mailContext-openNewTab");
+  openAndActivate("mailContext-openNewTab", true);
   ({
     detail: { tabInfo },
   } = await tabPromise);
@@ -138,12 +135,13 @@ add_task(async function testOpenConversation() {
   tabmail.closeTab(tabInfo);
 });
 
-async function openAndActivate(itemId) {
+async function openAndActivate(itemId, shiftPressed = false) {
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.threadTree.getRowAtIndex(0),
     { type: "contextmenu" },
     about3Pane
   );
+
   await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
   const item = mailContext.querySelector("#" + itemId);
   if (item.parentNode != mailContext) {
@@ -153,6 +151,6 @@ async function openAndActivate(itemId) {
       "shown"
     );
   }
-  mailContext.activateItem(item);
+  mailContext.activateItem(item, { shiftKey: shiftPressed });
   await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
 }

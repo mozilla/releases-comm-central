@@ -827,9 +827,9 @@ function OpenMessageInNewTab(msgHdr, tabParams = {}) {
     tabParams.background = Services.prefs.getBoolPref(
       "mail.tabs.loadInBackground"
     );
-    if (tabParams.event?.shiftKey) {
-      tabParams.background = !tabParams.background;
-    }
+  }
+  if (tabParams.event?.shiftKey) {
+    tabParams.background = !tabParams.background;
   }
 
   const tabmail = document.getElementById("tabmail");

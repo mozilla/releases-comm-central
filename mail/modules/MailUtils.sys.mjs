@@ -204,7 +204,8 @@ export var MailUtils = {
         aMsgHdrs,
         aViewWrapperToClone,
         aTabmail,
-        shiftPressed
+        shiftPressed,
+        forceTab
       );
       return;
     }
@@ -229,7 +230,8 @@ export var MailUtils = {
           aMsgHdrs,
           aViewWrapperToClone,
           aTabmail,
-          shiftPressed
+          shiftPressed,
+          forceTab
         );
         break;
     }
@@ -252,8 +254,17 @@ export var MailUtils = {
    * @param {boolean} [shiftPressed] - We take into account if the user pressed
    *   the shift key to know how to open a message in a new tab. We only look at
    *   the loadInBackground preferefence if this value is provided.
+   * @param {boolean} [backgroundCmd] - We take into account whether we are
+   *   opening a tab from middle click, in which case the tab should only
+   *   open in the background.
    */
-  openMessageInNewTab(aMsgHdrs, aViewWrapperToClone, aTabmail, shiftPressed) {
+  openMessageInNewTab(
+    aMsgHdrs,
+    aViewWrapperToClone,
+    aTabmail,
+    shiftPressed,
+    backgroundCmd
+  ) {
     let mail3PaneWindow = null;
     if (!aTabmail) {
       // Try opening new tabs in a 3pane window.
@@ -280,9 +291,8 @@ export var MailUtils = {
       return;
     }
 
-    const loadInBgPref = Services.prefs.getBoolPref(
-      "mail.tabs.loadInBackground"
-    );
+    const loadInBgPref =
+      backgroundCmd || Services.prefs.getBoolPref("mail.tabs.loadInBackground");
 
     // If shiftPressed is not specified the message should ignore the
     // loadInBackground preference.
