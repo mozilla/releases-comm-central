@@ -20,15 +20,18 @@ from mozphab.conduit import ConduitAPI
 from mozphab.detect_repository import repo_from_args
 
 import taskcluster
+from taskcluster.helper import TaskclusterConfig
 
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret/"
-NOTIFY_URL_BASE = "http://taskcluster/api/notify/v1/matrix"
 ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task/"
 
 TB_SHERIFF_MATRIX_ID = "!TWztIhgqLawNpRBZTC:mozilla.org"
 
 MOZ_PHAB = shutil.which("moz-phab")
 assert MOZ_PHAB is not None
+
+
+tc = TaskclusterConfig("http://taskcluster/")
 
 
 def log(*args):
@@ -116,12 +119,30 @@ def write_try_task_config(comm_src_dir: Path) -> Path:
     return try_task_config_file
 
 
+tc_notify = tc.get_service("notify")
+
+
 def notify_sheriffs(body: str):
     data = {
         "roomId": TB_SHERIFF_MATRIX_ID,
         "body": body,
     }
-    requests.post(NOTIFY_URL_BASE, data=data)
+    tc_notify.matrix(data)
+
+
+def notify_user(body: str):
+    if task_id := os.environ.get("TASK_ID"):
+        queue = tc.get_service("queue")
+        task_def = queue.task(task_id)
+        user = task_def["tags"].get("createdForUser")
+        if not user.startswith("cron@") and "noreply" not in user:
+            tc_notify.email(
+                {
+                    "address": user,
+                    "subject": "Rust Automation Notice",
+                    "content": body,
+                }
+            )
 
 
 def artifact_url(task_id: str, artifact_path: str) -> str:
