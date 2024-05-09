@@ -225,6 +225,7 @@ export function fetchConfigFromExchange(
     callArgs,
     call.successCallback(),
     ex => {
+      gAccountSetupLogger.debug("HTTP request failed with: " + ex);
       // url3 is an HTTP URL that will redirect to the real one, usually a
       // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
       // parameters, drops the auth, drops the body, and turns POST into GET,

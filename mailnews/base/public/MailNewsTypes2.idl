@@ -34,7 +34,7 @@ interface nsMsgPriority : nsISupports {
 /**
  * Defines whether to use SSL or STARTTLS or not.
  * Used by @see nsIMsgIncomingServer.socketType
- * and @see nsISmtpServer.socketType
+ * and @see nsIMsgOutgoingServer.socketType
  */
 [scriptable, uuid(bc78bc74-1b34-48e8-ac2b-968e8dff1aeb)]
 interface nsMsgSocketType : nsISupports {
@@ -54,7 +54,7 @@ interface nsMsgSocketType : nsISupports {
 /**
  * Defines which authentication schemes we should try.
  * Used by @see nsIMsgIncomingServer.authMethod
- * and @see nsISmtpServer.authMethod
+ * and @see nsIMsgOutgoingServer.authMethod
  */
 [scriptable, uuid(4a10e647-d179-4a53-b7ef-df575ff5f405)]
 interface nsMsgAuthMethod : nsISupports {

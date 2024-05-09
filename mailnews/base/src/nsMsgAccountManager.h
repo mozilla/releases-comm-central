@@ -15,7 +15,7 @@
 #include "nscore.h"
 #include "nsIMsgAccountManager.h"
 #include "nsCOMPtr.h"
-#include "nsISmtpServer.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsIPrefBranch.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolder.h"

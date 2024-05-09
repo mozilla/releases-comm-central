@@ -44,23 +44,20 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
 
     Services.prefs.setBoolPref("mail.strictly_mime", aStrictMime);
 
-    const urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [

@@ -717,7 +717,7 @@ pref("mail.smtp.useMatchingHostNameServer", false);
 pref("mail.smtp.useSenderForSmtpMailFrom", true);
 // cleartext password. @see nsIMsgIncomingServer.authMethod.
 pref("mail.smtpserver.default.authMethod", 3);
-// @see nsISmtpServer.socketType
+// @see nsIMsgOutgoingServer.socketType
 pref("mail.smtpserver.default.try_ssl", 0);
 
 // If true, SMTP LOGIN auth and POP3 USER/PASS auth, the last of the methods to try, will use Latin1.

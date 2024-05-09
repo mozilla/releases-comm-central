@@ -41,10 +41,10 @@ var gSmtpServerD = setupSmtpServerDaemon();
 function setupSmtpServer() {
   gSmtpServerD.start();
   var gSmtpServer = localAccountUtils.create_outgoing_server(
-    gSmtpServerD.port,
+    "smtp",
     "user",
     "password",
-    "localhost"
+    { port: gSmtpServerD.port }
   );
   MailServices.accounts.defaultAccount.defaultIdentity.email =
     "from@tinderbox.invalid";

@@ -25,9 +25,9 @@ add_task(async function testAbort() {
 
   do_test_pending();
 
-  const urlListener = {
-    OnStartRunningUrl() {},
-    OnStopRunningUrl(url, status) {
+  const requestObserver = {
+    onStartRequest() {},
+    onStopRequest(request, status) {
       // Test sending is aborted with NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS.
       Assert.equal(status, 0x80553126);
       do_test_finished();
@@ -36,19 +36,16 @@ add_task(async function testAbort() {
 
   // Send a message.
   const testFile = do_get_file("data/message1.eml");
-  MailServices.smtp.sendMailMessage(
+  smtpServer.sendMailMessage(
     testFile,
     "to@foo.invalid",
     identity,
     "from@foo.invalid",
     null,
-    urlListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    requestObserver
   );
   server.performTest();
 });
@@ -61,28 +58,28 @@ add_task(async function testClientIdentityExtension() {
   const smtpServer = getBasicSmtpServer(server.port);
   const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
   // Enable and set clientid to the smtp server.
-  smtpServer.clientidEnabled = true;
-  smtpServer.clientid = "uuid-111";
+  Services.prefs.setBoolPref(
+    `mail.smtpserver.${smtpServer.key}.clientidEnabled`,
+    true
+  );
+  smtpServer.QueryInterface(Ci.nsISmtpServer).clientid = "uuid-111";
 
   // Send a message.
-  const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   const testFile = do_get_file("data/message1.eml");
-  MailServices.smtp.sendMailMessage(
+  smtpServer.sendMailMessage(
     testFile,
     "to@foo.invalid",
     identity,
     "from@foo.invalid",
     null,
-    asyncUrlListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    requestObserver
   );
 
-  await asyncUrlListener.promise;
+  await requestObserver.promise;
 
   // Check CLIENTID command is sent.
   const transaction = server.playTransaction();
@@ -105,24 +102,21 @@ add_task(async function testDeduplicateRecipients() {
   const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
 
   // Send a message, notice to1 appears twice in the recipients argument.
-  const asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   const testFile = do_get_file("data/message1.eml");
-  MailServices.smtp.sendMailMessage(
+  smtpServer.sendMailMessage(
     testFile,
     "to1@foo.invalid,to2@foo.invalid,to1@foo.invalid",
     identity,
     "from@foo.invalid",
     null,
-    asyncUrlListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    requestObserver
   );
 
-  await asyncUrlListener.promise;
+  await requestObserver.promise;
 
   // Check only one RCPT TO is sent for to1.
   const transaction = server.playTransaction();

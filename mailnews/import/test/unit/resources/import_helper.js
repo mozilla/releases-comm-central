@@ -488,7 +488,7 @@ SettingsImportHelper.prototype = {
   },
 
   _checkSmtpServer(expected, actual) {
-    Assert.equal(expected.port, actual.port);
+    Assert.equal(expected.port, actual.serverURI.port);
     Assert.equal(expected.username, actual.username);
     Assert.equal(expected.authMethod, actual.authMethod);
     Assert.equal(expected.socketType, actual.socketType);
@@ -542,7 +542,7 @@ SettingsImportHelper.prototype = {
     this._checkIdentity(expected.identity, actualIdentity);
 
     if (expected.incomingServer.type != "nntp") {
-      const actualSmtpServer = MailServices.smtp.getServerByKey(
+      const actualSmtpServer = MailServices.outgoingServer.getServerByKey(
         actualIdentity.smtpServerKey
       );
       this._checkSmtpServer(expected.smtpServer, actualSmtpServer);

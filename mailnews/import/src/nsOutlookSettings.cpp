@@ -15,7 +15,8 @@
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
 #include "nsOutlookSettings.h"
-#include "nsISmtpService.h"
+#include "nsIMsgOutgoingServerService.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsISmtpServer.h"
 #include "nsOutlookStringBundle.h"
 #include "ImportDebug.h"
@@ -47,7 +48,8 @@ class OutlookSettings {
   static nsresult SetSmtpServer(nsIMsgAccountManager* aMgr, nsIMsgAccount* aAcc,
                                 nsIMsgIdentity* aId, const nsString& aServer,
                                 const nsString& aUser);
-  static nsresult SetSmtpServerKey(nsIMsgIdentity* aId, nsISmtpServer* aServer);
+  static nsresult SetSmtpServerKey(nsIMsgIdentity* aId,
+                                   nsIMsgOutgoingServer* aServer);
   static nsresult GetAccountName(nsIWindowsRegKey* aKey,
                                  const nsString& aDefaultName,
                                  nsAString& aAccountName);
@@ -456,9 +458,9 @@ void OutlookSettings::SetIdentities(nsIMsgAccountManager* aMgr,
 }
 
 nsresult OutlookSettings::SetSmtpServerKey(nsIMsgIdentity* aId,
-                                           nsISmtpServer* aServer) {
+                                           nsIMsgOutgoingServer* aServer) {
   nsAutoCString smtpServerKey;
-  aServer->GetKey(getter_Copies(smtpServerKey));
+  aServer->GetKey(smtpServerKey);
   return aId->SetSmtpServerKey(smtpServerKey);
 }
 
@@ -468,31 +470,34 @@ nsresult OutlookSettings::SetSmtpServer(nsIMsgAccountManager* aMgr,
                                         const nsString& aServer,
                                         const nsString& aUser) {
   nsresult rv;
-  nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString nativeUserName;
   NS_CopyUnicodeToNative(aUser, nativeUserName);
   nsAutoCString nativeServerName;
   NS_CopyUnicodeToNative(aServer, nativeServerName);
-  nsCOMPtr<nsISmtpServer> foundServer;
-  rv = smtpService->FindServer(nativeUserName, nativeServerName,
-                               getter_AddRefs(foundServer));
+  nsCOMPtr<nsIMsgOutgoingServer> foundServer;
+  rv = outgoingServerService->FindServer(
+      nativeUserName, nativeServerName, "smtp"_ns, getter_AddRefs(foundServer));
   if (NS_SUCCEEDED(rv) && foundServer) {
     if (aId) SetSmtpServerKey(aId, foundServer);
     IMPORT_LOG1("SMTP server already exists: %s\n", nativeServerName.get());
     return rv;
   }
 
-  nsCOMPtr<nsISmtpServer> smtpServer;
-  rv = smtpService->CreateServer(getter_AddRefs(smtpServer));
+  nsCOMPtr<nsIMsgOutgoingServer> server;
+  rv = outgoingServerService->CreateServer("smtp"_ns, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  smtpServer->SetHostname(nativeServerName);
-  if (!aUser.IsEmpty()) smtpServer->SetUsername(nativeUserName);
+  nsCOMPtr<nsISmtpServer> smtpServer = do_QueryInterface(server);
+  rv = smtpServer->SetHostname(nativeServerName);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (aId) SetSmtpServerKey(aId, smtpServer);
+  if (!aUser.IsEmpty()) server->SetUsername(nativeUserName);
+
+  if (aId) SetSmtpServerKey(aId, server);
 
   // TODO SSL, auth method
   IMPORT_LOG1("Created new SMTP server: %s\n", nativeServerName.get());

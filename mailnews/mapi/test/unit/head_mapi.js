@@ -48,9 +48,10 @@ function getBasicSmtpServer() {
     "password"
   );
   const server = localAccountUtils.create_outgoing_server(
-    SMTP_PORT,
+    "smtp",
     "user",
-    "password"
+    "password",
+    { port: SMTP_PORT }
   );
   // We also need to have a working identity, including an email address.
   const account = MailServices.accounts.findAccountForServer(incoming);

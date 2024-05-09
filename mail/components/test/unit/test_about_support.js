@@ -101,9 +101,10 @@ function setup_accounts() {
     const account = MailServices.accounts.findAccountForServer(server);
     for (const smtpDetails of details.smtpServers) {
       const outgoing = localAccountUtils.create_outgoing_server(
-        smtpDetails.port,
+        "smtp",
         smtpDetails.user,
-        smtpDetails.password
+        smtpDetails.password,
+        { port: smtpDetails.port }
       );
       outgoing.socketType = smtpDetails.socketType;
       outgoing.authMethod = smtpDetails.authMethod;

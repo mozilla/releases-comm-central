@@ -153,8 +153,8 @@ function updateElementWithKeys(account, element, type) {
       element.serverkey = account.incomingServer.key;
       break;
     case "smtp":
-      if (MailServices.smtp.defaultServer) {
-        element.serverkey = MailServices.smtp.defaultServer.key;
+      if (MailServices.outgoingServer.defaultServer) {
+        element.serverkey = MailServices.outgoingServer.defaultServer.key;
       }
       break;
     default:
@@ -980,7 +980,7 @@ function saveAccount(accountValues, account) {
       } else if (type == "nntp") {
         dest = server.QueryInterface(Ci.nsINntpIncomingServer);
       } else if (type == "smtp") {
-        dest = MailServices.smtp.defaultServer;
+        dest = MailServices.outgoingServer.defaultServer;
       }
     } catch (ex) {
       // don't do anything, just means we don't support that
@@ -1417,7 +1417,7 @@ function getAccountValue(
       } else if (type == "nntp") {
         source = server.QueryInterface(Ci.nsINntpIncomingServer);
       } else if (type == "smtp") {
-        source = MailServices.smtp.defaultServer;
+        source = MailServices.outgoingServer.defaultServer;
       }
     } catch (ex) {}
 
@@ -1514,8 +1514,8 @@ function restorePage(pageId, account) {
             element.serverkey = account.incomingServer.key;
             break;
           case "smtp":
-            if (MailServices.smtp.defaultServer) {
-              element.serverkey = MailServices.smtp.defaultServer.key;
+            if (MailServices.outgoingServer.defaultServer) {
+              element.serverkey = MailServices.outgoingServer.defaultServer.key;
             }
             break;
         }

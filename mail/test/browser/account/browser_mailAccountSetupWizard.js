@@ -163,7 +163,7 @@ function remove_account_internal(tab, account, outgoing) {
 
   // Remove the outgoing server
   const smtpKey = outgoing.key;
-  MailServices.smtp.deleteServer(outgoing);
+  MailServices.outgoingServer.deleteServer(outgoing);
   win.replaceWithDefaultSmtpServer(smtpKey);
 }
 
@@ -301,7 +301,9 @@ async function subtest_verify_account(tab, user) {
   const account = tab.browser.contentWindow.currentAccount;
   const identity = account.defaultIdentity;
   const incoming = account.incomingServer;
-  const outgoing = MailServices.smtp.getServerByKey(identity.smtpServerKey);
+  const outgoing = MailServices.outgoingServer.getServerByKey(
+    identity.smtpServerKey
+  );
 
   const config = {
     "incoming server username": {
@@ -321,7 +323,7 @@ async function subtest_verify_account(tab, user) {
     },
     "outgoing server hostname": {
       // And this is lowercase
-      actual: outgoing.hostname,
+      actual: outgoing.serverURI.host,
       expected: user.outgoingHost,
     },
     "user real name": { actual: identity.fullName, expected: user.name },

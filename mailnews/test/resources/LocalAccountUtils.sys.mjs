@@ -146,20 +146,57 @@ export var localAccountUtils = {
   },
 
   /**
-   * Create an outgoing nsISmtpServer with the given parameters.
+   * Create and configure an outgoing nsIOutgoingServer with the given
+   * parameters.
    *
-   * @param {integer} aPort - The port the server is on.
+   * @param {string} type - The server's type.
    * @param {string} aUsername - The username for the server
    * @param {string} aPassword - The password for the server
-   * @param {string} [aHostname=localhost] - The hostname for the server.
-   * @returns {nsISmtpServer} The newly-created nsISmtpServer.
+   * @param {object} [protocolConfig={}] - Protocol-specific configuration for
+   *                                       the server.
+   * @returns {nsIOutgoingServer} The newly-created nsIOutgoingServer.
    */
-  create_outgoing_server(aPort, aUsername, aPassword, aHostname = "localhost") {
-    const server = MailServices.smtp.createServer();
-    server.hostname = aHostname;
-    server.port = aPort;
+  create_outgoing_server(type, aUsername, aPassword, protocolConfig = {}) {
+    const server = MailServices.outgoingServer.createServer(type);
+
+    switch (type) {
+      case "smtp":
+        this.configure_smtp_server(server, protocolConfig);
+    }
+
     server.authMethod = Ci.nsMsgAuthMethod.none;
     return server;
+  },
+
+  /**
+   * Configures an SMTP server with the given parameters.
+   *
+   * The server's hostname and port default to "localhost" and 0, respectively.
+   *
+   * @param {nsIMsgOutgoingServer} server - The server to configure.
+   * @param {object} params - The parameters to use to configure the SMTP
+   *                          server.
+   * @param {string} params.hostname - The host name for the SMTP server.
+   *                                   Defaults to "localhost".
+   * @param {number} params.port - The port for the SMTP server. Defaults to 0,
+   *                               which tells the SMTP client to infer the port
+   *                               from the server's encryption settings.
+   * @param {string} params.clientid - The client ID for the server. Setting it
+   *                                   will work only if the server's
+   *                                   `clientidEnabled` pref (or the default
+   *                                   server's) is set to true (otherwise this
+   *                                   property is ignored). Does not have a
+   *                                   default value.
+   */
+  configure_smtp_server(server, params) {
+    const smtpServer = server.QueryInterface(Ci.nsISmtpServer);
+
+    smtpServer.hostname = params.hostname ? params.hostname : "localhost";
+    smtpServer.port = params.port ? params.port : 0;
+
+    if (smtpServer.clientid) {
+      smtpServer.clientid;
+    }
   },
 
   /**
@@ -168,7 +205,7 @@ export var localAccountUtils = {
    * server.
    *
    * @param {nsIMsgAccount} aIncoming - The account to associate.
-   * @param {nsISmtpServer} aOutgoingServer - The outgoing server to associate.
+   * @param {nsIOutgoingServer} aOutgoingServer - The outgoing server to associate.
    * @param {bool} aSetAsDefault - Whether to set the outgoing server as the
    *   default for the account.
    */

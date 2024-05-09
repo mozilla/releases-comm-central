@@ -29,10 +29,10 @@ function setupServerDaemon(handler) {
 
 function getBasicSmtpServer(port = 1, hostname = "localhost") {
   const server = localAccountUtils.create_outgoing_server(
-    port,
+    "smtp",
     "user",
     "password",
-    hostname
+    { port, hostname }
   );
 
   // Override the default greeting so we get something predictable

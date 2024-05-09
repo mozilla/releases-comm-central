@@ -16,9 +16,9 @@
 #include "nsMailHeaders.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIHttpProtocolHandler.h"
-#include "nsISmtpService.h"  // for actually sending the message...
+#include "nsIMsgOutgoingServerService.h"  // for actually sending the message...
 #include "nsComposeStrings.h"
-#include "nsISmtpServer.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsIMsgCompUtils.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -78,7 +78,7 @@ using namespace mozilla::mailnews;
 char DispositionTypes[7][16] = {
     "displayed", "dispatched", "processed", "deleted", "denied", "failed", ""};
 
-NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgMdnGenerator, nsIMsgMdnGenerator, nsIRequestObserver)
 
 nsMsgMdnGenerator::nsMsgMdnGenerator()
     : m_disposeType(eDisplayed),
@@ -771,17 +771,24 @@ nsresult nsMsgMdnGenerator::OutputAllHeaders() {
 nsresult nsMsgMdnGenerator::SendMdnMsg() {
   DEBUG_MDN("nsMsgMdnGenerator::SendMdnMsg");
   nsresult rv;
-  nsCOMPtr<nsISmtpService> smtpService =
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv);
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService = do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIURI> aUri;
   nsCOMPtr<nsIRequest> aRequest;
   nsCString identEmail;
   m_identity->GetEmail(identEmail);
-  smtpService->SendMailMessage(
-      m_file, m_dntRrt, m_identity, identEmail, EmptyString(), this, nullptr,
-      nullptr, false, ""_ns, getter_AddRefs(aUri), getter_AddRefs(aRequest));
+
+  nsCOMPtr<nsIMsgOutgoingServer> outgoingServer;
+  rv = outgoingServerService->GetServerByIdentity(
+      m_identity, getter_AddRefs(outgoingServer));
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ASSERTION(
+      outgoingServer,
+      "there should be an outgoing server configured (or set as default)");
+
+  outgoingServer->SendMailMessage(m_file, m_dntRrt, m_identity, identEmail,
+                                  ""_ns, nullptr, false, ""_ns, this);
 
   return NS_OK;
 }
@@ -946,16 +953,16 @@ nsresult nsMsgMdnGenerator::NoteMDNRequestHandled() {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStartRunningUrl(nsIURI* url) {
-  DEBUG_MDN("nsMsgMdnGenerator::OnStartRunningUrl");
+NS_IMETHODIMP nsMsgMdnGenerator::OnStartRequest(nsIRequest* req) {
+  DEBUG_MDN("nsMsgMdnGenerator::OnStartRequest");
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
-                                                  nsresult aExitCode) {
+NS_IMETHODIMP nsMsgMdnGenerator::OnStopRequest(nsIRequest* req,
+                                               nsresult aExitCode) {
   nsresult rv;
 
-  DEBUG_MDN("nsMsgMdnGenerator::OnStopRunningUrl");
+  DEBUG_MDN("nsMsgMdnGenerator::OnStopRequest");
   if (m_file) m_file->Remove(false);
 
   if (NS_SUCCEEDED(aExitCode)) return NS_OK;
@@ -985,18 +992,19 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
       break;
   }
 
-  nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Get the smtp hostname and format the string.
-  nsCString smtpHostName;
-  nsCOMPtr<nsISmtpServer> smtpServer;
-  rv = smtpService->GetServerByIdentity(m_identity, getter_AddRefs(smtpServer));
-  if (NS_SUCCEEDED(rv)) smtpServer->GetHostname(smtpHostName);
+  // Get the display name for the outgoing server and format the string.
+  nsCString outgoingDisplayName;
+  nsCOMPtr<nsIMsgOutgoingServer> outgoingServer;
+  rv = outgoingServerService->GetServerByIdentity(
+      m_identity, getter_AddRefs(outgoingServer));
+  if (NS_SUCCEEDED(rv)) outgoingServer->GetDisplayname(outgoingDisplayName);
 
   AutoTArray<nsString, 1> params;
-  CopyASCIItoUTF16(smtpHostName, *params.AppendElement());
+  CopyASCIItoUTF16(outgoingDisplayName, *params.AppendElement());
 
   nsCOMPtr<nsIStringBundle> bundle;
   nsCOMPtr<nsIStringBundleService> bundleService =

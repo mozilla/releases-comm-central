@@ -62,7 +62,7 @@ export class SmtpClient {
    *
    * @class
    *
-   * @param {nsISmtpServer} server - The associated nsISmtpServer instance.
+   * @param {SmtpServer} server - The associated SmtpServer instance.
    */
   constructor(server) {
     this.options = {
@@ -222,8 +222,9 @@ export class SmtpClient {
 
       for (let recipient of recipients) {
         if (!recipient) {
-          // This happens when nsISmtpService.sendMailMessage() is called with
-          // recipients without @, for example in test_sendMailAddressIDN.js.
+          // This happens when SmtpServer.sendMailMessage() is
+          // called with recipients without @, for example in
+          // test_sendMailAddressIDN.js.
           continue;
         }
         let lastAt = null;
@@ -1343,7 +1344,7 @@ export class SmtpClient {
       }
 
       this._currentAction = this._actionIdle;
-      this.ondone(0);
+      this.ondone();
     } else {
       // For SMTP the message either fails or succeeds, there is no information
       // about individual recipients
@@ -1387,7 +1388,7 @@ export class SmtpClient {
 
       this._currentAction = this._actionIdle;
       if (command.success) {
-        this.ondone(0);
+        this.ondone();
       } else {
         this._onNsError(MsgUtils.NS_ERROR_SENDING_MESSAGE, command.data);
       }

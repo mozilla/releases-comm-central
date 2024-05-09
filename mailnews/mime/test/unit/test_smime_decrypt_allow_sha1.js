@@ -667,9 +667,7 @@ add_task(async function check_smime_message() {
     const sinkPromise = smimeSink.expectResults(eventsExpected);
 
     const conversion = apply_mime_conversion(uri, smimeSink);
-    await conversion.promise;
-
-    const contents = conversion._data;
+    const contents = await conversion.promise;
     // dump("contents: " + contents + "\n");
 
     if (!msg.sig || msg.sig_good || "check_text" in msg) {

@@ -210,7 +210,7 @@ class MailAuthenticator {
  */
 export class SmtpAuthenticator extends MailAuthenticator {
   /**
-   * @param {nsISmtpServer} server - The associated server instance.
+   * @param {nsIMsgOutgoingServer} server - The associated server instance.
    */
   constructor(server) {
     super();
@@ -218,7 +218,7 @@ export class SmtpAuthenticator extends MailAuthenticator {
   }
 
   get hostname() {
-    return this._server.hostname;
+    return this._server.serverURI.host;
   }
 
   get username() {
@@ -241,17 +241,17 @@ export class SmtpAuthenticator extends MailAuthenticator {
     if (username) {
       promptString = composeBundle.formatStringFromName(
         "smtpEnterPasswordPromptWithUsername",
-        [this._server.hostname, username]
+        [this._server.serverURI.host, username]
       );
     } else {
       promptString = composeBundle.formatStringFromName(
         "smtpEnterPasswordPrompt",
-        [this._server.hostname]
+        [this._server.serverURI.host]
       );
     }
     const promptTitle = composeBundle.formatStringFromName(
       "smtpEnterPasswordPromptTitleWithHostname",
-      [this._server.hostname]
+      [this._server.serverURI.host]
     );
     return this._server.getPasswordWithUI(promptString, promptTitle);
   }

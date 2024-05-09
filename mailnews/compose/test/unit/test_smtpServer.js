@@ -2,17 +2,17 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 /**
- * Tests for nsISmtpServer implementation.
+ * Tests for the SMTP implementation of nsIMsgOutgoingServer.
  */
 
 /**
  * Test that cached server password is cleared when password storage changed.
  */
 add_task(async function test_passwordmgr_change() {
-  // Create an nsISmtpServer instance and set a password.
-  const server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
-    Ci.nsISmtpServer
-  );
+  // Create an nsIMsgOutgoingServer instance for SMTP and set a password.
+  const server = Cc[
+    "@mozilla.org/messenger/outgoing/server;1?type=smtp"
+  ].createInstance(Ci.nsIMsgOutgoingServer);
   server.password = "smtp-pass";
   equal(server.password, "smtp-pass", "Password should be cached.");
 
@@ -25,16 +25,22 @@ add_task(async function test_passwordmgr_change() {
  * Test getter/setter of attributes.
  */
 add_task(async function test_attributes() {
-  // Create an nsISmtpServer instance and set a password.
-  const server = Cc["@mozilla.org/messenger/smtp/server;1"].createInstance(
-    Ci.nsISmtpServer
-  );
+  // Create an nsIMsgOutgoingServer instance for SMTP and set a password.
+  const server = Cc[
+    "@mozilla.org/messenger/outgoing/server;1?type=smtp"
+  ].createInstance(Ci.nsIMsgOutgoingServer);
 
   server.description = "アイウ";
   equal(server.description, "アイウ", "Description should be correctly set.");
 
-  server.hostname = "サービス.jp";
-  equal(server.hostname, "サービス.jp", "Hostname should be correctly set.");
+  const smtpServer = server.QueryInterface(Ci.nsISmtpServer);
+  smtpServer.hostname = "サービス.jp";
+
+  equal(
+    smtpServer.hostname,
+    "サービス.jp",
+    "Hostname should be correctly set."
+  );
 });
 
 /**
@@ -46,7 +52,7 @@ add_task(async function testUID() {
 
   // Create a server and check it the UID is set when accessed.
 
-  const serverA = MailServices.smtp.createServer();
+  const serverA = MailServices.outgoingServer.createServer("smtp");
   Assert.stringMatches(
     serverA.UID,
     UUID_REGEXP,
@@ -65,7 +71,7 @@ add_task(async function testUID() {
 
   // Create a second server and check the two UIDs don't match.
 
-  const serverB = MailServices.smtp.createServer();
+  const serverB = MailServices.outgoingServer.createServer("smtp");
   Assert.stringMatches(
     serverB.UID,
     UUID_REGEXP,
@@ -84,7 +90,7 @@ add_task(async function testUID() {
 
   // Create a third server and set the UID before it is accessed.
 
-  const serverC = MailServices.smtp.createServer();
+  const serverC = MailServices.outgoingServer.createServer("smtp");
   serverC.UID = "11112222-3333-4444-5555-666677778888";
   Assert.equal(
     serverC.UID,

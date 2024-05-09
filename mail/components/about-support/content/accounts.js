@@ -72,7 +72,8 @@ var AboutSupport = {
 
     for (const identity of aAccount.identities) {
       const isDefault = identity == defaultIdentity;
-      const smtpServer = MailServices.smtp.getServerByIdentity(identity);
+      const smtpServer =
+        MailServices.outgoingServer.getServerByIdentity(identity);
       if (!smtpServer) {
         continue;
       }

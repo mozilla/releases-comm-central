@@ -48,7 +48,7 @@ function onAccept(event) {
   // we must be creating one.
   try {
     if (!gSmtpServer) {
-      gSmtpServer = MailServices.smtp.createServer();
+      gSmtpServer = MailServices.outgoingServer.createServer("smtp");
       window.arguments[0].addSmtpServer = gSmtpServer.key;
     }
 
@@ -72,9 +72,10 @@ function initSmtpSettings(server) {
   gPort = document.getElementById("smtp.port");
 
   if (server) {
-    gSmtpHostname.value = server.hostname;
+    const smtpServer = server.QueryInterface(Ci.nsISmtpServer);
+    gSmtpHostname.value = smtpServer.hostname;
     gSmtpDescription.value = server.description;
-    gSmtpPort.value = server.port;
+    gSmtpPort.value = smtpServer.port;
     gSmtpUsername.value = server.username;
     gSmtpAuthMethod.value = server.authMethod;
     gSmtpSocketType.value = server.socketType < 4 ? server.socketType : 1;
@@ -110,13 +111,13 @@ function initSmtpSettings(server) {
   sslChanged(false);
   authMethodChanged(false);
 
-  if (MailServices.smtp.defaultServer) {
+  if (MailServices.outgoingServer.defaultServer) {
     onLockPreference();
   }
 
   // Hide OAuth2 option if we can't use it.
   const details = server
-    ? OAuth2Providers.getHostnameDetails(server.hostname)
+    ? OAuth2Providers.getHostnameDetails(server.serverURI.host)
     : null;
   document.getElementById("authMethod-oauth2").hidden = !details;
 
@@ -167,7 +168,7 @@ function onLockPreference() {
  */
 function disableIfLocked(prefstrArray) {
   const smtpPrefBranch = Services.prefs.getBranch(
-    "mail.smtpserver." + MailServices.smtp.defaultServer.key + "."
+    "mail.smtpserver." + MailServices.outgoingServer.defaultServer.key + "."
   );
 
   for (const prefstring in prefstrArray) {
@@ -179,12 +180,14 @@ function disableIfLocked(prefstrArray) {
 
 function saveSmtpSettings(server) {
   if (server) {
-    server.hostname = cleanUpHostName(gSmtpHostname.value);
     server.description = gSmtpDescription.value;
-    server.port = gSmtpPort.value;
     server.authMethod = gSmtpAuthMethod.value;
     server.username = gSmtpUsername.value;
     server.socketType = gSmtpSocketType.value;
+
+    const smtpServer = server.QueryInterface(Ci.nsISmtpServer);
+    smtpServer.hostname = cleanUpHostName(gSmtpHostname.value);
+    smtpServer.port = gSmtpPort.value;
   }
 }
 

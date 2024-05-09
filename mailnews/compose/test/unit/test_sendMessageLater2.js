@@ -196,7 +196,7 @@ async function sendUnsentMessages() {
   try {
     // Start the fake SMTP server.
     server.start();
-    smtpServer.port = server.port;
+    smtpServer.QueryInterface(Ci.nsISmtpServer).port = server.port;
 
     // Send the unsent message.
     msgSendLater.sendUnsentMessages(identity);

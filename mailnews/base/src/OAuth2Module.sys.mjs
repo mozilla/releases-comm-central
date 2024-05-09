@@ -25,11 +25,11 @@ export function OAuth2Module() {}
 OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
-  initFromSmtp(aServer) {
+  initFromOutgoing(aServer) {
     return this._initFromPrefs(
       "mail.smtpserver." + aServer.key + ".",
       aServer.username,
-      aServer.hostname
+      aServer.serverURI.host
     );
   },
 

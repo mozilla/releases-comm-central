@@ -67,7 +67,8 @@ add_task(async function () {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
-    // Start the fake SMTP server
+    // Start the fake SMTP server. The server's socket type defaults to
+    // Ci.nsMsgSocketType.plain, so no need to set it.
     server.start();
     var smtpServer = getBasicSmtpServer(server.port);
     var identity = getSmtpIdentity(kIdentityMail, smtpServer);
@@ -76,29 +77,25 @@ add_task(async function () {
     test = "Auth sendMailMessage";
 
     smtpServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-    smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
 
-    const urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
     // Set the new password for when we get a prompt
     gNewPassword = kPasswordWrong;
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [

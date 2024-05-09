@@ -95,23 +95,21 @@ function nextTest() {
   smtpServer.authMethod = curTest.clientAuthMethod;
 
   // Run test
-  const urlListener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.smtp.sendMailMessage(
+  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  smtpServer.sendMailMessage(
     testFile,
     kTo,
     identity,
     kSender,
     null,
-    urlListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    requestObserver
   );
+
   let resolved = false;
-  urlListener.promise.catch(() => {}).finally(() => (resolved = true));
+  requestObserver.promise.catch(() => {}).finally(() => (resolved = true));
   Services.tm.spinEventLoopUntil("wait for sending", () => resolved);
 
   do_check_transaction(server.playTransaction(), curTest.transaction);
@@ -137,8 +135,9 @@ function run_test() {
     server.start();
 
     localAccountUtils.loadLocalMailAccount();
+    // Create the fake SMTP server. The server's socket type defaults to
+    // Ci.nsMsgSocketType.plain, so no need to set it.
     smtpServer = getBasicSmtpServer(server.port);
-    smtpServer.socketType = Ci.nsMsgSocketType.plain;
     smtpServer.username = kUsername;
     smtpServer.password = kPassword;
     identity = getSmtpIdentity(kIdentityMail, smtpServer);

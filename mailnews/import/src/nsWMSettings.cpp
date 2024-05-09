@@ -17,7 +17,8 @@
 #include "nsIImportSettings.h"
 #include "nsWMSettings.h"
 #include "nsMsgI18N.h"
-#include "nsISmtpService.h"
+#include "nsIMsgOutgoingServerService.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsISmtpServer.h"
 #include "nsWMStringBundle.h"
 #include "ImportDebug.h"
@@ -618,25 +619,29 @@ void WMSettings::SetSmtpServer(mozilla::dom::Document* xmlDoc,
   }
 
   nsresult rv;
-  nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
-  if (NS_SUCCEEDED(rv) && smtpService) {
-    nsCOMPtr<nsISmtpServer> extgServer;
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
+  if (NS_SUCCEEDED(rv) && outgoingServerService) {
+    nsCOMPtr<nsIMsgOutgoingServer> extgServer;
     // don't try to make another server
     // regardless if username doesn't match
-    rv = smtpService->FindServer(userName, NS_ConvertUTF16toUTF8(smtpName),
-                                 getter_AddRefs(extgServer));
+    rv = outgoingServerService->FindServer(
+        userName, NS_ConvertUTF16toUTF8(smtpName), "smtp"_ns,
+        getter_AddRefs(extgServer));
     if (NS_SUCCEEDED(rv) && extgServer) {
       // set our account keyed to this smptserver key
-      extgServer->GetKey(getter_Copies(smtpServerKey));
+      extgServer->GetKey(smtpServerKey);
       id->SetSmtpServerKey(smtpServerKey);
 
       IMPORT_LOG1("SMTP server already exists: %s\n",
                   NS_ConvertUTF16toUTF8(smtpName).get());
     } else {
-      nsCOMPtr<nsISmtpServer> smtpServer;
-      rv = smtpService->CreateServer(getter_AddRefs(smtpServer));
-      if (NS_SUCCEEDED(rv) && smtpServer) {
+      nsCOMPtr<nsIMsgOutgoingServer> server;
+      rv = outgoingServerService->CreateServer("smtp"_ns,
+                                               getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server) {
+        nsCOMPtr<nsISmtpServer> smtpServer = do_QueryInterface(server);
+
         if (NS_SUCCEEDED(
                 nsWMUtils::GetValueForTag(xmlDoc, "SMTP_Port", value))) {
           smtpServer->SetPort(value.ToInteger(&errorCode, 16));
@@ -644,30 +649,31 @@ void WMSettings::SetSmtpServer(mozilla::dom::Document* xmlDoc,
 
         if (NS_SUCCEEDED(nsWMUtils::GetValueForTag(
                 xmlDoc, "SMTP_Secure_Connection", value))) {
-          if (value.ToInteger(&errorCode, 16) == 1)
-            smtpServer->SetSocketType(nsMsgSocketType::SSL);
-          else
-            smtpServer->SetSocketType(nsMsgSocketType::plain);
+          if (value.ToInteger(&errorCode, 16) == 1) {
+            server->SetSocketType(nsMsgSocketType::SSL);
+          } else {
+            server->SetSocketType(nsMsgSocketType::plain);
+          }
         }
-        smtpServer->SetUsername(userName);
+        server->SetUsername(userName);
         switch (useSicily) {
           case 1:
-            smtpServer->SetAuthMethod(nsMsgAuthMethod::secure);
+            server->SetAuthMethod(nsMsgAuthMethod::secure);
             break;
           case 2:  // requires SMTP authentication to use the incoming server
                    // settings
-            smtpServer->SetAuthMethod(authMethodIncoming);
+            server->SetAuthMethod(authMethodIncoming);
             break;
           case 3:
-            smtpServer->SetAuthMethod(nsMsgAuthMethod::passwordCleartext);
+            server->SetAuthMethod(nsMsgAuthMethod::passwordCleartext);
             break;
           default:
-            smtpServer->SetAuthMethod(nsMsgAuthMethod::none);
+            server->SetAuthMethod(nsMsgAuthMethod::none);
         }
 
         smtpServer->SetHostname(NS_ConvertUTF16toUTF8(smtpName));
 
-        smtpServer->GetKey(getter_Copies(smtpServerKey));
+        server->GetKey(smtpServerKey);
         id->SetSmtpServerKey(smtpServerKey);
 
         IMPORT_LOG1("Created new SMTP server: %s\n",

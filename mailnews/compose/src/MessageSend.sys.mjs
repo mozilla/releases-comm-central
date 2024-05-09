@@ -1135,7 +1135,7 @@ export class MessageSend {
     this._smtpRequest = {};
     // Do async call. This is necessary to ensure _smtpRequest is set so that
     // cancel function can be obtained.
-    await MailServices.smtp.wrappedJSObject.sendMailMessage(
+    await MailServices.outgoingServer.wrappedJSObject.sendMailMessage(
       this._deliveryFile,
       encodedRecipients,
       this._userIdentity,
@@ -1143,10 +1143,8 @@ export class MessageSend {
       this._smtpPassword,
       deliveryListener,
       msgStatus,
-      null,
       this._compFields.DSN,
       this._compFields.messageId,
-      {},
       this._smtpRequest
     );
   }

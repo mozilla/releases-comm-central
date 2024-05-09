@@ -12,7 +12,7 @@
 
 class nsIMsgIncomingServer;
 class nsIMsgIdentity;
-class nsISmtpServer;
+class nsIMsgOutgoingServer;
 
 class nsBeckySettings final : public nsIImportSettings {
  public:
@@ -36,13 +36,13 @@ class nsBeckySettings final : public nsIImportSettings {
                          nsIMsgAccount** aAccount);
   nsresult CreateSmtpServer(const nsCString& aUserName,
                             const nsCString& aServerName,
-                            nsISmtpServer** aServer, bool* existing);
+                            nsIMsgOutgoingServer** aServer, bool* existing);
   nsresult CreateIncomingServer(const nsCString& aUserName,
                                 const nsCString& aServerName,
                                 const nsCString& aProtocol,
                                 nsIMsgIncomingServer** aServer);
   nsresult SetupIncomingServer(nsIMsgIncomingServer** aServer);
-  nsresult SetupSmtpServer(nsISmtpServer** aServer);
+  nsresult SetupSmtpServer(nsIMsgOutgoingServer** aServer);
   nsresult SetPop3ServerProperties(nsIMsgIncomingServer* aServer);
   nsresult RemoveConvertedFile();
 };

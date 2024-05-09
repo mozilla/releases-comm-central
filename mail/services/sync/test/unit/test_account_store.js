@@ -55,9 +55,9 @@ add_setup(async function () {
     pop3Server.UID
   );
 
-  smtpServer = MailServices.smtp.createServer();
+  smtpServer = MailServices.outgoingServer.createServer("smtp");
+  smtpServer.QueryInterface(Ci.nsISmtpServer).hostname = "hostname";
   smtpServer.username = "username";
-  smtpServer.hostname = "hostname";
   smtpServer.description = "SMTP Server";
 
   Assert.ok(smtpServer.UID);
@@ -68,7 +68,7 @@ add_setup(async function () {
 
   // Sanity check.
   Assert.equal(MailServices.accounts.accounts.length, 3);
-  Assert.equal(MailServices.smtp.servers.length, 1);
+  Assert.equal(MailServices.outgoingServer.servers.length, 1);
 });
 
 add_task(async function testGetAllIDs() {
@@ -144,7 +144,7 @@ add_task(async function testCreateSMTPRecord() {
   Assert.equal(record.type, "smtp");
   Assert.deepEqual(record.prefs, {
     authMethod: 3,
-    port: 0,
+    port: -1,
     description: "SMTP Server",
     socketType: 0,
   });
@@ -314,22 +314,24 @@ add_task(async function testSyncSMTPRecords() {
     type: "smtp",
     prefs: {
       authMethod: 3,
-      port: 0,
       description: "Second Outgoing Server",
       socketType: 0,
     },
     isDefault: true,
   });
 
-  Assert.equal(MailServices.smtp.servers.length, 2);
+  Assert.equal(MailServices.outgoingServer.servers.length, 2);
 
-  const newSMTPServer = MailServices.smtp.servers.find(
+  const newSMTPServer = MailServices.outgoingServer.servers.find(
     s => s.UID == newSMTPServerID
   );
   Assert.equal(newSMTPServer.username, "username");
-  Assert.equal(newSMTPServer.hostname, "hostname");
+  Assert.equal(newSMTPServer.serverURI.host, "hostname");
   Assert.equal(newSMTPServer.description, "Second Outgoing Server");
-  Assert.equal(MailServices.smtp.defaultServer.key, newSMTPServer.key);
+  Assert.equal(
+    MailServices.outgoingServer.defaultServer.key,
+    newSMTPServer.key
+  );
 
   await store.applyIncoming({
     id: smtpServer.UID,
@@ -338,7 +340,6 @@ add_task(async function testSyncSMTPRecords() {
     type: "smtp",
     prefs: {
       authMethod: 3,
-      port: 0,
       description: "New SMTP Server",
       socketType: 0,
     },
@@ -346,7 +347,7 @@ add_task(async function testSyncSMTPRecords() {
   });
 
   Assert.equal(smtpServer.description, "New SMTP Server");
-  Assert.equal(MailServices.smtp.defaultServer.key, smtpServer.key);
+  Assert.equal(MailServices.outgoingServer.defaultServer.key, smtpServer.key);
 
   // TODO test update
 
@@ -355,7 +356,7 @@ add_task(async function testSyncSMTPRecords() {
     deleted: true,
   });
 
-  Assert.equal(MailServices.smtp.servers.length, 1);
-  Assert.equal(MailServices.smtp.servers[0].key, smtpServer.key);
-  Assert.equal(MailServices.smtp.defaultServer.key, smtpServer.key);
+  Assert.equal(MailServices.outgoingServer.servers.length, 1);
+  Assert.equal(MailServices.outgoingServer.servers[0].key, smtpServer.key);
+  Assert.equal(MailServices.outgoingServer.defaultServer.key, smtpServer.key);
 });

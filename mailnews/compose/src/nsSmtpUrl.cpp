@@ -728,14 +728,14 @@ nsSmtpUrl::GetNotificationCallbacks(nsIInterfaceRequestor** aCallbacks) {
 }
 
 NS_IMETHODIMP
-nsSmtpUrl::SetSmtpServer(nsISmtpServer* aSmtpServer) {
+nsSmtpUrl::SetSmtpServer(nsIMsgOutgoingServer* aSmtpServer) {
   NS_ENSURE_ARG_POINTER(aSmtpServer);
   m_smtpServer = aSmtpServer;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsSmtpUrl::GetSmtpServer(nsISmtpServer** aSmtpServer) {
+nsSmtpUrl::GetSmtpServer(nsIMsgOutgoingServer** aSmtpServer) {
   NS_ENSURE_ARG_POINTER(aSmtpServer);
   NS_ENSURE_TRUE(m_smtpServer, NS_ERROR_NULL_POINTER);
   NS_ADDREF(*aSmtpServer = m_smtpServer);

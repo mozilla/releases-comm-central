@@ -92,7 +92,7 @@ var expectedPop3Account = {
   smtpServer: {
     hostname: "smtp.host.invalid",
     username: "smtpuser",
-    port: 0, // default port
+    port: -1, // default port
     authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     socketType: Ci.nsMsgSocketType.plain,
   },
@@ -124,15 +124,15 @@ var expectedImapAccount = {
   smtpServer: {
     hostname: "smtp.host.invalid",
     username: "smtpuser",
-    port: 0, // default port
+    port: -1, // default port
     authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     socketType: Ci.nsMsgSocketType.plain,
   },
 };
 
 function teardown() {
-  for (const server of MailServices.smtp.servers) {
-    MailServices.smtp.deleteServer(server);
+  for (const server of MailServices.outgoingServer.servers) {
+    MailServices.outgoingServer.deleteServer(server);
   }
 
   teardown_mock_registry();

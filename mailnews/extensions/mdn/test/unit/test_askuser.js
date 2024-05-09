@@ -30,6 +30,10 @@ function run_test() {
   Services.prefs.setIntPref("mail.mdn.report.other", 2);
   Services.prefs.setIntPref("mail.mdn.report.outside_domain", 2);
 
+  // We need to have at least one outgoing server in order to successfully send
+  // the message (which mdnGenerator.process eventually does).
+  MailServices.outgoingServer.createServer("smtp");
+
   var msgFolder = localAccountUtils.inboxFolder;
 
   var msgWindow = {};

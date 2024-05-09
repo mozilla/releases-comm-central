@@ -13,6 +13,8 @@ XPIDL_SOURCES += [
     "nsIMsgComposeService.idl",
     "nsIMsgCompUtils.idl",
     "nsIMsgCopy.idl",
+    "nsIMsgOutgoingServer.idl",
+    "nsIMsgOutgoingServerService.idl",
     "nsIMsgQuote.idl",
     "nsIMsgQuotingOutputStreamListener.idl",
     "nsIMsgSend.idl",
@@ -21,7 +23,6 @@ XPIDL_SOURCES += [
     "nsIMsgSendListener.idl",
     "nsIMsgSendReport.idl",
     "nsISmtpServer.idl",
-    "nsISmtpService.idl",
     "nsISmtpUrl.idl",
 ]
 

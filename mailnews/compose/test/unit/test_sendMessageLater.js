@@ -150,7 +150,7 @@ function sendMessageLater() {
   try {
     // Start the fake SMTP server
     server.start();
-    smtpServer.port = server.port;
+    smtpServer.QueryInterface(Ci.nsISmtpServer).port = server.port;
 
     // A test to check that we are sending files correctly, including checking
     // what the server receives and what we output.

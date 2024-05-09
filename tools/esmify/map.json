@@ -243,7 +243,6 @@
   "resource:///modules/ShortcutsManager.jsm": "comm/mail/modules/ShortcutsManager.jsm",
   "resource:///modules/SmtpClient.jsm": "comm/mailnews/compose/src/SmtpClient.jsm",
   "resource:///modules/SmtpServer.jsm": "comm/mailnews/compose/src/SmtpServer.jsm",
-  "resource:///modules/SmtpService.jsm": "comm/mailnews/compose/src/SmtpService.jsm",
   "resource:///modules/StartupRecorder.jsm": "comm/mail/components/StartupRecorder.jsm",
   "resource:///modules/SummaryFrameManager.jsm": "comm/mail/modules/SummaryFrameManager.jsm",
   "resource:///modules/TBDistCustomizer.jsm": "comm/mail/modules/TBDistCustomizer.jsm",

@@ -6,7 +6,7 @@
 #include "nsISupports.idl"
 
 interface nsIMsgIncomingServer;
-interface nsISmtpServer;
+interface nsIMsgOutgoingServer;
 
 /**
  * A listener callback for OAuth2 SASL authentication. This would be represented
@@ -30,14 +30,14 @@ interface msgIOAuth2ModuleListener : nsISupports {
 [scriptable, uuid(68c275f8-cfa7-4622-b279-af290616cae6)]
 interface msgIOAuth2Module : nsISupports {
   /**
-   * Initialize the OAuth2 parameters from an SMTP server, and return whether or
-   * not we can authenticate with OAuth2.
+   * Initialize the OAuth2 parameters from an outgoing server, and return
+   * whether or not we can authenticate with OAuth2.
    *
    * If the prefs for the server don't include an OAuth2 config, but one could
    * be found among the known OAuth2 providers using the server's hostname,
    * this config is used instead and stored in the server's prefs.
    */
-  boolean initFromSmtp(in nsISmtpServer aSmtpServer);
+  boolean initFromOutgoing(in nsIMsgOutgoingServer aServer);
 
   /**
    * Initialize the OAuth2 parameters from an incoming server, and return

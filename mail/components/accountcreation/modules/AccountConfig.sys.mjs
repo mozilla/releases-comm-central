@@ -140,7 +140,8 @@ AccountConfig.prototype = {
    */
   createNewOutgoing() {
     return {
-      type: "smtp",
+      // { String-enum: "smtp" }
+      type: null,
       hostname: null,
       port: null, // see incoming
       username: null, // see incoming. may be null, if auth is 0.
@@ -149,11 +150,11 @@ AccountConfig.prototype = {
       badCert: false, // see incoming
       auth: 0, // see incoming
       authAlternatives: null, // see incoming
-      addThisServer: true, // if we already have an SMTP server, add this
-      // if we already have an SMTP server, use it.
+      addThisServer: true, // if we already have a server, add this
+      // if we already have a server, use it.
       useGlobalPreferredServer: false,
-      // we should reuse an already configured SMTP server.
-      // nsISmtpServer.key
+      // we should reuse an already configured server.
+      // nsIMsgOutgoingServer.key
       existingServerKey: null,
       // user display value for existingServerKey
       existingServerLabel: null,

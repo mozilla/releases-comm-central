@@ -174,8 +174,7 @@ add_task(async function testReplyingToMailWithNoFrom() {
 
 // Test reply with template.
 async function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
-  const smtpServer = getBasicSmtpServer();
-  smtpServer.port = gServer.port;
+  const smtpServer = getBasicSmtpServer(gServer.port);
 
   const identity = getSmtpIdentity(kSender, smtpServer);
   localAccountUtils.msgAccount.addIdentity(identity);

@@ -386,7 +386,7 @@ export class ThunderbirdProfileMigrator {
       let newServerKey = smtpServerKeyMap.get(key);
       if (!newServerKey) {
         // For every smtp server, create a new one to avoid conflicts.
-        const server = MailServices.smtp.createServer();
+        const server = MailServices.outgoingServer.createServer("smtp");
         newServerKey = server.key;
         smtpServerKeyMap.set(key, newServerKey);
         this._logger.debug(

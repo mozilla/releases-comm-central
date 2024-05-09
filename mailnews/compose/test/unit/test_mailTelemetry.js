@@ -19,8 +19,8 @@ const NUM_MAILS = 3;
 
 const deliveryListener = {
   count: 0,
-  OnStartRunningUrl() {},
-  OnStopRunningUrl() {
+  onStartRequest() {},
+  onStopRequest() {
     if (++this.count == NUM_MAILS) {
       const scalars = TelemetryTestUtils.getProcessScalars("parent");
       Assert.equal(
@@ -58,19 +58,16 @@ add_task(async function test_mails_sent() {
     const identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
     for (let i = 0; i < NUM_MAILS; i++) {
-      MailServices.smtp.sendMailMessage(
+      smtpServer.sendMailMessage(
         testFile,
         kTo,
         identity,
         kSender,
         null,
-        deliveryListener,
-        null,
         null,
         false,
         "",
-        {},
-        {}
+        deliveryListener
       );
     }
   } catch (e) {

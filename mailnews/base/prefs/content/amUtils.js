@@ -253,7 +253,7 @@ function accountNameExists(aAccountName, aAccountKey) {
 /**
  * Open a dialog to edit properties of an SMTP server.
  *
- * @param {nsISmtpServer} aServer - The server to edit.
+ * @param {nsIMsgOutgoingServer} aServer - The server to edit.
  * @returns {object} Object with result member to indicate whether 'OK'
  *   was clicked and addSmtpServer with key of newly created server.
  */

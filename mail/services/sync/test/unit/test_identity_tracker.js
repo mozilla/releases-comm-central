@@ -44,8 +44,8 @@ add_setup(async function () {
     "hostname",
     "imap"
   );
-  smtpServerA = MailServices.smtp.createServer();
-  smtpServerB = MailServices.smtp.createServer();
+  smtpServerA = MailServices.outgoingServer.createServer("smtp");
+  smtpServerB = MailServices.outgoingServer.createServer("smtp");
 
   identityA = MailServices.accounts.createIdentity();
   identityA.email = "identity.a@hostname";

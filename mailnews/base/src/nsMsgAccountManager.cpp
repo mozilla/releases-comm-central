@@ -37,7 +37,7 @@
 #include "nsNetCID.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsISmtpService.h"
+#include "nsIMsgOutgoingServerService.h"
 #include "nsIMsgBiffManager.h"
 #include "nsIMsgPurgeService.h"
 #include "nsIObserverService.h"

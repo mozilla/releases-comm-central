@@ -110,43 +110,71 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
 };
 
 /**
- * Stream listener that can wrap another listener and trigger a callback.
- *
- * @param {nsIStreamListener} [aWrapped] - The nsIStreamListener to pass all
- *   notifications through to. This gets called prior to the callback
- *   (or async resumption).
+ * Request observer that can wrap another observer and be turned into a Promise.
  */
-PromiseTestUtils.PromiseStreamListener = function (aWrapped) {
-  this.wrapped = aWrapped;
-  this._promise = new Promise((resolve, reject) => {
-    this._resolve = resolve;
-    this._reject = reject;
-  });
-  this._data = null;
-  this._stream = null;
-};
+PromiseTestUtils.PromiseRequestObserver = class {
+  QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver"]);
 
-PromiseTestUtils.PromiseStreamListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+  /**
+   * @param {nsIRequestObserver} [wrapped] - The nsIRequestObserver to pass all
+   *   notifications through to. This gets called prior to the callback (or
+   *   async resumption).
+   */
+  constructor(wrapped) {
+    this.wrapped = wrapped;
+    this._promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+    this._resolveValue = null;
+  }
 
   onStartRequest(aRequest) {
     if (this.wrapped && this.wrapped.onStartRequest) {
       this.wrapped.onStartRequest(aRequest);
     }
-    this._data = "";
-    this._stream = null;
-  },
+  }
 
   onStopRequest(aRequest, aStatusCode) {
     if (this.wrapped && this.wrapped.onStopRequest) {
       this.wrapped.onStopRequest(aRequest, aStatusCode);
     }
     if (aStatusCode == Cr.NS_OK) {
-      this._resolve(this._data);
+      this._resolve(this._resolveValue);
     } else {
       this._reject(aStatusCode);
     }
-  },
+  }
+
+  get promise() {
+    return this._promise;
+  }
+};
+
+/**
+ * Stream listener that can wrap another listener and be turned into a Promise.
+ */
+PromiseTestUtils.PromiseStreamListener = class extends (
+  PromiseTestUtils.PromiseRequestObserver
+) {
+  QueryInterface = ChromeUtils.generateQI(["nsIStreamListener"]);
+
+  /**
+   * @param {nsIStreamListener} [wrapped] - The nsIStreamListener to pass all
+   *   notifications through to. This gets called prior to the callback (or
+   *   async resumption).
+   */
+  constructor(wrapped) {
+    super(wrapped);
+    this._stream = null;
+  }
+
+  onStartRequest(aRequest) {
+    super.onStartRequest(aRequest);
+
+    this._resolveValue = "";
+    this._stream = null;
+  }
 
   onDataAvailable(aRequest, aInputStream, aOff, aCount) {
     if (this.wrapped && this.wrapped.onDataAvailable) {
@@ -158,12 +186,8 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
       );
       this._stream.init(aInputStream);
     }
-    this._data += this._stream.read(aCount);
-  },
-
-  get promise() {
-    return this._promise;
-  },
+    this._resolveValue += this._stream.read(aCount);
+  }
 };
 
 /**

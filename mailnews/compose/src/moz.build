@@ -50,10 +50,10 @@ EXTRA_JS_MODULES += [
     "MimeMessage.sys.mjs",
     "MimeMessageUtils.sys.mjs",
     "MimePart.sys.mjs",
+    "OutgoingServerService.sys.mjs",
     "SmtpClient.sys.mjs",
     "SMTPProtocolHandler.sys.mjs",
     "SmtpServer.sys.mjs",
-    "SmtpService.sys.mjs",
 ]
 
 XPCOM_MANIFESTS += [

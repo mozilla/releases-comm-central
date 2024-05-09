@@ -106,7 +106,7 @@ IdentityStore.prototype = {
     }
 
     if (record.smtpID) {
-      const smtpServer = MailServices.smtp.servers.find(
+      const smtpServer = MailServices.outgoingServer.servers.find(
         s => s.UID == record.smtpID
       );
       if (smtpServer) {
@@ -187,7 +187,7 @@ IdentityStore.prototype = {
     }
 
     if (record.smtpID) {
-      const smtpServer = MailServices.smtp.servers.find(
+      const smtpServer = MailServices.outgoingServer.servers.find(
         s => s.UID == record.smtpID
       );
       if (smtpServer) {
@@ -293,7 +293,8 @@ IdentityStore.prototype = {
     }
 
     if (identity.smtpServerKey) {
-      const smtpServer = MailServices.smtp.getServerByIdentity(identity);
+      const smtpServer =
+        MailServices.outgoingServer.getServerByIdentity(identity);
       record.smtpID = smtpServer.UID;
     }
 

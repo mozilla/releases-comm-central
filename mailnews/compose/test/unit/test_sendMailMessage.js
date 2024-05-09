@@ -40,23 +40,20 @@ async function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
-    let urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    let requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     var transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -72,23 +69,20 @@ async function test_RFC2821() {
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
-    urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -112,23 +106,20 @@ async function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
-    urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [
@@ -145,23 +136,20 @@ async function test_RFC2821() {
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
-    urlListener = new PromiseTestUtils.PromiseUrlListener();
-    MailServices.smtp.sendMailMessage(
+    requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+    smtpServer.sendMailMessage(
       testFile,
       kTo,
       identity,
       kSender,
       null,
-      urlListener,
-      null,
       null,
       false,
       "",
-      {},
-      {}
+      requestObserver
     );
 
-    await urlListener.promise;
+    await requestObserver.promise;
 
     transaction = server.playTransaction();
     do_check_transaction(transaction, [

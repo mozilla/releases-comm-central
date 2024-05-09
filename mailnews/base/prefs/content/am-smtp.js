@@ -57,7 +57,7 @@ var gSmtpServerListWindow = {
       this.mBundle.getString("smtpServers-confirmServerDeletionTitle"),
       this.mBundle.getFormattedString(
         "smtpServers-confirmServerDeletion",
-        [server.hostname],
+        [server.serverURI.host],
         1
       ),
       Services.prompt.STD_YES_NO_BUTTONS,
@@ -76,7 +76,7 @@ var gSmtpServerListWindow = {
         /* It is OK if this fails. */
       }
       // Remove the server.
-      MailServices.smtp.deleteServer(server);
+      MailServices.outgoingServer.deleteServer(server);
       parent.replaceWithDefaultSmtpServer(server.key);
       this.refreshServerList("", true);
     }
@@ -101,15 +101,15 @@ var gSmtpServerListWindow = {
       return;
     }
 
-    MailServices.smtp.defaultServer = server;
-    this.refreshServerList(MailServices.smtp.defaultServer.key, true);
+    MailServices.outgoingServer.defaultServer = server;
+    this.refreshServerList(MailServices.outgoingServer.defaultServer.key, true);
   },
 
   updateButtons() {
     const server = this.getSelectedServer();
 
     // can't delete default server
-    if (server && MailServices.smtp.defaultServer == server) {
+    if (server && MailServices.outgoingServer.defaultServer == server) {
       this.mSetDefaultServerButton.setAttribute("disabled", "true");
       this.mDeleteButton.setAttribute("disabled", "true");
     } else {
@@ -127,11 +127,13 @@ var gSmtpServerListWindow = {
   updateServerInfoBox(aServer) {
     var noneSelected = this.mBundle.getString("smtpServerList-NotSpecified");
 
-    document.getElementById("nameValue").textContent = aServer.hostname;
+    const smtpServer = aServer.QueryInterface(Ci.nsISmtpServer);
+
+    document.getElementById("nameValue").textContent = smtpServer.hostname;
     document.getElementById("descriptionValue").textContent =
       aServer.description || noneSelected;
     document.getElementById("portValue").textContent =
-      aServer.port || noneSelected;
+      smtpServer.port || noneSelected;
     document.getElementById("userNameValue").textContent =
       aServer.username || noneSelected;
     document.getElementById("useSecureConnectionValue").textContent =
@@ -184,10 +186,10 @@ var gSmtpServerListWindow = {
     while (this.mServerList.hasChildNodes()) {
       this.mServerList.lastChild.remove();
     }
-    for (const server of MailServices.smtp.servers) {
+    for (const server of MailServices.outgoingServer.servers) {
       const listitem = this.createSmtpListItem(
         server,
-        MailServices.smtp.defaultServer.key == server.key
+        MailServices.outgoingServer.defaultServer.key == server.key
       );
       this.mServerList.appendChild(listitem);
     }
@@ -218,7 +220,7 @@ var gSmtpServerListWindow = {
       serverName = aServer.username + " - ";
     }
 
-    serverName += aServer.hostname;
+    serverName += aServer.serverURI.host;
 
     if (aIsDefault) {
       serverName += " " + this.mBundle.getString("defaultServerTag");
@@ -272,6 +274,6 @@ var gSmtpServerListWindow = {
     }
 
     const serverKey = selection.getAttribute("key");
-    return MailServices.smtp.getServerByKey(serverKey);
+    return MailServices.outgoingServer.getServerByKey(serverKey);
   },
 };

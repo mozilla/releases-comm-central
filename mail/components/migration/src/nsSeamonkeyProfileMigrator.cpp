@@ -6,8 +6,8 @@
 #include "nsMailProfileMigratorUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgAccountManager.h"
-#include "nsISmtpServer.h"
-#include "nsISmtpService.h"
+#include "nsIMsgOutgoingServer.h"
+#include "nsIMsgOutgoingServerService.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
 #include "nsISupportsPrimitives.h"
@@ -843,8 +843,8 @@ nsresult nsSeamonkeyProfileMigrator::TransformMailServersForImport(
 nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
     PBStructArray& aServers, PrefKeyHashTable& keyHashTable) {
   nsresult rv;
-  nsCOMPtr<nsISmtpService> smtpService(
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv));
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService(do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsTArray<nsCString> newKeys;
@@ -861,13 +861,12 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
     // For every seamonkey smtp server, create a new one to avoid conflicts.
     nsCString newKey;
     if (!keyHashTable.Get(key, &newKey)) {
-      nsCOMPtr<nsISmtpServer> server;
-      rv = smtpService->CreateServer(getter_AddRefs(server));
+      nsCOMPtr<nsIMsgOutgoingServer> server;
+      rv = outgoingServerService->CreateServer("smtp"_ns,
+                                               getter_AddRefs(server));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      char* str;
-      server->GetKey(&str);
-      newKey.Assign(str);
+      server->GetKey(newKey);
       newKeys.AppendElement(newKey);
       keyHashTable.InsertOrUpdate(key, newKey);
     }

@@ -68,9 +68,9 @@ XPCOMUtils.defineLazyServiceGetter(
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,
-  "smtp",
-  "@mozilla.org/messengercompose/smtp;1",
-  "nsISmtpService"
+  "outgoingServer",
+  "@mozilla.org/messengercompose/outgoingserverservice;1",
+  "nsIMsgOutgoingServerService"
 );
 
 XPCOMUtils.defineLazyServiceGetter(

@@ -525,7 +525,7 @@ function getAccountForFolderPickerState() {
  */
 function loadSMTPServerList() {
   var smtpServerList = document.getElementById("identity.smtpServerKey");
-  const defaultServer = MailServices.smtp.defaultServer;
+  const defaultServer = MailServices.outgoingServer.defaultServer;
   const currentValue = smtpServerList.value;
 
   var smtpPopup = smtpServerList.menupopup;
@@ -533,14 +533,14 @@ function loadSMTPServerList() {
     smtpPopup.lastChild.remove();
   }
 
-  for (const server of MailServices.smtp.servers) {
+  for (const server of MailServices.outgoingServer.servers) {
     let serverName = "";
     if (server.description) {
       serverName = server.description + " - ";
     } else if (server.username) {
       serverName = server.username + " - ";
     }
-    serverName += server.hostname;
+    serverName += server.serverURI.host;
 
     if (defaultServer.key == server.key) {
       serverName +=
@@ -563,8 +563,8 @@ function editCurrentSMTP() {
   const smtpKey = document.getElementById("identity.smtpServerKey").value;
   const server =
     smtpKey === ""
-      ? MailServices.smtp.defaultServer
-      : MailServices.smtp.getServerByKey(smtpKey);
+      ? MailServices.outgoingServer.defaultServer
+      : MailServices.outgoingServer.getServerByKey(smtpKey);
   const args = { server, result: false, addSmtpServer: "" };
 
   parent.gSubDialog.open(

@@ -25,22 +25,22 @@ add_task(async function sendMessage() {
   equal(daemon.post, undefined);
   const identity = getSmtpIdentity("test@tinderbox.invalid", localserver);
   var testFile = do_get_file("data/message1.eml");
-  var urlListener = new PromiseTestUtils.PromiseUrlListener();
-  MailServices.smtp.sendMailMessage(
+
+  const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
+  const smtpServer = MailServices.outgoingServer.getServerByIdentity(identity);
+  smtpServer.sendMailMessage(
     testFile,
     "somebody@example.org",
     identity,
     "me@example.org",
     null,
-    urlListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    requestObserver
   );
-  await urlListener.promise;
+  await requestObserver.promise;
+
   notEqual(daemon.post, "");
 });
 

@@ -133,9 +133,10 @@ async function createAccountInBackend(config) {
     config.outgoing.auth != Ci.nsMsgAuthMethod.none
       ? config.outgoing.username
       : null;
-  let outServer = MailServices.smtp.findServer(
+  let outServer = MailServices.outgoingServer.findServer(
     username,
-    config.outgoing.hostname
+    config.outgoing.hostname,
+    "smtp"
   );
   lazy.AccountCreationUtils.assert(
     config.outgoing.addThisServer ||
@@ -149,14 +150,17 @@ async function createAccountInBackend(config) {
     !outServer &&
     !config.incoming.useGlobalPreferredServer
   ) {
-    outServer = MailServices.smtp.createServer();
-    outServer.hostname = config.outgoing.hostname;
-    outServer.port = config.outgoing.port;
+    // Create the server and define some protocol-specific settings.
+    outServer = MailServices.outgoingServer.createServer("smtp");
+    const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
+    smtpServer.hostname = config.outgoing.hostname;
+    smtpServer.port = config.outgoing.port;
+    // Note: The client ID will only be set on the server if either its own
+    // `clientidEnabled` pref, or the default SMTP pref with the same name, is
+    // set to true.
+    smtpServer.clientid = newOutgoingClientid;
+
     outServer.authMethod = config.outgoing.auth;
-    // Populate the clientid if it is enabled for this outgoing server.
-    if (outServer.clientidEnabled) {
-      outServer.clientid = newOutgoingClientid;
-    }
     if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {
       outServer.username = username;
       outServer.password = config.outgoing.password;
@@ -182,10 +186,10 @@ async function createAccountInBackend(config) {
 
     // If this is the first SMTP server, set it as default
     if (
-      !MailServices.smtp.defaultServer ||
-      !MailServices.smtp.defaultServer.hostname
+      !MailServices.outgoingServer.defaultServer ||
+      !MailServices.outgoingServer.defaultServer.serverURI.host
     ) {
-      MailServices.smtp.defaultServer = outServer;
+      MailServices.outgoingServer.defaultServer = outServer;
     }
   }
 
@@ -293,8 +297,8 @@ async function rememberPassword(server, password) {
   let passwordURI;
   if (server instanceof Ci.nsIMsgIncomingServer) {
     passwordURI = server.localStoreType + "://" + server.hostName;
-  } else if (server instanceof Ci.nsISmtpServer) {
-    passwordURI = "smtp://" + server.hostname;
+  } else if (server instanceof Ci.nsIMsgOutgoingServer) {
+    passwordURI = server.type + "://" + server.serverURI.host;
   } else {
     throw new lazy.AccountCreationUtils.NotReached("Server type not supported");
   }
@@ -354,17 +358,18 @@ function checkIncomingServerAlreadyExists(config) {
  * in the config.
  *
  * @param config {AccountConfig} filled in (no placeholders)
- * @returns {nsISmtpServer} If it already exists, the server
+ * @returns {nsIMsgOutgoingServer} If it already exists, the server
  *     object is returned.
  *     If it's a new server, |null| is returned.
  */
 function checkOutgoingServerAlreadyExists(config) {
   lazy.AccountCreationUtils.assert(config instanceof lazy.AccountConfig);
-  for (const existingServer of MailServices.smtp.servers) {
+  for (const existingServer of MailServices.outgoingServer.servers) {
     // TODO check username with full email address, too, like for incoming
     if (
-      existingServer.hostname == config.outgoing.hostname &&
-      existingServer.port == config.outgoing.port &&
+      existingServer.type == config.outgoing.type &&
+      existingServer.serverURI.host == config.outgoing.hostname &&
+      existingServer.serverURI.port == config.outgoing.port &&
       existingServer.username == config.outgoing.username
     ) {
       return existingServer;

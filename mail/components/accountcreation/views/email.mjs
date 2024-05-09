@@ -868,6 +868,7 @@ class AccountHubEmail extends HTMLElement {
     config.outgoing.username = this.#outgoingUsername.value;
 
     // The user specified a custom SMTP server.
+    config.outgoing.type = "smtp";
     config.outgoing.existingServerKey = null;
     config.outgoing.addThisServer = true;
     config.outgoing.useGlobalPreferredServer = false;

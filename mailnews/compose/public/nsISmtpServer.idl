@@ -1,151 +1,30 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "MailNewsTypes2.idl"
-
-interface nsIAuthPrompt;
-interface nsIUrlListener;
-interface nsIURI;
-interface nsIMsgWindow;
 
 /**
- * This interface represents a single SMTP Server. A SMTP server instance may be
- * created/obtained from nsIMsgAccountManager.
- *
- * Most of the attributes will set/get preferences from the main preferences
- * file.
+ * An interface for interacting with an SMTP-based nsIMsgOutgoingServer.
  */
-[scriptable, uuid(a53dce6c-cd81-495c-83bc-45a65df1f08e)]
+
+[scriptable, uuid(bd1b5e31-0eed-47d4-8158-867a30938e13)]
 interface nsISmtpServer : nsISupports {
-
-  /// A unique identifier for the server.
-  attribute string key;
-
-  /**
-   * A unique identifier for this server that can be used for the same
-   * server synced across multiple profiles. Auto-generated on first use.
+  /*
+   * The server's hostname.
    */
-  attribute AUTF8String UID;
-
-  /// A user supplied description for the server.
-  attribute AUTF8String description;
-
-  /// The server's hostname.
   attribute AUTF8String hostname;
 
-  /// The server's port.
+  /*
+   * The server's port.
+   */
   attribute int32_t port;
-
-  /// The username to access the server with (if required)
-  attribute ACString username;
 
   /**
    * The CLIENTID to use for this server (if required).
+   *
    * @see https://tools.ietf.org/html/draft-storey-smtp-client-id-05
    */
-  attribute ACString clientid;
-
-  /**
-   * Whether the CLIENTID feature above is enabled.
-   */
-  attribute boolean clientidEnabled;
-
-  /**
-   * The password to access the server with (if required).
-   *
-   * @note this is stored within the server instance but not within preferences.
-   * It can be specified/saved here to avoid prompting the user constantly for
-   * the sending password.
-   */
-  attribute AString password;
-
-  /// Returns a displayname of the format hostname:port or just hostname
-  readonly attribute string displayname;
-
-  /**
-   * Authentication mechanism.
-   *
-   * @see nsMsgAuthMethod (in MailNewsTypes2.idl)
-   * Same as "mail.smtpserver...authMethod" pref
-   *
-   * Compatibility note: This attribute had a different meaning in TB < 3.1
-   */
-  attribute nsMsgAuthMethodValue authMethod;
-
-  /**
-   * Whether to SSL or STARTTLS or not
-   *
-   * @see nsMsgSocketType (in MailNewsTypes2.idl)
-   * Same as "mail.smtpserver...try_ssl" pref
-   */
-  attribute nsMsgSocketTypeValue socketType;
-
-  /**
-   * May contain an alternative argument to EHLO or HELO to provide to the
-   * server. Reflects the value of the mail.smtpserver.*.hello_argument pref.
-   * This is mainly useful where ISPs don't bother providing PTR records for
-   * their servers and therefore users get an error on sending. See bug 244030
-   * for more discussion.
-   */
-  readonly attribute ACString helloArgument;
-
-  /// Returns the URI of the server (smtp:///)
-  readonly attribute AUTF8String serverURI;
-
-  /** Limit of concurrent connections to a server. */
-  attribute long maximumConnectionsNumber;
-
-  /** Close cached server connections. */
-  void closeCachedConnections();
-
-  /**
-   * Gets a password for this server, using a UI prompt if necessary.
-   *
-   * @param promptString  The string to prompt the user with when asking for
-   *                      the password.
-   * @param promptTitle   The title of the prompt.
-   * @return              The password to use (may be null if no password was
-   *                      obtained).
-   */
-  AString getPasswordWithUI(in wstring promptString, in wstring promptTitle);
-
-  /**
-   * Gets a username and password for this server, using a UI prompt if
-   * necessary.
-   *
-   * @param promptString  The string to prompt the user with when asking for
-   *                      the password.
-   * @param promptTitle   The title of the prompt.
-   * @param netPrompt     An nsIAuthPrompt instance to use for the password
-   *                      prompt.
-   * @param userid        The username to use (may be null if no password was
-   *                      obtained).
-   * @param password      The password to use (may be empty if no password was
-   *                      obtained).
-   */
-  void getUsernamePasswordWithUI(in wstring promptString, in wstring promptTitle,
-                                 in nsIAuthPrompt netPrompt, out ACString userid,
-                                 out AString password);
-
-  /**
-   * Calling this will *remove* the saved password for this server from the
-   * password manager and from the stored value.
-   */
-  void forgetPassword();
-
-    /**
-   * Verify that we can logon
-   *
-   * @param  aPassword - password to use
-   * @param  aUrlListener - gets called back with success or failure.
-   * @return - the url that we run.
-   *
-   */
-  nsIURI verifyLogon(in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
-
-  /// Call this to clear all preference values for this server.
-  void clearAllValues();
+  attribute AUTF8String clientid;
 };

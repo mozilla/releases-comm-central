@@ -9,7 +9,7 @@
 interface nsIMsgIdentity;
 interface nsIPrompt;
 interface nsIAuthPrompt;
-interface nsISmtpServer;
+interface nsIMsgOutgoingServer;
 interface nsIInterfaceRequestor;
 interface nsIFile;
 
@@ -70,7 +70,7 @@ interface nsISmtpUrl : nsISupports {
   attribute nsIPrompt prompt;
   attribute nsIAuthPrompt authPrompt;
   attribute nsIInterfaceRequestor notificationCallbacks;
-  attribute nsISmtpServer smtpServer;
+  attribute nsIMsgOutgoingServer smtpServer;
 
   attribute boolean verifyLogon; // we're just verifying the ability to logon
 

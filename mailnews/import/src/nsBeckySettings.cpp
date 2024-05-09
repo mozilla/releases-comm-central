@@ -6,7 +6,8 @@
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIINIParser.h"
-#include "nsISmtpService.h"
+#include "nsIMsgOutgoingServerService.h"
+#include "nsIMsgOutgoingServer.h"
 #include "nsISmtpServer.h"
 #include "nsIPop3IncomingServer.h"
 #include "nsNetUtil.h"
@@ -77,23 +78,27 @@ nsresult nsBeckySettings::CreateParser() {
 
 nsresult nsBeckySettings::CreateSmtpServer(const nsCString& aUserName,
                                            const nsCString& aServerName,
-                                           nsISmtpServer** aServer,
+                                           nsIMsgOutgoingServer** aServer,
                                            bool* existing) {
   nsresult rv;
 
-  nsCOMPtr<nsISmtpService> smtpService =
-      do_GetService("@mozilla.org/messengercompose/smtp;1", &rv);
+  nsCOMPtr<nsIMsgOutgoingServerService> outgoingServerService = do_GetService(
+      "@mozilla.org/messengercompose/outgoingserverservice;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISmtpServer> server;
-  rv = smtpService->FindServer(aUserName, aServerName, getter_AddRefs(server));
+  nsCOMPtr<nsIMsgOutgoingServer> server;
+  rv = outgoingServerService->FindServer(aUserName, aServerName, "smtp"_ns,
+                                         getter_AddRefs(server));
 
   if (NS_FAILED(rv) || !server) {
-    rv = smtpService->CreateServer(getter_AddRefs(server));
+    rv = outgoingServerService->CreateServer("smtp"_ns, getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    server->SetHostname(aServerName);
     server->SetUsername(aUserName);
+
+    nsCOMPtr<nsISmtpServer> smtpServer = do_QueryInterface(server);
+    smtpServer->SetHostname(aServerName);
+
     *existing = false;
   } else {
     *existing = true;
@@ -127,14 +132,14 @@ nsresult nsBeckySettings::CreateIncomingServer(const nsCString& aUserName,
   return NS_OK;
 }
 
-nsresult nsBeckySettings::SetupSmtpServer(nsISmtpServer** aServer) {
+nsresult nsBeckySettings::SetupSmtpServer(nsIMsgOutgoingServer** aServer) {
   nsresult rv;
   nsAutoCString userName, serverName;
 
   mParser->GetString("Account"_ns, "SMTPServer"_ns, serverName);
   mParser->GetString("Account"_ns, "UserID"_ns, userName);
 
-  nsCOMPtr<nsISmtpServer> server;
+  nsCOMPtr<nsIMsgOutgoingServer> server;
   bool existing = false;
   rv =
       CreateSmtpServer(userName, serverName, getter_AddRefs(server), &existing);
@@ -153,7 +158,9 @@ nsresult nsBeckySettings::SetupSmtpServer(nsISmtpServer** aServer) {
     nsresult errorCode;
     port = value.ToInteger(&errorCode, 10);
   }
-  server->SetPort(port);
+
+  nsCOMPtr<nsISmtpServer> smtpServer = do_QueryInterface(server);
+  smtpServer->SetPort(port);
 
   mParser->GetString("Account"_ns, "SSLSMTP"_ns, value);
   if (value.EqualsLiteral("1")) server->SetSocketType(nsMsgSocketType::SSL);
@@ -355,7 +362,7 @@ nsBeckySettings::Import(nsIMsgAccount** aLocalMailAccount, bool* _retval) {
   rv = SetupIncomingServer(getter_AddRefs(incomingServer));
   NS_RETURN_IF_FAILED_WITH_REMOVE_CONVERTED_FILE(rv, rv);
 
-  nsCOMPtr<nsISmtpServer> smtpServer;
+  nsCOMPtr<nsIMsgOutgoingServer> smtpServer;
   rv = SetupSmtpServer(getter_AddRefs(smtpServer));
   NS_RETURN_IF_FAILED_WITH_REMOVE_CONVERTED_FILE(rv, rv);
 
@@ -364,7 +371,7 @@ nsBeckySettings::Import(nsIMsgAccount** aLocalMailAccount, bool* _retval) {
   NS_RETURN_IF_FAILED_WITH_REMOVE_CONVERTED_FILE(rv, rv);
 
   nsAutoCString smtpKey;
-  smtpServer->GetKey(getter_Copies(smtpKey));
+  smtpServer->GetKey(smtpKey);
   identity->SetSmtpServerKey(smtpKey);
 
   nsCOMPtr<nsIMsgAccount> account;

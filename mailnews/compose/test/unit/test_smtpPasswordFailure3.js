@@ -85,7 +85,8 @@ add_task(async function () {
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
 
-  // Start the fake SMTP server
+  // Start the fake SMTP server. The server's socket type defaults to
+  // Ci.nsMsgSocketType.plain, so no need to set it.
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
   var identity = getSmtpIdentity(kIdentityMail, smtpServer);
@@ -94,32 +95,28 @@ add_task(async function () {
   test = "Auth sendMailMessage";
 
   smtpServer.authMethod = Ci.nsMsgAuthMethod.passwordCleartext;
-  smtpServer.socketType = Ci.nsMsgSocketType.plain;
   smtpServer.username = kUsername;
 
   do_test_pending();
 
-  MailServices.smtp.sendMailMessage(
+  smtpServer.sendMailMessage(
     testFile,
     kTo,
     identity,
     kSender,
     null,
-    URLListener,
-    null,
     null,
     false,
     "",
-    {},
-    {}
+    RequestObserver
   );
 
   server.performTest();
 });
 
-var URLListener = {
-  OnStartRunningUrl() {},
-  OnStopRunningUrl(url, rc) {
+var RequestObserver = {
+  onStartRequest() {},
+  onStopRequest(request, rc) {
     // Check for ok status.
     Assert.equal(rc, 0);
     // Now check the new password has been saved.

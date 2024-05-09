@@ -312,9 +312,7 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     // Trigger the actual mime work.
     const conversion = apply_mime_conversion(uri, null, openpgpSink);
 
-    await conversion.promise;
-
-    const msgBody = conversion._data;
+    const msgBody = await conversion.promise;
 
     if (!test.sig || test.flags.indexOf("GOOD_SIGNATURE")) {
       Assert.ok(

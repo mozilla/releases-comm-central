@@ -214,6 +214,7 @@ export function readFromXML(clientConfigXML, subSource) {
         );
         throw stringBundle.GetStringFromName("outgoing_not_smtp.error");
       }
+      oO.type = "smtp";
       oO.hostname = lazy.Sanitizer.hostname(oX.hostname);
       oO.port = lazy.Sanitizer.integerRange(oX.port, 1, 65535);
 

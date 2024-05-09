@@ -16,7 +16,6 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const SYNCED_SMTP_PROPERTIES = {
   authMethod: "authMethod",
-  port: "port",
   description: "name",
   socketType: "socketType",
 };
@@ -104,17 +103,19 @@ AccountStore.prototype = {
    */
   async create(record) {
     if (record.type == "smtp") {
-      const smtpServer = MailServices.smtp.createServer();
-      smtpServer.UID = record.id;
-      smtpServer.username = record.username;
+      const outServer = MailServices.outgoingServer.createServer("smtp");
+      const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
       smtpServer.hostname = record.hostname;
+
+      outServer.UID = record.id;
+      outServer.username = record.username;
       for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
         if (key in record.prefs) {
-          smtpServer[key] = record.prefs[key];
+          outServer[key] = record.prefs[key];
         }
       }
       if (record.isDefault) {
-        MailServices.smtp.defaultServer = smtpServer;
+        MailServices.outgoingServer.defaultServer = outServer;
       }
       return;
     }
@@ -160,9 +161,11 @@ AccountStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
-    const smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
+    const smtpServer = MailServices.outgoingServer.servers.find(
+      s => s.UID == record.id
+    );
     if (smtpServer) {
-      MailServices.smtp.deleteServer(smtpServer);
+      MailServices.outgoingServer.deleteServer(smtpServer);
       return;
     }
 
@@ -202,20 +205,25 @@ AccountStore.prototype = {
   },
 
   async _updateSMTP(record) {
-    const smtpServer = MailServices.smtp.servers.find(s => s.UID == record.id);
-    if (!smtpServer) {
+    const outServer = MailServices.outgoingServer.servers.find(
+      s => s.UID == record.id
+    );
+    if (!outServer) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
     }
-    smtpServer.username = record.username;
+    outServer.username = record.username;
+
+    const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
     smtpServer.hostname = record.hostname;
+
     for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
       if (key in record.prefs) {
-        smtpServer[key] = record.prefs[key];
+        outServer[key] = record.prefs[key];
       }
     }
     if (record.isDefault) {
-      MailServices.smtp.defaultServer = smtpServer;
+      MailServices.outgoingServer.defaultServer = outServer;
     }
   },
 
@@ -263,7 +271,7 @@ AccountStore.prototype = {
    */
   async getAllIDs() {
     const ids = {};
-    for (const s of MailServices.smtp.servers) {
+    for (const s of MailServices.outgoingServer.servers) {
       ids[s.UID] = true;
     }
     for (const s of MailServices.accounts.allServers) {
@@ -291,16 +299,16 @@ AccountStore.prototype = {
   async createRecord(id, collection) {
     const record = new AccountRecord(collection, id);
 
-    let server = MailServices.smtp.servers.find(s => s.UID == id);
+    let server = MailServices.outgoingServer.servers.find(s => s.UID == id);
     if (server) {
       record.type = "smtp";
       record.username = server.username;
-      record.hostname = server.hostname;
-      record.prefs = {};
+      record.hostname = server.serverURI.host;
+      record.prefs = { port: server.serverURI.port };
       for (const key of Object.keys(SYNCED_SMTP_PROPERTIES)) {
         record.prefs[key] = server[key];
       }
-      record.isDefault = MailServices.smtp.defaultServer == server;
+      record.isDefault = MailServices.outgoingServer.defaultServer == server;
       return record;
     }
 

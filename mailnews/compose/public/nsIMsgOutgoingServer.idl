@@ -1,0 +1,169 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "MailNewsTypes2.idl"
+
+interface nsIAuthPrompt;
+interface nsIUrlListener;
+interface nsIURI;
+interface nsIFile;
+interface nsIMsgStatusFeedback;
+interface nsIRequestObserver;
+interface nsIMsgIdentity;
+interface nsIMsgWindow;
+
+/**
+ * This interface represents a single outgoing Server. An outgoing server
+ * instance may be created/obtained from nsIMsgOutgoingServerService.
+ *
+ * Most of the attributes will set/get preferences from the main preferences
+ * file.
+ */
+[scriptable, uuid(a53dce6c-cd81-495c-83bc-45a65df1f08e)]
+interface nsIMsgOutgoingServer : nsISupports {
+  /*
+   * A unique identifier for the server.
+   */
+  attribute AUTF8String key;
+
+  /**
+   * A unique identifier for this server that can be used for the same
+   * server synced across multiple profiles. Auto-generated on first use.
+   */
+  attribute AUTF8String UID;
+
+  /*
+   * A short identifier for the server's type, i.e. the protocol it implements.
+   * Matches the `type` parameter in the implementation's contract ID.
+   */
+  readonly attribute AUTF8String type;
+
+  /*
+   * A user supplied description for the server.
+   */
+  attribute AUTF8String description;
+
+  /**
+   * The username to access the server with (if required).
+   */
+  attribute AUTF8String username;
+
+  /**
+   * The password to access the server with (if required).
+   *
+   * @note this is stored within the server instance but not within preferences.
+   * It can be specified/saved here to avoid prompting the user constantly for
+   * the sending password.
+   */
+  attribute AUTF8String password;
+
+  /*
+   * Returns a displayname of the format hostname:port or just hostname
+   */
+  readonly attribute AUTF8String displayname;
+
+  /**
+   * Authentication mechanism.
+   *
+   * @see nsMsgAuthMethod (in MailNewsTypes2.idl)
+   * For SMTP servers, this is the same as the "mail.smtpserver...authMethod"
+   * pref.
+   *
+   * Compatibility note: This attribute had a different meaning in TB < 3.1
+   */
+  attribute nsMsgAuthMethodValue authMethod;
+
+  /**
+   * Whether to SSL or STARTTLS or not
+   *
+   * @see nsMsgSocketType (in MailNewsTypes2.idl)
+   * For SMTP servers, this is the same as the "mail.smtpserver...try_ssl" pref.
+   */
+  attribute nsMsgSocketTypeValue socketType;
+
+  /**
+   * Returns the URI of the server.
+   */
+  readonly attribute nsIURI serverURI;
+
+  /**
+   * Limit of concurrent connections to a server.
+   */
+  attribute long maximumConnectionsNumber;
+
+  /**
+   * Sends a mail message via the given parameters.
+
+   * @note The file to send must be in the format specified by RFC 2822 for
+   *       sending data. This includes having the correct CRLF line endings
+   *       throughout the file, and the <CRLF>.<CRLF> at the end of the file.
+   *       sendMailMessage does no processing/additions on the file.
+   *
+   * @param aFilePath               The file to send.
+   * @param aRecipients             A comma delimited list of recipients.
+   * @param aSenderIdentity         The identity of the sender.
+   * @param aSender                 The senders email address.
+   * @param aPassword               Pass this in to prevent a dialog if the
+   *                                password is needed for secure transmission.
+   * @param aStatusListener         A feedback listener for slightly different
+   *                                feedback on the message send status. This
+   *                                parameter may be null.
+   * @param aRequestDSN             Whether to request Delivery Status
+   *                                Notification.
+   * @param aMessageId              The message ID for this email message.
+   * @param aObserver               A request observer that is given a
+   *                                cancellable nsIRequest. This is used to
+   *                                provide the request asynchronously, which is
+   *                                necessary in order to allow the server to
+   *                                manage its connection pool (and e.g. wait
+   *                                for an available connection when necessary).
+   */
+  void sendMailMessage(in nsIFile aFilePath,
+                       in AUTF8String aRecipients,
+                       in nsIMsgIdentity aSenderIdentity,
+                       in AUTF8String aSender,
+                       in AUTF8String aPassword,
+                       in nsIMsgStatusFeedback aStatusListener,
+                       in boolean aRequestDSN,
+                       in AUTF8String aMessageId,
+                       in nsIRequestObserver aObserver);
+
+  /**
+   * Close cached server connections.
+   */
+  void closeCachedConnections();
+
+  /**
+   * Gets a password for this server, using a UI prompt if necessary.
+   *
+   * @param promptString  The string to prompt the user with when asking for
+   *                      the password.
+   * @param promptTitle   The title of the prompt.
+   * @return              The password to use (may be null if no password was
+   *                      obtained).
+   */
+  AUTF8String getPasswordWithUI(in AUTF8String promptString, in AUTF8String promptTitle);
+
+  /**
+   * Calling this will *remove* the saved password for this server from the
+   * password manager and from the stored value.
+   */
+  void forgetPassword();
+
+  /**
+   * Verify that we can log onto the server.
+   *
+   * @param  aPassword    The password to use
+   * @param  aUrlListener A listener thatgets called back with success or
+   *                      failure.
+   * @return              The URI for the server.
+   *
+   */
+  nsIURI verifyLogon(in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
+
+  /// Call this to clear all preference values for this server.
+  void clearAllValues();
+};

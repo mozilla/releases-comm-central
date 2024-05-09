@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
@@ -12,12 +13,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
 /**
  * This class represents a single SMTP server.
  *
- * @implements {nsISmtpServer}
+ * @implements {nsIMsgOutgoingServer}
  * @implements {nsISupportsWeakReference}
  * @implements {nsIObserver}
  */
 export class SmtpServer {
   QueryInterface = ChromeUtils.generateQI([
+    "nsIMsgOutgoingServer",
     "nsISmtpServer",
     "nsISupportsWeakReference",
     "nsIObserver",
@@ -26,6 +28,7 @@ export class SmtpServer {
   constructor() {
     this._key = "";
     this._loadPrefs();
+    this._uri = null;
 
     Services.obs.addObserver(this, "passwordmgr-storage-changed", true);
   }
@@ -33,7 +36,7 @@ export class SmtpServer {
   /**
    * Observe() receives notifications for all accounts, not just this SMTP
    * server's * account. So we ignore all notifications not intended for this
-   * server. When the state of the password manager changes we need to clear the
+   * server. When the state of the password manager changes we need to clear
    * this server's password from the cache in case the user just changed or
    * removed the password or username.
    * OAuth2 servers often automatically change the password manager's stored
@@ -78,6 +81,10 @@ export class SmtpServer {
       // Remove the password for this server cached in memory.
       this.password = "";
     }
+  }
+
+  get type() {
+    return "smtp";
   }
 
   get key() {
@@ -138,6 +145,10 @@ export class SmtpServer {
     } else {
       this._prefs.clearUserPref("port");
     }
+
+    // Void out the cached URI so that the next access to `this.serverURI`
+    // regenerates the nsIURI.
+    this._uri = null;
   }
 
   get displayname() {
@@ -155,6 +166,9 @@ export class SmtpServer {
       this.forgetPassword();
     }
     this._setCharPref("username", value);
+    // Void out the cached URI so that the next access to `this.serverURI`
+    // regenerates the nsIURI.
+    this._uri = null;
   }
 
   get clientid() {
@@ -162,7 +176,9 @@ export class SmtpServer {
   }
 
   set clientid(value) {
-    this._setCharPref("clientid", value);
+    if (this.clientidEnabled) {
+      this._setCharPref("clientid", value);
+    }
   }
 
   get clientidEnabled() {
@@ -193,12 +209,31 @@ export class SmtpServer {
     this._prefs.setIntPref("try_ssl", value);
   }
 
+  /**
+   * May contain an alternative argument to EHLO or HELO to provide to the
+   * server. Reflects the value of the mail.smtpserver.*.hello_argument pref.
+   * This is mainly useful where ISPs don't bother providing PTR records for
+   * their servers and therefore users get an error on sending. See bug 244030
+   * for more discussion.
+   *
+   * We currently only set this property in tests, in order to ensure the
+   * predictability of the EHLO message.
+   */
   get helloArgument() {
     return this._getCharPrefWithDefault("hello_argument");
   }
 
   get serverURI() {
-    return this._getServerURI(true);
+    // We cache the URI because sendMailMessage uses it to store error
+    // information from the SMTP client (which MessageSend then uses to
+    // propagate to the console and user). This would not work if we were
+    // recreating the nsIURI on each access.
+    if (!this._uri) {
+      const spec = this._getServerURISpec(true, true);
+      this._uri = Services.io.newURI(spec);
+    }
+
+    return this._uri;
   }
 
   /**
@@ -297,7 +332,7 @@ export class SmtpServer {
       ok = authPrompt.promptPassword(
         promptTitle,
         promptMessage,
-        this.serverURI,
+        this._getServerURISpec(true, false),
         Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
         outPassword
       );
@@ -305,7 +340,7 @@ export class SmtpServer {
       ok = authPrompt.promptUsernameAndPassword(
         promptTitle,
         promptMessage,
-        this.serverURI,
+        this._getServerURISpec(true, false),
         Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
         outUsername,
         outPassword
@@ -323,7 +358,7 @@ export class SmtpServer {
   }
 
   forgetPassword() {
-    const serverURI = this._getServerURI();
+    const serverURI = this._getServerURISpec();
     const logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (const login of logins) {
       if (login.username == this.username) {
@@ -333,8 +368,22 @@ export class SmtpServer {
     this.password = "";
   }
 
-  verifyLogon(urlListener, msgWindow) {
-    return MailServices.smtp.verifyLogon(this, urlListener, msgWindow);
+  verifyLogon(urlListener) {
+    const client = new lazy.SmtpClient(this);
+    client.connect();
+    client.onerror = (nsError, errorMessage, secInfo) => {
+      this.serverURI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      if (secInfo) {
+        this.serverURI.failedSecInfo = secInfo;
+      }
+      this.serverURI.errorMessage = errorMessage;
+      urlListener.OnStopRunningUrl(this.serverURI, nsError);
+    };
+    client.onready = () => {
+      urlListener.OnStopRunningUrl(this.serverURI, 0);
+      client.close();
+    };
+    return this.serverURI;
   }
 
   clearAllValues() {
@@ -347,7 +396,7 @@ export class SmtpServer {
    * @returns {string}
    */
   _getPasswordWithoutUI() {
-    const serverURI = this._getServerURI();
+    const serverURI = this._getServerURISpec();
     const logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (const login of logins) {
       if (login.username == this.username) {
@@ -358,12 +407,13 @@ export class SmtpServer {
   }
 
   /**
-   * Get server URI in the form of smtp://[user@]hostname.
+   * Get server URI in the form of smtp://[user@]hostname:port.
    *
    * @param {boolean} includeUsername - Whether to include the username.
+   * @param {boolean} includePort - Whether to include the port, if non-default.
    * @returns {string}
    */
-  _getServerURI(includeUsername) {
+  _getServerURISpec(includeUsername, includePort) {
     // When constructing nsIURI, need to wrap IPv6 address in [].
     const hostname = this.hostname.includes(":")
       ? `[${this.hostname}]`
@@ -373,7 +423,8 @@ export class SmtpServer {
       (includeUsername && this.username
         ? `${encodeURIComponent(this.username)}@`
         : "") +
-      hostname
+      hostname +
+      (this.port && includePort ? `:${this.port}` : "")
     );
   }
 
@@ -481,13 +532,21 @@ export class SmtpServer {
     await new Promise(resolve => this._connectionWaitingQueue.push(resolve));
     return this._getNextClient();
   }
+
   /**
-   * Do some actions with a connection.
-   *
-   * @param {Function} handler - A callback function to take a SmtpClient
-   *   instance, and do some actions.
+   * @see nsIMsgOutgoingServer
    */
-  async withClient(handler) {
+  async sendMailMessage(
+    messageFile,
+    recipients,
+    userIdentity,
+    sender,
+    password,
+    statusListener,
+    requestDSN,
+    messageId,
+    requestObserver
+  ) {
     // Flag that a send is progress. Precludes sending QUIT during the transfer.
     this.sendIsActive = true;
     const client = await this._getNextClient();
@@ -503,7 +562,119 @@ export class SmtpServer {
         this._connectionWaitingQueue.shift()?.();
       }
     };
-    handler(client);
+
+    if (password) {
+      this.password = password;
+    }
+
+    const request = {
+      cancel() {
+        client.close(true);
+      },
+    };
+
+    requestObserver?.onStartRequest(request);
+    let fresh = true;
+    client.onidle = () => {
+      // onidle can occur multiple times, but we should only init sending
+      // when sending a new message (fresh is true) or when a new connection
+      // replaces the original connection due to error 4xx response
+      // (client.isRetry is true).
+      if (!fresh && !client.isRetry) {
+        return;
+      }
+      // Init when fresh==true OR re-init sending when client.isRetry==true.
+      fresh = false;
+      let from = sender;
+      const to = MailServices.headerParser
+        .parseEncodedHeaderW(recipients)
+        .map(rec => rec.email);
+
+      if (
+        !Services.prefs.getBoolPref("mail.smtp.useSenderForSmtpMailFrom", false)
+      ) {
+        from = userIdentity.email;
+      }
+      if (!messageId) {
+        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+          .createInstance(Ci.nsIMsgCompUtils)
+          .msgGenerateMessageId(userIdentity, null);
+      }
+      client.useEnvelope({
+        from: MailServices.headerParser.parseEncodedHeaderW(from)[0].email,
+        to,
+        size: messageFile.fileSize,
+        requestDSN,
+        messageId,
+      });
+    };
+    let socketOnDrain;
+    client.onready = async () => {
+      const fstream = Cc[
+        "@mozilla.org/network/file-input-stream;1"
+      ].createInstance(Ci.nsIFileInputStream);
+      // PR_RDONLY
+      fstream.init(messageFile, 0x01, 0, 0);
+
+      const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        Ci.nsIScriptableInputStream
+      );
+      sstream.init(fstream);
+
+      let sentSize = 0;
+      const totalSize = messageFile.fileSize;
+      const progressListener = statusListener?.QueryInterface(
+        Ci.nsIWebProgressListener
+      );
+
+      while (sstream.available()) {
+        const chunk = sstream.read(65536);
+        const canSendMore = client.send(chunk);
+        if (!canSendMore) {
+          // Socket buffer is full, wait for the ondrain event.
+          await new Promise(resolve => (socketOnDrain = resolve));
+        }
+        // In practice, chunks are buffered by TCPSocket, progress reaches 100%
+        // almost immediately unless message is larger than chunk size.
+        sentSize += chunk.length;
+        progressListener?.onProgressChange(
+          null,
+          null,
+          sentSize,
+          totalSize,
+          sentSize,
+          totalSize
+        );
+      }
+      sstream.close();
+      fstream.close();
+      client.end();
+
+      // Set progress to indeterminate.
+      progressListener?.onProgressChange(null, null, 0, -1, 0, -1);
+    };
+    client.ondrain = () => {
+      // Socket buffer is empty, safe to continue sending.
+      socketOnDrain();
+    };
+    client.ondone = () => {
+      if (!AppConstants.MOZ_SUITE) {
+        Services.telemetry.scalarAdd("tb.mails.sent", 1);
+      }
+
+      requestObserver?.onStopRequest(request, Cr.NS_OK);
+    };
+    client.onerror = (nsError, errorMessage, secInfo) => {
+      this.serverURI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      if (secInfo) {
+        // TODO(emilio): Passing the failed security info as part of the URI is
+        // quite a smell, but monkey see monkey do...
+        this.serverURI.failedSecInfo = secInfo;
+      }
+      this.serverURI.errorMessage = errorMessage;
+      requestObserver?.onStopRequest(request, nsError);
+    };
+
     client.connect();
   }
 }

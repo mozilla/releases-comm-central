@@ -116,6 +116,7 @@ function guessConfig(
     resultConfig.incoming.port = 143;
     resultConfig.incoming.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
     resultConfig.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+    resultConfig.outgoing.type = "smtp";
     resultConfig.outgoing.hostname = "smtp." + domain;
     resultConfig.outgoing.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
     resultConfig.outgoing.port = 587;
