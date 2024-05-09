@@ -51,6 +51,7 @@ js-sys = { path = "../../build/rust/dummy-web/js-sys" }
 wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }
 web-sys = { path = "../../build/rust/dummy-web/web-sys" }
 moz_asserts = { path = "../../mozglue/static/rust/moz_asserts" }
+zip = { path = "../../third_party/rust/zip" }
 rure = { path = "../../third_party/rust/rure" }
 plist = { path = "../../third_party/rust/plist" }
 unicode-bidi = { git = "https://github.com/servo/unicode-bidi", rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c" }

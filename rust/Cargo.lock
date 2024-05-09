@@ -5971,3 +5971,7 @@ source = "git+https://github.com/seanmonstar/warp?rev=9d081461ae1167eb321585ce42
 [[patch.unused]]
 name = "windows-sys"
 version = "0.48.999"
+
+[[patch.unused]]
+name = "zip"
+version = "0.6.4"
