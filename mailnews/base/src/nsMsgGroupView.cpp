@@ -15,6 +15,7 @@
 #include "nsMsgMessageFlags.h"
 #include <plhash.h>
 #include "mozilla/Attributes.h"
+#include "nsIScriptError.h"
 
 // Allocate this more to avoid reallocation on new mail.
 #define MSGHDR_CACHE_LOOK_AHEAD_SIZE 25
@@ -671,15 +672,26 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
   bool rootDeleted = IsValidIndex(viewIndexOfThread) &&
                      m_keys[viewIndexOfThread] == keyDeleted;
   rv = nsMsgDBView::OnHdrDeleted(aHdrDeleted, aParentKey, aFlags, aInstigator);
+  uint32_t numChildren;
   if (groupThread->m_dummy) {
-    if (!groupThread->NumRealChildren()) {
+    groupThread->GetNumChildren(&numChildren);
+    // At this point, at least the dummy row should be present at an index that
+    // is still accessible in the view. If not, something is wrong and we
+    // take the safe way out.
+    if (!numChildren || !IsValidIndex(viewIndexOfThread)) {
+      MsgLogToConsole4(
+          u"The view is rebuilt because an invalid group thread was detected."_ns,
+          NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
+          nsIScriptError::warningFlag);
+      return RebuildView(m_viewFlags);
+    }
+
+    if (numChildren == 1) {
       // Get rid of dummy.
       thread->RemoveChildAt(0);
-      if (viewIndexOfThread != nsMsgKey_None) {
-        RemoveByIndex(viewIndexOfThread);
-        if (m_deletingRows && !mIndicesToNoteChange.Contains(viewIndexOfThread))
-          mIndicesToNoteChange.AppendElement(viewIndexOfThread);
-      }
+      RemoveByIndex(viewIndexOfThread);
+      if (m_deletingRows && !mIndicesToNoteChange.Contains(viewIndexOfThread))
+        mIndicesToNoteChange.AppendElement(viewIndexOfThread);
     } else if (rootDeleted) {
       // Reflect new thread root into view.dummy row.
       nsCOMPtr<nsIMsgDBHdr> hdr;
@@ -692,7 +704,8 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
       }
     }
   }
-  if (!groupThread->m_keys.Length()) {
+  groupThread->GetNumChildren(&numChildren);
+  if (!numChildren) {
     nsString hashKey;
     rv = HashHdr(aHdrDeleted, hashKey);
     if (NS_SUCCEEDED(rv)) m_groupsTable.Remove(hashKey);
