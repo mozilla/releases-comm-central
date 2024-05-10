@@ -19,14 +19,16 @@
   <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
   <style>
+    #directoryTabPanels .grid-two-column :is(input[type="text"], textarea, menulist) {
+      width: 100%;
+      margin-inline: 0;
+    }
+
+    #directoryTabPanels input[type="number"] {
+      margin-inline: 0 4px;
+    }
+
     #directoryTabPanels radiogroup {
-      margin-inline-start: 4px;
-    }
-    #directoryTabPanels textarea {
-      width: calc(100% - 22px);
-    }
-    #directoryTabPanels menulist {
-      width: calc(100% - 4px);
       margin-inline-start: 4px;
     }
   </style>
@@ -51,7 +53,7 @@
 
       <tabpanels id="directoryTabPanels" flex="1">
           <vbox>
-             <div xmlns="http://www.w3.org/1999/xhtml" class="grid-three-column">
+             <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
                 <div class="flex-items-center">
                   <xul:label id="descriptionLabel" value="&directoryName.label;"
                              accesskey="&directoryName.accesskey;"
@@ -61,7 +63,6 @@
                   <input id="description" type="text" class="input-inline"
                          aria-labelledby="descriptionLabel"/>
                 </div>
-                <div></div>
                 <div class="flex-items-center">
                   <xul:label id="hostnameLabel"
                              value="&directoryHostname.label;"
@@ -74,7 +75,23 @@
                          aria-labelledby="descriptionLabel"
                          disableiflocked="true"/>
                 </div>
-                <div></div>
+                <div class="flex-items-center">
+                  <xul:label id="portLabel" value="&portNumber.label;"
+                             accesskey="&portNumber.accesskey;"
+                             control="port"/>
+                </div>
+                <div class="flex-content-row">
+                  <input id="port" type="number"
+                         class="size5 input-inline"
+                         min="1" max="65535"
+                         aria-labelledby="portLabel"
+                         disableiflocked="true"/>
+                  <xul:checkbox id="secure"
+                                label="&directorySecure.label;"
+                                accesskey="&directorySecure.accesskey;"
+                                disableiflocked="true"
+                                oncommand="onSecure();"/>
+                </div>
                 <div class="flex-items-center">
                   <xul:label id="basednLabel"
                              value="&directoryBaseDN.label;"
@@ -87,23 +104,6 @@
                          aria-labelledby="basednLabel"
                          disableiflocked="true"/>
                 </div>
-                <div class="flex-items-center flex-content-center">
-                  <xul:button label="&findButton.label;"
-                              accesskey="&findButton.accesskey;" disabled="true"/>
-                </div>
-                <div class="flex-items-center">
-                  <xul:label id="portLabel" value="&portNumber.label;"
-                             accesskey="&portNumber.accesskey;"
-                             control="port"/>
-                </div>
-                <div>
-                  <input id="port" type="number"
-                         class="size5 input-inline"
-                         min="1" max="65535"
-                         aria-labelledby="portLabel"
-                         disableiflocked="true"/>
-                </div>
-                <div></div>
                 <div class="flex-items-center">
                   <xul:label id="loginLabel" value="&directoryLogin.label;"
                              accesskey="&directoryLogin.accesskey;"
@@ -113,12 +113,7 @@
                   <input id="login" type="text" class="uri-element input-inline"
                          aria-labelledby="loginLabel"/>
                 </div>
-                <div></div>
              </div>
-             <separator/>
-             <checkbox id="secure" label="&directorySecure.label;"
-                       accesskey="&directorySecure.accesskey;"
-                       oncommand="onSecure();" disableiflocked="true"/>
           </vbox>
           <vbox>
               <description>&offlineText.label;</description>
@@ -165,7 +160,7 @@
                            control="search"/>
               </div>
               <div>
-                <textarea id="search" disableiflocked="true"></textarea>
+                <textarea id="search" class="no-resize" disableiflocked="true"></textarea>
               </div>
               <div class="flex-items-center">
                 <xul:label value="&saslMechanism.label;" control="saslMechanism"

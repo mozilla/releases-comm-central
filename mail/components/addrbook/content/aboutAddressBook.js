@@ -57,6 +57,7 @@ ChromeUtils.defineLazyGetter(this, "SubDialog", function () {
         "chrome://messenger/skin/shared/preferences/subdialog.css",
         "chrome://messenger/skin/abFormFields.css",
       ],
+      consumeOutsideClicks: false,
       resizeCallback: ({ frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
         updateAbCommands();

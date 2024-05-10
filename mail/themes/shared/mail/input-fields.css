@@ -31,6 +31,10 @@ html|input {
   }
 }
 
+html|textarea.no-resize {
+  resize: none;
+}
+
 .input-container {
   display: flex;
   align-items: center;

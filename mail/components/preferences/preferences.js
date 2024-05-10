@@ -46,6 +46,7 @@ ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
         "chrome://messenger/skin/preferences/dialog.css",
         "chrome://messenger/skin/preferences/preferences.css",
       ],
+      consumeOutsideClicks: false,
       resizeCallback: ({ title, frame }) => {
         UIFontSize.registerWindow(frame.contentWindow);
 
