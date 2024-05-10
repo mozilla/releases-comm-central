@@ -28,11 +28,11 @@ treechildren::-moz-tree-image(container, noicon, open) {
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://communicator/skin/checkbox/cbox-check.png");
 }
 
 treechildren::-moz-tree-checkbox(partial) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check-dis.gif");
+  list-style-image: url("chrome://communicator/skin/checkbox/cbox-check-dis.png");
 }
 
 treechildren::-moz-tree-row(alternate) {

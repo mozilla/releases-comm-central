@@ -146,6 +146,8 @@ classic.jar:
   skin/classic/communicator/brand/throbber-anim.png                     (communicator/brand/throbber-anim.png)
   skin/classic/communicator/brand/throbber-single.png                   (communicator/brand/throbber-single.png)
   skin/classic/communicator/brand/throbber16-anim.png                   (communicator/brand/throbber16-anim.png)
+  skin/classic/communicator/checkbox/cbox-check.png                     (communicator/icons/checkbox/cbox-check.png)
+  skin/classic/communicator/checkbox/cbox-check-dis.png                 (communicator/icons/checkbox/cbox-check-dis.png)
   skin/classic/communicator/brand/throbber16-single.png                 (communicator/brand/throbber16-single.png)
   skin/classic/communicator/dataman/dataman.css                         (communicator/dataman/dataman.css)
   skin/classic/communicator/dataman/datamanIcon-16.png                  (communicator/dataman/datamanIcon-16.png)

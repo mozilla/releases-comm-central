@@ -249,7 +249,7 @@
 /* ::::: select edit dialog ::::: */
 
 #SelectTreeChildren::-moz-tree-cell(SelectSelCol, checked-true) {
-  background: url("chrome://global/skin/checkbox/cbox-check.gif") 50% 50% no-repeat;
+  background: url("chrome://communicator/skin/checkbox/cbox-check.png") 50% 50% no-repeat;
 }
 
 /* ::::: Publishing Progress ::::: */
