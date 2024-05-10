@@ -3770,6 +3770,40 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char* aGMMsgId,
   return NS_OK;  // it's not an error not to find a msg hdr.
 }
 
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForEwsItemID(const nsACString& itemID,
+                                                   nsIMsgDBHdr** _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
+
+  NS_ENSURE_TRUE(m_mdbStore, NS_ERROR_NULL_POINTER);
+
+  mdb_token property_token;
+  nsresult rv = m_mdbStore->StringToToken(GetEnv(), "ewsId", &property_token);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mdbYarn ewsIdYarn{
+      // It's safe to use the string pointer, even if it's not null-terminated,
+      // as we specify the length of the data.
+      .mYarn_Buf = (void*)itemID.Data(),
+      .mYarn_Fill = (mdb_fill)itemID.Length(),
+      .mYarn_Size = (mdb_size)itemID.Length(),
+      .mYarn_Form = 0,
+  };
+
+  mdbOid outRowId;
+  nsIMdbRow* hdrRow;
+  rv = m_mdbStore->FindRow(GetEnv(), m_hdrRowScopeToken, property_token,
+                           &ewsIdYarn, &outRowId, &hdrRow);
+
+  if (NS_SUCCEEDED(rv) && hdrRow) {
+    rv = CreateMsgHdr(hdrRow, (nsMsgKey)outRowId.mOid_Id, _retval);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    *_retval = nullptr;
+  }
+
+  return NS_OK;
+}
+
 nsIMsgDBHdr* nsMsgDatabase::GetMsgHdrForSubject(nsCString& subject) {
   nsIMsgDBHdr* msgHdr = nullptr;
   nsresult rv = NS_OK;
