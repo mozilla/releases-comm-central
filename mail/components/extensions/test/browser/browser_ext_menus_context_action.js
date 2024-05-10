@@ -42,7 +42,8 @@ async function subtest_action_menu(
   target,
   expectedInfo,
   expectedTab,
-  manifest
+  manifest,
+  terminateBackground
 ) {
   function checkVisibility(menu, visible) {
     const removeExtension = menu.querySelector(
@@ -151,6 +152,16 @@ async function subtest_action_menu(
     expectedTab
   );
 
+  if (terminateBackground) {
+    await extension.terminateBackground({
+      disableResetIdleForTest: true,
+    });
+    await extension.awaitMessage("suspended-test_menu_onclick");
+    assertPersistentListeners(extension, "menus", "onClicked", {
+      primed: true,
+    });
+  }
+
   const clickedPromise = checkClickedEvent(
     extension,
     expectedInfo,
@@ -160,6 +171,12 @@ async function subtest_action_menu(
     menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
   await clickedPromise;
+
+  if (terminateBackground) {
+    // The extension will re-add menu entries on wakeup (ignored if they already
+    // exist).
+    await extension.awaitMessage("menus-created");
+  }
 
   // Test the non actionButton element for visibility of the management menu entries.
   if (target.nonActionButtonSelector) {
@@ -318,7 +335,8 @@ add_task(async function test_browser_action_menu_mv3() {
       action: {
         default_title: "This is a test",
       },
-    }
+    },
+    true
   );
 });
 add_task(async function test_message_display_action_menu_pane_mv3() {

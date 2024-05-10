@@ -1446,22 +1446,26 @@ this.menus = class extends ExtensionAPIPersistent {
     onClicked({ context, fire }) {
       const { extension } = this;
       const listener = async (event, info, nativeTab) => {
-        const { linkedBrowser } = nativeTab || tabTracker.activeTab;
         const tab = nativeTab && extension.tabManager.convert(nativeTab);
         if (fire.wakeup) {
           // force the wakeup, thus the call to convert to get the context.
           await fire.wakeup();
           // If while waiting the tab disappeared we bail out.
-          if (
-            !linkedBrowser.ownerGlobal.gBrowser.getTabForBrowser(linkedBrowser)
-          ) {
+          if (!tabTracker.getTab(tab.id, /* do not throw, but return */ null)) {
             console.error(
               `menus.onClicked: target tab closed during background startup.`
             );
             return;
           }
         }
-        context.withPendingBrowser(linkedBrowser, () => fire.sync(info, tab));
+        // The pending browser concept is a hack to be able to access the browser
+        // without having to explicitly pass it around. This basically sets
+        // context.pendingEventBrowser before calling the provided callback.
+        // The linked browser being null (for example if no message is selected)
+        // does not have negative consequences here.
+        context.withPendingBrowser(nativeTab.linkedBrowser, () =>
+          fire.sync(info, tab)
+        );
       };
 
       extension.on("webext-menu-menuitem-click", listener);

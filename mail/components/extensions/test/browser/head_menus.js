@@ -181,6 +181,22 @@ async function getMenuExtension(manifest) {
   const details = {
     files: {
       "background.js": async () => {
+        // Register listeners before the first await, so they get registered as
+        // persistent listeners.
+        browser.menus.onClicked.addListener((...args) => {
+          browser.test.sendMessage("onClicked", args);
+        });
+
+        browser.menus.onShown.addListener((...args) => {
+          browser.test.sendMessage("onShown", args);
+        });
+
+        if (browser.runtime.getManifest().manifest_version > 2) {
+          browser.runtime.onSuspend.addListener(() => {
+            browser.test.sendMessage("suspended-test_menu_onclick");
+          });
+        }
+
         const contexts = [
           "audio",
           "compose_action",
@@ -207,7 +223,6 @@ async function getMenuExtension(manifest) {
         } else {
           contexts.push("browser_action", "browser_action_menu");
         }
-
         for (const context of contexts) {
           await new Promise(resolve =>
             browser.menus.create(
@@ -221,13 +236,6 @@ async function getMenuExtension(manifest) {
           );
         }
 
-        browser.menus.onShown.addListener((...args) => {
-          browser.test.sendMessage("onShown", args);
-        });
-
-        browser.menus.onClicked.addListener((...args) => {
-          browser.test.sendMessage("onClicked", args);
-        });
         browser.test.sendMessage("menus-created");
       },
     },
