@@ -201,9 +201,6 @@ pref("extensions.startupScanScopes", 4);
 // Gecko Profiler
 pref("extensions.geckoProfiler.acceptedExtensionIds", "geckoprofiler@mozilla.com,quantum-foxfooding@mozilla.com,raptor@mozilla.org");
 
-// Allow "legacy" XUL/XPCOM extensions.
-pref("extensions.legacy.enabled", true);
-
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.maxResults", 15);
