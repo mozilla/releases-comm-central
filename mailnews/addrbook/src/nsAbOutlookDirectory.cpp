@@ -140,6 +140,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(
 
 NS_IMETHODIMP nsAbOutlookDirectory::GetChildCardCount(uint32_t* aCount) {
   nsIMutableArray* srcCards = m_IsMailList ? m_AddressList : mCardList;
+  NS_ENSURE_STATE(srcCards);
   return srcCards->GetLength(aCount);
 }
 
@@ -149,6 +150,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
 
   // Not a search, so just return the appropriate list of items.
   nsIMutableArray* srcCards = m_IsMailList ? m_AddressList : mCardList;
+  NS_ENSURE_STATE(srcCards);
   uint32_t count = 0;
   nsresult rv = srcCards->GetLength(&count);
   NS_ENSURE_SUCCESS(rv, rv);
