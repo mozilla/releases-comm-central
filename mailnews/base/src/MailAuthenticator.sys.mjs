@@ -280,8 +280,10 @@ export class SmtpAuthenticator extends MailAuthenticator {
     const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
       Ci.msgIOAuth2Module
     );
-    if (!oauth2Module.initFromSmtp(this._server)) {
-      return Promise.reject(`initFromSmtp failed, hostname: ${this.hostname}`);
+    if (!oauth2Module.initFromOutgoing(this._server)) {
+      return Promise.reject(
+        `initFromOutgoing failed, hostname: ${this.hostname}`
+      );
     }
     return new Promise((resolve, reject) => {
       oauth2Module.connect(true, {
