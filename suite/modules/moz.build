@@ -7,7 +7,6 @@ XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
     "Feeds.jsm",
-    "OfflineAppCacheHelper.jsm",
     "OpenInTabsUtils.jsm",
     "PermissionUI.jsm",
     "RecentWindow.jsm",

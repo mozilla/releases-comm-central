@@ -15,6 +15,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FormHistory: "resource://gre/modules/FormHistory.jsm",
   PlacesUtils: "resource://gre/modules/PlacesUtils.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
+  OfflineAppCacheHelper: "resource://gre/modules/offlineAppCache.jsm",
 });
 
 XPCOMUtils.defineLazyServiceGetter(this, "serviceWorkerManager",
@@ -371,8 +372,6 @@ var Sanitizer = {
 
     offlineApps: {
       async clear(range) {
-        // AppCache
-        ChromeUtils.import("resource:///modules/OfflineAppCacheHelper.jsm");
         // This doesn't wait for the cleanup to be complete.
         OfflineAppCacheHelper.clear();
 
