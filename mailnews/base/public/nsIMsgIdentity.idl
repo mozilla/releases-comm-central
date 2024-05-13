@@ -199,6 +199,7 @@ interface nsIMsgIdentity : nsISupports {
   const long perMonthArchiveFolders = 2;
   /// Maintain the source folder name when creating Archive subfolders
   attribute boolean archiveKeepFolderStructure;
+  attribute boolean archiveRecreateInbox;
   /** @} */
 
   attribute boolean showSaveMsgDlg;

@@ -99,6 +99,10 @@ async function subtest_initial_state(identity) {
         ac.document.getElementById("archiveKeepFolderStructure").checked,
         identity.archiveKeepFolderStructure
       );
+      Assert.equal(
+        ac.document.getElementById("archiveRecreateInbox").checked,
+        identity.archiveRecreateInbox
+      );
       ac.close();
     }
   );
@@ -116,16 +120,20 @@ add_task(async function test_open_archive_options() {
     defaultIdentity.archiveGranularity = granularity;
     for (let kfs = 0; kfs < 2; kfs++) {
       defaultIdentity.archiveKeepFolderStructure = kfs;
-      await subtest_initial_state(defaultIdentity);
+      for (let ri = 0; ri < 2; ri++) {
+        defaultIdentity.archiveRecreateInbox = ri;
+        await subtest_initial_state(defaultIdentity);
+      }
     }
   }
 });
 
-async function subtest_save_state(identity, granularity, kfs) {
+async function subtest_save_state(identity, granularity, kfs, ri) {
   const dialogPromise = promise_modal_dialog("archiveOptions", function (ac) {
     ac.document.getElementById("archiveGranularity").selectedIndex =
       granularity;
     ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
+    ac.document.getElementById("archiveRecreateInbox").checked = ri;
     EventUtils.synthesizeKey("VK_RETURN", {}, ac);
     ac.document.querySelector("dialog").acceptDialog();
   });
@@ -141,10 +149,12 @@ async function subtest_save_state(identity, granularity, kfs) {
 add_task(async function test_save_archive_options() {
   defaultIdentity.archiveGranularity = 0;
   defaultIdentity.archiveKeepFolderStructure = false;
-  await subtest_save_state(defaultIdentity, 1, true);
+  defaultIdentity.archiveRecreateInbox = false;
+  await subtest_save_state(defaultIdentity, 1, true, true);
 
   Assert.equal(defaultIdentity.archiveGranularity, 1);
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);
+  Assert.equal(defaultIdentity.archiveRecreateInbox, true);
 });
 
 async function subtest_check_archive_enabled(tab, archiveEnabled) {

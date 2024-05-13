@@ -23,6 +23,10 @@ function onLoadArchiveOptions() {
   kfs.checked = gIdentity.archiveKeepFolderStructure;
   kfs.addEventListener("command", updateArchiveExample);
 
+  const ri = document.getElementById("archiveRecreateInbox");
+  ri.checked = gIdentity.archiveRecreateInbox;
+  ri.addEventListener("command", updateArchiveExample);
+
   updateArchiveExample();
 }
 
@@ -35,15 +39,20 @@ function onAcceptArchiveOptions() {
   gIdentity.archiveKeepFolderStructure = document.getElementById(
     "archiveKeepFolderStructure"
   ).checked;
+  gIdentity.archiveRecreateInbox = document.getElementById(
+    "archiveRecreateInbox"
+  ).checked;
 }
 
 /**
- * Update the example tree to show what the current options would look like.
+ * Update the example tree to show what the current options would look like,
+ * and set the state of the "Recreate inbox" checkbox.
  */
 function updateArchiveExample() {
   const granularity =
     document.getElementById("archiveGranularity").selectedIndex;
-  const kfs = document.getElementById("archiveKeepFolderStructure").checked;
+  const kfs = document.getElementById("archiveKeepFolderStructure");
+  const ri = document.getElementById("archiveRecreateInbox");
   const hierarchy = [
     document.getElementsByClassName("root"),
     document.getElementsByClassName("year"),
@@ -62,14 +71,27 @@ function updateArchiveExample() {
 
   // Next, handle the "keep folder structures" case by moving a tree item around
   // and making sure its parent is a container.
-  const folders = document.getElementById("folders");
-  folders.hidden = !kfs;
-  if (kfs) {
+  const inboxFolder = document.getElementById("inboxFolder");
+  const siblingFolder = document.getElementById("siblingFolder");
+  const childFolder = document.getElementById("childFolder");
+  inboxFolder.hidden = !kfs.checked || !ri.checked;
+  siblingFolder.hidden = !kfs.checked;
+  childFolder.hidden = !kfs.checked;
+  if (kfs.checked) {
     const parent = hierarchy[granularity][0];
     parent.setAttribute("container", true);
     parent.setAttribute("open", true);
-
-    const treechildren = parent.children[1];
-    treechildren.appendChild(folders);
+    let childFolderParent = parent;
+    if (ri.checked) {
+      parent.children[1].appendChild(inboxFolder);
+      childFolderParent = inboxFolder;
+    }
+    parent.children[1].appendChild(siblingFolder);
+    inboxFolder.setAttribute("container", ri.checked);
+    inboxFolder.setAttribute("open", ri.checked);
+    childFolderParent.children[0].appendChild(childFolder);
   }
+
+  // Disable "recreate inbox" if necessary.
+  ri.setAttribute("disabled", !kfs.checked);
 }

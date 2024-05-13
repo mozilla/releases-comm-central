@@ -106,6 +106,7 @@ MessageArchiver.prototype = {
       let archiveFolderURI;
       let archiveGranularity;
       let archiveKeepFolderStructure;
+      let archiveRecreateInbox;
 
       const [identity] = lazy.MailUtils.getIdentityForHeader(msgHdr);
       if (!identity || msgHdr.folder.server.type == "rss") {
@@ -126,6 +127,9 @@ MessageArchiver.prototype = {
         archiveKeepFolderStructure = Services.prefs.getBoolPref(
           "mail.identity.default.archive_keep_folder_structure"
         );
+        archiveRecreateInbox = Services.prefs.getBoolPref(
+          "mail.identity.default.archive_recreate_inbox"
+        );
       } else {
         if (!identity.archiveEnabled) {
           continue;
@@ -134,6 +138,7 @@ MessageArchiver.prototype = {
         archiveFolderURI = identity.archiveFolder;
         archiveGranularity = identity.archiveGranularity;
         archiveKeepFolderStructure = identity.archiveKeepFolderStructure;
+        archiveRecreateInbox = identity.archiveRecreateInbox;
       }
 
       let copyBatchKey = msgHdr.folder.URI;
@@ -156,6 +161,7 @@ MessageArchiver.prototype = {
           archiveFolderURI,
           granularity: archiveGranularity,
           keepFolderStructure: archiveKeepFolderStructure,
+          recreateInbox: archiveRecreateInbox,
           yearFolderName: msgYear,
           monthFolderName,
           messages: [],
@@ -297,7 +303,10 @@ MessageArchiver.prototype = {
       const rootFolder = srcFolder.server.rootFolder;
       const inboxFolder = lazy.MailUtils.getInboxFolder(srcFolder.server);
       let folder = srcFolder;
-      while (folder != rootFolder && folder != inboxFolder) {
+      while (
+        folder != rootFolder &&
+        (folder != inboxFolder || batch.recreateInbox)
+      ) {
         folderNames.unshift(folder.name);
         folder = folder.parent;
       }

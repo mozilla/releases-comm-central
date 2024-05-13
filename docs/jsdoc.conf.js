@@ -118,6 +118,7 @@ module.exports = {
       "../mail/test/browser/composition/browser_multipartRelated.js",
       "../mail/test/browser/composition/browser_sendFormat.js",
       "../mail/test/browser/folder-display/browser_messageCommands.js",
+      "../mail/test/browser/folder-display/browser_messageCommandsArchive.js",
       "../mail/test/browser/folder-display/browser_watchIgnoreThread.js",
       "../mail/test/browser/folder-widget/browser_messageFilters.js",
       "../mail/test/browser/message-header/browser_messageHeader.js",

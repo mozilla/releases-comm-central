@@ -41,7 +41,11 @@
           id="archiveKeepFolderStructure"
           data-l10n-id="keep-folder-structure"
         />
-
+        <checkbox
+          class="indent"
+          id="archiveRecreateInbox"
+          data-l10n-id="recreate-inbox"
+        />
         <html:div>
           <html:fieldset flex="1" style="margin-block-end: 5px">
             <html:legend data-l10n-id="archive-example-label"></html:legend>
@@ -70,9 +74,19 @@
                       />
                     </treerow>
                     <treechildren>
-                      <treeitem id="folders">
+                      <treeitem id="inboxFolder">
                         <treerow>
                           <treecell data-l10n-id="inbox-folder-name" />
+                        </treerow>
+                      </treeitem>
+                      <treeitem id="childFolder">
+                        <treerow>
+                          <treecell data-l10n-id="child-folder-name" />
+                        </treerow>
+                      </treeitem>
+                      <treeitem id="siblingFolder">
+                        <treerow>
+                          <treecell data-l10n-id="sibling-folder-name" />
                         </treerow>
                       </treeitem>
                       <treeitem class="year">
