@@ -290,7 +290,6 @@ export var CardDAVUtils = {
         log.log(`Found a DNS SRV record pointing to ${url.host}`);
 
         let txtRecords = await DNS.txt(domain);
-        txtRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
         txtRecords = txtRecords.filter(result =>
           result.data.startsWith("path=")
         );

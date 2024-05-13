@@ -152,7 +152,6 @@ class CalDavDetector {
 
     // Determine path from TXT, if available.
     let pathres = await DNS.txt(host);
-    pathres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
     pathres = pathres.filter(result => result.data.startsWith("path="));
     // Get the string after `path=`.
     const path = pathres.length ? pathres[0].data.substr(5) : "";

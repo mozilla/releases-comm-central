@@ -152,9 +152,9 @@ class load_libresolv {
    * returns it.
    *
    * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
-   * @param {string} aAnswer - Data.
-   * @param {index} aIdx - Size, e.g. NS_HFIXEDSZ.
-   * @param {integer} aLength - Data length.
+   * @param {ctypes.unsigned_char.array} aAnswer - Data.
+   * @param {index} aIdx - Offset into data, e.g. NS_HFIXEDSZ.
+   * @param {integer} aLength - Data length (not the length of the current resource data).
    * @returns {SRVRecord|TXTRecord|MXRecord}
    */
   _mapAnswer(aTypeID, aAnswer, aIdx, aLength) {
@@ -175,9 +175,20 @@ class load_libresolv {
       return new SRVRecord(prio, weight, host, port);
     }
     if (aTypeID == NS_T_TXT) {
-      // TODO should only read dataLength characters.
-      const data = ctypes.unsigned_char.ptr(aAnswer.addressOfElement(aIdx + 1));
-      return new TXTRecord(data.readString());
+      // TXT records are a 1 byte length followed by the data.
+      const txtlen = ctypes.cast(
+        aAnswer.addressOfElement(aIdx),
+        ctypes.uint8_t.ptr
+      ).contents;
+      // Copy the data to a new array since readString() does not accept a length
+      // property (and may overrun the string if there are additional answers).
+      const txtbuf = ctypes.unsigned_char.array(txtlen)();
+      for (let i = 0; i < txtlen; ++i) {
+        txtbuf.addressOfElement(i).contents = aAnswer.addressOfElement(
+          aIdx + 1 + i
+        ).contents;
+      }
+      return new TXTRecord(txtbuf.readString());
     }
     if (aTypeID == NS_T_MX) {
       const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
