@@ -958,13 +958,11 @@ toolbarbutton.formatting-button {
 }
 
 .address-container {
-  margin-inline-start: 4px;
-  margin-inline-end: 0;
+  margin-inline: 4px 0;
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--button-border-radius);
   background-color: Field;
   transition: border .2s, box-shadow .2s;
-  cursor: text;
 
   :root[lwt-tree] & {
     background-color: var(--toolbar-field-background-color);
@@ -976,7 +974,7 @@ toolbarbutton.formatting-button {
   }
 
   & > .address-input {
-    padding-block: 4px;
+    padding: 4px;
 
     &:focus {
       outline: none;
@@ -1021,6 +1019,10 @@ toolbarbutton.formatting-button {
 
   @media (prefers-color-scheme: dark) {
     background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  &:first-child {
+    margin-inline-start: 4px;
   }
 
   &::before {

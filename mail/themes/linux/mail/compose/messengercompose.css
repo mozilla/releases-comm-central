@@ -54,7 +54,7 @@
 }
 
 .address-container {
-  padding: 1px 4px;
+  padding-block: 1px;
 }
 
 .address-label-container {

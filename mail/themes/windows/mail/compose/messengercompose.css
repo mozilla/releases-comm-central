@@ -124,7 +124,7 @@
 }
 
 .address-container {
-  padding: 0 4px;
+  padding-block: 0;
 }
 
 #msgIdentity,
