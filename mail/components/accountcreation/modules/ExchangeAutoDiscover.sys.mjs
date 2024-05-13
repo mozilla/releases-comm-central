@@ -69,7 +69,7 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
     args.username = username;
     args.password = password;
 
-    setUpAndStart(call, args);
+    setUpAndStart(args);
   }
 
   const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
