@@ -180,10 +180,6 @@ export class SearchIntegration extends SearchSupport {
 
     this._initLogging();
 
-    // The search module is currently only enabled on Vista and above,
-    // and the app can only be installed on Windows 7 and above.
-    this.osVersionTooLow = false;
-
     let serviceRunning = false;
     try {
       serviceRunning = this._winSearchHelper.serviceRunning;

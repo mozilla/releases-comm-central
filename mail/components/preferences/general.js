@@ -214,11 +214,7 @@ var gGeneralPane = {
       "resource:///modules/SearchIntegration.sys.mjs"
     );
     if (SearchIntegration) {
-      if (SearchIntegration.osVersionTooLow) {
-        hideSearchUI = true;
-      } else if (SearchIntegration.osComponentsNotRunning) {
-        disableSearchUI = true;
-      }
+      disableSearchUI = SearchIntegration.osComponentsNotRunning;
     } else {
       hideSearchUI = true;
     }

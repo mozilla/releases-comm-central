@@ -101,14 +101,6 @@ export class SearchSupport {
   }
 
   /**
-   * If this is true, we won't show any UI because the OS doesn't have the
-   * support we need.
-   *
-   * @type {boolean}
-   */
-  osVersionTooLow = false;
-
-  /**
    * If this is true, we'll show disabled UI, because while the OS does have
    * the support we need, not all the OS components we need are running.
    *

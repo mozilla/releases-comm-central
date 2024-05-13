@@ -99,8 +99,8 @@ var gSystemIntegrationDialog = {
         // Even if the user wasn't presented the choice,
         // we do not want to ask again automatically.
         SearchIntegration.firstRunDone = true;
-      } else if (!SearchIntegration.osVersionTooLow) {
-        // Hide/disable the options if the OS does not support them.
+      } else {
+        // Hide/disable the options if the OS does not enable integration.
         this._searchCheckbox.hidden = false;
         if (SearchIntegration.osComponentsNotRunning) {
           this._searchCheckbox.checked = false;

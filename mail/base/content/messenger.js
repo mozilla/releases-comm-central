@@ -520,7 +520,6 @@ function showSystemIntegrationDialog() {
       shellService.shouldCheckDefaultClient &&
       !shellService.isDefaultClient(true, Ci.nsIShellService.MAIL)) ||
     (SearchIntegration &&
-      !SearchIntegration.osVersionTooLow &&
       !SearchIntegration.osComponentsNotRunning &&
       !SearchIntegration.firstRunDone)
   ) {
