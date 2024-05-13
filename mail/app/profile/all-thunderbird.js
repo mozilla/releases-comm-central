@@ -1422,3 +1422,6 @@ pref("dom.disable_window_flip", true);
 // LightweightThemeConsumer.sys.mjs needs this pref, even if it has no effect in
 // Thunderbird.
 pref("browser.theme.dark-private-windows", true);
+
+// In-app notifications are disabled while the feature is being implemented.
+pref("mail.inappnotifications.enabled", false);

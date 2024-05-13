@@ -46,6 +46,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
 });
 
 if (AppConstants.MOZ_UPDATER) {
@@ -776,6 +777,15 @@ MailGlue.prototype = {
         condition: AppConstants.MOZ_UPDATER,
         task: () => {
           lazy.UpdateListener.maybeShowUnsupportedNotification();
+        },
+      },
+      {
+        condition: Services.prefs.getBoolPref(
+          "mail.inappnotifications.enabled",
+          false
+        ),
+        task: () => {
+          lazy.InAppNotifications.init();
         },
       },
       // This implements a special pref that allows used to launch the
