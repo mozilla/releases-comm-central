@@ -63,14 +63,14 @@
                     "optional": true,
                     "format": "url",
                     "preprocess": "localize",
-                    "deprecated": "Unsupported on Thunderbird at this time."
+                    "deprecated": "Unsupported on Thunderbird."
                   },
                   "image_url": {
                     "type": "string",
                     "optional": true,
                     "format": "url",
                     "preprocess": "localize",
-                    "deprecated": "Unsupported on Thunderbird at this time."
+                    "deprecated": "Unsupported on Thunderbird."
                   },
                   "search_url_get_params": {
                     "type": "string",
@@ -100,13 +100,13 @@
                     "type": "string",
                     "optional": true,
                     "preprocess": "localize",
-                    "deprecated": "Unsupported on Thunderbird at this time."
+                    "deprecated": "Unsupported on Thunderbird."
                   },
                   "image_url_post_params": {
                     "type": "string",
                     "optional": true,
                     "preprocess": "localize",
-                    "deprecated": "Unsupported on Thunderbird at this time."
+                    "deprecated": "Unsupported on Thunderbird."
                   },
                   "search_form": {
                     "type": "string",
@@ -123,7 +123,7 @@
                       "preprocess": "localize"
                     },
                     "optional": true,
-                    "deprecated": "Unsupported on Thunderbird at this time."
+                    "deprecated": "Unsupported on Thunderbird."
                   },
                   "prepopulated_id": {
                     "type": "integer",

@@ -51,6 +51,12 @@
                 "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
                 "default": false
               },
+              "default_area": {
+                "type": "string",
+                "optional": true,
+                "description": "Defines the location the action button will appear. Deprecated and ignored. Replaced by ``allowed_spaces``",
+                "deprecated": "Unsupported on Thunderbird."
+              },
               "default_windows": {
                 "description": "Defines the windows, the action button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
                 "type": "array",

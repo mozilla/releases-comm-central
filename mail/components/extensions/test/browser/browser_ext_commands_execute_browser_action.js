@@ -101,6 +101,20 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
   await extension.unload();
 }
 
+add_setup(() => {
+  // This test uses default_area in an anction manifest, to ensure we do not
+  // throw but simply ignore this property, which is used by Firefox, but not by
+  // us. However, by default, tests throw when deprecated properties are used,
+  // which can be disabled by setting the following pref to false.
+  Services.prefs.setBoolPref(
+    "extensions.webextensions.warnings-as-errors",
+    false
+  );
+  registerCleanupFunction(async () => {
+    Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
+  });
+});
+
 add_task(async function test_execute_browser_action_with_popup_mv2() {
   await testExecuteBrowserActionWithOptions_mv2({
     withPopup: true,
@@ -133,6 +147,8 @@ async function testExecuteActionWithOptions_mv3(options = {}) {
     },
     action: {
       browser_style: true,
+      // Ignored in MV3, but should not throw.
+      default_area: "tabstoolbar",
     },
   };
 
