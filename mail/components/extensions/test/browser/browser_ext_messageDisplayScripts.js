@@ -114,6 +114,90 @@ add_task(async function testInsertRemoveCSS() {
   await extension.unload();
 });
 
+/** Tests browser.scripting.insertCSS and browser.scripting.removeCSS. */
+add_task(async function testInsertRemoveCSSViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ mailTab: true });
+        await window.sendMessage();
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: green; }",
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["messagesModify", "scripting"],
+    },
+  });
+
+  about3Pane.threadTree.selectedIndex = 2;
+  await awaitBrowserLoaded(messagePane);
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-3)
+  );
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkMessageBody(
+    { backgroundColor: "rgb(0, 255, 0)" },
+    messages.at(-3)
+  );
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-3)
+  );
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkMessageBody(
+    { backgroundColor: "rgb(0, 128, 0)" },
+    messages.at(-3)
+  );
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-3)
+  );
+
+  await extension.unload();
+});
+
 /** Tests browser.tabs.insertCSS fails without the "messagesModify" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -226,6 +310,67 @@ add_task(async function testExecuteScript() {
   await extension.unload();
 });
 
+/** Tests browser.scripting.executeScript. */
+add_task(async function testExecuteScriptViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ mailTab: true });
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            document.body.setAttribute("foo", "bar");
+          },
+        });
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["test.js"],
+        });
+
+        browser.test.notifyPass("finished");
+      },
+      "test.js": () => {
+        document.body.querySelector(".moz-text-flowed").textContent +=
+          "Hey look, the script ran!";
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["messagesModify", "scripting"],
+    },
+  });
+
+  about3Pane.threadTree.selectedIndex = 1;
+  await awaitBrowserLoaded(messagePane);
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkMessageBody({ textContent: "" }, messages.at(-2));
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkMessageBody({ foo: "bar" }, messages.at(-2));
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await checkMessageBody(
+    {
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages.at(-2)
+  );
+
+  await extension.unload();
+});
+
 /** Tests browser.tabs.executeScript fails without the "messagesModify" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -281,7 +426,9 @@ add_task(async function testExecuteScriptNoPermissions() {
   await extension.unload();
 });
 
-/** Tests the messenger alias is available. */
+/**
+ * Tests the messenger alias is available after browser.tabs.executeScript().
+ */
 add_task(async function testExecuteScriptAlias() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -318,6 +465,57 @@ add_task(async function testExecuteScriptAlias() {
   await checkMessageBody(
     { textContent: "message_display_scripts@mochitest" },
     messages.at(-5)
+  );
+
+  await extension.unload();
+});
+
+/**
+ * Tests messenger alias is available after browser.scripting.executeScript().
+ */
+add_task(async function testExecuteScriptAliasViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ type: ["mail"] });
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            // eslint-disable-next-line no-undef
+            const id = messenger.runtime.getManifest().applications.gecko.id;
+            document.body.querySelector(".moz-text-flowed").textContent += id;
+          },
+        });
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      browser_specific_settings: {
+        gecko: { id: "message_display_scripts@mochitest" },
+      },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["messagesModify", "scripting"],
+    },
+  });
+
+  about3Pane.threadTree.selectedIndex = 3;
+  await awaitBrowserLoaded(messagePane);
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkMessageBody({ textContent: "" }, messages.at(-4));
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await checkMessageBody(
+    { textContent: "message_display_scripts@mochitest" },
+    messages.at(-4)
   );
 
   await extension.unload();

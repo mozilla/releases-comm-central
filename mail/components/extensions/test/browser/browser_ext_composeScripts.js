@@ -83,6 +83,76 @@ add_task(async function testInsertRemoveCSS() {
   await extension.unload();
 });
 
+/** Tests browser.scripting.insertCSS and browser.scripting.removeCSS. */
+add_task(async function testInsertRemoveCSSViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const tab = await browser.compose.beginNew();
+        await window.sendMessage();
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+        await window.sendMessage();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: green; }",
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "scripting"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ backgroundColor: "rgb(0, 255, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ backgroundColor: "rgb(0, 128, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 /** Tests browser.tabs.insertCSS fails without the "compose" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -191,6 +261,63 @@ add_task(async function testExecuteScript() {
   await extension.unload();
 });
 
+/** Tests browser.scripting.executeScript. */
+add_task(async function testExecuteScriptViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const tab = await browser.compose.beginNew();
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            document.body.setAttribute("foo", "bar");
+          },
+        });
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["test.js"],
+        });
+        await window.sendMessage();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "scripting"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ textContent: "" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ foo: "bar" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 /** Tests browser.tabs.executeScript fails without the "compose" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -247,7 +374,9 @@ add_task(async function testExecuteScriptNoPermissions() {
   await extension.unload();
 });
 
-/** Tests the messenger alias is available. */
+/**
+ * Tests the messenger alias is available after browser.tabs.executeScript().
+ */
 add_task(async function testExecuteScriptAlias() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -269,6 +398,52 @@ add_task(async function testExecuteScriptAlias() {
       applications: { gecko: { id: "compose_scripts@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ textContent: "" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ textContent: "compose_scripts@mochitest" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Tests messenger alias is available after browser.scripting.executeScript().
+ */
+add_task(async function testExecuteScriptAliasViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const tab = await browser.compose.beginNew();
+        await window.sendMessage();
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            // eslint-disable-next-line no-undef
+            const id = messenger.runtime.getManifest().applications.gecko.id;
+            document.body.textContent = id;
+          },
+        });
+        await window.sendMessage();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      applications: { gecko: { id: "compose_scripts@mochitest" } },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "scripting"],
     },
   });
 

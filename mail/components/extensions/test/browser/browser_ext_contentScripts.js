@@ -68,6 +68,71 @@ add_task(async function testInsertRemoveCSS() {
   document.getElementById("tabmail").closeTab(tab);
 });
 
+/** Tests browser.scripting.insertCSS and browser.scripting.removeCSS. */
+add_task(async function testInsertRemoveCSSViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ active: true });
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          css: "body { background-color: lime; }",
+        });
+        await window.sendMessage();
+
+        await browser.scripting.insertCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+        await window.sendMessage();
+
+        await browser.scripting.removeCSS({
+          target: { tabId: tab.id },
+          files: ["test.css"],
+        });
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: green; }",
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["*://mochi.test/*", "scripting"],
+    },
+  });
+
+  const tab = window.openContentTab(CONTENT_PAGE);
+  await awaitBrowserLoaded(tab.browser, CONTENT_PAGE);
+
+  await extension.startup();
+
+  await extension.awaitMessage(); // insertCSS with code
+  await checkContent(tab.browser, { backgroundColor: "rgb(0, 255, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitMessage(); // removeCSS with code
+  await checkContent(tab.browser, UNCHANGED_VALUES);
+  extension.sendMessage();
+
+  await extension.awaitMessage(); // insertCSS with file
+  await checkContent(tab.browser, { backgroundColor: "rgb(0, 128, 0)" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished"); // removeCSS with file
+  await checkContent(tab.browser, UNCHANGED_VALUES);
+
+  await extension.unload();
+
+  document.getElementById("tabmail").closeTab(tab);
+});
+
 /** Tests browser.tabs.insertCSS fails without the host permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -127,7 +192,7 @@ add_task(async function testExecuteScript() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        const tab = await browser.tabs.query({ active: true });
+        const [tab] = await browser.tabs.query({ active: true });
 
         await browser.tabs.executeScript(tab.id, {
           code: `document.body.setAttribute("foo", "bar");`,
@@ -168,12 +233,61 @@ add_task(async function testExecuteScript() {
   document.getElementById("tabmail").closeTab(tab);
 });
 
+/** Tests browser.scripting.executeScript. */
+add_task(async function testExecuteScriptViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ active: true });
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            document.body.setAttribute("foo", "bar");
+          },
+        });
+        await window.sendMessage();
+
+        await browser.tabs.executeScript(tab.id, { file: "test.js" });
+        browser.test.notifyPass("finished");
+      },
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["*://mochi.test/*", "scripting"],
+    },
+  });
+
+  const tab = window.openContentTab(CONTENT_PAGE);
+  await awaitBrowserLoaded(tab.browser, CONTENT_PAGE);
+
+  await extension.startup();
+
+  await extension.awaitMessage(); // executeScript with code
+  await checkContent(tab.browser, { foo: "bar" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished"); // executeScript with file
+  await checkContent(tab.browser, {
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+
+  await extension.unload();
+
+  document.getElementById("tabmail").closeTab(tab);
+});
+
 /** Tests browser.tabs.executeScript fails without the host permission. */
 add_task(async function testExecuteScriptNoPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        const tab = await browser.tabs.query({ active: true });
+        const [tab] = await browser.tabs.query({ active: true });
 
         await browser.test.assertRejects(
           browser.tabs.executeScript(tab.id, {
@@ -224,12 +338,14 @@ add_task(async function testExecuteScriptNoPermissions() {
   document.getElementById("tabmail").closeTab(tab);
 });
 
-/** Tests the messenger alias is available. */
+/**
+ * Tests the messenger alias is available after browser.tabs.executeScript().
+ */
 add_task(async function testExecuteScriptAlias() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        const tab = await browser.tabs.query({ active: true });
+        const [tab] = await browser.tabs.query({ active: true });
 
         await browser.tabs.executeScript(tab.id, {
           code: `document.body.textContent = messenger.runtime.getManifest().applications.gecko.id;`,
@@ -242,6 +358,47 @@ add_task(async function testExecuteScriptAlias() {
       applications: { gecko: { id: "content_scripts@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["*://mochi.test/*"],
+    },
+  });
+
+  const tab = window.openContentTab(CONTENT_PAGE);
+  await awaitBrowserLoaded(tab.browser, CONTENT_PAGE);
+
+  await extension.startup();
+
+  await extension.awaitFinish("finished");
+  await checkContent(tab.browser, { textContent: "content_scripts@mochitest" });
+
+  await extension.unload();
+
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+/**
+ * Tests messenger alias is available after browser.scripting.executeScript().
+ */
+add_task(async function testExecuteScriptAliasViaScriptingAPI() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const [tab] = await browser.tabs.query({ active: true });
+
+        await browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            // eslint-disable-next-line no-undef
+            const id = messenger.runtime.getManifest().applications.gecko.id;
+            document.body.textContent = id;
+          },
+        });
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      applications: { gecko: { id: "content_scripts@mochitest" } },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["*://mochi.test/*", "scripting"],
     },
   });
 
