@@ -715,6 +715,7 @@
       {
         "name": "executeScript",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Injects JavaScript code into a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
@@ -752,6 +753,7 @@
       {
         "name": "insertCSS",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Injects CSS into a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
@@ -779,6 +781,7 @@
       {
         "name": "removeCSS",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Removes injected CSS from a page. For details, see the `programmatic injection <|link-content-scripts|>`__ section of the content scripts doc.",
         "async": "callback",
         "parameters": [
