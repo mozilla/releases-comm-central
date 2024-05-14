@@ -45,6 +45,19 @@ export const InAppNotifications = {
   updateNotifications(notifications) {
     this._jsonFile.data.notifications = notifications;
     this._jsonFile.data.lastUpdate = Date.now();
+
+    const notificationIds = new Set(
+      notifications.map(notification => notification.id)
+    );
+    const interactedWithSet = new Set(this._jsonFile.data.interactedWith);
+    const stillExistingInteractedWith =
+      interactedWithSet.intersection(notificationIds);
+    if (stillExistingInteractedWith.size < interactedWithSet.size) {
+      this._jsonFile.data.interactedWith = Array.from(
+        stillExistingInteractedWith
+      );
+    }
+
     this._jsonFile.saveSoon();
   },
 
@@ -52,7 +65,23 @@ export const InAppNotifications = {
    * @returns {object[]} All available notifications.
    */
   getNotifications() {
-    return this._jsonFile.data.notifications;
+    return this._jsonFile.data.notifications.filter(
+      notification =>
+        !this._jsonFile.data.interactedWith.includes(notification.id)
+    );
+  },
+
+  /**
+   * Mark a notification as having been interacted with and remember it.
+   *
+   * @param {string} notificationId - ID of the notification that was interacted
+   *   with.
+   */
+  markAsInteractedWith(notificationId) {
+    if (!this._jsonFile.data.interactedWith.includes(notificationId)) {
+      this._jsonFile.data.interactedWith.push(notificationId);
+      this._jsonFile.saveSoon();
+    }
   },
 
   /**
@@ -64,6 +93,9 @@ export const InAppNotifications = {
   _initializeNotifications(data) {
     if (!Array.isArray(data.notifications)) {
       data.notifications = [];
+    }
+    if (!Array.isArray(data.interactedWith)) {
+      data.interactedWith = [];
     }
     return data;
   },

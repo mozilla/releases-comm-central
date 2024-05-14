@@ -53,3 +53,50 @@ add_task(function test_updateNotifications() {
     "Should have cleared notifications"
   );
 });
+
+add_task(function test_markAsInteractedWith() {
+  const mockData = [
+    {
+      id: "foo",
+      title: "lorem ipsum",
+    },
+    {
+      id: "bar",
+      title: "dolor sit amet",
+    },
+  ];
+  InAppNotifications.updateNotifications(mockData);
+  Assert.deepEqual(
+    InAppNotifications.getNotifications(),
+    mockData,
+    "Should have all notifications"
+  );
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.interactedWith,
+    [],
+    "Should start without any notifications having been interacted with"
+  );
+
+  InAppNotifications.markAsInteractedWith("foo");
+
+  InAppNotifications.updateNotifications(mockData);
+  Assert.deepEqual(
+    InAppNotifications.getNotifications(),
+    [mockData[1]],
+    "Should only have uninteracted notifications"
+  );
+
+  InAppNotifications.markAsInteractedWith("foo");
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.interactedWith,
+    ["foo"],
+    "Should only store the ID once"
+  );
+
+  InAppNotifications.updateNotifications([]);
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.interactedWith,
+    [],
+    "Should clear interaction store when there are no notifications"
+  );
+});
