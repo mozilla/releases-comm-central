@@ -1560,3 +1560,11 @@ printpreview-pagination:focus-within,
     }
   }
 }
+
+/* TODO: Remove the plain class and set the needed styles directly. */
+.plain {
+  appearance: none;
+  margin: 0 !important;
+  border: none;
+  padding: 0;
+}
