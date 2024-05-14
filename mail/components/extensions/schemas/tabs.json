@@ -19,7 +19,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": ["tabs", "tabHide"]
+            "enum": ["tabs"]
           }
         ]
       }
