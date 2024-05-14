@@ -64,10 +64,10 @@ interface nsIPop3Service : nsISupports {
    * mail on different pop3 accounts....
    */
 
-  nsIURI GetNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
+  void GetNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
                     in nsIMsgFolder aInbox, in nsIPop3IncomingServer popServer);
 
-  nsIURI CheckForNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
+  void CheckForNewMail(in nsIMsgWindow aMsgWindow, in nsIUrlListener aUrlListener,
                          in nsIMsgFolder inbox, in nsIPop3IncomingServer popServer);
 
   /**

@@ -51,18 +51,13 @@ const UIDL_DELETE = "d";
 const UIDL_TOO_BIG = "b";
 const UIDL_FETCH_BODY = "f";
 
-// There can be multiple Pop3Client running concurrently, assign each logger a
-// unique prefix.
-let loggerId = 0;
-
-function getLoggerId() {
-  return loggerId++ % 1000;
-}
-
 /**
  * A class to interact with POP3 server.
  */
 export class Pop3Client {
+  // Run sequence number shown in log prefix.
+  static #runSeq = 1;
+
   /**
    * @param {nsIPop3IncomingServer} server - The associated server instance.
    */
@@ -106,7 +101,10 @@ export class Pop3Client {
     this._sink.popServer = server;
 
     this._logger = console.createInstance({
-      prefix: `mailnews.pop3.${getLoggerId()}`,
+      // Prefix is "pop3.serverXX.YYY, e.g., where "serverXX" is server key
+      // string and  YYY is run sequence number (modulo 1000) so YYY goes
+      // from 0 to 999.
+      prefix: `pop3.${this._server.key}.${Pop3Client.#runSeq++ % 1000}`,
       maxLogLevel: "Warn",
       maxLogLevelPref: "mailnews.pop3.loglevel",
     });
@@ -170,7 +168,7 @@ export class Pop3Client {
     this._msgWindow = msgWindow;
     this._sink.folder = folder;
     this._actionAfterAuth = this._actionStat;
-    this.urlListener.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
 
     await this._loadUidlState();
     this._actionCapa();
@@ -427,7 +425,7 @@ export class Pop3Client {
         this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
       }
       this.runningUri.failedSecInfo = secInfo;
-      this.urlListener.OnStopRunningUrl(this.runningUri, event.errorCode);
+      this.urlListener?.OnStopRunningUrl(this.runningUri, event.errorCode);
       this.runningUri.SetUrlState(false, event.errorCode);
     }
     this._actionDone(event.errorCode);
@@ -1616,7 +1614,7 @@ export class Pop3Client {
       return;
     }
     this._done = true;
-    this._logger.debug(`Done with status=${status}`);
+    this._logger.debug(`Done with status=0x${status.toString(16)}`);
     this._authenticating = false;
     if (status == Cr.NS_OK) {
       if (this._newMessageTotal) {
@@ -1667,6 +1665,7 @@ export class Pop3Client {
       this._logger.debug("Folder lock released.");
     }
     this._server.wrappedJSObject.runningClient = null;
+    this.onFree?.();
   };
 
   /**

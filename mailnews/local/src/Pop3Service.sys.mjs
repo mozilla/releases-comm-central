@@ -15,11 +15,11 @@ export class Pop3Service {
   }
 
   GetNewMail(msgWindow, urlListener, inbox, server) {
-    return this._getMail(true, msgWindow, urlListener, inbox, server);
+    this._getMail(true, msgWindow, urlListener, inbox, server);
   }
 
   CheckForNewMail(msgWindow, urlListener, inbox, server) {
-    return this._getMail(false, msgWindow, urlListener, inbox, server);
+    this._getMail(false, msgWindow, urlListener, inbox, server);
   }
 
   verifyLogon(server, urlListener, msgWindow) {
@@ -59,14 +59,13 @@ export class Pop3Service {
   }
 
   _getMail(downloadNewMail, msgWindow, urlListener, inbox, server) {
-    const client = new Pop3Client(server);
-    client.runningUri.msgWindow = msgWindow;
-    client.urlListener = urlListener;
-    client.connect();
-    client.onOpen = () => {
-      client.getMail(downloadNewMail, msgWindow, inbox);
-    };
-    return client.runningUri;
+    server.wrappedJSObject.withClient(client => {
+      client.runningUri.msgWindow = msgWindow;
+      client.urlListener = urlListener;
+      client.onOpen = () => {
+        client.getMail(downloadNewMail, msgWindow, inbox);
+      };
+    });
   }
 }
 

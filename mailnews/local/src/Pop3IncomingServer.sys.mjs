@@ -24,6 +24,11 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     "nsISupportsWeakReference",
   ]);
 
+  // @type {Boolean} - A flag to indicate that a client run is in progress.
+  static #_busyConnections = false;
+  // @type {Function[]} - An array of Promise.resolve functions used as a queue.
+  static #_connectionWaitingQueue = [];
+
   constructor() {
     super();
 
@@ -92,15 +97,17 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       if (deferredServers.length) {
         // If other servers are deferred to this server, get new mail for them
         // as well.
-        return this.downloadMailFromServers(
+        this.downloadMailFromServers(
           [...deferredServers, this],
           msgWindow,
           inbox,
           urlListener
         );
+        return;
       }
     }
-    return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+    // Occurs on get new mail for a single server.
+    MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
   }
 
   verifyLogon(urlListener, msgWindow) {
@@ -113,6 +120,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       Ci.nsMsgFolderFlags.Inbox
     );
     const urlListener = inbox.QueryInterface(Ci.nsIUrlListener);
+    // Occurs on biff for an individual server.
     if (this.downloadOnBiff) {
       MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
     } else {
@@ -140,8 +148,10 @@ export class Pop3IncomingServer extends MsgIncomingServer {
       );
   }
 
+  // This is called when "Get Selected Messages" menu item is used to
+  // to fetch full messages that previously had only the headers downloaded.
   getNewMail(msgWindow, urlListener, inbox) {
-    return MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
+    MailServices.pop3.GetNewMail(msgWindow, urlListener, inbox, this);
   }
 
   /** @see nsIPop3IncomingServer */
@@ -250,6 +260,8 @@ export class Pop3IncomingServer extends MsgIncomingServer {
     // If server != folder.server, it means server is deferred to folder.server,
     // so if server.deferGetNewMail is false, no need to call GetNewMail.
     if (server == folder.server || server.deferGetNewMail) {
+      // This recursive loop occurs on check new mail at startup and when
+      // getting new mail for all servers.
       MailServices.pop3.GetNewMail(
         msgWindow,
         {
@@ -257,6 +269,7 @@ export class Pop3IncomingServer extends MsgIncomingServer {
           OnStopRunningUrl: () => {
             // Call GetNewMail for the next server only after it is finished for
             // the current server.
+            // Note: this doesn't actually serialize the connections/clients
             this.downloadMailFromServers(
               servers,
               msgWindow,
@@ -289,6 +302,52 @@ export class Pop3IncomingServer extends MsgIncomingServer {
         server instanceof Ci.nsIPop3IncomingServer &&
         server.deferredToAccount == dstAccount.key
     );
+  }
+
+  /**
+   * Construct and return a new client. If a client is not now running, this
+   * will immediately return a new client. Otherwise it waits for the running
+   * client to finish.
+   *
+   * @returns {Pop3Client}
+   */
+  async _getNewClient() {
+    if (Pop3IncomingServer.#_busyConnections) {
+      // Wait until the running client is done
+      await new Promise(resolve =>
+        Pop3IncomingServer.#_connectionWaitingQueue.push(resolve)
+      );
+    }
+    Pop3IncomingServer.#_busyConnections = true;
+    return new lazy.Pop3Client(this);
+  }
+
+  /**
+   * Used to initiate a Pop3 service run and setup the specialized
+   * handler functions needed for the service. This will construct a new
+   * Pop3 client instance, define the needed handler sequence and functions,
+   * connect to the server via network and trigger the client to do a sequence
+   * of steps to complete the service run and then disconnect from the server.
+   * This also ensures that only one service run occurs at a time when there are
+   * more than one Pop3 account.
+   *
+   * @param {Function} handler - A callback function with Pop3Client instance
+   *   as a parameter. Provides initialization needed before connection to
+   *   the server and any handler functions needed by the client to perform
+   *   the service.
+   */
+  async withClient(handler) {
+    const client = await this._getNewClient();
+    // This handler function is needed for all client service runs.
+    client.onFree = () => {
+      Pop3IncomingServer.#_busyConnections = false;
+      // Resolve the promised wait for the previous client run.
+      Pop3IncomingServer.#_connectionWaitingQueue.shift()?.();
+    };
+    // Specialized client handler sequence provided by the caller.
+    handler(client);
+    // Connect to pop3 server and perform the service run.
+    client.connect();
   }
 }
 

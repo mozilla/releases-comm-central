@@ -4,11 +4,6 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
-const lazy = {};
-ChromeUtils.defineESModuleGetters(lazy, {
-  Pop3Client: "resource:///modules/Pop3Client.sys.mjs",
-});
-
 /**
  * A channel to interact with POP3 server.
  *
@@ -80,18 +75,18 @@ export class Pop3Channel {
       );
     }
 
-    const client = new lazy.Pop3Client(this._server);
-    client.runningUri = this.URI;
-    client.connect();
-    client.onOpen = () => {
-      listener.onStartRequest(this);
-      client.fetchBodyForUidl(
-        this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink,
-        uidl
-      );
-    };
-    client.onDone = status => {
-      listener.onStopRequest(this, status);
-    };
+    this._server.wrappedJSObject.withClient(client => {
+      client.runningUri = this.URI;
+      client.onOpen = () => {
+        listener.onStartRequest(this);
+        client.fetchBodyForUidl(
+          this.URI.QueryInterface(Ci.nsIPop3URL).pop3Sink,
+          uidl
+        );
+      };
+      client.onDone = status => {
+        listener.onStopRequest(this, status);
+      };
+    });
   }
 }
