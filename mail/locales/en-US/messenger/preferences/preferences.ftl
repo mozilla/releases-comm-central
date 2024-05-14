@@ -747,6 +747,10 @@ primary-password-label =
     .label = Use a Primary Password
     .accesskey = U
 
+# This operation requires the user to authenticate with the operating system (device sign-in)
+forms-os-reauth =
+    .label = Require device sign in to fill and manage passwords
+
 primary-password-button =
     .label = Change Primary Password…
     .accesskey = C

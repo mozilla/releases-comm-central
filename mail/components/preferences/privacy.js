@@ -11,6 +11,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineLazyGetter(this, "AboutLoginsL10n", () => {
+  return new Localization([
+    "branding/brand.ftl",
+    "messenger/preferences/passwordManager.ftl",
+  ]);
+});
+
 ChromeUtils.defineESModuleGetters(this, {
   LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
   OSKeyStore: "resource://gre/modules/OSKeyStore.sys.mjs",
@@ -77,6 +84,7 @@ var gPrivacyPane = {
     );
 
     this._initMasterPasswordUI();
+    this._initOSAuthentication();
 
     if (AppConstants.MOZ_DATA_REPORTING) {
       this.initDataCollection();
@@ -365,8 +373,7 @@ var gPrivacyPane = {
     // OS reauthenticate functionality is not available on Linux yet (bug 1527745)
     if (
       !LoginHelper.isPrimaryPasswordSet() &&
-      Services.prefs.getBoolPref("signon.management.page.os-auth.enabled") &&
-      AppConstants.platform != "linux"
+      LoginHelper.getOSAuthEnabled(LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF)
     ) {
       const messageId =
         "primary-password-os-auth-dialog-message-" + AppConstants.platform;
@@ -393,6 +400,54 @@ var gPrivacyPane = {
     gSubDialog.open("chrome://mozapps/content/preferences/changemp.xhtml", {
       closingCallback: this._initMasterPasswordUI.bind(this),
     });
+  },
+
+  async _toggleOSAuth() {
+    const osReauthCheckbox = document.getElementById("osReauthCheckbox");
+
+    const messageText = await AboutLoginsL10n.formatValue(
+      "password-os-auth-change-dialog-message"
+    );
+    const captionText = await AboutLoginsL10n.formatValue(
+      "password-os-auth-dialog-caption"
+    );
+    const win =
+      osReauthCheckbox.ownerGlobal.docShell.chromeEventHandler.ownerGlobal;
+
+    // Calling OSKeyStore.ensureLoggedIn() instead of LoginHelper.verifyOSAuth()
+    // since we want to authenticate user each time this stting is changed.
+    const isAuthorized = (
+      await OSKeyStore.ensureLoggedIn(messageText, captionText, win, false)
+    ).authenticated;
+    if (!isAuthorized) {
+      osReauthCheckbox.checked = !osReauthCheckbox.checked;
+      return;
+    }
+
+    // If osReauthCheckbox is checked enable osauth.
+    LoginHelper.setOSAuthEnabled(
+      LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF,
+      osReauthCheckbox.checked
+    );
+  },
+
+  _initOSAuthentication() {
+    const osReauthCheckbox = document.getElementById("osReauthCheckbox");
+    if (!OSKeyStore.canReauth()) {
+      osReauthCheckbox.hidden = true;
+      return;
+    }
+
+    osReauthCheckbox.setAttribute(
+      "checked",
+      LoginHelper.getOSAuthEnabled(LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF)
+    );
+
+    setEventListener(
+      "osReauthCheckbox",
+      "command",
+      gPrivacyPane._toggleOSAuth.bind(gPrivacyPane)
+    );
   },
 
   /**

@@ -14,6 +14,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
+  LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
   OSKeyStore: "resource://gre/modules/OSKeyStore.sys.mjs",
   PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
 });
@@ -735,14 +736,15 @@ async function masterPasswordLogin(noPasswordCallback) {
   );
   const token = tokendb.getInternalKeyToken();
 
+  const isOSAuthEnabled = LoginHelper.getOSAuthEnabled(
+    LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF
+  );
+
   // If there is no primary password, still give the user a chance to opt-out of displaying passwords
   if (token.checkPassword("")) {
     // The OS re-authentication on Linux isn't working (Bug 1527745),
     // still add the confirm dialog for Linux.
-    if (
-      Services.prefs.getBoolPref("signon.management.page.os-auth.enabled") &&
-      AppConstants.platform !== "linux"
-    ) {
+    if (isOSAuthEnabled) {
       // Require OS authentication before the user can show the passwords or copy them.
       let messageId = "password-os-auth-dialog-message";
       if (AppConstants.platform == "macosx") {

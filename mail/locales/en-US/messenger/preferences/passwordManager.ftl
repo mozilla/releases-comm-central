@@ -80,3 +80,11 @@ password-os-auth-dialog-message-macosx = reveal the saved passwords
 
 # Don't change this label.
 password-os-auth-dialog-caption = { -brand-full-name }
+
+# The macOS strings are preceded by the operating system with "Thunderbird is trying to ".
+# This message can be seen when attempting to disable osauth in about:preferences.
+password-os-auth-change-dialog-message=
+  { PLATFORM() ->
+    [macos] change the settings for passwords
+    *[other] { -brand-short-name } is trying to change the settings for passwords. Use your device sign in to allow this.
+  }
