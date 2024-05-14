@@ -299,7 +299,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   }
 
   // Never load unexposed protocols except for web protocols and file.
-  // Protocols like ftp are always blocked.
   if (ShouldBlockUnexposedProtocol(aContentLocation)) return NS_OK;
 
   // Mailnews URIs are not loaded in child processes, so I think that beyond
@@ -532,11 +531,16 @@ bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
   rv = aContentLocation->SchemeIs("blob", &isBlob);
   NS_ENSURE_SUCCESS(rv, true);
 
+  bool isJavaScript;
+  rv = aContentLocation->SchemeIs("javascript", &isJavaScript);
+  NS_ENSURE_SUCCESS(rv, true);
+
   bool isFile;
   rv = aContentLocation->SchemeIs("file", &isFile);
   NS_ENSURE_SUCCESS(rv, true);
 
-  return !isHttp && !isHttps && !isWs && !isWss && !isBlob && !isFile;
+  return !isHttp && !isHttps && !isWs && !isWss && !isBlob && !isJavaScript &&
+         !isFile;
 }
 
 /**
