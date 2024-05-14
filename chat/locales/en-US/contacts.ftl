@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# LOCALIZATION NOTE (badLogfile):
-#  %S is the filename of the log file.
-badLogfile=Empty or corrupt log file: %S
+# LOCALIZATION NOTE (default-group):
+# This is the name of the group that will automatically be created when adding a
+# buddy without specifying a group.
+default-group = Contacts

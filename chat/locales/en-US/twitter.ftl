@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# LOCALIZATION NOTE (twitter.protocolName)
+# LOCALIZATION NOTE (twitter-protocol-name)
 #  This name is used whenever the name of the protocol is shown.
-twitter.protocolName=Twitter
+twitter-protocol-name = Twitter
 
-twitter.disabled=Twitter is no longer supported due to Twitter disabling their streaming protocol.
+twitter-disabled = Twitter is no longer supported due to Twitter disabling their streaming protocol.

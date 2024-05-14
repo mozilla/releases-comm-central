@@ -4,62 +4,62 @@
 var { MatrixPowerLevels } = ChromeUtils.importESModule(
   "resource:///modules/matrixPowerLevels.sys.mjs"
 );
-var { l10nHelper } = ChromeUtils.importESModule(
-  "resource:///modules/imXPCOMUtils.sys.mjs"
-);
-var _ = l10nHelper("chrome://chat/locale/matrix.properties");
+var l10n = new Localization(["chat/matrix-properties.ftl"], true);
 
 const TO_TEXT_FIXTURES = [
   {
     level: MatrixPowerLevels.user,
     defaultLevel: MatrixPowerLevels.user,
-    result: _(
-      "powerLevel.detailed",
-      _("powerLevel.default"),
-      MatrixPowerLevels.user
-    ),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-default"),
+      powerLevelNumber: MatrixPowerLevels.user,
+    }),
     name: "Default power level for default 0",
   },
   {
     level: MatrixPowerLevels.user,
     defaultLevel: 10,
-    result: _(
-      "powerLevel.detailed",
-      _("powerLevel.restricted"),
-      MatrixPowerLevels.user
-    ),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-restricted"),
+      powerLevelNumber: MatrixPowerLevels.user,
+    }),
     name: "Restricted power level",
   },
   {
     level: 10,
     defaultLevel: 10,
-    result: _("powerLevel.detailed", _("powerLevel.default"), 10),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-default"),
+      powerLevelNumber: 10,
+    }),
     name: "Default power level for default 10",
   },
   {
     level: MatrixPowerLevels.moderator,
     defaultLevel: MatrixPowerLevels.user,
-    result: _(
-      "powerLevel.detailed",
-      _("powerLevel.moderator"),
-      MatrixPowerLevels.moderator
-    ),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-moderator"),
+      powerLevelNumber: MatrixPowerLevels.moderator,
+    }),
     name: "Moderator",
   },
   {
     level: MatrixPowerLevels.admin,
     defaultLevel: MatrixPowerLevels.user,
-    result: _(
-      "powerLevel.detailed",
-      _("powerLevel.admin"),
-      MatrixPowerLevels.admin
-    ),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-admin"),
+      powerLevelNumber: MatrixPowerLevels.admin,
+    }),
     name: "Admin",
   },
   {
     level: 25,
     defaultLevel: MatrixPowerLevels.user,
-    result: _("powerLevel.detailed", _("powerLevel.custom"), 25),
+    result: l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: l10n.formatValueSync("power-level-custom"),
+      powerLevelNumber: 25,
+    }),
+
     name: "Custom power level 25",
   },
 ];

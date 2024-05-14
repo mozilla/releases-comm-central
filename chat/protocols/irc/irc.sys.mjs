@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
+
 ChromeUtils.defineESModuleGetters(lazy, {
   ircAccount: "resource:///modules/ircAccount.sys.mjs",
 });
@@ -35,13 +37,13 @@ ircProtocol.prototype = {
     return "chrome://prpl-irc/skin/";
   },
   get usernameEmptyText() {
-    return lazy._("irc.usernameHint");
+    return lazy.l10n.formatValueSync("irc-username-hint");
   },
 
   usernameSplits: [
     {
       get label() {
-        return lazy._("options.server");
+        return lazy.l10n.formatValueSync("options-server");
       },
       separator: "@",
       defaultValue: "irc.libera.chat",
@@ -59,26 +61,26 @@ ircProtocol.prototype = {
   options: {
     port: {
       get label() {
-        return lazy._("options.port");
+        return lazy.l10n.formatValueSync("options-port");
       },
       default: 6697,
     },
     ssl: {
       get label() {
-        return lazy._("options.ssl");
+        return lazy.l10n.formatValueSync("options-ssl");
       },
       default: true,
     },
     // TODO We should attempt to auto-detect encoding instead.
     encoding: {
       get label() {
-        return lazy._("options.encoding");
+        return lazy.l10n.formatValueSync("options-encoding");
       },
       default: "UTF-8",
     },
     quitmsg: {
       get label() {
-        return lazy._("options.quitMessage");
+        return lazy.l10n.formatValueSync("options-quit-message");
       },
       get default() {
         return Services.prefs.getCharPref("chat.irc.defaultQuitMessage");
@@ -86,19 +88,19 @@ ircProtocol.prototype = {
     },
     partmsg: {
       get label() {
-        return lazy._("options.partMessage");
+        return lazy.l10n.formatValueSync("options-part-message");
       },
       default: "",
     },
     showServerTab: {
       get label() {
-        return lazy._("options.showServerTab");
+        return lazy.l10n.formatValueSync("options-show-server-tab");
       },
       default: false,
     },
     alternateNicks: {
       get label() {
-        return lazy._("options.alternateNicks");
+        return lazy.l10n.formatValueSync("options-alternate-nicks");
       },
       default: "",
     },

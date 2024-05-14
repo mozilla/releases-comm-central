@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import {
   GenericAccountPrototype,
   GenericProtocolPrototype,
@@ -10,8 +9,10 @@ import {
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/xmpp.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/xmpp.ftl"], true)
 );
 
 function GTalkAccount(aProtoInstance, aImAccount) {
@@ -26,7 +27,7 @@ GTalkAccount.prototype = {
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      lazy._("gtalk.disabled")
+      lazy.l10n.formatValueSync("gtalk-disabled")
     );
     this.reportDisconnected();
   },
@@ -43,7 +44,7 @@ GTalkProtocol.prototype = {
     return "gtalk";
   },
   get name() {
-    return lazy._("gtalk.protocolName");
+    return lazy.l10n.formatValueSync("gtalk-protocol-name");
   },
   get iconBaseURI() {
     return "chrome://prpl-gtalk/skin/";

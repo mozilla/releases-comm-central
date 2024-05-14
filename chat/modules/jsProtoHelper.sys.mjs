@@ -7,15 +7,16 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   initLogModule,
   nsSimpleEnumerator,
-  l10nHelper,
   ClassInfo,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/conversations.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/conversations.ftl"], true)
 );
 
 ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
@@ -1273,16 +1274,26 @@ export var GenericConvChatPrototype = {
     let message;
     if (aTopicSetter) {
       if (aTopic) {
-        message = lazy._("topicChanged", aTopicSetter, lazy.TXTToHTML(aTopic));
+        message = lazy.l10n.formatValueSync("topic-changed", {
+          user: aTopicSetter,
+          topic: lazy.TXTToHTML(aTopic),
+        });
       } else {
-        message = lazy._("topicCleared", aTopicSetter);
+        message = lazy.l10n.formatValueSync("topic-cleared", {
+          user: aTopicSetter,
+        });
       }
     } else {
       aTopicSetter = null;
       if (aTopic) {
-        message = lazy._("topicSet", this.name, lazy.TXTToHTML(aTopic));
+        message = lazy.l10n.formatValueSync("topic-set", {
+          conversationName: this.name,
+          topic: lazy.TXTToHTML(aTopic),
+        });
       } else {
-        message = lazy._("topicNotSet", this.name);
+        message = lazy.l10n.formatValueSync("topic-not-set", {
+          conversationName: this.name,
+        });
       }
     }
     this.writeMessage(aTopicSetter, message, { system: true });
@@ -1337,7 +1348,9 @@ export var GenericConvChatPrototype = {
     if (isOwnNick) {
       // If this is the user's nick, change it.
       this.nick = aNewNick;
-      message = lazy._("nickSet.you", aNewNick);
+      message = lazy.l10n.formatValueSync("nick-set-you", {
+        newNick: aNewNick,
+      });
 
       // If the account was disconnected, it's OK the user is not a participant.
       if (!isParticipant) {
@@ -1352,7 +1365,10 @@ export var GenericConvChatPrototype = {
       );
       return;
     } else {
-      message = lazy._("nickSet", aOldNick, aNewNick);
+      message = lazy.l10n.formatValueSync("nick-set-key", {
+        oldNick: aOldNick,
+        newNick: aNewNick,
+      });
     }
 
     // Get the original participant and then remove it.

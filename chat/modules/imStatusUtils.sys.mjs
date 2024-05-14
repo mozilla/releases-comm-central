@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/status.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/status.ftl"], true)
 );
 
 var imIStatusInfo = Ci.imIStatusInfo;
@@ -34,12 +34,17 @@ export var Status = {
     }
 
     if (!(aStatusType in this._labels)) {
-      this._labels[aStatusType] = lazy._(aStatusType + "StatusType");
+      this._labels[aStatusType] = lazy.l10n.formatValueSync(
+        `${aStatusType}-status-type`
+      );
     }
 
     let label = this._labels[aStatusType];
     if (aStatusText) {
-      label = lazy._("statusWithStatusMessage", label, aStatusText);
+      label = lazy.l10n.formatValueSync("status-with-status-message", {
+        statusType: label,
+        statusMessage: aStatusText,
+      });
     }
 
     return label;

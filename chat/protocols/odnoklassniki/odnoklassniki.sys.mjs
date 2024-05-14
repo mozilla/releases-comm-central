@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { GenericProtocolPrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/xmpp.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/xmpp.ftl"], true)
 );
 ChromeUtils.defineESModuleGetters(lazy, {
   XMPPAccountPrototype: "resource:///modules/xmpp-base.sys.mjs",
@@ -41,7 +42,7 @@ ChromeUtils.defineLazyGetter(lazy, "OdnoklassnikiAccount", () => {
           // We can't use this.onError because this._connection doesn't exist.
           this.reportDisconnecting(
             Ci.prplIAccount.ERROR_INVALID_USERNAME,
-            lazy._("connection.error.invalidUsername")
+            lazy.l10n.formatValueSync("connection-error-invalid-username")
           );
           this.reportDisconnected();
           return;
@@ -68,13 +69,13 @@ OdnoklassnikiProtocol.prototype = {
     return "odnoklassniki";
   },
   get name() {
-    return lazy._("odnoklassniki.protocolName");
+    return lazy.l10n.formatValueSync("odnoklassniki-protocol-name");
   },
   get iconBaseURI() {
     return "chrome://prpl-odnoklassniki/skin/";
   },
   get usernameEmptyText() {
-    return lazy._("odnoklassniki.usernameHint");
+    return lazy.l10n.formatValueSync("odnoklassniki-username-hint");
   },
   getAccount(aImAccount) {
     return new lazy.OdnoklassnikiAccount(this, aImAccount);

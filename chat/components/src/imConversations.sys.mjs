@@ -11,8 +11,10 @@ var gLastPrplConvId = 0;
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "bundle", () =>
-  Services.strings.createBundle("chrome://chat/locale/conversations.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/conversations.ftl"], true)
 );
 
 export function imMessage(aPrplMessage) {
@@ -236,10 +238,11 @@ export class UIConversation {
     if (shouldNotify) {
       this.notifyObservers(this, "target-prpl-conversation-changed");
       const target = this.target;
-      const params = [target.title, target.account.protocol.name];
-      this.systemMessage(
-        lazy.bundle.formatStringFromName("targetChanged", params)
-      );
+      const params = {
+        displayName: target.title,
+        statusType: target.account.protocol.name,
+      };
+      this.systemMessage(lazy.l10n.formatValueSync("target-changed", params));
     }
   }
   // Returns a boolean indicating if the ui-conversation was closed.
@@ -446,22 +449,29 @@ export class UIConversation {
 
     let msg;
     if (statusType == Ci.imIStatusInfo.STATUS_UNKNOWN) {
-      msg = lazy.bundle.formatStringFromName("statusUnknown", [this.title]);
+      msg = lazy.l10n.formatValueSync("status-unknown", {
+        displayName: this.title,
+      });
     } else {
       const status = Status.toLabel(statusType);
-      let stringId = wasUnknown ? "statusChangedFromUnknown" : "statusChanged";
+      let stringId = wasUnknown
+        ? "status-changed-from-unknown"
+        : "status-changed";
       if (this._justReconnected) {
-        stringId = "statusKnown";
+        stringId = "status-known";
         delete this._justReconnected;
       }
       if (statusText) {
-        msg = lazy.bundle.formatStringFromName(stringId + "WithStatusText", [
-          this.title,
-          status,
+        msg = lazy.l10n.formatValueSync(`${stringId}-with-status-text`, {
+          displayName: this.title,
+          statusType: status,
           statusText,
-        ]);
+        });
       } else {
-        msg = lazy.bundle.formatStringFromName(stringId, [this.title, status]);
+        msg = lazy.l10n.formatValueSync(stringId, {
+          displayName: this.title,
+          statusType: status,
+        });
       }
     }
     this.systemMessage(msg);
@@ -482,14 +492,14 @@ export class UIConversation {
     if (this.isChat && this.left) {
       this._wasLeft = true;
     } else {
-      this.systemMessage(lazy.bundle.GetStringFromName("accountDisconnected"));
+      this.systemMessage(lazy.l10n.formatValueSync("account-disconnected"));
     }
     this.notifyObservers(this, "update-buddy-status");
   }
   connected() {
     if (this._disconnected) {
       delete this._disconnected;
-      const msg = lazy.bundle.GetStringFromName("accountReconnected");
+      const msg = lazy.l10n.formatValueSync("account-reconnected");
       if (this.isChat) {
         if (!this._wasLeft) {
           this.systemMessage(msg);
@@ -749,7 +759,7 @@ export class UIConversation {
    * @type {string}
    */
   get noTopicString() {
-    return lazy.bundle.GetStringFromName("noTopic");
+    return lazy.l10n.formatValueSync("no-topic-key");
   }
   get nick() {
     return this.target.nick;

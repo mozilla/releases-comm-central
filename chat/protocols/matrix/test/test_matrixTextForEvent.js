@@ -4,10 +4,7 @@
 var { getMatrixTextForEvent } = ChromeUtils.importESModule(
   "resource:///modules/matrixTextForEvent.sys.mjs"
 );
-var { l10nHelper } = ChromeUtils.importESModule(
-  "resource:///modules/imXPCOMUtils.sys.mjs"
-);
-var _ = l10nHelper("chrome://chat/locale/matrix.properties");
+var l10n = new Localization(["chat/matrix-properties.ftl"], true);
 
 function run_test() {
   add_test(testGetTextForMatrixEvent);
@@ -27,7 +24,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.banned", SENDER, "@foo:example.com"),
+    result: l10n.formatValueSync("message-banned", {
+      user: SENDER,
+      userBanned: "@foo:example.com",
+    }),
     name: "Banned without reason",
   },
   {
@@ -42,7 +42,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.bannedWithReason", SENDER, "@foo:example.com", "test"),
+    result: l10n.formatValueSync("message-banned-with-reason", {
+      user: SENDER,
+      userBanned: "@foo:example.com",
+      reason: "test",
+    }),
     name: "Banned with reason",
   },
   {
@@ -59,7 +63,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.acceptedInviteFor", "@foo:example.com", "bar"),
+    result: l10n.formatValueSync("message-accepted-invite-for", {
+      user: "@foo:example.com",
+      userWhoSent: "bar",
+    }),
     name: "Invite accepted by other user with display name",
   },
   {
@@ -74,7 +81,9 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.acceptedInvite", "@foo:example.com"),
+    result: l10n.formatValueSync("message-accepted-invite", {
+      user: "@foo:example.com",
+    }),
     name: "Invite accepted by other user",
   },
   {
@@ -88,7 +97,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.invited", SENDER, "@foo:example.com"),
+    result: l10n.formatValueSync("message-invited", {
+      user: SENDER,
+      userWhoGotInvited: "@foo:example.com",
+    }),
     name: "User invited",
   },
   {
@@ -104,7 +116,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.displayName.changed", SENDER, "lorem", "ipsum"),
+    result: l10n.formatValueSync("message-display-name-changed", {
+      user: SENDER,
+      oldDisplayName: "lorem",
+      newDisplayName: "ipsum",
+    }),
     name: "User changed their display name",
   },
   {
@@ -119,7 +135,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.displayName.set", SENDER, "ipsum"),
+    result: l10n.formatValueSync("message-display-name-set", {
+      user: SENDER,
+      changedName: "ipsum",
+    }),
     name: "User set their display name",
   },
   {
@@ -134,7 +153,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.displayName.remove", SENDER, "lorem"),
+    result: l10n.formatValueSync("message-display-name-remove", {
+      user: SENDER,
+      nameRemoved: "lorem",
+    }),
     name: "User removed their display name",
   },
   {
@@ -162,7 +184,9 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.joined", "@foo:example.com"),
+    result: l10n.formatValueSync("message-joined", {
+      user: "@foo:example.com",
+    }),
     name: "Users joined",
   },
   {
@@ -179,7 +203,9 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.rejectedInvite", "@test:example.com"),
+    result: l10n.formatValueSync("message-rejected-invite", {
+      user: "@test:example.com",
+    }),
     name: "Invite rejected",
   },
   {
@@ -196,7 +222,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.left", "@test:example.com"),
+    result: l10n.formatValueSync("message-left", { user: "@test:example.com" }),
     name: "Left room",
   },
   {
@@ -213,7 +239,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.unbanned", SENDER, "@target:example.com"),
+    result: l10n.formatValueSync("message-unbanned", {
+      user: SENDER,
+      userUnbanned: "@target:example.com",
+    }),
     name: "Unbanned",
   },
   {
@@ -230,7 +259,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.kicked", SENDER, "@target:example.com"),
+    result: l10n.formatValueSync("message-kicked", {
+      user: SENDER,
+      userGotKicked: "@target:example.com",
+    }),
     name: "Kicked without reason",
   },
   {
@@ -248,12 +280,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.kickedWithReason",
-      SENDER,
-      "@target:example.com",
-      "lorem ipsum"
-    ),
+    result: l10n.formatValueSync("message-kicked-with-reason", {
+      user: SENDER,
+      userGotKicked: "@target:example.com",
+      reason: "lorem ipsum",
+    }),
     name: "Kicked with reason",
   },
   {
@@ -271,12 +302,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.withdrewInviteWithReason",
-      SENDER,
-      "@target:example.com",
-      "lorem ipsum"
-    ),
+    result: l10n.formatValueSync("message-withdrew-invite-with-reason", {
+      user: SENDER,
+      userInvitationWithdrawn: "@target:example.com",
+      reason: "lorem ipsum",
+    }),
     name: "Invite withdrawn with reason",
   },
   {
@@ -293,7 +323,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.withdrewInvite", SENDER, "@target:example.com"),
+    result: l10n.formatValueSync("message-withdrew-invite", {
+      user: SENDER,
+      userInvitationWithdrawn: "@target:example.com",
+    }),
     name: "Invite withdrawn without reason",
   },
   {
@@ -355,16 +388,14 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.default") + " (0)",
-        _("powerLevel.moderator") + " (50)"
-      )
-    ),
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges: l10n.formatValueSync("message-power-level-from-to", {
+        user: "@foo:example.com",
+        oldPowerLevel: l10n.formatValueSync("power-level-default") + " (0)",
+        newPowerLevel: l10n.formatValueSync("power-level-moderator") + " (50)",
+      }),
+    }),
     name: "Gave a user power levels",
   },
   {
@@ -385,16 +416,14 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.default") + " (10)",
-        _("powerLevel.moderator") + " (50)"
-      )
-    ),
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges: l10n.formatValueSync("message-power-level-from-to", {
+        user: "@foo:example.com",
+        oldPowerLevel: l10n.formatValueSync("power-level-default") + " (10)",
+        newPowerLevel: l10n.formatValueSync("power-level-moderator") + " (50)",
+      }),
+    }),
     name: "Gave a user power levels with default level",
   },
   {
@@ -416,16 +445,14 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.restricted") + " (0)",
-        _("powerLevel.default") + " (10)"
-      )
-    ),
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges: l10n.formatValueSync("message-power-level-from-to", {
+        user: "@foo:example.com",
+        oldPowerLevel: l10n.formatValueSync("power-level-restricted") + " (0)",
+        newPowerLevel: l10n.formatValueSync("power-level-default") + " (10)",
+      }),
+    }),
     name: "Promote a restricted user to default",
   },
   {
@@ -446,16 +473,14 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.moderator") + " (50)",
-        _("powerLevel.admin") + " (100)"
-      )
-    ),
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges: l10n.formatValueSync("message-power-level-from-to", {
+        user: "@foo:example.com",
+        oldPowerLevel: l10n.formatValueSync("power-level-moderator") + " (50)",
+        newPowerLevel: l10n.formatValueSync("power-level-admin") + " (100)",
+      }),
+    }),
     name: "Prompted user from moderator to admin",
   },
   {
@@ -476,16 +501,14 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.admin") + " (100)",
-        _("powerLevel.default") + " (0)"
-      )
-    ),
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges: l10n.formatValueSync("message-power-level-from-to", {
+        user: "@foo:example.com",
+        oldPowerLevel: l10n.formatValueSync("power-level-admin") + " (100)",
+        newPowerLevel: l10n.formatValueSync("power-level-default") + " (0)",
+      }),
+    }),
     name: "Demote user from admin to default",
   },
   {
@@ -508,23 +531,23 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.powerLevel.changed",
-      SENDER,
-      _(
-        "message.powerLevel.fromTo",
-        "@foo:example.com",
-        _("powerLevel.default") + " (0)",
-        _("powerLevel.moderator") + " (50)"
-      ) +
+    result: l10n.formatValueSync("message-power-level-changed", {
+      user: SENDER,
+      powerLevelChanges:
+        l10n.formatValueSync("message-power-level-from-to", {
+          user: "@foo:example.com",
+          oldPowerLevel: l10n.formatValueSync("power-level-default") + " (0)",
+          newPowerLevel:
+            l10n.formatValueSync("power-level-moderator") + " (50)",
+        }) +
         ", " +
-        _(
-          "message.powerLevel.fromTo",
-          "@bar:example.com",
-          _("powerLevel.moderator") + " (50)",
-          _("powerLevel.default") + " (0)"
-        )
-    ),
+        l10n.formatValueSync("message-power-level-from-to", {
+          user: "@bar:example.com",
+          oldPowerLevel:
+            l10n.formatValueSync("power-level-moderator") + " (50)",
+          newPowerLevel: l10n.formatValueSync("power-level-default") + " (0)",
+        }),
+    }),
     name: "Changed multiple users's power level",
   },
   {
@@ -535,7 +558,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.roomName.changed", SENDER, "test"),
+    result: l10n.formatValueSync("message-room-name-changed", {
+      user: SENDER,
+      newRoomName: "test",
+    }),
     name: "Set room name",
   },
   {
@@ -543,7 +569,7 @@ const FIXTURES = [
       type: MatrixSDK.EventType.RoomName,
       sender: SENDER,
     }),
-    result: _("message.roomName.remove", SENDER),
+    result: l10n.formatValueSync("message-room-name-remove", { user: SENDER }),
     name: "Remove room name",
   },
   {
@@ -554,7 +580,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.guest.prevented", SENDER),
+    result: l10n.formatValueSync("message-guest-prevented", { user: SENDER }),
     name: "Guest access forbidden",
   },
   {
@@ -565,7 +591,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.guest.allowed", SENDER),
+    result: l10n.formatValueSync("message-guest-allowed", { user: SENDER }),
     name: "Guest access allowed",
   },
   {
@@ -576,7 +602,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.history.anyone", SENDER),
+    result: l10n.formatValueSync("message-history-anyone", { user: SENDER }),
     name: "History access granted to anyone",
   },
   {
@@ -587,7 +613,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.history.shared", SENDER),
+    result: l10n.formatValueSync("message-history-shared", { user: SENDER }),
     name: "History access granted to members, including before they joined",
   },
   {
@@ -598,7 +624,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.history.invited", SENDER),
+    result: l10n.formatValueSync("message-history-invited", { user: SENDER }),
     name: "History access granted to members, including invited",
   },
   {
@@ -609,7 +635,7 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.history.joined", SENDER),
+    result: l10n.formatValueSync("message-history-joined", { user: SENDER }),
     name: "History access granted to members from the point they join",
   },
   {
@@ -620,7 +646,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.alias.main", SENDER, undefined, "#test:example.com"),
+    result: l10n.formatValueSync("message-alias-main", {
+      user: SENDER,
+      oldAddress: "",
+      newAddress: "#test:example.com",
+    }),
     name: "Room alias added",
   },
   {
@@ -634,12 +664,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.alias.main",
-      SENDER,
-      "#old:example.com",
-      "#test:example.com"
-    ),
+    result: l10n.formatValueSync("message-alias-main", {
+      user: SENDER,
+      oldAddress: "#old:example.com",
+      newAddress: "#test:example.com",
+    }),
     name: "Room alias changed",
   },
   {
@@ -654,7 +683,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.alias.added", SENDER, "#foo:example.com"),
+    result: l10n.formatValueSync("message-alias-added", {
+      user: SENDER,
+      addresses: "#foo:example.com",
+    }),
     name: "Room alt alias added",
   },
   {
@@ -669,7 +701,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.alias.removed", SENDER, "#foo:example.com"),
+    result: l10n.formatValueSync("message-alias-removed", {
+      user: SENDER,
+      addresses: "#foo:example.com",
+    }),
     name: "Room alt alias removed",
   },
   {
@@ -685,7 +720,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.alias.removed", SENDER, "#foo:example.com"),
+    result: l10n.formatValueSync("message-alias-removed", {
+      user: SENDER,
+      addresses: "#foo:example.com",
+    }),
     name: "Room alt alias removed with multiple alts",
   },
   {
@@ -701,7 +739,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.alias.added", SENDER, "#foo:example.com"),
+    result: l10n.formatValueSync("message-alias-added", {
+      user: SENDER,
+      addresses: "#foo:example.com",
+    }),
     name: "Room alt alias added with multiple alts",
   },
   {
@@ -721,11 +762,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.alias.added",
-      SENDER,
-      "#foo:example.com, #baz:example.com"
-    ),
+    result: l10n.formatValueSync("message-alias-added", {
+      user: SENDER,
+      addresses: "#foo:example.com, #baz:example.com",
+    }),
     name: "Multiple room alt aliases added with multiple alts",
   },
   {
@@ -741,12 +781,11 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _(
-      "message.alias.removedAndAdded",
-      SENDER,
-      "#baz:example.com",
-      "#foo:example.com"
-    ),
+    result: l10n.formatValueSync("message-alias-removed-and-added", {
+      user: SENDER,
+      removedAddresses: "#baz:example.com",
+      addedAddresses: "#foo:example.com",
+    }),
     name: "Room alias added and removed",
   },
   {
@@ -773,7 +812,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.verification.request2", SENDER, "@foo:example.com"),
+    result: l10n.formatValueSync("message-verification-request2", {
+      user: SENDER,
+      userReceiving: "@foo:example.com",
+    }),
     name: "Inline key verification request",
   },
   {
@@ -784,7 +826,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.verification.request2", SENDER, "@foo:example.com"),
+    result: l10n.formatValueSync("message-verification-request2", {
+      user: SENDER,
+      userReceiving: "@foo:example.com",
+    }),
     name: "Key verification request",
   },
   {
@@ -795,7 +840,10 @@ const FIXTURES = [
       },
       sender: SENDER,
     }),
-    result: _("message.verification.cancel2", SENDER, "Lorem ipsum"),
+    result: l10n.formatValueSync("message-verification-cancel2", {
+      user: SENDER,
+      reason: "Lorem ipsum",
+    }),
     name: "Key verification cancelled",
   },
   {
@@ -803,7 +851,7 @@ const FIXTURES = [
       type: MatrixSDK.EventType.KeyVerificationDone,
       sender: SENDER,
     }),
-    result: _("message.verification.done"),
+    result: l10n.formatValueSync("message-verification-done"),
     name: "Key verification done",
   },
   {
@@ -813,14 +861,14 @@ const FIXTURES = [
         msgtype: "m.bad.encrypted",
       },
     }),
-    result: _("message.decryptionError"),
+    result: l10n.formatValueSync("message-decryption-error"),
     name: "Decryption error",
   },
   {
     event: makeEvent({
       type: MatrixSDK.EventType.RoomEncryption,
     }),
-    result: _("message.encryptionStart"),
+    result: l10n.formatValueSync("message-encryption-start"),
     name: "Encryption start",
   },
 ];

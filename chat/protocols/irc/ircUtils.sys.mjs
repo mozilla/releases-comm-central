@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
 
 ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
@@ -239,7 +239,10 @@ export function conversationErrorMessage(
   const conv = aAccount.getConversation(aMessage.params[1]);
   conv.writeMessage(
     aMessage.origin,
-    lazy._(aError, aMessage.params[1], aMessage.params[2] || undefined),
+    lazy.l10n.formatValueSync(aError, {
+      name: aMessage.params[1],
+      details: aMessage.params[2],
+    }),
     {
       error: true,
       system: true,

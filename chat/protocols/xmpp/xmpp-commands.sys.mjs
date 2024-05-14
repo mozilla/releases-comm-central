@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/xmpp.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/xmpp.ftl"], true)
 );
 
 // Get conversation object.
@@ -26,7 +27,9 @@ function getMUC(aConv) {
   if (conv.left) {
     conv.writeMessage(
       conv.name,
-      lazy._("conversation.error.commandFailedNotInRoom"),
+      lazy.l10n.formatValueSync(
+        "conversation-error-command-failed-not-in-room"
+      ),
       { system: true }
     );
     return null;
@@ -77,7 +80,9 @@ function splitByNick(aString, aConv) {
     const expectedNickName = offset != -1 ? params.slice(0, offset) : params;
     aConv.writeMessage(
       aConv.name,
-      lazy._("conversation.error.nickNotInRoom", expectedNickName),
+      lazy.l10n.formatValueSync("conversation-error-nick-not-in-room", {
+        nick: expectedNickName,
+      }),
       { system: true }
     );
     return [];
@@ -108,7 +113,9 @@ function invite(aMsg, aConv) {
   if (!jid) {
     aConv.writeMessage(
       aConv.name,
-      lazy._("conversation.error.invalidJID", params[0]),
+      lazy.l10n.formatValueSync("conversation-error-invalid-jid", {
+        jabberIdentifier: params[0],
+      }),
       { system: true }
     );
     return true;
@@ -122,7 +129,9 @@ export var commands = [
   {
     name: "join",
     get helpString() {
-      return lazy._("command.join3", "join");
+      return lazy.l10n.formatValueSync("command-join3", {
+        commandName: "join",
+      });
     },
     run(aMsg, aConv, aReturnedConv) {
       const account = getAccount(aConv);
@@ -160,7 +169,9 @@ export var commands = [
   {
     name: "part",
     get helpString() {
-      return lazy._("command.part2", "part");
+      return lazy.l10n.formatValueSync("command-part2", {
+        commandName: "part",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -174,7 +185,9 @@ export var commands = [
   {
     name: "topic",
     get helpString() {
-      return lazy._("command.topic", "topic");
+      return lazy.l10n.formatValueSync("command-topic", {
+        commandName: "topic",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -189,7 +202,7 @@ export var commands = [
   {
     name: "ban",
     get helpString() {
-      return lazy._("command.ban", "ban");
+      return lazy.l10n.formatValueSync("command-ban", { commandName: "ban" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -208,7 +221,7 @@ export var commands = [
   {
     name: "kick",
     get helpString() {
-      return lazy._("command.kick", "kick");
+      return lazy.l10n.formatValueSync("command-kick", { commandName: "kick" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -228,7 +241,9 @@ export var commands = [
   {
     name: "invite",
     get helpString() {
-      return lazy._("command.invite", "invite");
+      return lazy.l10n.formatValueSync("command-invite", {
+        commandName: "invite",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -243,7 +258,9 @@ export var commands = [
   {
     name: "inviteto",
     get helpString() {
-      return lazy._("command.inviteto", "inviteto");
+      return lazy.l10n.formatValueSync("command-inviteto", {
+        commandName: "inviteto",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.IM,
     run: (aMsg, aConv) => invite(aMsg, getConv(aConv)),
@@ -251,7 +268,7 @@ export var commands = [
   {
     name: "me",
     get helpString() {
-      return lazy._("command.me", "me");
+      return lazy.l10n.formatValueSync("command-me", { commandName: "me" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -269,7 +286,7 @@ export var commands = [
   {
     name: "nick",
     get helpString() {
-      return lazy._("command.nick", "nick");
+      return lazy.l10n.formatValueSync("command-nick", { commandName: "nick" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
@@ -288,7 +305,7 @@ export var commands = [
   {
     name: "msg",
     get helpString() {
-      return lazy._("command.msg", "msg");
+      return lazy.l10n.formatValueSync("command-msg", { commandName: "msg" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv, aReturnedConv) {
@@ -321,7 +338,9 @@ export var commands = [
   {
     name: "version",
     get helpString() {
-      return lazy._("command.version", "version");
+      return lazy.l10n.formatValueSync("command-version", {
+        commandName: "version",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.IM,
     run(aMsg, aConv) {
@@ -334,7 +353,10 @@ export var commands = [
       if (!conv._targetResource) {
         conv.writeMessage(
           conv.name,
-          lazy._("conversation.error.resourceNotAvailable", conv.shortName),
+          lazy.l10n.formatValueSync(
+            "conversation-error-resource-not-available",
+            { recipient: conv.shortName }
+          ),
           {
             system: true,
           }

@@ -2,4 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-yahoo.disabled=Yahoo Messenger is no longer supported due to Yahoo disabling their legacy protocol.
+buddy-username = Username
+buddy-account = Account
+contact-tags = Tags
+
+encryption-tag = Encryption Status
+message-status = Message encrypted

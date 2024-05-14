@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
-
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/matrix.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/matrix-properties.ftl"], true)
 );
 
 // See https://matrix.org/docs/spec/client_server/r0.5.0#m-room-power-levels
@@ -26,17 +26,20 @@ export var MatrixPowerLevels = {
    * @returns {string} Representation of the power level including the raw level.
    */
   toText(powerLevel, defaultLevel = MatrixPowerLevels.user) {
-    let levelName = lazy._("powerLevel.custom");
+    let levelName = lazy.l10n.formatValueSync("power-level-custom");
     if (powerLevel == MatrixPowerLevels.admin) {
-      levelName = lazy._("powerLevel.admin");
+      levelName = lazy.l10n.formatValueSync("power-level-admin");
     } else if (powerLevel == MatrixPowerLevels.moderator) {
-      levelName = lazy._("powerLevel.moderator");
+      levelName = lazy.l10n.formatValueSync("power-level-moderator");
     } else if (powerLevel < defaultLevel) {
-      levelName = lazy._("powerLevel.restricted");
+      levelName = lazy.l10n.formatValueSync("power-level-restricted");
     } else if (powerLevel == defaultLevel) {
-      levelName = lazy._("powerLevel.default");
+      levelName = lazy.l10n.formatValueSync("power-level-default");
     }
-    return lazy._("powerLevel.detailed", levelName, powerLevel);
+    return lazy.l10n.formatValueSync("power-level-detailed", {
+      powerLevelName: levelName,
+      powerLevelNumber: powerLevel,
+    });
   },
   /**
    * @param {object} powerLevels - m.room.power_levels event contents.

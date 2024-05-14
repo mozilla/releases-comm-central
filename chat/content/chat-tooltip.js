@@ -230,6 +230,7 @@
         return;
       }
       this.textContent = "";
+      MozXULElement.insertFTLIfNeeded("chat/imtooltip.ftl");
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <vbox class="largeTooltip">
@@ -252,15 +253,6 @@
         `)
       );
       this.initializeAttributeInheritance();
-    }
-
-    get bundle() {
-      if (!this._bundle) {
-        this._bundle = Services.strings.createBundle(
-          "chrome://chat/locale/imtooltip.properties"
-        );
-      }
-      return this._bundle;
     }
 
     set buddy(val) {
@@ -441,10 +433,10 @@
       );
 
       if (displayName != name) {
-        this.addRow(this.bundle.GetStringFromName("buddy.username"), name);
+        this.addRow("buddy-username", name, { label: true });
       }
 
-      this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+      this.addRow("buddy-account", account.name, { label: true });
 
       if (aBuddy.canVerifyIdentity) {
         const identityStatus = aBuddy.identityVerified
@@ -458,10 +450,10 @@
 
       // Add encryption status.
       if (this.triggerNode.classList.contains("message-encrypted")) {
-        this.addRow(
-          this.bundle.GetStringFromName("encryption.tag"),
-          this.bundle.GetStringFromName("message.status")
-        );
+        this.addRow("encryption-tag", "message-status", {
+          label: true,
+          value: true,
+        });
       }
 
       this.requestBuddyInfo(account, aBuddy.normalizedName);
@@ -538,7 +530,7 @@
         // with aConv.normalizedName.
         this.requestBuddyInfo(account, aConv.normalizedName);
       }
-      this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
+      this.addRow("buddy-account", account.name, { label: true });
       return true;
     }
 

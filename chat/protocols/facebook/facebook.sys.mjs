@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import {
   GenericAccountPrototype,
   GenericProtocolPrototype,
@@ -10,8 +9,10 @@ import {
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/facebook.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/facebook.ftl"], true)
 );
 
 function FacebookAccount(aProtoInstance, aImAccount) {
@@ -27,7 +28,7 @@ FacebookAccount.prototype = {
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      lazy._("facebook.disabled")
+      lazy.l10n.formatValueSync("facebook-disabled")
     );
     this.reportDisconnected();
   },
@@ -44,7 +45,7 @@ FacebookProtocol.prototype = {
     return "facebook";
   },
   get name() {
-    return lazy._("facebook.chat.name");
+    return lazy.l10n.formatValueSync("facebook-chat-name");
   },
   get iconBaseURI() {
     return "chrome://prpl-facebook/skin/";

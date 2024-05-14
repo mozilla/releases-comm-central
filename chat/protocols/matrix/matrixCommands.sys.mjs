@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/matrix.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/matrix-properties.ftl"], true)
 );
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -17,22 +18,22 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 ChromeUtils.defineLazyGetter(lazy, "EVENT_TO_STRING", () => ({
-  ban: "powerLevel.ban",
-  [lazy.MatrixSDK.EventType.RoomAvatar]: "powerLevel.roomAvatar",
-  [lazy.MatrixSDK.EventType.RoomCanonicalAlias]: "powerLevel.mainAddress",
-  [lazy.MatrixSDK.EventType.RoomHistoryVisibility]: "powerLevel.history",
-  [lazy.MatrixSDK.EventType.RoomName]: "powerLevel.roomName",
-  [lazy.MatrixSDK.EventType.RoomPowerLevels]: "powerLevel.changePermissions",
-  [lazy.MatrixSDK.EventType.RoomServerAcl]: "powerLevel.server_acl",
-  [lazy.MatrixSDK.EventType.RoomTombstone]: "powerLevel.upgradeRoom",
-  invite: "powerLevel.inviteUser",
-  kick: "powerLevel.kickUsers",
-  redact: "powerLevel.remove",
-  state_default: "powerLevel.state_default",
-  users_default: "powerLevel.defaultRole",
-  events_default: "powerLevel.events_default",
-  [lazy.MatrixSDK.EventType.RoomEncryption]: "powerLevel.encryption",
-  [lazy.MatrixSDK.EventType.RoomTopic]: "powerLevel.topic",
+  ban: "power-level-ban",
+  [lazy.MatrixSDK.EventType.RoomAvatar]: "power-level-room-avatar",
+  [lazy.MatrixSDK.EventType.RoomCanonicalAlias]: "power-level-main-address",
+  [lazy.MatrixSDK.EventType.RoomHistoryVisibility]: "power-level-history",
+  [lazy.MatrixSDK.EventType.RoomName]: "power-level-room-name",
+  [lazy.MatrixSDK.EventType.RoomPowerLevels]: "power-level-change-permissions",
+  [lazy.MatrixSDK.EventType.RoomServerAcl]: "power-level-server-acl",
+  [lazy.MatrixSDK.EventType.RoomTombstone]: "power-level-upgrade-room",
+  invite: "power-level-invite-user",
+  kick: "power-level-kick-users",
+  redact: "power-level-remove",
+  state_default: "power-level-state-default",
+  users_default: "power-level-default-role",
+  events_default: "power-level-events-default",
+  [lazy.MatrixSDK.EventType.RoomEncryption]: "power-level-encryption",
+  [lazy.MatrixSDK.EventType.RoomTopic]: "power-level-topic",
 }));
 
 // Commands from element that we're not yet supporting (including equivalents):
@@ -67,7 +68,9 @@ function getAccount(conv) {
  */
 function getEventString(eventType, userPower) {
   if (lazy.EVENT_TO_STRING.hasOwnProperty(eventType)) {
-    return lazy._(lazy.EVENT_TO_STRING[eventType], userPower);
+    return lazy.l10n.formatValueSync(lazy.EVENT_TO_STRING[eventType], {
+      var1: userPower,
+    });
   }
   return null;
 }
@@ -88,19 +91,23 @@ function publishRoomDetails(account, conv) {
   const room = conv.room;
 
   const name = room.name;
-  const nameString = lazy._("detail.name", name);
+  const nameString = lazy.l10n.formatValueSync("detail-name", { value: name });
   conv.writeMessage(account.userId, nameString, {
     system: true,
   });
 
   const roomId = room.roomId;
-  const roomIdString = lazy._("detail.roomId", roomId);
+  const roomIdString = lazy.l10n.formatValueSync("detail-room-id", {
+    value: roomId,
+  });
   conv.writeMessage(account.userId, roomIdString, {
     system: true,
   });
 
   const roomVersion = room.getVersion();
-  const versionString = lazy._("detail.version", roomVersion);
+  const versionString = lazy.l10n.formatValueSync("detail-version", {
+    value: roomVersion,
+  });
   conv.writeMessage(account.userId, versionString, {
     system: true,
   });
@@ -111,7 +118,9 @@ function publishRoomDetails(account, conv) {
       .getStateEvents(lazy.MatrixSDK.EventType.RoomTopic)[0]
       .getContent().topic;
   }
-  const topicString = lazy._("detail.topic", topic);
+  const topicString = lazy.l10n.formatValueSync("detail-topic", {
+    value: topic,
+  });
   conv.writeMessage(account.userId, topicString, {
     system: true,
   });
@@ -119,7 +128,9 @@ function publishRoomDetails(account, conv) {
   const guestAccess = roomState
     .getStateEvents(lazy.MatrixSDK.EventType.RoomGuestAccess, "")
     ?.getContent()?.guest_access;
-  const guestAccessString = lazy._("detail.guest", guestAccess);
+  const guestAccessString = lazy.l10n.formatValueSync("detail-guest", {
+    value: guestAccess,
+  });
   conv.writeMessage(account.userId, guestAccessString, {
     system: true,
   });
@@ -137,14 +148,18 @@ function publishRoomDetails(account, conv) {
   }
 
   if (admins.length) {
-    const adminString = lazy._("detail.admin", admins.join(", "));
+    const adminString = lazy.l10n.formatValueSync("detail-admin", {
+      value: admins.join(", "),
+    });
     conv.writeMessage(account.userId, adminString, {
       system: true,
     });
   }
 
   if (moderators.length) {
-    const moderatorString = lazy._("detail.moderator", moderators.join(", "));
+    const moderatorString = lazy.l10n.formatValueSync("detail-moderator", {
+      value: moderators.join(", "),
+    });
     conv.writeMessage(account.userId, moderatorString, {
       system: true,
     });
@@ -160,14 +175,16 @@ function publishRoomDetails(account, conv) {
       aliases.unshift(canonicalAlias);
     }
     if (aliases.length) {
-      const aliasString = lazy._("detail.alias", aliases.join(","));
+      const aliasString = lazy.l10n.formatValueSync("detail-alias", {
+        value: aliases.join(","),
+      });
       conv.writeMessage(account.userId, aliasString, {
         system: true,
       });
     }
   }
 
-  conv.writeMessage(account.userId, lazy._("detail.power"), {
+  conv.writeMessage(account.userId, lazy.l10n.formatValueSync("detail-power"), {
     system: true,
   });
 
@@ -300,21 +317,25 @@ export var commands = [
   {
     name: "ban",
     get helpString() {
-      return lazy._("command.ban", "ban");
+      return lazy.l10n.formatValueSync("command-ban", { commandName: "ban" });
     },
     run: clientCommand("ban", 2, { requiredCount: 1 }),
   },
   {
     name: "unban",
     get helpString() {
-      return lazy._("command.unban", "unban");
+      return lazy.l10n.formatValueSync("command-unban", {
+        commandName: "unban",
+      });
     },
     run: clientCommand("unban", 1),
   },
   {
     name: "invite",
     get helpString() {
-      return lazy._("command.invite", "invite");
+      return lazy.l10n.formatValueSync("command-invite", {
+        commandName: "invite",
+      });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("invite", 1),
@@ -322,14 +343,14 @@ export var commands = [
   {
     name: "kick",
     get helpString() {
-      return lazy._("command.kick", "kick");
+      return lazy.l10n.formatValueSync("command-kick", { commandName: "kick" });
     },
     run: clientCommand("kick", 2, { requiredCount: 1 }),
   },
   {
     name: "op",
     get helpString() {
-      return lazy._("command.op", "op");
+      return lazy.l10n.formatValueSync("command-op", { commandName: "op" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 2, {
@@ -349,7 +370,7 @@ export var commands = [
   {
     name: "deop",
     get helpString() {
-      return lazy._("command.deop", "deop");
+      return lazy.l10n.formatValueSync("command-deop", { commandName: "deop" });
     },
     usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 1, {
@@ -361,14 +382,18 @@ export var commands = [
   {
     name: "part",
     get helpString() {
-      return lazy._("command.leave", "part");
+      return lazy.l10n.formatValueSync("command-leave", {
+        commandName: "part",
+      });
     },
     run: clientCommand("leave", 0),
   },
   {
     name: "topic",
     get helpString() {
-      return lazy._("command.topic", "topic");
+      return lazy.l10n.formatValueSync("command-topic", {
+        commandName: "topic",
+      });
     },
     run: runCommand((account, conv, [, topic]) => {
       conv.topic = topic;
@@ -378,7 +403,9 @@ export var commands = [
   {
     name: "visibility",
     get helpString() {
-      return lazy._("command.visibility", "visibility");
+      return lazy.l10n.formatValueSync("command-visibility", {
+        commandName: "visibility",
+      });
     },
     run: clientCommand("setRoomDirectoryVisibility", 1, {
       formatParams(conv, [visibilityString]) {
@@ -393,14 +420,18 @@ export var commands = [
   {
     name: "roomname",
     get helpString() {
-      return lazy._("command.roomname", "roomname");
+      return lazy.l10n.formatValueSync("command-roomname", {
+        commandName: "roomname",
+      });
     },
     run: clientCommand("setRoomName", 1),
   },
   {
     name: "detail",
     get helpString() {
-      return lazy._("command.detail", "detail");
+      return lazy.l10n.formatValueSync("command-detail", {
+        commandName: "detail",
+      });
     },
     run(msg, convObj) {
       const account = getAccount(convObj);
@@ -412,7 +443,9 @@ export var commands = [
   {
     name: "addalias",
     get helpString() {
-      return lazy._("command.addalias", "addalias");
+      return lazy.l10n.formatValueSync("command-addalias", {
+        commandName: "addalias",
+      });
     },
     run: clientCommand("createAlias", 1, {
       formatParams(conv, [alias]) {
@@ -423,7 +456,9 @@ export var commands = [
   {
     name: "removealias",
     get helpString() {
-      return lazy._("command.removealias", "removealias");
+      return lazy.l10n.formatValueSync("command-removealias", {
+        commandName: "removealias",
+      });
     },
     run: clientCommand("deleteAlias", 1, {
       formatParams(conv, [alias]) {
@@ -434,7 +469,7 @@ export var commands = [
   {
     name: "me",
     get helpString() {
-      return lazy._("command.me", "me");
+      return lazy.l10n.formatValueSync("command-me", { commandName: "me" });
     },
     run: runCommand((account, conv, [, message]) => {
       conv.sendMsg(message, true);
@@ -444,7 +479,7 @@ export var commands = [
   {
     name: "msg",
     get helpString() {
-      return lazy._("command.msg", "msg");
+      return lazy.l10n.formatValueSync("command-msg", { commandName: "msg" });
     },
     run: runCommand((account, conv, [, userId, message]) => {
       const room = account.getDirectConversation(userId);
@@ -461,7 +496,7 @@ export var commands = [
   {
     name: "join",
     get helpString() {
-      return lazy._("command.join", "join");
+      return lazy.l10n.formatValueSync("command-join", { commandName: "join" });
     },
     run: runCommand(
       (account, conv, [, joinRoomId]) => {

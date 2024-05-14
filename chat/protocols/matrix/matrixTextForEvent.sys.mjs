@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { MatrixSDK } from "resource:///modules/matrix-sdk.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/matrix.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/matrix-properties.ftl"], true)
 );
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -24,7 +25,10 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @returns {string}
  */
 const keyVerificationRequest = (matrixEvent, { sender, content }) => {
-  return lazy._("message.verification.request2", sender, content.to);
+  return lazy.l10n.formatValueSync("message-verification-request2", {
+    user: sender,
+    userReceiving: content.to || "",
+  });
 };
 /**
  * Shared handler for room messages, since those come in the plain text and
@@ -34,7 +38,8 @@ const roomMessage = {
   pivot: "msgtype",
   handlers: {
     [MatrixSDK.MsgType.KeyVerificationRequest]: keyVerificationRequest,
-    "m.bad.encrypted": () => lazy._("message.decryptionError"),
+    "m.bad.encrypted": () =>
+      lazy.l10n.formatValueSync("message-decryption-error"),
   },
 };
 
@@ -68,31 +73,34 @@ const MATRIX_EVENT_HANDLERS = {
         target: matrixEvent.target,
         prevContent: matrixEvent.getPrevContent(),
         reason: content.reason,
-        withReasonKey: content.reason ? "WithReason" : "",
+        withReasonKey: content.reason ? "-with-reason" : "",
       };
     },
     handlers: {
       ban(matrixEvent, { sender, target, reason, withReasonKey }) {
-        return lazy._(
-          "message.banned" + withReasonKey,
-          sender,
-          target.userId,
-          reason
-        );
+        return lazy.l10n.formatValueSync(`message-banned${withReasonKey}`, {
+          user: sender,
+          userBanned: target.userId,
+          reason,
+        });
       },
       invite(matrixEvent, { sender, content, target }) {
         const thirdPartyInvite = content.third_party_invite;
         if (thirdPartyInvite) {
           if (thirdPartyInvite.display_name) {
-            return lazy._(
-              "message.acceptedInviteFor",
-              target.userId,
-              thirdPartyInvite.display_name
-            );
+            return lazy.l10n.formatValueSync("message-accepted-invite-for", {
+              user: target.userId,
+              userWhoSent: thirdPartyInvite.display_name,
+            });
           }
-          return lazy._("message.acceptedInvite", target.userId);
+          return lazy.l10n.formatValueSync("message-accepted-invite", {
+            user: target.userId,
+          });
         }
-        return lazy._("message.invited", sender, target.userId);
+        return lazy.l10n.formatValueSync("message-invited", {
+          user: sender,
+          userWhoGotInvited: target.userId,
+        });
       },
       join(matrixEvent, { sender, content, prevContent, target }) {
         if (prevContent && prevContent.membership == "join") {
@@ -101,28 +109,27 @@ const MATRIX_EVENT_HANDLERS = {
             content.displayname &&
             prevContent.displayname != content.displayname
           ) {
-            return lazy._(
-              "message.displayName.changed",
-              sender,
-              prevContent.displayname,
-              content.displayname
-            );
+            return lazy.l10n.formatValueSync("message-display-name-changed", {
+              user: sender,
+              oldDisplayName: prevContent.displayname,
+              newDisplayName: content.displayname,
+            });
           } else if (!prevContent.displayname && content.displayname) {
-            return lazy._(
-              "message.displayName.set",
-              sender,
-              content.displayname
-            );
+            return lazy.l10n.formatValueSync("message-display-name-set", {
+              user: sender,
+              changedName: content.displayname,
+            });
           } else if (prevContent.displayname && !content.displayname) {
-            return lazy._(
-              "message.displayName.remove",
-              sender,
-              prevContent.displayname
-            );
+            return lazy.l10n.formatValueSync("message-display-name-remove", {
+              user: sender,
+              nameRemoved: prevContent.displayname,
+            });
           }
           return null;
         }
-        return lazy._("message.joined", target.userId);
+        return lazy.l10n.formatValueSync("message-joined", {
+          user: target.userId,
+        });
       },
       leave(
         matrixEvent,
@@ -132,24 +139,32 @@ const MATRIX_EVENT_HANDLERS = {
         // So we need to look at each transition to what happened to the user.
         if (matrixEvent.getSender() === target.userId) {
           if (prevContent.membership === "invite") {
-            return lazy._("message.rejectedInvite", target.userId);
+            return lazy.l10n.formatValueSync("message-rejected-invite", {
+              user: target.userId,
+            });
           }
-          return lazy._("message.left", target.userId);
+          return lazy.l10n.formatValueSync("message-left", {
+            user: target.userId,
+          });
         } else if (prevContent.membership === "ban") {
-          return lazy._("message.unbanned", sender, target.userId);
+          return lazy.l10n.formatValueSync("message-unbanned", {
+            user: sender,
+            userUnbanned: target.userId,
+          });
         } else if (prevContent.membership === "join") {
-          return lazy._(
-            "message.kicked" + withReasonKey,
-            sender,
-            target.userId,
-            reason
-          );
+          return lazy.l10n.formatValueSync(`message-kicked${withReasonKey}`, {
+            user: sender,
+            userGotKicked: target.userId,
+            reason,
+          });
         } else if (prevContent.membership === "invite") {
-          return lazy._(
-            "message.withdrewInvite" + withReasonKey,
-            sender,
-            target.userId,
-            reason
+          return lazy.l10n.formatValueSync(
+            `message-withdrew-invite${withReasonKey}`,
+            {
+              user: sender,
+              userInvitationWithdrawn: target.userId,
+              reason,
+            }
           );
         }
         // ignore rest of the cases.
@@ -178,12 +193,17 @@ const MATRIX_EVENT_HANDLERS = {
             // Handling the case where there are multiple changes.
             // Example : "@Mr.B:matrix.org changed the power level of
             // @Mr.B:matrix.org from Default (0) to Moderator (50)."
-            return lazy._(
-              "message.powerLevel.fromTo",
-              userId,
-              lazy.MatrixPowerLevels.toText(prevPowerLevel, prevDefault),
-              lazy.MatrixPowerLevels.toText(currentPowerLevel, userDefault)
-            );
+            return lazy.l10n.formatValueSync("message-power-level-from-to", {
+              user: userId,
+              oldPowerLevel: lazy.MatrixPowerLevels.toText(
+                prevPowerLevel,
+                prevDefault
+              ),
+              newPowerLevel: lazy.MatrixPowerLevels.toText(
+                currentPowerLevel,
+                userDefault
+              ),
+            });
           }
           return null;
         })
@@ -193,26 +213,38 @@ const MATRIX_EVENT_HANDLERS = {
       if (!changes.length) {
         return null;
       }
-      return lazy._("message.powerLevel.changed", sender, changes.join(", "));
+      return lazy.l10n.formatValueSync("message-power-level-changed", {
+        user: sender,
+        powerLevelChanges: changes.join(", "),
+      });
     },
   },
   [MatrixSDK.EventType.RoomName]: {
     handler(matrixEvent, { sender, content }) {
       const roomName = content.name;
       if (!roomName) {
-        return lazy._("message.roomName.remove", sender);
+        return lazy.l10n.formatValueSync("message-room-name-remove", {
+          user: sender,
+        });
       }
-      return lazy._("message.roomName.changed", sender, roomName);
+      return lazy.l10n.formatValueSync("message-room-name-changed", {
+        user: sender,
+        newRoomName: roomName,
+      });
     },
   },
   [MatrixSDK.EventType.RoomGuestAccess]: {
     pivot: "guest_access",
     handlers: {
       [MatrixSDK.GuestAccess.Forbidden](matrixEvent, { sender }) {
-        return lazy._("message.guest.prevented", sender);
+        return lazy.l10n.formatValueSync("message-guest-prevented", {
+          user: sender,
+        });
       },
       [MatrixSDK.GuestAccess.CanJoin](matrixEvent, { sender }) {
-        return lazy._("message.guest.allowed", sender);
+        return lazy.l10n.formatValueSync("message-guest-allowed", {
+          user: sender,
+        });
       },
     },
   },
@@ -220,16 +252,24 @@ const MATRIX_EVENT_HANDLERS = {
     pivot: "history_visibility",
     handlers: {
       [MatrixSDK.HistoryVisibility.WorldReadable](matrixEvent, { sender }) {
-        return lazy._("message.history.anyone", sender);
+        return lazy.l10n.formatValueSync("message-history-anyone", {
+          user: sender,
+        });
       },
       [MatrixSDK.HistoryVisibility.Shared](matrixEvent, { sender }) {
-        return lazy._("message.history.shared", sender);
+        return lazy.l10n.formatValueSync("message-history-shared", {
+          user: sender,
+        });
       },
       [MatrixSDK.HistoryVisibility.Invited](matrixEvent, { sender }) {
-        return lazy._("message.history.invited", sender);
+        return lazy.l10n.formatValueSync("message-history-invited", {
+          user: sender,
+        });
       },
       [MatrixSDK.HistoryVisibility.Joined](matrixEvent, { sender }) {
-        return lazy._("message.history.joined", sender);
+        return lazy.l10n.formatValueSync("message-history-joined", {
+          user: sender,
+        });
       },
     },
   },
@@ -237,12 +277,11 @@ const MATRIX_EVENT_HANDLERS = {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (content.alias != prevContent.alias) {
-        return lazy._(
-          "message.alias.main",
-          sender,
-          prevContent.alias,
-          content.alias
-        );
+        return lazy.l10n.formatValueSync("message-alias-main", {
+          user: sender,
+          oldAddress: prevContent.alias || "",
+          newAddress: content.alias,
+        });
       }
       const prevAliases = prevContent.alt_aliases || [];
       const aliases = content.alt_aliases || [];
@@ -253,16 +292,21 @@ const MATRIX_EVENT_HANDLERS = {
         .filter(alias => !aliases.includes(alias))
         .join(", ");
       if (addedAliases && removedAliases) {
-        return lazy._(
-          "message.alias.removedAndAdded",
-          sender,
-          removedAliases,
-          addedAliases
-        );
+        return lazy.l10n.formatValueSync("message-alias-removed-and-added", {
+          user: sender,
+          removedAddresses: removedAliases,
+          addedAddresses: addedAliases,
+        });
       } else if (removedAliases) {
-        return lazy._("message.alias.removed", sender, removedAliases);
+        return lazy.l10n.formatValueSync("message-alias-removed", {
+          user: sender,
+          addresses: removedAliases,
+        });
       } else if (addedAliases) {
-        return lazy._("message.alias.added", sender, addedAliases);
+        return lazy.l10n.formatValueSync("message-alias-added", {
+          user: sender,
+          addresses: addedAliases,
+        });
       }
       // No discernible changes to aliases
       return null;
@@ -276,17 +320,20 @@ const MATRIX_EVENT_HANDLERS = {
   },
   [MatrixSDK.EventType.KeyVerificationCancel]: {
     handler(matrixEvent, { sender, content }) {
-      return lazy._("message.verification.cancel2", sender, content.reason);
+      return lazy.l10n.formatValueSync("message-verification-cancel2", {
+        user: sender,
+        reason: content.reason,
+      });
     },
   },
   [MatrixSDK.EventType.KeyVerificationDone]: {
     handler() {
-      return lazy._("message.verification.done");
+      return lazy.l10n.formatValueSync("message-verification-done");
     },
   },
   [MatrixSDK.EventType.RoomEncryption]: {
     handler() {
-      return lazy._("message.encryptionStart");
+      return lazy.l10n.formatValueSync("message-encryption-start");
     },
   },
 

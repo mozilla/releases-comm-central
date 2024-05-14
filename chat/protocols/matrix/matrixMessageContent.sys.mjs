@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { MatrixSDK } from "resource:///modules/matrix-sdk.sys.mjs";
 
 const lazy = {};
@@ -16,8 +15,10 @@ ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   );
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/matrix.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/matrix-properties.ftl"], true)
 );
 
 const kRichBodiedTypes = [
@@ -285,7 +286,7 @@ export var MatrixMessageContent = {
     const type = event.getType();
     const content = event.getContent();
     if (event.isRedacted()) {
-      return lazy._("message.redacted");
+      return lazy.l10n.formatValueSync("message-redacted");
     }
     const textForEvent = lazy.getMatrixTextForEvent(event);
     if (textForEvent) {
@@ -302,7 +303,7 @@ export var MatrixMessageContent = {
           return attachmentUrl;
         }
       } else if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
-        return lazy._("message.decrypting");
+        return lazy.l10n.formatValueSync("message-decrypting");
       }
     } else if (type == MatrixSDK.EventType.Sticker) {
       const attachmentUrl = getAttachmentUrl(content, homeserverUrl);
@@ -312,12 +313,11 @@ export var MatrixMessageContent = {
     } else if (type == MatrixSDK.EventType.Reaction) {
       const annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
-        return lazy._(
-          "message.reaction",
-          event.getSender(),
-          annotatedEvent.getSender(),
-          lazy.TXTToHTML(content["m.relates_to"].key)
-        );
+        return lazy.l10n.formatValueSync("message-reaction", {
+          userThatReacted: event.getSender(),
+          userThatSentMessage: annotatedEvent.getSender(),
+          reaction: lazy.TXTToHTML(content["m.relates_to"].key),
+        });
       }
     }
     return lazy.TXTToHTML(content.body ?? "");
@@ -344,7 +344,7 @@ export var MatrixMessageContent = {
     const type = event.getType();
     const content = event.getContent();
     if (event.isRedacted()) {
-      return lazy._("message.redacted");
+      return lazy.l10n.formatValueSync("message-redacted");
     }
     if (type == MatrixSDK.EventType.RoomMessage) {
       if (
@@ -361,12 +361,11 @@ export var MatrixMessageContent = {
     } else if (type == MatrixSDK.EventType.Reaction) {
       const annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
-        return lazy._(
-          "message.reaction",
-          `<span class="ib-person">${event.getSender()}</span>`,
-          `<span class="ib-person">${annotatedEvent.getSender()}</span>`,
-          lazy.TXTToHTML(content["m.relates_to"].key)
-        );
+        return lazy.l10n.formatValueSync("message-reaction", {
+          userThatReacted: `<span class="ib-person">${event.getSender()}</span>`,
+          userThatSentMessage: `<span class="ib-person">${annotatedEvent.getSender()}</span>`,
+          reaction: lazy.TXTToHTML(content["m.relates_to"].key),
+        });
       }
     }
     return MatrixMessageContent.getIncomingPlain(

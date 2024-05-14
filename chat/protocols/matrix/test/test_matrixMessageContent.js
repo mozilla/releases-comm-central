@@ -10,10 +10,7 @@ const { XPCShellContentUtils } = ChromeUtils.importESModule(
 var { getMatrixTextForEvent } = ChromeUtils.importESModule(
   "resource:///modules/matrixTextForEvent.sys.mjs"
 );
-var { l10nHelper } = ChromeUtils.importESModule(
-  "resource:///modules/imXPCOMUtils.sys.mjs"
-);
-var _ = l10nHelper("chrome://chat/locale/matrix.properties");
+var l10n = new Localization(["chat/matrix-properties.ftl"], true);
 
 // Required to make it so the DOMParser can handle images and such.
 XPCShellContentUtils.init(this);
@@ -206,7 +203,7 @@ dolor sit amet`,
       type: MatrixSDK.EventType.RoomMessageEncrypted,
       decrypting: true,
     },
-    result: _("message.decrypting"),
+    result: l10n.formatValueSync("message-decrypting"),
   },
   {
     description: "Unsent event",
@@ -229,7 +226,7 @@ dolor sit amet`,
       sender: "@bar:example.com",
       redacted: true,
     },
-    result: _("message.redacted"),
+    result: l10n.formatValueSync("message-redacted"),
   },
   {
     description: "Tombstone",
@@ -273,7 +270,11 @@ dolor sit amet`,
       },
       sender: "@foo:example.com",
     },
-    result: _("message.reaction", "@bar:example.com", "@foo:example.com", "🐦"),
+    result: l10n.formatValueSync("message-reaction", {
+      userThatReacted: "@bar:example.com",
+      userThatSentMessage: "@foo:example.com",
+      reaction: "🐦",
+    }),
   },
 ];
 
@@ -532,7 +533,7 @@ dolor sit amet`,
       sender: "@bar:example.com",
       redacted: true,
     },
-    result: _("message.redacted"),
+    result: l10n.formatValueSync("message-redacted"),
   },
   {
     description: "Tombstone",
@@ -576,12 +577,11 @@ dolor sit amet`,
       },
       sender: "@foo:example.com",
     },
-    result: _(
-      "message.reaction",
-      '<span class="ib-person">@bar:example.com</span>',
-      '<span class="ib-person">@foo:example.com</span>',
-      "🐦"
-    ),
+    result: l10n.formatValueSync("message-reaction", {
+      userThatReacted: '<span class="ib-person">@bar:example.com</span>',
+      userThatSentMessage: '<span class="ib-person">@foo:example.com</span>',
+      reaction: "🐦",
+    }),
   },
   {
     description: "URL encoded mention",

@@ -10,7 +10,6 @@ import {
   nsSimpleEnumerator,
   EmptyEnumerator,
   ClassInfo,
-  l10nHelper,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import {
   GenericAccountPrototype,
@@ -40,8 +39,10 @@ XPCOMUtils.defineLazyServiceGetter(
   "imgITools"
 );
 
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/xmpp.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/xmpp.ftl"], true)
 );
 
 ChromeUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
@@ -254,8 +255,8 @@ export var XMPPMUCConversationPrototype = {
       { type: "groupchat" },
       subject
     );
-    const notAuthorized = lazy._(
-      "conversation.error.changeTopicFailedNotAuthorized"
+    const notAuthorized = lazy.l10n.formatValueSync(
+      "conversation-error-change-topic-failed-not-authorized"
     );
     this._account.sendStanza(
       s,
@@ -283,10 +284,9 @@ export var XMPPMUCConversationPrototype = {
     }
     // XEP-0045 (7.4): Sending a message to all occupants in a room.
     const s = Stanza.message(this.name, aMsg, null, { type: "groupchat" });
-    const notInRoom = lazy._(
-      "conversation.error.sendFailedAsNotInRoom",
-      this.name,
-      aMsg
+    const notInRoom = lazy.l10n.formatValueSync(
+      "conversation-error-send-failed-as-not-inroom",
+      { mucName: this.name, message: aMsg }
     );
     this._account.sendStanza(
       s,
@@ -319,23 +319,33 @@ export var XMPPMUCConversationPrototype = {
         case "not-authorized":
         case "registration-required":
           // XEP-0045 (7.2.7): Members-Only Rooms.
-          message = lazy._("conversation.error.joinFailedNotAuthorized");
+          message = lazy.l10n.formatValueSync(
+            "conversation-error-join-failed-not-authorized"
+          );
           break;
         case "not-allowed":
-          message = lazy._("conversation.error.creationFailedNotAllowed");
+          message = lazy.l10n.formatValueSync(
+            "conversation-error-creation-failed-not-allowed"
+          );
           break;
         case "remote-server-not-found":
-          message = lazy._(
-            "conversation.error.joinFailedRemoteServerNotFound",
-            this.name
+          message = lazy.l10n.formatValueSync(
+            "conversation-error-join-failed-remote-server-not-found",
+            { mucName: this.name }
           );
           break;
         case "forbidden":
           // XEP-0045 (7.2.8): Banned users.
-          message = lazy._("conversation.error.joinForbidden", this.name);
+          message = lazy.l10n.formatValueSync(
+            "conversation-error-join-forbidden",
+            { mucName: this.name }
+          );
           break;
         default:
-          message = lazy._("conversation.error.joinFailed", this.name);
+          message = lazy.l10n.formatValueSync(
+            "conversation-error-join-failed",
+            { mucName: this.name }
+          );
           this.ERROR("Failed to join MUC: " + aStanza.convertToString());
           break;
       }
@@ -405,14 +415,14 @@ export var XMPPMUCConversationPrototype = {
         // Who caused the participant to leave the room.
         const actor = item.getElement(["actor"]);
         const actorNick = actor ? actor.attributes.nick : "";
-        const isActor = actorNick ? ".actor" : "";
+        const isActor = actorNick ? "-actor" : "";
 
         // Why the participant left.
         let reasonNode = item.getElement(["reason"]);
         let reason = reasonNode ? reasonNode.innerText : "";
-        let isReason = reason ? ".reason" : "";
+        let isReason = reason ? "-reason" : "";
 
-        const isYou = nick == this.nick ? ".you" : "";
+        const isYou = nick == this.nick ? "-you" : "";
         const affectedNick = isYou ? "" : nick;
         if (isYou) {
           this.left = true;
@@ -421,38 +431,46 @@ export var XMPPMUCConversationPrototype = {
         let message;
         if (codes.includes("301")) {
           // XEP-0045 (9.1): Banning a User.
-          message = "conversation.message.banned";
+          message = "conversation-message-banned";
         } else if (codes.includes("307")) {
           // XEP-0045 (8.2): Kicking an Occupant.
-          message = "conversation.message.kicked";
+          message = "conversation-message-kicked";
         } else if (codes.includes("322") || codes.includes("321")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the room has been changed to members-only and the
           // user is not a member.
-          message = "conversation.message.removedNonMember";
+          message = "conversation-message-removed-non-member";
         } else if (codes.includes("332")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the MUC service is being shut down.
-          message = "conversation.message.mucShutdown";
+          message = "conversation-message-muc-shutdown";
 
           // The reason here just duplicates what's in the system message.
           reason = isReason = "";
         } else {
           // XEP-0045 (7.14): Received when the user parts a room.
-          message = "conversation.message.parted";
+          message = "conversation-message-parted";
 
           // The reason is in a status element in this case.
           reasonNode = aStanza.getElement(["status"]);
           reason = reasonNode ? reasonNode.innerText : "";
-          isReason = reason ? ".reason" : "";
+          isReason = reason ? "-reason" : "";
         }
 
         if (message) {
-          const messageID = message + isYou + isActor + isReason;
-          const params = [actorNick, affectedNick, reason].filter(s => s);
-          this.writeMessage(this.name, lazy._(messageID, ...params), {
-            system: true,
-          });
+          const messageID = `${message}${isYou}${isActor}${isReason}`;
+          const paramObject = {
+            actorNick,
+            affectedNick,
+            reason,
+          };
+          this.writeMessage(
+            this.name,
+            lazy.l10n.formatValueSync(messageID, paramObject),
+            {
+              system: true,
+            }
+          );
         }
       } else {
         this.WARN("Unhandled type==unavailable MUC presence stanza.");
@@ -510,15 +528,21 @@ export var XMPPMUCConversationPrototype = {
       if (this.nick != nick && !this.joining) {
         this.writeMessage(
           this.name,
-          lazy._("conversation.message.join", nick),
+          lazy.l10n.formatValueSync("conversation-message-join", {
+            participant: nick,
+          }),
           {
             system: true,
           }
         );
       } else if (this.nick == nick && this._rejoined) {
-        this.writeMessage(this.name, lazy._("conversation.message.rejoined"), {
-          system: true,
-        });
+        this.writeMessage(
+          this.name,
+          lazy.l10n.formatValueSync("conversation-message-rejoined"),
+          {
+            system: true,
+          }
+        );
         this._rejoined = false;
       }
     } else {
@@ -536,7 +560,9 @@ export var XMPPMUCConversationPrototype = {
       flags.system = true;
       from = this.name;
     } else if (aStanza.attributes.type == "error") {
-      aMsg = lazy._("conversation.error.notDelivered", aMsg);
+      aMsg = lazy.l10n.formatValueSync("conversation-error-not-delivered", {
+        message: aMsg,
+      });
       flags.system = true;
       flags.error = true;
     } else if (from == this._nick) {
@@ -588,12 +614,19 @@ export var XMPPMUCConversationPrototype = {
       s,
       this._account.handleErrors(
         {
-          forbidden: lazy._("conversation.error.inviteFailedForbidden"),
+          forbidden: lazy.l10n.formatValueSync(
+            "conversation-error-invite-failed-forbidden"
+          ),
           // ejabberd uses error not-allowed to indicate that this account does not
           // have the required privileges to invite users instead of forbidden error,
           // and this is not mentioned in the spec (XEP-0045).
-          notAllowed: lazy._("conversation.error.inviteFailedForbidden"),
-          itemNotFound: lazy._("conversation.error.failedJIDNotFound", aJID),
+          notAllowed: lazy.l10n.formatValueSync(
+            "conversation-error-invite-failed-forbidden"
+          ),
+          itemNotFound: lazy.l10n.formatValueSync(
+            "conversation-error-failed-jid-not-found",
+            { jabberIdentifier: aJID }
+          ),
         },
         this
       )
@@ -607,7 +640,9 @@ export var XMPPMUCConversationPrototype = {
     if (!participant) {
       this.writeMessage(
         this.name,
-        lazy._("conversation.error.nickNotInRoom", aNickName),
+        lazy.l10n.formatValueSync("conversation-error-nick-not-in-room", {
+          nick: aNickName,
+        }),
         { system: true }
       );
       return;
@@ -615,7 +650,9 @@ export var XMPPMUCConversationPrototype = {
     if (!participant.accountJid) {
       this.writeMessage(
         this.name,
-        lazy._("conversation.error.banCommandAnonymousRoom"),
+        lazy.l10n.formatValueSync(
+          "conversation-error-ban-command-anonymous-room"
+        ),
         { system: true }
       );
       return;
@@ -660,8 +697,12 @@ export var XMPPMUCConversationPrototype = {
   _banKickHandler(aStanza) {
     return this._account._handleResult(
       {
-        notAllowed: lazy._("conversation.error.banKickCommandNotAllowed"),
-        conflict: lazy._("conversation.error.banKickCommandConflict"),
+        notAllowed: lazy.l10n.formatValueSync(
+          "conversation-error-ban-kick-command-not-allowed"
+        ),
+        conflict: lazy.l10n.formatValueSync(
+          "conversation-error-ban-kick-command-conflict"
+        ),
       },
       this
     )(aStanza);
@@ -678,14 +719,14 @@ export var XMPPMUCConversationPrototype = {
           // XEP-0045 (7.6): Changing Nickname (example 53).
           // TODO: We should discover if the user has a reserved nickname (maybe
           // before joining a room), cf. XEP-0045 (7.12).
-          notAcceptable: lazy._(
-            "conversation.error.changeNickFailedNotAcceptable",
-            aNewNick
+          notAcceptable: lazy.l10n.formatValueSync(
+            "conversation-error-change-nick-failed-not-acceptable",
+            { nick: aNewNick }
           ),
           // XEP-0045 (7.2.9): Nickname Conflict.
-          conflict: lazy._(
-            "conversation.error.changeNickFailedConflict",
-            aNewNick
+          conflict: lazy.l10n.formatValueSync(
+            "conversation-error-change-nick-failed-conflict",
+            { nick: aNewNick }
           ),
         },
         this
@@ -706,13 +747,18 @@ export var XMPPMUCConversationPrototype = {
       const reason = reasonNode ? reasonNode.innerText : "";
       let msg;
       if (reason) {
-        msg = lazy._(
-          "conversation.message.invitationDeclined.reason",
-          invitee,
-          reason
+        msg = lazy.l10n.formatValueSync(
+          "conversation-message-invitation-declined-reason",
+          {
+            invitee,
+            declineReason: reason,
+          }
         );
       } else {
-        msg = lazy._("conversation.message.invitationDeclined", invitee);
+        msg = lazy.l10n.formatValueSync(
+          "conversation-message-invitation-declined",
+          { invitee }
+        );
       }
 
       this.writeMessage(this.name, msg, { system: true });
@@ -903,7 +949,9 @@ export var XMPPConversationPrototype = {
       if (
         this._account.handleErrors(
           {
-            default: lazy._("conversation.error.version.unknown"),
+            default: lazy.l10n.formatValueSync(
+              "conversation-error-version-unknown"
+            ),
           },
           this
         )(aStanza)
@@ -931,19 +979,27 @@ export var XMPPConversationPrototype = {
         return;
       }
 
-      let messageID = "conversation.message.version";
-      const params = [this.shortName, name.innerText, version.innerText];
+      let messageID = "conversation-message-version";
+      const paramObject = {
+        user: this.shortName,
+        clientName: name.innerText,
+        clientVersion: version.innerText,
+      };
 
       // XEP-0092: os is OPTIONAL.
       const os = query.getElement(["os"]);
       if (os) {
-        params.push(os.innerText);
-        messageID += "WithOS";
+        paramObject.systemResponse = os.innerText;
+        messageID = `${messageID}-with-os`;
       }
 
-      this.writeMessage(this.name, lazy._(messageID, ...params), {
-        system: true,
-      });
+      this.writeMessage(
+        this.name,
+        lazy.l10n.formatValueSync(messageID, paramObject),
+        {
+          system: true,
+        }
+      );
     });
   },
 
@@ -970,16 +1026,20 @@ export var XMPPConversationPrototype = {
         // Failed outgoing message.
         switch (error.condition) {
           case "remote-server-not-found":
-            aMsg = lazy._("conversation.error.remoteServerNotFound");
+            aMsg = lazy.l10n.formatValueSync(
+              "conversation-error-remote-server-not-found"
+            );
             break;
           case "service-unavailable":
-            aMsg = lazy._(
-              "conversation.error.sendServiceUnavailable",
-              this.shortName
+            aMsg = lazy.l10n.formatValueSync(
+              "conversation-error-send-service-unavailable",
+              { nick: this.shortName }
             );
             break;
           default:
-            aMsg = lazy._("conversation.error.unknownSendError");
+            aMsg = lazy.l10n.formatValueSync(
+              "conversation-error-unknown-send-error"
+            );
             break;
         }
       } else if (
@@ -990,10 +1050,12 @@ export var XMPPConversationPrototype = {
       ) {
         // XEP-0045 (7.5): MUC private messages.
         // If we try to send to participant not in a room we are in.
-        aMsg = lazy._(
-          "conversation.error.sendFailedAsRecipientNotInRoom",
-          this._targetResource,
-          aMsg
+        aMsg = lazy.l10n.formatValueSync(
+          "conversation-error-send-failed-as-recipient-not-inroom",
+          {
+            jabberIdentifier: this._targetResource,
+            message: aMsg,
+          }
         );
       } else if (
         this._isMucParticipant &&
@@ -1002,13 +1064,17 @@ export var XMPPConversationPrototype = {
       ) {
         // If we left a room and try to send to a participant in it or the
         // room is removed.
-        aMsg = lazy._(
-          "conversation.error.sendFailedAsNotInRoom",
-          this._account.normalize(from),
-          aMsg
+        aMsg = lazy.l10n.formatValueSync(
+          "conversation-error-send-failed-as-not-inroom",
+          {
+            mucName: this._account.normalize(from),
+            message: aMsg,
+          }
         );
       } else {
-        aMsg = lazy._("conversation.error.notDelivered", aMsg);
+        aMsg = lazy.l10n.formatValueSync("conversation-error-not-delivered", {
+          message: aMsg,
+        });
       }
       flags.system = true;
       flags.error = true;
@@ -1081,8 +1147,10 @@ export var XMPPAccountBuddyPrototype = {
           statusString += " - " + status.statusText;
         }
         const label = r
-          ? lazy._("tooltip.status", r)
-          : lazy._("tooltip.statusNoResource");
+          ? lazy.l10n.formatValueSync("tooltip-status", {
+              resourceIdentifier: r,
+            })
+          : lazy.l10n.formatValueSync("tooltip-status-no-resource");
         tooltipInfo.push(new TooltipInfo(label, statusString));
       }
     }
@@ -1090,7 +1158,10 @@ export var XMPPAccountBuddyPrototype = {
     // The subscription value is interesting to display only in unusual cases.
     if (this.subscription != "both") {
       tooltipInfo.push(
-        new TooltipInfo(lazy._("tooltip.subscription"), this.subscription)
+        new TooltipInfo(
+          lazy.l10n.formatValueSync("tooltip-subscription"),
+          this.subscription
+        )
       );
     }
 
@@ -1445,25 +1516,25 @@ export var XMPPAccountPrototype = {
   chatRoomFields: {
     room: {
       get label() {
-        return lazy._("chatRoomField.room");
+        return lazy.l10n.formatValueSync("chat-room-field-room");
       },
       required: true,
     },
     server: {
       get label() {
-        return lazy._("chatRoomField.server");
+        return lazy.l10n.formatValueSync("chat-room-field-server");
       },
       required: true,
     },
     nick: {
       get label() {
-        return lazy._("chatRoomField.nick");
+        return lazy.l10n.formatValueSync("chat-room-field-nick");
       },
       required: true,
     },
     password: {
       get label() {
-        return lazy._("chatRoomField.password");
+        return lazy.l10n.formatValueSync("chat-room-field-password");
       },
       isPassword: true,
     },
@@ -1772,24 +1843,27 @@ export var XMPPAccountPrototype = {
       }
 
       // vCard fields we want to display in the tooltip.
-      const kTooltipFields = [
-        "userName",
-        "fullName",
-        "nickname",
-        "title",
-        "organization",
-        "email",
-        "birthday",
-        "locality",
-        "country",
-        "telephone",
-      ];
+      const kTooltipFields = {
+        userName: "tooltip-user-name",
+        fullName: "tooltip-full-name",
+        nickname: "tooltip-nickname",
+        title: "tooltip-title",
+        organization: "tooltip-organization",
+        email: "tooltip-email",
+        birthday: "tooltip-birthday",
+        locality: "tooltip-locality",
+        country: "tooltip-country",
+        telephone: "tooltip-telephone",
+      };
 
       const tooltipInfo = [];
-      for (const field of kTooltipFields) {
+      for (const [field, stringKey] of Object.entries(kTooltipFields)) {
         if (vCardInfo.hasOwnProperty(field)) {
           tooltipInfo.push(
-            new TooltipInfo(lazy._("tooltip." + field), vCardInfo[field])
+            new TooltipInfo(
+              lazy.l10n.formatValueSync(stringKey),
+              vCardInfo[field]
+            )
           );
         }
       }
@@ -2033,7 +2107,9 @@ export var XMPPAccountPrototype = {
   onConnection() {
     // Request the roster. The account will be marked as connected when this is
     // complete.
-    this.reportConnecting(lazy._("connection.downloadingRoster"));
+    this.reportConnecting(
+      lazy.l10n.formatValueSync("connection-downloading-roster")
+    );
     const s = Stanza.iq(
       "get",
       null,
@@ -2527,21 +2603,21 @@ export var XMPPAccountPrototype = {
     const invitation = this.parseInvitation(aStanza);
     if (invitation) {
       let messageID;
+      const fluentParams = {
+        inviter: invitation.from,
+        room: invitation.mucJid,
+      };
       if (invitation.reason) {
-        messageID = "conversation.muc.invitationWithReason2";
+        messageID = "conversation-muc-invitation-with-reason2";
+        fluentParams.reason = invitation.reason;
       } else {
-        messageID = "conversation.muc.invitationWithoutReason";
+        messageID = "conversation-muc-invitation-without-reason";
       }
       if (invitation.password) {
-        messageID += ".password";
+        messageID += "-password";
+        fluentParams.password = invitation.password;
       }
-      const params = [
-        invitation.from,
-        invitation.mucJid,
-        invitation.password,
-        invitation.reason,
-      ].filter(s => s);
-      const message = lazy._(messageID, ...params);
+      const message = lazy.l10n.formatValueSync(messageID, fluentParams);
 
       this.addChatRequest(
         invitation.mucJid,

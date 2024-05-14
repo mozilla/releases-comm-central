@@ -12,7 +12,6 @@
  *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
  *  https://github.com/unrealircd/unrealircd/blob/unreal42/include/numeric.h
  */
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 import {
   conversationErrorMessage,
@@ -20,8 +19,10 @@ import {
 } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
 
 export var ircNonStandard = {
@@ -75,7 +76,7 @@ export var ircNonStandard = {
           // Otherwise, put the account in an error state.
           this.gotDisconnected(
             Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
-            lazy._("connection.error.passwordRequired")
+            lazy.l10n.formatValueSync("connection-error-password-required")
           );
         }
 
@@ -227,7 +228,7 @@ export var ircNonStandard = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.channelForward",
+        "error-channel-forward",
         true,
         false
       );
@@ -236,7 +237,11 @@ export var ircNonStandard = {
     499(aMessage) {
       // ERR_CHANOWNPRIVNEEDED (Unreal)
       // <channel> :You're not the channel owner (status +q is needed)
-      return conversationErrorMessage(this, aMessage, "error.notChannelOwner");
+      return conversationErrorMessage(
+        this,
+        aMessage,
+        "error-not-channel-owner"
+      );
     },
 
     671(aMessage) {

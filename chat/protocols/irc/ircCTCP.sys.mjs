@@ -7,13 +7,14 @@
  *   REVISED AND UPDATED CTCP SPECIFICATION
  *     http://www.alien.net.au/irc/ctcp.txt
  */
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 import { displayMessage } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
 
 // Split into a CTCP message which is a single command and a single parameter:
@@ -239,7 +240,10 @@ export var ctcpBase = {
         const time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
-          lazy._("ctcp.time", aMessage.origin, time),
+          lazy.l10n.formatValueSync("ctcp-time", {
+            username: aMessage.origin,
+            timeResponse: time,
+          }),
           { system: true, tags: aMessage.tags }
         );
       }
@@ -269,11 +273,10 @@ export var ctcpBase = {
       } else if (aMessage.command == "NOTICE" && aMessage.ctcp.param.length) {
         // VERSION #:#:#
         // Received VERSION response, display to the user.
-        const response = lazy._(
-          "ctcp.version",
-          aMessage.origin,
-          aMessage.ctcp.param
-        );
+        const response = lazy.l10n.formatValueSync("ctcp-version", {
+          username: aMessage.origin,
+          version: aMessage.ctcp.param,
+        });
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
           response,

@@ -5,7 +5,6 @@
 import {
   ClassInfo,
   executeSoon,
-  l10nHelper,
   nsSimpleEnumerator,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
@@ -30,15 +29,13 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
-  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
 });
 
-ChromeUtils.defineLazyGetter(lazy, "_conv", () =>
-  l10nHelper("chrome://chat/locale/conversations.properties")
-);
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/conversations.ftl", "chat/irc.ftl"], true)
 );
 
 /*
@@ -303,7 +300,7 @@ export var GenericIRCConversation = {
       if (!this._account.sendCTCPMessage(this.name, false, "ACTION", message)) {
         this.writeMessage(
           this._account._currentServerName,
-          lazy._("error.sendMessageFailed"),
+          lazy.l10n.formatValueSync("error-send-message-failed"),
           {
             error: true,
             system: true,
@@ -319,7 +316,7 @@ export var GenericIRCConversation = {
     ) {
       this.writeMessage(
         this._account._currentServerName,
-        lazy._("error.sendMessageFailed"),
+        lazy.l10n.formatValueSync("error-send-message-failed"),
         {
           error: true,
           system: true,
@@ -404,22 +401,33 @@ export var GenericIRCConversation = {
     const type = { system: true, noLog: true };
     // RFC 2812 errors 401 and 406 result in there being no entry for the nick.
     if (!account.whoisInformation.has(nick)) {
-      this.writeMessage(null, lazy._("message.unknownNick", nick), type);
+      this.writeMessage(
+        null,
+        lazy.l10n.formatValueSync("message-unknown-nick", { nick }),
+        type
+      );
       return;
     }
     // If the nick is offline, tell the user. In that case, it's WHOWAS info.
-    let msgType = "message.whois";
+    let msgType = "message-whois";
     if ("offline" in account.whoisInformation.get(nick)) {
-      msgType = "message.whowas";
+      msgType = "message-whowas";
     }
-    let msg = lazy._(msgType, account.whoisInformation.get(nick).nick);
+    let msg = lazy.l10n.formatValueSync(msgType, {
+      nick: account.whoisInformation.get(nick).nick,
+    });
 
     // Iterate over each field.
     for (const elt of aSubject.QueryInterface(Ci.nsISimpleEnumerator)) {
       switch (elt.type) {
         case Ci.prplITooltipInfo.pair:
         case Ci.prplITooltipInfo.sectionHeader:
-          msg += "\n" + lazy._("message.whoisEntry", elt.label, elt.value);
+          msg +=
+            "\n" +
+            lazy.l10n.formatValueSync("message-whois-entry", {
+              description: elt.label,
+              value: elt.value,
+            });
           break;
         case Ci.prplITooltipInfo.sectionBreak:
           break;
@@ -430,7 +438,10 @@ export var GenericIRCConversation = {
           // The away message has no tooltipInfo.pair entry.
           msg +=
             "\n" +
-            lazy._("message.whoisEntry", lazy._("tooltip.away"), elt.value);
+            lazy.l10n.formatValueSync("message-whois-entry", {
+              description: lazy.l10n.formatValueSync("tooltip-away"),
+              value: elt.value,
+            });
           break;
       }
     }
@@ -591,10 +602,15 @@ ircChannel.prototype = {
           ) {
             continue;
           }
-          msg = lazy._("message.channelKeyAdded", aSetter, key);
+          msg = lazy.l10n.formatValueSync("message-channel-key-added", {
+            nick: aSetter,
+            newPassword: key,
+          });
           newFields += " " + key;
         } else {
-          msg = lazy._("message.channelKeyRemoved", aSetter);
+          msg = lazy.l10n.formatValueSync("message-channel-key-removed", {
+            nick: aSetter,
+          });
         }
 
         this.writeMessage(aSetter, msg, { system: true });
@@ -604,17 +620,24 @@ ircChannel.prototype = {
       } else if (aNewMode[i] == "b") {
         // A banmask was added or removed.
         const banMask = getNextParam();
-        let msgKey = "message.banMask";
+        let msgKey = "message-ban-mask";
         if (addNewMode) {
           this.banMasks.push(banMask);
-          msgKey += "Added";
+          msgKey += "-added";
         } else {
           this.banMasks = this.banMasks.filter(aBanMask => banMask != aBanMask);
-          msgKey += "Removed";
+          msgKey += "-removed";
         }
-        this.writeMessage(aSetter, lazy._(msgKey, banMask, aSetter), {
-          system: true,
-        });
+        this.writeMessage(
+          aSetter,
+          lazy.l10n.formatValueSync(msgKey, {
+            locationMatches: banMask,
+            nick: aSetter,
+          }),
+          {
+            system: true,
+          }
+        );
       } else if (["e", "I", "l"].includes(aNewMode[i])) {
         // TODO The following have parameters that must be accounted for.
         getNextParam();
@@ -659,11 +682,10 @@ ircChannel.prototype = {
     _setMode.call(this, addNewMode, channelModes);
 
     // Notify the UI of changes.
-    msg = lazy._(
-      "message.channelmode",
-      aNewMode[0] + channelModes.join(""),
-      aSetter
-    );
+    msg = lazy.l10n.formatValueSync("message-channelmode", {
+      mode: aNewMode[0] + channelModes.join(""),
+      user: aSetter,
+    });
     this.writeMessage(aSetter, msg, { system: true });
 
     this._receivedInitialMode = true;
@@ -740,12 +762,11 @@ ircParticipant.prototype = {
     _setMode.call(this, aAddNewMode, aNewModes);
 
     // Notify the UI of changes.
-    const msg = lazy._(
-      "message.usermode",
-      (aAddNewMode ? "+" : "-") + aNewModes.join(""),
-      this.name,
-      aSetter
-    );
+    const msg = lazy.l10n.formatValueSync("message-usermode", {
+      mode: (aAddNewMode ? "+" : "-") + aNewModes.join(""),
+      targetUser: this.name,
+      sourceUser: aSetter,
+    });
     this._conv.writeMessage(aSetter, msg, { system: true });
     this._conv.notifyObservers(this, "chat-buddy-update");
   },
@@ -919,7 +940,7 @@ ircSocket.prototype = {
       this.WARN(msg);
       this._account.gotDisconnected(
         Ci.prplIAccount.ERROR_NETWORK_ERROR,
-        lazy._("connection.error.lost")
+        lazy.l10n.formatValueSync("connection-error-lost")
       );
     }
   },
@@ -927,14 +948,14 @@ ircSocket.prototype = {
     this.WARN("Connection reset.");
     this._account.gotDisconnected(
       Ci.prplIAccount.ERROR_NETWORK_ERROR,
-      lazy._("connection.error.lost")
+      lazy.l10n.formatValueSync("connection-error-lost")
     );
   },
   onConnectionTimedOut() {
     this.WARN("Connection timed out.");
     this._account.gotDisconnected(
       Ci.prplIAccount.ERROR_NETWORK_ERROR,
-      lazy._("connection.error.timeOut")
+      lazy.l10n.formatValueSync("connection-error-time-out")
     );
   },
   onConnectionSecurityError(aTLSError, aNSSErrorMessage) {
@@ -1193,14 +1214,15 @@ ircAccount.prototype = {
     if (this._showServerTab) {
       let msg;
       if (aDisplayFullMode) {
-        msg = lazy._("message.yourmode", Array.from(this._modes).join(""));
+        msg = lazy.l10n.formatValueSync("message-yourmode", {
+          mode: Array.from(this._modes).join(""),
+        });
       } else {
-        msg = lazy._(
-          "message.usermode",
-          aNewModes,
-          aNick,
-          aSetter || this._currentServerName
-        );
+        msg = lazy.l10n.formatValueSync("message-usermode", {
+          mode: aNewModes,
+          targetUser: aNick,
+          sourceUser: aSetter || this._currentServerName,
+        });
       }
       this.getConversation(this._currentServerName).writeMessage(
         this._currentServerName,
@@ -1425,10 +1447,12 @@ ircAccount.prototype = {
 
     const whoisInformation = this.whoisInformation.get(aNick);
     if (whoisInformation.serverName && whoisInformation.serverInfo) {
-      whoisInformation.server = lazy._(
-        "tooltip.serverValue",
-        whoisInformation.serverName,
-        whoisInformation.serverInfo
+      whoisInformation.server = lazy.l10n.formatValueSync(
+        "tooltip-server-value",
+        {
+          serverName: whoisInformation.serverName,
+          serverInformation: whoisInformation.serverInfo,
+        }
       );
     }
 
@@ -1446,7 +1470,8 @@ ircAccount.prototype = {
       channels.trim().split(/\s+/).sort(sortWithoutPrefix).join(" ");
 
     // Convert booleans into a human-readable form.
-    const normalizeBool = aBool => lazy._(aBool ? "yes" : "no");
+    const normalizeBool = aBool =>
+      lazy.l10n.formatValueSync(aBool ? "yes-key-key" : "no-key-key");
 
     // Convert timespan in seconds into a human-readable form.
     const normalizeTime = function (aTime) {
@@ -1456,7 +1481,9 @@ ircAccount.prototype = {
       if (!valuesAndUnits[2]) {
         valuesAndUnits.splice(2, 2);
       }
-      return lazy._("tooltip.timespan", valuesAndUnits.join(" "));
+      return lazy.l10n.formatValueSync("tooltip-timespan", {
+        timespan: valuesAndUnits.join(" "),
+      });
     };
 
     // List of the names of the info to actually show in the tooltip and
@@ -1475,6 +1502,18 @@ ircAccount.prototype = {
       lastActivity: normalizeTime,
       channels: sortChannels,
     };
+    const tooltipMessages = {
+      realname: "tooltip-realname",
+      server: "tooltip-server",
+      connectedFrom: "tooltip-connected-from",
+      registered: "tooltip-registered",
+      registeredAs: "tooltip-registered-as",
+      secure: "tooltip-secure",
+      ircOp: "tooltip-irc-op",
+      bot: "tooltip-bot",
+      lastActivity: "tooltip-last-activity",
+      channels: "tooltip-channels",
+    };
 
     const tooltipInfo = [];
     for (const field in kFields) {
@@ -1483,7 +1522,12 @@ ircAccount.prototype = {
         if (kFields[field]) {
           value = kFields[field](value);
         }
-        tooltipInfo.push(new TooltipInfo(lazy._("tooltip." + field), value));
+        tooltipInfo.push(
+          new TooltipInfo(
+            lazy.l10n.formatValueSync(tooltipMessages[field]),
+            value
+          )
+        );
       }
     }
 
@@ -1581,7 +1625,7 @@ ircAccount.prototype = {
         } else {
           conversation.writeMessage(
             aOldNick,
-            lazy._conv("nickSet.you", aNewNick),
+            lazy.l10n.formatValueSync("nick-set-you", { newNick: aNewNick }),
             {
               system: true,
             }
@@ -1613,7 +1657,10 @@ ircAccount.prototype = {
       conversation.updateNick(aNewNick);
       conversation.writeMessage(
         aOldNick,
-        lazy._conv("nickSet", aOldNick, aNewNick),
+        lazy.l10n.formatValueSync("nick-set-key", {
+          oldNick: aOldNick,
+          newNick: aNewNick,
+        }),
         { system: true }
       );
     }
@@ -1702,7 +1749,9 @@ ircAccount.prototype = {
       // The nick we were about to try next is our current nick. This means
       // the user attempted to change to a version of the nick with a lower or
       // absent number suffix, and this failed.
-      const msg = lazy._("message.nick.fail", this._nickname);
+      const msg = lazy.l10n.formatValueSync("message-nick-fail", {
+        nick: this._nickname,
+      });
       this.conversations.forEach(conversation =>
         conversation.writeMessage(this._nickname, msg, { system: true })
       );
@@ -1735,11 +1784,11 @@ ircAccount.prototype = {
       this.WARN(aSource + " returned an invalid delay from a PING: " + delay);
       return false;
     }
-
-    const msg = lazy.PluralForm.get(
+    const msg = lazy.l10n.formatValueSync("message-ping", {
+      source: aSource,
       delay,
-      lazy._("message.ping", aSource)
-    ).replace("#2", delay);
+    });
+
     this.getConversation(aSource).writeMessage(aSource, msg, { system: true });
     return true;
   },
@@ -1989,13 +2038,13 @@ ircAccount.prototype = {
   chatRoomFields: {
     channel: {
       get label() {
-        return lazy._("joinChat.channel");
+        return lazy.l10n.formatValueSync("join-chat-channel");
       },
       required: true,
     },
     password: {
       get label() {
-        return lazy._("joinChat.password");
+        return lazy.l10n.formatValueSync("join-chat-password");
       },
       isPassword: true,
     },
@@ -2102,7 +2151,7 @@ ircAccount.prototype = {
     if (!this._socket || this._socket.disconnected) {
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_NETWORK_ERROR,
-        lazy._("connection.error.lost")
+        lazy.l10n.formatValueSync("connection-error-lost")
       );
     }
 
@@ -2139,7 +2188,7 @@ ircAccount.prototype = {
         this.ERROR("Socket error:", e);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_NETWORK_ERROR,
-          lazy._("connection.error.lost")
+          lazy.l10n.formatValueSync("connection-error-lost")
         );
         return false;
       }

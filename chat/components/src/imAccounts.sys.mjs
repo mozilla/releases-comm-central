@@ -7,7 +7,6 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import {
   ClassInfo,
   executeSoon,
-  l10nHelper,
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
@@ -18,8 +17,10 @@ import {
 } from "resource:///modules/jsProtoHelper.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/accounts.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/accounts-properties.ftl"], true)
 );
 ChromeUtils.defineLazyGetter(lazy, "_maxDebugMessages", () =>
   Services.prefs.getIntPref("messenger.accounts.maxDebugMessages")
@@ -812,10 +813,14 @@ imAccount.prototype = {
         if (
           !prompts.promptPassword(
             null,
-            lazy._("passwordPromptTitle", this.name),
-            lazy._("passwordPromptText", this.name),
+            lazy.l10n.formatValueSync("password-prompt-title", {
+              accountName: this.name,
+            }),
+            lazy.l10n.formatValueSync("password-prompt-text", {
+              accountName: this.name,
+            }),
             password,
-            lazy._("passwordPromptSaveCheckbox"),
+            lazy.l10n.formatValueSync("password-prompt-save-checkbox"),
             shouldSave
           )
         ) {

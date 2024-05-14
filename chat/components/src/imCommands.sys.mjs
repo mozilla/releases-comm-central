@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
-
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/commands.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/commands.ftl"], true)
 );
 
 /**
@@ -57,7 +57,7 @@ export class CommandsService {
     this.registerCommand({
       name: "say",
       get helpString() {
-        return lazy._("sayHelpString");
+        return lazy.l10n.formatValueSync("say-help-string");
       },
       usageContext: this.COMMAND_CONTEXT.ALL,
       priority: this.COMMAND_PRIORITY.HIGH,
@@ -69,7 +69,7 @@ export class CommandsService {
     this.registerCommand({
       name: "raw",
       get helpString() {
-        return lazy._("rawHelpString");
+        return lazy.l10n.formatValueSync("raw-help-string");
       },
       usageContext: this.COMMAND_CONTEXT.ALL,
       priority: this.COMMAND_PRIORITY.DEFAULT,
@@ -90,7 +90,7 @@ export class CommandsService {
 
       name: "help",
       get helpString() {
-        return lazy._("helpHelpString");
+        return lazy.l10n.formatValueSync("help-help-string");
       },
       usageContext: this.COMMAND_CONTEXT.ALL,
       priority: this.COMMAND_PRIORITY.DEFAULT,
@@ -114,7 +114,9 @@ export class CommandsService {
             .map(aCmd => aCmd.name)
             .sort()
             .join(", ");
-          const message = lazy._("commands", cmds);
+          const message = lazy.l10n.formatValueSync("commands-key", {
+            command: cmds,
+          });
 
           // Display the message
           conv.systemMessage(message);
@@ -126,7 +128,9 @@ export class CommandsService {
 
         if (!cmdArray.length) {
           // No command that matches.
-          const message = lazy._("noCommand", aMsg);
+          const message = lazy.l10n.formatValueSync("no-command", {
+            command: aMsg,
+          });
           conv.systemMessage(message);
           return true;
         }
@@ -136,7 +140,7 @@ export class CommandsService {
 
         let text = cmd.helpString;
         if (!text) {
-          text = lazy._("noHelp", cmd.name);
+          text = lazy.l10n.formatValueSync("no-help-key", { command: aMsg });
         }
 
         // Display the message.
@@ -158,7 +162,10 @@ export class CommandsService {
       this.registerCommand({
         name: cmd,
         get helpString() {
-          return lazy._("statusCommand", this.name, lazy._(this.name));
+          return lazy.l10n.formatValueSync("status-command", {
+            command: this.name,
+            status: lazy.l10n.formatValueSync(`${this.name}-key-key`),
+          });
         },
         usageContext: this.COMMAND_CONTEXT.ALL,
         priority: this.COMMAND_PRIORITY.HIGH,

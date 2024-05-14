@@ -17,10 +17,7 @@
  *   RFC 1459: Internet Relay Chat Protocol
  *     http://tools.ietf.org/html/rfc1459
  */
-import {
-  l10nHelper,
-  nsSimpleEnumerator,
-} from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { nsSimpleEnumerator } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 import {
@@ -31,28 +28,51 @@ import {
 } from "resource:///modules/ircUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
-  const msgId = "message." + (aKicked ? "kicked" : "parted");
   // If a part message was included, include it.
-  const reason = aReason ? lazy._(msgId + ".reason", aReason) : "";
+  let reason = "";
+  if (aReason) {
+    if (aKicked) {
+      reason = lazy.l10n.formatValueSync("message-kicked-reason", {
+        kickMessage: aReason,
+      });
+    }
+    reason = lazy.l10n.formatValueSync("message-parted-reason", {
+      partMessage: aReason,
+    });
+  }
+
   function __(aNick, aYou) {
     // If the user is kicked, we need to say who kicked them.
-    const msgId2 = msgId + (aYou ? ".you" : "");
     if (aKicked) {
       if (aYou) {
-        return lazy._(msgId2, aSource, reason);
+        return lazy.l10n.formatValueSync("message-kicked-you", {
+          nick: aSource,
+          messageKickedReason: reason,
+        });
       }
-      return lazy._(msgId2, aNick, aSource, reason);
+      return lazy.l10n.formatValueSync("message-kicked", {
+        kickedNick: aNick,
+        kickerNick: aSource,
+        messageKickedReason: reason,
+      });
     }
     if (aYou) {
-      return lazy._(msgId2, reason);
+      return lazy.l10n.formatValueSync("message-parted-you", {
+        messagePartedReason: reason,
+      });
     }
-    return lazy._(msgId2, aNick, reason);
+    return lazy.l10n.formatValueSync("message-parted", {
+      messagePartedReason: aNick,
+      partMessage: reason,
+    });
   }
 
   for (const channelName of aChannels) {
@@ -166,7 +186,7 @@ export var ircBase = {
         this.WARN("Received unexpected ERROR response:\n" + aMessage.params[0]);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_NETWORK_ERROR,
-          lazy._("connection.error.lost")
+          lazy.l10n.formatValueSync("connection-error-lost")
         );
       } else {
         // We received an ERROR message when expecting it (i.e. we've sent a
@@ -189,7 +209,10 @@ export var ircBase = {
             // Otherwise just notify the user.
             this.getConversation(channel).writeMessage(
               aMessage.origin,
-              lazy._("message.inviteReceived", aMessage.origin, channel),
+              lazy.l10n.formatValueSync("message-invite-received", {
+                nick: aMessage.origin,
+                conversationName: channel,
+              }),
               { system: true }
             );
           }
@@ -224,7 +247,7 @@ export var ircBase = {
           if (conversation._rejoined) {
             conversation.writeMessage(
               aMessage.origin,
-              lazy._("message.rejoined"),
+              lazy.l10n.formatValueSync("message-rejoined"),
               {
                 system: true,
               }
@@ -245,7 +268,10 @@ export var ircBase = {
           // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
           // case.
           conversation.getParticipant(aMessage.origin, true);
-          const msg = lazy._("message.join", aMessage.origin, aMessage.source);
+          const msg = lazy.l10n.formatValueSync("message-join", {
+            nick: aMessage.origin,
+            nickAndHost: aMessage.source,
+          });
           conversation.writeMessage(aMessage.origin, msg, {
             system: true,
             noLinkification: true,
@@ -355,11 +381,12 @@ export var ircBase = {
       }
       // If a quit message was included, show it.
       const nick = aMessage.origin;
-      const msg = lazy._(
-        "message.quit",
+      const msg = lazy.l10n.formatValueSync("message-quit", {
         nick,
-        quitMsg.length ? lazy._("message.quit2", quitMsg) : ""
-      );
+        quitMessage: quitMsg.length
+          ? lazy.l10n.formatValueSync("message-quit2", { nick: quitMsg })
+          : "",
+      });
       // Loop over every conversation with the user and display that they quit.
       this.conversations.forEach(conversation => {
         if (conversation.isChat && conversation._participants.has(nick)) {
@@ -1028,7 +1055,10 @@ export var ircBase = {
       // above (which is as specified by RFC 2812).
       this.getConversation(aMessage.params[2]).writeMessage(
         aMessage.origin,
-        lazy._("message.invited", aMessage.params[1], aMessage.params[2]),
+        lazy.l10n.formatValueSync("message-invited", {
+          nick: aMessage.params[1],
+          conversationName: aMessage.params[2],
+        }),
         { system: true }
       );
       return true;
@@ -1039,7 +1069,9 @@ export var ircBase = {
       return writeMessage(
         this,
         aMessage,
-        lazy._("message.summoned", aMessage.params[0])
+        lazy.l10n.formatValueSync("message-summoned", {
+          nick: aMessage.params[0],
+        })
       );
     },
     346() {
@@ -1185,11 +1217,17 @@ export var ircBase = {
       const conv = this.getConversation(aMessage.params[1]);
       let msg;
       if (conv.banMasks.length) {
-        msg = [lazy._("message.banMasks", aMessage.params[1])]
+        msg = [
+          lazy.l10n.formatValueSync("message-ban-masks", {
+            place: aMessage.params[1],
+          }),
+        ]
           .concat(conv.banMasks)
           .join("\n");
       } else {
-        msg = lazy._("message.noBanMasks", aMessage.params[1]);
+        msg = lazy.l10n.formatValueSync("message-no-ban-masks", {
+          place: aMessage.params[1],
+        });
       }
       conv.writeMessage(aMessage.origin, msg, { system: true });
       return true;
@@ -1284,7 +1322,10 @@ export var ircBase = {
       // RPL_TIME
       // <server> :<string showing server's local time>
 
-      const msg = lazy._("ctcp.time", aMessage.params[1], aMessage.params[2]);
+      const msg = lazy.l10n.formatValueSync("ctcp-time", {
+        username: aMessage.params[1],
+        timeResponse: aMessage.params[2],
+      });
       // Show the date returned from the server, note that this doesn't use
       // the serverMessage function: since this is in response to a command, it
       // should always be shown.
@@ -1321,9 +1362,8 @@ export var ircBase = {
       // <nickname> :No such nick/channel
       // Can arise in response to /mode, /invite, /kill, /msg, /whois.
       // TODO Handled in the conversation for /whois and /mgs so far.
-      const msgId =
-        "error.noSuch" +
-        (this.isMUCName(aMessage.params[1]) ? "Channel" : "Nick");
+      const msgSuffix = this.isMUCName(aMessage.params[1]) ? "channel" : "nick";
+      const msgId = `error-no-such-${msgSuffix}`;
       if (this.conversations.has(aMessage.params[1])) {
         // If the conversation exists and we just sent a message from it, then
         // notify that the user is offline.
@@ -1335,7 +1375,9 @@ export var ircBase = {
       return serverErrorMessage(
         this,
         aMessage,
-        lazy._(msgId, aMessage.params[1])
+        lazy.l10n.formatValueSync(msgId, {
+          name: aMessage.params[1],
+        })
       );
     },
     402() {
@@ -1350,7 +1392,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.noChannel",
+        "error-no-channel",
         true,
         false
       );
@@ -1362,7 +1404,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.cannotSendToChannel"
+        "error-cannot-send-to-channel"
       );
     },
     405(aMessage) {
@@ -1371,7 +1413,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.tooManyChannels",
+        "error-too-many-channels",
         true
       );
     },
@@ -1382,7 +1424,9 @@ export var ircBase = {
       return serverErrorMessage(
         this,
         aMessage,
-        lazy._("error.wasNoSuchNick", aMessage.params[1])
+        lazy.l10n.formatValueSync("error-was-no-such-nick", {
+          name: aMessage.params[1],
+        })
       );
     },
     407(aMessage) {
@@ -1391,7 +1435,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.nonUniqueTarget",
+        "error-non-unique-target",
         false,
         false
       );
@@ -1477,7 +1521,9 @@ export var ircBase = {
     432(aMessage) {
       // ERR_ERRONEUSNICKNAME
       // <nick> :Erroneous nickname
-      const msg = lazy._("error.erroneousNickname", this._requestedNickname);
+      const msg = lazy.l10n.formatValueSync("error-erroneous-nickname", {
+        name: this._requestedNickname,
+      });
       serverErrorMessage(this, aMessage, msg);
       if (this._requestedNickname == this._accountNickname) {
         // The account has been set up with an illegal nickname.
@@ -1520,7 +1566,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.unavailable",
+        "error-unavailable",
         true
       );
     },
@@ -1545,11 +1591,10 @@ export var ircBase = {
       // <user> <channel> :is already on channel
       this.getConversation(aMessage.params[2]).writeMessage(
         aMessage.origin,
-        lazy._(
-          "message.alreadyInChannel",
-          aMessage.params[1],
-          aMessage.params[2]
-        ),
+        lazy.l10n.formatValueSync("message-already-in-channel", {
+          nick: aMessage.params[1],
+          conversationName: aMessage.params[2],
+        }),
         { system: true }
       );
       return true;
@@ -1592,7 +1637,9 @@ export var ircBase = {
         this.ERROR("Erroneous username: " + this.username);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_INVALID_USERNAME,
-          lazy._("connection.error.invalidUsername", this.user)
+          lazy.l10n.formatValueSync("connection-error-invalid-username", {
+            username: this.user,
+          })
         );
         return true;
       }
@@ -1616,23 +1663,31 @@ export var ircBase = {
       // :Password incorrect
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-        lazy._("connection.error.invalidPassword")
+        lazy.l10n.formatValueSync("connection-error-invalid-password")
       );
       return true;
     },
     465(aMessage) {
       // ERR_YOUREBANEDCREEP
       // :You are banned from this server
-      serverErrorMessage(this, aMessage, lazy._("error.banned"));
+      serverErrorMessage(
+        this,
+        aMessage,
+        lazy.l10n.formatValueSync("error-banned")
+      );
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_OTHER_ERROR,
-        lazy._("error.banned")
+        lazy.l10n.formatValueSync("error-banned")
       ); // Notify account manager.
       return true;
     },
     466(aMessage) {
       // ERR_YOUWILLBEBANNED
-      return serverErrorMessage(this, aMessage, lazy._("error.bannedSoon"));
+      return serverErrorMessage(
+        this,
+        aMessage,
+        lazy.l10n.formatValueSync("error-banned-soon")
+      );
     },
     467() {
       // ERR_KEYSET
@@ -1646,7 +1701,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.channelFull",
+        "error-channel-full",
         true
       );
     },
@@ -1662,7 +1717,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.inviteOnly",
+        "error-invite-only",
         true,
         false
       );
@@ -1673,7 +1728,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.channelBanned",
+        "error-channel-banned",
         true,
         false
       );
@@ -1684,7 +1739,7 @@ export var ircBase = {
       return conversationErrorMessage(
         this,
         aMessage,
-        "error.wrongKey",
+        "error-wrong-key",
         true,
         false
       );
@@ -1716,7 +1771,7 @@ export var ircBase = {
     482(aMessage) {
       // ERR_CHANOPRIVSNEEDED
       // <channel> :You're not channel operator
-      return conversationErrorMessage(this, aMessage, "error.notChannelOp");
+      return conversationErrorMessage(this, aMessage, "error-not-channel-op");
     },
     483() {
       // ERR_CANTKILLSERVER
@@ -1755,13 +1810,19 @@ export var ircBase = {
       return serverErrorMessage(
         this,
         aMessage,
-        lazy._("error.unknownMode", aMessage.params[1])
+        lazy.l10n.formatValueSync("error-unknown-mode", {
+          mode: aMessage.params[1],
+        })
       );
     },
     502(aMessage) {
       // ERR_USERSDONTMATCH
       // :Cannot change mode for other users
-      return serverErrorMessage(this, aMessage, lazy._("error.mode.wrongUser"));
+      return serverErrorMessage(
+        this,
+        aMessage,
+        lazy.l10n.formatValueSync("error-mode-wrong-user")
+      );
     },
   },
 };
