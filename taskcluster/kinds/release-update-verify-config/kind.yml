@@ -56,7 +56,7 @@ job-defaults:
             by-release-type:
                 beta: "79.0b2"
                 release(-rc)?: "116.0"
-                esr115: "115.0"
+                esr115: "115.10.2"
                 default: "default"
 
 jobs:
