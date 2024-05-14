@@ -15,7 +15,7 @@ transforms = TransformSequence()
 @transforms.add
 def resolve_keys(config, jobs):
     for job in jobs:
-        for item in ("ssh-key-secret", "phab-token-secret"):
+        for item in ("ssh-key-secret", "phab-token-secret", "routes", "scopes"):
             resolve_keyed_by(job, item, item, **{"level": str(config.params["level"])})
         yield job
 
@@ -27,6 +27,18 @@ def update_scopes(config, jobs):
             secret = job.pop(item)
             if secret:
                 job.setdefault("scopes", []).append(f"secrets:get:{secret}")
+        yield job
+
+
+@transforms.add
+def update_routes(config, jobs):
+    for job in jobs:
+        for key, route in enumerate(job.get("routes", [])):
+            if route.startswith("notify.email"):
+                job["routes"][key] = route.format(owner=config.params["owner"])
+        for key, scope in enumerate(job.get("scopes", [])):
+            if scope.startswith("notify:email"):
+                job["scopes"][key] = scope.format(owner=config.params["owner"])
         yield job
 
 

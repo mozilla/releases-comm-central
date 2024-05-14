@@ -53,8 +53,18 @@ jobs:
             by-level:
                 "3": project/comm/thunderbird/releng/build/level-3/arc-phabricator-token
                 default: null
+        routes:
+            by-level:
+                "3":
+                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-any
+                default:
+                    - notify.email.{owner}.on-any
         scopes:
-            - queue:route:notify.matrix-room:!TWztIhgqLawNpRBZTC:mozilla.org.*
+            by-level:
+                "3":
+                    - notify:matrix-room:!TWztIhgqLawNpRBZTC:mozilla.org
+                default:
+                    - notify:email:{owner}
         run:
             using: run-task
             comm-checkout: true

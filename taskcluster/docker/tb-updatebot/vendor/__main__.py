@@ -20,6 +20,7 @@ from .support import (  # noqa: I001
     fetch_indexed_artifact,
     log,
     notify_sheriffs,
+    notify_user,
     run_cmd,
     write_ssh_key,
     write_arcrc,
@@ -216,6 +217,7 @@ def get_conduit():
 def notify(body: str):
     if OPERATING_MODE != "prod":
         log("Skipping Sheriff notification.")
+        notify_user(body)
         return
     notify_sheriffs(body)
 
