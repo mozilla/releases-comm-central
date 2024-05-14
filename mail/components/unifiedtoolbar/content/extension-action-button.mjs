@@ -121,7 +121,9 @@ class ExtensionActionButton extends UnifiedToolbarButton {
       const textColor = tabData.badgeTextColor;
       this.style.setProperty(
         BADGE_TEXT_COLOR,
-        `rgba(${textColor[0]}, ${textColor[1]}, ${textColor[2]}, ${textColor[3] / 255})`
+        `rgba(${textColor[0]}, ${textColor[1]}, ${textColor[2]}, ${
+          textColor[3] / 255
+        })`
       );
     } else {
       this.style.removeProperty(BADGE_TEXT_COLOR);
