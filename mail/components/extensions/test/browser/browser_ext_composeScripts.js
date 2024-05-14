@@ -532,7 +532,7 @@ add_task(async function testRegisterBeforeCompose() {
 });
 
 /**
- * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
+ * Tests browser.composeScripts.register does NOT adds CSS and JavaScript to
  * message composition windows already open when it was called. Also tests
  * calling `unregister` on the returned object.
  */

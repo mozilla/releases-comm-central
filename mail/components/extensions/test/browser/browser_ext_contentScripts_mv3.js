@@ -296,9 +296,9 @@ add_task(async function testExecuteScriptAlias() {
 });
 
 /**
- * Tests browser.contentScripts.register correctly adds CSS and JavaScript to
- * message composition windows opened after it was called. Also tests calling
- * `unregister` on the returned object.
+ * Tests `browser.scripting.registerContentScripts()` correctly adds CSS and
+ * JavaScript to message composition windows opened after it was called. Also
+ * tests calling `browser.scripting.unregisterContentScripts()`
  */
 add_task(async function testRegister() {
   const extension = ExtensionTestUtils.loadExtension({

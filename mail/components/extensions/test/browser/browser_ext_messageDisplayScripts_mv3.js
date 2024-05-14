@@ -77,7 +77,7 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["messagesModify", "scripting"],
+      permissions: ["messagesRead", "scripting"],
     },
   });
 
@@ -123,7 +123,7 @@ add_task(async function testInsertRemoveCSSViaScriptingAPI() {
   await extension.unload();
 });
 
-/** Tests browser.scripting.insertCSS fails without the "messagesModify" permission. */
+/** Tests browser.scripting.insertCSS fails without the "messagesRead" permission. */
 add_task(async function testInsertRemoveCSSNoHostPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -218,7 +218,7 @@ add_task(async function testExecuteScript() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["messagesModify", "scripting"],
+      permissions: ["messagesRead", "scripting"],
     },
   });
 
@@ -247,7 +247,7 @@ add_task(async function testExecuteScript() {
   await extension.unload();
 });
 
-/** Tests browser.scripting.executeScript fails without the "messagesModify" permission. */
+/** Tests browser.scripting.executeScript fails without the "messagesRead" permission. */
 add_task(async function testExecuteScriptNoHostPermissions() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -336,7 +336,7 @@ add_task(async function testExecuteScriptAlias() {
         gecko: { id: "message_display_scripts@mochitest" },
       },
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["messagesModify", "scripting"],
+      permissions: ["messagesRead", "scripting"],
     },
   });
 
@@ -359,9 +359,9 @@ add_task(async function testExecuteScriptAlias() {
 });
 
 /**
- * Tests browser.messageDisplayScripts.register correctly adds CSS and
- * JavaScript to message display windows. Also tests calling `unregister`
- * on the returned object.
+ * Tests `browser.scripting.messageDisplay.registerScripts()` correctly adds CSS
+ * and JavaScript to message display windows. Also tests calling
+ * `browser.scripting.messageDisplay.registerScripts()`.
  */
 add_task(async function testRegister() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -374,18 +374,18 @@ add_task(async function testRegister() {
           }
         });
 
-        const registeredScript = await browser.messageDisplayScripts.register({
-          css: [{ code: "body { color: white }" }, { file: "test.css" }],
-          js: [
-            { code: `document.body.setAttribute("foo", "bar");` },
-            { file: "test.js" },
-          ],
-        });
+        await browser.scripting.messageDisplay.registerScripts([
+          {
+            id: "test-1",
+            css: ["test.css"],
+            js: ["test.js"],
+          },
+        ]);
 
         browser.test.onMessage.addListener(async (message, data) => {
           switch (message) {
             case "Unregister":
-              await registeredScript.unregister();
+              await browser.scripting.messageDisplay.unregisterScripts();
               browser.test.notifyPass("finished");
               break;
 
@@ -407,8 +407,9 @@ add_task(async function testRegister() {
 
         window.sendMessage("Ready");
       },
-      "test.css": "body { background-color: green; }",
+      "test.css": "body { color: white; background-color: green; }",
       "test.js": () => {
+        document.body.setAttribute("foo", "bar");
         document.body.querySelector(".moz-text-flowed").textContent +=
           "Hey look, the script ran!";
         browser.runtime.onMessage.addListener(async message => {
@@ -421,7 +422,7 @@ add_task(async function testRegister() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["messagesModify", "scripting"],
+      permissions: ["messagesRead", "scripting"],
       host_permissions: ["<all_urls>"],
     },
   });
@@ -629,7 +630,7 @@ add_task(async function testContentScriptManifestNoPermission() {
 add_task(async function testContentScriptManifest() {
   about3Pane.threadTree.selectedIndex = 8;
   await awaitBrowserLoaded(messagePane);
-  await subtestContentScriptManifest(messages.at(-9), ["messagesModify"]);
+  await subtestContentScriptManifest(messages.at(-9), ["messagesRead"]);
 });
 
 /** Tests registered content scripts do not affect message display. */
@@ -687,7 +688,7 @@ add_task(async function testContentScriptRegister() {
   await awaitBrowserLoaded(messagePane);
   await subtestContentScriptRegister(messages.at(-11), [
     "scripting",
-    "messagesModify",
+    "messagesRead",
   ]);
 });
 
@@ -708,34 +709,28 @@ add_task(async function testRunAt() {
           }
         });
 
-        const registeredScripts = new Set();
-        registeredScripts.add(
-          await browser.messageDisplayScripts.register({
+        await browser.scripting.messageDisplay.registerScripts([
+          {
+            id: "test-start",
             runAt: "document_start",
-            js: [{ file: "start.js" }],
-          })
-        );
-
-        registeredScripts.add(
-          await browser.messageDisplayScripts.register({
+            js: ["start.js"],
+          },
+          {
+            id: "test-end",
             runAt: "document_end",
-            js: [{ file: "end.js" }],
-          })
-        );
-
-        registeredScripts.add(
-          await browser.messageDisplayScripts.register({
+            js: ["end.js"],
+          },
+          {
+            id: "test-idle",
             runAt: "document_idle",
-            js: [{ file: "idle.js" }],
-          })
-        );
+            js: ["idle.js"],
+          },
+        ]);
 
         browser.test.onMessage.addListener(async message => {
           switch (message) {
             case "Unregister":
-              for (const registeredScript of registeredScripts) {
-                await registeredScript.unregister();
-              }
+              await browser.scripting.messageDisplay.unregisterScripts();
               browser.test.notifyPass("finished");
               break;
           }
@@ -778,7 +773,7 @@ add_task(async function testRunAt() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["messagesModify", "scripting"],
+      permissions: ["messagesRead", "scripting"],
       host_permissions: ["<all_urls>"],
     },
   });

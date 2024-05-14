@@ -19,16 +19,17 @@
   {
     "namespace": "composeScripts",
     "permissions": ["compose"],
+    "max_manifest_version": 2,
     "types": [
       {
         "id": "RegisteredComposeScriptOptions",
         "type": "object",
-        "description": "Details of a compose script registered programmatically",
+        "description": "Details of a compose script registered programmatically.",
         "properties": {
           "css": {
             "type": "array",
             "optional": true,
-            "description": "The list of CSS files to inject",
+            "description": "The list of CSS files to inject.",
             "items": {
               "$ref": "extensionTypes.ExtensionFileOrCode"
             }
@@ -36,7 +37,7 @@
           "js": {
             "type": "array",
             "optional": true,
-            "description": "The list of JavaScript files to inject",
+            "description": "The list of JavaScript files to inject.",
             "items": {
               "$ref": "extensionTypes.ExtensionFileOrCode"
             }
@@ -46,12 +47,12 @@
       {
         "id": "RegisteredComposeScript",
         "type": "object",
-        "description": "An object that represents a compose script registered programmatically",
+        "description": "An object that represents a compose script registered programmatically.",
         "functions": [
           {
             "name": "unregister",
             "type": "function",
-            "description": "Unregister a compose script registered programmatically",
+            "description": "Unregister a compose script registered programmatically.",
             "async": true,
             "parameters": []
           }
@@ -62,7 +63,7 @@
       {
         "name": "register",
         "type": "function",
-        "description": "Register a compose script programmatically",
+        "description": "Register a compose script programmatically. **Note:** Registered scripts will only be applied to newly opened message composer tabs. To apply the script to already open message composer tab, manually inject your script by calling :ref:`tabs.executeScript` for each of the open <value>messageCompose</value> tabs.",
         "async": true,
         "parameters": [
           {
@@ -76,6 +77,7 @@
   {
     "namespace": "messageDisplayScripts",
     "permissions": ["messagesModify"],
+    "max_manifest_version": 2,
     "types": [
       {
         "id": "RegisteredMessageDisplayScriptOptions",

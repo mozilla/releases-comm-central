@@ -303,30 +303,31 @@ add_task(async function testExecuteScriptAlias() {
 });
 
 /**
- * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
- * message composition windows opened after it was called. Also tests calling
- * `unregister` on the returned object.
+ * Tests `browser.scripting.compose.registerScripts()` correctly adds CSS and
+ * JavaScript to message composition windows opened after it was called. Also
+ * tests `browser.scripting.compose.unregisterScripts()`.
  */
 add_task(async function testRegisterBeforeCompose() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        const registeredScript = await browser.composeScripts.register({
-          css: [{ code: "body { color: white }" }, { file: "test.css" }],
-          js: [
-            { code: `document.body.setAttribute("foo", "bar");` },
-            { file: "test.js" },
-          ],
-        });
+        await browser.scripting.compose.registerScripts([
+          {
+            id: "test-1",
+            css: ["test.css"],
+            js: ["test.js"],
+          },
+        ]);
 
         await browser.compose.beginNew();
         await window.sendMessage();
 
-        await registeredScript.unregister();
+        await browser.scripting.compose.unregisterScripts();
         browser.test.notifyPass("finished");
       },
-      "test.css": "body { background-color: green; }",
+      "test.css": "body { color: white; background-color: green; }",
       "test.js": () => {
+        document.body.setAttribute("foo", "bar");
         document.body.textContent = "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
@@ -334,7 +335,7 @@ add_task(async function testRegisterBeforeCompose() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["scripting", "compose"],
     },
   });
 
@@ -374,9 +375,9 @@ add_task(async function testRegisterBeforeCompose() {
 });
 
 /**
- * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
- * message composition windows already open when it was called. Also tests
- * calling `unregister` on the returned object.
+ * Tests `browser.scripting.compose.registerScripts()` does NOT adds CSS and
+ * JavaScript to message composition windows already open when it was called.
+ * Also tests `browser.scripting.compose.unregisterScripts()`.
  */
 add_task(async function testRegisterDuringCompose() {
   const extension = ExtensionTestUtils.loadExtension({
@@ -385,24 +386,25 @@ add_task(async function testRegisterDuringCompose() {
         const tab = await browser.compose.beginNew();
         await window.sendMessage();
 
-        const registeredScript = await browser.composeScripts.register({
-          css: [{ code: "body { color: white }" }, { file: "test.css" }],
-          js: [
-            { code: `document.body.setAttribute("foo", "bar");` },
-            { file: "test.js" },
-          ],
-        });
+        await browser.scripting.compose.registerScripts([
+          {
+            id: "test-2",
+            css: ["test.css"],
+            js: ["test.js"],
+          },
+        ]);
 
         await window.sendMessage();
 
-        await registeredScript.unregister();
+        await browser.scripting.compose.unregisterScripts();
         await window.sendMessage();
 
         await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
-      "test.css": "body { background-color: green; }",
+      "test.css": "body { color: white; background-color: green; }",
       "test.js": () => {
+        document.body.setAttribute("foo", "bar");
         document.body.textContent = "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
@@ -410,7 +412,7 @@ add_task(async function testRegisterDuringCompose() {
     manifest: {
       manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["scripting", "compose"],
     },
   });
 

@@ -68,7 +68,11 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
       }
 
       if (MESSAGE_PROTOCOLS.includes(windowContext.documentURI?.scheme)) {
-        return script.extension.hasPermission("messagesModify");
+        return (
+          script.extension.hasPermission("messagesModify") ||
+          (script.extension.hasPermission("messagesRead") &&
+            script.extension.hasPermission("scripting"))
+        );
       }
 
       return matchesWindowGlobal.apply(script, arguments);

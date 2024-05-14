@@ -67,6 +67,15 @@
     "scopes": ["addon_parent"],
     "paths": [["extensionScripts"]]
   },
+  "scripting_tb": {
+    "url": "chrome://messenger/content/parent/ext-scripting-tb.js",
+    "schema": "chrome://messenger/content/schemas/scripting-tb.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["scripting", "compose"],
+      ["scripting", "messageDisplay"]
+    ]
+  },
   "folders": {
     "url": "chrome://messenger/content/parent/ext-folders.js",
     "schema": "chrome://messenger/content/schemas/folders.json",
