@@ -4721,8 +4721,7 @@ var threadPane = {
    *   state.
    */
   restoreThreadState(setState = true) {
-    // There is no persisted thread last expanded state for synthetic views.
-    if (!gViewWrapper.isSynthetic && setState) {
+    if (setState) {
       if (
         gViewWrapper._threadExpandAll &&
         !(gViewWrapper.dbView.viewFlags & Ci.nsMsgViewFlagsType.kExpandAll)
@@ -6111,13 +6110,6 @@ var sortController = {
     ];
     gViewWrapper.showGroupedBySort = false;
     gViewWrapper.endViewUpdate();
-
-    // Virtual folders don't persist viewFlags well in the back end,
-    // due to a virtual folder being either 'real' or synthetic, so make
-    // sure it's done here.
-    if (gViewWrapper.isVirtual) {
-      gViewWrapper.dbView.viewFlags = gViewWrapper.viewFlags;
-    }
     return true;
   },
   reverseSortThreadPane() {

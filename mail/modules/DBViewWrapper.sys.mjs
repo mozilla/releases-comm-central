@@ -874,6 +874,11 @@ DBViewWrapper.prototype = {
     this.search = new SearchSpec(this);
     this._sort = this._syntheticView.defaultSort.concat();
 
+    this._threadExpandAll = Boolean(
+      Services.prefs.getIntPref("mailnews.default_view_flags", 1) &
+        Ci.nsMsgViewFlagsType.kExpandAll
+    );
+
     this._applyViewChanges();
     FolderNotificationHelper.noteCuriosity(this);
     this.listener.onDisplayingFolder();
@@ -1117,17 +1122,10 @@ DBViewWrapper.prototype = {
       this.__viewFlags ??
       Services.prefs.getIntPref("mailnews.default_view_flags", 1);
 
-    if (this.showGroupedBySort && this.isVirtual) {
-      if (this.isSingleFolder) {
-        // The expand flag must be set when opening a single virtual folder
-        // (quicksearch) in grouped view. The user's last set expand/collapse
-        // state for grouped/threaded in this use case is restored later.
-        viewFlags |= Ci.nsMsgViewFlagsType.kExpandAll;
-      } else {
-        // For performance reasons, cross-folder views should be opened with
-        // all groups collapsed.
-        viewFlags &= ~Ci.nsMsgViewFlagsType.kExpandAll;
-      }
+    if (this.showGroupedBySort && (this.isMultiFolder || this.isSynthetic)) {
+      // For performance reasons, cross-folder views should be opened with
+      // all groups collapsed.
+      viewFlags &= ~Ci.nsMsgViewFlagsType.kExpandAll;
     }
 
     // real folders are subject to the most interest set of possibilities...
@@ -1851,12 +1849,10 @@ DBViewWrapper.prototype = {
   set showGroupedBySort(aShowGroupBySort) {
     if (this.showGroupedBySort != aShowGroupBySort) {
       if (aShowGroupBySort) {
-        // For virtual single folders, the kExpandAll flag must be set.
         // Do not apply the flag change until we have made the sort safe.
         const viewFlags =
           this._viewFlags |
           Ci.nsMsgViewFlagsType.kGroupBySort |
-          Ci.nsMsgViewFlagsType.kExpandAll |
           Ci.nsMsgViewFlagsType.kThreadedDisplay;
         this._ensureValidSort(viewFlags);
         this._viewFlags = viewFlags;

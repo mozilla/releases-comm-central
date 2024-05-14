@@ -1041,10 +1041,9 @@ var dbViewWrapperListener = {
     }
 
     if (all) {
-      // Opening a cross-folder view grouped by sort in expand-all state
-      // has performance issues. Therefore only expand the groups when all
-      // messages have been loaded, if necessary.
-      window.threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
+      window.threadPane.restoreThreadState(
+        gViewWrapper.search.hasSearchTerms || gViewWrapper.isSynthetic
+      );
     }
 
     // Try to restore what was selected. Keep the saved selection (if there is
