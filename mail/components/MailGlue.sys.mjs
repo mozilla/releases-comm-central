@@ -785,7 +785,7 @@ MailGlue.prototype = {
           false
         ),
         task: () => {
-          lazy.InAppNotifications.init();
+          lazy.InAppNotifications.init().catch(console.error);
         },
       },
       // This implements a special pref that allows used to launch the

@@ -1,0 +1,4 @@
+[DEFAULT]
+prefs = ["mail.inappnotifications.enabled=true"]
+
+["test_in_app_notifications.js"]
