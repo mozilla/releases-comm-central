@@ -38,9 +38,9 @@ vendoring:
     - "**"
     - ".*"
     - ".*/**"
-    - "src/libsexp/**"
-    - "src/libsexp/.**"
-    - "src/libsexp/.github/**"
+    - "src/libsexpp/**"
+    - "src/libsexpp/.**"
+    - "src/libsexpp/.github/**"
 
   include:
     - doc/
@@ -52,11 +52,11 @@ vendoring:
     - src/lib/
     - src/librekey/
     - src/librepgp/
-    - src/libsexp/include/
-    - src/libsexp/src/
-    - src/libsexp/LICENSE.md
-    - src/libsexp/README.adoc
-    - src/libsexp/version.txt
+    - src/libsexpp/include/
+    - src/libsexpp/src/
+    - src/libsexpp/LICENSE.md
+    - src/libsexpp/README.adoc
+    - src/libsexpp/version.txt
     - src/rnp/
     - src/rnpkeys/
     - src/tests/
@@ -66,12 +66,15 @@ vendoring:
     - README.adoc
     - version.txt
 
-  patches:
-    - ../patches/rnp/bug1843535_gcc13_missing_header.patch
-    - ../patches/rnp/pr2145.patch
+  # patches: []
 
   update-actions:
     - action: replace-in-file-regex
       file: '{yaml_dir}/../README.rnp'
       pattern: '\[(tag v[0-9\.]+|commit [0-9a-f]+)\]'
       with: '[tag {revision}]'
+    # Update rnp.symbols with exported functions
+    - action: run-command
+      cwd: "{yaml_dir}"
+      command: python
+      args: ["../../python/thirdroc/thirdroc/rnp_symbols.py", "include/rnp/rnp.h", "rnp.symbols"]
