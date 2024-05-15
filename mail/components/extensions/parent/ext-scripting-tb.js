@@ -204,14 +204,19 @@ this.scripting_tb = class extends ExtensionAPI {
      * @param {string} type - The requested script type, one of "compose" or
      *   "messageDisplay"
      * @param {string[]} ids - Array of script ids as provided by the WebExtension.
+     * @param {boolean} [throws] - Whether the function should throw on bad IDs.
      * @returns {ExtensionScript[]}
      */
-    const extensionsScriptsWithId = (type, ids) =>
+    const extensionsScriptsWithId = (type, ids, throws) =>
       ids.flatMap(id => {
         const scriptId = `${type}_${id}`;
         const extensionScript = extensionsScripts.get(scriptId);
         if (!extensionScript) {
-          console.error(`No such ${type}Script with ID: ${id}`);
+          const errorMsg = `The ${type}Script with id "${id}" does not exist.`;
+          if (throws) {
+            throw new ExtensionError(errorMsg);
+          }
+          console.error(errorMsg);
           return [];
         }
         return [extensionScript];
@@ -248,9 +253,9 @@ this.scripting_tb = class extends ExtensionAPI {
         return newScripts;
       },
       async unregisterScripts(filter) {
-        const ids = filter?.ids ?? [];
-        const scripts = ids.length
-          ? extensionsScriptsWithId(type, ids)
+        const ids = filter?.ids ?? null;
+        const scripts = Array.isArray(ids)
+          ? extensionsScriptsWithId(type, ids, true)
           : extensionsScriptsWithType(type);
         for (const extensionScript of scripts) {
           const scriptId = `${type}_${extensionScript.scriptDetails.id}`;
@@ -259,8 +264,8 @@ this.scripting_tb = class extends ExtensionAPI {
         }
       },
       async getRegisteredScripts(filter) {
-        const ids = filter?.ids ?? [];
-        const scripts = ids.length
+        const ids = filter?.ids ?? null;
+        const scripts = Array.isArray(ids)
           ? extensionsScriptsWithId(type, ids)
           : extensionsScriptsWithType(type);
         return scripts.map(extensionScript => extensionScript.convert());

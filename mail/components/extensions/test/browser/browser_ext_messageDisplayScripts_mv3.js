@@ -374,19 +374,129 @@ add_task(async function testRegister() {
           }
         });
 
-        await browser.scripting.messageDisplay.registerScripts([
+        const expectedDetails = [
           {
             id: "test-1",
+            runAt: "document_idle",
             css: ["test.css"],
             js: ["test.js"],
           },
-        ]);
+        ];
+        const scriptDetails =
+          await browser.scripting.messageDisplay.registerScripts([
+            {
+              id: "test-1",
+              css: ["test.css"],
+              js: ["test.js"],
+            },
+          ]);
+        window.assertDeepEqual(
+          expectedDetails,
+          scriptDetails,
+          `Details of registered script should be correct`,
+          { strict: true }
+        );
+
+        // Test getRegisteredScripts(filter).
+        const testsForGetRegisteredScripts = [
+          { filter: {}, expected: expectedDetails },
+          { filter: { ids: [] }, expected: [] },
+          { filter: { ids: ["test-1"] }, expected: expectedDetails },
+          { filter: { ids: ["test-1", "test-2"] }, expected: expectedDetails },
+          { filter: { ids: ["test-2"] }, expected: [] },
+        ];
+        for (const test of testsForGetRegisteredScripts) {
+          window.assertDeepEqual(
+            test.expected,
+            await browser.scripting.messageDisplay.getRegisteredScripts(
+              test.filter
+            ),
+            `Return value of getRegisteredScripts(${JSON.stringify(
+              test.filter
+            )}) should be correct`,
+            { strict: true }
+          );
+        }
 
         browser.test.onMessage.addListener(async (message, data) => {
           switch (message) {
             case "Unregister":
-              await browser.scripting.messageDisplay.unregisterScripts();
-              browser.test.notifyPass("finished");
+              {
+                const testsForUnregisterScripts = [
+                  { filter: {}, expected: [] },
+                  { filter: { ids: [] }, expected: expectedDetails },
+                  {
+                    filter: { ids: ["test-2"] },
+                    expected: expectedDetails,
+                    expectedError: `The messageDisplayScript with id "test-2" does not exist.`,
+                  },
+                  { filter: { ids: ["test-1"] }, expected: [] },
+                  {
+                    filter: { ids: ["test-1", "test-2"] },
+                    // The entire call rejects, not just the request to unregister
+                    // the test-2 script.
+                    expected: expectedDetails,
+                    expectedError: `The messageDisplayScript with id "test-2" does not exist.`,
+                  },
+                ];
+                for (const test of testsForUnregisterScripts) {
+                  let error = false;
+                  try {
+                    await browser.scripting.messageDisplay.unregisterScripts(
+                      test.filter
+                    );
+                  } catch (ex) {
+                    browser.test.assertEq(
+                      test.expectedError,
+                      ex.message,
+                      "Error message of unregisterScripts() should be correct"
+                    );
+                    error = true;
+                  }
+                  browser.test.assertEq(
+                    !!test.expectedError,
+                    error,
+                    "unregisterScripts() should throw as expected"
+                  );
+                  window.assertDeepEqual(
+                    test.expected,
+                    await browser.scripting.messageDisplay.getRegisteredScripts(),
+                    `Return value of getRegisteredScripts() should be correct`,
+                    { strict: true }
+                  );
+                  // Re-Register.
+                  try {
+                    await browser.scripting.messageDisplay.registerScripts([
+                      {
+                        id: "test-1",
+                        css: ["test.css"],
+                        js: ["test.js"],
+                      },
+                    ]);
+                  } catch (ex) {
+                    // Yep, this may throw, if we re-register a script which
+                    // exists already.
+                  }
+                  // Re-Check.
+                  window.assertDeepEqual(
+                    expectedDetails,
+                    await browser.scripting.messageDisplay.getRegisteredScripts(),
+                    `Return value of getRegisteredScripts() should be correct`,
+                    { strict: true }
+                  );
+                }
+
+                // Test unregisterScripts(). Should unregister all scripts.
+                await browser.scripting.messageDisplay.unregisterScripts();
+                window.assertDeepEqual(
+                  [],
+                  await browser.scripting.messageDisplay.getRegisteredScripts(),
+                  `Return value of getRegisteredScripts() should be correct`,
+                  { strict: true }
+                );
+
+                browser.test.notifyPass("finished");
+              }
               break;
 
             case "RuntimeMessageTest":

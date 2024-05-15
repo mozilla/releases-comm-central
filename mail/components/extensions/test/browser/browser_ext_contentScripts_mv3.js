@@ -304,17 +304,131 @@ add_task(async function testRegister() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        await browser.scripting.registerContentScripts([
+        const expectedDetails = [
           {
-            id: "test",
+            id: "test-1",
+            allFrames: false,
+            matches: ["*://mochi.test/*"],
+            matchOriginAsFallback: false,
+            runAt: "document_idle",
+            persistAcrossSessions: true,
+            css: ["test.css"],
+            js: ["test.js"],
+          },
+        ];
+        const scriptDetails = await browser.scripting.registerContentScripts([
+          {
+            id: "test-1",
             css: ["test.css"],
             js: ["test.js"],
             matches: ["*://mochi.test/*"],
           },
         ]);
+        window.assertDeepEqual(
+          // Whoops, mozilla-central may have this wrong, at least according to
+          // the MDN documentation. Bug 1896508.
+          undefined /* expectedDetails */,
+          scriptDetails,
+          `Details of registered script should be correct`,
+          { strict: true }
+        );
+
+        // Test getRegisteredScripts(filter).
+        const testsForGetRegisteredScripts = [
+          { expected: expectedDetails },
+          { filter: {}, expected: expectedDetails },
+          { filter: { ids: [] }, expected: [] },
+          { filter: { ids: ["test-1"] }, expected: expectedDetails },
+          { filter: { ids: ["test-1", "test-2"] }, expected: expectedDetails },
+          { filter: { ids: ["test-2"] }, expected: [] },
+        ];
+        for (const test of testsForGetRegisteredScripts) {
+          window.assertDeepEqual(
+            test.expected,
+            await browser.scripting.getRegisteredContentScripts(test.filter),
+            `Return value of getRegisteredScripts(${JSON.stringify(
+              test.filter
+            )}) should be correct`,
+            { strict: true }
+          );
+        }
+
         await window.sendMessage();
 
+        // Test unregisterScripts(filter).
+        const testsForUnregisterScripts = [
+          { filter: {}, expected: [] },
+          { filter: { ids: [] }, expected: expectedDetails },
+          {
+            filter: { ids: ["test-2"] },
+            expected: expectedDetails,
+            expectedError: `Content script with id "test-2" does not exist.`,
+          },
+          { filter: { ids: ["test-1"] }, expected: [] },
+          {
+            filter: { ids: ["test-1", "test-2"] },
+            // The entire call rejects, not just the request to unregister the
+            // test-2 script.
+            expected: expectedDetails,
+            expectedError: `Content script with id "test-2" does not exist.`,
+          },
+        ];
+        for (const test of testsForUnregisterScripts) {
+          let error = false;
+          try {
+            await browser.scripting.unregisterContentScripts(test.filter);
+          } catch (ex) {
+            browser.test.assertEq(
+              test.expectedError,
+              ex.message,
+              "Error message of unregisterContentScripts() should be correct"
+            );
+            error = true;
+          }
+          browser.test.assertEq(
+            !!test.expectedError,
+            error,
+            "unregisterContentScripts() should throw as expected"
+          );
+          window.assertDeepEqual(
+            test.expected,
+            await browser.scripting.getRegisteredContentScripts(),
+            `Registered scripts after unregisterContentScripts(${JSON.stringify(
+              test.filter
+            )}) should be correct`,
+            { strict: true }
+          );
+          // Re-Register.
+          try {
+            await browser.scripting.registerContentScripts([
+              {
+                id: "test-1",
+                css: ["test.css"],
+                js: ["test.js"],
+                matches: ["*://mochi.test/*"],
+              },
+            ]);
+          } catch (ex) {
+            // Yep, this may throw, if we re-register a script which exists already.
+            console.log(ex);
+          }
+          // Re-Check.
+          window.assertDeepEqual(
+            expectedDetails,
+            await browser.scripting.getRegisteredContentScripts(),
+            `Registered scripts after re-registering should be correct`,
+            { strict: true }
+          );
+        }
+
         await browser.scripting.unregisterContentScripts();
+        window.assertDeepEqual(
+          [],
+          await browser.scripting.getRegisteredContentScripts(),
+          `Registered scripts after unregisterContentScripts() should be correct`,
+          { strict: true }
+        );
+
         await window.sendMessage();
 
         browser.test.notifyPass("finished");
