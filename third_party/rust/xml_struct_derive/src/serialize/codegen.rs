@@ -211,7 +211,7 @@ pub(super) fn with_enum_variants(
                     VariantKind::Struct(fields) => {
                         let VariantTokenSets {
                             accessors,
-                            content_calls,
+                            body: content_calls,
                         } = generate_variant_token_sets(name_tokens, namespace_attrs, fields);
 
                         quote! {
@@ -223,7 +223,7 @@ pub(super) fn with_enum_variants(
                     VariantKind::Tuple(fields) => {
                         let VariantTokenSets {
                             accessors,
-                            content_calls,
+                            body: content_calls,
                         } = generate_variant_token_sets(name_tokens, namespace_attrs, fields);
 
                         quote! {
@@ -273,7 +273,7 @@ struct VariantTokenSets {
 
     /// The calls for serializing the child nodes of the XML element
     /// representing an enum variant.
-    content_calls: TokenStream,
+    body: TokenStream,
 }
 
 /// Generates a list of accessors and set of calls to serialize content for an
@@ -294,18 +294,18 @@ fn generate_variant_token_sets(
         child_fields,
     } = partition_fields(fields);
 
-    let child_node_calls = generate_field_content_node_calls(child_fields);
+    let content_calls = if !child_fields.is_empty() {
+        Some(generate_field_content_node_calls(child_fields))
+    } else {
+        None
+    };
 
-    let content_calls = generate_xml_tag_calls(
-        name_tokens,
-        namespace_attrs,
-        &attr_fields,
-        Some(child_node_calls),
-    );
+    let variant_body =
+        generate_xml_tag_calls(name_tokens, namespace_attrs, &attr_fields, content_calls);
 
     VariantTokenSets {
         accessors,
-        content_calls,
+        body: variant_body,
     }
 }
 

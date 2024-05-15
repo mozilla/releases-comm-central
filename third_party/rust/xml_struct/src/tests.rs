@@ -4,10 +4,13 @@
 
 #![cfg(test)]
 
+use quick_xml::events::{attributes::Attribute, BytesStart};
 use xml_struct_tests::{serialize_value_as_element, serialize_value_children};
 
+use crate::XmlSerializeAttr;
+
 #[test]
-fn string() {
+fn string_as_content_node() {
     let content = String::from("some arbitrary content");
     let expected = content.clone();
 
@@ -49,7 +52,7 @@ fn string_as_element() {
 }
 
 #[test]
-fn int() {
+fn int_as_content_node() {
     let content: i8 = 17;
     let expected = format!("{content}");
 
@@ -171,5 +174,91 @@ fn int_as_element() {
     assert_eq!(
         actual, expected,
         "Serializing `u64` should result in bare text content"
+    );
+}
+
+#[test]
+fn bool_as_content_node() {
+    let content = true;
+    let expected = "true";
+
+    let actual = serialize_value_children(content).expect("Failed to serialize value");
+
+    assert_eq!(
+        actual, expected,
+        "`true` should be serialized as string value 'true'"
+    );
+
+    let content = false;
+    let expected = "false";
+
+    let actual = serialize_value_children(content).expect("Failed to serialize value");
+
+    assert_eq!(
+        actual, expected,
+        "`false` should be serialized as string value 'false'"
+    );
+}
+
+#[test]
+fn bool_as_attribute_value() {
+    let element_name = "foo";
+    let attr_name = "bar";
+
+    let content = true;
+    let expected = vec![Attribute::from((attr_name, "true"))];
+
+    let mut start = BytesStart::new(element_name);
+    content.serialize_as_attribute(&mut start, &attr_name);
+
+    let actual: Vec<_> = start
+        .attributes()
+        .map(|result| result.expect("Failed to get attribute value"))
+        .collect();
+
+    assert_eq!(
+        actual, expected,
+        "`true` should be serialized as string value 'true'"
+    );
+
+    let content = false;
+    let expected = vec![Attribute::from((attr_name, "false"))];
+
+    let mut start = BytesStart::new(element_name);
+    content.serialize_as_attribute(&mut start, &attr_name);
+
+    let actual: Vec<_> = start
+        .attributes()
+        .map(|result| result.expect("Failed to get attribute value"))
+        .collect();
+
+    assert_eq!(
+        actual, expected,
+        "`false` should be serialized as string value 'false'"
+    );
+}
+
+#[test]
+fn bool_as_element() {
+    let name = "george";
+
+    let content = true;
+    let expected = format!("<{name}>true</{name}>");
+
+    let actual = serialize_value_as_element(content, name).expect("Failed to serialize value");
+
+    assert_eq!(
+        actual, expected,
+        "Serializing `bool` should result in bare text content"
+    );
+
+    let content = false;
+    let expected = format!("<{name}>false</{name}>");
+
+    let actual = serialize_value_as_element(content, name).expect("Failed to serialize value");
+
+    assert_eq!(
+        actual, expected,
+        "Serializing `bool` should result in bare text content"
     );
 }

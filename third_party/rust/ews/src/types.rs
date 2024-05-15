@@ -10,4 +10,6 @@ pub use operations::*;
 pub mod soap;
 
 pub mod get_folder;
+pub mod get_item;
 pub mod sync_folder_hierarchy;
+pub mod sync_folder_items;

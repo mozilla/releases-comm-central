@@ -1474,12 +1474,14 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=cad3dd7d0763ddfeb336481fd2ba0c5632c932f5#cad3dd7d0763ddfeb336481fd2ba0c5632c932f5"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=d55eab675be323b037be939eeee0285da5e6971a#d55eab675be323b037be939eeee0285da5e6971a"
 dependencies = [
  "log",
  "quick-xml",
  "serde",
+ "serde_path_to_error",
  "thiserror",
+ "time 0.3.23",
  "xml_struct",
 ]
 
@@ -1488,10 +1490,11 @@ name = "ews_xpcom"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "cstr",
  "ews",
- "futures",
  "fxhash",
  "log",
+ "mail-builder",
  "moz_http",
  "moz_task",
  "nserror",
@@ -1499,6 +1502,7 @@ dependencies = [
  "quick-xml",
  "thiserror",
  "url",
+ "uuid",
  "xpcom",
  "xpcom_async",
 ]
@@ -1913,6 +1917,16 @@ checksum = "bff49e947297f3312447abdca79f45f4738097cc82b06e72054d2223f601f1b9"
 dependencies = [
  "typenum",
  "version_check",
+]
+
+[[package]]
+name = "gethostname"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0176e0459c2e4a1fe232f984bca6890e681076abb9934f6cea7c326f3fc47818"
+dependencies = [
+ "libc",
+ "windows-targets 0.48.999",
 ]
 
 [[package]]
@@ -2877,6 +2891,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d0d1830bcd151a6fc4aea1369af235b36c1528fe976b8ff678683c9995eade8"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "mail-builder"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef70f53409852d2612f2249810cbbe0c9931ca25b739b734bafc7f61d88051d4"
+dependencies = [
+ "gethostname",
 ]
 
 [[package]]
@@ -5762,7 +5785,7 @@ checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 [[package]]
 name = "xml_struct"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=ace285b5848750064d4f5ad30ddc0c0bff53d8a9#ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=0374b50878596a08ef9c9ac2dfcc7325b9c39b83#0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
 dependencies = [
  "quick-xml",
  "thiserror",
@@ -5772,7 +5795,7 @@ dependencies = [
 [[package]]
 name = "xml_struct_derive"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=ace285b5848750064d4f5ad30ddc0c0bff53d8a9#ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=0374b50878596a08ef9c9ac2dfcc7325b9c39b83#0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
 dependencies = [
  "proc-macro2",
  "quote",

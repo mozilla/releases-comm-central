@@ -75,7 +75,8 @@ pub struct ResponseMessages {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderHierarchyResponseMessage {
-    /// The success value of the corresponding request.
+    /// The status of the corresponding request, i.e. whether it succeeded or
+    /// resulted in an error.
     #[serde(rename = "@ResponseClass")]
     pub response_class: ResponseClass,
 

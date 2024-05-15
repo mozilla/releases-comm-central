@@ -2,21 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::ops::Deref as _;
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    ops::Deref as _,
+};
 
 use ews::{
     get_folder::GetFolder,
+    get_item::GetItem,
     soap,
-    sync_folder_hierarchy::{Change, SyncFolderHierarchy},
-    BaseFolderId, BaseShape, Folder, FolderShape, Operation, ResponseClass,
+    sync_folder_hierarchy::{self, SyncFolderHierarchy},
+    sync_folder_items::{self, SyncFolderItems},
+    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, Folder, FolderShape, Importance,
+    ItemShape, Message, Operation, PathToElement, RealItem, ResponseClass,
 };
 use fxhash::FxHashMap;
+use moz_http::StatusCode;
 use nserror::{nsresult, NS_ERROR_FAILURE};
 use nsstring::{nsCString, nsString};
 use thiserror::Error;
 use url::Url;
+use uuid::Uuid;
 use xpcom::{
-    interfaces::{nsMsgFolderFlagType, nsMsgFolderFlags, IEwsFolderCallbacks, IEwsIncomingServer},
+    getter_addrefs,
+    interfaces::{
+        nsIMsgDBHdr, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags, nsMsgPriority,
+        IEwsClient, IEwsFolderCallbacks, IEwsIncomingServer, IEwsMessageCallbacks,
+    },
     RefPtr,
 };
 
@@ -44,22 +56,16 @@ impl XpComEwsClient {
     ) {
         // Call an inner function to perform the operation in order to allow us
         // to handle errors while letting the inner function simply propagate.
-        self.sync_folder_hierarchy_inner(callbacks.clone(), sync_state_token)
+        self.sync_folder_hierarchy_inner(&callbacks, sync_state_token)
             .await
-            .unwrap_or_else(|err| {
-                // TODO: We need better error handling, including reporting back
-                // failure to authenticate.
-                eprintln!("error while syncing: {err:?}");
-
-                unsafe {
-                    callbacks.OnError();
-                }
-            });
+            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+                callbacks.OnError(client_err, &*desc);
+            }));
     }
 
     async fn sync_folder_hierarchy_inner(
         self,
-        callbacks: RefPtr<IEwsFolderCallbacks>,
+        callbacks: &IEwsFolderCallbacks,
         mut sync_state_token: Option<String>,
     ) -> Result<(), XpComEwsError> {
         // If we have received no sync state, assume that this is the first time
@@ -67,7 +73,7 @@ impl XpComEwsClient {
         // folders are "well-known" (e.g., inbox, trash, etc.) so we can flag
         // them.
         let well_known = if sync_state_token.is_none() {
-            Some(self.get_well_known_folder_map(&callbacks).await?)
+            Some(self.get_well_known_folder_map(callbacks).await?)
         } else {
             None
         };
@@ -107,22 +113,24 @@ impl XpComEwsClient {
             // further details when creating or updating folders as well.
             for change in message.changes.inner {
                 match change {
-                    Change::Create { folder } => {
+                    sync_folder_hierarchy::Change::Create { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
                             create_ids.push(folder_id.id)
                         }
                     }
-                    Change::Update { folder } => {
+                    sync_folder_hierarchy::Change::Update { folder } => {
                         if let Folder::Folder { folder_id, .. } = folder {
                             update_ids.push(folder_id.id)
                         }
                     }
-                    Change::Delete(folder_id) => delete_ids.push(folder_id.id),
+                    sync_folder_hierarchy::Change::Delete(folder_id) => {
+                        delete_ids.push(folder_id.id)
+                    }
                 }
             }
 
             self.push_sync_state_to_ui(
-                callbacks.clone(),
+                callbacks,
                 create_ids,
                 update_ids,
                 delete_ids,
@@ -143,6 +151,181 @@ impl XpComEwsClient {
         Ok(())
     }
 
+    pub(crate) async fn sync_messages_for_folder(
+        self,
+        callbacks: RefPtr<IEwsMessageCallbacks>,
+        folder_id: String,
+        sync_state_token: Option<String>,
+    ) {
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
+        self.sync_messages_for_folder_inner(&callbacks, folder_id, sync_state_token)
+            .await
+            .unwrap_or_else(process_error_with_cb(move |client_err, desc| unsafe {
+                callbacks.OnError(client_err, &*desc);
+            }));
+    }
+
+    async fn sync_messages_for_folder_inner(
+        self,
+        callbacks: &IEwsMessageCallbacks,
+        folder_id: String,
+        mut sync_state_token: Option<String>,
+    ) -> Result<(), XpComEwsError> {
+        // We may need to call the SyncFolderItems operation multiple times to
+        // ensure that all changes are returned, as EWS caps the number of
+        // results. Loop until we have no more changes.
+        loop {
+            let op = SyncFolderItems {
+                item_shape: ItemShape {
+                    // Microsoft's guidance is that the sync call should only
+                    // fetch IDs for server load reasons.
+                    // See <https://learn.microsoft.com/en-us/exchange/client-developer/exchange-web-services/how-to-synchronize-items-by-using-ews-in-exchange>
+                    base_shape: BaseShape::IdOnly,
+                    ..Default::default()
+                },
+                sync_folder_id: BaseFolderId::FolderId {
+                    id: folder_id.clone(),
+                    change_key: None,
+                },
+                sync_state: sync_state_token,
+                ignore: None,
+                max_changes_returned: 100,
+                sync_scope: None,
+            };
+
+            let response = self.make_operation_request(op).await?;
+            let message = response
+                .response_messages
+                .sync_folder_items_response_message
+                .into_iter()
+                .next()
+                .unwrap();
+
+            // We only fetch unique messages, as we ignore the `ChangeKey` and
+            // simply fetch the latest version.
+            let message_ids_to_fetch: HashSet<_> = message
+                .changes
+                .inner
+                .iter()
+                .filter_map(|change| match change {
+                    sync_folder_items::Change::Create {
+                        item: RealItem::Message(message),
+                    } => Some(message.item_id.id.clone()),
+                    sync_folder_items::Change::Update {
+                        item: RealItem::Message(message),
+                    } => Some(message.item_id.id.clone()),
+
+                    // We don't fetch items for anything other than messages,
+                    // since we don't have support for other items, and we don't
+                    // need to fetch for other types of changes since the ID is
+                    // sufficient to do the necessary work.
+                    _ => None,
+                })
+                .collect();
+
+            let messages_by_id: HashMap<_, _> = self
+                .get_items(
+                    message_ids_to_fetch,
+                    &[
+                        "message:IsRead",
+                        "message:InternetMessageId",
+                        "item:InternetMessageHeaders",
+                        "item:DateTimeSent",
+                        "message:From",
+                        "message:ReplyTo",
+                        "message:Sender",
+                        "item:Subject",
+                        "item:DisplayTo",
+                        "item:DisplayCc",
+                        "item:HasAttachments",
+                        "item:Importance",
+                    ],
+                )
+                .await?
+                .into_iter()
+                .map(|item| match item {
+                    RealItem::Message(message) => (message.item_id.id.to_owned(), message),
+
+                    // We should have filtered above for only Message-related
+                    // changes.
+                    _ => panic!("Encountered non-Message item in response"),
+                })
+                .collect();
+
+            for change in message.changes.inner {
+                match change {
+                    sync_folder_items::Change::Create { item } => {
+                        let item_id = match item {
+                            RealItem::Message(message) => message.item_id.id,
+
+                            // We don't currently handle anything other than
+                            // messages, so skip this change.
+                            _ => continue,
+                        };
+
+                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                            XpComEwsError::Processing {
+                                message: format!("Unable to fetch message with ID {item_id}"),
+                            }
+                        })?;
+
+                        // Have the database create a new header instance for
+                        // us. We don't create it ourselves so that the database
+                        // can fill out any fields it wants beforehand.
+                        let header =
+                            getter_addrefs(|hdr| unsafe { callbacks.CreateNewHeader(hdr) })?;
+
+                        populate_message_header_from_item(&header, &msg)?;
+
+                        unsafe { callbacks.CommitHeader(&*header) }.to_result()?;
+                    }
+
+                    sync_folder_items::Change::Update { item } => {
+                        let item_id = match item {
+                            RealItem::Message(message) => message.item_id.id,
+
+                            // We don't currently handle anything other than
+                            // messages, so skip this change.
+                            _ => continue,
+                        };
+
+                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                            XpComEwsError::Processing {
+                                message: format!("Unable to fetch message with ID {item_id}"),
+                            }
+                        })?;
+
+                        // TODO: We probably want to ask for a different item
+                        // body for these, since the message itself shouldn't
+                        // change. We just want to know when read state or other
+                        // user-settable properties change. We also need to
+                        // implement those changes.
+                    }
+
+                    sync_folder_items::Change::Delete { item_id } => todo!(),
+                    sync_folder_items::Change::ReadFlagChange { item_id, is_read } => todo!(),
+                }
+            }
+
+            // Update sync state after pushing each batch of messages so that,
+            // if we're interrupted, we resume from roughly the same place.
+            let new_sync_state = nsCString::from(&message.sync_state);
+            unsafe { callbacks.UpdateSyncState(&*new_sync_state) }.to_result()?;
+
+            if message.includes_last_item_in_range {
+                // EWS has signaled to us that there are no more changes at this
+                // time.
+                break;
+            }
+
+            sync_state_token = Some(message.sync_state);
+        }
+
+        Ok(())
+    }
+
+    /// Gets a string suitable for use as an HTTP `Authorization` header value.
     async fn get_auth_string(&self) -> Result<String, nsresult> {
         let listener = AuthStringListener::new();
 
@@ -160,7 +343,7 @@ impl XpComEwsClient {
     /// calls and well-known IDs associated with special folders.
     async fn get_well_known_folder_map(
         &self,
-        callbacks: &RefPtr<IEwsFolderCallbacks>,
+        callbacks: &IEwsFolderCallbacks,
     ) -> Result<FxHashMap<String, &str>, XpComEwsError> {
         const DISTINGUISHED_IDS: &[&str] = &[
             "msgfolderroot",
@@ -230,7 +413,7 @@ impl XpComEwsClient {
 
     async fn push_sync_state_to_ui(
         &self,
-        callbacks: RefPtr<IEwsFolderCallbacks>,
+        callbacks: &IEwsFolderCallbacks,
         create_ids: Vec<String>,
         update_ids: Vec<String>,
         delete_ids: Vec<String>,
@@ -309,7 +492,7 @@ impl XpComEwsClient {
         }
 
         let sync_state = nsCString::from(sync_state);
-        unsafe { callbacks.UpdateState(&*sync_state) }.to_result()?;
+        unsafe { callbacks.UpdateSyncState(&*sync_state) }.to_result()?;
 
         Ok(())
     }
@@ -396,6 +579,117 @@ impl XpComEwsClient {
         Ok(folders)
     }
 
+    /// Fetches items from the remote Exchange server.
+    async fn get_items<IdColl>(
+        &self,
+        ids: IdColl,
+        fields: &[&str],
+    ) -> Result<Vec<RealItem>, XpComEwsError>
+    where
+        IdColl: IntoIterator<Item = String>,
+    {
+        // Build a `VecDeque` so that we can drain it from the front. It would
+        // be better to do this with `array_chunks()` once we have a suitable
+        // MSRV.
+        // https://github.com/rust-lang/rust/issues/74985
+        let mut ids: VecDeque<_> = ids.into_iter().collect();
+        let mut items = Vec::with_capacity(ids.len());
+
+        while !ids.is_empty() {
+            let batch_ids: Vec<_> = {
+                let range_end = usize::min(10, ids.len());
+                ids.drain(0..range_end)
+            }
+            .map(|id| BaseItemId::ItemId {
+                id,
+                change_key: None,
+            })
+            .collect();
+
+            let additional_properties: Vec<_> = fields
+                .into_iter()
+                .map(|&field| PathToElement::FieldURI {
+                    field_URI: String::from(field),
+                })
+                .collect();
+
+            let additional_properties = if additional_properties.is_empty() {
+                None
+            } else {
+                Some(additional_properties)
+            };
+
+            let op = GetItem {
+                item_shape: ItemShape {
+                    // We use `IdOnly` with the `AdditionalProperties` field to
+                    // get finer control over what we request. `Default`
+                    // includes the message body, which we would discard if we
+                    // are only getting the message header.
+                    base_shape: BaseShape::IdOnly,
+                    additional_properties,
+                    ..Default::default()
+                },
+                item_ids: batch_ids,
+            };
+
+            let response = self.make_operation_request(op).await?;
+            for response_message in response.response_messages.get_item_response_message {
+                match response_message.response_class {
+                    ResponseClass::Success => (),
+
+                    ResponseClass::Warning => {
+                        let message = if let Some(code) = response_message.response_code {
+                            if let Some(text) = response_message.message_text {
+                                format!("GetItem operation encountered `{code:?}' warning: {text}")
+                            } else {
+                                format!("GetItem operation encountered `{code:?}' warning")
+                            }
+                        } else if let Some(text) = response_message.message_text {
+                            format!("GetItem operation encountered warning: {text}")
+                        } else {
+                            format!("GetItem operation encountered unknown warning")
+                        };
+
+                        log::warn!("{message}");
+                    }
+
+                    ResponseClass::Error => {
+                        let message = if let Some(code) = response_message.response_code {
+                            if let Some(text) = response_message.message_text {
+                                format!("GetItem operation encountered `{code:?}' error: {text}")
+                            } else {
+                                format!("GetItem operation encountered `{code:?}' error")
+                            }
+                        } else if let Some(text) = response_message.message_text {
+                            format!("GetItem operation encountered error: {text}")
+                        } else {
+                            format!("GetItem operation encountered unknown error")
+                        };
+
+                        return Err(XpComEwsError::Processing { message });
+                    }
+                }
+
+                // The expected shape of the list of response messages is
+                // underspecified, but EWS always seems to return one message
+                // per requested ID, containing the item corresponding to that
+                // ID. However, it allows for multiple items per message, so we
+                // need to be sure we aren't throwing some away.
+                let items_len = response_message.items.inner.len();
+                if items_len != 1 {
+                    log::warn!(
+                        "GetItemResponseMessage contained {} items, only 1 expected",
+                        items_len
+                    );
+                }
+
+                items.extend(response_message.items.inner.into_iter());
+            }
+        }
+
+        Ok(items)
+    }
+
     /// Makes a request to the EWS endpoint to perform an operation.
     ///
     /// If the request is throttled, it will be retried after the delay given in
@@ -459,6 +753,113 @@ impl XpComEwsClient {
     }
 }
 
+/// Sets the fields of a database message header object from an EWS `Message`.
+fn populate_message_header_from_item(
+    header: &nsIMsgDBHdr,
+    msg: &Message,
+) -> Result<(), XpComEwsError> {
+    let internet_message_id = if let Some(internet_message_id) = msg.internet_message_id.as_ref() {
+        nsCString::from(internet_message_id)
+    } else {
+        // Lots of code assumes Message-ID is set and unique, so we need to
+        // build something suitable. The value need not be stable, since we only
+        // ever set message ID on a new header.
+        let uuid = Uuid::new_v4();
+
+        nsCString::from(format!("x-moz-uuid:{uuid}", uuid = uuid.hyphenated()))
+    };
+
+    unsafe { header.SetMessageId(&*internet_message_id) }.to_result()?;
+
+    // Keep track of whether we changed any flags to avoid
+    // making unnecessary XPCOM calls.
+    let mut should_write_flags = false;
+
+    let mut header_flags = 0;
+    unsafe { header.GetFlags(&mut header_flags) }.to_result()?;
+
+    if let Some(is_read) = msg.is_read {
+        if is_read {
+            should_write_flags = true;
+            header_flags |= nsMsgMessageFlags::Read;
+        }
+    }
+
+    if let Some(has_attachments) = msg.has_attachments {
+        if has_attachments {
+            should_write_flags = true;
+            header_flags |= nsMsgMessageFlags::Attachment;
+        }
+    }
+
+    if should_write_flags {
+        unsafe { header.SetFlags(header_flags) }.to_result()?;
+    }
+
+    let sent_time_in_micros = msg.date_time_sent.as_ref().and_then(|date_time| {
+        // `time` gives Unix timestamps in seconds. `PRTime` is an `i64`
+        // representing Unix timestamps in microseconds. `PRTime` won't overflow
+        // for over 500,000 years, but we use `checked_mul()` to guard against
+        // receiving nonsensical values.
+        let time_in_micros = date_time.0.unix_timestamp().checked_mul(1_000 * 1_000);
+        if time_in_micros.is_none() {
+            log::warn!(
+                "message with ID {item_id} sent date {date_time:?} too big for `i64`, ignoring",
+                item_id = msg.item_id.id
+            );
+        }
+
+        time_in_micros
+    });
+
+    if let Some(sent) = sent_time_in_micros {
+        unsafe { header.SetDate(sent) }.to_result()?;
+    }
+
+    if let Some(author) = msg.from.as_ref().or(msg.sender.as_ref()) {
+        let author = nsCString::from(make_header_string_for_mailbox(&author.mailbox));
+        unsafe { header.SetAuthor(&*author) }.to_result()?;
+    }
+
+    if let Some(reply_to) = msg.reply_to.as_ref() {
+        let reply_to = nsCString::from(make_header_string_for_mailbox(&reply_to.mailbox));
+        unsafe { header.SetStringProperty(cstr::cstr!("replyTo").as_ptr(), &*reply_to) }
+            .to_result()?;
+    }
+
+    if let Some(to) = msg.to_recipients.as_ref() {
+        let to = nsCString::from(make_header_string_for_mailbox_list(&to));
+        unsafe { header.SetRecipients(&*to) }.to_result()?;
+    }
+
+    if let Some(cc) = msg.cc_recipients.as_ref() {
+        let cc = nsCString::from(make_header_string_for_mailbox_list(&cc));
+        unsafe { header.SetCcList(&*cc) }.to_result()?;
+    }
+
+    if let Some(bcc) = msg.bcc_recipients.as_ref() {
+        let bcc = nsCString::from(make_header_string_for_mailbox_list(&bcc));
+        unsafe { header.SetBccList(&*bcc) }.to_result()?;
+    }
+
+    if let Some(subject) = msg.subject.as_ref() {
+        let subject = nsCString::from(subject);
+        unsafe { header.SetSubject(&*subject) }.to_result()?;
+    }
+
+    if let Some(importance) = msg.importance {
+        let priority = match importance {
+            Importance::Low => nsMsgPriority::low,
+            Importance::Normal => nsMsgPriority::normal,
+            Importance::High => nsMsgPriority::high,
+        };
+
+        unsafe { header.SetPriority(priority) }.to_result()?;
+    }
+
+    Ok(())
+}
+
 /// Gets the time to wait before retrying a throttled request, if any.
 ///
 /// When an Exchange server throttles a request, the response will specify a
@@ -480,6 +881,40 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
         Some(u32::try_from(delay).unwrap_or(u32::MAX))
     } else {
         None
+    }
+}
+
+/// Creates a string representation of a list of mailboxes, suitable for use as
+/// the value of an Internet Message Format header.
+fn make_header_string_for_mailbox_list(mailboxes: &ArrayOfRecipients) -> String {
+    let strings: Vec<_> = mailboxes
+        .mailbox
+        .iter()
+        .map(make_header_string_for_mailbox)
+        .collect();
+
+    strings.join(", ")
+}
+
+/// Creates a string representation of a mailbox, suitable for use as the value
+/// of an Internet Message Format header.
+fn make_header_string_for_mailbox(mailbox: &ews::Mailbox) -> String {
+    let email_address = &mailbox.email_address;
+
+    if let Some(name) = mailbox.name.as_ref() {
+        let mut buf: Vec<u8> = Vec::new();
+
+        // TODO: It may not be okay to unwrap here (could hit OOM, mainly), but
+        // it isn't clear how we can handle that appropriately.
+        mail_builder::encoders::encode::rfc2047_encode(&name, &mut buf).unwrap();
+
+        // It's okay to unwrap here, as successful RFC 2047 encoding implies the
+        // result is ASCII.
+        let name = std::str::from_utf8(&buf).unwrap();
+
+        format!("{name} <{email_address}>")
+    } else {
+        email_address.clone()
     }
 }
 
@@ -509,4 +944,49 @@ pub(crate) enum XpComEwsError {
 
     #[error("an error occurred while (de)serializing")]
     Ews(#[from] ews::Error),
+
+    #[error("error in processing response")]
+    Processing { message: String },
+}
+
+/// Returns a function for processing an error and providing it to the provided
+/// error-handling callback.
+fn process_error_with_cb<Cb>(handler: Cb) -> impl FnOnce(XpComEwsError)
+where
+    Cb: FnOnce(u8, nsCString),
+{
+    |err| {
+        let (client_err, desc) = match err {
+            XpComEwsError::Http(moz_http::Error::StatusCode {
+                status: StatusCode(401),
+                ..
+            }) => {
+                // Authentication failed. Let Thunderbird know so we can
+                // handle it appropriately.
+                (IEwsClient::EWS_ERR_AUTHENTICATION_FAILED, nsCString::new())
+            }
+
+            _ => {
+                log::error!("an unexpected error occurred while syncing folders: {err:?}");
+
+                match err {
+                    XpComEwsError::Http(moz_http::Error::StatusCode { response, .. }) => {
+                        match std::str::from_utf8(response.body()) {
+                            Ok(body) => eprintln!("body in UTF-8: {body}"),
+                            Err(_) => (),
+                        }
+                    }
+
+                    _ => (),
+                }
+
+                (
+                    IEwsClient::EWS_ERR_UNEXPECTED,
+                    nsCString::from("an unexpected error occurred while syncing folders"),
+                )
+            }
+        };
+
+        handler(client_err, desc);
+    }
 }

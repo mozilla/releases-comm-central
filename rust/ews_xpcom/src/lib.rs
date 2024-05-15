@@ -7,11 +7,11 @@ extern crate xpcom;
 use std::{
     cell::{Cell, OnceCell},
     ffi::c_void,
+    future::Future,
     task::Waker,
 };
 
 use client::XpComEwsClient;
-use futures::Future;
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED,
     NS_ERROR_UNEXPECTED, NS_OK,
@@ -19,7 +19,7 @@ use nserror::{
 use nsstring::nsACString;
 use url::Url;
 use xpcom::{
-    interfaces::{IEwsFolderCallbacks, IEwsIncomingServer},
+    interfaces::{IEwsFolderCallbacks, IEwsIncomingServer, IEwsMessageCallbacks},
     nsIID, xpcom_method, RefPtr,
 };
 
@@ -89,6 +89,38 @@ impl XpcomEwsBridge {
         moz_task::spawn_local(
             "sync_folder_hierarchy",
             client.sync_folder_hierarchy(RefPtr::new(callbacks), sync_state),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(callbacks: *const IEwsMessageCallbacks, folder_id: *const nsACString, sync_state: *const nsACString));
+    fn sync_messages_for_folder(
+        &self,
+        callbacks: &IEwsMessageCallbacks,
+        folder_id: &nsACString,
+        sync_state: &nsACString,
+    ) -> Result<(), nsresult> {
+        // We can't use `Option` across XPCOM, but we want to use one internally
+        // so we don't send an empty string for sync state.
+        let sync_state = if sync_state.is_empty() {
+            None
+        } else {
+            Some(sync_state.to_utf8().into_owned())
+        };
+
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "sync_messages_for_folder",
+            client.sync_messages_for_folder(
+                RefPtr::new(callbacks),
+                folder_id.to_utf8().into_owned(),
+                sync_state,
+            ),
         )
         .detach();
 

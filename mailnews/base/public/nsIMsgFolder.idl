@@ -698,8 +698,8 @@ interface nsIMsgFolder : nsISupports {
   void setStringProperty(in string propertyName, in AUTF8String propertyValue);
 
   /**
-   * Returns the value of a string property.
-   * Throws an error if property does not exist.
+   * Returns the value of a string property, or an empty string if the property
+   * is not found.
    */
   AUTF8String getStringProperty(in string propertyName);
 

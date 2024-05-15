@@ -8,8 +8,8 @@
 #include "nsPrintfCString.h"
 #include "plbase64.h"
 
-const char* ID_PROPERTY = "ewsId";
-const char* SYNC_STATE_PROPERTY = "ewsSyncStateToken";
+#define ID_PROPERTY "ewsId"
+#define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
 class FolderSyncListener : public IEwsFolderCallbacks {
  public:
@@ -62,15 +62,16 @@ NS_IMETHODIMP FolderSyncListener::Delete(const nsACString& id) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP FolderSyncListener::UpdateState(
+NS_IMETHODIMP FolderSyncListener::UpdateSyncState(
     const nsACString& syncStateToken) {
   return mServer->SetCharValue(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
-NS_IMETHODIMP FolderSyncListener::OnError(void) {
+NS_IMETHODIMP FolderSyncListener::OnError(IEwsClient::Error err,
+                                          const nsACString& desc) {
   NS_ERROR("Error occurred while syncing EWS folders");
 
-  return NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 class OAuthListener : public msgIOAuth2ModuleListener {
@@ -105,6 +106,7 @@ NS_IMETHODIMP OAuthListener::OnFailure(nsresult aError) {
 NS_IMPL_ADDREF_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_RELEASE_INHERITED(EwsIncomingServer, nsMsgIncomingServer)
 NS_IMPL_QUERY_HEAD(EwsIncomingServer)
+NS_IMPL_QUERY_BODY(IEwsIncomingServer)
 NS_IMPL_QUERY_TAIL_INHERITING(nsMsgIncomingServer)
 
 EwsIncomingServer::EwsIncomingServer() = default;

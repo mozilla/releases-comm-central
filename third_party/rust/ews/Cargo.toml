@@ -16,6 +16,7 @@ version = "0.1.0"
 readme = "README.md"
 
 [dependencies]
+serde_path_to_error = "0.1.11"
 thiserror = "1.0.57"
 
 [dependencies.log]
@@ -33,7 +34,14 @@ features = [
 version = "1.0.196"
 features = ["derive"]
 
+[dependencies.time]
+version = "0.3.23"
+features = [
+    "parsing",
+    "serde",
+]
+
 [dependencies.xml_struct]
 version = "0.1.0"
 git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "ace285b5848750064d4f5ad30ddc0c0bff53d8a9"
+rev = "0374b50878596a08ef9c9ac2dfcc7325b9c39b83"

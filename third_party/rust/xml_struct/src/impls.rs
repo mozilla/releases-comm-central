@@ -63,6 +63,23 @@ impl XmlSerialize for &str {
     }
 }
 
+/// Serializes a boolean as a text content node.
+///
+/// `true` is serialized as the string value "true", while `false` is serialized
+/// as the string value "false".
+impl XmlSerialize for bool {
+    fn serialize_child_nodes<W>(&self, writer: &mut Writer<W>) -> Result<(), Error>
+    where
+        W: std::io::Write,
+    {
+        let content = if *self { "true" } else { "false" };
+
+        writer.write_event(Event::Text(BytesText::new(content)))?;
+
+        Ok(())
+    }
+}
+
 /// Serializes the contents of an `Option<T>` as content nodes.
 ///
 /// `Some(t)` is serialized identically to `t`, while `None` produces no output.
@@ -143,6 +160,18 @@ impl XmlSerializeAttr for String {
 impl XmlSerializeAttr for &str {
     fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
         start_tag.push_attribute((name, *self));
+    }
+}
+
+/// Serializes a boolean as an XML attribute value.
+///
+/// `true` is serialized as the string value "true", while `false` is serialized
+/// as the string value "false".
+impl XmlSerializeAttr for bool {
+    fn serialize_as_attribute(&self, start_tag: &mut quick_xml::events::BytesStart, name: &str) {
+        let content = if *self { "true" } else { "false" };
+
+        start_tag.push_attribute((name, content));
     }
 }
 

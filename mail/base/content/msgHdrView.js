@@ -4334,7 +4334,7 @@ function HandleMDNResponse(url) {
   // we cons up an md5: message id. If we've done that, we'll try to extract
   // the message id out of the mime headers for the whole message.
   const msgId = gMessage.messageId;
-  if (msgId.startsWith("md5:")) {
+  if (msgId.startsWith("md5:") || msgId.startsWith("x-moz-uuid:")) {
     var mimeMsgId = mimeHdr.extractHeader("Message-Id", false);
     if (mimeMsgId) {
       gMessage.messageId = mimeMsgId;
