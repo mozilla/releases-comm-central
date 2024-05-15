@@ -249,6 +249,7 @@ impl XpComEwsClient {
 
                     // We should have filtered above for only Message-related
                     // changes.
+                    #[allow(unreachable_patterns)]
                     _ => panic!("Encountered non-Message item in response"),
                 })
                 .collect();
@@ -261,6 +262,7 @@ impl XpComEwsClient {
 
                             // We don't currently handle anything other than
                             // messages, so skip this change.
+                            #[allow(unreachable_patterns)]
                             _ => continue,
                         };
 
@@ -287,10 +289,11 @@ impl XpComEwsClient {
 
                             // We don't currently handle anything other than
                             // messages, so skip this change.
+                            #[allow(unreachable_patterns)]
                             _ => continue,
                         };
 
-                        let msg = messages_by_id.get(&item_id).ok_or_else(|| {
+                        let _msg = messages_by_id.get(&item_id).ok_or_else(|| {
                             XpComEwsError::Processing {
                                 message: format!("Unable to fetch message with ID {item_id}"),
                             }
@@ -303,8 +306,11 @@ impl XpComEwsClient {
                         // implement those changes.
                     }
 
-                    sync_folder_items::Change::Delete { item_id } => todo!(),
-                    sync_folder_items::Change::ReadFlagChange { item_id, is_read } => todo!(),
+                    sync_folder_items::Change::Delete { item_id: _item_id } => todo!(),
+                    sync_folder_items::Change::ReadFlagChange {
+                        item_id: _item_id,
+                        is_read: _is_read,
+                    } => todo!(),
                 }
             }
 
