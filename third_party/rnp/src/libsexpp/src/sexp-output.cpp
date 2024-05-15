@@ -1,29 +1,23 @@
 /**
  *
- * Copyright (c) 2022-2023, [Ribose Inc](https://www.ribose.com).
- * All rights reserved.
- * This file is a part of RNP sexp library
+ * Copyright 2021-2023 Ribose Inc. (https://www.ribose.com)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Original copyright
  *
@@ -32,7 +26,7 @@
  * 5/5/1997
  */
 
-#include <sexp/sexp.h>
+#include "sexpp/sexp.h"
 
 namespace sexp {
 
@@ -44,16 +38,16 @@ static const char *base64Digits =
  * sexp_output_stream_t::sexp_output_stream_t
  * Creates and initializes new sexp_output_stream_t object.
  */
-sexp_output_stream_t::sexp_output_stream_t(std::ostream *o)
+sexp_output_stream_t::sexp_output_stream_t(std::ostream *o, size_t m_depth)
 {
-    set_output(o);
+    set_output(o, m_depth);
 }
 
 /*
  * sexp_output_stream_t::set_output
  * Re-initializes new sexp_output_stream_t object.
  */
-sexp_output_stream_t *sexp_output_stream_t::set_output(std::ostream *o)
+sexp_output_stream_t *sexp_output_stream_t::set_output(std::ostream *o, size_t m_depth)
 {
     output_file = o;
     byte_size = 8;
@@ -64,6 +58,7 @@ sexp_output_stream_t *sexp_output_stream_t::set_output(std::ostream *o)
     max_column = default_line_length;
     indent = 0;
     base64_count = 0;
+    reset_depth(m_depth);
     return this;
 }
 
@@ -180,14 +175,8 @@ sexp_output_stream_t *sexp_output_stream_t::new_line(sexp_print_mode mode)
 sexp_output_stream_t *sexp_output_stream_t::print_decimal(uint64_t n)
 {
     char buffer[20]; // 64*ln(2)/ln(10)
-    snprintf(buffer,
-             sizeof(buffer) / sizeof(buffer[0]),
-#ifdef _WIN32
-             "%llu",
-#else
-             "%lu",
-#endif
-             n); // since itoa is not a part of any standard
+    // since itoa is not a part of any standard
+    snprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), "%" PRIu64, n);
     for (uint32_t i = 0; buffer[i] != 0; i++)
         var_put_char(buffer[i]);
     return this;

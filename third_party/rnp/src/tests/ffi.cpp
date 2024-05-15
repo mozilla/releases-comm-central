@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2023 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <cstdint>
 
 #include <rnp/rnp.h>
 #include "rnp_tests.h"
@@ -2659,7 +2660,8 @@ TEST_F(rnp_tests, test_ffi_revocations)
     assert_rnp_failure(rnp_uid_is_revoked(uid_handle, NULL));
     assert_rnp_success(rnp_uid_is_revoked(uid_handle, &revoked));
     assert_false(revoked);
-    rnp_signature_handle_t sig = (rnp_signature_handle_t) 0xdeadbeef;
+    const uintptr_t        p_sig = 0xdeadbeef;
+    rnp_signature_handle_t sig = reinterpret_cast<rnp_signature_handle_t>(p_sig);
     assert_rnp_failure(rnp_uid_get_revocation_signature(NULL, &sig));
     assert_rnp_failure(rnp_uid_get_revocation_signature(uid_handle, NULL));
     assert_rnp_success(rnp_uid_get_revocation_signature(uid_handle, &sig));
@@ -5951,11 +5953,16 @@ TEST_F(rnp_tests, test_ffi_security_profile)
     assert_int_equal(flags, 0);
     /* SHA1 - now, data verify disabled, key sig verify is enabled */
     flags = 0;
-    assert_rnp_success(rnp_get_security_rule(
-      ffi, RNP_FEATURE_HASH_ALG, "SHA1", time(NULL), &flags, &from, &level));
-    assert_int_equal(from, SHA1_DATA_FROM);
+    auto now = time(NULL);
+    bool sha1_cutoff = now > SHA1_KEY_FROM;
+    /* This would pick default rule closer to the date independent on usage */
+    assert_rnp_success(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "SHA1", now, &flags, &from, &level));
+    auto expect_from = sha1_cutoff ? SHA1_KEY_FROM : SHA1_DATA_FROM;
+    auto expect_usage = sha1_cutoff ? RNP_SECURITY_VERIFY_KEY : RNP_SECURITY_VERIFY_DATA;
+    assert_int_equal(from, expect_from);
     assert_int_equal(level, RNP_SECURITY_INSECURE);
-    assert_int_equal(flags, RNP_SECURITY_VERIFY_DATA);
+    assert_int_equal(flags, expect_usage);
     flags = 0;
     assert_rnp_success(rnp_get_security_rule(
       ffi, RNP_FEATURE_HASH_ALG, "SHA1", SHA1_DATA_FROM - 1, &flags, &from, &level));
@@ -5968,11 +5975,14 @@ TEST_F(rnp_tests, test_ffi_security_profile)
     assert_int_equal(level, RNP_SECURITY_INSECURE);
     assert_int_equal(flags, RNP_SECURITY_VERIFY_DATA);
     flags = RNP_SECURITY_VERIFY_KEY;
-    assert_rnp_success(rnp_get_security_rule(
-      ffi, RNP_FEATURE_HASH_ALG, "SHA1", time(NULL), &flags, &from, &level));
-    assert_int_equal(from, 0);
-    assert_int_equal(level, RNP_SECURITY_DEFAULT);
-    assert_int_equal(flags, 0);
+    assert_rnp_success(
+      rnp_get_security_rule(ffi, RNP_FEATURE_HASH_ALG, "SHA1", now, &flags, &from, &level));
+    expect_from = sha1_cutoff ? SHA1_KEY_FROM : 0;
+    auto expect_level = sha1_cutoff ? RNP_SECURITY_INSECURE : RNP_SECURITY_DEFAULT;
+    expect_usage = sha1_cutoff ? RNP_SECURITY_VERIFY_KEY : 0;
+    assert_int_equal(from, expect_from);
+    assert_int_equal(level, expect_level);
+    assert_int_equal(flags, expect_usage);
     flags = RNP_SECURITY_VERIFY_KEY;
     assert_rnp_success(rnp_get_security_rule(
       ffi, RNP_FEATURE_HASH_ALG, "SHA1", SHA1_KEY_FROM + 5, &flags, &from, &level));

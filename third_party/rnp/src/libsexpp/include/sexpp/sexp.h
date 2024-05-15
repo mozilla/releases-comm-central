@@ -1,29 +1,23 @@
 /**
  *
- * Copyright (c) 2022-2023, [Ribose Inc](https://www.ribose.com).
- * All rights reserved.
- * This file is a part of RNP sexp library
+ * Copyright 2021-2023 Ribose Inc. (https://www.ribose.com)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Original copyright
  *
@@ -34,6 +28,7 @@
 
 #pragma once
 
+#include <inttypes.h>
 #include <climits>
 #include <limits>
 #include <cctype>
@@ -46,16 +41,18 @@
 #include <vector>
 #include <cassert>
 
+#include "sexp-public.h"
 #include "sexp-error.h"
 
 namespace sexp {
+
 /*
  * SEXP octet_t definitions
  * We maintain some presumable redundancy with ctype
  * However, we do enforce 'C' locale this way
  */
 
-class sexp_char_defs_t {
+class SEXP_PUBLIC_SYMBOL sexp_char_defs_t {
   protected:
     static const bool          base64digit[256]; /* true if c is base64 digit */
     static const bool          tokenchar[256];   /* true if c can be in a token */
@@ -104,7 +101,8 @@ class sexp_input_stream_t;
 
 typedef uint8_t octet_t;
 
-class sexp_simple_string_t : public std::basic_string<octet_t>, private sexp_char_defs_t {
+class SEXP_PUBLIC_SYMBOL sexp_simple_string_t : public std::basic_string<octet_t>,
+                                                private sexp_char_defs_t {
   public:
     sexp_simple_string_t(void) = default;
     sexp_simple_string_t(const octet_t *dt) : std::basic_string<octet_t>{dt} {}
@@ -165,7 +163,7 @@ inline bool operator!=(const sexp_simple_string_t *left, const std::string &righ
  * SEXP object
  */
 
-class sexp_object_t {
+class SEXP_PUBLIC_SYMBOL sexp_object_t {
   public:
     virtual ~sexp_object_t(){};
 
@@ -205,7 +203,7 @@ class sexp_object_t {
  * SEXP string
  */
 
-class sexp_string_t : public sexp_object_t {
+class SEXP_PUBLIC_SYMBOL sexp_string_t : public sexp_object_t {
   protected:
     bool                 with_presentation_hint;
     sexp_simple_string_t presentation_hint;
@@ -269,7 +267,8 @@ inline bool operator!=(const sexp_string_t *left, const std::string &right) noex
  * SEXP list
  */
 
-class sexp_list_t : public sexp_object_t, public std::vector<std::shared_ptr<sexp_object_t>> {
+class SEXP_PUBLIC_SYMBOL sexp_list_t : public sexp_object_t,
+                                       public std::vector<std::shared_ptr<sexp_object_t>> {
   public:
     virtual ~sexp_list_t() {}
 
@@ -298,10 +297,30 @@ class sexp_list_t : public sexp_object_t, public std::vector<std::shared_ptr<sex
 };
 
 /*
+    sexp_depth_manager controls maximum allowed nesting of sexp lists
+    for sexp_input_stream, sexp_output_stream processing
+    One still can create an object with deeper nesting manually
+*/
+
+class SEXP_PUBLIC_SYMBOL sexp_depth_manager {
+  public:
+    static const size_t DEFAULT_MAX_DEPTH = 1024;
+
+  private:
+    size_t depth;     /* current depth of nested SEXP lists */
+    size_t max_depth; /* maximum allowed depth of nested SEXP lists, 0 if no limit */
+  protected:
+    sexp_depth_manager(size_t m_depth = DEFAULT_MAX_DEPTH);
+    void reset_depth(size_t m_depth);
+    void increase_depth(int count = -1);
+    void decrease_depth(void);
+};
+
+/*
  * SEXP input stream
  */
 
-class sexp_input_stream_t : public sexp_char_defs_t {
+class SEXP_PUBLIC_SYMBOL sexp_input_stream_t : public sexp_char_defs_t, sexp_depth_manager {
   protected:
     std::istream *input_file;
     uint32_t      byte_size; /* 4 or 6 or 8 == currently scanning mode */
@@ -309,36 +328,20 @@ class sexp_input_stream_t : public sexp_char_defs_t {
     uint32_t      bits;      /* Bits waiting to be used */
     uint32_t      n_bits;    /* number of such bits waiting to be used */
     int           count;     /* number of 8-bit characters output by get_char */
-    size_t        depth;     /* current depth of nested SEXP lists */
-    size_t        max_depth; /* maximum allowed depth of nested SEXP lists, 0 if no limit */
 
     virtual int read_char(void);
 
   public:
-    sexp_input_stream_t(std::istream *i, size_t max_depth = 0);
+    sexp_input_stream_t(std::istream *i,
+                        size_t        max_depth = sexp_depth_manager::DEFAULT_MAX_DEPTH);
     virtual ~sexp_input_stream_t() = default;
-    sexp_input_stream_t *set_input(std::istream *i, size_t max_depth = 0);
-    sexp_input_stream_t *set_byte_size(uint32_t new_byte_size);
-    uint32_t             get_byte_size(void) { return byte_size; }
-    sexp_input_stream_t *get_char(void);
-    sexp_input_stream_t *skip_white_space(void);
-    sexp_input_stream_t *skip_char(int c);
-    sexp_input_stream_t *increase_depth(void)
-    {
-        if (max_depth != 0 && ++depth > max_depth)
-            sexp_error(sexp_exception_t::error,
-                       "Maximum allowed SEXP list depth (%u) is exceeded",
-                       max_depth,
-                       0,
-                       count);
-        return this;
-    }
-    sexp_input_stream_t *decrease_depth(void)
-    {
-        depth--;
-        return this;
-    }
-
+    sexp_input_stream_t *          set_input(std::istream *i,
+                                             size_t max_depth = sexp_depth_manager::DEFAULT_MAX_DEPTH);
+    sexp_input_stream_t *          set_byte_size(uint32_t new_byte_size);
+    uint32_t                       get_byte_size(void) { return byte_size; }
+    sexp_input_stream_t *          get_char(void);
+    sexp_input_stream_t *          skip_white_space(void);
+    sexp_input_stream_t *          skip_char(int c);
     std::shared_ptr<sexp_object_t> scan_to_eof();
     std::shared_ptr<sexp_object_t> scan_object(void);
     std::shared_ptr<sexp_string_t> scan_string(void);
@@ -353,13 +356,16 @@ class sexp_input_stream_t : public sexp_char_defs_t {
 
     int get_next_char(void) const { return next_char; }
     int set_next_char(int c) { return next_char = c; }
+
+    sexp_input_stream_t *open_list(void);
+    sexp_input_stream_t *close_list(void);
 };
 
 /*
  * SEXP output stream
  */
 
-class sexp_output_stream_t {
+class SEXP_PUBLIC_SYMBOL sexp_output_stream_t : sexp_depth_manager {
   public:
     const uint32_t default_line_length = 75;
     enum sexp_print_mode {                /* PRINTING MODES */
@@ -379,8 +385,10 @@ class sexp_output_stream_t {
     uint32_t        max_column;   /* max usable column, or 0 if no maximum */
     uint32_t        indent;       /* current indentation level (starts at 0) */
   public:
-    sexp_output_stream_t(std::ostream *o);
-    sexp_output_stream_t *set_output(std::ostream *o);
+    sexp_output_stream_t(std::ostream *o,
+                         size_t        max_depth = sexp_depth_manager::DEFAULT_MAX_DEPTH);
+    sexp_output_stream_t *set_output(std::ostream *o,
+                                     size_t max_depth = sexp_depth_manager::DEFAULT_MAX_DEPTH);
     sexp_output_stream_t *put_char(int c);                /* output a character */
     sexp_output_stream_t *new_line(sexp_print_mode mode); /* go to next line (and indent) */
     sexp_output_stream_t *var_put_char(int c);
@@ -428,6 +436,29 @@ class sexp_output_stream_t {
     sexp_output_stream_t *dec_indent(void)
     {
         --indent;
+        return this;
+    }
+
+    sexp_output_stream_t *open_list(void)
+    {
+        put_char('(');
+        increase_depth();
+
+        return this;
+    }
+    sexp_output_stream_t *close_list(void)
+    {
+        put_char(')')->decrease_depth();
+        return this;
+    }
+    sexp_output_stream_t *var_open_list(void)
+    {
+        var_put_char('(')->increase_depth();
+        return this;
+    }
+    sexp_output_stream_t *var_close_list(void)
+    {
+        var_put_char(')')->decrease_depth();
         return this;
     }
 };

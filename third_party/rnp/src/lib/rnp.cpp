@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2017-2021, Ribose Inc.
+ * Copyright (c) 2017-2023, Ribose Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -6197,6 +6197,20 @@ try {
 FFI_GUARD
 
 rnp_result_t
+rnp_signature_get_features(rnp_signature_handle_t handle, uint32_t *features)
+try {
+    if (!handle || !features) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!handle->sig) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    *features = handle->sig->sig.key_get_features();
+    return RNP_SUCCESS;
+}
+FFI_GUARD
+
+rnp_result_t
 rnp_signature_get_keyid(rnp_signature_handle_t handle, char **result)
 try {
     if (!handle || !result) {
@@ -7750,7 +7764,10 @@ key_to_json(json_object *jso, rnp_key_handle_t handle, uint32_t flags)
         }
         json_object_object_add(jso, "key wrap cipher", jsocipher);
     }
+
+#if (!defined(_MSVC_LANG) || _MSVC_LANG >= 201703L)
         [[fallthrough]];
+#endif
     case PGP_PKA_ECDSA:
     case PGP_PKA_EDDSA:
     case PGP_PKA_SM2: {
@@ -8313,7 +8330,9 @@ try {
     }
 
     pgp_armored_msg_t msgtype = PGP_ARMORED_UNKNOWN;
-    if (is_armored_source(&input->src)) {
+    if (is_cleartext_source(&input->src)) {
+        msgtype = PGP_ARMORED_CLEARTEXT;
+    } else if (is_armored_source(&input->src)) {
         msgtype = rnp_armored_get_type(&input->src);
     } else {
         msgtype = rnp_armor_guess_type(&input->src);

@@ -1,7 +1,7 @@
 Directory ./rnp contains a copy of rnp which has been obtained from:
 https://github.com/rnpgp/rnp
 
-[tag v0.17.0]
+[tag v0.17.1]
 
 If MZLA applied patches on top, the version number in file
 third_party/rnp/src/lib/version.h will contain a suffix that lists
@@ -23,7 +23,7 @@ is at rnp/moz.yaml.
     v0.17.0 2023-02-27T16:49:53+02:00
 
     # update to a new version
-    > mach vendor -r v0.16.3 ./moz.yaml
+    > mach vendor -r v0.17.0 ./moz.yaml
 
     # If there are patches to apply in moz.yaml, the process is a little different
     > mach vendor ./moz.yaml --patch-mode none

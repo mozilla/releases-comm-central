@@ -200,9 +200,11 @@ rnp_request_password
 rnp_result_to_string
 rnp_save_keys
 rnp_set_timestamp
+rnp_signature_export
 rnp_signature_get_alg
 rnp_signature_get_creation
 rnp_signature_get_expiration
+rnp_signature_get_features
 rnp_signature_get_hash_alg
 rnp_signature_get_key_fprint
 rnp_signature_get_keyid

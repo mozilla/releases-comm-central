@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2018-2023, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -1005,6 +1005,13 @@ pgp_signature_t::set_revocation_reason(pgp_revocation_type_t code, const std::st
     }
 }
 
+pgp_key_feature_t
+pgp_signature_t::key_get_features() const
+{
+    const pgp_sig_subpkt_t *subpkt = get_subpkt(PGP_SIG_SUBPKT_FEATURES);
+    return (pgp_key_feature_t)(subpkt ? subpkt->data[0] : 0);
+}
+
 bool
 pgp_signature_t::key_has_features(pgp_key_feature_t flags) const
 {
@@ -1393,7 +1400,9 @@ pgp_signature_t::parse_material(pgp_signature_material_t &material) const
         if (version < PGP_V4) {
             RNP_LOG("Warning! v3 EdDSA signature.");
         }
+#if (!defined(_MSVC_LANG) || _MSVC_LANG >= 201703L)
         [[fallthrough]];
+#endif
     case PGP_PKA_ECDSA:
     case PGP_PKA_SM2:
     case PGP_PKA_ECDH:
