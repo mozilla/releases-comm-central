@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-do_get_profile();
-
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
-const { CalendarsEngine } = ChromeUtils.importESModule(
+const { CalendarsEngine, CalendarRecord } = ChromeUtils.importESModule(
   "resource://services-sync/engines/calendars.sys.mjs"
 );
 const { Service } = ChromeUtils.importESModule(
@@ -25,62 +23,48 @@ add_setup(async function () {
   store = engine._store;
   tracker = engine._tracker;
 
-  Assert.equal(tracker.score, 0);
-  Assert.equal(tracker._isTracking, false);
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
+  Assert.equal(tracker._isTracking, false, "tracker is disabled");
+  await assertNoChangeTracked(tracker);
 
   tracker.start();
-  Assert.equal(tracker._isTracking, true);
+  Assert.equal(tracker._isTracking, true, "tracker is enabled");
+
+  registerCleanupFunction(function () {
+    tracker.stop();
+  });
 });
 
 /**
  * Test creating, changing, and deleting a calendar that should be synced.
  */
 add_task(async function testNetworkCalendar() {
-  Assert.equal(tracker.score, 0);
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-
   const id = newUID();
   const calendar = cal.manager.createCalendar(
     "ics",
-    Services.io.newURI("https://localhost:1234/a/calendar")
+    Services.io.newURI("https://hostname:1234/a/calendar")
   );
-  calendar.name = "Sync Calendar";
+  // Calendars aren't tracked until registered.
   calendar.id = id;
+  calendar.name = "Calendar";
+  calendar.setProperty("username", "username");
   cal.manager.registerCalendar(calendar);
-  Assert.equal(tracker.score, 301);
-  Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
+  await assertChangeTracked(tracker, id);
+  await assertNoChangeTracked(tracker);
 
-  tracker.clearChangedIDs();
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  tracker.resetScore();
-  Assert.equal(tracker.score, 0);
+  await checkPropertyChanges(tracker, calendar, [["name", "Changed Calendar"]]);
+  calendar.setProperty("username", "changed username");
+  await assertChangeTracked(tracker, id);
 
-  calendar.name = "changed name";
-  Assert.equal(tracker.score, 301);
-  Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
-
-  tracker.clearChangedIDs();
-  tracker.resetScore();
+  // Change some untracked properties.
 
   calendar.setProperty("color", "#123456");
-  Assert.equal(tracker.score, 301);
-  Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
-
   calendar.setProperty("calendar-main-in-composite", true);
-  Assert.equal(tracker.score, 301);
-  Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
-
-  tracker.clearChangedIDs();
-  tracker.resetScore();
+  await assertNoChangeTracked(tracker);
 
   cal.manager.unregisterCalendar(calendar);
   cal.manager.removeCalendar(calendar);
-  Assert.equal(tracker.score, 301);
-  Assert.deepEqual(await tracker.getChangedIDs(), { [id]: 0 });
-
-  tracker.clearChangedIDs();
-  tracker.resetScore();
+  await assertChangeTracked(tracker, id);
+  await assertNoChangeTracked(tracker);
 });
 
 /**
@@ -94,19 +78,16 @@ add_task(async function testStorageCalendar() {
   storageCalendar.name = "Sync Calendar";
   storageCalendar.id = newUID();
   cal.manager.registerCalendar(storageCalendar);
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
+  await assertNoChangeTracked(tracker);
 
   storageCalendar.name = "changed name";
   storageCalendar.setProperty("color", "#123456");
   storageCalendar.setProperty("calendar-main-in-composite", true);
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
+  await assertNoChangeTracked(tracker);
 
   cal.manager.unregisterCalendar(storageCalendar);
   cal.manager.removeCalendar(storageCalendar);
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
+  await assertNoChangeTracked(tracker);
 });
 
 /**
@@ -116,41 +97,34 @@ add_task(async function testIncomingChanges() {
   const id = newUID();
 
   tracker.ignoreAll = true;
-  await store.applyIncoming({
-    id,
-    name: "New Calendar",
-    type: "ics",
-    uri: "https://localhost/ics",
-    prefs: {},
-  });
+  await store.applyIncoming(
+    CalendarRecord.from({
+      id,
+      name: "New Calendar",
+      type: "ics",
+      url: "https://localhost/ics",
+    })
+  );
   tracker.ignoreAll = false;
 
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
-
-  tracker.clearChangedIDs();
-  tracker.resetScore();
+  await assertNoChangeTracked(tracker);
 
   tracker.ignoreAll = true;
-  await store.applyIncoming({
-    id,
-    name: "New Calendar (changed)",
-    type: "ics",
-    uri: "https://localhost/ics",
-    prefs: {},
-  });
+  await store.applyIncoming(
+    CalendarRecord.from({
+      id,
+      name: "New Calendar (changed)",
+      type: "ics",
+      url: "https://localhost/ics",
+    })
+  );
   tracker.ignoreAll = false;
 
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
+  await assertNoChangeTracked(tracker);
 
   tracker.ignoreAll = true;
-  await store.applyIncoming({
-    id,
-    deleted: true,
-  });
+  await store.applyIncoming(CalendarRecord.from({ id, deleted: true }));
   tracker.ignoreAll = false;
 
-  Assert.deepEqual(await tracker.getChangedIDs(), {});
-  Assert.equal(tracker.score, 0);
+  await assertNoChangeTracked(tracker);
 });

@@ -185,6 +185,11 @@ export class OutgoingServerService {
     const serverKeys = this._getServerKeys().filter(k => k != server.key);
     this._servers = this.servers.filter(s => s.key != server.key);
     this._saveServerKeys(serverKeys);
+    Services.obs.notifyObservers(
+      server,
+      "message-smtpserver-removed",
+      server.key
+    );
   }
 
   /**

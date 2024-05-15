@@ -3,35 +3,24 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CryptoWrapper } from "resource://services-sync/record.sys.mjs";
-import {
-  Store,
-  SyncEngine,
-  Tracker,
-} from "resource://services-sync/engines.sys.mjs";
-import { Utils } from "resource://services-sync/util.sys.mjs";
-
-import { SCORE_INCREMENT_XLARGE } from "resource://services-sync/constants.sys.mjs";
-
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
+import { SyncEngine, Tracker } from "resource://services-sync/engines.sys.mjs";
+import { SCORE_INCREMENT_XLARGE } from "resource://services-sync/constants.sys.mjs";
+import { Utils } from "resource://services-sync/util.sys.mjs";
+import { CachedStore } from "resource://services-sync/CachedStore.sys.mjs";
 
-const SYNCED_COMMON_PROPERTIES = {
-  autocomplete: "enable_autocomplete",
-  readOnly: "readOnly",
-};
+const { LDAP_DIRECTORY_TYPE, CARDDAV_DIRECTORY_TYPE } = Ci.nsIAbManager;
 
-const SYNCED_CARDDAV_PROPERTIES = {
-  syncInterval: "carddav.syncinterval",
-  url: "carddav.url",
-  username: "carddav.username",
-};
-
-const SYNCED_LDAP_PROPERTIES = {
-  protocolVersion: "protocolVersion",
-  authSASLMechanism: "auth.saslmech",
-  authDN: "auth.dn",
-  uri: "uri",
-  maxHits: "maxHits",
-};
+const DIRECTORY_TYPES = [
+  [LDAP_DIRECTORY_TYPE, "ldap"],
+  [CARDDAV_DIRECTORY_TYPE, "carddav"],
+];
+function directoryTypeForRecord(number) {
+  return DIRECTORY_TYPES.find(dt => dt[0] == number)[1];
+}
+function directoryTypeForBook(string) {
+  return DIRECTORY_TYPES.find(dt => dt[1] == string)[0];
+}
 
 /**
  * AddressBookRecord represents the state of an add-on in an application.
@@ -52,21 +41,34 @@ export function AddressBookRecord(collection, id) {
 }
 
 AddressBookRecord.prototype = {
-  __proto__: CryptoWrapper.prototype,
   _logName: "Record.AddressBook",
 };
-Utils.deferGetSet(AddressBookRecord, "cleartext", ["name", "type", "prefs"]);
+Object.setPrototypeOf(AddressBookRecord.prototype, CryptoWrapper.prototype);
+Utils.deferGetSet(AddressBookRecord, "cleartext", [
+  "name",
+  "type",
+  "url",
+  "username",
+  "authMethod",
+]);
+
+AddressBookRecord.from = function (data) {
+  const record = new AddressBookRecord(undefined, data.id);
+  for (const [key, value] of Object.entries(data)) {
+    record.cleartext[key] = value;
+  }
+  return record;
+};
 
 export function AddressBooksEngine(service) {
   SyncEngine.call(this, "AddressBooks", service);
 }
 
 AddressBooksEngine.prototype = {
-  __proto__: SyncEngine.prototype,
   _storeObj: AddressBookStore,
   _trackerObj: AddressBookTracker,
   _recordObj: AddressBookRecord,
-  version: 1,
+  version: 2,
   syncPriority: 6,
 
   /*
@@ -77,27 +79,12 @@ AddressBooksEngine.prototype = {
     return this._tracker.getChangedIDs();
   },
 };
+Object.setPrototypeOf(AddressBooksEngine.prototype, SyncEngine.prototype);
 
 function AddressBookStore(name, engine) {
-  Store.call(this, name, engine);
+  CachedStore.call(this, name, engine);
 }
 AddressBookStore.prototype = {
-  __proto__: Store.prototype,
-
-  _addPrefsToBook(book, record, whichPrefs) {
-    for (const [key, realKey] of Object.entries(whichPrefs)) {
-      const value = record.prefs[key];
-      const type = typeof value;
-      if (type == "string") {
-        book.setStringValue(realKey, value);
-      } else if (type == "number") {
-        book.setIntValue(realKey, value);
-      } else if (type == "boolean") {
-        book.setBoolValue(realKey, value);
-      }
-    }
-  },
-
   /**
    * Create an item in the store from a record.
    *
@@ -108,29 +95,33 @@ AddressBookStore.prototype = {
    *        The store record to create an item from
    */
   async create(record) {
-    if (
-      ![
-        MailServices.ab.LDAP_DIRECTORY_TYPE,
-        MailServices.ab.CARDDAV_DIRECTORY_TYPE,
-      ].includes(record.type)
-    ) {
+    await super.create(record);
+
+    if (!["carddav", "ldap"].includes(record.type)) {
+      this._log.trace(
+        `Skipping creation of unknown item type ("${record.type}"): ${record.id}`
+      );
       return;
     }
 
+    const type = directoryTypeForBook(record.type);
     const dirPrefId = MailServices.ab.newAddressBook(
       record.name,
       null,
-      record.type,
+      type,
       record.id
     );
     const book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
-    this._addPrefsToBook(book, record, SYNCED_COMMON_PROPERTIES);
-    if (record.type == MailServices.ab.CARDDAV_DIRECTORY_TYPE) {
-      this._addPrefsToBook(book, record, SYNCED_CARDDAV_PROPERTIES);
-      book.wrappedJSObject.fetchAllFromServer();
-    } else if (record.type == MailServices.ab.LDAP_DIRECTORY_TYPE) {
-      this._addPrefsToBook(book, record, SYNCED_LDAP_PROPERTIES);
+    if (type == CARDDAV_DIRECTORY_TYPE) {
+      book.setStringValue("carddav.url", record.url);
+      book.setStringValue("carddav.username", record.username);
+      book.wrappedJSObject.fetchAllFromServer().catch(console.error);
+    } else if (type == LDAP_DIRECTORY_TYPE) {
+      book.QueryInterface(Ci.nsIAbLDAPDirectory);
+      book.lDAPURL = Services.io.newURI(record.url);
+      book.authDn = record.username;
+      book.saslMechanism = record.authMethod == "gssapi" ? "GSSAPI" : "";
     }
   },
 
@@ -144,6 +135,7 @@ AddressBookStore.prototype = {
    *        The store record to delete an item from
    */
   async remove(record) {
+    await super.remove(record);
     const book = MailServices.ab.getDirectoryFromUID(record.id);
     if (!book) {
       this._log.trace("Asked to remove record that doesn't exist, ignoring");
@@ -175,41 +167,40 @@ AddressBookStore.prototype = {
    *        The record to use to update an item from
    */
   async update(record) {
+    await super.update(record);
+
     const book = MailServices.ab.getDirectoryFromUID(record.id);
     if (!book) {
       this._log.trace("Skipping update for unknown item: " + record.id);
       return;
     }
-    if (book.dirType != record.type) {
+
+    const type = directoryTypeForBook(record.type);
+    if (book.dirType != type) {
       throw new Components.Exception(
-        `Refusing to change book type from ${book.dirType} to ${record.type}`,
+        `Refusing to change book type from "${directoryTypeForRecord(
+          book.dirType
+        )}" to "${record.type}"`,
         Cr.NS_ERROR_FAILURE
       );
     }
-
-    if (book.dirName != record.name) {
-      book.dirName = record.name;
+    if (type == CARDDAV_DIRECTORY_TYPE) {
+      const currentURL = book.getStringValue("carddav.url", "");
+      if (record.url != currentURL) {
+        throw new Components.Exception(
+          `Refusing to change book URL from "${currentURL}" to "${record.url}"`,
+          Cr.NS_ERROR_FAILURE
+        );
+      }
+      book.setStringValue("carddav.username", record.username);
+    } else if (type == LDAP_DIRECTORY_TYPE) {
+      book.QueryInterface(Ci.nsIAbLDAPDirectory);
+      book.lDAPURL = Services.io.newURI(record.url);
+      book.authDn = record.username;
+      book.saslMechanism = record.authMethod == "gssapi" ? "GSSAPI" : "";
     }
-    this._addPrefsToBook(book, record, SYNCED_COMMON_PROPERTIES);
-    if (record.type == MailServices.ab.CARDDAV_DIRECTORY_TYPE) {
-      this._addPrefsToBook(book, record, SYNCED_CARDDAV_PROPERTIES);
-    } else if (record.type == MailServices.ab.LDAP_DIRECTORY_TYPE) {
-      this._addPrefsToBook(book, record, SYNCED_LDAP_PROPERTIES);
-    }
-  },
 
-  /**
-   * Determine whether a record with the specified ID exists.
-   *
-   * Takes a string record ID and returns a booleans saying whether the record
-   * exists.
-   *
-   * @param  id
-   *         string record ID
-   * @return boolean indicating whether record exists locally
-   */
-  async itemExists(id) {
-    return id in (await this.getAllIDs());
+    book.dirName = record.name;
   },
 
   /**
@@ -219,14 +210,9 @@ AddressBookStore.prototype = {
    *         are ignored.
    */
   async getAllIDs() {
-    const ids = {};
+    const ids = await super.getAllIDs();
     for (const b of MailServices.ab.directories) {
-      if (
-        [
-          MailServices.ab.LDAP_DIRECTORY_TYPE,
-          MailServices.ab.CARDDAV_DIRECTORY_TYPE,
-        ].includes(b.dirType)
-      ) {
+      if ([LDAP_DIRECTORY_TYPE, CARDDAV_DIRECTORY_TYPE].includes(b.dirType)) {
         ids[b.UID] = true;
       }
     }
@@ -250,55 +236,57 @@ AddressBookStore.prototype = {
   async createRecord(id, collection) {
     const record = new AddressBookRecord(collection, id);
 
+    const data = await super.getCreateRecordData(id);
     const book = MailServices.ab.getDirectoryFromUID(id);
 
     // If we don't know about this ID, mark the record as deleted.
-    if (!book) {
+    if (!book && !data) {
       record.deleted = true;
       return record;
     }
 
-    record.name = book.dirName;
-    record.type = book.dirType;
-    record.prefs = {};
-
-    function collectPrefs(prefData) {
-      for (let [key, realKey] of Object.entries(prefData)) {
-        realKey = `${book.dirPrefId}.${realKey}`;
-        switch (Services.prefs.getPrefType(realKey)) {
-          case Services.prefs.PREF_STRING:
-            record.prefs[key] = Services.prefs.getStringPref(realKey);
-            break;
-          case Services.prefs.PREF_INT:
-            record.prefs[key] = Services.prefs.getIntPref(realKey);
-            break;
-          case Services.prefs.PREF_BOOL:
-            record.prefs[key] = Services.prefs.getBoolPref(realKey);
-            break;
-        }
+    if (data) {
+      for (const [key, value] of Object.entries(data)) {
+        record.cleartext[key] = value;
       }
     }
 
-    collectPrefs(SYNCED_COMMON_PROPERTIES);
+    if (book) {
+      record.name = book.dirName;
+      record.type = directoryTypeForRecord(book.dirType);
 
-    if (book.dirType == MailServices.ab.CARDDAV_DIRECTORY_TYPE) {
-      collectPrefs(SYNCED_CARDDAV_PROPERTIES);
-    } else if (book.dirType == MailServices.ab.LDAP_DIRECTORY_TYPE) {
-      collectPrefs(SYNCED_LDAP_PROPERTIES);
+      if (book.dirType == CARDDAV_DIRECTORY_TYPE) {
+        record.url = book.getStringValue("carddav.url", "");
+        record.username = book.getStringValue("carddav.username", "");
+      } else if (book.dirType == LDAP_DIRECTORY_TYPE) {
+        book.QueryInterface(Ci.nsIAbLDAPDirectory);
+        record.url = book.lDAPURL.spec;
+        if (book.authDn) {
+          record.authMethod =
+            book.saslMechanism == "GSSAPI" ? "gssapi" : "passwordCleartext";
+          record.username = book.authDn;
+        } else {
+          delete record.authMethod;
+          delete record.username;
+        }
+      }
+
+      super.update(record);
     }
-
     return record;
   },
 };
+Object.setPrototypeOf(AddressBookStore.prototype, CachedStore.prototype);
 
 function AddressBookTracker(name, engine) {
   Tracker.call(this, name, engine);
 }
 AddressBookTracker.prototype = {
-  __proto__: Tracker.prototype,
-
   _changedIDs: new Set(),
-  _ignoreAll: false,
+  ignoreAll: false,
+
+  _watchedCardDAVPrefs: ["description", "carddav.url", "carddav.username"],
+  _watchedLDAPPrefs: ["description", "uri", "auth.dn", "auth.saslmech"],
 
   async getChangedIDs() {
     const changes = {};
@@ -310,14 +298,6 @@ AddressBookTracker.prototype = {
 
   clearChangedIDs() {
     this._changedIDs.clear();
-  },
-
-  get ignoreAll() {
-    return this._ignoreAll;
-  },
-
-  set ignoreAll(value) {
-    this._ignoreAll = value;
   },
 
   onStart() {
@@ -333,7 +313,7 @@ AddressBookTracker.prototype = {
   },
 
   observe(subject, topic, data) {
-    if (this._ignoreAll) {
+    if (this.ignoreAll) {
       return;
     }
 
@@ -342,18 +322,19 @@ AddressBookTracker.prototype = {
       case "nsPref:changed": {
         const serverKey = data.split(".")[2];
         const prefName = data.substring(serverKey.length + 16);
-        if (
-          prefName != "description" &&
-          !Object.values(SYNCED_COMMON_PROPERTIES).includes(prefName) &&
-          !Object.values(SYNCED_CARDDAV_PROPERTIES).includes(prefName) &&
-          !Object.values(SYNCED_LDAP_PROPERTIES).includes(prefName)
-        ) {
-          return;
-        }
 
         book = MailServices.ab.getDirectoryFromId(
           "ldap_2.servers." + serverKey
         );
+        if (
+          !book ||
+          (book.dirType == CARDDAV_DIRECTORY_TYPE &&
+            !this._watchedCardDAVPrefs.includes(prefName)) ||
+          (book.dirType == LDAP_DIRECTORY_TYPE &&
+            !this._watchedLDAPPrefs.includes(prefName))
+        ) {
+          return;
+        }
         break;
       }
       case "addrbook-directory-created":
@@ -364,10 +345,7 @@ AddressBookTracker.prototype = {
 
     if (
       book &&
-      [
-        MailServices.ab.LDAP_DIRECTORY_TYPE,
-        MailServices.ab.CARDDAV_DIRECTORY_TYPE,
-      ].includes(book.dirType) &&
+      [LDAP_DIRECTORY_TYPE, CARDDAV_DIRECTORY_TYPE].includes(book.dirType) &&
       !this._changedIDs.has(book.UID)
     ) {
       this._changedIDs.add(book.UID);
@@ -375,3 +353,4 @@ AddressBookTracker.prototype = {
     }
   },
 };
+Object.setPrototypeOf(AddressBookTracker.prototype, Tracker.prototype);

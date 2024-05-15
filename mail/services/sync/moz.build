@@ -2,11 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+EXTRA_JS_MODULES["services-sync"] += [
+    "modules/CachedStore.sys.mjs",
+]
+
 EXTRA_JS_MODULES["services-sync"].engines += [
-    "modules/engines/accounts.sys.mjs",
     "modules/engines/addressBooks.sys.mjs",
     "modules/engines/calendars.sys.mjs",
     "modules/engines/identities.sys.mjs",
+    "modules/engines/servers.sys.mjs",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

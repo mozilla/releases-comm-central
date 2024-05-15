@@ -1372,7 +1372,6 @@ pref("webchannel.allowObject.urlWhitelist", "https://content.cdn.mozilla.net htt
 pref("general.useragent.compatMode.firefox", true);
 
 // Enable the sync engines we want, and disable the ones we don't want.
-pref("services.sync.engine.accounts", true);
 pref("services.sync.engine.addons", false);
 pref("services.sync.engine.addressbooks", true);
 pref("services.sync.engine.addresses", false);
@@ -1380,6 +1379,7 @@ pref("services.sync.engine.calendars", true);
 pref("services.sync.engine.creditcards", false);
 pref("services.sync.engine.identities", true);
 pref("services.sync.engine.prefs", false);
+pref("services.sync.engine.servers", true);
 #endif
 
 // Donation appeal.

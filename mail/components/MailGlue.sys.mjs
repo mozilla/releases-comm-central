@@ -746,10 +746,10 @@ MailGlue.prototype = {
           const Weave = lazy.WeaveService.Weave;
 
           for (const [moduleName, engineName] of [
-            ["accounts", "AccountsEngine"],
+            ["servers", "ServersEngine"],
+            ["identities", "IdentitiesEngine"],
             ["addressBooks", "AddressBooksEngine"],
             ["calendars", "CalendarsEngine"],
-            ["identities", "IdentitiesEngine"],
           ]) {
             const ns = ChromeUtils.importESModule(
               `resource://services-sync/engines/${moduleName}.sys.mjs`
