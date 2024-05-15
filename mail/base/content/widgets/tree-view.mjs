@@ -206,6 +206,13 @@ class TreeView extends HTMLElement {
 
     this._height = this.clientHeight;
     this.#resizeObserver = new ResizeObserver(() => {
+      if (this.clientHeight === 0) {
+        // Ignore this change if the widget has been hidden. There's not much
+        // point in continuing with a height of 0. When it becomes visible
+        // again, another resize event will happen.
+        return;
+      }
+
       const previousHeight = this._height;
       this._height = this.clientHeight;
 
@@ -1924,7 +1931,12 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     // it every time TreeView's visible height calculation runs.
     this._height = this.clientHeight;
     this.#resizeObserver = new ResizeObserver(() => {
-      this._height = this.clientHeight;
+      // Ignore this change if the whole tree-view has been hidden, but not if
+      // the header itself has been hidden (as we'd really want `_height` to
+      // be 0 in that case).
+      if (this.parentNode.clientHeight !== 0) {
+        this._height = this.clientHeight;
+      }
     });
     this.#resizeObserver.observe(this);
   }
