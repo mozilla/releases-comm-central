@@ -53,7 +53,7 @@ LOCAL_INCLUDES = [
     "src",
     "src/common",
     "src/lib",
-    "src/libsexp/include"
+    "src/libsexpp/include"
 ]
 
 IQuote(
@@ -179,14 +179,15 @@ SOURCES += [
     "src/librepgp/stream-parse.cpp",
     "src/librepgp/stream-sig.cpp",
     "src/librepgp/stream-write.cpp",
-    # libsexp
-    "src/libsexp/src/ext-key-format.cpp",
-    "src/libsexp/src/sexp-char-defs.cpp",
-    "src/libsexp/src/sexp-error.cpp",
-    "src/libsexp/src/sexp-input.cpp",
-    "src/libsexp/src/sexp-object.cpp",
-    "src/libsexp/src/sexp-output.cpp",
-    "src/libsexp/src/sexp-simple-string.cpp",
+    # libsexpp
+    "src/libsexpp/src/ext-key-format.cpp",
+    "src/libsexpp/src/sexp-char-defs.cpp",
+    "src/libsexpp/src/sexp-depth-manager.cpp",
+    "src/libsexpp/src/sexp-error.cpp",
+    "src/libsexpp/src/sexp-input.cpp",
+    "src/libsexpp/src/sexp-object.cpp",
+    "src/libsexpp/src/sexp-output.cpp",
+    "src/libsexpp/src/sexp-simple-string.cpp",
 ]
 
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
