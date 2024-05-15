@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-addIdentity(createAccount());
+const gAccount = createAccount();
+addIdentity(gAccount);
 
 async function checkComposeBody(expected, waitForEvent) {
   const composeWindows = [...Services.wm.getEnumerator("msgcompose")];
@@ -310,8 +311,15 @@ add_task(async function testExecuteScriptAlias() {
 add_task(async function testRegisterBeforeCompose() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "background.js": async () => {
-        const expectedDetails = [
+      "background.js": () => {
+        // Keep track of registered scrips being executed and ready.
+        browser.runtime.onMessage.addListener(message => {
+          if (message == "LOADED") {
+            browser.test.sendMessage("ScriptLoaded");
+          }
+        });
+
+        const EXPECTED_DETAILS = [
           {
             id: "test-1",
             runAt: "document_idle",
@@ -319,120 +327,140 @@ add_task(async function testRegisterBeforeCompose() {
             js: ["test.js"],
           },
         ];
-        const scriptDetails = await browser.scripting.compose.registerScripts([
-          {
-            id: "test-1",
-            css: ["test.css"],
-            js: ["test.js"],
-          },
-        ]);
-        window.assertDeepEqual(
-          expectedDetails,
-          scriptDetails,
-          `Details of registered script should be correct`,
-          { strict: true }
-        );
 
-        // Test getRegisteredScripts(filter).
-        const testsForGetRegisteredScripts = [
-          { filter: {}, expected: expectedDetails },
-          { filter: { ids: [] }, expected: [] },
-          { filter: { ids: ["test-1"] }, expected: expectedDetails },
-          { filter: { ids: ["test-1", "test-2"] }, expected: expectedDetails },
-          { filter: { ids: ["test-2"] }, expected: [] },
-        ];
-        for (const test of testsForGetRegisteredScripts) {
-          window.assertDeepEqual(
-            test.expected,
-            await browser.scripting.compose.getRegisteredScripts(test.filter),
-            `Return value of getRegisteredScripts(${JSON.stringify(
-              test.filter
-            )}) should be correct`,
-            { strict: true }
-          );
-        }
-
-        // Verify compose scripts are actually injectionf something.
-        await browser.compose.beginNew();
-        await window.sendMessage();
-
-        // Test unregisterScripts(filter).
-        const testsForUnregisterScripts = [
-          { filter: {}, expected: [] },
-          { filter: { ids: [] }, expected: expectedDetails },
-          {
-            filter: { ids: ["test-2"] },
-            expected: expectedDetails,
-            expectedError: `The composeScript with id "test-2" does not exist.`,
-          },
-          { filter: { ids: ["test-1"] }, expected: [] },
-          {
-            filter: { ids: ["test-1", "test-2"] },
-            // The entire call rejects, not just the request to unregister the
-            // test-2 script.
-            expected: expectedDetails,
-            expectedError: `The composeScript with id "test-2" does not exist.`,
-          },
-        ];
-        for (const test of testsForUnregisterScripts) {
-          let error = false;
-          try {
-            await browser.scripting.compose.unregisterScripts(test.filter);
-          } catch (ex) {
-            browser.test.assertEq(
-              test.expectedError,
-              ex.message,
-              "Error message of unregisterScripts() should be correct"
-            );
-            error = true;
-          }
-          browser.test.assertEq(
-            !!test.expectedError,
-            error,
-            "unregisterScripts() should throw as expected"
-          );
-          window.assertDeepEqual(
-            test.expected,
-            await browser.scripting.compose.getRegisteredScripts(),
-            `Return value of getRegisteredScripts() should be correct`,
-            { strict: true }
-          );
-          // Re-Register.
-          try {
-            await browser.scripting.compose.registerScripts([
+        // Register the compose script only during install, and not when the
+        // background script wakes up again.
+        browser.runtime.onInstalled.addListener(async () => {
+          const scriptDetails = await browser.scripting.compose.registerScripts(
+            [
               {
                 id: "test-1",
                 css: ["test.css"],
                 js: ["test.js"],
               },
-            ]);
-          } catch (ex) {
-            // Yep, this may throw, if we re-register a script which exists already.
-          }
-          // Re-Check.
+            ]
+          );
           window.assertDeepEqual(
-            expectedDetails,
-            await browser.scripting.compose.getRegisteredScripts(),
-            `Return value of getRegisteredScripts() should be correct`,
+            EXPECTED_DETAILS,
+            scriptDetails,
+            `Details of registered script should be correct`,
             { strict: true }
           );
-        }
 
-        // Test unregisterScripts(). Should unregister all scripts.
-        await browser.scripting.compose.unregisterScripts();
-        window.assertDeepEqual(
-          [],
-          await browser.scripting.compose.getRegisteredScripts(),
-          `Return value of getRegisteredScripts() should be correct`,
-          { strict: true }
-        );
+          // Test getRegisteredScripts(filter).
+          const testsForGetRegisteredScripts = [
+            { filter: {}, expected: EXPECTED_DETAILS },
+            { filter: { ids: [] }, expected: [] },
+            { filter: { ids: ["test-1"] }, expected: EXPECTED_DETAILS },
+            {
+              filter: { ids: ["test-1", "test-2"] },
+              expected: EXPECTED_DETAILS,
+            },
+            { filter: { ids: ["test-2"] }, expected: [] },
+          ];
+          for (const test of testsForGetRegisteredScripts) {
+            window.assertDeepEqual(
+              test.expected,
+              await browser.scripting.compose.getRegisteredScripts(test.filter),
+              `Return value of getRegisteredScripts(${JSON.stringify(
+                test.filter
+              )}) should be correct`,
+              { strict: true }
+            );
+          }
+          browser.test.sendMessage("Installed");
+        });
 
-        browser.test.notifyPass("finished");
+        browser.test.onMessage.addListener(async message => {
+          switch (message) {
+            case "Unregister":
+              {
+                // Test unregisterScripts(filter).
+                const testsForUnregisterScripts = [
+                  { filter: {}, expected: [] },
+                  { filter: { ids: [] }, expected: EXPECTED_DETAILS },
+                  {
+                    filter: { ids: ["test-2"] },
+                    expected: EXPECTED_DETAILS,
+                    expectedError: `The composeScript with id "test-2" does not exist.`,
+                  },
+                  { filter: { ids: ["test-1"] }, expected: [] },
+                  {
+                    filter: { ids: ["test-1", "test-2"] },
+                    // The entire call rejects, not just the request to unregister the
+                    // test-2 script.
+                    expected: EXPECTED_DETAILS,
+                    expectedError: `The composeScript with id "test-2" does not exist.`,
+                  },
+                ];
+                for (const test of testsForUnregisterScripts) {
+                  let error = false;
+                  try {
+                    await browser.scripting.compose.unregisterScripts(
+                      test.filter
+                    );
+                  } catch (ex) {
+                    browser.test.assertEq(
+                      test.expectedError,
+                      ex.message,
+                      "Error message of unregisterScripts() should be correct"
+                    );
+                    error = true;
+                  }
+                  browser.test.assertEq(
+                    !!test.expectedError,
+                    error,
+                    "unregisterScripts() should throw as expected"
+                  );
+                  window.assertDeepEqual(
+                    test.expected,
+                    await browser.scripting.compose.getRegisteredScripts(),
+                    `Return value of getRegisteredScripts() should be correct`,
+                    { strict: true }
+                  );
+                  // Re-Register.
+                  try {
+                    await browser.scripting.compose.registerScripts([
+                      {
+                        id: "test-1",
+                        css: ["test.css"],
+                        js: ["test.js"],
+                      },
+                    ]);
+                  } catch (ex) {
+                    // Yep, this may throw, if we re-register a script which exists already.
+                  }
+                  // Re-Check.
+                  window.assertDeepEqual(
+                    EXPECTED_DETAILS,
+                    await browser.scripting.compose.getRegisteredScripts(),
+                    `Return value of getRegisteredScripts() should be correct`,
+                    { strict: true }
+                  );
+                }
+
+                // Test unregisterScripts(). Should unregister all scripts.
+                await browser.scripting.compose.unregisterScripts();
+                window.assertDeepEqual(
+                  [],
+                  await browser.scripting.compose.getRegisteredScripts(),
+                  `Return value of getRegisteredScripts() should be correct`,
+                  { strict: true }
+                );
+
+                browser.test.notifyPass("finished");
+              }
+              break;
+          }
+        });
+
+        browser.test.sendMessage("Ready");
       },
       "test.css": "body { color: white; background-color: green; }",
       "test.js": () => {
         document.body.setAttribute("foo", "bar");
         document.body.textContent = "Hey look, the script ran!";
+        browser.runtime.sendMessage("LOADED");
       },
       "utils.js": await getUtilsJS(),
     },
@@ -444,20 +472,56 @@ add_task(async function testRegisterBeforeCompose() {
   });
 
   await extension.startup();
+  // During startup we get the "Installed" message triggered by the onInstalled
+  // event handler (which registers the compose script), and the "Ready" message
+  // which is send at the end of the background script.
+  await Promise.all([
+    extension.awaitMessage("Installed"),
+    extension.awaitMessage("Ready"),
+  ]);
 
-  await extension.awaitMessage();
-  await checkComposeBody(
-    {
-      backgroundColor: "rgb(0, 128, 0)",
-      color: "rgb(255, 255, 255)",
-      foo: "bar",
-      textContent: "Hey look, the script ran!",
-    },
-    true
-  );
-  extension.sendMessage();
+  // Open a new compose window. The registered compose script should send the
+  // "ScriptLoaded" message.
+  const loadPromise1 = extension.awaitMessage("ScriptLoaded");
+  const composeWindow1 = await openComposeWindow(gAccount);
+  await focusWindow(composeWindow1);
+  await loadPromise1;
 
+  await checkComposeBody({
+    backgroundColor: "rgb(0, 128, 0)",
+    color: "rgb(255, 255, 255)",
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+  composeWindow1.close();
+
+  // Terminate the background page. The compose script should stay registered.
+  await extension.terminateBackground({
+    disableResetIdleForTest: true,
+  });
+
+  // Open a new compose window. Since the compose script sends a runtime message,
+  // the background will wake up and send a "Ready" message alongside the
+  // "ScriptLoaded" message.
+  const loadPromise2 = Promise.all([
+    extension.awaitMessage("ScriptLoaded"),
+    extension.awaitMessage("Ready"),
+  ]);
+  const composeWindow2 = await openComposeWindow(gAccount);
+  await focusWindow(composeWindow2);
+  await loadPromise2;
+
+  await checkComposeBody({
+    backgroundColor: "rgb(0, 128, 0)",
+    color: "rgb(255, 255, 255)",
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+
+  // Unregister.
+  extension.sendMessage("Unregister");
   await extension.awaitFinish("finished");
+
   await checkComposeBody({
     backgroundColor: "rgb(0, 128, 0)",
     color: "rgb(255, 255, 255)",
@@ -473,9 +537,7 @@ add_task(async function testRegisterBeforeCompose() {
     textContent: "Hey look, the script ran!",
   });
 
-  await BrowserTestUtils.closeWindow(
-    Services.wm.getMostRecentWindow("msgcompose")
-  );
+  composeWindow2.close();
 });
 
 /**

@@ -366,15 +366,15 @@ add_task(async function testExecuteScriptAlias() {
 add_task(async function testRegister() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
-      "background.js": async () => {
+      "background.js": () => {
         // Keep track of registered scrips being executed and ready.
         browser.runtime.onMessage.addListener((message, sender) => {
           if (message == "LOADED") {
-            window.sendMessage("ScriptLoaded", sender.tab.id);
+            browser.test.sendMessage("ScriptLoaded", sender.tab.id);
           }
         });
 
-        const expectedDetails = [
+        const EXPECTED_DETAILS = [
           {
             id: "test-1",
             runAt: "document_idle",
@@ -382,41 +382,50 @@ add_task(async function testRegister() {
             js: ["test.js"],
           },
         ];
-        const scriptDetails =
-          await browser.scripting.messageDisplay.registerScripts([
-            {
-              id: "test-1",
-              css: ["test.css"],
-              js: ["test.js"],
-            },
-          ]);
-        window.assertDeepEqual(
-          expectedDetails,
-          scriptDetails,
-          `Details of registered script should be correct`,
-          { strict: true }
-        );
 
-        // Test getRegisteredScripts(filter).
-        const testsForGetRegisteredScripts = [
-          { filter: {}, expected: expectedDetails },
-          { filter: { ids: [] }, expected: [] },
-          { filter: { ids: ["test-1"] }, expected: expectedDetails },
-          { filter: { ids: ["test-1", "test-2"] }, expected: expectedDetails },
-          { filter: { ids: ["test-2"] }, expected: [] },
-        ];
-        for (const test of testsForGetRegisteredScripts) {
+        // Register the message display script only during install, and not when
+        // the background script wakes up again.
+        browser.runtime.onInstalled.addListener(async () => {
+          const scriptDetails =
+            await browser.scripting.messageDisplay.registerScripts([
+              {
+                id: "test-1",
+                css: ["test.css"],
+                js: ["test.js"],
+              },
+            ]);
           window.assertDeepEqual(
-            test.expected,
-            await browser.scripting.messageDisplay.getRegisteredScripts(
-              test.filter
-            ),
-            `Return value of getRegisteredScripts(${JSON.stringify(
-              test.filter
-            )}) should be correct`,
+            EXPECTED_DETAILS,
+            scriptDetails,
+            `Details of registered script should be correct`,
             { strict: true }
           );
-        }
+
+          // Test getRegisteredScripts(filter).
+          const testsForGetRegisteredScripts = [
+            { filter: {}, expected: EXPECTED_DETAILS },
+            { filter: { ids: [] }, expected: [] },
+            { filter: { ids: ["test-1"] }, expected: EXPECTED_DETAILS },
+            {
+              filter: { ids: ["test-1", "test-2"] },
+              expected: EXPECTED_DETAILS,
+            },
+            { filter: { ids: ["test-2"] }, expected: [] },
+          ];
+          for (const test of testsForGetRegisteredScripts) {
+            window.assertDeepEqual(
+              test.expected,
+              await browser.scripting.messageDisplay.getRegisteredScripts(
+                test.filter
+              ),
+              `Return value of getRegisteredScripts(${JSON.stringify(
+                test.filter
+              )}) should be correct`,
+              { strict: true }
+            );
+          }
+          browser.test.sendMessage("Installed");
+        });
 
         browser.test.onMessage.addListener(async (message, data) => {
           switch (message) {
@@ -424,10 +433,10 @@ add_task(async function testRegister() {
               {
                 const testsForUnregisterScripts = [
                   { filter: {}, expected: [] },
-                  { filter: { ids: [] }, expected: expectedDetails },
+                  { filter: { ids: [] }, expected: EXPECTED_DETAILS },
                   {
                     filter: { ids: ["test-2"] },
-                    expected: expectedDetails,
+                    expected: EXPECTED_DETAILS,
                     expectedError: `The messageDisplayScript with id "test-2" does not exist.`,
                   },
                   { filter: { ids: ["test-1"] }, expected: [] },
@@ -435,7 +444,7 @@ add_task(async function testRegister() {
                     filter: { ids: ["test-1", "test-2"] },
                     // The entire call rejects, not just the request to unregister
                     // the test-2 script.
-                    expected: expectedDetails,
+                    expected: EXPECTED_DETAILS,
                     expectedError: `The messageDisplayScript with id "test-2" does not exist.`,
                   },
                 ];
@@ -479,7 +488,7 @@ add_task(async function testRegister() {
                   }
                   // Re-Check.
                   window.assertDeepEqual(
-                    expectedDetails,
+                    EXPECTED_DETAILS,
                     await browser.scripting.messageDisplay.getRegisteredScripts(),
                     `Return value of getRegisteredScripts() should be correct`,
                     { strict: true }
@@ -515,7 +524,7 @@ add_task(async function testRegister() {
           }
         });
 
-        window.sendMessage("Ready");
+        browser.test.sendMessage("Ready");
       },
       "test.css": "body { color: white; background-color: green; }",
       "test.js": () => {
@@ -541,7 +550,13 @@ add_task(async function testRegister() {
   await awaitBrowserLoaded(messagePane);
 
   extension.startup();
-  await extension.awaitMessage("Ready");
+  // During startup we get the "Installed" message triggered by the onInstalled
+  // event handler (which registers the message display script), and the "Ready"
+  // message which is send at the end of the background script.
+  await Promise.all([
+    extension.awaitMessage("Installed"),
+    extension.awaitMessage("Ready"),
+  ]);
 
   // Check a message that was already loaded. This tab has not loaded the
   // registered scripts.
@@ -553,10 +568,20 @@ add_task(async function testRegister() {
     messages.at(-6)
   );
 
-  // Load a new message and check it is modified.
-  let loadPromise = extension.awaitMessage("ScriptLoaded");
+  // Terminate the background page. The message display script should stay registered.
+  await extension.terminateBackground({
+    disableResetIdleForTest: true,
+  });
+
+  // Load a new message and check it is modified. Since the message display scripts
+  // sends a runtime message, the background will wake up and send a "Ready" message
+  // alongside the "ScriptLoaded" message.
+  let loadPromise = Promise.all([
+    extension.awaitMessage("ScriptLoaded"),
+    extension.awaitMessage("Ready"),
+  ]);
   about3Pane.threadTree.selectedIndex = 6;
-  const tabId = await loadPromise;
+  const [tabId] = await loadPromise;
 
   await checkMessageBody(
     {
@@ -567,6 +592,7 @@ add_task(async function testRegister() {
     },
     messages.at(-7)
   );
+
   // Check runtime messaging.
   let testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
   extension.sendMessage("RuntimeMessageTest", { tabId });
@@ -812,7 +838,7 @@ add_task(async function testRunAt() {
         // Report script results.
         browser.runtime.onMessage.addListener((message, sender) => {
           if (message?.runAt) {
-            window.sendMessage(`ScriptLoaded:${message.runAt}`, {
+            browser.test.sendMessage(`ScriptLoaded:${message.runAt}`, {
               senderTabId: sender.tab.id,
               ...message,
             });

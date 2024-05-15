@@ -13,6 +13,13 @@ var { ExtensionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionUtils.sys.mjs"
 );
 
+// Map of scripts registered for each extension. The used scriptId is constructed
+// via `${type}_${id}`, with type being one of "compose" or "messageDisplay".
+//
+// Map<Extension, Map<scriptId, ExtensionScript>>
+const gExtensionScripts = new Map();
+
+// A Set with all registered ExtensionScript, accross all types and all extensions.
 const registeredScripts = new Set();
 
 ExtensionSupport.registerWindowListener("ext-scripting-compose", {
@@ -39,7 +46,7 @@ ExtensionSupport.registerWindowListener("ext-scripting-compose", {
       if (script.type == "compose") {
         script.executeInWindow(
           win,
-          script.extension.tabManager.getWrapper(win)
+          script.context.extension.tabManager.getWrapper(win)
         );
       }
     }
@@ -59,7 +66,7 @@ ExtensionSupport.registerWindowListener("ext-scripting-messageDisplay", {
           // Each script will be injected according to its runAt value.
           script.executeInWindow(
             win,
-            script.extension.tabManager.wrapTab(nativeTab)
+            script.context.extension.tabManager.wrapTab(nativeTab)
           );
         }
       }
@@ -71,29 +78,19 @@ ExtensionSupport.registerWindowListener("ext-scripting-messageDisplay", {
  * Represents (in the main browser process) a script registered
  * programmatically.
  *
- * @param {ProxyContextParent} context
- *        The parent proxy context related to the extension context which
- *        has registered the script.
- * @param {ScriptDetails} details
- *        The details object related to the registered script
- *        (which has the properties described in the scripting-tb.json
- *        JSON API schema file).
+ * @param {Context} context - The extension context which has registered the script.
+ * @param {ScriptDetails} details - The details object related to the registered
+ *   script (which has the properties described in the scripting-tb.json JSON API
+ *   schema file).
  */
 class ExtensionScript {
   constructor(type, context, scriptDetails) {
     this.type = type;
     this.context = context;
-    this.extension = context.extension;
     this.scriptDetails = scriptDetails;
     this.options = this._convertOptions(scriptDetails);
 
-    context.callOnClose(this);
-
     registeredScripts.add(this);
-  }
-
-  close() {
-    this.destroy();
   }
 
   destroy() {
@@ -104,7 +101,6 @@ class ExtensionScript {
     registeredScripts.delete(this);
 
     this.destroyed = true;
-    this.context.forgetOnClose(this);
     this.context = null;
     this.scriptDetails = null;
     this.options = null;
@@ -177,13 +173,32 @@ class ExtensionScript {
 }
 
 this.scripting_tb = class extends ExtensionAPI {
+  onShutdown(isAppShutdown) {
+    const { extension } = this;
+    if (isAppShutdown) {
+      return;
+    }
+    if (gExtensionScripts.has(extension)) {
+      for (const script of gExtensionScripts.get(extension).values()) {
+        script.destroy();
+      }
+      gExtensionScripts.delete(extension);
+    }
+  }
+
   getAPI(context) {
-    // Map of the script registered from the extension context. The used scriptId
-    // is constructed via `${type}_${id}`, with type being one of "compose" or
-    // "messageDisplay"
-    //
-    // Map<scriptId -> ExtensionScript>
-    const extensionsScripts = new Map();
+    /**
+     * Returns a Map with all scripts of this extension (across all contexts).
+     *
+     * @returns {Map<scriptId, ExtensionScript>}
+     */
+    const extensionScriptsMap = () => {
+      const { extension } = context;
+      if (!gExtensionScripts.has(extension)) {
+        gExtensionScripts.set(extension, new Map());
+      }
+      return gExtensionScripts.get(extension);
+    };
 
     /**
      * Returns all extension scripts of the requested type.
@@ -192,8 +207,8 @@ this.scripting_tb = class extends ExtensionAPI {
      *   "messageDisplay"
      * @returns {ExtensionScript[]}
      */
-    const extensionsScriptsWithType = type =>
-      [...extensionsScripts.values()].filter(
+    const extensionScriptsWithType = type =>
+      [...extensionScriptsMap().values()].filter(
         extensionScript => extensionScript.type == type
       );
 
@@ -207,10 +222,10 @@ this.scripting_tb = class extends ExtensionAPI {
      * @param {boolean} [throws] - Whether the function should throw on bad IDs.
      * @returns {ExtensionScript[]}
      */
-    const extensionsScriptsWithId = (type, ids, throws) =>
+    const extensionScriptsWithId = (type, ids, throws) =>
       ids.flatMap(id => {
         const scriptId = `${type}_${id}`;
-        const extensionScript = extensionsScripts.get(scriptId);
+        const extensionScript = extensionScriptsMap().get(scriptId);
         if (!extensionScript) {
           const errorMsg = `The ${type}Script with id "${id}" does not exist.`;
           if (throws) {
@@ -222,22 +237,12 @@ this.scripting_tb = class extends ExtensionAPI {
         return [extensionScript];
       });
 
-    // Unregister all the scriptId related to a context when it is closed.
-    context.callOnClose({
-      close() {
-        for (const script of extensionsScripts.values()) {
-          script.destroy();
-        }
-        extensionsScripts.clear();
-      },
-    });
-
     const getScriptingAPI = type => ({
       async registerScripts(scripts) {
         const newScripts = [];
         for (const scriptDetails of scripts) {
           const scriptId = `${type}_${scriptDetails.id}`;
-          if (extensionsScripts.has(scriptId)) {
+          if (extensionScriptsMap().has(scriptId)) {
             throw new ExtensionError(
               `A ${type}Script with id "${scriptDetails.id}" is already registered.`
             );
@@ -247,7 +252,7 @@ this.scripting_tb = class extends ExtensionAPI {
             context,
             scriptDetails
           );
-          extensionsScripts.set(scriptId, extensionScript);
+          extensionScriptsMap().set(scriptId, extensionScript);
           newScripts.push(extensionScript.convert());
         }
         return newScripts;
@@ -255,19 +260,19 @@ this.scripting_tb = class extends ExtensionAPI {
       async unregisterScripts(filter) {
         const ids = filter?.ids ?? null;
         const scripts = Array.isArray(ids)
-          ? extensionsScriptsWithId(type, ids, true)
-          : extensionsScriptsWithType(type);
+          ? extensionScriptsWithId(type, ids, true)
+          : extensionScriptsWithType(type);
         for (const extensionScript of scripts) {
           const scriptId = `${type}_${extensionScript.scriptDetails.id}`;
-          extensionsScripts.delete(scriptId);
+          extensionScriptsMap().delete(scriptId);
           extensionScript.destroy();
         }
       },
       async getRegisteredScripts(filter) {
         const ids = filter?.ids ?? null;
         const scripts = Array.isArray(ids)
-          ? extensionsScriptsWithId(type, ids)
-          : extensionsScriptsWithType(type);
+          ? extensionScriptsWithId(type, ids)
+          : extensionScriptsWithType(type);
         return scripts.map(extensionScript => extensionScript.convert());
       },
     });
