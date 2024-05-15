@@ -667,6 +667,7 @@ export class EnigmailKeyObj {
   }
 
   getUserIdWithEmail(email) {
+    email = email.toLowerCase();
     for (const u of this.userIds) {
       let e;
       try {
