@@ -18,6 +18,7 @@ const browserActionFor = extensionId => {
 };
 
 const BADGE_BACKGROUND_COLOR = "--toolbar-button-badge-bg-color";
+const BADGE_TEXT_COLOR = "--toolbar-button-badge-text-color";
 
 /**
  * Attributes:
@@ -116,6 +117,16 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     } else {
       this.style.removeProperty(BADGE_BACKGROUND_COLOR);
     }
+    if (tabData.badgeText && tabData.badgeTextColor) {
+      const textColor = tabData.badgeTextColor;
+      this.style.setProperty(
+        BADGE_TEXT_COLOR,
+        `rgba(${textColor[0]}, ${textColor[1]}, ${textColor[2]}, ${textColor[3] / 255})`
+      );
+    } else {
+      this.style.removeProperty(BADGE_TEXT_COLOR);
+    }
+
     this.toggleAttribute("popup", tabData.popup || tabData.type == "menu");
     if (!tabData.popup) {
       this.removeAttribute("aria-pressed");

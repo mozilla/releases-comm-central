@@ -269,7 +269,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Specifies for which tab the label should be retrieved. If no tab is specified, the global label is retrieved."
+                "description": "Specifies for which tab the label should be retrieved. If no tab is specified, the global value is retrieved."
               },
               "windowId": {
                 "type": "integer",
@@ -490,7 +490,86 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Specifies for which tab the badge text should be retrieved. If no tab is specified, the global label is retrieved."
+                "description": "Specifies for which tab the badge text should be retrieved. If no tab is specified, the global value is retrieved."
+              },
+              "windowId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": -2,
+                "unsupported": true,
+                "description": "Will throw an error if used."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "result",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "setBadgeTextColor",
+        "type": "function",
+        "description": "Sets the text color for the badge.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "details",
+            "type": "object",
+            "properties": {
+              "color": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "ColorArray"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The color to use as text color in the badge. Cleared by setting it to <value>null</value>."
+              },
+              "tabId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": 0,
+                "description": "Sets the text color for the badge only for the given tab."
+              },
+              "windowId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": -2,
+                "unsupported": true,
+                "description": "Will throw an error if used."
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "getBadgeTextColor",
+        "type": "function",
+        "description": "Gets the text color of the badge.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "details",
+            "type": "object",
+            "properties": {
+              "tabId": {
+                "type": "integer",
+                "optional": true,
+                "minimum": 0,
+                "description": "Specifies for which tab the badge text color should be retrieved. If no tab is specified, the global value is retrieved."
               },
               "windowId": {
                 "type": "integer",
@@ -536,7 +615,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as background in the badge. Cleared by setting it to <value>null</value> or an empty string."
+                "description": "The color to use as background in the badge. Cleared by setting it to <value>null</value>."
               },
               "tabId": {
                 "type": "integer",
@@ -575,7 +654,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Specifies for which tab the badge background color should be retrieved. If no tab is specified, the global label is retrieved."
+                "description": "Specifies for which tab the badge background color should be retrieved. If no tab is specified, the global value is retrieved."
               },
               "windowId": {
                 "type": "integer",
