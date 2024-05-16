@@ -170,7 +170,8 @@ calendar-items-title = Select which items to import.
 
 calendar-items-loading = Loading items…
 
-calendar-items-filter-input =
+calendar-items-filter-input2 =
+  .label = Filter items
   .placeholder = Filter items…
 
 calendar-select-all-items = Select all

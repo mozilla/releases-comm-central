@@ -18,6 +18,7 @@
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/aboutImport.ftl"/>
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/import.svg" sizes="any"/>
+  <script type="module" src="chrome://messenger/content/search-bar.mjs"></script>
   <script defer="" src="chrome://messenger/content/aboutImport.js"></script>
   <script defer="" src="chrome://messenger/content/csv-field-map.js"></script>
   <script defer="" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
@@ -351,10 +352,12 @@
         </dl>
         <h2 data-l10n-id="calendar-items-title"></h2>
         <div id="calendarItemsTools">
-          <input id="calendarFilter"
-                 type="search"
-                 data-l10n-id="calendar-items-filter-input"
-                 oninput="calendarController.onFilterChange(this)"/>
+          <search-bar id="calendarFilter"
+                      data-l10n-id="calendar-items-filter-input2"
+                      data-l10n-attrs="label, placeholder">
+            <img slot="clear-button" src="" alt="" />
+            <img slot="search-button" src="" alt="" />
+          </search-bar>
           <button id="calendarDeselectAll"
                   data-l10n-id="calendar-deselect-all-items"
                   onclick="calendarController.selectAllItems(false)"></button>
@@ -468,5 +471,6 @@
          href="https://support.mozilla.org/products/thunderbird"></a>
     </footer>
   </main>
+#include ../../../mail/base/content/widgets/search-bar.inc.xhtml
 </body>
 </html>

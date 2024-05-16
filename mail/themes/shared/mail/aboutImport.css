@@ -199,10 +199,18 @@ dd {
   display: flex;
   align-items: center;
 
-  & input {
+  & search-bar {
     flex: 1;
     padding-inline: 0.5rem;
     height: 32px;
+  }
+
+  & [slot="clear-button"] {
+    content: var(--icon-clear);
+  }
+
+  & [slot="search-button"] {
+    content: var(--icon-search);
   }
 }
 

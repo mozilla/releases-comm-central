@@ -994,6 +994,9 @@ class AddrBookImporterController extends ImporterController {
 class CalendarImporterController extends ImporterController {
   constructor() {
     super("tabPane-calendar", "calendar");
+    const filter = document.getElementById("calendarFilter");
+    filter.addEventListener("autocomplete", this.onFilterChange.bind(this));
+    filter.addEventListener("search", event => event.preventDefault());
   }
 
   next() {
@@ -1018,29 +1021,14 @@ class CalendarImporterController extends ImporterController {
     this._showSources();
   }
 
-  #filterChangeTimeout;
-
   /**
    * When filter changes, re-render the item list. This function wraps
    * #onFilterChange in a timer, to reduce the frequency of list updates.
    *
-   * @param {HTMLInputElement} filterInput - The filter input.
+   * @param {Event} event - The "autocomplete" event fired by the filter input.
    */
-  onFilterChange(filterInput) {
-    clearTimeout(this.#filterChangeTimeout);
-    this.#filterChangeTimeout = setTimeout(() => {
-      this.#onFilterChange(filterInput);
-      this.#filterChangeTimeout = undefined;
-    }, 250);
-  }
-
-  /**
-   * When filter changes, re-render the item list.
-   *
-   * @param {HTMLInputElement} filterInput - The filter input.
-   */
-  #onFilterChange(filterInput) {
-    let searchString = filterInput.value.trim();
+  onFilterChange(event) {
+    let searchString = event.detail.trim();
     if (!searchString) {
       this._filteredItems = [...this._items];
       for (const item of this._items) {

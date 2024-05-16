@@ -146,7 +146,7 @@ add_task(async function () {
     if (filterText) {
       EventUtils.sendString(filterText, win);
     } else {
-      EventUtils.synthesizeKey("KEY_Delete", {}, win);
+      EventUtils.synthesizeKey("KEY_Escape", {}, win);
     }
 
     let visibleItems;
