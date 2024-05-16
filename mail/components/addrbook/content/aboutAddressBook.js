@@ -1101,7 +1101,7 @@ customElements.whenDefined("tree-listbox").then(() => {
             if (cardsPane.cardsList.view.directory?.UID == subject.UID) {
               document.l10n.setAttributes(
                 cardsPane.searchInput,
-                "about-addressbook-search",
+                "about-addressbook-search2",
                 { name: subject.dirName }
               );
             }
@@ -1155,81 +1155,6 @@ customElements.whenDefined("tree-listbox").then(() => {
 });
 
 // Cards
-
-/**
- * Search field for card list. An HTML port of MozSearchTextbox.
- */
-class AbCardSearchInput extends HTMLInputElement {
-  connectedCallback() {
-    if (this.hasConnected) {
-      return;
-    }
-    this.hasConnected = true;
-
-    this._fireCommand = this._fireCommand.bind(this);
-
-    this.addEventListener("input", this);
-    this.addEventListener("keypress", this);
-  }
-
-  handleEvent(event) {
-    switch (event.type) {
-      case "input":
-        this._onInput(event);
-        break;
-      case "keypress":
-        this._onKeyPress(event);
-        break;
-    }
-  }
-
-  _onInput() {
-    if (this._timer) {
-      clearTimeout(this._timer);
-    }
-    this._timer = setTimeout(this._fireCommand, 500, this);
-  }
-
-  _onKeyPress(event) {
-    switch (event.key) {
-      case "Escape":
-        if (this._clearSearch()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        break;
-      case "Return":
-        this._enterSearch();
-        event.preventDefault();
-        event.stopPropagation();
-        break;
-    }
-  }
-
-  _fireCommand() {
-    if (this._timer) {
-      clearTimeout(this._timer);
-    }
-    this._timer = null;
-    this.dispatchEvent(new CustomEvent("command"));
-  }
-
-  _enterSearch() {
-    this._fireCommand();
-  }
-
-  _clearSearch() {
-    if (this.value) {
-      this.value = "";
-      this._fireCommand();
-      return true;
-    }
-    return false;
-  }
-}
-customElements.define("ab-card-search-input", AbCardSearchInput, {
-  extends: "input",
-});
 
 customElements.whenDefined("tree-view-table-row").then(() => {
   /**
@@ -1564,7 +1489,8 @@ var cardsPane = {
       this._onColumnsChanged({ target: menuitem, value: abColumn.id })
     );
 
-    this.searchInput.addEventListener("command", this);
+    this.searchInput.addEventListener("autocomplete", this);
+    this.searchInput.addEventListener("search", this);
     this.displayButton.addEventListener("click", this);
     this.sortContext.addEventListener("command", this);
     this.table.addEventListener("columns-changed", this);
@@ -1600,6 +1526,12 @@ var cardsPane = {
 
   handleEvent(event) {
     switch (event.type) {
+      case "autocomplete":
+        this._onAutocomplete(event);
+        break;
+      case "search":
+        event.preventDefault();
+        break;
       case "command":
         this._onCommand(event);
         break;
@@ -1748,13 +1680,13 @@ var cardsPane = {
     if (book) {
       document.l10n.setAttributes(
         this.searchInput,
-        "about-addressbook-search",
+        "about-addressbook-search2",
         { name: book.dirName }
       );
     } else {
       document.l10n.setAttributes(
         this.searchInput,
-        "about-addressbook-search-all"
+        "about-addressbook-search-all2"
       );
     }
     const sortColumn =
@@ -1785,7 +1717,7 @@ var cardsPane = {
   displayList(bookUID, uid) {
     const book = MailServices.ab.getDirectoryFromUID(bookUID);
     const list = book.childNodes.find(l => l.UID == uid);
-    document.l10n.setAttributes(this.searchInput, "about-addressbook-search", {
+    document.l10n.setAttributes(this.searchInput, "about-addressbook-search2", {
       name: list.dirName,
     });
     const sortColumn =
@@ -2209,20 +2141,19 @@ var cardsPane = {
     event.preventDefault();
   },
 
-  _onCommand(event) {
-    if (event.target == this.searchInput) {
-      this.cardsList.view = new AddrBookDataAdapter(
-        this.cardsList.view.directory,
-        this.getQuery(),
-        this.searchInput.value,
-        this.cardsList.view.sortColumn,
-        this.cardsList.view.sortDirection
-      );
-      this._updatePlaceholder();
-      detailsPane.displayCards();
-      return;
-    }
+  _onAutocomplete() {
+    this.cardsList.view = new AddrBookDataAdapter(
+      this.cardsList.view.directory,
+      this.getQuery(),
+      this.searchInput.value,
+      this.cardsList.view.sortColumn,
+      this.cardsList.view.sortDirection
+    );
+    this._updatePlaceholder();
+    detailsPane.displayCards();
+  },
 
+  _onCommand(event) {
     switch (event.target.id) {
       case "sortContextTableLayout":
         this.toggleLayout(event.target.getAttribute("checked") === "true");

@@ -392,7 +392,6 @@ async function doSearch(searchString, ...expectedCards) {
   if (searchString) {
     EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
     EventUtils.sendString(searchString, abWindow);
-    EventUtils.synthesizeKey("VK_RETURN", {}, abWindow);
   } else {
     EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
   }

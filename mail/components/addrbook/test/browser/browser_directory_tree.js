@@ -322,7 +322,9 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(bookRow.getAttribute("aria-label"), "New Book");
 
   await TestUtils.waitForCondition(
-    () => searchInput.placeholder == "Search New Book",
+    () =>
+      searchInput.shadowRoot.querySelector("slot").textContent ==
+      "Search New Book…",
     "search placeholder updated"
   );
 
@@ -364,7 +366,9 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(bookRow.getAttribute("aria-label"), "Old Book");
 
   await TestUtils.waitForCondition(
-    () => searchInput.placeholder == "Search Old Book",
+    () =>
+      searchInput.shadowRoot.querySelector("slot").textContent ==
+      "Search Old Book…",
     "search placeholder updated"
   );
 
@@ -385,7 +389,9 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(listRow.getAttribute("aria-label"), "New List");
 
   await TestUtils.waitForCondition(
-    () => searchInput.placeholder == "Search New List",
+    () =>
+      searchInput.shadowRoot.querySelector("slot").textContent ==
+      "Search New List…",
     "search placeholder updated"
   );
 
@@ -423,7 +429,9 @@ add_task(async function test_rename_and_delete() {
   Assert.equal(listRow.getAttribute("aria-label"), "Old List");
 
   await TestUtils.waitForCondition(
-    () => searchInput.placeholder == "Search Old List",
+    () =>
+      searchInput.shadowRoot.querySelector("slot").textContent ==
+      "Search Old List…",
     "search placeholder updated"
   );
 

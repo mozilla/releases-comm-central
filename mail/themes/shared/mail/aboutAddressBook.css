@@ -349,37 +349,13 @@ body {
   flex: 1;
   margin-block: 0;
   margin-inline: 0 6px;
-  padding-inline: 8px;
-  box-sizing: border-box;
-  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
-  border-radius: var(--button-border-radius);
-  color: FieldText;
-  background-color: Field;
 
-  :root[lwt-tree] & {
-    color: var(--toolbar-field-color);
-    background-color: var(--toolbar-field-background-color);
-    border-color: var(--toolbar-field-border-color);
+  & [slot="clear-button"] {
+    content: var(--icon-clear);
   }
 
-  &:focus {
-    border-color: transparent;
-    outline: 2px solid var(--selected-item-color);
-    outline-offset: -1px;
-
-    :root[lwtheme] & {
-      color: var(--toolbar-field-focus-color);
-      background-color: var(--toolbar-field-focus-background-color);
-    }
-  }
-
-  &::selection {
-    background-color: var(--lwt-toolbar-field-highlight, Highlight);
-    color: var(--lwt-toolbar-field-highlight-text, HighlightText);
-  }
-
-  &:not(:focus)::selection {
-    background-color: var(--lwt-toolbar-field-highlight, text-select-disabled-background);
+  & [slot="search-button"] {
+    content: var(--icon-search);
   }
 }
 

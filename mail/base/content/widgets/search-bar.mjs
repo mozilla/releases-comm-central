@@ -197,6 +197,15 @@ export class SearchBar extends HTMLElement {
   }
 
   /**
+   * The current search term.
+   *
+   * @type {string} term
+   */
+  get value() {
+    return this.#input.value;
+  }
+
+  /**
    * Force the search term to a specific string, overriding what the user has
    * input. Will do nothing if the user is currently typing.
    *

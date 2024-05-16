@@ -138,7 +138,7 @@ function contentAreaClick(aEvent) {
   if (!href && !aEvent.button) {
     // Is this an image that we might want to scale?
 
-    if (HTMLImageElement.isInstance(target)) {
+    if (HTMLImageElement.isInstance(target) && target.src) {
       // Make sure it loaded successfully. No action if not or a broken link.
       var req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
       if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR) {

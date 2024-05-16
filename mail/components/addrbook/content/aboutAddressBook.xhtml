@@ -34,6 +34,7 @@
   <script src="chrome://messenger/content/globalOverlay.js"></script>
   <script src="chrome://global/content/editMenuOverlay.js"></script>
   <script src="chrome://messenger/content/pane-splitter.js"></script>
+  <script type="module" src="chrome://messenger/content/search-bar.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-listbox.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
@@ -110,9 +111,11 @@
       resize-id="booksPane"/>
   <div id="cardsPane">
     <div id="cardsPaneHeader">
-      <input is="ab-card-search-input" id="searchInput"
-             type="search"
-             data-l10n-attrs="placeholder" />
+#include ../../../base/content/widgets/search-bar.inc.xhtml
+      <search-bar id="searchInput" data-l10n-attrs="label, placeholder">
+        <img slot="clear-button" src="" alt="" />
+        <img slot="search-button" src="" alt="" />
+      </search-bar>
       <button id="displayButton"
               class="button icon-button icon-only button-flat"
               data-l10n-id="about-addressbook-sort-button2">
