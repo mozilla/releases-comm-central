@@ -685,13 +685,13 @@ add_task(async function filenameSanitisedSave() {
   // Backslash is double-escaped here because of the message generator.
   await createAndLoadMessage("test/bar", { filename: "f:i\\\\le/123.bar" });
   await singleClickAttachment();
-  let file = await verifyAndFetchSavedAttachment(undefined, "f i_le_123.bar");
+  let file = await verifyAndFetchSavedAttachment(undefined, "f_i_le_123.bar");
   file.remove(false);
 
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
-  file = await verifyAndFetchSavedAttachment(undefined, "f i le 123 .bar");
+  file = await verifyAndFetchSavedAttachment(undefined, "f_i__le_123_.bar");
   file.remove(false);
 });
 
@@ -711,9 +711,9 @@ add_task(async function filenameSanitisedOpen() {
   let { file } = await openedPromise;
   let attachmentFile = await verifyAndFetchSavedAttachment(
     tmpD,
-    "f i_le_123.bar"
+    "f_i_le_123.bar"
   );
-  Assert.equal(file.leafName, "f i_le_123.bar");
+  Assert.equal(file.leafName, "f_i_le_123.bar");
   // In the temp dir, files should be read-only.
   if (AppConstants.platform != "win") {
     const fileInfo = await IOUtils.stat(file.path);
@@ -732,8 +732,11 @@ add_task(async function filenameSanitisedOpen() {
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
   ({ file } = await openedPromise);
-  attachmentFile = await verifyAndFetchSavedAttachment(tmpD, "f i le 123 .bar");
-  Assert.equal(file.leafName, "f i le 123 .bar");
+  attachmentFile = await verifyAndFetchSavedAttachment(
+    tmpD,
+    "f_i__le_123_.bar"
+  );
+  Assert.equal(file.leafName, "f_i__le_123_.bar");
   attachmentFile.permissions = 0o755;
   attachmentFile.remove(false);
 });
