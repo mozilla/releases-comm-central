@@ -24,6 +24,7 @@ use xpcom::{
 };
 
 mod client;
+mod outgoing;
 
 /// Creates a new instance of the XPCOM/EWS bridge interface [`XpcomEwsBridge`].
 #[allow(non_snake_case)]

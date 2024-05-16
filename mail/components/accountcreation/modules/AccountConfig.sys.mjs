@@ -133,6 +133,9 @@ AccountConfig.prototype = {
       easURL: null,
       // for when an addon overrides the account type. Optional.
       addonAccountType: null,
+
+      // Whether to use this config for the outgoing server as well.
+      handlesOutgoing: false,
     };
   },
   /**

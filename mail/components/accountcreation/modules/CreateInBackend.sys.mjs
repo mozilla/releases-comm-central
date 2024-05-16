@@ -129,6 +129,15 @@ async function createAccountInBackend(config) {
   }
   inServer.valid = true;
 
+  if (config.incoming.handlesOutgoing) {
+    // If this type does not differentiate between incoming and outgoing
+    // configuration, then use the incoming settings to configure the outgoing
+    // server.
+    config.outgoing = config.incoming;
+    // This property does not exist on incoming configs.
+    config.outgoing.addThisServer = true;
+  }
+
   const username =
     config.outgoing.auth != Ci.nsMsgAuthMethod.none
       ? config.outgoing.username
@@ -136,29 +145,41 @@ async function createAccountInBackend(config) {
   let outServer = MailServices.outgoingServer.findServer(
     username,
     config.outgoing.hostname,
-    "smtp"
+    config.outgoing.type
   );
   lazy.AccountCreationUtils.assert(
     config.outgoing.addThisServer ||
       config.outgoing.useGlobalPreferredServer ||
       config.outgoing.existingServerKey,
-    "No SMTP server: inconsistent flags"
+    "No outgoing server: inconsistent flags"
   );
 
   if (
     config.outgoing.addThisServer &&
     !outServer &&
-    !config.incoming.useGlobalPreferredServer
+    !config.outgoing.useGlobalPreferredServer
   ) {
     // Create the server and define some protocol-specific settings.
-    outServer = MailServices.outgoingServer.createServer("smtp");
-    const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
-    smtpServer.hostname = config.outgoing.hostname;
-    smtpServer.port = config.outgoing.port;
-    // Note: The client ID will only be set on the server if either its own
-    // `clientidEnabled` pref, or the default SMTP pref with the same name, is
-    // set to true.
-    smtpServer.clientid = newOutgoingClientid;
+    outServer = MailServices.outgoingServer.createServer(config.outgoing.type);
+    if (config.outgoing.type == "smtp") {
+      const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
+      smtpServer.hostname = config.outgoing.hostname;
+      smtpServer.port = config.outgoing.port;
+      // Note: The client ID will only be set on the server if either its own
+      // `clientidEnabled` pref, or the default SMTP pref with the same name, is
+      // set to true.
+      smtpServer.clientid = newOutgoingClientid;
+    } else if (config.outgoing.type == "ews") {
+      const ewsServer = outServer.QueryInterface(Ci.nsIEwsServer);
+      ewsServer.ewsURL = config.outgoing.ewsURL;
+    } else {
+      // Note: createServer should already have thrown if given a type we don't
+      // support, so if we're able to reach this then something has gone very
+      // wrong.
+      throw new Error(
+        `unexpected outgoing server type ${config.outgoing.type}`
+      );
+    }
 
     outServer.authMethod = config.outgoing.auth;
     if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {

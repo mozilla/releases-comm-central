@@ -1,0 +1,20 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * An interface for interacting with an Exchange Web Services-based
+ * nsIMsgOutgoingServer.
+ */
+
+[scriptable, uuid(09f44948-e01d-40a7-af19-13dbb6ae1fb5)]
+interface nsIEwsServer : nsISupports {
+  /*
+   * Initialize the configuration for this EWS server.
+   *
+   * @param ewsURL  The URL to use to interact with this EWS server.
+   */
+  void initialize(in AUTF8String ewsURL);
+};
