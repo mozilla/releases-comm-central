@@ -449,13 +449,16 @@ export class FolderManager {
   }
 
   /**
-   * Returns the direct subfolders of the specifed nsIMsgFolder. Virtual folders
-   * are handled as well.
+   * Returns the direct subfolders of the specifed nsIMsgFolder. Individual search
+   * folders of virtual folders are usually not returned as subfolders, except for
+   * unified folders.
    *
    * @param {nsIMsgFolder} folder - The folder to get the direct subfolders for.
+   * @param {boolean} isUnified - Whether the folder is a unified folder.
+   *
    * @returns {nsIMsgFolder[]}
    */
-  getDirectSubfolders(folder) {
+  getDirectSubfolders(folder, isUnified) {
     if (folder.hasSubFolders) {
       // Use the same order as used by Thunderbird.
       return folder.subFolders.sort((a, b) =>
@@ -464,7 +467,7 @@ export class FolderManager {
           : a.sortOrder - b.sortOrder
       );
     }
-    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    if (isUnified) {
       const wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
       // wrappedFolder.searchFolders returns all nested folders, not just the
       // direct children. Filter out nested folders based on their URI starting
@@ -498,14 +501,15 @@ export class FolderManager {
    */
   traverseSubfolders(folder, accountId) {
     const convertedFolder = this.convert(folder, accountId);
-    const subFolders = this.getDirectSubfolders(folder);
+    const subFolders = this.getDirectSubfolders(
+      folder,
+      convertedFolder.isUnified
+    );
 
     // If accountId was not specified, convert() made a lookup and retrieved the
     // actual accountId. Always use that, except if this folder is a virtual
     // folder (its subfolders could belong to a different account).
-    accountId = folder.getFlag(Ci.nsMsgFolderFlags.Virtual)
-      ? null
-      : convertedFolder.accountId;
+    accountId = convertedFolder.isVirtual ? null : convertedFolder.accountId;
 
     convertedFolder.subFolders = [];
     for (const subFolder of subFolders) {

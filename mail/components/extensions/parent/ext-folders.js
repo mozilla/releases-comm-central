@@ -1234,8 +1234,11 @@ this.folders = class extends ExtensionAPIPersistent {
         },
         async getSubFolders(target, includeSubFolders) {
           const { folderManager } = context.extension;
-          let { folder, accountKey } = getFolder(target);
-          const directSubFolders = folderManager.getDirectSubfolders(folder);
+          let { folder, accountKey, isUnified } = getFolder(target);
+          const directSubFolders = folderManager.getDirectSubfolders(
+            folder,
+            isUnified
+          );
 
           // If the folder is a virtual folder, its subfolders could belong to a
           // different account. Ignore the accountKey.

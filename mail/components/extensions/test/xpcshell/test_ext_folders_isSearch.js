@@ -132,6 +132,14 @@ add_task(async function test_folder_isVirtual() {
         "The isVirtual=true query should return /searchFolder"
       );
 
+      // The /searchFolder should not expose its search folders as subfolders.
+      const subFolders = await browser.folders.getSubFolders(searchFolder.id);
+      browser.test.assertEq(
+        0,
+        subFolders.length,
+        "The /searchFolder should not expose its search folders as subfolders"
+      );
+
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
