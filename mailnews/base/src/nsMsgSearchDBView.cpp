@@ -667,6 +667,9 @@ nsMsgSearchDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr, nsIMsgFolder* folder) {
 
 NS_IMETHODIMP
 nsMsgSearchDBView::OnSearchDone(nsresult status) {
+  // This batch began in OnNewSearch.
+  if (mJSTree) mJSTree->EndUpdateBatch();
+
   // We want to set imap delete model once the search is over because setting
   // next message after deletion will happen before deleting the message and
   // search scope can change with every search.
@@ -700,6 +703,10 @@ nsMsgSearchDBView::OnNewSearch() {
   if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
   // mSearchResults->Clear();
+
+  // Prevent updates for every message found. This batch ends in OnSearchDone.
+  if (mJSTree) mJSTree->BeginUpdateBatch();
+
   return NS_OK;
 }
 
