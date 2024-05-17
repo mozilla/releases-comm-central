@@ -141,6 +141,7 @@ export class SearchBar extends HTMLElement {
       case "reset":
         this.reset();
         this.#onInput();
+        this.focus();
         break;
       case "keyup":
         if (event.key === "Escape" && this.#input.value) {

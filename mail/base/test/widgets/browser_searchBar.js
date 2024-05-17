@@ -270,8 +270,12 @@ add_task(async function test_clearButton() {
   );
   await waitForRender();
 
-  EventUtils.synthesizeMouseAtCenter(button, {}, searchBar.shadowRoot);
-  button.click();
+  function getClearButton() {
+    return window.document
+      .querySelector("search-bar")
+      .shadowRoot.querySelector("#clear-button");
+  }
+  await BrowserTestUtils.synthesizeMouseAtCenter(getClearButton, {}, browser);
   await waitForRender();
 
   is(input.value, "", "Input was cleared");
@@ -279,6 +283,12 @@ add_task(async function test_clearButton() {
     BrowserTestUtils.isHidden(button),
     "Clear Button is hidden after text is cleared"
   );
+  is(
+    browser.contentWindow.document.activeElement,
+    searchBar,
+    "Search bar is focused after input has been reset"
+  );
+  is(searchBar.shadowRoot.activeElement, input, "Should focus input");
 });
 
 add_task(async function test_overrideSearchTerm_noFocus() {
@@ -286,7 +296,11 @@ add_task(async function test_overrideSearchTerm_noFocus() {
   const value = "lorem ipsum";
   input.blur();
   searchBar.blur();
-  isnot(document.activeElement, searchBar, "Search bar should not be focused");
+  isnot(
+    browser.contentWindow.document.activeElement,
+    searchBar,
+    "Search bar should not be focused"
+  );
   isnot(searchBar.shadowRoot.activeElement, input, "Should not focus input");
 
   let autocomplete = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
