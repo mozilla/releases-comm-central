@@ -85,7 +85,9 @@ export class Pop3Client {
     // Auth method set by user preference.
     this._preferredAuthMethods =
       {
-        [Ci.nsMsgAuthMethod.passwordCleartext]: ["USERPASS", "PLAIN", "LOGIN"],
+        // Do USERPASS only if obfuscated cleartext methods (PLAIN or LOGIN) are
+        // not supported or fail.
+        [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN", "USERPASS"],
         [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
         [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
         [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
