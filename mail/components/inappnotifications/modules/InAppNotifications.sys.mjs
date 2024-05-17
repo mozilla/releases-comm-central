@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { NotificationManager } from "resource:///modules/NotificationManager.sys.mjs";
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
@@ -21,6 +23,15 @@ export const InAppNotifications = {
   _jsonFile: null,
 
   /**
+   * Notification manager for the front-end to interact with. Immediately
+   * initialized, so event listeners can be added before the rest of the module
+   * is initialized.
+   *
+   * @type {NotificationManager}
+   */
+  notificationManager: new NotificationManager(),
+
+  /**
    * Initialization function setting up everything for In-App Notifications.
    * Called by MailGlue if the feature is not disabled by pref.
    */
@@ -33,8 +44,18 @@ export const InAppNotifications = {
       dataPostProcessor: this._initializeNotifications,
     });
     await this._jsonFile.load();
+    this.notificationManager.addEventListener(
+      NotificationManager.NOTIFICATION_INTERACTION_EVENT,
+      this
+    );
+    this.notificationManager.addEventListener(
+      NotificationManager.REQUEST_NOTIFICATIONS_EVENT,
+      this
+    );
     //TODO set up refresh from network
-    //TODO initialize notification scheduler
+    //TODO possibly don't do this here and wait for the network refresh to have
+    // completed/failed instead.
+    this.notificationManager.updatedNotifications(this.getNotifications());
   },
 
   /**
@@ -57,6 +78,7 @@ export const InAppNotifications = {
         stillExistingInteractedWith
       );
     }
+    this.notificationManager.updatedNotifications(notifications);
 
     this._jsonFile.saveSoon();
   },
@@ -65,9 +87,12 @@ export const InAppNotifications = {
    * @returns {object[]} All available notifications.
    */
   getNotifications() {
+    const now = Date.now();
     return this._jsonFile.data.notifications.filter(
       notification =>
-        !this._jsonFile.data.interactedWith.includes(notification.id)
+        !this._jsonFile.data.interactedWith.includes(notification.id) &&
+        Date.parse(notification.start_at) < now &&
+        Date.parse(notification.end_at) > now
     );
   },
 
@@ -81,6 +106,21 @@ export const InAppNotifications = {
     if (!this._jsonFile.data.interactedWith.includes(notificationId)) {
       this._jsonFile.data.interactedWith.push(notificationId);
       this._jsonFile.saveSoon();
+    }
+  },
+
+  /**
+   *
+   * @param {Event} event
+   */
+  handleEvent(event) {
+    switch (event.type) {
+      case NotificationManager.NOTIFICATION_INTERACTION_EVENT:
+        this.markAsInteractedWith(event.detail);
+        break;
+      case NotificationManager.REQUEST_NOTIFICATIONS_EVENT:
+        this.notificationManager.updatedNotifications(this.getNotifications());
+        break;
     }
   },
 
