@@ -149,7 +149,7 @@ export const PhishingDetector = new (class PhishingDetector {
    * Opens the default browser to a page where the user can submit the given url
    * as a phish.
    *
-   * @param aPhishingURL the url we want to report back as a phishing attack
+   * @param {string} aPhishingURL - The url we want to report back as a phishing attack.
    */
   reportPhishingURL(aPhishingURL) {
     let reportUrl = Services.urlFormatter.formatURLPref(
@@ -170,12 +170,9 @@ export const PhishingDetector = new (class PhishingDetector {
    * The warning prompt includes the unobscured host name of the http(s) url the
    * user clicked on.
    *
-   * @param {DOMWindow} win
-   *   The window the message is being displayed within.
-   * @param {string} aUrl
-   *   The url of the message
-   * @param {string} aLinkText
-   *   User visible link text associated with the link
+   * @param {DOMWindow} win - The window the message is being displayed within.
+   * @param {string} aUrl - The url of the message
+   * @param {string} aLinkText - User visible link text associated with the link
    * @returns {number}
    *   0 if the URL implied by aLinkText should be used instead.
    *   1 if the request should be blocked.

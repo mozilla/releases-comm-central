@@ -34,6 +34,7 @@ class SmartMailbox {
 
   /**
    * Returns the server of the smart mailbox account.
+   *
    * @returns {nsIMsgIncomingServer}
    */
   get server() {
@@ -42,6 +43,7 @@ class SmartMailbox {
 
   /**
    * Returns the smart mailbox account.
+   *
    * @returns {nsIMsgAccount}
    */
   get account() {
@@ -50,6 +52,7 @@ class SmartMailbox {
 
   /**
    * Returns the root folder of the smart mailbox account.
+   *
    * @returns {nsIMsgFolder}
    */
   get rootFolder() {
@@ -58,6 +61,7 @@ class SmartMailbox {
 
   /**
    * Returns the tags folder of the smart mailbox account.
+   *
    * @returns {nsIMsgFolder}
    */
   get tagsFolder() {
@@ -286,6 +290,7 @@ export const SmartMailboxUtils = {
 
   /**
    * Returns a clone of the folder type array defined at the top of this module.
+   *
    * @returns {object[]}
    */
   getFolderTypes() {
