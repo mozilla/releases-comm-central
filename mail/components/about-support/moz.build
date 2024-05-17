@@ -3,6 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "General")
+
 if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
     EXTRA_JS_MODULES += ["AboutSupportWin32.sys.mjs"]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":

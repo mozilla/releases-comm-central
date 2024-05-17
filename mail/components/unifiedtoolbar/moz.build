@@ -5,6 +5,9 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Toolbars and Tabs")
+
 EXTRA_JS_MODULES += [
     "modules/ButtonStyle.mjs",
     "modules/CustomizableItems.sys.mjs",

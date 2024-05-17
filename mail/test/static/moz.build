@@ -6,3 +6,6 @@
 BROWSER_CHROME_MANIFESTS += [
     "browser.ini",
 ]
+
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Testing Infrastructure")

@@ -4,12 +4,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 with Files("**"):
-    BUG_COMPONENT = ("Thunderbird", "General")
-
-EXTRA_JS_MODULES += [
-    "modules/InAppNotifications.sys.mjs",
-]
-
-XPCSHELL_TESTS_MANIFESTS += [
-    "test/unit/xpcshell.toml",
-]
+    BUG_COMPONENT = ("Mailnews Core", "Search")

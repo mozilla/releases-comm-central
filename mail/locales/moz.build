@@ -6,6 +6,9 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "L10n")
+
 # If DIST_SUBDIR ever gets set for Thunderbird this path might be wrong due to PREF_DIR changing.
 LOCALIZED_PP_FILES.defaults.pref += ["en-US/all-l10n.js"]
 

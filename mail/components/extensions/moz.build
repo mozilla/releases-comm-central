@@ -15,6 +15,9 @@ EXTRA_JS_MODULES += [
     "MailExtensionShortcuts.sys.mjs",
 ]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Add-Ons: Extensions API")
+
 JAR_MANIFESTS += ["jar.mn"]
 
 TESTING_JS_MODULES += [

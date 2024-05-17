@@ -7,6 +7,9 @@ EXTRA_JS_MODULES += [
     "../../../browser/modules/FaviconLoader.sys.mjs",
 ]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "General")
+
 FINAL_TARGET_FILES.actors += [
     "../../../browser/actors/ContextMenuChild.sys.mjs",
     "../../../browser/actors/LinkHandlerChild.sys.mjs",

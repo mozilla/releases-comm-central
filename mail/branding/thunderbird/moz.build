@@ -5,6 +5,9 @@
 
 DIRS += ["locales"]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Theme")
+
 JAR_MANIFESTS += ["jar.mn"]
 
 include("../branding-common.mozbuild")

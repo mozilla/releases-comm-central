@@ -5,6 +5,9 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Preferences")
+
 DEFINES["MOZ_MACBUNDLE_NAME"] = CONFIG["MOZ_MACBUNDLE_NAME"]
 
 if CONFIG["MOZ_WIDGET_TOOLKIT"] in ("windows", "gtk", "cocoa"):
