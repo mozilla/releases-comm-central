@@ -661,6 +661,12 @@ file-write-failed = Failed to write to file { $output }
 no-pgp-block = Error - No valid armored OpenPGP data block found
 confirm-permissive-import = Import failed. The key you are trying to import might be corrupt or use unknown attributes. Would you like to attempt to import the parts that are correct? This might result in the import of incomplete and unusable keys.
 
+# Variables:
+# $fingerprints (String) - A comma-separated list of fingerprints, either one or multiple, for example "ABCDEF7890ABCDEF7890ABCDEF7890ABCDEF7890, 0123456789012345678901234567890123456789"
+imported-secret-with-unsupported-features = Some of the imported secret keys advertise an unsupported feature. If you use such a key as your personal key, correspondents may send you emails or public keys in an incompatible format. This affects imported secret keys with the following fingerprints: {$fingerprints}.
+
+help-button = Help
+
 ## Strings used in trust.sys.mjs
 
 key-valid-unknown = unknown

@@ -32,6 +32,8 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"]);
 });
 
+import { openLinkExternally } from "resource:///modules/LinkHelper.sys.mjs";
+
 /**
  * @typedef KeyList
  * @property {EnigmailKeyObj[]} keyList
@@ -433,6 +435,7 @@ export var EnigmailKeyRing = {
     } while (tryAgain);
 
     if (!res || !res.importedKeys) {
+      errorMsgObj.value = res.errorMsg ? res.errorMsg : "";
       return 1;
     }
 
@@ -444,6 +447,43 @@ export var EnigmailKeyRing = {
     }
     EnigmailKeyRing.clearCache();
 
+    if (res.fingerprintsWithUnsupportedFeatures.length) {
+      const fingerprints = res.fingerprintsWithUnsupportedFeatures.join(", ");
+
+      const [info, title, help] = await lazy.l10n.formatValues([
+        {
+          id: "imported-secret-with-unsupported-features",
+          args: {
+            fingerprints,
+          },
+        },
+        { id: "import-key-file" },
+        { id: "help-button" },
+      ]);
+
+      const buttonPressed = Services.prompt.confirmEx(
+        win,
+        title,
+        info,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_OK * Services.prompt.BUTTON_POS_1 +
+          Services.prompt.BUTTON_POS_1_DEFAULT,
+        help,
+        null,
+        null,
+        null,
+        {}
+      );
+      if (buttonPressed == 0) {
+        openLinkExternally(
+          "https://support.mozilla.org/kb/openpgp-secret-keys-with-unsupported-feature-flags"
+        );
+      }
+    }
+
+    if (res.exitCode) {
+      errorMsgObj.value = res.errorMsg || "";
+    }
     return res.exitCode;
   },
 

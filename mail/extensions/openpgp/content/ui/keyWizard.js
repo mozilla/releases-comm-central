@@ -980,7 +980,9 @@ async function openPgpImportStart() {
         await addImportWarningNotification(),
         "openpgp-import-keys-failed",
         {
-          error: errorMsgObj.value,
+          // We must at least provide an empty string to avoid
+          // a crash in the Rust Fluent code.
+          error: errorMsgObj.value ? errorMsgObj.value : "",
         }
       );
       continue;

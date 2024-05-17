@@ -63,6 +63,9 @@ export class EnigmailKeyObj {
   /** @type {boolean} - Is secret key material available. */
   secretMaterial = false;
 
+  /** @type {integer} - Bitmask of feature flags, see PGP_KEY_FEATURE_ . */
+  features = 0;
+
   /** @type {string} - Public key algorithm type (e.g. RSA). */
   algoSym = "";
 
@@ -147,6 +150,7 @@ export class EnigmailKeyObj {
       "photoAvailable",
       "userId",
       "hasIgnoredAttributes",
+      "features",
     ];
     for (const i of ATTRS) {
       if (i in keyData) {

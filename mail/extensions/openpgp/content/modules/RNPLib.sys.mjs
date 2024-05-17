@@ -2018,6 +2018,14 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_signature_get_features: librnp.declare(
+      "rnp_signature_get_features",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -2072,6 +2080,10 @@ function enableRNPLibJS() {
     RNP_SECURITY_DEFAULT: 2,
 
     RNP_ENCRYPT_NOWRAP: 1,
+
+    PGP_KEY_FEATURE_MDC: 1,
+    PGP_KEY_FEATURE_AEAD: 2,
+    PGP_KEY_FEATURE_V5: 4,
 
     /* Common error codes */
     RNP_ERROR_GENERIC: 0x10000000, // 268435456

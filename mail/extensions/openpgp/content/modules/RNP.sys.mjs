@@ -15,6 +15,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.sys.mjs",
   ctypes: "resource://gre/modules/ctypes.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "log", () => {
+  return console.createInstance({
+    prefix: "openpgp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "openpgp.loglevel",
+  });
+});
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"]);
 
@@ -517,11 +524,60 @@ export var RNP = {
       if (await RNPLib.init()) {
         //this.initUiOps();
         RNP.libLoaded = true;
+        this.warnAboutProblematicKeys();
       }
       await lazy.OpenPGPMasterpass.ensurePasswordIsCached();
     } catch (e) {
       console.warn("Loading RNP FAILED!", e);
     }
+  },
+
+  /**
+   * Warn the user about existing secret keys with unsupported feature
+   * flags, which were imported in the past, when we weren't yet able
+   * to strip those flags. We haven't yet implemented a way to
+   * automatically fix them, because fixing them requires
+   * unlocking, and we shouldn't introduce code that prompts
+   * the user to unlock keys unexpectedly.
+   */
+  warnAboutProblematicKeys() {
+    const iter = new RNPLib.rnp_identifier_iterator_t();
+    const grip = new lazy.ctypes.char.ptr();
+
+    if (
+      RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
+    ) {
+      throw new Error("rnp_identifier_iterator_create failed");
+    }
+
+    while (
+      !RNPLib.rnp_identifier_iterator_next(iter, grip.address()) &&
+      !grip.isNull()
+    ) {
+      const handle = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+        throw new Error("rnp_locate_key failed");
+      }
+
+      if (this.getSecretAvailableFromHandle(handle)) {
+        const is_subkey = new lazy.ctypes.bool();
+        if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
+          throw new Error("rnp_key_is_sub failed");
+        }
+        if (!is_subkey.value) {
+          if (this.keyHasUnsupportedFeatures(handle)) {
+            const fp = this.getFingerprintFromHandle(handle);
+            lazy.log.warn(
+              `OpenPGP secret key with fingerprint ${fp} advertises unsupported features.`
+            );
+          }
+        }
+      }
+
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+
+    RNPLib.rnp_identifier_iterator_destroy(iter);
   },
 
   getRNPLibStatus() {
@@ -906,6 +962,44 @@ export var RNP = {
     return hasWeak;
   },
 
+  getSelfSigFeatures(selfId, handle) {
+    let allFeatures = 0;
+
+    const sig_count = new lazy.ctypes.size_t();
+    if (RNPLib.rnp_key_get_signature_count(handle, sig_count.address())) {
+      throw new Error("rnp_key_get_signature_count failed");
+    }
+
+    for (let i = 0; i < sig_count.value; i++) {
+      const sig_handle = new RNPLib.rnp_signature_handle_t();
+
+      if (RNPLib.rnp_key_get_signature_at(handle, i, sig_handle.address())) {
+        throw new Error("rnp_key_get_signature_at failed");
+      }
+
+      const sig_id_str = new lazy.ctypes.char.ptr();
+      if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
+        throw new Error("rnp_signature_get_keyid failed");
+      }
+
+      const sigId = sig_id_str.readString();
+      RNPLib.rnp_buffer_destroy(sig_id_str);
+
+      // Is it a self-signature?
+      if (sigId == selfId) {
+        const features = new lazy.ctypes.uint32_t();
+        if (RNPLib.rnp_signature_get_features(sig_handle, features.address())) {
+          throw new Error("rnp_signature_get_features failed");
+        }
+
+        allFeatures |= features.value;
+      }
+
+      RNPLib.rnp_signature_handle_destroy(sig_handle);
+    }
+    return allFeatures;
+  },
+
   isWeakSelfSignature(selfId, sig_handle) {
     const sig_id_str = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
@@ -1075,6 +1169,8 @@ export var RNP = {
             uidObj.type = "uid";
             uidObj.keyTrust = keyObj.keyTrust;
             uidObj.uidFpr = "??fpr??";
+
+            uidObj.features = this.getUidFeatures(keyObj.keyId, uid_handle);
 
             keyObj.userIds.push(uidObj);
           }
@@ -1248,6 +1344,8 @@ export var RNP = {
       if (RNP.hasKeyWeakSelfSignature(keyObj.keyId, handle)) {
         keyObj.hasIgnoredAttributes = true;
       }
+
+      keyObj.features = this.getSelfSigFeatures(keyObj.keyId, handle);
     }
 
     return true;
@@ -1334,6 +1432,44 @@ export var RNP = {
     }
 
     return is_primary.value;
+  },
+
+  getUidFeatures(self_key_id, uid_handle) {
+    let allFeatures = 0;
+
+    const sig_count = new lazy.ctypes.size_t();
+    if (RNPLib.rnp_uid_get_signature_count(uid_handle, sig_count.address())) {
+      throw new Error("rnp_uid_get_signature_count failed");
+    }
+
+    for (let i = 0; i < sig_count.value; i++) {
+      const sig_handle = new RNPLib.rnp_signature_handle_t();
+
+      if (
+        RNPLib.rnp_uid_get_signature_at(uid_handle, i, sig_handle.address())
+      ) {
+        throw new Error("rnp_uid_get_signature_at failed");
+      }
+
+      const sig_id_str = new lazy.ctypes.char.ptr();
+      if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
+        throw new Error("rnp_signature_get_keyid failed");
+      }
+
+      if (sig_id_str.readString() == self_key_id) {
+        const features = new lazy.ctypes.uint32_t();
+        if (RNPLib.rnp_signature_get_features(sig_handle, features.address())) {
+          throw new Error("rnp_signature_get_features failed");
+        }
+
+        allFeatures |= features.value;
+      }
+
+      RNPLib.rnp_buffer_destroy(sig_id_str);
+      RNPLib.rnp_signature_handle_destroy(sig_handle);
+    }
+
+    return allFeatures;
   },
 
   getUidSignatureQuality(self_key_id, uid_handle) {
@@ -2848,6 +2984,7 @@ export var RNP = {
     result.exitCode = -1;
     result.importedKeys = [];
     result.errorMsg = "";
+    result.fingerprintsWithUnsupportedFeatures = [];
 
     const tempFFI = RNPLib.prepare_ffi();
     if (!tempFFI) {
@@ -2910,6 +3047,15 @@ export var RNP = {
       } else {
         const primaryKey = new RnpPrivateKeyUnlockTracker(impKey);
         impKey = null;
+
+        if (this.keyObjHasUnsupportedFeatures(k)) {
+          lazy.log.warn(
+            `OpenPGP secret key with fingerprint ${k.fpr} advertises unsupported features.`
+          );
+          // This function shouldn't bring up the warning.
+          // Let the caller do it.
+          result.fingerprintsWithUnsupportedFeatures.push(k.fpr);
+        }
 
         // Don't attempt to unlock secret keys that are unavailable.
         if (primaryKey.available()) {
@@ -4922,5 +5068,79 @@ export var RNP = {
       date: keyObj.created,
       username_and_email: keyObj.userId,
     });
+  },
+
+  getSupportedFeatureFlags() {
+    // Update this bitmask whenever additional features are supported.
+    return RNPLib.PGP_KEY_FEATURE_MDC;
+  },
+
+  /**
+   * @param {EnigmailKeyObj} keyObj - The key to check.
+   * @returns {boolean} true if unsupported features (version, algorithms) are advertised by this key
+   */
+  keyObjHasUnsupportedFeatures(keyObj) {
+    let foundFeatures = 0;
+    if (keyObj.features) {
+      foundFeatures |= keyObj.features;
+    }
+
+    for (let i = 0; i < keyObj.userIds.length; i++) {
+      const uid = keyObj.userIds[i];
+      if (uid.type === "uid" && uid.features) {
+        foundFeatures |= uid.features;
+      }
+    }
+
+    const ourSupportedFeatures = this.getSupportedFeatureFlags();
+
+    // Remove our supported feature flags from bitmask.
+    const unsupportedFeatures = (foundFeatures &= ~ourSupportedFeatures);
+
+    return unsupportedFeatures != 0;
+  },
+
+  /**
+   * @param {?rnp_key_handle_t} handle - the handle of a RNP key
+   * @returns {boolean} true if unsupported features (version, algorithms) are advertised by this key
+   */
+  keyHasUnsupportedFeatures(handle) {
+    const selfId = this.getKeyIDFromHandle(handle);
+
+    let foundFeatures = this.getSelfSigFeatures(selfId, handle);
+
+    const uid_count = new lazy.ctypes.size_t();
+    if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
+      throw new Error("rnp_key_get_uid_count failed");
+    }
+    for (let i = 0; i < uid_count.value; i++) {
+      const uid_handle = new RNPLib.rnp_uid_handle_t();
+
+      if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
+        throw new Error("rnp_key_get_uid_handle_at failed");
+      }
+
+      if (!this.isRevokedUid(uid_handle)) {
+        const uid_str = new lazy.ctypes.char.ptr();
+        if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
+          throw new Error("rnp_key_get_uid_at failed");
+        }
+        const userIdStr = uid_str.readStringReplaceMalformed();
+        RNPLib.rnp_buffer_destroy(uid_str);
+
+        if (userIdStr !== RNP_PHOTO_USERID_ID) {
+          foundFeatures |= this.getUidFeatures(selfId, uid_handle);
+        }
+      }
+
+      RNPLib.rnp_uid_handle_destroy(uid_handle);
+    }
+
+    const ourSupportedFeatures = this.getSupportedFeatureFlags();
+
+    // Remove our supported feature flags from bitmask.
+    const unsupportedFeatures = (foundFeatures &= ~ourSupportedFeatures);
+
+    return unsupportedFeatures != 0;
   },
 };
