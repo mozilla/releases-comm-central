@@ -10,19 +10,6 @@
 
 /* stylelint-disable-next-line media-query-no-invalid */
 @media (-moz-bool-pref: "mail.theme.macos.native-theme") {
-  /* TODO: Share this with Linux, which effectively does ~the same */
-  @media not (prefers-contrast) {
-    :root:not([lwtheme]) {
-      --toolbar-field-border-color: transparent;
-      --toolbar-field-background-color: light-dark(rgba(0, 0, 0, .05), rgba(0, 0, 0, .3));
-      --toolbar-field-color: inherit;
-      @media (prefers-color-scheme: light) {
-        --toolbar-bgcolor: white;
-        --search-bar-background: #fafafa;
-      }
-    }
-  }
-
   :root[tabsintitlebar]:not([lwtheme]) {
     -moz-default-appearance: -moz-mac-unified-toolbar-window;
     appearance: auto;
