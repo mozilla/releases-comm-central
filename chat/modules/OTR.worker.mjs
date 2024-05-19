@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-env mozilla/chrome-worker, node */
-importScripts("resource://gre/modules/workers/require.js");
-var PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
-var Funcs = {};
+/* globals ctypes */
 
-// Only what we need from libotr.js
-Funcs.generateKey = function (path, otrl_version, address) {
+import { PromiseWorker } from "resource://gre/modules/workers/PromiseWorker.mjs";
+
+const worker = new PromiseWorker.AbstractWorker();
+
+/**
+ * Generate a new OTR key via libotr.
+ *
+ * @param {string} path - The path of libotr.
+ * @param {string} otrl_version - The otr library version.
+ * @param {string} address - The new key string.
+ */
+worker.generateKey = (path, otrl_version, address) => {
   const libotr = ctypes.open(path);
 
   const abi = ctypes.default_abi;
@@ -44,17 +51,15 @@ Funcs.generateKey = function (path, otrl_version, address) {
   }
 };
 
-var worker = new PromiseWorker.AbstractWorker();
-
-worker.dispatch = function (method, args = []) {
-  return Funcs[method](...args);
+worker.dispatch = (method, args = []) => {
+  return worker[method](...args); // call worker.generateKey()
 };
 
-worker.postMessage = function (res, ...args) {
+worker.postMessage = (res, ...args) => {
   self.postMessage(res, ...args);
 };
 
-worker.close = function () {
+worker.close = () => {
   self.close();
 };
 

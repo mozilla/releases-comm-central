@@ -15,4 +15,3 @@ chat.jar:
 	content/chat/otr-auth.xhtml
 	content/chat/otr-finger.js
 	content/chat/otr-finger.xhtml
-	content/chat/otrWorker.js

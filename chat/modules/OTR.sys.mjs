@@ -247,7 +247,9 @@ export var OTR = {
       );
     }
 
-    const worker = new BasePromiseWorker("chrome://chat/content/otrWorker.js");
+    const worker = new BasePromiseWorker("resource:///modules/OTR.worker.mjs", {
+      type: "module",
+    });
     return worker
       .post("generateKey", [OTRLib.path, OTRLib.otrl_version, address])
       .then(function () {

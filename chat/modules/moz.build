@@ -21,6 +21,7 @@ EXTRA_JS_MODULES += [
     "jsProtoHelper.sys.mjs",
     "NormalizedMap.sys.mjs",
     "OTR.sys.mjs",
+    "OTR.worker.mjs",
     "OTRLib.sys.mjs",
     "OTRUI.sys.mjs",
     "socket.sys.mjs",
