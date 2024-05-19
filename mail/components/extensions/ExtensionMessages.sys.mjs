@@ -586,6 +586,12 @@ export class MsgHdrProcessor {
       }
     );
 
+    // If the message does not contain mime parts, but is just an attachment,
+    // return that part directly.
+    if (mimeTree.isAttachment) {
+      return [mimeTree];
+    }
+
     const flat = (attachmentParts, part) => {
       if (part.isAttachment) {
         attachmentParts.push(part);

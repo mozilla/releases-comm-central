@@ -57,6 +57,10 @@ add_setup(
       _testFolder,
       do_get_file("messages/nestedMessages.eml").path
     );
+    await createMessageFromFile(
+      _testFolder,
+      do_get_file("messages/attachmentOnly.eml").path
+    );
   }
 );
 
@@ -71,7 +75,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(5, messages.length);
+          browser.test.assertEq(6, messages.length);
 
           let attachments, attachment, file;
 
@@ -216,6 +220,35 @@ add_task(
             "Non-existent part should throw"
           );
 
+          // Test the attachment-only eml file.
+          attachments = await browser.messages.listAttachments(6);
+          browser.test.assertEq(
+            1,
+            attachments.length,
+            "Should find a single attachment"
+          );
+          browser.test.assertEq(
+            "Screenshot 2024-04-28 at 18.24.31.png",
+            attachments[0].name,
+            "Should find the correct attachment"
+          );
+          // Since we are here, let's double-check that query also considers this
+          // message to have an attachment.
+          const { messages: queryResult } = await browser.messages.query({
+            attachment: true,
+            subject: "Report",
+          });
+          browser.test.assertEq(
+            1,
+            queryResult.length,
+            "Should find a single message"
+          );
+          browser.test.assertEq(
+            6,
+            queryResult[0].id,
+            "Should find the correct message"
+          );
+
           browser.test.notifyPass("finished");
         },
         "utils.js": await getUtilsJS(),
@@ -243,7 +276,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(5, messages.length);
+          browser.test.assertEq(6, messages.length);
           const message = messages[4];
 
           function validateMessage(msg, expectedValues) {
@@ -544,7 +577,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(5, messages.length);
+          browser.test.assertEq(6, messages.length);
 
           async function checkAttachments(id, expected) {
             const attachments = await browser.messages.listAttachments(id);
