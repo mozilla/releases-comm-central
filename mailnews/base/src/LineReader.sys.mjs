@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
-
 /**
  * For certain requests, mail servers return a multi-line response that are
  * handled by this class. The definitions of multi-line responses can be found
@@ -43,7 +41,7 @@ export class LineReader {
    * @param {Function} doneCallback - A function to be called when all the lines
    *   for the complete response have been processed in lineCallback.
    */
-  async read(data, lineCallback, doneCallback) {
+  read(data, lineCallback, doneCallback) {
     this._data += data;
     if (this._data == ".\r\n" || this._data.endsWith("\r\n.\r\n")) {
       // Have received the complete multi-line response.
@@ -66,9 +64,9 @@ export class LineReader {
       }
       lineCallback(line);
       this._data = this._data.slice(index + 2);
-      if (++i % 1000 == 0) {
+      if (++i % 100 == 0) {
         // Prevent blocking main process for too long.
-        await new Promise(resolve => setTimeout(resolve));
+        Services.tm.spinEventLoopUntilEmpty();
       }
     }
     // Note: _data will be empty and receivingMultiLineResponse will be false
