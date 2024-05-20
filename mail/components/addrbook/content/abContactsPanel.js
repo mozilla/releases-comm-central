@@ -166,10 +166,6 @@ function AddressBookMenuListChange(aValue) {
 }
 
 function AbPanelLoad() {
-  if (location.search == "?focus") {
-    document.getElementById("peopleSearchInput").focus();
-  }
-
   document.title = parent.document.getElementById("contactsTitle").value;
 
   // Get the URI of the directory to display.
@@ -185,6 +181,13 @@ function AbPanelLoad() {
   if (!abPopup.selectedItem) {
     abPopup.selectedIndex = 0;
   }
+
+  const searchBar = document.getElementById("peopleSearchInput");
+  if (location.search == "?focus") {
+    searchBar.focus();
+  }
+  searchBar.addEventListener("autocomplete", () => onEnterInSearchBar());
+  searchBar.addEventListener("search", event => event.preventDefault());
 
   window.controllers.appendController(ResultsPaneController);
   gAbResultsTree = document.getElementById("abResultsTree");

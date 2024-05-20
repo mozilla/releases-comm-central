@@ -59,6 +59,18 @@
   }
 }
 
+#peopleSearchInput {
+  margin: 0 3px;
+
+  & [slot="clear-button"] {
+    content: var(--icon-clear);
+  }
+
+  & [slot="search-button"] {
+    content: var(--icon-search);
+  }
+}
+
 #abResultsTree {
   border-block: 1px solid var(--sidebar-border-color);
 

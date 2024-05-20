@@ -18,8 +18,8 @@
   lightweightthemes="true"
 >
   <head>
+    <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
-    <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link
       rel="stylesheet"
@@ -65,6 +65,10 @@
     <script
       defer="defer"
       src="chrome://messenger/content/addressbook/abContactsPanel.js"
+    ></script>
+    <script
+      type="module"
+      src="chrome://messenger/content/search-bar.mjs"
     ></script>
     <script
       defer="defer"
@@ -185,14 +189,15 @@
       accesskey="&searchContacts.accesskey;"
       control="peopleSearchInput"
     />
-    <search-textbox
+    #include ../../../base/content/widgets/search-bar.inc.xhtml
+    <html:search-bar
       id="peopleSearchInput"
-      class="searchBox"
-      flex="1"
-      timeout="800"
+      label="&SearchNameOrEmail.label;"
       placeholder="&SearchNameOrEmail.label;"
-      oncommand="onEnterInSearchBar();"
-    />
+    >
+      <img slot="clear-button" src="" alt="" />
+      <img slot="search-button" src="" alt="" />
+    </html:search-bar>
 
     <separator class="thin" />
 
