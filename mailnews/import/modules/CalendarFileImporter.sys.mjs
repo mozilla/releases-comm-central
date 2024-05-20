@@ -57,6 +57,23 @@ export class CalendarFileImporter {
       inputStream.close();
     }
 
+    // Sort the items by when they occur and their name, because that's a
+    // logical way to present them to the user.
+    const collator = new Intl.Collator(undefined, { numeric: true });
+    items.sort((a, b) => {
+      const aStartDate =
+        a.startDate?.nativeTime ||
+        a.entryDate?.nativeTime ||
+        a.dueDate?.nativeTime ||
+        Number.MAX_SAFE_INTEGER;
+      const bStartDate =
+        b.startDate?.nativeTime ||
+        b.entryDate?.nativeTime ||
+        b.dueDate?.nativeTime ||
+        Number.MAX_SAFE_INTEGER;
+      return aStartDate - bStartDate || collator.compare(a.title, b.title);
+    });
+
     return items;
   }
 

@@ -358,12 +358,15 @@
         </dl>
         <h2 data-l10n-id="calendar-items-title"></h2>
         <div id="calendarItemsTools">
-          <input type="search"
+          <input id="calendarFilter"
+                 type="search"
                  data-l10n-id="calendar-items-filter-input"
                  oninput="calendarController.onFilterChange(this)"/>
-          <button data-l10n-id="calendar-deselect-all-items"
+          <button id="calendarDeselectAll"
+                  data-l10n-id="calendar-deselect-all-items"
                   onclick="calendarController.selectAllItems(false)"></button>
-          <button data-l10n-id="calendar-select-all-items"
+          <button id="calendarSelectAll"
+                  data-l10n-id="calendar-select-all-items"
                   onclick="calendarController.selectAllItems(true)"></button>
         </div>
         <div id="calendar-item-list"></div>

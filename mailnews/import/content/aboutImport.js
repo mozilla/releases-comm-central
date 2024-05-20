@@ -1020,17 +1020,83 @@ class CalendarImporterController extends ImporterController {
     this._showSources();
   }
 
+  #filterChangeTimeout;
+
+  /**
+   * When filter changes, re-render the item list. This function wraps
+   * #onFilterChange in a timer, to reduce the frequency of list updates.
+   *
+   * @param {HTMLInputElement} filterInput - The filter input.
+   */
+  onFilterChange(filterInput) {
+    clearTimeout(this.#filterChangeTimeout);
+    this.#filterChangeTimeout = setTimeout(() => {
+      this.#onFilterChange(filterInput);
+      this.#filterChangeTimeout = undefined;
+    }, 250);
+  }
+
   /**
    * When filter changes, re-render the item list.
    *
    * @param {HTMLInputElement} filterInput - The filter input.
    */
-  onFilterChange(filterInput) {
-    const term = filterInput.value.toLowerCase();
+  #onFilterChange(filterInput) {
+    let searchString = filterInput.value.trim();
+    if (!searchString) {
+      this._filteredItems = [...this._items];
+      for (const item of this._items) {
+        const element = this._itemElements[item.id];
+        element.hidden = false;
+      }
+      return;
+    }
+
+    searchString = searchString.toLowerCase().normalize();
+
+    // Split the search string into tokens. Quoted strings are preserved.
+    let searchTokens = [];
+    let startIndex;
+    while ((startIndex = searchString.indexOf('"')) != -1) {
+      let endIndex = searchString.indexOf('"', startIndex + 1);
+      if (endIndex == -1) {
+        endIndex = searchString.length;
+      }
+
+      searchTokens.push(searchString.slice(startIndex + 1, endIndex));
+      let query = searchString.slice(0, startIndex);
+      if (endIndex < searchString.length) {
+        query += searchString.slice(endIndex + 1);
+      }
+
+      searchString = query.trim();
+    }
+
+    if (searchString.length != 0) {
+      searchTokens = searchTokens.concat(searchString.split(/\s+/));
+    }
+
     this._filteredItems = [];
+
     for (const item of this._items) {
+      const title = item.title.toLowerCase().normalize();
+      let description;
+      const matches = searchTokens.every(term => {
+        if (title?.includes(term)) {
+          return true;
+        }
+
+        if (description === undefined) {
+          description = item
+            .getProperty("description")
+            ?.toLowerCase()
+            .normalize();
+        }
+        return description?.includes(term);
+      });
+
       const element = this._itemElements[item.id];
-      if (item.title.toLowerCase().includes(term)) {
+      if (matches) {
         element.hidden = false;
         this._filteredItems.push(item);
       } else {
@@ -1124,6 +1190,7 @@ class CalendarImporterController extends ImporterController {
     this.showPane("items");
 
     // Give the UI a chance to render.
+    await document.l10n.translateElements([elItemList]);
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -1135,12 +1202,17 @@ class CalendarImporterController extends ImporterController {
 
     document.getElementById("calendarItemsTools").hidden =
       this._items.length < 2;
-    elItemList.innerHTML = "";
+    delete elItemList.dataset.l10nId;
+    elItemList.replaceChildren();
     this._filteredItems = this._items;
     this._selectedItems = new Set(this._items);
     this._itemElements = {};
 
     for (const item of this._items) {
+      if (!item.id) {
+        item.id = Services.uuid.generateUUID().toString().slice(1, 37);
+      }
+
       const wrapper = document.createElement("div");
       wrapper.className = "calendar-item-wrapper";
       elItemList.appendChild(wrapper);
@@ -1537,5 +1609,8 @@ document.addEventListener("DOMContentLoaded", () => {
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
   startController = new StartController();
-  showTab(location.hash === "#export" ? "tab-export" : "tab-start", true);
+  showTab(
+    location.hash ? location.hash.replace("#", "tab-") : "tab-start",
+    true
+  );
 });
