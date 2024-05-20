@@ -17,8 +17,8 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
  * Takes an |AccountConfig| JS object and creates that account in the
  * Thunderbird backend (which also writes it to prefs).
  *
- * @param {AccountConfig} config - The account to create
- * @returns {nsIMsgAccount} - the newly created account
+ * @param {AccountConfig} config - The account to create.
+ * @returns {nsIMsgAccount} - The newly created account.
  */
 async function createAccountInBackend(config) {
   // incoming server
