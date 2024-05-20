@@ -1161,11 +1161,21 @@ class CalendarImporterController extends ImporterController {
       return;
     }
 
-    this._sourceFile = filePicker.file;
+    this.useFile(filePicker.file);
+  }
+
+  /**
+   * Use `file` as the source of items to be imported. Normally the file comes
+   * from the file picker, but it could be given as command-line argument when
+   * starting Thunderbird.
+   *
+   * @param {nsIFile} file
+   */
+  useFile(file) {
+    this._sourceFile = file;
     this._importer = new CalendarFileImporter();
 
-    document.getElementById("calendarSourcePath").textContent =
-      filePicker.file.path;
+    document.getElementById("calendarSourcePath").textContent = file.path;
 
     this._showItems();
   }
@@ -1563,7 +1573,7 @@ function showTab(tabId, reset = false) {
   document.querySelector("link[rel=icon]").href = isExport
     ? "chrome://messenger/skin/icons/new/compact/export.svg"
     : "chrome://messenger/skin/icons/new/compact/import.svg";
-  location.hash = isExport ? "export" : "";
+  location.hash = tabId.slice(4); // Cut off "tab-".
   for (const tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
@@ -1599,7 +1609,7 @@ function restart() {
 
 let profileController;
 let addrBookController;
-let calendarController;
+var calendarController;
 let exportController;
 let startController;
 

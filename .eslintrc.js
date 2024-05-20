@@ -158,7 +158,6 @@ module.exports = {
         "calendar/base/content/calendar-task-tree-view.js",
         "calendar/base/content/dialogs/calendar-event-dialog-attendees.js",
         "calendar/base/content/dialogs/calendar-event-dialog-recurrence.js",
-        "calendar/base/content/dialogs/calendar-ics-file-dialog.js",
         "calendar/base/content/item-editing/calendar-item-editing.js",
         "calendar/base/content/widgets/calendar-filter.js",
         "calendar/base/content/widgets/calendar-invitation-panel.js",

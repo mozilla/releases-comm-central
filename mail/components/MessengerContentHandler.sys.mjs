@@ -573,15 +573,7 @@ export class MessengerContentHandler {
         // An .ics calendar file! Open the ics file dialog.
         const file = cmdLine.resolveFile(uri);
         if (file.exists() && file.fileSize > 0) {
-          getOrOpen3PaneWindow().then(win =>
-            Services.ww.openWindow(
-              win,
-              "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
-              "_blank",
-              "chrome,titlebar,modal,centerscreen",
-              file
-            )
-          );
+          getOrOpen3PaneWindow().then(win => win.toImport("calendar", file));
         }
       } else if (uri.toLowerCase().endsWith(".vcf")) {
         // A VCard! Be smart and open the "add contact" dialog.

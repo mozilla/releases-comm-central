@@ -507,7 +507,7 @@ function showChatTab() {
  * @param {"start"|"app"|"addressBook"|"calendar"|"export"} [tabId] - The tab
  *  to open in about:import.
  */
-async function toImport(tabId = "start") {
+async function toImport(tabId = "start", sourceFile) {
   const messengerWindow = toMessengerWindow();
 
   if (messengerWindow.document.readyState != "complete") {
@@ -530,7 +530,15 @@ async function toImport(tabId = "start") {
     return;
   }
 
-  messengerWindow.openTab("contentTab", { url: `about:import#${tabId}` });
+  messengerWindow.openTab("contentTab", {
+    url: `about:import#${tabId}`,
+    onLoad(event, browser) {
+      if (tabId == "calendar" && sourceFile) {
+        browser.contentWindow.calendarController.showPane("items");
+        browser.contentWindow.calendarController.useFile(sourceFile);
+      }
+    },
+  });
 }
 
 /**

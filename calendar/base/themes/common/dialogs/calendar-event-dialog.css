@@ -620,8 +620,7 @@ label.label {
   margin-inline: 8px 10px;
 }
 
-#calendar-summary-dialog,
-#calendar-ics-file-dialog {
+#calendar-summary-dialog {
   min-width: 35em;
 }
 
@@ -630,55 +629,46 @@ label.label {
 #calendar-event-summary-dialog .item-location,
 #calendar-event-summary-dialog .item-title,
 #calendar-task-summary-dialog .item-location,
-#calendar-task-summary-dialog .item-title,
-#calendar-ics-file-dialog .item-location,
-#calendar-ics-file-dialog .item-title {
+#calendar-task-summary-dialog .item-title {
   padding-inline-start: 1px;
 }
 
 #calendar-summary-dialog .item-attachment-cell,
 #calendar-event-summary-dialog .item-attachment-cell,
-#calendar-task-summary-dialog .item-attachment-cell,
-#calendar-ics-file-dialog .item-attachment-cell {
+#calendar-task-summary-dialog .item-attachment-cell {
   margin-left: 0px;
 }
 
 #calendar-summary-dialog .item-attachment-cell-label,
 #calendar-event-summary-dialog .item-attachment-cell-label,
-#calendar-task-summary-dialog .item-attachment-cell-label,
-#calendar-ics-file-dialog .item-attachment-cell-label {
+#calendar-task-summary-dialog .item-attachment-cell-label {
   margin-left: 0;
 }
 
 #calendar-summary-dialog .item-description,
 #calendar-event-summary-dialog .item-description,
-#calendar-task-summary-dialog .item-description,
-#calendar-ics-file-dialog .item-description {
+#calendar-task-summary-dialog .item-description {
   border: 1px solid var(--field-border-color);
   margin: 2px 4px 0;
 }
 
 #calendar-summary-dialog .item-description a,
 #calendar-event-summary-dialog .item-description a,
-#calendar-task-summary-dialog .item-description a,
-#calendar-ics-file-dialog .item-description a {
+#calendar-task-summary-dialog .item-description a {
   color: LinkText;
 }
 
 :root[lwt-tree-brighttext] #calendar-summary-dialog .item-description a,
 :root[lwt-tree-brighttext] #calendar-event-summary-dialog .item-description a,
-:root[lwt-tree-brighttext] #calendar-task-summary-dialog .item-description a,
-:root[lwt-tree-brighttext] #calendar-ics-file-dialog .item-description a {
+:root[lwt-tree-brighttext] #calendar-task-summary-dialog .item-description a {
   color: #0aa5ff;
 }
 
 #calendar-summary-dialog #item-start-row .headline,
 #calendar-event-summary-dialog #item-start-row .headline,
 #calendar-task-summary-dialog #item-start-row .headline,
-#calendar-ics-file-dialog #item-start-row .headline,
 #calendar-summary-dialog #item-end-row .headline,
 #calendar-event-summary-dialog #item-end-row .headline,
-#calendar-task-summary-dialog #item-end-row .headline,
-#calendar-ics-file-dialog #item-end-row .headline {
+#calendar-task-summary-dialog #item-end-row .headline {
   font-weight: normal;
 }
