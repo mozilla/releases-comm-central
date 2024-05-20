@@ -97,10 +97,12 @@ body {
 
 .toolbarbutton-1:focus-visible {
   outline: var(--focus-outline);
+  outline-offset: -1px;
 }
 
 #toolbarCreateBook {
   list-style-image: var(--icon-new-address-book);
+  border-radius: var(--button-border-radius);
 }
 
 #toolbarCreateContact {
@@ -295,7 +297,7 @@ body {
   display: none;
 
   :where(.bookRow-container, .listRow-container):hover &,
-  #books:focus-visible :where(.bookRow, .listRow).selected & {
+  #books:focus-visible :where(.bookRow, .listRow).selected > div & {
     display: unset;
   }
 }
@@ -369,6 +371,7 @@ body {
 #displayButton {
   --button-margin: 0;
   background-image: var(--icon-display-options);
+  outline-offset: -1px;
 }
 
 /* Hide list items for sorting in table view. */
@@ -537,6 +540,11 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
     background-color: var(--layout-background-0);
     color: var(--layout-color-0);
     box-shadow: 0 2px 6px -5px #000;
+  }
+
+  & :is(menulist, select),
+  & button:not(.primary) {
+    outline-offset: -1px;
   }
 }
 
@@ -835,6 +843,7 @@ section#selectedCards {
 
 #detailsDeleteButton {
   color: var(--vcard-delete-button-color);
+  outline-color: var(--vcard-delete-button-color);
 
   &:hover {
     background-color: var(--vcard-delete-button-color);

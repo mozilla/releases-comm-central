@@ -22,16 +22,19 @@ vcard-edit input[type="date"],
 vcard-edit .vcard-type-selection,
 vcard-tz select:not([size], [multiple]),
 vcard-special-date select:not([size], [multiple]) {
-  line-height: 1;
-  padding-inline: 6px;
   margin: 0;
   border: var(--input-border-density) solid var(--toolbar-field-border-color);
+  padding-block: 0;
   min-height: initial;
-  height: var(--in-content-button-height);
+  height: calc(var(--in-content-button-height) - 2px);
   color: inherit;
   margin-block-end: 3px;
   margin-inline-end: 3px;
   font-weight: normal;
+
+  &:not(select) {
+    padding-inline: 6px;
+  }
 }
 
 vcard-edit {
@@ -46,15 +49,6 @@ vcard-edit {
   & label[for] {
     margin-block-end: 6px;
     font-weight: 600;
-  }
-
-  & input[type="text"],
-  & input[type="email"],
-  & input[type="url"],
-  & input[type="tel"],
-  & input[type="date"] {
-    /* it should be 2em but input doesn't include the border */
-    height: calc(var(--in-content-button-height) - 2px);
   }
 
   & vcard-impp input[type="text"] {
@@ -74,27 +68,21 @@ vcard-edit {
     padding-inline-end: 0;
   }
 
-  & select:not([size]) {
+  & select:not([size], [multiple]) {
     border-color: var(--in-content-button-border-color);
     -moz-context-properties: stroke;
     stroke: currentColor;
     background-position-x: right 6px;
-    padding-inline-end: 15px;
-  }
+    --logical-padding: 5px;
 
     &:dir(rtl) {
       background-position-x: left 6px;
     }
 
-  & select:not([size], [multiple]) {
-    padding-inline: 6px 22px;
-    padding-block: 0;
-    margin-block-end: 0;
-  }
-
-  & select:user-invalid {
-    outline: 2px solid var(--in-content-border-invalid);
-    outline-offset: -1px;
+    &:user-invalid {
+      outline: 2px solid var(--in-content-border-invalid);
+      outline-offset: -1px;
+    }
   }
 
   & textarea {
@@ -339,7 +327,6 @@ vcard-special-date {
 
   & select:not([size], [multiple]),
   & input[type="number"] {
-    margin-block-end: 0;
     margin-inline: 0;
     background-color: var(--in-content-box-background);
     border-color: var(--toolbar-field-border-color);
