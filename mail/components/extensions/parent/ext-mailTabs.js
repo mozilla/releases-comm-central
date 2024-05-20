@@ -109,8 +109,9 @@ var uiListener = new (class extends EventEmitter {
     const tabmail = browser.ownerGlobal.top.document.getElementById("tabmail");
     const nativeTab = tabmail.tabInfo.find(
       t =>
-        t.chromeBrowser == browser ||
-        t.chromeBrowser == browser.browsingContext.parent.embedderElement
+        t.chromeBrowser &&
+        (t.chromeBrowser == browser ||
+          t.chromeBrowser == browser.browsingContext.parent.embedderElement)
     );
 
     if (nativeTab.mode.name != "mail3PaneTab") {

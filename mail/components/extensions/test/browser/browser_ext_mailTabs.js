@@ -324,6 +324,90 @@ add_task(async function test_displayedFolderChanged() {
   tabmail.currentTabInfo.folder = rootFolder;
 });
 
+add_task(async function test_displayedFolderChangedBehindContentTab() {
+  async function background() {
+    const [accountId] = await window.waitForMessage();
+    const [root] = await browser.folders.query({ accountId, isRoot: true });
+
+    // Put a contentTab before the to be tested mailTab, to check for bug 1897819.
+    const contentTab = await browser.tabs.create({
+      url: "https://example.org/browser/comm/mail/components/extensions/test/browser/data/content.html",
+    });
+    const testTab = await browser.mailTabs.create({
+      displayedFolder: root.id,
+    });
+
+    browser.test.assertEq(accountId, testTab.displayedFolder.accountId);
+    browser.test.assertEq("/", testTab.displayedFolder.path);
+
+    async function selectFolder(newFolderPath) {
+      const changeListener = window.waitForEvent(
+        "mailTabs.onDisplayedFolderChanged"
+      );
+      browser.test.sendMessage("selectFolder", newFolderPath);
+      const [tab, folder] = await changeListener;
+      browser.test.assertEq(testTab.id, tab.id);
+      browser.test.assertEq(accountId, folder.accountId);
+      browser.test.assertEq(newFolderPath, folder.path);
+    }
+    await selectFolder("/test1");
+    await selectFolder("/test2");
+    await selectFolder("/");
+
+    async function selectFolderByUpdate(newFolderPath) {
+      const changeListener = window.waitForEvent(
+        "mailTabs.onDisplayedFolderChanged"
+      );
+      browser.mailTabs.update({
+        displayedFolder: { accountId, path: newFolderPath },
+      });
+      const [tab, folder] = await changeListener;
+      browser.test.assertEq(testTab.id, tab.id);
+      browser.test.assertEq(accountId, folder.accountId);
+      browser.test.assertEq(newFolderPath, folder.path);
+    }
+    await selectFolderByUpdate("/test1");
+    await selectFolderByUpdate("/test2");
+    await selectFolderByUpdate("/");
+    await selectFolderByUpdate("/test1");
+
+    await browser.tabs.remove(contentTab.id);
+    await browser.tabs.remove(testTab.id);
+    await new Promise(resolve => setTimeout(resolve));
+    browser.test.notifyPass("mailTabs");
+  }
+
+  const folderMap = new Map([
+    ["/", rootFolder],
+    ["/test1", subFolders.test1],
+    ["/test2", subFolders.test2],
+  ]);
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("selectFolder", async newFolderPath => {
+    tabmail.currentTabInfo.folder = folderMap.get(newFolderPath);
+    await new Promise(resolve => executeSoon(resolve));
+  });
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.currentTabInfo.folder = rootFolder;
+});
+
 add_task(async function test_selectedMessagesChanged() {
   async function background() {
     function checkMessageList(expectedId, expectedCount, actual) {
