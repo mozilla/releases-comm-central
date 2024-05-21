@@ -44,8 +44,8 @@ add_task(async function () {
   const resetButton = searchWindow.document.getElementById("reset-button");
   const searchTermList = searchWindow.document.getElementById("searchTermList");
   const resultsTree = searchWindow.document.getElementById("abResultsTree");
-  const nameColumn = resultsTree.columns.GeneratedName;
-  const bookColumn = resultsTree.columns.Addrbook;
+  const nameColumn = searchWindow.document.getElementById("GeneratedName");
+  const bookColumn = searchWindow.document.getElementById("addrbook");
   const propertiesButton = searchWindow.document.querySelector(
     `button[command="cmd_properties"]`
   );
@@ -74,7 +74,7 @@ add_task(async function () {
     );
     for (let i = 0; i < expectedCards.length; i++) {
       Assert.equal(
-        resultsTree.view.getCellText(i, nameColumn),
+        resultsTree.view.getCellText(i, "GeneratedName"),
         expectedCards[i].displayName
       );
     }
@@ -85,20 +85,18 @@ add_task(async function () {
         "status text should show the number of cards"
       );
     } else {
-      Assert.equal(statusText.value, "", "status text should be cleared");
+      Assert.equal(
+        statusText.value,
+        "No matches found",
+        "status text should show there are no results"
+      );
     }
   }
 
   // Check the initial state of the window.
 
-  Assert.equal(
-    abMenulist.value,
-    "moz-abdirectory://?",
-    "'All Address Books' should be initially selected"
-  );
-  checkSearchResults([], "no results should be initially displayed");
-  Assert.equal(resultsTree.view.sortColumn, undefined);
-  Assert.equal(resultsTree.view.sortDirection, undefined);
+  Assert.equal(abMenulist.value, "moz-abdirectory://?");
+  Assert.ok(!resultsTree.view);
 
   // Search with no defined criteria. This should find everybody.
 
@@ -115,7 +113,7 @@ add_task(async function () {
 
   // Test sorting the results.
 
-  EventUtils.synthesizeMouseAtCenter(bookColumn.element, {}, searchWindow);
+  EventUtils.synthesizeMouseAtCenter(bookColumn, {}, searchWindow);
   checkSearchResults([
     cards.danielle,
     cards.katherine,
@@ -125,7 +123,7 @@ add_task(async function () {
     cards.jonathan,
     cards.nathan,
   ]);
-  EventUtils.synthesizeMouseAtCenter(bookColumn.element, {}, searchWindow);
+  EventUtils.synthesizeMouseAtCenter(bookColumn, {}, searchWindow);
   checkSearchResults([
     cards.daniel,
     cards.jonathan,
@@ -135,7 +133,7 @@ add_task(async function () {
     cards.natalie,
     cards.susanah,
   ]);
-  EventUtils.synthesizeMouseAtCenter(nameColumn.element, {}, searchWindow);
+  EventUtils.synthesizeMouseAtCenter(nameColumn, {}, searchWindow);
   checkSearchResults([
     cards.daniel,
     cards.danielle,
@@ -150,7 +148,7 @@ add_task(async function () {
   // logic here, just prove it works in general.
 
   EventUtils.synthesizeMouseAtCenter(resetButton, {}, searchWindow);
-  checkSearchResults([]);
+  Assert.ok(!resultsTree.view);
 
   const searchTerm0 = searchTermList.getItemAtIndex(0);
   const input0 = searchTerm0.querySelector("search-value input");
@@ -189,24 +187,21 @@ add_task(async function () {
   ]);
 
   function clickOnRow(row, event = {}) {
-    mailTestUtils.treeClick(
-      EventUtils,
-      searchWindow,
-      resultsTree,
-      row,
-      "GeneratedName",
-      event
+    EventUtils.synthesizeMouseAtCenter(
+      resultsTree.getRowAtIndex(row),
+      event,
+      searchWindow
     );
   }
 
   // Check the action buttons are enabled/disabled correctly.
 
-  resultsTree.view.selection.selectAll();
+  resultsTree.selectAll();
   Assert.ok(propertiesButton.disabled, "properties button should be disabled");
   Assert.ok(!composeButton.disabled, "compose button should not be disabled");
   Assert.ok(!deleteButton.disabled, "delete button should not be disabled");
 
-  resultsTree.view.selection.clearSelection();
+  resultsTree.selectedIndices = [];
   Assert.ok(propertiesButton.disabled, "properties button should be disabled");
   Assert.ok(composeButton.disabled, "compose button should be disabled");
   Assert.ok(deleteButton.disabled, "delete button should be disabled");

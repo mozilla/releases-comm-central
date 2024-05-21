@@ -24,11 +24,3 @@
     margin-inline-end: 0;
   }
 }
-
-:root:not([lwt-tree]) #abResultsTree {
-  border-block: 1px solid var(--sidebar-border-color);
-}
-
-#GeneratedName {
-  padding-inline-start: 28px;
-}

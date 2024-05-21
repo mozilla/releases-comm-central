@@ -12,16 +12,21 @@ var dragService =
     ? Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService)
     : null;
 
-add_task(async function () {
+var book1, book2;
+
+add_setup(async function () {
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  );
   const account = MailServices.accounts.createLocalMailAccount();
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  const book1 = createAddressBook("Book 1");
+  book1 = createAddressBook("Book 1");
   book1.addCard(createContact("daniel", "test"));
   book1.addCard(createContact("jonathan", "test"));
   book1.addCard(createContact("năthån", "test"));
 
-  const book2 = createAddressBook("Book 2");
+  book2 = createAddressBook("Book 2");
   book2.addCard(createContact("danielle", "test"));
   book2.addCard(createContact("katherine", "test"));
   book2.addCard(createContact("natalie", "test"));
@@ -34,8 +39,16 @@ add_task(async function () {
     MailServices.accounts.removeAccount(account, true);
     await promiseDirectoryRemoved(book1.URI);
     await promiseDirectoryRemoved(book2.URI);
+    Services.xulStore.removeDocument(
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+    );
   });
+});
 
+/**
+ * Check all of the things in the sidebar.
+ */
+add_task(async function testSidebar() {
   // Open a compose window.
 
   const params = Cc[
@@ -50,7 +63,8 @@ add_task(async function () {
   const composeWindow = await composeWindowPromise;
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
   await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == composeWindow
+    () => Services.focus.activeWindow == composeWindow,
+    "waiting for compose window to be active"
   );
   const composeDocument = composeWindow.document;
   const toAddrInput = composeDocument.getElementById("toAddrInput");
@@ -60,6 +74,8 @@ add_task(async function () {
   const bccAddrInput = composeDocument.getElementById("bccAddrInput");
   const bccAddrRow = composeDocument.getElementById("addressRowBcc");
 
+  // We need some more space for the sidebar.
+  composeWindow.resizeBy(200, 0);
   // The compose window waits before deciding whether to open the sidebar.
   // We must wait longer.
   await new Promise(resolve => composeWindow.setTimeout(resolve, 100));
@@ -70,11 +86,14 @@ add_task(async function () {
   if (BrowserTestUtils.isHidden(sidebar)) {
     EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
   }
+  // We need a bigger sidebar.
+  composeDocument.getElementById("contactsSplitter").width = 300;
   const sidebarBrowser = composeDocument.getElementById("contactsBrowser");
   await TestUtils.waitForCondition(
     () =>
       sidebarBrowser.currentURI.spec.includes("abContactsPanel.xhtml") &&
-      sidebarBrowser.contentDocument.readyState == "complete"
+      sidebarBrowser.contentDocument.readyState == "complete",
+    "waiting for sidebar to be fully loaded"
   );
   const sidebarWindow = sidebarBrowser.contentWindow;
   const sidebarDocument = sidebarBrowser.contentDocument;
@@ -87,7 +106,10 @@ add_task(async function () {
   const ccButton = sidebarDocument.getElementById("ccButton");
   const bccButton = sidebarDocument.getElementById("bccButton");
 
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 0);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 0,
+    "waiting for cards list to load"
+  );
   checkListNames(
     [
       "daniel test",
@@ -108,27 +130,18 @@ add_task(async function () {
   Assert.ok(bccButton.disabled, "bcc button disabled with no contact selected");
 
   function clickOnRow(row, event) {
-    mailTestUtils.treeClick(
-      EventUtils,
-      sidebarWindow,
-      cardsList,
-      row,
-      0,
-      event
+    EventUtils.synthesizeMouseAtCenter(
+      cardsList.getRowAtIndex(row),
+      event,
+      sidebarWindow
     );
   }
 
-  async function doMenulist(value) {
-    const shownPromise = BrowserTestUtils.waitForEvent(abList, "popupshown");
+  async function changeDirectory(value) {
     EventUtils.synthesizeMouseAtCenter(abList, {}, sidebarWindow);
-    await shownPromise;
-    const hiddenPromise = BrowserTestUtils.waitForEvent(abList, "popuphidden");
-    EventUtils.synthesizeMouseAtCenter(
-      abList.querySelector(`[value="${value}"]`),
-      {},
-      sidebarWindow
-    );
-    await hiddenPromise;
+    await BrowserTestUtils.waitForPopupEvent(abList, "shown");
+    abList.menupopup.activateItem(abList.querySelector(`[value="${value}"]`));
+    await BrowserTestUtils.waitForPopupEvent(abList, "hidden");
   }
 
   async function doContextMenu(row, command) {
@@ -149,12 +162,71 @@ add_task(async function () {
     await hiddenPromise;
   }
 
+  async function checkListColumns(expectedColumns, addrbookItemDisabled) {
+    const picker = cardsList.querySelector("th:last-child");
+    const pickerButton = picker.querySelector("button");
+    const pickerPopup = picker.querySelector("menupopup");
+
+    for (const header of cardsList.querySelectorAll("th[id]")) {
+      Assert.equal(
+        BrowserTestUtils.isVisible(header),
+        expectedColumns.includes(header.id),
+        `${header.id}column visibility`
+      );
+    }
+
+    EventUtils.synthesizeMouseAtCenter(pickerButton, {}, sidebarWindow);
+    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+    for (const menuitem of pickerPopup.querySelectorAll("menuitem[value]")) {
+      Assert.equal(
+        menuitem.getAttribute("checked") === "true",
+        expectedColumns.includes(menuitem.value),
+        `${menuitem.value} checked state`
+      );
+    }
+    Assert.equal(
+      pickerPopup.querySelector(`menuitem[value="addrbook"]`).disabled,
+      addrbookItemDisabled
+    );
+    pickerPopup.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+  }
+
+  async function toggleListColumn(columnID) {
+    const picker = cardsList.querySelector("th:last-child");
+    const pickerButton = picker.querySelector("button");
+    const pickerPopup = picker.querySelector("menupopup");
+
+    EventUtils.synthesizeMouseAtCenter(pickerButton, {}, sidebarWindow);
+    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "shown");
+
+    const pickerItem = pickerPopup.querySelector(
+      `menuitem[value="${columnID}"]`
+    );
+    const visible = pickerItem.getAttribute("checked") === "true";
+    pickerPopup.activateItem(pickerItem);
+    pickerPopup.hidePopup();
+    await BrowserTestUtils.waitForPopupEvent(pickerPopup, "hidden");
+
+    if (visible) {
+      await TestUtils.waitForCondition(
+        () =>
+          BrowserTestUtils.isHidden(cardsList.querySelector(`th#${columnID}`)),
+        `waiting for ${columnID} to be hidden`
+      );
+    } else {
+      await TestUtils.waitForCondition(
+        () =>
+          BrowserTestUtils.isVisible(cardsList.querySelector(`th#${columnID}`)),
+        `waiting for ${columnID} to be shown`
+      );
+    }
+  }
+
   function checkListNames(expectedNames, message) {
     const actualNames = [];
     for (let row = 0; row < cardsList.view.rowCount; row++) {
-      actualNames.push(
-        cardsList.view.getCellText(row, cardsList.columns.GeneratedName)
-      );
+      actualNames.push(cardsList.view.getCellText(row, "GeneratedName"));
     }
 
     Assert.deepEqual(actualNames, expectedNames, message);
@@ -244,7 +316,8 @@ add_task(async function () {
       await inABEditingMode();
       composeWindow.focus();
       await TestUtils.waitForCondition(
-        () => Services.focus.activeWindow == composeWindow
+        () => Services.focus.activeWindow == composeWindow,
+        "waiting for compose window to be active"
       );
     } else {
       cardsContext.activateItem(
@@ -261,28 +334,27 @@ add_task(async function () {
 
   // Check that the address book picker works.
 
-  await doMenulist(book1.URI);
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 0);
+  await changeDirectory(book1.URI);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 0,
+    "waiting for list row count to change"
+  );
+  await checkListColumns(["GeneratedName"], true);
   checkListNames(
     ["daniel test", "jonathan test", "năthån test"],
     "book1 contacts are shown"
   );
+  await toggleListColumn("EmailAddresses");
 
-  await doMenulist(book2.URI);
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 3);
-  checkListNames(
-    [
-      "danielle test",
-      "katherine test",
-      "natalie test",
-      "pèóplë named tēst",
-      "sūsãnáh test",
-    ],
-    "book2 contacts are shown"
+  await changeDirectory("moz-abdirectory://?");
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 3,
+    "waiting for list row count to change"
   );
-
-  await doMenulist("moz-abdirectory://?");
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 5);
+  await checkListColumns(
+    ["GeneratedName", "EmailAddresses", "addrbook"],
+    false
+  );
   checkListNames(
     [
       "daniel test",
@@ -297,13 +369,59 @@ add_task(async function () {
     "all contacts are shown"
   );
 
+  await changeDirectory(book2.URI);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 7,
+    "waiting for list row count to change"
+  );
+  await checkListColumns(["GeneratedName", "EmailAddresses"], true);
+  checkListNames(
+    [
+      "danielle test",
+      "katherine test",
+      "natalie test",
+      "pèóplë named tēst",
+      "sūsãnáh test",
+    ],
+    "book2 contacts are shown"
+  );
+
+  await changeDirectory("moz-abdirectory://?");
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 5,
+    "waiting for list row count to change"
+  );
+  await checkListColumns(
+    ["GeneratedName", "EmailAddresses", "addrbook"],
+    false
+  );
+  await toggleListColumn("EmailAddresses");
+  await toggleListColumn("addrbook");
+
+  await changeDirectory(book1.URI);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 7,
+    "waiting for list row count to change"
+  );
+  await checkListColumns(["GeneratedName"], true);
+
+  await changeDirectory("moz-abdirectory://?");
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 3,
+    "waiting for list row count to change"
+  );
+  await checkListColumns(["GeneratedName"], false);
+
   // Check that the search works.
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, sidebarWindow);
 
   EventUtils.synthesizeKey("a", { accelKey: true }, sidebarWindow);
   EventUtils.sendString("dan", sidebarWindow);
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 8);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 8,
+    "waiting for list row count to change"
+  );
   checkListNames(
     ["daniel test", "danielle test"],
     "matching contacts are shown"
@@ -311,11 +429,17 @@ add_task(async function () {
 
   EventUtils.synthesizeKey("a", { accelKey: true }, sidebarWindow);
   EventUtils.sendString("kat", sidebarWindow);
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 2);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 2,
+    "waiting for list row count to change"
+  );
   checkListNames(["katherine test"], "matching contacts are shown");
 
   EventUtils.synthesizeKey("KEY_Escape", { accelKey: true }, sidebarWindow);
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 1);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 1,
+    "waiting for list row count to change"
+  );
   checkListNames(
     [
       "daniel test",
@@ -359,7 +483,7 @@ add_task(async function () {
       Ci.nsIDragService.DRAGDROP_ACTION_NONE
     );
     const [result, dataTransfer] = EventUtils.synthesizeDragOver(
-      cardsList,
+      cardsList.getRowAtIndex(5),
       toAddrInput,
       null,
       null,
@@ -423,7 +547,10 @@ add_task(async function () {
   doContextMenu(0, "cmd_delete");
   await promptPromise;
   await deletedPromise;
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 8);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 8,
+    "waiting for list row count to change"
+  );
   checkListNames(
     [
       "danielle test",
@@ -448,7 +575,10 @@ add_task(async function () {
   EventUtils.synthesizeKey("KEY_Delete", {}, sidebarWindow);
   await promptPromise;
   await deletedPromise;
-  await TestUtils.waitForCondition(() => cardsList.view.rowCount != 7);
+  await TestUtils.waitForCondition(
+    () => cardsList.view.rowCount != 7,
+    "waiting for list row count to change"
+  );
   checkListNames(
     [
       "jonathan test",
@@ -463,14 +593,81 @@ add_task(async function () {
 
   // TODO sidebar context menu
 
-  // Close the compose window and clean up.
-
-  EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
-  await TestUtils.waitForCondition(() => BrowserTestUtils.isHidden(sidebar));
+  // Close the compose window and clean up. Leave the sidebar open.
 
   promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   const closePromise = BrowserTestUtils.windowClosed(composeWindow);
   composeWindow.goDoCommand("cmd_close");
   await promptPromise;
+  await closePromise;
+});
+
+/**
+ * Open a new composition window and check that the sidebar is automatically
+ * opened and the state of the address book column is remembered.
+ */
+add_task(async function testReopenedSidebar() {
+  // Open a compose window.
+
+  const params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+
+  const composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  const composeWindow = await composeWindowPromise;
+  await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
+  await TestUtils.waitForCondition(
+    () => Services.focus.activeWindow == composeWindow,
+    "waiting for compose window to be active"
+  );
+  const composeDocument = composeWindow.document;
+
+  // We need some more space for the sidebar.
+  composeWindow.resizeBy(200, 0);
+  // The compose window waits before deciding whether to open the sidebar.
+  // We must wait longer.
+  await new Promise(resolve => composeWindow.setTimeout(resolve, 100));
+
+  // Make sure the contacts sidebar is open.
+
+  const sidebar = composeDocument.getElementById("contactsSidebar");
+  Assert.ok(BrowserTestUtils.isVisible(sidebar));
+  const sidebarBrowser = composeDocument.getElementById("contactsBrowser");
+  await TestUtils.waitForCondition(
+    () =>
+      sidebarBrowser.currentURI.spec.includes("abContactsPanel.xhtml") &&
+      sidebarBrowser.contentDocument.readyState == "complete",
+    "waiting for sidebar to be fully loaded"
+  );
+  const sidebarDocument = sidebarBrowser.contentDocument;
+  const cardsList = sidebarDocument.getElementById("abResultsTree");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(cardsList.querySelector("th#GeneratedName")),
+    "GeneratedName column visibility"
+  );
+  Assert.ok(
+    !BrowserTestUtils.isVisible(cardsList.querySelector("th#EmailAddresses")),
+    "EmailAddresses column visibility"
+  );
+  Assert.ok(
+    !BrowserTestUtils.isVisible(cardsList.querySelector("th#addrbook")),
+    "addrbook column visibility"
+  );
+
+  // Close the compose window and clean up.
+
+  EventUtils.synthesizeKey("KEY_F9", {}, composeWindow);
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isHidden(sidebar),
+    "waiting for sidebar to be hidden"
+  );
+
+  const closePromise = BrowserTestUtils.windowClosed(composeWindow);
+  composeWindow.goDoCommand("cmd_close");
   await closePromise;
 });

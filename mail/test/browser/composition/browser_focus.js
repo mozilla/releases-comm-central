@@ -68,6 +68,9 @@ async function checkFocusCycling(win, options) {
     EventUtils.synthesizeKey("VK_F9", {}, win);
     contactsInput = await TestUtils.waitForCondition(() => {
       contactDoc = doc.getElementById("contactsBrowser").contentDocument;
+      if (contactDoc.readyState != "complete") {
+        return false;
+      }
       return contactDoc.getElementById("peopleSearchInput");
     }, "Waiting for the contacts pane to load");
   }
@@ -99,6 +102,7 @@ async function checkFocusCycling(win, options) {
 
   // Move the initial focus back to the To input.
   toInput.focus();
+  Assert.ok(toInput.matches(":focus"), "forward to 'to' row");
 
   if (options.notifications) {
     // Exceed the recipient threshold.
@@ -506,6 +510,9 @@ add_task(async function test_jump_focus() {
               otherHeader: "X-Header1",
             };
             info(`Test run: ${JSON.stringify(options)}`);
+            Services.xulStore.removeDocument(
+              "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+            );
             const win = await open_compose_new_mail();
             await checkFocusCycling(win, options);
             await close_compose_window(win);

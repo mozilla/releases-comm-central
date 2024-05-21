@@ -24,12 +24,23 @@
     <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
     <link
       rel="stylesheet"
+      href="chrome://messenger/skin/addressbook/abResultsPane.css"
+    />
+    <link
+      rel="stylesheet"
       href="chrome://messenger/skin/addressbook/abContactsPanel.css"
     />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/tree-listbox.css"
+    />
+
     <link
       rel="localization"
       href="messenger/addressbook/aboutAddressBook.ftl"
     />
+    <link rel="localization" href="messenger/treeView.ftl" />
+
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -56,15 +67,15 @@
     ></script>
     <script
       defer="defer"
-      src="chrome://messenger/content/jsTreeView.js"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://messenger/content/addressbook/abView.js"
-    ></script>
-    <script
-      defer="defer"
       src="chrome://messenger/content/addressbook/abContactsPanel.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/pane-splitter.js"
+    ></script>
+    <script
+      type="module"
+      src="chrome://messenger/content/auto-tree-view.mjs"
     ></script>
   </head>
   <html:body
@@ -148,118 +159,79 @@
       />
     </menupopup>
 
-    <vbox id="results_box" flex="1">
-      <separator class="thin" />
-      <hbox id="AbPickerHeader" class="themeable-full">
-        <label
-          value="&addressbookPicker.label;"
-          accesskey="&addressbookPicker.accesskey;"
-          control="addressbookList"
-        />
-        <spacer flex="1" />
-        <button
-          id="abContextMenuButton"
-          tooltiptext="&abContextMenuButton.tooltip;"
-          oncommand="abContextMenuButtonOnCommand(event);"
-        />
-      </hbox>
-      <hbox id="panel-bar" class="themeable-full" align="center">
-        <menulist
-          is="menulist-addrbooks"
-          id="addressbookList"
-          alladdressbooks="true"
-          oncommand="AddressBookMenuListChange(this.value);"
-          flex="1"
-        />
-      </hbox>
+    <hbox id="AbPickerHeader" class="themeable-full">
+      <label
+        value="&addressbookPicker.label;"
+        accesskey="&addressbookPicker.accesskey;"
+        control="addressbookList"
+      />
+      <spacer flex="1" />
+      <button
+        id="abContextMenuButton"
+        tooltiptext="&abContextMenuButton.tooltip;"
+        oncommand="abContextMenuButtonOnCommand(event);"
+      />
+    </hbox>
+    <hbox id="panel-bar" class="themeable-full" align="center">
+      <menulist
+        is="menulist-addrbooks"
+        id="addressbookList"
+        alladdressbooks="true"
+        oncommand="AddressBookMenuListChange(this.value);"
+        flex="1"
+      />
+    </hbox>
 
-      <separator class="thin" />
+    <separator class="thin" />
 
+    <vbox>
+      <label
+        value="&searchContacts.label;"
+        accesskey="&searchContacts.accesskey;"
+        control="peopleSearchInput"
+      />
+      <search-textbox
+        id="peopleSearchInput"
+        class="searchBox"
+        flex="1"
+        timeout="800"
+        placeholder="&SearchNameOrEmail.label;"
+        oncommand="onEnterInSearchBar();"
+      />
+    </vbox>
+
+    <separator class="thin" />
+
+    <html:auto-tree-view
+      id="abResultsTree"
+      contextSelection="cardProperties"
+      contextNoSelection="sidebarAbContextMenu"
+    >
+    </html:auto-tree-view>
+
+    <separator class="thin" />
+
+    <hbox pack="center">
       <vbox>
-        <label
-          value="&searchContacts.label;"
-          accesskey="&searchContacts.accesskey;"
-          control="peopleSearchInput"
+        <button
+          id="toButton"
+          label="&toButton.label;"
+          accesskey="&toButton.accesskey;"
+          command="cmd_addrTo"
         />
-        <search-textbox
-          id="peopleSearchInput"
-          class="searchBox"
-          flex="1"
-          timeout="800"
-          placeholder="&SearchNameOrEmail.label;"
-          oncommand="onEnterInSearchBar();"
+        <button
+          id="ccButton"
+          label="&ccButton.label;"
+          accesskey="&ccButton.accesskey;"
+          command="cmd_addrCc"
+        />
+        <button
+          id="bccButton"
+          label="&bccButton.label;"
+          accesskey="&bccButton.accesskey;"
+          command="cmd_addrBcc"
         />
       </vbox>
-
-      <separator class="thin" />
-
-      <tree
-        id="abResultsTree"
-        flex="1"
-        class="plain"
-        sortCol="GeneratedName"
-        persist="sortCol"
-        contextSelection="cardProperties"
-        contextNoSelection="sidebarAbContextMenu"
-        oncontextmenu="contactsListOnContextMenu(event);"
-        onclick="contactsListOnClick(event);"
-        onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
-      >
-        <treecols>
-          <!-- these column ids must match up to the mork column names, see nsIAddrDatabase.idl -->
-          <treecol
-            id="GeneratedName"
-            persist="hidden ordinal width sortDirection"
-            style="flex: 1 auto"
-            label="&GeneratedName.label;"
-            primary="true"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="addrbook"
-            persist="hidden ordinal width sortDirection"
-            hidden="true"
-            style="flex: 1 auto"
-            label="&Addrbook.label;"
-          />
-          <splitter class="tree-splitter" />
-          <treecol
-            id="PrimaryEmail"
-            persist="hidden ordinal width sortDirection"
-            hidden="true"
-            style="flex: 1 auto"
-            label="&PrimaryEmail.label;"
-          />
-        </treecols>
-        <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);" />
-      </tree>
-
-      <separator class="thin" />
-
-      <hbox pack="center">
-        <vbox>
-          <button
-            id="toButton"
-            label="&toButton.label;"
-            accesskey="&toButton.accesskey;"
-            command="cmd_addrTo"
-          />
-          <button
-            id="ccButton"
-            label="&ccButton.label;"
-            accesskey="&ccButton.accesskey;"
-            command="cmd_addrCc"
-          />
-          <button
-            id="bccButton"
-            label="&bccButton.label;"
-            accesskey="&bccButton.accesskey;"
-            command="cmd_addrBcc"
-          />
-        </vbox>
-      </hbox>
-
-      <separator class="thin" />
-    </vbox>
+    </hbox>
   </html:body>
 </html>

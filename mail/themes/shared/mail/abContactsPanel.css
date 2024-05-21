@@ -70,24 +70,9 @@
 }
 
 #abResultsTree {
-  border-inline-end: none !important;
-}
+  border-block: 1px solid var(--sidebar-border-color);
 
-/* Hide the twisty gap. */
-treechildren::-moz-tree-twisty {
-  width: 0;
-  padding-inline: 2px;
-}
-
-treechildren::-moz-tree-image(GeneratedName) {
-  margin-inline-end: 2px;
-  list-style-image: var(--icon-contact);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  opacity: 0.85;
-}
-
-treechildren::-moz-tree-image(GeneratedName, MailList) {
-  list-style-image: var(--icon-user-list);
+  & .tree-table {
+    width: 100%;
+  }
 }

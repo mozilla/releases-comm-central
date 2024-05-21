@@ -17,6 +17,11 @@ var { MailServices } = ChromeUtils.importESModule(
 var { PluralForm } = ChromeUtils.importESModule(
   "resource:///modules/PluralForm.sys.mjs"
 );
+var { UIDensity } = ChromeUtils.importESModule(
+  "resource:///modules/UIDensity.sys.mjs"
+);
+
+UIDensity.registerWindow(window);
 
 window.addEventListener("load", searchOnLoad);
 window.addEventListener("unload", searchOnUnload);
@@ -89,6 +94,97 @@ function searchOnLoad() {
       document.getElementById("abPopup-menupopup").firstElementChild.value
     );
   }
+
+  gAbResultsTree = document.getElementById("abResultsTree");
+  gAbResultsTree.setAttribute("rows", "auto-tree-view-table-row");
+  gAbResultsTree.defaultColumns = [
+    {
+      id: "GeneratedName",
+      l10n: {
+        header: "about-addressbook-column-header-generatedname2",
+        menuitem: "about-addressbook-column-label-generatedname2",
+        cell: "about-addressbook-cell-generatedname2",
+      },
+      picker: false,
+    },
+    {
+      id: "EmailAddresses",
+      l10n: {
+        header: "about-addressbook-column-header-emailaddresses2",
+        menuitem: "about-addressbook-column-label-emailaddresses2",
+        cell: "about-addressbook-cell-emailaddresses2",
+      },
+    },
+    {
+      id: "NickName",
+      l10n: {
+        header: "about-addressbook-column-header-nickname2",
+        menuitem: "about-addressbook-column-label-nickname2",
+        cell: "about-addressbook-cell-nickname2",
+      },
+      hidden: true,
+    },
+    {
+      id: "PhoneNumbers",
+      l10n: {
+        header: "about-addressbook-column-header-phonenumbers2",
+        menuitem: "about-addressbook-column-label-phonenumbers2",
+        cell: "about-addressbook-cell-phonenumbers2",
+      },
+    },
+    {
+      id: "Addresses",
+      l10n: {
+        header: "about-addressbook-column-header-addresses2",
+        menuitem: "about-addressbook-column-label-addresses2",
+        cell: "about-addressbook-cell-addresses2",
+      },
+    },
+    {
+      id: "Title",
+      l10n: {
+        header: "about-addressbook-column-header-title2",
+        menuitem: "about-addressbook-column-label-title2",
+        cell: "about-addressbook-cell-title2",
+      },
+      hidden: true,
+    },
+    {
+      id: "Department",
+      l10n: {
+        header: "about-addressbook-column-header-department2",
+        menuitem: "about-addressbook-column-label-department2",
+        cell: "about-addressbook-cell-department2",
+      },
+      hidden: true,
+    },
+    {
+      id: "Organization",
+      l10n: {
+        header: "about-addressbook-column-header-organization2",
+        menuitem: "about-addressbook-column-label-organization2",
+        cell: "about-addressbook-cell-organization2",
+      },
+      hidden: true,
+    },
+    {
+      id: "addrbook",
+      l10n: {
+        header: "about-addressbook-column-header-addrbook2",
+        menuitem: "about-addressbook-column-label-addrbook2",
+        cell: "about-addressbook-cell-addrbook2",
+      },
+    },
+  ];
+  gAbResultsTree.addEventListener("rowcountchange", () =>
+    gSearchAbViewListener.onCountChanged(gAbResultsTree.view.rowCount)
+  );
+  gAbResultsTree.addEventListener("select", () =>
+    gSearchAbViewListener.onSelectionChanged()
+  );
+  gAbResultsTree.addEventListener("viewchange", () =>
+    gSearchAbViewListener.onCountChanged(gAbResultsTree.view?.rowCount)
+  );
 
   onMore(null);
 }
@@ -352,10 +448,6 @@ function onSearchButton(event) {
   }
 }
 
-function GetAbViewListener() {
-  return gSearchAbViewListener;
-}
-
 function onProperties() {
   if (!gPropertiesCmd.hasAttribute("disabled")) {
     window.opener.toAddressBook(["cmd_displayContact", GetSelectedCard()]);
@@ -383,10 +475,6 @@ function AbResultsPaneKeyPress(event) {
     case KeyEvent.DOM_VK_BACK_SPACE:
       onDelete();
   }
-}
-
-function AbResultsPaneDoubleClick() {
-  // Kept for abResultsPane.js.
 }
 
 function UpdateCardView() {
