@@ -8,7 +8,7 @@ const { AppConstants } = ChromeUtils.importESModule(
 const { XULStoreUtils } = ChromeUtils.importESModule(
   "resource:///modules/XULStoreUtils.sys.mjs"
 );
-import { TreeSelection } from "chrome://messenger/content/tree-selection.mjs";
+import { TreeSelection } from "chrome://messenger/content/TreeSelection.mjs";
 
 // Account for the mac OS accelerator key variation.
 // Use these strings to check keyboard event properties.
@@ -119,7 +119,7 @@ export class TreeView extends HTMLElement {
   /**
    * The current view.
    *
-   * @type {nsITreeView}
+   * @type {nsITreeView|TreeDataAdapter}
    */
   _view = null;
 
@@ -597,7 +597,7 @@ export class TreeView extends HTMLElement {
   /**
    * The current view for this list.
    *
-   * @type {nsITreeView}
+   * @type {nsITreeView|TreeDataAdapter}
    */
   get view() {
     return this._view;
@@ -2636,10 +2636,10 @@ customElements.define(
 );
 
 /**
- * A more powerful list designed to be used with a view (nsITreeView or
- * whatever replaces it in time) and be scalable to a very large number of
- * items if necessary. Multiple selections are possible and changes in the
- * connected view are cause updates to the list (provided `rowCountChanged`/
+ * A powerful list designed to be used with a view (nsITreeView or
+ * TreeDataAdapter) and be scalable to a very large number of items if
+ * necessary. Multiple selections are possible and changes in the connected
+ * view are cause updates to the list (provided `rowCountChanged`/
  * `invalidate` are called as appropriate).
  *
  * Rows are provided by a custom element that inherits from

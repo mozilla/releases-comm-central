@@ -16,7 +16,7 @@ const { CalRecurrenceRule } = ChromeUtils.importESModule(
 );
 
 const { TreeSelection } = ChromeUtils.importESModule(
-  "chrome://messenger/content/tree-selection.mjs"
+  "chrome://messenger/content/TreeSelection.mjs"
 );
 
 Services.scriptloader.loadSubScript("chrome://messenger/content/jsTreeView.js");

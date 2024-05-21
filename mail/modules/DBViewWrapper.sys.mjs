@@ -9,7 +9,7 @@ import {
   MailViewManager,
 } from "resource:///modules/MailViewManager.sys.mjs";
 import { SearchSpec } from "resource:///modules/SearchSpec.sys.mjs";
-import { ThreadPaneColumns } from "chrome://messenger/content/thread-pane-columns.mjs";
+import { ThreadPaneColumns } from "chrome://messenger/content/ThreadPaneColumns.mjs";
 import { FolderUtils } from "resource:///modules/FolderUtils.sys.mjs";
 
 import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";

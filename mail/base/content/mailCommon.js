@@ -28,7 +28,7 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
-  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
+  TreeSelection: "chrome://messenger/content/TreeSelection.mjs",
   VirtualFolderHelper: "resource:///modules/VirtualFolderWrapper.sys.mjs",
 });
 

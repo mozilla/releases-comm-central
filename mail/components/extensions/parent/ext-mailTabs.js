@@ -19,7 +19,7 @@ var { getFolder } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 var { ThreadPaneColumns } = ChromeUtils.importESModule(
-  "chrome://messenger/content/thread-pane-columns.mjs"
+  "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
 
 XPCOMUtils.defineLazyPreferenceGetter(

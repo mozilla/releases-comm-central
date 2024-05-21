@@ -138,7 +138,7 @@ class AutoTreeView extends TreeView {
    * The current view for this list. Setting a view causes it to be sorted,
    * if there is information in the xulStore about sorting.
    *
-   * @type {nsITreeView}
+   * @type {TreeDataAdapter}
    */
   get view() {
     return super.view;
@@ -432,7 +432,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
         continue;
       }
 
-      const text = this.view.getCellText(index, { id: column.id });
+      const text = this.view.getCellText(index, column.id);
       cell.textContent = text;
       if (column.l10n.cell) {
         document.l10n.setAttributes(cell, column.l10n.cell, { title: text });

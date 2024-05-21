@@ -50,7 +50,6 @@
   <script type="module" src="chrome://messenger/content/thread-row.mjs"></script>
   <script type="module" src="chrome://messenger/content/folder-tree-row.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
-  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommon.js"></script>
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
@@ -192,7 +191,7 @@
       </xul:menu>
     </template>
     <template id="threadPaneRowTemplate">
-      <!-- This template must be kept in sync with thread-pane-columns.mjs. -->
+      <!-- This template must be kept in sync with ThreadPaneColumns.mjs. -->
       <td class="selectcol-column" data-column-name="selectcol"></td>
       <td class="tree-view-row-thread threadcol-column button-column" data-column-name="threadcol">
         <button type="button"

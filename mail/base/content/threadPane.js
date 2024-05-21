@@ -11,8 +11,8 @@
 /* exported ThreadPaneKeyDown ThreadPaneOnDragStart UpdateSortIndicators */
 
 ChromeUtils.defineESModuleGetters(this, {
-  ThreadPaneColumns: "chrome://messenger/content/thread-pane-columns.mjs",
-  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
+  ThreadPaneColumns: "chrome://messenger/content/ThreadPaneColumns.mjs",
+  TreeSelection: "chrome://messenger/content/TreeSelection.mjs",
 });
 
 /**

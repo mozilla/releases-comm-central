@@ -95,6 +95,11 @@ messenger.jar:
     content/messenger/viewSource.js                 (content/viewSource.js)
 *   content/messenger/viewSource.xhtml              (content/viewSource.xhtml)
     content/messenger/viewZoomOverlay.js            (content/viewZoomOverlay.js)
+
+    content/messenger/ThreadPaneColumns.mjs         (content/modules/ThreadPaneColumns.mjs)
+    content/messenger/TreeDataAdapter.mjs           (content/modules/TreeDataAdapter.mjs)
+    content/messenger/TreeSelection.mjs             (content/modules/TreeSelection.mjs)
+
     content/messenger/auto-tree-view.mjs            (content/widgets/auto-tree-view.mjs)
     content/messenger/browserPopups.js              (content/widgets/browserPopups.js)
     content/messenger/customizable-toolbar.js       (content/widgets/customizable-toolbar.js)
@@ -103,6 +108,9 @@ messenger.jar:
     content/messenger/gloda-autocomplete-input.js   (content/widgets/gloda-autocomplete-input.js)
     content/messenger/glodaFacet.js                 (content/widgets/glodaFacet.js)
     content/messenger/header-fields.js              (content/widgets/header-fields.js)
+    content/messenger/orderable-tree-listbox.mjs    (content/widgets/listbox/orderable-tree-listbox.mjs)
+    content/messenger/tree-listbox-mixin.mjs        (content/widgets/listbox/tree-listbox-mixin.mjs)
+    content/messenger/tree-listbox.mjs              (content/widgets/listbox/tree-listbox.mjs)
     content/messenger/mailWidgets.js                (content/widgets/mailWidgets.js)
     content/messenger/pane-splitter.js              (content/widgets/pane-splitter.js)
     content/messenger/search-bar.mjs                (content/widgets/search-bar.mjs)
@@ -110,14 +118,9 @@ messenger.jar:
     content/messenger/tabmail-tab.js                (content/widgets/tabmail-tab.js)
     content/messenger/tabmail-tabs.js               (content/widgets/tabmail-tabs.js)
     content/messenger/toolbarbutton-menu-button.js  (content/widgets/toolbarbutton-menu-button.js)
-    content/messenger/orderable-tree-listbox.mjs    (content/widgets/listbox/orderable-tree-listbox.mjs)
-    content/messenger/tree-listbox-mixin.mjs        (content/widgets/listbox/tree-listbox-mixin.mjs)
-    content/messenger/tree-listbox.mjs              (content/widgets/listbox/tree-listbox.mjs)
+    content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
     content/messenger/thread-card.mjs               (content/widgets/treeview/thread-card.mjs)
     content/messenger/thread-row.mjs                (content/widgets/treeview/thread-row.mjs)
-    content/messenger/tree-selection.mjs            (content/widgets/tree-selection.mjs)
-    content/messenger/tree-view.mjs                 (content/widgets/tree-view.mjs)
-    content/messenger/thread-pane-columns.mjs       (content/modules/thread-pane-columns.mjs)
 
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/toolkit/content/license.html)

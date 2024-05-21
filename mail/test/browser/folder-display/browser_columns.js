@@ -39,7 +39,7 @@ var { GlodaSyntheticView } = ChromeUtils.importESModule(
 );
 
 var { ThreadPaneColumns } = ChromeUtils.importESModule(
-  "chrome://messenger/content/thread-pane-columns.mjs"
+  "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
 
 var folderInbox, folderSent, folderVirtual, folderA, folderB;

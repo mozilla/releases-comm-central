@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals PROTO_TREE_VIEW */
+import {
+  TreeDataAdapter,
+  TreeDataRow,
+} from "chrome://messenger/content/TreeDataAdapter.mjs";
+// eslint-disable-next-line import/no-unassigned-import
+import "chrome://messenger/content/tree-view.mjs";
 
-import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
-
-class TestCardRow extends TreeViewTableRow {
+class TestCardRow extends customElements.get("tree-view-table-row") {
   static ROW_HEIGHT = 30;
 
   static COLUMNS = [
@@ -46,72 +49,44 @@ class TestCardRow extends TreeViewTableRow {
     this.id = this.view.getRowProperties(index);
     this.classList.remove("level0", "level1", "level2");
     this.classList.add(`level${this.view.getLevel(index)}`);
-    this.d2.textContent = this.view.getCellText(index, { id: "text" });
+    this.d2.textContent = this.view.getCellText(index, "text");
   }
 }
 customElements.define("test-row", TestCardRow, { extends: "tr" });
 
-class TreeItem {
-  _children = [];
-
-  constructor(id, text, isOpen = false, level = 0) {
-    this._id = id;
-    this._text = text;
-    this._open = isOpen;
-    this._level = level;
-  }
-
-  getText() {
-    return this._text;
-  }
-
-  get open() {
-    return this._open;
-  }
-
-  get level() {
-    return this._level;
-  }
-
-  get children() {
-    return this._children;
+class TreeItem extends TreeDataRow {
+  constructor(id, text) {
+    super({ text });
+    this.id = id;
   }
 
   getProperties() {
-    return this._id;
-  }
-
-  addChild(treeItem) {
-    treeItem._parent = this;
-    treeItem._level = this._level + 1;
-    this.children.push(treeItem);
+    return this.id;
   }
 }
 
-window.addEventListener("load", () => {
-  const testView = new PROTO_TREE_VIEW();
-  testView._rowMap.push(new TreeItem("row-1", "Item with no children"));
-  testView._rowMap.push(new TreeItem("row-2", "Item with children"));
-  testView._rowMap.push(new TreeItem("row-3", "Item with grandchildren"));
-  testView._rowMap[1].addChild(new TreeItem("row-2-1", "First child"));
-  testView._rowMap[1].addChild(new TreeItem("row-2-2", "Second child"));
-  testView._rowMap[2].addChild(new TreeItem("row-3-1", "First child"));
-  testView._rowMap[2].children[0].addChild(
-    new TreeItem("row-3-1-1", "First grandchild")
-  );
-  testView._rowMap[2].children[0].addChild(
-    new TreeItem("row-3-1-2", "Second grandchild")
-  );
-  testView.toggleOpenState(1);
-  testView.toggleOpenState(4);
-  testView.toggleOpenState(5);
+const testView = new TreeDataAdapter();
+testView._rowMap.push(new TreeItem("row-1", "Item with no children"));
+testView._rowMap.push(new TreeItem("row-2", "Item with children"));
+testView._rowMap.push(new TreeItem("row-3", "Item with grandchildren"));
+testView._rowMap[1].appendRow(new TreeItem("row-2-1", "First child"));
+testView._rowMap[1].appendRow(new TreeItem("row-2-2", "Second child"));
+testView._rowMap[2].appendRow(new TreeItem("row-3-1", "First child"));
+testView._rowMap[2].children[0].appendRow(
+  new TreeItem("row-3-1-1", "First grandchild")
+);
+testView._rowMap[2].children[0].appendRow(
+  new TreeItem("row-3-1-2", "Second grandchild")
+);
+testView.toggleOpenState(1);
+testView.toggleOpenState(4);
+testView.toggleOpenState(5);
 
-  const tree = document.getElementById("testTree");
-  tree.table.setBodyID("testBody");
-  tree.setAttribute("rows", "test-row");
-  tree.table.setColumns(TestCardRow.COLUMNS);
-  tree.addEventListener("select", () => {
-    console.log("select event, selected indices:", tree.selectedIndices);
-  });
-  tree.view = testView;
+const tree = document.getElementById("testTree");
+tree.table.setBodyID("testBody");
+tree.setAttribute("rows", "test-row");
+tree.table.setColumns(TestCardRow.COLUMNS);
+tree.addEventListener("select", () => {
+  console.log("select event, selected indices:", tree.selectedIndices);
 });
+tree.view = testView;

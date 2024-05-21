@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { TreeSelection } = ChromeUtils.importESModule(
-  "chrome://messenger/content/tree-selection.mjs"
+  "chrome://messenger/content/TreeSelection.mjs"
 );
 
 var fakeView = {

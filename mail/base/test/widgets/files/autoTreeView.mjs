@@ -1,6 +1,11 @@
-/* globals PROTO_TREE_VIEW */
+import {
+  TreeDataAdapter,
+  TreeDataRow,
+} from "chrome://messenger/content/TreeDataAdapter.mjs";
+// eslint-disable-next-line import/no-unassigned-import
+import "chrome://messenger/content/auto-tree-view.mjs";
 
-class AutoTreeView extends PROTO_TREE_VIEW {
+class AutoTreeView extends TreeDataAdapter {
   collator = new Intl.Collator(undefined, { numeric: true });
   data = [
     {
@@ -58,10 +63,10 @@ class AutoTreeView extends PROTO_TREE_VIEW {
     super();
     for (let i = 0; i < this.data.length; i++) {
       this._rowMap.push(
-        new AutoTreeRow(
-          i,
+        new TreeDataRow(
           this.data[i],
-          this.data[i].continent == "antarctica" ? "uninhabited" : undefined
+          undefined,
+          this.data[i].continent == "antarctica" ? "uninhabited" : ""
         )
       );
     }
@@ -125,29 +130,6 @@ class AutoTreeView extends PROTO_TREE_VIEW {
   }
 }
 
-class AutoTreeRow {
-  constructor(id, cells, properties = "") {
-    this.id = id;
-    this.cells = cells;
-    this.properties = properties;
-  }
-  getText(columnID) {
-    return this.cells[columnID];
-  }
-  get open() {
-    return false;
-  }
-  get level() {
-    return 0;
-  }
-  get children() {
-    return [];
-  }
-  getProperties() {
-    return this.properties;
-  }
-}
-
 L10nRegistry.getInstance().registerSources([
   L10nFileSource.createMock("mock", "app", ["en-US"], "/localization/", [
     {
@@ -188,43 +170,41 @@ dwarf-menuitem =
 ]);
 document.l10n.addResourceIds(["mock.ftl"]);
 
-import("chrome://messenger/content/auto-tree-view.mjs").then(function () {
-  const tree = document.querySelector("auto-tree-view");
-  tree.setAttribute("rows", "auto-tree-view-table-row");
-  tree.defaultColumns = [
-    {
-      id: "colour",
-      l10n: {
-        header: "colour-header",
-        menuitem: "colour-menuitem",
-        cell: "colour-cell",
-      },
-      width: 150,
-      picker: false,
+const tree = document.querySelector("auto-tree-view");
+tree.setAttribute("rows", "auto-tree-view-table-row");
+tree.defaultColumns = [
+  {
+    id: "colour",
+    l10n: {
+      header: "colour-header",
+      menuitem: "colour-menuitem",
+      cell: "colour-cell",
     },
-    {
-      id: "continent",
-      l10n: {
-        header: "continent-header",
-        menuitem: "continent-menuitem",
-        cell: "continent-cell",
-      },
+    width: 150,
+    picker: false,
+  },
+  {
+    id: "continent",
+    l10n: {
+      header: "continent-header",
+      menuitem: "continent-menuitem",
+      cell: "continent-cell",
     },
-    {
-      id: "sin",
-      l10n: { header: "sin-header", menuitem: "sin-menuitem" },
-      hidden: true,
-    },
-    {
-      id: "wonder",
-      l10n: { header: "wonder-header", menuitem: "wonder-menuitem" },
-      hidden: true,
-    },
-    {
-      id: "dwarf",
-      l10n: { header: "dwarf-header", menuitem: "dwarf-menuitem" },
-      hidden: true,
-    },
-  ];
-  tree.view = new AutoTreeView();
-});
+  },
+  {
+    id: "sin",
+    l10n: { header: "sin-header", menuitem: "sin-menuitem" },
+    hidden: true,
+  },
+  {
+    id: "wonder",
+    l10n: { header: "wonder-header", menuitem: "wonder-menuitem" },
+    hidden: true,
+  },
+  {
+    id: "dwarf",
+    l10n: { header: "dwarf-header", menuitem: "dwarf-menuitem" },
+    hidden: true,
+  },
+];
+tree.view = new AutoTreeView();

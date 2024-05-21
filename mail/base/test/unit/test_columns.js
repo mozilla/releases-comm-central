@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { ThreadPaneColumns } = ChromeUtils.importESModule(
-  "chrome://messenger/content/thread-pane-columns.mjs"
+  "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
 
 add_task(function testGetters() {

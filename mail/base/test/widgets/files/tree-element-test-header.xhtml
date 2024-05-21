@@ -16,9 +16,9 @@
       --selected-item-text-color: white;
     }
 
-    /* We want a total visible row area of 630px, but we need to account for the
-     * height of the header as well. */
-    .tree-view-scrollable-container {
+    #testTree {
+      /* We want a total visible row area of 630px, but we need to account for the
+       * height of the header as well. */
       height: calc(var(--tree-header-table-height) + 630px);
       scroll-behavior: unset;
     }
@@ -42,9 +42,7 @@
       font-size: 13px;
     }
   </style>
-  <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
-  <script src="tree-element-test-header.js"></script>
-  <script src="tree-element-test-common.js"></script>
+  <script type="module" src="tree-element-test-header.mjs"></script>
 </head>
 <body>
   <input id="before" placeholder="something to focus on" />

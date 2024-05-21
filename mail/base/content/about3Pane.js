@@ -58,7 +58,7 @@ const messengerBundle = Services.strings.createBundle(
 );
 
 const { ThreadPaneColumns } = ChromeUtils.importESModule(
-  "chrome://messenger/content/thread-pane-columns.mjs"
+  "chrome://messenger/content/ThreadPaneColumns.mjs"
 );
 
 // As defined in nsMsgDBView.h.
