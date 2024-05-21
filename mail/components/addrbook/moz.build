@@ -15,3 +15,13 @@ BROWSER_CHROME_MANIFESTS += [
 XPCSHELL_TESTS_MANIFESTS += [
     "test/xpcshell/xpcshell.toml",
 ]
+
+output_dir = (
+    OBJDIR_FILES._tests.testing.mochitest.browser.comm.mail.components.addrbook.test.browser.data
+)
+GeneratedFile(
+    "test/browser/data/import.sqlite",
+    script="test/create_sqlite.py",
+    inputs=["test/browser/data/import.sql"],
+)
+output_dir += ["!test/browser/data/import.sqlite"]

@@ -1,0 +1,19 @@
+dn: cn=list
+objectclass: top
+objectclass: groupOfNames
+cn: list
+mozillanickname: nick name
+description: a list of cards
+member: cn=contact number one,mail=contact1@invalid
+
+dn: cn=contact number one,mail=contact1@invalid
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: contact
+sn: one
+cn: contact number one
+mail: contact1@invalid
+modifytimestamp: 12345

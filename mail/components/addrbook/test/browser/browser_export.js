@@ -60,6 +60,7 @@ add_setup(async function () {
   registerCleanupFunction(async function () {
     await closeAddressBookWindow();
     await promiseDirectoryRemoved(book.URI);
+    MockFilePicker.cleanup();
   });
 });
 

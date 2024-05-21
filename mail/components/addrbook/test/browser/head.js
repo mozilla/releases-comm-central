@@ -71,7 +71,7 @@ async function waitForCardsListReady(list) {
     return;
   }
   const eventName = "_treerowbufferfillAbListReady";
-  list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+  list._rowBufferReadyEvent = new CustomEvent(eventName);
   await BrowserTestUtils.waitForEvent(list, eventName);
 }
 

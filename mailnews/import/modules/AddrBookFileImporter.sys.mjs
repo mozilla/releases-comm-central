@@ -26,7 +26,7 @@ ChromeUtils.defineLazyGetter(lazy, "d3", () => {
 export class AddrBookFileImporter {
   /**
    * @param {string} type - Source file type, currently supporting "csv",
-   *   "ldif", "vcard" and "mab".
+   *   "ldif", "vcard", "sqlite" and "mab".
    */
   constructor(type) {
     this._type = type;
@@ -310,7 +310,9 @@ export class AddrBookFileImporter {
       tmpDirectory.init(uri);
 
       for (const card of tmpDirectory.childCards) {
-        this._targetDirectory.addCard(card);
+        if (!card.isMailList) {
+          this._targetDirectory.addCard(card);
+        }
       }
       this.onProgress(8, 10);
 
@@ -327,6 +329,9 @@ export class AddrBookFileImporter {
       }
       this.onProgress(10, 10);
     } finally {
+      // Release the copied directory, since AddrBookManager is *actually*
+      // hanging on to the *first* `tmpDirectory`.
+      await tmpDirectory.cleanUp();
       MailServices.ab.deleteAddressBook(tmpDirectory.URI);
     }
   }
