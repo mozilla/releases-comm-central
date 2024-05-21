@@ -12,6 +12,7 @@
 
   /* SM - 16x16px icons */
   --icon-dot-sm: url("chrome://messenger/skin/icons/sm/dot.svg");
+  --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
 
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");

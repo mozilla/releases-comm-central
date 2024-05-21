@@ -154,7 +154,7 @@
   }
 
   & .compact .button-icon {
-    content: var(--icon-compress);
+    content: var(--icon-folder-compact-sm);
   }
 
   & .add-as-event .button-icon {

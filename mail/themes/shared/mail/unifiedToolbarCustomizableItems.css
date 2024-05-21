@@ -92,7 +92,7 @@
   }
 
   .compact & {
-    content: var(--icon-compress);
+    content: var(--icon-folder-compact-sm);
   }
 
   .add-as-event & {
