@@ -277,7 +277,7 @@ async function checkNamesListed(...expectedNames) {
 
   for (let i = 0; i < expectedCount; i++) {
     Assert.equal(
-      cardsList.view.getCellText(i, { id: "GeneratedName" }),
+      cardsList.view.getCellText(i, "GeneratedName"),
       expectedNames[i],
       "view should give the correct name"
     );

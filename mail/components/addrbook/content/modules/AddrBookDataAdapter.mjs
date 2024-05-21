@@ -2,56 +2,53 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals PROTO_TREE_VIEW */
-
-var { MailServices } = ChromeUtils.importESModule(
+const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+import {
+  TreeDataAdapter,
+  TreeDataRow,
+} from "chrome://messenger/content/TreeDataAdapter.mjs";
 
-function ABView(
-  directory,
-  searchQuery,
-  searchString,
-  sortColumn,
-  sortDirection
-) {
-  this.__proto__.__proto__ = new PROTO_TREE_VIEW();
-  this.directory = directory;
-  this.searchString = searchString;
-
-  const directories = directory ? [directory] : MailServices.ab.directories;
-  if (searchQuery) {
-    this._searchesInProgress = directories.length;
-    searchQuery = searchQuery.replace(/^\?+/, "");
-    for (const dir of directories) {
-      dir.search(searchQuery, searchString, this);
-    }
-  } else {
-    for (const dir of directories) {
-      for (const card of dir.childCards) {
-        this._rowMap.push(new abViewCard(card, dir));
-      }
-    }
-  }
-  this.sortBy(sortColumn, sortDirection);
-}
-ABView.nameFormat = Services.prefs.getIntPref(
-  "mail.addr_book.lastnamefirst",
-  0
-);
-ABView.NOT_SEARCHING = 0;
-ABView.SEARCHING = 1;
-ABView.SEARCH_COMPLETE = 2;
-ABView.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    "nsITreeView",
+export class AddrBookDataAdapter extends TreeDataAdapter {
+  QueryInterface = ChromeUtils.generateQI([
     "nsIAbDirSearchListener",
     "nsIObserver",
     "nsISupportsWeakReference",
-  ]),
+  ]);
 
-  directory: null,
-  _notifications: [
+  static nameFormat = Services.prefs.getIntPref(
+    "mail.addr_book.lastnamefirst",
+    0
+  );
+  static NOT_SEARCHING = 0;
+  static SEARCHING = 1;
+  static SEARCH_COMPLETE = 2;
+
+  constructor(directory, searchQuery, searchString, sortColumn, sortDirection) {
+    super();
+    this.directory = directory;
+    this.searchString = searchString;
+
+    const directories = directory ? [directory] : MailServices.ab.directories;
+    if (searchQuery) {
+      this._searchesInProgress = directories.length;
+      searchQuery = searchQuery.replace(/^\?+/, "");
+      for (const dir of directories) {
+        dir.search(searchQuery, searchString, this);
+      }
+    } else {
+      for (const dir of directories) {
+        for (const card of dir.childCards) {
+          this._rowMap.push(new AddrBookDataRow(card, dir));
+        }
+      }
+    }
+    this.sortBy(sortColumn, sortDirection);
+  }
+
+  directory = null;
+  #notifications = [
     "addrbook-directory-deleted",
     "addrbook-directory-invalidated",
     "addrbook-contact-created",
@@ -62,11 +59,7 @@ ABView.prototype = {
     "addrbook-list-deleted",
     "addrbook-list-member-added",
     "addrbook-list-member-removed",
-  ],
-
-  sortColumn: "",
-  sortDirection: "",
-  collator: new Intl.Collator(undefined, { numeric: true }),
+  ];
 
   deleteSelectedCards() {
     const directoryMap = new Map();
@@ -91,86 +84,37 @@ ABView.prototype = {
 
       cardSet = [...cardSet];
       directory.deleteCards(cardSet.filter(card => !card.isMailList));
-      for (const card of cardSet.filter(card => card.isMailList)) {
-        MailServices.ab.deleteAddressBook(card.mailListURI);
+      for (const card of cardSet) {
+        if (card.isMailList) {
+          MailServices.ab.deleteAddressBook(card.mailListURI);
+        }
       }
     }
-  },
+  }
   getCardFromRow(row) {
     return this._rowMap[row] ? this._rowMap[row].card : null;
-  },
+  }
   getDirectoryFromRow(row) {
     return this._rowMap[row] ? this._rowMap[row].directory : null;
-  },
+  }
   getIndexForUID(uid) {
-    return this._rowMap.findIndex(row => row.id == uid);
-  },
-  sortBy(sortColumn, sortDirection, resort) {
-    let selectionExists = false;
-    if (this._tree) {
-      const { selectedIndices, currentIndex } = this._tree;
-      selectionExists = selectedIndices.length;
-      // Remember what was selected.
-      for (let i = 0; i < this._rowMap.length; i++) {
-        this._rowMap[i].wasSelected = selectedIndices.includes(i);
-        this._rowMap[i].wasCurrent = currentIndex == i;
-      }
-    }
-
-    // Do the sort.
-    if (
-      sortColumn == this.sortColumn &&
-      sortDirection == this.sortDirection &&
-      !resort
-    ) {
-      return;
-    }
-    this._rowMap.sort((a, b) => {
-      const aText = a.getText(sortColumn);
-      const bText = b.getText(sortColumn);
-      if (sortDirection == "descending") {
-        return this.collator.compare(bText, aText);
-      }
-      return this.collator.compare(aText, bText);
-    });
-
-    // Restore what was selected.
-    if (this._tree) {
-      this._tree.reset();
-      if (selectionExists) {
-        for (let i = 0; i < this._rowMap.length; i++) {
-          this._tree.toggleSelectionAtIndex(
-            i,
-            this._rowMap[i].wasSelected,
-            true
-          );
-        }
-        // Can't do this until updating the selection is finished.
-        for (let i = 0; i < this._rowMap.length; i++) {
-          if (this._rowMap[i].wasCurrent) {
-            this._tree.currentIndex = i;
-            break;
-          }
-        }
-        this.selectionChanged();
-      }
-    }
-    this.sortColumn = sortColumn;
-    this.sortDirection = sortDirection;
-  },
+    return this._rowMap.findIndex(row => row.card.UID == uid);
+  }
   get searchState() {
     if (this._searchesInProgress === undefined) {
-      return ABView.NOT_SEARCHING;
+      return AddrBookDataAdapter.NOT_SEARCHING;
     }
-    return this._searchesInProgress ? ABView.SEARCHING : ABView.SEARCH_COMPLETE;
-  },
+    return this._searchesInProgress
+      ? AddrBookDataAdapter.SEARCHING
+      : AddrBookDataAdapter.SEARCH_COMPLETE;
+  }
 
   // nsITreeView
 
-  selectionChanged() {},
   setTree(tree) {
-    this._tree = tree;
-    for (const topic of this._notifications) {
+    super.setTree(tree);
+
+    for (const topic of this.#notifications) {
       if (tree) {
         Services.obs.addObserver(this, topic, true);
       } else {
@@ -182,15 +126,15 @@ ABView.prototype = {
       }
     }
     Services.prefs.addObserver("mail.addr_book.lastnamefirst", this, true);
-  },
+  }
 
   // nsIAbDirSearchListener
 
   onSearchFoundCard(card) {
     // Instead of duplicating the insertion code below, just call it.
     this.observe(card, "addrbook-contact-created", this.directory?.UID);
-  },
-  onSearchFinished(status, complete, secInfo, location) {
+  }
+  onSearchFinished(resultStatus, complete, secInfo, requestLocation) {
     // Special handling for Bad Cert errors.
     let offerCertException = false;
     try {
@@ -198,7 +142,7 @@ ABView.prototype = {
       const nssErrorsService = Cc[
         "@mozilla.org/nss_errors_service;1"
       ].getService(Ci.nsINSSErrorsService);
-      const errorClass = nssErrorsService.getErrorClass(status);
+      const errorClass = nssErrorsService.getErrorClass(resultStatus);
       if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
         offerCertException = true;
       }
@@ -210,7 +154,7 @@ ABView.prototype = {
         exceptionAdded: false,
         securityInfo: secInfo,
         prefetchCert: true,
-        location,
+        location: requestLocation,
       };
       window.browsingContext.topChromeWindow.openDialog(
         "chrome://pippki/content/exceptionDialog.xhtml",
@@ -225,45 +169,24 @@ ABView.prototype = {
     if (!this._searchesInProgress && this._tree) {
       this._tree.dispatchEvent(new CustomEvent("searchstatechange"));
     }
-  },
+  }
 
   // nsIObserver
 
   observe(subject, topic, data) {
     if (topic == "nsPref:changed") {
-      ABView.nameFormat = Services.prefs.getIntPref(
-        "mail.addr_book.lastnamefirst",
-        0
-      );
+      if (data != "mail.addr_book.lastnamefirst") {
+        return;
+      }
+      AddrBookDataAdapter.nameFormat = Services.prefs.getIntPref(data, 0);
       for (const card of this._rowMap) {
-        delete card._getTextCache.GeneratedName;
+        card.forgetCachedName();
       }
       if (this._tree) {
         if (this.sortColumn == "GeneratedName") {
           this.sortBy(this.sortColumn, this.sortDirection, true);
         } else {
-          // Remember what was selected.
-          const { selectedIndices, currentIndex } = this._tree;
-          for (let i = 0; i < this._rowMap.length; i++) {
-            this._rowMap[i].wasSelected = selectedIndices.includes(i);
-            this._rowMap[i].wasCurrent = currentIndex == i;
-          }
-
           this._tree.reset();
-          for (let i = 0; i < this._rowMap.length; i++) {
-            this._tree.toggleSelectionAtIndex(
-              i,
-              this._rowMap[i].wasSelected,
-              true
-            );
-          }
-          // Can't do this until updating the selection is finished.
-          for (let i = 0; i < this._rowMap.length; i++) {
-            if (this._rowMap[i].wasCurrent) {
-              this._tree.currentIndex = i;
-              break;
-            }
-          }
         }
       }
       return;
@@ -301,7 +224,7 @@ ABView.prototype = {
         if (subject == this.directory) {
           this._rowMap.length = 0;
           for (const card of this.directory.childCards) {
-            this._rowMap.push(new abViewCard(card, this.directory));
+            this._rowMap.push(new AddrBookDataRow(card, this.directory));
           }
           this.sortBy(this.sortColumn, this.sortDirection, true);
         }
@@ -325,11 +248,11 @@ ABView.prototype = {
         }
 
         subject.QueryInterface(Ci.nsIAbCard);
-        const viewCard = new abViewCard(subject);
+        const viewCard = new AddrBookDataRow(subject);
         const sortText = viewCard.getText(this.sortColumn);
         let addIndex = null;
         for (let i = 0; addIndex === null && i < this._rowMap.length; i++) {
-          const comparison = this.collator.compare(
+          const comparison = TreeDataAdapter.collator.compare(
             sortText,
             this._rowMap[i].getText(this.sortColumn)
           );
@@ -372,7 +295,7 @@ ABView.prototype = {
             this._rowMap[i].card.equals(subject) &&
             this._rowMap[i].card.directoryUID == subject.directoryUID
           ) {
-            this._rowMap.splice(i, 1, new abViewCard(subject));
+            this._rowMap.splice(i, 1, new AddrBookDataRow(subject));
             needsSort = true;
           }
         }
@@ -423,33 +346,40 @@ ABView.prototype = {
         break;
       }
     }
-  },
-};
+  }
+}
 
 /**
- * Representation of a card, used as a table row in ABView.
+ * Representation of a card, used as a table row in AddrBookDataAdapter.
  *
  * @param {nsIAbCard} card - contact or mailing list card for this row.
  * @param {nsIAbDirectory} [directoryHint] - the directory containing card,
  *     if available (this is a performance optimization only).
  */
-function abViewCard(card, directoryHint) {
-  this.card = card;
-  this._getTextCache = {};
-  if (directoryHint) {
-    this._directory = directoryHint;
-  } else {
-    this._directory = MailServices.ab.getDirectoryFromUID(
-      this.card.directoryUID
-    );
+class AddrBookDataRow extends TreeDataRow {
+  static listFormatter = new Services.intl.ListFormat(
+    Services.appinfo.name == "xpcshell" ? "en-US" : undefined,
+    { type: "unit" }
+  );
+
+  #getTextCache = {};
+  card = null;
+  directory = null;
+
+  constructor(card, directoryHint) {
+    super();
+    this.card = card;
+    if (directoryHint) {
+      this.directory = directoryHint;
+    } else {
+      this.directory = MailServices.ab.getDirectoryFromUID(
+        this.card.directoryUID
+      );
+    }
+    this.properties = this.card.isMailList ? "mailing-list" : "";
   }
-}
-abViewCard.listFormatter = new Services.intl.ListFormat(
-  Services.appinfo.name == "xpcshell" ? "en-US" : undefined,
-  { type: "unit" }
-);
-abViewCard.prototype = {
-  _getText(columnID) {
+
+  #getText(columnID) {
     try {
       const { getProperty, supportsVCard, vCardProperties } = this.card;
 
@@ -469,15 +399,15 @@ abViewCard.prototype = {
 
       switch (columnID) {
         case "addrbook":
-          return this._directory.dirName;
+          return this.directory.dirName;
         case "GeneratedName":
-          return this.card.generateName(ABView.nameFormat);
+          return this.card.generateName(AddrBookDataAdapter.nameFormat);
         case "EmailAddresses":
-          return abViewCard.listFormatter.format(this.card.emailAddresses);
+          return AddrBookDataRow.listFormatter.format(this.card.emailAddresses);
         case "PhoneNumbers": {
           let phoneNumbers;
           if (supportsVCard) {
-            phoneNumbers = vCardProperties.getAllValues("tel");
+            phoneNumbers = vCardProperties.getAllValuesSorted("tel");
           } else {
             phoneNumbers = [
               getProperty("WorkPhone", ""),
@@ -487,21 +417,25 @@ abViewCard.prototype = {
               getProperty("PagerNumber", ""),
             ];
           }
-          return abViewCard.listFormatter.format(phoneNumbers.filter(Boolean));
+          return AddrBookDataRow.listFormatter.format(
+            phoneNumbers.filter(Boolean)
+          );
         }
         case "Addresses": {
           let addresses;
           if (supportsVCard) {
             addresses = vCardProperties
-              .getAllValues("adr")
-              .map(v => v.join(" ").trim());
+              .getAllValuesSorted("adr")
+              .map(v => v.filter(Boolean).join(" ").trim());
           } else {
             addresses = [
-              this.formatAddress("Work"),
-              this.formatAddress("Home"),
+              this.#formatAddress("Work"),
+              this.#formatAddress("Home"),
             ];
           }
-          return abViewCard.listFormatter.format(addresses.filter(Boolean));
+          return AddrBookDataRow.listFormatter.format(
+            addresses.filter(Boolean)
+          );
         }
         case "JobTitle":
         case "Title":
@@ -534,31 +468,16 @@ abViewCard.prototype = {
     } catch (ex) {
       return "";
     }
-  },
+  }
   getText(columnID) {
-    if (!(columnID in this._getTextCache)) {
-      this._getTextCache[columnID] = this._getText(columnID)?.trim() ?? "";
+    if (!Object.hasOwn(this.#getTextCache, columnID)) {
+      this.#getTextCache[columnID] = this.#getText(columnID)?.trim() ?? "";
     }
-    return this._getTextCache[columnID];
-  },
-  get id() {
-    return this.card.UID;
-  },
-  get open() {
-    return false;
-  },
-  get level() {
-    return 0;
-  },
-  get children() {
-    return [];
-  },
-  getProperties() {
-    return "";
-  },
-  get directory() {
-    return this._directory;
-  },
+    return this.#getTextCache[columnID];
+  }
+  forgetCachedName() {
+    delete this.#getTextCache.GeneratedName;
+  }
 
   /**
    * Creates a string representation of an address from card properties.
@@ -566,12 +485,12 @@ abViewCard.prototype = {
    * @param {"Work"|"Home"} prefix
    * @returns {string}
    */
-  formatAddress(prefix) {
+  #formatAddress(prefix) {
     return Array.from(
       ["Address", "Address2", "City", "State", "ZipCode", "Country"],
       field => this.card.getProperty(`${prefix}${field}`, "")
     )
       .join(" ")
       .trim();
-  },
-};
+  }
+}

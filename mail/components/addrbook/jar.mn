@@ -4,19 +4,18 @@
 
 messenger.jar:
     content/messenger/addressbook/abCommon.js                   (content/abCommon.js)
-    content/messenger/addressbook/abMailListDialog.xhtml        (content/abMailListDialog.xhtml)
     content/messenger/addressbook/abContactsPanel.xhtml         (content/abContactsPanel.xhtml)
     content/messenger/addressbook/abContactsPanel.js            (content/abContactsPanel.js)
-*   content/messenger/addressbook/abSearchDialog.xhtml          (content/abSearchDialog.xhtml)
-    content/messenger/addressbook/abSearchDialog.js             (content/abSearchDialog.js)
-    content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)
-
+    content/messenger/addressbook/abMailListDialog.xhtml        (content/abMailListDialog.xhtml)
     content/messenger/addressbook/aboutAddressBook.js           (content/aboutAddressBook.js)
 *   content/messenger/addressbook/aboutAddressBook.xhtml        (content/aboutAddressBook.xhtml)
     content/messenger/addressbook/aboutAddressBookCommands.mjs  (content/aboutAddressBookCommands.mjs)
+*   content/messenger/addressbook/abSearchDialog.xhtml          (content/abSearchDialog.xhtml)
+    content/messenger/addressbook/abSearchDialog.js             (content/abSearchDialog.js)
     content/messenger/addressbook/addressBookTab.js             (content/addressBookTab.js)
-# TODO: Rename this after removal of mailnews/addrbook/content/abView.js.
-    content/messenger/addressbook/abView-new.js                 (content/abView-new.js)
+    content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)
+
+    content/messenger/addressbook/AddrBookDataAdapter.mjs       (content/modules/AddrBookDataAdapter.mjs)
 # Edit view
     content/messenger/addressbook/edit/adr.mjs                  (content/vcard-edit/adr.mjs)
     content/messenger/addressbook/edit/custom.mjs               (content/vcard-edit/custom.mjs)

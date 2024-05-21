@@ -2,16 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals ABView */
-
-var { MailServices } = ChromeUtils.importESModule(
-  "resource:///modules/MailServices.sys.mjs"
+var { AddrBookDataAdapter } = ChromeUtils.importESModule(
+  "chrome://messenger/content/addressbook/AddrBookDataAdapter.mjs",
+  { global: "current" }
 );
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
+);
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -1286,9 +1288,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       super.index = index;
 
       const card = this.view.getCardFromRow(index);
-      this.name.textContent = this.view.getCellText(index, {
-        id: "GeneratedName",
-      });
+      this.name.textContent = this.view.getCellText(index, "GeneratedName");
 
       // Add the address book name for All Address Books if in the sort Context
       // Address Book is checked. This is done for the list view only.
@@ -1305,9 +1305,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           addressBookName.classList.add("address-book-name");
           this.firstLine.appendChild(addressBookName);
         }
-        addressBookName.textContent = this.view.getCellText(index, {
-          id: "addrbook",
-        });
+        addressBookName.textContent = this.view.getCellText(index, "addrbook");
       } else {
         this.querySelector(".address-book-name")?.remove();
       }
@@ -1388,7 +1386,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       for (const column of cardsPane.COLUMNS) {
         const cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         if (!column.hidden) {
-          cell.textContent = this.view.getCellText(index, { id: column.id });
+          cell.textContent = this.view.getCellText(index, column.id);
           continue;
         }
 
@@ -1763,7 +1761,7 @@ var cardsPane = {
     const sortDirection =
       XULStoreUtils.getValue("addressBook", "cards", "sortDirection") ||
       "ascending";
-    this.cardsList.view = new ABView(
+    this.cardsList.view = new AddrBookDataAdapter(
       book,
       this.getQuery(),
       this.searchInput.value,
@@ -1794,7 +1792,7 @@ var cardsPane = {
     const sortDirection =
       XULStoreUtils.getValue("addressBook", "cards", "sortDirection") ||
       "ascending";
-    this.cardsList.view = new ABView(
+    this.cardsList.view = new AddrBookDataAdapter(
       list,
       this.getQuery(),
       this.searchInput.value,
@@ -1824,7 +1822,7 @@ var cardsPane = {
 
     let idsToShow;
     switch (searchState) {
-      case ABView.NOT_SEARCHING:
+      case AddrBookDataAdapter.NOT_SEARCHING:
         if (directory?.isRemote && !Services.io.offline) {
           idsToShow = ["placeholderSearchOnly"];
         } else {
@@ -1834,10 +1832,10 @@ var cardsPane = {
           }
         }
         break;
-      case ABView.SEARCHING:
+      case AddrBookDataAdapter.SEARCHING:
         idsToShow = ["placeholderSearching"];
         break;
-      case ABView.SEARCH_COMPLETE:
+      case AddrBookDataAdapter.SEARCH_COMPLETE:
         idsToShow = ["placeholderNoSearchResults"];
         break;
     }
@@ -1851,7 +1849,7 @@ var cardsPane = {
    * @param {integer} format - One of the nsIAbCard.GENERATE_* constants.
    */
   setNameFormat(event) {
-    // ABView will detect this change and update automatically.
+    // AddrBookDataAdapter will detect this change and update automatically.
     Services.prefs.setIntPref(
       "mail.addr_book.lastnamefirst",
       event.target.value
@@ -2211,7 +2209,7 @@ var cardsPane = {
 
   _onCommand(event) {
     if (event.target == this.searchInput) {
-      this.cardsList.view = new ABView(
+      this.cardsList.view = new AddrBookDataAdapter(
         this.cardsList.view.directory,
         this.getQuery(),
         this.searchInput.value,
@@ -2993,7 +2991,7 @@ var detailsPane = {
       const address = li.querySelector(".address");
 
       if (!card.isMailList) {
-        name.textContent = card.generateName(ABView.nameFormat);
+        name.textContent = card.generateName(AddrBookDataAdapter.nameFormat);
         address.textContent = card.primaryEmail;
 
         const photoURL = card.photoURL;
@@ -3082,7 +3080,7 @@ var detailsPane = {
     element.querySelector(".contact-photo").src =
       card.photoURL || "chrome://messenger/skin/icons/new/compact/user.svg";
     element.querySelector(".contact-heading-name").textContent =
-      card.generateName(ABView.nameFormat);
+      card.generateName(AddrBookDataAdapter.nameFormat);
     const nickname = element.querySelector(".contact-heading-nickname");
     const nicknameValue = vCardProperties.getFirstValue("nickname");
     nickname.hidden = !nicknameValue;
@@ -3761,18 +3759,19 @@ var detailsPane = {
 
     const cards = Array.from(listDirectory.childCards, card => {
       return {
-        name: card.generateName(ABView.nameFormat),
+        name: card.generateName(AddrBookDataAdapter.nameFormat),
         email: card.primaryEmail,
         photoURL: card.photoURL,
       };
     });
     const { sortColumn, sortDirection } = cardsPane.cardsList.view;
     const key = sortColumn == "EmailAddresses" ? "email" : "name";
+    const collator = new Intl.Collator(undefined, { numeric: true });
     cards.sort((a, b) => {
       if (sortDirection == "descending") {
         [b, a] = [a, b];
       }
-      return ABView.prototype.collator.compare(a[key], b[key]);
+      return collator.compare(a[key], b[key]);
     });
 
     const list = this.selectedCardsSection.querySelector("ul");
