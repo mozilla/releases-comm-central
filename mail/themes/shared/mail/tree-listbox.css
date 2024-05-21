@@ -165,7 +165,8 @@
     color: var(--listbox-selected-color);
     background-color: var(--listbox-focused-selected-bg);
 
-    &:not([data-properties~="flagged"],[data-properties~="junk"]) img {
+    &:not([data-properties~="flagged"]) > .tree-view-row-flag > .tree-button-flag > img,
+    &:not([data-properties~="junk"]) > .tree-view-row-spam > .tree-button-spam > img {
       fill: color-mix(in srgb, currentColor 40%, transparent);
       stroke: currentColor;
     }
