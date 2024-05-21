@@ -231,6 +231,7 @@
     _updateSize(trySize) {
       const vertical = this.resizeDirection == "vertical";
       if (trySize != undefined) {
+        trySize = Math.round(trySize);
         if (vertical) {
           this.height = trySize;
         } else {

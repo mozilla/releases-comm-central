@@ -12,12 +12,7 @@ window.addEventListener("load", () => {
     static COLUMNS = [
       {
         id: "testCol",
-        // Ensure that a table header is rendered in order to verify that the
-        // header's presence doesn't cause issues with scroll calculations.
-        l10n: {
-          header: "threadpane-column-header-subject",
-          menuitem: "threadpane-column-label-subject",
-        },
+        name: "This is the header. You should see it.",
       },
     ];
 

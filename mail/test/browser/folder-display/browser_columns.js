@@ -609,7 +609,7 @@ add_task(async function test_reset_to_inbox() {
   assert_visible_columns(conExtra);
 
   // Trigger a reset.
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
   // Ensure the default set was restored.
   assert_visible_columns(INBOX_DEFAULTS);
 });
@@ -798,7 +798,7 @@ add_task(async function test_apply_to_folder_no_children() {
   await be_in_folder(folderSource);
 
   // reset!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
 
   // permute!
   const conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
@@ -830,7 +830,7 @@ add_task(async function test_apply_to_folder_and_children() {
   await be_in_folder(folderSource);
 
   // reset!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
   const cols = get_visible_threadtree_columns();
 
   // permute!
@@ -865,7 +865,7 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
   await be_in_folder(folderSource);
 
   // reset!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
 
   // permute!
   const conExtra = [...INBOX_DEFAULTS];
@@ -907,7 +907,7 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
   await be_in_folder(folderSource);
 
   // reset order!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
 
   // permute!
   const conExtra = [...INBOX_DEFAULTS];
@@ -947,7 +947,7 @@ add_task(async function test_apply_to_root_folder_and_children() {
   await be_in_folder(folderSource);
 
   // Reset!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
   const cols = get_visible_threadtree_columns();
 
   // Permute!
@@ -1060,7 +1060,7 @@ add_task(async function test_reset_columns_gloda_collection() {
   assert_visible_columns(glodaColumns);
 
   // reset order!
-  await invoke_column_picker_option([{ label: "Restore column order" }]);
+  await invoke_column_picker_option([{ label: "Restore default columns" }]);
 
   assert_visible_columns(GLODA_DEFAULTS);
 

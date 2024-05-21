@@ -62,7 +62,6 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 3,
     sortKey: "byFlagged",
-    star: true,
     icon: true,
     resizable: false,
   },
@@ -100,7 +99,6 @@ const DEFAULT_COLUMNS = [
     sortKey: "byUnread",
     icon: true,
     resizable: false,
-    unread: true,
   },
   {
     id: "senderCol",
@@ -143,7 +141,6 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 10,
     sortKey: "byJunkStatus",
-    spam: true,
     icon: true,
     resizable: false,
   },

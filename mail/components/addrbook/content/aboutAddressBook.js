@@ -1519,11 +1519,9 @@ var cardsPane = {
     this.table.setBodyID("cardsBody");
     this.cardsList.setAttribute("rows", "ab-card-row");
 
-    if (
+    this.toggleLayout(
       XULStoreUtils.getValue("addressBook", "cardsPane", "layout") == "table"
-    ) {
-      this.toggleLayout(true);
-    }
+    );
 
     const nameFormat = Services.prefs.getIntPref(
       "mail.addr_book.lastnamefirst",
@@ -1697,6 +1695,7 @@ var cardsPane = {
       "rows",
       isTableLayout ? "ab-table-card-row" : "ab-card-row"
     );
+    this.cardsList.headerHidden = !isTableLayout;
     this.cardsList.setSpacersColspan(
       isTableLayout ? cardsPane.COLUMNS.filter(c => !c.hidden).length : 0
     );

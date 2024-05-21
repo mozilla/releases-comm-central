@@ -12,6 +12,7 @@ window.addEventListener("load", () => {
     static COLUMNS = [
       {
         id: "testCol",
+        name: "This is the header. You should not see it.",
       },
     ];
 
@@ -53,6 +54,7 @@ window.addEventListener("load", () => {
   customElements.define("test-row", TestCardRow, { extends: "tr" });
 
   const tree = document.getElementById("testTree");
+  tree.headerHidden = true;
   tree.setAttribute("rows", "test-row");
   tree.table.setColumns(TestCardRow.COLUMNS);
 });

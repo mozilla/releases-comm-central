@@ -95,6 +95,7 @@ messenger.jar:
     content/messenger/viewSource.js                 (content/viewSource.js)
 *   content/messenger/viewSource.xhtml              (content/viewSource.xhtml)
     content/messenger/viewZoomOverlay.js            (content/viewZoomOverlay.js)
+    content/messenger/auto-tree-view.mjs            (content/widgets/auto-tree-view.mjs)
     content/messenger/browserPopups.js              (content/widgets/browserPopups.js)
     content/messenger/customizable-toolbar.js       (content/widgets/customizable-toolbar.js)
     content/messenger/folder-tree-row.mjs           (content/widgets/folder-tree-row.mjs)

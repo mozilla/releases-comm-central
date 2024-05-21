@@ -211,9 +211,6 @@ var paneLayout = {
       (name, oldValue, newValue) => this.setLayout(newValue)
     );
     this.setLayout(this.layoutPreference);
-    threadPane.updateThreadView(
-      XULStoreUtils.getValue("messenger", "threadPane", "view")
-    );
   },
 
   setLayout(preference) {
@@ -3638,10 +3635,11 @@ var threadPaneHeader = {
     if (event.target.id != "threadPaneDisplayContext") {
       return;
     }
-    const isTableLayout = document.body.classList.contains("layout-table");
     document
       .getElementById(
-        isTableLayout ? "threadPaneTableView" : "threadPaneCardsView"
+        threadTree.getAttribute("rows") == "thread-row"
+          ? "threadPaneTableView"
+          : "threadPaneCardsView"
       )
       .setAttribute("checked", "true");
   },
@@ -3861,16 +3859,8 @@ var threadPane = {
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
     ]);
-    const threadListView = XULStoreUtils.getValue(
-      "messenger",
-      "threadPane",
-      "view"
-    );
-    threadTree.setAttribute(
-      "rows",
-      !threadListView || threadListView == "cards"
-        ? "thread-card"
-        : "thread-row"
+    threadPane.updateThreadView(
+      XULStoreUtils.getValue("messenger", "threadPane", "view")
     );
 
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -5384,13 +5374,13 @@ var threadPane = {
   updateThreadView(view) {
     switch (view) {
       case "table":
-        document.body.classList.add("layout-table");
-        threadTree?.setAttribute("rows", "thread-row");
+        threadTree.setAttribute("rows", "thread-row");
+        threadTree.headerHidden = false;
         break;
       case "cards":
       default:
-        document.body.classList.remove("layout-table");
-        threadTree?.setAttribute("rows", "thread-card");
+        threadTree.setAttribute("rows", "thread-card");
+        threadTree.headerHidden = true;
         break;
     }
   },
