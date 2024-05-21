@@ -386,20 +386,13 @@ add_task(async function testRegister() {
         // Register the message display script only during install, and not when
         // the background script wakes up again.
         browser.runtime.onInstalled.addListener(async () => {
-          const scriptDetails =
-            await browser.scripting.messageDisplay.registerScripts([
-              {
-                id: "test-1",
-                css: ["test.css"],
-                js: ["test.js"],
-              },
-            ]);
-          window.assertDeepEqual(
-            EXPECTED_DETAILS,
-            scriptDetails,
-            `Details of registered script should be correct`,
-            { strict: true }
-          );
+          await browser.scripting.messageDisplay.registerScripts([
+            {
+              id: "test-1",
+              css: ["test.css"],
+              js: ["test.js"],
+            },
+          ]);
 
           // Test getRegisteredScripts(filter).
           const testsForGetRegisteredScripts = [

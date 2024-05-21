@@ -255,7 +255,6 @@ this.scripting_tb = class extends ExtensionAPI {
           extensionScriptsMap().set(scriptId, extensionScript);
           newScripts.push(extensionScript.convert());
         }
-        return newScripts;
       },
       async unregisterScripts(filter) {
         const ids = filter?.ids ?? null;

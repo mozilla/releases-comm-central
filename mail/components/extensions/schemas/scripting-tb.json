@@ -102,14 +102,8 @@
           {
             "name": "callback",
             "type": "function",
-            "description": "The resulting array contains the registered compose scripts.",
-            "parameters": [
-              {
-                "name": "scripts",
-                "type": "array",
-                "items": { "$ref": "ComposeScriptDetails" }
-              }
-            ]
+            "description": "Invoked upon completion of the registration.",
+            "parameters": []
           }
         ]
       },
@@ -221,14 +215,8 @@
           {
             "name": "callback",
             "type": "function",
-            "description": "The resulting array contains the registered message display scripts.",
-            "parameters": [
-              {
-                "name": "scripts",
-                "type": "array",
-                "items": { "$ref": "MessageDisplayScriptDetails" }
-              }
-            ]
+            "description": "Invoked upon completion of the registration.",
+            "parameters": []
           }
         ]
       },
