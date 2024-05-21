@@ -107,6 +107,7 @@
 % override chrome://global/skin/icons/check.svg chrome://messenger/skin/icons/new/compact/check.svg
 # End Supernova icon overrides
 
+  skin/classic/messenger/abContactsPanel.css                  (../shared/mail/abContactsPanel.css)
   skin/classic/messenger/abFormFields.css                     (../shared/mail/abFormFields.css)
   skin/classic/messenger/about3Pane.css                       (../shared/mail/about3Pane.css)
   skin/classic/messenger/aboutAddonsExtra.css                 (../shared/mail/aboutAddonsExtra.css)
@@ -114,7 +115,6 @@
   skin/classic/messenger/aboutImport.css                      (../shared/mail/aboutImport.css)
   skin/classic/messenger/aboutPolicies.css                    (../shared/mail/aboutPolicies.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
-
   skin/classic/messenger/abSearchDialog.css                   (../shared/mail/abSearchDialog.css)
   skin/classic/messenger/accountHub.css                       (../shared/mail/accountHub.css)
   skin/classic/messenger/accountHubForms.css                  (../shared/mail/accountHubForms.css)
@@ -350,7 +350,6 @@
   skin/classic/messenger/icons/zoomout.svg                    (../shared/mail/icons/zoomout.svg)
   skin/classic/messenger/preferences/dialog.css               (../shared/mail/preferences/dialog.css)
   skin/classic/messenger/shared/aboutDownloads.css            (../shared/mail/aboutDownloads.css)
-  skin/classic/messenger/shared/abContactsPanel.css           (../shared/mail/abContactsPanel.css)
   skin/classic/messenger/shared/abPrint.css                   (../shared/mail/abPrint.css)
   skin/classic/messenger/shared/accountCentral.css            (../shared/mail/accountCentral.css)
   skin/classic/messenger/shared/accountManage.css             (../shared/mail/accountManage.css)

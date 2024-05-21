@@ -50,7 +50,6 @@ classic.jar:
   skin/classic/messenger/activity/syncMailIcon.png            (mail/activity/syncMailIcon.png)
   skin/classic/messenger/activity/undoIcon.png                (mail/activity/undoIcon.png)
   skin/classic/messenger/activity/warning.png                 (mail/activity/warning.png)
-  skin/classic/messenger/addressbook/abContactsPanel.css      (mail/addrbook/abContactsPanel.css)
   skin/classic/messenger/addressbook/cardDialog.css           (mail/addrbook/cardDialog.css)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)

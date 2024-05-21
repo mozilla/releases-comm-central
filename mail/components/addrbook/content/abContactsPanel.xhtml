@@ -21,19 +21,16 @@
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
-    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/addressbook/abResultsPane.css"
     />
-    <link
-      rel="stylesheet"
-      href="chrome://messenger/skin/addressbook/abContactsPanel.css"
-    />
+    <link rel="stylesheet" href="chrome://messenger/skin/abContactsPanel.css" />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/shared/tree-listbox.css"
     />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
 
     <link
       rel="localization"
@@ -159,20 +156,14 @@
       />
     </menupopup>
 
+    <separator class="thin" />
+
+    <label
+      value="&addressbookPicker.label;"
+      accesskey="&addressbookPicker.accesskey;"
+      control="addressbookList"
+    />
     <hbox id="AbPickerHeader" class="themeable-full">
-      <label
-        value="&addressbookPicker.label;"
-        accesskey="&addressbookPicker.accesskey;"
-        control="addressbookList"
-      />
-      <spacer flex="1" />
-      <button
-        id="abContextMenuButton"
-        tooltiptext="&abContextMenuButton.tooltip;"
-        oncommand="abContextMenuButtonOnCommand(event);"
-      />
-    </hbox>
-    <hbox id="panel-bar" class="themeable-full" align="center">
       <menulist
         is="menulist-addrbooks"
         id="addressbookList"
@@ -180,25 +171,28 @@
         oncommand="AddressBookMenuListChange(this.value);"
         flex="1"
       />
+      <button
+        id="abContextMenuButton"
+        tooltiptext="&abContextMenuButton.tooltip;"
+        oncommand="abContextMenuButtonOnCommand(event);"
+      />
     </hbox>
 
     <separator class="thin" />
 
-    <vbox>
-      <label
-        value="&searchContacts.label;"
-        accesskey="&searchContacts.accesskey;"
-        control="peopleSearchInput"
-      />
-      <search-textbox
-        id="peopleSearchInput"
-        class="searchBox"
-        flex="1"
-        timeout="800"
-        placeholder="&SearchNameOrEmail.label;"
-        oncommand="onEnterInSearchBar();"
-      />
-    </vbox>
+    <label
+      value="&searchContacts.label;"
+      accesskey="&searchContacts.accesskey;"
+      control="peopleSearchInput"
+    />
+    <search-textbox
+      id="peopleSearchInput"
+      class="searchBox"
+      flex="1"
+      timeout="800"
+      placeholder="&SearchNameOrEmail.label;"
+      oncommand="onEnterInSearchBar();"
+    />
 
     <separator class="thin" />
 

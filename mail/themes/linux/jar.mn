@@ -50,7 +50,6 @@ classic.jar:
   skin/classic/messenger/activity/deleteMailIcon.png          (mail/activity/deleteMailIcon.png)
   skin/classic/messenger/activity/compactMailIcon.png         (mail/activity/compactMailIcon.png)
   skin/classic/messenger/activity/indexMailIcon.png           (mail/activity/indexMailIcon.png)
-  skin/classic/messenger/addressbook/abContactsPanel.css      (mail/addrbook/abContactsPanel.css)
   skin/classic/messenger/addressbook/cardDialog.css           (mail/addrbook/cardDialog.css)
   skin/classic/messenger/messengercompose/messengercompose.css (mail/compose/messengercompose.css)
   skin/classic/messenger/downloads/aboutDownloads.css         (mail/downloads/aboutDownloads.css)

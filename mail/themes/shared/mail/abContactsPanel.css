@@ -31,42 +31,32 @@
   }
 }
 
-#abContextMenuButton {
-  min-width: 11px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+#AbPickerHeader {
+  margin: 0 3px;
+  gap: 3px;
 
-  &:not(:hover) {
-    background: transparent;
-    border-color: transparent;
+  & #abContextMenuButton {
+    min-width: unset;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    list-style-image: var(--icon-more);
+    -moz-context-properties: fill;
+    fill: currentColor;
+
+    & .button-text {
+      display: none;
+    }
   }
 
-  &:hover:focus-visible {
-    outline-style: none;
+  & #addressbookList {
+    margin: 0;
+
+    &::part(label-box) {
+      width: 0; /* Make the label crop if necessary. */
+    }
   }
-
-  & > .toolbarbutton-icon {
-    width: 11px;
-    height: 11px;
-  }
-
-  & > .toolbarbutton-text {
-    display: none;
-  }
-}
-
-#sidebarAbContextMenu {
-  /* Compensate the arrow-scrollbox padding. */
-  margin: -4px;
-}
-
-#addressbookList:not(:-moz-focusring) {
-  border: 1px solid var(--field-border-color);
-}
-
-#addressbookList:not(:hover,[open="true"]) {
-  background: transparent;
 }
 
 #abResultsTree {
