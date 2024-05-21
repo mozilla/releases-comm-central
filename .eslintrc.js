@@ -85,6 +85,10 @@ module.exports = {
       },
     },
     {
+      files: ["**/test/**", "**/tests/**"],
+      extends: ["plugin:mozilla/general-test"],
+    },
+    {
       files: ["*.mjs"],
       rules: {
         "import/default": "error",
@@ -174,10 +178,6 @@ module.exports = {
       ],
       excludedFiles: [".eslintrc.js"],
       extends: ["plugin:mozilla/valid-jsdoc"],
-    },
-    {
-      files: ["**/test/**", "**/tests/**"],
-      extends: ["plugin:mozilla/general-test"],
     },
   ],
 };

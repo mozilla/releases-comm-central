@@ -4,6 +4,7 @@
 
 const PREFIX_BINDINGS = {
   card: "urn:ietf:params:xml:ns:carddav",
+  // eslint-disable-next-line @microsoft/sdl/no-insecure-url
   cs: "http://calendarserver.org/ns/",
   d: "DAV:",
 };
