@@ -7,6 +7,14 @@
  */
 export class TreeDataAdapter {
   /**
+   * A collator used for sorting rows. The numeric option is used, so the same
+   * collator can do numeric sorting as well as string sorting.
+   *
+   * @type {Intl.Collator}
+   */
+  static collator = new Intl.Collator(undefined, { numeric: true });
+
+  /**
    * @type {TreeView}
    */
   _tree = null;
@@ -21,6 +29,20 @@ export class TreeDataAdapter {
    * @type {TreeDataRow[]}
    */
   _rowMap = [];
+
+  /**
+   * The currently sorted column.
+   *
+   * @type {string|undefined}
+   */
+  sortColumn;
+
+  /**
+   * The currently sorted direction.
+   *
+   * @type {"ascending"|"descending"|undefined}
+   */
+  sortDirection;
 
   /**
    * Connects this adapter to a TreeView.
@@ -215,6 +237,71 @@ export class TreeDataAdapter {
    * Handle selection events from TreeSelection. They aren't used here.
    */
   selectionChanged() {}
+
+  /**
+   * Sort all of the rows by the given column and in the given direction.
+   * Rows are compared by cell value first, then by cell text. This is a
+   * stable sort, and the current selection is maintained.
+   *
+   * @param {string} sortColumn
+   * @param {"ascending"|"descending"} sortDirection
+   * @param {boolean} [resort=false] - If true, the rows will be sorted again, even if
+   *   `sortColumn` and `sortDirection` match the current sort.
+   */
+  sortBy(sortColumn, sortDirection, resort = false) {
+    if (
+      sortColumn == this.sortColumn &&
+      sortDirection == this.sortDirection &&
+      !resort
+    ) {
+      return;
+    }
+
+    if (this.selection) {
+      for (const [i, row] of this._rowMap.entries()) {
+        row.wasSelected = this.selection.isSelected(i);
+        row.wasCurrent = this.selection.currentIndex == i;
+      }
+    }
+
+    // Do the sort.
+    this._rowMap.sort((a, b) => {
+      if (sortDirection == "descending") {
+        // Swapping the rows produces a descending sort.
+        [a, b] = [b, a];
+      }
+
+      const aValue = a.getValue(sortColumn);
+      const bValue = b.getValue(sortColumn);
+      const result = TreeDataAdapter.collator.compare(aValue, bValue);
+      if (result != 0) {
+        return result;
+      }
+
+      const aText = a.getText(sortColumn);
+      const bText = b.getText(sortColumn);
+      return TreeDataAdapter.collator.compare(aText, bText);
+    });
+
+    // Restore what was selected.
+    if (this.selection) {
+      this.selection.selectEventsSuppressed = true;
+      for (const [i, row] of this._rowMap.entries()) {
+        if (row.wasSelected != this.selection.isSelected(i)) {
+          this.selection.toggleSelect(i);
+        }
+      }
+      // Can't do this until updating the selection is finished.
+      this.selection.currentIndex = this._rowMap.findIndex(
+        row => row.wasCurrent
+      );
+      this.selection.selectEventsSuppressed = false;
+    }
+
+    this.sortColumn = sortColumn;
+    this.sortDirection = sortDirection;
+    this._tree?.reset();
+  }
 }
 
 /**

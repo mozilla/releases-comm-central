@@ -5,6 +5,9 @@
 const { TreeDataAdapter, TreeDataRow } = ChromeUtils.importESModule(
   "chrome://messenger/content/TreeDataAdapter.mjs"
 );
+const { TreeSelection } = ChromeUtils.importESModule(
+  "chrome://messenger/content/TreeSelection.mjs"
+);
 
 /**
  * A simple class to avoid typing out the same thing over and over.
@@ -193,4 +196,279 @@ add_task(function testBranching() {
   delete listenerTree._invalidatedRow;
 
   Assert.throws(() => adapter.toggleOpenState(2), /TypeError/);
+});
+
+add_task(function testSorting() {
+  const adapter = new TreeDataAdapter();
+  const data = [
+    [
+      {
+        cardinal: 0,
+        ordinal: "zeroth",
+        prime: 19, // One of the first 10 prime numbers, not in order.
+        roman: "CLXXV", // An arbitrary Roman number.
+        even: true,
+      },
+      { roman: 175 }, // The value of the Roman number.
+    ],
+    [
+      { cardinal: 1, ordinal: "first", prime: 23, roman: "CXVI", even: false },
+      { roman: 116 },
+    ],
+    [
+      { cardinal: 2, ordinal: "second", prime: 29, roman: "IV", even: true },
+      { roman: 4 },
+    ],
+    [
+      { cardinal: 3, ordinal: "third", prime: 3, roman: "LXXVI", even: false },
+      { roman: 76 },
+    ],
+    [
+      { cardinal: 4, ordinal: "fourth", prime: 13, roman: "XXVII", even: true },
+      { roman: 27 },
+    ],
+    [
+      { cardinal: 5, ordinal: "fifth", prime: 7, roman: "C", even: false },
+      { roman: 100 },
+    ],
+    [
+      { cardinal: 6, ordinal: "sixth", prime: 17, roman: "VCI", even: true },
+      { roman: 96 },
+    ],
+    [
+      { cardinal: 7, ordinal: "seventh", prime: 2, roman: "CXLI", even: false },
+      { roman: 141 },
+    ],
+    [
+      { cardinal: 8, ordinal: "eighth", prime: 5, roman: "V", even: true },
+      { roman: 5 },
+    ],
+    [
+      { cardinal: 9, ordinal: "ninth", prime: 11, roman: "XI", even: false },
+      { roman: 11 },
+    ],
+  ];
+  for (const [texts, values] of data) {
+    adapter.appendRow(new TreeDataRow(texts, values));
+  }
+  adapter.selection = new TreeSelection();
+
+  function checkColumn(column, expectedTexts) {
+    const texts = [];
+    for (let i = 0; i < adapter.rowCount; i++) {
+      texts.push(adapter.getCellText(i, column));
+    }
+    Assert.deepEqual(texts, expectedTexts);
+  }
+
+  function checkSelection(expectedIndices) {
+    const indices = [];
+    const rangeCount = adapter.selection.getRangeCount();
+
+    for (let range = 0; range < rangeCount; range++) {
+      const min = {};
+      const max = {};
+      adapter.selection.getRangeAt(range, min, max);
+
+      if (min.value == -1) {
+        continue;
+      }
+
+      for (let index = min.value; index <= max.value; index++) {
+        indices.push(index);
+      }
+    }
+
+    Assert.deepEqual(indices, expectedIndices);
+  }
+
+  // Verify the original order.
+
+  checkColumn("cardinal", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  checkColumn("ordinal", [
+    "zeroth",
+    "first",
+    "second",
+    "third",
+    "fourth",
+    "fifth",
+    "sixth",
+    "seventh",
+    "eighth",
+    "ninth",
+  ]);
+  checkSelection([]);
+
+  // Select some rows. This selection should be preserved throughout the test.
+
+  adapter.selection.toggleSelect(0);
+  adapter.selection.toggleSelect(4);
+  adapter.selection.toggleSelect(8);
+  checkSelection([0, 4, 8]);
+
+  // Sort by a text column. Check that another column is also reordered to match.
+
+  adapter.sortBy("ordinal", "ascending");
+  Assert.equal(adapter.sortColumn, "ordinal");
+  Assert.equal(adapter.sortDirection, "ascending");
+  checkColumn("ordinal", [
+    "eighth",
+    "fifth",
+    "first",
+    "fourth",
+    "ninth",
+    "second",
+    "seventh",
+    "sixth",
+    "third",
+    "zeroth",
+  ]);
+  checkColumn("cardinal", [8, 5, 1, 4, 9, 2, 7, 6, 3, 0]);
+  checkSelection([0, 3, 9]);
+
+  adapter.sortBy("ordinal", "descending");
+  Assert.equal(adapter.sortColumn, "ordinal");
+  Assert.equal(adapter.sortDirection, "descending");
+  checkColumn("ordinal", [
+    "zeroth",
+    "third",
+    "sixth",
+    "seventh",
+    "second",
+    "ninth",
+    "fourth",
+    "first",
+    "fifth",
+    "eighth",
+  ]);
+  checkColumn("cardinal", [0, 3, 6, 7, 2, 9, 4, 1, 5, 8]);
+  checkSelection([0, 6, 9]);
+
+  adapter.sortBy("ordinal", "ascending");
+  Assert.equal(adapter.sortColumn, "ordinal");
+  Assert.equal(adapter.sortDirection, "ascending");
+  checkColumn("ordinal", [
+    "eighth",
+    "fifth",
+    "first",
+    "fourth",
+    "ninth",
+    "second",
+    "seventh",
+    "sixth",
+    "third",
+    "zeroth",
+  ]);
+  checkColumn("cardinal", [8, 5, 1, 4, 9, 2, 7, 6, 3, 0]);
+  checkSelection([0, 3, 9]);
+
+  // Sort by a numeric column. A numeric sort is applied, otherwise the order
+  // would be 11, 13, 17, 19, 2, 23, 29, 3, 5, 7.
+
+  adapter.sortBy("prime", "ascending");
+  Assert.equal(adapter.sortColumn, "prime");
+  Assert.equal(adapter.sortDirection, "ascending");
+  checkColumn("prime", [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
+  checkColumn("cardinal", [7, 3, 8, 5, 9, 4, 6, 0, 1, 2]);
+  checkSelection([2, 5, 7]);
+
+  adapter.sortBy("prime", "descending");
+  Assert.equal(adapter.sortColumn, "prime");
+  Assert.equal(adapter.sortDirection, "descending");
+  checkColumn("prime", [29, 23, 19, 17, 13, 11, 7, 5, 3, 2]);
+  checkColumn("cardinal", [2, 1, 0, 6, 4, 9, 5, 8, 3, 7]);
+  checkSelection([2, 4, 7]);
+
+  // Sort by a column with values. This is sorted by the values, not the text.
+
+  adapter.sortBy("roman", "ascending");
+  Assert.equal(adapter.sortColumn, "roman");
+  Assert.equal(adapter.sortDirection, "ascending");
+  checkColumn("roman", [
+    "IV",
+    "V",
+    "XI",
+    "XXVII",
+    "LXXVI",
+    "VCI",
+    "C",
+    "CXVI",
+    "CXLI",
+    "CLXXV",
+  ]);
+  checkColumn("cardinal", [2, 8, 9, 4, 3, 6, 5, 1, 7, 0]);
+  checkSelection([1, 3, 9]);
+
+  adapter.sortBy("roman", "descending");
+  Assert.equal(adapter.sortColumn, "roman");
+  Assert.equal(adapter.sortDirection, "descending");
+  checkColumn("roman", [
+    "CLXXV",
+    "CXLI",
+    "CXVI",
+    "C",
+    "VCI",
+    "LXXVI",
+    "XXVII",
+    "XI",
+    "V",
+    "IV",
+  ]);
+  checkColumn("cardinal", [0, 7, 1, 5, 6, 3, 4, 9, 8, 2]);
+  checkSelection([0, 6, 8]);
+
+  // Check a column where multiple rows have the same value. The sort should
+  // be stable, i.e. the rows stay in the existing order when the values match.
+
+  adapter.sortBy("even", "ascending");
+  Assert.equal(adapter.sortColumn, "even");
+  Assert.equal(adapter.sortDirection, "ascending");
+  checkColumn("even", [
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+  ]);
+  checkColumn("cardinal", [7, 1, 5, 3, 9, 0, 6, 4, 8, 2]);
+
+  adapter.sortBy("even", "descending");
+  Assert.equal(adapter.sortColumn, "even");
+  Assert.equal(adapter.sortDirection, "descending");
+  checkColumn("even", [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
+  checkColumn("cardinal", [0, 6, 4, 8, 2, 7, 1, 5, 3, 9]);
+
+  // Return to the original order and check all of the data survived.
+
+  adapter.sortBy("cardinal", "ascending");
+  Assert.equal(adapter.sortColumn, "cardinal");
+  Assert.equal(adapter.sortDirection, "ascending");
+  for (let i = 0; i < data.length; i++) {
+    Assert.deepEqual(
+      [
+        adapter.getCellText(i, "cardinal"),
+        adapter.getCellText(i, "ordinal"),
+        adapter.getCellText(i, "prime"),
+        adapter.getCellText(i, "roman"),
+        adapter.getCellText(i, "even"),
+      ],
+      Object.values(data[i][0])
+    );
+  }
 });

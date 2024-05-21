@@ -6,7 +6,6 @@ import {
 import "chrome://messenger/content/auto-tree-view.mjs";
 
 class AutoTreeView extends TreeDataAdapter {
-  collator = new Intl.Collator(undefined, { numeric: true });
   data = [
     {
       colour: "red",
@@ -70,63 +69,6 @@ class AutoTreeView extends TreeDataAdapter {
         )
       );
     }
-  }
-
-  sortBy(sortColumn, sortDirection, resort) {
-    // Temporary implementation of the sorting code. This will be removed in a
-    // subsequent revision.
-
-    let selectionExists = false;
-    if (this._tree) {
-      const { selectedIndices, currentIndex } = this._tree;
-      selectionExists = selectedIndices.length;
-      // Remember what was selected.
-      for (let i = 0; i < this._rowMap.length; i++) {
-        this._rowMap[i].wasSelected = selectedIndices.includes(i);
-        this._rowMap[i].wasCurrent = currentIndex == i;
-      }
-    }
-
-    // Do the sort.
-    if (
-      sortColumn == this.sortColumn &&
-      sortDirection == this.sortDirection &&
-      !resort
-    ) {
-      return;
-    }
-    this._rowMap.sort((a, b) => {
-      const aText = a.getText(sortColumn);
-      const bText = b.getText(sortColumn);
-      if (sortDirection == "descending") {
-        return this.collator.compare(bText, aText);
-      }
-      return this.collator.compare(aText, bText);
-    });
-
-    // Restore what was selected.
-    if (this._tree) {
-      this._tree.reset();
-      if (selectionExists) {
-        for (let i = 0; i < this._rowMap.length; i++) {
-          this._tree.toggleSelectionAtIndex(
-            i,
-            this._rowMap[i].wasSelected,
-            true
-          );
-        }
-        // Can't do this until updating the selection is finished.
-        for (let i = 0; i < this._rowMap.length; i++) {
-          if (this._rowMap[i].wasCurrent) {
-            this._tree.currentIndex = i;
-            break;
-          }
-        }
-        this.selectionChanged();
-      }
-    }
-    this.sortColumn = sortColumn;
-    this.sortDirection = sortDirection;
   }
 }
 
