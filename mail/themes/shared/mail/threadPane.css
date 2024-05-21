@@ -597,7 +597,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 }
 
 :root[lwtheme][lwt-tree] .list-header-bar {
-  background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
+  background-color: var(--toolbar-bgcolor);
   color: var(--toolbar-color, inherit);
 }
 
