@@ -2990,7 +2990,7 @@ dependencies = [
  "dns-parser",
  "gecko-profiler",
  "log",
- "socket2",
+ "socket2 0.4.999",
  "uuid",
 ]
 
@@ -3316,8 +3316,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.7.7"
-source = "git+https://github.com/mozilla/neqo?tag=v0.7.7#343df5cc0d02e0b0953de4a0a390ae8980d89081"
+version = "0.7.8"
+source = "git+https://github.com/mozilla/neqo?tag=v0.7.8#a71e43dacf8fae41e5aa30cf95b2e826f63a7466"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -3329,8 +3329,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-crypto"
-version = "0.7.7"
-source = "git+https://github.com/mozilla/neqo?tag=v0.7.7#343df5cc0d02e0b0953de4a0a390ae8980d89081"
+version = "0.7.8"
+source = "git+https://github.com/mozilla/neqo?tag=v0.7.8#a71e43dacf8fae41e5aa30cf95b2e826f63a7466"
 dependencies = [
  "bindgen 0.69.4",
  "log",
@@ -3344,8 +3344,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.7.7"
-source = "git+https://github.com/mozilla/neqo?tag=v0.7.7#343df5cc0d02e0b0953de4a0a390ae8980d89081"
+version = "0.7.8"
+source = "git+https://github.com/mozilla/neqo?tag=v0.7.8#a71e43dacf8fae41e5aa30cf95b2e826f63a7466"
 dependencies = [
  "enumset",
  "log",
@@ -3361,8 +3361,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.7.7"
-source = "git+https://github.com/mozilla/neqo?tag=v0.7.7#343df5cc0d02e0b0953de4a0a390ae8980d89081"
+version = "0.7.8"
+source = "git+https://github.com/mozilla/neqo?tag=v0.7.8#a71e43dacf8fae41e5aa30cf95b2e826f63a7466"
 dependencies = [
  "log",
  "neqo-common",
@@ -3374,8 +3374,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.7.7"
-source = "git+https://github.com/mozilla/neqo?tag=v0.7.7#343df5cc0d02e0b0953de4a0a390ae8980d89081"
+version = "0.7.8"
+source = "git+https://github.com/mozilla/neqo?tag=v0.7.8#a71e43dacf8fae41e5aa30cf95b2e826f63a7466"
 dependencies = [
  "enum-map",
  "indexmap",
@@ -3828,6 +3828,7 @@ dependencies = [
  "libc",
  "mach2",
  "memoffset 0.9.0",
+ "scroll",
  "thiserror",
  "windows-sys",
 ]
@@ -4532,12 +4533,19 @@ checksum = "b7c388c1b5e93756d0c740965c41e8822f866621d41acbdf6336a6a168f8840c"
 
 [[package]]
 name = "socket2"
-version = "0.4.9"
+version = "0.4.999"
+dependencies = [
+ "socket2 0.5.7",
+]
+
+[[package]]
+name = "socket2"
+version = "0.5.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64a4a911eed85daf18834cfaa86a79b7d266ff93ff5ba14005426219480ed662"
+checksum = "ce305eb0b4296696835b71df73eb912e0f1ffd2556a501fcede6e0c50349191c"
 dependencies = [
  "libc",
- "winapi",
+ "windows-sys",
 ]
 
 [[package]]
@@ -5981,20 +5989,12 @@ name = "base64"
 version = "0.13.999"
 
 [[patch.unused]]
-name = "cfg-if"
-version = "0.1.999"
-
-[[patch.unused]]
 name = "icu_capi"
 version = "1.4.0"
 
 [[patch.unused]]
 name = "indexmap"
 version = "1.999.999"
-
-[[patch.unused]]
-name = "mio"
-version = "0.6.23"
 
 [[patch.unused]]
 name = "plist"

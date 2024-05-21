@@ -30,7 +30,6 @@ terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
 memmap2_0_5 = { package = "memmap2", path = "../../build/rust/memmap2-0.5" }
 memmap2 = { path = "../../build/rust/memmap2" }
-cfg-if = { path = "../../build/rust/cfg-if" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 tinyvec = { path = "../../build/rust/tinyvec" }
@@ -47,6 +46,7 @@ goblin = { path = "../../build/rust/goblin" }
 memoffset = { path = "../../build/rust/memoffset" }
 hashbrown = { path = "../../build/rust/hashbrown" }
 libloading = { path = "../../build/rust/libloading" }
+socket2 = { path = "../../build/rust/socket2" }
 js-sys = { path = "../../build/rust/dummy-web/js-sys" }
 wasm-bindgen = { path = "../../build/rust/dummy-web/wasm-bindgen" }
 web-sys = { path = "../../build/rust/dummy-web/web-sys" }
@@ -77,4 +77,3 @@ viaduct = { git = "https://github.com/mozilla/application-services", rev = "e056
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "e0563d725f852f617878ecc13a03cdf50c85cd5a" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
 gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
-mio = { path = "../../third_party/rust/mio-0.6.23" }
