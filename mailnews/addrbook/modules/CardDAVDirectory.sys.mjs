@@ -118,8 +118,12 @@ export class CardDAVDirectory extends SQLiteDirectory {
   modifyCard(card) {
     // Well this is awkward. Because it's defined in nsIAbDirectory,
     // modifyCard must not be async, but we need to do async operations.
+    const oldProperties = this.loadCardProperties(card.UID);
     const newCard = super.modifyCard(card);
-    this._modifyCard(newCard);
+    if (oldProperties.get("_vCard") != newCard.getProperty("_vCard", "")) {
+      // Only send the card to server if the vCard changed.
+      this._modifyCard(newCard);
+    }
   }
   async _modifyCard(card) {
     try {
