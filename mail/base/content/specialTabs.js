@@ -732,12 +732,12 @@ var specialTabs = {
   },
 
   // This will open any special tabs if necessary on startup.
-  openSpecialTabsOnStartup() {
+  async openSpecialTabsOnStartup() {
     const tabmail = document.getElementById("tabmail");
 
     tabmail.registerTabType(this.contentTabType);
 
-    this.showWhatsNewPage();
+    await this.showWhatsNewPage();
 
     // Show the about rights notification if we need to.
     if (this.shouldShowAboutRightsNotification()) {
@@ -1019,7 +1019,7 @@ var specialTabs = {
    *
    * @see {BrowserContentHandler.needHomepageOverride}
    */
-  showWhatsNewPage() {
+  async showWhatsNewPage() {
     const old_mstone = Services.prefs.getCharPref(
       "mailnews.start_page_override.mstone",
       ""
@@ -1031,9 +1031,10 @@ var specialTabs = {
     }
 
     if (AppConstants.MOZ_UPDATER) {
-      const update = Cc["@mozilla.org/updates/update-manager;1"].getService(
+      const um = Cc["@mozilla.org/updates/update-manager;1"].getService(
         Ci.nsIUpdateManager
-      ).readyUpdate;
+      );
+      const update = await um.getReadyUpdate();
 
       if (update && Services.vc.compare(update.appVersion, old_mstone) > 0) {
         let overridePage = Services.urlFormatter.formatURLPref(
