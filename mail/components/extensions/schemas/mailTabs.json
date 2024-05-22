@@ -299,6 +299,7 @@
       {
         "name": "getCurrent",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns <value>undefined</value> otherwise.",
         "async": "callback",
         "parameters": [

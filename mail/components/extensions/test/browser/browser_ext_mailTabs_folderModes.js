@@ -34,7 +34,10 @@ add_task(async () => {
     const tagFolderLabel1 = await browser.folders.getTagFolder("$label1");
     const unifiedInbox = await browser.folders.getUnifiedFolder("inbox");
 
-    const { id: mailTabId } = await browser.mailTabs.getCurrent();
+    const [{ id: mailTabId }] = await browser.mailTabs.query({
+      active: true,
+      currentWindow: true,
+    });
     const [trashFolder] = await browser.folders.query({ name: "Trash" });
     const [testFolder] = await browser.folders.query({ name: "Test2" });
 

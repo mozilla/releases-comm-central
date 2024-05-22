@@ -169,10 +169,6 @@ add_task(async function test_update() {
         currentWindow: true,
       });
       window.assertDeepEqual(expected, current);
-
-      // Check if getCurrent() returns the same.
-      const current2 = await browser.mailTabs.getCurrent();
-      window.assertDeepEqual(expected, current2);
     }
 
     const [accountId] = await window.waitForMessage();
