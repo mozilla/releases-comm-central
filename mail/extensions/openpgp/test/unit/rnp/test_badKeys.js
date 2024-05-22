@@ -35,9 +35,11 @@ add_setup(async function () {
   await OpenPGPTestUtils.initOpenPGP();
 });
 
-// Attempt to import a key with a single user ID, which is invalid,
-// because it doesn't have a valid signature.
-// Our code should reject the attempt to import the key.
+/**
+ * Attempt to import a key with a single user ID, which is invalid,
+ * because it doesn't have a valid signature.
+ * Our code should reject the attempt to import the key.
+ */
 add_task(async function testFailToImport() {
   const ids = await OpenPGPTestUtils.importKey(
     null,
@@ -47,9 +49,11 @@ add_task(async function testFailToImport() {
   Assert.ok(!ids.length, "importKey should return empty list of imported keys");
 });
 
-// Import a key with two encryption subkeys. One is good, the other one
-// has an invalid signature. When attempting to encrypt, our code should
-// skip the bad subkey, and should use the expected good subkey.
+/**
+ * Import a key with two encryption subkeys. One is good, the other one
+ * has an invalid signature. When attempting to encrypt, our code should
+ * skip the bad subkey, and should use the expected good subkey.
+ */
 add_task(async function testAvoidBadSubkey() {
   const ids = await OpenPGPTestUtils.importKey(
     null,
@@ -67,5 +71,38 @@ add_task(async function testAvoidBadSubkey() {
   );
   const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
   const keyId = RNP.getKeyIDFromHandle(encSubKey);
-  Assert.ok(keyId == "BC63472A109D5859", "should obtain key ID of good subkey");
+  Assert.equal(
+    keyId,
+    "BC63472A109D5859",
+    "should obtain key ID of good subkey"
+  );
+});
+
+/**
+ * Test importing key with comment and empty line after the checksum.
+ */
+add_task(async function testImportApple() {
+  const ids = await OpenPGPTestUtils.importKey(
+    null,
+    do_get_file(`${KEY_DIR}/apple-pub.asc`),
+    true
+  );
+  Assert.equal(ids.length, 1, "should have imported the key");
+  await OpenPGPTestUtils.updateKeyIdAcceptance(
+    ids,
+    OpenPGPTestUtils.ACCEPTANCE_VERIFIED
+  );
+
+  const primaryKey = await RNP.findKeyByEmail(
+    "<product-security@apple.com>",
+    true
+  );
+  Assert.ok(primaryKey, "should find primary key");
+  const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
+  const keyId = RNP.getKeyIDFromHandle(encSubKey);
+  Assert.equal(
+    keyId,
+    "747D1BD8BE393896",
+    "should find correct encryption subkey"
+  );
 });

@@ -1766,11 +1766,6 @@ export var RNP = {
     return true;
   },
 
-  removeCommentLines(str) {
-    const commentLine = /^Comment:.*(\r?\n|\r)/gm;
-    return str.replace(commentLine, "");
-  },
-
   async decrypt(encrypted, options, alreadyDecrypted = false) {
     const arr = encrypted.split("").map(e => e.charCodeAt());
     var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
@@ -2680,15 +2675,13 @@ export var RNP = {
     // in which we can tolerate those are comment lines, which we can
     // filter out.
 
-    let arr = this.getCharCodeArray(keyBlockStr);
+    // Remove comment lines.
+    const trimmed = keyBlockStr.replace(/^Comment:.*(\r?\n|\r)/gm, "").trim();
+    const arr = this.getCharCodeArray(trimmed);
     if (!this.is8Bit(arr)) {
-      const trimmed = this.removeCommentLines(keyBlockStr);
-      arr = this.getCharCodeArray(trimmed);
-      if (!this.is8Bit(arr)) {
-        throw new Error(`Non-ascii key block: ${keyBlockStr}`);
-      }
+      throw new Error(`Non-ascii key block: ${keyBlockStr}`);
     }
-    var key_array = lazy.ctypes.uint8_t.array()(arr);
+    const key_array = lazy.ctypes.uint8_t.array()(arr);
 
     if (
       RNPLib.rnp_input_from_memory(
