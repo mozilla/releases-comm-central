@@ -6,6 +6,7 @@ import { SQLiteDirectory } from "resource:///modules/SQLiteDirectory.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.sys.mjs",
   CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   NotificationCallbacks: "resource:///modules/CardDAVUtils.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
@@ -438,6 +439,20 @@ export class CardDAVDirectory extends SQLiteDirectory {
       const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
       abCard.setProperty("_etag", etag);
       abCard.setProperty("_href", href);
+
+      // Copy properties that the server doesn't know about.
+      const excluded = [
+        "_vCard",
+        "_etag",
+        "_href",
+        "LastModifiedDate",
+        ...lazy.BANISHED_PROPERTIES,
+      ];
+      for (const [key, value] of this.loadCardProperties(abCard.UID)) {
+        if (!excluded.includes(key)) {
+          abCard.setProperty(key, value);
+        }
+      }
 
       if (abCard.UID == card.UID) {
         super.modifyCard(abCard);

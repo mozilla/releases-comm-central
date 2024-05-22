@@ -132,7 +132,7 @@ const observer = {
   },
 };
 
-add_task(async () => {
+add_setup(async () => {
   CardDAVServer.open("bob", "bob");
   registerCleanupFunction(async () => {
     await CardDAVServer.close();

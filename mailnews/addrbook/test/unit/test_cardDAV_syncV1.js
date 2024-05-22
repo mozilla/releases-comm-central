@@ -167,21 +167,32 @@ async function subtest() {
 
   try {
     let changeMeCard = cardMap.get("change-me");
+    Assert.equal(
+      changeMeCard.getProperty("PopularityIndex", ""),
+      0,
+      "sanity check, initial PopularityIndex"
+    );
     changeMeCard.displayName = "I've been changed again!";
+    changeMeCard.setProperty("PopularityIndex", 10);
 
+    // First entry into AddrBookDirectory.modifyCard.
+    const firstNotification = observer.waitFor("addrbook-contact-updated");
     directory.modifyCard(changeMeCard);
     Assert.ok(!directory.readOnly, "read-only directory should throw");
+    await firstNotification;
+
+    // Second entry into AddrBookDirectory.modifyCard. Triggered by syncing.
     Assert.equal(
       await observer.waitFor("addrbook-contact-updated"),
       "change-me"
     );
-    observer.checkAndClearNotifications({
-      "addrbook-contact-created": [],
-      "addrbook-contact-updated": ["change-me"],
-      "addrbook-contact-deleted": [],
-    });
 
     changeMeCard = directory.childCards.find(c => c.UID == "change-me");
+    Assert.equal(
+      changeMeCard.getProperty("PopularityIndex", ""),
+      10,
+      "PopularityIndex survived sync"
+    );
     cardMap.set("change-me", changeMeCard);
 
     await checkCardsOnServer({
@@ -209,6 +220,7 @@ async function subtest() {
       Ci.nsIAbCard
     );
     newCard.displayName = "I'm another new contact. ϔ";
+    newCard.setProperty("PopularityIndex", 10);
     newCard.UID = "another-new";
     newCard = directory.addCard(newCard);
     Assert.ok(!directory.readOnly, "read-only directory should throw");
@@ -228,6 +240,11 @@ async function subtest() {
       newCard.displayName,
       "I'm another new contact. ϔ",
       "non-ascii character survived the trip to the server"
+    );
+    Assert.equal(
+      newCard.getProperty("PopularityIndex", ""),
+      10,
+      "PopularityIndex survived sync"
     );
 
     await checkCardsOnServer({
