@@ -6,6 +6,7 @@
       {
         "name": "onMessageDisplayed",
         "type": "function",
+        "max_manifest_version": 2,
         "description": "Fired when a message is displayed, whether in a 3-pane tab, a message tab, or a message window.",
         "parameters": [
           {
