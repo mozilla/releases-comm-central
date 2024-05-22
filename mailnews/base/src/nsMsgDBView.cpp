@@ -268,12 +268,7 @@ static nsresult GetDisplayNameInAddressBook(const nsACString& emailAddress,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (cardForAddress) {
-    bool preferDisplayName = true;
-    rv = cardForAddress->GetPropertyAsBool("PreferDisplayName", true,
-                                           &preferDisplayName);
-
-    if (NS_FAILED(rv) || preferDisplayName)
-      rv = cardForAddress->GetDisplayName(displayName);
+    rv = cardForAddress->GetDisplayName(displayName);
   }
 
   return rv;

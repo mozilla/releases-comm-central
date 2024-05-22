@@ -141,15 +141,9 @@ add_task(async function test_single_identity() {
 });
 
 add_task(async function test_single_identity_in_abook() {
-  ensure_card_exists(myEmail, "President Frankenstein", true);
-  ensure_single_identity();
-  await help_test_display_name(-1, "to", "President Frankenstein");
-});
-
-add_task(async function test_single_identity_in_abook_no_pdn() {
   ensure_card_exists(myEmail, "President Frankenstein");
   ensure_single_identity();
-  await help_test_display_name(-1, "to", headertoFieldMe);
+  await help_test_display_name(-1, "to", "President Frankenstein");
 });
 
 add_task(async function test_multiple_identities() {
@@ -161,17 +155,9 @@ add_task(async function test_multiple_identities() {
 });
 
 add_task(async function test_multiple_identities_in_abook() {
-  ensure_card_exists(myEmail, "President Frankenstein", true);
-  ensure_multiple_identities();
-  await help_test_display_name(-1, "to", "President Frankenstein");
-});
-
-add_task(async function test_multiple_identities_in_abook_no_pdn() {
   ensure_card_exists(myEmail, "President Frankenstein");
   ensure_multiple_identities();
-  await help_test_display_name(-1, "to", myEmail);
-
-  await help_test_display_name(0, "to", `Customized <${myEmail}>`);
+  await help_test_display_name(-1, "to", "President Frankenstein");
 });
 
 add_task(async function test_no_header_name() {
@@ -181,17 +167,9 @@ add_task(async function test_no_header_name() {
 });
 
 add_task(async function test_no_header_name_in_abook() {
-  ensure_card_exists(friendEmail, "My Buddy", true);
-  ensure_single_identity();
-  await help_test_display_name(-2, "from", "My Buddy");
-});
-
-add_task(async function test_no_header_name_in_abook_no_pdn() {
   ensure_card_exists(friendEmail, "My Buddy");
   ensure_single_identity();
-  // With address book entry but display name not preferred, we display name and
-  // e-mail address or only the e-mail address if no name exists.
-  await help_test_display_name(-2, "from", "carl@sagan.invalid");
+  await help_test_display_name(-2, "from", "My Buddy");
 });
 
 add_task(async function test_header_name() {
@@ -205,15 +183,7 @@ add_task(async function test_header_name() {
 });
 
 add_task(async function test_header_name_in_abook() {
-  ensure_card_exists(friendEmail, "My Buddy", true);
-  ensure_single_identity();
-  await help_test_display_name(-3, "from", "My Buddy");
-});
-
-add_task(async function test_header_name_in_abook_no_pdn() {
   ensure_card_exists(friendEmail, "My Buddy");
   ensure_single_identity();
-  // With address book entry but display name not preferred, we display name and
-  // e-mail address.
-  await help_test_display_name(-3, "from", "Carl Sagan <carl@sagan.invalid>");
+  await help_test_display_name(-3, "from", "My Buddy");
 });

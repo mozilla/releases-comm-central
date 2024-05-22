@@ -20,16 +20,10 @@ collectedAddresses = MailServices.ab.getDirectory(
  *
  * @param emailAddress the address that should have a card
  * @param displayName the display name the card should have
- * @param preferDisplayName |true| if the card display name should override the
- *                          header display name
  */
-export function ensure_card_exists(
-  emailAddress,
-  displayName,
-  preferDisplayName
-) {
+export function ensure_card_exists(emailAddress, displayName) {
   ensure_no_card_exists(emailAddress);
-  const card = create_contact(emailAddress, displayName, preferDisplayName);
+  const card = create_contact(emailAddress, displayName);
   collectedAddresses.addCard(card);
 }
 
@@ -101,20 +95,13 @@ export function create_ldap_address_book(aName, aURI) {
  *
  * @param aEmailAddress the e-mail address for this contact
  * @param aDisplayName the display name for the contact
- * @param aPreferDisplayName set to true if the card display name should
- *                           override the header display name
  */
-export function create_contact(
-  aEmailAddress,
-  aDisplayName,
-  aPreferDisplayName
-) {
+export function create_contact(aEmailAddress, aDisplayName) {
   const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   card.primaryEmail = aEmailAddress;
   card.displayName = aDisplayName;
-  card.setProperty("PreferDisplayName", !!aPreferDisplayName);
   return card;
 }
 
@@ -158,7 +145,7 @@ export function load_contacts_into_address_book(aAddressBook, aContacts) {
   for (let i = 0; i < aContacts.length; i++) {
     let contact = aContacts[i];
     if (!(contact instanceof Ci.nsIAbCard)) {
-      contact = create_contact(contact.email, contact.displayName, true);
+      contact = create_contact(contact.email, contact.displayName);
     }
 
     aContacts[i] = aAddressBook.addCard(contact);

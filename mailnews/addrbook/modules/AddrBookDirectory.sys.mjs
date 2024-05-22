@@ -583,9 +583,9 @@ export class AddrBookDirectory {
       }
     }
 
-    // Increment this preference if one or both of these properties change.
+    // Increment this preference if the DisplayName property changed.
     // This will cause the UI to throw away cached values.
-    if ("DisplayName" in changeData || "PreferDisplayName" in changeData) {
+    if ("DisplayName" in changeData) {
       Services.prefs.setIntPref(
         "mail.displayname.version",
         Services.prefs.getIntPref("mail.displayname.version", 0) + 1

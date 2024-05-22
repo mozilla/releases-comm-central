@@ -201,8 +201,6 @@ bool nsAbAddressCollector::SetNamesForCard(nsIAbCard* aSenderCard,
       NS_SUCCEEDED(aSenderCard->SetLastName(NS_ConvertUTF8toUTF16(lastName))))
     modifiedCard = true;
 
-  if (modifiedCard) aSenderCard->SetPropertyAsBool("PreferDisplayName", false);
-
   return modifiedCard;
 }
 

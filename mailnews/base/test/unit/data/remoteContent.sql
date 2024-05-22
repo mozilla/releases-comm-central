@@ -18,7 +18,6 @@ INSERT INTO properties (card, name, value) VALUES
   ('f36c4b94-fbab-4cd6-b175-bf8242e6e757', 'PopularityIndex', '0'),
   ('f36c4b94-fbab-4cd6-b175-bf8242e6e757', 'PreferMailFormat', '0'),
   ('f36c4b94-fbab-4cd6-b175-bf8242e6e757', 'LastModifiedDate', '0'),
-  ('f36c4b94-fbab-4cd6-b175-bf8242e6e757', 'PreferDisplayName', '1'),
   ('f36c4b94-fbab-4cd6-b175-bf8242e6e757', 'AllowRemoteContent', '0'),
 
   ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'PrimaryEmail', 'yes@test.invalid'),
@@ -27,7 +26,6 @@ INSERT INTO properties (card, name, value) VALUES
   ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'PopularityIndex', '0'),
   ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'PreferMailFormat', '0'),
   ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'LastModifiedDate', '0'),
-  ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'PreferDisplayName', '1'),
   ('7ecf5197-87cd-4633-8fcb-bf4ed8f6239e', 'AllowRemoteContent', '0'),
 
   ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'LastModifiedDate', '1397383824'),
@@ -37,5 +35,4 @@ INSERT INTO properties (card, name, value) VALUES
   ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'LowercasePrimaryEmail', 'yes@test.invalid'),
   ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'PopularityIndex', '0'),
   ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'PreferMailFormat', '0'),
-  ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'PreferDisplayName', '1'),
   ('90a1de3d-0f5d-4352-b927-60ee8205ac8f', 'AllowRemoteContent', '1');

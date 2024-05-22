@@ -3472,12 +3472,7 @@ var detailsPane = {
     this.deleteButton.hidden = !card;
     if (card && card.supportsVCard) {
       this._screenNamesToIMPPs(card);
-
       this.vCardEdit.vCardProperties = card.vCardProperties;
-      // getProperty may return a "1" or "0" string, we want a boolean.
-      this.vCardEdit.preferDisplayName.checked =
-        // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
-        card.getProperty("PreferDisplayName", true) == true;
     } else {
       this.vCardEdit.vCardString = vCard ?? "";
       card = new AddrBookCard();
@@ -3590,10 +3585,6 @@ var detailsPane = {
     // cards will fail.
     this.vCardEdit.saveVCard();
     card.setProperty("_vCard", this.vCardEdit.vCardString);
-    card.setProperty(
-      "PreferDisplayName",
-      this.vCardEdit.preferDisplayName.checked
-    );
 
     // Old screen names should by now be on the vCard. Delete them.
     for (const key of [

@@ -226,7 +226,6 @@ var editContactInlineUI = {
     var newName = document.getElementById("editContactName").value;
     if (newName != this._cardDetails.card.displayName) {
       this._cardDetails.card.displayName = newName;
-      this._cardDetails.card.setProperty("PreferDisplayName", true);
     }
 
     // Save the card

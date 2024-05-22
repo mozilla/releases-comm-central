@@ -328,7 +328,6 @@ add_task(async function test_addressBooks() {
         vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
         FirstName: "Superman",
         PrimaryEmail: "c.kent@dailyplanet.com",
-        PreferDisplayName: "0",
         OtherCustom: "Yet another custom property",
         Notes: "Ignored Notes",
       });
@@ -343,13 +342,12 @@ add_task(async function test_addressBooks() {
             oldValue: null,
             newValue: "Yet another custom property",
           },
-          PreferDisplayName: { oldValue: null, newValue: "0" },
           Custom1: { oldValue: "Updated custom value", newValue: null },
         },
       ]);
 
       let updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(6, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq(
         "first@last",
@@ -369,11 +367,6 @@ add_task(async function test_addressBooks() {
         "Yet another custom property",
         updatedContact.properties.OtherCustom,
         "Custom properties should be added even while updating a vCard"
-      );
-      browser.test.assertEq(
-        "0",
-        updatedContact.properties.PreferDisplayName,
-        "Setting non-banished properties parallel to a vCard should update"
       );
       browser.test.assertEq(
         `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
@@ -405,7 +398,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
       // LastName and FirstName are stored in the same multi field property and changing LastName should not change FirstName.
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
@@ -443,7 +436,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
       browser.test.assertEq(
         "new1@invalid.de",
@@ -472,7 +465,7 @@ add_task(async function test_addressBooks() {
       ]);
 
       updatedContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(3, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
       browser.test.assertEq(
         "new1@invalid.de",
@@ -2397,7 +2390,6 @@ add_task(async function test_addressBooks_mv3() {
         vCard: `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
         FirstName: "Superman",
         PrimaryEmail: "c.kent@dailyplanet.com",
-        PreferDisplayName: "0",
         OtherCustom: "Yet another custom property",
         Notes: "Ignored Notes",
       });
@@ -2412,7 +2404,6 @@ add_task(async function test_addressBooks_mv3() {
             oldValue: null,
             newValue: "Yet another custom property",
           },
-          PreferDisplayName: { oldValue: null, newValue: "0" },
           Custom1: { oldValue: "Updated custom value", newValue: null },
         },
       ]);
@@ -2420,7 +2411,7 @@ add_task(async function test_addressBooks_mv3() {
       let updatedContact = await browser.addressBooks.contacts.get(
         newContactId
       );
-      browser.test.assertEq(6, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq(
         "first@last",
@@ -2440,11 +2431,6 @@ add_task(async function test_addressBooks_mv3() {
         "Yet another custom property",
         updatedContact.properties.OtherCustom,
         "Custom properties should be added even while updating a vCard"
-      );
-      browser.test.assertEq(
-        "0",
-        updatedContact.properties.PreferDisplayName,
-        "Setting non-banished properties parallel to a vCard should update"
       );
       browser.test.assertEq(
         `BEGIN:VCARD\r\nVERSION:4.0\r\nN:;first;;;\r\nEMAIL;PREF=1:first@last\r\nUID:${newContactId}\r\nEND:VCARD\r\n`,
@@ -2476,7 +2462,7 @@ add_task(async function test_addressBooks_mv3() {
       ]);
 
       updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
       // LastName and FirstName are stored in the same multi field property and changing LastName should not change FirstName.
       browser.test.assertEq("first", updatedContact.properties.FirstName);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
@@ -2514,7 +2500,7 @@ add_task(async function test_addressBooks_mv3() {
       ]);
 
       updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(5, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
       browser.test.assertEq(
         "new1@invalid.de",
@@ -2543,7 +2529,7 @@ add_task(async function test_addressBooks_mv3() {
       ]);
 
       updatedContact = await browser.addressBooks.contacts.get(newContactId);
-      browser.test.assertEq(4, Object.keys(updatedContact.properties).length);
+      browser.test.assertEq(3, Object.keys(updatedContact.properties).length);
       browser.test.assertEq("lastname", updatedContact.properties.LastName);
       browser.test.assertEq(
         "new1@invalid.de",

@@ -112,33 +112,17 @@ var messages = [
 
   // Address book tests
   {
-    name: "from_in_abook_pdn",
+    name: "from_in_abook",
     headers: { From: "Al Apone <aapone@uscmc.invalid>" },
     expected: { column: "from", value: "Sarge" },
   },
   {
-    name: "from_in_abook_no_pdn",
-    headers: { From: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>" },
-    expected: {
-      column: "from",
-      value: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
-    },
-  },
-  {
-    name: "to_in_abook_pdn",
+    name: "to_in_abook",
     headers: { To: "Al Apone <aapone@uscmc.invalid>" },
     expected: { column: "recipients", value: "Sarge" },
   },
   {
-    name: "to_in_abook_no_pdn",
-    headers: { To: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>" },
-    expected: {
-      column: "recipients",
-      value: "Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
-    },
-  },
-  {
-    name: "to_in_abook_multiple_mixed_pdn",
+    name: "to_in_abook_multiple_mixed",
     headers: {
       To:
         "Al Apone <aapone@uscmc.invalid>, " +
@@ -146,7 +130,7 @@ var messages = [
     },
     expected: {
       column: "recipients",
-      value: "Sarge, Rebeccah Jorden <rjorden@hadleys-hope.invalid>",
+      value: "Sarge, Newt",
     },
   },
 
@@ -235,8 +219,8 @@ var messages = [
 ];
 
 var contacts = [
-  { email: "aapone@uscmc.invalid", name: "Sarge", pdn: true },
-  { email: "rjorden@hadleys-hope.invalid", name: "Newt", pdn: false },
+  { email: "aapone@uscmc.invalid", name: "Sarge" },
+  { email: "rjorden@hadleys-hope.invalid", name: "Newt" },
 ];
 
 add_setup(async function () {
@@ -255,7 +239,7 @@ add_setup(async function () {
   }
 
   for (const contact of contacts) {
-    ensure_card_exists(contact.email, contact.name, contact.pdn);
+    ensure_card_exists(contact.email, contact.name);
   }
 
   await be_in_folder(folder);

@@ -26,8 +26,7 @@ add_task(async function () {
       return null;
     }
 
-    const preferDisplayName = card.getPropertyAsBool("PreferDisplayName", true);
-    return preferDisplayName ? card.displayName : card.primaryEmail;
+    return card.displayName || card.primaryEmail;
   }
 
   Assert.equal(getPrefValue(), -999, "pref has no initial value");
@@ -52,28 +51,14 @@ add_task(async function () {
   Assert.equal(getDisplayNameInAddressBook(), "display");
 
   [card] = book.childCards;
-  card.setPropertyAsBool("PreferDisplayName", true);
-  book.modifyCard(card);
-
-  Assert.equal(getPrefValue(), 3, "pref updated by adding flag");
-  Assert.equal(getDisplayNameInAddressBook(), "display");
-
-  [card] = book.childCards;
   card.displayName = "display name";
   book.modifyCard(card);
 
-  Assert.equal(getPrefValue(), 4, "pref updated by changing display name");
+  Assert.equal(getPrefValue(), 3, "pref updated by changing display name");
   Assert.equal(getDisplayNameInAddressBook(), "display name");
-
-  [card] = book.childCards;
-  card.setPropertyAsBool("PreferDisplayName", false);
-  book.modifyCard(card);
-
-  Assert.equal(getPrefValue(), 5, "pref updated by clearing flag");
-  Assert.equal(getDisplayNameInAddressBook(), "first.last@invalid");
 
   book.deleteCards([card]);
 
-  Assert.equal(getPrefValue(), 6, "pref updated by deleting card");
+  Assert.equal(getPrefValue(), 4, "pref updated by deleting card");
   Assert.equal(getDisplayNameInAddressBook(), null, "card no longer exists");
 });

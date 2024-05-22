@@ -73,10 +73,7 @@ function formatDisplayName(emailAddress, headerDisplayName, context) {
   // this are then responsible for falling back to something else (e.g. the
   // value from the message header).
   if (card) {
-    // getProperty may return a "1" or "0" string, we want a boolean
-    if (card.getProperty("PreferDisplayName", "1") == "1") {
-      displayName = card.displayName || null;
-    }
+    displayName = card.displayName || null;
 
     // Note: headerDisplayName is not used as a fallback as confusion could be
     // caused by a collected address using an e-mail address as display name.

@@ -389,33 +389,12 @@ add_task(async function test_display_name_abook() {
   await be_in_folder(folder);
 
   const address = extract_first_address(thread1);
-  ensure_card_exists(address.email, "My Friend", true);
+  ensure_card_exists(address.email, "My Friend");
 
   await collapse_all_threads();
   await select_click_row(thread1);
 
   check_address_name("My Friend");
-});
-
-add_task(async function test_display_name_abook_no_pdn() {
-  await be_in_folder(folder);
-
-  const address = extract_first_address(thread1);
-  ensure_card_exists(address.email, "My Friend", false);
-
-  await collapse_all_threads();
-  await select_click_row(thread1);
-
-  // With address book entry but display name not preferred, we display name and
-  // e-mail address.
-  check_address_name(address.name + " <" + address.email + ">");
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 });
 
 add_task(async function test_archive_and_delete_messages() {

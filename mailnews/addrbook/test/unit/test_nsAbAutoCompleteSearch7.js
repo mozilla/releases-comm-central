@@ -35,7 +35,6 @@ var PAB_CARD_DATA = [
     NickName: "tom",
     PrimaryEmail: "tomez.doe@foo.invalid",
     SecondEmail: "tomez.doe@foo2.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 10,
     // Poison the card data with an unparseable birthday. This will cause the
     // vCard parser to throw an exception, but it should be caught and the
@@ -50,7 +49,6 @@ var PAB_CARD_DATA = [
     DisplayName: "Tomas Doe",
     PrimaryEmail: "tomez.doe@b.example.com",
     SecondEmail: "tomez.doe@a.example.com",
-    PreferDisplayName: true,
     PopularityIndex: 200,
   },
   {
@@ -58,7 +56,6 @@ var PAB_CARD_DATA = [
     LastName: "Smith",
     DisplayName: "Tomek Smith",
     PrimaryEmail: "tomek@example.com",
-    PreferDisplayName: true,
     PopularityIndex: 3,
   },
 ];

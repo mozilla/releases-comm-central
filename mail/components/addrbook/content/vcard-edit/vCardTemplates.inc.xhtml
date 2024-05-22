@@ -181,15 +181,6 @@
 <template id="template-vcard-edit-fn">
   <label for="vCardDisplayName" data-l10n-id="vcard-displayname"></label>
   <input id="vCardDisplayName" type="text"/>
-  <label id="vCardDisplayNameCheckbox" class="vcard-checkbox">
-    <!-- There is no l10n ID on this element because the vCard edit form is
-     also used in other sections that don't use this checkbox and don't have
-     access to the fluent string. The string is added when needed by the
-     address book edit.js file. -->
-    <input type="checkbox" id="vCardPreferDisplayName" checked="checked" />
-    <!-- SPAN element needed for fluent string. -->
-    <span></span>
-  </label>
 </template>
 
 <!-- NICKNAME field. -->

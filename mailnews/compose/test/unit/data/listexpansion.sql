@@ -29,7 +29,6 @@ INSERT INTO properties (card, name, value) VALUES
   ('813155c6-924d-4751-95d0-70d8e64f16bc', 'LastModifiedDate', '1473722922'),
   ('813155c6-924d-4751-95d0-70d8e64f16bc', 'PopularityIndex', '0'),
   ('813155c6-924d-4751-95d0-70d8e64f16bc', 'PreferMailFormat', '0'),
-  ('813155c6-924d-4751-95d0-70d8e64f16bc', 'PreferDisplayName', '1'),
 
   ('b2cc8395-d959-45e4-9516-17457adb16fa', 'DisplayName', 'Marge'),
   ('b2cc8395-d959-45e4-9516-17457adb16fa', 'PrimaryEmail', 'marge@example.com'),
@@ -38,12 +37,10 @@ INSERT INTO properties (card, name, value) VALUES
   ('b2cc8395-d959-45e4-9516-17457adb16fa', 'LastModifiedDate', '1473723020'),
   ('b2cc8395-d959-45e4-9516-17457adb16fa', 'PopularityIndex', '0'),
   ('b2cc8395-d959-45e4-9516-17457adb16fa', 'PreferMailFormat', '0'),
-  ('b2cc8395-d959-45e4-9516-17457adb16fa', 'PreferDisplayName', '1'),
 
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'PhotoType', 'generic'),
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'PopularityIndex', '0'),
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'PreferMailFormat', '0'),
-  ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'PreferDisplayName', '1'),
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'DisplayName', 'Bart'),
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'PrimaryEmail', 'bart@foobar.invalid'),
   ('979f194e-49f2-4bbb-b364-598cdc6a7d11', 'LowercasePrimaryEmail', 'bart@foobar.invalid'),
@@ -58,7 +55,6 @@ INSERT INTO properties (card, name, value) VALUES
   ('4dd13a79-b70c-4b43-bdba-bacd4e977c1b', 'PopularityIndex', '0'),
   ('4dd13a79-b70c-4b43-bdba-bacd4e977c1b', 'PreferMailFormat', '0'),
   ('4dd13a79-b70c-4b43-bdba-bacd4e977c1b', 'LastModifiedDate', '0'),
-  ('4dd13a79-b70c-4b43-bdba-bacd4e977c1b', 'PreferDisplayName', '1'),
 
   ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'DisplayName', 'Maggie'),
   ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'LastModifiedDate', '1473723047'),
@@ -67,7 +63,6 @@ INSERT INTO properties (card, name, value) VALUES
   ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'LowercasePrimaryEmail', 'maggie@example.com'),
   ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'PopularityIndex', '0'),
   ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'PreferMailFormat', '0'),
-  ('c96402d7-1c7b-4242-a35c-b92c8ec9dfa2', 'PreferDisplayName', '1'),
 
   ('5ec12f1d-7ee9-403c-a617-48596dacbc18', 'DisplayName', 'simpson'),
   ('5ec12f1d-7ee9-403c-a617-48596dacbc18', 'PrimaryEmail', 'simpson'),

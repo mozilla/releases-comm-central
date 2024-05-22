@@ -17,8 +17,6 @@ export class VCardFNComponent extends HTMLElement {
 
   /** @type {HTMLElement} */
   displayEl;
-  /** @type {HTMLElement} */
-  preferDisplayEl;
 
   static newVCardPropertyEntry() {
     return new lazy.VCardPropertyEntry("fn", {}, "text", "");
@@ -41,7 +39,6 @@ export class VCardFNComponent extends HTMLElement {
         },
         { once: true }
       );
-      this.preferDisplayEl = this.querySelector("#vCardPreferDisplayName");
       this.fromVCardPropertyEntryToUI();
     }
   }

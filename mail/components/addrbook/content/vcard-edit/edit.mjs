@@ -217,16 +217,6 @@ class VCardEdit extends HTMLElement {
       );
     });
 
-    // Only set the strings and define this selector if we're inside the
-    // address book edit panel.
-    if (document.getElementById("detailsPane")) {
-      this.preferDisplayName = this.querySelector("vcard-fn").preferDisplayEl;
-      document.l10n.setAttributes(
-        this.preferDisplayName.closest(".vcard-checkbox").querySelector("span"),
-        "about-addressbook-prefer-display-name"
-      );
-    }
-
     this.nickName = this.querySelector("vcard-nickname").nickNameEl;
     this.nickName.addEventListener("input", () => this.updateNickName());
 

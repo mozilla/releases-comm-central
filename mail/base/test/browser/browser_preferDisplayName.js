@@ -20,9 +20,8 @@ add_setup(async function () {
   book.addCard(emily);
 
   felix = new AddrBookCard();
-  felix.displayName = "Felix's Flower Co.";
+  felix.displayName = "";
   felix.primaryEmail = "felix@flowers.invalid";
-  felix.setPropertyAsBool("PreferDisplayName", false);
   book.addCard(felix);
 
   const generator = new MessageGenerator();
@@ -176,9 +175,9 @@ add_task(async function () {
     "From multi-line address should not change"
   );
 
-  // Stop preferring Emily's display name.
+  // Remove Emily's display name.
 
-  emily.setPropertyAsBool("PreferDisplayName", false);
+  emily.displayName = "";
   book.modifyCard(emily);
 
   row = about3Pane.threadTree.getRowAtIndex(2);
@@ -213,9 +212,9 @@ add_task(async function () {
     "From multi-line address should not change"
   );
 
-  // Prefer Emily's display name.
+  // Set Emily's display name.
 
-  emily.setPropertyAsBool("PreferDisplayName", true);
+  emily.displayName = "I'm Emily!";
   book.modifyCard(emily);
 
   row = about3Pane.threadTree.getRowAtIndex(2);
@@ -250,9 +249,9 @@ add_task(async function () {
     "From multi-line address should not change"
   );
 
-  // Prefer Felix's display name.
+  // Set Felix's display name.
 
-  felix.setPropertyAsBool("PreferDisplayName", true);
+  felix.displayName = "Felix's Flower Co.";
   book.modifyCard(felix);
 
   row = about3Pane.threadTree.getRowAtIndex(2);
@@ -272,9 +271,9 @@ add_task(async function () {
     "To single-line title should match the header"
   );
 
-  // Stop preferring Felix's display name.
+  // Clear Felix's display name.
 
-  felix.setPropertyAsBool("PreferDisplayName", false);
+  felix.displayName = "";
   book.modifyCard(felix);
 
   row = about3Pane.threadTree.getRowAtIndex(2);
@@ -294,9 +293,9 @@ add_task(async function () {
     "To single-line title should be cleared"
   );
 
-  // Prefer Felix's display name.
+  // Set Felix's display name.
 
-  felix.setPropertyAsBool("PreferDisplayName", true);
+  felix.displayName = "Felix's Flower Co.";
   book.modifyCard(felix);
 
   // Set global prefer display name preference to false.
@@ -419,28 +418,6 @@ add_task(async function () {
     "emily@ekberg.invalid",
     "From multi-line address should not change"
   );
-  Assert.equal(
-    row.querySelector(".recipientcol-column").textContent,
-    "Felix's Flower Co.",
-    "Recipient column should be the display name"
-  );
-  Assert.equal(
-    toSingleLine.textContent,
-    "Felix's Flower Co.",
-    "To single-line label should be the display name"
-  );
-  Assert.equal(
-    toSingleLine.title,
-    "Felix Flowers <felix@flowers.invalid>",
-    "To single-line title should match the header"
-  );
-
-  // Restore the default for Felix.
-
-  felix.deleteProperty("PreferDisplayName");
-  book.modifyCard(felix);
-
-  row = about3Pane.threadTree.getRowAtIndex(2);
   Assert.equal(
     row.querySelector(".recipientcol-column").textContent,
     "Felix's Flower Co.",

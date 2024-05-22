@@ -110,7 +110,6 @@ var PAB_CARD_DATA = [
     DisplayName: "d",
     NickName: "ni",
     PrimaryEmail: "ema@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
@@ -119,7 +118,6 @@ var PAB_CARD_DATA = [
     DisplayName: "di",
     NickName: "nic",
     PrimaryEmail: "emai@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
@@ -128,7 +126,6 @@ var PAB_CARD_DATA = [
     DisplayName: "dis",
     NickName: "nick",
     PrimaryEmail: "email@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
@@ -137,7 +134,6 @@ var PAB_CARD_DATA = [
     DisplayName: "disp",
     NickName: "nickn",
     PrimaryEmail: "e@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
@@ -146,7 +142,6 @@ var PAB_CARD_DATA = [
     DisplayName: "displ",
     NickName: "n",
     PrimaryEmail: "em@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
@@ -155,7 +150,6 @@ var PAB_CARD_DATA = [
     DisplayName: "doh, james",
     NickName: "j",
     PrimaryEmail: "DohJames@foo.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
 ];
@@ -190,14 +184,12 @@ var CAB_CARD_DATA = [
     DisplayName: "DisplayName1",
     NickName: "NickName1",
     PrimaryEmail: "PrimaryEmail1@test.invalid",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
   {
     FirstName: "Empty",
     LastName: "Email",
     DisplayName: "Empty Email",
-    PreferDisplayName: true,
     PopularityIndex: 0,
   },
 ];

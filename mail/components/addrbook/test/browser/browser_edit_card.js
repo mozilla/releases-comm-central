@@ -64,8 +64,6 @@ function getInput(entryName, addIfNeeded = false) {
   switch (entryName) {
     case "DisplayName":
       return abDocument.querySelector("vcard-fn #vCardDisplayName");
-    case "PreferDisplayName":
-      return abDocument.querySelector("vcard-fn #vCardPreferDisplayName");
     case "NickName":
       return abDocument.querySelector("vcard-nickname #vCardNickName");
     case "Prefix": {
@@ -1248,7 +1246,6 @@ add_task(async function test_generate_display_name() {
     FirstName: "",
     LastName: "",
     DisplayName: "",
-    PreferDisplayName: true,
   });
 
   // Try saving an empty contact.
@@ -1374,80 +1371,6 @@ add_task(async function test_generate_display_name() {
   await closeAddressBookWindow();
   Services.prefs.clearUserPref("mail.addr_book.displayName.autoGeneration");
   Services.prefs.clearUserPref("mail.addr_book.displayName.lastnamefirst");
-  personalBook.deleteCards(personalBook.childCards);
-});
-
-/**
- * Test that the "prefer display name" checkbox is visible when it should be
- * (in edit mode and only if there is a display name).
- */
-add_task(async function test_prefer_display_name() {
-  const abWindow = await openAddressBookWindow();
-  const abDocument = abWindow.document;
-
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
-  const editButton = abDocument.getElementById("editButton");
-  const saveEditButton = abDocument.getElementById("saveEditButton");
-
-  // Make a new card. Check the default value is true.
-  // The display name shouldn't be affected by first and last name if the field
-  // is not empty.
-  await openDirectory(personalBook);
-  EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
-
-  checkInputValues({ DisplayName: "", PreferDisplayName: true });
-
-  setInputValues({ DisplayName: "test" });
-  setInputValues({ FirstName: "first" });
-
-  checkInputValues({ DisplayName: "test" });
-
-  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(editButton);
-
-  Assert.equal(personalBook.childCardCount, 1);
-  checkCardValues(personalBook.childCards[0], {
-    DisplayName: "test",
-    PreferDisplayName: "1",
-  });
-
-  // Edit the card. Check the UI matches the card value.
-  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
-  await inEditingMode();
-
-  checkInputValues({ DisplayName: "test" });
-  checkInputValues({ FirstName: "first" });
-
-  // Change the card value.
-
-  const preferDisplayName = abDocument.querySelector(
-    "vcard-fn #vCardPreferDisplayName"
-  );
-  EventUtils.synthesizeMouseAtCenter(preferDisplayName, {}, abWindow);
-
-  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(editButton);
-
-  Assert.equal(personalBook.childCardCount, 1);
-  checkCardValues(personalBook.childCards[0], {
-    DisplayName: "test",
-    PreferDisplayName: "0",
-  });
-
-  // Edit the card. Check the UI matches the card value.
-
-  preferDisplayName.checked = true; // Ensure it gets set.
-  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
-  await inEditingMode();
-
-  // Clear the display name. The first and last name shouldn't affect it.
-  setInputValues({ DisplayName: "" });
-  checkInputValues({ FirstName: "first" });
-
-  setInputValues({ LastName: "last" });
-  checkInputValues({ DisplayName: "" });
-
-  await closeAddressBookWindow();
   personalBook.deleteCards(personalBook.childCards);
 });
 
@@ -2894,7 +2817,6 @@ add_task(async function test_vCard_minimal() {
     FirstName: "",
     LastName: "",
     DisplayName: "",
-    PreferDisplayName: true,
   });
 
   const addOrgButton = abDocument.getElementById("vcard-add-org");
@@ -3191,7 +3113,6 @@ add_task(async function test_special_date_field() {
     FirstName: "",
     LastName: "",
     DisplayName: "",
-    PreferDisplayName: true,
   });
 
   // Add data to the default values to allow saving.
