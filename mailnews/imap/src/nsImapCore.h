@@ -72,7 +72,7 @@ using imapMessageFlagsType = uint16_t;
 
 // this has to do with Mime Parts on Demand. It used to live in net.h
 // I'm not sure where this will live, but here is OK temporarily
-using IMAP_ContentModifiedType = enum {
+using IMAP_ContentModifiedType = enum IMAP_ContentModifiedType {
   IMAP_CONTENT_NOT_MODIFIED = 0,
   IMAP_CONTENT_MODIFIED_VIEW_INLINE,
   IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS,
@@ -80,7 +80,7 @@ using IMAP_ContentModifiedType = enum {
 };
 
 // I think this should really go in an imap.h equivalent file
-using EIMAPNamespaceType = enum {
+using EIMAPNamespaceType = enum EIMapNamespaceType {
     kPersonalNamespace = 0,
     kOtherUsersNamespace,
     kPublicNamespace,
