@@ -29,7 +29,9 @@
                      oncommand="TodayPane.cyclePaneView(1);"/>
     </calendar-modebox>
     <spacer id="buttonspacer"/>
-    <toolbarbutton id="today-closer" class="today-closebutton close-icon"
+    <toolbarbutton id="today-closer"
+                   class="today-closebutton close-icon"
+                   data-l10n-id="calendar-today-pane-close-button"
                    oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
                               TodayPane.updateDisplay();
                               TodayPane.updateSplitterState();"/>

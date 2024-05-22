@@ -97,6 +97,21 @@ var TodayPane = {
     const todayHeader = document.getElementById("today-pane-header");
     todayHeader.setAttribute("index", index);
     todayHeader.setAttribute("value", this.paneViews[index]);
+
+    const strings = [
+      "calendar-today-pane-show-events-and-tasks",
+      "calendar-today-pane-show-tasks-only",
+      "calendar-today-pane-show-events-only",
+    ];
+    document.l10n.setAttributes(
+      document.getElementById("today-pane-cycler-prev"),
+      strings[(index + 2) % 3]
+    );
+    document.l10n.setAttributes(
+      document.getElementById("today-pane-cycler-next"),
+      strings[(index + 1) % 3]
+    );
+
     const todayPaneSplitter = document.getElementById("today-pane-splitter");
     todayPaneSplitter.hidden = index != 0;
     const todayIsVisible = document.getElementById("today-pane-panel").isVisible();
