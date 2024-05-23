@@ -408,6 +408,7 @@ class AutoTreeViewTableRow extends TreeViewTableRow {
     super.connectedCallback();
 
     this.setAttribute("draggable", "true");
+    this.classList.add("table-layout");
 
     for (const column of this.list.table.columns) {
       this.appendChild(document.createElement("td")).classList.add(

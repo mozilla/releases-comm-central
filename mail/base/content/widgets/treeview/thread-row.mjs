@@ -25,6 +25,7 @@ class ThreadRow extends TreeViewTableRow {
     super.connectedCallback();
 
     this.setAttribute("draggable", "true");
+    this.classList.add("table-layout");
     this.appendChild(
       document.getElementById("threadPaneRowTemplate").content.cloneNode(true)
     );

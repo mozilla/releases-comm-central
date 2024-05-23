@@ -4,42 +4,107 @@
 
 :root {
   --listbox-selected-outline: none;
-  --tree-header-table-height: calc(round(up, 1.7em, 1px) + 7px);
-  --tree-header-cell-padding: 6px;
-  --tree-header-cell-indent: 0;
   --list-item-min-height: 26px;
   --list-item-buttons-size: 22px;
+  --indicator-width: 4px;
+  --indicator-height-offset: 6px;
+  --indicator-background: transparent;
+  --indicator-border: transparent;
+  --indicator-inline-start: 2px;
   --table-header-cell-icon-width: 24px;
   --table-header-cell-icon-min-width: 24px;
   --table-row-cell-img-margin-inline-start: 6px;
   --table-row-cell-button-margin-inline-start: 4px;
+  --tree-card-block: 2px;
+  --tree-card-inline: 8px;
+  --tree-card-content-radius: 6px;
+  --tree-card-content-inline: 6px;
+  --tree-header-table-height: calc(round(up, 1.7em, 1px) + 7px);
+  --tree-header-cell-padding: 6px;
+  --tree-header-cell-indent: 0;
 
   &[uidensity="compact"] {
-    --tree-header-table-height: max(27px, round(up, 1.4em, 1px));
-    --tree-header-cell-padding: 3px;
-    --tree-header-cell-indent: 3px;
     --list-item-min-height: 18px;
     --list-item-buttons-size: 18px;
+    --indicator-width: 3px;
+    --indicator-inline-start: 1px;
     --table-header-cell-icon-width: 18px;
     --table-header-cell-icon-min-width: 18px;
     --table-header-cell-icon-button-padding: 0;
     --table-row-cell-img-margin-inline-start: 3px;
     --table-row-cell-button-margin-inline-start: 1px;
+    --tree-card-block: 1px;
+    --tree-card-inline: 6px;
+    --tree-card-content-inline: 3px;
+    --tree-card-content-radius: 3px;
+    --tree-header-table-height: max(27px, round(up, 1.4em, 1px));
+    --tree-header-cell-padding: 3px;
+    --tree-header-cell-indent: 3px;
   }
 
   &[uidensity="touch"] {
-    --tree-header-table-height: calc(round(up, 2em, 1px) + 13px);
-    --tree-header-cell-padding: 9px;
-    --tree-header-cell-indent: -3px;
     --list-item-min-height: 32px;
     --table-header-cell-icon-width: 33px;
     --table-header-cell-icon-min-width: 33px;
     --table-row-cell-img-margin-inline-start: 11px;
     --table-row-cell-button-margin-inline-start: 9px;
+    --tree-card-block: 3px;
+    --tree-card-inline: 8px;
+    --tree-card-content-inline: 9px;
+    --tree-header-table-height: calc(round(up, 2em, 1px) + 13px);
+    --tree-header-cell-padding: 9px;
+    --tree-header-cell-indent: -3px;
   }
 
   @media not (prefers-contrast) {
+    --tree-focus-outline: transparent;
     --tree-view-bg: var(--color-white);
+    --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black));
+    --tree-card-background: var(--layout-background-0);
+    --tree-card-border: light-dark(
+      color-mix(in srgb, var(--tree-view-bg) 90%, black),
+      color-mix(in srgb, var(--tree-view-bg) 90%, white)
+    );
+    --tree-card-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
+    --tree-card-border-focus: var(--selected-item-color);
+    --tree-card-hover: var(--selected-item-color);
+    --tree-card-focus: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
+    /* Selection Colors */
+    --tree-card-background-current: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 5%, var(--tree-view-bg)),
+      color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-view-bg))
+    );
+    --tree-card-background-selected: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 7%, var(--tree-view-bg)),
+      color-mix(in srgb, var(--selected-item-color) 14%, var(--tree-view-bg))
+    );
+    --tree-card-background-selected-current: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-view-bg)),
+      color-mix(in srgb, var(--selected-item-color) 30%, var(--tree-view-bg))
+    );
+    --tree-card-border-selected: color-mix(in srgb, var(--selected-item-color) 30%, transparent);
+    --indicator-background-selected: var(--selected-item-color);
+    --indicator-border-selected: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 80%, black),
+      color-mix(in srgb, var(--selected-item-color) 80%, white)
+    );
+    /* Unfocused Colors */
+    --tree-card-background-current-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-90))
+    );
+    --tree-card-background-selected-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-90))
+    );
+    --tree-card-background-selected-current-unfocused: light-dark(
+      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-90))
+    );
+    --tree-card-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-80));
+    --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
+    --indicator-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-60));
+
     --tree-view-color: var(--color-ink-90);
     --tree-view-header-hover-bg: var(--color-gray-20);
     --tree-view-header-hover-active-bg: var(--color-gray-30);
@@ -68,7 +133,30 @@
   }
 
   @media (prefers-contrast) {
+    --tree-focus-outline: SelectedItem;
     --tree-view-bg: Field;
+    --tree-pane-background: color-mix(in srgb, Canvas 90%, CanvasText);
+    --tree-card-background: Canvas;
+    --tree-card-border: CanvasText;
+    --tree-card-border-hover: SelectedItem;
+    --tree-card-hover: transparent;
+    --tree-card-focus: SelectedItem;
+    /* Selection Colors */
+    --tree-card-background-current: color-mix(in srgb, Canvas 95%, SelectedItem);
+    --tree-card-background-selected: color-mix(in srgb, Canvas 90%, SelectedItem);
+    --tree-card-background-selected-current: SelectedItem;
+    --tree-card-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
+    --tree-card-border-focus: color-mix(in srgb, CanvasText 20%, SelectedItem);
+    --indicator-background-selected: SelectedItem;
+    --indicator-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
+    /* Unfocused Colors */
+    --tree-card-background-current-unfocused: color-mix(in srgb, Canvas 90%, CanvasText);
+    --tree-card-background-selected-unfocused: color-mix(in srgb, Canvas 80%, CanvasText);
+    --tree-card-background-selected-current-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
+    --tree-card-border-selected-unfocused: CanvasText;
+    --indicator-background-selected-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
+    --indicator-border-selected-unfocused: color-mix(in srgb, Canvas 50%, CanvasText);
+
     --tree-view-color: FieldText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
     --tree-view-header-border-color: ThreeDShadow;
@@ -115,88 +203,184 @@
     cursor: default;
   }
 
-  & > *:hover {
-    background-color: var(--listbox-hover);
-  }
+  /* Table mode */
 
-  @media (prefers-contrast) {
-    & > *:hover {
-      outline: var(--listbox-selected-outline);
-      outline-offset: -2px;
+  & > .table-layout {
+
+    &:hover {
+      background-color: var(--listbox-hover);
+
+      @media (prefers-contrast) {
+        outline: var(--listbox-selected-outline);
+        outline-offset: -2px;
+      }
     }
-  }
 
-  & > tr:not([is="thread-card"]).selected {
-    background-color: var(--listbox-selected-bg);
-  }
+    &.selected {
+      background-color: var(--listbox-selected-bg);
+    }
 
-  &:is(:focus, :focus-within) > tr:not([is="thread-card"]).selected {
-    color: var(--listbox-selected-color);
-  }
-
-  &:is(:focus, :focus-within) > .current:not([is="thread-card"], .selected) {
-    outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
-    outline-offset: -1px;
-  }
-
-  &:is(:focus, :focus-within) > td::before {
-    background-color: var(--selection-indicator-background-unselected-focused);
-    border-color: var(--selection-indicator-border-unselected-focused);
-  }
-
-  /* Right click state styles */
-  & tr.context-menu-target:not(.selected) {
-    &:not([is="thread-card"]) {
+    /* Right click state styles */
+    &.context-menu-target:not(.selected) {
       background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
       outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
       outline-offset: -1px;
     }
   }
 
-  [data-properties~="unread"] {
-    &[is="thread-row"]:not([data-properties~="tagged"]) {
-      color: var(--unread-color);
+  &:is(:focus, :focus-within) {
+
+    & > .table-layout {
+      &.selected {
+        color: var(--listbox-selected-color);
+      }
+
+      &.current:not(.selected) {
+        outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+        outline-offset: -1px;
+      }
+
+      &::before {
+        background-color: var(--selection-indicator-background-unselected-focused);
+        border-color: var(--selection-indicator-border-unselected-focused);
+      }
     }
   }
 
   /* Thread row selection styles */
-  &:is(:focus, :focus-within) > .selected:not([is="thread-card"]),
-  & > .selected:not([is="thread-card"]):focus-within {
+  &:is(:focus, :focus-within) > .table-layout.selected,
+  & > .table-layout.selected:focus-within {
     color: var(--listbox-selected-color);
     background-color: var(--listbox-focused-selected-bg);
+  }
 
-    &:not([data-properties~="flagged"]) > .tree-view-row-flag > .tree-button-flag > img,
-    &:not([data-properties~="junk"]) > .tree-view-row-spam > .tree-button-spam > img {
-      fill: color-mix(in srgb, currentColor 40%, transparent);
-      stroke: currentColor;
+  .multi-selected & {
+    &,
+    &:focus {
+      & > .table-layout.selected.current {
+        outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
+        outline-offset: -1px;
+      }
+    }
+  }
+
+  /* Card mode */
+
+  & > .card-layout {
+    background-color: var(--tree-pane-background);
+
+    @media (prefers-reduced-motion: no-preference) {
+      & .card-container {
+        transition: background-color 300ms ease, color 300ms ease,
+                    border-color 300ms ease, box-shadow 300ms ease;
+
+        &::before {
+          transition: transform 200ms ease, background-color 300ms ease, border-color 300ms;
+        }
+      }
     }
 
-    & .tree-view-row-thread img {
-      stroke: var(--listbox-selected-color);
+    /* Hover */
+    &:is(:hover, :focus, :focus-within) {
+      --tree-card-border: var(--tree-card-border-hover);
+      --tree-card-background: var(--tree-card-background-current);
+
+      & .card-container {
+        box-shadow: 0 0 5px color-mix(in srgb, var(--tree-card-hover) 50%, transparent);
+      }
     }
   }
 
-  & [is="thread-row"].selected .twisty {
-    color: currentColor;
-  }
-}
+  /* Selection */
+  &:is(:focus, :focus-within) .card-layout {
 
-.multi-selected [is="tree-view-table-body"] {
-  &,
-  &:focus {
-    & > .selected.current {
-      outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
-      outline-offset: -1px;
+    &.current {
+      --tree-card-background: var(--tree-card-background-current);
+      --tree-card-border: var(--tree-card-focus);
+    }
+
+    &.selected {
+      --tree-card-background: var(--tree-card-background-selected);
+      --tree-card-border: var(--tree-card-border-selected);
+      --indicator-background: var(--indicator-background-selected);
+      --indicator-border: var(--indicator-border-selected);
+
+      &.current {
+        --tree-card-background: var(--tree-card-background-selected-current);
+        --tree-card-border: var(--tree-card-border-focus);
+      }
+
+      .card-container::before {
+        transform: translateX(0);
+      }
     }
   }
-}
 
-[is="tree-view-table-body"]:is(:focus, :focus-within) > .selected .tree-view-row-thread img {
-  stroke: var(--listbox-selected-color);
-}
+  /* Unfocused */
+  &:not(:focus, :focus-within) .card-layout {
 
-tr[is="thread-row"].selected .twisty {
-  color: currentColor;
+    &.current {
+      --tree-card-background: var(--tree-card-background-current-unfocused);
+    }
+
+    &.selected {
+      --tree-card-background: var(--tree-card-background-selected-unfocused);
+      --tree-card-border: var(--tree-card-border-selected-unfocused);
+      --indicator-background: var(--indicator-background-selected-unfocused);
+      --indicator-border: var(--indicator-border-selected-unfocused);
+
+      .card-container::before {
+        transform: translateX(0);
+      }
+    }
+
+    &.selected.current {
+      --tree-card-background: var(--tree-card-background-selected-current-unfocused);
+    }
+  }
+
+  @media (prefers-contrast) {
+    & .card-layout:is(:hover, :focus, :focus-within, :focus-visible, .current) .card-container {
+      outline: 2px solid var(--tree-focus-outline);
+      outline-offset: -3px;
+    }
+
+    & .card-layout.current.selected .card-container {
+      color: SelectedItemText;
+      outline-offset: -4px;
+      outline-color: SelectedItemText;
+    }
+  }
+
+  & > .card-layout > td {
+    padding-inline: var(--tree-card-inline);
+    padding-block: var(--tree-card-block);
+
+    @media (-moz-overlay-scrollbars) {
+      padding-inline-end: max(env(scrollbar-inline-size), var(--tree-card-inline));
+    }
+
+    & > .card-container {
+      height: 100%;
+      background-color: var(--tree-card-background);
+      border: 1px solid var(--tree-card-border);
+      border-radius: var(--tree-card-content-radius);
+      padding-inline: var(--tree-card-content-inline);
+
+      &::before {
+        position: absolute;
+        content: "";
+        inset-block: var(--indicator-height-offset);
+        inset-inline-start: var(--indicator-inline-start);
+        background-color: var(--indicator-background);
+        border: 1px solid var(--indicator-border);
+        border-radius: var(--indicator-width);
+        width: var(--indicator-width);
+        box-sizing: border-box;
+        transform: translateX(calc(var(--tree-card-inline) * -1));
+      }
+    }
+  }
 }
 
 /* Resizable table columns */
@@ -435,7 +619,7 @@ table[is="tree-view-table"] tr.selected td.current-cell {
 }
 
 table[is="tree-view-table"] {
-  tbody tr[is="thread-row"] td:not([colspan="2"]) button:not(.twisty) {
+  tbody .table-layout td:not([colspan="2"]) button:not(.twisty) {
     height: 100%;
     width: 100%;
   }

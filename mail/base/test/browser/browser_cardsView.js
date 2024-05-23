@@ -156,7 +156,7 @@ add_task(async function testSwitchToCardsView() {
   );
 
   const tableRow = threadTree.getRowAtIndex(1);
-  const tableData = tableRow.querySelector(".thread-card-container");
+  const tableData = tableRow.querySelector(".card-container");
   const rowHeight = getComputedStyle(tableRow).getPropertyValue("height");
   const containerHeightNoPadding = getComputedStyle(tableData)
     .getPropertyValue("height")

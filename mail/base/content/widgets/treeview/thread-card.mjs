@@ -27,6 +27,7 @@ class ThreadCard extends TreeViewTableRow {
     super.connectedCallback();
 
     this.setAttribute("draggable", "true");
+    this.classList.add("card-layout");
 
     this.appendChild(
       document.getElementById("threadPaneCardTemplate").content.cloneNode(true)

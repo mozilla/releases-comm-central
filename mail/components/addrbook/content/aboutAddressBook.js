@@ -1238,7 +1238,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
    * @augments {TreeViewTableRow}
    */
   class AbCardRow extends customElements.get("tree-view-table-row") {
-    static ROW_HEIGHT = 46;
+    static ROW_HEIGHT = 52;
 
     connectedCallback() {
       if (this.hasConnected) {
@@ -1248,6 +1248,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       super.connectedCallback();
 
       this.setAttribute("draggable", "true");
+      this.classList.add("card-layout");
 
       this.cell = document.createElement("td");
 
@@ -1359,6 +1360,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       super.connectedCallback();
 
       this.setAttribute("draggable", "true");
+      this.classList.add("table-layout");
 
       for (const column of cardsPane.COLUMNS) {
         this.appendChild(document.createElement("td")).classList.add(
@@ -1486,15 +1488,15 @@ var cardsPane = {
     const tableRowClass = customElements.get("ab-table-card-row");
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        rowClass.ROW_HEIGHT = 36;
+        rowClass.ROW_HEIGHT = 40;
         tableRowClass.ROW_HEIGHT = 18;
         break;
       case UIDensity.MODE_TOUCH:
-        rowClass.ROW_HEIGHT = 60;
+        rowClass.ROW_HEIGHT = 68;
         tableRowClass.ROW_HEIGHT = 32;
         break;
       default:
-        rowClass.ROW_HEIGHT = 46;
+        rowClass.ROW_HEIGHT = 52;
         tableRowClass.ROW_HEIGHT = 22;
         break;
     }

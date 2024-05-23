@@ -3,12 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --thread-card-block: 2px;
-  --thread-card-inline: 8px;
   --thread-child-start: 20px;
   --thread-card-content-block: 3px;
-  --thread-card-content-inline: 6px;
-  --thread-card-content-radius: 6px;
   --thread-card-content-gap: 3px;
   --thread-indicator-content-padding: 2px 3px;
   --thread-line-height: 100%;
@@ -16,164 +12,100 @@
   --read-status-new: var(--icon-sparkle-star-sm);
   --read-status-icon: var(--read-status-unread);
   --read-status-size: 16px;
-  --indicator-width: 4px;
-  --indicator-height-offset: 6px;
   --indicator-gap: 3px;
   --inset-inline-start: 0;
 
   &[uidensity="compact"] {
-    --thread-card-block: 1px;
-    --thread-card-inline: 5px;
+    --tree-card-inline: 5px;
     --thread-child-start: 8px;
     --thread-card-content-block: 1px;
-    --thread-card-content-inline: 3px;
-    --thread-card-content-radius: 3px;
     --thread-card-content-gap: 1px;
     --thread-indicator-content-padding: 1px 3px;
     --read-status-unread: var(--icon-dot-xs);
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
-    --indicator-width: 3px;
     --indicator-gap: 2px;
   }
 
   &[uidensity="touch"] {
-    --thread-card-block: 3px;
-    --thread-card-inline: 8px;
     --thread-child-start: 22px;
     --thread-card-content-block: 6px;
-    --thread-card-content-inline: 9px;
     --thread-card-content-gap: 6px;
     --thread-indicator-content-padding: 3px;
   }
 
   @media not (prefers-contrast) {
-    --thread-pane-background: light-dark(var(--color-gray-05), var(--color-black));
-    --thread-card-background: var(--layout-background-0);
-    --thread-card-border: light-dark(
-      color-mix(in srgb, var(--thread-card-background) 90%, black),
-      color-mix(in srgb, var(--thread-card-background) 90%, white)
+    --tree-card-border: light-dark(
+      color-mix(in srgb, var(--tree-card-background) 90%, black),
+      color-mix(in srgb, var(--tree-card-background) 90%, white)
     );
-    --thread-card-border-hover: color-mix(in srgb, var(--selected-item-color) 60%, transparent);
-    --thread-card-border-focus: var(--selected-item-color);
-    --thread-card-hover: var(--selected-item-color);
-    --thread-card-focus: color-mix(in srgb, var(--selected-item-color) 20%, transparent);
-    --focus-outline: transparent;
-    --indicator-background: transparent;
-    --indicator-border: transparent;
     --read-status-fill: transparent;
     --read-status-stroke: transparent;
     --new-subject-color: light-dark(var(--color-blue-60), var(--color-blue-40));
     --thread-line-color: light-dark(var(--color-ink-40), var(--color-ink-50));
     --new-color: light-dark(var(--color-blue-60), var(--color-blue-40));
     /* Selection Colors */
-    --thread-card-background-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 5%, var(--thread-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 10%, var(--thread-card-background))
+    --tree-card-background-current: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 5%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-card-background))
     );
-    --thread-card-background-selected: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 7%, var(--thread-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 14%, var(--thread-card-background))
+    --tree-card-background-selected: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 7%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 14%, var(--tree-card-background))
     );
-    --thread-card-background-selected-current: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 15%, var(--thread-card-background)),
-      color-mix(in srgb, var(--selected-item-color) 30%, var(--thread-card-background))
-    );
-    --thread-card-border-selected: var(--selected-item-color);
-    --indicator-background-selected: var(--selected-item-color);
-    --indicator-border-selected: light-dark(
-      color-mix(in srgb, var(--selected-item-color) 80%, black),
-      color-mix(in srgb, var(--selected-item-color) 80%, white)
+    --tree-card-background-selected-current: light-dark(
+      color-mix(in srgb, var(--selected-item-color) 15%, var(--tree-card-background)),
+      color-mix(in srgb, var(--selected-item-color) 30%, var(--tree-card-background))
     );
     /* Spam Colors */
-    --thread-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
-    --thread-card-hover-spam: light-dark(var(--color-red-40), var(--color-red-70));
+    --tree-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
+    --tree-card-hover-spam: light-dark(var(--color-red-40), var(--color-red-70));
     --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    --thread-card-background-current-spam: light-dark(
+    --tree-card-background-current-spam: light-dark(
       color-mix(in srgb, var(--layout-background-0) 98%, var(--color-red-50)),
       color-mix(in srgb, var(--layout-background-0) 88%, var(--color-red-90))
     );
-    --thread-card-background-selected-spam: light-dark(
+    --tree-card-background-selected-spam: light-dark(
       color-mix(in srgb, var(--layout-background-0) 95%, var(--color-red-50)),
       color-mix(in srgb, var(--layout-background-0) 85%, var(--color-red-90))
     );
-    --thread-card-background-selected-current-spam: light-dark(
+    --tree-card-background-selected-current-spam: light-dark(
       color-mix(in srgb, var(--layout-background-0) 90%, var(--color-red-50)),
       color-mix(in srgb, var(--layout-background-0) 80%, var(--color-red-90))
     );
-    --thread-card-border-selected-spam: light-dark(var(--color-red-50), var(--color-red-70));
+    --tree-card-border-selected-spam: light-dark(var(--color-red-50), var(--color-red-70));
     --indicator-background-selected-spam: var(--color-red-50);
     --indicator-border-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    /* Unfocused Colors */
-    --thread-card-background-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-90))
-    );
-    --thread-card-background-selected-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-90))
-    );
-    --thread-card-background-selected-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-90))
-    );
-    --thread-card-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-80));
-    --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
-    --indicator-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-60));
   }
 
   @media (prefers-contrast) {
-    --thread-pane-background: color-mix(in srgb, Canvas 90%, CanvasText);
-    --thread-card-background: Canvas;
-    --thread-card-border: CanvasText;
-    --thread-card-border-hover: SelectedItem;
-    --thread-card-hover: transparent;
-    --thread-card-focus: SelectedItem;
-    --focus-outline: SelectedItem;
-    --indicator-background: transparent;
-    --indicator-border: transparent;
     --read-status-fill: transparent;
     --read-status-stroke: transparent;
     --new-subject-color: AccentColor;
     --thread-line-color: CanvasText;
     --new-color: SelectedItem;
-    /* Selection Colors */
-    --thread-card-background-current: color-mix(in srgb, Canvas 95%, SelectedItem);
-    --thread-card-background-selected: color-mix(in srgb, Canvas 90%, SelectedItem);
-    --thread-card-background-selected-current: SelectedItem;
-    --thread-card-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
-    --thread-card-border-focus: color-mix(in srgb, CanvasText 20%, SelectedItem);
-    --indicator-background-selected: SelectedItem;
-    --indicator-border-selected: color-mix(in srgb, CanvasText 30%, SelectedItem);
     /* Spam Colors */
     --focus-outline-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    --thread-card-border-hover-spam: var(--color-red-50);
-    --thread-card-hover-spam: transparent;
+    --tree-card-border-hover-spam: var(--color-red-50);
+    --tree-card-hover-spam: transparent;
     --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    --thread-card-background-current-spam: color-mix(in srgb, Canvas 80%, var(--color-red-50));
-    --thread-card-background-selected-spam: color-mix(in srgb, Canvas 70%, var(--color-red-50));
-    --thread-card-background-selected-current-spam: light-dark(var(--color-red-70), var(--color-red-40));
-    --thread-card-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
+    --tree-card-background-current-spam: color-mix(in srgb, Canvas 80%, var(--color-red-50));
+    --tree-card-background-selected-spam: color-mix(in srgb, Canvas 70%, var(--color-red-50));
+    --tree-card-background-selected-current-spam: light-dark(var(--color-red-70), var(--color-red-40));
+    --tree-card-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
     --indicator-background-selected-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --indicator-border-selected-spam: color-mix(in srgb, CanvasText 30%, var(--color-red-50));
-    /* Unfocused Colors */
-    --thread-card-background-current-unfocused: color-mix(in srgb, Canvas 90%, CanvasText);
-    --thread-card-background-selected-unfocused: color-mix(in srgb, Canvas 80%, CanvasText);
-    --thread-card-background-selected-current-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
-    --thread-card-border-selected-unfocused: CanvasText;
-    --indicator-background-selected-unfocused: color-mix(in srgb, Canvas 70%, CanvasText);
-    --indicator-border-selected-unfocused: color-mix(in srgb, Canvas 50%, CanvasText);
   }
 }
 
 #threadTree[rows="thread-card"] {
-  background-color: var(--thread-pane-background);
-  padding-block: var(--thread-card-block);
+  background-color: var(--tree-pane-background);
+  padding-block: var(--tree-card-block);
 
   /* Default Card */
-  & tr[is="thread-card"] {
+  & .card-layout {
     outline-color: transparent;
-    background-color: var(--thread-pane-background);
+    background-color: var(--tree-pane-background);
 
     /* Unread Message */
     &[data-properties~="unread"] {
@@ -309,12 +241,6 @@
     }
 
     & td {
-      padding-inline: var(--thread-card-inline);
-      padding-block: var(--thread-card-block);
-
-      @media (-moz-overlay-scrollbars) {
-        padding-inline-end: max(env(scrollbar-inline-size), var(--thread-card-inline));
-      }
 
       & button {
         min-height: 16px;
@@ -381,31 +307,17 @@
         }
       }
 
-      & .thread-card-container {
-        background-color: var(--thread-card-background);
-        border-radius: var(--thread-card-content-radius);
+      & .card-container {
         display: grid;
         grid-template-columns: auto 1fr;
-        height: 100%;
-        padding-inline: var(--thread-card-content-inline);
         padding-inline-start: 3px; /* Keep the start indicator close to the front */
         box-sizing: border-box;
-        border: 1px solid var(--thread-card-border);
         position: relative;
         overflow: visible;
         isolation: isolate;
 
         &::before {
-          position: absolute;
-          content: "";
-          inset-block: var(--indicator-height-offset);
           inset-inline-start: calc(var(--indicator-width) * -1 - var(--indicator-gap));
-          background-color: var(--indicator-background);
-          border: 1px solid var(--indicator-border);
-          border-radius: var(--indicator-width);
-          width: var(--indicator-width);
-          box-sizing: border-box;
-          transform: translateX(calc(var(--thread-card-inline) * -1));
         }
 
         & .thread-card-column {
@@ -535,42 +447,26 @@
             background-position-x: 100%
           }
         }
-
-        @media (prefers-reduced-motion: no-preference) {
-          transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
-
-          &::before {
-            transition: transform 200ms ease, background-color 300ms ease, border-color 300ms;
-          }
-        }
       }
     }
 
     @media (prefers-contrast) {
-      &:is(:hover, :focus, :focus-within, :focus-visible, .current) .thread-card-container {
-        outline: 2px solid var(--focus-outline);
-        outline-offset: -3px;
-      }
-
-      &.current.selected .thread-card-container {
+      &.current.selected .card-container {
         --thread-pane-flag-fill: SelectedItemText;
         --thread-pane-flag-stroke: SelectedItemText;
         --thread-pane-spam-fill: SelectedItemText;
         --thread-pane-spam-stroke: SelectedItemText;
         --new-subject-color: SelectedItemText;
-        color: SelectedItemText;
-        outline-offset: -4px;
-        outline-color: SelectedItemText;
       }
     }
 
-    & [data-properties~="dummy"] > td > .thread-card-container > &:first-child {
+    & [data-properties~="dummy"] > td > .card-container > &:first-child {
       display: none;
     }
   }
 
   /* Thread Children */
-  & tr[is="thread-card"][data-properties~="thread-children"] {
+  & .card-layout[data-properties~="thread-children"] {
     & td {
       --circle-size: 12px;
       padding-inline-start: calc(var(--thread-child-start) + var(--circle-size));
@@ -581,9 +477,9 @@
         height: var(--circle-size);
         width: var(--circle-size);
         inset-block: calc(50% - var(--circle-size) / 2);
-        inset-inline-start: calc((var(--thread-card-inline) * 2) - var(--circle-size) / 2);
+        inset-inline-start: calc((var(--tree-card-inline) * 2) - var(--circle-size) / 2);
         -moz-context-properties: fill, stroke;
-        fill: var(--thread-pane-background);
+        fill: var(--tree-pane-background);
         stroke: var(--thread-line-color);
       }
 
@@ -595,7 +491,7 @@
         --line-width: 1px;
         width: var(--line-width);
         border-inline-start: var(--line-width) dashed var(--thread-line-color);
-        inset-inline-start: calc((var(--thread-card-inline) * 2) - var(--line-width) / 2);
+        inset-inline-start: calc((var(--tree-card-inline) * 2) - var(--line-width) / 2);
         inset-block: 0;
       }
     }
@@ -614,11 +510,11 @@
     }
 
     /* Sort Headers */
-    & tr[is="thread-card"][data-properties~="dummy"] {
-      --thread-card-background: var(--thread-pane-background);
-      --thread-card-border: var(--thread-pane-background);
-      --indicator-background: var(--thread-pane-background);
-      --indicator-border: var(--thread-pane-background);
+    & .card-layout[data-properties~="dummy"] {
+      --tree-card-background: var(--tree-pane-background);
+      --tree-card-border: var(--tree-pane-background);
+      --indicator-background: var(--tree-pane-background);
+      --indicator-border: var(--tree-pane-background);
       --inset-inline-start: 0;
 
       & .read-status,
@@ -653,36 +549,36 @@
         }
       }
 
-      & .thread-card-container {
+      & .card-container {
         padding-inline: 0;
         grid-template-columns: 1fr;
       }
 
       &.collapsed {
-        & .thread-card-container {
+        & .card-container {
           border-bottom: 1px solid light-dark(var(--color-gray-20), var(--color-gray-80));
           border-radius: 0;
         }
       }
 
       &:hover {
-        & .thread-card-container {
+        & .card-container {
           box-shadow: none;
         }
       }
 
       &:is(:hover, :focus, :focus-within, .current, .selected, .current.selected) {
-        --thread-card-background: var(--thread-pane-background);
-        --thread-card-border: var(--thread-pane-background);
-        --indicator-background: var(--thread-pane-background);
-        --indicator-border: var(--thread-pane-background);
+        --tree-card-background: var(--tree-pane-background);
+        --tree-card-border: var(--tree-pane-background);
+        --indicator-background: var(--tree-pane-background);
+        --indicator-border: var(--tree-pane-background);
         --inset-inline-start: -6px;
       }
     }
 
-    & tr[is="thread-card"][data-properties~="thread-children"] {
+    & .card-layout[data-properties~="thread-children"] {
       & td {
-        padding-inline-start: var(--thread-card-inline);
+        padding-inline-start: var(--tree-card-inline);
 
         &::before,
         &::after {
@@ -692,77 +588,38 @@
     }
   }
 
-  /* Hover */
-  & tr[is="thread-card"]:is(:hover, :focus, :focus-within) {
-    --thread-card-border: var(--thread-card-border-hover);
-    --thread-card-background: var(--thread-card-background-current);
-
-    & .thread-card-container {
-      box-shadow: 0 0 5px color-mix(in srgb, var(--thread-card-hover) 50%, transparent);
-    }
-  }
-
-  /* Selection */
-  &:is(:focus, :focus-within) tr[is="thread-card"] {
-    &.current {
-      --thread-card-background: var(--thread-card-background-current);
-      --thread-card-border: var(--thread-card-focus);
-    }
-
-    &.selected {
-      --thread-card-background: var(--thread-card-background-selected);
-      --thread-card-border: var(--thread-card-border-selected);
-      --indicator-background: var(--indicator-background-selected);
-      --indicator-border: var(--indicator-border-selected);
-      --inset-inline-start: calc(0 - var(--indicator-width) - var(--indicator-gap));
-
-      &.current {
-        --thread-card-background: var(--thread-card-background-selected-current);
-        --thread-card-border: var(--thread-card-border-focus);
-      }
-
-      .thread-card-container::before {
-        transform: translateX(0);
-      }
-    }
-  }
-
   /* Spam */
-  & tr[is="thread-card"][data-properties~="junk"] {
-    --focus-outline: var(--focus-outline-spam);
-    --thread-card-border-hover: var(--thread-card-border-hover-spam);
-    --thread-card-background-current: var(--thread-card-background-current-spam);
-    --thread-card-hover: var(--thread-card-hover-spam);
-    --thread-card-background-current: var(--thread-card-background-current-spam);
-    --thread-card-background-selected: var(--thread-card-background-selected-spam);
-    --thread-card-background-selected-current: var(--thread-card-background-selected-current-spam);
-    --thread-card-border-selected: var(--thread-card-border-selected-spam);
-    --thread-card-border-focus: var(--thread-card-border-selected-spam);
+  & .card-layout[data-properties~="junk"] {
+    --tree-focus-outline: var(--focus-outline-spam);
+    --tree-card-border-hover: var(--tree-card-border-hover-spam);
+    --tree-card-background-current: var(--tree-card-background-current-spam);
+    --tree-card-hover: var(--tree-card-hover-spam);
+    --tree-card-background-current: var(--tree-card-background-current-spam);
+    --tree-card-background-selected: var(--tree-card-background-selected-spam);
+    --tree-card-background-selected-current: var(--tree-card-background-selected-current-spam);
+    --tree-card-border-selected: var(--tree-card-border-selected-spam);
+    --tree-card-border-focus: var(--tree-card-border-selected-spam);
     --thread-card-focus: var(--thread-card-focus-spam);
     --indicator-background-selected: var(--indicator-background-selected-spam);
     --indicator-border-selected: var(--indicator-border-selected-spam);
   }
 
   /* Unfocused */
-  &:not(:focus, :focus-within) tr[is="thread-card"],
-  &:not(:focus, :focus-within) tr[is="thread-card"][data-properties~="junk"] {
+  &:not(:focus, :focus-within) .card-layout,
+  &:not(:focus, :focus-within) .card-layout[data-properties~="junk"] {
     &.current {
-      --thread-card-background: var(--thread-card-background-current-unfocused);
+      --tree-card-background: var(--tree-card-background-current-unfocused);
     }
 
     &.selected {
-      --thread-card-background: var(--thread-card-background-selected-unfocused);
-      --thread-card-border: var(--thread-card-border-selected-unfocused);
+      --tree-card-background: var(--tree-card-background-selected-unfocused);
+      --tree-card-border: var(--tree-card-border-selected-unfocused);
       --indicator-background: var(--indicator-background-selected-unfocused);
       --indicator-border: var(--indicator-border-selected-unfocused);
-
-      .thread-card-container::before {
-        transform: translateX(0);
-      }
     }
 
     &.selected.current {
-      --thread-card-background: var(--thread-card-background-selected-current-unfocused);
+      --tree-card-background: var(--tree-card-background-selected-current-unfocused);
     }
   }
 }

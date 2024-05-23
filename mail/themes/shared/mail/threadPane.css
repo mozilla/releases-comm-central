@@ -47,7 +47,7 @@
   }
 
   & [data-properties~="dummy"] {
-    &:not([is="thread-card"], :hover, .selected) {
+    &:not(.card-layout, :hover, .selected) {
       background-color: var(--layout-background-2);
     }
 
@@ -90,7 +90,7 @@
     }
   }
 
-  & [is="thread-row"].children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
+  & .table-layout.children.collapsed[data-properties~="hasUnread"][data-properties~="read"]
    :where(td, .subject-line) {
     text-decoration: underline;
   }
@@ -144,9 +144,9 @@
   }
 }
 
-[is="tree-view-table-body"]:focus > [is="thread-row"].selected button,
-[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected button,
-[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within button {
+[is="tree-view-table-body"]:focus > .table-layout.selected button,
+[is="tree-view-table-body"]:focus-within > .table-layout.selected button,
+[is="tree-view-table-body"] > .table-layout.selected:focus-within button {
   color: currentColor;
 }
 
@@ -156,7 +156,7 @@
   margin-inline: auto;
 }
 
-tr[is="thread-row"] {
+.table-layout {
   color: var(--tag-color, currentColor);
 }
 
@@ -197,17 +197,34 @@ tr[data-properties~="tagged"] .tag-icon:not([hidden]) {
   fill: color-mix(in srgb, var(--tag-color, currentColor) 20%, var(--tags-base-background-color));
 }
 
-[is="tree-view-table-body"]:focus > [is="thread-row"].selected[data-properties~="tagged"] :is(.tag-icon, .subject),
-[is="tree-view-table-body"]:focus-within > [is="thread-row"].selected[data-properties~="tagged"] :is(.tag-icon, .subject),
-[is="tree-view-table-body"] > [is="thread-row"].selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
-  color: currentColor;
-}
+[is="tree-view-table-body"] {
 
-[is="tree-view-table-body"]:focus tr[is="thread-row"].selected,
-[is="tree-view-table-body"]:focus-within tr[is="thread-row"].selected,
-[is="tree-view-table-body"] tr[is="thread-row"].selected:focus-within {
-  background-color: var(--tag-color, var(--listbox-focused-selected-bg));
-  color: var(--tag-contrast-color, var(--listbox-selected-color));
+  & > .table-layout[data-properties~="unread"]:not([data-properties~="tagged"]) {
+    color: var(--unread-color);
+  }
+
+  &:focus > .table-layout.selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+  &:focus-within > .table-layout.selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+  & > .table-layout.selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
+    color: currentColor;
+  }
+
+  &:focus .table-layout.selected,
+  &:focus-within .table-layout.selected,
+  & .table-layout.selected:focus-within {
+    background-color: var(--tag-color, var(--listbox-focused-selected-bg));
+    color: var(--tag-contrast-color, var(--listbox-selected-color));
+  }
+
+  &:is(:focus, :focus-within) > .table-layout.selected,
+  & > .table-layout.selected:focus-within {
+
+    &:not([data-properties~="flagged"]) > .tree-view-row-flag > .tree-button-flag > img,
+    &:not([data-properties~="junk"]) > .tree-view-row-spam > .tree-button-spam > img {
+      fill: color-mix(in srgb, currentColor 40%, transparent);
+      stroke: currentColor;
+    }
+  }
 }
 
 /* Thread column */
@@ -293,9 +310,9 @@ tr[data-properties~="flagged"] .button-star {
 }
 
 [is="tree-view-table-body"]:is(:focus, :focus-within) >
-  [is="thread-row"].selected :is(.attachmentcol-column img, .attachment-icon),
+  .table-layout.selected :is(.attachmentcol-column img, .attachment-icon),
 [is="tree-view-table-body"] >
-  [is="thread-row"].selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
+  .table-layout.selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
   color: currentColor;
 }
 
@@ -364,7 +381,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
   }
 }
 
-tr[is="thread-row"] {
+.table-layout {
 
   & td > .thread-container {
     position: absolute;
@@ -394,7 +411,7 @@ tr[is="thread-row"] {
   }
 }
 
-[is="tree-view-table-body"][role="treegrid"] tr[is="thread-row"]:not(.children) .subject-line {
+[is="tree-view-table-body"][role="treegrid"] .table-layout:not(.children) .subject-line {
   padding-inline-start: 22px;
 }
 
@@ -458,21 +475,21 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
 }
 
 [is="tree-view-table-body"]:is(:focus, :focus-within) >
-  [is="thread-row"].selected :is(.subject-line img, .state),
-[is="tree-view-table-body"] > [is="thread-row"].selected:focus-within
+  .table-layout.selected :is(.subject-line img, .state),
+[is="tree-view-table-body"] > .table-layout.selected:focus-within
   :is(.subject-line img, .state) {
   fill: currentColor !important;
   stroke: currentColor !important;
 }
 
-tr[is="thread-row"] .twisty {
+.table-layout .twisty {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   color: var(--tree-view-color);
 }
 
-tr:is([is="thread-row"], [is="thread-card"]) {
+tr:is(.table-layout, .card-layout) {
 
   &:not(.children) .twisty {
     display: none;
