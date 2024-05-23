@@ -1215,6 +1215,12 @@ nsMsgMaildirStore::GetSupportsCompaction(bool* aSupportsCompaction) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgMaildirStore::AsyncCompact(
+    nsIMsgFolder* folder, nsIStoreCompactListener* compactListener,
+    bool patchXMozillaHeaders) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsMsgMaildirStore::AsyncScan(nsIMsgFolder* folder,
                                            nsIStoreScanListener* scanListener) {
   nsCOMPtr<nsIFile> maildirPath;

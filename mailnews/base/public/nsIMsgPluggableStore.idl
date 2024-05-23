@@ -16,11 +16,28 @@ interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;
 interface nsIStoreScanListener;
+interface nsIStoreCompactListener;
 
 /**
  * Pluggable message store interface. Each incoming server can have a different
  * message store.
  * All methods are synchronous unless otherwise specified.
+ *
+ * A single store holds messages for any number of folders.
+ *
+ * Messages in a store are given a `storeToken`, a unique ID which callers
+ * use to reference individual messages.
+ * `storeToken`s are:
+ * - Arbitrary. They are strings assigned when a message is added to
+ *   the store.
+ * - Unique to the folder the message is in (not unique over the whole
+ *   store!).
+ * - Opaque. Callers shouldn't make any assumptions about format.
+ * - Constant. Mostly. They may change during a compaction operation.
+ * In practice:
+ * - For mbox, `storeToken` is the offset of a message within the
+ *   mbox file.
+ * - For maildir, it's the filename of the message.
  */
 [scriptable, uuid(F732CE58-E540-4dc4-B803-9456056EBEFC)]
 interface nsIMsgPluggableStore : nsISupports {
@@ -36,8 +53,8 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aDeep true if we should discover all descendants. Would we ever
    *              not want to do this?
    */
-
   void discoverSubFolders(in nsIMsgFolder aParentFolder, in boolean aDeep);
+
   /**
    * Creates storage for a new, empty folder.
    *
@@ -244,6 +261,70 @@ interface nsIMsgPluggableStore : nsISupports {
   readonly attribute boolean supportsCompaction;
 
   /**
+   * Start an asynchronous compaction operation on the given folder's store.
+   * It will go through all the messages in the store, asking the
+   * caller-provided nsIStoreCompactListener object to decide which messages
+   * should be kept and which should be discarded.
+   *
+   * This method will return *before* the operation completes.
+   * After that, any ongoing updates are provided via the
+   * nsIStoreCompactListener object.
+   *
+   * If the call to asyncCompact() returns a failure code, the operation will
+   * not start, and no nsIStoreCompactListener callbacks will be invoked.
+   *
+   * If asyncCompact() returns a success code, the operation will start and
+   * the nsIStoreCompactListener callbacks will be invoked.
+   * It's guaranteed that no listener callbacks will be invoked until
+   * the initial asyncCompact() call has returned.
+   *
+   * Once running, the compact operation iterates through each message
+   * in the store.
+   * For each message, it asks the nsIStoreCompactListener if the message
+   * should be kept or not.
+   * If no, the message will be removed from the store.
+   * If yes, the message will be left (mostly) untouched.
+   * "mostly" untouched, because:
+   *   a) Messages MAY end up with a new storeToken (their unique ID within
+   *      the store).
+   *   b) If `patchXMozillaHeaders` is true, X-Mozilla-* headers may be
+   *      added or modified during compaction.
+   *
+   * The nsIStoreCompactListener callbacks are called in this order:
+   *
+   * First:
+   * .onCompactionBegin() - at the start of the operation.
+   *
+   * Then, for each message:
+   *     .onRetentionQuery() - to ask if message should be kept or not.
+   *     If the message was kept:
+   *         .onMessageRetained() - gives the new storeToken and size.
+   *
+   * Finally:
+   *  .onCompactionComplete() - at the end, with a status code.
+   *
+   * If any callbacks return an error, the whole operation will be rolled back
+   * and .onCompactionComplete() will be called with the failure code.
+   *
+   * asyncCompact() keeps a reference to compactListener, releasing it after the
+   * .onCompactionComplete() callback has been invoked.
+   *
+   * The compaction is an entirely store-based operation, and is decoupled
+   * from the folder and database.
+   * The expectation is that a higher-level folder compaction module can
+   * use asyncCompact() to avoid getting bogged down in all the low-level
+   * store details.
+   *
+   * @param folder - The folder to compact.
+   * @param compactListener - Callbacks to direct the compaction.
+   * @param patchXMozillaHeaders - If true, X-Mozilla-* headers will be patched
+   *                               or added in kept messages.
+   */
+  void asyncCompact(in nsIMsgFolder folder,
+                    in nsIStoreCompactListener compactListener,
+                    in boolean patchXMozillaHeaders);
+
+  /**
    * Is the summary file for the passed folder valid? For Berkeley Mailboxes,
    * for local mail folders, this checks the timestamp and size of the local
    * mail folder against values stored in the db. For other stores, this may
@@ -347,6 +428,9 @@ interface nsIMsgPluggableStore : nsISupports {
   *      l.onDataAvailable()
   *    l.onStopRequest()
   *  l.onStopScan()
+  *
+  * If any of these return an error, the scan will be aborted,
+  * with calls to onStopRequest() (if within a message) and onStopScan().
   */
 [scriptable, uuid(00D3344A-6EFB-4D18-8A5A-D9C004E62FDF)]
 interface nsIStoreScanListener : nsIStreamListener
@@ -368,4 +452,81 @@ interface nsIStoreScanListener : nsIStreamListener
    * Called when the scan operation as a whole is complete.
    */
   void onStopScan(in nsresult status);
+};
+
+/**
+ * Callbacks used by store compaction operation, initiated via
+ * nsIMsgPluggableStore.asyncCompact().
+ * See asyncCompact() for an overview of how these callbacks are called.
+ * If any of these callbacks return an error (other than
+ * .onCompactionComplete()), the store will be rolled back to its
+ * original state.
+ */
+[scriptable, uuid(d97f29f6-d9b7-11ee-88d9-4b3c6085612e)]
+interface nsIStoreCompactListener : nsISupports
+{
+  /**
+   * Called at the beginning of the store compaction operation.
+   */
+  void onCompactionBegin();
+
+  /**
+   * This is invoked for each message in the store.
+   * To keep the message, return true.
+   * To discard the message, return false.
+   *
+   * Message flags and keywords are returned via the msgFlags and
+   * msgKeywords output params for X-Mozilla-* header patching.
+   * If asyncCompact() was invoked with patchXMozillaHeaders=false,
+   * then msgFlags and msgKeywords will be ignored.
+   * The caller to asyncCompact() sets patchXMozillaHeaders, so is
+   * also responsible for supplying a suitably-aware
+   * nsIStoreCompactListener.
+   *
+   * @param storeToken - The identity of the message within the store.
+   * @param msgFlags - Flags to use for X-Mozilla-Status/Status2 patching.
+   * @param msgKeywords - Keywords to use for X-Mozilla-Keys patching.
+   * @returns true if the message should be kept.
+   */
+  boolean onRetentionQuery(in AUTF8String storeToken,
+                           out unsigned long msgFlags,
+                           out AUTF8String msgKeywords);
+
+  /**
+   * If onRetentionQuery() returned true, then onMessageRetained() will be
+   * called with the new storeToken and message size.
+   * The storeToken may change if the message has been shifted around within
+   * the store.
+   * The message size might have changed due to X-Mozilla-* header patching.
+   *
+   * @param oldToken - The old storeToken as seen by onRetentionQuery().
+   * @param newToken - The storeToken for the message after compaction.
+   * @param newSize - The size of the message, in bytes.
+   */
+  void onMessageRetained(in AUTF8String oldToken,
+                         in AUTF8String newToken,
+                         in long long newSize);
+
+  /**
+   * This will be called when the compaction operation finishes (or fails).
+   * If the compaction fails, or if any of the other nsIStoreCompactListener
+   * callbacks returned an error, .onCompactionComplete() will be still
+   * be called, with status holding an error code.
+   *
+   * Any error returned from .onCompactionComplete() will be ignored.
+   * The store compaction has already either completed or been rolled back,
+   * so this is just an opportunity for the caller to perform whatever
+   * other commit/rollback behaviour might be required on top of that.
+   *
+   * The space recovered by the compaction is given by oldSize-newSize.
+   * But keep in mind that patching X-Mozilla-* headers means that sometimes
+   * compaction can _increase_ the size of the store!
+   *
+   * @param status - The result of the compaction.
+   * @param oldSize - The size of the store before compaction, in bytes.
+   * @param newSize - The size of the store after compaction, in bytes.
+   */
+  void onCompactionComplete(in nsresult status,
+                            in long long oldSize,
+                            in long long newSize);
 };
