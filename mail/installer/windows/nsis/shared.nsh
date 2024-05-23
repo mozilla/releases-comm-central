@@ -679,6 +679,16 @@
 
 ; Add Software\Mozilla\ registry entries (uses SHCTX).
 !macro SetAppKeys
+  ; Check if this is an ESR release and if so add registry values so it is
+  ; possible to determine that this is an ESR install (bug 726781).
+  ClearErrors
+  ${WordFind} "${UpdateChannel}" "esr" "E#" $3
+  ${If} ${Errors}
+    StrCpy $3 ""
+  ${Else}
+    StrCpy $3 " ESR"
+  ${EndIf}
+
   ${GetLongPath} "$INSTDIR" $8
   StrCpy $0 "Software\Mozilla\${BrandFullNameInternal}\${AppVersion} (${AB_CD})\Main"
   ${WriteRegStr2} $TmpVal "$0" "Install Directory" "$8" 0
@@ -710,6 +720,16 @@
 ; Add uninstall registry entries. This macro tests for write access to determine
 ; if the uninstall keys should be added to HKLM or HKCU.
 !macro SetUninstallKeys
+  ; Check if this is an ESR release and if so add registry values so it is
+  ; possible to determine that this is an ESR install (bug 726781).
+  ClearErrors
+  ${WordFind} "${UpdateChannel}" "esr" "E#" $3
+  ${If} ${Errors}
+    StrCpy $3 ""
+  ${Else}
+    StrCpy $3 " ESR"
+  ${EndIf}
+
   StrCpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${BrandFullNameInternal} ${AppVersion} (${ARCH} ${AB_CD})"
 
   StrCpy $2 ""

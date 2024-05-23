@@ -27,6 +27,12 @@
 !define BrandFullName         "${BrandFullNameInternal}"
 !endif
 
+!if "@MOZ_UPDATE_CHANNEL@" == ""
+!define UpdateChannel "Unknown"
+!else
+!define UpdateChannel "@MOZ_UPDATE_CHANNEL@"
+!endif
+
 !if "@MOZ_UPDATE_CHANNEL@" == "beta"
 # NO_INSTDIR_FROM_REG is defined for Beta to prevent finding a non-default
 # installation directory in the registry and using that as the default. This
