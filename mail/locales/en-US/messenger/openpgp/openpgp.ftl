@@ -6,6 +6,50 @@
 e2e-intro-description = To send encrypted or digitally signed messages, you need to configure an encryption technology, either OpenPGP or S/MIME.
 e2e-intro-description-more = Select your personal key to enable the use of OpenPGP, or your personal certificate to enable the use of S/MIME. For a personal key or certificate you own the corresponding secret key.
 
+# Do not translate: S/MIME, CSR, CA
+e2e-csr-intro = To obtain a new personal S/MIME certificate, generate a Certificate Signing Request (CSR) and submit it to a Certificate Authority (CA).
+
+# Do not translate: S/MIME, CSR
+e2e-csr-intro-info = Select a local directory and filename for your CSR file, and answer the following questions for setting algorithm and strength.
+
+# A title for a dialog. Do not translate "CSR".
+e2e-csr-title = Generate CSR
+
+# A label for a button that proceeds to the next step
+e2e-csr-continue = Continue
+
+# A label for a button that goes back one step
+e2e-csr-back = Back
+
+# Do not translate: CSR
+e2e-csr-button =
+    .label = Generate and save a CSR file as…
+
+# Do not translate: CSR
+e2e-csr-select-title = CSR Algorithm
+
+# Do not translate: RSA, ECC, S/MIME
+e2e-csr-select-alg = ﻿﻿Choose between RSA (recommended) or ECC as your cryptographic algorithm for the new S/MIME certificate.
+
+# Do not translate: S/MIME
+e2e-csr-select-strength = Choose your desired cryptographic strength (faster with lower numbers or better security with higher numbers) for the new S/MIME certificate, or keep the default setting.
+
+# $type is a cryptographic algorithm like RSA or ECC
+# $strength is a text that describes an additional property of the cryptographic parameter, such as a number for RSA, or the name of a cryptographic curve for ECC.
+# $file A filename
+# Do not translate: CSR
+e2e-csr-summary = A new { $type } { $strength } secret key will be generated in { -brand-short-name }'s settings. This process may take some time and cause temporary unresponsiveness; please remain patient during this step. The Certificate Signing Request (CSR) file, saved as { $file }, will be created in the meantime.
+
+# $email An email address
+# Do not translate: CSR
+e2e-csr-include-email = Include email address ({ $email }) in CSR (recommended)
+
+# $file A filename
+e2e-csr-success = The CSR was successfully saved to { $file }
+
+# $file A filename
+e2e-csr-failure = Could not save the CSR to file { $file }
+
 e2e-signing-description = A digital signature allows recipients to verify that the message was sent by you and its content was not changed. Encrypted messages are always signed by default.
 
 e2e-sign-message =
@@ -539,6 +583,7 @@ key-man-button-export-pub-key = Export &Public Keys Only
 key-man-button-refresh-all = &Refresh All Keys
 key-man-loading-keys = Loading keys, please wait…
 ascii-armor-file = ASCII Armored Files (*.asc)
+text-file = Text Files (*.txt)
 no-key-selected = You should select at least one key in order to perform the selected operation
 export-to-file = Export Public Key To File
 export-keypair-to-file = Export Secret and Public Key To File

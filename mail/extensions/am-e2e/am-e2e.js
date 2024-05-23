@@ -387,6 +387,262 @@ function checkOtherCert(
   }
 }
 
+/**
+ * Generate a Certificate Signing Request (CSR) for a new S/MIME
+ * certificate. We'll use a multi-step wizard approach to ask the
+ * user to answer several questions, and select a file for saving the
+ * CSR. As part of generating the CSR, a key pair will be generated,
+ * and the secret key will be automatically stored in our NSS database.
+ * (At a later time, users can import the generated certificate the will
+ * obtain from the CA. When that is done by the user, our internal NSS
+ * code will automatically find that we have the matching secret key
+ * for the imported certificate, and we will then automatically treat
+ * the import certificate as a "personal certificate".
+ */
+async function smimeGenCSR() {
+  const [
+    csrTitle,
+    introInfo,
+    continueLabel,
+    backLabel,
+    textFileInfo,
+    algoPrompt,
+    strengthPrompt,
+  ] = await document.l10n.formatValues([
+    { id: "e2e-csr-title" },
+    { id: "e2e-csr-intro-info" },
+    { id: "e2e-csr-continue" },
+    { id: "e2e-csr-back" },
+    { id: "text-file" },
+    { id: "e2e-csr-select-alg" },
+    { id: "e2e-csr-select-strength" },
+  ]);
+
+  // Steps:
+  // 1: Initial introduction prompt with help button,
+  //    followed by file selection dialog
+  // 2: Select algorithm and strength and confirm.
+  //    Only the confirm dialog offers to go back.
+  //    (Selection dialogs are standard dialogs that cannot be
+  //    customized with a back button.)
+  // 3: Generate, show result, done.
+  //    Again offer help button with successful result.
+  let nextStep = 1;
+  let filePicker;
+  let keyType;
+  let keyStrength;
+  const checkValue = {
+    value: true,
+  };
+
+  do {
+    if (nextStep == 1) {
+      const buttonPressed = Services.prompt.confirmEx(
+        window,
+        csrTitle,
+        introInfo,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
+          Services.prompt.BUTTON_POS_0_DEFAULT,
+        continueLabel,
+        null,
+        null,
+        null,
+        {}
+      );
+
+      if (buttonPressed != 0) {
+        // a button other than "continue" was pressed
+        return;
+      }
+
+      filePicker = Cc["@mozilla.org/filepicker;1"]
+        .createInstance()
+        .QueryInterface(Ci.nsIFilePicker);
+      filePicker.init(
+        window.browsingContext,
+        csrTitle,
+        Ci.nsIFilePicker.modeSave
+      );
+      filePicker.defaultExtension = "txt";
+      filePicker.defaultString = "CSR-" + gIdentity.email + ".txt";
+
+      filePicker.appendFilter(textFileInfo, "*.txt");
+      filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
+
+      const goodResults = [
+        Ci.nsIFilePicker.returnOK,
+        Ci.nsIFilePicker.returnReplace,
+      ];
+      const rv = await new Promise(resolve => filePicker.open(resolve));
+      if (!goodResults.includes(rv) || !filePicker.file) {
+        return;
+      }
+
+      nextStep = 2;
+    }
+
+    if (nextStep == 2) {
+      const algoArray = ["RSA", "ECC"];
+      let selected = { value: 0 };
+
+      // Services.prompt.select doesn't allow us to add a "back" button.
+      if (
+        !Services.prompt.select(
+          window,
+          csrTitle,
+          algoPrompt,
+          algoArray,
+          selected
+        )
+      ) {
+        return;
+      }
+
+      let strengthArray = [];
+
+      if (selected.value == 0) {
+        keyType = "RSA";
+        strengthArray = ["2048", "3072", "4096"];
+      } else if (selected.value == 1) {
+        keyType = "ECC";
+        strengthArray = ["NIST P-256", "NIST P-384", "NIST P-521"];
+      } else {
+        return;
+      }
+
+      selected = { value: 1 };
+
+      // Services.prompt.select doesn't allow us to add a "back" button.
+      if (
+        !Services.prompt.select(
+          window,
+          csrTitle,
+          strengthPrompt,
+          strengthArray,
+          selected
+        )
+      ) {
+        return;
+      }
+
+      let humanDisplayStrength;
+      if (keyType == "RSA") {
+        if (selected.value == 0) {
+          keyStrength = "2048";
+        } else if (selected.value == 1) {
+          keyStrength = "3072";
+        } else if (selected.value == 2) {
+          keyStrength = "4096";
+        }
+        humanDisplayStrength = keyStrength;
+      } else {
+        if (selected.value == 0) {
+          keyStrength = "secp256r1";
+        } else if (selected.value == 1) {
+          keyStrength = "secp384r1";
+        } else if (selected.value == 2) {
+          keyStrength = "secp521r1";
+        }
+        humanDisplayStrength = strengthArray[selected.value];
+      }
+
+      const [summaryPrompt, checkboxLabel] = await document.l10n.formatValues([
+        {
+          id: "e2e-csr-summary",
+          args: {
+            type: keyType,
+            strength: humanDisplayStrength,
+            file: filePicker.file.path,
+          },
+        },
+        {
+          id: "e2e-csr-include-email",
+          args: {
+            email: gIdentity.email,
+          },
+        },
+      ]);
+
+      checkValue.value = true;
+
+      const buttonPressed = Services.prompt.confirmEx(
+        window,
+        csrTitle,
+        summaryPrompt,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1 +
+          Services.prompt.BUTTON_TITLE_IS_STRING *
+            Services.prompt.BUTTON_POS_2 +
+          Services.prompt.BUTTON_POS_0_DEFAULT,
+        continueLabel,
+        null,
+        backLabel,
+        checkboxLabel,
+        checkValue
+      );
+
+      switch (buttonPressed) {
+        case 0:
+          nextStep = 3;
+          break;
+        case 2:
+          nextStep = 1;
+          break;
+        default:
+        case 1: // cancel
+          return;
+      }
+    }
+
+    if (nextStep == 3) {
+      const generator = Cc["@mozilla.org/nsCertGen;1"].createInstance(
+        Ci.nsICertGen
+      );
+      const req = generator.gen(
+        keyType,
+        keyStrength,
+        checkValue.value ? gIdentity.email : ""
+      );
+      try {
+        await IOUtils.writeUTF8(filePicker.file.path, req);
+        const [successInfo] = await document.l10n.formatValues([
+          {
+            id: "e2e-csr-success",
+            args: {
+              file: filePicker.file.path,
+            },
+          },
+        ]);
+
+        Services.prompt.confirmEx(
+          window,
+          csrTitle,
+          successInfo,
+          Services.prompt.BUTTON_TITLE_OK * Services.prompt.BUTTON_POS_0 +
+            Services.prompt.BUTTON_POS_0_DEFAULT,
+          null,
+          null,
+          null,
+          null,
+          {}
+        );
+      } catch (ex) {
+        const [errorInfo] = await document.l10n.formatValues([
+          {
+            id: "e2e-csr-failure",
+            args: {
+              file: filePicker.file.path,
+            },
+          },
+        ]);
+
+        Services.prompt.alert(window, csrTitle, errorInfo);
+      }
+    }
+  } while (nextStep < 3);
+}
+
 function smimeSelectCert(smime_cert) {
   var certInfo = document.getElementById(smime_cert);
   if (!certInfo) {

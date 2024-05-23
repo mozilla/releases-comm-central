@@ -1,3 +1,5 @@
+BTOA_ConvertItemToAscii
+CERT_CreateName
 CERT_GetCertNicknames
 CERT_VerifyCert
 NSSBase64Decoder_Create_Util

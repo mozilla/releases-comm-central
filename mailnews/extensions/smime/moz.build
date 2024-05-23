@@ -7,6 +7,7 @@ with Files("**"):
     BUG_COMPONENT = ("Mailnews Core", "Security: S/MIME")
 
 XPIDL_SOURCES += [
+    "nsICertGen.idl",
     "nsICertPickDialogs.idl",
     "nsICMSDecoder.idl",
     "nsICMSDecoderJS.idl",
@@ -22,6 +23,7 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = "msgsmime"
 
 SOURCES += [
+    "nsCertGen.cpp",
     "nsCertPicker.cpp",
     "nsCMS.cpp",
     "nsCMSSecureMessage.cpp",

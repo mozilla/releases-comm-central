@@ -167,6 +167,22 @@
                   label="&manageDevices2.label;" accesskey="&manageDevices2.accesskey;"/>
         </hbox>
 
+        <separator class="thin"/>
+
+        <vbox flex="1">
+          <html:span class="tail-with-learn-more"
+                     data-l10n-id="e2e-csr-intro"></html:span>
+          <label is="text-link"
+                 href="https://support.mozilla.org/kb/instructions-smime-certificate-using-csr"
+                 value="&e2eLearnMore.label;"/>
+        </vbox>
+
+        <hbox align="right">
+          <button id="generateCSRButton"
+                  data-l10n-id="e2e-csr-button"
+                  oncommand="smimeGenCSR()"/>
+        </hbox>
+
       </html:fieldset>
       </html:div>
 

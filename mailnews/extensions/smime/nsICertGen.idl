@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Generate a key pair, remember the secret key in the NSS database,
+ * and return a certificate request (CSR).
+ */
+[scriptable, uuid(632c530f-326d-4175-b09d-6ccd26b7a322)]
+interface nsICertGen : nsISupports
+{
+  ACString gen(in ACString keyType, in ACString keyStrength, in AString email);
+};
+
+%{C++
+#define NS_CERTGEN_CONTRACTID "@mozilla.org/nsCertGen;1"
+%}
