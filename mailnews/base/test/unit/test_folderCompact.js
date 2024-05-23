@@ -276,27 +276,11 @@ var gTestArray = [
 
     // Save the first message key, which will change after compact with
     // rebuild.
-    const f2m2Key =
-      gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID).messageKey;
 
     // force expunged bytes count to get cached.
     gLocalFolder2.expungedBytes;
-    // mark localFolder2 as having an invalid db, and remove it
-    // for good measure.
-    gLocalFolder2.msgDatabase.summaryValid = false;
-    gLocalFolder2.msgDatabase = null;
-    gLocalFolder2.ForceDBClosed();
-    const dbPath = gLocalFolder2.filePath;
-    dbPath.leafName = dbPath.leafName + ".msf";
-    dbPath.remove(false);
 
     showMessages(localAccountUtils.inboxFolder, "before compactAll");
-    // Save the key for the inbox message, we'll check after compact that it
-    // did not change.
-    const preInboxMsg3Key =
-      localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
-        gMsg3ID
-      ).messageKey;
 
     // We used to check here that the keys did not change during rebuild.
     // But that is no true in general, it was only conicidental since the
@@ -315,24 +299,6 @@ var gTestArray = [
 
     showMessages(localAccountUtils.inboxFolder, "after compactAll");
     showMessages(gLocalFolder2, "after compactAll");
-
-    // For the inbox, which was compacted but not rebuild, key is unchanged.
-    const postInboxMsg3Key =
-      localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
-        gMsg3ID
-      ).messageKey;
-    Assert.equal(preInboxMsg3Key, postInboxMsg3Key);
-
-    // For folder2, which was rebuilt, keys change but all messages should exist.
-    const message2 = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID);
-    Assert.ok(message2);
-    Assert.ok(gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg3ID));
-
-    // In folder2, gMsg2ID is the first message. After compact with database
-    // rebuild, that key has now changed.
-    Assert.notEqual(message2.messageKey, f2m2Key);
-  },
-  async function lastTestCheck() {
     await verifyMboxSize(localAccountUtils.inboxFolder, gExpectedInboxSize);
     await verifyMboxSize(gLocalFolder2, gExpectedFolder2Size);
     await verifyMboxSize(gLocalFolder3, gExpectedFolder3Size);

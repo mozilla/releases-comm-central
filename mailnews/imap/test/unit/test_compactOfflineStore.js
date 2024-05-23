@@ -17,6 +17,7 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
+// Force mbox msgStore.
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",
   "@mozilla.org/msgstore/berkeleystore;1"

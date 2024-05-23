@@ -20,7 +20,7 @@
 #include "nsIChannel.h"
 #include "nsITransport.h"
 #include "nsIWindowWatcher.h"
-#include "nsIMsgFolderCompactor.h"
+#include "FolderCompactor.h"
 #include "nsIDocShell.h"
 #include "nsIMsgWindow.h"
 #include "nsIPrompt.h"
@@ -1736,13 +1736,10 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
           NotifyFolderEvent(kAboutToCompact);
 
           if (localExpungedBytes > 0 || offlineExpungedBytes > 0) {
-            nsCOMPtr<nsIMsgFolderCompactor> folderCompactor = do_CreateInstance(
-                "@mozilla.org/messenger/foldercompactor;1", &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
             for (nsIMsgFolder* f : offlineFolderArray) {
               folderArray.AppendElement(f);
             }
-            rv = folderCompactor->CompactFolders(folderArray, nullptr, aWindow);
+            rv = AsyncCompactFolders(folderArray, nullptr, aWindow);
           }
         }
       }

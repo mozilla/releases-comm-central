@@ -7,6 +7,7 @@
 #include "nsIPrefBranch.h"
 #include "prlog.h"
 
+#include "FolderCompactor.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
 #include "msgCore.h"  // precompiled header...
@@ -38,7 +39,6 @@
 #include "nsIPrompt.h"
 #include "nsIPop3URL.h"
 #include "nsIMsgMailSession.h"
-#include "nsIMsgFolderCompactor.h"
 #include "nsNetCID.h"
 #include "nsISpamSettings.h"
 #include "nsNativeCharsetUtils.h"
@@ -608,40 +608,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener* aListener,
     }
   }
 
-  if (folderArray.IsEmpty()) {
-    // Nothing to do - early out.
-    if (aListener) {
-      aListener->OnStopRunningUrl(nullptr, NS_OK);
-    }
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance("@mozilla.org/messenger/foldercompactor;1", &rv);
-  return folderCompactor->CompactFolders(folderArray, aListener, aMsgWindow);
+  return AsyncCompactFolders(folderArray, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
                                             nsIMsgWindow* aMsgWindow) {
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  int64_t expungedBytes = 0;
-  GetExpungedBytes(&expungedBytes);
-  bool supportsCompaction;
-  msgStore->GetSupportsCompaction(&supportsCompaction);
-  if (!supportsCompaction || expungedBytes == 0) {
-    // Nothing to do. Early out.
-    if (aListener) {
-      aListener->OnStopRunningUrl(nullptr, NS_OK);
-    }
-    return NS_OK;
-  }
-
-  nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
-      do_CreateInstance("@mozilla.org/messenger/foldercompactor;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
+  return AsyncCompactFolders({this}, aListener, aMsgWindow);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {

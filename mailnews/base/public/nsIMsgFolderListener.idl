@@ -190,7 +190,7 @@ interface nsIMsgFolderListener : nsISupports {
 
 
   /**
-   * Called to indicate nsIMsgFolderCompactor is beginning compaction of the
+   * Called to indicate beginning of compaction of the
    * folder.  If the summary file was missing or out-of-date and a parse
    * is required, this notification will come after the completion of the
    * parse.  The compactor will be holding the folder's semaphore when
@@ -203,7 +203,7 @@ interface nsIMsgFolderListener : nsISupports {
 
 
   /**
-   * Called when nsIMsgFolderCompactor has completed compaction of the folder.
+   * Called when compaction of the folder is completed.
    * At this point, the folder semaphore has been released and the database
    * has been committed.
    *

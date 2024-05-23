@@ -33,7 +33,6 @@ XPIDL_SOURCES += [
     "nsIMsgFolder.idl",
     "nsIMsgFolderCache.idl",
     "nsIMsgFolderCacheElement.idl",
-    "nsIMsgFolderCompactor.idl",
     "nsIMsgFolderListener.idl",
     "nsIMsgFolderNotificationService.idl",
     "nsIMsgHdr.idl",

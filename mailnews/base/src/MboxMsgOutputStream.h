@@ -52,6 +52,7 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
   explicit MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                bool closeInnerWhenDone = false);
   MboxMsgOutputStream() = delete;
+  int64_t StartPos() { return mStartPos; }
 
  private:
   virtual ~MboxMsgOutputStream();
