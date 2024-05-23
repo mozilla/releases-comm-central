@@ -20,8 +20,8 @@ ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "d94278ed9c7020f50232689a26d1277eb0eb74d2" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
 audio_thread_priority = { version = "0.32" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "409e11f8de6288e9ddfe269654523735302e59e6", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "409e11f8de6288e9ddfe269654523735302e59e6", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "3495905752a4263827f5d43737f9ca3ed0243ce0", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "3495905752a4263827f5d43737f9ca3ed0243ce0", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
@@ -31,9 +31,9 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "4ca174cf83ebe32b3198478c2211d69678845bc7", optional = true }
-cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8ff972c8e2ec1782ff262ac4071c0415e69b1367", optional = true, features = ['pulse-dlopen'] }
-cubeb-sys = { version = "0.12.0", optional = true, features = ['gecko-in-tree'] }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "0989726a1b9b640a30dfdf3ea005a12c73ab8155", optional = true }
+cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8678dcab1c287de79c4c184ccc2e065bc62b70e2", optional = true, features = ['pulse-dlopen'] }
+cubeb-sys = { version = "0.13", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
 data-encoding-ffi = { path = "../../../dom/fs/parent/rust/data-encoding-ffi" }
 data_storage = { path = "../../../security/manager/ssl/data_storage" }
