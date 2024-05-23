@@ -6,21 +6,10 @@
 
 import { RNP } from "chrome://openpgp/content/modules/RNP.sys.mjs";
 
-Services.scriptloader.loadSubScript(
-  "chrome://openpgp/content/modules/cryptoAPI/interface.js",
-  null,
-  "UTF-8"
-);
-
 import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sys.mjs";
 
-/**
- * RNP implementation of CryptoAPI.
- */
-class RNPCryptoAPI extends CryptoAPI {
-  constructor() {
-    super();
-  }
+class RNPCryptoAPI {
+  constructor() {}
 
   /**
    * Get the list of all known keys (including their secret keys).

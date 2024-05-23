@@ -13,6 +13,7 @@
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 var gTxtConverter = null;
+var inspector;
 
 export var EnigmailFuncs = {
   /**
@@ -493,5 +494,33 @@ export var EnigmailFuncs = {
       return "";
     }
     return addresses[0].email.trim();
+  },
+
+  sync(promise) {
+    if (!inspector) {
+      inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
+        Ci.nsIJSInspector
+      );
+    }
+
+    let res = null;
+    promise
+      .then(gotResult => {
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      })
+      .catch(gotResult => {
+        console.warn("EnigmailFuncs.sync() failed result: %o", gotResult);
+        if (gotResult instanceof Error) {
+          inspector.exitNestedEventLoop();
+          throw gotResult;
+        }
+
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      });
+
+    inspector.enterNestedEventLoop(0);
+    return res;
   },
 };

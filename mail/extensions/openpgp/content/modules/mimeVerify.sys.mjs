@@ -546,7 +546,9 @@ MimeVerify.prototype = {
           .replace(/\n/g, "\r\n");
       }
 
-      this.returnStatus = cApi.sync(cApi.verifyMime(this.signedData, options));
+      this.returnStatus = lazy.EnigmailFuncs.sync(
+        cApi.verifyMime(this.signedData, options)
+      );
 
       if (!this.returnStatus) {
         this.exitCode = -1;

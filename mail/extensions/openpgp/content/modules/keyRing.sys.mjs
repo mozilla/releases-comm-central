@@ -780,8 +780,7 @@ export var EnigmailKeyRing = {
     limitedUids = [],
     acceptance = null
   ) {
-    const cApi = lazy.EnigmailCryptoAPI();
-    return cApi.sync(
+    return lazy.EnigmailFuncs.sync(
       this.importKeyAsync(
         parent,
         askToConfirm,

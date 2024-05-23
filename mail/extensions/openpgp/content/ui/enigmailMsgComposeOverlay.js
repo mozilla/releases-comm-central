@@ -44,9 +44,6 @@ var { EnigmailMsgRead } = ChromeUtils.importESModule(
 var { EnigmailMimeEncrypt } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/mimeEncrypt.sys.mjs"
 );
-const { EnigmailCryptoAPI } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
-);
 var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
@@ -1666,8 +1663,9 @@ Enigmail.msg = {
 
       this.sendProcess = true;
       try {
-        const cApi = EnigmailCryptoAPI();
-        const encryptResult = cApi.sync(this.prepareSendMsg(sendMsgType));
+        const encryptResult = EnigmailFuncs.sync(
+          this.prepareSendMsg(sendMsgType)
+        );
         if (!encryptResult) {
           this.resetUpdatedFields();
           event.preventDefault();

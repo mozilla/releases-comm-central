@@ -404,7 +404,7 @@ export var EnigmailEncryption = {
 
     const resultStatus = {};
     const cApi = lazy.EnigmailCryptoAPI();
-    const encrypted = cApi.sync(
+    const encrypted = lazy.EnigmailFuncs.sync(
       cApi.encryptAndOrSign(
         listener.getInputForCrypto(),
         encryptArgs,

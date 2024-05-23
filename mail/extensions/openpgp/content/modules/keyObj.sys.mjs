@@ -524,7 +524,7 @@ export class EnigmailKeyObj {
    */
   getSecretKey(minimalKey) {
     const cApi = lazy.EnigmailCryptoAPI();
-    return cApi.sync(cApi.extractSecretKey(this.fpr, minimalKey));
+    return lazy.EnigmailFuncs.sync(cApi.extractSecretKey(this.fpr, minimalKey));
   }
 
   iSimpleOneSubkeySameExpiry() {

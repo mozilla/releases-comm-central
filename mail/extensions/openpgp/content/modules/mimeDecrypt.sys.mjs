@@ -450,7 +450,9 @@ MimeDecryptHandler.prototype = {
       LAST_MSG.mimePartNumber = this.mimePartNumber;
 
       const cApi = lazy.EnigmailCryptoAPI();
-      this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));
+      this.returnStatus = lazy.EnigmailFuncs.sync(
+        cApi.decryptMime(this.outQueue, options)
+      );
 
       if (!this.returnStatus) {
         this.returnStatus = {

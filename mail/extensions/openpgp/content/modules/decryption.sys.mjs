@@ -280,7 +280,7 @@ export var EnigmailDecryption = {
       msgDate,
     };
     const cApi = lazy.EnigmailCryptoAPI();
-    const result = cApi.sync(cApi.decrypt(pgpBlock, options));
+    const result = lazy.EnigmailFuncs.sync(cApi.decrypt(pgpBlock, options));
     if (!result) {
       lazy.log.warn("Decryption message finished with no result.");
       return "";
