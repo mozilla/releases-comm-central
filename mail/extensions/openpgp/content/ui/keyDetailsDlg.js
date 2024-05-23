@@ -19,9 +19,6 @@ var { EnigmailKeyRing } = ChromeUtils.importESModule(
 var { PgpSqliteDb2 } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
-);
 var { KeyLookupHelper } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyLookupHelper.sys.mjs"
 );
@@ -392,8 +389,7 @@ async function reloadData(firstLoad) {
   }
 
   gSigTree = document.getElementById("signatures_tree");
-  const cApi = EnigmailCryptoAPI();
-  const signatures = await cApi.getKeyObjSignatures(keyObj);
+  const signatures = await RNP.getKeyObjSignatures(keyObj, false);
   gSigTree.view = new SigListView(signatures);
 
   document.getElementById("subkeyList").view = new SubkeyListView(keyObj);

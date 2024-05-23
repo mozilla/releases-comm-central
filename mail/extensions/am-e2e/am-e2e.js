@@ -28,9 +28,6 @@ var { EnigmailKeyserverURIs } = ChromeUtils.importESModule(
 var { EnigmailKeyServer } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyserver.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
-);
 var { PgpSqliteDb2 } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/sqliteDb.sys.mjs"
 );
@@ -1189,8 +1186,7 @@ async function enigmailDeleteKey(key) {
     return;
   }
 
-  const cApi = EnigmailCryptoAPI();
-  await cApi.deleteKey(key.fpr, key.secretAvailable);
+  await RNP.deleteKey(key.fpr, key.secretAvailable);
   await PgpSqliteDb2.deleteAcceptance(key.fpr);
 
   EnigmailKeyRing.clearCache();

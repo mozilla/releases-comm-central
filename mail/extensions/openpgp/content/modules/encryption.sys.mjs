@@ -7,11 +7,11 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -403,9 +403,8 @@ export var EnigmailEncryption = {
     }
 
     const resultStatus = {};
-    const cApi = lazy.EnigmailCryptoAPI();
     const encrypted = lazy.EnigmailFuncs.sync(
-      cApi.encryptAndOrSign(
+      lazy.RNP.encryptAndOrSign(
         listener.getInputForCrypto(),
         encryptArgs,
         resultStatus

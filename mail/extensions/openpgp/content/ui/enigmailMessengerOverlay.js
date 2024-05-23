@@ -25,7 +25,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
@@ -1955,8 +1954,7 @@ Enigmail.msg = {
     }
     await IOUtils.writeUTF8(outFile2.path, await response2.text());
 
-    const cApi = EnigmailCryptoAPI();
-    const promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
+    const promise = RNP.verifyAttachment(outFile1.path, outFile2.path);
     promise.then(async function (message) {
       Services.prompt.alert(
         window,
@@ -2043,8 +2041,7 @@ Enigmail.msg = {
     // from an encrypted data block.
     /*
     if (callbackArg.actionType != "importKey") {
-      let cApi = EnigmailCryptoAPI();
-      let origFilename = await cApi.getFileName(window, callbackArg.data);
+      let origFilename = await ???.getFileName(window, callbackArg.data);
       if (origFilename && origFilename.length > rawFileName.length) {
         rawFileName = origFilename;
       }

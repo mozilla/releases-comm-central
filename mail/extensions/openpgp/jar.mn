@@ -10,7 +10,6 @@ openpgp.jar:
   content/openpgp/modules/CollectedKeysDB.sys.mjs  (content/modules/CollectedKeysDB.sys.mjs)
   content/openpgp/modules/constants.sys.mjs        (content/modules/constants.sys.mjs)
   content/openpgp/modules/core.sys.mjs             (content/modules/core.sys.mjs)
-  content/openpgp/modules/cryptoAPI.sys.mjs        (content/modules/cryptoAPI.sys.mjs)
   content/openpgp/modules/data.sys.mjs             (content/modules/data.sys.mjs)
   content/openpgp/modules/decryption.sys.mjs       (content/modules/decryption.sys.mjs)
   content/openpgp/modules/dialog.sys.mjs           (content/modules/dialog.sys.mjs)
@@ -46,8 +45,6 @@ openpgp.jar:
   content/openpgp/modules/windows.sys.mjs          (content/modules/windows.sys.mjs)
   content/openpgp/modules/wkdLookup.sys.mjs        (content/modules/wkdLookup.sys.mjs)
   content/openpgp/modules/zbase32.sys.mjs          (content/modules/zbase32.sys.mjs)
-
-  content/openpgp/modules/cryptoAPI/RNPCryptoAPI.sys.mjs    (content/modules/cryptoAPI/RNPCryptoAPI.sys.mjs)
 
   content/openpgp/ui/backupKeyPassword.js            (content/ui/backupKeyPassword.js)
   content/openpgp/ui/changeExpiryDlg.js              (content/ui/changeExpiryDlg.js)

@@ -11,12 +11,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -279,8 +279,7 @@ export var EnigmailDecryption = {
       uiFlags,
       msgDate,
     };
-    const cApi = lazy.EnigmailCryptoAPI();
-    const result = lazy.EnigmailFuncs.sync(cApi.decrypt(pgpBlock, options));
+    const result = lazy.EnigmailFuncs.sync(lazy.RNP.decrypt(pgpBlock, options));
     if (!result) {
       lazy.log.warn("Decryption message finished with no result.");
       return "";
@@ -584,8 +583,8 @@ export var EnigmailDecryption = {
 
     lazy.log.debug(`Decrypting attachment to ${outFile.path}`);
 
-    const cApi = lazy.EnigmailCryptoAPI();
-    const result = await cApi.decryptAttachment(byteData);
+    const options = { fromAddr: "", msgDate: null };
+    const result = await lazy.RNP.decrypt(byteData, options);
     if (!result) {
       lazy.log.warn("Decrypt attachment finished with no result.");
       return false;

@@ -6,7 +6,6 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKey: "chrome://openpgp/content/modules/key.sys.mjs",
 });
@@ -512,19 +511,6 @@ export class EnigmailKeyObj {
       default:
         return this.keySize;
     }
-  }
-
-  /**
-   * @param {boolean} minimalKey - If true, reduce key to minimum required.
-   *
-   * @returns {object} object
-   * @returns {integer} object.exitCode - Result code (0: OK)
-   * @returns {string} object.keyData - ASCII armored key data material.
-   * @returns {string} object.errorMsg - Error message in case exitCode !== 0.
-   */
-  getSecretKey(minimalKey) {
-    const cApi = lazy.EnigmailCryptoAPI();
-    return lazy.EnigmailFuncs.sync(cApi.extractSecretKey(this.fpr, minimalKey));
   }
 
   iSimpleOneSubkeySameExpiry() {

@@ -8,9 +8,9 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -181,14 +181,13 @@ export var EnigmailKey = {
       this._keyListCache.delete(this._keyListCache.keys().next().value);
     }
 
-    const cApi = lazy.EnigmailCryptoAPI();
     let keyList;
     let key = {};
     let blocks;
     errorMsgObj.value = "";
 
     try {
-      keyList = await cApi.getKeyListFromKeyBlockAPI(
+      keyList = await lazy.RNP.getKeyListFromKeyBlockImpl(
         keyBlockStr,
         pubkey,
         seckey,

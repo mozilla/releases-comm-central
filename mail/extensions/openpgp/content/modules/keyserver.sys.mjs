@@ -7,11 +7,11 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -1294,8 +1294,7 @@ const accessVksServer = {
           listener
         );
 
-        const cApi = lazy.EnigmailCryptoAPI();
-        const keyList = await cApi.getKeyListFromKeyBlockAPI(
+        const keyList = await lazy.RNP.getKeyListFromKeyBlockImpl(
           r,
           true,
           false,

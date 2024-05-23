@@ -10,9 +10,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { EnigmailCryptoAPI } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/cryptoAPI.sys.mjs"
-);
 var { OpenPGPMasterpass } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/masterpass.sys.mjs"
 );
@@ -33,6 +30,9 @@ var { PgpSqliteDb2 } = ChromeUtils.importESModule(
 );
 var { EnigmailCore } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/core.sys.mjs"
+);
+var { RNP } = ChromeUtils.importESModule(
+  "chrome://openpgp/content/modules/RNP.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -654,7 +654,6 @@ async function openPgpKeygenConfirm() {
   kGenerating = true;
 
   let password;
-  const cApi = EnigmailCryptoAPI();
   let newId = null;
 
   const sepPassphraseEnabled = Services.prefs.getBoolPref(
@@ -669,7 +668,7 @@ async function openPgpKeygenConfirm() {
   } else {
     password = document.getElementById("passwordInput").value;
   }
-  newId = await cApi.genKey(
+  newId = await RNP.genKey(
     `${gIdentity.fullName} <${gIdentity.email}>`,
     document.getElementById("keyType").value,
     Number(document.getElementById("keySize").value),
@@ -679,6 +678,7 @@ async function openPgpKeygenConfirm() {
           Number(document.getElementById("timeScale").value),
     password
   );
+  await RNP.saveKeyRings();
 
   gGeneratedKey = newId;
 
@@ -706,7 +706,7 @@ async function openPgpKeygenConfirm() {
   closeOverlay();
   EnigmailKeyRing.clearCache();
 
-  const rev = await cApi.unlockAndGetNewRevocation(
+  const rev = await RNP.unlockAndGetNewRevocation(
     `0x${gGeneratedKey}`,
     password,
     true

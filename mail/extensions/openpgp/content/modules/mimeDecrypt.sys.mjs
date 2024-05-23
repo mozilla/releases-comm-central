@@ -14,13 +14,13 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -449,9 +449,12 @@ MimeDecryptHandler.prototype = {
       LAST_MSG.lastMessageURI = currMsg;
       LAST_MSG.mimePartNumber = this.mimePartNumber;
 
-      const cApi = lazy.EnigmailCryptoAPI();
+      options.noOutput = false;
+      options.verifyOnly = false;
+      options.uiFlags = lazy.EnigmailConstants.UI_PGP_MIME;
+
       this.returnStatus = lazy.EnigmailFuncs.sync(
-        cApi.decryptMime(this.outQueue, options)
+        lazy.RNP.decrypt(this.outQueue, options)
       );
 
       if (!this.returnStatus) {

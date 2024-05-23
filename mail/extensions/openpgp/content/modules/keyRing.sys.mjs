@@ -11,7 +11,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CollectedKeysDB: "chrome://openpgp/content/modules/CollectedKeysDB.sys.mjs",
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.sys.mjs",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.sys.mjs",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.sys.mjs",
@@ -350,8 +349,7 @@ export var EnigmailKeyRing = {
       endIndexObj.value - beginIndexObj.value + 1
     );
 
-    const cApi = lazy.EnigmailCryptoAPI();
-    const res = await cApi.importRevBlockAPI(pgpBlock);
+    const res = await lazy.RNP.importRevImpl(pgpBlock);
     if (res.exitCode) {
       return;
     }
@@ -886,7 +884,6 @@ export var EnigmailKeyRing = {
       throw new Error("importKeyAsync with minimizeKey not implemented");
     }
 
-    const cApi = lazy.EnigmailCryptoAPI();
     let result = undefined;
     let tryAgain;
     let permissive = false;
@@ -894,7 +891,10 @@ export var EnigmailKeyRing = {
       // strict on first attempt, permissive on optional second attempt
       const blockParam = isBinary ? keyBlock : pgpBlock;
 
-      result = await cApi.importPubkeyBlockAutoAcceptAPI(
+      // TODO: The filtering might not work, because the underlying
+      // implementation wants to filter by fingerprint, but the filter
+      // input is apparently user IDs? Really?
+      result = await lazy.RNP.importPubkeyBlockAutoAcceptImpl(
         parent,
         blockParam,
         acceptance,
@@ -2021,9 +2021,7 @@ function loadKeyList(win, sortColumn, sortDirection, onlyKeys = null) {
   }
   gLoadingKeys = true;
 
-  const cApi = lazy.EnigmailCryptoAPI();
-  cApi
-    .getKeys(onlyKeys)
+  lazy.RNP.getKeys(onlyKeys)
     .then(keyList => {
       createAndSortKeyList(
         keyList,

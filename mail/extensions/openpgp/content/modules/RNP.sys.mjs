@@ -1540,6 +1540,7 @@ export var RNP = {
     return is_revoked.value;
   },
 
+  /* unused
   getKeySignatures(keyId, ignoreUnknownUid) {
     const handle = this.getKeyHandleByKeyIdOrFingerprint(
       RNPLib.ffi,
@@ -1563,6 +1564,7 @@ export var RNP = {
     RNPLib.rnp_key_handle_destroy(handle);
     return result;
   },
+  */
 
   getKeyObjSignatures(keyObj, ignoreUnknownUid) {
     const handle = this.getKeyHandleByKeyIdOrFingerprint(
@@ -5135,5 +5137,9 @@ export var RNP = {
     const unsupportedFeatures = (foundFeatures &= ~ourSupportedFeatures);
 
     return unsupportedFeatures != 0;
+  },
+
+  async verifyAttachment(_dataFile, _sigFile) {
+    throw new Error("verifyAttachment not implemented");
   },
 };

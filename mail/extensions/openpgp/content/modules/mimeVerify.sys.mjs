@@ -11,12 +11,12 @@ import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sy
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailCore: "chrome://openpgp/content/modules/core.sys.mjs",
-  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.sys.mjs",
   EnigmailData: "chrome://openpgp/content/modules/data.sys.mjs",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.sys.mjs",
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+  RNP: "chrome://openpgp/content/modules/RNP.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({
@@ -537,8 +537,6 @@ MimeVerify.prototype = {
         }
       }
 
-      const cApi = lazy.EnigmailCryptoAPI();
-
       // ensure all lines end with CRLF as specified in RFC 3156, section 5
       if (this.signedData.search(/[^\r]\n/) >= 0) {
         this.signedData = this.signedData
@@ -546,8 +544,12 @@ MimeVerify.prototype = {
           .replace(/\n/g, "\r\n");
       }
 
+      if (!options.mimeSignatureData) {
+        throw new Error("inline verify not yet implemented");
+      }
+
       this.returnStatus = lazy.EnigmailFuncs.sync(
-        cApi.verifyMime(this.signedData, options)
+        lazy.RNP.verifyDetached(this.signedData, options)
       );
 
       if (!this.returnStatus) {
