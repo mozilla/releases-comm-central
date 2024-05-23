@@ -119,43 +119,49 @@ add_task(async function uploadImapMessages() {
   IMAPPump.inbox.updateFolderWithListener(null, gListener);
 });
 
-add_task(async function testMessageFetched() {
-  // If we're really chunking, then the message fetch should have started before
-  // we finished the updateFolder URL.
-  await TestUtils.waitForCondition(() => {
-    return gFolderListener.gotNewMailBiff === true;
-  });
-  Assert.ok(gFolderListener.gotNewMailBiff);
+add_task(
+  {
+    // Not working on Mac. Bug 1776115.
+    skip_if: () => AppConstants.platform == "macosx",
+  },
+  async function testMessageFetched() {
+    // If we're really chunking, then the message fetch should have started before
+    // we finished the updateFolder URL.
+    await TestUtils.waitForCondition(() => {
+      return gFolderListener.gotNewMailBiff === true;
+    });
+    Assert.ok(gFolderListener.gotNewMailBiff);
 
-  // We do not check for the first chunk as this is unreliable without explicit
-  //  listeners/events.
-  // Instead we are checking if there's no rest of the division with
-  //  CHUNKING_SIZE while the chunking process is ongoing.
-  // It's important that the chunking is intact and as well not failing
-  //  randomly in the test infrastructure.
-  // See at the CHUNKING_SIZE and OVERALL_MESSAGES declarations.
-  //
-  // HINT:
-  // If this causes future problems because stuff getting faster,
-  //  try to increase the overall message count.
-  await TestUtils.waitForCondition(() => {
-    const messagesDBFolder =
-      IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages;
-    if (messagesDBFolder !== 0) {
-      Assert.equal(
-        messagesDBFolder % CHUNKING_SIZE,
-        0,
-        `${messagesDBFolder} messages in folder should be of chunk size ${CHUNKING_SIZE}`
-      ); // This is the primary test.
-      return true;
-    } else if (messagesDBFolder === OVERALL_MESSAGES) {
-      throw new Error(
-        `Batching failed in sizes of ${CHUNKING_SIZE} found instead ${OVERALL_MESSAGES} immediately`
-      );
-    }
-    return false; // Rerun waitForCondition.
-  }, 50);
-}).skip(AppConstants.platform == "macosx"); // Not working on mac. Bug 1776115.
+    // We do not check for the first chunk as this is unreliable without explicit
+    //  listeners/events.
+    // Instead we are checking if there's no rest of the division with
+    //  CHUNKING_SIZE while the chunking process is ongoing.
+    // It's important that the chunking is intact and as well not failing
+    //  randomly in the test infrastructure.
+    // See at the CHUNKING_SIZE and OVERALL_MESSAGES declarations.
+    //
+    // HINT:
+    // If this causes future problems because stuff getting faster,
+    //  try to increase the overall message count.
+    await TestUtils.waitForCondition(() => {
+      const messagesDBFolder =
+        IMAPPump.inbox.msgDatabase.dBFolderInfo.numMessages;
+      if (messagesDBFolder !== 0) {
+        Assert.equal(
+          messagesDBFolder % CHUNKING_SIZE,
+          0,
+          `${messagesDBFolder} messages in folder should be of chunk size ${CHUNKING_SIZE}`
+        ); // This is the primary test.
+        return true;
+      } else if (messagesDBFolder === OVERALL_MESSAGES) {
+        throw new Error(
+          `Batching failed in sizes of ${CHUNKING_SIZE} found instead ${OVERALL_MESSAGES} immediately`
+        );
+      }
+      return false; // Rerun waitForCondition.
+    }, 50);
+  }
+);
 
 add_task(async function testHdrsDownloaded() {
   await gListener.promise; // Now we wait for the finished update of the Folder.

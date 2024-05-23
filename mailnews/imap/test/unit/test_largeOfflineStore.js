@@ -57,9 +57,9 @@ add_setup(async function () {
         " free space to run."
     );
   }
-}).skip(!storageOk);
+});
 
-add_task(async function addOfflineMessages() {
+add_task({ skip_if: () => !storageOk }, async function addOfflineMessages() {
   // Create a couple test messages on the IMAP server.
   let messages = [];
   const messageGenerator = new MessageGenerator();
@@ -102,9 +102,9 @@ add_task(async function addOfflineMessages() {
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
   await listener.promise;
-}).skip(!storageOk);
+});
 
-add_task(async function check_result() {
+add_task({ skip_if: () => !storageOk }, async function check_result() {
   // Call downloadAllForOffline() a second time.
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(listener, null);
@@ -131,7 +131,7 @@ add_task(async function check_result() {
     // Make sure we don't fall over if we ask to read the message.
     IMAPPump.inbox.getLocalMsgStream(header).close();
   }
-}).skip(!storageOk);
+});
 
 add_task(function teardown() {
   // Free up disk space - if you want to look at the file after running

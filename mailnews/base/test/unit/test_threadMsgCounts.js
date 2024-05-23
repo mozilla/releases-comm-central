@@ -124,135 +124,140 @@ add_task(async function testSingleFolderThreadedView() {
   injection.deleteFolder(folder);
 });
 
-add_task(async function testGroupedBySortByDate() {
-  info("Make a folder and add some messages.");
+add_task(
+  {
+    // This test will fail if it runs too close to the start of the day.
+    skip_if: () => now.getHours() == 0 && now.getMinutes() < 5,
+  },
+  async function testGroupedBySortByDate() {
+    info("Make a folder and add some messages.");
 
-  const folder = await injection.makeEmptyFolder();
-  await makeMessages(folder, [
-    // Future
-    { count: 1, age: { days: -1 } },
-    // Today
-    { count: 1, age: { minutes: 3 } },
-    { count: 1, age: { minutes: 2 } },
-    { count: 1, age: { minutes: 1 } },
-    // Yesterday
-    { count: 1, age: { days: 1 } },
-    { count: 1, age: { days: 1 }, read: true },
-    // Last 7 Days
-    { count: 2, age: { days: 5 } },
-    // Last 14 Days
-    { count: 1, age: { days: 13 }, read: true },
-    // Older
-    { count: 1, read: true },
-    { count: 5 },
-  ]);
-  const messages = [...folder.messages];
+    const folder = await injection.makeEmptyFolder();
+    await makeMessages(folder, [
+      // Future
+      { count: 1, age: { days: -1 } },
+      // Today
+      { count: 1, age: { minutes: 3 } },
+      { count: 1, age: { minutes: 2 } },
+      { count: 1, age: { minutes: 1 } },
+      // Yesterday
+      { count: 1, age: { days: 1 } },
+      { count: 1, age: { days: 1 }, read: true },
+      // Last 7 Days
+      { count: 2, age: { days: 5 } },
+      // Last 14 Days
+      { count: 1, age: { days: 13 }, read: true },
+      // Older
+      { count: 1, read: true },
+      { count: 5 },
+    ]);
+    const messages = [...folder.messages];
 
-  info("Check that the messages are put in the right threads.");
+    info("Check that the messages are put in the right threads.");
 
-  const dbView = makeView(
-    "group",
-    folder,
-    Ci.nsMsgViewSortType.byDate,
-    Ci.nsMsgViewFlagsType.kGroupBySort
-  );
-  const expectedThreads = [
-    messages.slice(9, 15),
-    messages.slice(8, 9),
-    messages.slice(6, 8),
-    messages.slice(4, 6),
-    messages.slice(1, 4),
-    messages.slice(0, 1),
-  ];
-  assertThreadContents(dbView, expectedThreads);
+    const dbView = makeView(
+      "group",
+      folder,
+      Ci.nsMsgViewSortType.byDate,
+      Ci.nsMsgViewFlagsType.kGroupBySort
+    );
+    const expectedThreads = [
+      messages.slice(9, 15),
+      messages.slice(8, 9),
+      messages.slice(6, 8),
+      messages.slice(4, 6),
+      messages.slice(1, 4),
+      messages.slice(0, 1),
+    ];
+    assertThreadContents(dbView, expectedThreads);
 
-  info("Check the cell values for display.");
+    info("Check the cell values for display.");
 
-  const expectedRows = [
-    { totalCol: "6", unreadCol: "5", newCol: "5", subjectCol: "Older" },
-    { totalCol: "1", unreadCol: "", newCol: "", subjectCol: "Last 14 Days" },
-    { totalCol: "2", unreadCol: "2", newCol: "2", subjectCol: "Last 7 Days" },
-    { totalCol: "2", unreadCol: "1", newCol: "1", subjectCol: "Yesterday" },
-    { totalCol: "3", unreadCol: "3", newCol: "3", subjectCol: "Today" },
-    { totalCol: "1", unreadCol: "1", newCol: "1", subjectCol: "Future" },
-  ];
-  assertCellTexts(dbView, expectedRows);
+    const expectedRows = [
+      { totalCol: "6", unreadCol: "5", newCol: "5", subjectCol: "Older" },
+      { totalCol: "1", unreadCol: "", newCol: "", subjectCol: "Last 14 Days" },
+      { totalCol: "2", unreadCol: "2", newCol: "2", subjectCol: "Last 7 Days" },
+      { totalCol: "2", unreadCol: "1", newCol: "1", subjectCol: "Yesterday" },
+      { totalCol: "3", unreadCol: "3", newCol: "3", subjectCol: "Today" },
+      { totalCol: "1", unreadCol: "1", newCol: "1", subjectCol: "Future" },
+    ];
+    assertCellTexts(dbView, expectedRows);
 
-  info("Read some messages.");
+    info("Read some messages.");
 
-  // Already read, the value must not go to -1.
-  expectedThreads[1][0].markRead(true);
+    // Already read, the value must not go to -1.
+    expectedThreads[1][0].markRead(true);
 
-  // Will leave one read and one unread.
-  expectedThreads[2][0].markRead(true);
-  expectedRows[2].unreadCol = "1";
-  expectedRows[2].newCol = "1";
+    // Will leave one read and one unread.
+    expectedThreads[2][0].markRead(true);
+    expectedRows[2].unreadCol = "1";
+    expectedRows[2].newCol = "1";
 
-  // Last unread message, value should be the empty string, not 0.
-  expectedThreads[5][0].markRead(true);
-  expectedRows[5].unreadCol = "";
-  expectedRows[5].newCol = "";
-  assertCellTexts(dbView, expectedRows);
+    // Last unread message, value should be the empty string, not 0.
+    expectedThreads[5][0].markRead(true);
+    expectedRows[5].unreadCol = "";
+    expectedRows[5].newCol = "";
+    assertCellTexts(dbView, expectedRows);
 
-  info("Remove the new flag from all of the messages.");
+    info("Remove the new flag from all of the messages.");
 
-  folder.clearNewMessages();
-  for (const row of expectedRows) {
-    row.newCol = "";
+    folder.clearNewMessages();
+    for (const row of expectedRows) {
+      row.newCol = "";
+    }
+    assertCellTexts(dbView, expectedRows);
+
+    info("Add some new messages.");
+
+    await makeMessages(folder, [
+      { count: 1, age: { days: -1 } },
+      { count: 2, age: { days: 1 } },
+      { count: 1 },
+    ]);
+    expectedRows[0].totalCol = "7";
+    expectedRows[0].unreadCol = "6";
+    expectedRows[0].newCol = "1";
+    expectedRows[3].totalCol = "4";
+    expectedRows[3].unreadCol = "3";
+    expectedRows[3].newCol = "2";
+    expectedRows[5].totalCol = "2";
+    expectedRows[5].unreadCol = "1";
+    expectedRows[5].newCol = "1";
+    assertCellTexts(dbView, expectedRows);
+
+    info("Expand a group.");
+
+    dbView.toggleOpenState(2);
+    assertCellTexts(dbView, [
+      ...expectedRows.slice(0, 3),
+      { subjectCol: expectedThreads[2][0].subject },
+      { subjectCol: expectedThreads[2][1].subject },
+      ...expectedRows.slice(3),
+    ]);
+
+    info("Collapse the group.");
+
+    dbView.toggleOpenState(2);
+    assertCellTexts(dbView, expectedRows);
+
+    info("Flip the sorting.");
+
+    dbView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
+    expectedRows.reverse();
+    assertCellTexts(dbView, expectedRows);
+
+    dbView.toggleOpenState(1);
+    assertCellTexts(dbView, [
+      ...expectedRows.slice(0, 2),
+      { subjectCol: expectedThreads[4][0].subject },
+      { subjectCol: expectedThreads[4][1].subject },
+      { subjectCol: expectedThreads[4][2].subject },
+      ...expectedRows.slice(2),
+    ]);
+
+    injection.deleteFolder(folder);
   }
-  assertCellTexts(dbView, expectedRows);
-
-  info("Add some new messages.");
-
-  await makeMessages(folder, [
-    { count: 1, age: { days: -1 } },
-    { count: 2, age: { days: 1 } },
-    { count: 1 },
-  ]);
-  expectedRows[0].totalCol = "7";
-  expectedRows[0].unreadCol = "6";
-  expectedRows[0].newCol = "1";
-  expectedRows[3].totalCol = "4";
-  expectedRows[3].unreadCol = "3";
-  expectedRows[3].newCol = "2";
-  expectedRows[5].totalCol = "2";
-  expectedRows[5].unreadCol = "1";
-  expectedRows[5].newCol = "1";
-  assertCellTexts(dbView, expectedRows);
-
-  info("Expand a group.");
-
-  dbView.toggleOpenState(2);
-  assertCellTexts(dbView, [
-    ...expectedRows.slice(0, 3),
-    { subjectCol: expectedThreads[2][0].subject },
-    { subjectCol: expectedThreads[2][1].subject },
-    ...expectedRows.slice(3),
-  ]);
-
-  info("Collapse the group.");
-
-  dbView.toggleOpenState(2);
-  assertCellTexts(dbView, expectedRows);
-
-  info("Flip the sorting.");
-
-  dbView.sort(Ci.nsMsgViewSortType.byDate, Ci.nsMsgViewSortOrder.descending);
-  expectedRows.reverse();
-  assertCellTexts(dbView, expectedRows);
-
-  dbView.toggleOpenState(1);
-  assertCellTexts(dbView, [
-    ...expectedRows.slice(0, 2),
-    { subjectCol: expectedThreads[4][0].subject },
-    { subjectCol: expectedThreads[4][1].subject },
-    { subjectCol: expectedThreads[4][2].subject },
-    ...expectedRows.slice(2),
-  ]);
-
-  injection.deleteFolder(folder);
-}).skip(now.getHours() == 0 && now.getMinutes() < 5);
-// (This test will fail if it runs too close to the start of the day.)
+);
 
 add_task(async function testGroupedBySortByAuthor() {
   info("Make a folder and add some messages.");
