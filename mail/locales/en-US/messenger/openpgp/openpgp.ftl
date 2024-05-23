@@ -645,7 +645,7 @@ need-online = The function you have selected is not available in offline mode. P
 no-key-found2 = We couldn’t find any usable key matching the specified search criteria.
 no-update-found = You already have the keys that were discovered online.
 
-## Strings used in keyRing.sys.mjs & GnuPGCryptoAPI.sys.mjs
+## Strings used in keyRing.sys.mjs
 
 fail-key-extract = Error - key extraction command failed
 

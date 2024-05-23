@@ -48,7 +48,6 @@ openpgp.jar:
   content/openpgp/modules/zbase32.sys.mjs          (content/modules/zbase32.sys.mjs)
 
   content/openpgp/modules/cryptoAPI/RNPCryptoAPI.sys.mjs    (content/modules/cryptoAPI/RNPCryptoAPI.sys.mjs)
-  content/openpgp/modules/cryptoAPI/GnuPGCryptoAPI.sys.mjs  (content/modules/cryptoAPI/GnuPGCryptoAPI.sys.mjs)
   content/openpgp/modules/cryptoAPI/interface.js        (content/modules/cryptoAPI/interface.js)
 
   content/openpgp/ui/backupKeyPassword.js            (content/ui/backupKeyPassword.js)

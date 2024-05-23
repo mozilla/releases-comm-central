@@ -12,8 +12,6 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 );
 
-/* global CryptoAPI */
-
 import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sys.mjs";
 
 /**
@@ -22,7 +20,6 @@ import { EnigmailConstants } from "chrome://openpgp/content/modules/constants.sy
 class RNPCryptoAPI extends CryptoAPI {
   constructor() {
     super();
-    this.api_name = "RNP";
   }
 
   /**
@@ -55,24 +52,6 @@ class RNPCryptoAPI extends CryptoAPI {
    */
   async getKeyObjSignatures(keyId, ignoreUnknownUid = false) {
     return RNP.getKeyObjSignatures(keyId, ignoreUnknownUid);
-  }
-
-  /**
-   * Export the minimum key for the public key object:
-   * public key, primary user ID, newest encryption subkey
-   *
-   * @param {string} _fpr - A a single fingerprint.
-   * @param {string} [_email] - The email address of the desired user ID.
-   *   If the desired user ID cannot be found or is not valid, use the primary
-   *   UID instead
-   * @param {integer[]} [_subkeyDates] - Remove subkeys with specific creation Dates.
-   * @returns {Promise<object>} result
-   * @returns {integer} result.exitCode - 0 for success.
-   * @returns {string} result.errorMsg - Error message, if exitCode != 0.
-   * @returns {string} result.keyData - key data in base64.
-   */
-  async getMinimalPubKey(_fpr, _email, _subkeyDates) {
-    throw new Error("Not implemented");
   }
 
   /**

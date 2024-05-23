@@ -5,7 +5,6 @@
  */
 
 var gCurrentApi = null;
-var gGnuPGApi = null;
 
 export function EnigmailCryptoAPI() {
   if (!gCurrentApi) {
@@ -15,14 +14,4 @@ export function EnigmailCryptoAPI() {
     gCurrentApi = getRNPAPI();
   }
   return gCurrentApi;
-}
-
-export function EnigmailGnuPGAPI() {
-  if (!gGnuPGApi) {
-    const { getGnuPGAPI } = ChromeUtils.importESModule(
-      "chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.sys.mjs"
-    );
-    gGnuPGApi = getGnuPGAPI();
-  }
-  return gGnuPGApi;
 }
