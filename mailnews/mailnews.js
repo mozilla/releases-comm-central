@@ -804,7 +804,6 @@ pref("mail.forward_add_extension", true);
 // Prefix of for mail forwards. E.g. "Fwd" -> subject will be Fwd: <subject>
 pref("mail.forward_subject_prefix", "Fwd");
 
-pref("mail.startup.enabledMailCheckOnce", false);
 // RFC 2646=======
 pref("mailnews.send_plaintext_flowed", true);
 pref("mailnews.display.disable_format_flowed_support", false);

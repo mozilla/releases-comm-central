@@ -67,9 +67,6 @@ ChromeUtils.defineLazyGetter(this, "PopupNotifications", function () {
 
 /* This is where functions related to the 3 pane window are kept */
 
-// from MailNewsTypes.h
-var kMailCheckOncePrefName = "mail.startup.enabledMailCheckOnce";
-
 /**
  * Tracks whether the right mouse button changed the selection or not.  If the
  * user right clicks on the selection, it stays the same.  If they click outside
@@ -739,14 +736,6 @@ async function loadStartFolder(initialUri) {
       var rootMsgFolder = defaultServer.rootMsgFolder;
 
       startFolder = rootMsgFolder;
-
-      // Enable check new mail once by turning checkmail pref 'on' to bring
-      // all users to one plane. This allows all users to go to Inbox. User can
-      // always go to server settings panel and turn off "Check for new mail at startup"
-      if (!Services.prefs.getBoolPref(kMailCheckOncePrefName)) {
-        Services.prefs.setBoolPref(kMailCheckOncePrefName, true);
-        defaultServer.loginAtStartUp = true;
-      }
 
       // Get the user pref to see if the login at startup is enabled for default account
       isLoginAtStartUpEnabled = defaultServer.loginAtStartUp;

@@ -166,8 +166,8 @@ function FinishAccount() {
 
     setupCopiesAndFoldersServer(gCurrentAccount, accountData);
 
-    if (gCurrentAccount.incomingServer.canBeDefaultServer) {
-      EnableCheckMailAtStartUpIfNeeded(gCurrentAccount);
+    if (!gDefaultAccount && gCurrentAccount.incomingServer.canBeDefaultServer) {
+      MailServices.accounts.defaultAccount = gCurrentAccount;
     }
 
     // in case we crash, force us a save of the prefs file NOW
@@ -587,19 +587,4 @@ function GetPageData() {
 function onFlush() {
   Services.prefs.setBoolPref("nglayout.debug.disable_xul_cache", true);
   Services.prefs.setBoolPref("nglayout.debug.disable_xul_cache", false);
-}
-
-/** If there are no default accounts..
- * this is will be the new default, so enable
- * check for mail at startup
- */
-function EnableCheckMailAtStartUpIfNeeded(newAccount) {
-  // Check if default account existed.
-  // If no such account, make this one the default account
-  // and turn on the new mail check at startup for the current account
-  if (!gDefaultAccount) {
-    MailServices.accounts.defaultAccount = newAccount;
-    newAccount.incomingServer.loginAtStartUp = true;
-    newAccount.incomingServer.downloadOnBiff = true;
-  }
 }
