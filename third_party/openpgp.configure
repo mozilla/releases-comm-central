@@ -92,21 +92,22 @@ with only_when(in_tree_librnp):
     system_lib_option(
         "--with-system-jsonc",
         help="Use system JSON-C for librnp (located with pkgconfig)",
+        when=use_pkg_config,
     )
 
-    jsonc_pkg = pkg_check_modules("MZLA_JSONC", "json-c >= 0.11", when="--with-system-jsonc")
-    set_config("MZLA_SYSTEM_JSONC", depends_if(jsonc_pkg)(lambda _: True))
+    @depends("--with-system-jsonc", when=use_pkg_config)
+    def with_system_json_c_option(with_system_json_c):
+        return with_system_json_c
 
-    @depends("--with-system-jsonc")
-    def in_tree_jsonc(system_jsonc):
-        if not system_jsonc:
-            return True
+    jsonc_pkg = pkg_check_modules("MZLA_JSONC", "json-c >= 0.11", when=with_system_json_c_option)
+    set_config("MZLA_SYSTEM_JSONC", depends_if(jsonc_pkg)(lambda _: True))
 
     # Bzip2 --with-system-bz2
     system_lib_option(
         "--with-system-bz2",
         nargs="?",
         help="Use system Bzip2 for librnp (pkgconfig/given prefix)",
+        when=use_pkg_config,
     )
     set_config("MZLA_SYSTEM_BZIP2", True, when="--with-system-bz2")
 
@@ -119,7 +120,7 @@ with only_when(in_tree_librnp):
         config=False,
     )
 
-    @depends_if("--with-system-bz2", bzip2_pkg)
+    @depends_if("--with-system-bz2", bzip2_pkg, when=use_pkg_config)
     def bzip2_flags(value, bzip2_pkg):
         if len(value):
             # A path (eg. /usr/local was given)
@@ -199,6 +200,7 @@ with only_when(in_tree_librnp):
         system_lib_option(
             "--with-system-botan",
             help="Use system Botan for librnp (located with pkgconfig)",
+            when=use_pkg_config,
         )
 
         botan_pkg = pkg_check_modules("MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan")
@@ -210,12 +212,13 @@ with only_when(in_tree_librnp):
             "--with-openssl",
             nargs=1,
             help="OpenSSL library prefix (when not found by pkgconfig)",
+            when=use_pkg_config,
         )
         openssl_pkg = pkg_check_modules(
             "MZLA_LIBRNP_OPENSSL", "openssl >= 1.1.1e", allow_missing=True, config=False
         )
 
-        @depends_if("--with-openssl", openssl_pkg)
+        @depends_if("--with-openssl", openssl_pkg, when=use_pkg_config)
         @imports(_from="os.path", _import="isdir")
         @imports(_from="os.path", _import="join")
         def openssl_flags(openssl_prefix, openssl_pkg):
@@ -324,6 +327,10 @@ with only_when(in_tree_librnp):
 
     # Checks when building JSON-C from tree sources
     # =============================================
+    @depends(with_system_json_c_option)
+    def in_tree_jsonc(system_jsonc):
+        return not system_jsonc
+
     with only_when(in_tree_jsonc):
         have_stdlib_h = check_header("stdlib.h")
         have_locale_h = check_header("locale.h")
