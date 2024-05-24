@@ -109,7 +109,7 @@ export class MimeTreeEmitter {
       if (this.#enableFilterMode && this.#checkForEncryption) {
         this.#checkForAttachments = true;
         this.#hasEncryptedParts = false;
-        this.#decrypter = new MimeTreeDecrypter();
+        this.#decrypter = new MimeTreeDecrypter({ disablePrompts: false });
       }
 
       if (this.#enableFilterMode && this.#excludeAttachmentData) {
@@ -241,14 +241,25 @@ export class MimeTreeEmitter {
 }
 
 /**
+ * @typedef {object} MimeTreeDecrypterOptions
+ *
+ * @property {boolean} [disablePrompts=false] - If the user's input is necessary
+ *   but prompting is disabled, the operation will abort with a failure.
+ */
+
+/**
  * Class to decrypt a MimeTreePart.
  */
 export class MimeTreeDecrypter {
-  constructor() {
+  /**
+   * @param {MimeTreeDecrypterOptions} [options]
+   */
+  constructor(options) {
     this.cryptoChanged = false;
     this.decryptFailure = false;
     this.mimeTree = null;
     this.subject = "";
+    this.disablePrompts = options?.disablePrompts ?? false;
   }
 
   /**
@@ -481,7 +492,11 @@ export class MimeTreeDecrypter {
 
     if (!data || data.length === 0) {
       if (statusFlagsObj.value & lazy.EnigmailConstants.DISPLAY_MESSAGE) {
-        Services.prompt.alert(null, null, errorMsgObj.value);
+        if (!this.disablePrompts) {
+          Services.prompt.alert(null, null, errorMsgObj.value);
+        } else {
+          log.warn(errorMsgObj.value);
+        }
         throw new Error("Decryption impossible");
       }
     }
@@ -792,7 +807,11 @@ export class MimeTreeDecrypter {
           );
           if (!plaintext || plaintext.length === 0) {
             if (statusFlagsObj.value & lazy.EnigmailConstants.DISPLAY_MESSAGE) {
-              Services.prompt.alert(null, null, errorMsgObj.value);
+              if (!this.disablePrompts) {
+                Services.prompt.alert(null, null, errorMsgObj.value);
+              } else {
+                log.warn(errorMsgObj.value);
+              }
               this.cryptoChanged = false;
               this.decryptFailure = true;
               return -1;
@@ -818,6 +837,7 @@ export class MimeTreeDecrypter {
               );
 
               if (
+                this.disablePrompts ||
                 Services.prompt.confirmEx(
                   null,
                   null,
@@ -830,8 +850,10 @@ export class MimeTreeDecrypter {
                   {}
                 )
               ) {
+                // Either user pressed skip/cancel, or prompts are forbidden.
                 this.cryptoChanged = false;
                 this.decryptFailure = true;
+                log.warn(msg);
                 return -1;
               }
             } else if (

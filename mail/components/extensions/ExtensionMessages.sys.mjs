@@ -332,7 +332,7 @@ export class MsgHdrProcessor {
       return mimeTree;
     }
 
-    const decrypter = new MimeTreeDecrypter();
+    const decrypter = new MimeTreeDecrypter({ disablePrompts: true });
     await decrypter.decrypt(mimeTree);
     if (decrypter.decryptFailure) {
       mimeTree.decryptionStatus = "fail";
