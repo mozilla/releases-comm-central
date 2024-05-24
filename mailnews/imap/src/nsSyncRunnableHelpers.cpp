@@ -457,6 +457,11 @@ NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection, const nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerDoingLsub, bool)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerUtf8AcceptEnabled, bool)
 
+NS_IMETHODIMP ImapServerSinkProxy::RunLogonExclusive(nsIRunnable*) {
+  MOZ_ASSERT(false);  // This method is not supposed to be proxied.
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 namespace mozilla {
 namespace mailnews {
 

@@ -69,6 +69,9 @@ class ImapServerSinkProxy final : public nsIImapServerSink {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIIMAPSERVERSINK
 
+  // Allow direct (non-proxied) access to the underlying sink.
+  nsIImapServerSink* Receiver() { return mReceiver; }
+
  private:
   ~ImapServerSinkProxy() {
     NS_ReleaseOnMainThread("ImapServerSinkProxy::mReceiver",

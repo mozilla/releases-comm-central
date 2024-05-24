@@ -1983,7 +1983,15 @@ bool nsImapProtocol::ProcessCurrentURL() {
         m_socketType = nsMsgSocketType::plain;
       }
       if (!DeathSignalReceived() && (NS_SUCCEEDED(GetConnectionStatus()))) {
-        logonFailed = !TryToLogon();
+        // Run TryToLogon() under the protection of the server's logon monitor.
+        // This prevents a dogpile of multiple connections all attempting to
+        // log on at the same time using an obsolete password, potentially
+        // triggering the provider to block the account (Bug 1862111).
+        // We run this on the current thread, not proxied to the main thread!
+        logonFailed = true;
+        nsCOMPtr<nsIRunnable> logonFunc = NS_NewRunnableFunction(
+            "IMAP TryToLogin", [&]() { logonFailed = !TryToLogon(); });
+        m_imapServerSink->Receiver()->RunLogonExclusive(logonFunc);
       }
       if (m_retryUrlOnError) return RetryUrl();
     }

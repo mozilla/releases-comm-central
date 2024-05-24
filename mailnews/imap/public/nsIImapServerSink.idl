@@ -12,6 +12,7 @@ interface nsIImapProtocol;
 interface nsIImapUrl;
 interface nsIImapMockChannel;
 interface nsITransportSecurityInfo;
+interface nsIRunnable;
 
 /**
  * nsIImapServerSink is designed to be used as a proxy to the application's UI
@@ -185,4 +186,17 @@ interface nsIImapServerSink : nsISupports {
   void setServerDoingLsub(in boolean aDoingLsub);
   /// set whether UTF8=ACCEPT enabled or not
   void setServerUtf8AcceptEnabled(in boolean aEnabled);
+
+  /**
+   * Acquire the server logon lock, and run the callback before releasing the
+   * lock and returning.
+   * If callback fails, runLogonExclusive() will return that failure code.
+   * Because we have multiple connection threads, we don't want them all to
+   * try logging on at once (and potentially causing the server to lock the
+   * account due to too many failed login attempts! See Bug 1862111)
+   * There is no fancy dispatch here: the callback will be run immediately,
+   * on the current thread.
+   */
+  void runLogonExclusive(in nsIRunnable callback);
+
 };

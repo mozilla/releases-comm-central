@@ -72,7 +72,8 @@ NS_INTERFACE_MAP_BEGIN(nsImapIncomingServer)
 NS_INTERFACE_MAP_END_INHERITING(nsMsgIncomingServer)
 
 nsImapIncomingServer::nsImapIncomingServer()
-    : mLock("nsImapIncomingServer.mLock") {
+    : mLock("nsImapIncomingServer.mLock"),
+      mLogonMonitor("nsImapIncomingServer.mLogonMonitor") {
   m_capability = kCapabilityUndefined;
   mDoingSubscribeDialog = false;
   mDoingLsub = false;
@@ -2924,4 +2925,11 @@ nsImapIncomingServer::SetServerDoingLsub(bool aDoingLsub) {
 NS_IMETHODIMP
 nsImapIncomingServer::SetServerUtf8AcceptEnabled(bool enabled) {
   return SetUtf8AcceptEnabled(enabled);
+}
+
+// Run a callback under the protection of the Logon lock.
+NS_IMETHODIMP
+nsImapIncomingServer::RunLogonExclusive(nsIRunnable* callback) {
+  mozilla::MonitorAutoLock lock(mLogonMonitor);
+  return callback->Run();
 }
