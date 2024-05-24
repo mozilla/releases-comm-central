@@ -1989,6 +1989,18 @@ export var RNP = {
           lazy.EnigmailConstants.DECRYPTION_FAILED |
           lazy.EnigmailConstants.NO_SECKEY;
         break;
+      case RNPLib.RNP_ERROR_BAD_FORMAT:
+        if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
+          // Same handling as RNP_ERROR_DECRYPT_FAILED, to allow
+          // handling of some corrupt messages, see bug 1898832.
+          rnpCannotDecrypt = true;
+          useDecodedData = false;
+          processSignature = false;
+          queryAllEncryptionRecipients = true;
+          result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
+          break;
+        }
+      // else: fall through to default processing
       default:
         useDecodedData = false;
         processSignature = false;
