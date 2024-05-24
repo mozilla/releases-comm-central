@@ -33,6 +33,7 @@ static int MimeMultCMS_sig_hash(const char*, int32_t, void*);
 static int MimeMultCMS_data_eof(void*, bool);
 static int MimeMultCMS_sig_eof(void*, bool);
 static int MimeMultCMS_sig_init(void*, MimeObject*, MimeHeaders*);
+static int MimeMultCMS_sig_ignore(void* crypto_closure);
 static char* MimeMultCMS_generate(void*);
 static void MimeMultCMS_free(void*);
 static void MimeMultCMS_suppressed_child(void* crypto_closure);
@@ -48,6 +49,7 @@ static int MimeMultipartSignedCMSClassInitialize(MimeObjectClass* oclass) {
   sclass->crypto_data_hash = MimeMultCMS_data_hash;
   sclass->crypto_data_eof = MimeMultCMS_data_eof;
   sclass->crypto_signature_init = MimeMultCMS_sig_init;
+  sclass->crypto_signature_ignore = MimeMultCMS_sig_ignore;
   sclass->crypto_signature_hash = MimeMultCMS_sig_hash;
   sclass->crypto_signature_eof = MimeMultCMS_sig_eof;
   sclass->crypto_generate_html = MimeMultCMS_generate;
@@ -75,6 +77,7 @@ typedef struct MimeMultCMSdata {
   MimeObject* self;
   nsCOMPtr<nsIMsgSMIMESink> smimeSink;
   nsCString url;
+  bool ignoredLayer;
 
   MimeMultCMSdata()
       : hash_type(0),
@@ -82,7 +85,9 @@ typedef struct MimeMultCMSdata {
         decoding_failed(false),
         reject_signature(false),
         item_data(nullptr),
-        self(nullptr) {}
+        item_len(0),
+        self(nullptr),
+        ignoredLayer(false) {}
 
   ~MimeMultCMSdata() {
     PR_FREEIF(sender_addr);
@@ -222,7 +227,7 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     hash_type = nsICryptoHash::SHA512;
   else {
     data->reject_signature = true;
-    if (data->smimeSink) {
+    if (!data->ignoredLayer && data->smimeSink) {
       int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);
       nsAutoCString partnum;
       partnum.Adopt(mime_part_address(data->self));
@@ -351,6 +356,27 @@ static int MimeMultCMS_sig_init(void* crypto_closure,
   return status;
 }
 
+static int MimeMultCMS_sig_ignore(void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
+
+  if (!data) {
+    return -1;
+  }
+
+  data->ignoredLayer = true;
+
+  return 0;
+}
+
+bool MimeMultCMSdata_isIgnored(void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
+
+  if (!data) {
+    return false;
+  }
+  return data->ignoredLayer;
+}
+
 static int MimeMultCMS_sig_hash(const char* buf, int32_t size,
                                 void* crypto_closure) {
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
@@ -413,7 +439,7 @@ static void MimeMultCMS_suppressed_child(void* crypto_closure) {
   // was suppressed, then I want my signature to be shown as invalid.
   MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (data && data->smimeSink) {
-    if (data->reject_signature) {
+    if (data->reject_signature || data->ignoredLayer) {
       return;
     }
 
@@ -446,7 +472,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
     // We were not given all parts of the message.
     // We are therefore unable to verify correctness of the signature.
 
-    if (data->smimeSink) {
+    if (data->smimeSink && !data->ignoredLayer) {
       data->smimeSink->SignedStatus(
           aRelativeNestLevel, nsICMSMessageErrors::VERIFY_NOT_YET_ATTEMPTED,
           nullptr, data->url, partnum);
@@ -475,7 +501,7 @@ static char* MimeMultCMS_generate(void* crypto_closure) {
   nsTArray<uint8_t> digest;
   digest.AppendElements(data->item_data, data->item_len);
 
-  if (!data->reject_signature && data->smimeSink) {
+  if (!data->reject_signature && !data->ignoredLayer && data->smimeSink) {
     MimeCMSRequestAsyncSignatureVerification(
         data->content_info, from_addr.get(), from_name.get(), sender_addr.get(),
         sender_name.get(), msg_date.get(), data->smimeSink, aRelativeNestLevel,

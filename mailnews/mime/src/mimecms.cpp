@@ -154,7 +154,10 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
 
   if (!obj) return false;
   if (mime_typep(obj, (MimeObjectClass*)&mimeMultipartSignedCMSClass)) {
-    return true;
+    MimeMultipartSigned* sig = (MimeMultipartSigned*)obj;
+    if (!MimeMultCMSdata_isIgnored(sig->crypto_closure)) {
+      return true;
+    }
   }
   if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;

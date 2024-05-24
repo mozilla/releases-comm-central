@@ -43,6 +43,10 @@
    initialization here, or may wish to examine the actual headers of the
    signature object itself.
 
+     The object should completely ignore this signature, and skip all
+     usual activity.
+   int crypto_signature_ignore(void *crypto_closure);
+
    int crypto_signature_hash (const char *data, int32_t data_size,
                 void *crypto_closure)
 
@@ -103,6 +107,8 @@ struct MimeMultipartSignedClass {
                                MimeObject* multipart_object,
                                MimeHeaders* signature_hdrs);
 
+  int (*crypto_signature_ignore)(void* crypto_closure);
+
   char* (*crypto_generate_html)(void* crypto_closure);
 
   void (*crypto_notify_suppressed_child)(void* crypto_closure);
@@ -131,6 +137,6 @@ struct MimeMultipartSigned {
 };
 
 #define MimeMultipartSignedClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMSIG_H_ */

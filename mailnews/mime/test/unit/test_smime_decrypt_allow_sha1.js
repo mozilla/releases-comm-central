@@ -372,10 +372,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA1.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA256.opaque.eml",
@@ -386,10 +385,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA256.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA384.opaque.eml",
@@ -400,10 +398,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA384.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA512.opaque.eml",
@@ -414,10 +411,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA512.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
 
   // encrypt-then-sign, then sign again

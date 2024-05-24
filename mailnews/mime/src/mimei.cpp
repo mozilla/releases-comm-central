@@ -335,7 +335,9 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
 }
 
 MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
-                                 MimeDisplayOptions* opts, bool exact_match_p) {
+                                 MimeDisplayOptions* opts, bool exact_match_p,
+                                 const char* parent_address,
+                                 const char* parent_type) {
   MimeObjectClass* clazz = 0;
   MimeObjectClass* tempClass = 0;
   contentTypeHandlerInitStruct ctHandlerInfo;
@@ -657,20 +659,27 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
     else if (!PL_strcasecmp(content_type, APPLICATION_XPKCS7_MIME) ||
              !PL_strcasecmp(content_type, APPLICATION_PKCS7_MIME)) {
 
-      if (opts->is_child) {
-        // We do not allow encrypted parts except as top level.
+      char* ct = hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
+                      : nullptr;
+      char* st =
+          ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
+             : nullptr;
+
+      bool ignoreTopSignedPart =
+          parent_address && parent_type && st &&
+          !PL_strcasecmp(parent_address, "1") &&
+          !PL_strcasecmp(parent_type, "multipart/signed") &&
+          !PL_strcasecmp(st, "enveloped-data");
+
+      if (opts->is_child && !ignoreTopSignedPart) {
+        // We usually require that encrypted parts are at the top level
+        // (except when the encryption layer is the second layer,
+        // and the top layer is a signature).
         // Allowing them would leak the plain text in case the part is
         // cleverly hidden and the decrypted content gets included in
         // replies and forwards.
         clazz = (MimeObjectClass*)&mimeSuppressedCryptoClass;
       } else {
-        char* ct =
-            hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
-                 : nullptr;
-        char* st =
-            ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
-               : nullptr;
-
         /* by default, assume that it is an encrypted message */
         clazz = (MimeObjectClass*)&mimeEncryptedCMSClass;
 
@@ -697,9 +706,9 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
           }
           PR_Free(name);
         }
-        PR_Free(st);
-        PR_Free(ct);
       }
+      PR_Free(st);
+      PR_Free(ct);
     }
 #endif
     /* A few types which occur in the real world and which we would otherwise
@@ -751,7 +760,9 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
 
 MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
                         MimeDisplayOptions* opts,
-                        bool forceInline /* = false */) {
+                        bool forceInline /* = false */,
+                        const char* parent_address /* = nullptr */,
+                        const char* parent_type /* = nullptr */) {
   /* If there is no Content-Disposition header, or if the Content-Disposition
    is ``inline'', then we display the part inline (and let mime_find_class()
    decide how.)
@@ -825,7 +836,8 @@ MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
     }
   }
 
-  clazz = mime_find_class(content_type, hdrs, opts, false);
+  clazz = mime_find_class(content_type, hdrs, opts, false, parent_address,
+                          parent_type);
 
   NS_ASSERTION(clazz, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (!clazz) goto FAIL;
@@ -1086,7 +1098,7 @@ bool mime_crypto_object_p(MimeHeaders* hdrs, bool clearsigned_counts,
   }
 
   /* It's a candidate for being a crypto object.  Let's find out for sure... */
-  clazz = mime_find_class(ct, hdrs, opts, true);
+  clazz = mime_find_class(ct, hdrs, opts, true, nullptr, nullptr);
   PR_Free(ct);
 
   if (clazz == ((MimeObjectClass*)&mimeEncryptedCMSClass)) return true;

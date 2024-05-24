@@ -363,6 +363,18 @@ var gMessages = [
   },
 
   // encrypt-then-sign
+  // An outer signature layer, around encryption, is considered bad practice.
+  // However, it may happen when a MTA adds a transport-level signature
+  // to a message, in addition to whatever the message author might
+  // have already done.
+  // Bug 1806161 introduced an exception, where we ignore the outer
+  // signature, if the second layer is encryption. (This could result
+  // an inner signature layer, directly inside the encryption layer,
+  // to be interpreted as the message content's signature.)
+  // The following set of files has an outer signature, around an
+  // encryption layer, but there is no additional signature inside,
+  // so while our test code technically sees a signature, we ignore
+  // them, and as a result, they are treated as invalid.
   {
     filename: "alice.env.sig.SHA1.opaque.eml",
     enc: false,
@@ -373,7 +385,7 @@ var gMessages = [
   {
     filename: "alice.env.dsig.SHA1.multipart.eml",
     enc: false,
-    sig: true,
+    sig: false,
     sig_good: false,
   },
   {
@@ -385,10 +397,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA256.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA384.opaque.eml",
@@ -399,10 +410,9 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA384.multipart.eml",
-    enc: false,
-    sig: true,
+    enc: true,
+    sig: false,
     sig_good: false,
-    extra: 1,
   },
   {
     filename: "alice.env.sig.SHA512.opaque.eml",
@@ -413,10 +423,29 @@ var gMessages = [
   },
   {
     filename: "alice.env.dsig.SHA512.multipart.eml",
+    enc: true,
+    sig: false,
+    sig_good: false,
+  },
+
+  // encrypt (innermost), wrapped inside multipart/mixed, then signed (outermost)
+  // The exception from bug 1806161 must not become active, the encryption
+  // layer must be rejected, and the signature must not be ignored.
+  {
+    filename: "../smime-manual/alice.env.mixed.dsig.SHA256.multipart.eml",
     enc: false,
     sig: true,
     sig_good: false,
-    extra: 1,
+  },
+
+  // good signature (innermost), wrapped in encryption layer,
+  // then wrapped by another signature layer.
+  // The outer signature layer should be ignored, per bug 1806161.
+  {
+    filename: "../smime-manual/alice.dsig.SHA256.multipart.env.dsig.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
   },
 
   // encrypt-then-sign, then sign again
