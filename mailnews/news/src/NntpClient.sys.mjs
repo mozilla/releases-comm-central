@@ -959,7 +959,7 @@ export class NntpClient {
     this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl?.(this.runningUri, status);
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
-    this.runningUri.SetUrlState(false, status);
+    this.runningUri?.SetUrlState(false, status);
     this._reset();
     this.onIdle?.();
   };
