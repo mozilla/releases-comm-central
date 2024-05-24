@@ -51,10 +51,24 @@ export class SearchBar extends HTMLElement {
    */
   #searchButton = null;
 
+  /**
+   * Reference to a timer. If this has a value, an "autocomplete" event will
+   * be dispatched when the timer fires.
+   *
+   * @type {integer}
+   */
+  #inputTimeout;
+
   #onSubmit = event => {
     event.preventDefault();
     if (!this.#input.value) {
       return;
+    }
+
+    clearTimeout(this.#inputTimeout);
+    if (this.#inputTimeout) {
+      // There was a pending "autocomplete" event. Fire it now instead.
+      this.#fireAutocomplete();
     }
 
     const searchEvent = new CustomEvent("search", {
@@ -62,17 +76,23 @@ export class SearchBar extends HTMLElement {
       cancelable: true,
     });
     if (this.dispatchEvent(searchEvent)) {
+      this.#input.value = "";
       this.reset();
     }
   };
 
   #onInput = () => {
+    this.#clearButton.hidden = !this.#input.value;
+    clearTimeout(this.#inputTimeout);
+    this.#inputTimeout = setTimeout(this.#fireAutocomplete, 250);
+  };
+
+  #fireAutocomplete = () => {
     const autocompleteEvent = new CustomEvent("autocomplete", {
       detail: this.#input.value,
     });
-
     this.dispatchEvent(autocompleteEvent);
-    this.#clearButton.hidden = !this.#input.value;
+    this.#inputTimeout = undefined;
   };
 
   connectedCallback() {
@@ -140,13 +160,11 @@ export class SearchBar extends HTMLElement {
         break;
       case "reset":
         this.reset();
-        this.#onInput();
         this.focus();
         break;
       case "keyup":
         if (event.key === "Escape" && this.#input.value) {
           this.reset();
-          this.#onInput();
           event.preventDefault();
           event.stopPropagation();
         }
@@ -165,8 +183,15 @@ export class SearchBar extends HTMLElement {
    * Reset the search bar to its empty state.
    */
   reset() {
-    this.#input.value = "";
     this.#clearButton.hidden = true;
+    if (this.#input.value == "") {
+      return;
+    }
+
+    this.#input.value = "";
+    clearTimeout(this.#inputTimeout);
+    this.#inputTimeout = undefined;
+    this.#fireAutocomplete();
   }
 
   /**

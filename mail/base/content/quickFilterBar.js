@@ -504,10 +504,7 @@ var quickFilterBar = {
    */
   deferredUpdateSearch(activeElement) {
     clearTimeout(this.searchTimeoutID);
-    this.searchTimeoutID = setTimeout(
-      () => this.updateSearch(activeElement),
-      100
-    );
+    this.searchTimeoutID = setTimeout(() => this.updateSearch(activeElement));
   },
 
   /**

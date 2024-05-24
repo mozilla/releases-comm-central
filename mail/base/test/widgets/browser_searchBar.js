@@ -19,6 +19,16 @@ const typeAndWaitForAutocomplete = async key => {
   await BrowserTestUtils.synthesizeKey(key, {}, browser);
   return eventPromise;
 };
+const ensureNoMoreEvents = async () => {
+  // Wait for longer than the timer's delay to be sure no more events fire.
+  const failListener = () => {
+    ok(false, "Should not have seen an autocomplete event");
+  };
+  searchBar.addEventListener("autocomplete", failListener, { once: true });
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  searchBar.removeEventListener("autocomplete", failListener);
+};
 
 add_setup(async function () {
   const tab = tabmail.openTab("contentTab", {
@@ -86,39 +96,77 @@ add_task(async function test_autocompleteEvent() {
   event = await typeAndWaitForAutocomplete("KEY_Backspace");
   is(event.detail, "T", "Autocomplete for backspace");
 
-  await BrowserTestUtils.synthesizeKey("KEY_Backspace", {}, browser);
+  event = await typeAndWaitForAutocomplete("KEY_Backspace");
+  is(event.detail, "", "Autocomplete for backspace");
+
+  await ensureNoMoreEvents();
 });
 
 add_task(async function test_searchEventFromEnter() {
   const input = searchBar.shadowRoot.querySelector("input");
-  input.value = "Lorem ipsum";
   searchBar.focus();
+  EventUtils.sendString("Lorem ipsum", browser.contentWindow);
 
-  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
+  const autocompletePromise = BrowserTestUtils.waitForEvent(
+    searchBar,
+    "autocomplete"
+  );
+  const searchPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
   await BrowserTestUtils.synthesizeKey("KEY_Enter", {}, browser);
-  const event = await eventPromise;
+  const autocompleteEvent = await autocompletePromise;
+  const searchEvent = await searchPromise;
 
-  is(event.detail, "Lorem ipsum", "Event contains search query");
+  Assert.lessOrEqual(
+    autocompleteEvent.timeStamp,
+    searchEvent.timeStamp,
+    "autocomplete event happened before search event"
+  );
+  is(
+    autocompleteEvent.detail,
+    "Lorem ipsum",
+    "autocomplete event contains search query"
+  );
+  is(searchEvent.detail, "Lorem ipsum", "search event contains search query");
   await waitForRender();
   is(input.value, "", "Input was cleared");
+
+  await ensureNoMoreEvents();
 });
 
 add_task(async function test_searchEventFromButton() {
   const input = searchBar.shadowRoot.querySelector("input");
-  input.value = "Lorem ipsum";
+  searchBar.focus();
+  EventUtils.sendString("Lorem ipsum", browser.contentWindow);
 
-  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
+  const autocompletePromise = BrowserTestUtils.waitForEvent(
+    searchBar,
+    "autocomplete"
+  );
+  const searchPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
   searchBar.shadowRoot.querySelector("#search-button").click();
-  const event = await eventPromise;
+  const autocompleteEvent = await autocompletePromise;
+  const searchEvent = await searchPromise;
 
-  is(event.detail, "Lorem ipsum", "Event contains search query");
+  Assert.lessOrEqual(
+    autocompleteEvent.timeStamp,
+    searchEvent.timeStamp,
+    "autocomplete event happened before search event"
+  );
+  is(
+    autocompleteEvent.detail,
+    "Lorem ipsum",
+    "autocomplete event contains search query"
+  );
+  is(searchEvent.detail, "Lorem ipsum", "search event contains search query");
   await waitForRender();
   is(input.value, "", "Input was cleared");
+
+  await ensureNoMoreEvents();
 });
 
 add_task(async function test_searchEventPreventDefault() {
   const input = searchBar.shadowRoot.querySelector("input");
-  input.value = "Lorem ipsum";
+  EventUtils.sendString("Lorem ipsum", browser.contentWindow);
 
   searchBar.addEventListener(
     "search",
@@ -131,14 +179,28 @@ add_task(async function test_searchEventPreventDefault() {
     }
   );
 
-  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
+  const autocompletePromise = BrowserTestUtils.waitForEvent(
+    searchBar,
+    "autocomplete"
+  );
+  const searchPromise = BrowserTestUtils.waitForEvent(searchBar, "search");
   searchBar.shadowRoot.querySelector("#search-button").click();
-  await eventPromise;
+  const autocompleteEvent = await autocompletePromise;
+  const searchEvent = await searchPromise;
   await waitForRender();
+
+  Assert.lessOrEqual(
+    autocompleteEvent.timeStamp,
+    searchEvent.timeStamp,
+    "autocomplete event happened before search event"
+  );
+  ok(searchEvent.defaultPrevented);
 
   is(input.value, "Lorem ipsum");
 
   input.value = "";
+
+  await ensureNoMoreEvents();
 });
 
 add_task(async function test_placeholderVisibility() {
@@ -194,13 +256,31 @@ add_task(async function test_placeholderFallbackToLabel() {
 add_task(async function test_reset() {
   const input = searchBar.shadowRoot.querySelector("input");
   const placeholder = searchBar.shadowRoot.querySelector("div");
+  const clearButton = searchBar.shadowRoot.querySelector("#clear-button");
   input.value = "Lorem ipsum";
 
+  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
   searchBar.reset();
+  await eventPromise;
 
   is(input.value, "", "Input empty after reset");
   await waitForRender();
   ok(BrowserTestUtils.isVisible(placeholder), "Placeholder visible");
+  ok(BrowserTestUtils.isHidden(clearButton), "Clear button hidden");
+
+  // Test resetting with no value. Nothing should happen.
+
+  const failListener = () => {
+    ok(false, "Should not have seen an autocomplete event");
+  };
+  searchBar.addEventListener("autocomplete", failListener, { once: true });
+  searchBar.reset();
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+  searchBar.removeEventListener("autocomplete", failListener);
+
+  ok(BrowserTestUtils.isVisible(placeholder), "Placeholder visible");
+  ok(BrowserTestUtils.isHidden(clearButton), "Clear button hidden");
 });
 
 add_task(async function test_disabled() {
@@ -270,12 +350,7 @@ add_task(async function test_clearButton() {
   );
   await waitForRender();
 
-  function getClearButton() {
-    return window.document
-      .querySelector("search-bar")
-      .shadowRoot.querySelector("#clear-button");
-  }
-  await BrowserTestUtils.synthesizeMouseAtCenter(getClearButton, {}, browser);
+  await EventUtils.synthesizeMouseAtCenter(button, {}, browser.contentWindow);
   await waitForRender();
 
   is(input.value, "", "Input was cleared");
@@ -317,6 +392,8 @@ add_task(async function test_overrideSearchTerm_noFocus() {
   result = searchBar.overrideSearchTerm(value);
   ok(result, "Should confirm the value");
   is(input.value, value, "Should still have value in input");
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   searchBar.removeEventListener("autocomplete", failListener);
 
   autocomplete = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
@@ -341,6 +418,8 @@ add_task(async function test_overrideSearchTerm_withFocus() {
   ok(!result, "Should have refused to override value");
   is(input.value, "T", "Should not have modified input value");
 
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   searchBar.removeEventListener("autocomplete", failListener);
   searchBar.reset();
   searchBar.focus();

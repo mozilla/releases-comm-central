@@ -930,6 +930,7 @@ var commandController = {
 window.controllers.insertControllerAt(0, commandController);
 
 var dbViewWrapperListener = {
+  _allMessagesLoaded: false,
   _nextViewIndexAfterDelete: null,
 
   messenger: null,
@@ -964,6 +965,9 @@ var dbViewWrapperListener = {
     },
   },
 
+  get allMessagesLoaded() {
+    return this._allMessagesLoaded;
+  },
   get shouldUseMailViews() {
     return !!top.ViewPickerBinding?.isVisible;
   },
@@ -991,6 +995,8 @@ var dbViewWrapperListener = {
   onFolderLoading() {},
   onSearching() {},
   onCreatedView() {
+    this._allMessagesLoaded = false;
+
     if (!window.threadTree) {
       return;
     }
@@ -1007,6 +1013,8 @@ var dbViewWrapperListener = {
     window.threadPane.scrollToLatestRowIfNoSelection();
   },
   onDestroyingView(folderIsComingBack) {
+    this._allMessagesLoaded = false;
+
     if (!window.threadTree) {
       return;
     }
@@ -1036,6 +1044,8 @@ var dbViewWrapperListener = {
    *   may or may not really change once we get the update from the server.
    */
   onMessagesLoaded(all) {
+    this._allMessagesLoaded = all;
+
     if (!window.threadPane) {
       return;
     }

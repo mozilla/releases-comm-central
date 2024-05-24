@@ -1380,11 +1380,19 @@ export async function archive_selected_messages(win = mc) {
  * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
  */
-export async function wait_for_all_messages_to_load() {
-  // await TestUtils.waitForCondition(
-  //   () => win.gFolderDisplay.allMessagesLoaded,
-  //   "Messages never finished loading.  Timed Out."
-  // );
+export async function wait_for_all_messages_to_load(win = mc) {
+  if (win.gFolderDisplay) {
+    await TestUtils.waitForCondition(
+      () => win.gFolderDisplay.allMessagesLoaded,
+      "waiting for message list to finish loading"
+    );
+  } else {
+    const about3Pane = get_about_3pane(win);
+    await TestUtils.waitForCondition(
+      () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
+      "waiting for message list to finish loading"
+    );
+  }
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
   await TestUtils.waitForTick();

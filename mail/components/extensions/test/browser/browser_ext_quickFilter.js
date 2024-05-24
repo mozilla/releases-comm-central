@@ -116,6 +116,10 @@ add_task(async () => {
   });
 
   extension.onMessage("checkVisible", async (...expected) => {
+    await TestUtils.waitForCondition(
+      () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
+      "waiting for message list to finish loading"
+    );
     const actual = [];
     const dbView = about3Pane.gDBView;
     for (let i = 0; i < dbView.rowCount; i++) {
