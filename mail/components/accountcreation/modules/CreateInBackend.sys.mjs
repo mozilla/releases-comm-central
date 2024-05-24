@@ -378,7 +378,7 @@ function checkIncomingServerAlreadyExists(config) {
  * which matches (hostname, port, username) the primary one
  * in the config.
  *
- * @param config {AccountConfig} filled in (no placeholders)
+ * @param {AccountConfig} config - filled in (no placeholders).
  * @returns {nsIMsgOutgoingServer} If it already exists, the server
  *     object is returned.
  *     If it's a new server, |null| is returned.
