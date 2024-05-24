@@ -10,7 +10,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
-const MIN_RNP_VERSION = [0, 17, 0];
+const MIN_RNP_VERSION = [0, 17, 1];
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
