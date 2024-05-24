@@ -21,6 +21,7 @@ linux1804-64-qr/opt:
     build-platform: linux64/opt
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -28,6 +29,7 @@ linux1804-64-shippable-qr/opt:
     build-platform: linux64-shippable/opt
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -35,6 +37,7 @@ linux1804-64-qr/debug:
     build-platform: linux64/debug
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -53,6 +56,7 @@ linux1804-64-tsan-qr/opt:
 linux1804-64-ccov-qr/opt:
     build-platform: linux64-ccov/opt
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -88,6 +92,7 @@ windows11-64-2009-ccov-qr/opt:
     build-platform: win64-ccov/opt
     build-signing-label: build-signing-win64-ccov/opt
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -99,6 +104,7 @@ windows11-64-2009-qr/opt:
             default: build-signing-win64/opt
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -110,6 +116,7 @@ windows11-64-2009-shippable-qr/opt:
             default: build-signing-win64-shippable/opt
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -121,6 +128,7 @@ windows11-64-2009-qr/debug:
             default: build-signing-win64/debug
     test-sets:
         - gtest-tests
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
@@ -134,24 +142,28 @@ windows11-64-2009-asan-qr/opt:
 macosx1015-64-qr/opt:
     build-platform: macosx64/opt
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
 macosx1015-64-qr/debug:
     build-platform: macosx64/debug
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
 macosx1015-64-shippable-qr/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 
 macosx1015-64-ccov-qr/opt:
     build-platform: macosx64-ccov/opt
     test-sets:
+        - marionette-tests
         - mochitest-tests
         - xpcshell-tests
 

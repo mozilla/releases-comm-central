@@ -15,6 +15,9 @@
 gtest-tests:
     - gtest
 
+marionette-tests:
+    - marionette
+
 mochitest-tests:
     - mochitest-thunderbird
 
