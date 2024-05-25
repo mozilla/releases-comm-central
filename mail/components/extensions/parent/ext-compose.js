@@ -17,7 +17,7 @@ var { MsgUtils } = ChromeUtils.importESModule(
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["File", "IOUtils", "PathUtils"]);
 
-const parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
