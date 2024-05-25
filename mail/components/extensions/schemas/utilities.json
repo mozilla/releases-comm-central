@@ -30,6 +30,41 @@
     ],
     "functions": [
       {
+        "name": "convertToPlainText",
+        "type": "function",
+        "description": "Converts the provided body to readable plain text, without tags and leading/trailing whitespace.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "body",
+            "type": "string",
+            "description": "The to-be-converted body."
+          },
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "flowed": {
+                "type": "boolean",
+                "optional": true,
+                "description": "The converted plain text will be wrapped to lines not longer than 72 characters and use format flowed, as defined by RFC 2646."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "formatFileSize",
         "type": "function",
         "description": "Returns the provided file size in a human readable format (e.g. <value>12 bytes</value> or <value>11,4 GB</value>).",

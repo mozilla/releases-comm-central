@@ -174,3 +174,72 @@ add_task(async function test_parseMailboxString() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function test_convertToPlainText() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const lorem =
+          "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+
+        const tests = [
+          {
+            body: "\r\n<html><body><p>This is <b>some</b> html content,<br><br>Good night!<br></p>\r\n</body></html>",
+            expectedPlain: "This is some html content,\n\nGood night!",
+          },
+          {
+            body: `\r\n<html><body><p>This is <b>random</b> html content,<br>${lorem}<br>${lorem}</p></body></html>`,
+            expectedPlain: `This is random html content,\n${lorem}\n${lorem}`,
+          },
+          {
+            body: `\r\n<html><body><p>This is <i>flowed</i> html content,<br>${lorem}<br>${lorem}</p></body></html>`,
+            options: { flowed: true },
+            // Flowed output is wrapping lines to 72 chars length. The enforced
+            // line breaks have a trailing space, allowing the client to reflow
+            // the text and only honor the line breaks added by the user.
+            expectedPlain: `This is flowed html content,
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy 
+eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
+voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet 
+clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit 
+amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam 
+nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+sed diam voluptua. At vero eos et accusam et justo duo dolores et ea 
+rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem 
+ipsum dolor sit amet.
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy 
+eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
+voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet 
+clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit 
+amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam 
+nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+sed diam voluptua. At vero eos et accusam et justo duo dolores et ea 
+rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem 
+ipsum dolor sit amet.`,
+          },
+        ];
+        for (let i = 0; i < tests.length; i++) {
+          const { body, options, expectedPlain } = tests[i];
+          const actual = await browser.messengerUtilities.convertToPlainText(
+            body,
+            options
+          );
+          browser.test.assertEq(
+            expectedPlain,
+            actual,
+            `Converted plain text for test #${i} should be correct`
+          );
+        }
+        browser.test.notifyPass("finished");
+      },
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["background.js"] },
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

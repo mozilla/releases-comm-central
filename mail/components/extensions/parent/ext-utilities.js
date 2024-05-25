@@ -6,6 +6,10 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
+var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+  Ci.nsIParserUtils
+);
+
 this.messengerUtilities = class extends ExtensionAPIPersistent {
   getAPI() {
     const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
@@ -24,6 +28,21 @@ this.messengerUtilities = class extends ExtensionAPIPersistent {
               group: hdr.group || undefined,
               email: hdr.email || undefined,
             }));
+        },
+        async convertToPlainText(body, options) {
+          let wrapWidth = 0;
+          let flags =
+            Ci.nsIDocumentEncoder.OutputLFLineBreak |
+            Ci.nsIDocumentEncoder.OutputDisallowLineBreaking;
+
+          if (options?.flowed) {
+            wrapWidth = 72;
+            flags |=
+              Ci.nsIDocumentEncoder.OutputWrap |
+              Ci.nsIDocumentEncoder.OutputFormatFlowed;
+          }
+
+          return parserUtils.convertToPlainText(body, flags, wrapWidth).trim();
         },
       },
     };
