@@ -197,7 +197,7 @@ add_task(async function test_convertToPlainText() {
             // Flowed output is wrapping lines to 72 chars length. The enforced
             // line breaks have a trailing space, allowing the client to reflow
             // the text and only honor the line breaks added by the user.
-            expectedPlain: `This is flowed html content,
+            expectedPlain: `This is /flowed/ html content,
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy 
 eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
 voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet 

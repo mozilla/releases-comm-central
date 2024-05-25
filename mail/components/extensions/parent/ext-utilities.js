@@ -38,7 +38,7 @@ this.messengerUtilities = class extends ExtensionAPIPersistent {
           if (options?.flowed) {
             wrapWidth = 72;
             flags |=
-              Ci.nsIDocumentEncoder.OutputWrap |
+              Ci.nsIDocumentEncoder.OutputFormatted |
               Ci.nsIDocumentEncoder.OutputFormatFlowed;
           }
 
