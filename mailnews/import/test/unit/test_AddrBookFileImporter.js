@@ -104,16 +104,22 @@ add_task(async function test_importCsvFile() {
 
 /** Test importing .vcf file works. */
 add_task(async function test_importVCardFile() {
-  return test_importAbFile(
+  await test_importAbFile(
     "vcard",
     "resources/basic_vcard_addressbook.vcf",
     "vcard_import"
   );
-});
 
-/** Test importing .vcf file with \r\r\n as line breaks works. */
-add_task(async function test_importDosVCardFile() {
-  return test_importAbFile(
+  // File with extra newlines (e.g. as copy-pasted by hand, a relatively
+  // unlikely but still reasonable use case to cover).
+  await test_importAbFile(
+    "vcard",
+    "resources/emptylines_vcard_addressbook.vcf",
+    "vcard_import"
+  );
+
+  // File with \r\r\n as line breaks.
+  await test_importAbFile(
     "vcard",
     "resources/dos_vcard_addressbook.vcf",
     "dos_vcard_import"
@@ -122,9 +128,12 @@ add_task(async function test_importDosVCardFile() {
 
 /** Test importing .ldif file works. */
 add_task(async function test_importLdifFile() {
-  return test_importAbFile(
+  await test_importAbFile(
     "ldif",
     "resources/basic_ldif_addressbook.ldif",
     "basic_addressbook"
   );
+
+  // Bug 264405: The Address Book doesn't show the LDAP-field "labeledURI" as Website
+  await test_importAbFile("ldif", "resources/bug_263304.ldif", "bug_263304");
 });

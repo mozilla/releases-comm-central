@@ -118,7 +118,7 @@ function AbImportHelper(aFile, aContractID, aAbName, aJsonName) {
    * The following are not supported: anniversaryYear, anniversaryMonth,
    * anniversaryDay, popularityIndex, isMailList, mailListURI, lastModifiedDate.
    */
-  var supportedAttributes = [
+  this.mSupportedAttributes = [
     "FirstName",
     "LastName",
     "DisplayName",
@@ -159,16 +159,6 @@ function AbImportHelper(aFile, aContractID, aAbName, aJsonName) {
     "_vCard",
   ];
 
-  // get the extra attributes supported for the given type of import
-  if (this.mFile.leafName.toLowerCase().endsWith(".ldif")) {
-    this.mSupportedAttributes = supportedAttributes;
-  } else if (this.mFile.leafName.toLowerCase().endsWith(".csv")) {
-    this.mSupportedAttributes = supportedAttributes;
-    this.setFieldMap(this.getDefaultFieldMap(true));
-  } else if (this.mFile.leafName.toLowerCase().endsWith(".vcf")) {
-    this.mSupportedAttributes = supportedAttributes;
-  }
-
   // get the "cards" from the JSON file, if necessary
   if (aJsonName) {
     this.mJsonCards = this.getJsonCards(aJsonName);
@@ -177,39 +167,6 @@ function AbImportHelper(aFile, aContractID, aAbName, aJsonName) {
 
 AbImportHelper.prototype = {
   __proto__: GenericImportHelper.prototype,
-  /**
-   * AbImportHelper.getDefaultFieldMap
-   * Returns the default field map.
-   *
-   * @param aSkipFirstRecord True if the first record of the text file should
-   *                         be skipped.
-   * @returns A default field map.
-   */
-  getDefaultFieldMap(aSkipFirstRecord) {
-    var importService = Cc["@mozilla.org/import/import-service;1"].getService(
-      Ci.nsIImportService
-    );
-    var fieldMap = importService.CreateNewFieldMap();
-
-    fieldMap.DefaultFieldMap(fieldMap.numMozFields);
-    this.mInterface
-      .GetData("addressInterface")
-      .QueryInterface(Ci.nsIImportAddressBooks)
-      .InitFieldMap(fieldMap);
-    fieldMap.skipFirstRecord = aSkipFirstRecord;
-
-    return fieldMap;
-  },
-
-  /**
-   * AbImportHelper.setFieldMap
-   * Set the field map.
-   *
-   * @param aFieldMap The field map used for address book import.
-   */
-  setFieldMap(aFieldMap) {
-    this.mInterface.SetData("fieldMap", aFieldMap);
-  },
 
   /**
    * AbImportHelper.setAddressLocation
