@@ -10,7 +10,7 @@ function run_test() {
   const file = do_get_file("resources/becky/addressbooks");
   const helper = new AbImportHelper(
     file,
-    "Becky!",
+    "@mozilla.org/import/import-becky;1",
     "addressbooks",
     "becky_addressbook"
   );

@@ -15,9 +15,7 @@
     }                                                \
   }
 
-#define kBeckySupportsString                                              \
-  NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR \
-                     "," NS_IMPORT_FILTERS_STR
+#define kBeckySupportsString "mail,addressbook,settings,filters"
 
 class nsBeckyImport final : public nsIImportModule {
  public:

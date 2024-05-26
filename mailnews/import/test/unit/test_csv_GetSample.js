@@ -1,6 +1,6 @@
 function run_test() {
   var file = do_get_file("resources/tab_comma_mixed.csv");
-  var helper = new AbImportHelper(file, "Text file");
+  var helper = new AbImportHelper(file, "@mozilla.org/import/import-text;1");
   var genericInterface = helper.getInterface();
   Assert.notEqual(genericInterface, null);
   const abInterface = genericInterface

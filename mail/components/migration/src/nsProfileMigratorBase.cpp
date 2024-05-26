@@ -32,8 +32,7 @@ nsresult nsProfileMigratorBase::ImportSettings(nsIImportModule* aImportModule) {
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_SETTINGS_STR,
-                                         getter_AddRefs(supports));
+  rv = aImportModule->GetImportInterface("settings", getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImportSettings> importSettings = do_QueryInterface(supports);
@@ -58,7 +57,7 @@ nsresult nsProfileMigratorBase::ImportAddressBook(
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_ADDRESS_STR,
+  rv = aImportModule->GetImportInterface("addressbook",
                                          getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -105,8 +104,7 @@ nsresult nsProfileMigratorBase::ImportMailData(nsIImportModule* aImportModule) {
   NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
 
   nsCOMPtr<nsISupports> supports;
-  rv = aImportModule->GetImportInterface(NS_IMPORT_MAIL_STR,
-                                         getter_AddRefs(supports));
+  rv = aImportModule->GetImportInterface("mail", getter_AddRefs(supports));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mGenericImporter = do_QueryInterface(supports);
@@ -149,8 +147,8 @@ nsresult nsProfileMigratorBase::ImportFilters(nsIImportModule* aImportModule) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsISupports> supports;
-  nsresult rv2 = aImportModule->GetImportInterface(NS_IMPORT_FILTERS_STR,
-                                                   getter_AddRefs(supports));
+  nsresult rv2 =
+      aImportModule->GetImportInterface("filters", getter_AddRefs(supports));
   nsCOMPtr<nsIImportFilters> importFilters = do_QueryInterface(supports);
 
   if (NS_SUCCEEDED(rv2) && importFilters) {

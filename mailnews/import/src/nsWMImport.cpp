@@ -71,40 +71,6 @@ nsWMImport::~nsWMImport() { IMPORT_LOG0("nsWMImport Module Deleted\n"); }
 
 NS_IMPL_ISUPPORTS(nsWMImport, nsIImportModule)
 
-NS_IMETHODIMP nsWMImport::GetName(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  // nsString  title = "Windows Live Mail";
-  // *name = ToNewUnicode(title);
-  *name = nsWMStringBundle::GetStringByID(WMIMPORT_NAME);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsWMImport::GetDescription(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-
-  // nsString  desc = "Windows Live Mail mail and address books";
-  // *name = ToNewUnicode(desc);
-  *name = nsWMStringBundle::GetStringByID(WMIMPORT_DESCRIPTION);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsWMImport::GetSupports(char** supports) {
-  NS_ASSERTION(supports != nullptr, "null ptr");
-  if (!supports) return NS_ERROR_NULL_POINTER;
-
-  *supports = strdup(kWMSupportsString);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsWMImport::GetSupportsUpgrade(bool* pUpgrade) {
-  NS_ASSERTION(pUpgrade != nullptr, "null ptr");
-  if (!pUpgrade) return NS_ERROR_NULL_POINTER;
-
-  *pUpgrade = true;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsWMImport::GetImportInterface(const char* pImportType,
                                              nsISupports** ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);

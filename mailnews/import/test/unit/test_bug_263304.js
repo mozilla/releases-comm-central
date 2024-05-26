@@ -18,7 +18,7 @@ function run_test() {
   var file = do_get_file("resources/bug_263304.ldif");
   new AbImportHelper(
     file,
-    "Text file",
+    "@mozilla.org/import/import-text;1",
     "bug_263304",
     "bug_263304"
   ).beginImport();

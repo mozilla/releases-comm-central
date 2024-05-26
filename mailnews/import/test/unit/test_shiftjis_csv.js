@@ -10,7 +10,7 @@ function run_test() {
   const file = do_get_file("resources/shiftjis_addressbook.csv");
   const helper = new AbImportHelper(
     file,
-    "csv",
+    "@mozilla.org/import/import-text;1",
     "shiftjis_addressbook",
     "shiftjis_csv"
   );

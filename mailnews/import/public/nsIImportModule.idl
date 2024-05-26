@@ -3,28 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
-
-  An import module.
-
- */
-
 #include "nsISupports.idl"
 
 [scriptable, uuid(624f0280-173f-11d3-a206-00a0cc26da63)]
-interface nsIImportModule : nsISupports
-{
-  readonly attribute wstring name;
-  readonly attribute wstring description;
-  readonly attribute string supports;
-  readonly attribute boolean supportsUpgrade;
-
-  nsISupports GetImportInterface( in string importType);
+interface nsIImportModule : nsISupports {
+  nsISupports GetImportInterface(in string importType);
 };
-
-%{ C++
-#define NS_IMPORT_MAIL_STR      "mail"
-#define NS_IMPORT_ADDRESS_STR   "addressbook"
-#define NS_IMPORT_SETTINGS_STR  "settings"
-#define NS_IMPORT_FILTERS_STR   "filters"
-%}

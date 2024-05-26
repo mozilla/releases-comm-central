@@ -20,7 +20,7 @@ function run_test() {
   var file = do_get_file("resources/basic_ldif_addressbook.ldif");
   new AbImportHelper(
     file,
-    "Text file",
+    "@mozilla.org/import/import-text;1",
     "basic_ldif_addressbook",
     "basic_addressbook"
   ).beginImport();

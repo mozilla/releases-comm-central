@@ -17,7 +17,7 @@ function run_test() {
   let file = do_get_file("resources/basic_vcard_addressbook.vcf");
   new AbImportHelper(
     file,
-    "vcf",
+    "@mozilla.org/import/import-vcard;1",
     "basic_vcard_addressbook",
     "vcard_import"
   ).beginImport();
@@ -27,7 +27,7 @@ function run_test() {
   file = do_get_file("resources/emptylines_vcard_addressbook.vcf");
   new AbImportHelper(
     file,
-    "vcf",
+    "@mozilla.org/import/import-vcard;1",
     "emptylines_vcard_addressbook",
     "vcard_import"
   ).beginImport();

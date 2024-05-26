@@ -15,11 +15,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
         "nsProfileMigratorBase.cpp",
     ]
 
-if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
-    SOURCES += [
-        "nsProfileMigratorBase.cpp",
-    ]
-
 FINAL_LIBRARY = "mailcomps"
 
 EXTRA_JS_MODULES += [

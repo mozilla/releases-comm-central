@@ -24,16 +24,18 @@ parameters: the name the imported address book will have (the filename without
 the extension) and the name you chose for the JSON object.
 
 Here is a sample LDIF unit test that doesn't check the results:
-function run_test()
-{
-  var file = do_get_file("resources/basic_ldif_addressbook.ldif");
-  new AbImportHelper(file, "Text file").beginImport();
+function run_test() {
+  const file = do_get_file("resources/basic_ldif_addressbook.ldif");
+  new AbImportHelper(file, "@mozilla.org/import/import-text;1").beginImport();
 }
 
 Here is a sample CSV unit test that checks the results:
-function run_test()
-{
-  var file = do_get_file("resources/basic_csv_addressbook.csv");
-  new AbImportHelper(file, "Text file", "basic_csv_addressbook",
-                     "basic_addressbook").beginImport();
+function run_test() {
+  const file = do_get_file("resources/basic_csv_addressbook.csv");
+  new AbImportHelper(
+    file,
+    "@mozilla.org/import/import-text;1",
+    "basic_csv_addressbook",
+    "basic_addressbook"
+  ).beginImport();
 }

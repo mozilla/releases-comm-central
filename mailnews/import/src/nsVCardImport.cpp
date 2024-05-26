@@ -104,32 +104,6 @@ nsVCardImport::~nsVCardImport() {
 
 NS_IMPL_ISUPPORTS(nsVCardImport, nsIImportModule)
 
-NS_IMETHODIMP nsVCardImport::GetName(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  *name =
-      nsImportStringBundle::GetStringByName("vCardImportName", m_stringBundle);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsVCardImport::GetDescription(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  *name = nsImportStringBundle::GetStringByName("vCardImportDescription",
-                                                m_stringBundle);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsVCardImport::GetSupports(char** supports) {
-  NS_ENSURE_ARG_POINTER(supports);
-  *supports = strdup(NS_IMPORT_ADDRESS_STR);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsVCardImport::GetSupportsUpgrade(bool* pUpgrade) {
-  NS_ENSURE_ARG_POINTER(pUpgrade);
-  *pUpgrade = true;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsVCardImport::GetImportInterface(const char* pImportType,
                                                 nsISupports** ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);

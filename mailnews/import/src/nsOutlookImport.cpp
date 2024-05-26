@@ -148,39 +148,6 @@ nsOutlookImport::~nsOutlookImport() {
 
 NS_IMPL_ISUPPORTS(nsOutlookImport, nsIImportModule)
 
-NS_IMETHODIMP nsOutlookImport::GetName(char16_t** name) {
-  NS_ASSERTION(name != nullptr, "null ptr");
-  if (!name) return NS_ERROR_NULL_POINTER;
-
-  *name = nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_NAME);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsOutlookImport::GetDescription(char16_t** name) {
-  NS_ASSERTION(name != nullptr, "null ptr");
-  if (!name) return NS_ERROR_NULL_POINTER;
-
-  *name = nsOutlookStringBundle::GetStringByID(OUTLOOKIMPORT_DESCRIPTION);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsOutlookImport::GetSupports(char** supports) {
-  NS_ASSERTION(supports != nullptr, "null ptr");
-  if (!supports) return NS_ERROR_NULL_POINTER;
-
-  *supports = strdup(kOutlookSupportsString);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsOutlookImport::GetSupportsUpgrade(bool* pUpgrade) {
-  NS_ASSERTION(pUpgrade != nullptr, "null ptr");
-  if (!pUpgrade) return NS_ERROR_NULL_POINTER;
-
-  *pUpgrade = true;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsOutlookImport::GetImportInterface(const char* pImportType,
                                                   nsISupports** ppInterface) {
   NS_ASSERTION(pImportType != nullptr, "null ptr");

@@ -6,27 +6,24 @@ var { MailServices } = ChromeUtils.importESModule(
 var gGenericImportHelper;
 /**
  * GenericImportHelper
- * The parent class of AbImportHelper, MailImportHelper, SettingsImportHelper
- *                     and FiltersImportHelper.
+ * The parent class of AbImportHelper, SettingsImportHelper and
+ * FiltersImportHelper.
  *
- * @param aModuleType The type of import module. Should be addressbook or mail.
- * @param aModuleSearchString
- *                    The string to search the module names for, such as
- *                    "Text file" to find the import module for comma-separated
- *                    value, LDIF, and tab-delimited files.
- * @param aFile       An instance of nsIFile to import.
- *
- * @class
- * @class
+ * @param {"addressbook"|"settings"|"filters"} aModuleType -
+ *   The type of import module.
+ * @param {string} aContractID - The contract ID of the importer to fetch.
+ * @param {nsIFile} aFile - A file to import.
  */
-function GenericImportHelper(aModuleType, aModuleSearchString, aFile) {
+function GenericImportHelper(aModuleType, aContractID, aFile) {
   gGenericImportHelper = null;
   if (!["addressbook", "mail", "settings", "filters"].includes(aModuleType)) {
     do_throw("Unexpected type passed to the GenericImportHelper constructor");
   }
   this.mModuleType = aModuleType;
-  this.mModuleSearchString = aModuleSearchString;
-  this.mInterface = this._findInterface();
+  this.mInterface = Cc[aContractID]
+    .createInstance(Ci.nsIImportModule)
+    .GetImportInterface(aModuleType)
+    .QueryInterface(this.interfaceType);
   Assert.ok(this.mInterface !== null);
 
   this.mFile = aFile; // checked in the beginImport method
@@ -44,8 +41,6 @@ GenericImportHelper.prototype = {
 
     if (this.mModuleType == "addressbook") {
       this.mInterface.SetData("addressLocation", this.mFile);
-    } else if (this.mModuleType == "mail") {
-      this.mInterface.SetData("mailLocation", this.mFile);
     }
 
     Assert.ok(this.mInterface.WantsProgress());
@@ -66,29 +61,6 @@ GenericImportHelper.prototype = {
     return this.mInterface;
   },
 
-  _findInterface() {
-    var importService = Cc["@mozilla.org/import/import-service;1"].getService(
-      Ci.nsIImportService
-    );
-    var count = importService.GetModuleCount(this.mModuleType);
-
-    // Iterate through each import module until the one being searched for is
-    // found and then return the ImportInterface of that module
-    for (var i = 0; i < count; i++) {
-      // Check if the current module fits the search string gets the interface
-      if (
-        importService
-          .GetModuleName(this.mModuleType, i)
-          .includes(this.mModuleSearchString)
-      ) {
-        return importService
-          .GetModule(this.mModuleType, i)
-          .GetImportInterface(this.mModuleType)
-          .QueryInterface(this.interfaceType);
-      }
-    }
-    return null; // it wasn't found
-  },
   /**
    * GenericImportHelper.checkProgress
    * Checks the progress of an import every 200 milliseconds until it is
@@ -129,21 +101,16 @@ GenericImportHelper.prototype = {
  * JSON file in the resources folder and supply aAbName and aJsonName.
  * See AB_README for more information.
  *
- * @param aFile     An instance of nsIAbFile to import.
- * @param aModuleSearchString
- *                  The string to search the module names for, such as
- *                  "Text file" to find the import module for comma-separated
- *                  value, LDIF, and tab-delimited files.
- * Optional parameters: Include if you would like the import checked.
- * @param aAbName   The name the address book will have (the filename without
- *                  the extension).
- * @param aJsonName The name of the array in addressbook.json with the cards
- *                  to compare with the imported cards.
- * @class
- * @class
+ * @param {nsIFile} aFile - A file to import.
+ * @param {string} aContractID - The contract ID of the importer to fetch.
+ * @param {string} [aAbName] - The name the address book will have (the filename
+ *   withoutthe extension). Include if you would like the import checked.
+ * @param {string} [aJsonName] - The name of the array in addressbook.json with
+ *   the cards to compare with the imported cards. Include if you would like the
+ *   import checked.
  */
-function AbImportHelper(aFile, aModuleSearchString, aAbName, aJsonName) {
-  GenericImportHelper.call(this, "addressbook", aModuleSearchString, aFile);
+function AbImportHelper(aFile, aContractID, aAbName, aJsonName) {
+  GenericImportHelper.call(this, "addressbook", aContractID, aFile);
 
   this.mAbName = aAbName;
   /* Attribute notes:  The attributes listed in the declaration below are
@@ -396,69 +363,16 @@ AbImportHelper.prototype = {
 };
 
 /**
- * MailImportHelper
- * A helper for mail imports.
- *
- * @param aFile      An instance of nsIFile to import.
- * @param aModuleSearchString
- *                   The string to search the module names for, such as
- *                   "Outlook Express", etc.
- * @param aExpected  An instance of nsIFile to compare with the imported
- *                   folders.
- *
- * @class
- * @class
- */
-function MailImportHelper(aFile, aModuleSearchString, aExpected) {
-  GenericImportHelper.call(this, "mail", aModuleSearchString, aFile);
-  this.mExpected = aExpected;
-}
-
-MailImportHelper.prototype = {
-  __proto__: GenericImportHelper.prototype,
-  interfaceType: Ci.nsIImportGeneric,
-  _checkEqualFolder(expectedFolder, actualFolder) {
-    Assert.equal(expectedFolder.leafName, actualFolder.name);
-
-    const expectedSubFolders = [];
-    for (const entry of expectedFolder.directoryEntries) {
-      if (entry.isDirectory()) {
-        expectedSubFolders.push(entry);
-      }
-    }
-    const actualSubFolders = actualFolder.subFolders;
-    Assert.equal(expectedSubFolders.length, actualSubFolders.length);
-    for (let i = 0; i < expectedSubFolders.length; i++) {
-      this._checkEqualFolder(expectedSubFolders[i], actualSubFolders[i]);
-    }
-  },
-
-  checkResults() {
-    const rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
-    Assert.ok(rootFolder.containsChildNamed(this.mFile.leafName));
-    const importedFolder = rootFolder.getChildNamed(this.mFile.leafName);
-    Assert.notEqual(importedFolder, null);
-
-    this._checkEqualFolder(this.mExpected, importedFolder);
-  },
-};
-
-/**
  * SettingsImportHelper
  * A helper for settings imports.
  *
- * @param aFile      An instance of nsIFile to import, can be null.
- * @param aModuleSearchString
- *                   The string to search the module names for, such as
- *                   "Outlook Express", etc.
- * @param aExpected  An array of object which has incomingServer, identity
- *                   and smtpSever to compare with imported nsIMsgAccount.
- *
- * @class
- * @class
+ * @param {nsIFile} aFile - A file to import.
+ * @param {string} aContractID - The contract ID of the importer to fetch.
+ * @param {object[]} aExpected - An array of object which has incomingServer,
+ *   identity and smtpSever to compare with imported nsIMsgAccount.
  */
-function SettingsImportHelper(aFile, aModuleSearchString, aExpected) {
-  GenericImportHelper.call(this, "settings", aModuleSearchString, aFile);
+function SettingsImportHelper(aFile, aContractID, aExpected) {
+  GenericImportHelper.call(this, "settings", aContractID, aFile);
   this.mExpected = aExpected;
 }
 
@@ -586,17 +500,13 @@ SettingsImportHelper.prototype = {
  * FiltersImportHelper
  * A helper for filter imports.
  *
- * @param aFile      An instance of nsIFile to import.
- * @param aModuleSearchString
- *                   The string to search the module names for, such as
- *                   "Outlook Express", etc.
- * @param aExpected  The number of filters that should exist after import.
- *
- * @class
- * @class
+ * @param {nsIFile} aFile - A file to import.
+ * @param {string} aContractID - The contract ID of the importer to fetch.
+ * @param {integer} aExpected - The number of filters that should exist after
+ *   import.
  */
-function FiltersImportHelper(aFile, aModuleSearchString, aExpected) {
-  GenericImportHelper.call(this, "filters", aModuleSearchString, aFile);
+function FiltersImportHelper(aFile, aContractID, aExpected) {
+  GenericImportHelper.call(this, "filters", aContractID, aFile);
   this.mExpected = aExpected;
 }
 

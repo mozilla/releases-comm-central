@@ -17,7 +17,7 @@
   }
 
 // currently only support setting import
-#define kWMSupportsString NS_IMPORT_SETTINGS_STR
+#define kWMSupportsString "settings"
 
 class nsWMImport : public nsIImportModule {
  public:

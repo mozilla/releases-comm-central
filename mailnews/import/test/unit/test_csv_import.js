@@ -16,7 +16,7 @@ function run_test() {
   const file = do_get_file("resources/basic_csv_addressbook.csv");
   new AbImportHelper(
     file,
-    "csv",
+    "@mozilla.org/import/import-text;1",
     "basic_csv_addressbook",
     "csv_import"
   ).beginImport();

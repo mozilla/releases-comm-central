@@ -10,7 +10,7 @@ function run_test() {
   const file = do_get_file("resources/utf16_addressbook.csv");
   const helper = new AbImportHelper(
     file,
-    "csv",
+    "@mozilla.org/import/import-text;1",
     "utf16_addressbook",
     "utf16_csv"
   );

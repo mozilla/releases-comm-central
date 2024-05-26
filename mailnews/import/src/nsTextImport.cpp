@@ -116,34 +116,6 @@ nsTextImport::~nsTextImport() { IMPORT_LOG0("nsTextImport Module Deleted\n"); }
 
 NS_IMPL_ISUPPORTS(nsTextImport, nsIImportModule)
 
-NS_IMETHODIMP nsTextImport::GetName(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  *name = nsImportStringBundle::GetStringByID(TEXTIMPORT_NAME, m_stringBundle);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsTextImport::GetDescription(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  *name = nsImportStringBundle::GetStringByID(TEXTIMPORT_DESCRIPTION,
-                                              m_stringBundle);
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsTextImport::GetSupports(char** supports) {
-  NS_ENSURE_ARG_POINTER(supports);
-  *supports = strdup(kTextSupportsString);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsTextImport::GetSupportsUpgrade(bool* pUpgrade) {
-  NS_ASSERTION(pUpgrade != nullptr, "null ptr");
-  if (!pUpgrade) return NS_ERROR_NULL_POINTER;
-
-  *pUpgrade = false;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsTextImport::GetImportInterface(const char* pImportType,
                                                nsISupports** ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);

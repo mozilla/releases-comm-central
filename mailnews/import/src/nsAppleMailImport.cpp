@@ -50,40 +50,6 @@ nsAppleMailImportModule::~nsAppleMailImportModule() {
 
 NS_IMPL_ISUPPORTS(nsAppleMailImportModule, nsIImportModule)
 
-NS_IMETHODIMP nsAppleMailImportModule::GetName(char16_t** aName) {
-  if (!mBundle) {
-    return NS_ERROR_FAILURE;
-  }
-  nsAutoString name;
-  nsresult rv = mBundle->GetStringFromName("ApplemailImportName", name);
-  NS_ENSURE_SUCCESS(rv, rv);
-  *aName = ToNewUnicode(name);
-  return rv;
-}
-
-NS_IMETHODIMP nsAppleMailImportModule::GetDescription(char16_t** aName) {
-  if (!mBundle) {
-    return NS_ERROR_FAILURE;
-  }
-  nsAutoString name;
-  nsresult rv = mBundle->GetStringFromName("ApplemailImportDescription", name);
-  NS_ENSURE_SUCCESS(rv, rv);
-  *aName = ToNewUnicode(name);
-  return rv;
-}
-
-NS_IMETHODIMP nsAppleMailImportModule::GetSupports(char** aSupports) {
-  NS_ENSURE_ARG_POINTER(aSupports);
-  *aSupports = strdup(NS_IMPORT_MAIL_STR);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAppleMailImportModule::GetSupportsUpgrade(bool* aUpgrade) {
-  NS_ENSURE_ARG_POINTER(aUpgrade);
-  *aUpgrade = false;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsAppleMailImportModule::GetImportInterface(
     const char* aImportType, nsISupports** aInterface) {
   NS_ENSURE_ARG_POINTER(aImportType);

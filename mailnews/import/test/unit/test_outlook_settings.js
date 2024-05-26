@@ -141,7 +141,9 @@ function teardown() {
 function _test(registry, expectedAccount) {
   try {
     setup_mock_registry(registry);
-    new SettingsImportHelper(null, "Outlook", [expectedAccount]).beginImport();
+    new SettingsImportHelper(null, "@mozilla.org/import/import-outlook;1", [
+      expectedAccount,
+    ]).beginImport();
   } catch (e) {
     teardown();
     do_throw(e);

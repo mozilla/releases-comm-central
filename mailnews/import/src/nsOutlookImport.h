@@ -16,8 +16,7 @@
     }                                              \
   }
 
-#define kOutlookSupportsString \
-  NS_IMPORT_MAIL_STR "," NS_IMPORT_ADDRESS_STR "," NS_IMPORT_SETTINGS_STR
+#define kOutlookSupportsString "mail,addressbook,settings"
 
 class nsOutlookImport : public nsIImportModule {
  public:

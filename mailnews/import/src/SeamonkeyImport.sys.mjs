@@ -212,22 +212,6 @@ export function SeamonkeyImport() {}
 SeamonkeyImport.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIImportModule"]),
 
-  get name() {
-    return seamonkeyImportMsgs.GetStringFromName("SeamonkeyImportName");
-  },
-
-  get description() {
-    return seamonkeyImportMsgs.GetStringFromName("SeamonkeyImportDescription");
-  },
-
-  get supports() {
-    return "addressbook,mail,settings";
-  },
-
-  get supportsUpgrade() {
-    return false;
-  },
-
   GetImportInterface(type) {
     if (type == "addressbook") {
       return new SeamonkeyImportAddressbook();

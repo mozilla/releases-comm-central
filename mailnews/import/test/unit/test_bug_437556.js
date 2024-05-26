@@ -8,7 +8,7 @@ function run_test() {
     Ci.nsISupportsString
   );
   // get the Address Book text import interface and make sure it succeeded
-  var helper = new AbImportHelper(file, "Text file");
+  var helper = new AbImportHelper(file, "@mozilla.org/import/import-text;1");
   helper.setFieldMap(null);
   helper.setAddressBookLocation(file);
 

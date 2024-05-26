@@ -7,5 +7,10 @@ function run_test() {
   MailServices.ab;
 
   const file = do_get_file("resources/quote.csv");
-  new AbImportHelper(file, "csv", "quote", "quote_csv").beginImport();
+  new AbImportHelper(
+    file,
+    "@mozilla.org/import/import-text;1",
+    "quote",
+    "quote_csv"
+  ).beginImport();
 }

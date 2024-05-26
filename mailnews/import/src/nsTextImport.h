@@ -18,7 +18,7 @@
     }                                               \
   }
 
-#define kTextSupportsString NS_IMPORT_ADDRESS_STR
+#define kTextSupportsString "addressbook"
 
 class nsTextImport : public nsIImportModule {
  public:

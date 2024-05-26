@@ -2,13 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const lazy = {};
-ChromeUtils.defineLazyGetter(
-  lazy,
-  "l10n",
-  () => new Localization(["messenger/importDialog.ftl"], true)
-);
-
 /**
  * The importing process is managed by importDialog.js and nsImportMail.cpp.
  *
@@ -102,22 +95,6 @@ class ThunderbirdImportMail {
  */
 export class ThunderbirdImport {
   QueryInterface = ChromeUtils.generateQI(["nsIImportModule"]);
-
-  get name() {
-    return lazy.l10n.formatValueSync("thunderbird-import-name");
-  }
-
-  get description() {
-    return lazy.l10n.formatValueSync("thunderbird-import-description");
-  }
-
-  get supports() {
-    return "mail";
-  }
-
-  get supportsUpgrade() {
-    return false;
-  }
 
   GetImportInterface(type) {
     if (type == "mail") {

@@ -31,35 +31,6 @@ nsBeckyImport::~nsBeckyImport() {}
 
 NS_IMPL_ISUPPORTS(nsBeckyImport, nsIImportModule)
 
-NS_IMETHODIMP
-nsBeckyImport::GetName(char16_t** aName) {
-  NS_ENSURE_ARG_POINTER(aName);
-  *aName = nsBeckyStringBundle::GetStringByName("BeckyImportName");
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsBeckyImport::GetDescription(char16_t** aDescription) {
-  NS_ENSURE_ARG_POINTER(aDescription);
-  *aDescription =
-      nsBeckyStringBundle::GetStringByName("BeckyImportDescription");
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsBeckyImport::GetSupports(char** aSupports) {
-  NS_ENSURE_ARG_POINTER(aSupports);
-  *aSupports = strdup(kBeckySupportsString);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsBeckyImport::GetSupportsUpgrade(bool* aUpgrade) {
-  NS_ENSURE_ARG_POINTER(aUpgrade);
-  *aUpgrade = true;
-  return NS_OK;
-}
-
 nsresult nsBeckyImport::GetMailImportInterface(nsISupports** aInterface) {
   nsCOMPtr<nsIImportMail> importer;
   nsresult rv = nsBeckyMail::Create(getter_AddRefs(importer));

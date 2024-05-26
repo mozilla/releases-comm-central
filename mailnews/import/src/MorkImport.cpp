@@ -51,32 +51,6 @@ MorkImport::~MorkImport() {}
 
 NS_IMPL_ISUPPORTS(MorkImport, nsIImportModule)
 
-NS_IMETHODIMP MorkImport::GetName(char16_t** name) {
-  NS_ENSURE_ARG_POINTER(name);
-  *name =
-      nsImportStringBundle::GetStringByName("morkImportName", mStringBundle);
-  return NS_OK;
-}
-
-NS_IMETHODIMP MorkImport::GetDescription(char16_t** description) {
-  NS_ENSURE_ARG_POINTER(description);
-  *description = nsImportStringBundle::GetStringByName("morkImportDescription",
-                                                       mStringBundle);
-  return NS_OK;
-}
-
-NS_IMETHODIMP MorkImport::GetSupports(char** supports) {
-  NS_ENSURE_ARG_POINTER(supports);
-  *supports = strdup(NS_IMPORT_ADDRESS_STR);
-  return NS_OK;
-}
-
-NS_IMETHODIMP MorkImport::GetSupportsUpgrade(bool* upgrade) {
-  NS_ENSURE_ARG_POINTER(upgrade);
-  *upgrade = false;
-  return NS_OK;
-}
-
 NS_IMETHODIMP MorkImport::GetImportInterface(const char* importType,
                                              nsISupports** interface) {
   NS_ENSURE_ARG_POINTER(importType);

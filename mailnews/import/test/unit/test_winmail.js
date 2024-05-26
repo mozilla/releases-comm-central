@@ -154,7 +154,7 @@ function _test(registry) {
     setup_mock_registry(registry);
     new SettingsImportHelper(
       null,
-      "Windows Live Mail",
+      "@mozilla.org/import/import-wm;1",
       expectedAccounts
     ).beginImport();
   } catch (e) {
