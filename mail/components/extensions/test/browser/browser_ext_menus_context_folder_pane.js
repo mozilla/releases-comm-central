@@ -50,9 +50,14 @@ async function subtest_folder_pane(manifest) {
     {
       menuIds: ["folder_pane"],
       contexts: ["folder_pane", "all"],
-      selectedFolder: manifest?.permissions?.includes("accountsRead")
-        ? { accountId: gAccount.key, path: "/Trash" }
+      selectedFolders: manifest?.permissions?.includes("accountsRead")
+        ? [{ accountId: gAccount.key, path: "/Trash" }]
         : undefined,
+      selectedFolder:
+        manifest?.permissions?.includes("accountsRead") &&
+        manifest?.manifest_version < 3
+          ? { accountId: gAccount.key, path: "/Trash" }
+          : undefined,
     },
     { active: true, index: 0, type: "mail" }
   );
@@ -68,9 +73,14 @@ async function subtest_folder_pane(manifest) {
     {
       menuIds: ["folder_pane"],
       contexts: ["folder_pane", "all"],
-      selectedAccount: manifest?.permissions?.includes("accountsRead")
-        ? { id: gAccount.key, type: "none" }
+      selectedFolders: manifest?.permissions?.includes("accountsRead")
+        ? [{ accountId: gAccount.key, path: "/" }]
         : undefined,
+      selectedAccount:
+        manifest?.permissions?.includes("accountsRead") &&
+        manifest?.manifest_version < 3
+          ? { id: gAccount.key, type: "none" }
+          : undefined,
     },
     { active: true, index: 0, type: "mail" }
   );

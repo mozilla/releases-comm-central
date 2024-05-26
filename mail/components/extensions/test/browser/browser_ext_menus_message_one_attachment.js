@@ -25,7 +25,7 @@ var messagePane =
  * @param {object} expectedInfo
  * @param {Array} expectedInfo.menuIds
  * @param {Array} expectedInfo.contexts
- * @param {Array?} expectedInfo.attachments
+ * @param {?Array} expectedInfo.attachments
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
@@ -68,8 +68,8 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  *
  * @param extension
  * @param {object} expectedInfo
- * @param {string?} expectedInfo.menuItemId
- * @param {Array?} expectedInfo.attachments
+ * @param {?string} expectedInfo.menuItemId
+ * @param {?Array} expectedInfo.attachments
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index

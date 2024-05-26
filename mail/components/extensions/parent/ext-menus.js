@@ -652,7 +652,7 @@ const contextsMap = {
   onTab: "tab",
   inToolsMenu: "tools_menu",
   selectedMessages: "message_list",
-  selectedFolder: "folder_pane",
+  selectedFolders: "folder_pane",
   selectedComposeAttachments: "compose_attachments",
   selectedMessageAttachments: "message_attachments",
   allMessageAttachments: "all_message_attachments",
@@ -800,20 +800,39 @@ async function addMenuEventInfo(
     );
   }
   if (extension.hasPermission("accountsRead")) {
-    for (const folderType of ["displayedFolder", "selectedFolder"]) {
-      if (contextData[folderType]) {
-        const folder = extension.folderManager.convert(contextData[folderType]);
-        // If the context menu click in the folder pane occurred on a root folder
-        // representing an account, do not include a selectedFolder object, but
-        // the corresponding selectedAccount object.
-        if (folderType == "selectedFolder" && folder.path == "/") {
+    if (contextData.displayedFolder) {
+      const folder = extension.folderManager.convert(
+        contextData.displayedFolder
+      );
+      // Do not include subfolders in Manifest V3.
+      info.displayedFolder =
+        extension.manifestVersion > 2
+          ? folder
+          : extension.folderManager.traverseSubfolders(
+              contextData.displayedFolder,
+              folder.accountId
+            );
+    }
+
+    if (contextData.selectedFolders) {
+      info.selectedFolders = contextData.selectedFolders.map(folder =>
+        extension.folderManager.convert(folder)
+      );
+
+      // Manifest V2 includes a single selectedFolder property. If the context
+      //   menu click in the folder pane occurred on a root folder representing
+      //   an account, we include the selectedAccount property instead.
+      if (extension.manifestVersion < 3) {
+        const [folder] = contextData.selectedFolders;
+        const [{ path, accountId }] = info.selectedFolders;
+        if (path == "/") {
           info.selectedAccount = extension.accountManager.convert(
-            MailServices.accounts.getAccount(folder.accountId)
+            MailServices.accounts.getAccount(accountId)
           );
         } else {
-          info[folderType] = extension.folderManager.traverseSubfolders(
-            contextData[folderType],
-            folder.accountId
+          info.selectedFolder = extension.folderManager.traverseSubfolders(
+            folder,
+            accountId
           );
         }
       }
@@ -1184,7 +1203,7 @@ const menuTracker = {
           menu,
           tab,
           pageUrl,
-          selectedFolder: win.folderPaneContextMenu.activeFolder,
+          selectedFolders: [win.folderPaneContextMenu.activeFolder],
         });
         break;
       }

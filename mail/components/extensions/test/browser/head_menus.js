@@ -45,14 +45,15 @@ async function rightClickOnContent(menu, selector, browser) {
  *
  * @param extension
  * @param {object} expectedInfo
- * @param {Array?} expectedInfo.menuIds
- * @param {Array?} expectedInfo.contexts
- * @param {Array?} expectedInfo.attachments
- * @param {object?} expectedInfo.displayedFolder
- * @param {object?} expectedInfo.selectedFolder
- * @param {Array?} expectedInfo.selectedMessages
- * @param {RegExp?} expectedInfo.pageUrl
- * @param {string?} expectedInfo.selectionText
+ * @param {?Array} expectedInfo.menuIds
+ * @param {?Array} expectedInfo.contexts
+ * @param {?Array} expectedInfo.attachments
+ * @param {?object} expectedInfo.displayedFolder
+ * @param {?object} expectedInfo.selectedFolder
+ * @param {?object} expectedInfo.selectedFolders
+ * @param {?Array} expectedInfo.selectedMessages
+ * @param {?RegExp} expectedInfo.pageUrl
+ * @param {?string} expectedInfo.selectionText
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
@@ -82,10 +83,50 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
       !!expectedInfo[infoKey],
       `${infoKey} in info`
     );
+
+    Assert.ok(
+      !!extension.manifest,
+      "The manifest needs to be manually attached to the extension object for this test."
+    );
+
     if (expectedInfo[infoKey]) {
       Assert.equal(info[infoKey].accountId, expectedInfo[infoKey].accountId);
       Assert.equal(info[infoKey].path, expectedInfo[infoKey].path);
-      Assert.ok(Array.isArray(info[infoKey].subFolders));
+      if (
+        infoKey == "displayedFolder" &&
+        extension.manifest.manifest_version > 2
+      ) {
+        Assert.ok(
+          !Array.isArray(info[infoKey].subFolders),
+          `${infoKey} should not have subFolders in Manifest V3 or later`
+        );
+      } else {
+        Assert.ok(
+          Array.isArray(info[infoKey].subFolders),
+          `${infoKey} should have subFolders in Manifest V2`
+        );
+      }
+    }
+  }
+
+  for (const infoKey of ["selectedFolders"]) {
+    Assert.equal(
+      !!info[infoKey],
+      !!expectedInfo[infoKey],
+      `${infoKey} in info`
+    );
+    if (expectedInfo[infoKey]) {
+      for (let i = 0; i < expectedInfo[infoKey].length; i++) {
+        Assert.equal(
+          info[infoKey][i].accountId,
+          expectedInfo[infoKey][i].accountId
+        );
+        Assert.equal(info[infoKey][i].path, expectedInfo[infoKey][i].path);
+        Assert.ok(
+          !info[infoKey][i].subFolders,
+          `${infoKey}[${i}] should not have subFolders`
+        );
+      }
     }
   }
 
@@ -138,11 +179,11 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  *
  * @param extension
  * @param {object} expectedInfo
- * @param {string?} expectedInfo.selectionText
- * @param {string?} expectedInfo.linkText
- * @param {RegExp?} expectedInfo.pageUrl
- * @param {RegExp?} expectedInfo.linkUrl
- * @param {RegExp?} expectedInfo.srcUrl
+ * @param {?string} expectedInfo.selectionText
+ * @param {?string} expectedInfo.linkText
+ * @param {?RegExp} expectedInfo.pageUrl
+ * @param {?RegExp} expectedInfo.linkUrl
+ * @param {?RegExp} expectedInfo.srcUrl
  * @param {object} expectedTab
  * @param {boolean} expectedTab.active
  * @param {integer} expectedTab.index
@@ -178,6 +219,11 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
 }
 
 async function getMenuExtension(manifest) {
+  // Default to Manifest V2, if none provided.
+  if (!manifest.manifest_version) {
+    manifest.manifest_version = 2;
+  }
+
   const details = {
     files: {
       "background.js": async () => {
@@ -264,6 +310,9 @@ async function getMenuExtension(manifest) {
       origins: details.manifest.host_permissions,
     });
   }
+
+  // Manually attach the manifest to the extension object.
+  extension.manifest = details.manifest;
   return extension;
 }
 

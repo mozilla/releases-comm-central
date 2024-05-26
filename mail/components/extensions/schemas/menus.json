@@ -176,7 +176,7 @@
           "selectedMessages": {
             "$ref": "messages.MessageList",
             "optional": true,
-            "description": "The selected messages, if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
+            "description": "The selected message(s), if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
@@ -185,11 +185,21 @@
           },
           "selectedFolder": {
             "$ref": "folders.MailFolder",
+            "max_manifest_version": 2,
             "optional": true,
             "description": "The selected folder, if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
+          "selectedFolders": {
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolder"
+            },
+            "optional": true,
+            "description": "The selected folder(s), if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
+          },
           "selectedAccount": {
             "$ref": "accounts.MailAccount",
+            "max_manifest_version": 2,
             "optional": true,
             "description": "The selected account, if the context menu was opened on an account entry in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
@@ -332,7 +342,7 @@
           "selectedMessages": {
             "$ref": "messages.MessageList",
             "optional": true,
-            "description": "The selected messages, if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
+            "description": "The selected message(s), if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
@@ -341,11 +351,21 @@
           },
           "selectedFolder": {
             "$ref": "folders.MailFolder",
+            "max_manifest_version": 2,
             "optional": true,
             "description": "The selected folder, if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
+          "selectedFolders": {
+            "type": "array",
+            "items": {
+              "$ref": "folders.MailFolder"
+            },
+            "optional": true,
+            "description": "The selected folder(s), if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
+          },
           "selectedAccount": {
             "$ref": "accounts.MailAccount",
+            "max_manifest_version": 2,
             "optional": true,
             "description": "The selected account, if the context menu was opened on an account entry in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
