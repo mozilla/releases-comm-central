@@ -11,8 +11,8 @@
   font: message-box;
   background-color: var(--layout-background-0);
 
-  --address-book-card-min-height: 140px;
-
+  --ab-pane-background: -moz-Dialog;
+  --ab-card-min-height: 140px;
   --ab-card-line-height: 1.3em;
   --ab-card-table-row-height: 22px;
 
@@ -30,16 +30,17 @@
     background-color: transparent;
     color: currentColor;
 
-    --address-book-cards-list-bg: transparent;
-    --address-book-icons-color: currentColor;
+    --ab-cards-list-bg: transparent;
+    --ab-icons-color: currentColor;
   }
 
   @media not (prefers-contrast) {
     background: var(--layout-background-0);
     color: var(--layout-color-0);
 
-    --address-book-cards-list-bg: var(--layout-background-1);
-    --address-book-icons-color: var(--layout-color-0);
+    --ab-cards-list-bg: light-dark(var(--color-gray-05), var(--color-black));
+    --ab-icons-color: var(--layout-color-0);
+    --ab-pane-background: light-dark(var(--color-gray-10), var(--color-gray-80))
   }
 }
 
@@ -53,28 +54,28 @@
 /* Page layout */
 
 body {
-  --address-book-pane-min-width: 240px;
-  --booksSplitter-width: var(--address-book-pane-min-width);
+  --ab-pane-min-width: 240px;
+  --booksSplitter-width: var(--ab-pane-min-width);
   --sharedSplitter-height: 50%;
-  --address-book-cards-pane-min-width: 340px;
-  --sharedSplitter-width: var(--address-book-cards-pane-min-width);
-  --address-book-details-pane-min-width: 500px;
+  --ab-cards-pane-min-width: 340px;
+  --sharedSplitter-width: var(--ab-cards-pane-min-width);
+  --ab-details-pane-min-width: 500px;
 
   display: grid;
   grid-template: "toolbox toolbox toolbox toolbox toolbox" min-content
                  "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
-                 / minmax(var(--address-book-pane-min-width), var(--booksSplitter-width)) min-content
-                   minmax(var(--address-book-cards-pane-min-width), var(--sharedSplitter-width)) min-content
-                   minmax(var(--address-book-details-pane-min-width), 1fr);
+                 / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content
+                   minmax(var(--ab-cards-pane-min-width), var(--sharedSplitter-width)) min-content
+                   minmax(var(--ab-details-pane-min-width), 1fr);
   text-shadow: none;
   font-size: 1.1rem;
 
   &.layout-table {
     grid-template: "toolbox toolbox toolbox" min-content
-                   "books booksSplitter cards" minmax(var(--address-book-card-min-height), 1fr)
+                   "books booksSplitter cards" minmax(var(--ab-card-min-height), 1fr)
                    "books booksSplitter sharedSplitter" min-content
                    "books booksSplitter details" minmax(auto, var(--sharedSplitter-height))
-                   / minmax(var(--address-book-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--address-book-details-pane-min-width), 1fr);
+                   / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--ab-details-pane-min-width), 1fr);
   }
 }
 
@@ -95,7 +96,7 @@ body {
 }
 
 .toolbarbutton-1:focus-visible {
-  outline: var(--in-content-focus-outline);
+  outline: var(--focus-outline);
 }
 
 #toolbarCreateBook {
@@ -122,7 +123,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--layout-background-2);
+  color: var(--listbox-color);
+  background-color: var(--sidebar-background-color, var(--ab-pane-background));
 }
 
 #booksSplitter {
@@ -157,11 +159,10 @@ body {
   display: flex;
   align-items: center;
   margin-inline: 6px;
-  border-radius: var(--in-content-button-border-radius);
-  color: var(--listbox-color);
+  border-radius: var(--button-border-radius);
   -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, var(--address-book-icons-color) 20%, transparent);
-  stroke: var(--address-book-icons-color);
+  fill: color-mix(in srgb, var(--ab-icons-color) 20%, transparent);
+  stroke: var(--ab-icons-color);
   cursor: default;
 
   #books:not(:focus) :where(.bookRow, .listRow).selected > & {
@@ -182,8 +183,8 @@ body {
   }
 
   :where(.bookRow, .listRow).drop-target > & {
-    background-color: var(--in-content-item-selected);
-    color: var(--in-content-item-selected-text);
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
   }
 }
 
@@ -199,7 +200,7 @@ body {
     width: var(--list-item-buttons-size);
     height: var(--list-item-buttons-size);
     -moz-context-properties: stroke;
-    stroke: var(--address-book-icons-color);
+    stroke: var(--ab-icons-color);
   }
 
   &:not(.children) .twisty-icon {
@@ -316,7 +317,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
-  background-color: var(--address-book-cards-list-bg);
+  background-color: var(--ab-cards-list-bg);
 }
 
 #cardsPaneHeader {
@@ -333,15 +334,35 @@ body {
   margin-inline: 0 6px;
   padding-inline: 8px;
   box-sizing: border-box;
-  border: 1px solid var(--in-content-box-border-color);
-  border-radius: var(--in-content-button-border-radius);
-  color: inherit;
-  background-color: var(--in-content-box-background);
+  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+  border-radius: var(--button-border-radius);
+  color: FieldText;
+  background-color: Field;
+
+  :root[lwt-tree] & {
+    color: var(--toolbar-field-color);
+    background-color: var(--toolbar-field-background-color);
+    border-color: var(--toolbar-field-border-color);
+  }
 
   &:focus {
     border-color: transparent;
-    outline: 2px solid var(--in-content-focus-outline-color);
+    outline: 2px solid var(--selected-item-color);
     outline-offset: -1px;
+
+    :root[lwtheme] & {
+      color: var(--toolbar-field-focus-color);
+      background-color: var(--toolbar-field-focus-background-color);
+    }
+  }
+
+  &::selection {
+    background-color: var(--lwt-toolbar-field-highlight, Highlight);
+    color: var(--lwt-toolbar-field-highlight-text, HighlightText);
+  }
+
+  &:not(:focus)::selection {
+    background-color: var(--lwt-toolbar-field-highlight, text-select-disabled-background);
   }
 }
 
@@ -384,7 +405,7 @@ body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext >
 }
 
 #placeholderCreateContact {
-  color: var(--in-content-primary-button-background);
+  color: var(--selected-item-color);
 
   &::before {
     background-image: var(--icon-new-contact);
@@ -498,7 +519,7 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 
 #detailsPane {
   grid-area: details;
-  min-height: var(--address-book-card-min-height);
+  min-height: var(--ab-card-min-height);
   user-select: text;
 
   &:not([hidden]) {
@@ -513,8 +534,8 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 
   body.is-editing & {
     z-index: 2;
-    background-color: var(--in-content-page-background);
-    color: var(--in-content-page-color);
+    background-color: var(--layout-background-0);
+    color: var(--layout-color-0);
     box-shadow: 0 2px 6px -5px #000;
   }
 }
@@ -532,7 +553,7 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 #detailsFooter {
   grid-area: footer;
   padding: 21px;
-  background-color: var(--in-content-page-background);
+  background-color: var(--layout-background-0);
 
   & label {
     margin: 0 4px;
@@ -618,7 +639,7 @@ body:not(.is-editing) #editContactForm {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--in-content-focus-outline-color);
+    outline: var(--focus-outline);
     outline-offset: 2px;
   }
 }
@@ -737,14 +758,6 @@ body:not(.is-editing) #editContactForm {
     gap: 5px;
     background-color: transparent;
     --in-content-button-border-color: transparent;
-  }
-
-  &:hover {
-    background-color: var(--in-content-button-background);
-
-    &:active {
-      background-color: var(--in-content-button-background-active);
-    }
   }
 
   &::before {
@@ -1026,7 +1039,6 @@ input[type="number"] {
 #cardCount {
   position: sticky;
   bottom: 0;
-  background-color: var(--in-content-categories-background);
   border-top: 1px solid var(--splitter-color);
   color: color-mix(in srgb, currentColor 75%, transparent);
   padding: 9px;

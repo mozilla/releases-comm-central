@@ -2,15 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
-  --in-content-button-border-radius: 3px;
-
-  @media not (prefers-contrast) {
-    --in-content-button-background: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
-    --in-content-button-background-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
-  }
-}
-
 button {
   margin: 0;
   padding: 0 12px;

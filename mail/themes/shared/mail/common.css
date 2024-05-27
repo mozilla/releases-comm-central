@@ -11,6 +11,7 @@
   --in-content-button-border-radius: 3px;
   --in-content-button-border-color: color-mix(in srgb, currentColor 9%, transparent);
   --in-content-button-border-color-hover: color-mix(in srgb, currentColor 17%, transparent);
+  --in-content-deemphasized-text: color-mix(in srgb, currentColor 60%, transparent);
   --in-content-sidebar-width: auto;
   --menu-item-margin: 0 3px;
 
