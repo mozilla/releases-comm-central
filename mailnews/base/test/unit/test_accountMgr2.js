@@ -24,7 +24,7 @@ add_task(async function () {
   const acc2 = MailServices.accounts.createAccount();
   acc2.incomingServer = MailServices.accounts.createIncomingServer(
     "bob_pop3",
-    "pop3.EXAMPLE.com.",
+    "pop3.EXAMPLE.com.", // note trailing dot
     "pop3"
   );
   const id2 = MailServices.accounts.createIdentity();
@@ -43,38 +43,69 @@ add_task(async function () {
   // Setup done. Now check that things are as we expect.
 
   // At this point we should have 3 accounts and servers (imap, pop, local).
-  Assert.equal(MailServices.accounts.accounts.length, 3);
-  Assert.equal(MailServices.accounts.allServers.length, 3);
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    3,
+    "should have correct number of accounts"
+  );
+  Assert.equal(
+    MailServices.accounts.allServers.length,
+    3,
+    "should have correct number of servers"
+  );
 
   // The identities we explicitly created.
-  Assert.equal(MailServices.accounts.allIdentities.length, 3);
+  Assert.equal(
+    MailServices.accounts.allIdentities.length,
+    3,
+    "should have correct number of identities"
+  );
 
   // Check we find the right number of identities associated with each server.
   Assert.equal(
     MailServices.accounts.getIdentitiesForServer(acc1.incomingServer).length,
-    2
+    2,
+    "should have correct number identities associated with acc1 server"
   );
   Assert.equal(
     MailServices.accounts.getIdentitiesForServer(acc2.incomingServer).length,
-    2
+    2,
+    "should have correct number identities associated with acc2 server"
   );
   Assert.equal(
     MailServices.accounts.getIdentitiesForServer(
       MailServices.accounts.localFoldersServer
     ).length,
-    0
+    0,
+    "should have correct number identities associated with localFoldersServer"
   );
 
   // id1 and id2 are on separate accounts (and servers).
-  Assert.equal(MailServices.accounts.getServersForIdentity(id1).length, 1);
-  Assert.equal(MailServices.accounts.getServersForIdentity(id2).length, 1);
+  Assert.equal(
+    MailServices.accounts.getServersForIdentity(id1).length,
+    1,
+    "id1 should be for one server"
+  );
+  Assert.equal(
+    MailServices.accounts.getServersForIdentity(id2).length,
+    1,
+    "id2 should be for one server"
+  );
   // id3 is shared.
-  Assert.equal(MailServices.accounts.getServersForIdentity(id3).length, 2);
+  Assert.equal(
+    MailServices.accounts.getServersForIdentity(id3).length,
+    2,
+    "id3 should be a shared identity"
+  );
 
   // Does allFolders return the default folders we'd expect?
   // IMAP has Inbox only.
   // POP3 and local accounts both have Inbox and Trash.
-  Assert.equal(MailServices.accounts.allFolders.length, 1 + 2 + 2);
+  Assert.equal(
+    MailServices.accounts.allFolders.length,
+    1 + 2 + 2,
+    "allFolders should return expected folder count"
+  );
 
   // Let's ditch the IMAP account.
   MailServices.accounts.removeAccount(acc1);
@@ -195,5 +226,35 @@ add_task(async function () {
   Assert.ok(
     idnServer2?.hostName,
     "should find idn server by by ACE encodeed uri"
+  );
+
+  // Test hostname "2"
+  const acc7 = MailServices.accounts.createAccount();
+  acc7.incomingServer = MailServices.accounts.createIncomingServer(
+    "bob_2",
+    "2", // Will be normalized to 0.0.0.2 in URL
+    "imap"
+  );
+  const id7 = MailServices.accounts.createIdentity();
+  id7.email = "bob_2@example.com";
+  acc7.addIdentity(id7);
+
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    5,
+    "acc7 should be in accounts"
+  );
+
+  const twoServer = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://2:143/INBOX")
+  );
+  Assert.ok(twoServer?.hostName, "should find server by uri for hostname '2'");
+
+  const twoServerNorm = MailServices.accounts.findServerByURI(
+    Services.io.newURI("imap://0.0.0.2:143/INBOX")
+  );
+  Assert.ok(
+    twoServerNorm?.hostName,
+    "should find server by uri for normalized hostname '2'"
   );
 });

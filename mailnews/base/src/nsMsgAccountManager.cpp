@@ -50,6 +50,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIImapUrl.h"
+#include "nsIURIMutator.h"
 #include "nsICategoryManager.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIMsgFilterService.h"
@@ -1852,7 +1853,6 @@ nsresult nsMsgAccountManager::findServerInternal(
     NS_ADDREF(*aResult = m_lastFindServerResult);
     return NS_OK;
   }
-
   nsresult rv;
   nsCString hostname;
   bool isAscii;
@@ -1860,6 +1860,8 @@ nsresult nsMsgAccountManager::findServerInternal(
       do_GetService("@mozilla.org/network/idn-service;1");
   rv = idnService->ConvertToDisplayIDN(serverHostname, &isAscii, hostname);
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
+  NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
 
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     // Find matching server by user+host+type+port.
@@ -1871,18 +1873,25 @@ nsresult nsMsgAccountManager::findServerInternal(
     rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
 
+    // If the hostname will get normalized during URI mutation.
+    // E.g. for IP with trailing dot, or hostname that's just a number.
+    // We may well be here in findServerInternal to find a server from a folder
+    // URI. We need to use the normalized version to find the server.
+    // Create an imap url to see what it's normalized to. The normalization
+    // is the same for all protocols.
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+             .SetSpec("imap://"_ns + thisHostname)
+             .Finalize(url);
+    if (NS_SUCCEEDED(rv)) {
+      // Notably, this will fail for "Local Folders" which isn't a valid
+      // hostname.
+      rv = url->GetHost(thisHostname);
+      if (NS_FAILED(rv)) continue;
+    }
+
     rv = idnService->ConvertToDisplayIDN(thisHostname, &isAscii, thisHostname);
     if (NS_FAILED(rv)) continue;
-
-    // If the hostname was a IP with trailing dot, that dot gets removed
-    // during URI mutation. We may well be here in findServerInternal to
-    // find a server from a folder URI. Remove the trailing dot so we can
-    // find the server.
-    nsCString thisHostnameNoDot(thisHostname);
-    if (!thisHostname.IsEmpty() &&
-        thisHostname.CharAt(thisHostname.Length() - 1) == '.') {
-      thisHostnameNoDot.Cut(thisHostname.Length() - 1, 1);
-    }
 
     nsCString thisUsername;
     rv = server->GetUsername(thisUsername);
@@ -1905,9 +1914,7 @@ nsresult nsMsgAccountManager::findServerInternal(
     // attribute treat it as a match
     if ((type.IsEmpty() || thisType.Equals(type)) &&
         (hostname.IsEmpty() ||
-         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator) ||
-         thisHostnameNoDot.Equals(hostname,
-                                  nsCaseInsensitiveCStringComparator)) &&
+         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator)) &&
         (!(port != 0) || (port == thisPort)) &&
         (username.IsEmpty() || thisUsername.Equals(username))) {
       // stop on first find; cache for next time
