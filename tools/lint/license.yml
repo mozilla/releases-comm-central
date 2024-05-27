@@ -25,6 +25,7 @@ license:
         - comm/mailnews/jsaccount/readme.html
         # License file in directory
         - comm/mailnews/mime/jsmime
+        - '**/test*'
     extensions:
         - .c
         - .cc
