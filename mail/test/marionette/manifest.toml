@@ -1,4 +1,6 @@
 [DEFAULT]
-support-files = ["data/**"]
+support-files = ["data/**", "scripts/**"]
 
 ["test_commandline.py"]
+
+["test_sessionstore.py"]

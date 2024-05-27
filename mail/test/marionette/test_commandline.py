@@ -2,52 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import os.path
 
 from marionette_harness import MarionetteTestCase
 
+here = os.path.dirname(__file__)
+
+with open(os.path.join(here, "scripts", "tabs.js")) as script:
+    get_tabs = script.read()
+mail_3pane_tab = {"mode": "mail3PaneTab"}
+close_tabs = """
+    const tabmail = document.getElementById("tabmail");
+    tabmail.closeOtherTabs(0);
+"""
+
 
 class TestCommandLine(MarionetteTestCase):
-    get_tabs = """
-        const [resolve] = arguments;
-        const tabmail = document.getElementById("tabmail");
-        const loadPromises = [];
-
-        for (const tab of tabmail.tabInfo) {
-            if (tab.mode.name != "contentTab") {
-                continue;
-            }
-            if (tab.browser.isLoadingDocument) {
-                loadPromises.push(new Promise(function (resolve) {
-                    tab.browser.addEventListener("load", resolve, { once: true, capture: true });
-                }));
-            }
-        }
-
-        Promise.all(loadPromises).then(() => {
-            resolve(tabmail.tabInfo.map(t => {
-                return {
-                    mode: t.mode.name,
-                    url: t.browser?.currentURI?.spec,
-                };
-            }));
-        });
-    """
-    close_tabs = """
-        const tabmail = document.getElementById("tabmail");
-        tabmail.closeOtherTabs(0);
-    """
-    mail_3pane_tab = {"mode": "mail3PaneTab", "url": None}
-
     def test_addressbook(self):
         """Opens the address book in a tab."""
         self.subtest_open_tab(
             ["--addressbook"],
-            [
-                self.mail_3pane_tab,
-                {"mode": "addressBookTab", "url": "about:addressbook"},
-            ],
+            [mail_3pane_tab, {"mode": "addressBookTab", "url": "about:addressbook"}],
         )
 
     def test_import_vcf_file(self):
@@ -56,22 +31,13 @@ class TestCommandLine(MarionetteTestCase):
         TODO: Check that the address book is in editing mode with the card's details.
         """
         self.subtest_open_tab(
-            [os.path.join(os.path.dirname(__file__), "data", "import.vcf")],
-            [
-                self.mail_3pane_tab,
-                {"mode": "addressBookTab", "url": "about:addressbook"},
-            ],
+            [os.path.join(here, "data", "import.vcf")],
+            [mail_3pane_tab, {"mode": "addressBookTab", "url": "about:addressbook"}],
         )
 
     def test_calendar(self):
         """Opens the calendar in a tab."""
-        self.subtest_open_tab(
-            ["--calendar"],
-            [
-                self.mail_3pane_tab,
-                {"mode": "calendar", "url": None},
-            ],
-        )
+        self.subtest_open_tab(["--calendar"], [mail_3pane_tab, {"mode": "calendar"}])
 
     def test_import_ics_file(self):
         """
@@ -79,19 +45,20 @@ class TestCommandLine(MarionetteTestCase):
         TODO: Check that the import tab has the file's data.
         """
         self.subtest_open_tab(
-            [os.path.join(os.path.dirname(__file__), "data", "import.ics")],
+            [os.path.join(here, "data", "import.ics")],
             [
-                self.mail_3pane_tab,
-                {"mode": "contentTab", "url": "about:import#calendar"},
+                mail_3pane_tab,
+                {
+                    "mode": "contentTab",
+                    "url": "about:import#calendar",
+                    "linkHandler": "single-site",
+                },
             ],
         )
 
     def test_mail(self):
         """Opens to the 3-pane tab."""
-        self.subtest_open_tab(
-            ["--mail"],
-            [self.mail_3pane_tab],
-        )
+        self.subtest_open_tab(["--mail"], [mail_3pane_tab])
 
     def test_migration(self):
         """
@@ -100,17 +67,21 @@ class TestCommandLine(MarionetteTestCase):
         """
         self.subtest_open_tab(
             ["--migration"],
-            [self.mail_3pane_tab, {"mode": "contentTab", "url": "about:import#start"}],
+            [
+                mail_3pane_tab,
+                {
+                    "mode": "contentTab",
+                    "url": "about:import#start",
+                    "linkHandler": "single-site",
+                },
+            ],
         )
 
     def test_preferences(self):
         """Opens the preferences tab."""
         self.subtest_open_tab(
             ["--options"],
-            [
-                self.mail_3pane_tab,
-                {"mode": "preferencesTab", "url": "about:preferences"},
-            ],
+            [mail_3pane_tab, {"mode": "preferencesTab", "url": "about:preferences"}],
         )
 
     def test_windows_notification(self):
@@ -127,7 +98,7 @@ class TestCommandLine(MarionetteTestCase):
                 "--notification-windowsAction",
                 '{"action":""}',
             ],
-            [self.mail_3pane_tab],
+            [mail_3pane_tab],
         )
 
     def subtest_open_tab(self, app_args=[], expected_tabs=[]):
@@ -139,10 +110,10 @@ class TestCommandLine(MarionetteTestCase):
         self.marionette.set_context(self.marionette.CONTEXT_CHROME)
         self.assertEqual("mail:3pane", self.marionette.get_window_type())
 
-        tabs = self.marionette.execute_async_script(self.get_tabs)
+        tabs = self.marionette.execute_async_script(get_tabs)
         self.assertEqual(expected_tabs, tabs)
 
-        self.marionette.execute_script(self.close_tabs)
+        self.marionette.execute_script(close_tabs)
         self.marionette.instance.app_args = []
 
     get_compose_details = """
@@ -205,8 +176,8 @@ class TestCommandLine(MarionetteTestCase):
 
         self.marionette.set_context(self.marionette.CONTEXT_CHROME)
         self.assertEqual("mail:3pane", self.marionette.get_window_type())
-        tabs = self.marionette.execute_async_script(self.get_tabs)
-        self.assertEqual([self.mail_3pane_tab], tabs)
+        tabs = self.marionette.execute_async_script(get_tabs)
+        self.assertEqual([mail_3pane_tab], tabs)
 
         self.marionette.switch_to_window(handles[1], True)
         self.assertEqual("msgcompose", self.marionette.get_window_type())
