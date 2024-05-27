@@ -326,9 +326,7 @@ var mailContextMenu = {
       this.context?.onVideo ||
       this.context?.onTextInput;
 
-    for (const id of ["mailContext-tags", "mailContext-mark"]) {
-      showItem(id, !onSpecialItem);
-    }
+    showItem("mailContext-tags", !onSpecialItem);
 
     // Ask commandController about the commands it controls.
     for (const [id, command] of Object.entries(this._commands)) {
@@ -393,7 +391,6 @@ var mailContextMenu = {
       this._initMessageTags();
     }
 
-    showItem("mailContext-mark", !isDummyMessage);
     checkItem("mailContext-markFlagged", message?.isFlagged);
 
     setSingleSelection("mailContext-copyMessageUrl", !!isNewsgroup);
@@ -447,6 +444,12 @@ var mailContextMenu = {
       window.threadTree && numSelectedMessages > 1
     );
 
+    this._ensureSubmenuVisibility();
+    // Special case: mark menu shouldn't be shown on external messages.
+    if (isDummyMessage) {
+      showItem("mailContext-mark", false);
+    }
+
     let lastItem;
     for (const child of document.getElementById("mailContext").children) {
       if (child.localName == "menuseparator") {
@@ -496,6 +499,21 @@ var mailContextMenu = {
 
     Services.obs.notifyObservers(subject, "on-prepare-contextmenu");
     Services.obs.notifyObservers(subject, "on-build-contextmenu");
+  },
+
+  /**
+   * Hide all top level submenus of the context menu that have no visibile items.
+   * Ignores separators since they are only a visual aid for the user and not
+   * actual features making the menu worth showing. Excludes generated submenus.
+   */
+  _ensureSubmenuVisibility() {
+    for (const menu of document.querySelectorAll(
+      "#mailContext > menu:not(#mailContext-tags,#mailContext-moveMenu,#mailContext-copyMenu)"
+    )) {
+      menu.hidden = Array.from(menu.menupopup.children).every(
+        child => child.hidden || child.localName === "menuseparator"
+      );
+    }
   },
 
   onMailContextMenuCommand(event) {

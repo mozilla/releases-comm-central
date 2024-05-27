@@ -141,16 +141,16 @@ const mailContextData = {
     "templatesFolderTree",
     "multipleTemplatesFolderTree",
   ],
-  "mailContext-open": true,
-  "mailContext-reply": true,
-  "mailContext-forwardRedirect": true,
+  "mailContext-open": [...singleNotExternal, "collapsedThreadTree"],
+  "mailContext-reply": noCollapsedThreads,
+  "mailContext-forwardRedirect": noCollapsedThreads,
   "mailContext-editAsNew": noCollapsedThreads,
   "mailContext-moveMenu": notExternal,
   "mailContext-copyMenu": true,
   "mailContext-tags": notExternal,
   "mailContext-mark": notExternal,
-  "mailContext-organize": true,
-  "mailContext-threads": true,
+  "mailContext-organize": notExternal,
+  "mailContext-threads": [...notSynthetic, ...onePane],
   "mailContext-saveAs": true,
   "mailContext-print": true,
   "mailContext-downloadSelected": [
@@ -206,7 +206,7 @@ function checkMenuitems(menu, mode) {
     );
   }
 
-  Assert.deepEqual(actualItems, expectedItems);
+  Assert.deepEqual(actualItems, expectedItems, `Mode: ${mode}`);
 
   menu.hidePopup();
 }
