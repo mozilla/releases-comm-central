@@ -8873,7 +8873,6 @@ NS_IMETHODIMP nsImapMockChannel::Close() {
     if (mailnewsUrl) {
       nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
-      if (cacheEntry) cacheEntry->MarkValid();
       // remove the channel from the load group
       nsCOMPtr<nsILoadGroup> loadGroup;
       GetLoadGroup(getter_AddRefs(loadGroup));
@@ -9141,7 +9140,6 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
       rv = ReadFromCache2(entry);
       if (NS_SUCCEEDED(rv)) {
         NotifyStartEndReadFromCache(true);
-        entry->MarkValid();
         return NS_OK;  // Return here since reading from the cache succeeded.
       }
       entry->AsyncDoom(nullptr);  // Doom entry if we failed to read from cache.
