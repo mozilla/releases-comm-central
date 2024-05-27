@@ -942,6 +942,8 @@ ChromeUtils.defineESModuleGetters(this, {
 
         if (!background) {
           this.setDocumentTitle(tab);
+          // Force layout to happen so that it doesn't happen after "TabOpen".
+          this.panelContainer.selectedPanel.getBoundingClientRect();
           // Move the focus on the newly selected tab.
           this.panelContainer.selectedPanel.focus();
         }

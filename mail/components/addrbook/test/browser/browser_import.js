@@ -67,6 +67,15 @@ async function startImport() {
   Assert.ok(BrowserTestUtils.isHidden(summaryPane));
 }
 
+function chooseFileType(type) {
+  const sourcesPane = importDoc.getElementById("addr-book-sources");
+  const radio = sourcesPane.querySelector(
+    `input[type="radio"][value="${type}"]`
+  );
+  EventUtils.synthesizeMouseAtCenter(radio, {}, importWin);
+  Assert.ok(radio.checked, `${type} radio should be checked`);
+}
+
 function listenForFilters() {
   pickerFilters = [];
   MockFilePicker.appendFilterCallback = function (picker, title, filter) {
@@ -221,11 +230,7 @@ add_task(async function testImportCSV() {
   MockFilePicker.reset();
   MockFilePicker.setFiles([csvFile]);
   listenForFilters();
-  EventUtils.synthesizeMouseAtCenter(
-    sourcesPane.querySelector(`input[type="radio"][value="csv"]`),
-    {},
-    importWin
-  );
+  chooseFileType("csv");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await TestUtils.waitForCondition(
@@ -276,16 +281,11 @@ add_task(async function testImportLDIF() {
   await startImport();
 
   const nextButton = importDoc.getElementById("addrBookNextButton");
-  const sourcesPane = importDoc.getElementById("addr-book-sources");
 
   MockFilePicker.reset();
   MockFilePicker.setFiles([ldifFile]);
   listenForFilters();
-  EventUtils.synthesizeMouseAtCenter(
-    sourcesPane.querySelector(`input[type="radio"][value="ldif"]`),
-    {},
-    importWin
-  );
+  chooseFileType("ldif");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.ldif", "*.*"], ldifFile.path);
@@ -298,16 +298,11 @@ add_task(async function testImportVCard() {
   await startImport();
 
   const nextButton = importDoc.getElementById("addrBookNextButton");
-  const sourcesPane = importDoc.getElementById("addr-book-sources");
 
   MockFilePicker.reset();
   MockFilePicker.setFiles([vCardFile]);
   listenForFilters();
-  EventUtils.synthesizeMouseAtCenter(
-    sourcesPane.querySelector(`input[type="radio"][value="vcard"]`),
-    {},
-    importWin
-  );
+  chooseFileType("vcard");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   const newBookPromise = TestUtils.topicObserved("addrbook-directory-created");
@@ -328,16 +323,11 @@ add_task(async function testImportSQLite() {
   await startImport();
 
   const nextButton = importDoc.getElementById("addrBookNextButton");
-  const sourcesPane = importDoc.getElementById("addr-book-sources");
 
   MockFilePicker.reset();
   MockFilePicker.setFiles([sqliteFile]);
   listenForFilters();
-  EventUtils.synthesizeMouseAtCenter(
-    sourcesPane.querySelector(`input[type="radio"][value="sqlite"]`),
-    {},
-    importWin
-  );
+  chooseFileType("sqlite");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(personalBook.dirPrefId, ["*.sqlite", "*.*"], sqliteFile.path);
@@ -350,16 +340,11 @@ add_task(async function testImportMAB() {
   await startImport();
 
   const nextButton = importDoc.getElementById("addrBookNextButton");
-  const sourcesPane = importDoc.getElementById("addr-book-sources");
 
   MockFilePicker.reset();
   MockFilePicker.setFiles([mabFile]);
   listenForFilters();
-  EventUtils.synthesizeMouseAtCenter(
-    sourcesPane.querySelector(`input[type="radio"][value="mab"]`),
-    {},
-    importWin
-  );
+  chooseFileType("mab");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, importWin);
 
   await doImport(historyBook.dirPrefId, ["*.mab", "*.*"], mabFile.path);
