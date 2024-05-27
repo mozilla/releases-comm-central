@@ -326,8 +326,6 @@ var mailContextMenu = {
       this.context?.onVideo ||
       this.context?.onTextInput;
 
-    showItem("mailContext-tags", !onSpecialItem);
-
     // Ask commandController about the commands it controls.
     for (const [id, command] of Object.entries(this._commands)) {
       showItem(
@@ -342,8 +340,10 @@ var mailContextMenu = {
 
     showItem(
       "navContext-delete",
-      commandController.isCommandEnabled("cmd_deleteMessage")
+      !onSpecialItem && commandController.isCommandEnabled("cmd_deleteMessage")
     );
+    showItem("mailContext-navigation", !onSpecialItem);
+    showItem("mailContext-sep-navigation", !onSpecialItem);
 
     const inAbout3Pane = !!window.threadTree;
     const inThreadTree = !!this.inThreadTree;
@@ -368,7 +368,8 @@ var mailContextMenu = {
     setSingleSelection("mailContext-openNewWindow", inThreadTree);
     setSingleSelection(
       "mailContext-openContainingFolder",
-      (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
+      !onSpecialItem &&
+        ((!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic)
     );
     setSingleSelection("mailContext-forward", !onSpecialItem);
     document.l10n.setAttributes(
@@ -380,11 +381,12 @@ var mailContextMenu = {
     );
     showItem(
       "mailContext-forwardAsAttachment",
-      numSelectedMessages &&
+      !onSpecialItem &&
+        numSelectedMessages &&
         commandController.isCommandEnabled("cmd_forwardAttachment")
     );
 
-    if (isDummyMessage) {
+    if (isDummyMessage || onSpecialItem) {
       showItem("mailContext-tags", false);
     } else {
       showItem("mailContext-tags", true);
@@ -406,7 +408,8 @@ var mailContextMenu = {
     // extractFromEmail can't work on dummy messages.
     showItem(
       "mailContext-calendar-convert-menu",
-      numSelectedMessages == 1 &&
+      !onSpecialItem &&
+        numSelectedMessages == 1 &&
         !isDummyMessage &&
         calendarDeactivator.isCalendarActivated
     );

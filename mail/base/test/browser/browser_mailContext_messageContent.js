@@ -21,25 +21,25 @@ let testMessage;
 let webSearchCount = 0;
 
 async function subtest(aboutMessage, mailContext) {
-  async function openAndCheck(selector, expectedItems) {
+  async function openAndCheck(selector, expectedItems, exclusiveMenu = false) {
     BrowserTestUtils.synthesizeMouseAtCenter(
       selector,
       { type: "contextmenu" },
       browser
     );
     await BrowserTestUtils.waitForPopupEvent(mailContext, "shown");
-    checkContentMenuitems(expectedItems);
+    checkContentMenuitems(expectedItems, exclusiveMenu);
     mailContext.hidePopup();
     await BrowserTestUtils.waitForPopupEvent(mailContext, "hidden");
   }
 
-  function checkContentMenuitems(expectedItems) {
+  function checkContentMenuitems(expectedItems, exclusiveMenu = false) {
     const actualItems = [];
     for (const item of mailContext.children) {
       if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
         actualItems.push(item.id);
       }
-      if (item.id == "mailContext-searchTheWeb") {
+      if (item.id == "mailContext-searchTheWeb" && !exclusiveMenu) {
         // We're only interested in items at the top of the menu. Stop.
         break;
       }
@@ -100,13 +100,17 @@ async function subtest(aboutMessage, mailContext) {
 
   // A link.
 
-  await openAndCheck("a", [
-    "mailContext-openLinkInBrowser",
-    "mailContext-copylink",
-    "mailContext-savelink",
-    "mailContext-reportPhishingURL",
-    "mailContext-selectall",
-  ]);
+  await openAndCheck(
+    "a",
+    [
+      "mailContext-openLinkInBrowser",
+      "mailContext-copylink",
+      "mailContext-savelink",
+      "mailContext-reportPhishingURL",
+      "mailContext-selectall",
+    ],
+    true
+  );
 
   const openedLinkPromise = mockExternalProtocolService.promiseEvent();
   await openAndActivate("a", "mailContext-openLinkInBrowser");
@@ -159,12 +163,16 @@ async function subtest(aboutMessage, mailContext) {
 
   // An email link.
 
-  await openAndCheck(`a[href^="mailto:"]`, [
-    "mailContext-addemail",
-    "mailContext-composeemailto",
-    "mailContext-copyemail",
-    "mailContext-selectall",
-  ]);
+  await openAndCheck(
+    `a[href^="mailto:"]`,
+    [
+      "mailContext-addemail",
+      "mailContext-composeemailto",
+      "mailContext-copyemail",
+      "mailContext-selectall",
+    ],
+    true
+  );
 
   const tabOpenPromise = BrowserTestUtils.waitForEvent(
     tabmail.tabContainer,
@@ -229,15 +237,15 @@ async function subtest(aboutMessage, mailContext) {
   // A text input widget.
 
   await BrowserTestUtils.synthesizeMouseAtCenter("input", {}, browser);
-  await openAndCheck("input", ["mailContext-selectall"]);
+  await openAndCheck("input", ["mailContext-selectall"], true);
 
   // An image.
 
-  await openAndCheck("img", [
-    "mailContext-copyimage",
-    "mailContext-saveimage",
-    "mailContext-selectall",
-  ]);
+  await openAndCheck(
+    "img",
+    ["mailContext-copyimage", "mailContext-saveimage", "mailContext-selectall"],
+    true
+  );
 
   await SimpleTest.promiseClipboardChange("", () =>
     openAndActivate("img", "mailContext-copyimage")
