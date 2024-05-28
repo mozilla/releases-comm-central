@@ -102,6 +102,22 @@ function refreshGroupedBySortView() {
   }
 }
 
+/**
+ * Update the state of zoom related key bindings, whenever the view changes.
+ */
+function updateZoomCommands() {
+  const commandsToUpdate = [
+    "cmd_fullZoomReduce",
+    "cmd_fullZoomEnlarge",
+    "cmd_fullZoomReset",
+    "cmd_fullZoomToggle",
+  ];
+
+  for (const command of commandsToUpdate) {
+    top.goUpdateCommand(command);
+  }
+}
+
 window.addEventListener("DOMContentLoaded", async event => {
   if (event.target != document) {
     return;
@@ -151,6 +167,8 @@ window.addEventListener("DOMContentLoaded", async event => {
   mailContextMenu.init();
 
   CalMetronome.on("day", refreshGroupedBySortView);
+
+  updateZoomCommands();
 });
 
 window.addEventListener("unload", () => {
@@ -4171,16 +4189,7 @@ var threadPane = {
       }
     }
 
-    // Update the state of the zoom commands, since the view has changed.
-    const commandsToUpdate = [
-      "cmd_fullZoomReduce",
-      "cmd_fullZoomEnlarge",
-      "cmd_fullZoomReset",
-      "cmd_fullZoomToggle",
-    ];
-    for (const command of commandsToUpdate) {
-      top.goUpdateCommand(command);
-    }
+    updateZoomCommands();
   },
 
   /**
