@@ -207,7 +207,9 @@ UserStatus.prototype = {
           kPrefDefaultMessage
         )
           ? Services.prefs.getCharValue(kPrefDefaultMessage, "")
-          : lazy.l10n.formatValueSync("messenger-status-default-away-message");
+          : lazy.l10n.formatValueSync(
+              "messenger-status-default-idle-away-message"
+            );
       }
     } else {
       this.idleTime = 0;
