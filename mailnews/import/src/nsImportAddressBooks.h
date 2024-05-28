@@ -44,8 +44,6 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   bool m_autoFind;
   char16_t* m_description;
   bool m_gotLocation;
-  bool m_found;
-  bool m_userVerify;
   nsCOMPtr<nsISupportsString> m_pSuccessLog;
   nsCOMPtr<nsISupportsString> m_pErrorLog;
   uint32_t m_totalSize;

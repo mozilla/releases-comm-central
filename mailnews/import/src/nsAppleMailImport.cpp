@@ -109,16 +109,10 @@ nsAppleMailImportMail::~nsAppleMailImportMail() {
 
 NS_IMPL_ISUPPORTS(nsAppleMailImportMail, nsIImportMail)
 
-NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation,
-                                                        bool* aFound,
-                                                        bool* aUserVerify) {
-  NS_ENSURE_ARG_POINTER(aFound);
+NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
-  NS_ENSURE_ARG_POINTER(aUserVerify);
 
   *aLocation = nullptr;
-  *aFound = false;
-  *aUserVerify = true;
 
   // try to find current user's top-level Mail folder
   nsCOMPtr<nsIFile> mailFolder(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID));
@@ -126,8 +120,6 @@ NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation,
     nsresult rv =
         mailFolder->InitWithNativePath(nsLiteralCString(DEFAULT_MAIL_FOLDER));
     if (NS_SUCCEEDED(rv)) {
-      *aFound = true;
-      *aUserVerify = false;
       mailFolder.forget(aLocation);
     }
   }

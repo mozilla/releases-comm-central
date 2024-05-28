@@ -28,12 +28,9 @@ export class BeckyProfileImporter extends BaseProfileImporter {
     const importMail = this._importMailGeneric
       .GetData("mailInterface")
       .QueryInterface(Ci.nsIImportMail);
-    const outLocation = {};
-    const outFound = {};
-    const outUserVerify = {};
-    importMail.GetDefaultLocation(outLocation, outFound, outUserVerify);
-    if (outLocation.value) {
-      return [{ dir: outLocation.value }];
+    const location = importMail.getDefaultLocation();
+    if (location) {
+      return [{ dir: location }];
     }
     return [];
   }

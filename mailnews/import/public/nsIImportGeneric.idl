@@ -30,20 +30,6 @@ interface nsIImportGeneric : nsISupports
 
   void SetData(in string dataId, in nsISupports pData);
 
-    /*
-      "isInstalled" - if true then mail can be automatically located.
-      "canUserSetLocation" - if true then the user can specify the location
-        to look for mail.  If both are false, then there is no way
-        to import mail from this format!
-        TBD: How to specify whether or not a file or a directory
-        should be specified?
-      "autoFind" - for address books, is the address book located without
-        using the file system - i.e. addressLocation is irrelevant.
-      "supportsMultiple" - 1 or 1..n address books are imported by this format?
-
-    */
-  long GetStatus(in string statusKind);
-
   /*
     When you are ready to import call this.  If it returns TRUE then
     you must call BeginImport and then repeatedly call GetProgress until

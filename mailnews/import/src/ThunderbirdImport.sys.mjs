@@ -10,9 +10,7 @@
 class ThunderbirdImportMail {
   QueryInterface = ChromeUtils.generateQI(["nsIImportMail"]);
 
-  GetDefaultLocation(location, found, userVerify) {
-    userVerify.value = true;
-  }
+  getDefaultLocation() {}
 
   /**
    * Create a nsIImportMailboxDescriptor instance.

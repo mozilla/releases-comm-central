@@ -73,20 +73,11 @@ nsresult nsBeckyAddressBooks::FindAddressBookDirectory(
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetDefaultLocation(nsIFile** aLocation, bool* aFound,
-                                        bool* aUserVerify) {
-  NS_ENSURE_ARG_POINTER(aFound);
+nsBeckyAddressBooks::GetDefaultLocation(nsIFile** aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
-  NS_ENSURE_ARG_POINTER(aUserVerify);
 
   *aLocation = nullptr;
-  *aFound = false;
-  *aUserVerify = true;
-
-  if (NS_SUCCEEDED(nsBeckyAddressBooks::FindAddressBookDirectory(aLocation))) {
-    *aFound = true;
-    *aUserVerify = false;
-  }
+  nsBeckyAddressBooks::FindAddressBookDirectory(aLocation);
 
   return NS_OK;
 }
@@ -288,13 +279,4 @@ nsBeckyAddressBooks::GetImportProgress(uint32_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mReadBytes;
   return NS_OK;
-}
-
-NS_IMETHODIMP
-nsBeckyAddressBooks::SetSampleLocation(nsIFile* aLocation) { return NS_OK; }
-
-NS_IMETHODIMP
-nsBeckyAddressBooks::GetSampleData(int32_t aRecordNumber, bool* aRecordExists,
-                                   char16_t** _retval) {
-  return NS_ERROR_FAILURE;
 }

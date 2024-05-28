@@ -32,10 +32,7 @@ class ImportWMMailImpl : public nsIImportMail {
 
   // nsIImportmail interface
 
-  /* void GetDefaultLocation (out nsIFile location, out boolean found, out
-   * boolean userVerify); */
-  NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
-                                bool* userVerify);
+  NS_IMETHOD GetDefaultLocation(nsIFile** location);
 
   /* nsIArray FindMailboxes (in nsIFile location); */
   NS_IMETHOD FindMailboxes(nsIFile* location,
@@ -110,8 +107,7 @@ NS_IMETHODIMP ImportWMMailImpl::TranslateFolderName(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP ImportWMMailImpl::GetDefaultLocation(nsIFile** ppLoc, bool* found,
-                                                   bool* userVerify) {
+NS_IMETHODIMP ImportWMMailImpl::GetDefaultLocation(nsIFile** ppLoc) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -49,17 +49,11 @@ nsBeckyMail::nsBeckyMail() : mReadBytes(0) {}
 nsBeckyMail::~nsBeckyMail() {}
 
 NS_IMETHODIMP
-nsBeckyMail::GetDefaultLocation(nsIFile** aLocation, bool* aFound,
-                                bool* aUserVerify) {
-  NS_ENSURE_ARG_POINTER(aFound);
+nsBeckyMail::GetDefaultLocation(nsIFile** aLocation) {
   NS_ENSURE_ARG_POINTER(aLocation);
-  NS_ENSURE_ARG_POINTER(aUserVerify);
 
   *aLocation = nullptr;
-  *aUserVerify = true;
-  *aFound = false;
-  if (NS_SUCCEEDED(nsBeckyUtils::GetDefaultMailboxDirectory(aLocation)))
-    *aFound = true;
+  nsBeckyUtils::GetDefaultMailboxDirectory(aLocation);
 
   return NS_OK;
 }

@@ -42,15 +42,10 @@ interface nsIMsgFolder;
 [scriptable, uuid(a14a3308-0849-420b-86d3-13a2948b5504)]
 interface nsIImportMail : nsISupports
 {
-  /*
-    If found and userVerify BOTH return false, then it is assumed that this
-    means an error - mail cannot be found on this machine.
-    If userVerify is true, the user will have an opportunity to specify
-    a different location to import mail from.
-  */
-  void GetDefaultLocation(out nsIFile location,
-                          out boolean found,
-                          out boolean userVerify);
+  /**
+   * The default location for mail data of this type.
+   */
+  nsIFile getDefaultLocation();
   /*
     Returns an array which contains an nsIImportMailboxDescriptor for each
     mailbox.  The array is not sorted before display to the user.

@@ -32,8 +32,6 @@ nsImportGenericAddressBooks::nsImportGenericAddressBooks() {
   m_autoFind = false;
   m_description = nullptr;
   m_gotLocation = false;
-  m_found = false;
-  m_userVerify = false;
 
   nsImportStringBundle::GetStringBundle(IMPORT_MSGS_URL,
                                         getter_AddRefs(m_stringBundle));
@@ -69,32 +67,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char* dataId,
     }
   }
 
-  if (!PL_strncasecmp(dataId, "sampleData-", 11)) {
-    // extra the record number
-    const char* pNum = dataId + 11;
-    int32_t rNum = 0;
-    while (*pNum) {
-      rNum *= 10;
-      rNum += (*pNum - '0');
-      pNum++;
-    }
-    IMPORT_LOG1("Requesting sample data #: %ld\n", (long)rNum);
-    if (m_pInterface) {
-      nsCOMPtr<nsISupportsString> data =
-          do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
-      if (NS_FAILED(rv)) return rv;
-      char16_t* pData = nullptr;
-      bool found = false;
-      rv = m_pInterface->GetSampleData(rNum, &found, &pData);
-      if (NS_FAILED(rv)) return rv;
-      if (found) {
-        data->SetData(nsDependentString(pData));
-        data.forget(_retval);
-      }
-      free(pData);
-    }
-  }
-
   return NS_OK;
 }
 
@@ -116,8 +88,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char* dataId,
       m_pLocation = do_QueryInterface(item, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
     }
-
-    if (m_pInterface) m_pInterface->SetSampleLocation(m_pLocation);
   }
 
   if (!PL_strcasecmp(dataId, "addressDestination")) {
@@ -127,38 +97,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char* dataId,
         abString->GetData(m_pDestinationUri);
       }
     }
-  }
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImportGenericAddressBooks::GetStatus(const char* statusKind,
-                                                     int32_t* _retval) {
-  NS_ASSERTION(statusKind != nullptr, "null ptr");
-  NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!statusKind || !_retval) return NS_ERROR_NULL_POINTER;
-
-  *_retval = 0;
-
-  if (!PL_strcasecmp(statusKind, "isInstalled")) {
-    GetDefaultLocation();
-    *_retval = (int32_t)m_found;
-  }
-
-  if (!PL_strcasecmp(statusKind, "canUserSetLocation")) {
-    GetDefaultLocation();
-    *_retval = (int32_t)m_userVerify;
-  }
-
-  if (!PL_strcasecmp(statusKind, "autoFind")) {
-    GetDefaultLocation();
-    *_retval = (int32_t)m_autoFind;
-  }
-
-  if (!PL_strcasecmp(statusKind, "supportsMultiple")) {
-    bool multi = false;
-    if (m_pInterface) m_pInterface->GetSupportsMultiple(&multi);
-    *_retval = (int32_t)multi;
   }
 
   return NS_OK;
@@ -174,15 +112,12 @@ void nsImportGenericAddressBooks::GetDefaultLocation(void) {
   m_pInterface->GetAutoFind(&m_description, &m_autoFind);
   m_gotLocation = true;
   if (m_autoFind) {
-    m_found = true;
-    m_userVerify = false;
     return;
   }
 
-  nsCOMPtr<nsIFile> pLoc;
-  m_pInterface->GetDefaultLocation(getter_AddRefs(pLoc), &m_found,
-                                   &m_userVerify);
-  if (!m_pLocation) m_pLocation = pLoc;
+  if (!m_pLocation) {
+    m_pInterface->GetDefaultLocation(getter_AddRefs(m_pLocation));
+  }
 }
 
 void nsImportGenericAddressBooks::GetDefaultBooks(void) {

@@ -41,10 +41,7 @@ class ImportOutlookMailImpl : public nsIImportMail {
 
   // nsIImportmail interface
 
-  /* void GetDefaultLocation (out nsIFile location, out boolean found, out
-   * boolean userVerify); */
-  NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
-                                bool* userVerify);
+  NS_IMETHOD GetDefaultLocation(nsIFile** location);
 
   NS_IMETHOD FindMailboxes(nsIFile* location,
                            nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes);
@@ -90,10 +87,7 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
 
   NS_IMETHOD GetAutoFind(char16_t** description, bool* _retval);
 
-  NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
-                                bool* userVerify) {
-    return NS_ERROR_FAILURE;
-  }
+  NS_IMETHOD GetDefaultLocation(nsIFile** location) { return NS_ERROR_FAILURE; }
 
   NS_IMETHOD FindAddressBooks(nsIFile* location,
                               nsTArray<RefPtr<nsIImportABDescriptor>>& books);
@@ -105,12 +99,6 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
                                bool* fatalError);
 
   NS_IMETHOD GetImportProgress(uint32_t* _retval);
-
-  NS_IMETHOD GetSampleData(int32_t index, bool* pFound, char16_t** pStr) {
-    return NS_ERROR_FAILURE;
-  }
-
-  NS_IMETHOD SetSampleLocation(nsIFile*) { return NS_OK; }
 
  private:
   virtual ~ImportOutlookAddressImpl();
@@ -224,17 +212,11 @@ ImportOutlookMailImpl::~ImportOutlookMailImpl() {
 
 NS_IMPL_ISUPPORTS(ImportOutlookMailImpl, nsIImportMail)
 
-NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile** ppLoc,
-                                                        bool* found,
-                                                        bool* userVerify) {
+NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile** ppLoc) {
   NS_ASSERTION(ppLoc != nullptr, "null ptr");
-  NS_ASSERTION(found != nullptr, "null ptr");
-  NS_ASSERTION(userVerify != nullptr, "null ptr");
-  if (!ppLoc || !found || !userVerify) return NS_ERROR_NULL_POINTER;
+  if (!ppLoc) return NS_ERROR_NULL_POINTER;
 
-  *found = false;
   *ppLoc = nullptr;
-  *userVerify = false;
   // We need to verify here that we can get the mail, if true then
   // return a dummy location, otherwise return no location
   CMapiApi mapi;
@@ -251,9 +233,7 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile** ppLoc,
       do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
 
-  *found = true;
   resultFile.forget(ppLoc);
-  *userVerify = false;
 
   return NS_OK;
 }

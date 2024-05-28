@@ -41,8 +41,6 @@ nsresult NS_NewGenericMail(nsIImportGeneric** aImportGeneric) {
 }
 
 nsImportGenericMail::nsImportGenericMail() {
-  m_found = false;
-  m_userVerify = false;
   m_gotLocation = false;
   m_gotDefaultMailboxes = false;
   m_totalSize = 0;
@@ -159,27 +157,6 @@ NS_IMETHODIMP nsImportGenericMail::SetData(const char* dataId,
   return rv;
 }
 
-NS_IMETHODIMP nsImportGenericMail::GetStatus(const char* statusKind,
-                                             int32_t* _retval) {
-  NS_ASSERTION(statusKind != nullptr, "null ptr");
-  NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!statusKind || !_retval) return NS_ERROR_NULL_POINTER;
-
-  *_retval = 0;
-
-  if (!PL_strcasecmp(statusKind, "isInstalled")) {
-    GetDefaultLocation();
-    *_retval = (int32_t)m_found;
-  }
-
-  if (!PL_strcasecmp(statusKind, "canUserSetLocation")) {
-    GetDefaultLocation();
-    *_retval = (int32_t)m_userVerify;
-  }
-
-  return NS_OK;
-}
-
 void nsImportGenericMail::GetDefaultLocation(void) {
   if (!m_pInterface) return;
 
@@ -188,8 +165,7 @@ void nsImportGenericMail::GetDefaultLocation(void) {
   m_gotLocation = true;
 
   nsCOMPtr<nsIFile> pLoc;
-  m_pInterface->GetDefaultLocation(getter_AddRefs(pLoc), &m_found,
-                                   &m_userVerify);
+  m_pInterface->GetDefaultLocation(getter_AddRefs(pLoc));
   if (!m_pSrcLocation) m_pSrcLocation = pLoc;
 }
 
@@ -744,7 +720,7 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
         }
       }
     }  // if localRootFolder
-  }    // if server
+  }  // if server
   IMPORT_LOG0("****** FAILED TO CREATE FOLDER FOR IMPORT\n");
   return false;
 }

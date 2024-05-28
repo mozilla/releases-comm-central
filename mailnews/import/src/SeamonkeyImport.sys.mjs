@@ -51,10 +51,6 @@ SeamonkeyImportAddressbook.prototype = {
     return 0;
   },
 
-  GetStatus() {
-    return 0;
-  },
-
   CancelImport() {
     return 0;
   },
@@ -84,19 +80,15 @@ function SeamonkeyImportMail() {}
 SeamonkeyImportMail.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIImportMail"]),
 
-  GetDefaultLocation(location, found, userVerify) {
+  getDefaultLocation() {
     const migrator = Cc[
       "@mozilla.org/profile/migrator;1?app=mail&type=seamonkey"
     ].createInstance(Ci.nsIMailProfileMigrator);
 
     try {
-      const sourceProfile = migrator.sourceProfileLocations[0];
-      location.value = sourceProfile;
-      found.value = true;
-    } catch (e) {
-      found.value = false;
-    }
-    userVerify.value = false;
+      return migrator.sourceProfileLocations[0];
+    } catch (e) {}
+    return null;
   },
 
   _createMailboxDescriptor(path, name, depth) {

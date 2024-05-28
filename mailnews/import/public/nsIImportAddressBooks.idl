@@ -52,19 +52,14 @@ interface nsIImportAddressBooks : nsISupports {
    * along with a description string of how or where the address book is
    * located. If it is a file location then return false.
    * If true, return a string like: "Outlook address book".
-   * If false, GetDefaultLocation will be called.
+   * If false, getDefaultLocation will be called.
    */
   boolean GetAutoFind(out wstring description);
 
   /**
-   * If found and userVerify BOTH return false, then it is assumed that this
-   * means an error - address book cannot be found on this machine.
-   * If userVerify is true, the user will have an opportunity to specify a
-   * different location to import address book from.
+   * The default location for address book data of this type.
    */
-  void GetDefaultLocation(out nsIFile location,
-                          out boolean found,
-                          out boolean userVerify);
+  nsIFile getDefaultLocation();
   /**
    * Returns an array containing an nsIImportABDescriptor for each
    * address book.  The array is not sorted before display to the user.
@@ -103,24 +98,4 @@ interface nsIImportAddressBooks : nsISupports {
    * from a different thread than ImportAddressBook()
    */
   unsigned long GetImportProgress();
-
-  /**
-   * Set the location for reading sample data, this should be the same as what
-   * is passed later to FindAddressBooks.
-   */
-  void SetSampleLocation(in nsIFile location);
-
-  /**
-   * Return a string of sample data for a record, each field is separated by a
-   * newline (which means no newlines in the fields!)
-   * This is only supported by address books which use field maps and is used
-   * by the field map UI to allow the user to properly align fields to be
-   * imported.
-   *
-   * @param recordNumber index of the recrds, starting from 0.
-   * @param recordExists true if the record exists.
-   *
-   * @returns a string of sample data for the desired record
-   */
-  wstring GetSampleData(in long recordNumber, out boolean recordExists);
 };
