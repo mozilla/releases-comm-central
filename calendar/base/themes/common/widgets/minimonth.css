@@ -3,27 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 calendar-minimonth {
-  --mmMainColor: -moz-DialogText;
-  --mmMainBackground: var(--color-gray-05);
-  --mmMainBorderColor: var(--color-gray-20);
+  --mmMainColor: var(--sidebar-text-color, FieldText);
+  --mmMainBackground: light-dark(var(--color-gray-05), var(--color-gray-70));
+  --mmMainBorderColor: light-dark(var(--color-gray-20), var(--color-gray-50));
   --mmMainBorderRadius: 6px;
-  --mmHighlightColor: var(--selected-item-text-color);
-  --mmHighlightBackground: var(--selected-item-color);
-  --mmHighlightBorderColor: var(--selected-item-color);
-  --mmBoxBackground: var(--color-gray-20);
-  --mmBoxBorderColor: var(--color-gray-20);
+    --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+    --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
+  --mmBoxBackground: light-dark(var(--color-gray-20), var(--color-gray-50));
+  --mmBoxBorderColor: light-dark(var(--color-gray-20), var(--color-gray-40));
   --mmBoxPadding: 0;
-  --mmBoxItemColor: var(--color-gray-30);
+  --mmBoxItemColor: light-dark(var(--color-gray-30), var(--color-gray-40));
   --mmBoxItemBorderColor: transparent;
   --mmBoxItemPadding: 2px;
-  --mmDayColor: var(--color-gray-70);
+  --mmDayColor: light-dark(var(--color-gray-70), var(--color-gray-10));
   --mmDayBackground: transparent;
   --mmDayBorderColor: transparent;
-  --mmDayOtherColor: var(--color-gray-40);
-  --mmDayWeekColor: var(--color-ink-40);
+  --mmDayOtherColor: light-dark(var(--color-gray-40), var(--color-gray-50));
+  --mmDayWeekColor: light-dark(var(--color-ink-40), var(--color-ink-40));
   --mmDayOtherBackground: transparent;
   --mmDayOtherBorderColor: transparent;
-  --mmDayTodayColor: var(--color-gray-90);
+  --mmDayTodayColor: light-dark(var(--color-gray-90), var(--color-ink-10));
   --mmDayTodayBackground: color-mix(in srgb, var(--color-ink-40) 20%, transparent);
   --mmDayTodayBorderColor: transparent;
   --mmDaySelectedColor: var(--selected-item-color);
@@ -55,30 +55,6 @@ calendar-minimonth {
   --mmDayOtherColor: var(--color-gray-40);
   --mmDayOtherBackground: transparent;
   --mmDayOtherBorderColor: transparent;
-}
-
-@media (prefers-color-scheme: dark) {
-  calendar-minimonth {
-    --mmMainColor: var(--sidebar-text-color, FieldText);
-    --mmMainBackground: var(--color-gray-70);
-    --mmMainBorderColor: var(--color-gray-50);
-    --mmHighlightColor: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
-    --mmHighlightBackground: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --mmHighlightBorderColor: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --mmBoxBackground: var(--color-gray-50);
-    --mmBoxBorderColor: var(--color-gray-40);
-    --mmBoxItemColor: var(--color-gray-40);
-    --mmBoxItemBorderColor:  transparent;
-    --mmDayTodayColor: var(--color-ink-10);
-    --mmDayTodayBorderColor: transparent;
-    --mmDayColor: var(--color-gray-10);
-    --mmDayBackground: transparent;
-    --mmDayBorderColor: transparent;
-    --mmDayOtherColor: var(--color-gray-50);
-    --mmDayOtherBackground: transparent;
-    --mmDayOtherBorderColor: transparent;
-    --mmDayWeekColor: var(--color-ink-40);
-  }
 }
 
 @media (prefers-contrast) {
@@ -207,15 +183,15 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 @media (prefers-color-scheme: dark) {
-  .button.minimonth-nav-btn:is(:hover, :focus, :active),
-  .button.minimonth-nav-btn:enabled:is(:hover, :focus-visible, :active) {
+  .button.minimonth-nav-btn:is(:hover, :active),
+  .button.minimonth-nav-btn:enabled:is(:hover, :active) {
     background-color: var(--color-gray-60);
   }
 }
 
 @media (prefers-contrast) {
-  :root:not([lwtheme]) .button.minimonth-nav-btn:is(:hover, :focus, :active),
-  :root:not([lwtheme]) .button.minimonth-nav-btn:enabled:is(:hover, :focus-visible, :active) {
+  :root:not([lwtheme]) .button.minimonth-nav-btn:is(:hover, :active),
+  :root:not([lwtheme]) .button.minimonth-nav-btn:enabled:is(:hover, :active) {
     background-color: var(--mmDaySelectedBackground);
     color: var(--mmDaySelectedColor);
     stroke: var(--mmDaySelectedColor);
