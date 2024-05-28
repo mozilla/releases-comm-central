@@ -171,29 +171,45 @@ function getParentMsgInfo(msgHdr) {
  */
 class WebExtMimeTreeEmitter extends MimeTreeEmitter {
   getAttachmentName(mimeTreePart) {
+    const getName = header => {
+      const filename = lazy.MimeParser.getParameter(header, "filename");
+      if (filename) {
+        return filename;
+      }
+      if (mimeTreePart.fullContentType) {
+        const name = lazy.MimeParser.getParameter(
+          mimeTreePart.fullContentType,
+          "name"
+        );
+        if (name) {
+          return name;
+        }
+      }
+      return "";
+    };
+
     if (
       mimeTreePart.headers &&
       mimeTreePart.headers.has("content-disposition")
     ) {
-      const header = mimeTreePart.headers.get("content-disposition")[0];
+      const contentDisposition = mimeTreePart.headers.get(
+        "content-disposition"
+      )[0];
+
+      // Forwarded messages are sometimes inlined, but we consider them as
+      // attachments.
       if (
-        /^attachment/i.test(header) ||
+        /^inline/i.test(contentDisposition) &&
+        mimeTreePart.headers.contentType.type == "message/rfc822"
+      ) {
+        return getName(contentDisposition) || "ForwardedMessage.eml";
+      }
+
+      if (
+        /^attachment/i.test(contentDisposition) ||
         mimeTreePart.headers.contentType.type == "text/x-moz-deleted"
       ) {
-        const filename = lazy.MimeParser.getParameter(header, "filename");
-        if (filename) {
-          return filename;
-        }
-        if (mimeTreePart.fullContentType) {
-          const name = lazy.MimeParser.getParameter(
-            mimeTreePart.fullContentType,
-            "name"
-          );
-          if (name) {
-            return name;
-          }
-        }
-        return "";
+        return getName(contentDisposition);
       }
     }
     return null;
