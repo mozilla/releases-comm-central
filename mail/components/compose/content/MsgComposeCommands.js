@@ -5801,9 +5801,7 @@ function onEncryptionChoice(value) {
       break;
 
     case "encsub":
-      gEncryptSubject = !gEncryptSubject;
-      gUserTouchedEncryptSubject = true;
-      updateEncryptedSubject();
+      toggleEncryptedSubject();
       break;
 
     case "sig":

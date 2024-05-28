@@ -452,7 +452,6 @@ async function getComposeDetails(composeWindow, extension) {
       plainTextBody = plainTextBody.slice(0, -1);
     }
   }
-
   const details = {
     from: parseEncodedAddrHeader(composeFields.from, false).shift(),
     to: parseEncodedAddrHeader(composeFields.to, false),
@@ -472,6 +471,7 @@ async function getComposeDetails(composeWindow, extension) {
     priority: composeFields.priority.toLowerCase() || "normal",
     returnReceipt: composeFields.returnReceipt,
     deliveryStatusNotification: composeFields.DSN,
+    attachPublicPGPKey: composeWindow.gAttachMyPublicPGPKey,
     attachVCard: composeFields.attachVCard,
     isModified:
       composeWindow.gContentChanged ||
@@ -479,6 +479,39 @@ async function getComposeDetails(composeWindow, extension) {
       composeWindow.gReceiptOptionChanged ||
       composeWindow.gDSNOptionChanged,
   };
+
+  // Handle encryption. Check the actual state of the composer, which could be
+  // invalid, but required by Thunderbird's security engineer.
+  const encryptionEnabled = !!composeWindow.document
+    .getElementById("button-encryption")
+    .getAttribute("checked");
+  const isPgpConfigured = composeWindow.isPgpConfigured();
+  const isSmimeSigningConfigured = composeWindow.isSmimeSigningConfigured();
+  const isSmimeEncryptionConfigured =
+    composeWindow.isSmimeEncryptionConfigured();
+
+  if (
+    encryptionEnabled ||
+    isPgpConfigured ||
+    isSmimeSigningConfigured ||
+    isSmimeEncryptionConfigured
+  ) {
+    const selectedTechnologyIsPGP = composeWindow.gSelectedTechnologyIsPGP;
+    if (selectedTechnologyIsPGP) {
+      details.selectedEncryptionTechnology = {
+        name: "OpenPGP",
+        encryptBody: composeWindow.gSendEncrypted,
+        encryptSubject: composeWindow.gEncryptSubject,
+        signMessage: composeWindow.gSendSigned,
+      };
+    } else {
+      details.selectedEncryptionTechnology = {
+        name: "S/MIME",
+        encryptBody: composeWindow.gSendEncrypted,
+        signMessage: composeWindow.gSendSigned,
+      };
+    }
+  }
 
   const deliveryFormat = composeWindow.IsHTMLEditor()
     ? deliveryFormats.find(f => f.id == composeFields.deliveryFormat).value
@@ -548,7 +581,8 @@ async function setFromField(composeWindow, details) {
 
 /**
  * Updates the compose details of the specified compose window, overwriting any
- * property given in the details object.
+ * property given in the details object. Modified settings will be treated as
+ * user initiated, and turn off further automatic changes on these settings.
  *
  * @param {DOMWindow} composeWindow
  * @param {ComposeDetails} details - compose details to update the composer with
@@ -556,6 +590,7 @@ async function setFromField(composeWindow, details) {
  *
  * @see mail/components/extensions/schemas/compose.json
  */
+/* eslint-disable complexity */
 async function setComposeDetails(composeWindow, details, extension) {
   const activeElement = composeWindow.document.activeElement;
   const composeFields = composeWindow.gMsgCompose.compFields;
@@ -759,9 +794,24 @@ async function setComposeDetails(composeWindow, details, extension) {
     composeWindow.initSendFormatMenu();
   }
 
-  if (details.attachVCard != null) {
+  if (
+    details.attachVCard != null &&
+    composeFields.attachVCard != details.attachVCard
+  ) {
     composeFields.attachVCard = details.attachVCard;
     composeWindow.gAttachVCardOptionChanged = true;
+  }
+
+  if (
+    details.attachPublicPGPKey != null &&
+    composeWindow.gAttachMyPublicPGPKey != details.attachPublicPGPKey &&
+    composeWindow.isPgpConfigured()
+  ) {
+    // Cannot use toggleAttachMyPublicKey() function, as that acts on the clicked
+    // menu item, but also does not toggle all menuitens (the others are updated
+    // on show). Just set the flags.
+    composeWindow.gAttachMyPublicPGPKey = details.attachPublicPGPKey;
+    composeWindow.gUserTouchedAttachMyPubKey = true;
   }
 
   if (details.isModified != null) {
@@ -782,6 +832,79 @@ async function setComposeDetails(composeWindow, details, extension) {
       composeWindow.gMsgCompose.bodyModified = false;
       composeWindow.gReceiptOptionChanged = false;
       composeWindow.gDSNOptionChanged = false;
+    }
+  }
+
+  // Handle encryption.
+  if (details.selectedEncryptionTechnology?.name) {
+    const isPgpConfigured = composeWindow.isPgpConfigured();
+    const isSmimeSigningConfigured = composeWindow.isSmimeSigningConfigured();
+    const isSmimeEncryptionConfigured =
+      composeWindow.isSmimeEncryptionConfigured();
+
+    const technology = details.selectedEncryptionTechnology;
+    const wantsPGP = technology.name == "OpenPGP";
+    const wantsSMIME = technology.name == "S/MIME";
+
+    // We cannot switch to an unsupported technology.
+    if (
+      (!isPgpConfigured && wantsPGP) ||
+      (!isSmimeEncryptionConfigured && !isSmimeSigningConfigured && wantsSMIME)
+    ) {
+      throw new ExtensionError(
+        `The current identity does not support ${technology.name}`
+      );
+    }
+
+    // Cannot enable subject encryption but not encryption in general.
+    if (wantsPGP && technology.encryptSubject && !technology.encryptBody) {
+      throw new ExtensionError(
+        `Cannot encrypt the subject without also encrypting the body using ${technology.name}`
+      );
+    }
+
+    // Abort if S/MIME encryption is requested, but not possible.
+    if (wantsSMIME && technology.encryptBody && !isSmimeEncryptionConfigured) {
+      throw new ExtensionError(
+        `The current identity does not support encryption using ${technology.name}`
+      );
+    }
+
+    // Abort if S/MIME signing is requested, but not possible.
+    if (wantsSMIME && technology.signMessage && !isSmimeSigningConfigured) {
+      throw new ExtensionError(
+        `The current identity does not support signing using ${technology.name}`
+      );
+    }
+
+    // If an add-on sets encryption settings, we need to make sure they are not
+    // altered (asyncrounously) by defaults. This is solved by setting them as
+    // touched, before using onEncryptionChoice() to toggle the values (if needed).
+    composeWindow.gUserTouchedSendEncrypted = true;
+    composeWindow.gUserTouchedSendSigned = true;
+    if (wantsPGP) {
+      composeWindow.gUserTouchedEncryptSubject = true;
+    }
+
+    // Toggle technology, if needed.
+    if (composeWindow.gSelectedTechnologyIsPGP != wantsPGP) {
+      composeWindow.onEncryptionChoice(wantsPGP ? "OpenPGP" : "SMIME");
+    }
+    // Toggle encryption, if needed.
+    if (composeWindow.gSendEncrypted != technology.encryptBody) {
+      composeWindow.onEncryptionChoice("enc");
+    }
+    // Toggle subject encryption, if needed. We already prevented encryptSubject
+    // being enabled while encryptBody is disabled.
+    if (
+      wantsPGP &&
+      composeWindow.gEncryptSubject != technology.encryptSubject
+    ) {
+      composeWindow.onEncryptionChoice("encsub");
+    }
+    // Toggle signing, if needed.
+    if (composeWindow.gSendSigned != technology.signMessage) {
+      composeWindow.onEncryptionChoice("sig");
     }
   }
 

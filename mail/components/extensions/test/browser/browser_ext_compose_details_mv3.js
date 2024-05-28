@@ -2,24 +2,79 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const account = createAccount();
-const defaultIdentity = addIdentity(account);
-const nonDefaultIdentity = addIdentity(account);
-defaultIdentity.attachVCard = false;
-nonDefaultIdentity.attachVCard = true;
+"use strict";
 
-const gRootFolder = account.incomingServer.rootFolder;
+var { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
+);
 
-gRootFolder.createSubfolder("test", null);
-const gTestFolder = gRootFolder.getChildNamed("test");
-createMessages(gTestFolder, 4);
+const OPENPGP_TEST_DIR = getTestFilePath("../../../../test/browser/openpgp");
+const OPENPGP_KEY_PATH = PathUtils.join(
+  OPENPGP_TEST_DIR,
+  "data",
+  "keys",
+  "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
+);
 
-// TODO: Figure out why naming this folder drafts is problematic.
-gRootFolder.createSubfolder("something", null);
-const gDraftsFolder = gRootFolder.getChildNamed("something");
-gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
-createMessages(gDraftsFolder, 2);
-const gDrafts = [...gDraftsFolder.messages];
+var gRootFolder, gTestFolder, gDraftsFolder, gDrafts;
+
+add_setup(async () => {
+  await OpenPGPTestUtils.initOpenPGP();
+
+  const account = createAccount();
+  const defaultIdentity = addIdentity(account);
+  const nonDefaultIdentity = addIdentity(account);
+  const identitySmimeAndOpenPGP = addIdentity(account, "full_enc@invalid");
+  const identitySmimeSignOnly = addIdentity(account, "smime_sign@invalid");
+  const identitySmimeEncryptOnly = addIdentity(account, "smime_enc@invalid");
+
+  defaultIdentity.attachVCard = false;
+  nonDefaultIdentity.attachVCard = true;
+
+  gRootFolder = account.incomingServer.rootFolder;
+
+  gRootFolder.createSubfolder("test", null);
+  gTestFolder = gRootFolder.getChildNamed("test");
+  createMessages(gTestFolder, 4);
+
+  // TODO: Figure out why naming this folder drafts is problematic.
+  gRootFolder.createSubfolder("something", null);
+  gDraftsFolder = gRootFolder.getChildNamed("something");
+  gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
+  createMessages(gDraftsFolder, 2);
+  gDrafts = [...gDraftsFolder.messages];
+
+  // Use an undefined identifier for the configured S/MIME certificates.
+  // This will cause the code to assume that a certificate is configured,
+  // but the code will fail when attempting to use it.
+  const smimeFakeCert = "smime-cert";
+
+  // Make identityEncryption fully support S/MIME.
+  identitySmimeAndOpenPGP.setUnicharAttribute(
+    "encryption_cert_name",
+    smimeFakeCert
+  );
+  identitySmimeAndOpenPGP.setUnicharAttribute(
+    "signing_cert_name",
+    smimeFakeCert
+  );
+
+  // Make identitySmimeSign support S/MIME signing.
+  identitySmimeSignOnly.setUnicharAttribute("signing_cert_name", smimeFakeCert);
+
+  // Make identitySmimeEncrypt support S/MIME encryption.
+  identitySmimeEncryptOnly.setUnicharAttribute(
+    "encryption_cert_name",
+    smimeFakeCert
+  );
+
+  // Make identityEncryption support OpenPGP.
+  const [id] = await OpenPGPTestUtils.importPrivateKey(
+    null,
+    new FileUtils.File(OPENPGP_KEY_PATH)
+  );
+  identitySmimeAndOpenPGP.setUnicharAttribute("openpgp_key_id", id);
+});
 
 // Verifies ComposeDetails of a given composer can be applied to a different
 // composer, even if they have different compose formats. The composer should pick
@@ -299,7 +354,7 @@ add_task(async function testFcc() {
           `additionalFccFolderId should be correct`
         );
 
-        await window.sendMessage("checkWindow", expected);
+        await window.sendMessage("checkNativeWindow", expected);
       }
 
       const [account] = await browser.accounts.list();
@@ -405,8 +460,443 @@ add_task(async function testFcc() {
     },
   });
 
-  extension.onMessage("checkWindow", async expected => {
+  extension.onMessage("checkNativeWindow", async expected => {
     await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function test_selectedEncryptionTechnology() {
+  const files = {
+    "background.js": async () => {
+      async function checkWindow(createdTab, expected) {
+        const state = await browser.compose.getComposeDetails(createdTab.id);
+
+        browser.test.assertEq(
+          expected.identityId,
+          state.identityId,
+          "identityId should be correct"
+        );
+
+        window.assertDeepEqual(
+          expected.selectedEncryptionTechnology,
+          state.selectedEncryptionTechnology,
+          "selectedEncryptionTechnology should be correct",
+          { strict: true }
+        );
+
+        if (expected.hasOwnProperty.attachPublicPGPKey) {
+          window.assertEq(
+            expected.attachPublicPGPKey,
+            state.attachPublicPGPKey,
+            "attachPublicPGPKey should be correct"
+          );
+        }
+
+        await window.sendMessage(
+          "checkNativeWindow",
+          state.selectedEncryptionTechnology
+        );
+      }
+
+      const [account] = await browser.accounts.list();
+      const defaultIdentity = await browser.identities.getDefault(account.id);
+
+      const identities = await browser.identities.list(account.id);
+      browser.test.assertEq(
+        5,
+        identities.length,
+        "should find the correct numbers of identities for this account"
+      );
+      const smimeAndOpenPGPIdentity = identities.find(
+        i => i.email == "full_enc@invalid"
+      );
+      browser.test.assertTrue(
+        smimeAndOpenPGPIdentity,
+        "should find the encryptionIdentity"
+      );
+      const smimeSignOnlyIdentity = identities.find(
+        i => i.email == "smime_sign@invalid"
+      );
+      browser.test.assertTrue(
+        smimeSignOnlyIdentity,
+        "should find the smimeSignIdentity"
+      );
+      const smimeEncryptionOnlyIdentity = identities.find(
+        i => i.email == "smime_enc@invalid"
+      );
+      browser.test.assertTrue(
+        smimeEncryptionOnlyIdentity,
+        "should find the smimeEncryptIdentity"
+      );
+
+      // Start a new message.
+      const createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew();
+      const [composeWindow] = await createdWindowPromise;
+      const [composeTab] = await browser.tabs.query({
+        windowId: composeWindow.id,
+      });
+
+      // Default identity does not support encryption, should not return anything.
+      await checkWindow(composeTab, {
+        identityId: defaultIdentity.id,
+        attachPublicPGPKey: false,
+        selectedEncryptionTechnology: undefined,
+      });
+
+      // -----------------------------------------------------------------------
+
+      // Switch identity fully supporting encryption.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        identityId: smimeAndOpenPGPIdentity.id,
+      });
+
+      // The identity supports OpenPGP and S/MIME, we should get OpenPGP as the
+      // (default) selected tech, but not enabled.
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: false,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: false,
+          encryptSubject: false,
+          signMessage: false,
+        },
+      });
+
+      // Updating selectedEncryptionTechnology partially should fail.
+      await browser.test.assertThrows(
+        () =>
+          browser.compose.setComposeDetails(composeTab.id, {
+            selectedEncryptionTechnology: {
+              name: "OpenPGP",
+              encryptBody: true,
+            },
+          }),
+        /Error processing selectedEncryptionTechnology/,
+        "browser.compose.setComposeDetails() should reject partially setting selectedEncryptionTechnology."
+      );
+
+      // Enable body encryption.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        attachPublicPGPKey: true,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: false,
+          signMessage: false,
+        },
+      });
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: true,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: false,
+          signMessage: false,
+        },
+      });
+
+      // Enable body+subject encryption.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: false,
+        },
+      });
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: true,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: false,
+        },
+      });
+
+      // Switch off encryption and only sign.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: false,
+          encryptSubject: false,
+          signMessage: true,
+        },
+      });
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: true,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: false,
+          encryptSubject: false,
+          signMessage: true,
+        },
+      });
+
+      // Enable everything.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: true,
+        },
+      });
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: true,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: true,
+        },
+      });
+
+      // -----------------------------------------------------------------------
+
+      // Switch to S/MIME and enable signing only.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: false,
+          signMessage: true,
+        },
+      });
+
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: true, // Independent of selected technology.
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: false,
+          signMessage: true,
+        },
+      });
+
+      // Trying to enable subject encryption for S/MIME should fail.
+      await browser.test.assertThrows(
+        () =>
+          browser.compose.setComposeDetails(composeTab.id, {
+            selectedEncryptionTechnology: {
+              name: "S/MIME",
+              encryptBody: true,
+              encryptSubject: true,
+              signMessage: true,
+            },
+          }),
+        /Error processing selectedEncryptionTechnology/,
+        "browser.compose.setComposeDetails() should fail to enable subject encryption for S/MIME."
+      );
+
+      // -----------------------------------------------------------------------
+
+      // Switch back to PGP with encryption fully enabled, but no longer attach
+      // the public PGPKey.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        attachPublicPGPKey: false,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: true,
+        },
+      });
+      await checkWindow(composeTab, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        attachPublicPGPKey: false,
+        selectedEncryptionTechnology: {
+          name: "OpenPGP",
+          encryptBody: true,
+          encryptSubject: true,
+          signMessage: true,
+        },
+      });
+
+      // Switch to the S/MIME sign-only identity, not touching encryption settings.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        identityId: smimeSignOnlyIdentity.id,
+      });
+      // It is a desired feature of the composer to NOT disable enabled encryption
+      // when switching identities, but instead show error banners. The API will
+      // therefore return an "invalid" state (but that *is* the current config).
+      await checkWindow(composeTab, {
+        identityId: smimeSignOnlyIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: true, // invalid but actually set
+          signMessage: true,
+        },
+      });
+
+      // Switch off all features.
+      browser.compose.setComposeDetails(composeTab.id, {
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: false,
+          signMessage: false,
+        },
+      });
+
+      await checkWindow(composeTab, {
+        identityId: smimeSignOnlyIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: false,
+          signMessage: false,
+        },
+      });
+
+      // Since the identity does not have a cert for encryption set up, enabling
+      // it should fail.
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(composeTab.id, {
+          selectedEncryptionTechnology: {
+            name: "S/MIME",
+            encryptBody: true,
+            signMessage: true,
+          },
+        }),
+        /The current identity does not support encryption/,
+        "browser.compose.setComposeDetails() should fail to enable encryption if the identity does not have a cert for encryption."
+      );
+
+      // Check nothing changed.
+      await checkWindow(composeTab, {
+        identityId: smimeSignOnlyIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: false,
+          signMessage: false,
+        },
+      });
+
+      // -----------------------------------------------------------------------
+
+      // Switch to the identity fully supporting S/MINE and enable everything.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        identityId: smimeAndOpenPGPIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: true,
+          signMessage: true,
+        },
+      });
+
+      // Switch to the S/MIME encryption-only identity, not touching encryption
+      // settings.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        identityId: smimeEncryptionOnlyIdentity.id,
+      });
+
+      await checkWindow(composeTab, {
+        identityId: smimeEncryptionOnlyIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: true,
+          signMessage: false,
+        },
+      });
+
+      // Since the identity does not have a cert for signing set up, enabling
+      // it should fail.
+      await browser.test.assertRejects(
+        browser.compose.setComposeDetails(composeTab.id, {
+          selectedEncryptionTechnology: {
+            name: "S/MIME",
+            encryptBody: true,
+            signMessage: true,
+          },
+        }),
+        /The current identity does not support signing/,
+        "browser.compose.setComposeDetails() should fail to enable signng if the identity does not have a cert for signing."
+      );
+
+      // Check nothing changed.
+      await checkWindow(composeTab, {
+        identityId: smimeEncryptionOnlyIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: true,
+          signMessage: false,
+        },
+      });
+
+      // -----------------------------------------------------------------------
+
+      // Switch identity back to default.
+      await browser.compose.setComposeDetails(composeTab.id, {
+        identityId: defaultIdentity.id,
+      });
+
+      // It is a desired feature of the composer to NOT disable enabled encryption
+      // when switching identities, but instead show error banners. The API will
+      // therefore return an "invalid" state (but that *is* the current config).
+      await checkWindow(composeTab, {
+        identityId: defaultIdentity.id,
+        selectedEncryptionTechnology: {
+          name: "S/MIME",
+          encryptBody: true, // invalid but actually set
+          signMessage: false,
+        },
+      });
+
+      // Clean up.
+      const removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(composeWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  const extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose", "messagesRead"],
+    },
+  });
+
+  extension.onMessage("checkNativeWindow", async expected => {
+    const composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+
+    if (expected) {
+      Assert.equal(
+        expected.encryptBody,
+        composeWindow.gSendEncrypted,
+        "gSendEncrypted should be as expected"
+      );
+      if (expected.name == "OpenPGP") {
+        Assert.equal(
+          expected.encryptSubject,
+          composeWindow.gEncryptSubject,
+          "gEncryptSubject should be as expected"
+        );
+      }
+      Assert.equal(
+        expected.signMessage,
+        composeWindow.gSendSigned,
+        "gSendSigned should be as expected"
+      );
+
+      Assert.equal(
+        expected.name == "OpenPGP",
+        composeWindow.gSelectedTechnologyIsPGP,
+        "gSelectedTechnologyIsPGP should be as expected"
+      );
+    }
     extension.sendMessage();
   });
 
@@ -461,7 +951,7 @@ add_task(async function testSimpleDetails() {
           );
         }
 
-        await window.sendMessage("checkWindow", expected);
+        await window.sendMessage("checkNativeWindow", expected);
       }
 
       // Start a new message.
@@ -477,7 +967,7 @@ add_task(async function testSimpleDetails() {
       browser.test.assertEq(1, accounts.length, "number of accounts");
       const localAccount = accounts.find(a => a.type == "local");
       browser.test.assertEq(
-        2,
+        5,
         localAccount.identities.length,
         "number of identities"
       );
@@ -557,7 +1047,7 @@ add_task(async function testSimpleDetails() {
     },
   });
 
-  extension.onMessage("checkWindow", async expected => {
+  extension.onMessage("checkNativeWindow", async expected => {
     await checkComposeHeaders(expected);
     extension.sendMessage();
   });

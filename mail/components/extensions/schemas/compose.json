@@ -96,6 +96,11 @@
             "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used.",
             "optional": true
           },
+          "attachPublicPGPKey": {
+            "type": "boolean",
+            "optional": true,
+            "description": "Whether the public OpenPGP key of the sending identity should be attached to the message."
+          },
           "attachVCard": {
             "type": "boolean",
             "optional": true,
@@ -147,6 +152,18 @@
             "type": "boolean",
             "optional": true,
             "description": "Let the sender know when the recipient's server received the message. Not supported by all servers."
+          },
+          "selectedEncryptionTechnology": {
+            "choices": [
+              {
+                "$ref": "compose.EncryptionPropertiesSMIME"
+              },
+              {
+                "$ref": "compose.EncryptionPropertiesOpenPGP"
+              }
+            ],
+            "optional": true,
+            "description": "The selected encryption technology (<value>OpenPGP</value> or <value>S/MIME</value>) which is to be used to sign and/or encrypt the message. If the sending identity does not support encryption at all, this will be <value>undefined</value>."
           },
           "followupTo": {
             "$ref": "ComposeRecipientList",
@@ -318,6 +335,46 @@
           "type": "boolean"
         },
         "description": "A <em>dictionary object</em> with entries for all installed dictionaries, having a language identifier as <em>key</em> (for example <value>en-US</value>) and a boolean expression as <em>value</em>, indicating whether that dictionary is enabled for spellchecking or not."
+      },
+      {
+        "id": "EncryptionPropertiesOpenPGP",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^OpenPGP$"
+          },
+          "encryptBody": {
+            "type": "boolean",
+            "description": "Whether encryption of the message body using the OpenPGP technology is enabled. **Note:** If encryption is enabled, but the `preconditions <https://support.mozilla.org/en-US/kb/thunderbird-help-cannot-encrypt>`__ for sending an encrypted message are not met, the message cannot be sent."
+          },
+          "encryptSubject": {
+            "type": "boolean",
+            "description": "Whether encryption of the message subject using the OpenPGP technology is enabled (only supported if encryption of the body is enabled a well)."
+          },
+          "signMessage": {
+            "type": "boolean",
+            "description": "Whether the message will be signed using the OpenPGP technology."
+          }
+        }
+      },
+      {
+        "id": "EncryptionPropertiesSMIME",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^S/MIME$"
+          },
+          "encryptBody": {
+            "type": "boolean",
+            "description": "Whether encryption of the message body using the S/MIME technology is enabled. **Note:** If encryption is enabled, but the `preconditions <https://support.mozilla.org/en-US/kb/thunderbird-help-cannot-encrypt>`__ for sending an encrypted message are not met, the message cannot be sent."
+          },
+          "signMessage": {
+            "type": "boolean",
+            "description": "Whether the message will be signed using the S/MIME technology"
+          }
+        }
       }
     ],
     "events": [
@@ -636,7 +693,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. The properties of the given :ref:`compose.ComposeDetails` object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
+        "description": "Updates the compose window. The properties of the given :ref:`compose.ComposeDetails` object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
         "permissions": ["compose"],
         "parameters": [
           {
