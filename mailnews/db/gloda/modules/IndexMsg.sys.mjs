@@ -1296,7 +1296,7 @@ export var GlodaMsgIndexer = {
         //  We do not want to catch the exception if one happens.
         const idBasedHeader = oldHeaderMessageId
           ? this._indexingDatabase.getMsgHdrForMessageID(oldHeaderMessageId)
-          : false;
+          : null;
         // - Case 1b.
         // We want to mark the message as deleted.
         if (idBasedHeader == null) {
