@@ -73,8 +73,6 @@ function run_test() {
         onCacheEntryAvailable(cacheEntry, isNew, status) {
           Assert.equal(status, Cr.NS_OK);
 
-          cacheEntry.markValid();
-
           // Get the folder and new mail
           var folder = localserver.rootFolder.getChildNamed(
             "test.subscribe.simple"
