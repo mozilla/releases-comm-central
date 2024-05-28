@@ -1,0 +1,6 @@
+BEGIN:VCARD
+VERSION:4.0
+FN:contact number one
+N:one;contact;;;
+EMAIL:contact1@invalid
+END:VCARD

@@ -1,1 +1,4 @@
-["test_empty.py"]
+[DEFAULT]
+support-files = ["data/**"]
+
+["test_commandline.py"]
