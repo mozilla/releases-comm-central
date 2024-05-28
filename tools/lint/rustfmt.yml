@@ -10,4 +10,4 @@ rust:
         - 'tools/lint/rust/**'
     type: external
     payload: commlint:lint_wrapper
-    wraps: rust:lint
+    wraps: commlint:rust_lint

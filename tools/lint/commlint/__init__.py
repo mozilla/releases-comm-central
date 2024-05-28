@@ -6,6 +6,8 @@ import os
 from contextlib import contextmanager
 from pathlib import Path
 
+from packaging.version import Version
+
 from mozlint.pathutils import expand_exclusions
 from mozlint.types import supported_types
 from mozpack import path as mozpath
@@ -90,6 +92,72 @@ def black_lint(paths, config, fix=None, **lintargs):
         log=lintargs["log"],
         virtualenv_bin_path=lintargs.get("virtualenv_bin_path"),
     )
+
+
+def rust_lint(paths, config, fix=None, **lintargs):
+    """Mostly copied from m-c:/tools/lint/rust/__init__.py:lint().
+    Modified:
+     - Add `--edition 2021` to the rustfmt commandline
+     - Make formatting issues an error (to show up Orange in Treeherder)
+     - Print path of files checked when --verbose is set
+    """
+    from rust import (
+        RUSTFMT_NOT_FOUND,
+        RUSTFMT_WRONG_VERSION,
+        get_rustfmt_binary,
+        get_rustfmt_version,
+        parse_issues,
+        run_process,
+    )
+
+    log = lintargs["log"]
+    paths = list(expand_exclusions(paths, config, lintargs["root"]))
+
+    # An empty path array can occur when the user passes in `-n`. If we don't
+    # return early in this case, rustfmt will attempt to read stdin and hang.
+    if not paths:
+        return []
+
+    binary = get_rustfmt_binary()
+
+    if not binary:
+        print(RUSTFMT_NOT_FOUND)
+        if "MOZ_AUTOMATION" in os.environ:
+            return 1
+        return []
+
+    min_version_str = config.get("min_rustfmt_version")
+    min_version = Version(min_version_str)
+    actual_version = get_rustfmt_version(binary)
+    log.debug(
+        "Found version: {}. Minimal expected version: {}".format(actual_version, min_version)
+    )
+
+    if actual_version < min_version:
+        print(RUSTFMT_WRONG_VERSION.format(version=min_version_str))
+        return 1
+
+    cmd_args = [binary]
+    cmd_args.extend(["--check", "--edition", "2021"])
+    base_command = cmd_args + paths
+    log.debug("Command: {}".format(" ".join(base_command)))
+    output = run_process(config, base_command)
+
+    issues = parse_issues(config, output, paths)
+    for result in issues["results"]:
+        if result.level == "warning":
+            result.level = "error"
+
+    if fix:
+        issues["fixed"] = len(issues["results"])
+        issues["results"] = []
+        cmd_args.remove("--check")
+
+        base_command = cmd_args + paths
+        log.debug("Command: {}".format(" ".join(base_command)))
+        output = run_process(config, base_command)
+
+    return issues
 
 
 def lint_wrapper(paths, config, **lintargs):
