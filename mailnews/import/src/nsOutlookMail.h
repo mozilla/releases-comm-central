@@ -16,8 +16,6 @@
 #include "nsIAbDirectory.h"
 #include "nsThreadUtils.h"
 
-class nsIImportFieldMap;
-
 class nsOutlookMail {
  public:
   nsOutlookMail();
@@ -41,10 +39,11 @@ class nsOutlookMail {
   void SanitizeValue(nsString& val);
   void SplitString(nsString& val1, nsString& val2);
   bool BuildCard(const char16_t* pName, nsIAbDirectory* pDirectory,
-                 nsIAbCard* newCard, LPMAPIPROP pUser,
-                 nsIImportFieldMap* pFieldMap);
+                 nsIAbCard* newCard, LPMAPIPROP pUser);
+  nsresult SetFieldValue(nsIAbCard* row, int32_t fieldNum,
+                         const nsAString& value);
   nsresult CreateList(const nsString& pName, nsIAbDirectory* pDirectory,
-                      LPMAPIPROP pUserList, nsIImportFieldMap* pFieldMap);
+                      LPMAPIPROP pUserList);
 
  private:
   bool m_gotFolders;

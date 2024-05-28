@@ -15,7 +15,6 @@ interface nsIImportModule;
 interface nsIImportMailboxDescriptor;
 interface nsIImportABDescriptor;
 interface nsIImportGeneric;
-interface nsIImportFieldMap;
 interface nsIMsgSendListener;
 interface nsIMsgIdentity;
 interface nsIMsgCompFields;
@@ -24,7 +23,6 @@ interface nsIMsgEmbeddedImageData;
 
 [scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports {
-  nsIImportFieldMap CreateNewFieldMap();
   nsIImportMailboxDescriptor CreateNewMailboxDescriptor();
   nsIImportABDescriptor CreateNewABDescriptor();
   nsIImportGeneric CreateNewGenericMail();

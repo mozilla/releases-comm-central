@@ -36,7 +36,6 @@
 interface nsIFile;
 interface nsIImportABDescriptor;
 interface nsIAbDirectory;
-interface nsIImportFieldMap;
 
 [scriptable, uuid(6bba48be-331c-41e3-bc9f-c2ea3754d977)]
 interface nsIImportAddressBooks : nsISupports {
@@ -58,12 +57,6 @@ interface nsIImportAddressBooks : nsISupports {
   boolean GetAutoFind(out wstring description);
 
   /**
-   * Returns true if the address book needs the user to specify a field map for
-   * address books imported from this format.
-   */
-  boolean GetNeedsFieldMap(in nsIFile location);
-
-  /**
    * If found and userVerify BOTH return false, then it is assumed that this
    * means an error - address book cannot be found on this machine.
    * If userVerify is true, the user will have an opportunity to specify a
@@ -80,12 +73,6 @@ interface nsIImportAddressBooks : nsISupports {
   Array<nsIImportABDescriptor> findAddressBooks(in nsIFile location);
 
   /**
-   * Fill in defaults (if any) for a field map for importing address books from
-   * this location.
-   */
-  void InitFieldMap(in nsIImportFieldMap fieldMap);
-
-  /**
    * Import a specific address book into the destination file supplied.
    * If an error occurs that is non-fatal, the destination will be deleted and
    * other address book will be imported.  If a fatal error occurs, the
@@ -94,8 +81,6 @@ interface nsIImportAddressBooks : nsISupports {
    * @param aSource         The source data for the import.
    * @param aDestination    The proxy database for the destination of the
    *                        import.
-   * @param aFieldMap       The field map containing the mapping of fields to
-   *                        be used in cvs and tab type imports.
    * @param aSupportService An optional proxy support service (nullptr is
    *                        acceptable if it is not required), may be required
    *                        for certain import types (e.g. nsIAbLDIFService for
@@ -106,7 +91,6 @@ interface nsIImportAddressBooks : nsISupports {
    */
   void ImportAddressBook(in nsIImportABDescriptor aSource,
                          in nsIAbDirectory aDestination,
-                         in nsIImportFieldMap aFieldMap,
                          in nsISupports aSupportService,
                          out wstring aErrorLog,
                          out wstring aSuccessLog,

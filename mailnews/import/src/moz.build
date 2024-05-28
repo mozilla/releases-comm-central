@@ -9,7 +9,6 @@ SOURCES += [
     "nsImportABDescriptor.cpp",
     "nsImportAddressBooks.cpp",
     "nsImportEmbeddedImageData.cpp",
-    "nsImportFieldMap.cpp",
     "nsImportMail.cpp",
     "nsImportMailboxDescriptor.cpp",
     "nsImportService.cpp",

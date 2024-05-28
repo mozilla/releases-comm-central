@@ -10,7 +10,6 @@
 #include "nsImportMailboxDescriptor.h"
 #include "nsImportABDescriptor.h"
 #include "nsIImportGeneric.h"
-#include "nsImportFieldMap.h"
 #include "nsICategoryManager.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
@@ -43,11 +42,6 @@ nsImportService::~nsImportService() {
 }
 
 NS_IMPL_ISUPPORTS(nsImportService, nsIImportService)
-
-NS_IMETHODIMP nsImportService::CreateNewFieldMap(nsIImportFieldMap** _retval) {
-  return nsImportFieldMap::Create(m_stringBundle, NS_GET_IID(nsIImportFieldMap),
-                                  (void**)_retval);
-}
 
 NS_IMETHODIMP nsImportService::CreateNewMailboxDescriptor(
     nsIImportMailboxDescriptor** _retval) {

@@ -69,23 +69,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char* dataId,
     }
   }
 
-  if (!PL_strcasecmp(dataId, "fieldMap")) {
-    if (m_pFieldMap) {
-      NS_ADDREF(*_retval = m_pFieldMap);
-    } else {
-      if (m_pInterface && m_pLocation) {
-        bool needsIt = false;
-        m_pInterface->GetNeedsFieldMap(m_pLocation, &needsIt);
-        if (needsIt) {
-          GetDefaultFieldMap();
-          if (m_pFieldMap) {
-            NS_ADDREF(*_retval = m_pFieldMap);
-          }
-        }
-      }
-    }
-  }
-
   if (!PL_strncasecmp(dataId, "sampleData-", 11)) {
     // extra the record number
     const char* pNum = dataId + 11;
@@ -146,11 +129,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char* dataId,
     }
   }
 
-  if (!PL_strcasecmp(dataId, "fieldMap")) {
-    m_pFieldMap = nullptr;
-    if (item) m_pFieldMap = do_QueryInterface(item);
-  }
-
   return NS_OK;
 }
 
@@ -181,13 +159,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetStatus(const char* statusKind,
     bool multi = false;
     if (m_pInterface) m_pInterface->GetSupportsMultiple(&multi);
     *_retval = (int32_t)multi;
-  }
-
-  if (!PL_strcasecmp(statusKind, "needsFieldMap")) {
-    bool needs = false;
-    if (m_pInterface && m_pLocation)
-      m_pInterface->GetNeedsFieldMap(m_pLocation, &needs);
-    *_retval = (int32_t)needs;
   }
 
   return NS_OK;
@@ -222,30 +193,6 @@ void nsImportGenericAddressBooks::GetDefaultBooks(void) {
   nsresult rv = m_pInterface->FindAddressBooks(m_pLocation, m_Books);
   if (NS_FAILED(rv)) {
     IMPORT_LOG0("*** Error: FindAddressBooks failed\n");
-  }
-}
-
-void nsImportGenericAddressBooks::GetDefaultFieldMap(void) {
-  if (!m_pInterface || !m_pLocation) return;
-
-  nsresult rv;
-  nsCOMPtr<nsIImportService> impSvc(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Unable to get nsIImportService.\n");
-    return;
-  }
-
-  rv = impSvc->CreateNewFieldMap(getter_AddRefs(m_pFieldMap));
-  if (NS_FAILED(rv)) return;
-
-  int32_t sz = 0;
-  rv = m_pFieldMap->GetNumMozFields(&sz);
-  if (NS_SUCCEEDED(rv)) rv = m_pFieldMap->DefaultFieldMap(sz);
-  if (NS_SUCCEEDED(rv)) rv = m_pInterface->InitFieldMap(m_pFieldMap);
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0("*** Error: Unable to initialize field map\n");
-    m_pFieldMap = nullptr;
   }
 }
 
@@ -356,17 +303,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
     return NS_OK;
   }
 
-  bool needsFieldMap = false;
-
-  if (NS_FAILED(m_pInterface->GetNeedsFieldMap(m_pLocation, &needsFieldMap)) ||
-      (needsFieldMap && !m_pFieldMap)) {
-    nsImportStringBundle::GetStringByID(IMPORT_ERROR_AB_NOTINITIALIZED,
-                                        m_stringBundle, error);
-    SetLogs(success, error, successLog, errorLog);
-    *_retval = false;
-    return NS_OK;
-  }
-
   m_pSuccessLog = successLog;
   m_pErrorLog = errorLog;
 
@@ -376,7 +312,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
   m_pThreadData = new AddressThreadData();
   m_pThreadData->books = m_Books.Clone();
   m_pThreadData->addressImport = m_pInterface;
-  m_pThreadData->fieldMap = m_pFieldMap;
   m_pThreadData->errorLog = m_pErrorLog;
   m_pThreadData->successLog = m_pSuccessLog;
   m_pThreadData->pDestinationUri = m_pDestinationUri;
@@ -518,25 +453,8 @@ static void ImportAddressThread(void* stuff) {
         char16_t* pSuccess = nullptr;
         char16_t* pError = nullptr;
 
-        /*
-        if (pData->fieldMap) {
-          int32_t    sz = 0;
-          int32_t    mapIndex;
-          bool      active;
-          pData->fieldMap->GetMapSize(&sz);
-          IMPORT_LOG1("**** Field Map Size: %d\n", (int) sz);
-          for (int32_t i = 0; i < sz; i++) {
-            pData->fieldMap->GetFieldMap(i, &mapIndex);
-            pData->fieldMap->GetFieldActive(i, &active);
-            IMPORT_LOG3("Field map #%d: index=%d, active=%d\n", (int) i, (int)
-        mapIndex, (int) active);
-          }
-        }
-        */
-
         rv = pData->addressImport->ImportAddressBook(
-            book, db, pData->fieldMap, pData->ldifService, &pError, &pSuccess,
-            &fatalError);
+            book, db, pData->ldifService, &pError, &pSuccess, &fatalError);
         if (NS_SUCCEEDED(rv) && pSuccess) {
           success.Append(pSuccess);
           free(pSuccess);

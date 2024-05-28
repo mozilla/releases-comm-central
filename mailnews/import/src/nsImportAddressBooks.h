@@ -6,7 +6,6 @@
 #include "nsCOMPtr.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportGeneric.h"
-#include "nsIImportFieldMap.h"
 #include "nsString.h"
 #include "nsIFile.h"
 #include "nsIAbDirectory.h"
@@ -30,7 +29,6 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   virtual ~nsImportGenericAddressBooks();
   void GetDefaultLocation(void);
   void GetDefaultBooks(void);
-  void GetDefaultFieldMap(void);
 
  public:
   static void SetLogs(nsString& success, nsString& error,
@@ -43,7 +41,6 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   nsTArray<RefPtr<nsIImportABDescriptor>> m_Books;
   nsCOMArray<nsIAbDirectory> m_DBs;
   nsCOMPtr<nsIFile> m_pLocation;
-  nsCOMPtr<nsIImportFieldMap> m_pFieldMap;
   bool m_autoFind;
   char16_t* m_description;
   bool m_gotLocation;
@@ -70,7 +67,6 @@ class AddressThreadData {
   nsCOMArray<nsIAbDirectory>* dBs;
   nsCOMPtr<nsIAbLDIFService> ldifService;
   nsCOMPtr<nsIImportAddressBooks> addressImport;
-  nsCOMPtr<nsIImportFieldMap> fieldMap;
   nsCOMPtr<nsISupportsString> successLog;
   nsCOMPtr<nsISupportsString> errorLog;
   nsCString pDestinationUri;

@@ -17,7 +17,6 @@
 #include "nsIImportGeneric.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
-#include "nsIImportFieldMap.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIAbDirectory.h"
@@ -91,11 +90,6 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
 
   NS_IMETHOD GetAutoFind(char16_t** description, bool* _retval);
 
-  NS_IMETHOD GetNeedsFieldMap(nsIFile* location, bool* _retval) {
-    *_retval = false;
-    return NS_OK;
-  }
-
   NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
                                 bool* userVerify) {
     return NS_ERROR_FAILURE;
@@ -104,13 +98,8 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
   NS_IMETHOD FindAddressBooks(nsIFile* location,
                               nsTArray<RefPtr<nsIImportABDescriptor>>& books);
 
-  NS_IMETHOD InitFieldMap(nsIImportFieldMap* fieldMap) {
-    return NS_ERROR_FAILURE;
-  }
-
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor* source,
                                nsIAbDirectory* destination,
-                               nsIImportFieldMap* fieldMap,
                                nsISupports* aSupportService,
                                char16_t** errorLog, char16_t** successLog,
                                bool* fatalError);
@@ -414,8 +403,8 @@ NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(
 
 NS_IMETHODIMP ImportOutlookAddressImpl::ImportAddressBook(
     nsIImportABDescriptor* source, nsIAbDirectory* destination,
-    nsIImportFieldMap* fieldMap, nsISupports* aSupportService,
-    char16_t** pErrorLog, char16_t** pSuccessLog, bool* fatalError) {
+    nsISupports* aSupportService, char16_t** pErrorLog, char16_t** pSuccessLog,
+    bool* fatalError) {
   m_msgCount = 0;
   m_msgTotal = 0;
   NS_ASSERTION(source != nullptr, "null ptr");

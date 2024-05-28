@@ -11,7 +11,6 @@
 #include "nscore.h"
 #include "nsMsgUtils.h"
 #include "nsIImportService.h"
-#include "nsIImportFieldMap.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportABDescriptor.h"
 #include "nsOutlookStringBundle.h"
@@ -519,14 +518,6 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
 
   nsresult rv;
 
-  nsCOMPtr<nsIImportFieldMap> pFieldMap;
-
-  nsCOMPtr<nsIImportService> impSvc(
-      do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    rv = impSvc->CreateNewFieldMap(getter_AddRefs(pFieldMap));
-  }
-
   CMapiFolderContents contents(m_lpMdb, pFolder->GetCBEntryID(),
                                pFolder->GetEntryID());
 
@@ -572,8 +563,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
           nsCOMPtr<nsIAbCard> newCard =
               do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
           if (newCard) {
-            if (BuildCard(subject.get(), pDirectory, newCard, lpMsg,
-                          pFieldMap)) {
+            if (BuildCard(subject.get(), pDirectory, newCard, lpMsg)) {
               nsIAbCard* outCard;
               pDirectory->AddCard(newCard, &outCard);
             }
@@ -583,7 +573,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
           subject.Truncate();
           pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
           if (pVal) m_mapi.GetStringFromProp(pVal, subject);
-          CreateList(subject, pDirectory, lpMsg, pFieldMap);
+          CreateList(subject, pDirectory, lpMsg);
         }
       }
 
@@ -595,8 +585,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
 }
 nsresult nsOutlookMail::CreateList(const nsString& pName,
                                    nsIAbDirectory* pDirectory,
-                                   LPMAPIPROP pUserList,
-                                   nsIImportFieldMap* pFieldMap) {
+                                   LPMAPIPROP pUserList) {
   // If no name provided then we're done.
   if (pName.IsEmpty()) return NS_OK;
 
@@ -658,7 +647,7 @@ nsresult nsOutlookMail::CreateList(const nsString& pName,
     nsCOMPtr<nsIAbCard> newCard =
         do_CreateInstance("@mozilla.org/addressbook/cardproperty;1", &rv);
     if (newCard) {
-      if (BuildCard(subject.get(), pDirectory, newCard, lpMsg, pFieldMap)) {
+      if (BuildCard(subject.get(), pDirectory, newCard, lpMsg)) {
         nsIAbCard* outCard;
         newList->AddCard(newCard, &outCard);
       }
@@ -693,8 +682,7 @@ void nsOutlookMail::SplitString(nsString& val1, nsString& val2) {
 }
 
 bool nsOutlookMail::BuildCard(const char16_t* pName, nsIAbDirectory* pDirectory,
-                              nsIAbCard* newCard, LPMAPIPROP pUser,
-                              nsIImportFieldMap* pFieldMap) {
+                              nsIAbCard* newCard, LPMAPIPROP pUser) {
   nsString lastName;
   nsString firstName;
   nsString eMail;
@@ -797,34 +785,152 @@ bool nsOutlookMail::BuildCard(const char16_t* pName, nsIAbDirectory* pDirectory,
   nsString value;
   nsString line2;
 
-  if (pFieldMap) {
-    int max = sizeof(gMapiFields) / sizeof(MAPIFields);
-    for (int i = 0; i < max; i++) {
-      pProp = m_mapi.GetMapiProperty(pUser, gMapiFields[i].mapiTag);
-      if (pProp) {
-        m_mapi.GetStringFromProp(pProp, value);
-        if (!value.IsEmpty()) {
-          if (gMapiFields[i].multiLine == kNoMultiLine) {
-            SanitizeValue(value);
-            pFieldMap->SetFieldValue(pDirectory, newCard,
-                                     gMapiFields[i].mozField, value);
-          } else if (gMapiFields[i].multiLine == kIsMultiLine) {
-            pFieldMap->SetFieldValue(pDirectory, newCard,
-                                     gMapiFields[i].mozField, value);
-          } else {
-            line2.Truncate();
-            SplitString(value, line2);
-            if (!value.IsEmpty())
-              pFieldMap->SetFieldValue(pDirectory, newCard,
-                                       gMapiFields[i].mozField, value);
-            if (!line2.IsEmpty())
-              pFieldMap->SetFieldValue(pDirectory, newCard,
-                                       gMapiFields[i].multiLine, line2);
-          }
+  int max = sizeof(gMapiFields) / sizeof(MAPIFields);
+  for (int i = 0; i < max; i++) {
+    pProp = m_mapi.GetMapiProperty(pUser, gMapiFields[i].mapiTag);
+    if (pProp) {
+      m_mapi.GetStringFromProp(pProp, value);
+      if (!value.IsEmpty()) {
+        if (gMapiFields[i].multiLine == kNoMultiLine) {
+          SanitizeValue(value);
+          SetFieldValue(newCard, gMapiFields[i].mozField, value);
+        } else if (gMapiFields[i].multiLine == kIsMultiLine) {
+          SetFieldValue(newCard, gMapiFields[i].mozField, value);
+        } else {
+          line2.Truncate();
+          SplitString(value, line2);
+          if (!value.IsEmpty())
+            SetFieldValue(newCard, gMapiFields[i].mozField, value);
+          if (!line2.IsEmpty())
+            SetFieldValue(newCard, gMapiFields[i].multiLine, line2);
         }
       }
     }
   }
 
   return true;
+}
+
+nsresult nsOutlookMail::SetFieldValue(nsIAbCard* row, int32_t fieldNum,
+                                      const nsAString& value) {
+  nsresult rv;
+
+  switch (fieldNum) {
+    case 0:
+      rv = row->SetFirstName(value);
+      break;
+    case 1:
+      rv = row->SetLastName(value);
+      break;
+    case 2:
+      rv = row->SetDisplayName(value);
+      break;
+    case 3:
+      rv = row->SetPropertyAsAString(kNicknameProperty, value);
+      break;
+    case 4:
+      rv = row->SetPrimaryEmail(value);
+      break;
+    case 5:
+      rv = row->SetPropertyAsAString(k2ndEmailProperty, value);
+      break;
+    case 6:
+      rv = row->SetPropertyAsAString(kWorkPhoneProperty, value);
+      break;
+    case 7:
+      rv = row->SetPropertyAsAString(kHomePhoneProperty, value);
+      break;
+    case 8:
+      rv = row->SetPropertyAsAString(kFaxProperty, value);
+      break;
+    case 9:
+      rv = row->SetPropertyAsAString(kPagerProperty, value);
+      break;
+    case 10:
+      rv = row->SetPropertyAsAString(kCellularProperty, value);
+      break;
+    case 11:
+      rv = row->SetPropertyAsAString(kHomeAddressProperty, value);
+      break;
+    case 12:
+      rv = row->SetPropertyAsAString(kHomeAddress2Property, value);
+      break;
+    case 13:
+      rv = row->SetPropertyAsAString(kHomeCityProperty, value);
+      break;
+    case 14:
+      rv = row->SetPropertyAsAString(kHomeStateProperty, value);
+      break;
+    case 15:
+      rv = row->SetPropertyAsAString(kHomeZipCodeProperty, value);
+      break;
+    case 16:
+      rv = row->SetPropertyAsAString(kHomeCountryProperty, value);
+      break;
+    case 17:
+      rv = row->SetPropertyAsAString(kWorkAddressProperty, value);
+      break;
+    case 18:
+      rv = row->SetPropertyAsAString(kWorkAddress2Property, value);
+      break;
+    case 19:
+      rv = row->SetPropertyAsAString(kWorkCityProperty, value);
+      break;
+    case 20:
+      rv = row->SetPropertyAsAString(kWorkStateProperty, value);
+      break;
+    case 21:
+      rv = row->SetPropertyAsAString(kWorkZipCodeProperty, value);
+      break;
+    case 22:
+      rv = row->SetPropertyAsAString(kWorkCountryProperty, value);
+      break;
+    case 23:
+      rv = row->SetPropertyAsAString(kJobTitleProperty, value);
+      break;
+    case 24:
+      rv = row->SetPropertyAsAString(kDepartmentProperty, value);
+      break;
+    case 25:
+      rv = row->SetPropertyAsAString(kCompanyProperty, value);
+      break;
+    case 26:
+      rv = row->SetPropertyAsAString(kWorkWebPageProperty, value);
+      break;
+    case 27:
+      rv = row->SetPropertyAsAString(kHomeWebPageProperty, value);
+      break;
+    case 28:
+      rv = row->SetPropertyAsAString(kBirthYearProperty, value);
+      break;
+    case 29:
+      rv = row->SetPropertyAsAString(kBirthMonthProperty, value);
+      break;
+    case 30:
+      rv = row->SetPropertyAsAString(kBirthDayProperty, value);
+      break;
+    case 31:
+      rv = row->SetPropertyAsAString(kCustom1Property, value);
+      break;
+    case 32:
+      rv = row->SetPropertyAsAString(kCustom2Property, value);
+      break;
+    case 33:
+      rv = row->SetPropertyAsAString(kCustom3Property, value);
+      break;
+    case 34:
+      rv = row->SetPropertyAsAString(kCustom4Property, value);
+      break;
+    case 35:
+      rv = row->SetPropertyAsAString(kNotesProperty, value);
+      break;
+    case 36:
+      rv = row->SetPropertyAsAString(kAIMProperty, value);
+      break;
+    default:
+      rv = NS_ERROR_FAILURE;
+      break;
+  }
+
+  return rv;
 }

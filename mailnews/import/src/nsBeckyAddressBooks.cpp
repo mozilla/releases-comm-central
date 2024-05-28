@@ -49,14 +49,6 @@ nsBeckyAddressBooks::GetAutoFind(char16_t** aDescription, bool* _retval) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsBeckyAddressBooks::GetNeedsFieldMap(nsIFile* aLocation, bool* _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-
-  *_retval = false;
-  return NS_OK;
-}
-
 nsresult nsBeckyAddressBooks::FindAddressBookDirectory(
     nsIFile** aAddressBookDirectory) {
   nsCOMPtr<nsIFile> userDirectory;
@@ -240,15 +232,12 @@ nsBeckyAddressBooks::FindAddressBooks(
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::InitFieldMap(nsIImportFieldMap* aFieldMap) {
-  return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP
-nsBeckyAddressBooks::ImportAddressBook(
-    nsIImportABDescriptor* aSource, nsIAbDirectory* aDestination,
-    nsIImportFieldMap* aFieldMap, nsISupports* aSupportService,
-    char16_t** aErrorLog, char16_t** aSuccessLog, bool* aFatalError) {
+nsBeckyAddressBooks::ImportAddressBook(nsIImportABDescriptor* aSource,
+                                       nsIAbDirectory* aDestination,
+                                       nsISupports* aSupportService,
+                                       char16_t** aErrorLog,
+                                       char16_t** aSuccessLog,
+                                       bool* aFatalError) {
   NS_ENSURE_ARG_POINTER(aSource);
   NS_ENSURE_ARG_POINTER(aDestination);
   NS_ENSURE_ARG_POINTER(aErrorLog);

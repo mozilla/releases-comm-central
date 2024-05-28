@@ -7,7 +7,6 @@ XPIDL_SOURCES += [
     "nsIImportABDescriptor.idl",
     "nsIImportABFile.idl",
     "nsIImportAddressBooks.idl",
-    "nsIImportFieldMap.idl",
     "nsIImportFilters.idl",
     "nsIImportGeneric.idl",
     "nsIImportMail.idl",
