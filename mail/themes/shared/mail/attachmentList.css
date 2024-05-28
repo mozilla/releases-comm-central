@@ -38,6 +38,17 @@
   align-items: baseline;
   flex-shrink: 1;
 
+  &:hover {
+    background-color: color-mix(in srgb, currentColor 15%, transparent);
+    border-color: transparent;
+  }
+
+  &[selected="true"] {
+    border-color: color-mix(in srgb, currentColor 20%, transparent);
+    background-color: color-mix(in srgb, currentColor 20%, transparent);
+    color: inherit;
+  }
+
   & > * {
     /* We treat the entire attachment item as a single object for click events.
      * This ensures that dragging will drag the entire widget by default, and
@@ -73,7 +84,8 @@
   }
 
   .attachmentList:focus &[selected="true"] {
-    background-color: var(--button-primary-background-color);
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
 
     & .attachmentcell-size {
       opacity: 0.8;
@@ -85,8 +97,7 @@
   }
 
   .attachmentList[seltype="multiple"]:focus &[current="true"] {
-    background-color: var(--selected-item-color);
-    outline: none;
+    outline: 1px solid;
 
     &[selected="true"] {
       border-color: var(--sidebar-highlight-border-color,
@@ -117,17 +128,6 @@
 
   :root[lwt-tree] .attachmentList & {
     color: var(--sidebar-text-color) !important;
-  }
-
-  :root[lwt-tree] .attachmentList &:hover {
-    background-color: hsla(0, 0%, 50%, 0.15);
-    border-color: transparent;
-  }
-
-  :root[lwt-tree] .attachmentList &[selected="true"] {
-    border-color: hsla(0, 0%, 50%, 0.2);
-    background: hsla(0, 0%, 50%, 0.2);
-    color: var(--sidebar-text-color);
   }
 
   :root[lwt-tree] .attachmentList:focus &[selected="true"] {
