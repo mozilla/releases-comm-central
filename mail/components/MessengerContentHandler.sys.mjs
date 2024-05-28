@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
@@ -11,6 +12,16 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+});
+
+ChromeUtils.defineLazyGetter(lazy, "windowsAlertsService", () => {
+  // We might not have the Windows alerts service: e.g., on Windows 7 and Windows 8.
+  if (!("nsIWindowsAlertsService" in Ci)) {
+    return null;
+  }
+  return Cc["@mozilla.org/system-alerts-service;1"]
+    ?.getService(Ci.nsIAlertsService)
+    ?.QueryInterface(Ci.nsIWindowsAlertsService);
 });
 
 function resolveURIInternal(aCmdLine, aArgument) {
@@ -204,6 +215,27 @@ export class MessengerContentHandler {
     // is already removed by toolkit. We don't want any other windows.
     if (isMigration) {
       return;
+    }
+
+    if (AppConstants.platform == "win") {
+      const tag = cmdLine.handleFlagWithParam("notification-windowsTag", false);
+      if (
+        tag &&
+        cmdLine.handleFlagWithParam("notification-windowsAction", false) &&
+        // Windows itself does disk I/O when the notification service is
+        // initialized, so make sure that is lazy.
+        lazy.windowsAlertsService
+      ) {
+        lazy.windowsAlertsService
+          .handleWindowsTag(tag)
+          .catch(e =>
+            console.error(
+              `Error handling Windows notification with tag '${tag}':`,
+              e
+            )
+          );
+        return;
+      }
     }
 
     if (
