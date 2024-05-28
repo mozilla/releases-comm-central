@@ -96,6 +96,16 @@ add_task(async function test_identities_MV3_event_pages() {
         composeHtml: true,
         signature: "",
         signatureIsPlainText: true,
+        encryptionCapabilities: {
+          OpenPGP: {
+            canEncrypt: false,
+            canSign: false,
+          },
+          "S/MIME": {
+            canEncrypt: false,
+            canSign: false,
+          },
+        },
       },
     ],
     createData,

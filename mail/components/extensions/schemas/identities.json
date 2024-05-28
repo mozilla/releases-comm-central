@@ -18,6 +18,20 @@
     "permissions": ["accountsRead"],
     "types": [
       {
+        "id": "EncryptionCapabilities",
+        "type": "object",
+        "properties": {
+          "canEncrypt": {
+            "type": "boolean",
+            "description": "Whether the encryption technology is configured to support message encryption."
+          },
+          "canSign": {
+            "type": "boolean",
+            "description": "Whether the encryption technology is configured to support message signing."
+          }
+        }
+      },
+      {
         "id": "MailIdentity",
         "type": "object",
         "properties": {
@@ -70,6 +84,21 @@
             "type": "boolean",
             "optional": true,
             "description": "If the signature should be interpreted as plain text or as HTML."
+          },
+          "encryptionCapabilities": {
+            "type": "object",
+            "optional": true,
+            "description": "The encryption capabilities of this identity. Read only.",
+            "properties": {
+              "OpenPGP": {
+                "$ref": "identities.EncryptionCapabilities",
+                "description": "The capabilities of this identity for the OpenPGP encryption technology."
+              },
+              "S/MIME": {
+                "$ref": "identities.EncryptionCapabilities",
+                "description": "The capabilities of this identity for the S/MIME encryption technology."
+              }
+            }
           }
         }
       }

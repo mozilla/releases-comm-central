@@ -26,7 +26,7 @@ function findIdentityAndAccount(identityId) {
 }
 
 function checkForProtectedProperties(details) {
-  const protectedProperties = ["id", "accountId"];
+  const protectedProperties = ["id", "accountId", "encryptionCapabilities"];
   for (const [key, value] of Object.entries(details)) {
     // Check only properties explicitly provided.
     if (value != null && protectedProperties.includes(key)) {
@@ -121,7 +121,10 @@ var identitiesTracker = new (class extends EventEmitter {
     for (const propertyName of Object.keys(newValues)) {
       if (
         !oldValues.hasOwnProperty(propertyName) ||
-        oldValues[propertyName] != newValues[propertyName]
+        // The objects being returned by the API are always in the same order,
+        // so stringify can be used as a simple deep assertion.
+        JSON.stringify(oldValues[propertyName]) !=
+          JSON.stringify(newValues[propertyName])
       ) {
         changedValues[propertyName] = newValues[propertyName];
       }

@@ -7,6 +7,20 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
+var { FileUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/FileUtils.sys.mjs"
+);
+var { OpenPGPTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/OpenPGPTestUtils.sys.mjs"
+);
+
+const OPENPGP_TEST_DIR = do_get_file("../../../../test/browser/openpgp");
+const OPENPGP_KEY_PATH = PathUtils.join(
+  OPENPGP_TEST_DIR.path,
+  "data",
+  "keys",
+  "alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
+);
 
 add_setup(async function setup() {
   // There are a couple of deprecated properties in MV3, which we still want to
@@ -19,6 +33,7 @@ add_setup(async function setup() {
   registerCleanupFunction(async () => {
     Services.prefs.clearUserPref("extensions.webextensions.warnings-as-errors");
   });
+  await OpenPGPTestUtils.initOpenPGP();
   await new Promise(resolve => executeSoon(resolve));
 });
 
@@ -272,21 +287,38 @@ add_task(async function test_accounts() {
 add_task(async function test_identities() {
   const account1 = createAccount();
   const account2 = createAccount("imap");
-  const identity0 = addIdentity(account1, "id0@invalid");
   const identity1 = addIdentity(account1, "id1@invalid");
   const identity2 = addIdentity(account1, "id2@invalid");
-  const identity3 = addIdentity(account2, "id3@invalid");
+  const identity3 = addIdentity(account1, "id3@invalid");
+  const identity4 = addIdentity(account2, "id4@invalid");
   addIdentity(account2, "id4@invalid");
-  identity2.label = "A label";
-  identity2.fullName = "Identity 2!";
-  identity2.organization = "Dis Organization";
-  identity2.replyTo = "reply@invalid";
-  identity2.composeHtml = true;
-  identity2.htmlSigText = "This is me. And this is my Dog.";
-  identity2.htmlSigFormat = false;
+  identity3.label = "A label";
+  identity3.fullName = "Identity 3!";
+  identity3.organization = "Dis Organization";
+  identity3.replyTo = "reply@invalid";
+  identity3.composeHtml = true;
+  identity3.htmlSigText = "This is me. And this is my Dog.";
+  identity3.htmlSigFormat = false;
 
-  equal(account1.defaultIdentity.key, identity0.key);
-  equal(account2.defaultIdentity.key, identity3.key);
+  // Make identity1 fully support S/MIME (certs do not need to be real).
+  identity1.setUnicharAttribute("encryption_cert_name", "smime-cert");
+  identity1.setUnicharAttribute("signing_cert_name", "smime-cert");
+
+  // Make identity2 support S/MIME signing.
+  identity2.setUnicharAttribute("signing_cert_name", "smime-cert");
+
+  // Make identity3 support S/MIME encryption.
+  identity3.setUnicharAttribute("encryption_cert_name", "smime-cert");
+
+  // Make identity1 support OpenPGP.
+  const [keyId] = await OpenPGPTestUtils.importPrivateKey(
+    null,
+    new FileUtils.File(OPENPGP_KEY_PATH)
+  );
+  identity1.setUnicharAttribute("openpgp_key_id", keyId);
+
+  equal(account1.defaultIdentity.key, identity1.key);
+  equal(account2.defaultIdentity.key, identity4.key);
   const files = {
     "background.js": async () => {
       const accounts = await browser.accounts.list();
@@ -312,15 +344,16 @@ add_task(async function test_identities() {
       const { id: accountId, identities } = localAccount;
       const identityIds = identities.map(i => i.id);
       browser.test.assertEq(3, identities.length);
-
+      // The identities and identityIds arrays are 0-index, while the identities
+      // themselves are 1-index.
       browser.test.assertEq(accountId, identities[0].accountId);
-      browser.test.assertEq("id0@invalid", identities[0].email);
+      browser.test.assertEq("id1@invalid", identities[0].email);
       browser.test.assertEq(accountId, identities[1].accountId);
-      browser.test.assertEq("id1@invalid", identities[1].email);
+      browser.test.assertEq("id2@invalid", identities[1].email);
       browser.test.assertEq(accountId, identities[2].accountId);
-      browser.test.assertEq("id2@invalid", identities[2].email);
+      browser.test.assertEq("id3@invalid", identities[2].email);
       browser.test.assertEq("A label", identities[2].label);
-      browser.test.assertEq("Identity 2!", identities[2].name);
+      browser.test.assertEq("Identity 3!", identities[2].name);
       browser.test.assertEq("Dis Organization", identities[2].organization);
       browser.test.assertEq("reply@invalid", identities[2].replyTo);
       browser.test.assertEq(true, identities[2].composeHtml);
@@ -329,6 +362,84 @@ add_task(async function test_identities() {
         identities[2].signature
       );
       browser.test.assertEq(true, identities[2].signatureIsPlainText);
+
+      const expectedIdentity = [
+        {
+          accountId: "account3",
+          id: "id1",
+          label: "",
+          name: "",
+          email: "id1@invalid",
+          replyTo: "",
+          organization: "",
+          composeHtml: true,
+          signature: "",
+          signatureIsPlainText: true,
+          encryptionCapabilities: {
+            OpenPGP: {
+              canEncrypt: true,
+              canSign: true,
+            },
+            "S/MIME": {
+              canEncrypt: true,
+              canSign: true,
+            },
+          },
+        },
+        {
+          accountId: "account3",
+          id: "id2",
+          label: "",
+          name: "",
+          email: "id2@invalid",
+          replyTo: "",
+          organization: "",
+          composeHtml: true,
+          signature: "",
+          signatureIsPlainText: true,
+          encryptionCapabilities: {
+            OpenPGP: {
+              canEncrypt: false,
+              canSign: false,
+            },
+            "S/MIME": {
+              canEncrypt: false,
+              canSign: true,
+            },
+          },
+        },
+        {
+          accountId: "account3",
+          id: "id3",
+          label: "A label",
+          name: "Identity 3!",
+          email: "id3@invalid",
+          replyTo: "reply@invalid",
+          organization: "Dis Organization",
+          composeHtml: true,
+          signature: "This is me. And this is my Dog.",
+          signatureIsPlainText: true,
+          encryptionCapabilities: {
+            OpenPGP: {
+              canEncrypt: false,
+              canSign: false,
+            },
+            "S/MIME": {
+              canEncrypt: true,
+              canSign: false,
+            },
+          },
+        },
+      ];
+
+      for (let i = 0; i < 3; i++) {
+        window.assertDeepEqual(
+          expectedIdentity[i],
+          localAccount.identities[i],
+          "returned local identity by accounts.list() is correct",
+          { strict: true }
+        );
+      }
 
       // Testing browser.identities.list().
 
@@ -341,11 +452,12 @@ add_task(async function test_identities() {
         localIdentities.length,
         "number of local identities is correct"
       );
-      for (let i = 0; i < 2; i++) {
-        browser.test.assertEq(
-          localAccount.identities[i].id,
-          localIdentities[i].id,
-          "returned local identity is correct"
+      for (let i = 0; i < 3; i++) {
+        window.assertDeepEqual(
+          expectedIdentity[i],
+          localIdentities[i],
+          "returned local identity by identities.list() is correct",
+          { strict: true }
         );
       }
 
@@ -367,11 +479,10 @@ add_task(async function test_identities() {
 
       const badIdentity = await browser.identities.get("funny");
       browser.test.assertEq(null, badIdentity);
-
       for (const identity of identities) {
         const testIdentity = await browser.identities.get(identity.id);
         for (const prop of Object.keys(identity)) {
-          browser.test.assertEq(
+          window.assertDeepEqual(
             identity[prop],
             testIdentity[prop],
             `Testing identity.${prop}`
@@ -463,6 +574,17 @@ add_task(async function test_identities() {
             accountId: "accountId5",
           },
           expectedThrow: `Setting the accountId property of a MailIdentity is not supported.`,
+        },
+        {
+          // Try to set the encryptionCapabilities property.
+          accountId: imapAccount.id,
+          details: {
+            encryptionCapabilities: {
+              OpenPGP: { canSign: true, canEncrypt: true },
+              "S/MIME": { canSign: true, canEncrypt: true },
+            },
+          },
+          expectedThrow: `Setting the encryptionCapabilities property of a MailIdentity is not supported.`,
         },
         {
           // Try to set a protected property together with others.
@@ -598,6 +720,17 @@ add_task(async function test_identities() {
             "Setting the accountId property of a MailIdentity is not supported.",
         },
         {
+          // Try to update the encryptionCapabilities property.
+          identityId: identities[2].id,
+          details: {
+            encryptionCapabilities: {
+              OpenPGP: { canSign: true, canEncrypt: true },
+              "S/MIME": { canSign: true, canEncrypt: true },
+            },
+          },
+          expectedThrow: `Setting the encryptionCapabilities property of a MailIdentity is not supported.`,
+        },
+        {
           // Try to update another protected property together with others.
           identityId: identities[2].id,
           details: {
@@ -685,9 +818,22 @@ add_task(async function test_identities() {
       browser.test.assertEq(identityIds[2], newIdentities[1].id);
       browser.test.assertEq(identityIds[0], newIdentities[2].id);
 
+      // Trigger change to encryption capabilities.
+      await new Promise(resolve => {
+        const found = new Set();
+        const listener = id => {
+          found.add(id);
+          if (found.size == 3) {
+            browser.identities.onUpdated.removeListener(listener);
+            resolve();
+          }
+        };
+        browser.identities.onUpdated.addListener(listener);
+        window.sendMessage("removeEncryptionCapabilities");
+      });
+
       // Check event listeners.
       window.assertDeepEqual(
-        onCreatedLog,
         [
           {
             id: "id6",
@@ -702,6 +848,16 @@ add_task(async function test_identities() {
               composeHtml: true,
               signature: "This is Bruce. And this is my Cat.",
               signatureIsPlainText: false,
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
             },
           },
           {
@@ -717,6 +873,16 @@ add_task(async function test_identities() {
               composeHtml: false,
               signature: "I am Batman.",
               signatureIsPlainText: true,
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
             },
           },
           {
@@ -732,13 +898,24 @@ add_task(async function test_identities() {
               composeHtml: true,
               signature: "",
               signatureIsPlainText: true,
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
             },
           },
         ],
-        "captured onCreated events are correct"
+        onCreatedLog,
+        "captured onCreated events are correct",
+        { strict: true }
       );
       window.assertDeepEqual(
-        onUpdatedLog,
         [
           {
             id: "id3",
@@ -778,13 +955,67 @@ add_task(async function test_identities() {
               id: "id3",
             },
           },
+          {
+            id: "id1",
+            changed: {
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
+              accountId: "account3",
+              id: "id1",
+            },
+          },
+          {
+            id: "id2",
+            changed: {
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
+              accountId: "account3",
+              id: "id2",
+            },
+          },
+          {
+            id: "id3",
+            changed: {
+              encryptionCapabilities: {
+                OpenPGP: {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+                "S/MIME": {
+                  canEncrypt: false,
+                  canSign: false,
+                },
+              },
+              accountId: "account3",
+              id: "id3",
+            },
+          },
         ],
-        "captured onUpdated events are correct"
+        onUpdatedLog,
+        "captured onUpdated events are correct",
+        { strict: true }
       );
       window.assertDeepEqual(
-        onDeletedLog,
         ["id5", "id6", "id7", "id8"],
-        "captured onDeleted events are correct"
+        onDeletedLog,
+        "captured onDeleted events are correct",
+        { strict: true }
       );
 
       browser.test.notifyPass("finished");
@@ -800,11 +1031,20 @@ add_task(async function test_identities() {
     },
   });
 
+  extension.onMessage("removeEncryptionCapabilities", async () => {
+    identity1.setUnicharAttribute("encryption_cert_name", "");
+    identity1.setUnicharAttribute("signing_cert_name", "");
+    identity1.setUnicharAttribute("openpgp_key_id", "");
+    identity2.setUnicharAttribute("signing_cert_name", "");
+    identity3.setUnicharAttribute("encryption_cert_name", "");
+    extension.sendMessage();
+  });
+
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
 
-  equal(account1.defaultIdentity.key, identity1.key);
+  equal(account1.defaultIdentity.key, identity2.key);
 
   cleanUpAccount(account1);
   cleanUpAccount(account2);
@@ -812,7 +1052,7 @@ add_task(async function test_identities() {
 
 add_task(async function test_identities_without_write_permissions() {
   const account = createAccount();
-  const identity0 = addIdentity(account, "id0@invalid");
+  const identity0 = addIdentity(account, "id1@invalid");
 
   equal(account.defaultIdentity.key, identity0.key);
 
@@ -857,7 +1097,7 @@ add_task(async function test_identities_without_write_permissions() {
 
 add_task(async function test_accounts_events() {
   const account1 = createAccount();
-  addIdentity(account1, "id1@invalid");
+  addIdentity(account1, "id2@invalid");
 
   const files = {
     "background.js": async () => {

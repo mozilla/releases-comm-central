@@ -110,6 +110,24 @@ export class CachedIdentity {
     this.composeHtml = identity.composeHtml;
     this.htmlSigText = identity.htmlSigText;
     this.htmlSigFormat = identity.htmlSigFormat;
+
+    this.attributes = new Map();
+    this.attributes.set(
+      "openpgp_key_id",
+      identity.getUnicharAttribute("openpgp_key_id")
+    );
+    this.attributes.set(
+      "signing_cert_name",
+      identity.getUnicharAttribute("signing_cert_name")
+    );
+    this.attributes.set(
+      "encryption_cert_name",
+      identity.getUnicharAttribute("encryption_cert_name")
+    );
+  }
+
+  getUnicharAttribute(attribute) {
+    return this.attributes.get(attribute);
   }
 
   QueryInterface() {
@@ -200,6 +218,16 @@ export function convertMailIdentity(account, identity) {
     composeHtml: identity.composeHtml,
     signature: identity.htmlSigText || "",
     signatureIsPlainText: !identity.htmlSigFormat,
+    encryptionCapabilities: {
+      OpenPGP: {
+        canEncrypt: !!identity.getUnicharAttribute("openpgp_key_id"),
+        canSign: !!identity.getUnicharAttribute("openpgp_key_id"),
+      },
+      "S/MIME": {
+        canEncrypt: !!identity.getUnicharAttribute("encryption_cert_name"),
+        canSign: !!identity.getUnicharAttribute("signing_cert_name"),
+      },
+    },
   };
 }
 
