@@ -4,26 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    "ImportCharSet.cpp",
-    "ImportOutFile.cpp",
-    "ImportTranslate.cpp",
     "MorkImport.cpp",
     "nsAddrDatabase.cpp",
     "nsImportABDescriptor.cpp",
     "nsImportAddressBooks.cpp",
     "nsImportEmbeddedImageData.cpp",
-    "nsImportEncodeScan.cpp",
     "nsImportFieldMap.cpp",
     "nsImportMail.cpp",
     "nsImportMailboxDescriptor.cpp",
-    "nsImportScanFile.cpp",
     "nsImportService.cpp",
     "nsImportStringBundle.cpp",
-    "nsImportTranslator.cpp",
-    "nsTextAddress.cpp",
-    "nsTextImport.cpp",
     "nsVCardAddress.cpp",
-    "nsVCardImport.cpp",
 ]
 
 if not CONFIG["MOZ_SUITE"]:
