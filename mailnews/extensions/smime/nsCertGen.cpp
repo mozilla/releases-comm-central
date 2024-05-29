@@ -209,7 +209,14 @@ NS_IMETHODIMP nsCertGen::Gen(const nsACString& keyType,
 
   CERTCertificateRequest* cr = nullptr;
   if (spki) {
-    CERTName* subject = CERT_CreateName(NULL);
+    CERTName* subject = NULL;
+    if (email.Length() > 0) {
+      nsAutoCString dn("E=");
+      dn += NS_LossyConvertUTF16toASCII(email);
+      subject = CERT_AsciiToName(dn.get());
+    } else {
+      subject = CERT_CreateName(NULL);
+    }
     if (subject) {
       cr = CERT_CreateCertificateRequest(subject, spki, NULL);
       CERT_DestroyName(subject);
