@@ -12,7 +12,6 @@ ChromeUtils.defineESModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   GlodaSyntheticView: "resource:///modules/gloda/GlodaSyntheticView.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
-  MsgHdrSyntheticView: "resource:///modules/MsgHdrSyntheticView.sys.mjs",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
 });
 
