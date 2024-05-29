@@ -331,7 +331,6 @@ class ProfileImporterController extends ImporterController {
     Thunderbird: "ThunderbirdProfileImporter",
     Seamonkey: "SeamonkeyProfileImporter",
     Outlook: "OutlookProfileImporter",
-    Becky: "BeckyProfileImporter",
     AppleMail: "AppleMailProfileImporter",
   };
 
@@ -343,7 +342,6 @@ class ProfileImporterController extends ImporterController {
     Thunderbird: "thunderbird",
     Seamonkey: "seamonkey",
     Outlook: "outlook",
-    Becky: "becky",
     AppleMail: "apple-mail",
   };
   _sourceAppName = "thunderbird";

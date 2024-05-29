@@ -46,8 +46,6 @@ app-name-seamonkey = SeaMonkey
 
 app-name-outlook = Outlook
 
-app-name-becky = Becky! Internet Mail
-
 app-name-apple-mail = Apple Mail
 
 source-thunderbird = Import from another { app-name-thunderbird } installation
@@ -61,10 +59,6 @@ source-seamonkey-description = Import settings, filters, messages, and other dat
 source-outlook = Import from { app-name-outlook }
 
 source-outlook-description = Import accounts, address books, and messages from { app-name-outlook }.
-
-source-becky = Import from { app-name-becky }
-
-source-becky-description = Import address books and messages from { app-name-becky }.
 
 source-apple-mail = Import from { app-name-apple-mail }
 
@@ -96,8 +90,6 @@ from-app-seamonkey = Import from a { app-name-seamonkey } profile
 
 from-app-outlook = Import from { app-name-outlook }
 
-from-app-becky = Import from { app-name-becky }
-
 from-app-apple-mail = Import from { app-name-apple-mail }
 
 profiles-pane-title-thunderbird = Import Settings and Data from a { app-name-thunderbird } profile.
@@ -105,8 +97,6 @@ profiles-pane-title-thunderbird = Import Settings and Data from a { app-name-thu
 profiles-pane-title-seamonkey = Import Settings and Data from a { app-name-seamonkey } profile.
 
 profiles-pane-title-outlook = Import Data from { app-name-outlook }.
-
-profiles-pane-title-becky = Import Data from { app-name-becky }.
 
 profiles-pane-title-apple-mail = Import Messages from { app-name-apple-mail }.
 

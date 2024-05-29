@@ -113,58 +113,5 @@
       "LastName": "Doe",
       "PrimaryEmail": "jane@doe.invalid"
     }
-  ],
-  "becky_addressbook": [
-    {
-      "DisplayName": "The first man",
-      "PrimaryEmail": "first@host.invalid",
-      "_vCard": [
-        "VERSION:3.0",
-        "FN:The first man",
-        "ORG:Organization;Post;",
-        "X-BECKY-IMAGE:0",
-        "N:The nick name of the first man",
-        "TEL;TYPE=HOME:11-1111-1111",
-        "TEL;TYPE=WORK:22-2222-2222",
-        "TEL;TYPE=CELL:333-3333-3333",
-        "EMAIL;TYPE=INTERNET:first@host.invalid",
-        "NOTE:This is a note.",
-        "UID:4E4D17E8.0043655C"
-      ]
-    },
-    {
-      "DisplayName": "The second man",
-      "PrimaryEmail": "second@host.invalid",
-      "_vCard": [
-        "VERSION:3.0",
-        "FN:The second man",
-        "ORG:Organization;post;",
-        "X-BECKY-IMAGE:0",
-        "N:The nick name of the second man",
-        "TEL;TYPE=HOME:44-4444-4444",
-        "TEL;TYPE=WORK:55-5555-5555",
-        "TEL;TYPE=CELL:666-6666-6666",
-        "EMAIL;TYPE=INTERNET:second@host.invalid",
-        "NOTE:This is a note.",
-        "UID:4EBBF6FE.00AC632B"
-      ]
-    },
-    {
-      "DisplayName": "The third man",
-      "PrimaryEmail": "third@host.invalid",
-      "_vCard": [
-        "VERSION:3.0",
-        "FN:The third man",
-        "ORG:Organization;post;",
-        "X-BECKY-IMAGE:0",
-        "N:The third man",
-        "TEL;TYPE=HOME:77-7777-7777",
-        "TEL;TYPE=WORK:88-8888-8888",
-        "TEL;TYPE=CELL:999-9999-9999",
-        "EMAIL;TYPE=INTERNET:third@host.invalid",
-        "NOTE:This is a note.",
-        "UID:4E57AB44.0001D53E"
-      ]
-    }
   ]
 }

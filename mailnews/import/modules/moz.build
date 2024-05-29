@@ -13,7 +13,6 @@ EXTRA_JS_MODULES += [
 
 if CONFIG["OS_ARCH"] == "WINNT":
     EXTRA_JS_MODULES += [
-        "BeckyProfileImporter.sys.mjs",
         "OutlookProfileImporter.sys.mjs",
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":

@@ -13,7 +13,6 @@ SOURCES += [
     "nsImportMailboxDescriptor.cpp",
     "nsImportService.cpp",
     "nsImportStringBundle.cpp",
-    "nsVCardAddress.cpp",
 ]
 
 if not CONFIG["MOZ_SUITE"]:
@@ -33,16 +32,6 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     ]
 
 if CONFIG["OS_ARCH"] == "WINNT":
-    UNIFIED_SOURCES += [
-        "nsBeckyAddressBooks.cpp",
-        "nsBeckyFilters.cpp",
-        "nsBeckyImport.cpp",
-        "nsBeckyMail.cpp",
-        "nsBeckySettings.cpp",
-        "nsBeckyStringBundle.cpp",
-        "nsBeckyUtils.cpp",
-    ]
-
     if CONFIG["MOZ_MAPI_SUPPORT"]:
         SOURCES += [
             "MapiApi.cpp",
@@ -70,7 +59,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
 
 EXPORTS += [
     "ImportDebug.h",
-    "nsVCardAddress.h",
 ]
 
 FINAL_LIBRARY = "import"
