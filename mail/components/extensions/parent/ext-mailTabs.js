@@ -78,13 +78,19 @@ function convertMailTab(tab, context) {
   if (sortOrder) {
     mailTabObject.sortOrder = sortOrder;
   }
+
+  let groupType = "ungrouped";
   if (gViewWrapper?.showGroupedBySort) {
-    mailTabObject.viewType = "groupedBySortType";
+    groupType = "groupedBySortType";
   } else if (gViewWrapper?.showThreaded) {
-    mailTabObject.viewType = "groupedByThread";
-  } else {
-    mailTabObject.viewType = "ungrouped";
+    groupType = "groupedByThread";
   }
+  if (context.extension.manifest.manifest_version < 3) {
+    mailTabObject.viewType = groupType;
+  } else {
+    mailTabObject.groupType = groupType;
+  }
+
   if (context.extension.hasPermission("accountsRead")) {
     mailTabObject.displayedFolder = context.extension.folderManager.convert(
       about3Pane.gFolder
@@ -291,14 +297,16 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       const {
         // MV2
         displayedFolder,
+        viewType,
         // MV3
         displayedFolderId,
+        groupType,
+        // Common
         layout,
         folderPaneVisible,
         messagePaneVisible,
         sortOrder,
         sortType,
-        viewType,
         folderModesEnabled,
         folderMode,
       } = properties;
@@ -435,7 +443,8 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         }
       }
 
-      switch (viewType) {
+      const type = viewType || groupType;
+      switch (type) {
         case "groupedBySortType":
           about3Pane.gViewWrapper.showGroupedBySort = true;
           break;

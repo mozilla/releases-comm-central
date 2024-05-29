@@ -21,6 +21,13 @@
           "active": {
             "type": "boolean"
           },
+          "groupType": {
+            "type": "string",
+            "min_manifest_version": 3,
+            "description": "Grouping type of the message list.",
+            "optional": true,
+            "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
+          },
           "sortType": {
             "type": "string",
             "description": "The primary sort column of the message list.",
@@ -56,7 +63,8 @@
           },
           "viewType": {
             "type": "string",
-            "description": "Group mode of the message list.",
+            "max_manifest_version": 2,
+            "description": "Grouping type of the message list.",
             "optional": true,
             "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
           },
@@ -100,6 +108,13 @@
         "id": "MailTabProperties",
         "type": "object",
         "properties": {
+          "groupType": {
+            "type": "string",
+            "min_manifest_version": 3,
+            "description": "Grouping type of the message list.",
+            "optional": true,
+            "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
+          },
           "sortType": {
             "type": "string",
             "description": "Sorts the list of messages. ``sortOrder`` must also be given.",
@@ -135,7 +150,8 @@
           },
           "viewType": {
             "type": "string",
-            "description": "Sets the group mode of displayed messages.",
+            "max_manifest_version": 2,
+            "description": "Sets the grouping type of displayed messages.",
             "optional": true,
             "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
           },

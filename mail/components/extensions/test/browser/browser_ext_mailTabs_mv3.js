@@ -18,6 +18,7 @@ add_setup(async () => {
   createMessages(subFolders.test2, 50);
 
   tabmail.currentTabInfo.folder = rootFolder;
+  await ensure_table_view();
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(() => {
@@ -177,12 +178,81 @@ add_task(async function test_update() {
 
     await browser.mailTabs.update({ displayedFolderId: folder.id });
     const expected = {
+      sortType: "date",
+      sortOrder: "descending",
+      groupType: "groupedByThread",
+      layout: "standard",
+      folderPaneVisible: true,
+      messagePaneVisible: true,
       displayedFolder: folder,
     };
     delete expected.displayedFolder.subFolders;
 
     await checkCurrent(expected);
-    await window.sendMessage("checkDisplayedFolder", expected);
+    await window.sendMessage("checkRealLayout", expected);
+    await window.sendMessage("checkRealSort", expected);
+    await window.sendMessage("checkRealView", expected);
+
+    expected.sortOrder = "ascending";
+    for (const value of ["date", "subject", "author"]) {
+      await browser.mailTabs.update({
+        sortType: value,
+        sortOrder: "ascending",
+      });
+      expected.sortType = value;
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
+    }
+    expected.sortOrder = "descending";
+    for (const value of ["author", "subject", "date"]) {
+      await browser.mailTabs.update({
+        sortType: value,
+        sortOrder: "descending",
+      });
+      expected.sortType = value;
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
+    }
+
+    for (const key of ["folderPaneVisible", "messagePaneVisible"]) {
+      for (const value of [false, true]) {
+        await browser.mailTabs.update({ [key]: value });
+        expected[key] = value;
+        await checkCurrent(expected);
+        await window.sendMessage("checkRealLayout", expected);
+        await window.sendMessage("checkRealView", expected);
+      }
+    }
+    for (const value of ["wide", "vertical", "standard"]) {
+      await browser.mailTabs.update({ layout: value });
+      expected.layout = value;
+      await checkCurrent(expected);
+      await window.sendMessage("checkRealLayout", expected);
+      await window.sendMessage("checkRealView", expected);
+    }
+
+    // Test all possible switch combination.
+    for (const groupType of [
+      "ungrouped",
+      "groupedByThread",
+      "ungrouped",
+      "groupedBySortType",
+      "groupedByThread",
+      "groupedBySortType",
+      "ungrouped",
+    ]) {
+      await browser.mailTabs.update({ groupType });
+      expected.groupType = groupType;
+      await checkCurrent(expected);
+      await window.sendMessage("checkRealLayout", expected);
+      await window.sendMessage("checkRealSort", expected);
+      await window.sendMessage("checkRealView", expected);
+    }
+
+    const selectedMessages = await browser.mailTabs.getSelectedMessages();
+    browser.test.assertEq(null, selectedMessages.id);
+    browser.test.assertEq(0, selectedMessages.messages.length);
+
     browser.test.notifyPass("mailTabs");
   }
 
@@ -198,11 +268,81 @@ add_task(async function test_update() {
     },
   });
 
-  extension.onMessage("checkDisplayedFolder", async expected => {
+  extension.onMessage("checkRealLayout", async expected => {
+    const intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
+    is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
+    await check3PaneState(
+      expected.folderPaneVisible,
+      expected.messagePaneVisible
+    );
     Assert.equal(
       "/" + (tabmail.currentTabInfo.folder.URI || "").split("/").pop(),
       expected.displayedFolder.path,
       "Should display the correct folder"
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkRealSort", expected => {
+    const sortTypes = {
+      date: Ci.nsMsgViewSortType.byDate,
+      subject: Ci.nsMsgViewSortType.bySubject,
+      author: Ci.nsMsgViewSortType.byAuthor,
+    };
+
+    const { primarySortType, primarySortOrder } =
+      tabmail.currentAbout3Pane.gViewWrapper;
+
+    Assert.equal(
+      primarySortOrder,
+      Ci.nsMsgViewSortOrder[expected.sortOrder],
+      `sort order should be ${expected.sortOrder}`
+    );
+    Assert.equal(
+      primarySortType,
+      sortTypes[expected.sortType],
+      `sort type should be ${expected.sortType}`
+    );
+
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkRealView", expected => {
+    const groupTypes = {
+      groupedBySortType: {
+        showGroupedBySort: true,
+        showThreaded: false,
+        showUnthreaded: false,
+      },
+      groupedByThread: {
+        showGroupedBySort: false,
+        showThreaded: true,
+        showUnthreaded: false,
+      },
+      ungrouped: {
+        showGroupedBySort: false,
+        showThreaded: false,
+        showUnthreaded: true,
+      },
+    };
+
+    const { showThreaded, showUnthreaded, showGroupedBySort } =
+      tabmail.currentAbout3Pane.gViewWrapper;
+
+    Assert.equal(
+      showThreaded,
+      groupTypes[expected.groupType].showThreaded,
+      `Correct value for showThreaded for groupType <${expected.groupType}>`
+    );
+    Assert.equal(
+      showUnthreaded,
+      groupTypes[expected.groupType].showUnthreaded,
+      `Correct value for showUnthreaded for groupType <${expected.groupType}>`
+    );
+    Assert.equal(
+      showGroupedBySort,
+      groupTypes[expected.groupType].showGroupedBySort,
+      `Correct value for showGroupedBySort for groupType <${expected.groupType}>`
     );
     extension.sendMessage();
   });
