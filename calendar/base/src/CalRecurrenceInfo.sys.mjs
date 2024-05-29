@@ -825,7 +825,6 @@ CalRecurrenceInfo.prototype = {
         rid = rid.getInTimezone(rdate ? rdate.timezone : startTimezone);
         rid.addDuration(timeDiff);
         ex.recurrenceId = rid;
-        cal.item.shiftOffset(ex, timeDiff);
         modifiedExceptions.push(ex);
         this.removeExceptionFor(exid);
       }

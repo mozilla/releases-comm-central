@@ -1087,11 +1087,11 @@ function test_startdate_change() {
   occ.QueryInterface(Ci.calIEvent);
   occ.startDate = cal.createDateTime("20020406T124500Z");
   item.recurrenceInfo.modifyException(occ, true);
-  changeBy(item, "PT1H");
-  equal(item.startDate.icalString, "20020402T124500Z");
-  occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T124500Z"));
+  changeBy(item, "PT3H"); // Change series by 3h.
+  equal(item.startDate.icalString, "20020402T144500Z");
+  occ = item.recurrenceInfo.getExceptionFor(cal.createDateTime("20020406T144500Z"));
   occ.QueryInterface(Ci.calIEvent);
-  equal(occ.startDate.icalString, "20020406T134500Z");
+  equal(occ.startDate.icalString, "20020406T124500Z"); // Exception should stay put.
 }
 
 function test_idchange() {

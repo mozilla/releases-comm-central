@@ -170,7 +170,7 @@ CalRecurrenceRule.prototype = {
 
   get count() {
     if (!this.isByCount) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+      throw Components.Exception("Rule is not by count.", Cr.NS_ERROR_FAILURE);
     }
     return this.innerObject.count || -1;
   },
