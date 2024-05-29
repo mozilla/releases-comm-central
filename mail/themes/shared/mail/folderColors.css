@@ -3,33 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --folder-color-inbox: var(--color-blue-50);
-  --folder-color-draft: var(--color-purple-50);
-  --folder-color-sent: var(--color-green-60);
-  --folder-color-archive: var(--color-brown-60);
-  --folder-color-spam: var(--color-red-60);
-  --folder-color-trash: var(--color-ink-60);
-  --folder-color-template: var(--color-gray-60);
-  --folder-color-newsletter: var(--color-gray-60);
-  --folder-color-rss: var(--color-orange-60);
-  --folder-color-outbox: var(--color-teal-60);
-  --folder-color-folder: var(--color-yellow-50);
-  --folder-color-folder-filter: var(--color-magenta-60);
-  --folder-color-folder-rss: var(--color-orange-60);
-
-  @media (prefers-color-scheme: dark) {
-    --folder-color-inbox: var(--color-blue-30);
-    --folder-color-draft: var(--color-purple-30);
-    --folder-color-sent: var(--color-green-30);
-    --folder-color-archive: var(--color-brown-30);
-    --folder-color-spam: var(--color-red-30);
-    --folder-color-trash: var(--color-ink-30);
-    --folder-color-template: var(--color-gray-10);
-    --folder-color-newsletter: var(--color-gray-10);
-    --folder-color-rss: var(--color-orange-30);
-    --folder-color-outbox: var(--color-teal-30);
-    --folder-color-folder: var(--color-yellow-10);
-    --folder-color-folder-filter: var(--color-magenta-30);
-    --folder-color-folder-rss: var(--color-orange-30);
-  }
+  --folder-color-inbox: light-dark(var(--color-blue-50), var(--color-blue-30));
+  --folder-color-draft: light-dark(var(--color-purple-50), var(--color-purple-30));
+  --folder-color-sent: light-dark(var(--color-green-60), var(--color-green-30));
+  --folder-color-archive: light-dark(var(--color-brown-60), var(--color-brown-30));
+  --folder-color-spam: light-dark(var(--color-red-60), var(--color-red-30));
+  --folder-color-trash: light-dark(var(--color-ink-60), var(--color-ink-30));
+  --folder-color-template: light-dark(var(--color-gray-60), var(--color-gray-10));
+  --folder-color-newsletter: light-dark(var(--color-gray-60), var(--color-gray-10));
+  --folder-color-rss: light-dark(var(--color-orange-60), var(--color-orange-30));
+  --folder-color-outbox: light-dark(var(--color-teal-60), var(--color-teal-30));
+  --folder-color-folder: light-dark(var(--color-yellow-50), var(--color-yellow-10));
+  --folder-color-folder-filter: light-dark(var(--color-magenta-60), var(--color-magenta-30));
+  --folder-color-folder-rss: light-dark(var(--color-orange-60), var(--color-orange-30));
 }
