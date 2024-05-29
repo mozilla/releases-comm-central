@@ -48,6 +48,11 @@ add_task(async function test_initialState() {
     searchBar.getAttribute("label"),
     "Label forwarded to aria-label on input"
   );
+  is(
+    searchBar.shadowRoot.querySelector("slot[name=placeholder]").textContent,
+    searchBar.getAttribute("placeholder"),
+    "Placeholder forwarded to placeholder slot"
+  );
 });
 
 add_task(async function test_labelUpdate() {
@@ -58,6 +63,16 @@ add_task(async function test_labelUpdate() {
     input.getAttribute("aria-label"),
     "foo",
     "Updated label applied to content"
+  );
+});
+
+add_task(async function test_placeholderUpdate() {
+  searchBar.setAttribute("placeholder", "bar");
+  await waitForRender();
+  is(
+    searchBar.shadowRoot.querySelector("slot[name=placeholder]").textContent,
+    "bar",
+    "Updated placeholder applied to placeholder slot"
   );
 });
 
@@ -229,28 +244,28 @@ add_task(async function test_placeholderVisibility() {
   );
 });
 
-add_task(async function test_placeholderFallbackToLabel() {
-  const placeholder = searchBar.querySelector("span");
-  placeholder.remove();
+add_task(async function test_placeholderFallback() {
+  const placeholderSpan = searchBar.querySelector("span");
+  placeholderSpan.remove();
 
   const shadowedPlaceholder = searchBar.shadowRoot.querySelector("div");
-  const label = searchBar.getAttribute("label");
+  const placeholder = searchBar.getAttribute("placeholder");
 
   is(
     shadowedPlaceholder.textContent,
-    label,
-    "Falls back to label if no placeholder slot contents provided"
+    placeholder,
+    "Falls back to attribute value if no placeholder slot contents provided"
   );
 
-  searchBar.setAttribute("label", "Foo bar");
+  searchBar.setAttribute("placeholder", "Foo bar");
   is(
     shadowedPlaceholder.textContent,
     "Foo bar",
-    "Placeholder contents get updated with label attribute"
+    "Placeholder contents get updated with placeholder attribute"
   );
 
-  searchBar.prepend(placeholder);
-  searchBar.setAttribute("label", label);
+  searchBar.prepend(placeholderSpan);
+  searchBar.setAttribute("placeholder", placeholder);
 });
 
 add_task(async function test_reset() {

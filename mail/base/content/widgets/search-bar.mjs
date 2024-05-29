@@ -27,7 +27,7 @@
  */
 export class SearchBar extends HTMLElement {
   static get observedAttributes() {
-    return ["label", "disabled"];
+    return ["label", "placeholder", "disabled"];
   }
 
   /**
@@ -117,7 +117,7 @@ export class SearchBar extends HTMLElement {
     this.#input.setAttribute("aria-label", this.getAttribute("label"));
     this.#input.setAttribute("maxlength", this.getAttribute("maxlength"));
     template.querySelector("slot[name=placeholder]").textContent =
-      this.getAttribute("label");
+      this.getAttribute("placeholder");
     this.#input.addEventListener("input", this);
     this.#input.addEventListener("keyup", this);
 
@@ -139,6 +139,8 @@ export class SearchBar extends HTMLElement {
     switch (attributeName) {
       case "label":
         this.#input.setAttribute("aria-label", newValue);
+        break;
+      case "placeholder":
         this.shadowRoot.querySelector("slot[name=placeholder]").textContent =
           newValue;
         break;
