@@ -877,10 +877,13 @@ pref("mail.biff.show_alert", true);
 pref("mail.biff.show_badge", true);
 pref("mail.biff.show_tray_icon", true);
 pref("mail.biff.show_tray_icon_always", false);
-pref("mail.biff.use_system_alert", false);
 #elifdef XP_MACOSX
 pref("mail.biff.animate_dock_icon", false);
-#elifdef XP_UNIX
+#endif
+
+// Use native OS notifications for Linux and Windows by default.
+// macOS only uses native notifications and it can't be changed.
+#ifndef XP_MACOSX
 pref("mail.biff.use_system_alert", true);
 #endif
 
