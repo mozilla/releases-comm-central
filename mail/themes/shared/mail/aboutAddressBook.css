@@ -16,14 +16,29 @@
   --ab-card-line-height: 1.3em;
   --ab-card-table-row-height: 22px;
 
+  --ab-contact-padding: 21px;
+  --ab-contact-photo-size: 80px;
+  --ab-detail-section-padding: 15px;
+  --ab-detail-title-margin-block: 0 15px;
+
   &[uidensity="compact"] {
     --ab-card-line-height: 1em;
     --ab-card-table-row-height: 18px;
+
+    --ab-contact-padding: 12px;
+    --ab-contact-photo-size: 60px;
+    --ab-detail-section-padding: 9px;
+    --ab-detail-title-margin-block: 0 9px;
   }
 
   &[uidensity="touch"] {
     --ab-card-line-height: 1.4em;
     --ab-card-table-row-height: 32px;
+
+    --ab-contact-padding: 24px;
+    --ab-contact-photo-size: 100px;
+    --ab-detail-section-padding: 18px;
+    --ab-detail-title-margin-block: 0 18px;
   }
 
   @media (prefers-contrast) {
@@ -555,12 +570,12 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 .contact-details-scroll {
   grid-area: scroll-content;
   overflow: auto;
-  padding: 21px;
+  padding: var(--ab-contact-padding);
 }
 
 #detailsFooter {
   grid-area: footer;
-  padding: 21px;
+  padding: var(--ab-contact-padding);
   background-color: var(--layout-background-0);
 
   & label {
@@ -626,8 +641,8 @@ body:not(.is-editing) #editContactForm {
 }
 
 .contact-photo {
-  width: 100px;
-  height: 100px;
+  width: var(--ab-contact-photo-size);
+  height: var(--ab-contact-photo-size);
   border-radius: 100%;
   object-fit: cover;
   object-position: center;
@@ -718,7 +733,7 @@ body:not(.is-editing) #editContactForm {
   gap: 1em;
 
   & section {
-    padding: 15px;
+    padding: var(--ab-detail-section-padding);
     border-radius: var(--in-content-button-border-radius);
     border: 1px solid var(--in-content-box-info-border);
     background-color: var(--in-content-box-info-background);
@@ -727,7 +742,7 @@ body:not(.is-editing) #editContactForm {
   }
 
   & h2 {
-    margin-block: 0 15px;
+    margin-block: var(--ab-detail-title-margin-block);
     font-size: 1.1rem;
     line-height: 1.2;
     font-weight: 500;

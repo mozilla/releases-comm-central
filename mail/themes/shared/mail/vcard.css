@@ -5,6 +5,16 @@
 :root {
   --vcard-delete-button-color: light-dark(var(--color-red-60), var(--color-red-40));
   --vcard-remove-color: light-dark(var(--color-red-60), var(--color-red-40));
+
+  --vcard-edit-row-gap: 30px;
+
+  &[uidensity="compact"] {
+    --vcard-edit-row-gap: 21px;
+  }
+
+  &[uidensity="touch"] {
+    --vcard-edit-row-gap: 33px;
+  }
 }
 
 .addr-book-edit-display-nickname {
@@ -42,7 +52,7 @@ vcard-edit {
   grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
   column-gap: 2em;
   grid-template-rows: masonry;
-  row-gap: 30px;
+  row-gap: var(--vcard-edit-row-gap);
   color: var(--sidebar-text-color);
   --input-border-density: 1px;
 
