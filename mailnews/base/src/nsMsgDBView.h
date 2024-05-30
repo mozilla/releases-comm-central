@@ -84,10 +84,10 @@ class nsMsgDBViewService final : public nsIMsgDBViewService {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGDBVIEWSERVICE
 
-  nsMsgDBViewService(){};
+  nsMsgDBViewService() {};
 
  protected:
-  ~nsMsgDBViewService(){};
+  ~nsMsgDBViewService() {};
 };
 
 // This is an abstract implementation class.
@@ -371,6 +371,8 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
                                    nsTArray<uint8_t>& result);
   void PushSort(const MsgViewSortColumnInfo& newSort);
+  void UpdateSortInfo(nsMsgViewSortTypeValue sortType,
+                      nsMsgViewSortOrderValue sortOrder);
   nsresult EncodeColumnSort(nsString& columnSortString);
   nsresult DecodeColumnSort(nsString& columnSortString);
   // For view navigation.

@@ -3890,6 +3890,50 @@ void nsMsgDBView::PushSort(const MsgViewSortColumnInfo& newSort) {
     m_sortColumns.RemoveElementAt(kMaxNumSortColumns);
 }
 
+// Update sort columns and secondary sort type and order.
+//
+// This should be called before performing an actual sort, including rebuilding
+// the view to apply a new sort type/order.
+//
+// NOTE: This does not update primary sort type or sort order.
+void nsMsgDBView::UpdateSortInfo(nsMsgViewSortTypeValue sortType,
+                                 nsMsgViewSortOrderValue sortOrder) {
+  // If a sortType has changed, or the sortType is byCustom and a column has
+  // changed, this is the new primary sortColumnInfo.
+  // Note: m_curCustomColumn is the desired (possibly new) custom column name,
+  // while m_sortColumns[0].mCustomColumnName is the name for the last completed
+  // sort, since these are persisted after each sort.
+  if (m_sortType != sortType ||
+      (sortType == nsMsgViewSortType::byCustom && m_sortColumns.Length() &&
+       !m_sortColumns[0].mCustomColumnName.Equals(m_curCustomColumn))) {
+    // For secondary sort, remember the sort order of the original primary sort!
+    if (m_sortColumns.Length()) {
+      m_sortColumns[0].mSortOrder = m_sortOrder;
+    }
+
+    MsgViewSortColumnInfo sortColumnInfo;
+    sortColumnInfo.mSortType = sortType;
+    sortColumnInfo.mSortOrder = sortOrder;
+    if (sortType == nsMsgViewSortType::byCustom) {
+      GetCurCustomColumn(sortColumnInfo.mCustomColumnName);
+      sortColumnInfo.mColHandler = GetCurColumnHandler();
+    }
+
+    PushSort(sortColumnInfo);
+  } else {
+    // For primary sort, remember the sort order on a per column basis.
+    if (m_sortColumns.Length()) {
+      m_sortColumns[0].mSortOrder = sortOrder;
+    }
+  }
+
+  if (m_sortColumns.Length() > 1) {
+    m_secondarySort = m_sortColumns[1].mSortType;
+    m_secondarySortOrder = m_sortColumns[1].mSortOrder;
+    m_secondaryCustomColumn = m_sortColumns[1].mCustomColumnName;
+  }
+}
+
 nsresult nsMsgDBView::GetCollationKey(nsIMsgDBHdr* msgHdr,
                                       nsMsgViewSortTypeValue sortType,
                                       nsTArray<uint8_t>& result,
@@ -4208,38 +4252,9 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
 
   if (sortType == nsMsgViewSortType::byThread) return NS_OK;
 
-  // If a sortType has changed, or the sortType is byCustom and a column has
-  // changed, this is the new primary sortColumnInfo.
-  // Note: m_curCustomColumn is the desired (possibly new) custom column name,
-  // while m_sortColumns[0].mCustomColumnName is the name for the last completed
-  // sort, since these are persisted after each sort.
-  if (m_sortType != sortType ||
-      (sortType == nsMsgViewSortType::byCustom && m_sortColumns.Length() &&
-       !m_sortColumns[0].mCustomColumnName.Equals(m_curCustomColumn))) {
-    // For secondary sort, remember the sort order of the original primary sort!
-    if (m_sortColumns.Length()) m_sortColumns[0].mSortOrder = m_sortOrder;
-
-    MsgViewSortColumnInfo sortColumnInfo;
-    sortColumnInfo.mSortType = sortType;
-    sortColumnInfo.mSortOrder = sortOrder;
-    if (sortType == nsMsgViewSortType::byCustom) {
-      GetCurCustomColumn(sortColumnInfo.mCustomColumnName);
-      sortColumnInfo.mColHandler = GetCurColumnHandler();
-    }
-
-    PushSort(sortColumnInfo);
-  } else {
-    // For primary sort, remember the sort order on a per column basis.
-    if (m_sortColumns.Length()) m_sortColumns[0].mSortOrder = sortOrder;
-  }
-
-  if (m_sortColumns.Length() > 1) {
-    m_secondarySort = m_sortColumns[1].mSortType;
-    m_secondarySortOrder = m_sortColumns[1].mSortOrder;
-    m_secondaryCustomColumn = m_sortColumns[1].mCustomColumnName;
-  }
-
+  UpdateSortInfo(sortType, sortOrder);
   SaveSortInfo(sortType, sortOrder);
+
   // Figure out how much memory we'll need, and then malloc it.
   uint16_t maxLen;
   eFieldType fieldType;

@@ -195,6 +195,59 @@ add_task(async function test_virtual_folder_multi_sortorder_persistence() {
 });
 
 /**
+ * Verify that we handle implicit secondary sorts correctly for virtual folders.
+ *
+ * When we sort first by Y, then by X, we should implicitly use Y as the
+ * secondary sort so long as that is valid.
+ */
+add_task(async function test_sort_secondary_implicit() {
+  const viewWrapper = make_view_wrapper();
+
+  const [folders, setOne] = await messageInjection.makeFoldersWithSets(2, [
+    { count: 10 },
+  ]);
+  const virtFolder = messageInjection.makeVirtualFolder(folders, {});
+  await view_open(viewWrapper, virtFolder);
+
+  verify_messages_in_view([setOne], viewWrapper);
+  viewWrapper.showThreaded = true;
+
+  viewWrapper.magicSort("subjectCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.magicSort("senderCol", Ci.nsMsgViewSortOrder.ascending);
+
+  const checkSorts = () => {
+    assert_equals(
+      viewWrapper.dbView.sortType,
+      Ci.nsMsgViewSortType.byAuthor,
+      "sort should be by author"
+    );
+    assert_equals(
+      viewWrapper.dbView.sortOrder,
+      Ci.nsMsgViewSortOrder.ascending,
+      "sort order should be ascending"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortType,
+      Ci.nsMsgViewSortType.bySubject,
+      "secondary sort should be by subject"
+    );
+    assert_equals(
+      viewWrapper.dbView.secondarySortOrder,
+      Ci.nsMsgViewSortOrder.descending,
+      "secondary sort order should be descending"
+    );
+  };
+
+  // Verify that the correct columns are used for primary and secondary sort.
+  // We verify again after refreshing the view to ensure that the setting is
+  // persistent.
+  checkSorts();
+  await view_refresh(viewWrapper);
+  checkSorts();
+  virtFolder.parent.propagateDelete(virtFolder, true);
+});
+
+/**
  * Make sure the sort order of a virtual folder backed by multiple underlying
  * folders is set correctly even when no messages are present.
  */

@@ -1062,6 +1062,8 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType,
                      nsMsgViewFlagsType::kGroupBySort)) {
     // ### This forgets which threads were expanded, and is sub-optimal
     // since it rebuilds the thread objects.
+    UpdateSortInfo(sortType, sortOrder);
+    SaveSortInfo(sortType, sortOrder);
     m_sortType = sortType;
     m_sortOrder = sortOrder;
     return RebuildView(m_viewFlags);
