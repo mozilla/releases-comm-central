@@ -213,7 +213,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > li.selected {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  background-color: -moz-cellhighlight;
+  color: -moz-cellhighlighttext;
 }
 
 #calendar-list:focus-within > li.selected {

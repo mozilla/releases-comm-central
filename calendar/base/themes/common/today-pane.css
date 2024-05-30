@@ -63,18 +63,28 @@
   -moz-user-focus: normal;
 
   &:hover {
-    background-color: light-dark(hsla(0, 0%, 0%, 0.1), hsla(0, 0%, 100%, 0.1));
+    background-color: hsla(0, 0%, 0%, 0.1);
     color: inherit;
   }
 
   &:hover:active {
-    background-color: light-dark(hsla(0, 0%, 0%, 0.2), hsla(0, 0%, 100%, 0.2));
+    background-color: hsla(0, 0%, 0%, 0.2);
     color: inherit;
   }
 
   &:focus-visible {
     outline: 2px solid var(--focus-outline-color);
     outline-offset: -2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:hover {
+      background-color: hsla(0, 0%, 100%, 0.1);
+    }
+
+    &:hover:active {
+      background-color: hsla(0, 0%, 100%, 0.2);
+    }
   }
 
   &[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
