@@ -105,7 +105,10 @@ function convertMessagePart(mimeTreePart, isRoot = true) {
     size: mimeTreePart.size,
     partName: mimeTreePart.partNum,
   };
-  if (mimeTreePart.body && !mimeTreePart.isAttachment) {
+
+  // Supress content of attachments or other binary parts.
+  const mediatype = mimeTreePart.headers.contentType.mediatype || "text";
+  if (mimeTreePart.body && !mimeTreePart.isAttachment && mediatype == "text") {
     partObject.body = mimeTreePart.body;
   }
   if (mimeTreePart.isAttachment) {

@@ -1,0 +1,41 @@
+Message-ID: <08.eml@mime.sample>
+Date: Wed, 29 May 2024 15:26:47 +0200
+MIME-Version: 1.0
+From: John <john@example.com>
+Content-Language: en-US
+To: user@invalid
+Subject: Embedded Image
+Content-Type: multipart/related;
+ boundary="------------XDhTrqqN5B126r5Y7JBH0YyJ"
+
+--------------XDhTrqqN5B126r5Y7JBH0YyJ
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p>Example body</p>
+    <img moz-do-not-send="false"
+      src="cid:part1.FxEY2Ivx.xSFtCdX4@gmx.de" alt="" width="1"
+      height="1" class="">
+    <p>with embedded image.<br>
+    </p>
+    <br>
+  </body>
+</html>
+--------------XDhTrqqN5B126r5Y7JBH0YyJ
+Content-Type: image/png; name="blue_pixel_1x1.png"
+Content-Disposition: inline; filename="blue_pixel_1x1.png"
+Content-Id: <part1.FxEY2Ivx.xSFtCdX4@gmx.de>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAKnRFWHRDcmVhdGlvbiBUaW1l
+AFNhIDQgTWFpIDIwMDIgMjM6MjA6MzYgKzAxMDBC3wLLAAAAB3RJTUUH0gUEFRUrVURxbAAA
+AAlwSFlzAAAK8AAACvABQqw0mAAAAARnQU1BAACxjwv8YQUAAAAMSURBVHjaY+CQbQEAANoA
+qj1ML8MAAAAASUVORK5CYII=
+
+--------------XDhTrqqN5B126r5Y7JBH0YyJ--

@@ -351,7 +351,7 @@ add_task(async function test_plain_mv3() {
 
 /**
  * Test that mime parsers for all message types retrieve the correctly decoded
- * headers and bodies. Bodies should no not be returned, if it is an attachment.
+ * headers and bodies. Bodies should not be returned, if it is an attachment.
  * Sizes are not checked for.
  */
 add_task(async function test_encoding() {
@@ -399,6 +399,11 @@ add_task(async function test_encoding() {
   await createMessageFromFile(
     _folder,
     do_get_file("messages/sample07.eml").path
+  );
+  // A multipart/related message with an embedded image.
+  await createMessageFromFile(
+    _folder,
+    do_get_file("messages/sample08.eml").path
   );
 
   const extension = ExtensionTestUtils.loadExtension({
@@ -725,6 +730,65 @@ add_task(async function test_encoding() {
             ],
           },
         },
+        "08.eml@mime.sample": {
+          msgHeaders: {
+            subject: "Embedded Image",
+            author: "John <john@example.com>",
+          },
+          msgParts: {
+            contentType: "message/rfc822",
+            partName: "",
+            size: 0,
+            decryptionStatus: "none",
+            headers: {
+              from: ["John <john@example.com>"],
+              to: ["user@invalid"],
+              subject: ["Embedded Image"],
+              date: ["Wed, 29 May 2024 15:26:47 +0200"],
+              "message-id": ["<08.eml@mime.sample>"],
+              "mime-version": ["1.0"],
+              "content-type": ["message/rfc822"],
+            },
+            parts: [
+              {
+                contentType: "multipart/related",
+                headers: {
+                  "content-language": ["en-US"],
+                  "content-type": [
+                    `multipart/related; boundary="------------XDhTrqqN5B126r5Y7JBH0YyJ"`,
+                  ],
+                },
+                size: 0,
+                partName: "1",
+                parts: [
+                  {
+                    contentType: "text/html",
+                    headers: {
+                      "content-type": ["text/html; charset=UTF-8"],
+                      "content-transfer-encoding": ["7bit"],
+                    },
+                    size: 0,
+                    partName: "1.1",
+                    body: `<!DOCTYPE html>\r\n<html>\r\n  <head>\r\n    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n  </head>\r\n  <body>\r\n    <p>Example body</p>\r\n    <img moz-do-not-send=\"false\"\r\n      src=\"cid:part1.FxEY2Ivx.xSFtCdX4@gmx.de\" alt=\"\" width=\"1\"\r\n      height=\"1\" class=\"\">\r\n    <p>with embedded image.<br>\r\n    </p>\r\n    <br>\r\n  </body>\r\n</html>`,
+                  },
+                  {
+                    contentType: "image/png",
+                    headers: {
+                      "content-type": [`image/png; name="blue_pixel_1x1.png"`],
+                      "content-disposition": [
+                        `inline; filename="blue_pixel_1x1.png"`,
+                      ],
+                      "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@gmx.de>"],
+                      "content-transfer-encoding": ["base64"],
+                    },
+                    size: 0,
+                    partName: "1.2",
+                  },
+                ],
+              },
+            ],
+          },
+        },
       };
 
       function checkMsgHeaders(expected, actual) {
@@ -833,7 +897,7 @@ add_task(async function test_encoding() {
       for (const account of accounts) {
         const folder = account.folders.find(f => f.name == "test1");
         const { messages } = await browser.messages.list(folder.id);
-        browser.test.assertEq(7, messages.length);
+        browser.test.assertEq(8, messages.length);
 
         for (const message of messages) {
           const fullMessage = await browser.messages.getFull(message.id);
