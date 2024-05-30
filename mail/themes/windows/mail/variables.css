@@ -30,6 +30,22 @@
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
   }
 
+  @media (prefers-color-scheme: dark) {
+    &[lwtheme] {
+      --autocomplete-popup-highlight-color: var(--lwt-text-color);
+      --dark-lwt-highlight-color: #0a84ff;
+    }
+
+    &[lwtheme]:not([lwt-tree]) menupopup {
+      --panel-background: var(--arrowpanel-background) !important;
+      --panel-color: var(--arrowpanel-color) !important;
+      --panel-border-color: var(--arrowpanel-border-color) !important;
+      --menu-color: var(--arrowpanel-color) !important;
+      --menu-disabled-color: color-mix(in srgb, var(--arrowpanel-color) 35%, transparent) !important;
+      --menuitem-hover-background-color: color-mix(in srgb, var(--arrowpanel-color) 13%, transparent) !important;
+    }
+  }
+
   @media (prefers-contrast) {
     &:not([lwtheme]) {
       --lwt-tabs-border-color: ThreeDShadow;

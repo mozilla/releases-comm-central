@@ -527,13 +527,13 @@ menubar {
   font-size: inherit;
 }
 
-#mail-menubar {
-  color-scheme: light dark;
-}
-
-#mail-menubar > menu[_moz-menuactive="true"]:not([disabled="true"]) {
-  background-color: light-dark(hsla(0, 0%, 0%, 0.12), hsla(0, 0%, 100%, 0.22));
+:root[lwtheme] menubar > menu[_moz-menuactive="true"]:not([disabled="true"]) {
+  background-color: hsla(0, 0%, 0%, 0.12);
   color: inherit;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: hsla(0, 0%, 100%, 0.22);
+  }
 }
 
 menulist {
@@ -918,6 +918,12 @@ statuspanel {
   background-color: var(--layout-background-1);
   border-top: 1px solid var(--splitter-color);
   min-height: 22px;
+
+  @media (prefers-color-scheme: dark) {
+    :root[lwtheme] & {
+      border-top-color: var(--lwt-accent-color);
+    }
+  }
 }
 
 :root[lwtheme] #status-bar {

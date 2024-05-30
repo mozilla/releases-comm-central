@@ -150,15 +150,25 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
   @media not (prefers-contrast) {
     &:hover {
-      background-color: light-dark(hsla(0, 0%, 0%, 0.12), hsla(0, 0%, 100%, 0.12));
+      background-color: hsla(0, 0%, 0%, 0.12);
 
       &:active {
-        background-color: light-dark(hsla(0, 0%, 0%, 0.22), hsla(0, 0%, 100%, 0.22));
+        background-color: hsla(0, 0%, 0%, 0.22);
       }
     }
 
     &:not(:hover) > .toolbarbutton-icon:-moz-window-inactive {
       opacity: 0.5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:hover {
+        background-color: hsla(0, 0%, 100%, 0.12);
+
+        &:active {
+          background-color: hsla(0, 0%, 100%, 0.22);
+        }
+      }
     }
   }
 
@@ -239,10 +249,20 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   @media not (prefers-contrast) {
     &:hover {
       stroke: white;
-      background-color: light-dark(var(--color-red-60), var(--color-red-70));
+      background-color: var(--color-red-60);
 
       &:hover:active {
-        background-color: light-dark(var(--color-red-50), var(--color-red-60));
+        background-color: var(--color-red-50);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:hover {
+        background-color: var(--color-red-70);
+
+        &:hover:active {
+          background-color: var(--color-red-60);
+        }
       }
     }
   }

@@ -52,7 +52,6 @@
   appearance: none;
   align-items: stretch;
   flex: 100 100;
-  color-scheme: light dark;
   background-color: transparent;
   border-radius: 4px 4px 0 0;
   border-width: 0;
@@ -250,7 +249,10 @@ button.tab-close-button {
 /* Tab hover */
 
 .tabmail-tab:hover .tab-background:not([selected=true]) {
-  background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.05));
+  background-color: rgba(0, 0, 0, 0.1);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -264,7 +266,11 @@ button.tab-close-button {
 .tabmail-tab:hover .tab-line:not([selected=true]) {
   opacity: 1;
   transform: none;
-  background-color: light-dark(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.15));
+  background-color: rgba(0, 0, 0, 0.2);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
 }
 
 /**

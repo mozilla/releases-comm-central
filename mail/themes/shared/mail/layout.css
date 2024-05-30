@@ -24,20 +24,40 @@
 
 :host,
 :root {
-  --layout-background-0: light-dark(var(--color-white), var(--color-gray-90));
-  --layout-background-1: light-dark(var(--color-gray-05), var(--color-gray-80));
-  --layout-background-2: light-dark(var(--color-gray-10), var(--color-gray-70));
-  --layout-background-3: light-dark(var(--color-gray-20), var(--color-gray-60));
-  --layout-background-4: light-dark(var(--color-gray-30), var(--color-gray-50));
+  --layout-background-0: var(--color-white);
+  --layout-background-1: var(--color-gray-05);
+  --layout-background-2: var(--color-gray-10);
+  --layout-background-3: var(--color-gray-20);
+  --layout-background-4: var(--color-gray-30);
 
-  --layout-color-0: light-dark(var(--color-black), var(--color-white));
-  --layout-color-1: light-dark(var(--color-gray-90), var(--color-gray-10));
-  --layout-color-2: light-dark(var(--color-gray-70), var(--color-gray-30));
+  --layout-color-0: var(--color-black);
+  --layout-color-1: var(--color-gray-90);
+  --layout-color-2: var(--color-gray-70);
   --layout-color-3: var(--color-gray-50);
 
-  --layout-border-0: light-dark(var(--color-gray-30), var(--color-gray-70));
-  --layout-border-1: light-dark(var(--color-gray-40), var(--color-gray-60));
+  --layout-border-0: var(--color-gray-30);
+  --layout-border-1: var(--color-gray-40);
   --layout-border-2: var(--color-gray-50);
+}
+
+@media (prefers-color-scheme: dark) {
+  :host,
+  :root {
+    --layout-background-0: var(--color-gray-90);
+    --layout-background-1: var(--color-gray-80);
+    --layout-background-2: var(--color-gray-70);
+    --layout-background-3: var(--color-gray-60);
+    --layout-background-4: var(--color-gray-50);
+
+    --layout-color-0: var(--color-white);
+    --layout-color-1: var(--color-gray-10);
+    --layout-color-2: var(--color-gray-30);
+    --layout-color-3: var(--color-gray-50);
+
+    --layout-border-0: var(--color-gray-70);
+    --layout-border-1: var(--color-gray-60);
+    --layout-border-2: var(--color-gray-50);
+  }
 }
 
 @media (prefers-contrast) {
