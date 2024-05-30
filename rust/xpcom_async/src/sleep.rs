@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::{
-    cell::Cell, future::Future, task::{Poll, Waker}
+    cell::Cell,
+    future::Future,
+    task::{Poll, Waker},
 };
 
 use cstr::cstr;
@@ -53,7 +55,11 @@ impl SleepTimer {
         });
 
         unsafe {
-            timer.InitWithCallback(sleeper.coerce(), duration_in_ms, nsITimer::TYPE_ONE_SHOT as u32)
+            timer.InitWithCallback(
+                sleeper.coerce(),
+                duration_in_ms,
+                nsITimer::TYPE_ONE_SHOT as u32,
+            )
         }
         .to_result()?;
 

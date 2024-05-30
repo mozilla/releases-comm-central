@@ -52,7 +52,11 @@ impl Client {
     }
 
     /// Starts building an HTTP request to the given method and URL.
-    pub fn request<'rb>(&self, method: Method, url: &'rb Url) -> crate::Result<RequestBuilder<'rb>> {
+    pub fn request<'rb>(
+        &self,
+        method: Method,
+        url: &'rb Url,
+    ) -> crate::Result<RequestBuilder<'rb>> {
         RequestBuilder::new(method, url)
     }
 

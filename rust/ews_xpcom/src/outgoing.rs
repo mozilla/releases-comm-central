@@ -189,8 +189,9 @@ impl EwsOutgoingServer {
         let host = ews_url.host_str().ok_or(nserror::NS_ERROR_FAILURE)?;
         let url = nsCString::from(format!("ews://{username}@{host}"));
 
-        let io_service = xpcom::get_service::<nsIIOService>(c"@mozilla.org/network/io-service;1")
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
+        let io_service =
+            xpcom::get_service::<nsIIOService>(cstr::cstr!("@mozilla.org/network/io-service;1"))
+                .ok_or(nserror::NS_ERROR_FAILURE)?;
 
         getter_addrefs(|p| unsafe { io_service.NewURI(&*url, ptr::null(), ptr::null(), p) })
     }
@@ -312,9 +313,10 @@ impl EwsOutgoingServer {
 
 /// Open the file provided and read its content into a vector of bytes.
 fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
-    let file_stream =
-        create_instance::<nsIFileInputStream>(c"@mozilla.org/network/file-input-stream;1")
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
+    let file_stream = create_instance::<nsIFileInputStream>(cstr::cstr!(
+        "@mozilla.org/network/file-input-stream;1"
+    ))
+    .ok_or(nserror::NS_ERROR_FAILURE)?;
 
     // Open a stream from the file, and figure out how many bytes can be read
     // from it.
