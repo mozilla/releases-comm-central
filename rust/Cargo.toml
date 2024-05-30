@@ -6,10 +6,11 @@ description = "Thunderbird extensions to mozilla-central-workspace-hack"
 
 [features]
 gkrust = []
+gkrust-gtest = ["gkrust"]
 
 
 [workspace]
-members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom']
+members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest']
 
 [workspace.dependencies]
 uniffi = { version = "0.27.1" }

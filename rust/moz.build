@@ -6,3 +6,8 @@
 DIRS += [
     "gkrust",
 ]
+
+if CONFIG["ENABLE_TESTS"]:
+    DIRS += [
+        "gtest",
+    ]

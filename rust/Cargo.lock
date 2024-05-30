@@ -353,6 +353,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bench-collections-gtest"
+version = "0.1.0"
+dependencies = [
+ "fnv",
+ "fxhash",
+]
+
+[[package]]
 name = "bhttp"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1053,6 +1061,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "dap_ffi-gtest"
+version = "0.1.0"
+dependencies = [
+ "dap_ffi",
+ "hex",
+ "prio",
+ "serde",
+ "serde_json",
+ "thin-vec",
+]
+
+[[package]]
 name = "darling"
 version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1692,6 +1712,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "fog-gtest"
+version = "0.1.0"
+dependencies = [
+ "firefox-on-glean",
+ "jog",
+ "nsstring",
+]
+
+[[package]]
 name = "fog_control"
 version = "0.1.0"
 dependencies = [
@@ -1860,6 +1889,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
 dependencies = [
  "byteorder",
+]
+
+[[package]]
+name = "gecko-fuzz-targets"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "libc",
+ "lmdb-rkv",
+ "rkv",
+ "tempfile",
 ]
 
 [[package]]
@@ -2037,6 +2077,27 @@ dependencies = [
  "wgpu_bindings",
  "wpf-gpu-raster",
  "xpcom",
+]
+
+[[package]]
+name = "gkrust-gtest"
+version = "0.1.0"
+dependencies = [
+ "bench-collections-gtest",
+ "dap_ffi-gtest",
+ "ews_xpcom",
+ "fog-gtest",
+ "gecko-fuzz-targets",
+ "gkrust-shared",
+ "l10nregistry-ffi-gtest",
+ "lmdb-rkv-sys",
+ "moz_task-gtest",
+ "mozglue-static",
+ "mozilla-central-workspace-hack",
+ "mp4parse-gtest",
+ "nsstring-gtest",
+ "swgl",
+ "xpcom-gtest",
 ]
 
 [[package]]
@@ -2363,6 +2424,9 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "hexf-parse"
@@ -2716,6 +2780,14 @@ dependencies = [
  "thin-vec",
  "unic-langid",
  "xpcom",
+]
+
+[[package]]
+name = "l10nregistry-ffi-gtest"
+version = "0.1.0"
+dependencies = [
+ "l10nregistry-ffi",
+ "moz_task",
 ]
 
 [[package]]
@@ -3188,6 +3260,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "moz_task-gtest"
+version = "0.1.0"
+dependencies = [
+ "moz_task",
+]
+
+[[package]]
 name = "mozannotation_client"
 version = "0.1.0"
 dependencies = [
@@ -3246,6 +3325,10 @@ dependencies = [
  "num-traits",
  "static_assertions",
 ]
+
+[[package]]
+name = "mp4parse-gtest"
+version = "0.1.0"
 
 [[package]]
 name = "mp4parse_capi"
@@ -3456,6 +3539,13 @@ version = "0.1.0"
 dependencies = [
  "bitflags 2.5.0",
  "encoding_rs",
+]
+
+[[package]]
+name = "nsstring-gtest"
+version = "0.1.0"
+dependencies = [
+ "nsstring",
 ]
 
 [[package]]
@@ -5834,6 +5924,15 @@ dependencies = [
  "thin-vec",
  "threadbound",
  "xpcom_macros",
+]
+
+[[package]]
+name = "xpcom-gtest"
+version = "0.1.0"
+dependencies = [
+ "nserror",
+ "nsstring",
+ "xpcom",
 ]
 
 [[package]]
