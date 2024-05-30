@@ -5,3 +5,20 @@
 @import url("chrome://messenger/skin/shared/attachmentList.css");
 
 /* styles for the attachment list */
+
+.attachmentItem:where(:hover) {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[lwtheme] .attachmentList {
+    & .attachmentItem[selected="true"] {
+      color: var(--lwt-text-color);
+      background: rgba(249, 249, 250, 0.1);
+    }
+
+    &:focus .attachmentItem[selected="true"] {
+      background: var(--dark-lwt-highlight-color);
+    }
+  }
+}

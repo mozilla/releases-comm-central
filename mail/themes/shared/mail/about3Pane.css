@@ -6,6 +6,7 @@
 @import url("chrome://messenger/skin/shared/serverMenuItems.css");
 
 :root {
+  --foldertree-background: -moz-Dialog;
   --treeitem-border-radius: 3px;
   --folder-mode-name-padding: 6px;
   --folder-tree-header-gap: 9px;
@@ -17,16 +18,31 @@
   --folder-pane-icon-kebab: var(--icon-kebab);
 
   @media not (prefers-contrast) {
-    --foldertree-background: light-dark(var(--color-gray-10), var(--color-gray-80));
+    --foldertree-background: var(--color-gray-10);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
-    --folderpane-total-count-background: light-dark(var(--color-gray-20), var(--color-gray-60));
-    --folderpane-total-count-text: light-dark(var(--color-gray-90), var(--color-white));
-    --folderpane-unread-new-count-background: light-dark(var(--color-blue-60), var(--color-blue-50));
-    --treeitem-background-selected: light-dark(var(--color-gray-30), var(--color-gray-70));
-    --treeitem-background-hover: light-dark(var(--color-gray-20), var(--color-gray-60));
+    --folderpane-total-count-background: var(--color-gray-20);
+    --folderpane-total-count-text: var(--color-gray-90);
+    --folderpane-unread-new-count-background: var(--color-blue-60);
+    --treeitem-background-selected: var(--color-gray-30);
+    --treeitem-background-hover: var(--color-gray-20);
     --treeitem-text-active: var(--selected-item-text-color);
     --treeitem-background-active: var(--selected-item-color);
+    --in-content-item-selected-unfocused: var(--color-gray-20);
+
+    @media (prefers-color-scheme: dark) {
+      --foldertree-background: var(--color-gray-80);
+      --folderpane-unread-new-count-background: var(--color-blue-50);
+      --folderpane-total-count-background: var(--color-gray-60);
+      --folderpane-total-count-text: var(--color-white);
+      --treeitem-background-selected: var(--color-gray-70);
+      --treeitem-background-hover: var(--color-gray-60);
+      --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-primary-button-background-hover: #65c1ff;
+      --in-content-primary-button-background-active: #85e1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
   }
 
   &[lwt-tree] {
@@ -53,7 +69,6 @@
 
   @media (prefers-contrast) {
     &:not([lwtheme]) {
-      --foldertree-background: -moz-Dialog;
       --folderpane-unread-count-background: var(--selected-item-color);
       --folderpane-unread-count-text: var(--selected-item-text-color);
       --folderpane-total-count-background: var(--selected-item-color);
