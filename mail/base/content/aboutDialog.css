@@ -3,25 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --dialog-background: #fefefe;
-  --dialog-box-color: #222;
-  --client-box-background: #f7f7f7;
-  --link-color: LinkText;
+  --dialog-background: light-dark(#fefefe, #222);
+  --dialog-box-color: light-dark(#222, #f7f7f7);
+  --client-box-background: light-dark(#f7f7f7, #444);
+  --link-color: light-dark(LinkText, #f7f7f7);
   --link-decoration: inherit;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --dialog-background: #222;
-    --dialog-box-color: #f7f7f7;
-    --client-box-background: #444;
-    --link-color: #f7f7f7;
+  @media (prefers-color-scheme: dark) {
     --link-decoration: underline;
   }
-}
 
-@media (prefers-contrast) {
-  :root {
+  @media (prefers-contrast) {
     --dialog-background: -moz-Dialog;
     --dialog-box-color: -moz-DialogText;
     --client-box-background: -moz-Dialog;

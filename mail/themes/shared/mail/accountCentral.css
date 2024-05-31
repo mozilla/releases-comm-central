@@ -10,53 +10,23 @@ html {
 }
 
 :root {
-  --bg-color: #ffffff;
+  --bg-color: light-dark(#fff, #2f2f33);
   --bg-watermark: url("chrome://messenger/skin/images/account-watermark.png");
-  --header-bg-color: rgba(0, 0, 0, 0.05);
-  --accounts-bg-color: rgba(0, 0, 0, 0.03);
-  --text-color: #36385A;
-  --title-color: #002275;
-  --primary-color: #0a84ff;
-  --primary-color-hover: #0060df;
-  --btn-color: #36385A;
-  --btn-color-hover: #FFFFFF;
-  --btn-bg: #FFFFFF;
+  --header-bg-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+  --accounts-bg-color: light-dark(rgba(0, 0, 0, 0.03), rgba(255, 255, 255, 0.03));
+  --text-color: light-dark(#36385a, #f9f9fa);
+  --title-color: light-dark(#002275, #fefefe);
+  --primary-color: light-dark(#0a84ff, #0a84ff);
+  --primary-color-hover: light-dark(#0060df, #0a84ff);
+  --btn-color: light-dark(#36385a, #fff);
+  --btn-color-hover: #fff;
+  --btn-bg: light-dark(#fff, #38383d);
   --btn-bg-hover: #0060df;
-  --btn-shadow-hover: rgba(0, 0, 0, 0.3);
-  --popup-bg: #EDEDF0;
+  --btn-shadow-hover: light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+  --popup-bg: light-dark(#ededf0, #474749);
 
   @media (prefers-color-scheme: dark) {
-    --bg-color: #2f2f33;
     --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
-    --header-bg-color: rgba(255, 255, 255, 0.05);
-    --accounts-bg-color: rgba(255, 255, 255, 0.03);
-    --text-color: #f9f9fa;
-    --title-color: #fefefe;
-    --primary-color: #0a84ff;
-    --primary-color-hover: #0a84ff;
-    --btn-color: #FFFFFF;
-    --btn-color-hover: #FFFFFF;
-    --btn-bg: #38383d;
-    --btn-bg-hover: #0060df;
-    --btn-shadow-hover: rgba(0, 0, 0, 0.3);
-    --popup-bg: #474749;
-  }
-
-  &[lwt-tree-brighttext] {
-    --bg-color: #2f2f33;
-    --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
-    --header-bg-color: rgba(255, 255, 255, 0.05);
-    --accounts-bg-color: rgba(255, 255, 255, 0.03);
-    --text-color: #f9f9fa;
-    --title-color: #fefefe;
-    --primary-color: #0a84ff;
-    --primary-color-hover: #0a84ff;
-    --btn-color: #FFFFFF;
-    --btn-color-hover: #FFFFFF;
-    --btn-bg: #38383d;
-    --btn-bg-hover: #0060df;
-    --btn-shadow-hover: rgba(0, 0, 0, 0.3);
-    --popup-bg: #474749;
   }
 
   @media (prefers-contrast) {

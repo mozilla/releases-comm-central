@@ -6,13 +6,8 @@
 @import url("chrome://messenger/skin/preferences/preferences.css");
 
 :root {
-  --addon-bg: #f8f8f8;
-  --addon-border: #ccc;
-
-  @media (prefers-color-scheme: dark) {
-    --addon-bg: #333;
-    --addon-border: #111;
-  }
+  --addon-bg: light-dark(#f8f8f8, #333);
+  --addon-border: light-dark(#ccc, #111);
 }
 
 :root,
