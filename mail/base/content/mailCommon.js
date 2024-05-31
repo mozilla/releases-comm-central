@@ -1007,7 +1007,6 @@ var dbViewWrapperListener = {
     window.threadPane.setTreeView(gViewWrapper.dbView);
     window.threadPane.restoreSortIndicator();
     window.threadPane.restoreThreadState(gViewWrapper.isSingleFolder);
-    window.threadPaneHeader.onFolderSelected();
     window.threadPane.isFirstScroll = true;
     window.threadPane.scrollDetected = false;
     window.threadPane.scrollToLatestRowIfNoSelection();
@@ -1082,6 +1081,13 @@ var dbViewWrapperListener = {
       if (!newMessageFound && !window.threadPane.scrollDetected) {
         window.threadPane.scrollToLatestRowIfNoSelection();
       }
+    }
+    // To be consistent with the behavior in saved searches, update the message
+    // count in synthetic views when a quick filter term is entered or cleared.
+    if (gViewWrapper.isSynthetic) {
+      window.threadPaneHeader.updateMessageCount(
+        gViewWrapper.dbView.numMsgsInView
+      );
     }
     window.quickFilterBar?.onMessagesChanged();
   },

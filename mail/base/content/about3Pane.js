@@ -2465,13 +2465,13 @@ var folderPane = {
       }
 
       gViewWrapper.open(gFolder);
-
       // At this point `dbViewWrapperListener.onCreatedView` gets called,
       // setting up gDBView and scrolling threadTree to the right end.
 
       threadPane.updateListRole(
         !gViewWrapper?.showThreaded && !gViewWrapper?.showGroupedBySort
       );
+      threadPaneHeader.onFolderSelected();
     }
 
     this._updateStatusQuota();
@@ -3749,7 +3749,8 @@ var threadPaneHeader = {
   },
 
   /**
-   * Update the header data when the selected folder changes.
+   * Update the header data when the selected folder changes, or when a
+   * synthetic view is created.
    */
   onFolderSelected() {
     // Bail out if the pane is hidden as we don't need to update anything.
@@ -3767,25 +3768,20 @@ var threadPaneHeader = {
 
     this.folderName.textContent = gFolder?.abbreviatedName ?? document.title;
     this.folderName.title = gFolder?.prettyName ?? document.title;
-    document.l10n.setAttributes(
-      this.folderCount,
-      "thread-pane-folder-message-count",
-      { count: gFolder?.getTotalMessages(false) || gDBView?.rowCount || 0 }
+    this.updateMessageCount(
+      gFolder?.getTotalMessages(false) || gDBView?.numMsgsInView || 0
     );
-
     this.folderName.hidden = false;
     this.folderCount.hidden = false;
   },
 
   /**
-   * Update the total message count in the header if the value changed for the
-   * currently selected folder.
+   * Update the total message count in the header.
    *
-   * @param {nsIMsgFolder} folder - The folder updating the count.
    * @param {integer} newValue
    */
-  updateFolderCount(folder, newValue) {
-    if (!gFolder || !folder || this.isHidden || folder.URI != gFolder.URI) {
+  updateMessageCount(newValue) {
+    if (this.isHidden) {
       return;
     }
 
@@ -5801,7 +5797,11 @@ var folderListener = {
       gViewWrapper?.close(true);
     }
   },
-  onMessageRemoved() {},
+  onMessageRemoved() {
+    if (gViewWrapper?.isSynthetic) {
+      window.threadPaneHeader.updateMessageCount(gDBView.numMsgsInView);
+    }
+  },
   onFolderPropertyChanged() {},
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
@@ -5828,7 +5828,9 @@ var folderListener = {
           break;
         }
         folderPane.changeTotalCount(folder, newValue);
-        threadPaneHeader.updateFolderCount(folder, newValue);
+        if (gFolder && folder?.URI == gFolder.URI) {
+          threadPaneHeader.updateMessageCount(newValue);
+        }
         break;
     }
   },

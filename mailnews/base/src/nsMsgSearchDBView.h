@@ -120,7 +120,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
                                  nsMsgViewIndex startIndex = 0,
                                  bool allowDummy = false) override;
   nsresult GetFoldersAndHdrsForSelection(
-      nsTArray<nsMsgViewIndex> const& selection);
+      nsTArray<nsMsgViewIndex> const& selection, uint32_t* hdrCount = nullptr);
   nsresult GroupSearchResultsByFolder();
   nsresult PartitionSelectionByFolder(
       nsTArray<nsMsgViewIndex> const& selection,
@@ -166,7 +166,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
 
   // map message-ids to msg hdrs in the view, used for threading.
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgDBHdr> m_hdrsTable;
-  uint32_t m_totalMessagesInView;
+  int32_t m_totalMessagesInView;
 
   virtual nsMsgGroupThread* CreateGroupThread(nsIMsgDatabase* db) override;
   nsresult GetXFThreadFromMsgHdr(nsIMsgDBHdr* msgHdr, nsIMsgThread** pThread,

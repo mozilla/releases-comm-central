@@ -844,8 +844,11 @@ NS_IMETHODIMP nsMsgSearchDBView::ApplyCommandToIndices(
 nsresult nsMsgSearchDBView::DeleteMessages(
     nsIMsgWindow* window, nsTArray<nsMsgViewIndex> const& selection,
     bool deleteStorage) {
-  nsresult rv = GetFoldersAndHdrsForSelection(selection);
+  uint32_t hdrCount = 0;
+  nsresult rv = GetFoldersAndHdrsForSelection(selection, &hdrCount);
   NS_ENSURE_SUCCESS(rv, rv);
+  m_totalMessagesInView -= hdrCount;
+
   if (mDeleteModel != nsMsgImapDeleteModels::MoveToTrash) deleteStorage = true;
 
   if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) m_deletingRows = true;
@@ -916,7 +919,7 @@ nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
 }
 
 nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
-    nsTArray<nsMsgViewIndex> const& selection) {
+    nsTArray<nsMsgViewIndex> const& selection, uint32_t* hdrCount) {
   nsresult rv = NS_OK;
   mCurIndex = 0;
   m_uniqueFoldersSelected.Clear();
@@ -925,6 +928,9 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
   rv = GetHeadersFromSelection(selection, messages);
   NS_ENSURE_SUCCESS(rv, rv);
+  if (hdrCount) {
+    *hdrCount = messages.Length();
+  }
 
   // Build unique folder list based on headers selected by the user.
   for (nsIMsgDBHdr* hdr : messages) {
