@@ -2,6 +2,7 @@ BTOA_ConvertItemToAscii
 CERT_CreateName
 CERT_GetCertNicknames
 CERT_VerifyCert
+HASH_GetHashOidTagByHashType_Util
 NSSBase64Decoder_Create_Util
 NSSBase64Decoder_Destroy_Util
 NSSBase64Decoder_Update_Util
