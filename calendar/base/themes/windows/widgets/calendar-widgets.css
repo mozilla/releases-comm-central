@@ -20,10 +20,3 @@
 .toolbarbutton-icon-end {
   margin-inline-start: 5px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root[lwtheme] #calendar-list > li.selected {
-    background-color: var(--dark-lwt-highlight-color);
-    color: var(--lwt-text-color);
-  }
-}

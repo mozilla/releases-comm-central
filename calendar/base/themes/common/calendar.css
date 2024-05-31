@@ -113,14 +113,8 @@
 
 /* iMIP notification bar */
 .calendar-notification-bar {
-  background-color: var(--color-blue-10);
+  background-color: light-dark(var(--color-blue-10), var(--color-purple-40));
   padding: 3px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .calendar-notification-bar {
-    background-color: var(--color-purple-40);
-  }
 }
 
 @media (prefers-contrast) {
