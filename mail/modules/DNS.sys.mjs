@@ -32,9 +32,9 @@ export const DNS = {
    *
    * Example: await DNS.lookup("_caldavs._tcp.example.com", DNS.SRV)
    *
-   * @param {string} _aName - The hostname to look up records for.
+   * @param {string} _name - The hostname to look up records for.
    * @param {string} _recordTypeID - The RR type to look up as a constant.
-   * @returns {Promise<object[]> records
+   * @returns {Promise<object[]>} records
    */
   async lookup(_name, _recordTypeID) {
     const worker = new BasePromiseWorker("resource:///modules/DNS.worker.mjs", {
@@ -58,7 +58,7 @@ export const DNS = {
    * Look up SRV records for hostname.
    *
    * @param {string} hostname
-   * @returns {Promise<SRVRecord[]> records.
+   * @returns {Promise<SRVRecord[]>} records.
    */
   async srv(hostname) {
     return this.lookup(hostname, NS_T_SRV);
@@ -68,7 +68,7 @@ export const DNS = {
    * Look up TXT records for hostname.
    *
    * @param {string} hostname
-   * @returns {Promise<TXTRecord[]> records.
+   * @returns {Promise<TXTRecord[]>} records.
    */
   async txt(hostname) {
     return this.lookup(hostname, NS_T_TXT);
@@ -78,7 +78,7 @@ export const DNS = {
    * Look up MX records for hostname.
    *
    * @param {string} hostname
-   * @returns {Promise<MXRecord[]> records.
+   * @returns {Promise<MXRecord[]>} records.
    */
   async mx(hostname) {
     return this.lookup(hostname, NS_T_MX);
