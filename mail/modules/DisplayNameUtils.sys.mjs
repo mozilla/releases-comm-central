@@ -36,7 +36,7 @@ function _getIdentityForAddress(aEmailAddress) {
  * @param {string} emailAddress - The email address to format.
  * @param {string} headerDisplayName - The display name from the header, if any.
  * @param {string} context - The field being formatted (e.g. "to", "from").
- * @returns The formatted display name, or null.
+ * @returns {?string} the formatted display name, or null.
  */
 function formatDisplayName(emailAddress, headerDisplayName, context) {
   let displayName = null;
