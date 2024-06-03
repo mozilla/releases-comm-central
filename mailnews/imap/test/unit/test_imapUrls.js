@@ -25,7 +25,7 @@ function run_test() {
     uri.spec,
     "imap://user@localhost:" +
       IMAPPump.server.port +
-      "/fetch%3EUID%3E^INBOX%3E4294967168"
+      "/fetch%3EUID%3E%5EINBOX%3E4294967168"
   );
   teardownIMAPPump();
 }
