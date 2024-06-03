@@ -1,0 +1,11 @@
+From: from@invalid.com
+Subject: test mail with From line in body
+To: to@invalid.com
+
+This message contains a "From " line.
+From mbox point of view, this line would be the start of new message.
+Subject: this isn't a real header.
+
+And this isn't a new body section.
+
+The End.

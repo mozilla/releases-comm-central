@@ -47,14 +47,9 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsParseMailMessageState();
 
   nsresult ParseFolderLine(const char* line, uint32_t lineLength);
-  nsresult StartNewEnvelope(const char* line, uint32_t lineLength);
   nsresult ParseHeaders();
   nsresult FinalizeHeaders();
-  nsresult ParseEnvelope(const char* line, uint32_t line_size);
   nsresult InternSubject(struct message_header* header);
-
-  // Returns true if line looks like an mbox "From " line.
-  static bool IsEnvelopeLine(const char* buf, int32_t buf_size);
 
   // Helpers for dealing with multi-value headers.
   struct message_header* GetNextHeaderInAggregate(

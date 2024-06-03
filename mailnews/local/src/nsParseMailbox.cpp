@@ -375,52 +375,8 @@ void nsMsgMailboxParser::OnNewMessage(nsIMsgWindow* msgWindow) {
 }
 
 nsresult nsMsgMailboxParser::HandleLine(const char* line, uint32_t lineLength) {
-  /* If this is the very first line of a non-empty folder, make sure it's an
-   * envelope */
-  if (m_graph_progress_received == 0) {
-    /* This is the first block from the file.  Check to see if this
-       looks like a mail file. */
-    const char* s = line;
-    const char* end = s + lineLength;
-    while (s < end && IS_SPACE(*s)) s++;
-    if ((end - s) < 20 || !IsEnvelopeLine(s, end - s)) {
-      //      char buf[500];
-      //      PR_snprintf (buf, sizeof(buf),
-      //             XP_GetString(MK_MSG_NON_MAIL_FILE_READ_QUESTION),
-      //             folder_name);
-      //      else if (!FE_Confirm (m_context, buf))
-      //        return NS_MSG_NOT_A_MAIL_FOLDER; /* #### NOT_A_MAIL_FILE */
-    }
-  }
-  //  m_graph_progress_received += lineLength;
-
-  // mailbox parser needs to do special stuff when it finds an envelope
-  // after parsing a message body. So do that.
-  if (line[0] == 'F' && IsEnvelopeLine(line, lineLength)) {
-    // **** This used to be
-    // PR_ASSERT (m_parseMsgState->m_state == nsMailboxParseBodyState);
-    // **** I am not sure this is a right thing to do. This happens when
-    // going online, downloading a message while playing back append
-    // draft/template offline operation. We are mixing
-    // nsMailboxParseBodyState &&
-    // nsMailboxParseHeadersState. David I need your help here too. **** jt
-
-    NS_ASSERTION(m_state == nsIMsgParseMailMsgState::ParseBodyState ||
-                     m_state == nsIMsgParseMailMsgState::ParseHeadersState,
-                 "invalid parse state"); /* else folder corrupted */
-    OnNewMessage(nullptr);
-    nsresult rv = StartNewEnvelope(line, lineLength);
-    NS_ASSERTION(NS_SUCCEEDED(rv), " error starting envelope parsing mailbox");
-    // at the start of each new message, update the progress bar
-    UpdateProgressPercent();
-    return rv;
-  }
-
-  // otherwise, the message parser can handle it completely.
-  if (m_mailDB != nullptr)  // if no DB, do we need to parse at all?
-    return ParseFolderLine(line, lineLength);
-
-  return NS_ERROR_NULL_POINTER;  // need to error out if we don't have a db.
+  NS_ENSURE_STATE(m_mailDB);  // if no DB, do we need to parse at all?
+  return ParseFolderLine(line, lineLength);
 }
 
 void nsMsgMailboxParser::ReleaseFolderLock() {
@@ -612,92 +568,6 @@ NS_IMETHODIMP nsParseMailMessageState::SetNewKey(nsMsgKey aKey) {
   return NS_OK;
 }
 
-/* #define STRICT_ENVELOPE */
-
-bool nsParseMailMessageState::IsEnvelopeLine(const char* buf,
-                                             int32_t buf_size) {
-#ifdef STRICT_ENVELOPE
-  /* The required format is
-     From jwz  Fri Jul  1 09:13:09 1994
-   But we should also allow at least:
-     From jwz  Fri, Jul 01 09:13:09 1994
-     From jwz  Fri Jul  1 09:13:09 1994 PST
-     From jwz  Fri Jul  1 09:13:09 1994 (+0700)
-
-   We can't easily call XP_ParseTimeString() because the string is not
-   null terminated (ok, we could copy it after a quick check...) but
-   XP_ParseTimeString() may be too lenient for our purposes.
-
-   DANGER!!  The released version of 2.0b1 was (on some systems,
-   some Unix, some NT, possibly others) writing out envelope lines
-   like "From - 10/13/95 11:22:33" which STRICT_ENVELOPE will reject!
-   */
-  const char *date, *end;
-
-  if (buf_size < 29) return false;
-  if (*buf != 'F') return false;
-  if (strncmp(buf, "From ", 5)) return false;
-
-  end = buf + buf_size;
-  date = buf + 5;
-
-  /* Skip horizontal whitespace between "From " and user name. */
-  while ((*date == ' ' || *date == '\t') && date < end) date++;
-
-  /* If at the end, it doesn't match. */
-  if (IS_SPACE(*date) || date == end) return false;
-
-  /* Skip over user name. */
-  while (!IS_SPACE(*date) && date < end) date++;
-
-  /* Skip horizontal whitespace between user name and date. */
-  while ((*date == ' ' || *date == '\t') && date < end) date++;
-
-    /* Don't want this to be localized. */
-#  define TMP_ISALPHA(x) \
-    (((x) >= 'A' && (x) <= 'Z') || ((x) >= 'a' && (x) <= 'z'))
-
-  /* take off day-of-the-week. */
-  if (date >= end - 3) return false;
-  if (!TMP_ISALPHA(date[0]) || !TMP_ISALPHA(date[1]) || !TMP_ISALPHA(date[2]))
-    return false;
-  date += 3;
-  /* Skip horizontal whitespace (and commas) between dotw and month. */
-  if (*date != ' ' && *date != '\t' && *date != ',') return false;
-  while ((*date == ' ' || *date == '\t' || *date == ',') && date < end) date++;
-
-  /* take off month. */
-  if (date >= end - 3) return false;
-  if (!TMP_ISALPHA(date[0]) || !TMP_ISALPHA(date[1]) || !TMP_ISALPHA(date[2]))
-    return false;
-  date += 3;
-  /* Skip horizontal whitespace between month and dotm. */
-  if (date == end || (*date != ' ' && *date != '\t')) return false;
-  while ((*date == ' ' || *date == '\t') && date < end) date++;
-
-  /* Skip over digits and whitespace. */
-  while (((*date >= '0' && *date <= '9') || *date == ' ' || *date == '\t') &&
-         date < end)
-    date++;
-  /* Next character should be a colon. */
-  if (date >= end || *date != ':') return false;
-
-    /* Ok, that ought to be enough... */
-
-#  undef TMP_ISALPHA
-
-#else /* !STRICT_ENVELOPE */
-
-  if (buf_size < 5) return false;
-  if (*buf != 'F') return false;
-  if (strncmp(buf, "From ", 5)) return false;
-
-#endif /* !STRICT_ENVELOPE */
-
-  return true;
-}
-
-// We've found the start of the next message, so finish this one off.
 NS_IMETHODIMP nsParseMailMessageState::FinishHeader() {
   if (m_newMsgHdr) {
     m_newMsgHdr->SetMessageSize(m_position - m_envelope_pos);
@@ -786,16 +656,6 @@ void nsParseMailMessageState::ClearAggregateHeader(
 
   for (size_t i = 0; i < list.Length(); i++) PR_Free(list.ElementAt(i));
   list.Clear();
-}
-
-// We've found a new envelope to parse.
-nsresult nsParseMailMessageState::StartNewEnvelope(const char* line,
-                                                   uint32_t lineLength) {
-  m_envelope_pos = m_position;
-  m_state = nsIMsgParseMailMsgState::ParseHeadersState;
-  m_position += lineLength;
-  m_headerstartpos = m_position;
-  return ParseEnvelope(line, lineLength);
 }
 
 /* largely lifted from mimehtml.c, which does similar parsing, sigh...
@@ -1028,38 +888,6 @@ nsresult nsParseMailMessageState::ParseHeaders() {
                  "Non-null-terminated strings cause very, very bad problems");
     }
   }
-  return NS_OK;
-}
-
-// Try and glean a sender and/or timestamp from the "From " line, to use
-// as last-ditch fallbacks if the message is missing "From"/"Sender" or
-// "Date" headers.
-nsresult nsParseMailMessageState::ParseEnvelope(const char* line,
-                                                uint32_t line_size) {
-  const char* end;
-  char* s;
-
-  m_envelope.AppendBuffer(line, line_size);
-  end = m_envelope.GetBuffer() + line_size;
-  s = m_envelope.GetBuffer() + 5;
-
-  while (s < end && IS_SPACE(*s)) s++;
-  m_envelope_from.value = s;
-  while (s < end && !IS_SPACE(*s)) s++;
-  m_envelope_from.length = s - m_envelope_from.value;
-
-  while (s < end && IS_SPACE(*s)) s++;
-  m_envelope_date.value = s;
-  m_envelope_date.length = (uint16_t)(line_size - (s - m_envelope.GetBuffer()));
-
-  while (m_envelope_date.length > 0 &&
-         IS_SPACE(m_envelope_date.value[m_envelope_date.length - 1]))
-    m_envelope_date.length--;
-
-  /* #### short-circuit const */
-  ((char*)m_envelope_from.value)[m_envelope_from.length] = 0;
-  ((char*)m_envelope_date.value)[m_envelope_date.length] = 0;
-
   return NS_OK;
 }
 
