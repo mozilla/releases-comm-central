@@ -311,6 +311,7 @@ add_task(async function testRegister() {
             matches: ["*://mochi.test/*"],
             matchOriginAsFallback: false,
             runAt: "document_idle",
+            world: "ISOLATED",
             persistAcrossSessions: true,
             css: ["test.css"],
             js: ["test.js"],
