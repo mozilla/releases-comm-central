@@ -213,8 +213,16 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
                 create_tar_from_files(z, dict(self.file_registry))
 
     def gen_changesets(self):
+        # self.l10n_revisions has the gecko string revs
+        gecko_l10n_revisions = {}
+        for l in self.locales:
+            gecko_l10n_revisions[l] = {
+                "repo": f"{self.config['hg_l10n_base']}/{l}",
+                "revision": self.l10n_revisions[l],
+            }
+
         changeset_data = {
-            "gecko_strings": self.gecko_locale_revisions,
+            "gecko_strings": gecko_l10n_revisions,
             "comm_strings": {
                 "repo": self.config["hg_comm_l10n_repo"],
                 "revision": self.comm_l10n_revision,
