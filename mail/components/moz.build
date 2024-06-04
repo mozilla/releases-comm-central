@@ -19,7 +19,6 @@ DIRS += [
     "extensions",
     "im",
     "inappnotifications",
-    "migration",
     "preferences",
     "prompts",
     "search",
