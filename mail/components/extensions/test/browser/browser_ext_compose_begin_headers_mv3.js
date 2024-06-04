@@ -30,10 +30,12 @@ add_task(async function testHeaders() {
         await removedWindowPromise;
       }
 
-      const accounts = await browser.accounts.list();
+      const accounts = await browser.accounts.list(true);
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
-      const folder = popAccount.folders.find(f => f.name == "test");
+      const folder = popAccount.rootFolder.subFolders.find(
+        f => f.name == "test"
+      );
       const { messages } = await browser.messages.list(folder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -41,21 +43,30 @@ add_task(async function testHeaders() {
         name: "Baker Street",
       });
       const contacts = {
-        sherlock: await browser.contacts.create(addressBook, {
-          DisplayName: "Sherlock Holmes",
-          PrimaryEmail: "sherlock@bakerstreet.invalid",
-        }),
-        john: await browser.contacts.create(addressBook, {
-          DisplayName: "John Watson",
-          PrimaryEmail: "john@bakerstreet.invalid",
-        }),
+        sherlock: await browser.addressBooks.contacts.create(
+          addressBook,
+          `BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Sherlock Holmes\r\nEMAIL;PREF=1:sherlock@bakerstreet.invalid\r\nEND:VCARD\r\n`
+        ),
+        john: await browser.addressBooks.contacts.create(
+          addressBook,
+          `BEGIN:VCARD\r\nVERSION:4.0\r\nFN:John Watson\r\nEMAIL;PREF=1:john@bakerstreet.invalid\r\nEND:VCARD\r\n`
+        ),
       };
-      const list = await browser.mailingLists.create(addressBook, {
-        name: "Holmes and Watson",
-        description: "Tenants221B",
-      });
-      await browser.mailingLists.addMember(list, contacts.sherlock);
-      await browser.mailingLists.addMember(list, contacts.john);
+      const listNodeId = await browser.addressBooks.mailingLists.create(
+        addressBook,
+        {
+          name: "Holmes and Watson",
+          description: "Tenants221B",
+        }
+      );
+      await browser.addressBooks.mailingLists.addMember(
+        listNodeId,
+        contacts.sherlock
+      );
+      await browser.addressBooks.mailingLists.addMember(
+        listNodeId,
+        contacts.john
+      );
 
       let createdWindowPromise;
 
@@ -97,8 +108,8 @@ add_task(async function testHeaders() {
 
       createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
-        to: [{ id: contacts.sherlock, type: "contact" }],
-        cc: [{ id: contacts.john, type: "contact" }],
+        to: [{ nodeId: contacts.sherlock, type: "contact" }],
+        cc: [{ nodeId: contacts.john, type: "contact" }],
         subject: "Did you miss me?",
       });
       await checkHeaders({
@@ -111,7 +122,7 @@ add_task(async function testHeaders() {
 
       createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
-        to: [{ id: list, type: "mailingList" }],
+        to: [{ nodeId: listNodeId, type: "mailingList" }],
         subject: "Did you miss me?",
       });
       await checkHeaders({
@@ -162,7 +173,7 @@ add_task(async function testHeaders() {
   const extension = ExtensionTestUtils.loadExtension({
     files,
     manifest: {
-      manifest_version: 2,
+      manifest_version: 3,
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "addressBooks", "messagesRead"],
     },

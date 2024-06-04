@@ -219,7 +219,7 @@ add_task(async function test_create_mv3() {
       const mailTab = await browser.mailTabs.create(test);
       window.assertDeepEqual(expected, mailTab);
       await window.sendMessage("checkDisplayedFolder", expected);
-      await browser.tabs.remove(mailTab.id);
+      await browser.tabs.remove(mailTab.tabId);
     }
 
     const [accountId] = await window.waitForMessage();

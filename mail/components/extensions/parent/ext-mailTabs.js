@@ -60,13 +60,18 @@ function convertMailTab(tab, context) {
   const fixApiModeName = name => (name == "smart" ? "unified" : name);
 
   const mailTabObject = {
-    id: tab.id,
     windowId: tab.windowId,
     active: tab.active,
     layout: LAYOUTS[gDynamicPaneConfig],
     folderMode: fixApiModeName(about3Pane.folderTree.selectedRow.modeName),
     folderModesEnabled: about3Pane.folderPane.activeModes.map(fixApiModeName),
   };
+
+  if (context.extension.manifest.manifest_version < 3) {
+    mailTabObject.id = tab.id;
+  } else {
+    mailTabObject.tabId = tab.id;
+  }
 
   mailTabObject.folderPaneVisible = paneLayout.folderPaneVisible;
   mailTabObject.messagePaneVisible = paneLayout.messagePaneVisible;

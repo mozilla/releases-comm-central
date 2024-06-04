@@ -148,7 +148,12 @@ this.spaces = class extends ExtensionAPI {
    * @returns {boolean}
    */
   matchSpace(space, queryInfo) {
+    // Manifest V2.
     if (queryInfo.id != null && space.id != queryInfo.id) {
+      return false;
+    }
+    // Manifest V3.
+    if (queryInfo.spaceId != null && space.id != queryInfo.spaceId) {
       return false;
     }
     if (queryInfo.name != null && space.name != queryInfo.name) {

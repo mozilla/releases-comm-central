@@ -72,15 +72,18 @@ async function parseComposeRecipientList(
     if (!("addressBookCache" in this)) {
       await extensions.asyncLoadModule("addressBook");
     }
+
+    // Manifest V2 uses `id`, Manifest V3 uses `nodeId`.
+    const nodeId = recipient.id || recipient.nodeId;
     if (recipient.type == "contact") {
-      const contactNode = this.addressBookCache.findContactById(recipient.id);
+      const contactNode = this.addressBookCache.findContactById(nodeId);
 
       if (
         requireSingleValidEmail &&
         !isValidAddress(contactNode.item.primaryEmail)
       ) {
         throw new ExtensionError(
-          `Contact does not have a valid email address: ${recipient.id}`
+          `Contact does not have a valid email address: ${nodeId}`
         );
       }
       recipients.push(
@@ -94,9 +97,7 @@ async function parseComposeRecipientList(
         throw new ExtensionError("Mailing list not allowed.");
       }
 
-      const mailingListNode = this.addressBookCache.findMailingListById(
-        recipient.id
-      );
+      const mailingListNode = this.addressBookCache.findMailingListById(nodeId);
       recipients.push(
         MailServices.headerParser.makeMimeAddress(
           mailingListNode.item.dirName,

@@ -28,7 +28,13 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The ID of a contact or mailing list from the :doc:`contacts` and :doc:`mailingLists`."
+                "max_manifest_version": 2,
+                "description": "The ID of a contact or mailing list from the :doc:`contacts` or :doc:`mailingLists`."
+              },
+              "nodeId": {
+                "type": "string",
+                "min_manifest_version": 3,
+                "description": "The ID of a contact or mailing list node from the :doc:`addressBook.contacts` or :doc:`addressBook.mailingLists`."
               },
               "type": {
                 "type": "string",

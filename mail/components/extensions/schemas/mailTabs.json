@@ -13,6 +13,11 @@
         "type": "object",
         "properties": {
           "id": {
+            "max_manifest_version": 2,
+            "type": "integer"
+          },
+          "tabId": {
+            "min_manifest_version": 3,
             "type": "integer"
           },
           "windowId": {
@@ -282,7 +287,7 @@
               {
                 "type": "array",
                 "items": {
-                  "$ref": "MailTab"
+                  "$ref": "mailTabs.MailTab"
                 }
               }
             ]
@@ -292,13 +297,13 @@
       {
         "name": "get",
         "type": "function",
-        "description": "Get the properties of a mail tab.",
+        "description": "Get the :ref:`mailTabs.MailTab` properties of a mail tab.",
         "async": "callback",
         "parameters": [
           {
             "name": "tabId",
             "type": "integer",
-            "description": "ID of the requested mail tab. Throws if the requested tab is not a mail tab."
+            "description": "ID of the requested mail tab. Throws if the requested <value>tabId</value> does not belong to a mail tab."
           },
           {
             "type": "function",
@@ -306,7 +311,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MailTab"
+                "$ref": "mailTabs.MailTab"
               }
             ]
           }
@@ -316,7 +321,7 @@
         "name": "getCurrent",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns <value>undefined</value> otherwise.",
+        "description": "Get the :ref:`mailTabs.MailTab` properties of the active mail tab. Returns <value>undefined</value>, if the active tab is not a mail tab.",
         "async": "callback",
         "parameters": [
           {
@@ -325,7 +330,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MailTab",
+                "$ref": "mailTabs.MailTab",
                 "optional": true,
                 "description": "This may return undefined"
               }
@@ -341,7 +346,7 @@
         "parameters": [
           {
             "name": "createProperties",
-            "$ref": "MailTabProperties",
+            "$ref": "mailTabs.MailTabProperties",
             "optional": true,
             "default": {}
           },
@@ -352,7 +357,7 @@
             "parameters": [
               {
                 "name": "mailTab",
-                "$ref": "MailTab",
+                "$ref": "mailTabs.MailTab",
                 "description": "Details about the created mail tab. Will contain the ID of the new tab."
               }
             ]
@@ -374,7 +379,7 @@
           },
           {
             "name": "updateProperties",
-            "$ref": "MailTabProperties"
+            "$ref": "mailTabs.MailTabProperties"
           },
           {
             "type": "function",
@@ -383,7 +388,7 @@
             "parameters": [
               {
                 "name": "mailTab",
-                "$ref": "MailTab",
+                "$ref": "mailTabs.MailTab",
                 "description": "Details about the updated mail tab."
               }
             ]
@@ -521,7 +526,7 @@
                 "optional": true
               },
               "text": {
-                "$ref": "QuickFilterTextDetail",
+                "$ref": "mailTabs.QuickFilterTextDetail",
                 "description": "Shows only messages matching the supplied text.",
                 "optional": true
               }

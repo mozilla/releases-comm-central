@@ -12,7 +12,7 @@
                 "type": "string"
               },
               {
-                "$ref": "ColorArray"
+                "$ref": "spaces.ColorArray"
               }
             ],
             "optional": true,
@@ -60,7 +60,7 @@
                 "type": "string"
               },
               {
-                "$ref": "ColorArray"
+                "$ref": "spaces.ColorArray"
               }
             ],
             "optional": "omit-key-if-missing",
@@ -219,6 +219,14 @@
             "properties": {
               "id": {
                 "type": "integer",
+                "max_manifest_version": 2,
+                "description": "The id of the space.",
+                "optional": true,
+                "minimum": 1
+              },
+              "spaceId": {
+                "type": "integer",
+                "min_manifest_version": 3,
                 "description": "The id of the space.",
                 "optional": true,
                 "minimum": 1

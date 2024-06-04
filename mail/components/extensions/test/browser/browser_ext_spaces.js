@@ -961,10 +961,10 @@ async function test_query({ permissions }) {
       hasManagement ? [space_1, space_2] : []
     );
 
-    await query({ id: space_1.id }, [space_1]);
-    await query({ id: other_1.id }, [other_1]);
-    await query({ id: space_2.id }, [space_2]);
-    await query({ id: other_11.id }, [other_11]);
+    await query({ spaceId: space_1.id }, [space_1]);
+    await query({ spaceId: other_1.id }, [other_1]);
+    await query({ spaceId: space_2.id }, [space_2]);
+    await query({ spaceId: other_11.id }, [other_11]);
     await query({ name: "space_1" }, [other_1, space_1]);
     await query({ name: "space_2" }, [space_2]);
     await query({ name: "space_11" }, [other_11]);
