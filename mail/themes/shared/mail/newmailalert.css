@@ -14,11 +14,6 @@
   color: -moz-DialogText;
   opacity: 0;
 
-  @media (prefers-color-scheme: dark) {
-    background-color: #2a2a2e;
-    color: #f9f9fa;
-  }
-
   &[noanimation] {
     opacity: 1;
   }
@@ -77,10 +72,6 @@
   margin-block: 0.4em;
   margin-inline-start: 11px;
   border-top: 1px solid -moz-DialogText;
-
-  @media (prefers-color-scheme: dark) {
-    border-top-color: #f9f9fa;
-  }
 }
 
 folder-summary {

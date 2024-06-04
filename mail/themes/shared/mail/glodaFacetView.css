@@ -19,19 +19,13 @@ body {
 }
 
 #body {
-  --dateColor: var(--color-gray-20);
-  --dateTextColor: var(--color-gray-90);
+  --dateColor: light-dark(var(--color-gray-20), var(--color-gray-60));
+  --dateTextColor: light-dark(var(--color-gray-90), var(--color-white));
   --barColor: var(--selected-item-color);
   --barHlColor: var(--linkColor);
   --dateHLColor: var(--selected-item-color);
   --panelHoverColor: inherit;
-  --linkColor: var(--color-blue-70);
-
-  @media (prefers-color-scheme: dark) {
-    --dateColor: var(--color-gray-60);
-    --dateTextColor: var(--color-white);
-    --linkColor: var(--color-blue-30);
-  }
+  --linkColor: light-dark(var(--color-blue-70), var(--color-blue-30));
 
   @media (prefers-contrast) {
     --panelHoverColor: SelectedItemText;

@@ -166,17 +166,6 @@
   :root {
     --lwt-accent-color: rgb(24, 24, 26);
   }
-
-  :root[lwtheme]:not([lwt-tree]) {
-    --button-background-color: var(--layout-background-3);
-    --button-hover-background-color: var(--layout-background-4);
-    --button-active-background-color: var(--layout-background-2);
-    --button-link-text-color: var(--color-blue-40);
-    --button-link-active-text-color: var(--color-blue-50);
-    --arrowpanel-border-color: #52525e;
-    --default: #dcdcdc;
-    --primary: var(--color-blue-40);
-  }
 }
 
 /* Special High contrast setting */

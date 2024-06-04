@@ -14,10 +14,10 @@ dialog {
 
   --dialog-text-color: var(--arrowpanel-color);
   --dialog-background-color: var(--arrowpanel-background);
-  --dialog-box-text-color: #181920;
-  --dialog-box-background-color: #fff;
-  --dialog-box-border-color: rgba(0, 0, 0, 0.3);
-  --dialog-box-border-hover-color: rgba(128, 128, 128, 0.8);
+  --dialog-box-text-color: light-dark(#181920, #f9f9fa);
+  --dialog-box-background-color: light-dark(#fff, #353537);
+  --dialog-box-border-color: light-dark(rgba(0, 0, 0, 0.3), hsla(0, 0%, 70%, 0.4));
+  --dialog-box-border-hover-color: light-dark(rgba(128, 128, 128, 0.8), hsla(0, 0%, 70%, 0.5));
   --dialog-button-text-color-hover: currentColor;
   --dialog-button-background-color: color-mix(in srgb, currentColor 13%, transparent);
   --dialog-button-background-color-hover: color-mix(in srgb, currentColor 17%, transparent);
@@ -26,17 +26,6 @@ dialog {
   --dialog-highlight-text-color: var(--in-content-primary-button-text-color, var(--selected-item-text-color));
   --dialog-primary-background-hover: color-mix(in srgb, var(--dialog-highlight-color) 85%, black);
   --dialog-primary-background-active: color-mix(in srgb, var(--dialog-highlight-color) 78%, black);
-
-  @media (prefers-color-scheme: dark) {
-    --dialog-text-color: rgb(251, 251, 254);
-    --dialog-background-color: #2a2a2e;
-    --dialog-box-text-color: #f9f9fa;
-    --dialog-box-background-color: #353537;
-    --dialog-box-border-color: hsla(0, 0%, 70%, 0.4);
-    --dialog-box-border-hover-color: hsla(0, 0%, 70%, 0.5);
-    --dialog-highlight-color: #45a1ff;
-    --dialog-highlight-text-color: rgb(43, 42, 51);
-  }
 
   @media (prefers-contrast) {
     --dialog-box-text-color: color-mix(in srgb, currentColor 41%, transparent);
