@@ -8,12 +8,13 @@
  *   https://ircv3.net/specs/extensions/sasl-3.2
  */
 
-import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "_", () =>
-  l10nHelper("chrome://chat/locale/irc.properties")
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["chat/irc.ftl"], true)
 );
 
 export var ircSASL = {
@@ -99,7 +100,7 @@ export var ircSASL = {
       this.ERROR("Authentication with SASL failed.");
       this.gotDisconnected(
         Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
-        lazy._("connection.error.invalidUserPassword")
+        lazy.l10n.formatValueSync("connection-error-invalid-user-password")
       );
       return true;
     },
