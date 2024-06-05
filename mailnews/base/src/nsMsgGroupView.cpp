@@ -692,16 +692,19 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
       RemoveByIndex(viewIndexOfThread);
       if (m_deletingRows && !mIndicesToNoteChange.Contains(viewIndexOfThread))
         mIndicesToNoteChange.AppendElement(viewIndexOfThread);
-    } else if (rootDeleted) {
-      // Reflect new thread root into view.dummy row.
-      nsCOMPtr<nsIMsgDBHdr> hdr;
-      thread->GetChildHdrAt(0, getter_AddRefs(hdr));
-      if (hdr) {
-        nsMsgKey msgKey;
-        hdr->GetMessageKey(&msgKey);
-        SetMsgHdrAt(hdr, viewIndexOfThread, msgKey, m_flags[viewIndexOfThread],
-                    0);
+    } else {
+      if (rootDeleted) {
+        // Reflect new thread root into view.dummy row.
+        nsCOMPtr<nsIMsgDBHdr> hdr;
+        thread->GetChildHdrAt(0, getter_AddRefs(hdr));
+        if (hdr) {
+          nsMsgKey msgKey;
+          hdr->GetMessageKey(&msgKey);
+          SetMsgHdrAt(hdr, viewIndexOfThread, msgKey,
+                      m_flags[viewIndexOfThread], 0);
+        }
       }
+      NoteChange(viewIndexOfThread, 1, nsMsgViewNotificationCode::changed);
     }
   }
   groupThread->GetNumChildren(&numChildren);

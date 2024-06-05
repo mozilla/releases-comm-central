@@ -5787,6 +5787,22 @@ nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
       // Now tell the front end that the delete happened.
       commandUpdater->SelectedMessageRemoved();
     }
+    return NS_OK;
+  }
+
+  // The deleted message may be part of a collapsed thread. We need to find
+  // and update the row containing the root message of the thread.
+  if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay &&
+      !(m_viewFlags & nsMsgViewFlagsType::kGroupBySort)) {
+    nsCOMPtr<nsIMsgThread> thread;
+    nsresult rv =
+        GetThreadContainingMsgHdr(aHdrChanged, getter_AddRefs(thread));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsMsgViewIndex threadRootIndex =
+        GetIndexOfFirstDisplayedKeyInThread(thread);
+    if (IsValidIndex(threadRootIndex)) {
+      NoteChange(threadRootIndex, 1, nsMsgViewNotificationCode::changed);
+    }
   }
 
   return NS_OK;

@@ -798,6 +798,7 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
 
           m_flags[index] = flag;
           m_levels[index] = 0;
+          NoteChange(index, 1, nsMsgViewNotificationCode::changed);
         }
       }
     }
@@ -806,16 +807,20 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
   } else if (!(flags & MSG_VIEW_FLAG_ISTHREAD)) {
     // We're not deleting the top level msg, but top level msg might be the
     // only msg in thread now.
-    if (threadHdr && numThreadChildren == 1) {
+    if (threadHdr) {
       nsMsgKey msgKey;
       rv = threadHdr->GetChildKeyAt(0, &msgKey);
       if (NS_SUCCEEDED(rv)) {
         nsMsgViewIndex threadIndex = FindViewIndex(msgKey);
         if (IsValidIndex(threadIndex)) {
-          uint32_t flags = m_flags[threadIndex];
-          flags &= ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided |
-                     MSG_VIEW_FLAG_HASCHILDREN);
-          m_flags[threadIndex] = flags;
+          if (numThreadChildren == 1) {
+            uint32_t flags = m_flags[threadIndex];
+            flags &= ~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided |
+                       MSG_VIEW_FLAG_HASCHILDREN);
+            m_flags[threadIndex] = flags;
+          }
+          // Notify about change in top level message in any case to have the
+          // count of total messages updated if shown.
           NoteChange(threadIndex, 1, nsMsgViewNotificationCode::changed);
         }
       }
