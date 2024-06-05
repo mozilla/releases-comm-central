@@ -751,12 +751,12 @@ DBViewWrapper.prototype = {
 
     // kill off the view and its search association
     if (this.dbView) {
+      this.listener.onDestroyingView(false);
       this.search.dissociateView(this.dbView);
       this.dbView.setTree(null);
       this.dbView.setJSTree(null);
       this.dbView.selection = null;
       this.dbView.close();
-      this.listener.onDestroyingView(false);
       this.dbView = null;
     }
 

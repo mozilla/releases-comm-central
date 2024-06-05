@@ -492,16 +492,14 @@ var commandController = {
       return !isDummyMessage;
     }
 
-    const numSelectedMessages = isDummyMessage
-      ? 1
-      : Number(gDBView?.numSelected);
+    const numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
 
     // Evaluate these properties only if needed, not once for each command.
     const folder = () => {
       if (gFolder) {
         return gFolder;
       }
-      if (gDBView?.numSelected >= 1) {
+      if (gDBView.numSelected >= 1) {
         return gDBView.hdrForFirstSelectedMessage?.folder;
       }
       return null;
@@ -999,7 +997,7 @@ var dbViewWrapperListener = {
   onCreatedView() {
     this._allMessagesLoaded = false;
 
-    if (!window.threadTree || !gViewWrapper) {
+    if (!window.threadTree) {
       return;
     }
 
@@ -1024,10 +1022,12 @@ var dbViewWrapperListener = {
       // We'll get a new view of the same folder (e.g. with a quick filter) -
       // try to preserve the selection.
       window.threadPane.saveSelection();
-      return;
+    } else {
+      if (gDBView) {
+        gDBView.setJSTree(null);
+      }
+      window.threadTree.view = gDBView = null;
     }
-    gDBView?.setJSTree(null);
-    window.threadPane.setTreeView(null);
   },
   onLoadingFolder() {
     window.quickFilterBar?.onFolderChanged();
@@ -1051,7 +1051,7 @@ var dbViewWrapperListener = {
 
     if (all) {
       window.threadPane.restoreThreadState(
-        gViewWrapper?.search.hasSearchTerms || gViewWrapper?.isSynthetic
+        gViewWrapper.search.hasSearchTerms || gViewWrapper.isSynthetic
       );
     }
 
@@ -1084,7 +1084,7 @@ var dbViewWrapperListener = {
     }
     // To be consistent with the behavior in saved searches, update the message
     // count in synthetic views when a quick filter term is entered or cleared.
-    if (gViewWrapper?.isSynthetic) {
+    if (gViewWrapper.isSynthetic) {
       window.threadPaneHeader.updateMessageCount(
         gViewWrapper.dbView.numMsgsInView
       );

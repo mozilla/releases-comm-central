@@ -35,29 +35,12 @@ const folderPaneContextData = {
     "virtual",
     "nntpGroup",
     "rssFeed",
-    "multiselect-plain",
   ],
   "folderPaneContext-rename": ["plain", "junk", "virtual", "rssFeed"],
-  "folderPaneContext-moveMenu": [
-    "plain",
-    "virtual",
-    "rssFeed",
-    "multiselect-plain",
-  ],
-  "folderPaneContext-copyMenu": ["plain", "rssFeed", "multiselect-plain"],
-  "folderPaneContext-compact": [
-    ...servers,
-    ...realFolders,
-    "multiselect",
-    "multiselect-plain",
-  ],
-  "folderPaneContext-markMailFolderAllRead": [
-    ...realFolders,
-    "virtual",
-    "multiselect",
-    "multiselect-plain",
-    "multiselect-minimal",
-  ],
+  "folderPaneContext-moveMenu": ["plain", "virtual", "rssFeed"],
+  "folderPaneContext-copyMenu": ["plain", "rssFeed"],
+  "folderPaneContext-compact": [...servers, ...realFolders],
+  "folderPaneContext-markMailFolderAllRead": [...realFolders, "virtual"],
   "folderPaneContext-markNewsgroupAllRead": ["nntpGroup"],
   "folderPaneContext-emptyTrash": ["trash"],
   "folderPaneContext-emptyJunk": ["junk"],
@@ -212,20 +195,6 @@ add_task(async function testShownItems() {
   await rightClickOn(rssRootFolder, "rssRoot");
   await rightClickOn(rssFeedFolder, "rssFeed");
   await rightClickOn(tagsFolder, "tags");
-
-  // Check the menu has the right items when multiple folders are selected.
-  leftClickOn(inboxFolder);
-  await rightClickOn(inboxFolder, "inbox");
-  leftClickOn(junkFolder, { accelKey: true });
-  await rightClickOn(junkFolder, "multiselect");
-  leftClickOn(plainFolder);
-  leftClickOn(inboxSubfolder, { accelKey: true });
-  await rightClickOn(plainFolder, "multiselect-plain");
-  leftClickOn(inboxFolder, { accelKey: true });
-  leftClickOn(trashFolder, { accelKey: true });
-  leftClickOn(virtualFolder, { accelKey: true });
-  leftClickOn(rssFeedFolder, { accelKey: true });
-  await rightClickOn(rssFeedFolder, "multiselect-minimal");
 });
 
 /**
@@ -835,10 +804,10 @@ add_task(async function testEmpty() {
   );
 });
 
-function leftClickOn(folder, modifiers = {}) {
+function leftClickOn(folder) {
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
-    modifiers,
+    {},
     about3Pane
   );
 }

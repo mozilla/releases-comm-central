@@ -1100,9 +1100,6 @@ export class TreeView extends HTMLElement {
     this.#cancelToleranceFillCallback();
 
     const rowCount = this._view?.rowCount ?? 0;
-    if (!rowCount) {
-      this.dispatchEvent(new CustomEvent("showplaceholder"));
-    }
     this.placeholder?.classList.toggle("show", !rowCount);
 
     if (!rowCount || this.#calculateVisibleRowCount() == 0) {
