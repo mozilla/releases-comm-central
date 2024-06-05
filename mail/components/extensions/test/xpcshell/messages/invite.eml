@@ -1,0 +1,78 @@
+Message-ID: <invite.eml@mime.sample>
+MIME-Version: 1.0
+From: John <john@example.com>
+Content-Language: en-US
+To: tom@example.com
+Subject: Invite
+Date: Fri, 22 Oct 2021 14:15:20 +0300
+Content-Type: multipart/mixed; boundary="=_mixed_36138BFC6A7B03EFC2258776003DB5C5_="
+
+This is a multipart message in MIME format.
+--=_mixed_36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: multipart/related; boundary="=_related_36138BFC6A7B03EFC2258776003DB5C5_="
+
+--=_related_36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: multipart/alternative; boundary="=_alternative 36138BFC6A7B03EFC2258776003DB5C5_="
+
+--=_alternative 36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: text/plain; charset=windows-1257
+
+You have been invited to a meeting (TEXT)
+
+--=_alternative 36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: text/html; charset=windows-1257
+Content-Disposition: inline
+
+<html>
+ <body>
+  <p>You have been invited to a meeting (HTML)</p>
+ </body>
+</html>
+
+--=_alternative 36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: text/calendar; method="REQUEST"; charset="UTF-8"
+
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART;TZID="FLE":20211026T090000
+DTEND;TZID="FLE":20211026T100000
+TRANSP:OPAQUE
+DTSTAMP:20211022T111520Z
+SEQUENCE:0
+CLASS:PUBLIC
+UID:36138BFC6A7B03EFC2258776003DB5C5
+END:VEVENT
+END:VCALENDAR
+
+--=_alternative 36138BFC6A7B03EFC2258776003DB5C5_=--
+--=_related_36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: text/html; charset=windows-1257
+Content-Disposition: inline
+Content-ID: <FFFF__=4DBB0DE5DFAE33558f9e8a93df938690918c4DB@>
+
+<html>
+ <body>
+  <p>You have been invited to a meeting (RELATED)</p>
+ </body>
+</html>
+
+--=_related_36138BFC6A7B03EFC2258776003DB5C5_=--
+--=_mixed_36138BFC6A7B03EFC2258776003DB5C5_=
+Content-Type: text/plain; charset="UTF-8"; name="c141520.ics"
+Content-Disposition: attachment; filename="c141520.ics"
+
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART;TZID="FLE":20211026T090000
+DTEND;TZID="FLE":20211026T100000
+TRANSP:OPAQUE
+DTSTAMP:20211022T111520Z
+SEQUENCE:0
+CLASS:PUBLIC
+UID:36138BFC6A7B03EFC2258776003DB5C5
+END:VEVENT
+END:VCALENDAR
+
+--=_mixed_36138BFC6A7B03EFC2258776003DB5C5_=--
