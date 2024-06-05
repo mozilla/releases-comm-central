@@ -11,11 +11,14 @@ job-defaults:
                 macosx.*:
                     - marionette/prod_config.py
                     - marionette/mac_taskcluster_config.py
+                    - unittests/thunderbird_extra.py
                 windows.*:
                     - marionette/windows_taskcluster_config.py
+                    - unittests/thunderbird_extra.py
                 default:
                     - marionette/prod_config.py
                     - remove_executables.py
+                    - unittests/thunderbird_extra.py
         extra-options:
             - --application=thunderbird
             - --test-manifest=../../../../../comm/testing/marionette/unit-tests.toml
