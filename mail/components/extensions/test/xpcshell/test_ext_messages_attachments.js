@@ -65,6 +65,11 @@ add_setup(
       _testFolder,
       do_get_file("messages/nestedMessageInline.eml").path
     );
+    // A multipart/related message with an embedded image.
+    await createMessageFromFile(
+      _testFolder,
+      do_get_file("messages/sample08.eml").path
+    );
   }
 );
 
@@ -79,7 +84,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(7, messages.length);
+          browser.test.assertEq(8, messages.length);
 
           let attachments, attachment, file;
 
@@ -253,6 +258,32 @@ add_task(
             "Should find the correct message"
           );
 
+          // Test related parts with a content-id.
+          attachments = await browser.messages.listAttachments(messages[7].id);
+          window.assertDeepEqual(
+            [
+              {
+                contentType: "image/png",
+                name: "blue_pixel_1x1.png",
+                size: 179,
+                partName: "1.2",
+                contentId: "part1.FxEY2Ivx.xSFtCdX4@gmx.de",
+              },
+            ],
+            attachments,
+            "Should find the correct related attachment",
+            { strict: true }
+          );
+          // Check that we can get the file as well.
+          file = await browser.messages.getAttachmentFile(
+            messages[7].id,
+            "1.2"
+          );
+          // eslint-disable-next-line mozilla/use-isInstance
+          browser.test.assertTrue(file instanceof File);
+          browser.test.assertEq("blue_pixel_1x1.png", file.name);
+          browser.test.assertEq(179, file.size);
+
           browser.test.notifyPass("finished");
         },
         "utils.js": await getUtilsJS(),
@@ -280,7 +311,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(7, messages.length);
+          browser.test.assertEq(8, messages.length);
           const message = messages[4];
 
           function validateMessage(msg, expectedValues) {
@@ -580,7 +611,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(7, messages.length);
+          browser.test.assertEq(8, messages.length);
           const message = messages[6];
 
           function validateMessage(msg, expectedValues) {
@@ -722,7 +753,7 @@ add_task(
           const [account] = await browser.accounts.list();
           const testFolder = account.folders.find(f => f.name == "test1");
           const { messages } = await browser.messages.list(testFolder.id);
-          browser.test.assertEq(7, messages.length);
+          browser.test.assertEq(8, messages.length);
 
           async function checkAttachments(id, expected) {
             const attachments = await browser.messages.listAttachments(id);

@@ -274,7 +274,7 @@ add_task(async function test_folder_isTag() {
         );
 
         // In MV2, getParentFolders() returns [], because root folders are not
-        // considdered as real folders (backward compatibility).
+        // considered as real folders (backward compatibility).
         const parentFolders = await browser.folders.getParentFolders(
           virtualTagFolder.id
         );

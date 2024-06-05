@@ -782,6 +782,7 @@ add_task(async function test_encoding() {
                       "content-transfer-encoding": ["base64"],
                     },
                     size: 0,
+                    name: "blue_pixel_1x1.png",
                     partName: "1.2",
                   },
                 ],

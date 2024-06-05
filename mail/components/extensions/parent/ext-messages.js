@@ -195,6 +195,13 @@ async function convertAttachment(msgHdr, mimeTreePart, extension) {
 
     rv.message = extension.messageManager.convert(attachedMsgHdr);
   }
+
+  // Include the content-Id, if available (for related parts).
+  if (mimeTreePart.headers._rawHeaders.has("content-id")) {
+    const cId = mimeTreePart.headers._rawHeaders.get("content-id")[0];
+    rv.contentId = cId.replace(/^<|>$/g, "");
+  }
+
   return rv;
 }
 

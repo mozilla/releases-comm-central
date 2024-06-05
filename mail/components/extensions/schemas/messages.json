@@ -243,7 +243,7 @@
       {
         "id": "MessageAttachment",
         "type": "object",
-        "description": "Represents an attachment in a message.",
+        "description": "Represents an attachment in a message. This includes all MIME parts with a <value>content-disposition</value> header set to <value>attachment</value>, but also related parts like inline images.",
         "properties": {
           "contentType": {
             "type": "string",
@@ -260,6 +260,11 @@
           "size": {
             "type": "integer",
             "description": "The size in bytes of this attachment."
+          },
+          "contentId": {
+            "type": "string",
+            "optional": true,
+            "description": "The content-id of this part. Available for related parts, which are referenced from other places inside the same message (e.g. inline images)."
           },
           "message": {
             "$ref": "messages.MessageHeader",

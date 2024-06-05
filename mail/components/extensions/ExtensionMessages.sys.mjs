@@ -205,6 +205,15 @@ class WebExtMimeTreeEmitter extends MimeTreeEmitter {
         return getName(contentDisposition) || "ForwardedMessage.eml";
       }
 
+      // We also consider related (inline) attachments as attachments.
+      if (mimeTreePart.headers._rawHeaders.has("content-id")) {
+        return (
+          getName(contentDisposition) ||
+          mimeTreePart.headers.contentType.get("name") ||
+          ""
+        );
+      }
+
       if (
         /^attachment/i.test(contentDisposition) ||
         mimeTreePart.headers.contentType.type == "text/x-moz-deleted"
