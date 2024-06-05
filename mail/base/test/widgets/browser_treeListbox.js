@@ -22,6 +22,9 @@ async function withTab(callback) {
 add_task(async function testKeyboard() {
   await withTab(subtestKeyboard);
 });
+add_task(async function testMouse() {
+  await withTab(subtestMouse);
+});
 add_task(async function testMutation() {
   await withTab(subtestMutation);
 });
@@ -42,7 +45,7 @@ add_task(async function testUnselectable() {
 });
 
 /**
- * Tests keyboard navigation up and down the list.
+ * Tests keyboard navigation up and down the list for single and multiselection.
  */
 async function subtestKeyboard() {
   const doc = content.document;
@@ -82,12 +85,12 @@ async function subtestKeyboard() {
     },
   };
 
-  function pressKey(key, expectEvent = true) {
-    info(`pressing ${key}`);
+  function pressKey(key, modifiers = {}, expectEvent = true) {
+    info(`pressing ${key} with ${modifiers}`);
 
     selectHandler.reset();
     list.addEventListener("select", selectHandler);
-    EventUtils.synthesizeKey(key, {}, content);
+    EventUtils.synthesizeKey(key, modifiers, content);
     list.removeEventListener("select", selectHandler);
     Assert.equal(
       !!selectHandler.seenEvent,
@@ -114,6 +117,20 @@ async function subtestKeyboard() {
     );
   }
 
+  function checkMultiSelected(indices, ids) {
+    Assert.equal(
+      indices.length,
+      ids.length,
+      "number of selected rows should be correct"
+    );
+
+    Assert.deepEqual(
+      Array.from(list.querySelectorAll(".selected"), row => row.id),
+      ids,
+      "correct rows have the 'selected' class"
+    );
+  }
+
   // Key down the list.
 
   list.focus();
@@ -122,13 +139,13 @@ async function subtestKeyboard() {
     checkSelected(i, initialRowIds[i]);
   }
 
-  pressKey("KEY_ArrowDown", false);
+  pressKey("KEY_ArrowDown", {}, false);
   checkSelected(7, "row-3-1-2");
 
-  pressKey("KEY_PageDown", false);
+  pressKey("KEY_PageDown", {}, false);
   checkSelected(7, "row-3-1-2");
 
-  pressKey("KEY_End", false);
+  pressKey("KEY_End", {}, false);
   checkSelected(7, "row-3-1-2");
 
   // And up again.
@@ -138,13 +155,13 @@ async function subtestKeyboard() {
     checkSelected(i, initialRowIds[i]);
   }
 
-  pressKey("KEY_ArrowUp", false);
+  pressKey("KEY_ArrowUp", {}, false);
   checkSelected(0, "row-1");
 
-  pressKey("KEY_PageUp", false);
+  pressKey("KEY_PageUp", {}, false);
   checkSelected(0, "row-1");
 
-  pressKey("KEY_Home", false);
+  pressKey("KEY_Home", {}, false);
   checkSelected(0, "row-1");
 
   // Jump around.
@@ -159,6 +176,159 @@ async function subtestKeyboard() {
   checkSelected(7, "row-3-1-2");
 
   pressKey("KEY_Home");
+  checkSelected(0, "row-1");
+
+  // Multiselection.
+
+  list.ariaMultiSelectable = true;
+  pressKey("KEY_ArrowDown", { accelKey: true }, true);
+  checkMultiSelected([0, 1], ["row-1", "row-2"]);
+
+  pressKey("KEY_ArrowDown", { accelKey: true }, true);
+  checkMultiSelected([0, 1, 2], ["row-1", "row-2", "row-2-1"]);
+
+  pressKey("KEY_ArrowUp", { accelKey: true }, true);
+  checkMultiSelected([0, 1, 2], ["row-1", "row-2", "row-2-1"]);
+
+  pressKey("KEY_End", { shiftKey: true }, true);
+  checkMultiSelected(
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [
+      "row-1",
+      "row-2",
+      "row-2-1",
+      "row-2-2",
+      "row-3",
+      "row-3-1",
+      "row-3-1-1",
+      "row-3-1-2",
+    ]
+  );
+
+  pressKey("KEY_Home", { shiftKey: true }, true);
+  checkMultiSelected(
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [
+      "row-1",
+      "row-2",
+      "row-2-1",
+      "row-2-2",
+      "row-3",
+      "row-3-1",
+      "row-3-1-1",
+      "row-3-1-2",
+    ]
+  );
+
+  pressKey("KEY_Home");
+  checkSelected(0, "row-1");
+
+  // Ensure modifier keys don't do anything if multiselection is disabled.
+  list.ariaMultiSelectable = false;
+
+  pressKey("KEY_ArrowDown", { accelKey: true }, true);
+  checkSelected(1, "row-2");
+
+  pressKey("KEY_ArrowDown", { shiftKey: true }, true);
+  checkSelected(2, "row-2-1");
+
+  pressKey("KEY_Home");
+  checkSelected(0, "row-1");
+}
+
+/**
+ * Tests mouse clicks for single and multiselection.
+ */
+async function subtestMouse() {
+  const doc = content.document;
+  const list = doc.querySelector(`ul[is="tree-listbox"]`);
+
+  Assert.equal(list.selectedIndex, 0, "selectedIndex is set to 0");
+
+  function selectRow(id, modifiers = {}) {
+    const row = doc.getElementById(id);
+    EventUtils.synthesizeMouseAtCenter(row, modifiers, content);
+  }
+
+  function checkSelected(expectedIndex, expectedId) {
+    Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
+
+    Assert.deepEqual(
+      Array.from(list.querySelectorAll(".selected"), row => row.id),
+      [expectedId],
+      "correct rows have the 'selected' class"
+    );
+  }
+
+  function checkMultiSelected(indices, ids) {
+    Assert.equal(
+      indices.length,
+      ids.length,
+      "number of selected rows should be correct"
+    );
+
+    Assert.deepEqual(
+      Array.from(list.querySelectorAll(".selected"), row => row.id),
+      ids,
+      "correct rows have the 'selected' class"
+    );
+  }
+
+  list.focus();
+
+  selectRow("row-3-1-2");
+  checkSelected(7, "row-3-1-2");
+
+  selectRow("row-2-2");
+  checkSelected(3, "row-2-2");
+
+  selectRow("row-1");
+  checkSelected(0, "row-1");
+
+  // Multiselection.
+
+  list.ariaMultiSelectable = true;
+
+  selectRow("row-2-2", { accelKey: true });
+  checkMultiSelected([0, 3], ["row-1", "row-2-2"]);
+
+  selectRow("row-3-1-2", { accelKey: true });
+  checkMultiSelected([0, 3, 7], ["row-1", "row-2-2", "row-3-1-2"]);
+
+  selectRow("row-3-1-1", { accelKey: true });
+  checkMultiSelected(
+    [0, 3, 6, 7],
+    ["row-1", "row-2-2", "row-3-1-1", "row-3-1-2"]
+  );
+
+  selectRow("row-1");
+  checkSelected(0, "row-1");
+
+  selectRow("row-3-1-2", { shiftKey: true });
+  checkMultiSelected(
+    [0, 1, 2, 3, 4, 5, 6, 7],
+    [
+      "row-1",
+      "row-2",
+      "row-2-1",
+      "row-2-2",
+      "row-3",
+      "row-3-1",
+      "row-3-1-1",
+      "row-3-1-2",
+    ]
+  );
+
+  selectRow("row-2-2");
+  checkSelected(3, "row-2-2");
+
+  // Ensure modifier keys don't do anything if multiselection is disabled.
+  list.ariaMultiSelectable = false;
+
+  selectRow("row-2-2", { accelKey: true });
+  checkSelected(3, "row-2-2");
+
+  selectRow("row-1", { shiftKey: true });
   checkSelected(0, "row-1");
 }
 

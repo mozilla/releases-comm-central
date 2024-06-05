@@ -527,7 +527,7 @@ interface nsIMsgDBViewCommandUpdater : nsISupports
 
   /**
   * allows the backend to tell the front end to re-determine
-  * which message we should selet after a delete or move
+  * which message we should select after a delete or move
   */
   void updateNextMessageAfterDelete();
 

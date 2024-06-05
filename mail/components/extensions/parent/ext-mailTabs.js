@@ -280,7 +280,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
         };
         about3Pane.addEventListener("folderURIChanged", listener);
-        about3Pane.folderTree.selectedRow = row;
+        about3Pane.folderTree.updateSelection(row);
       });
     }
 

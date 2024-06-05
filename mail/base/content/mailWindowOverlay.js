@@ -248,16 +248,19 @@ function view_init(event) {
   let messagePaneVisible;
   let quickFilterBarVisible;
   let threadPaneHeaderVisible;
+  let isMultiSelection;
 
   const tab = document.getElementById("tabmail")?.currentTabInfo;
   if (tab?.mode.name == "mail3PaneTab") {
     let chromeBrowser;
     ({ chromeBrowser, message } = tab);
-    const { paneLayout, quickFilterBar } = chromeBrowser.contentWindow;
+    const { paneLayout, quickFilterBar, folderPane } =
+      chromeBrowser.contentWindow;
     ({ accountCentralVisible, folderPaneVisible, messagePaneVisible } =
       paneLayout);
     quickFilterBarVisible = quickFilterBar.filterer.visible;
     threadPaneHeaderVisible = true;
+    isMultiSelection = folderPane.isMultiSelection;
   } else if (tab?.mode.name == "mailMessageTab") {
     message = tab.message;
     messagePaneVisible = true;
@@ -289,7 +292,7 @@ function view_init(event) {
       "checked",
       accountCentralVisible ? false : messagePaneVisible
     );
-    messagePaneMenuItem.disabled = accountCentralVisible;
+    messagePaneMenuItem.disabled = isMultiSelection || accountCentralVisible;
   }
 
   const messagePaneAppMenuItem = document.getElementById("appmenu_showMessage");
@@ -299,7 +302,7 @@ function view_init(event) {
       "checked",
       accountCentralVisible ? false : messagePaneVisible
     );
-    messagePaneAppMenuItem.disabled = accountCentralVisible;
+    messagePaneAppMenuItem.disabled = isMultiSelection || accountCentralVisible;
   }
 
   const folderPaneMenuItem = document.getElementById("menu_showFolderPane");
@@ -327,12 +330,14 @@ function view_init(event) {
   threadPaneAppMenuItem?.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
   // Disable some menus if account manager is showing
-  document.getElementById("viewSortMenu").disabled = accountCentralVisible;
+  document.getElementById("viewSortMenu").disabled =
+    isMultiSelection || accountCentralVisible;
 
   document.getElementById("viewMessageViewMenu").disabled =
-    accountCentralVisible;
+    isMultiSelection || accountCentralVisible;
 
-  document.getElementById("viewMessagesMenu").disabled = accountCentralVisible;
+  document.getElementById("viewMessagesMenu").disabled =
+    isMultiSelection || accountCentralVisible;
 
   // Hide the "View > Messages" menu item if the user doesn't have the "Views"
   // (aka "Mail Views") toolbar button in the main toolbar. (See bug 1563789.)

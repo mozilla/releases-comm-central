@@ -649,7 +649,7 @@ customElements.whenDefined("tree-listbox").then(() => {
         return;
       }
 
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       if (row.classList.contains("listRow")) {
         const book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
         const list = book.childNodes.find(l => l.UID == row.dataset.uid);
@@ -684,7 +684,7 @@ customElements.whenDefined("tree-listbox").then(() => {
         );
       }
 
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       if (row.classList.contains("noDelete")) {
         throw new Components.Exception(
           "Refusing to delete a built-in address book",
@@ -753,7 +753,7 @@ customElements.whenDefined("tree-listbox").then(() => {
         return;
       }
 
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       const directory = row._book || row._list;
       Services.prefs.setStringPref(
         "mail.addr_book.view.startupURI",
@@ -780,7 +780,7 @@ customElements.whenDefined("tree-listbox").then(() => {
       if (this.selectedIndex === 0) {
         return true;
       }
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       if (!row) {
         return false;
       }
@@ -797,7 +797,7 @@ customElements.whenDefined("tree-listbox").then(() => {
       if (this.selectedIndex === 0) {
         return true;
       }
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       if (!row) {
         return false;
       }
@@ -807,7 +807,7 @@ customElements.whenDefined("tree-listbox").then(() => {
     }
 
     _onSelect() {
-      const row = this.rows[this.selectedIndex];
+      const row = this.getRowAtIndex(this.selectedIndex);
       if (row.classList.contains("listRow")) {
         cardsPane.displayList(row.dataset.book, row.dataset.uid);
       } else {
@@ -822,16 +822,16 @@ customElements.whenDefined("tree-listbox").then(() => {
         document.getElementById("toolbarCreateContact").disabled = false;
         document.getElementById("toolbarCreateList").disabled = false;
         document.body.classList.add("all-ab-selected");
-      } else {
-        const bookUID = row.dataset.book ?? row.dataset.uid;
-        const book = MailServices.ab.getDirectoryFromUID(bookUID);
-
-        document.getElementById("toolbarCreateContact").disabled =
-          book.readOnly;
-        document.getElementById("toolbarCreateList").disabled =
-          book.readOnly || !book.supportsMailingLists;
-        document.body.classList.remove("all-ab-selected");
+        return;
       }
+
+      const bookUID = row.dataset.book ?? row.dataset.uid;
+      const book = MailServices.ab.getDirectoryFromUID(bookUID);
+
+      document.getElementById("toolbarCreateContact").disabled = book.readOnly;
+      document.getElementById("toolbarCreateList").disabled =
+        book.readOnly || !book.supportsMailingLists;
+      document.body.classList.remove("all-ab-selected");
     }
 
     _onCollapsed(event) {
@@ -970,7 +970,7 @@ customElements.whenDefined("tree-listbox").then(() => {
     _showContextMenu(event) {
       const row =
         event.target == this
-          ? this.rows[this.selectedIndex]
+          ? this.getRowAtIndex(this.selectedIndex)
           : event.target.closest("li");
       if (!row) {
         return;

@@ -608,3 +608,19 @@ threadpane-sort-header-count =
 
 threadpane-card-menu-button =
   .title = Message menu
+
+message-list-placeholder-no-messages = No message found
+
+message-list-placeholder-multiple-folders = Multiple folders selected
+
+## Folder pane context menu
+
+# Variables:
+# $count (Number) - Number of selected folders.
+folder-pane-context-mark-folder-read =
+  .label =
+    { $count ->
+      [one] Mark Folder Read
+      *[other] Mark Folders Read
+    }
+  .accesskey = k

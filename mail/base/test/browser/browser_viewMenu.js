@@ -129,7 +129,7 @@ const viewMenuData = {
 const helper = new MenuTestHelper("menu_View", viewMenuData);
 
 const tabmail = document.getElementById("tabmail");
-let inboxFolder, rootFolder, testMessages;
+let inboxFolder, secondFolder, rootFolder, testMessages;
 
 add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
@@ -144,6 +144,9 @@ add_setup(async function () {
 
   inboxFolder = rootFolder
     .createLocalSubfolder("view menu")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  secondFolder = rootFolder
+    .createLocalSubfolder("multi selection")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.addMessageBatch(
     generator
@@ -180,6 +183,27 @@ add_task(async function test3PaneTab() {
     viewSortMenu: { disabled: false },
     viewMessagesMenu: { disabled: false },
   });
+
+  // Multiselect and test.
+  EventUtils.synthesizeMouseAtCenter(
+    tabmail.currentAbout3Pane.folderPane
+      .getRowForFolder(secondFolder)
+      .querySelector(".name"),
+    { accelKey: true },
+    tabmail.currentAbout3Pane
+  );
+  await helper.testItems({
+    viewSortMenu: { disabled: true },
+    viewMessagesMenu: { disabled: true },
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    tabmail.currentAbout3Pane.folderPane
+      .getRowForFolder(inboxFolder)
+      .querySelector(".name"),
+    {},
+    tabmail.currentAbout3Pane
+  );
+  tabmail.currentAbout3Pane.displayFolder(inboxFolder);
 
   goDoCommand("cmd_toggleQuickFilterBar");
   await helper.testItems({
