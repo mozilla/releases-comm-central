@@ -189,25 +189,6 @@ ClassInfo.prototype = {
   flags: 0,
 };
 
-export function l10nHelper(aChromeURL) {
-  const bundle = Services.strings.createBundle(aChromeURL);
-  return function (aStringId) {
-    try {
-      if (arguments.length == 1) {
-        return bundle.GetStringFromName(aStringId);
-      }
-      return bundle.formatStringFromName(
-        aStringId,
-        Array.prototype.slice.call(arguments, 1)
-      );
-    } catch (e) {
-      console.error(e);
-      dump("Failed to get " + aStringId + "\n");
-      return aStringId;
-    }
-  };
-}
-
 /**
  * Constructs an nsISimpleEnumerator for the given array of items.
  * Copied from netwerk/test/httpserver/httpd.js
