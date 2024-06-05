@@ -26,6 +26,10 @@ add_task(async function sendMessage() {
   const identity = getSmtpIdentity("test@tinderbox.invalid", localserver);
   var testFile = do_get_file("data/message1.eml");
 
+  const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+    .createInstance(Ci.nsIMsgCompUtils)
+    .msgGenerateMessageId(identity, null);
+
   const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   const smtpServer = MailServices.outgoingServer.getServerByIdentity(identity);
   smtpServer.sendMailMessage(
@@ -36,7 +40,7 @@ add_task(async function sendMessage() {
     null,
     null,
     false,
-    "",
+    messageId,
     requestObserver
   );
   await requestObserver.promise;

@@ -98,6 +98,10 @@ add_task(async function () {
 
     dump("Send\n");
 
+    const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+      .createInstance(Ci.nsIMsgCompUtils)
+      .msgGenerateMessageId(identity, null);
+
     smtpServer.sendMailMessage(
       testFile,
       kTo,
@@ -106,7 +110,7 @@ add_task(async function () {
       null,
       null,
       false,
-      "",
+      messageId,
       null
     );
 

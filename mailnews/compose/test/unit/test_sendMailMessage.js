@@ -40,6 +40,10 @@ async function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
+    let messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+      .createInstance(Ci.nsIMsgCompUtils)
+      .msgGenerateMessageId(identity, null);
+
     let requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -49,7 +53,7 @@ async function test_RFC2821() {
       null,
       null,
       false,
-      "",
+      messageId,
       requestObserver
     );
 
@@ -69,6 +73,10 @@ async function test_RFC2821() {
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
+    messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+      .createInstance(Ci.nsIMsgCompUtils)
+      .msgGenerateMessageId(identity, null);
+
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -78,7 +86,7 @@ async function test_RFC2821() {
       null,
       null,
       false,
-      "",
+      messageId,
       requestObserver
     );
 
@@ -106,6 +114,10 @@ async function test_RFC2821() {
     // First do test with identity email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", false);
 
+    messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+      .createInstance(Ci.nsIMsgCompUtils)
+      .msgGenerateMessageId(identity, null);
+
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -115,7 +127,7 @@ async function test_RFC2821() {
       null,
       null,
       false,
-      "",
+      messageId,
       requestObserver
     );
 
@@ -136,6 +148,10 @@ async function test_RFC2821() {
     // Now do the same test with sender's email address used for smtp MAIL FROM.
     Services.prefs.setBoolPref("mail.smtp.useSenderForSmtpMailFrom", true);
 
+    messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+      .createInstance(Ci.nsIMsgCompUtils)
+      .msgGenerateMessageId(identity, null);
+
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -145,7 +161,7 @@ async function test_RFC2821() {
       null,
       null,
       false,
-      "",
+      messageId,
       requestObserver
     );
 
