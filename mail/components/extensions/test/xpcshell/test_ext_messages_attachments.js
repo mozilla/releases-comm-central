@@ -267,7 +267,7 @@ add_task(
                 name: "blue_pixel_1x1.png",
                 size: 179,
                 partName: "1.2",
-                contentId: "part1.FxEY2Ivx.xSFtCdX4@gmx.de",
+                contentId: "part1.FxEY2Ivx.xSFtCdX4@example.com",
               },
             ],
             attachments,

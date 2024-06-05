@@ -20,7 +20,7 @@ Content-Transfer-Encoding: 7bit
   <body>
     <p>Example body</p>
     <img moz-do-not-send="false"
-      src="cid:part1.FxEY2Ivx.xSFtCdX4@gmx.de" alt="" width="1"
+      src="cid:part1.FxEY2Ivx.xSFtCdX4@example.com" alt="" width="1"
       height="1" class="">
     <p>with embedded image.<br>
     </p>
@@ -30,7 +30,7 @@ Content-Transfer-Encoding: 7bit
 --------------XDhTrqqN5B126r5Y7JBH0YyJ
 Content-Type: image/png; name="blue_pixel_1x1.png"
 Content-Disposition: inline; filename="blue_pixel_1x1.png"
-Content-Id: <part1.FxEY2Ivx.xSFtCdX4@gmx.de>
+Content-Id: <part1.FxEY2Ivx.xSFtCdX4@example.com>
 Content-Transfer-Encoding: base64
 
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAKnRFWHRDcmVhdGlvbiBUaW1l

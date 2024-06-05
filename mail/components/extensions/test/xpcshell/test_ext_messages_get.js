@@ -769,7 +769,7 @@ add_task(async function test_encoding() {
                     },
                     size: 0,
                     partName: "1.1",
-                    body: `<!DOCTYPE html>\r\n<html>\r\n  <head>\r\n    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n  </head>\r\n  <body>\r\n    <p>Example body</p>\r\n    <img moz-do-not-send=\"false\"\r\n      src=\"cid:part1.FxEY2Ivx.xSFtCdX4@gmx.de\" alt=\"\" width=\"1\"\r\n      height=\"1\" class=\"\">\r\n    <p>with embedded image.<br>\r\n    </p>\r\n    <br>\r\n  </body>\r\n</html>`,
+                    body: `<!DOCTYPE html>\r\n<html>\r\n  <head>\r\n    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n  </head>\r\n  <body>\r\n    <p>Example body</p>\r\n    <img moz-do-not-send=\"false\"\r\n      src=\"cid:part1.FxEY2Ivx.xSFtCdX4@example.com\" alt=\"\" width=\"1\"\r\n      height=\"1\" class=\"\">\r\n    <p>with embedded image.<br>\r\n    </p>\r\n    <br>\r\n  </body>\r\n</html>`,
                   },
                   {
                     contentType: "image/png",
@@ -778,7 +778,7 @@ add_task(async function test_encoding() {
                       "content-disposition": [
                         `inline; filename="blue_pixel_1x1.png"`,
                       ],
-                      "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@gmx.de>"],
+                      "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@example.com>"],
                       "content-transfer-encoding": ["base64"],
                     },
                     size: 0,
