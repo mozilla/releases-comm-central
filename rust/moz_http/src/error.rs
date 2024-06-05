@@ -83,5 +83,20 @@ impl From<nsresult> for Error {
     }
 }
 
+impl From<Error> for nsresult {
+    fn from(value: Error) -> Self {
+        match value {
+            Error::UnsupportedScheme(_) => nserror::NS_ERROR_UNKNOWN_PROTOCOL,
+            Error::TimedOut => nserror::NS_ERROR_NET_TIMEOUT,
+            Error::UnknownHost => nserror::NS_ERROR_UNKNOWN_HOST,
+            Error::UnknownNetworkError(result) => result,
+            Error::RedirectLoop => nserror::NS_ERROR_REDIRECT_LOOP,
+            Error::Unknown(result) => result,
+
+            _ => nserror::NS_ERROR_FAILURE,
+        }
+    }
+}
+
 /// A result which error type is always an [`enum@Error`].
 pub type Result<T> = std::result::Result<T, Error>;

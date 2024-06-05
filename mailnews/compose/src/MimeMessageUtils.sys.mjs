@@ -977,7 +977,7 @@ export var MsgUtils = {
   formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
     const smtpServer =
       MailServices.outgoingServer.getServerByIdentity(userIdentity);
-    const smtpHostname = smtpServer.hostname;
+    const smtpHostname = smtpServer.serverURI.host;
     return composeBundle.formatStringFromName(errorName, [smtpHostname]);
   },
 
