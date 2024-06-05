@@ -89,6 +89,9 @@ elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
 
     rnp_defines.update({
         "CRYPTO_BACKEND_OPENSSL": True,
+        # _LEGACY needed due to enabling IDEA, CAST5, and BLOWFISH
+        # See rnp/src/lib/crypto/backend_version.cpp
+        "CRYPTO_BACKEND_OPENSSL3_LEGACY": True,
         # Not supported by OpenSSL https://github.com/openssl/openssl/issues/2046
         "ENABLE_TWOFISH": False,
         # Supported, but not with RHEL's OpenSSL, disabled for now;
