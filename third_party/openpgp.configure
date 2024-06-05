@@ -165,9 +165,9 @@ with only_when(in_tree_librnp):
         set_config("MZLA_BZIP2_LIBS", bzip2_flags.ldflags)
 
     # librnp crypto backend selection
-    @depends(target_has_linux_kernel)
-    def librnp_backend_choices(is_linux):
-        if is_linux:
+    @depends(target_has_linux_kernel, "--help")
+    def librnp_backend_choices(is_linux, is_help):
+        if is_linux or is_help:
             return ("botan", "openssl")
         else:
             return ("botan",)

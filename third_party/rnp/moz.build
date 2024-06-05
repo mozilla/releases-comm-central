@@ -94,7 +94,6 @@ elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
         # Supported, but not with RHEL's OpenSSL, disabled for now;
         "ENABLE_BRAINPOOL": False,
     })
-    rnp_defines["PACKAGE_STRING"] = rnp_defines["PACKAGE_STRING"][:-1] + '-openssl"'
     if CONFIG["MZLA_LIBRNP_OPENSSL_VERSION"][0] == "3":
         rnp_defines["CRYPTO_BACKEND_OPENSSL3"] = True
 
@@ -106,7 +105,8 @@ GeneratedFile(
     script="/comm/python/thirdroc/rnp_generated.py",
     inputs=["src/lib/version.h.in", "src/lib/config.h.in"],
     flags=["-V", f"{SRCDIR}/version.txt",
-           "-m", CONFIG["MOZ_APP_VERSION_DISPLAY"]] + gen_files_flags
+           "-m", CONFIG["MOZ_APP_VERSION_DISPLAY"],
+           "-c", CONFIG["MZLA_LIBRNP_BACKEND"]] + gen_files_flags
 )
 
 if CONFIG["MOZ_SYSTEM_ZLIB"]:

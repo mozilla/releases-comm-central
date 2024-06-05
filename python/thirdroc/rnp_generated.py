@@ -18,7 +18,7 @@ from mozbuild.util import FileAvoidWrite, ensureParentDir
 from thirdroc.cmake_define_files import define_type, process_cmake_define_file
 
 
-def rnp_version(version_file, thunderbird_version):
+def rnp_version(version_file, thunderbird_version, crypto_backend):
     """
     Update RNP source files: generate version.h
     :param string version_file:
@@ -31,7 +31,7 @@ def rnp_version(version_file, thunderbird_version):
     version_minor = version.minor
     version_patch = version.micro
 
-    version_full = f"{version_str}.MZLA.{thunderbird_version}"
+    version_full = f"{version_str}.MZLA.{thunderbird_version}.{crypto_backend}"
 
     defines = dict(
         RNP_VERSION_MAJOR=version_major,
@@ -84,6 +84,9 @@ def main(output, *argv):
     parser.add_argument("-m", type=str, dest="thunderbird_version", help="Thunderbird version")
     parser.add_argument("-V", type=str, dest="version_file", help="Path to RNP version.txt")
     parser.add_argument(
+        "-c", type=str, dest="crypto_backend", help="Crypto backend (botan|openssl)"
+    )
+    parser.add_argument(
         "-D",
         type=define_type,
         action="append",
@@ -94,7 +97,7 @@ def main(output, *argv):
 
     args = parser.parse_args(argv)
 
-    defines = rnp_version(args.version_file, args.thunderbird_version)
+    defines = rnp_version(args.version_file, args.thunderbird_version, args.crypto_backend)
 
     # "output" is an open filedescriptor for version.h
     generate_version_h(output, args.version_h_in, defines)
