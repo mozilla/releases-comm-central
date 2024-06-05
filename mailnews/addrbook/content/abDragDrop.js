@@ -65,15 +65,15 @@ const abResultsPaneObserver = {
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
-        const vCard = card.translateTo("vcard");
-        event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
+        const vCard = card.toVCard();
+        event.dataTransfer.setData("text/vcard", vCard);
         event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
           `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2")
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise-url",
-          "data:text/vcard," + vCard
+          "data:text/vcard," + encodeURIComponent(vCard)
         );
         event.dataTransfer.setData(
           "application/x-moz-file-promise",

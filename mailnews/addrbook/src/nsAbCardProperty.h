@@ -14,14 +14,9 @@
 
 #include "nsIAbCard.h"
 #include "nsCOMPtr.h"
-#include "nsString.h"
 
 #include "nsInterfaceHashtable.h"
 #include "nsIVariant.h"
-
-class nsIStringBundle;
-class mozITXTToHTMLConv;
-struct AppendItem;
 
 /*
  * Address Book Card Property
@@ -43,21 +38,6 @@ class nsAbCardProperty : public nsIAbCard {
   nsInterfaceHashtable<nsCStringHashKey, nsIVariant> m_properties;
 
   nsCString m_directoryUID;
-
- private:
-  nsresult AppendSection(const AppendItem* aArray, int16_t aCount,
-                         const nsString& aHeading, nsIStringBundle* aBundle,
-                         mozITXTToHTMLConv* aConv, nsString& aResult);
-  nsresult AppendLine(const AppendItem& aItem, mozITXTToHTMLConv* aConv,
-                      nsString& aResult);
-  nsresult AppendLabel(const AppendItem& aItem, nsIStringBundle* aBundle,
-                       mozITXTToHTMLConv* aConv, nsString& aResult);
-  nsresult AppendCityStateZip(const AppendItem& aItem, nsIStringBundle* aBundle,
-                              mozITXTToHTMLConv* aConv, nsString& aResult);
-
-  nsresult ConvertToBase64EncodedXML(nsACString& result);
-  nsresult ConvertToXMLPrintData(nsAString& result);
-  nsresult ConvertToEscapedVCard(nsACString& result);
 };
 
 #endif

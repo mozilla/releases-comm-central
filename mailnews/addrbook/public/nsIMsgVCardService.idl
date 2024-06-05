@@ -19,18 +19,10 @@ interface nsIMsgVCardService : nsISupports {
   nsIAbCard vCardToAbCard(in AString vCardStr);
 
   /**
-   * Translates an URL-encoded vCard string into a nsIAbCard.
-   *
-   * @param escapedVCardStr - The string containing the vCard data.
-   * @return - A card containing the translated vCard data.
-   */
-  nsIAbCard escapedVCardToAbCard(in AString escapedVCardStr);
-
-  /**
-   * Translates a nsIAbCard into an URL-encoded vCard.
+   * Translates a nsIAbCard into a vCard.
    *
    * @param abCard - A card to be translated.
    * @return - The string containing the vCard data.
    */
-  AString abCardToEscapedVCard(in nsIAbCard abCard);
+  AString abCardToVCard(in nsIAbCard abCard);
 };

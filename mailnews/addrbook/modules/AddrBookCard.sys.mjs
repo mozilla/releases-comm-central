@@ -418,20 +418,11 @@ AddrBookCard.prototype = {
     emailAddress = emailAddress.toLowerCase();
     return this.emailAddresses.some(e => e.toLowerCase() == emailAddress);
   },
-  translateTo(type) {
-    if (type == "vcard") {
-      if (!this._vCardProperties.getFirstValue("uid")) {
-        this._vCardProperties.addValue("uid", this.UID);
-      }
-      return encodeURIComponent(this._vCardProperties.toVCard());
+  toVCard() {
+    if (!this._vCardProperties.getFirstValue("uid")) {
+      this._vCardProperties.addValue("uid", this.UID);
     }
-    // Get nsAbCardProperty to do the work, the code is in C++ anyway.
-    const cardCopy = Cc[
-      "@mozilla.org/addressbook/cardproperty;1"
-    ].createInstance(Ci.nsIAbCard);
-    cardCopy.UID = this.UID;
-    cardCopy.copy(this);
-    return cardCopy.translateTo(type);
+    return this._vCardProperties.toVCard();
   },
   generatePhoneticName(lastNameFirst) {
     if (lastNameFirst) {

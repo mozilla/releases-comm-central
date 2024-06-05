@@ -486,7 +486,7 @@ export var AddrBookUtils = {
       if (!card.isMailList) {
         // We don't know how to export mailing lists to vcf.
         // Use LDIF for that.
-        output += decodeURIComponent(card.translateTo("vcard"));
+        output += card.toVCard();
       }
     }
     return output;

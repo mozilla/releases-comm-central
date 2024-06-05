@@ -2328,21 +2328,17 @@ var cardsPane = {
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
-        const vCard = card.translateTo("vcard");
+        const vCard = card.toVCard();
 
         // This is a huge hack. text/x-moz-url must be present or Linux won't
         // attempt to drag to the filesystem. It doesn't actually _use_ this
         // value, instead it fetches application/x-moz-file-promise-url.
         event.dataTransfer.mozSetDataAt(
           "text/x-moz-url",
-          URL.createObjectURL(new Blob([decodeURIComponent(vCard)])),
+          URL.createObjectURL(new Blob([vCard])),
           transferIndex
         );
-        event.dataTransfer.mozSetDataAt(
-          "text/vcard",
-          decodeURIComponent(vCard),
-          transferIndex
-        );
+        event.dataTransfer.mozSetDataAt("text/vcard", vCard, transferIndex);
         event.dataTransfer.mozSetDataAt(
           "application/x-moz-file-promise-dest-filename",
           `${card.displayName}.vcf`.replace(/(.{74}).*(.{10})$/u, "$1...$2"),
@@ -2350,7 +2346,7 @@ var cardsPane = {
         );
         event.dataTransfer.mozSetDataAt(
           "application/x-moz-file-promise-url",
-          "data:text/vcard," + vCard,
+          "data:text/vcard," + encodeURIComponent(vCard),
           transferIndex
         );
         event.dataTransfer.mozSetDataAt(
