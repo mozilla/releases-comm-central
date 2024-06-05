@@ -1501,15 +1501,6 @@ async function amE2eUploadKey(key) {
  * @param {object} key - The selected OpenPGP Key.
  */
 async function enigmailEditKeyDate(key) {
-  if (!key.iSimpleOneSubkeySameExpiry()) {
-    Services.prompt.alert(
-      null,
-      document.title,
-      await document.l10n.formatValue("openpgp-cannot-change-expiry")
-    );
-    return;
-  }
-
   const args = {
     keyId: key.keyId,
     modified: onDataModified,

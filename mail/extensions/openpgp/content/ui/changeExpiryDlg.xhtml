@@ -26,6 +26,7 @@
     />
 
     <link rel="localization" href="messenger/openpgp/changeExpiryDlg.ftl" />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
     <script
       defer="defer"
       src="chrome://messenger/content/dialogShadowDom.js"
@@ -43,14 +44,35 @@
           src="chrome://messenger/skin/icons/information.svg"
           alt=""
         />
-        <p data-l10n-id="info-explanation-1"></p>
+        <p id="intro"></p>
       </div>
 
       <p id="info-current-expiry"></p>
 
-      <p id="longerUsage" data-l10n-id="info-explanation-2"></p>
+      <div id="complexKeyContainer">
+        <label
+          id="select-key-prompt-id"
+          for="keySelect"
+          data-l10n-id="select-key-prompt"
+        />
+        <select id="keySelect"></select>
 
-      <fieldset>
+        <p id="longerUsage" data-l10n-id="info-explanation-2"></p>
+
+        <div class="selected-keys-properties">
+          <span class="key-property-title" data-l10n-id="created-label"></span>
+          <span id="created-info"></span>
+          <span class="key-property-title" data-l10n-id="usage-label"></span>
+          <span id="usage-info"></span>
+          <span
+            class="key-property-title"
+            data-l10n-id="algorithm-label"
+          ></span>
+          <span id="algo-info"></span>
+        </div>
+      </div>
+
+      <fieldset class="indent">
         <div>
           <input
             id="radio-expire-keep"
@@ -60,6 +82,7 @@
             checked="checked"
           />
           <label
+            id="radio-expire-keep-label"
             for="radio-expire-keep"
             data-l10n-id="expire-no-change-label"
           />
@@ -67,7 +90,11 @@
 
         <div>
           <input id="radio-expire-yes" type="radio" name="expiry" value="" />
-          <label for="radio-expire-yes" data-l10n-id="expire-in-time-label" />
+          <label
+            id="radio-expire-yes-label"
+            for="radio-expire-yes"
+            data-l10n-id="expire-in-time-label"
+          />
 
           <select id="expiry-in"></select>
         </div>
@@ -75,6 +102,7 @@
         <div>
           <input id="radio-expire-no" type="radio" name="expiry" value="0" />
           <label
+            id="radio-expire-no-label"
             for="radio-expire-no"
             data-l10n-id="expire-never-expire-label"
           />

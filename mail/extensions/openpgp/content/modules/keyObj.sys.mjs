@@ -585,4 +585,51 @@ export class EnigmailKeyObj {
 
     return null;
   }
+
+  /**
+   * Convert the given encoded string (from keyObj attribute keyUseFor)
+   * of usages into a human readable description. Capital Letters in
+   * the string are ignored, as these reflect summary properties.
+   * Lowercase characters and their meaning:
+   * e = encrypt
+   * s = sign
+   * c = certify
+   * a = authentication
+   *
+   * @param {string} keyUseFor
+   * @returns {string} the human readable description
+   */
+  getUsageText(keyUseFor) {
+    let usagetext = "";
+
+    for (let i = 0; i < keyUseFor.length; i++) {
+      switch (keyUseFor.substr(i, 1)) {
+        case "e":
+          if (usagetext.length > 0) {
+            usagetext += ", ";
+          }
+          usagetext += lazy.l10n.formatValueSync("key-usage-encrypt");
+          break;
+        case "s":
+          if (usagetext.length > 0) {
+            usagetext += ", ";
+          }
+          usagetext += lazy.l10n.formatValueSync("key-usage-sign");
+          break;
+        case "c":
+          if (usagetext.length > 0) {
+            usagetext += ", ";
+          }
+          usagetext += lazy.l10n.formatValueSync("key-usage-certify");
+          break;
+        case "a":
+          if (usagetext.length > 0) {
+            usagetext += ", ";
+          }
+          usagetext += lazy.l10n.formatValueSync("key-usage-authentication");
+          break;
+      } // * case *
+    } // * for *
+    return usagetext;
+  }
 }

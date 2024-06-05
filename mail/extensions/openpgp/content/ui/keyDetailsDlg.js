@@ -117,15 +117,6 @@ async function changeExpiry() {
     return;
   }
 
-  if (!keyObj.iSimpleOneSubkeySameExpiry()) {
-    Services.prompt.alert(
-      null,
-      document.title,
-      await document.l10n.formatValue("openpgp-cannot-change-expiry")
-    );
-    return;
-  }
-
   const args = {
     keyId: keyObj.keyId,
     modified: onDataModified,
@@ -874,7 +865,7 @@ SigListView.prototype = {
   },
 };
 
-function createSubkeyItem(mainKeyIsSecret, subkey) {
+function createSubkeyItem(mainKeyIsSecret, subkey, usagetext) {
   // Get expiry state of this subkey
   let expire;
   if (subkey.keyTrust === "r") {
@@ -897,46 +888,6 @@ function createSubkeyItem(mainKeyIsSecret, subkey) {
     subkeyType += l10n.formatValueSync("key-type-subkey");
   }
 
-  let usagetext = "";
-  let i;
-  //  e = encrypt
-  //  s = sign
-  //  c = certify
-  //  a = authentication
-  //  Capital Letters are ignored, as these reflect summary properties of a key
-
-  var singlecode = "";
-  for (i = 0; i < subkey.keyUseFor.length; i++) {
-    singlecode = subkey.keyUseFor.substr(i, 1);
-    switch (singlecode) {
-      case "e":
-        if (usagetext.length > 0) {
-          usagetext = usagetext + ", ";
-        }
-        usagetext = usagetext + l10n.formatValueSync("key-usage-encrypt");
-        break;
-      case "s":
-        if (usagetext.length > 0) {
-          usagetext = usagetext + ", ";
-        }
-        usagetext = usagetext + l10n.formatValueSync("key-usage-sign");
-        break;
-      case "c":
-        if (usagetext.length > 0) {
-          usagetext = usagetext + ", ";
-        }
-        usagetext = usagetext + l10n.formatValueSync("key-usage-certify");
-        break;
-      case "a":
-        if (usagetext.length > 0) {
-          usagetext = usagetext + ", ";
-        }
-        usagetext =
-          usagetext + l10n.formatValueSync("key-usage-authentication");
-        break;
-    } // * case *
-  } // * for *
-
   const keyObj = {
     keyType: subkeyType,
     keyId: "0x" + subkey.keyId,
@@ -955,11 +906,21 @@ function SubkeyListView(keyObj) {
 
   this.subkeys = [];
   this.rowCount = keyObj.subKeys.length + 1;
-  this.subkeys.push(createSubkeyItem(keyObj.secretAvailable, keyObj));
+  this.subkeys.push(
+    createSubkeyItem(
+      keyObj.secretAvailable,
+      keyObj,
+      keyObj.getUsageText(keyObj.keyUseFor)
+    )
+  );
 
   for (let i = 0; i < keyObj.subKeys.length; i++) {
     this.subkeys.push(
-      createSubkeyItem(keyObj.secretAvailable, keyObj.subKeys[i])
+      createSubkeyItem(
+        keyObj.secretAvailable,
+        keyObj.subKeys[i],
+        keyObj.getUsageText(keyObj.subKeys[i].keyUseFor)
+      )
     );
   }
 
