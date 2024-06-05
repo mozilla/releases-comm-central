@@ -6,8 +6,6 @@
 #ifndef nsParseMailbox_H
 #define nsParseMailbox_H
 
-#include "mozilla/Attributes.h"
-#include "nsIURI.h"
 #include "nsIMsgParseMailMsgState.h"
 #include "nsIStreamListener.h"
 #include "nsMsgLineBuffer.h"

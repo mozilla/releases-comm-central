@@ -17,7 +17,6 @@
 #include "nsWMSettings.h"
 #include "nsTextFormatter.h"
 #include "nsWMStringBundle.h"
-#include "nsUnicharUtils.h"
 
 #include "ImportDebug.h"
 

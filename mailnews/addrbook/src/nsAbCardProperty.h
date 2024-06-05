@@ -13,8 +13,6 @@
 #define nsAbCardProperty_h__
 
 #include "nsIAbCard.h"
-#include "nsCOMPtr.h"
-
 #include "nsInterfaceHashtable.h"
 #include "nsIVariant.h"
 

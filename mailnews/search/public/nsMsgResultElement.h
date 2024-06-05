@@ -6,6 +6,7 @@
 #ifndef __nsMsgResultElement_h
 #define __nsMsgResultElement_h
 
+#include "nsCOMPtr.h"
 #include "nsMsgSearchCore.h"
 #include "nsIMsgSearchAdapter.h"
 #include "nsTArray.h"

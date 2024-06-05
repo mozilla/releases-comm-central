@@ -6,11 +6,8 @@
 #ifndef __nsNoIncomingServer_h
 #define __nsNoIncomingServer_h
 
-#include "mozilla/Attributes.h"
-#include "msgCore.h"
 #include "nsINoIncomingServer.h"
 #include "nsILocalMailIncomingServer.h"
-#include "nsMsgIncomingServer.h"
 #include "nsMailboxServer.h"
 
 /* get some implementation from nsMsgIncomingServer */

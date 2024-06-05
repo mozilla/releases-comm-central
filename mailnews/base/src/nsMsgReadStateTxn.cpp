@@ -6,7 +6,6 @@
 #include "nsMsgReadStateTxn.h"
 
 #include "nsIMsgHdr.h"
-#include "nsComponentManagerUtils.h"
 
 nsMsgReadStateTxn::nsMsgReadStateTxn() {}
 

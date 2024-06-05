@@ -5,6 +5,7 @@
 
 // this file implements the nsMsgDatabase interface using the MDB Interface.
 
+#include "MailNewsTypes.h"
 #include "nscore.h"
 #include "msgCore.h"
 #include "nsIFile.h"

@@ -4,16 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsWindowsShellService.h"
-#include "nsIServiceManager.h"
-#include "nsICategoryManager.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsIPrefService.h"
 #include "windows.h"
 #include "shellapi.h"
 #include "nsIFile.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsUnicharUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIProperties.h"
 #include "nsString.h"

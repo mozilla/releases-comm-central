@@ -7,27 +7,24 @@
    Class for handling Maildir stores.
 */
 
+#include "MailNewsTypes.h"
+#include "nsMsgMessageFlags.h"
 #include "prprf.h"
 #include "msgCore.h"
 #include "nsMsgMaildirStore.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsIInputStream.h"
 #include "nsIInputStreamPump.h"
-#include "nsMsgFolderFlags.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIDBFolderInfo.h"
-#include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsITimer.h"
 #include "nsIMailboxUrl.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgFilterPlugin.h"
@@ -36,7 +33,6 @@
 #include "nsThreadUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SlicedInputStream.h"
-#include "mozilla/UniquePtr.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
 

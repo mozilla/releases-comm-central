@@ -6,7 +6,6 @@
 #include "prprf.h"
 #include "prmem.h"
 #include "nsCOMPtr.h"
-#include "nsMsgUtils.h"
 #include "nsIStringBundle.h"
 #include "nsOutlookStringBundle.h"
 #include "mozilla/Components.h"

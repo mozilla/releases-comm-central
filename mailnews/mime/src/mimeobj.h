@@ -6,7 +6,7 @@
 #ifndef _MIMEOBJ_H_
 #define _MIMEOBJ_H_
 
-#include "mimei.h"
+#include "mimei.h"  // IWYU pragma: export
 #include "prio.h"
 /* MimeObject is the base-class for the objects representing all other
    MIME types.  It provides several methods:

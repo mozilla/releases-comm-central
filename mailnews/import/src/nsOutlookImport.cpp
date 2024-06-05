@@ -24,7 +24,6 @@
 #include "nsTextFormatter.h"
 #include "nsOutlookStringBundle.h"
 #include "ImportDebug.h"
-#include "nsUnicharUtils.h"
 
 #include "nsOutlookMail.h"
 

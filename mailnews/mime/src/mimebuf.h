@@ -15,6 +15,8 @@
 #ifndef _MIMEBUF_H_
 #define _MIMEBUF_H_
 
+#include <stdint.h>
+
 extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
                                uint32_t quantum, char** buffer, int32_t* size);
 

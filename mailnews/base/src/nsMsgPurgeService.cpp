@@ -11,7 +11,6 @@
 #include "nsISpamSettings.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgHdr.h"
-#include "nsIMsgProtocolInfo.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"

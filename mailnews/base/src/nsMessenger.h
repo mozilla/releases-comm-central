@@ -19,7 +19,6 @@
 #include "nsWeakReference.h"
 #include "mozIDOMWindow.h"
 #include "nsTArray.h"
-#include "nsIMsgStatusFeedback.h"
 
 class nsSaveAllAttachmentsState;
 

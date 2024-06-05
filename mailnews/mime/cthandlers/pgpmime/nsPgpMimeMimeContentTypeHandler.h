@@ -3,7 +3,6 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMimeContentTypeHandler.h"
-#include "nsPgpMimeProxy.h"
 
 extern "C" MimeObjectClass* MIME_PgpMimeCreateContentTypeHandlerClass(
     const char* content_type, contentTypeHandlerInitStruct* initStruct);

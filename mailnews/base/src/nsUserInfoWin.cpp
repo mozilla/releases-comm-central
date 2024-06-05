@@ -8,7 +8,6 @@
 #include "mozilla/ArrayUtils.h"  // ArrayLength
 #include "nsString.h"
 #include "windows.h"
-#include "nsCRT.h"
 
 #define SECURITY_WIN32
 #include "lm.h"

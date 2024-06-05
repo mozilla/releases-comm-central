@@ -7,7 +7,6 @@
 #define nsEmlxHelperUtils_h___
 
 #include "nscore.h"
-#include "nsString.h"
 
 class nsIOutputStream;
 class nsIFile;

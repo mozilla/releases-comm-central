@@ -7,13 +7,11 @@
 #define nsMsgProgress_h_
 
 #include "nsIMsgProgress.h"
-#include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsString.h"
 #include "nsIMsgWindow.h"
 #include "nsIProgressEventSink.h"
-#include "nsIStringBundle.h"
 #include "nsWeakReference.h"
 
 class nsMsgProgress : public nsIMsgProgress,

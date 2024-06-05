@@ -8,11 +8,9 @@
 #include "msgCore.h"
 #include "nsCOMArray.h"
 #include "nsIMsgThread.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsMsgDBView.h"
 
 class nsMsgSearchDBView;
 

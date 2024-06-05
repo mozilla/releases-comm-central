@@ -11,9 +11,7 @@
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgImapMailFolder.h"
-#include "nsThreadUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "mozilla/ArrayUtils.h"
 
 NS_IMPL_ISUPPORTS(nsImapMoveCoalescer, nsIUrlListener)

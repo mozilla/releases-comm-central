@@ -6,7 +6,6 @@
 #ifndef __nsMessenger_h
 #define __nsMessenger_h
 
-#include "nscore.h"
 #include "nsIMessengerWindowService.h"
 
 #define NS_MESSENGERBOOTSTRAP_CID                    \

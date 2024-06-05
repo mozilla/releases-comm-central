@@ -6,7 +6,6 @@
 #ifndef nsMailboxProtocol_h___
 #define nsMailboxProtocol_h___
 
-#include "mozilla/Attributes.h"
 #include "nsMsgProtocol.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"

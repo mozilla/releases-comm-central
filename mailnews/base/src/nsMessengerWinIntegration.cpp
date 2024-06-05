@@ -10,15 +10,17 @@
 #include "mozilla/Components.h"
 #include "mozilla/Services.h"
 #include "mozIDOMWindow.h"
+#include "nsCOMArray.h"
 #include "nsIBaseWindow.h"
-#include "nsIDocShell.h"
+#include "nsIDocShell.h"  // IWYU pragma: keep
+#include "nsIStringBundle.h"
 #include "nsIMsgWindow.h"
 #include "nsIObserverService.h"
 #include "nsIPrefService.h"
 #include "nsIWidget.h"
 #include "nsIWindowMediator.h"
 #include "nsMessengerWinIntegration.h"
-#include "nsMsgDBFolder.h"
+#include "nsServiceManagerUtils.h"
 #include "nsPIDOMWindow.h"
 
 #define IDI_MAILBIFF 32576

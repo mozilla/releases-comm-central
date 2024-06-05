@@ -2,8 +2,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "nsMsgSendLater.h"
 #include "nsIMsgMailNewsUrl.h"
+#include "nsMsgCompFields.h"
 #include "nsMsgCopy.h"
 #include "nsIMsgSend.h"
 #include "nsIPrefService.h"
@@ -19,7 +21,6 @@
 #include "nsNetUtil.h"
 #include "prlog.h"
 #include "prmem.h"
-#include "nsIMimeConverter.h"
 #include "nsComposeStrings.h"
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"

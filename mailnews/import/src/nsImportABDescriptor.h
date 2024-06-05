@@ -6,7 +6,6 @@
 #ifndef nsImportABDescriptor_h___
 #define nsImportABDescriptor_h___
 
-#include "mozilla/Attributes.h"
 #include "nscore.h"
 #include "nsString.h"
 #include "nsIImportABDescriptor.h"

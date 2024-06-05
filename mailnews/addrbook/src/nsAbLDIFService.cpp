@@ -2,6 +2,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "nsIAbDirectory.h"
 #include "nsIAbCard.h"
 #include "nsString.h"
@@ -11,11 +12,9 @@
 #include "nsIInputStream.h"
 #include "nsNetUtil.h"
 #include "nsISeekableStream.h"
-#include "mdb.h"
 #include "plstr.h"
 #include "prmem.h"
 #include "prprf.h"
-#include "nsCRTGlue.h"
 #include "nsTArray.h"
 #include "nsIComponentManager.h"
 
@@ -164,8 +163,9 @@ nsresult nsAbLDIFService::str_parse_line(char* line, char** type, char** value,
   }
   *type = line;
 
-  for (s = line; *s && *s != ':'; s++)
-    ; /* NULL */
+  for (s = line; *s && *s != ':'; s++) {
+    /* NULL */
+  }
   if (*s == '\0') {
     return NS_ERROR_FAILURE;
   }

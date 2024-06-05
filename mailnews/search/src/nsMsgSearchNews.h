@@ -4,9 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _nsMsgSearchNews_h__
-#  include "nsMsgSearchAdapter.h"
-#  include "MailNewsTypes.h"
-#  include "nsTArray.h"
+#define _nsMsgSearchNews_h__
+
+#include "nsMsgSearchAdapter.h"
+#include "nsMsgSearchScopeTerm.h"
+#include "nsTArray.h"
 
 typedef enum search_type {
   ST_UNINITIALIZED,

@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "MailNewsTypes.h"
 #include "msgCore.h"
 #include "nsIURI.h"
 #include "nsIChannel.h"
@@ -24,9 +25,7 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsIIOService.h"
-#include "nsNetCID.h"
 #include "nsMsgI18N.h"
-#include "nsAppDirectoryServiceDefs.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsMsgUtils.h"
 #include "prprf.h"
@@ -47,7 +46,6 @@
 #include "mozilla/Components.h"
 #include "nsQueryObject.h"
 #include "nsIOutputStream.h"
-#include "mozilla/Attributes.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;

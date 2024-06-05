@@ -11,21 +11,18 @@
  * Date             Modified by     Description of modification
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
+
 #include "mimetext.h"
 #include "mimebuf.h"
 #include "mimethtm.h"
 #include "comi18n.h"
 #include "mimemoz2.h"
 
+#include "nsMailHeaders.h"
 #include "prlog.h"
 #include "prmem.h"
 #include "plstr.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefLocalizedString.h"
-#include "nsMsgUtils.h"
 #include "nsMimeTypes.h"
-#include "nsServiceManagerUtils.h"
 
 #define MIME_SUPERCLASS mimeLeafClass
 MimeDefClass(MimeInlineText, MimeInlineTextClass, mimeInlineTextClass,

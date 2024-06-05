@@ -4,25 +4,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsString.h"
-#include "nsMemory.h"
-#include "nsIImportModule.h"
 #include "nsIImportService.h"
 #include "nsImportMailboxDescriptor.h"
 #include "nsImportABDescriptor.h"
 #include "nsIImportGeneric.h"
-#include "nsICategoryManager.h"
-#include "nsXPCOM.h"
-#include "nsISupportsPrimitives.h"
 #include "nsThreadUtils.h"
 #include "ImportDebug.h"
 #include "nsImportService.h"
 #include "nsImportStringBundle.h"
-#include "nsCRTGlue.h"
-#include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIMsgSend.h"
-#include "nsMsgUtils.h"
-#include "mozilla/SimpleEnumerator.h"
 
 mozilla::LazyLogModule IMPORTLOGMODULE("Import");
 

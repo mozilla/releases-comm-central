@@ -11,9 +11,7 @@
 #endif
 
 #include "nsString.h"
-#include "nsMailHeaders.h"
 #include "nsIMimeStreamConverter.h"
-#include "mozilla/Encoding.h"
 #include "nsIPrefBranch.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsCOMPtr.h"

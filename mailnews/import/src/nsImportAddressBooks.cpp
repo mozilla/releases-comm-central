@@ -15,6 +15,8 @@
 #include "msgCore.h"
 #include "ImportDebug.h"
 
+static void ImportAddressThread(void* stuff);
+
 nsresult NS_NewGenericAddressBooks(nsIImportGeneric** aImportGeneric) {
   NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
   if (!aImportGeneric) return NS_ERROR_NULL_POINTER;

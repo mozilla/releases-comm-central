@@ -11,8 +11,6 @@
 #include "nsNewsUtils.h"
 #include "nsMsgUtils.h"
 
-#include "nntpCore.h"
-
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgNewsFolder.h"

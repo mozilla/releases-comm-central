@@ -6,6 +6,9 @@
 #define nsWMUtils_h___
 
 #include <windows.h>
+#include "mozilla/dom/Document.h"
+#include "nsCOMArray.h"
+#include "nsIFile.h"
 #include "nsIWindowsRegKey.h"
 
 class nsWMUtils {

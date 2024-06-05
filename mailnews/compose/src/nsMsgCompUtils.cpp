@@ -2,6 +2,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "nsCOMPtr.h"
 #include "nsMsgCompUtils.h"
 #include "nsIPrefService.h"
@@ -17,8 +18,6 @@
 #include "nsMimeTypes.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIURI.h"
-#include "nsNetCID.h"
-#include "nsMsgPrompts.h"
 #include "nsMsgUtils.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
@@ -27,7 +26,6 @@
 #include "nsIMsgMdnGenerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsMemory.h"
 #include "nsCRTGlue.h"
 #include <ctype.h>
 #include "mozilla/dom/Element.h"

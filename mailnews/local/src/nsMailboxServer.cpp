@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMailboxServer.h"
-#include "nsLocalMailFolder.h"
 
 NS_IMETHODIMP
 nsMailboxServer::GetLocalStoreType(nsACString& type) {

@@ -6,7 +6,6 @@
 #ifndef NSMSGBIFFMANAGER_H
 #define NSMSGBIFFMANAGER_H
 
-#include "msgCore.h"
 #include "nsIMsgBiffManager.h"
 #include "nsITimer.h"
 #include "nsTArray.h"

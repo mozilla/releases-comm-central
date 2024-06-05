@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// as does this
 #include "msgCore.h"  // for pre-compiled headers
 #include "nsMsgUtils.h"
 
@@ -69,8 +68,6 @@
 #include "nsMsgCompressIStream.h"
 #include "nsMsgCompressOStream.h"
 #include "mozilla/Logging.h"
-#include "mozilla/Attributes.h"
-#include "mozilla/SlicedInputStream.h"
 #include "nsIPrincipal.h"
 #include "nsContentSecurityManager.h"
 
@@ -5889,7 +5886,7 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
 
       rv = SendDataParseIMAPandCheckForNewMail(m_dataOutputBuf, currentCommand);
     }  // if the last command succeeded
-  }    // if auth plain capability
+  }  // if auth plain capability
   else if (flag & kHasAuthLoginCapability) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("LOGIN auth"));
     PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE,
@@ -5917,9 +5914,9 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
           rv = SendData(m_dataOutputBuf, true /* suppress logging */);
           if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail(currentCommand);
         }  // if last command successful
-      }    // if last command successful
-    }      // if last command successful
-  }        // if has auth login capability
+      }  // if last command successful
+    }  // if last command successful
+  }  // if has auth login capability
   else if (flag & kHasAuthOldLoginCapability) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("old-style auth"));
     ProgressEventFunctionUsingName("imapStatusSendingLogin");
@@ -8555,8 +8552,8 @@ bool nsImapProtocol::TryToLogon() {
         m_currentBiffState = nsIMsgFolder::nsMsgBiffState_Unknown;
         SendSetBiffIndicatorEvent(m_currentBiffState);
       }  // all methods failed
-    }    // login failed
-  }      // while
+    }  // login failed
+  }  // while
 
   if (loginSucceeded) {
     MOZ_LOG(IMAP, LogLevel::Debug, ("login succeeded"));
@@ -9351,8 +9348,8 @@ nsresult nsImapMockChannel::ReadFromCache2(nsICacheEntry* entry) {
         MOZ_LOG(IMAPCache, LogLevel::Debug,
                 ("%s: Cache entry accepted and being read", __func__));
       }  // if AsyncRead succeeded.
-    }    // new pump
-  }      // if useCacheEntry
+    }  // new pump
+  }  // if useCacheEntry
 
   if (!useCacheEntry || NS_FAILED(rv)) {
     // Cache entry appears to be unusable. Return an error so will still attempt

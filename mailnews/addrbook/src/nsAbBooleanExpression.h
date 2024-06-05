@@ -7,9 +7,8 @@
 #define nsAbBooleanExpression_h__
 
 #include "nsIAbBooleanExpression.h"
-#include "nsCOMPtr.h"
 #include "nsString.h"
-#include "nsIArray.h"
+#include "nsTArray.h"
 
 class nsAbBooleanConditionString : public nsIAbBooleanConditionString {
  public:

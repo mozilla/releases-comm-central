@@ -7,7 +7,6 @@
 #define _MIMECRYP_H_
 
 #include "mimecont.h"
-// #include "mimeenc.h"
 #include "modmimee.h"
 #include "mimepbuf.h"
 
@@ -134,6 +133,6 @@ struct MimeEncrypted {
 };
 
 #define MimeEncryptedClassInitializer(ITYPE, CSUPER) \
-  { MimeContainerClassInitializer(ITYPE, CSUPER) }
+  {MimeContainerClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMECRYP_H_ */

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsPgpMimeProxy.h"
+#include "mimecth.h"
+#include "nsMailHeaders.h"
 #include "nspr.h"
 #include "plstr.h"
 #include "nsCOMPtr.h"
@@ -13,11 +15,9 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsIURI.h"
-#include "mimexpcom.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 
-#include "mimecth.h"
 #include "mimemoz2.h"
 #include "nspr.h"
 #include "plstr.h"

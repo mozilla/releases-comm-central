@@ -6,9 +6,7 @@
 #ifndef _nsMsgLocalSearch_H
 #define _nsMsgLocalSearch_H
 
-// inherit interface here
-#include "mozilla/Attributes.h"
-#include "nsIMsgSearchAdapter.h"
+#include "nsIMsgEnumerator.h"
 #include "nsIUrlListener.h"
 
 // inherit base implementation

@@ -5,6 +5,7 @@
 #ifndef __nsMsgBodyHandler_h
 #define __nsMsgBodyHandler_h
 
+#include "nsCOMPtr.h"
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsReadLine.h"
 #include "mozilla/UniquePtr.h"

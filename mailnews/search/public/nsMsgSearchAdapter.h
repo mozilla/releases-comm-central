@@ -13,7 +13,6 @@
 #include "nsIMsgSearchValidityTable.h"
 #include "nsIMsgSearchValidityManager.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsINntpIncomingServer.h"
 
 class nsIMsgSearchScopeTerm;
 

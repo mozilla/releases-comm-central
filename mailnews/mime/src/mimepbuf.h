@@ -6,7 +6,6 @@
 #ifndef _MIMEPBUF_H_
 #define _MIMEPBUF_H_
 
-#include "mimei.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
 
 /* This file provides the ability to save up the entire contents of a MIME

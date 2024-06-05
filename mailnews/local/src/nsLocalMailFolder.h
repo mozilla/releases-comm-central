@@ -15,7 +15,6 @@
 #include "mozilla/Attributes.h"
 #include "nsMsgDBFolder.h" /* include the interface we are going to support */
 #include "nsICopyMessageListener.h"
-#include "nsMsgTxn.h"
 #include "nsIMsgMessageService.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -26,7 +25,6 @@
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
-#include "nsISeekableStream.h"
 #include "nsIStringBundle.h"
 #include "nsLocalUndoTxn.h"
 

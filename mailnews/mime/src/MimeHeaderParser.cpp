@@ -5,8 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/DebugOnly.h"
-#include "nsMemory.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgHeaderParser.h"
 #include "mozilla/Components.h"

@@ -7,7 +7,6 @@
 #include "nsCOMPtr.h"
 
 #include "nsMailboxService.h"
-#include "nsMailboxUrl.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMailboxProtocol.h"
 #include "nsIMsgDatabase.h"
@@ -17,7 +16,6 @@
 #include "nsIDocShell.h"
 #include "nsMsgUtils.h"
 #include "nsPop3URL.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsNetUtil.h"
 #include "nsIWebNavigation.h"
 #include "prprf.h"
@@ -377,7 +375,7 @@ nsresult nsMailboxService::PrepareMessageUrl(
       }
 
     }  // if we got a url
-  }    // if we got a url
+  }  // if we got a url
 
   return rv;
 }

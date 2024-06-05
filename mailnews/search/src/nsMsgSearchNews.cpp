@@ -2,18 +2,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "msgCore.h"
 #include "nsMsgSearchAdapter.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgSearchScopeTerm.h"
-#include "nsMsgResultElement.h"
-#include "nsMsgSearchTerm.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgSearchNews.h"
 #include "nsIDBFolderInfo.h"
 #include "prprf.h"
 #include "nsIMsgDatabase.h"
-#include "nsMemory.h"
 #include <ctype.h>
 
 // Implementation of search for IMAP mail folders

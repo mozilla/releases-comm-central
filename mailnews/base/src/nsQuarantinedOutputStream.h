@@ -6,10 +6,10 @@
 #ifndef nsQuarantinedOutputStream_h__
 #define nsQuarantinedOutputStream_h__
 
-// #include "nsISupports.h"
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
 #include "nsCOMPtr.h"
+
 class nsIFile;
 
 /**

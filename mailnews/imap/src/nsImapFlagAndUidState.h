@@ -10,11 +10,10 @@
 #include "nsIImapFlagAndUidState.h"
 #include "nsImapCore.h"
 #include "nsTArray.h"
+#include "nsTHashMap.h"
 #include "mozilla/Mutex.h"
 
 const int32_t kImapFlagAndUidStateSize = 100;
-
-#include "nsTHashMap.h"
 
 class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
  public:

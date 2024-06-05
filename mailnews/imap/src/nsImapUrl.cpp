@@ -7,12 +7,10 @@
 
 #include "nsImapUrl.h"
 #include "../public/nsIImapHostSessionList.h"
-#include "nsThreadUtils.h"
 #include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prprf.h"
-#include "nsMemory.h"
 #include "nsCOMPtr.h"
 #include "nsImapUtils.h"
 #include "nsIImapMockChannel.h"
@@ -20,7 +18,6 @@
 #include "nsIImapMessageSink.h"
 #include "nsIImapServerSink.h"
 #include "nsImapNamespace.h"
-#include "nsICacheEntry.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
@@ -328,7 +325,7 @@ NS_IMETHODIMP nsImapUrl::GetImapPartToFetch(char** result) {
         }
       }
     }  // if we got a wherepart
-  }    // if we got a m_listOfMessageIds
+  }  // if we got a m_listOfMessageIds
   return NS_OK;
 }
 

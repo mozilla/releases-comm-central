@@ -8,7 +8,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsCOMArray.h"
 #include "nsArrayEnumerator.h"
-#include "nsComponentManagerUtils.h"
 #include "nsVariant.h"
 #include "nsIProperty.h"
 #include "nsMsgMessageFlags.h"

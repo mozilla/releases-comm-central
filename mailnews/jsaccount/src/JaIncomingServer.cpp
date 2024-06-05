@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaIncomingServer.h"
-#include "nsComponentManagerUtils.h"
 
 // This file specifies the implementation of nsIMsgIncomingServer.idl objects
 // in the JsAccount system.

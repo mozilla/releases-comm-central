@@ -5,7 +5,6 @@
 #ifndef nsMapiAddressBook_h___
 #define nsMapiAddressBook_h___
 
-#include "mozilla/Attributes.h"
 #include "nsAbWinHelper.h"
 
 class nsMapiAddressBook : public nsAbWinHelper {

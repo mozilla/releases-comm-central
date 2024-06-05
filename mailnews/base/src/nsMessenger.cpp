@@ -9,27 +9,20 @@
 
 // xpcom
 #include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
-#include "nsIStringStream.h"
 #include "nsLocalFile.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsNativeCharsetUtils.h"
 #include "mozilla/Path.h"
 #include "mozilla/Components.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 
 // necko
 #include "nsMimeTypes.h"
-#include "nsIURL.h"
 #include "nsIPrompt.h"
 #include "nsIStreamListener.h"
 #include "nsIStreamConverterService.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "nsIMIMEInfo.h"
-
-// gecko
-#include "nsIDocumentViewer.h"
 
 /* for access to docshell */
 #include "nsPIDOMWindow.h"
@@ -39,13 +32,11 @@
 #include "nsContentUtils.h"
 #include "nsDocShellLoadState.h"
 #include "mozilla/dom/Element.h"
-#include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
 #include "mozilla/dom/Document.h"
 
 // mail
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgAccountManager.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMailboxUrl.h"
 #include "nsIMsgFolder.h"
@@ -55,8 +46,6 @@
 #include "nsIMsgMessageService.h"
 
 #include "nsIMsgHdr.h"
-// compose
-#include "nsNativeCharsetUtils.h"
 
 // draft/folders/sendlater/etc
 #include "nsIMsgCopyService.h"
@@ -67,9 +56,6 @@
 // undo
 #include "nsITransaction.h"
 #include "nsMsgTxn.h"
-
-// charset conversions
-#include "nsIMimeConverter.h"
 
 // Save As
 #include "nsIStringBundle.h"
@@ -88,17 +74,13 @@
 // Convert an nsString buffer to plain text...
 //
 #include "nsMsgUtils.h"
-#include "nsCharsetSource.h"
 #include "nsIChannel.h"
 #include "nsIOutputStream.h"
 #include "nsIPrincipal.h"
 
 #include "mozilla/dom/BrowserParent.h"
-#include "mozilla/dom/CanonicalBrowsingContext.h"
 
 #include "mozilla/NullPrincipal.h"
-#include "mozilla/dom/RemoteType.h"
-#include "nsQueryObject.h"
 #include "mozilla/JSONStringWriteFuncs.h"
 
 using namespace mozilla;
@@ -531,7 +513,7 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
                                            false, getter_AddRefs(dummyNull));
       }
     }  // if we got a message service
-  }    // if we created a url
+  }  // if we created a url
 
   if (NS_FAILED(rv)) {
     if (saveState) {

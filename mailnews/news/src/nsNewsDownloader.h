@@ -6,6 +6,7 @@
 #ifndef _nsNewsDownloader_H_
 #define _nsNewsDownloader_H_
 
+#include "nsCOMPtr.h"
 #include "nsIMsgDatabase.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgFolder.h"

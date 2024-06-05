@@ -11,7 +11,6 @@
 
 #include "mozilla/MemoryReporting.h"
 #include "nsString.h"
-#include "MailNewsTypes.h"
 #include "mdb.h"
 #include "nsTArray.h"
 #include "nsIDBFolderInfo.h"

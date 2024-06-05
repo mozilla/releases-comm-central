@@ -13,7 +13,6 @@
 
 #include "nsString.h"
 #include "nsReadableUtils.h"
-#include "nsNativeCharsetUtils.h"
 
 nsUserInfo::nsUserInfo() {}
 

@@ -9,7 +9,6 @@
 #include "nsMsgFilterService.h"
 #include "nsMsgFilterList.h"
 #include "nsMsgSearchScopeTerm.h"
-#include "nsDirectoryServiceDefs.h"
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
 #include "nsIStringBundle.h"

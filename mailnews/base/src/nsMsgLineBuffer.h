@@ -5,7 +5,8 @@
 #ifndef _nsMsgLineBuffer_H
 #define _nsMsgLineBuffer_H
 
-#include "msgCore.h"  // precompiled header...
+#include "nsISupports.h"
+#include "nscore.h"  // precompiled header...
 
 // I can't believe I have to have this stupid class, but I can't find
 // anything suitable (nsStrImpl might be, when it's done). nsIByteBuffer

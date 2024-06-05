@@ -6,7 +6,6 @@
 #ifndef _nsMsgThreadedDBView_H_
 #define _nsMsgThreadedDBView_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgGroupView.h"
 
 class nsMsgThreadedDBView : public nsMsgGroupView {

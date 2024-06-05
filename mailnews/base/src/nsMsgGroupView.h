@@ -6,7 +6,6 @@
 #ifndef _nsMsgGroupView_H_
 #define _nsMsgGroupView_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgDBView.h"
 #include "nsInterfaceHashtable.h"
 

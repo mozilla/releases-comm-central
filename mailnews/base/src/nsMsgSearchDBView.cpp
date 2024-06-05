@@ -17,9 +17,7 @@
 #include "nsIPrefBranch.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgSearchSession.h"
-#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIScriptError.h"
 
 static bool gReferenceOnlyThreading;
 

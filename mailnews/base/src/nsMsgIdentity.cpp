@@ -14,10 +14,8 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsIMsgHeaderParser.h"
 #include "prprf.h"
-#include "nsISupportsPrimitives.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsIUUIDGenerator.h"
 #include "mozilla/Components.h"
 

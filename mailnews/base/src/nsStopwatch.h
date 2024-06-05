@@ -7,8 +7,6 @@
 
 #include "nsIStopwatch.h"
 
-#include "msgCore.h"
-
 #define NS_STOPWATCH_CID                             \
   {                                                  \
     0x6ef7eafd, 0x72d0, 0x4c56, {                    \

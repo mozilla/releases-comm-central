@@ -2,21 +2,19 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "mimehdrs.h"
+#include "mimeleaf.h"
+#include "mimetext.h"
+#include "nsMailHeaders.h"
 #include "prlog.h"
 #include "nsCOMPtr.h"
 #include "modlmime.h"
-#include "mimeobj.h"
 #include "mimemsg.h"
-#include "mimetric.h" /* for MIME_RichtextConverter */
-#include "mimethtm.h"
 #include "mimemsig.h"
-#include "mimemrel.h"
-#include "mimemalt.h"
-#include "mimebuf.h"
 #include "mimemapl.h"
 #include "prprf.h"
 #include "mimei.h" /* for moved MimeDisplayData struct */
-#include "mimebuf.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prmem.h"
@@ -31,18 +29,15 @@
 #include "mozITXTToHTMLConv.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
-#include "nsIImapUrl.h"
 #include "nsMsgI18N.h"
 #include "nsICharsetConverterManager.h"
 #include "nsMimeTypes.h"
 #include "nsIIOService.h"
 #include "nsIURI.h"
-#include "nsNetCID.h"
 #include "nsMsgUtils.h"
 #include "nsIChannel.h"
 #include "nsIMailChannel.h"
 #include "mimeebod.h"
-#include "mimeeobj.h"
 // <for functions="HTML2Plaintext,HTMLSantinize">
 #include "nsXPCOM.h"
 #include "nsIParserUtils.h"

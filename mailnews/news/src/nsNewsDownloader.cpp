@@ -12,12 +12,9 @@
 #include "nsINntpService.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsIMsgAccountManager.h"
-#include "nsMsgFolderFlags.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
 

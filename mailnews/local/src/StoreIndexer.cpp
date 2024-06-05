@@ -5,6 +5,7 @@
 
 #include "StoreIndexer.h"
 
+#include "nsIDBFolderInfo.h"
 #include "nsLocalMailFolder.h"
 #include "nsParseMailbox.h"
 #include "LineReader.h"

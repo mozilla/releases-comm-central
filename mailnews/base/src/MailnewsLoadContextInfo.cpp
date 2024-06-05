@@ -7,9 +7,7 @@
 #include "MailnewsLoadContextInfo.h"
 
 #include "mozilla/dom/ToJSValue.h"
-#include "nsIChannel.h"
 #include "nsILoadContext.h"
-#include "nsIWebNavigation.h"
 #include "nsNetUtil.h"
 
 // MailnewsLoadContextInfo

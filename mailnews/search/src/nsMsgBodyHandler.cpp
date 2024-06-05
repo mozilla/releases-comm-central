@@ -5,10 +5,7 @@
 
 #include "msgCore.h"
 #include "nsMsgSearchCore.h"
-#include "nsMsgUtils.h"
 #include "nsMsgBodyHandler.h"
-#include "nsMsgSearchTerm.h"
-#include "nsIInputStream.h"
 #include "plbase64.h"
 #include "nsMimeTypes.h"
 

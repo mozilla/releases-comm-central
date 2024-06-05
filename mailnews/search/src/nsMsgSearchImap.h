@@ -4,8 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _nsMsgSearchImap_h__
-#  include "mozilla/Attributes.h"
-#  include "nsMsgSearchAdapter.h"
+#define _nsMsgSearchImap_h__
+
+#include "nsMsgSearchAdapter.h"
+#include "nsMsgSearchScopeTerm.h"
 
 //-----------------------------------------------------------------------------
 //---------- Adapter class for searching online (IMAP) folders ----------------

@@ -4,12 +4,16 @@
 
 #include "nsCOMPtr.h"
 #include "nsMsgFileHdr.h"
+#include "nsComponentManagerUtils.h"
 #include "nsMsgMessageFlags.h"
+#include "nsMsgUtils.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "HeaderReader.h"
 #include "nsIFileStreams.h"
 #include "nsIMimeConverter.h"
+#include "prio.h"
+#include "prtime.h"
 
 static inline uint32_t PRTimeToSeconds(PRTime aTimeUsec) {
   return uint32_t(aTimeUsec / PR_USEC_PER_SEC);

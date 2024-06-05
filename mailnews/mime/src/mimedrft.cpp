@@ -11,12 +11,14 @@
  * Date             Modified by     Description of modification
  * 04/20/2000       IBM Corp.      OS/2 VisualAge build.
  */
+
+#include "mimehdrs.h"
 #include "nsCOMPtr.h"
+#include "nsMailHeaders.h"
 #include "modmimee.h"
 #include "mimeobj.h"
 #include "modlmime.h"
 #include "mimei.h"
-#include "mimebuf.h"
 #include "mimemoz2.h"
 #include "mimemsg.h"
 #include "nsMimeTypes.h"
@@ -38,8 +40,6 @@
 #include "nsIMsgComposeService.h"
 #include "nsMsgAttachmentData.h"
 #include "nsMsgI18N.h"
-#include "nsNativeCharsetUtils.h"
-#include "nsDirectoryServiceDefs.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsMsgCompUtils.h"
@@ -635,8 +635,8 @@ static void mime_insert_all_headers(char** body, MimeHeaders* headers,
 
       /* Back up over whitespace before the colon. */
       ocolon = colon;
-      for (; colon > head && IS_SPACE(colon[-1]); colon--)
-        ;
+      for (; colon > head && IS_SPACE(colon[-1]); colon--) {
+      }
 
       contents = ocolon + 1;
     }

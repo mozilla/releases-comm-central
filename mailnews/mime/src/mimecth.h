@@ -78,7 +78,9 @@
       |--- MimeExternalBody
  */
 
-#include "nsIMimeContentTypeHandler.h"
+typedef struct {
+  bool force_inline_display;
+} contentTypeHandlerInitStruct;
 
 /*
  * These functions are exposed by libmime to be used by content type

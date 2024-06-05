@@ -9,7 +9,6 @@
 #include "plstr.h"
 #include "nsString.h"
 #include "nsICategoryManager.h"
-#include "nsIServiceManager.h"
 #include "nsIStreamConverterService.h"
 #include "nsIStreamListener.h"
 #include "nsNetCID.h"

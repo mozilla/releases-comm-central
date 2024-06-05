@@ -7,13 +7,7 @@
 #include "nsDBFolderInfo.h"
 #include "nsMsgDatabase.h"
 #include "nsMsgFolderFlags.h"
-#include "nsIPrefService.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefLocalizedString.h"
-#include "nsIObserver.h"
-#include "nsIObserverService.h"
 #include "nsIMsgDBView.h"
-#include "nsServiceManagerUtils.h"
 #include "nsImapCore.h"
 
 static const char* kDBFolderInfoScope = "ns:msg:db:row:scope:dbfolderinfo:all";

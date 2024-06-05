@@ -6,7 +6,6 @@
 #include "msgCore.h"
 #include "nsMailDatabase.h"
 #include "nsDBFolderInfo.h"
-#include "nsMsgLocalFolderHdrs.h"
 #include "nsNetUtil.h"
 #include "nsMsgOfflineImapOperation.h"
 #include "nsMsgFolderFlags.h"

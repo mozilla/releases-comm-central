@@ -10,7 +10,6 @@
 #include "nsMsgStatusFeedback.h"
 #include "mozilla/dom/Document.h"
 #include "nsIDocShell.h"
-#include "nsIDocShellTreeItem.h"
 #include "nsIChannel.h"
 #include "prinrval.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -19,7 +18,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
-#include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
 #include "nsMsgUtils.h"
 

@@ -8,7 +8,6 @@
 #define nsOutlookCompose_h__
 
 #include "nscore.h"
-#include "nsString.h"
 #include "nsIFile.h"
 #include "nsIImportService.h"
 #include "nsIOutputStream.h"
@@ -22,8 +21,6 @@ class nsIMsgSendListener;
 #include "nsNetUtil.h"
 
 #include "MapiMessage.h"
-
-#include <list>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

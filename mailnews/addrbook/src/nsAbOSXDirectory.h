@@ -6,7 +6,6 @@
 #ifndef nsAbOSXDirectory_h___
 #define nsAbOSXDirectory_h___
 
-#include "mozilla/Attributes.h"
 #include "nsISupports.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirSearchListener.h"

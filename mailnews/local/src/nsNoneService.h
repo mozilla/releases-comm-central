@@ -6,8 +6,6 @@
 #ifndef nsNoneService_h___
 #define nsNoneService_h___
 
-#include "nscore.h"
-
 #include "nsIMsgProtocolInfo.h"
 #include "nsINoneService.h"
 

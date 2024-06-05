@@ -6,9 +6,7 @@
 #include "nsCidProtocolHandler.h"
 #include "nsString.h"
 #include "nsIURI.h"
-#include "nsNetCID.h"
 #include "nsNetUtil.h"
-#include "nsComponentManagerUtils.h"
 
 nsCidProtocolHandler::nsCidProtocolHandler() {}
 

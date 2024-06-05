@@ -6,7 +6,6 @@
 #ifndef __MSGATTACHMENTDATA_H__
 #define __MSGATTACHMENTDATA_H__
 
-#include "nsIURL.h"
 #include "nsString.h"
 #include "nsIMsgSend.h"
 

@@ -199,7 +199,7 @@
   3 different objects in a row.
  */
 
-#include "mimehdrs.h"
+#include "modlmime.h"
 #include "nsTArray.h"
 
 typedef struct MimeObject MimeObject;

@@ -13,17 +13,13 @@
 #include "nsIImportService.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportABDescriptor.h"
-#include "nsOutlookStringBundle.h"
 #include "nsIAbCard.h"
-#include "mdb.h"
 #include "ImportDebug.h"
 #include "nsOutlookMail.h"
-#include "nsUnicharUtils.h"
 #include "nsIOutputStream.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
-#include "nsMsgI18N.h"
 #include "nsNetUtil.h"
 
 /* ------------ Address book stuff ----------------- */

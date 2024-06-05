@@ -31,7 +31,6 @@
 #include "mimethsa.h"
 #include "prmem.h"
 #include "prlog.h"
-#include "msgCore.h"
 #include "mimemoz2.h"
 #include "nsString.h"
 #include "mimethtm.h"

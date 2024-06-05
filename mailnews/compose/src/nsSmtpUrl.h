@@ -15,7 +15,6 @@
 #include "nsIAuthPrompt.h"
 #include "nsIMsgOutgoingServer.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIURIMutator.h"
 
 class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {

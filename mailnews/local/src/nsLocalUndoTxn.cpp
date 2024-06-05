@@ -12,11 +12,9 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsThreadUtils.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "nsMsgDBFolder.h"
 

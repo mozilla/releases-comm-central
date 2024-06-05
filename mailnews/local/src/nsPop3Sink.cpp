@@ -4,6 +4,7 @@
 
 #include "msgCore.h"  // precompiled header...
 #include "nsPop3Sink.h"
+#include "nsISeekableStream.h"
 #include "prprf.h"
 #include "prlog.h"
 #include "nscore.h"
@@ -21,13 +22,7 @@
 #include "nsIPop3Protocol.h"
 #include "nsLocalMailFolder.h"
 #include "nsIInputStream.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
-#include "nsDirectoryServiceDefs.h"
-#include "nsIPromptService.h"
 #include "nsIDocShell.h"
-#include "mozIDOMWindow.h"
-#include "nsEmbedCID.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsISupportsPrimitives.h"

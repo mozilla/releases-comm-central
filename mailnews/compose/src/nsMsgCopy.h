@@ -6,12 +6,10 @@
 #ifndef _nsMsgCopy_H_
 #define _nsMsgCopy_H_
 
-#include "mozilla/Attributes.h"
 #include "nscore.h"
 #include "nsIFile.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
-#include "nsITransactionManager.h"
 #include "nsIMsgCopy.h"
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgCopyService.h"

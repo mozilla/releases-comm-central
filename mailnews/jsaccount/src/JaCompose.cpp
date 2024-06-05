@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "JaCompose.h"
-#include "nsComponentManagerUtils.h"
 
 // This file specifies the implementation of nsIMsgCompose.idl objects
 // in the JsAccount system.

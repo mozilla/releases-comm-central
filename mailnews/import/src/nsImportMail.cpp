@@ -17,6 +17,8 @@
 #include "mozilla/Components.h"
 #include "msgCore.h"
 
+static void ImportMailThread(void* stuff);
+
 // forward decl for proxy methods
 nsresult ProxyGetSubFolders(nsIMsgFolder* aFolder);
 nsresult ProxyGetChildNamed(nsIMsgFolder* aFolder, const nsAString& aName,

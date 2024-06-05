@@ -6,13 +6,11 @@
 #ifndef nsMailboxUrl_h__
 #define nsMailboxUrl_h__
 
-#include "mozilla/Attributes.h"
 #include "nsIMailboxUrl.h"
 #include "nsMsgMailNewsUrl.h"
 #include "nsIStreamListener.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
 
 class nsMailboxUrl : public nsIMailboxUrl,

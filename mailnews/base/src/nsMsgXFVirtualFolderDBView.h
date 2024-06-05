@@ -6,9 +6,7 @@
 #ifndef _nsMsgXFVirtualFolderDBView_H_
 #define _nsMsgXFVirtualFolderDBView_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgSearchDBView.h"
-#include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsCOMArray.h"
 

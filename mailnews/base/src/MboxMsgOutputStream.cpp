@@ -8,8 +8,6 @@
 #include "nsString.h"
 #include "mozilla/Logging.h"
 #include <algorithm>
-#include <functional>
-#include <limits>
 
 extern mozilla::LazyLogModule gMboxLog;
 using mozilla::LogLevel;

@@ -6,7 +6,6 @@
 #ifndef nsAbOSXCard_h___
 #define nsAbOSXCard_h___
 
-#include "mozilla/Attributes.h"
 #include "nsAbCardProperty.h"
 
 #define NS_ABOSXCARD_URI_PREFIX "moz-abosxcard://"

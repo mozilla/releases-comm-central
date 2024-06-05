@@ -7,15 +7,13 @@
 
 #include "nsIMsgComposeService.h"
 #include "nsCOMPtr.h"
-#include "mozIDOMWindow.h"
-#include "nsIAppWindow.h"
-#include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReference.h"
 #include "nsIMimeStreamConverter.h"
 #include "nsInterfaceHashtable.h"
 
 #include "nsICommandLineHandler.h"
+
 #define ICOMMANDLINEHANDLER nsICommandLineHandler
 
 class nsMsgComposeService : public nsIMsgComposeService,

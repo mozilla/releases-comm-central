@@ -9,7 +9,7 @@
 #include "nsImapCore.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsIObserver.h"
-#include "nsTString.h"
+#include "nsString.h"
 #include "nsWeakReference.h"
 #include "nspr.h"
 

@@ -2,11 +2,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "nsAbOutlookDirectory.h"
 #include "nsAbWinHelper.h"
 
 #include "nsString.h"
-#include "nsAbDirectoryQuery.h"
+#include "nsIAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
 #include "nsIAbManager.h"
 #include "nsAbQueryStringToExpression.h"
@@ -17,7 +18,6 @@
 #include "mozilla/Logging.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsCRTGlue.h"
 #include "nsArrayUtils.h"
 #include "nsMsgUtils.h"
 #include "nsQueryObject.h"

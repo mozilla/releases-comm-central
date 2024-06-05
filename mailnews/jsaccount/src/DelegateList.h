@@ -10,7 +10,6 @@
 #include "nsISupports.h"
 #include "msgIDelegateList.h"
 #include "nsTHashMap.h"
-#include "nsString.h"
 
 namespace mozilla {
 namespace mailnews {

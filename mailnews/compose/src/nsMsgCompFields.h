@@ -7,11 +7,9 @@
 #define _MsgCompFields_H_
 
 #include "nsIMsgCompFields.h"
-#include "msgCore.h"
 #include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
 #include "nsTArray.h"
-#include "nsCOMArray.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsIMsgComposeSecure.h"

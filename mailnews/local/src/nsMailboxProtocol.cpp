@@ -15,7 +15,6 @@
 #include "nsICopyMessageStreamListener.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
-#include "mozilla/SlicedInputStream.h"
 #include "prerror.h"
 #include "prprf.h"
 #include "nspr.h"
@@ -24,7 +23,6 @@
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgWindow.h"
-#include "nsISeekableStream.h"
 #include "nsStreamUtils.h"
 
 using namespace mozilla;
@@ -389,7 +387,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
       rv = nsMsgProtocol::LoadUrl(aURL, m_channelListener);
 
     }  // if we received an MAILBOX url...
-  }    // if we received a url!
+  }  // if we received a url!
 
   return rv;
 }

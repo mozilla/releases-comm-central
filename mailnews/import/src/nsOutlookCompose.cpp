@@ -9,26 +9,21 @@
 #include "prthread.h"
 #include "nsString.h"
 #include "nsMsgUtils.h"
-#include "nsUnicharUtils.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 #include "nsIURI.h"
 #include "nsMsgI18N.h"
 #include "nsIOutputStream.h"
 #include "nsIInputStream.h"
-#include "nsMsgAttachmentData.h"
-#include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
 #include "nsImportEmbeddedImageData.h"
-#include "nsNetCID.h"
 #include "nsCRT.h"
 #include "nsOutlookCompose.h"
 #include "nsTArray.h"
 
 #include "ImportDebug.h"
 
-#include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
 
 #include "nsIThread.h"
@@ -161,11 +156,11 @@ class OutlookSendListener : public nsIMsgSendListener {
     m_location = nullptr;
   }
 
- public:
-  virtual ~OutlookSendListener() {}
-
   bool m_done;
   nsCOMPtr<nsIFile> m_location;
+
+ protected:
+  virtual ~OutlookSendListener() {}
 };
 
 NS_IMPL_ISUPPORTS(OutlookSendListener, nsIMsgSendListener)
@@ -633,8 +628,7 @@ class dest_nsCString {
 class dest_Stream {
  public:
   explicit dest_Stream(nsIOutputStream* dest) : m_stream(dest) {}
-  void SetCapacity(int32_t) { /*do nothing*/
-  }
+  void SetCapacity(int32_t) { /*do nothing*/ }
   // const_cast here is due to the poor design of the EscapeFromSpaceLine()
   // that requires a non-constant pointer while doesn't modify its data
   nsresult Append(const char* buf, uint32_t count) {

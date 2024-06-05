@@ -9,6 +9,7 @@
 #include "nsIStringStream.h"
 #include "prmem.h"
 #include "nsImapMailFolder.h"
+#include "nsIDBFolderInfo.h"
 #include "nsIImapService.h"
 #include "nsIFile.h"
 #include "nsAnonymousTemporaryFile.h"

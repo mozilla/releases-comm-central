@@ -6,9 +6,7 @@
 #ifndef nsImportService_h__
 #define nsImportService_h__
 
-#include "nsString.h"
-#include "nsMemory.h"
-#include "nsIImportModule.h"
+#include "nsCOMPtr.h"
 #include "nsIImportService.h"
 #include "nsIStringBundle.h"
 #include "nsTArray.h"

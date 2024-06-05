@@ -5,10 +5,8 @@
 #ifndef __nsRssIncomingServer_h
 #define __nsRssIncomingServer_h
 
-#include "mozilla/Attributes.h"
 #include "nsIRssIncomingServer.h"
 #include "nsILocalMailIncomingServer.h"
-#include "nsMsgIncomingServer.h"
 #include "nsIMsgFolderListener.h"
 #include "nsMailboxServer.h"
 

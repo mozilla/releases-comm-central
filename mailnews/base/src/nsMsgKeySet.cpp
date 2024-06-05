@@ -3,15 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"  // precompiled header...
+#include "plstr.h"
 #include "prlog.h"
 
-#include "MailNewsTypes.h"
 #include "nsMsgKeySet.h"
 #include "prprf.h"
 #include "prmem.h"
 #include "nsTArray.h"
-#include "nsMemory.h"
 #include <ctype.h>
 
 #if defined(DEBUG_seth_) || defined(DEBUG_sspitzer_)

@@ -10,7 +10,7 @@
 #include "nsIAbDirectory.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
-#include "nsIArray.h"
+#include "nsTArray.h"
 #include "nsIAbBooleanExpression.h"
 
 class nsAbDirectoryQuerySimpleBooleanExpression

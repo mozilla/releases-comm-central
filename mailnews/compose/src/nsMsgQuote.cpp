@@ -3,24 +3,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsIURL.h"
-#include "nsIInputStream.h"
-#include "nsIOutputStream.h"
-#include "nsIServiceManager.h"
+#include "nsIMsgMailNewsUrl.h"
 #include "nsIStreamListener.h"
 #include "nsIStreamConverter.h"
 #include "nsIStreamConverterService.h"
 #include "nsIMimeStreamConverter.h"
-#include "nsMimeTypes.h"
-#include "nsICharsetConverterManager.h"
+#include "nsIURIMutator.h"
 #include "prprf.h"
 #include "nsMsgQuote.h"
-#include "nsMsgCompUtils.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
-#include "nsMsgCompose.h"
-#include "nsMsgMailNewsUrl.h"
 #include "mozilla/Components.h"
 #include "nsContentUtils.h"
 

@@ -14,7 +14,6 @@
 #include "nsIOutputStream.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIFile.h"
-#include "nsMsgMessageFlags.h"
 
 class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
                                 nsIMsgPluggableStore {

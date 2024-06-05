@@ -13,17 +13,15 @@
 #include "nsINetUtil.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsMemory.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsIAbManager.h"
 #include "nsIUUIDGenerator.h"
 #include "nsIMsgVCardService.h"
 #include "nsVariant.h"
 #include "nsIProperty.h"
-#include "nsCOMArray.h"
 #include "prmem.h"
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/Components.h"
+
 using namespace mozilla;
 
 #define PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST "mail.addr_book.lastnamefirst"

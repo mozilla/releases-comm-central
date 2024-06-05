@@ -8,15 +8,12 @@
 #include "nsICMSDecoder.h"
 #include "nsICryptoHash.h"
 #include "mimemcms.h"
-#include "mimecryp.h"
+#include "nsMailHeaders.h"
 #include "nsMimeTypes.h"
 #include "nspr.h"
 #include "nsMimeStringResources.h"
-#include "mimemsg.h"
 #include "mimemoz2.h"
 #include "nsIURI.h"
-#include "nsIMsgWindow.h"
-#include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgSMIMESink.h"
 #include "nsCOMPtr.h"
 #include "nsIX509Cert.h"
@@ -161,7 +158,7 @@ static void* MimeMultCMS_init(MimeObject* obj) {
         }
       }
     }  // if channel
-  }    // if msd
+  }  // if msd
 
   if (obj->parent && MimeAnyParentCMSSigned(obj)) {
     // Parent is signed. We know this part is a signature, too, because

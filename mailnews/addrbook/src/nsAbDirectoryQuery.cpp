@@ -5,14 +5,9 @@
 
 #include "nsIAbCard.h"
 #include "nsAbDirectoryQuery.h"
-#include "nsAbDirectoryQueryProxy.h"
-#include "nsAbBooleanExpression.h"
-#include "nsComponentManagerUtils.h"
 #include "nsString.h"
 #include "nsUnicharUtils.h"
 #include "nsIAbDirSearchListener.h"
-#include "nsISimpleEnumerator.h"
-#include "nsMsgUtils.h"
 #include "nsQueryObject.h"
 
 NS_IMPL_ISUPPORTS(nsAbDirectoryQuerySimpleBooleanExpression,

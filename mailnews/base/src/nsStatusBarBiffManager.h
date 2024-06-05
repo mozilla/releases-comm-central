@@ -8,7 +8,6 @@
 
 #include "nsIStatusBarBiffManager.h"
 
-#include "msgCore.h"
 #include "nsCOMPtr.h"
 #include "nsISound.h"
 #include "nsIObserver.h"

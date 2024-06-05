@@ -6,12 +6,10 @@
 #ifndef nsAppleMailImport_h___
 #define nsAppleMailImport_h___
 
-#include "mozilla/Logging.h"
 #include "nsIImportModule.h"
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
 #include "nsIImportMail.h"
-#include "ImportDebug.h"
 
 #define NS_APPLEMAILIMPL_CID                         \
   {                                                  \

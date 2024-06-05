@@ -5,8 +5,9 @@
 #ifndef __nsAbLDIFService_h
 #define __nsAbLDIFService_h
 
+#include "nsIAbCard.h"
 #include "nsIAbLDIFService.h"
-#include "nsCOMPtr.h"
+#include "nsString.h"
 
 class nsAbLDIFService : public nsIAbLDIFService {
  public:

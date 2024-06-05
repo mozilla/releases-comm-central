@@ -13,7 +13,6 @@
 #include "prmem.h"
 #include "nsEmitterUtils.h"
 #include "nsMimeStringResources.h"
-#include "msgCore.h"
 #include "nsEmitterUtils.h"
 #include "nsIMimeStreamConverter.h"
 #include "mozilla/Logging.h"

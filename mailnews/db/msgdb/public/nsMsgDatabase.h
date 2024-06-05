@@ -21,6 +21,7 @@
 #include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
+#include "prtime.h"
 
 using mozilla::intl::Collator;
 

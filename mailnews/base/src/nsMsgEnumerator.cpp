@@ -7,7 +7,6 @@
 #include "mozilla/dom/IteratorResultBinding.h"
 #include "mozilla/dom/RootedDictionary.h"
 #include "mozilla/dom/ToJSValue.h"
-#include "mozilla/ResultExtensions.h"
 #include "nsContentUtils.h"
 
 #include "nsIMsgHdr.h"

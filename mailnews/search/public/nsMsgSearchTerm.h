@@ -5,16 +5,18 @@
 
 #ifndef __nsMsgSearchTerm_h
 #define __nsMsgSearchTerm_h
+
 //---------------------------------------------------------------------------
 // nsMsgSearchTerm specifies one criterion, e.g. name contains phil
 //---------------------------------------------------------------------------
+
+#include "nsCOMPtr.h"
 #include "nsIMsgSearchSession.h"
-#include "nsIMsgSearchScopeTerm.h"
 #include "nsIMsgSearchTerm.h"
-#include "nsIMsgSearchCustomTerm.h"
 
 // needed to search for addresses in address books
 #include "nsIAbDirectory.h"
+#include "prtime.h"
 
 #define EMPTY_MESSAGE_LINE(buf) \
   (buf[0] == '\r' || buf[0] == '\n' || buf[0] == '\0')

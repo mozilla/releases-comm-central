@@ -23,7 +23,6 @@
 #include "mimeTextHTMLParsed.h"
 #include "prmem.h"
 #include "prlog.h"
-#include "msgCore.h"
 #include "nsContentUtils.h"
 #include "mozilla/dom/DOMParser.h"
 #include "mozilla/dom/Document.h"

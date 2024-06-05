@@ -7,7 +7,6 @@
 #define nsWindowsShellService_h_
 
 #include "nsIShellService.h"
-#include "nsIObserver.h"
 #include "nsString.h"
 #include "nsToolkitShellService.h"
 
@@ -43,7 +42,7 @@ class nsWindowsShellService : public nsIShellService,
   bool IsDefaultClientVista(uint16_t aApps, bool* aIsDefaultClient);
 
  private:
-  virtual ~nsWindowsShellService(){};
+  virtual ~nsWindowsShellService() {};
   bool mCheckedThisSession;
   nsAutoString mAppLongPath;
 };

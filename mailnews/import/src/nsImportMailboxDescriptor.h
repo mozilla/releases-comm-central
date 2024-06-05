@@ -6,7 +6,6 @@
 #ifndef nsImportMailboxDescriptor_h___
 #define nsImportMailboxDescriptor_h___
 
-#include "mozilla/Attributes.h"
 #include "nscore.h"
 #include "nsString.h"
 #include "nsIImportMailboxDescriptor.h"

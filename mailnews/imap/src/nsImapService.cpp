@@ -12,6 +12,7 @@
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgImapMailFolder.h"
+#include "nsIMsgStatusFeedback.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapMessageSink.h"
@@ -546,7 +547,7 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
           FetchMessage(imapUrl, imapAction, folder, imapMessageSink, aMsgWindow,
                        aMailboxCopy, msgKey, false, getter_AddRefs(dummyURI));
     }  // if we got an imap message sink
-  }    // if we decomposed the imap message
+  }  // if we decomposed the imap message
   return rv;
 }
 

@@ -8,7 +8,6 @@
 #include "nspr.h"
 #include "nsIFile.h"
 #include "nsIMsgFolderNotificationService.h"
-#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Logging.h"

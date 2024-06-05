@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsLocalUtils.h"
 #include "prsystem.h"
 #include "nsCOMPtr.h"
@@ -11,11 +10,14 @@
 // stuff for temporary root folder hack
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsNativeCharsetUtils.h"
 
 #include "nsMsgUtils.h"
 #include "nsNetCID.h"
 #include "nsIURIMutator.h"
+
+#ifdef XP_WIN
+#  include "nsNativeCharsetUtils.h"
+#endif
 
 // it would be really cool to:
 // - cache the last hostname->path match

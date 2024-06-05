@@ -6,24 +6,18 @@
 #ifndef nsMsgProtocol_h__
 #define nsMsgProtocol_h__
 
-#include "mozilla/Attributes.h"
 #include "nsIStreamListener.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsIChannel.h"
-#include "nsIURL.h"
-#include "nsIThread.h"
 #include "nsILoadGroup.h"
 #include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIProgressEventSink.h"
 #include "nsITransport.h"
-#include "nsIAsyncOutputStream.h"
 #include "nsIAuthModule.h"
 #include "nsString.h"
-#include "nsWeakReference.h"
 #include "nsHashPropertyBag.h"
 #include "nsMailChannel.h"
 

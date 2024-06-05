@@ -4,11 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "comi18n.h"
-#include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsIMimeConverter.h"
-#include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
 

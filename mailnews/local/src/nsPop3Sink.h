@@ -6,6 +6,7 @@
 #define nsPop3Sink_h__
 
 #include "nscore.h"
+#include "nsCOMPtr.h"
 #include "nsIPop3Sink.h"
 #include "nsIOutputStream.h"
 #include "prmem.h"

@@ -13,6 +13,8 @@
  */
 
 #include "mimeobj.h"
+#include "mimemult.h"
+#include "nsMailHeaders.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prio.h"
@@ -20,14 +22,6 @@
 #include "prlog.h"
 #include "nsMimeTypes.h"
 #include "nsMimeStringResources.h"
-#include "nsMsgUtils.h"
-#include "mimemsg.h"
-#include "mimemapl.h"
-
-/* Way to destroy any notions of modularity or class hierarchy, Terry! */
-#include "mimetpla.h"
-#include "mimethtm.h"
-#include "mimecont.h"
 
 MimeDefClass(MimeObject, MimeObjectClass, mimeObjectClass, NULL);
 

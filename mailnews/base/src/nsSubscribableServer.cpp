@@ -5,10 +5,8 @@
 
 #include "nsSubscribableServer.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIServiceManager.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
-#include "nsServiceManagerUtils.h"
 #include "nsTreeColumns.h"
 #include "mozilla/dom/DataTransfer.h"
 

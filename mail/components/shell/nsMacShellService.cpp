@@ -5,13 +5,9 @@
 
 #include "nsMacShellService.h"
 #include "nsCOMPtr.h"
-#include "nsIServiceManager.h"
-#include "nsIStringBundle.h"
-#include "nsIPromptService.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsString.h"
-#include "nsEmbedCID.h"
+#include "nsServiceManagerUtils.h"
 
 // These Launch Services functions are undocumented. We're using them since
 // they're the only way to set the default opener for URLs

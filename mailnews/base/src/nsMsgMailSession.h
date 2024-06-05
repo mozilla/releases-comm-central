@@ -9,7 +9,6 @@
 #include "nsIMsgMailSession.h"
 #include "nsISupports.h"
 #include "nsCOMPtr.h"
-#include "nsIMsgStatusFeedback.h"
 #include "nsIMsgWindow.h"
 #include "nsCOMArray.h"
 #include "nsIMsgShutdown.h"

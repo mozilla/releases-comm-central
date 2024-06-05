@@ -2,6 +2,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #include "FolderCompactor.h"
 
 #include "nsCOMPtr.h"
@@ -20,8 +21,8 @@
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"  // For ParseUint64Str(), MSGS_URL.
 #include "nsString.h"
-#include "nsThreadUtils.h"    // For NS_NewRunnableFunction().
-#include "nsTStringHasher.h"  // For mozilla::DefaultHasher<nsCString>
+#include "nsThreadUtils.h"  // For NS_NewRunnableFunction().
+#include "nsTStringHasher.h"  // IWYU pragma: keep, for mozilla::DefaultHasher<nsCString>
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefCounted.h"

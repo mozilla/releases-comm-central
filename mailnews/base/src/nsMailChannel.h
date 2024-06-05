@@ -8,7 +8,7 @@
 #include "nsIMailChannel.h"
 #include "nsIWritablePropertyBag2.h"
 #include "nsTArray.h"
-#include "nsTString.h"
+#include "nsString.h"
 #include "calIItipItem.h"
 #include "nsIWeakReferenceUtils.h"
 

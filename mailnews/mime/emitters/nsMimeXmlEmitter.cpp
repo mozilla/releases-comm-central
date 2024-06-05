@@ -9,10 +9,7 @@
 #include "nsMailHeaders.h"
 #include "nscore.h"
 #include "prmem.h"
-#include "nsEmitterUtils.h"
-#include "nsCOMPtr.h"
-#include "nsUnicharUtils.h"
-#include "nsMsgUtils.h"
+#include "nsEscape.h"
 
 /*
  * nsMimeXmlEmitter definitions....

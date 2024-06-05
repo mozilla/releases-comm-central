@@ -6,12 +6,8 @@
 #include <stdio.h>
 #include "nsMimePlainEmitter.h"
 #include "plstr.h"
-#include "nsMailHeaders.h"
 #include "nscore.h"
 #include "prmem.h"
-#include "nsEmitterUtils.h"
-#include "nsCOMPtr.h"
-#include "nsUnicharUtils.h"
 
 /*
  * nsMimePlainEmitter definitions....

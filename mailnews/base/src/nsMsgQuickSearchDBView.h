@@ -6,7 +6,6 @@
 #ifndef _nsMsgQuickSearchDBView_H_
 #define _nsMsgQuickSearchDBView_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgThreadedDBView.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIMsgSearchSession.h"

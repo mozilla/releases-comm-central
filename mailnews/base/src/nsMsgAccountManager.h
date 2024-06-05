@@ -21,7 +21,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
-#include "nsIUrlListener.h"
 #include "nsCOMArray.h"
 #include "nsIMsgSearchSession.h"
 #include "nsInterfaceHashtable.h"

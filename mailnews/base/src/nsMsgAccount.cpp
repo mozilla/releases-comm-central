@@ -6,8 +6,6 @@
 #include "prprf.h"
 #include "plstr.h"
 #include "prmem.h"
-#include "nsIComponentManager.h"
-#include "nsIServiceManager.h"
 #include "nsCRTGlue.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgFolderNotificationService.h"
@@ -20,8 +18,6 @@
 #include "nsIObserverService.h"
 #include "mozilla/Services.h"
 #include "nsServiceManagerUtils.h"
-#include "nsMemory.h"
-#include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 
 NS_IMPL_ISUPPORTS(nsMsgAccount, nsIMsgAccount)

@@ -8,7 +8,6 @@
 
 #include "nsIDirectoryService.h"
 #include "nsSimpleEnumerator.h"
-#include "nsString.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
 

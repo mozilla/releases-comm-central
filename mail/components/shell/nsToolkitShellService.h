@@ -6,6 +6,7 @@
 #ifndef nstoolkitshellservice_h____
 #define nstoolkitshellservice_h____
 
+#include "nsIShellService.h"
 #include "nsIToolkitShellService.h"
 
 class nsToolkitShellService : public nsIToolkitShellService {

@@ -10,10 +10,8 @@
 #ifndef nsMsgNewsFolder_h__
 #define nsMsgNewsFolder_h__
 
-#include "mozilla/Attributes.h"
 #include "nsMsgDBFolder.h"
 #include "nsIFile.h"
-#include "nsNewsUtils.h"
 #include "nsMsgKeySet.h"
 #include "nsIMsgNewsFolder.h"
 #include "nsCOMPtr.h"

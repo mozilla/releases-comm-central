@@ -8,7 +8,6 @@ EXPORTS += [
 ]
 
 SOURCES += [
-    "mimexpcom.cpp",
     "nsMimeContentTypeHandler.cpp",
 ]
 

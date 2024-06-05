@@ -7,6 +7,7 @@
 #define _nsMsgFilter_H_
 
 #include "nscore.h"
+#include "nsCOMPtr.h"
 #include "nsISupports.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgSearchScopeTerm.h"

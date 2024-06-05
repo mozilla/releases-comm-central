@@ -4,19 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsStatusBarBiffManager.h"
-#include "nsMsgBiffManager.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIObserverService.h"
-#include "nsIWindowMediator.h"
 #include "nsIMsgMailSession.h"
-#include "MailNewsTypes.h"
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
 #include "nsMsgDBFolder.h"
 #include "nsIFileChannel.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsIURL.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "nsIFile.h"

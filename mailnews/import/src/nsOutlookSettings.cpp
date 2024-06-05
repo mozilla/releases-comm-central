@@ -10,7 +10,6 @@
 #include "nsCOMPtr.h"
 #include "nscore.h"
 #include "nsMsgUtils.h"
-#include "nsOutlookImport.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"
@@ -24,7 +23,6 @@
 #include "nsMsgI18N.h"
 #include <windows.h>
 #include "nsIWindowsRegKey.h"
-#include "nsComponentManagerUtils.h"
 #include "nsNativeCharsetUtils.h"
 
 class OutlookSettings {

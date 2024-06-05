@@ -8,8 +8,6 @@
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
 #include "nsImportStringBundle.h"
-#include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "mozilla/Components.h"
 
 nsresult nsImportStringBundle::GetStringBundle(const char* aPropertyURL,

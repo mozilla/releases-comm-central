@@ -7,7 +7,6 @@
 #define nsMacShellService_h_
 
 #include "nsIShellService.h"
-#include "nsString.h"
 #include "nsToolkitShellService.h"
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -30,7 +29,7 @@ class nsMacShellService : public nsIShellService, public nsToolkitShellService {
   nsresult setAsDefaultHandlerForProtocol(CFStringRef aScheme);
 
  private:
-  virtual ~nsMacShellService(){};
+  virtual ~nsMacShellService() {};
   bool mCheckedThisSession;
 };
 #endif

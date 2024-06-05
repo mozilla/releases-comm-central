@@ -3,11 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mimehdrs.h"
 #include "msgCore.h"
 #include "mimemult.h"
 #include "mimemoz2.h"
 #include "mimeeobj.h"
 
+#include "nsMailHeaders.h"
 #include "prlog.h"
 #include "prmem.h"
 #include "plstr.h"

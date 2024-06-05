@@ -6,7 +6,6 @@
 #ifndef nsCidProtocolHandler_h__
 #define nsCidProtocolHandler_h__
 
-#include "nsCOMPtr.h"
 #include "nsIProtocolHandler.h"
 
 class nsCidProtocolHandler : public nsIProtocolHandler {

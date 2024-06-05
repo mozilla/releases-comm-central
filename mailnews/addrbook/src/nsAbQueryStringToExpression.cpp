@@ -10,7 +10,6 @@
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsITextToSubURI.h"
-#include "nsAbBooleanExpression.h"
 #include "plstr.h"
 
 /**

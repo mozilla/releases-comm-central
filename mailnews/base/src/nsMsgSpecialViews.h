@@ -6,7 +6,6 @@
 #ifndef _nsMsgSpecialViews_H_
 #define _nsMsgSpecialViews_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgThreadedDBView.h"
 
 class nsMsgThreadsWithUnreadDBView : public nsMsgThreadedDBView {

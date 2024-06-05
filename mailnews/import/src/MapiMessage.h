@@ -5,6 +5,7 @@
 #ifndef MapiMessage_h___
 #define MapiMessage_h___
 
+#include "nsIIOService.h"
 #include "nsTArray.h"
 #include "nsString.h"
 #include "nsIFile.h"

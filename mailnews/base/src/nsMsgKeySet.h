@@ -6,7 +6,7 @@
 #ifndef _nsMsgKeySet_H_
 #define _nsMsgKeySet_H_
 
-#include "msgCore.h"
+#include "MailNewsTypes2.h"
 #include "nsTArray.h"
 
 // nsMsgKeySet represents a set of articles.  Typically, it is the set of

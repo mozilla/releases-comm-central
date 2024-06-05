@@ -13,10 +13,10 @@
  */
 
 // clang-format off
+#include "mimehdrs.h"
 #include "nsCOMPtr.h"
 #include "mimeobj.h"   /*  MimeObject (abstract) */
 #include "mimecont.h"  /*   |--- MimeContainer (abstract) */
-#include "mimemult.h"  /*   |     |--- MimeMultipart (abstract) */
 #include "mimemmix.h"  /*   |     |     |--- MimeMultipartMixed */
 #include "mimemdig.h"  /*   |     |     |--- MimeMultipartDigest */
 #include "mimempar.h"  /*   |     |     |--- MimeMultipartParallel */
@@ -24,17 +24,15 @@
 #include "mimemrel.h"  /*   |     |     |--- MimeMultipartRelated */
 #include "mimemapl.h"  /*   |     |     |--- MimeMultipartAppleDouble */
 #include "mimesun.h"   /*   |     |     |--- MimeSunAttachment */
-#include "mimemsig.h"  /*   |     |     |--- MimeMultipartSigned (abstract)*/
+#include "nsMailHeaders.h"
 #ifdef ENABLE_SMIME
 #include "mimemcms.h"  /*   |     |           |---MimeMultipartSignedCMS */
 #endif
-#include "mimecryp.h"  /*   |     |--- MimeEncrypted (abstract) */
 #ifdef ENABLE_SMIME
 #include "mimecms.h"   /*   |     |     |--- MimeEncryptedPKCS7 */
 #endif
 #include "mimemsg.h"   /*   |     |--- MimeMessage */
 #include "mimeunty.h"  /*   |     |--- MimeUntypedText */
-#include "mimeleaf.h"  /*   |--- MimeLeaf (abstract) */
 #include "mimetext.h"  /*   |     |--- MimeInlineText (abstract) */
 #include "mimetpla.h"  /*   |     |     |--- MimeInlineTextPlain */
 #include "mimethpl.h"  /*   |     |     |     |--- M.I.TextHTMLAsPlaintext */
@@ -58,11 +56,9 @@
 #include "prlink.h"
 #include "prprf.h"
 #include "mimecth.h"
-#include "mimebuf.h"
 #include "mimemoz2.h"
 #include "nsIMimeContentTypeHandler.h"
 #include "nsICategoryManager.h"
-#include "nsCategoryManagerUtils.h"
 #include "nsXPCOMCID.h"
 #include "nsISimpleMimeConverter.h"
 #include "nsSimpleMimeConverterStub.h"
@@ -71,7 +67,6 @@
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
 #include "nsIPrefBranch.h"
-#include "mozilla/Preferences.h"
 #include "imgLoader.h"
 
 #include "nsIMsgMailNewsUrl.h"
@@ -407,8 +402,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
       (void)msgHdr->GetStringProperty("junkscore", junkScoreStr);
       if (html_as == 0 && junkScoreStr.get() && atoi(junkScoreStr.get()) > 50)
         html_as = 3;  // 3 == Simple HTML
-    }                 // if msgHdr
-  }                   // if we are supposed to sanitize junk mail
+    }  // if msgHdr
+  }  // if we are supposed to sanitize junk mail
 
   /*
    * What we do first is check for an external content handler plugin.

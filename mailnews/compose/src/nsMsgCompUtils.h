@@ -8,7 +8,6 @@
 
 #include "nscore.h"
 #include "mozilla/dom/Document.h"
-#include "nsMsgCompFields.h"
 #include "nsIMsgSend.h"
 #include "nsIMsgCompUtils.h"
 

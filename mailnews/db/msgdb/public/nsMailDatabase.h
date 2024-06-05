@@ -6,13 +6,11 @@
 #ifndef _nsMailDatabase_H_
 #define _nsMailDatabase_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgDatabase.h"
 #include "nsTArray.h"
 
 #include "nsIDBChangeListener.h"
 #include "nsIMsgOfflineImapOperation.h"
-#include "nsISimpleEnumerator.h"
 #include "nsIFile.h"
 
 // This is the subclass of nsMsgDatabase that handles local mail messages.

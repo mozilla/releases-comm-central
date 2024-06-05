@@ -7,6 +7,7 @@
 #define nsMsgSearchSession_h___
 
 #include "nscore.h"
+#include "nsMsgSearchBoolExpression.h"
 #include "nsMsgSearchCore.h"
 #include "nsIMsgSearchSession.h"
 #include "nsIUrlListener.h"

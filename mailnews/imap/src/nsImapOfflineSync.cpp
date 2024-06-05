@@ -10,6 +10,7 @@
 #include "nsImapMailFolder.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
+#include "nsIDBFolderInfo.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgAccountManager.h"
 #include "nsINntpIncomingServer.h"

@@ -7,11 +7,11 @@
    Class for handling Berkeley Mailbox stores.
 */
 
+#include "MailNewsTypes.h"
 #include "prlog.h"
 #include "msgCore.h"
 #include "nsMsgBrkMBoxStore.h"
 #include "nsIMsgFolder.h"
-#include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIInputStream.h"
@@ -22,7 +22,6 @@
 #include "nsIMsgHdr.h"
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIDBFolderInfo.h"
 #include "nsMsgLocalFolderHdrs.h"
@@ -38,7 +37,6 @@
 #include "mozilla/Buffer.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
-#include "mozilla/RefCounted.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/SlicedInputStream.h"
 #include "prprf.h"

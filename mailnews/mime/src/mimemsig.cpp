@@ -5,6 +5,7 @@
 
 #include "modmimee.h"
 #include "mimemsig.h"
+#include "nsMailHeaders.h"
 #include "nspr.h"
 
 #include "prmem.h"
@@ -16,7 +17,6 @@
 #include "mimemoz2.h"
 #include "mimeeobj.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
-#include "mozilla/Attributes.h"
 
 #define MIME_SUPERCLASS mimeMultipartClass
 MimeDefClass(MimeMultipartSigned, MimeMultipartSignedClass,

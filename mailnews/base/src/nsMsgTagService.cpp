@@ -3,17 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
 #include "nsMsgTagService.h"
 #include "nsIPrefService.h"
-#include "nsISupportsPrimitives.h"
 #include "nsMsgI18N.h"
 #include "nsIPrefLocalizedString.h"
-#include "nsMsgDBView.h"  // for labels migration
 #include "nsMsgUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsMemory.h"
 
 #define STRLEN(s) (sizeof(s) - 1)
 

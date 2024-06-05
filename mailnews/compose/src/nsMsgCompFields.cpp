@@ -3,17 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsMsgCompose.h"
 #include "nsMsgCompFields.h"
-#include "nsMsgI18N.h"
+#include "nsIMsgCompose.h"
 #include "nsMsgCompUtils.h"
 #include "nsMsgUtils.h"
 #include "prmem.h"
-#include "nsIFileChannel.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgMdnGenerator.h"
-#include "nsServiceManagerUtils.h"
-#include "nsMemory.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 

@@ -14,7 +14,6 @@
 #include "nsTreeColumns.h"
 #include "nsMsgMessageFlags.h"
 #include <plhash.h>
-#include "mozilla/Attributes.h"
 #include "nsIScriptError.h"
 
 // Allocate this more to avoid reallocation on new mail.

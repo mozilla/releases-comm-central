@@ -7,7 +7,6 @@
 #define nsOutlookImport_h___
 
 #include "nsIImportModule.h"
-#include "nsCOMPtr.h"
 
 #define NS_OUTLOOKIMPORT_CID                       \
   { /* 1DB469A0-8B00-11d3-A206-00A0CC26DA63 */     \

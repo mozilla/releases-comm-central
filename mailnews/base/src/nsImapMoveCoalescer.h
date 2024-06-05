@@ -10,7 +10,6 @@
 #include "nsCOMArray.h"
 #include "nsIMsgWindow.h"
 #include "nsCOMPtr.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsIUrlListener.h"
 #include "nsIMsgCopyServiceListener.h"

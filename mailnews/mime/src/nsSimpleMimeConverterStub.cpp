@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimecth.h"
-#include "mimeobj.h"
 #include "mimetext.h"
 #include "mimemoz2.h"
 #include "mimecom.h"
@@ -31,7 +30,7 @@ struct MimeSimpleStub {
 };
 
 #define MimeSimpleStubClassInitializer(ITYPE, CSUPER) \
-  { MimeInlineTextClassInitializer(ITYPE, CSUPER) }
+  {MimeInlineTextClassInitializer(ITYPE, CSUPER)}
 
 MimeDefClass(MimeSimpleStub, MimeSimpleStubClass, mimeSimpleStubClass, NULL);
 

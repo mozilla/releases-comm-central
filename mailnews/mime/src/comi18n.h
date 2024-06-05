@@ -5,8 +5,7 @@
 #ifndef _COMI18N_LOADED_H_
 #define _COMI18N_LOADED_H_
 
-#include "msgCore.h"
-#include "mozilla/Encoding.h"
+#include "nsString.h"
 
 #ifdef __cplusplus
 extern "C" {

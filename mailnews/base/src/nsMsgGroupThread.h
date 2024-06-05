@@ -3,11 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "mozilla/Attributes.h"
 #include "msgCore.h"
 #include "nsCOMArray.h"
 #include "nsIMsgThread.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"

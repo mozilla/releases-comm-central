@@ -6,7 +6,6 @@
 #ifndef _nsMsgSearchDBViews_H_
 #define _nsMsgSearchDBViews_H_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgGroupView.h"
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgSearchNotify.h"

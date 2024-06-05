@@ -5,6 +5,7 @@
 #ifndef _nsMsgFileHdr_H
 #define _nsMsgFileHdr_H
 
+#include "nsIFile.h"
 #include "nsIMsgHdr.h"
 #include "nsString.h"
 #include "nsTArray.h"

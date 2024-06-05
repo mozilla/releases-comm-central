@@ -12,7 +12,6 @@
 
 #include "mimethpl.h"
 #include "prlog.h"
-#include "msgCore.h"
 #include "mimemoz2.h"
 #include "nsString.h"
 #include "nsIDocumentEncoder.h"  // for output flags

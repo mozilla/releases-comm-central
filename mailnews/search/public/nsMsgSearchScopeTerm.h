@@ -7,7 +7,6 @@
 #define __nsMsgSearchScopeTerm_h
 
 #include "nsMsgSearchCore.h"
-#include "nsMsgSearchScopeTerm.h"
 #include "nsIMsgSearchAdapter.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgSearchAdapter.h"

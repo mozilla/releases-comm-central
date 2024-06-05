@@ -5,8 +5,6 @@
 
 // this file implements the nsMsgFilterList interface
 
-#include "nsTextFormatter.h"
-
 #include "msgCore.h"
 #include "nsMsgFilterList.h"
 #include "nsMsgFilter.h"
@@ -21,7 +19,6 @@
 #include "nsNetUtil.h"
 #include "nsIInputStream.h"
 #include "nsNativeCharsetUtils.h"
-#include "nsMemory.h"
 #include "prmem.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Components.h"

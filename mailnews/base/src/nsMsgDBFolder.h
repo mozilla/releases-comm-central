@@ -9,13 +9,11 @@
 #include "mozilla/Attributes.h"
 #include "msgCore.h"
 #include "nsIMsgFolder.h"
-#include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsCOMPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIURL.h"
 #include "nsIFile.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReferenceUtils.h"
@@ -79,10 +77,10 @@ class nsMsgFolderService final : public nsIMsgFolderService {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGFOLDERSERVICE
 
-  nsMsgFolderService(){};
+  nsMsgFolderService() {};
 
  protected:
-  ~nsMsgFolderService(){};
+  ~nsMsgFolderService() {};
 };
 
 /*

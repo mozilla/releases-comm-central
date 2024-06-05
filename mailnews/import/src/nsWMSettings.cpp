@@ -11,7 +11,6 @@
 #include "nscore.h"
 #include "nsString.h"
 #include "nsMsgUtils.h"
-#include "nsWMImport.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgAccount.h"
 #include "nsIImportSettings.h"

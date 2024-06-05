@@ -15,7 +15,6 @@
 #  include "windows.h"
 #endif  // elif defined(XP_WIN)
 
-#include "nsMemory.h"
 /*
  * This basis for the logic in this file comes from (will used to come from):
  *  (mozilla/)modules/libutil/public/stopwatch.cpp.

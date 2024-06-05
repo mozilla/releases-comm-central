@@ -5,7 +5,7 @@
 #ifndef _nsPgpmimeDecrypt_h_
 #define _nsPgpmimeDecrypt_h_
 
-#include "mimecth.h"
+#include "mimecryp.h"
 #include "nsIPgpMimeProxy.h"
 #include "nsCOMPtr.h"
 #include "nsIStreamListener.h"
@@ -71,6 +71,6 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
 };
 
 #define MimeEncryptedPgpClassInitializer(ITYPE, CSUPER) \
-  { MimeEncryptedClassInitializer(ITYPE, CSUPER) }
+  {MimeEncryptedClassInitializer(ITYPE, CSUPER)}
 
 #endif

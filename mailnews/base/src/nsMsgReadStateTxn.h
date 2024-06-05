@@ -6,11 +6,9 @@
 #ifndef nsMsgBaseUndoTxn_h_
 #define nsMsgBaseUndoTxn_h_
 
-#include "mozilla/Attributes.h"
 #include "nsMsgTxn.h"
 #include "nsTArray.h"
 #include "nsCOMPtr.h"
-#include "MailNewsTypes.h"
 #include "nsIMsgFolder.h"
 
 #define NS_MSGREADSTATETXN_IID                       \

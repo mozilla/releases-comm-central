@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimesun.h"
+#include "mimehdrs.h"
+#include "nsMailHeaders.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prlog.h"
@@ -217,8 +219,8 @@ static int MimeSunAttachment_create_child(MimeObject* obj) {
       const char* start = sun_enc_info;
       sun_enc_info = end + 1;
       while (IS_SPACE(*sun_enc_info)) sun_enc_info++;
-      for (prev = end - 1; prev > start && *prev != ','; prev--)
-        ;
+      for (prev = end - 1; prev > start && *prev != ','; prev--) {
+      }
       if (*prev == ',') prev++;
 
       if (!PL_strncasecmp(prev, "uuencode", end - prev))

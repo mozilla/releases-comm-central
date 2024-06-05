@@ -5,15 +5,8 @@
 
 #include "nsXULAppAPI.h"
 #include "mozilla/CmdLineAndEnvUtils.h"
-#include "mozilla/XREAppData.h"
-#include "nsXPCOM.h"
-#include "nsISupports.h"
 #include "mozilla/Logging.h"
-#include "mozilla/XREAppData.h"
-#include "mozilla/ArrayUtils.h"
-#include "mozilla/Assertions.h"
 #include "mozilla/TimeStamp.h"
-#include "XREChildData.h"
 #include "XREShellData.h"
 
 #include "application.ini.h"
@@ -32,9 +25,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
-
-#include "nsCOMPtr.h"
-#include "nsIFile.h"
 
 #ifdef XP_WIN
 #  include "mozilla/mscom/ProcessRuntime.h"

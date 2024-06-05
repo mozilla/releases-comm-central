@@ -11,8 +11,6 @@
 #include "nsNetCID.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIStandardURL.h"
-#include "nsMsgUtils.h"
-#include "nsUnicharUtils.h"
 #include "mozilla/Encoding.h"
 
 // The two schemes we support, LDAP and LDAPS

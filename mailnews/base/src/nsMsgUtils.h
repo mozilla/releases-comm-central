@@ -6,19 +6,12 @@
 #ifndef _NSMSGUTILS_H
 #define _NSMSGUTILS_H
 
-#include "nsIURL.h"
 #include "nsString.h"
 #include "msgCore.h"
-#include "nsCOMPtr.h"
 #include "MailNewsTypes2.h"
 #include "nsTArray.h"
-#include "nsInterfaceRequestorAgg.h"
-#include "nsILoadGroup.h"
 #include "nsINetUtil.h"
-#include "nsIRequest.h"
 #include "nsILoadInfo.h"
-#include "nsServiceManagerUtils.h"
-#include "nsUnicharUtils.h"
 #include "nsIFile.h"
 
 class nsIChannel;

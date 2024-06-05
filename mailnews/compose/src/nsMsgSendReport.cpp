@@ -5,13 +5,11 @@
 
 #include "nsMsgSendReport.h"
 
-#include "msgCore.h"
 #include "nsIMsgCompose.h"
 #include "nsMsgPrompts.h"
 #include "nsError.h"
 #include "nsComposeStrings.h"
 #include "nsIStringBundle.h"
-#include "nsServiceManagerUtils.h"
 #include "mozilla/Components.h"
 
 NS_IMPL_ISUPPORTS(nsMsgProcessReport, nsIMsgProcessReport)

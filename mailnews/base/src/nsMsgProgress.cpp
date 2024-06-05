@@ -5,16 +5,14 @@
 
 #include "nsMsgProgress.h"
 
-#include "nsIBaseWindow.h"
+#include "nsIStringBundle.h"
 #include "nsXPCOM.h"
 #include "nsIMutableArray.h"
 #include "nsISupportsPrimitives.h"
-#include "nsIComponentManager.h"
 #include "nsError.h"
 #include "nsIWindowWatcher.h"
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
-#include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"

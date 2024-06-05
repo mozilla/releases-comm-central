@@ -2,18 +2,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef nsMsgLocalStoreUtils_h__
 #define nsMsgLocalStoreUtils_h__
 
-#include "msgCore.h"
 #include "nsString.h"
 #include "nsISeekableStream.h"
-#include "nsIMsgHdr.h"
-#include "nsMsgLocalFolderHdrs.h"
-#include "nsMailHeaders.h"
 #include "nsMsgUtils.h"
-#include "nsMsgMessageFlags.h"
-#include "nsArray.h"
+#include "nsTArray.h"
 
 /**
  * Utility Class for handling local mail stores. Berkeley Mailbox

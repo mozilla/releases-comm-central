@@ -3,18 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "MailNewsTypes.h"
 #include "msgCore.h"
-#include "mozilla/mailnews/MimeHeaderParser.h"
 #include "nsMsgHdr.h"
 #include "nsMsgDatabase.h"
 #include "nsMsgUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgThread.h"
-#include "mozilla/Attributes.h"
 #include "nsStringEnumerator.h"
 #ifdef DEBUG
 #  include "nsPrintfCString.h"
 #endif
+
 using namespace mozilla::mailnews;
 
 NS_IMPL_ISUPPORTS(nsMsgHdr, nsIMsgDBHdr)

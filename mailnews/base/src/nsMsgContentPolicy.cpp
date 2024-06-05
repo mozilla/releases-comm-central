@@ -4,13 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgContentPolicy.h"
-#include "nsIMsgMailSession.h"
 #include "nsIPermissionManager.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
-#include "nsIAbManager.h"
-#include "nsIAbDirectory.h"
-#include "nsIAbCard.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgHdr.h"
 #include "nsIEncryptedSMIMEURIsSrvc.h"
@@ -28,7 +24,6 @@
 #include "nsINntpUrl.h"
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
-#include "nsQueryObject.h"
 #include "mozilla/dom/WindowGlobalParent.h"
 #include "mozilla/SyncRunnable.h"
 #include "nsIObserverService.h"

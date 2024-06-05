@@ -7,6 +7,7 @@
 #define _nsMsgDBView_H_
 
 #include "nsIMsgDBView.h"
+#include "nsIMsgTagService.h"
 #include "nsIMsgWindow.h"
 #include "nsIMessenger.h"
 #include "nsIMsgDatabase.h"
@@ -22,7 +23,6 @@
 #include "nsIImapIncomingServer.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIStringBundle.h"
-#include "nsMsgTagService.h"
 #include "nsCOMArray.h"
 #include "nsTArray.h"
 #include "nsTHashtable.h"

@@ -18,10 +18,6 @@
 #include "nsISupports.idl"
 
 %{C++
-typedef struct {
-  bool force_inline_display;
-} contentTypeHandlerInitStruct;
-
 #include "mimecth.h"
 %}
 

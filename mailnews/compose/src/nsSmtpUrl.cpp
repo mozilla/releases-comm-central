@@ -3,17 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "msgCore.h"
-
 #include "nsIURI.h"
 #include "nsNetCID.h"
 #include "nsSmtpUrl.h"
 #include "nsString.h"
 #include "nsMsgUtils.h"
 #include "nsIMimeConverter.h"
-#include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsCRT.h"
 #include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +167,7 @@ nsresult nsMailtoUrl::ParseMailtoUrl(char* searchPart) {
       if (eq) *eq = '='; /* put it back */
       token = NS_strtok("&", &rest);
     }  // while we still have part of the url to parse...
-  }    // if rest && *rest
+  }  // if rest && *rest
 
   nsresult rv;
   // Get a global converter

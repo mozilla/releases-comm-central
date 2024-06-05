@@ -6,12 +6,12 @@
 #ifndef _nsMsgWindow_h
 #define _nsMsgWindow_h
 
+#include "nsIAuthPrompt.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsITransactionManager.h"
 #include "nsIMsgFolder.h"
 #include "nsCOMPtr.h"
-#include "nsIDocShell.h"
 #include "nsIURIContentListener.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReferenceUtils.h"

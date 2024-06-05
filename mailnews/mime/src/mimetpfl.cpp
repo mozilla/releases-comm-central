@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "mimetpfl.h"
-#include "mimebuf.h"
+#include "nsMailHeaders.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "mozITXTToHTMLConv.h"

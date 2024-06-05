@@ -8,10 +8,7 @@
 #include "nsMsgUtils.h"
 #include "nsTArray.h"
 #include "mozilla/Logging.h"
-#include "LineReader.h"  // For FirstLine().
 #include <algorithm>
-#include <functional>
-#include <limits>
 
 extern mozilla::LazyLogModule gMboxLog;
 using mozilla::LogLevel;
@@ -242,7 +239,7 @@ class MboxParser {
       case eEOF:
         return handle_eEOF(data);
       default:
-        MOZ_ASSERT_UNREACHABLE(); // should not happen
+        MOZ_ASSERT_UNREACHABLE();  // should not happen
     }
   }
 

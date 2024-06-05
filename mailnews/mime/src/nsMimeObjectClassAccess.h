@@ -12,7 +12,6 @@
 #ifndef nsMimeObjectClassAccess_h_
 #define nsMimeObjectClassAccess_h_
 
-#include "mozilla/Attributes.h"
 #include "nsISupports.h"
 #include "nsIMimeObjectClassAccess.h"
 

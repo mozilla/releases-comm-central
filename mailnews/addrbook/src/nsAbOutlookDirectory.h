@@ -5,12 +5,10 @@
 #ifndef nsAbOutlookDirectory_h___
 #define nsAbOutlookDirectory_h___
 
-#include "mozilla/Attributes.h"
 #include "nsIAbCard.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirectoryQuery.h"
 #include "nsIAbDirSearchListener.h"
-#include "nsInterfaceHashtable.h"
 #include "nsIMutableArray.h"
 #include "nsAbWinHelper.h"
 

@@ -7,8 +7,6 @@
 #define _nsMsgStatusFeedback_h
 
 #include "nsIWebProgressListener.h"
-#include "nsIObserver.h"
-#include "nsITimer.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsIProgressEventSink.h"

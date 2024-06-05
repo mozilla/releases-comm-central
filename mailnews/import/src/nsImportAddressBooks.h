@@ -11,10 +11,8 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbLDIFService.h"
 #include "nsIStringBundle.h"
-#include "nsIArray.h"
+#include "nsTArray.h"
 #include "nsCOMArray.h"
-
-static void ImportAddressThread(void* stuff);
 
 class AddressThreadData;
 

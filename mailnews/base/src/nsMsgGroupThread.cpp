@@ -8,7 +8,6 @@
 #include "nsMsgDBView.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
-#include "nsSimpleEnumerator.h"
 
 NS_IMPL_ISUPPORTS(nsMsgGroupThread, nsIMsgThread)
 

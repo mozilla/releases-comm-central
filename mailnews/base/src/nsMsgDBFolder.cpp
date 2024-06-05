@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "MailNewsTypes.h"
 #include "msgCore.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgDBFolder.h"
@@ -16,7 +17,6 @@
 #include "nsMsgDatabase.h"
 #include "nsIMsgAccountManager.h"
 #include "nsISeekableStream.h"
-#include "nsNativeCharsetUtils.h"
 #include "nsIChannel.h"
 #include "nsITransport.h"
 #include "nsIWindowWatcher.h"
@@ -24,14 +24,11 @@
 #include "nsIDocShell.h"
 #include "nsIMsgWindow.h"
 #include "nsIPrompt.h"
-#include "nsIInterfaceRequestor.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIAbCard.h"
-#include "nsIAbDirectory.h"
 #include "nsISpamSettings.h"
 #include "nsIMsgFilterPlugin.h"
 #include "nsIMsgMailSession.h"
-#include "nsTextFormatter.h"
 #include "nsReadLine.h"
 #include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
@@ -50,8 +47,6 @@
 #include "prmem.h"
 #include "nsIPK11TokenDB.h"
 #include "nsIPK11Token.h"
-#include "nsMsgLocalFolderHdrs.h"
-#define oneHour 3600000000U
 #include "nsMsgUtils.h"
 #include "nsIMsgFilterService.h"
 #include "nsDirectoryServiceUtils.h"
@@ -69,6 +64,8 @@
 #include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
+
+#define oneHour 3600000000U
 
 using namespace mozilla;
 

@@ -9,7 +9,6 @@
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsIMessengerWindowsIntegration.h"
-#include "nsIStringBundle.h"
 #include "nsIPrefBranch.h"
 
 class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {

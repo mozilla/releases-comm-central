@@ -9,16 +9,14 @@
 #include "mimecms.h"
 #include "mimemcms.h"
 #include "mimemsig.h"
+#include "nsMailHeaders.h"
 #include "nspr.h"
 #include "mimemsg.h"
 #include "mimemoz2.h"
 #include "nsIURI.h"
-#include "nsIMsgWindow.h"
-#include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgSMIMESink.h"
 #include "nsCOMPtr.h"
 #include "nsIX509Cert.h"
-#include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsThreadUtils.h"
 #include "nsProxyRelease.h"
@@ -581,7 +579,7 @@ static void* MimeCMS_init(MimeObject* obj,
         }
       }
     }  // if channel
-  }    // if msd
+  }  // if msd
 
   return data;
 }

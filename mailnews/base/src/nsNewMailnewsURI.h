@@ -7,7 +7,6 @@
 #define nsNewMailnewsURI_h__
 
 #include "nsIURI.h"
-#include "nsNetUtil.h"
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,

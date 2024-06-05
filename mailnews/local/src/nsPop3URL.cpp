@@ -6,6 +6,7 @@
 #include "msgCore.h"  // precompiled header...
 
 #include "nsPop3URL.h"
+#include "nsIMailboxUrl.h"
 #include "nsString.h"
 #include "prmem.h"
 #include "plstr.h"

@@ -17,7 +17,7 @@
 #include "nsIMdbFactoryFactory.h"
 #include "mdb.h"
 // Includes for jsoncpp.
-#include "json/json.h"
+#include "json/json.h"  // IWYU pragma: keep
 #include <string>
 
 using namespace mozilla;

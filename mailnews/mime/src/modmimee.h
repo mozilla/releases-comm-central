@@ -11,7 +11,6 @@
 #ifndef _MIMEENC_H_
 #define _MIMEENC_H_
 
-#include "nsError.h"
 #include "nscore.h"  // for nullptr
 
 typedef int (*MimeConverterOutputCallback)(const char* buf, int32_t size,

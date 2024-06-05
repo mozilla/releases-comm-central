@@ -6,13 +6,12 @@
 #ifndef nsOutlookMail_h___
 #define nsOutlookMail_h___
 
-#include "nsIArray.h"
+#include "nsIMsgFolder.h"
 #include "nsTArray.h"
 #include "nsString.h"
 #include "nsOutlookCompose.h"
 #include "nsIFile.h"
 #include "MapiApi.h"
-#include "MapiMessage.h"
 #include "nsIAbDirectory.h"
 #include "nsThreadUtils.h"
 

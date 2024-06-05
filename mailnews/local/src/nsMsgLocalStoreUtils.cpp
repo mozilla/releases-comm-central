@@ -6,9 +6,11 @@
 #include "msgCore.h"  // precompiled header...
 #include "nsMsgLocalStoreUtils.h"
 #include "nsIFile.h"
-#include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
 #include "HeaderReader.h"
+#include "nsMailHeaders.h"
+#include "nsMsgLocalFolderHdrs.h"
+#include "nsMsgMessageFlags.h"
 #include "nsPrintfCString.h"
 #include "nsReadableUtils.h"
 #include "mozilla/Buffer.h"

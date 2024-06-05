@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgDatabaseEnumerators.h"
+#include "MailNewsTypes.h"
 #include "nsMsgDatabase.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgThread.h"

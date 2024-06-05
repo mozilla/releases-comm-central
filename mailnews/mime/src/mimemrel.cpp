@@ -96,9 +96,12 @@
 
    = free all the cached data
  */
+
+#include "mimehdrs.h"
 #include "nsCOMPtr.h"
 #include "mimemrel.h"
 #include "mimemapl.h"
+#include "nsMailHeaders.h"
 #include "prmem.h"
 #include "prprf.h"
 #include "prlog.h"
@@ -108,7 +111,6 @@
 #include "msgCore.h"
 #include "nsMimeStringResources.h"
 #include "nsMimeTypes.h"
-#include "mimebuf.h"
 #include "nsMsgUtils.h"
 #include "nsMsgCompUtils.h"
 #include <ctype.h>

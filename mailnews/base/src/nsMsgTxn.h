@@ -6,7 +6,6 @@
 #ifndef nsMsgTxn_h__
 #define nsMsgTxn_h__
 
-#include "mozilla/Attributes.h"
 #include "nsITransaction.h"
 #include "msgCore.h"
 #include "nsCOMPtr.h"

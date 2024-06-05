@@ -6,14 +6,10 @@
 #ifndef nsLocalUndoTxn_h__
 #define nsLocalUndoTxn_h__
 
-#include "mozilla/Attributes.h"
 #include "msgCore.h"
 #include "nsIMsgFolder.h"
-#include "nsMailboxService.h"
 #include "nsMsgTxn.h"
-#include "MailNewsTypes.h"
 #include "nsTArray.h"
-#include "nsCOMPtr.h"
 #include "nsIFolderListener.h"
 #include "nsIWeakReferenceUtils.h"
 

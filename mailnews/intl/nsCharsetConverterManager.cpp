@@ -12,8 +12,6 @@
 #include "nsTArray.h"
 #include "mozilla/Components.h"
 
-#include "nsComponentManagerUtils.h"
-#include "nsServiceManagerUtils.h"
 #include "../base/src/nsMsgI18N.h"
 
 // just for CONTRACTIDs

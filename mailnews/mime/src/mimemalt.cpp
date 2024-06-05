@@ -87,6 +87,7 @@
 */
 
 #include "mimemalt.h"
+#include "nsMailHeaders.h"
 #include "prmem.h"
 #include "plstr.h"
 #include "prlog.h"
