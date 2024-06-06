@@ -5,6 +5,7 @@
 
 #include "nsMsgMdnGenerator.h"
 #include "MailNewsTypes.h"
+#include "nsIMsgHeaderParser.h"
 #include "nsImapCore.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsIMsgAccountManager.h"
@@ -772,8 +773,20 @@ nsresult nsMsgMdnGenerator::SendMdnMsg() {
       outgoingServer,
       "there should be an outgoing server configured (or set as default)");
 
-  outgoingServer->SendMailMessage(m_file, m_dntRrt, m_identity, identEmail,
-                                  ""_ns, nullptr, false, m_messageId, this);
+  nsCOMPtr<nsIMsgHeaderParser> parserService =
+      do_GetService("@mozilla.org/messenger/headerparser;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<RefPtr<msgIAddressObject>> recipients;
+  rv = parserService->ParseEncodedHeader(m_dntRrt, "utf-8", false, recipients);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // MDN replies don't have any Bcc recipients, so we just pass an empty array.
+  nsTArray<RefPtr<msgIAddressObject>> bccRecipients;
+
+  outgoingServer->SendMailMessage(m_file, recipients, bccRecipients, m_identity,
+                                  identEmail, ""_ns, nullptr, false,
+                                  m_messageId, this);
 
   return NS_OK;
 }

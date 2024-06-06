@@ -47,7 +47,8 @@ async function test_RFC2821() {
     let requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,
@@ -80,7 +81,8 @@ async function test_RFC2821() {
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,
@@ -121,7 +123,8 @@ async function test_RFC2821() {
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,
@@ -155,7 +158,8 @@ async function test_RFC2821() {
     requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,

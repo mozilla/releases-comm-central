@@ -15,6 +15,7 @@ moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
 nsstring = { version = "0.1.0", path = "../../../xpcom/rust/nsstring" }
 quick-xml = { version = "0.31.0", features = ["serde"] }
+thin-vec = { version = "0.2.12", features = ["gecko-ffi"] }
 thiserror = "1.0.56"
 url = "2.5.0"
 uuid = { version = "1.3.0", features = ["v4"] }

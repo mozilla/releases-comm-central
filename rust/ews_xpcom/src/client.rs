@@ -13,7 +13,7 @@ use ews::{
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, Folder, FolderShape, Importance,
-    ItemShape, Message, MimeContent, Operation, PathToElement, RealItem, ResponseClass,
+    ItemShape, Message, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
     ResponseCode,
 };
 use fxhash::FxHashMap;
@@ -666,6 +666,7 @@ impl XpComEwsClient {
         mime_content: String,
         message_id: String,
         should_request_dsn: bool,
+        bcc_recipients: Vec<Recipient>,
         observer: RefPtr<nsIRequestObserver>,
     ) {
         let cancellable_request = CancellableRequest::new();
@@ -682,7 +683,7 @@ impl XpComEwsClient {
         // Use the return value to determine which status we should use when
         // notifying the end of the request.
         let status = match self
-            .send_message_inner(mime_content, message_id, should_request_dsn)
+            .send_message_inner(mime_content, message_id, should_request_dsn, bcc_recipients)
             .await
         {
             Ok(_) => nserror::NS_OK,
@@ -711,7 +712,14 @@ impl XpComEwsClient {
         mime_content: String,
         message_id: String,
         should_request_dsn: bool,
+        bcc_recipients: Vec<Recipient>,
     ) -> Result<(), XpComEwsError> {
+        let bcc_recipients = if !bcc_recipients.is_empty() {
+            Some(ArrayOfRecipients(bcc_recipients))
+        } else {
+            None
+        };
+
         // Create a new message using the default values, and set the ones we
         // need.
         let message = create_item::Message {
@@ -721,6 +729,7 @@ impl XpComEwsClient {
             }),
             is_delivery_receipt_requested: Some(should_request_dsn),
             internet_message_id: Some(message_id),
+            bcc_recipients,
             ..Default::default()
         };
 
@@ -895,17 +904,17 @@ fn populate_message_header_from_item(
     }
 
     if let Some(to) = msg.to_recipients.as_ref() {
-        let to = nsCString::from(make_header_string_for_mailbox_list(&to));
+        let to = nsCString::from(make_header_string_for_mailbox_list(to));
         unsafe { header.SetRecipients(&*to) }.to_result()?;
     }
 
     if let Some(cc) = msg.cc_recipients.as_ref() {
-        let cc = nsCString::from(make_header_string_for_mailbox_list(&cc));
+        let cc = nsCString::from(make_header_string_for_mailbox_list(cc));
         unsafe { header.SetCcList(&*cc) }.to_result()?;
     }
 
     if let Some(bcc) = msg.bcc_recipients.as_ref() {
-        let bcc = nsCString::from(make_header_string_for_mailbox_list(&bcc));
+        let bcc = nsCString::from(make_header_string_for_mailbox_list(bcc));
         unsafe { header.SetBccList(&*bcc) }.to_result()?;
     }
 
@@ -955,9 +964,8 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
 /// the value of an Internet Message Format header.
 fn make_header_string_for_mailbox_list(mailboxes: &ArrayOfRecipients) -> String {
     let strings: Vec<_> = mailboxes
-        .mailbox
         .iter()
-        .map(make_header_string_for_mailbox)
+        .map(|item| make_header_string_for_mailbox(&item.mailbox))
         .collect();
 
     strings.join(", ")

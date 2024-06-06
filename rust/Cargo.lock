@@ -1538,6 +1538,7 @@ dependencies = [
  "nserror",
  "nsstring",
  "quick-xml",
+ "thin-vec",
  "thiserror",
  "url",
  "uuid",
