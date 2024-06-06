@@ -39,7 +39,7 @@ options-alternate-nicks = Alternate nicks
 # LOCALIZATION NOTE (ctcp-version):
 #   $username is the nickname of the user whose version was requested.
 #   $version is the version response from the client.
-ctcp-version = { $username } is using "{ $version }".
+ctcp-version = { $username } is using “{ $version }”.
 # LOCALIZATION NOTE (ctcp-time):
 #   $username is the nickname of the user whose time was requested.
 #   $timeResponse is the time response.
@@ -71,7 +71,7 @@ command-list = { $commandName }: Display a list of chat rooms on the network. Wa
 # $commandName is the command name
 command-memoserv = { $commandName } &lt;command&gt;: Send a command to MemoServ.
 # $commandName is the command name
-command-mode-user2 = { $commandName } &lt;nick&gt; [(+|-)&lt;mode&gt;]: Get, set or unset a user's mode.
+command-mode-user2 = { $commandName } &lt;nick&gt; [(+|-)&lt;mode&gt;]: Get, set or unset a user’s mode.
 # $commandName is the command name
 command-mode-channel2 = { $commandName } [&lt;channel&gt;] [(+|-)&lt;new mode&gt; [&lt;parameter&gt;][,&lt;parameter&gt;]*]: Get, set, or unset a channel mode.
 # $commandName is the command name
@@ -97,11 +97,11 @@ command-quote = { $commandName } &lt;command&gt;: Send a raw command to the serv
 # $commandName is the command name
 command-time = { $commandName }: Displays the current local time at the IRC server.
 # $commandName is the command name
-command-topic = { $commandName } [&lt;new topic&gt;]: Set this channel's topic.
+command-topic = { $commandName } [&lt;new topic&gt;]: Set this channel’s topic.
 # $commandName is the command name
 command-umode = { $commandName } (+|-)&lt;new mode&gt;: Set or unset a user mode.
 # $commandName is the command name
-command-version = { $commandName } &lt;nick&gt;: Request the version of a user's client.
+command-version = { $commandName } &lt;nick&gt;: Request the version of a user’s client.
 # $commandName is the command name
 command-voice = { $commandName } &lt;nick1&gt;[,&lt;nick2&gt;]*: Grant channel voice status to someone. You must be a channel operator to do this.
 # $commandName is the command name
@@ -209,7 +209,7 @@ message-ping =
 # $name is the channel name.
 error-no-channel = There is no channel: { $name }.
 #    $name is the channel name.
-error-too-many-channels = Cannot join { $name }; you've joined too many channels.
+error-too-many-channels = Cannot join { $name }; you’ve joined too many channels.
 #    $name is your new nick, $details is the kill message from the server.
 error-nick-collision = Nick already in use, changing nick to { $name } [{ $details }].
 
@@ -250,7 +250,7 @@ error-send-message-failed = An error occurred while sending your last message. P
 error-channel-forward = You may not join { $name }, and were automatically redirected to { $details }.
 #    $mode is the mode that the user tried to set but was not recognized
 #    by the server as a valid mode.
-error-unknown-mode = '{ $mode }' is not a valid user mode on this server.
+error-unknown-mode = ‘{ $mode }’ is not a valid user mode on this server.
 
 # LOCALIZATION NOTE (tooltip-*):
 #    These are the descriptions given in a tooltip with information received

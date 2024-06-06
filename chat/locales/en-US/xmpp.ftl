@@ -18,7 +18,7 @@ connection-srv-lookup = Looking up the SRV record
 # LOCALIZATION NOTE (connection-error-*)
 #   These will show in the account manager if an error occurs during the
 #   connection attempt.
-connection-error-invalid-username = Invalid username (your username should contain an '@' character)
+connection-error-invalid-username = Invalid username (your username should contain an ‘@’ character)
 connection-error-failed-to-create-a-socket = Failed to create a socket (Are you offline?)
 connection-error-server-closed-connection = The server closed the connection
 connection-error-reset-by-peer = Connection reset by peer
@@ -26,7 +26,7 @@ connection-error-timed-out = The connection timed out
 connection-error-received-unexpected-data = Received unexpected data
 connection-error-incorrect-response = Received an incorrect response
 connection-error-start-tls-required = The server requires encryption but you disabled it
-connection-error-start-tls-not-supported = The server doesn't support encryption but your configuration requires it
+connection-error-start-tls-not-supported = The server doesn’t support encryption but your configuration requires it
 connection-error-failed-to-start-tls = Failed to start encryption
 connection-error-no-auth-mec = No authentication mechanism offered by the server
 connection-error-no-compatible-auth-mec = None of the authentication mechanisms offered by the server are supported
@@ -50,7 +50,7 @@ conversation-error-join-failed = Could not join: { $mucName }
 #   This is displayed in a conversation as an error message when the user is
 #   banned from a room.
 #   $mucName is the name of the MUC room.
-conversation-error-join-forbidden = Couldn't join { $mucName } as you are banned from this room.
+conversation-error-join-forbidden = Couldn’t join { $mucName } as you are banned from this room.
 conversation-error-join-failed-not-authorized = Registration required: You are not authorized to join this room.
 conversation-error-creation-failed-not-allowed = Access restricted: You are not allowed to create rooms.
 #   This is displayed in a conversation as an error message when remote server
@@ -69,21 +69,21 @@ conversation-error-send-failed-as-not-inroom = Message could not be sent to { $m
 #   $message is the text of the message that wasn't delivered.
 conversation-error-send-failed-as-recipient-not-inroom = Message could not be sent to { $jabberIdentifier } as the recipient is no longer in the room: { $message }
 #   These are displayed in a conversation as a system error message.
-conversation-error-remote-server-not-found = Could not reach the recipient's server.
+conversation-error-remote-server-not-found = Could not reach the recipient’s server.
 conversation-error-unknown-send-error = An unknown error occurred on sending this message.
 #   $nick is the name of the message recipient.
 conversation-error-send-service-unavailable = It is not possible to send messages to { $nick } at this time.
 
 #   $nick is the nick of participant that is not in room.
 conversation-error-nick-not-in-room = { $nick } is not in the room.
-conversation-error-ban-command-anonymous-room = You can't ban participants from anonymous rooms. Try /kick instead.
-conversation-error-ban-kick-command-not-allowed = You don't have the required privileges to remove this participant from the room.
-conversation-error-ban-kick-command-conflict = Sorry, you can't remove yourself from the room.
+conversation-error-ban-command-anonymous-room = You can’t ban participants from anonymous rooms. Try /kick instead.
+conversation-error-ban-kick-command-not-allowed = You don’t have the required privileges to remove this participant from the room.
+conversation-error-ban-kick-command-conflict = Sorry, you can’t remove yourself from the room.
 #   $nick is the nick of participant that is not in room.
 conversation-error-change-nick-failed-conflict = Could not change your nick to { $nick } as this nick is already in use.
 #   $nick is a nick that cannot be set
 conversation-error-change-nick-failed-not-acceptable = Could not change your nick to { $nick } as nicks are locked down in this room.
-conversation-error-invite-failed-forbidden = You don't have the required privileges to invite users to this room.
+conversation-error-invite-failed-forbidden = You don’t have the required privileges to invite users to this room.
 #   $jabberIdentifier (String) is the jid of user that is invited.
 conversation-error-failed-jid-not-found = Could not reach { $jabberIdentifier }.
 #   $jabberIdentifier (String) is the jid that is invalid.
@@ -94,7 +94,7 @@ conversation-error-resource-not-available = You must talk first as { $recipient 
 
 # LOCALIZATION NOTE (conversation-error-version-*):
 #   $recipient is the name of the recipient.
-conversation-error-version-unknown = { $recipient }'s client does not support querying for its software version.
+conversation-error-version-unknown = { $recipient }’s client does not support querying for its software version.
 
 # LOCALIZATION NOTE (tooltip-*):
 #   These are the titles of lines of information that will appear in
@@ -248,12 +248,12 @@ conversation-message-muc-shutdown = You have been removed from the room because 
 #   $user (String): is the name of the user whose version was requested.
 #   $clientName (String): is the client name response from the client.
 #   $clientVersion (String): is the client version response from the client.
-conversation-message-version = { $user } is using "{ $clientName } { $clientVersion }".
+conversation-message-version = { $user } is using “{ $clientName } { $clientVersion }”.
 #   $user (String): is the name of the user whose version was requested.
 #   $clientName (String): is the client name response from the client.
 #   $clientVersion (String): is the client version response from the client.
 #   $systemResponse (String): is the operating system(OS) response from the client.
-conversation-message-version-with-os = { $user } is using "{ $clientName } { $clientVersion }" on { $systemResponse }.
+conversation-message-version-with-os = { $user } is using “{ $clientName } { $clientVersion }” on { $systemResponse }.
 
 # LOCALIZATION NOTE (options-*):
 #   These are the protocol specific options shown in the account manager and
@@ -291,7 +291,7 @@ command-join3 = { $commandName } [&lt;room&gt;[@&lt;server&gt;][/&lt;nick&gt;]] 
 # $commandName (String): command name
 command-part2 = { $commandName } [&lt;message&gt;]: Leave the current room with an optional message.
 # $commandName (String): command name
-command-topic = { $commandName } [&lt;new topic&gt;]: Set this room's topic.
+command-topic = { $commandName } [&lt;new topic&gt;]: Set this room’s topic.
 # $commandName (String): command name
 command-ban = { $commandName } &lt;nick&gt;[&lt;message&gt;]: Ban someone from the room. You must be a room administrator to do this.
 # $commandName (String): command name

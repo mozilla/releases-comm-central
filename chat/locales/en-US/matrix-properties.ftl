@@ -30,8 +30,8 @@ options-encryption-cross-signing = Cross Signing: { $status }
 options-encryption-status-ok = ok
 options-encryption-status-not-ok = not ready
 options-encryption-need-backup-passphrase = Please enter your backup key passphrase in the protocol options.
-options-encryption-set-up-secret-storage = To set up secret storage, please use another client and afterwards enter the generated backup key passphrase in the "General" tab.
-options-encryption-set-up-backup-and-cross-signing = To activate encryption key backups and cross signing, enter your backup key passphrase in the "General" tab or verify the identity of one of the sessions below.
+options-encryption-set-up-secret-storage = To set up secret storage, please use another client and afterwards enter the generated backup key passphrase in the “General” tab.
+options-encryption-set-up-backup-and-cross-signing = To activate encryption key backups and cross signing, enter your backup key passphrase in the “General” tab or verify the identity of one of the sessions below.
 # $sessionId (String) is the session ID, $sessionDisplayName (String) is the session display name
 options-encryption-session = { $sessionId } ({ $sessionDisplayName })
 
@@ -149,9 +149,9 @@ command-kick = { $commandName } &lt;userId&gt; [&lt;reason&gt;]: Kick the user w
 # $commandName is the command name
 command-nick = { $commandName } &lt;display_name&gt;: Change your display name.
 # $commandName is the command name
-command-op = { $commandName } &lt;userId&gt; [&lt;power level&gt;]: Define the power level of the user. Enter an integer value, User: 0, Moderator: 50 and Admin: 100. Default will be 50 if no argument is provided. Requires permission to change member's power levels. Does not work on admins other than yourself.
+command-op = { $commandName } &lt;userId&gt; [&lt;power level&gt;]: Define the power level of the user. Enter an integer value, User: 0, Moderator: 50 and Admin: 100. Default will be 50 if no argument is provided. Requires permission to change member’s power levels. Does not work on admins other than yourself.
 # $commandName is the command name
-command-deop = { $commandName } &lt;userId&gt;: Reset the user to power level 0 (User). Requires permission to change member's power levels. Does not work on admins other than yourself.
+command-deop = { $commandName } &lt;userId&gt;: Reset the user to power level 0 (User). Requires permission to change member’s power levels. Does not work on admins other than yourself.
 # $commandName is the command name
 command-leave = { $commandName }: Leave the current room.
 # $commandName is the command name
@@ -159,7 +159,7 @@ command-topic = { $commandName } &lt;topic&gt;: Set the topic for the room. Requ
 # $commandName is the command name
 command-unban = { $commandName } &lt;userId&gt;: Unban a user who is banned from the room. Requires permission to ban users.
 # $commandName is the command name
-command-visibility = { $commandName } [&lt;visibility&gt;]: Set the visibility of the current room in the current Home Server's room directory. Enter an integer value, Private: 0 and Public: 1. Default will be Private (0) if no argument is provided. Requires permission to change room visibility.
+command-visibility = { $commandName } [&lt;visibility&gt;]: Set the visibility of the current room in the current Home Server’s room directory. Enter an integer value, Private: 0 and Public: 1. Default will be Private (0) if no argument is provided. Requires permission to change room visibility.
 # $commandName is the command name
 command-guest = { $commandName } &lt;guest access&gt; &lt;history visibility&gt;: Set the access and history visibility of the current room for the guest users. Enter two integer values, the first for the guest access (not allowed: 0 and allowed: 1) and the second for the history visibility (not visible: 0 and visible: 1). Requires permission to change history visibility.
 # $commandName is the command name
@@ -167,9 +167,9 @@ command-roomname = { $commandName } &lt;name&gt;: Set the name for the room. Req
 # $commandName is the command name
 command-detail = { $commandName }: Display the details of the room.
 # $commandName is the command name
-command-addalias = { $commandName } &lt;alias&gt;: Create an alias for the room. Expected room alias of the form '#localname:domain'. Requires permission to add aliases.
+command-addalias = { $commandName } &lt;alias&gt;: Create an alias for the room. Expected room alias of the form ‘#localname:domain’. Requires permission to add aliases.
 # $commandName is the command name
-command-removealias = { $commandName } &lt;alias&gt;: Remove the alias for the room. Expected room alias of the form '#localname:domain'. Requires permission to remove aliases.
+command-removealias = { $commandName } &lt;alias&gt;: Remove the alias for the room. Expected room alias of the form ‘#localname:domain’. Requires permission to remove aliases.
 # $commandName is the command name
 command-upgraderoom = { $commandName } &lt;newVersion&gt;: Upgrade room to given version. Requires permission to upgrade the room.
 # $commandName is the command name
@@ -224,11 +224,11 @@ message-kicked = { $user } kicked { $userGotKicked }.
 message-kicked-with-reason = { $user } kicked { $userGotKicked }. Reason: { $reason }
 #    $user is the name of the user who withdrew invitation.
 #    $userInvitationWithdrawn is the name of the user whose invitation has been withdrawn.
-message-withdrew-invite = { $user } withdrew { $userInvitationWithdrawn }'s invitation.
+message-withdrew-invite = { $user } withdrew { $userInvitationWithdrawn }’s invitation.
 #    $user is the name of the user who withdrew invitation.
 #    $userInvitationWithdrawn is the name of the user whose invitation has been withdrawn.
 #    $reason is the reason the invite was withdrawn.
-message-withdrew-invite-with-reason = { $user } withdrew { $userInvitationWithdrawn }'s invitation. Reason: { $reason }
+message-withdrew-invite-with-reason = { $user } withdrew { $userInvitationWithdrawn }’s invitation. Reason: { $reason }
 #    $user is the name of the user who has removed the room name.
 message-room-name-remove = { $user } removed the room name.
 #    $user is the name of the user who changed the room name.
@@ -295,4 +295,4 @@ message-action-cancel = Cancel Message
 # LOCALIZATION NOTE (error-*)
 #    These are strings shown as system messages when an action the user took fails.
 #    $message is the message.
-error-send-message-failed = An error occurred while sending your message "{ $message }".
+error-send-message-failed = An error occurred while sending your message “{ $message }”.

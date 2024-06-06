@@ -5,11 +5,6 @@ fluent-lint:
         - .
     exclude:
         - dom/l10n/tests/mochitest/document_l10n/non-system-principal/localization/test.ftl
-        # Exclude files with single and double non-smart quotes during Migration
-        - comm/chat/locales/en-US/matrix-properties.ftl
-        - comm/chat/locales/en-US/irc.ftl
-        - comm/chat/locales/en-US/commands.ftl
-        - comm/chat/locales/en-US/xmpp.ftl
     extensions: ['ftl']
     support-files:
         - 'tools/lint/fluent-lint/*.py'
