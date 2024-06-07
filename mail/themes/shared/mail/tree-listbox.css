@@ -305,6 +305,12 @@
         transform: translateX(0);
       }
     }
+
+    @media (prefers-contrast) {
+      &.current.selected .card-container {
+        color: SelectedItemText;
+      }
+    }
   }
 
   /* Unfocused */
@@ -337,7 +343,6 @@
     }
 
     & .card-layout.current.selected .card-container {
-      color: SelectedItemText;
       outline-offset: -4px;
       outline-color: SelectedItemText;
     }
