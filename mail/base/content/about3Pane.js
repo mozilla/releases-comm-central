@@ -4106,6 +4106,13 @@ var threadPane = {
       return;
     }
 
+    if ((event.key == "Backspace" || event.key == "Delete") && event.repeat) {
+      // Bail on delete event if there is a repeat event to prevent deleteing
+      // multiple messages by mistake from a longer key press.
+      event.preventDefault();
+      return;
+    }
+
     if (event.key == "Enter") {
       this._onItemActivate(event);
     }

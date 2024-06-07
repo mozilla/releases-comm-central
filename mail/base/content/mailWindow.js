@@ -1108,6 +1108,15 @@ window.addEventListener("aboutMessageLoaded", event => {
   );
   // Also add a copy listener so we can process images.
   event.target.document.addEventListener("copy", onCopyOrDragStart, true);
+
+  event.target.document.addEventListener("keypress", event => {
+    if ((event.key == "Backspace" || event.key == "Delete") && event.repeat) {
+      // Bail on delete event if there is a repeat event to prevent deleteing
+      // multiple messages by mistake from a longer key press.
+      event.preventDefault();
+      return;
+    }
+  });
 });
 
 // Listener to correctly set the busy flag on the webBrowser in about:3pane. All
