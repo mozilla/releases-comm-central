@@ -9,6 +9,10 @@
  * of each importer, just enough to prove that each is working.
  */
 
+const { click_through_appmenu, promise_modal_dialog } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/WindowHelpers.sys.mjs"
+  );
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
 );
@@ -37,10 +41,10 @@ async function startImport() {
     tabmail.tabContainer,
     "TabOpen"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    abWindow.document.getElementById("toolbarImport"),
-    {},
-    abWindow
+  await click_through_appmenu(
+    [{ id: "appmenu_toolsMenu" }],
+    { id: "appmenu_import" },
+    window
   );
   const {
     detail: { tabInfo },

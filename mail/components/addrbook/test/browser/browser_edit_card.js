@@ -26,7 +26,6 @@ async function inEditingMode() {
     ),
     "backdrop should be visible"
   );
-  checkToolbarState(false);
 }
 
 /**
@@ -49,7 +48,6 @@ async function notInEditingMode(expectedFocus) {
     BrowserTestUtils.isHidden(abDocument.getElementById("detailsPaneBackdrop")),
     "backdrop should be hidden"
   );
-  checkToolbarState(true);
   Assert.equal(
     abDocument.activeElement,
     expectedFocus,
@@ -240,24 +238,6 @@ function getFields(entryName, addIfNeeded = false, count) {
     }
   }
   return abDocument.querySelectorAll(fieldsSelector);
-}
-
-function checkToolbarState(shouldBeEnabled) {
-  const abWindow = getAddressBookWindow();
-  const abDocument = abWindow.document;
-
-  for (const id of [
-    "toolbarCreateBook",
-    "toolbarCreateContact",
-    "toolbarCreateList",
-    "toolbarImport",
-  ]) {
-    Assert.equal(
-      abDocument.getElementById(id).disabled,
-      !shouldBeEnabled,
-      id + (!shouldBeEnabled ? " should not" : " should") + " be disabled"
-    );
-  }
 }
 
 function checkDisplayValues(expected) {
@@ -1161,7 +1141,7 @@ add_task(async function test_special_fields() {
 
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
-  let createContactButton = abDocument.getElementById("toolbarCreateContact");
+  let createContactButton = abDocument.getElementById("booksPaneCreateContact");
 
   await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -1199,7 +1179,7 @@ add_task(async function test_special_fields() {
 
   abWindow = await openAddressBookWindow();
   abDocument = abWindow.document;
-  createContactButton = abDocument.getElementById("toolbarCreateContact");
+  createContactButton = abDocument.getElementById("booksPaneCreateContact");
 
   await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -1232,7 +1212,9 @@ add_task(async function test_generate_display_name() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const cardsList = abDocument.getElementById("cards");
   const editButton = abDocument.getElementById("editButton");
   const cancelEditButton = abDocument.getElementById("cancelEditButton");
@@ -1374,64 +1356,6 @@ add_task(async function test_generate_display_name() {
   personalBook.deleteCards(personalBook.childCards);
 });
 
-/**
- * Checks the state of the toolbar buttons is restored after editing.
- */
-add_task(async function test_toolbar_state() {
-  personalBook.addCard(createContact("contact", "2"));
-  const abWindow = await openAddressBookWindow();
-  const abDocument = abWindow.document;
-
-  const cardsList = abDocument.getElementById("cards");
-  const editButton = abDocument.getElementById("editButton");
-  const cancelEditButton = abDocument.getElementById("cancelEditButton");
-  const saveEditButton = abDocument.getElementById("saveEditButton");
-
-  // In All Address Books, the "create card" and "create list" buttons should
-  // be disabled.
-
-  await openAllAddressBooks();
-  checkToolbarState(true);
-
-  // In other directories, all buttons should be enabled.
-
-  await openDirectory(personalBook);
-  checkToolbarState(true);
-
-  // Back to All Address Books.
-
-  await openAllAddressBooks();
-  checkToolbarState(true);
-
-  // Select a card, no change.
-
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  checkToolbarState(true);
-
-  // Edit a card, all buttons disabled.
-
-  EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
-  await inEditingMode();
-
-  // Cancel editing, button states restored.
-
-  EventUtils.synthesizeMouseAtCenter(cancelEditButton, {}, abWindow);
-  await notInEditingMode(editButton);
-
-  // Edit a card again, all buttons disabled.
-
-  EventUtils.synthesizeKey(" ", {}, abWindow);
-  await inEditingMode();
-
-  // Cancel editing, button states restored.
-
-  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(editButton);
-
-  await closeAddressBookWindow();
-  personalBook.deleteCards(personalBook.childCards);
-});
-
 add_task(async function test_delete_button() {
   const abWindow = await openAddressBookWindow();
   await openDirectory(personalBook);
@@ -1441,7 +1365,9 @@ add_task(async function test_delete_button() {
   const cardsList = abDocument.getElementById("cards");
   const detailsPane = abDocument.getElementById("detailsPane");
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const editButton = abDocument.getElementById("editButton");
   const deleteButton = abDocument.getElementById("detailsDeleteButton");
   const saveEditButton = abDocument.getElementById("saveEditButton");
@@ -2296,7 +2222,9 @@ add_task(async function test_vCard_fields() {
   const saveEditButton = abDocument.getElementById("saveEditButton");
 
   // Check that no field is initially shown with a new contact.
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
   await inEditingMode();
 
@@ -2807,7 +2735,9 @@ add_task(async function test_vCard_minimal() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
 
   await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);
@@ -3103,7 +3033,9 @@ add_task(async function test_special_date_field() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
 
   await openDirectory(personalBook);
   EventUtils.synthesizeMouseAtCenter(createContactButton, {}, abWindow);

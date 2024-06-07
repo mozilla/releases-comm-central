@@ -86,20 +86,34 @@ var booksList;
 
 window.addEventListener("load", () => {
   document
-    .getElementById("toolbarCreateBook")
-    .addEventListener("command", event => {
-      const type = event.target.value || "JS_DIRECTORY_TYPE";
-      createBook(Ci.nsIAbManager[type]);
+    .getElementById("booksPaneCreateBook")
+    .addEventListener("click", event => {
+      document
+        .getElementById("booksPaneCreateBookContext")
+        .openPopup(event.target, "after_start", { triggerEvent: event });
     });
   document
-    .getElementById("toolbarCreateContact")
-    .addEventListener("command", () => createContact());
+    .getElementById("booksPaneCreateContact")
+    .addEventListener("click", () => createContact());
   document
-    .getElementById("toolbarCreateList")
-    .addEventListener("command", () => createList());
+    .getElementById("booksPaneCreateList")
+    .addEventListener("click", () => createList());
+
   document
-    .getElementById("toolbarImport")
-    .addEventListener("command", () => importBook());
+    .getElementById("booksPaneCreateBookContext")
+    .addEventListener("command", event => {
+      switch (event.target.id) {
+        case "booksPaneContextCreateBook":
+          createBook(Ci.nsIAbManager.JS_DIRECTORY_TYPE);
+          break;
+        case "booksPaneContextCreateDav":
+          createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
+          break;
+        case "booksPaneContextCreateLdap":
+          createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);
+          break;
+      }
+    });
 
   document.getElementById("bookContext").addEventListener("command", event => {
     switch (event.target.id) {
@@ -819,16 +833,16 @@ customElements.whenDefined("tree-listbox").then(() => {
 
       // Row 0 is the "All Address Books" item.
       if (this.selectedIndex === 0) {
-        document.getElementById("toolbarCreateContact").disabled = false;
-        document.getElementById("toolbarCreateList").disabled = false;
+        document.getElementById("booksPaneCreateContact").disabled = false;
+        document.getElementById("booksPaneCreateList").disabled = false;
         document.body.classList.add("all-ab-selected");
       } else {
         const bookUID = row.dataset.book ?? row.dataset.uid;
         const book = MailServices.ab.getDirectoryFromUID(bookUID);
 
-        document.getElementById("toolbarCreateContact").disabled =
+        document.getElementById("booksPaneCreateContact").disabled =
           book.readOnly;
-        document.getElementById("toolbarCreateList").disabled =
+        document.getElementById("booksPaneCreateList").disabled =
           book.readOnly || !book.supportsMailingLists;
         document.body.classList.remove("all-ab-selected");
       }
@@ -2788,20 +2802,6 @@ var detailsPane = {
 
     document.body.classList.toggle("is-editing", editing);
     updateAbCommands();
-
-    // Disable the toolbar buttons when starting to edit. Remember their state
-    // to restore it when editing stops.
-    for (const toolbarButton of document.querySelectorAll(
-      "#toolbox > toolbar > toolbarbutton"
-    )) {
-      if (editing) {
-        toolbarButton._wasDisabled = toolbarButton.disabled;
-        toolbarButton.disabled = true;
-      } else {
-        toolbarButton.disabled = toolbarButton._wasDisabled;
-        delete toolbarButton._wasDisabled;
-      }
-    }
 
     // Remove these elements from (or add them back to) the tab focus cycle.
     for (const id of ["booksPane", "cardsPane"]) {

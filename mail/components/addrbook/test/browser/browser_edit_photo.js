@@ -222,7 +222,9 @@ async function subtest_add_photo(book) {
   const abWindow = getAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const photoButton = abDocument.getElementById("photoButton");
   const editPhoto = photoButton.querySelector(".contact-photo");
@@ -299,7 +301,9 @@ async function subtest_dont_add_photo(book) {
   const abWindow = getAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const photoButton = abDocument.getElementById("photoButton");
   const editPhoto = photoButton.querySelector(".contact-photo");
@@ -499,7 +503,9 @@ async function subtest_paste_url() {
   const abWindow = getAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const cancelEditButton = abDocument.getElementById("cancelEditButton");
   const photoButton = abDocument.getElementById("photoButton");
   const editPhoto = photoButton.querySelector(".contact-photo");

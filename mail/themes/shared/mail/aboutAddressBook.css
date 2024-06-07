@@ -20,6 +20,11 @@
   --ab-contact-photo-size: 80px;
   --ab-detail-section-padding: 15px;
   --ab-detail-title-margin-block: 0 15px;
+  --ab-header-spacing: 9px;
+
+  --books-pane-header-gap: 9px;
+  --books-pane-icon-size: 16px;
+  --books-pane-icon-new: var(--icon-add);
 
   &[uidensity="compact"] {
     --ab-card-line-height: 1em;
@@ -29,6 +34,9 @@
     --ab-contact-photo-size: 60px;
     --ab-detail-section-padding: 9px;
     --ab-detail-title-margin-block: 0 9px;
+    --ab-header-spacing: 4px 6px 3px;
+
+    --books-pane-header-gap: 6px;
   }
 
   &[uidensity="touch"] {
@@ -39,6 +47,10 @@
     --ab-contact-photo-size: 100px;
     --ab-detail-section-padding: 18px;
     --ab-detail-title-margin-block: 0 18px;
+
+    --books-pane-header-gap: 12px;
+    --books-pane-icon-size: 20px;
+    --books-pane-icon-new: var(--icon-add-md);
   }
 
   @media (prefers-contrast) {
@@ -77,8 +89,7 @@ body {
   --ab-details-pane-min-width: 500px;
 
   display: grid;
-  grid-template: "toolbox toolbox toolbox toolbox toolbox" min-content
-                 "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
+  grid-template: "books booksSplitter cards sharedSplitter details" minmax(auto, 1fr)
                  / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content
                    minmax(var(--ab-cards-pane-min-width), var(--sharedSplitter-width)) min-content
                    minmax(var(--ab-details-pane-min-width), 1fr);
@@ -86,8 +97,7 @@ body {
   font-size: 1.1rem;
 
   &.layout-table {
-    grid-template: "toolbox toolbox toolbox" min-content
-                   "books booksSplitter cards" minmax(var(--ab-card-min-height), 1fr)
+    grid-template: "books booksSplitter cards" minmax(var(--ab-card-min-height), 1fr)
                    "books booksSplitter sharedSplitter" min-content
                    "books booksSplitter details" minmax(auto, var(--sharedSplitter-height))
                    / minmax(var(--ab-pane-min-width), var(--booksSplitter-width)) min-content minmax(var(--ab-details-pane-min-width), 1fr);
@@ -102,41 +112,44 @@ body {
   bottom: 0;
 }
 
-/* Toolbar */
+/* Books pane Header. */
 
-#toolbox {
-  grid-area: toolbox;
-  font: message-box;
+#booksPaneHeaderBar {
+  --button-margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--books-pane-header-gap);
+  color: inherit;
+  padding: var(--ab-header-spacing);
+  z-index: 1;
   font-size: 1rem;
 }
 
-.toolbarbutton-1:focus-visible {
-  outline: var(--focus-outline);
-  outline-offset: -1px;
+#booksPaneCreateBook,
+#booksPaneCreateContact,
+#booksPaneCreateList {
+  min-height: 24px;
+  --icon-size: var(--books-pane-icon-size);
 }
 
-#toolbarCreateBook {
-  list-style-image: var(--icon-new-address-book);
-  border-radius: var(--button-border-radius);
+#booksPaneCreateBook {
+  background-image: var(--icon-new-address-book);
 }
 
-#toolbarCreateContact {
-  list-style-image: var(--icon-new-contact);
+#booksPaneCreateContact {
+  font-weight: normal;
+  background-image: var(--books-pane-icon-new);
 }
 
-#toolbarCreateList {
-  list-style-image: var(--icon-new-user-list);
-}
-
-#toolbarImport {
-  list-style-image: var(--icon-import);
+#booksPaneCreateList {
+  background-image: var(--icon-new-user-list);
 }
 
 /* Books pane */
 
 #booksPane {
   grid-area: books;
-  padding-block-start: 30px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -330,17 +343,16 @@ body {
 #cardsPane {
   position: relative;
   grid-area: cards;
-  padding-block-start: 32px;
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+  font-size: 1rem;
   background-color: var(--ab-cards-list-bg);
 }
 
 #cardsPaneHeader {
   display: flex;
-  margin-block-end: 8px;
-  margin-inline: 6px;
+  margin: var(--ab-header-spacing);
   align-items: center;
 }
 
@@ -582,7 +594,7 @@ tr[is="ab-card-row"].selected .recipient-avatar.is-mail-list {
 
 #detailsPaneBackdrop {
   grid-column: 1 / -1;
-  grid-row: 2 / -1;
+  grid-row: 1 / -1;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;
 
@@ -748,7 +760,7 @@ body:not(.is-editing) #editContactForm {
   justify-content: end;
 }
 
-.icon-button {
+.button-icon:where(:not(.button-primary)) {
   &:not([hidden]) {
     min-width: 0;
     display: inline-flex;

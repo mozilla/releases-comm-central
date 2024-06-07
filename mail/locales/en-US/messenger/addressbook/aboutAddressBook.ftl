@@ -19,6 +19,13 @@ about-addressbook-toolbar-new-list =
 about-addressbook-toolbar-import =
   .label = Import
 
+books-pane-create-contact-button = New Contact
+  .title = Create a new contact
+books-pane-create-book-button =
+  .title = Create a new address book
+books-pane-create-list-button =
+  .title = Create a new mailing list
+
 ## Books
 
 all-address-books-row =

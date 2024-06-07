@@ -139,7 +139,7 @@ async function createAddressBookWithUI(abName) {
 
   const abWindow = getAddressBookWindow();
   EventUtils.synthesizeMouseAtCenter(
-    abWindow.document.getElementById("toolbarCreateBook"),
+    abWindow.document.getElementById("booksPaneCreateBook"),
     {},
     abWindow
   );
@@ -190,7 +190,7 @@ async function createMailingListWithUI(mlParent, mlName) {
 
   const abWindow = getAddressBookWindow();
   EventUtils.synthesizeMouseAtCenter(
-    abWindow.document.getElementById("toolbarCreateList"),
+    abWindow.document.getElementById("booksPaneCreateList"),
     {},
     abWindow
   );

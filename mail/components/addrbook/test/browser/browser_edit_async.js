@@ -60,7 +60,9 @@ add_task(async function testCreateCard() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const bookRow = abWindow.booksList.getRowForUID(book.UID);
   const searchInput = abDocument.getElementById("searchInput");
   const editButton = abDocument.getElementById("editButton");
@@ -159,7 +161,9 @@ add_task(async function testCreateCardWithUIDChange() {
   const abWindow = await openAddressBookWindow();
   const abDocument = abWindow.document;
 
-  const createContactButton = abDocument.getElementById("toolbarCreateContact");
+  const createContactButton = abDocument.getElementById(
+    "booksPaneCreateContact"
+  );
   const bookRow = abWindow.booksList.getRowForUID(book.UID);
   const searchInput = abDocument.getElementById("searchInput");
   const editButton = abDocument.getElementById("editButton");

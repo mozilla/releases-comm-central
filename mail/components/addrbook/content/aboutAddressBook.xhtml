@@ -41,35 +41,24 @@
   <script type="module" src="chrome://messenger/content/addressbook/aboutAddressBookCommands.mjs"></script>
 </head>
 <body>
-  <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">
-    <xul:toolbar class="chromeclass-toolbar contentTabToolbar themeable-full" mode="full">
-      <xul:toolbarbutton id="toolbarCreateBook" is="toolbarbutton-menu-button" type="menu-button"
-                         class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-address-book"
-                         tabindex="0">
-        <xul:menupopup>
-          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-address-book"/>
-          <xul:menuitem value="CARDDAV_DIRECTORY_TYPE"
-                        data-l10n-id="about-addressbook-toolbar-add-carddav-address-book"/>
-          <xul:menuitem value="LDAP_DIRECTORY_TYPE"
-                        data-l10n-id="about-addressbook-toolbar-add-ldap-address-book"/>
-        </xul:menupopup>
-      </xul:toolbarbutton>
-      <xul:toolbarbutton id="toolbarCreateContact"
-                         class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-contact"
-                         tabindex="0"/>
-      <xul:toolbarbutton id="toolbarCreateList"
-                         class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-new-list"
-                         tabindex="0"/>
-      <xul:toolbarbutton id="toolbarImport"
-                         class="toolbarbutton-1"
-                         data-l10n-id="about-addressbook-toolbar-import"
-                         tabindex="0"/>
-    </xul:toolbar>
-  </xul:toolbox>
   <div id="booksPane">
+    <div id="booksPaneHeaderBar">
+      <button id="booksPaneCreateBook"
+              class="button button-flat icon-button icon-only"
+              data-l10n-id="books-pane-create-book-button"
+              type="button">
+      </button>
+      <button id="booksPaneCreateContact"
+              class="button button-primary icon-button"
+              data-l10n-id="books-pane-create-contact-button"
+              type="button">
+      </button>
+      <button id="booksPaneCreateList"
+              class="button button-flat icon-button icon-only"
+              data-l10n-id="books-pane-create-list-button"
+              type="button">
+      </button>
+    </div>
     <ul is="ab-tree-listbox" id="books" role="tree" class="no-overscroll">
       <li id="allAddressBooks"
           class="bookRow noDelete readOnly"
@@ -128,7 +117,7 @@
              hidden="hidden"
              data-l10n-id="about-addressbook-placeholder-empty-book"></div>
         <button id="placeholderCreateContact"
-                class="icon-button"
+                class="button-icon"
                 hidden="hidden"
                 data-l10n-id="about-addressbook-placeholder-new-contact"></button>
         <div id="placeholderSearchOnly"
@@ -172,16 +161,16 @@
         <section id="detailsActions" class="button-block">
           <div>
             <button type="button" id="detailsWriteButton"
-                    class="icon-button"
+                    class="button-icon"
                     data-l10n-id="about-addressbook-write-action-button"></button>
             <button type="button" id="detailsEventButton"
-                    class="icon-button"
+                    class="button-icon"
                     data-l10n-id="about-addressbook-event-action-button"></button>
             <button type="button" id="detailsSearchButton"
-                    class="icon-button"
+                    class="button-icon"
                     data-l10n-id="about-addressbook-search-action-button"></button>
             <button type="button" id="detailsNewListButton"
-                    class="icon-button"
+                    class="button-icon"
                     data-l10n-id="about-addressbook-new-list-action-button"></button>
           </div>
           <div class="edit-block">
@@ -272,7 +261,7 @@
       <div id="detailsFooter" class="button-block">
         <div>
           <button type="button" id="detailsDeleteButton"
-                  class="icon-button"
+                  class="button-icon"
                   data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
         </div>
         <div>
@@ -458,5 +447,13 @@
                 data-l10n-id="about-addressbook-books-context-delete"/>
   <xul:menuitem id="cardContextRemove"
                 data-l10n-id="about-addressbook-books-context-remove"/>
+</xul:menupopup>
+<xul:menupopup id="booksPaneCreateBookContext">
+  <xul:menuitem id="booksPaneContextCreateBook"
+                data-l10n-id="about-addressbook-toolbar-new-address-book"/>
+  <xul:menuitem id="booksPaneContextCreateDav"
+                data-l10n-id="about-addressbook-toolbar-add-carddav-address-book"/>
+  <xul:menuitem id="booksPaneContextCreateLdap"
+                data-l10n-id="about-addressbook-toolbar-add-ldap-address-book"/>
 </xul:menupopup>
 </html>
