@@ -21,9 +21,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { UpdateListener } = ChromeUtils.importESModule(
-  "resource://gre/modules/UpdateListener.sys.mjs"
-);
+if (AppConstants.MOZ_UPDATER) {
+  ChromeUtils.defineESModuleGetters(this, {
+    UpdateListener: "resource://gre/modules/UpdateListener.sys.mjs",
+  });
+}
 var { UpdateUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/UpdateUtils.sys.mjs"
 );
