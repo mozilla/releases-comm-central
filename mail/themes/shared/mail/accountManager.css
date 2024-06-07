@@ -10,9 +10,16 @@
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
 
+:root {
+  --default-account-icon-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
+  --default-account-icon-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
+}
+
 @media (prefers-contrast) {
   :root {
     --in-content-accent-color: var(--selected-item-color);
+    --default-account-icon-fill: currentColor;
+    --default-account-icon-stroke: currentColor;
   }
 }
 
@@ -123,8 +130,9 @@ body {
   background-position: center center;
   background-repeat: no-repeat;
   -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+  --icon-color: currentColor;
+  fill: color-mix(in srgb, var(--icon-color) 20%, transparent);
+  stroke: var(--icon-color);
 }
 
 #accounttree li.serverType-imap.isSecure div.icon,
@@ -134,7 +142,7 @@ body {
 
 #accounttree li.serverType-feeds div.icon,
 #accounttree li.serverType-rss div.icon {
-  list-style-image: var(--icon-rss);
+  background-image: var(--icon-rss);
 }
 
 #accounttree li.serverType-im div.icon {
@@ -161,20 +169,30 @@ body {
   background-image: var(--icon-outbox);
 }
 
-#accounttree li .name {
-  flex: 1;
-  margin-inline: 7px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
+#accounttree li {
+  & .name {
+    flex: 1;
+    margin-inline: 7px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+  }
+
+  & .default-icon {
+    margin-inline-end: 5px;
+    content: var(--icon-star-sm);
+    -moz-context-properties: fill, stroke;
+    fill: var(--default-account-icon-fill);
+    stroke: var(--default-account-icon-stroke);
+  }
 }
 
 #accounttree > li > div > .name {
   font-weight: 500;
 }
 
-#accounttree > li.isDefaultServer > div > .name {
-  text-decoration: underline;
+#accounttree > li:not(.isDefaultServer) > div > .default-icon {
+  display: none;
 }
 
 #accounttree ul > li > div {

@@ -19,6 +19,7 @@
 >
   <head>
     <title>&accountTitle.label;</title>
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
     <link
       rel="stylesheet"
@@ -63,23 +64,41 @@
 
       <description class="secDesc">&accountSettingsDesc.label;</description>
 
-      <hbox class="input-container">
-        <label
-          id="server.prettyNameLabel"
-          value="&accountName.label;"
-          accesskey="&accountName.accesskey;"
-          control="server.prettyName"
-        />
-        <html:input
-          id="server.prettyName"
-          type="text"
-          wsm_persist="true"
-          class="input-inline"
-          aria-labelledby="server.prettyNameLabel"
-          onblur="serverPrettyNameOnBlur(event);"
-          prefstring="mail.server.%serverkey%.name"
-        />
-      </hbox>
+      <html:div class="input-container" xmlns="http://www.w3.org/1999/xhtml">
+        <div class="input-container-column flex-grow">
+          <xul:label
+            id="server.prettyNameLabel"
+            value="&accountName.label;"
+            accesskey="&accountName.accesskey;"
+            control="server.prettyName"
+          />
+          <input
+            id="server.prettyName"
+            type="text"
+            wsm_persist="true"
+            class="input-inline"
+            aria-labelledby="server.prettyNameLabel"
+            onblur="serverPrettyNameOnBlur(event);"
+            prefstring="mail.server.%serverkey%.name"
+          />
+        </div>
+        <div class="input-container-column flex-no-grow">
+          <label
+            id="server.color.label"
+            for="serverColor"
+            data-l10n-id="account-settings-color-label"
+          />
+          <div class="input-container">
+            <input id="serverColor" type="color" class="input-inline" />
+            <button
+              id="resetColor"
+              type="button"
+              data-l10n-id="account-settings-reset-color-button"
+              class="button button-flat icon-button icon-only"
+            />
+          </div>
+        </div>
+      </html:div>
 
       <separator class="thin" />
 

@@ -1406,6 +1406,8 @@ var folderPane = {
 
     Services.obs.addObserver(this, "folder-color-changed");
     Services.obs.addObserver(this, "folder-color-preview");
+    Services.obs.addObserver(this, "server-color-changed");
+    Services.obs.addObserver(this, "server-color-preview");
     Services.obs.addObserver(this, "search-folders-changed");
     Services.obs.addObserver(this, "folder-properties-changed");
 
@@ -1474,6 +1476,8 @@ var folderPane = {
     Services.prefs.removeObserver("mailnews.tags.", this);
     Services.obs.removeObserver(this, "folder-color-changed");
     Services.obs.removeObserver(this, "folder-color-preview");
+    Services.obs.removeObserver(this, "server-color-changed");
+    Services.obs.removeObserver(this, "server-color-preview");
     Services.obs.removeObserver(this, "search-folders-changed");
     Services.obs.removeObserver(this, "folder-properties-changed");
   },
@@ -1541,6 +1545,10 @@ var folderPane = {
       case "folder-color-changed":
       case "folder-color-preview":
         this._changeRows(subject, row => row.setIconColor(data));
+        break;
+      case "server-color-changed":
+      case "server-color-preview":
+        this._changeServerRow(subject, row => row.setIconColor(data));
         break;
     }
   },
@@ -2298,6 +2306,19 @@ var folderPane = {
       if (row.uri == folderOrURI) {
         callback(row);
       }
+    }
+  },
+  /**
+   * Perform a function on all rows representing a server.
+   *
+   * @param {nsIMsgAccount} account - The account that changed.
+   * @param {folderRowChangeCallback} callback
+   */
+  _changeServerRow(account, callback) {
+    for (const row of folderTree.querySelectorAll(
+      `li[data-server-type][data-server-key="${account.incomingServer.key}"]`
+    )) {
+      callback(row);
     }
   },
 

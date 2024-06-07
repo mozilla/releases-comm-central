@@ -10,6 +10,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
 >
   <head>
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
     <script
       defer="defer"
@@ -26,12 +27,6 @@
     <script defer="defer" src="chrome://messenger/content/am-main.js"></script>
     <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
     <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
-    <script>
-      // FIXME: move to script file.
-      window.addEventListener("load", event => {
-        parent.onPanelLoaded("am-main.xhtml");
-      });
-    </script>
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -52,25 +47,41 @@
 
       <separator class="thin" />
 
-      <hbox class="input-container">
-        <label
-          id="server.prettyName.label"
-          value="&accountName.label;"
-          control="server.prettyName"
-          accesskey="&accountName.accesskey;"
-        />
-        <html:input
-          id="server.prettyName"
-          type="text"
-          wsm_persist="true"
-          class="input-inline"
-          onblur="serverPrettyNameOnBlur(event);"
-          prefstring="mail.server.%serverkey%.name"
-          aria-labelledby="server.prettyName.label"
-        />
-      </hbox>
-
-      <separator />
+      <html:div class="input-container" xmlns="http://www.w3.org/1999/xhtml">
+        <div class="input-container-column flex-grow">
+          <xul:label
+            id="server.prettyName.label"
+            value="&accountName.label;"
+            control="server.prettyName"
+            accesskey="&accountName.accesskey;"
+          />
+          <input
+            id="server.prettyName"
+            type="text"
+            wsm_persist="true"
+            class="input-inline"
+            onblur="serverPrettyNameOnBlur(event);"
+            prefstring="mail.server.%serverkey%.name"
+            aria-labelledby="server.prettyName.label"
+          />
+        </div>
+        <div class="input-container-column flex-no-grow">
+          <label
+            id="server.color.label"
+            for="serverColor"
+            data-l10n-id="account-settings-color-label"
+          />
+          <div class="input-container">
+            <input id="serverColor" type="color" class="input-inline" />
+            <button
+              id="resetColor"
+              type="button"
+              data-l10n-id="account-settings-reset-color-button"
+              class="button button-flat icon-button icon-only"
+            />
+          </div>
+        </div>
+      </html:div>
 
       <html:div>
         <html:fieldset>

@@ -5,9 +5,13 @@
 var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+ChromeUtils.defineESModuleGetters(this, {
+  AccountManagerUtils: "resource:///modules/AccountManagerUtils.sys.mjs",
+});
 
 var gAccount;
 var gOriginalStoreType;
+var AMUtils;
 
 /**
  * Called when the store type menu is clicked.
@@ -61,6 +65,7 @@ function changeStoreType(aResponse) {
 }
 
 function onInit() {
+  setServerColor();
   // UI for account store type
   const storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account
@@ -85,6 +90,7 @@ function onInit() {
 
 function onPreInit(account) {
   gAccount = account;
+  AMUtils = new AccountManagerUtils(gAccount);
 }
 
 function onSave() {
@@ -93,4 +99,24 @@ function onSave() {
   document
     .getElementById("server.storeContractID")
     .setAttribute("value", storeContractID);
+}
+
+function setServerColor() {
+  const colorInput = document.getElementById("serverColor");
+  colorInput.value = AMUtils.serverColor;
+
+  colorInput.addEventListener("input", event =>
+    AMUtils.previewServerColor(event.target.value)
+  );
+  colorInput.addEventListener("change", event =>
+    AMUtils.updateServerColor(event.target.value)
+  );
+  document
+    .getElementById("resetColor")
+    .addEventListener("click", () => resetServerColor());
+}
+
+function resetServerColor() {
+  document.getElementById("serverColor").value = AMUtils.defaultServerColor;
+  AMUtils.resetServerColor();
 }

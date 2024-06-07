@@ -9,6 +9,7 @@
 @import url("chrome://global/skin/global.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
+@import url("chrome://messenger/skin/widgets.css");
 
 @media (prefers-contrast) {
   :root {
@@ -92,6 +93,27 @@ fieldset {
   & > .input-inline {
     flex: 1;
   }
+}
+
+.input-container-column:not([hidden="true"]) {
+  display: flex;
+  flex-direction: column;
+
+  & > :is(label, xul|label) {
+    margin-inline-start: 4px;
+  }
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.flex-no-grow {
+  flex-grow: 0;
+}
+
+#resetColor {
+  background-image: var(--icon-restore);
 }
 
 menulist.input-inline {

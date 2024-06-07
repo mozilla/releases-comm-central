@@ -4,7 +4,16 @@
 
 /* import-globals-from am-identity-edit.js */
 
+ChromeUtils.defineESModuleGetters(this, {
+  AccountManagerUtils: "resource:///modules/AccountManagerUtils.sys.mjs",
+});
+
 var gAccount;
+var AMUtils;
+
+window.addEventListener("load", () => {
+  parent.onPanelLoaded("am-main.xhtml");
+});
 
 /**
  * Initialize am-main account settings page when it gets shown.
@@ -12,6 +21,7 @@ var gAccount;
  */
 function onInit() {
   setAccountTitle();
+  setServerColor();
   setupSignatureItems();
   Services.obs.addObserver(
     onDefaultIdentityChange,
@@ -19,7 +29,7 @@ function onInit() {
   );
 }
 
-window.addEventListener("unload", function () {
+window.addEventListener("unload", () => {
   Services.obs.removeObserver(
     onDefaultIdentityChange,
     "account-default-identity-changed"
@@ -62,8 +72,29 @@ function setAccountTitle() {
   document.title = titleValue;
 }
 
+function setServerColor() {
+  const colorInput = document.getElementById("serverColor");
+  colorInput.value = AMUtils.serverColor;
+
+  colorInput.addEventListener("input", event =>
+    AMUtils.previewServerColor(event.target.value)
+  );
+  colorInput.addEventListener("change", event =>
+    AMUtils.updateServerColor(event.target.value)
+  );
+  document
+    .getElementById("resetColor")
+    .addEventListener("click", () => resetServerColor());
+}
+
+function resetServerColor() {
+  document.getElementById("serverColor").value = AMUtils.defaultServerColor;
+  AMUtils.resetServerColor();
+}
+
 function onPreInit(account, accountValues) {
   gAccount = account;
+  AMUtils = new AccountManagerUtils(gAccount);
   loadSMTPServerList();
   const type = parent.getAccountValue(
     account,
@@ -85,13 +116,13 @@ function manageIdentities() {
     return;
   }
 
-  var accountName = document.getElementById("server.prettyName").value;
+  const accountName = document.getElementById("server.prettyName").value;
 
-  var args = { account: gAccount, accountName, result: false };
+  const args = { account: gAccount, accountName, result: false };
 
   // save the current identity settings so they show up correctly
   // if the user just changed them in the manage identities dialog
-  var identity = gAccount.defaultIdentity;
+  const identity = gAccount.defaultIdentity;
   saveIdentitySettings(identity);
 
   parent.gSubDialog.open(

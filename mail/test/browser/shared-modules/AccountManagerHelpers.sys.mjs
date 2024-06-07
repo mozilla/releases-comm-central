@@ -107,6 +107,19 @@ export function get_account_tree_row(accountKey, paneId, tab) {
 }
 
 /**
+ * Returns the listitem of the row in account tree corresponding to the wanted
+ * account and its settings pane.
+ *
+ * @param {?string} accountKey - The key of the account to return. If 'null',
+ *   the SMTP pane is returned.
+ * @returns {?HTMLLIElement} The listitem element, if found.
+ */
+export function get_account_tree_listitem(accountKey, tab) {
+  const accountTree = content_tab_e(tab, "accounttree");
+  return accountKey ? accountTree.querySelector(`#${accountKey}`) : null;
+}
+
+/**
  * Remove an account via the account manager UI.
  *
  * @param {object} account - The account to remove.

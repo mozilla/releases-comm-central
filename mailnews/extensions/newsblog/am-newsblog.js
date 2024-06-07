@@ -8,6 +8,9 @@
 var { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
+ChromeUtils.defineESModuleGetters(this, {
+  AccountManagerUtils: "resource:///modules/AccountManagerUtils.sys.mjs",
+});
 
 var gAccount,
   gUpdateEnabled,
@@ -16,6 +19,7 @@ var gAccount,
   gAutotagEnable,
   gAutotagUsePrefix,
   gAutotagPrefix;
+var AMUtils;
 
 /**
  * Initialize am-newsblog account settings page when it gets shown.
@@ -25,6 +29,7 @@ var gAccount,
  */
 function onInit() {
   setAccountTitle();
+  setServerColor();
 
   const optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   document.getElementById("doBiff").checked = optionsAcct.doBiff;
@@ -57,6 +62,7 @@ function onInit() {
 
 function onPreInit(account) {
   gAccount = account;
+  AMUtils = new AccountManagerUtils(gAccount);
 }
 
 /**
@@ -130,4 +136,24 @@ function setPrefs(aNode) {
   }
 
   FeedUtils.setOptionsAcct(gAccount.incomingServer, optionsAcct);
+}
+
+function setServerColor() {
+  const colorInput = document.getElementById("serverColor");
+  colorInput.value = AMUtils.serverColor;
+
+  colorInput.addEventListener("input", event =>
+    AMUtils.previewServerColor(event.target.value)
+  );
+  colorInput.addEventListener("change", event =>
+    AMUtils.updateServerColor(event.target.value)
+  );
+  document
+    .getElementById("resetColor")
+    .addEventListener("click", () => resetServerColor());
+}
+
+function resetServerColor() {
+  document.getElementById("serverColor").value = AMUtils.defaultServerColor;
+  AMUtils.resetServerColor();
 }

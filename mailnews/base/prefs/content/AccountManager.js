@@ -43,6 +43,7 @@ var { MailServices } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
@@ -1694,7 +1695,14 @@ function setAccountLabel(aAccountKey, aLabel) {
 }
 
 var gAccountTree = {
-  load() {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIObserver",
+    "nsISupportsWeakReference",
+  ]),
+
+  async load() {
+    await FolderTreeProperties.ready;
+
     this._build();
 
     const mainTree = document.getElementById("accounttree");
@@ -1732,9 +1740,13 @@ var gAccountTree = {
     });
 
     MailServices.accounts.addIncomingServerListener(this);
+    Services.obs.addObserver(this, "server-color-changed", true);
+    Services.obs.addObserver(this, "server-color-preview", true);
   },
   unload() {
     MailServices.accounts.removeIncomingServerListener(this);
+    Services.obs.removeObserver(this, "server-color-changed");
+    Services.obs.removeObserver(this, "server-color-preview");
   },
   onServerLoaded(server) {
     // We assume the newly appeared server was created by the user so we select
@@ -1745,6 +1757,38 @@ var gAccountTree = {
     this._build();
   },
   onServerChanged() {},
+
+  observe(subject, topic, data) {
+    switch (topic) {
+      case "server-color-changed":
+      case "server-color-preview":
+        this._updateAccountRowColor(subject, data);
+        break;
+    }
+  },
+
+  /**
+   * Update the custom icon color of the account row.
+   *
+   * @param {nsIMsgAccount} account - The account that changed.
+   * @param {?string} iconColor - The new color to apply to the server item.
+   */
+  _updateAccountRowColor(account, iconColor = null) {
+    const server = account.incomingServer;
+    const serverRow = document
+      .getElementById("accounttree")
+      .querySelector(`li[data-server-key="${server.key}"]`);
+    if (!serverRow) {
+      return;
+    }
+
+    if (!iconColor) {
+      iconColor = FolderTreeProperties.getColor(server.rootFolder.URI);
+    }
+    serverRow
+      .querySelector(".icon")
+      .style.setProperty("--icon-color", iconColor ?? "");
+  },
 
   _dataStore: Services.xulStore,
 
@@ -1890,6 +1934,7 @@ var gAccountTree = {
       treeitem.setAttribute("PageTag", amChrome);
       // Add icons based on account type.
       if (server) {
+        treeitem.dataset.serverKey = server.key;
         treeitem.classList.add("serverType-" + server.type);
         if (server.isSecure) {
           treeitem.classList.add("isSecure");
@@ -1904,6 +1949,7 @@ var gAccountTree = {
             ")";
           treeitem.id = accountKey;
         }
+        this._updateAccountRowColor(account);
       }
 
       if (panelsToKeep.length > 0) {

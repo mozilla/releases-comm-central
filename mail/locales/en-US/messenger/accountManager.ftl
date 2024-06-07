@@ -16,3 +16,7 @@ edit-vcard-dialog-accept-button = Save
     .accesskey = S
 edit-vcard-dialog-cancel-button = Cancel
     .accesskey = C
+
+account-manager-server-default-icon =
+    .title = Default account
+    .alt = Star icon
