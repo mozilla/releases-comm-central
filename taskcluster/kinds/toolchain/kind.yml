@@ -75,6 +75,7 @@ reference-jobs:
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
+    - win64-cmake
     - win64-clang-18-raw
     - win64-clang-18-stage1
     - win64-compiler-rt-18
