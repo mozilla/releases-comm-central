@@ -1,7 +1,6 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gFontsDialog = {
   _disabled: false,
@@ -17,12 +16,14 @@ var gFontsDialog = {
   _allFonts: null,
   async buildFontList(aLanguage, aFontType, aMenuList) {
     // Reset the list
-    while (aMenuList.hasChildNodes())
+    while (aMenuList.hasChildNodes()) {
       aMenuList.firstChild.remove();
+    }
 
     let defaultFont = null;
     // Load Font Lists
-    let fonts = await this.enumerator.EnumerateFontsAsync(aLanguage, aFontType);
+    let fonts = await this.enumerator.EnumerateFontsAsync(aLanguage,
+                                                          aFontType);
     if (fonts.length > 0) {
       defaultFont = this.enumerator.getDefaultFont(aLanguage, aFontType);
     } else {
@@ -31,8 +32,9 @@ var gFontsDialog = {
         defaultFont = this.enumerator.getDefaultFont(aLanguage, "");
     }
 
-    if (!this._allFonts)
+    if (!this._allFonts) {
       this._allFonts = await this.enumerator.EnumerateAllFontsAsync({});
+    }
 
     // Build the UI for the Default Font and Fonts for this CSS type.
     const popup = document.createElement("menupopup");
@@ -94,8 +96,9 @@ var gFontsDialog = {
       let fontItems = aElement.getElementsByAttribute("value", preference.value);
 
       // There is a setting that actually is in the list. Respect it.
-      if (fontItems.length)
+      if (fontItems.length) {
         return undefined;
+      }
     }
 
     // Otherwise, use "default" font of current system which is computed
@@ -105,7 +108,6 @@ var gFontsDialog = {
   },
 
   _selectLanguageGroupPromise: Promise.resolve(),
-
 
   _selectLanguageGroup(aLanguageGroup) {
     this._selectLanguageGroupPromise = (async () => {
@@ -144,8 +146,9 @@ var gFontsDialog = {
           preferences.appendChild(preference);
         }
 
-        if (!prefs[i].element)
+        if (!prefs[i].element) {
           continue;
+        }
 
         var element = document.getElementById(prefs[i].element);
         if (element) {
@@ -154,7 +157,8 @@ var gFontsDialog = {
           if (prefs[i].fonttype) {
             // Set an empty label so it does not jump when items are added.
             element.setAttribute("label", "");
-            await this.buildFontList(aLanguageGroup, prefs[i].fonttype, element);
+            await this.buildFontList(aLanguageGroup, prefs[i].fonttype,
+                                     element);
           }
 
           // Unless the panel is locked, make sure these elements are not
@@ -167,10 +171,12 @@ var gFontsDialog = {
   },
 
   readFontLanguageGroup() {
-    this._disabled = document.getElementById("browser.display.languageList").locked;
+    this._disabled = document.getElementById("browser.display.languageList")
+                             .locked;
     var languagePref = document.getElementById("font.language.group");
-    if (this._disabled)
+    if (this._disabled) {
       languagePref.disabled = true;
+    }
     this._selectLanguageGroup(languagePref.value);
     return undefined;
   },
@@ -183,7 +189,8 @@ var gFontsDialog = {
   },
 
   readUseDocumentFonts() {
-    var preference = document.getElementById("browser.display.use_document_fonts");
+    var preference =
+      document.getElementById("browser.display.use_document_fonts");
     return preference.value == 1;
   },
 
