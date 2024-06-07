@@ -13,7 +13,7 @@ transforms:
 job-defaults:
     name: update-verify-config-next
     run-on-projects: []  # to make sure this never runs as part of CI
-    run-on-releases: [esr115]
+    run-on-releases: [esr128]
     shipping-phase: promote
     worker-type: b-linux-gcp
     worker:
@@ -53,8 +53,8 @@ job-defaults:
         updater-platform: linux-x86_64
         product: thunderbird
         channel: "esr-localtest-next"
-        include-version: esr115-next
-        last-watershed: "91.9.0"
+        include-version: esr128-next
+        last-watershed: "115.10.2"
 
 jobs:
     thunderbird-next-linux:

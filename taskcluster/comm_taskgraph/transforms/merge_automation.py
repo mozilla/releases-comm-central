@@ -29,8 +29,8 @@ RELEASE_TAG_RE = r"^FIREFOX_{major_version}_{minor_version}[\dbesr_]+(RELEASE|BU
 
 BEHAVIOR_2_GECKO_REPO = {
     "comm-beta-to-release": "mozilla-release",
-    "comm-release-to-esr": "mozilla-esr115",
-    "comm-bump-esr115": "mozilla-esr115",
+    "comm-release-to-esr": "mozilla-esr128",
+    "comm-bump-esr128": "mozilla-esr128",
 }
 
 
@@ -144,7 +144,7 @@ def pin_gecko_rev_yml(config, tasks):
             gecko_repo = BEHAVIOR_2_GECKO_REPO[behavior]
 
             merge_config = task["worker"]["merge-info"]
-            if behavior == "comm-bump-esr115":
+            if behavior == "comm-bump-esr128":
                 thunderbird_version = get_thunderbird_version(merge_config["to-repo"])
                 thunderbird_version = thunderbird_version.bump("minor_number")
                 gecko_rev_yml = get_gecko_rev_yml(merge_config["to-repo"])

@@ -162,11 +162,11 @@ merge-automation:
             replacements:
                 - - .gecko_rev.yml
                   - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-release"
-                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-esr115"
+                  - "GECKO_HEAD_REPOSITORY: https://hg.mozilla.org/releases/mozilla-esr128"
             merge-old-head: false
             end-tag: "ESR_{major_version}_BASE"
-            to-repo: 'https://hg.mozilla.org/releases/comm-esr115'
-            to-branch: 'comm-esr115'
+            to-repo: 'https://hg.mozilla.org/releases/comm-esr128'
+            to-branch: 'comm-esr128'
         comm-bump-central:
             fetch-version-from: "mail/config/version.txt"
             version-files:
@@ -187,7 +187,7 @@ merge-automation:
             end-tag: 'NIGHTLY_{major_version}_END'
             to-repo: 'https://hg.mozilla.org/comm-central'
             to-branch: 'comm'
-        comm-bump-esr115:
+        comm-bump-esr128:
             fetch-version-from: "mail/config/version.txt"
             version-files:
                 - filename: "mail/config/version.txt"
@@ -196,8 +196,8 @@ merge-automation:
                   version-bump: "minor"
             replacements: []
             merge-old-head: false
-            to-repo: 'https://hg.mozilla.org/releases/comm-esr115'
-            to-branch: 'comm-esr115'
+            to-repo: 'https://hg.mozilla.org/releases/comm-esr128'
+            to-branch: 'comm-esr128'
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'

@@ -54,7 +54,7 @@ jobs:
                     thunderbird-esr-latest: installer
                     thunderbird-esr-msi-latest-ssl: msi
                     thunderbird-esr-msix-latest-ssl: msix
-                esrXXX:  # XXX - to change when we branch next ESR
+                esr128:
                     thunderbird-esr-next-latest-ssl: installer-ssl
                     thunderbird-esr-next-latest: installer
                     thunderbird-esr-next-msi-latest-ssl: msi
