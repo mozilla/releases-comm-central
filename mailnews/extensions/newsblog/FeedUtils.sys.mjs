@@ -1182,15 +1182,15 @@ export var FeedUtils = {
     // 1) Replace line breaks and tabs '\n\r\t' with a space.
     // 2) Remove nonprintable ascii.
     // 3) Remove invalid win chars '* | \ / : < > ? "'.
-    // 4) Remove all '.' as starting/ending with one is trouble on osx/win.
+    // 4) Remove all starting/ending '.' as that is trouble on osx/win.
     // 5) No leading/trailing spaces.
     /* eslint-disable no-control-regex */
     let folderName = aProposedName
       .replace(/[\n\r\t]+/g, " ")
       .replace(/[\x00-\x1F]+/g, "")
       .replace(/[*|\\\/:<>?"]+/g, "")
-      .replace(/[\.]+/g, "")
-      .trim();
+      .trim()
+      .replace(/(^[\.]+)|([\.]+$)/g, "");
     /* eslint-enable no-control-regex */
 
     // Prefix with __ if name is:

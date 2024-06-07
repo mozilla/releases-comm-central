@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title></title>
+    <link>https://example.org/blog/empty-title/</link>
+    <description></description>
+    <lastBuildDate>Thu, 21 Jan 2021 17:57:54 +0000</lastBuildDate>
+    <language>en-US</language>
+
+    <item>
+      <title>Test Article</title>
+      <link>https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/article.html</link>
+      <pubDate>Wed, 20 Jan 2021 17:00:39 +0000</pubDate>
+
+      <description><![CDATA[
+        <p>This is the description.</p>
+        <p><a href="https://example.org/link/from/description">Here's a link.</a></p>
+        <script>
+          document.body.style.backgroundColor = "red";
+        </script>
+        <noscript>
+          <p>This noscript should display.</p>
+        </noscript>
+      ]]></description>
+    </item>
+  </channel>
+</rss>
