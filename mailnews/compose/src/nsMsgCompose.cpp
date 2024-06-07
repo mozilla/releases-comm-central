@@ -778,13 +778,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
   htmlEditor->EnableUndo(true);
   SetBodyModified(false);
 
-#ifdef MSGCOMP_TRACE_PERFORMANCE
-  nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService("@mozilla.org/messengercompose;1"));
-  composeService->TimeStamp(
-      "Finished inserting data into the editor. The window is finally ready!",
-      false);
-#endif
   return NS_OK;
 }
 
@@ -2491,23 +2484,9 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
     }
   }
 
-#ifdef MSGCOMP_TRACE_PERFORMANCE
-  nsCOMPtr<nsIMsgComposeService> composeService(
-      do_GetService("@mozilla.org/messengercompose;1"));
-  composeService->TimeStamp(
-      "Done with MIME. Now we're updating the UI elements", false);
-#endif
-
   if (mQuoteOriginal)
     compose->NotifyStateListeners(
         nsIMsgComposeNotificationType::ComposeFieldsReady, NS_OK);
-
-#ifdef MSGCOMP_TRACE_PERFORMANCE
-  composeService->TimeStamp(
-      "Addressing widget, window title and focus are now set, time to insert "
-      "the body",
-      false);
-#endif
 
   if (!mHeadersOnly) mMsgBody.AppendLiteral("</html>");
 

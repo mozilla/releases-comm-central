@@ -165,13 +165,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
 
   NS_ENSURE_ARG_POINTER(aContentLocation);
 
-#ifdef DEBUG_MsgContentPolicy
-  fprintf(stderr, "aContentType: %d\naContentLocation = %s\n", aContentType,
-          aContentLocation->GetSpecOrDefault().get());
-  fprintf(stderr, "aRequestingContext is %s\n",
-          aRequestingContext ? "not null" : "null");
-#endif
-
 #ifndef MOZ_THUNDERBIRD
   // Go find out if we are dealing with mailnews. Anything else
   // isn't our concern and we accept content.
@@ -225,11 +218,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // that can happen.  Also keep in mind that the default policy used for a
   // failure code is ACCEPT.
   if (!aRequestingLocation) return NS_ERROR_INVALID_POINTER;
-
-#ifdef DEBUG_MsgContentPolicy
-  fprintf(stderr, "aRequestingLocation = %s\n",
-          aRequestingLocation->GetSpecOrDefault().get());
-#endif
 
   // If the requesting location is safe, accept the content location request.
   if (IsSafeRequestingLocation(aRequestingLocation)) return rv;
@@ -328,11 +316,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     *aDecision = nsIContentPolicy::ACCEPT;
     return NS_OK;
   }
-
-#ifdef DEBUG_MsgContentPolicy
-  fprintf(stderr, "originatorLocation = %s\n",
-          originatorLocation->GetSpecOrDefault().get());
-#endif
 
   // Don't load remote content for encrypted messages.
   nsCOMPtr<nsIEncryptedSMIMEURIsService> encryptedURIService = do_GetService(

@@ -592,11 +592,6 @@ nsresult nsMsgDBFolder::GetFolderCacheElemFromFile(
   NS_ENSURE_ARG_POINTER(file);
   NS_ENSURE_ARG_POINTER(cacheElement);
   nsCOMPtr<nsIMsgFolderCache> folderCache;
-#ifdef DEBUG_bienvenu1
-  bool exists;
-  NS_ASSERTION(NS_SUCCEEDED(fileSpec->Exists(&exists)) && exists,
-               "whoops, file doesn't exist, mac will break");
-#endif
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
       do_GetService("@mozilla.org/messenger/account-manager;1", &result);
   if (NS_SUCCEEDED(result)) {
@@ -644,13 +639,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
       if (folderInfo) {
         if (!mInitializedFromCache) {
           folderInfo->GetFlags((int32_t*)&mFlags);
-#ifdef DEBUG_bienvenu1
-          nsString name;
-          GetName(name);
-          NS_ASSERTION(Compare(name, kLocalizedTrashName) ||
-                           (mFlags & nsMsgFolderFlags::Trash),
-                       "lost trash flag");
-#endif
           mInitializedFromCache = true;
         }
 
@@ -1144,11 +1132,6 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
   element->GetCachedInt64("expungedBytes", &mExpungedBytes);
   element->GetCachedInt64("folderSize", &mFolderSize);
 
-#ifdef DEBUG_bienvenu1
-  nsCString uri;
-  GetURI(uri);
-  printf("read total %ld for %s\n", mNumTotalMessages, uri.get());
-#endif
   return rv;
 }
 
@@ -1190,11 +1173,6 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCache(nsIMsgFolderCache* folderCache,
     nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
     nsCOMPtr<nsIFile> dbPath;
     rv = GetFolderCacheKey(getter_AddRefs(dbPath));
-#ifdef DEBUG_bienvenu1
-    bool exists;
-    NS_ASSERTION(NS_SUCCEEDED(dbPath->Exists(&exists)) && exists,
-                 "file spec we're adding to cache should exist");
-#endif
     if (NS_SUCCEEDED(rv) && dbPath) {
       nsCString persistentPath;
       rv = dbPath->GetPersistentDescriptor(persistentPath);
@@ -1227,11 +1205,6 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(
   element->SetCachedInt64("expungedBytes", mExpungedBytes);
   element->SetCachedInt64("folderSize", mFolderSize);
 
-#ifdef DEBUG_bienvenu1
-  nsCString uri;
-  GetURI(uri);
-  printf("writing total %ld for %s\n", mNumTotalMessages, uri.get());
-#endif
   return rv;
 }
 
@@ -3921,13 +3894,6 @@ NS_IMETHODIMP nsMsgDBFolder::OnFlagChange(uint32_t flag) {
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
   if (NS_SUCCEEDED(rv) && folderInfo) {
-#ifdef DEBUG_bienvenu1
-    nsString name;
-    rv = GetName(name);
-    NS_ASSERTION(Compare(name, kLocalizedTrashName) ||
-                     (mFlags & nsMsgFolderFlags::Trash),
-                 "lost trash flag");
-#endif
     folderInfo->SetFlags((int32_t)mFlags);
     if (db) db->Commit(nsMsgDBCommitType::kLargeCommit);
 

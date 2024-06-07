@@ -933,9 +933,6 @@ nsImapOfflineSync::ProcessNextOperation() {
     }
   }
   // if we get here, then I *think* we're done. Not sure, though.
-#ifdef DEBUG_bienvenu
-  printf("done with offline imap sync\n");
-#endif
   nsCOMPtr<nsIUrlListener> saveListener = m_listener;
   m_listener = nullptr;
 

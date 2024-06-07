@@ -5098,11 +5098,6 @@ nsMsgViewIndex nsMsgDBView::GetInsertIndex(nsIMsgDBHdr* msgHdr) {
 
 nsresult nsMsgDBView::AddHdr(nsIMsgDBHdr* msgHdr, nsMsgViewIndex* resultIndex) {
   uint32_t flags = 0;
-#ifdef DEBUG_bienvenu
-  NS_ASSERTION(m_keys.Length() == m_flags.Length() &&
-                   (int)m_keys.Length() == m_levels.Length(),
-               "view arrays out of sync!");
-#endif
 
   if (resultIndex) *resultIndex = nsMsgViewIndex_None;
 
@@ -5550,125 +5545,12 @@ nsMsgViewIndex nsMsgDBView::GetThreadRootIndex(nsIMsgDBHdr* msgHdr) {
   if (resultHdr != msgHdr) {
     NS_WARNING("didn't find hdr");
     highIndex = FindHdr(msgHdr);
-#ifdef DEBUG_David_Bienvenu
-    if (highIndex != nsMsgViewIndex_None) {
-      NS_WARNING("but find hdr did");
-      printf("level of found hdr = %d\n", m_levels[highIndex]);
-      ValidateSort();
-    }
-#endif
+
     return highIndex;
   }
 
   return msgHdr == resultHdr ? highIndex : nsMsgViewIndex_None;
 }
-
-#ifdef DEBUG_David_Bienvenu
-
-void nsMsgDBView::InitEntryInfoForIndex(nsMsgViewIndex i, IdKey& EntryInfo) {
-  nsresult rv;
-  uint16_t maxLen;
-  eFieldType fieldType;
-
-  // Get the custom column handler for the primary sort and pass it first
-  // to GetFieldTypeAndLenForSort to get the fieldType and then either
-  // GetCollationKey or GetLongField.
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
-
-  // The following may leave fieldType undefined.
-  rv = GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to obtain fieldType");
-
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  GetMsgHdrForViewIndex(i, getter_AddRefs(msgHdr));
-
-  msgHdr->GetMessageKey(&EntryInfo.id);
-  msgHdr->GetFolder(&EntryInfo.folder);
-  EntryInfo.folder->Release();
-
-  nsCOMPtr<nsIMsgDatabase> hdrDB;
-  EntryInfo.folder->GetMsgDatabase(getter_AddRefs(hdrDB));
-  switch (fieldType) {
-    case kCollationKey:
-      rv = GetCollationKey(msgHdr, m_sortType, EntryInfo.key, colHandler);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "failed to create collation key");
-      break;
-    case kU32:
-      if (m_sortType == nsMsgViewSortType::byId)
-        EntryInfo.dword = EntryInfo.id;
-      else
-        GetLongField(msgHdr, m_sortType, &EntryInfo.dword, colHandler);
-
-      break;
-    default:
-      NS_ERROR("invalid field type");
-  }
-}
-
-void nsMsgDBView::ValidateSort() {
-  IdKey EntryInfo1, EntryInfo2;
-  nsCOMPtr<nsIMsgDBHdr> hdr1, hdr2;
-
-  uint16_t maxLen;
-  eFieldType fieldType;
-
-  // Get the custom column handler for the primary sort and pass it first
-  // to GetFieldTypeAndLenForSort to get the fieldType and then either
-  // GetCollationKey or GetLongField.
-  nsIMsgCustomColumnHandler* colHandler = GetCurColumnHandler();
-
-  // It is not entirely clear what we should do since,
-  // if fieldType is not available, there is no way to know
-  // how to compare the field to check for sorting.
-  // So we bomb out here. It is OK since this is debug code
-  // inside  #ifdef DEBUG_David_Bienvenu
-  nsresult rv =
-      GetFieldTypeAndLenForSort(m_sortType, &maxLen, &fieldType, colHandler);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to obtain fieldType");
-
-  viewSortInfo comparisonContext;
-  comparisonContext.view = this;
-  comparisonContext.isSecondarySort = false;
-  comparisonContext.ascendingSort =
-      (m_sortOrder == nsMsgViewSortOrder::ascending);
-  nsCOMPtr<nsIMsgDatabase> db;
-  GetDBForViewIndex(0, getter_AddRefs(db));
-  // This is only for comparing collation keys - it could be any db.
-  comparisonContext.db = db.get();
-
-  for (nsMsgViewIndex i = 0; i < m_keys.Length();) {
-    // Ignore non threads.
-    if (m_levels[i]) {
-      i++;
-      continue;
-    }
-
-    // Find next header.
-    nsMsgViewIndex j = i + 1;
-    while (j < m_keys.Length() && m_levels[j]) j++;
-
-    if (j == m_keys.Length()) break;
-
-    InitEntryInfoForIndex(i, EntryInfo1);
-    InitEntryInfoForIndex(j, EntryInfo2);
-    const void *pValue1 = &EntryInfo1, *pValue2 = &EntryInfo2;
-    int retStatus = 0;
-    if (fieldType == kCollationKey)
-      retStatus = FnSortIdKey(&pValue1, &pValue2, &comparisonContext);
-    else if (fieldType == kU32)
-      retStatus = FnSortIdUint32(&pValue1, &pValue2, &comparisonContext);
-
-    if (retStatus &&
-        (retStatus < 0) == (m_sortOrder == nsMsgViewSortOrder::ascending)) {
-      NS_ERROR("view not sorted correctly");
-      break;
-    }
-    // j is the new i.
-    i = j;
-  }
-}
-
-#endif
 
 nsresult nsMsgDBView::ListUnreadIdsInThread(
     nsIMsgThread* threadHdr, nsMsgViewIndex startOfThreadViewIndex,
@@ -6084,10 +5966,6 @@ bool nsMsgDBView::AdjustReadFlag(nsIMsgDBHdr* msgHdr, uint32_t* msgFlags) {
   msgHdr->GetMessageKey(&msgKey);
   m_db->IsRead(msgKey, &isRead);
   // Just make sure flag is right in db.
-#ifdef DEBUG_David_Bienvenu
-  NS_ASSERTION(isRead == ((*msgFlags & nsMsgMessageFlags::Read) != 0),
-               "msgFlags out of sync");
-#endif
   if (isRead)
     *msgFlags |= nsMsgMessageFlags::Read;
   else

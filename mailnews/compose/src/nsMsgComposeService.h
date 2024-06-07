@@ -3,8 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#define MSGCOMP_TRACE_PERFORMANCE 1
-
 #include "nsIMsgComposeService.h"
 #include "nsCOMPtr.h"
 #include "nsWeakReference.h"
@@ -14,10 +12,8 @@
 
 #include "nsICommandLineHandler.h"
 
-#define ICOMMANDLINEHANDLER nsICommandLineHandler
-
 class nsMsgComposeService : public nsIMsgComposeService,
-                            public ICOMMANDLINEHANDLER,
+                            public nsICommandLineHandler,
                             public nsSupportsWeakReference {
  public:
   nsMsgComposeService();
@@ -33,7 +29,6 @@ class nsMsgComposeService : public nsIMsgComposeService,
 
  private:
   virtual ~nsMsgComposeService();
-  bool mLogComposePerformance;
 
   nsresult LoadDraftOrTemplate(
       const nsACString& aMsgURI, nsMimeOutputType aOutType,
@@ -58,9 +53,4 @@ class nsMsgComposeService : public nsIMsgComposeService,
   nsresult GetOrigWindowSelection(MSG_ComposeType type,
                                   mozilla::dom::Selection* selection,
                                   nsACString& aSelHTML);
-
-#ifdef MSGCOMP_TRACE_PERFORMANCE
-  PRIntervalTime mStartTime;
-  PRIntervalTime mPreviousTime;
-#endif
 };

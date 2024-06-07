@@ -765,14 +765,6 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
 // called only once, at the beginning of a URL load.
 //
 nsresult nsStreamConverter::OnStartRequest(nsIRequest* request) {
-#ifdef DEBUG_rhp
-  printf("nsStreamConverter::OnStartRequest()\n");
-#endif
-
-#ifdef DEBUG_mscott
-  mConvertContentTime = PR_IntervalNow();
-#endif
-
   // here's a little bit of hackery....
   // since the mime converter is now between the channel
   // and the

@@ -500,9 +500,6 @@ nsresult nsImapService::FetchMimePartInternal(nsIImapUrl* aImapUrl,
         // docshell or stream listener passed into us in this method but i'm not
         // sure yet... I'm going to use an assert for now to figure out if this
         // is ever getting called
-#if defined(DEBUG_mscott) || defined(DEBUG_bienvenu)
-        NS_ERROR("oops...someone still is reaching this part of the code");
-#endif
         rv = GetImapConnectionAndLoadUrl(aImapUrl, aDisplayConsumer, aURL);
       }
     }
@@ -873,9 +870,6 @@ nsresult nsImapService::GetMessageFromUrl(
       // docshell or stream listener passed into us in this method but i'm not
       // sure yet... I'm going to use an assert for now to figure out if this is
       // ever getting called
-#if defined(DEBUG_mscott) || defined(DEBUG_bienvenu)
-      NS_ERROR("oops...someone still is reaching this part of the code");
-#endif
       rv = GetImapConnectionAndLoadUrl(aImapUrl, aDisplayConsumer, aURL);
     }
   }

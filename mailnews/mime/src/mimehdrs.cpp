@@ -78,15 +78,6 @@ void MimeHeaders_free(MimeHeaders* hdrs) {
   hdrs->obuffer_fp = 0;
   hdrs->obuffer_size = 0;
 
-#ifdef DEBUG__
-  {
-    int i, size = sizeof(*hdrs);
-    uint32_t* array = (uint32_t*)hdrs;
-    for (i = 0; i < (size / sizeof(*array)); i++)
-      array[i] = (uint32_t)0xDEADBEEF;
-  }
-#endif /* DEBUG */
-
   PR_Free(hdrs);
 }
 

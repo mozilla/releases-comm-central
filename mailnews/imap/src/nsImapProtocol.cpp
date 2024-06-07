@@ -1481,9 +1481,6 @@ nsImapProtocol::PseudoInterruptMsgLoad(nsIMsgFolder* aImapFolder,
     }
   }
   PR_CExitMonitor(this);
-#ifdef DEBUG_bienvenu
-  printf("interrupt msg load : %s\n", (*interrupted) ? "TRUE" : "FALSE");
-#endif
   return NS_OK;
 }
 
@@ -1592,10 +1589,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
       }
     }
     if (!GetServerStateParser().Connected()) break;
-#ifdef DEBUG_bienvenu
-    else
-      printf("ready to run but no url and not idle\n");
-#endif
+
     // This can happen if the UI thread closes cached connections in the
     // OnStopRunningUrl notification.
     if (m_threadShouldDie) TellThreadToDie();
@@ -2385,9 +2379,6 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI* aURL,
                                           nsISupports* aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
   if (aURL) {
-#ifdef DEBUG_bienvenu
-    printf("loading url %s\n", aURL->GetSpecOrDefault().get());
-#endif
     // We might be able to fulfill the request locally (e.g. fetching a message
     // which is already stored offline).
     if (TryToRunUrlLocally(aURL, aConsumer)) return NS_OK;
@@ -8957,9 +8948,6 @@ NS_IMETHODIMP nsImapMockChannel::GetURI(nsIURI** aURI) {
 
 NS_IMETHODIMP nsImapMockChannel::SetURI(nsIURI* aURI) {
   m_url = aURI;
-#ifdef DEBUG_bienvenu
-  if (!aURI) printf("Clearing URI\n");
-#endif
   if (m_url) {
     // if we don't have a progress event sink yet, get it from the url for
     // now...

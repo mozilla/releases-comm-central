@@ -3753,11 +3753,6 @@ nsresult nsImapMailFolder::GetFolderOwnerUserName(nsACString& userName) {
 
 nsImapNamespace* nsImapMailFolder::GetNamespaceForFolder() {
   if (!m_namespace) {
-#ifdef DEBUG_bienvenu
-    // Make sure this isn't causing us to open the database
-    NS_ASSERTION(m_hierarchyDelimiter != kOnlineHierarchySeparatorUnknown,
-                 "haven't set hierarchy delimiter");
-#endif
     nsCString serverKey;
     nsCString onlineName;
     GetServerKey(serverKey);
@@ -3779,9 +3774,6 @@ nsImapNamespace* nsImapMailFolder::GetNamespaceForFolder() {
 }
 
 void nsImapMailFolder::SetNamespaceForFolder(nsImapNamespace* ns) {
-#ifdef DEBUG_bienvenu
-  NS_ASSERTION(ns, "null namespace");
-#endif
   m_namespace = ns;
 }
 
@@ -4916,9 +4908,6 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
     bool folderOpen = false;
     if (mailUrl) mailUrl->GetMsgWindow(getter_AddRefs(msgWindow));
     if (session) session->IsFolderOpenInWindow(this, &folderOpen);
-#ifdef DEBUG_bienvenu
-    printf("stop running url %s\n", aUrl->GetSpecOrDefault().get());
-#endif
 
     if (imapUrl) {
       DisplayStatusMsg(imapUrl, EmptyString());
@@ -7819,12 +7808,6 @@ NS_IMETHODIMP nsImapMailFolder::GetIsNamespace(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   nsresult rv = NS_OK;
   if (!m_namespace) {
-#ifdef DEBUG_bienvenu
-    // Make sure this isn't causing us to open the database
-    NS_ASSERTION(m_hierarchyDelimiter != kOnlineHierarchySeparatorUnknown,
-                 "hierarchy delimiter not set");
-#endif
-
     nsCString onlineName, serverKey;
     GetServerKey(serverKey);
     GetOnlineName(onlineName);

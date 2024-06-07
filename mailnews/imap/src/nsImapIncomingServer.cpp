@@ -667,29 +667,6 @@ nsresult nsImapIncomingServer::GetImapConnection(
       if (!badConnection) {
         badConnection = NS_FAILED(connection->CanHandleUrl(
             aImapUrl, &canRunUrlImmediately, &canRunButBusy));
-#ifdef DEBUG_bienvenu
-        nsAutoCString curSelectedFolderName;
-        if (connection)
-          connection->GetSelectedMailboxName(
-              getter_Copies(curSelectedFolderName));
-        // check that no other connection is in the same selected state.
-        if (!curSelectedFolderName.IsEmpty()) {
-          for (uint32_t j = 0; j < cnt; j++) {
-            if (j != i) {
-              nsCOMPtr<nsIImapProtocol> otherConnection =
-                  do_QueryElementAt(m_connectionCache, j);
-              if (otherConnection) {
-                nsAutoCString otherSelectedFolderName;
-                otherConnection->GetSelectedMailboxName(
-                    getter_Copies(otherSelectedFolderName));
-                NS_ASSERTION(
-                    !curSelectedFolderName.Equals(otherSelectedFolderName),
-                    "two connections selected on same folder");
-              }
-            }
-          }
-        }
-#endif  // DEBUG_bienvenu
       }
       if (badConnection) {
         connection = nullptr;

@@ -86,9 +86,6 @@ class nsStreamConverter : public nsIStreamConverter,
 
   nsCString mFromType;
   nsCString mToType;
-#ifdef DEBUG_mscott
-  PRTime mConvertContentTime;
-#endif
   nsIRequest* mPendingRequest;  // used when we need to delay to fire
                                 // onStartRequest
 };

@@ -25,10 +25,7 @@ nsMsgThread::nsMsgThread(nsMsgDatabase* db, nsIMdbTable* table) {
     db->m_threads.AppendElement(this);
   else
     NS_ERROR("no db for thread");
-#ifdef DEBUG_David_Bienvenu
-  if (m_mdbDB->m_threads.Length() > 5)
-    printf("more than five outstanding threads\n");
-#endif
+
   if (table && db) {
     table->GetMetaRow(db->GetEnv(), nullptr, nullptr,
                       getter_AddRefs(m_metaRow));
@@ -331,9 +328,6 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
           if (announcer)
             announcer->NotifyParentChangedAll(msgKey, oldThreadParent,
                                               newHdrKey, nullptr);
-#ifdef DEBUG_bienvenu1
-          if (newHdrKey != m_threadKey) printf("adding second level child\n");
-#endif
         }
         // Calculate a position for this child in date order
         else if (!hdrMoved && childIndex > 0 && moveIndex == 0) {
@@ -386,12 +380,6 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
     m_mdbTable->MoveRow(m_mdbDB->GetEnv(), hdrRow, -1, moveIndex, &outPos);
   }
 
-#ifdef DEBUG_David_Bienvenu
-  nsMsgKey msgHdrThreadKey;
-  child->GetThreadId(&msgHdrThreadKey);
-  NS_ASSERTION(msgHdrThreadKey == m_threadKey,
-               "adding msg to thread it doesn't belong to");
-#endif
   return rv;
 }
 
@@ -654,25 +642,6 @@ nsMsgThreadEnumerator::nsMsgThreadEnumerator(nsMsgThread* thread,
         NS_ASSERTION(false, "couldn't get child from thread");
     }
   }
-
-#ifdef DEBUG_bienvenu1
-  nsCOMPtr<nsIMsgDBHdr> child;
-  for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++) {
-    rv = mThread->GetChildHdrAt(childIndex, getter_AddRefs(child));
-    if (NS_SUCCEEDED(rv) && child) {
-      nsMsgKey threadParent;
-      nsMsgKey msgKey;
-      // we're only doing one level of threading, so check if caller is
-      // asking for children of the first message in the thread or not.
-      // if not, we will tell him there are no children.
-      child->GetMessageKey(&msgKey);
-      child->GetThreadParent(&threadParent);
-
-      printf("index = %ld key = %ld parent = %lx\n", childIndex, msgKey,
-             threadParent);
-    }
-  }
-#endif
 }
 
 int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey) {
@@ -706,9 +675,7 @@ int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey) {
       }
     }
   }
-#ifdef DEBUG_bienvenu1
-  printf("first child index of %ld = %ld\n", inMsgKey, firstChildIndex);
-#endif
+
   return firstChildIndex;
 }
 
@@ -779,12 +746,6 @@ nsresult nsMsgThreadEnumerator::Prefetch() {
     mNeedToPrefetch = false;
   mFoundChildren = true;
 
-#ifdef DEBUG_bienvenu1
-  nsMsgKey debugMsgKey;
-  mResultHdr->GetMessageKey(&debugMsgKey);
-  printf("next for %ld = %ld\n", mThreadParentKey, debugMsgKey);
-#endif
-
   return rv;
 }
 
@@ -853,9 +814,7 @@ NS_IMETHODIMP nsMsgThread::GetRootHdr(nsIMsgDBHdr** result) {
       // release any unwanted result before continuing.
       NS_RELEASE(*result);
     }
-#ifdef DEBUG_David_Bienvenu
-    printf("need to reset thread root key\n");
-#endif
+
     nsMsgKey threadParentKey = nsMsgKey_None;
     uint32_t numChildren = 0;
     GetNumChildren(&numChildren);
@@ -929,9 +888,6 @@ nsresult nsMsgThread::ChangeUnreadChildCount(int32_t delta) {
       m_metaRow, m_mdbDB->m_threadUnreadChildrenColumnToken, childCount);
   childCount += delta;
   if ((int32_t)childCount < 0) {
-#ifdef DEBUG_bienvenu1
-    NS_ASSERTION(false, "negative unread child count");
-#endif
     childCount = 0;
   }
   rv = m_mdbDB->UInt32ToRowCellColumn(

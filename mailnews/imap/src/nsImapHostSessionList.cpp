@@ -21,13 +21,7 @@ nsIMAPHostInfo::nsIMAPHostInfo(const char* serverKey,
   fNextHost = NULL;
   fCapabilityFlags = kCapabilityUndefined;
   fHierarchyDelimiters = NULL;
-#ifdef DEBUG_bienvenu1
-  fHaveWeEverDiscoveredFolders =
-      true;  // try this, see what bad happens - we'll need to
-             // figure out a way to make new accounts have it be false
-#else
-  fHaveWeEverDiscoveredFolders = false;  // try this, see what bad happens
-#endif
+  fHaveWeEverDiscoveredFolders = false;
   fDiscoveryForHostInProgress = false;
   fCanonicalOnlineSubDir = NULL;
   fNamespaceList = nsImapNamespaceList::CreatensImapNamespaceList();

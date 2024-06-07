@@ -13,10 +13,6 @@
 #include "nsCOMPtr.h"
 #include "prlog.h"
 
-#if defined(DEBUG_sspitzer_) || defined(DEBUG_seth_)
-#  define DEBUG_NEWS_DATABASE 1
-#endif
-
 nsNewsDatabase::nsNewsDatabase() { m_readSet = nullptr; }
 
 nsNewsDatabase::~nsNewsDatabase() {}
@@ -162,19 +158,11 @@ bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
     if (!m_readSet) return false;
 
     if (!bRead) {
-#ifdef DEBUG_NEWS_DATABASE
-      printf("remove %d from the set\n", messageKey);
-#endif
-
       m_readSet->Remove(messageKey);
 
       rv = NotifyReadChanged(nullptr);
       if (NS_FAILED(rv)) return false;
     } else {
-#ifdef DEBUG_NEWS_DATABASE
-      printf("add %d to the set\n", messageKey);
-#endif
-
       if (m_readSet->Add(messageKey) < 0) return false;
 
       rv = NotifyReadChanged(nullptr);

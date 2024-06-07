@@ -517,11 +517,6 @@ class nsMsgDBView : public nsIMsgDBView,
   bool CustomColumnsInSortAndNotRegistered();
   void EnsureCustomColumnsValid();
 
-#ifdef DEBUG_David_Bienvenu
-  void InitEntryInfoForIndex(nsMsgViewIndex i, IdKey& EntryInfo);
-  void ValidateSort();
-#endif
-
  protected:
   static nsresult InitDisplayFormats();
 

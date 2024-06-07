@@ -139,18 +139,10 @@ NS_IMETHODIMP nsMsgHdr::GetFlags(uint32_t* result) {
     *result = m_mdb->GetStatusFlags(this, m_flags);
   else
     *result = m_flags;
-#ifdef DEBUG_bienvenu
-  NS_ASSERTION(!(*result & (nsMsgMessageFlags::Elided)),
-               "shouldn't be set in db");
-#endif
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgHdr::SetFlags(uint32_t flags) {
-#ifdef DEBUG_bienvenu
-  NS_ASSERTION(!(flags & (nsMsgMessageFlags::Elided)),
-               "shouldn't set this flag on db");
-#endif
   m_initedValues |= FLAGS_INITED;
   m_flags = flags;
   // don't write out nsMsgMessageFlags::New to MDB.

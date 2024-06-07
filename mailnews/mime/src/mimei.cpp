@@ -244,17 +244,7 @@ MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
 }
 
 void mime_free(MimeObject* object) {
-#ifdef DEBUG__
-  int i, size = object->clazz->instance_size;
-  uint32_t* array = (uint32_t*)object;
-#endif /* DEBUG */
-
   object->clazz->finalize(object);
-
-#ifdef DEBUG__
-  for (i = 0; i < (size / sizeof(*array)); i++) array[i] = (uint32_t)0xDEADBEEF;
-#endif /* DEBUG */
-
   PR_Free(object);
 }
 

@@ -87,12 +87,6 @@ interface nsIMsgComposeService : nsISupports {
   */
   readonly attribute nsIMsgIdentity defaultIdentity;
 
-  /* This function is use for debugging purpose only and may go away at anytime without warning */
-  void TimeStamp(in string label, in boolean resetTime);
-
-  /* This attribute is use for debugging purposes for determining whether to PR_LOG or not */
-  readonly attribute boolean logComposePerformance;
-
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
 
   /**

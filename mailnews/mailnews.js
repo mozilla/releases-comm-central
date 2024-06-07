@@ -10,8 +10,6 @@
 // SpaceHit() function: whether spacebar advances to next unread message.
 pref("mail.advance_on_spacebar", true);
 
-pref("mailnews.logComposePerformance", false);
-
 pref("mail.wrap_long_lines", true);
 
 // Show attachments of supported types rendered directly in the message body view.

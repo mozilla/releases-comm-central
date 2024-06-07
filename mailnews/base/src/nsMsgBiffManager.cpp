@@ -326,10 +326,6 @@ nsresult nsMsgBiffManager::PerformBiff() {
         SetNextBiffTime(current, currentTime);
         AddBiffEntry(current);
       }
-#ifdef DEBUG_David_Bienvenu
-      else
-        printf("dest account performing biff\n");
-#endif
     } else
       // since we're in biff order, there's no reason to keep checking
       break;

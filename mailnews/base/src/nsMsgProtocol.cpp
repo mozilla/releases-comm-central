@@ -713,9 +713,6 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
                                       const char* username,
                                       nsCString& response) {
   nsresult rv;
-#ifdef DEBUG_BenB
-  printf("GSSAPI step 1 for service %s, username %s\n", service, username);
-#endif
 
   // if this fails, then it means that we cannot do GSSAPI SASL.
   m_authModule = nsIAuthModule::CreateInstance("sasl-gssapi");
@@ -735,17 +732,11 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
     free(outBuf);
   }
 
-#ifdef DEBUG_BenB
-  printf("GSSAPI step 1 succeeded\n");
-#endif
   return rv;
 }
 
 nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString& commandResponse,
                                       nsCString& response) {
-#ifdef DEBUG_BenB
-  printf("GSSAPI step 2\n");
-#endif
   nsresult rv;
   void *inBuf, *outBuf;
   uint32_t inBufLen, outBufLen;
@@ -793,10 +784,6 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString& commandResponse,
       response.Adopt((char*)moz_xmemdup("", 1));
   }
 
-#ifdef DEBUG_BenB
-  printf(NS_SUCCEEDED(rv) ? "GSSAPI step 2 succeeded\n"
-                          : "GSSAPI step 2 failed\n");
-#endif
   return rv;
 }
 
