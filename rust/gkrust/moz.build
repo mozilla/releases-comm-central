@@ -5,3 +5,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 include("/toolkit/library/rust/moz.build")
+
+RUST_TEST_FEATURES.remove("gkrust-shared/crashreporter")
+RUST_TEST_FEATURES.remove("crashreporter/mock")
+
+# Defined in /toolkit/library/rust/moz.build
+RUST_TESTS.clear()
+
+RUST_TESTS.extend(["gkrust"])
