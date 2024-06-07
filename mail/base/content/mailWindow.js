@@ -1114,7 +1114,6 @@ window.addEventListener("aboutMessageLoaded", event => {
       // Bail on delete event if there is a repeat event to prevent deleteing
       // multiple messages by mistake from a longer key press.
       event.preventDefault();
-      return;
     }
   });
 });
