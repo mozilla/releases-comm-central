@@ -670,3 +670,11 @@ body {
 #multiMessageBrowser {
   flex: 1;
 }
+
+#placeholderNoMessages::before {
+  background-image: var(--icon-mail-lg);
+}
+
+#placeholderMultipleFolders::before {
+  background-image: var(--icon-folder);
+}

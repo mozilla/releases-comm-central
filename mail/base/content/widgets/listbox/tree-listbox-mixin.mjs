@@ -7,6 +7,10 @@ const ANIMATION_EASING = "ease";
 export const ANIMATION_DURATION_MS = 200;
 export const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
 
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
+
 /**
  * Provides keyboard and mouse interaction to a (possibly nested) list.
  * It is intended for lists with a small number (up to 1000?) of items.
@@ -36,11 +40,79 @@ export const reducedMotionMedia = matchMedia("(prefers-reduced-motion)");
 export const TreeListboxMixin = Base =>
   class extends Base {
     /**
-     * The selected and focused item, or null if there is none.
+     * The currently active row, or null if there is none, in a single or multi
+     * selection. If the user is in multiselection, the selectedRow will match the
+     * last clicked row where the focus currently is.
      *
      * @type {?HTMLLIElement}
      */
-    _selectedRow = null;
+    #selectedRow = null;
+
+    get selectedRow() {
+      return this.#selectedRow;
+    }
+
+    set selectedRow(row) {
+      this.#selectedRow = row ?? null;
+    }
+
+    /**
+     * The index of the selected/active row. If there are no rows, the value is
+     * -1. Otherwise, should always have a value between 0 and `rowCount - 1`.
+     *
+     * @type {integer}
+     */
+    get selectedIndex() {
+      return this.rows.findIndex(row => row == this.selectedRow);
+    }
+
+    set selectedIndex(index) {
+      this.updateSelection(this.getRowAtIndex(this._clampIndex(index)));
+    }
+
+    /**
+     * The map of the currently selected rows.
+     *
+     * @type {Map<integer, HTMLLIElement>}
+     */
+    #selection = new Map();
+
+    get selection() {
+      return this.#selection;
+    }
+
+    /**
+     * Every visible row. Rows with collapsed ancestors are not included.
+     *
+     * @type {HTMLLIElement[]}
+     */
+    get rows() {
+      return [...this.querySelectorAll("li:not(.unselectable)")].filter(row => {
+        const collapsed = row.parentNode.closest("li.collapsed");
+        if (collapsed && this.contains(collapsed)) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    /**
+     * The number of visible rows.
+     *
+     * @type {integer}
+     */
+    get rowCount() {
+      return this.rows.length;
+    }
+
+    /**
+     * If the current listbox supports multiselection.
+     *
+     * @type {boolean}
+     */
+    get isMultiselect() {
+      return this.ariaMultiSelectable == "true";
+    }
 
     connectedCallback() {
       if (this.hasConnected) {
@@ -49,6 +121,7 @@ export const TreeListboxMixin = Base =>
       this.hasConnected = true;
 
       this.setAttribute("is", "tree-listbox");
+
       switch (this.getAttribute("role")) {
         case "tree":
           this.isTree = true;
@@ -63,14 +136,14 @@ export const TreeListboxMixin = Base =>
 
       this.domChanged();
       this._initRows();
-      const rows = this.rows;
-      if (!this.selectedRow && rows.length) {
+      if (!this.selectedRow && this.rows.length) {
         // TODO: This should only really happen on "focus".
-        this.selectedRow = rows[0];
+        this.updateSelection(this.getRowAtIndex(0));
       }
 
       this.addEventListener("click", this);
       this.addEventListener("keydown", this);
+      this.addEventListener("contextmenu", this);
       this._mutationObserver.observe(this, {
         subtree: true,
         childList: true,
@@ -84,6 +157,9 @@ export const TreeListboxMixin = Base =>
           break;
         case "keydown":
           this._onKeyDown(event);
+          break;
+        case "contextmenu":
+          this._onContextMenu(event);
           break;
       }
     }
@@ -110,7 +186,8 @@ export const TreeListboxMixin = Base =>
         return;
       }
 
-      this.selectedRow = row;
+      this.updateSelection(row, event);
+
       if (document.activeElement != this) {
         // Overflowing elements with tabindex=-1 steal focus. Grab it back.
         this.focus();
@@ -118,22 +195,28 @@ export const TreeListboxMixin = Base =>
     }
 
     _onKeyDown(event) {
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      if (event.altKey) {
         return;
       }
 
       switch (event.key) {
         case "ArrowUp":
-          this.selectedIndex = this._clampIndex(this.selectedIndex - 1);
+          this.updateSelection(
+            this.getRowAtIndex(this._clampIndex(this.selectedIndex - 1)),
+            event
+          );
           break;
         case "ArrowDown":
-          this.selectedIndex = this._clampIndex(this.selectedIndex + 1);
+          this.updateSelection(
+            this.getRowAtIndex(this._clampIndex(this.selectedIndex + 1)),
+            event
+          );
           break;
         case "Home":
-          this.selectedIndex = 0;
+          this.updateSelection(this.getRowAtIndex(0), event);
           break;
         case "End":
-          this.selectedIndex = this.rowCount - 1;
+          this.updateSelection(this.getRowAtIndex(this.rowCount - 1), event);
           break;
         case "PageUp": {
           if (!this.selectedRow) {
@@ -149,13 +232,18 @@ export const TreeListboxMixin = Base =>
           while (i > 0 && rows[i].getBoundingClientRect().top >= y) {
             i--;
           }
-          this.selectedIndex = i;
+          this.updateSelection(this.getRowAtIndex(this._clampIndex(i)), event);
           break;
         }
         case "PageDown": {
           if (!this.selectedRow) {
             break;
           }
+
+          if (!this.#selection.size) {
+            break;
+          }
+
           // Get the top of the selected row, and add the page height.
           const selectedBox = this.selectedRow.getBoundingClientRect();
           const y = selectedBox.top + this.clientHeight;
@@ -169,7 +257,7 @@ export const TreeListboxMixin = Base =>
           ) {
             i--;
           }
-          this.selectedIndex = i;
+          this.updateSelection(this.getRowAtIndex(this._clampIndex(i)), event);
           break;
         }
         case "ArrowLeft":
@@ -190,7 +278,7 @@ export const TreeListboxMixin = Base =>
               (!selected.classList.contains("children") ||
                 selected.classList.contains("collapsed"))
             ) {
-              this.selectedRow = parentNode;
+              this.updateSelection(parentNode);
               break;
             }
             if (selected.classList.contains("children")) {
@@ -200,7 +288,7 @@ export const TreeListboxMixin = Base =>
             if (selected.classList.contains("collapsed")) {
               this.expandRow(selected);
             } else {
-              this.selectedRow = selected.querySelector("li");
+              this.updateSelection(selected.querySelector("li"));
             }
           }
           break;
@@ -217,11 +305,44 @@ export const TreeListboxMixin = Base =>
           }
           break;
         }
+        case "Escape":
+          if (this.#selection.size > 1) {
+            this.updateSelection([...this.#selection.values()].at(0));
+          }
+          break;
         default:
           return;
       }
 
       event.preventDefault();
+    }
+
+    /**
+     * Handle the context menu trigger on a tree row.
+     *
+     * @param {DOMEvent} event
+     */
+    _onContextMenu(event) {
+      const row = event.target.closest("li:not(.unselectable)");
+      if (!row) {
+        return;
+      }
+
+      // No need to do anything if the context menu was triggered from the
+      // currently active row or from a row that is not part of the current
+      // selection.
+      if (
+        this.selectedRow == row ||
+        !this.#selection.has(this.rows.indexOf(row))
+      ) {
+        return;
+      }
+
+      this.querySelector("li.current").classList.remove("current");
+      this.selectedRow = row;
+      row.classList.add("current");
+      this.setAttribute("aria-activedescendant", row.id);
+      row.firstElementChild.scrollIntoView({ block: "nearest" });
     }
 
     /**
@@ -275,12 +396,12 @@ export const TreeListboxMixin = Base =>
       this._initRows();
       let newRows = this.rows;
       if (!newRows.length) {
-        this.selectedRow = null;
+        this.updateSelection(null);
         return;
       }
       if (!this.selectedRow) {
         // TODO: This should only really happen on "focus".
-        this.selectedRow = newRows[0];
+        this.updateSelection(newRows[0]);
         return;
       }
       if (newRows.includes(this.selectedRow)) {
@@ -292,7 +413,7 @@ export const TreeListboxMixin = Base =>
       );
       if (oldSelectedIndex < 0) {
         // Unexpected, the selectedRow was not in our _rowsData list.
-        this.selectedRow = newRows[0];
+        this.updateSelection(newRows[0]);
         return;
       }
       // Find the closest ancestor that is still shown.
@@ -334,7 +455,7 @@ export const TreeListboxMixin = Base =>
           break;
         }
       }
-      this.selectedRow = selectRow;
+      this.updateSelection(selectRow);
     });
 
     /**
@@ -380,30 +501,6 @@ export const TreeListboxMixin = Base =>
     }
 
     /**
-     * Every visible row. Rows with collapsed ancestors are not included.
-     *
-     * @type {HTMLLIElement[]}
-     */
-    get rows() {
-      return [...this.querySelectorAll("li:not(.unselectable)")].filter(row => {
-        const collapsed = row.parentNode.closest("li.collapsed");
-        if (collapsed && this.contains(collapsed)) {
-          return false;
-        }
-        return true;
-      });
-    }
-
-    /**
-     * The number of visible rows.
-     *
-     * @type {integer}
-     */
-    get rowCount() {
-      return this.rows.length;
-    }
-
-    /**
      * Clamps `index` to a value between 0 and `rowCount - 1`.
      *
      * @param {integer} index
@@ -439,49 +536,183 @@ export const TreeListboxMixin = Base =>
     }
 
     /**
-     * The index of the selected row. If there are no rows, the value is -1.
-     * Otherwise, should always have a value between 0 and `rowCount - 1`.
-     * It is set to 0 in `connectedCallback` if there are rows.
+     * Update the selection map to reflect the current state of selected rows.
      *
-     * @type {integer}
+     * @param {?HTMLLIElement} row - The row the user interacted with, if it
+     *   exists.
+     * @param {?Event|null} event - The DOM Event if provided.
      */
-    get selectedIndex() {
-      return this.rows.findIndex(row => row == this.selectedRow);
-    }
-
-    set selectedIndex(index) {
-      index = this._clampIndex(index);
-      this.selectedRow = this.getRowAtIndex(index);
-    }
-
-    /**
-     * The selected and focused item, or null if there is none.
-     *
-     * @type {?HTMLLIElement}
-     */
-    get selectedRow() {
-      return this._selectedRow;
-    }
-
-    set selectedRow(row) {
-      if (row == this._selectedRow) {
+    updateSelection(row, event = null) {
+      // No need to do anything if no keyboard even is present and the row is
+      // the currently selected one.
+      if (
+        this.selectedRow == row &&
+        !event?.shiftKey &&
+        !event?.metaKey &&
+        !event?.ctrlKey &&
+        this.#selection.size == 1
+      ) {
         return;
       }
 
-      if (this._selectedRow) {
-        this._selectedRow.classList.remove("selected");
-        this._selectedRow.setAttribute("aria-selected", "false");
+      // Cache the previous selected index in case we need it for SHIFT range
+      // selections.
+      const previousIndex = this.selectedIndex;
+      this.selectedRow = row;
+      // The row is null, bail out and update the tree classes.
+      if (!row) {
+        this.updateRowClasses();
+        return;
       }
 
-      this._selectedRow = row ?? null;
-      if (row) {
-        row.classList.add("selected");
-        row.setAttribute("aria-selected", "true");
-        this.setAttribute("aria-activedescendant", row.id);
-        row.firstElementChild.scrollIntoView({ block: "nearest" });
-      } else {
-        this.removeAttribute("aria-activedescendant");
+      const index = this.rows.indexOf(row);
+
+      // Simply clear the selection and only add this single row if the widget
+      // doesn't implement multiselection.
+      if (!this.isMultiselect || !event) {
+        this.#selection.clear();
+        this.#selection.set(index, row);
+        this.updateRowClasses();
+        return;
       }
+
+      // If the selection is currently empty, ignore any modifier and simply add
+      // the newly selected row.
+      if (!this.#selection.size) {
+        this.#selection.set(index, row);
+        this.updateRowClasses();
+        return;
+      }
+
+      const accelKey =
+        AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey;
+
+      // Only select one row in the array if no modifier is used.
+      if (!event.shiftKey && !accelKey) {
+        // No need to do anything if the user selected the same row.
+        if (this.#selection.has(index) && this.#selection.size == 1) {
+          return;
+        }
+
+        this.#selection.clear();
+        this.#selection.set(index, row);
+        this.updateRowClasses();
+        return;
+      }
+
+      // Add or remove the row from the selection if CTRL is pressed.
+      if (accelKey) {
+        // No need to do anything if the user clicked on the only selected row
+        // even if using a modifier key as we don't allow deselecting all rows.
+        if (
+          this.#selection.size == 1 &&
+          this.#selection.has(index) &&
+          event?.type == "click"
+        ) {
+          return;
+        }
+
+        // Remove the clicked row from the current selection only if we have
+        // multiple rows selected and the event is a click.
+        if (
+          this.#selection.size > 1 &&
+          this.#selection.has(index) &&
+          event?.type == "click"
+        ) {
+          this.#selection.delete(index);
+          this.updateRowClasses();
+          return;
+        }
+
+        this.#selection.set(index, row);
+        this.updateRowClasses();
+        return;
+      }
+
+      // If SHIFT is pressed, we need to handle a range selection.
+      if (event.shiftKey) {
+        if (index > previousIndex) {
+          for (let i = previousIndex; i <= index; i++) {
+            if (this.#selection.has(i)) {
+              continue;
+            }
+            this.#selection.set(i, this.getRowAtIndex(i));
+          }
+          this.updateRowClasses();
+          return;
+        }
+
+        if (index < previousIndex) {
+          for (let i = previousIndex; i >= index; i--) {
+            if (this.#selection.has(i)) {
+              continue;
+            }
+            this.#selection.set(i, this.getRowAtIndex(i));
+          }
+          this.updateRowClasses();
+        }
+      }
+    }
+
+    /**
+     * Do a full reset of the current selection and apply the new range.
+     *
+     * @param {HTMLLIElement[]} rows - The array of rows to select.
+     */
+    swapSelection(rows) {
+      this.#selection.clear();
+      if (!rows.length) {
+        return;
+      }
+
+      for (const row of rows) {
+        const index = this.rows.indexOf(row);
+        this.#selection.set(index, row);
+      }
+
+      this.selectedRow = rows.at(-1);
+      this.updateRowClasses();
+      this.focus();
+    }
+
+    /**
+     * Update the classes of the listbox to visually reflect the current state
+     * of selected items. This method also is responsible of emitting the
+     * "select" custom event.
+     */
+    updateRowClasses() {
+      this.classList.toggle("multi-selected", this.#selection.size > 1);
+
+      for (const row of this.querySelectorAll("li.selected")) {
+        row.classList.remove("selected", "current");
+        row.ariaSelected = "false";
+      }
+
+      if (!this.#selection.size) {
+        this.removeAttribute("aria-activedescendant");
+        this.dispatchEvent(new CustomEvent("select"));
+        return;
+      }
+
+      // If we're at this point and we don't have an active index it means that
+      // the user removed the previous active index from the current selection.
+      // Find the last available item ID in the current selection and set the
+      // new active row.
+      if (!this.selectedIndex || !this.#selection.get(this.selectedIndex)) {
+        const index = this._clampIndex([...this.#selection.keys()].at(-1));
+        this.selectedRow = this.getRowAtIndex(index);
+      }
+
+      this.#selection.forEach((row, index) => {
+        row.classList.add("selected");
+        row.ariaSelected = "true";
+
+        if (this.selectedIndex == index) {
+          row.classList.add("current");
+          this.setAttribute("aria-activedescendant", row.id);
+          row.firstElementChild.scrollIntoView({ block: "nearest" });
+        }
+      });
 
       this.dispatchEvent(new CustomEvent("select"));
     }
@@ -519,7 +750,7 @@ export const TreeListboxMixin = Base =>
         !row.classList.contains("collapsed")
       ) {
         if (row.contains(this.selectedRow)) {
-          this.selectedRow = row;
+          this.updateSelection(row);
         }
         row.classList.add("collapsed");
         if (this.isTree) {

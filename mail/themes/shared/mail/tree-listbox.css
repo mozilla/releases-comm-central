@@ -169,7 +169,14 @@
   }
 }
 
+/* tree-listbox */
+[is="tree-listbox"].multi-selected li.selected.current > .container {
+  outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
+  outline-offset: -1px;
+}
+
 .tree-view-scrollable-container {
+  position: relative;
   display: flex;
   align-items: start;
   overflow-y: scroll;
@@ -670,7 +677,7 @@ slot[name="placeholders"] {
   position: absolute;
   display: none;
   box-sizing: border-box;
-  inset: 120px 0 auto;
+  inset: 60px 0 auto;
   padding: 0 40px;
   opacity: 0.5;
   text-align: center;

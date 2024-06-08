@@ -28,6 +28,10 @@ let account,
   folderA,
   folderB,
   folderC,
+  folderMultiA,
+  folderMultiB,
+  folderMultiC,
+  folderMultiD,
   moreButton,
   moreContext;
 const generator = new MessageGenerator();
@@ -1395,6 +1399,93 @@ add_task(async function testAccountOrder() {
   );
   moreContext.hidePopup();
   await BrowserTestUtils.waitForPopupEvent(moreContext, "hidden");
+});
+
+add_task(async function testMultiSelectionDelete() {
+  folderMultiA = rootFolder
+    .createLocalSubfolder("folderMultiA")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderMultiB = rootFolder
+    .createLocalSubfolder("folderMultiB")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderMultiC = rootFolder
+    .createLocalSubfolder("folderMultiC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folderMultiD = rootFolder
+    .createLocalSubfolder("folderMultiD")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+  function leftClickOn(folder, modifiers = {}) {
+    EventUtils.synthesizeMouseAtCenter(
+      about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
+      modifiers,
+      about3Pane
+    );
+  }
+
+  leftClickOn(folderA);
+  leftClickOn(folderMultiA, { accelKey: true });
+  leftClickOn(folderMultiB, { accelKey: true });
+  leftClickOn(folderMultiC, { accelKey: true });
+
+  // Test deleting a single folder outside the current range selection.
+  const context = about3Pane.document.getElementById("folderPaneContext");
+  const removeItem = about3Pane.document.getElementById(
+    "folderPaneContext-remove"
+  );
+  const shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    folderPane.getRowForFolder(folderMultiD).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
+  context.activateItem(removeItem);
+  await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  rootFolder.emptyTrash(null, null);
+
+  // Check only the right clicked folder went away.
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderMultiA,
+    folderMultiB,
+    folderMultiC,
+    folderA,
+    folderB,
+    folderC,
+  ]);
+
+  // Remove folderA from the selection range.
+  leftClickOn(folderA, { accelKey: true });
+
+  // FIXME! Temporarily handle deleting multiple folders by waiting for each
+  // confirm dialog to accept. We should update the front-end in order to handle
+  // a single confirmation dialog for a batch delete.
+  const multipleDialogPromise = BrowserTestUtils.promiseAlertDialog("accept")
+    .then(() => BrowserTestUtils.promiseAlertDialog("accept"))
+    .then(() => BrowserTestUtils.promiseAlertDialog("accept"));
+  EventUtils.synthesizeKey("KEY_Delete", {}, about3Pane);
+  await multipleDialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
+
+  rootFolder.emptyTrash(null, null);
+  // Check the multiselection went away.
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ]);
 });
 
 async function checkModeListItems(modeName, folders) {

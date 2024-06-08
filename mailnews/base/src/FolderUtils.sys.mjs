@@ -250,10 +250,14 @@ function folderNameCompare(aString1, aString2) {
 /**
  * Get the icon to use for this folder.
  *
- * @param {nsIMsgFolder} folder - The folder to get icon for.
+ * @param {?nsIMsgFolder} folder - The folder to get icon for, if provided.
  * @returns {string} URL of suitable icon.
  */
 function getFolderIcon(folder) {
+  if (!folder) {
+    return "chrome://messenger/skin/icons/new/compact/folder.svg";
+  }
+
   let iconName;
   if (folder.isServer) {
     switch (folder.server.type) {
@@ -274,7 +278,7 @@ function getFolderIcon(folder) {
         iconName = "mail.svg";
         break;
     }
-  } else if (folder.server.type == "nntp") {
+  } else if (folder.server?.type == "nntp") {
     iconName = "newsletter.svg";
   } else {
     switch (getSpecialFolderString(folder)) {

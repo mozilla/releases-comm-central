@@ -16,7 +16,7 @@
       lightweightthemes="true">
 <head>
   <meta charset="utf-8" />
-  <title></title>
+  <title id="about3PaneTitle"></title>
 
   <link rel="icon" href="chrome://messenger/skin/icons/new/compact/folder.svg" />
 
@@ -77,7 +77,11 @@
               tabindex="1"
               disabled="disabled"></button>
     </div>
-    <ul id="folderTree" is="tree-listbox" role="tree" class="no-overscroll"></ul>
+    <ul id="folderTree"
+        is="tree-listbox"
+        role="tree"
+        class="no-overscroll"
+        aria-multiselectable="true"></ul>
     <template id="modeTemplate">
       <li class="unselectable">
         <div class="mode-container">
@@ -138,7 +142,16 @@
       </div>
     </div>
 #include quickFilterBar.inc.xhtml
-    <tree-view id="threadTree" data-label-id="threadPaneFolderName"/>
+    <tree-view id="threadTree" data-label-id="threadPaneFolderName">
+      <slot name="placeholders">
+        <div id="placeholderNoMessages"
+             hidden="hidden"
+             data-l10n-id="message-list-placeholder-no-messages"></div>
+        <div id="placeholderMultipleFolders"
+             hidden="hidden"
+             data-l10n-id="message-list-placeholder-multiple-folders"></div>
+      </slot>
+    </tree-view>
     <!-- Thread pane templates -->
     <template id="threadPaneApplyColumnMenu">
       <xul:menu class="applyTo-menu"
@@ -451,8 +464,14 @@
               accesskey="&folderContextCompact.accesskey;"/>
     <menuitem id="folderPaneContext-markMailFolderAllRead"
               class="menuitem-iconic"
-              label="&folderContextMarkMailFolderRead.label;"
-              accesskey="&folderContextMarkMailFolderRead.accesskey;"/>
+              data-l10n-id="folder-pane-context-mark-folder-read"
+              data-l10n-args='{"count": 1}'/>
+    <!--
+      TODO: Remove this following menuitem and migrate the strings to fluent
+      so we can more easily swap the label based on the selection. Both
+      #folderPaneContext-markMailFolderAllRead and #folderPaneContext-markNewsgroupAllRead
+      trigger the same command so we shouldn't need both menuitems.
+    -->
     <menuitem id="folderPaneContext-markNewsgroupAllRead"
               class="menuitem-iconic"
               label="&folderContextMarkNewsgroupRead.label;"

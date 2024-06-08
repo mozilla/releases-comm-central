@@ -298,6 +298,14 @@ var folderPaneContextMenu = {
    */
   _commandStates: null,
 
+  /**
+   * Keep track of a context clicked folder outside of the current selection
+   * range.
+   *
+   * @type {?nsIMsgFolder}
+   */
+  _overrideFolder: null,
+
   init() {
     this._menupopup = document.getElementById("folderPaneContext");
     this._menupopup.addEventListener("popupshowing", this);
@@ -325,12 +333,17 @@ var folderPaneContextMenu = {
 
   /**
    * The folder that this context menu is operating on. This will be `gFolder`
-   * unless the menu was opened by right-clicking on another folder.
+   * unless the menu was opened by right-clicking on another folder, or multiple
+   * folders are selected in which case we return the currently active folder.
    *
-   * @type {nsIMsgFolder}
+   * @type {?nsIMsgFolder}
    */
   get activeFolder() {
-    return this._overrideFolder || gFolder;
+    return (
+      this._overrideFolder ||
+      gFolder ||
+      MailServices.folderLookup.getFolderForURL(folderTree.selectedRow?.uri)
+    );
   },
 
   /**
@@ -358,55 +371,151 @@ var folderPaneContextMenu = {
    * out together to save unnecessary work.
    *
    * @param {string} command
+   * @returns {boolean}
    */
   getCommandState(command) {
     const folder = this.activeFolder;
     if (!folder || FolderUtils.isSmartTagsFolder(folder)) {
       return false;
     }
+
     if (this._commandStates === null) {
-      let {
-        canCompact,
+      let canCompact,
+        isCompactEnabled,
         canCreateSubfolders,
         canRename,
-        deletable,
-        flags,
         isServer,
+        isNNTP,
+        isJunk,
+        isVirtual,
+        isInbox,
+        isSpecialUse,
+        canRenameDeleteJunkMail,
+        isSmartTagsFolder,
+        deletable,
         server,
         URI,
-      } = folder;
-      const isJunk = flags & Ci.nsMsgFolderFlags.Junk;
-      const isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-      const isNNTP = server.type == "nntp";
+        flags;
+
+      const multiSelection =
+        folderTree.selection.size > 1 && !this._overrideFolder;
+      if (multiSelection) {
+        canCreateSubfolders = false;
+        canRename = false;
+        isSmartTagsFolder = false;
+        isSpecialUse = true;
+        isInbox = false;
+
+        // Set some variables to TRUE to help during the folder lookup loop.
+        canCompact = true;
+        isServer = true;
+        deletable = true;
+        isNNTP = true;
+        isVirtual = true;
+        isCompactEnabled = true;
+        isJunk = true;
+        canRenameDeleteJunkMail = true;
+
+        for (const row of folderTree.selection.values()) {
+          const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+
+          // We only care if a folder doesn't support a specific property, so
+          // let's update a variable only if it's still truthy.
+          canCompact &&= folder.canCompact;
+          isServer &&= folder.isServer;
+          deletable &&= folder.deletable;
+          isNNTP &&= folder.server.type == "nntp";
+          isVirtual &&= folder.flags & Ci.nsMsgFolderFlags.Virtual;
+          isJunk &&= folder.flags & Ci.nsMsgFolderFlags.Junk;
+          canRenameDeleteJunkMail &&= FolderUtils.canRenameDeleteJunkMail(
+            folder.URI
+          );
+          isCompactEnabled &&= folder.isCommandEnabled("cmd_compactFolder");
+
+          // Tiny performance failsafe in case all of the variables are already
+          // falsy we can break the loop early.
+          if (
+            !canCompact &&
+            !isServer &&
+            !deletable &&
+            !isNNTP &&
+            !isVirtual &&
+            !isJunk &&
+            !canRenameDeleteJunkMail &&
+            !isCompactEnabled
+          ) {
+            break;
+          }
+        }
+      } else {
+        ({
+          canCompact,
+          canCreateSubfolders,
+          canRename,
+          deletable,
+          flags,
+          isServer,
+          server,
+          URI,
+        } = folder);
+        isCompactEnabled = folder.isCommandEnabled("cmd_compactFolder");
+        isNNTP = server.type == "nntp";
+        isJunk = flags & Ci.nsMsgFolderFlags.Junk;
+        isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
+        isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
+        isSpecialUse = flags & Ci.nsMsgFolderFlags.SpecialUse;
+        canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
+        isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
+      }
+
       if (isNNTP && !isServer) {
         // `folderPane.deleteFolder` has a special case for this.
         deletable = true;
       }
-      const isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
-      const showNewFolderItem =
-        (!isNNTP && canCreateSubfolders) || flags & Ci.nsMsgFolderFlags.Inbox;
 
       this._commandStates = {
-        cmd_newFolder: showNewFolderItem,
-        cmd_deleteFolder: isJunk
-          ? FolderUtils.canRenameDeleteJunkMail(URI)
-          : deletable,
+        cmd_newFolder: (!isNNTP && canCreateSubfolders) || isInbox,
+        cmd_deleteFolder: isJunk ? canRenameDeleteJunkMail : deletable,
         cmd_renameFolder:
-          (!isServer &&
-            canRename &&
-            !(flags & Ci.nsMsgFolderFlags.SpecialUse)) ||
+          (!isServer && canRename && !isSpecialUse) ||
           isVirtual ||
-          (isJunk && FolderUtils.canRenameDeleteJunkMail(URI)),
+          (isJunk && canRenameDeleteJunkMail),
         cmd_compactFolder:
-          !isVirtual &&
-          (isServer || canCompact) &&
-          folder.isCommandEnabled("cmd_compactFolder"),
+          !isVirtual && (isServer || canCompact) && isCompactEnabled,
         cmd_emptyTrash: !isNNTP,
-        cmd_properties: !isServer && !isSmartTagsFolder,
-        cmd_toggleFavoriteFolder: !isServer && !isSmartTagsFolder,
+        cmd_properties: !multiSelection && !isServer && !isSmartTagsFolder,
+        cmd_toggleFavoriteFolder:
+          !multiSelection && !isServer && !isSmartTagsFolder,
       };
     }
     return this._commandStates[command];
+  },
+
+  /**
+   * Update the visibility of a menuitem.
+   *
+   * @param {string} id - The id of the menuitem.
+   * @param {boolean} show - If the item should be made visible.
+   */
+  _showMenuItem(id, show) {
+    const item = document.getElementById(id);
+    if (item) {
+      item.hidden = !show;
+    }
+  },
+
+  /**
+   * Update the checked state of a menuitem.
+   *
+   * @param {string} id - The id of the menuitem.
+   * @param {boolean} checked - If the item should be checked.
+   */
+  _checkMenuItem(id, checked) {
+    const item = document.getElementById(id);
+    if (item) {
+      // Always convert truthy/falsy to boolean before string.
+      item.setAttribute("checked", !!checked);
+    }
   },
 
   onPopupShowing(event) {
@@ -414,25 +523,49 @@ var folderPaneContextMenu = {
       return;
     }
 
-    function showItem(id, show) {
-      const item = document.getElementById(id);
-      if (item) {
-        item.hidden = !show;
-      }
+    if (!this._overrideFolder && folderTree.selection.size > 1) {
+      this.updatePopupForMultiselection();
+      return;
     }
 
-    function checkItem(id, checked) {
-      const item = document.getElementById(id);
-      if (item) {
-        // Always convert truthy/falsy to boolean before string.
-        item.setAttribute("checked", !!checked);
-      }
-    }
+    this.updatePopupForSingleSelection();
+  },
 
+  /**
+   * Update the visibility of the folder pane popup menuitems based on the
+   * state of enabled commands.
+   */
+  updatePopupCommandStates() {
     // Ask commandController about the commands it controls.
     for (const [id, command] of Object.entries(this._commands)) {
-      showItem(id, commandController.isCommandEnabled(command));
+      this._showMenuItem(id, commandController.isCommandEnabled(command));
     }
+  },
+
+  /**
+   * Update the fluent strings of the context menu items that can be used for
+   * both single and multi selection. We pass a fake integer count to get the
+   * correct string because we might be showing the context menu for the an
+   * override folder that it's outside the current multiselection range, so
+   * relying on the actual selection count is not accurate.
+   *
+   * @param {integer} count - 1 or 2 depending if single or multiselection.
+   */
+  updateFluentStrings(count) {
+    document.l10n.setAttributes(
+      document.getElementById("folderPaneContext-markMailFolderAllRead"),
+      "folder-pane-context-mark-folder-read",
+      { count }
+    );
+  },
+
+  /**
+   * Update the folder pane popup to show only the available actions supported
+   * during a single folder selection state.
+   */
+  updatePopupForSingleSelection() {
+    this.updatePopupCommandStates();
+    this.updateFluentStrings(1);
 
     const folder = this.activeFolder;
     const { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
@@ -445,39 +578,42 @@ var folderPaneContextMenu = {
     const isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
     const serverType = server.type;
 
-    showItem(
+    this._showMenuItem(
       "folderPaneContext-getMessages",
       (isServer && serverType != "none") ||
         (["nntp", "rss"].includes(serverType) && !isTrash && !isVirtual)
     );
     const showPauseAll = isServer && FeedUtils.isFeedFolder(folder);
-    showItem("folderPaneContext-pauseAllUpdates", showPauseAll);
+    this._showMenuItem("folderPaneContext-pauseAllUpdates", showPauseAll);
     if (showPauseAll) {
       const optionsAcct = FeedUtils.getOptionsAcct(server);
-      checkItem("folderPaneContext-pauseAllUpdates", !optionsAcct.doBiff);
+      this._checkMenuItem(
+        "folderPaneContext-pauseAllUpdates",
+        !optionsAcct.doBiff
+      );
     }
     const showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(folder);
-    showItem("folderPaneContext-pauseUpdates", showPaused);
+    this._showMenuItem("folderPaneContext-pauseUpdates", showPaused);
     if (showPaused) {
       const properties = FeedUtils.getFolderProperties(folder);
-      checkItem(
+      this._checkMenuItem(
         "folderPaneContext-pauseUpdates",
         properties.includes("isPaused")
       );
     }
 
-    showItem("folderPaneContext-searchMessages", !isVirtual);
+    this._showMenuItem("folderPaneContext-searchMessages", !isVirtual);
     if (isVirtual) {
-      showItem("folderPaneContext-subscribe", false);
+      this._showMenuItem("folderPaneContext-subscribe", false);
     } else if (serverType == "rss" && !isTrash) {
-      showItem("folderPaneContext-subscribe", true);
+      this._showMenuItem("folderPaneContext-subscribe", true);
     } else {
-      showItem(
+      this._showMenuItem(
         "folderPaneContext-subscribe",
         isServer && ["imap", "nntp"].includes(serverType)
       );
     }
-    showItem(
+    this._showMenuItem(
       "folderPaneContext-newsUnsubscribe",
       isRealFolder && serverType == "nntp"
     );
@@ -498,33 +634,33 @@ var folderPaneContextMenu = {
         );
     }
 
-    showItem(
+    this._showMenuItem(
       "folderPaneContext-markMailFolderAllRead",
       !isServer && !isSmartTagsFolder && serverType != "nntp"
     );
-    showItem(
+    this._showMenuItem(
       "folderPaneContext-markNewsgroupAllRead",
       isRealFolder && serverType == "nntp"
     );
-    showItem(
+    this._showMenuItem(
       "folderPaneContext-emptyTrash",
       isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true)
     );
-    showItem("folderPaneContext-emptyJunk", isJunk);
-    showItem(
+    this._showMenuItem("folderPaneContext-emptyJunk", isJunk);
+    this._showMenuItem(
       "folderPaneContext-sendUnsentMessages",
       flags & Ci.nsMsgFolderFlags.Queue
     );
 
-    checkItem(
+    this._checkMenuItem(
       "folderPaneContext-favoriteFolder",
       flags & Ci.nsMsgFolderFlags.Favorite
     );
-    showItem("folderPaneContext-markAllFoldersRead", isServer);
+    this._showMenuItem("folderPaneContext-markAllFoldersRead", isServer);
 
-    showItem("folderPaneContext-settings", isServer);
+    this._showMenuItem("folderPaneContext-settings", isServer);
 
-    showItem("folderPaneContext-manageTags", isSmartTagsFolder);
+    this._showMenuItem("folderPaneContext-manageTags", isSmartTagsFolder);
 
     // If source folder is virtual, allow only "move" within its own server.
     // Don't show "copy" and "again" and don't show "recent" and "favorite".
@@ -532,12 +668,12 @@ var folderPaneContextMenu = {
     // in unified folder view or a Tags folder. If so, don't show "move".
     const movePopup = document.getElementById("folderContext-movePopup");
     if (isVirtual) {
-      showItem("folderPaneContext-copyMenu", false);
+      this._showMenuItem("folderPaneContext-copyMenu", false);
       let showMove = true;
       if (isSmartVirtualFolder || isSmartTagsFolder) {
         showMove = false;
       }
-      showItem("folderPaneContext-moveMenu", showMove);
+      this._showMenuItem("folderPaneContext-moveMenu", showMove);
       if (showMove) {
         const rootURI = MailUtils.getOrCreateFolder(
           this.activeFolder.rootFolder.URI
@@ -554,12 +690,82 @@ var folderPaneContextMenu = {
         // Set the move menu to show all accounts.
         movePopup.parentFolder = null;
       }
-      showItem("folderPaneContext-moveMenu", okToMoveCopy);
-      showItem("folderPaneContext-copyMenu", okToMoveCopy);
+      this._showMenuItem("folderPaneContext-moveMenu", okToMoveCopy);
+      this._showMenuItem("folderPaneContext-copyMenu", okToMoveCopy);
     }
 
+    this._refreshMenuSeparator();
+  },
+
+  /**
+   * Update the folder pane popup to show only the available actions supported
+   * during a multiselection state.
+   */
+  updatePopupForMultiselection() {
+    // Hide all menuitems to start from a clean state, except the separators.
+    for (const menuitem of this._menupopup.children) {
+      if (menuitem.localName == "menuseparator") {
+        continue;
+      }
+      menuitem.hidden = true;
+    }
+
+    // Update the command states after we've hidden all the menuitems so we can
+    // show only those that are active.
+    this.updatePopupCommandStates();
+    this.updateFluentStrings(folderTree.selection.size);
+
+    // Hide anything we know for sure we don't need in multiselection.
+    this._showMenuItem("folderPaneContext-getMessages", false);
+    this._showMenuItem("folderPaneContext-pauseAllUpdates", false);
+    this._showMenuItem("folderPaneContext-pauseUpdates", false);
+    this._showMenuItem("folderPaneContext-searchMessages", false);
+    this._showMenuItem("folderPaneContext-subscribe", false);
+    this._showMenuItem("folderPaneContext-newsUnsubscribe", false);
+    this._showMenuItem("folderPaneContext-markNewsgroupAllRead", false);
+    this._showMenuItem("folderPaneContext-emptyTrash", false);
+    this._showMenuItem("folderPaneContext-emptyJunk", false);
+    this._showMenuItem("folderPaneContext-sendUnsentMessages", false);
+    this._showMenuItem("folderPaneContext-markAllFoldersRead", false);
+    this._showMenuItem("folderPaneContext-settings", false);
+    this._showMenuItem("folderPaneContext-manageTags", false);
+
+    // Show only the standard commands that don't require special conditions.
+    this._showMenuItem("folderPaneContext-openNewTab", true);
+    this._showMenuItem("folderPaneContext-openNewWindow", true);
+    this._showMenuItem("folderPaneContext-markMailFolderAllRead", true);
+
+    const hasSpecial = [...folderTree.selection.values()].some(row => {
+      const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+      return (
+        folder.isServer ||
+        folder.isVirtual ||
+        folder.noSelect ||
+        folder.flags & Ci.nsMsgFolderFlags.Junk ||
+        folder.flags & Ci.nsMsgFolderFlags.Virtual ||
+        folder.flags & Ci.nsMsgFolderFlags.SpecialUse ||
+        folder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) ||
+        FolderUtils.isSmartVirtualFolder(folder) ||
+        FolderUtils.isSmartTagsFolder(folder) ||
+        folder.server.type == "nntp"
+      );
+    });
+
+    // Show the move and copy items only if we don't have any special folder in
+    // the selection range.
+    this._showMenuItem("folderPaneContext-moveMenu", !hasSpecial);
+    this._showMenuItem("folderPaneContext-copyMenu", !hasSpecial);
+
+    this._refreshMenuSeparator();
+  },
+
+  /**
+   * Ensure that we don't leave an orphan menuseparator in the folder context
+   * menu after all the items have been updated.
+   */
+  _refreshMenuSeparator() {
     let lastItem;
-    for (const child of document.getElementById("folderPaneContext").children) {
+    for (const child of this._menupopup.children) {
       if (child.localName == "menuseparator") {
         child.hidden = !lastItem || lastItem.localName == "menuseparator";
       }
@@ -615,7 +821,33 @@ var folderPaneContextMenu = {
   },
 
   onCommand(event) {
-    const folder = this.activeFolder;
+    const activeFolder = this.activeFolder;
+    const selectedRows = [...folderTree.selection.values()];
+
+    // If the currently active folder is not part of the current selection,
+    // trigger the command only for that folder.
+    if (!selectedRows.some(s => s.uri == activeFolder.URI)) {
+      this.triggerCommand(event, activeFolder);
+      return;
+    }
+
+    // Loop through all currently selected folders and trigger the command for
+    // each one of those.
+    for (const row of selectedRows) {
+      this.triggerCommand(
+        event,
+        MailServices.folderLookup.getFolderForURL(row.uri)
+      );
+    }
+  },
+
+  /**
+   * Trigger the selected command from the context menu.
+   *
+   * @param {DOMEvent} event
+   * @param {nsIMsgFolder} folder
+   */
+  triggerCommand(event, folder) {
     // If commandController handles this command, ask it to do so.
     if (event.target.id in this._commands) {
       commandController.doCommand(this._commands[event.target.id], folder);
@@ -688,38 +920,23 @@ var folderPaneContextMenu = {
         break;
       default: {
         // Handle folder context menu items move to, copy to.
-        let isMove = false;
-        let isCopy = false;
-        let targetFolder;
-        if (
-          document
-            .getElementById("folderPaneContext-moveMenu")
-            .contains(event.target)
-        ) {
-          // A move is requested via foldermenu-popup.
-          isMove = true;
-        } else if (
-          document
-            .getElementById("folderPaneContext-copyMenu")
-            .contains(event.target)
-        ) {
-          // A copy is requested via foldermenu-popup.
-          isCopy = true;
+        let isMove = !!event.target.closest("#folderPaneContext-moveMenu");
+        const isCopy = !!event.target.closest("#folderPaneContext-copyMenu");
+
+        if (!isMove && !isCopy) {
+          return;
         }
-        if (isMove || isCopy) {
-          if (!targetFolder) {
-            targetFolder = event.target._folder;
-          }
-          isMove = this.transferFolder(isMove, folder, targetFolder);
-          // Save in prefs the target folder URI and if this was a move or
-          // copy. This is to fill in the next folder or message context
-          // menu item "Move|Copy to <TargetFolderName> Again".
-          Services.prefs.setStringPref(
-            "mail.last_msg_movecopy_target_uri",
-            targetFolder.URI
-          );
-          Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
-        }
+
+        const targetFolder = event.target._folder;
+        isMove = this.transferFolder(isMove, folder, targetFolder);
+        // Save in prefs the target folder URI and if this was a move or copy.
+        // This is to fill in the next folder or message context menu item
+        // "Move|Copy to <TargetFolderName> Again".
+        Services.prefs.setStringPref(
+          "mail.last_msg_movecopy_target_uri",
+          targetFolder.URI
+        );
+        Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
         break;
       }
     }
@@ -2434,11 +2651,39 @@ var folderPane = {
       messagePane.clearAll();
     }
 
-    const uri = folderTree.rows[folderTree.selectedIndex]?.uri;
+    const uri = folderTree.selectedRow?.uri;
     if (!uri) {
       gFolder = null;
       return;
     }
+
+    const pageTitle = document.getElementById("about3PaneTitle");
+    // Handle multiselection by preventing any message interaction.
+    if (folderTree.selection.size > 1) {
+      // Only update the title and icon for multiselection once if the previous
+      // state was single selection.
+      if (!pageTitle.hasAttribute("data-l10n-id")) {
+        document.title = "";
+        document.l10n.setAttributes(
+          document.getElementById("about3PaneTitle"),
+          "message-list-placeholder-multiple-folders"
+        );
+        document.head.querySelector(`link[rel="icon"]`).href =
+          FolderUtils.getFolderIcon();
+      }
+
+      gViewWrapper?.close();
+      messagePane.hideCurrentFindBar();
+      gFolder = gDBView = gViewWrapper = threadTree.view = null;
+      threadPaneHeader.onFolderSelected();
+      this._updateStatusQuota();
+      window.dispatchEvent(
+        new CustomEvent("folderURIChanged", { bubbles: true })
+      );
+      return;
+    }
+
+    pageTitle.removeAttribute("data-l10n-id");
     gFolder = MailServices.folderLookup.getFolderForURL(uri);
 
     // Bail out if this is synthetic view, such as a gloda search.
@@ -2640,10 +2885,11 @@ var folderPane = {
       if (!row) {
         return;
       }
-      if (row.uri != gFolder.URI) {
-        // The right-clicked-on folder is not `gFolder`. Tell the context menu
-        // to use it instead. This override lasts until the context menu fires
-        // a "popuphidden" event.
+
+      if (![...folderTree.selection.values()].some(s => s.uri == row.uri)) {
+        // The right-clicked-on folder is not part of the currently selected
+        // list of folders. Tell the context menu to use it instead. This
+        // override lasts until the context menu fires a "popuphidden" event.
         folderPaneContextMenu.setOverrideFolder(
           MailServices.folderLookup.getFolderForURL(row.uri)
         );
@@ -2652,8 +2898,7 @@ var folderPane = {
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
       // Keyboard
-      const row = folderTree.getRowAtIndex(folderTree.selectedIndex);
-      popup.openPopup(row, "after_end", 0, 0, true);
+      popup.openPopup(folderTree.selectedRow, "after_end", 0, 0, true);
     }
 
     event.preventDefault();
@@ -2708,19 +2953,43 @@ var folderPane = {
       return;
     }
 
-    const folder = MailServices.folderLookup.getFolderForURL(row.uri);
-    if (!folder || folder.isServer) {
+    const folders = [];
+    let hasServer = false;
+    let hasNNTP = false;
+    let hasSimpleFolder = false;
+    for (const row of folderTree.selection.values()) {
+      const folder = MailServices.folderLookup.getFolderForURL(row.uri);
+      folders.push(folder);
+
+      if (folder.isServer) {
+        hasServer = true;
+        break;
+      }
+
+      if (folder.server.type == "nntp") {
+        hasNNTP = true;
+        continue;
+      }
+
+      hasSimpleFolder = true;
+    }
+
+    // We don't allow dragging server rows, or mixing folder types.
+    if (hasServer || (hasNNTP && hasSimpleFolder)) {
       event.preventDefault();
       return;
     }
-    if (folder.server.type == "nntp") {
-      event.dataTransfer.mozSetDataAt("text/x-moz-newsfolder", folder, 0);
-      event.dataTransfer.effectAllowed = "move";
-      return;
-    }
 
-    event.dataTransfer.mozSetDataAt("text/x-moz-folder", folder, 0);
-    event.dataTransfer.effectAllowed = "copyMove";
+    for (const [index, folder] of folders.entries()) {
+      event.dataTransfer.mozSetDataAt(
+        folder.server.type == "nntp"
+          ? "text/x-moz-newsfolder"
+          : "text/x-moz-folder",
+        folder,
+        index
+      );
+    }
+    event.dataTransfer.effectAllowed = hasNNTP ? "move" : "copyMove";
   },
 
   _onDragOver(event) {
@@ -2762,41 +3031,43 @@ var folderPane = {
         return;
       }
 
-      const sourceFolder = event.dataTransfer
-        .mozGetDataAt("text/x-moz-folder", 0)
-        .QueryInterface(Ci.nsIMsgFolder);
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        const sourceFolder = event.dataTransfer
+          .mozGetDataAt("text/x-moz-folder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
 
-      // Don't allow to drop on itself.
-      if (targetFolder == sourceFolder) {
-        return;
-      }
-      // Don't copy within same server.
-      if (sourceFolder.server == targetFolder.server && copyKey) {
-        return;
-      }
-      // Don't allow immediate child to be dropped onto its parent.
-      if (targetFolder == sourceFolder.parent) {
-        return;
-      }
-      // Don't allow dragging of virtual folders across accounts.
-      if (
-        sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
-        sourceFolder.server != targetFolder.server
-      ) {
-        return;
-      }
-      // Don't allow parent to be dropped on its ancestors.
-      if (sourceFolder.isAncestorOf(targetFolder)) {
-        return;
-      }
-      // If there is a folder that can't be renamed, don't allow it to be
-      // dropped if it is not to "Local Folders" or is to the same account.
-      if (
-        !sourceFolder.canRename &&
-        (targetFolder.server.type != "none" ||
-          sourceFolder.server == targetFolder.server)
-      ) {
-        return;
+        // Don't allow to drop on itself.
+        if (targetFolder == sourceFolder) {
+          return;
+        }
+        // Don't copy within same server.
+        if (sourceFolder.server == targetFolder.server && copyKey) {
+          return;
+        }
+        // Don't allow immediate child to be dropped onto its parent.
+        if (targetFolder == sourceFolder.parent) {
+          return;
+        }
+        // Don't allow dragging of virtual folders across accounts.
+        if (
+          sourceFolder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
+          sourceFolder.server != targetFolder.server
+        ) {
+          return;
+        }
+        // Don't allow parent to be dropped on its ancestors.
+        if (sourceFolder.isAncestorOf(targetFolder)) {
+          return;
+        }
+        // If there is a folder that can't be renamed, don't allow it to be
+        // dropped if it is not to "Local Folders" or is to the same account.
+        if (
+          !sourceFolder.canRename &&
+          (targetFolder.server.type != "none" ||
+            sourceFolder.server == targetFolder.server)
+        ) {
+          return;
+        }
       }
       event.dataTransfer.dropEffect = copyKey ? "copy" : "move";
     } else if (types.includes("application/x-moz-file")) {
@@ -2813,16 +3084,18 @@ var folderPane = {
       }
       event.dataTransfer.dropEffect = "copy";
     } else if (types.includes("text/x-moz-newsfolder")) {
-      const folder = event.dataTransfer
-        .mozGetDataAt("text/x-moz-newsfolder", 0)
-        .QueryInterface(Ci.nsIMsgFolder);
-      if (
-        targetFolder.isServer ||
-        targetFolder.server.type != "nntp" ||
-        folder == targetFolder ||
-        folder.server != targetFolder.server
-      ) {
-        return;
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        const folder = event.dataTransfer
+          .mozGetDataAt("text/x-moz-newsfolder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
+        if (
+          targetFolder.isServer ||
+          targetFolder.server.type != "nntp" ||
+          folder == targetFolder ||
+          folder.server != targetFolder.server
+        ) {
+          return;
+        }
       }
       event.dataTransfer.dropEffect = "move";
     } else if (
@@ -2937,15 +3210,18 @@ var folderPane = {
         true
       );
     } else if (types.includes("text/x-moz-folder")) {
-      const sourceFolder = event.dataTransfer
-        .mozGetDataAt("text/x-moz-folder", 0)
-        .QueryInterface(Ci.nsIMsgFolder);
       let isMove = event.dataTransfer.dropEffect == "move";
-      isMove = folderPaneContextMenu.transferFolder(
-        isMove,
-        sourceFolder,
-        targetFolder
-      );
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        const sourceFolder = event.dataTransfer
+          .mozGetDataAt("text/x-moz-folder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
+
+        isMove = folderPaneContextMenu.transferFolder(
+          isMove,
+          sourceFolder,
+          targetFolder
+        );
+      }
       // Save in prefs the target folder URI and if this was a move or copy.
       // This is to fill in the next folder or message context menu item
       // "Move|Copy to <TargetFolderName> Again".
@@ -2954,6 +3230,13 @@ var folderPane = {
         targetFolder.URI
       );
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+
+      // FIXME! Bug 1896531.
+      if (event.dataTransfer.mozItemCount > 1) {
+        console.warn(
+          "Bug 1896531. Copy and move for multiselection is only partially supported and it might fail."
+        );
+      }
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
         const extFile = event.dataTransfer
@@ -2973,18 +3256,22 @@ var folderPane = {
         }
       }
     } else if (types.includes("text/x-moz-newsfolder")) {
-      const folder = event.dataTransfer
-        .mozGetDataAt("text/x-moz-newsfolder", 0)
-        .QueryInterface(Ci.nsIMsgFolder);
+      const rows = [];
+      for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
+        const folder = event.dataTransfer
+          .mozGetDataAt("text/x-moz-newsfolder", i)
+          .QueryInterface(Ci.nsIMsgFolder);
 
-      const mode = row.closest("li[data-mode]").dataset.mode;
-      const newsRoot = targetFolder.rootFolder.QueryInterface(
-        Ci.nsIMsgNewsFolder
-      );
-      newsRoot.reorderGroup(folder, targetFolder);
-      setTimeout(
-        () => (folderTree.selectedRow = this.getRowForFolder(folder, mode))
-      );
+        const newsRoot = targetFolder.rootFolder.QueryInterface(
+          Ci.nsIMsgNewsFolder
+        );
+        newsRoot.reorderGroup(folder, targetFolder);
+        const mode = row.closest("li[data-mode]").dataset.mode;
+        rows.push(this.getRowForFolder(folder, mode));
+      }
+      setTimeout(() => {
+        folderTree.swapSelection(rows);
+      });
     } else if (
       types.includes("text/x-moz-url-data") ||
       types.includes("text/x-moz-url")
@@ -3161,7 +3448,7 @@ var folderPane = {
    * Deletes a folder from its parent. Also handles unsubscribe from newsgroups
    * if the selected folder/s happen to be nntp.
    *
-   * @param [folder] - The folder to delete, if not the selected one.
+   * @param {nsIMsgFolder} - The folder to delete.
    */
   deleteFolder(folder) {
     // For newsgroups, "delete" means "unsubscribe".
@@ -3591,6 +3878,10 @@ var folderPane = {
       menupopup.appendChild(menuitem);
     }
   },
+
+  get isMultiSelection() {
+    return folderTree.selection.size > 1;
+  },
 };
 
 /**
@@ -3987,6 +4278,7 @@ var threadPane = {
     threadTree.addEventListener("expanded", this);
     threadTree.addEventListener("collapsed", this);
     threadTree.addEventListener("scroll", this);
+    threadTree.addEventListener("showplaceholder", this);
   },
 
   uninit() {
@@ -4049,6 +4341,13 @@ var threadPane = {
           break;
         }
         this.scrollDetected = true;
+        break;
+      case "showplaceholder":
+        threadTree.updatePlaceholders([
+          folderTree.selection.size > 1
+            ? "placeholderMultipleFolders"
+            : "placeholderNoMessages",
+        ]);
         break;
     }
   },
@@ -4514,14 +4813,14 @@ var threadPane = {
    * (Strictly speaking the shim passed here isn't a tree either but it does
    * implement the required methods.)
    *
-   * @param {nsIMsgDBView} view
+   * @param {?nsIMsgDBView} view
    */
   setTreeView(view) {
     threadTree.view = gDBView = view;
     // Clear the batch flag. Don't call `endUpdateBatch` as that may change in
     // future leading to unintended consequences.
     this._jsTree._inBatch = false;
-    view.setJSTree(this._jsTree);
+    view?.setJSTree(this._jsTree);
   },
 
   setUpTagStyles() {
@@ -4745,6 +5044,11 @@ var threadPane = {
    *   state.
    */
   restoreThreadState(setState = true) {
+    // Early return if the view is not available, eg. in multiselection.
+    if (!gViewWrapper) {
+      return;
+    }
+
     if (setState) {
       if (
         gViewWrapper._threadExpandAll &&
@@ -5781,7 +6085,7 @@ function displayFolder(folder) {
   }
 
   ensureFolderTreeRowIsVisible(row);
-  folderTree.selectedRow = row;
+  folderTree.updateSelection(row);
 }
 
 /**
@@ -5819,10 +6123,23 @@ var folderListener = {
   },
   onMessageAdded() {},
   onFolderRemoved(parentFolder, childFolder) {
+    // Check if the folder is in the selection range before we remove it.
+    const row = folderPane.getRowForFolder(childFolder.URI);
+    const notInRange = !folderTree.selection.has(folderTree.rows.indexOf(row));
+
     folderPane.removeFolder(parentFolder, childFolder);
     if (childFolder == gFolder) {
       gFolder = null;
       gViewWrapper?.close(true);
+    }
+
+    // We need to rebuild the selection map if a folder was removed while we had
+    // multiple folders selected and it wasn't part of the selection range, to
+    // ensure the indices match the rows.
+    if (folderTree.selection.size > 1 && notInRange) {
+      setTimeout(() => {
+        folderTree.swapSelection([...folderTree.selection.values()]);
+      });
     }
   },
   onMessageRemoved() {
@@ -5910,7 +6227,19 @@ commandController.registerCallback("cmd_newVirtualFolder", (folder = gFolder) =>
 );
 commandController.registerCallback(
   "cmd_deleteFolder",
-  (folder = gFolder) => folderPane.deleteFolder(folder),
+  (folder = gFolder) => {
+    if (folder) {
+      folderPane.deleteFolder(folder);
+      return;
+    }
+    // gFolder is not defined and the folder is null, which means a DELETE
+    // keyboard shortcut was triggered for a multiselection. Loop through
+    // all currently selected folders and delete them.
+    for (const row of folderTree.selection.values()) {
+      folder = MailServices.folderLookup.getFolderForURL(row.uri);
+      folderPane.deleteFolder(folder);
+    }
+  },
   () => folderPaneContextMenu.getCommandState("cmd_deleteFolder")
 );
 commandController.registerCallback(
@@ -5923,9 +6252,9 @@ commandController.registerCallback(
   (folder = gFolder) => {
     if (folder.isServer) {
       folderPane.compactAllFoldersForAccount(folder);
-    } else {
-      folderPane.compactFolder(folder);
+      return;
     }
+    folderPane.compactFolder(folder);
   },
   () => folderPaneContextMenu.getCommandState("cmd_compactFolder")
 );
