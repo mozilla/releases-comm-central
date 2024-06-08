@@ -78,7 +78,7 @@ menupopup {
     &[disabled="true"]:hover,
     &[checked="true"][disabled="true"],
     &[checked="true"][disabled="true"]:hover {
-      color: var(--text-color-deemphasized);
+      color: var(--panel-disabled-color);
       background-color: transparent;
     }
 
@@ -158,6 +158,12 @@ menu > .menu-right {
 
 .menu-iconic-accel {
   margin-inline-end: 3px;
+}
+
+@media not (prefers-contrast) {
+  menuitem:not([disabled]) > .menu-accel-container > :is(.menu-accel, .menu-iconic-accel) {
+    color: var(--text-color-deemphasized);
+  }
 }
 
 /* navigation buttons in context menu */
