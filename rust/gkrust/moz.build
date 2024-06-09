@@ -6,7 +6,8 @@
 
 include("/toolkit/library/rust/moz.build")
 
-RUST_TEST_FEATURES.remove("gkrust-shared/crashreporter")
+if CONFIG["MOZ_CRASHREPORTER"]:
+    RUST_TEST_FEATURES.remove("gkrust-shared/crashreporter")
 RUST_TEST_FEATURES.remove("crashreporter/mock")
 
 # Defined in /toolkit/library/rust/moz.build
