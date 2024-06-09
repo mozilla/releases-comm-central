@@ -138,11 +138,17 @@ async function createAddressBookWithUI(abName) {
   );
 
   const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
+
+  const menu = abDocument.getElementById("booksPaneCreateBookContext");
   EventUtils.synthesizeMouseAtCenter(
     abWindow.document.getElementById("booksPaneCreateBook"),
     {},
     abWindow
   );
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+  menu.activateItem(abDocument.getElementById("booksPaneContextCreateBook"));
+  await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
   const abNameDialog = await newAddressBookPromise;
   EventUtils.sendString(abName, abNameDialog);

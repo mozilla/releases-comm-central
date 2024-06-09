@@ -128,7 +128,8 @@ body {
 
 #booksPaneCreateBook,
 #booksPaneCreateContact,
-#booksPaneCreateList {
+#booksPaneCreateList,
+#booksPaneImport {
   min-height: 24px;
   --icon-size: var(--books-pane-icon-size);
 }
@@ -146,6 +147,11 @@ body {
   background-image: var(--icon-new-user-list);
 }
 
+#booksPaneImport {
+  font-weight: normal;
+  background-image: var(--icon-import);
+}
+
 /* Books pane */
 
 #booksPane {
@@ -155,6 +161,12 @@ body {
   overflow: hidden;
   color: var(--listbox-color);
   background-color: var(--sidebar-background-color, var(--ab-pane-background));
+}
+
+.books-pane-bottom {
+  display: flex;
+  justify-content: end;
+  margin-block-start: 6px;
 }
 
 #booksSplitter {
@@ -1054,7 +1066,6 @@ input[type="number"] {
   border-top: 1px solid var(--splitter-color);
   color: color-mix(in srgb, currentColor 75%, transparent);
   padding: 9px;
-  margin-block-start: 6px;
   font-weight: 500;
   font-size: 1rem;
 }

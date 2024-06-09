@@ -114,6 +114,9 @@ window.addEventListener("load", () => {
           break;
       }
     });
+  document
+    .getElementById("booksPaneImport")
+    .addEventListener("click", () => importBook());
 
   document.getElementById("bookContext").addEventListener("command", event => {
     switch (event.target.id) {
