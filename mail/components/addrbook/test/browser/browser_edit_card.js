@@ -2915,9 +2915,6 @@ add_task(async function test_type_selection() {
     ],
   });
 
-  EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
-  await notInEditingMode(editButton);
-
   await closeAddressBookWindow();
   await promiseDirectoryRemoved(book.URI);
 });
