@@ -198,7 +198,7 @@ add_task(async function test_joinChat() {
       if (key === "roomIdOrAlias") {
         return roomId;
       }
-      ok(false, "Unknown chat room field");
+      ok(false, `Unknown chat room field "${key}"`);
       return null;
     },
   };
