@@ -30,7 +30,7 @@
   <url type="faq">https://support.mozilla.org/kb/thunderbird-faq/</url>
   <url type="help">https://support.mozilla.org/products/thunderbird/</url>
   <url type="donation">https://give.thunderbird.net/</url>
-  <url type="translate">https://www.thunderbird.net/en-US/get-involved/#translation</url>
+  <url type="translate">https://www.thunderbird.net/participate/</url>
 
   <project_group>Mozilla</project_group>
   <project_license>MPL-2.0</project_license>

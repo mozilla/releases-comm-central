@@ -134,7 +134,7 @@ This is the tricky bit since you need to specify the directory that installs the
 
 ### Getting Plugged into the Community
 
-We have a complete listing of the ways in which you can get involved with Thunderbird [on our website](https://thunderbird.net/get-involved). Below are some quick references from that page that you can use if you are looking to contribute to Thunderbird core right away.
+We have a complete listing of the ways in which you can get involved with Thunderbird [on our website](https://thunderbird.net/participate). Below are some quick references from that page that you can use if you are looking to contribute to Thunderbird core right away.
 
 #### Mailing Lists
 

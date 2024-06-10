@@ -172,7 +172,7 @@ function togglePaneSplitter(splitterId) {
 function openLinkText(event, what) {
   switch (what) {
     case "getInvolvedURL":
-      openUILink("https://www.thunderbird.net/get-involved/", event);
+      openUILink("https://www.thunderbird.net/participate/", event);
       break;
     case "keyboardShortcutsURL":
       openUILink("https://support.mozilla.org/kb/keyboard-shortcuts/", event);
