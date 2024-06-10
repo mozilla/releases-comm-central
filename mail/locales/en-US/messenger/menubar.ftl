@@ -26,10 +26,6 @@ menu-help-get-help =
     .label = Get Help
     .accesskey = H
 
-menu-help-explore-features =
-    .label = Explore Features
-    .accesskey = F
-
 menu-help-shortcuts =
     .label = Keyboard Shortcuts
     .accesskey = K

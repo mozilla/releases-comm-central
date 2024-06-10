@@ -471,10 +471,6 @@ aside.settings-btn-container {
   background-color: transparent;
 }
 
-#featuresLink::before {
-  background-image: var(--icon-features);
-}
-
 #supportLink::before {
   background-image: var(--icon-question);
 }

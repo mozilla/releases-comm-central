@@ -54,7 +54,6 @@ about-paragraph = Thunderbird is the leading open source, cross-platform email a
 
 about-paragraph-consider-donation = <b>Thunderbird is funded by users like you! If you like Thunderbird, please consider making a donation.</b> The best way for you to ensure Thunderbird remains available is to <a data-l10n-name="donation-link"> make a donation</a>.
 
-explore-link = Explore Features
 support-link = Support
 involved-link = Get Involved
 developer-link = Developer Documentation

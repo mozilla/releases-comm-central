@@ -183,9 +183,6 @@ function openLinkText(event, what) {
         event
       );
       break;
-    case "tourURL":
-      openUILink("https://www.thunderbird.net/features/", event);
-      break;
     case "feedbackURL":
       openUILink("https://connect.mozilla.org/", event);
       break;

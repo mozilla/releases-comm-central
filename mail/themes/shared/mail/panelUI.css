@@ -1129,10 +1129,6 @@ menulist {
   list-style-image: var(--icon-question);
 }
 
-#appmenu_openTour {
-  list-style-image: var(--icon-features);
-}
-
 #appmenu_keyboardShortcuts {
   list-style-image: var(--icon-shortcut);
 }

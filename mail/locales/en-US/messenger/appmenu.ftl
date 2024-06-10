@@ -209,10 +209,6 @@ appmenu-help-get-help =
   .label = Get Help
   .accesskey = H
 
-appmenu-help-explore-features =
-  .label = Explore Features
-  .accesskey = F
-
 appmenu-help-shortcuts =
   .label = Keyboard Shortcuts
   .accesskey = K
