@@ -597,7 +597,7 @@ export class MsgHdrProcessor {
    * @returns {Promise<MimeTreePart[]>}
    */
   async getAttachmentParts(options) {
-    const rawMessage = await this.getOriginalMessage();
+    const rawMessage = await this.getDecryptedMessage();
     const mimeTree = this.#parseMessage(
       rawMessage,
       {
@@ -645,7 +645,7 @@ export class MsgHdrProcessor {
    * @returns {Promise<MimeTreePart>}
    */
   async getAttachmentPart(partName, options) {
-    const rawMessage = await this.getOriginalMessage();
+    const rawMessage = await this.getDecryptedMessage();
     const includeRaw = options?.includeRaw ?? false;
     const mimeTree = this.#parseMessage(
       rawMessage,

@@ -1,0 +1,51 @@
+Message-ID: <sample.eml@mime.sample>
+Date: Fri, 20 May 2000 00:29:55 -0400
+To: Alice Lovelace <alice@openpgp.example>
+From: Batman <bruce@wayne-enterprises.com>
+Subject: Encrypted, attached message with attachments
+Mime-Version: 1.0
+Content-Type: multipart/encrypted;
+ protocol="application/pgp-encrypted";
+ boundary="------------M20GNGI1rLZhtbYD7WFekIXJ"
+
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+--------------M20GNGI1rLZhtbYD7WFekIXJ
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--------------M20GNGI1rLZhtbYD7WFekIXJ
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+-----BEGIN PGP MESSAGE-----
+
+hF4DR2b2udXyHrYSAQdAkHA/pErV3hMoJphrF/glWHFydVs+PeGud6VzdyG6rF4w
+s0EzVZ9peVVd0+XewFpTTasMWEB9WcC1s/bVMTY2cz2TbHLufxp8XDUwyOwCoSvn
+0ukBxBk5ZqNqYNGI/LZ/9zBltAWmrxTt00BKzNuigQyhWTMFZx1SMbTamro0+ej0
+9U61CaCfLT31b+DsMyOj+FQ+0DPq4rEZ5Oek9atkaRQ1N9kbvaLmgJB+Ya+kJTnQ
+jPZEPrtHAVkSZSciPJxwkluacZMrRKWExq1HHoSoLI5NG0gIkT7+lqGX3e2HOFm8
+NuKvOyOk6Pza0v15vKf8NlXjwfgzR8ZuaNaMjO6q5ismCfm6qpLFG+YGRw7KydOQ
+ZiQ2pAWhBQEaDJuDTGM9KT2onQjkFl4okIkMRU7dapjBAZpM01t3g1YDss6UHMil
+8zRT1dlEdeoCIQiRLJykCHsSVAAujWLGLdMQt9oYekbiTC0U56t9tbQrO8P7ZB2F
+JEHeNcKRAxGod7WSl8Nbxfor8mQ8zuxUMjEdhmrBzsKTcfteTYLeMbrcXslguxxD
+LDrbM7MevUTjfPJGAF9B+OMOMnyw1g5El/tK+wEFE3zv03EBEtEHjl4RPDPIzfZ3
+ozKVPkzEmLkZPHMN2yKJzT2nsKI8RSqpoTxfk3QlKSrVHTaZhQDSTcorzFXLDL8Y
+vdXQoozFyTfPVd3PHBp/L2tfnYZDpwqraicPK4eX0yQ+eoN1W5qFUXHFHcZFFyPo
+InJsYtEBABGWtRWcZY58BX34/Fi8mHyrAWV6gRnAKVO3ecElfvgHgNdoufJzHLEY
+b/B+I1UfRxKX37vrlPtszHpEJLk6+EYPHcPA5kjmDi4tMm3NkJJI6FBnybulzNRC
+bgHnVKlJgJLoiRbKC7fbuOtM523+krkWlKPZhEXs+qY9PjIzaEpmAIUE64gPnCiT
+OcyWQjG3hX2lo9E9CyBlI0SvyYkdHnbKAWIeZNd/k7STK99actjPg2Wn0XloYpx4
+/ldupx5oYAhcQW7lKHrczsEqXp4yi+f7KFEXVeerVxNuaSaBSpDIqTSQ82GVotB1
+3iGJFzqcpykeYVJZtYylMxRE5gKyU4wBkzPO7Thsxo8DVFcRkFAslnknEk2kqNf6
+fKiWh7k0cqYvldLTVhbNkn/Tk7XXWlFFIFlqpOB8cXqSgcUp09PxQHHQB8nlftJK
+627u7FBhrH6J01YbuLpHP+aO8pykNrS+JgvOvYxa9aGDmWSz70lDmp27hPGPvpWF
+UU74y4xTcBtPB1xM580zvDOZULDQHmTmNyGzcOlWvGXpCbcDzeYyJRKb2+arZ7CM
+uQj5Kyari1l6fDttXtuVVvoaHpCk8h5+IqwVTWi2qqoK0C6VgMQnBYs2EnfjbU/I
+ywL4O+JDUGkxFBjkSrwyQAUY3LoA5CqaxApOwCPbP/veHpLYOuMFIkw=
+=fK7D
+-----END PGP MESSAGE-----
+
+--------------M20GNGI1rLZhtbYD7WFekIXJ--

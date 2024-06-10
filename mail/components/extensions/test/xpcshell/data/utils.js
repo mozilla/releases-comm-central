@@ -27,31 +27,46 @@ function assertDeepEqual(
   }
 }
 
-function assertDeepEqualNested(expected, actual, strict) {
+function assertDeepEqualNested(expected, actual, strict, description) {
   if (expected === null) {
-    browser.test.assertTrue(actual === null);
+    browser.test.assertTrue(actual === null, description);
     return actual === null;
   }
 
   if (expected === undefined) {
-    browser.test.assertTrue(actual === undefined);
+    browser.test.assertTrue(actual === undefined, description);
     return actual === undefined;
   }
 
+  browser.test.assertEq(
+    typeof expected,
+    typeof actual,
+    `${description} (type check)`
+  );
   if (["boolean", "number", "string"].includes(typeof expected)) {
-    browser.test.assertEq(typeof expected, typeof actual);
-    browser.test.assertEq(expected, actual);
+    browser.test.assertEq(expected, actual, `${description} (value check)`);
     return typeof expected == typeof actual && expected == actual;
   }
 
   if (Array.isArray(expected)) {
-    browser.test.assertTrue(Array.isArray(actual));
-    browser.test.assertEq(expected.length, actual.length);
+    browser.test.assertTrue(Array.isArray(actual), `${description} (exist)`);
+    browser.test.assertEq(
+      expected.length,
+      actual.length,
+      `${description} (length check)`
+    );
     let ok = 0;
     let all = 0;
     for (let i = 0; i < expected.length; i++) {
       all++;
-      if (assertDeepEqualNested(expected[i], actual[i], strict)) {
+      if (
+        assertDeepEqualNested(
+          expected[i],
+          actual[i],
+          strict,
+          `Array entry #${i} is correct`
+        )
+      ) {
         ok++;
       }
     }
@@ -66,14 +81,36 @@ function assertDeepEqualNested(expected, actual, strict) {
   const lengthOk = strict
     ? expectedKeys.length == actualKeys.length
     : expectedKeys.length <= actualKeys.length;
-  browser.test.assertTrue(lengthOk);
+  if (strict) {
+    browser.test.assertEq(
+      expectedKeys.length,
+      actualKeys.length,
+      `strict length check for ${description}, expected exactly: ${JSON.stringify(
+        expectedKeys
+      )}, actual: ${JSON.stringify(actualKeys)}`
+    );
+  } else {
+    browser.test.assertTrue(
+      lengthOk,
+      `lazy length check for ${description}, expected at least: ${JSON.stringify(
+        expectedKeys
+      )}, actual: ${JSON.stringify(actualKeys)}`
+    );
+  }
 
   let ok = 0;
   let all = 0;
   for (const key of expectedKeys) {
     all++;
     browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
-    if (assertDeepEqualNested(expected[key], actual[key], strict)) {
+    if (
+      assertDeepEqualNested(
+        expected[key],
+        actual[key],
+        strict,
+        `Key ${key} is correct`
+      )
+    ) {
       ok++;
     }
   }

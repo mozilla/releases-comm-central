@@ -201,7 +201,7 @@
           "size": {
             "type": "integer",
             "optional": true,
-            "description": "The size of this part. The size of <em>message/*</em> parts is not the actual message size (on disc), but the total size of its decoded body parts, excluding headers."
+            "description": "The size of this part. The size of parts with content type <em>message/rfc822</em> is not the actual message size (on disc), but the total size of its decoded body parts, excluding headers."
           }
         }
       },
