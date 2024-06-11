@@ -208,6 +208,55 @@ async function test_midwayFail() {
   localAccountUtils.clearAll();
 }
 
+/**
+ * Test that onCompactionComplete returns sensible before and after sizes.
+ * See Bug 1900172.
+ */
+async function test_sizesAtCompletion() {
+  localAccountUtils.loadLocalMailAccount();
+  const inbox = localAccountUtils.inboxFolder;
+
+  Assert.ok(inbox.msgStore.supportsCompaction);
+
+  const generator = new MessageGenerator();
+  inbox.addMessageBatch(
+    generator
+      .makeMessages({ count: 50 })
+      .map(message => message.toMessageString())
+  );
+
+  let info = await IOUtils.stat(inbox.filePath.path);
+  const oldFileSize = info.size;
+
+  // Monkey-patch listener to discard every second message and to note
+  // sizes upon completion.
+  const l = new PromiseStoreCompactListener();
+  l.msgCount = 0;
+  l.onRetentionQuery = function (_storeToken) {
+    ++this.msgCount;
+    return this.msgCount % 2 == 0;
+  };
+  l._onCompactionComplete = l.onCompactionComplete;
+  l.onCompactionComplete = function (status, oldSize, newSize) {
+    this.newSize = newSize;
+    this.oldSize = oldSize;
+    this._onCompactionComplete(status, oldSize, newSize);
+  };
+
+  inbox.msgStore.asyncCompact(inbox, l, true);
+  await l.promise;
+
+  // NOTE: We avoid the use of inbox.filePath.fileSize because of
+  // nsIfile stat caching under windows (Bug 456603).
+  info = await IOUtils.stat(inbox.filePath.path);
+  const newFileSize = info.size;
+
+  Assert.equal(oldFileSize, l.oldSize, "reported oldSize matches filesize");
+  Assert.equal(newFileSize, l.newSize, "reported newSize matches filesize");
+
+  localAccountUtils.clearAll();
+}
+
 // TODO
 // More test ideas:
 // - Test X-Mozilla-* header patching (higher-level folder-compact tests
@@ -226,3 +275,4 @@ const mboxStore = "@mozilla.org/msgstore/berkeleystore;1";
 add_task(withStore(mboxStore, test_discardAll));
 add_task(withStore(mboxStore, test_listenerErrors));
 add_task(withStore(mboxStore, test_midwayFail));
+add_task(withStore(mboxStore, test_sizesAtCompletion));

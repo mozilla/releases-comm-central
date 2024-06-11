@@ -478,7 +478,16 @@ NS_IMETHODIMP MboxCompactor::OnStopScan(nsresult status) {
 
   int64_t finalSize = 0;
   if (NS_SUCCEEDED(rv)) {
-    rv = mMboxPath->GetFileSize(&finalSize);
+    // nsIFile.fileSize is cached on Windows, but this cache is not correctly
+    // invalidated after write (Bug 1022704).
+    // So clone it before reading the size again.
+    // This dirties the cached values, forcing it to actually ask the
+    // filesystem again (see Bug 307815, Bug 456603).
+    nsCOMPtr<nsIFile> path;
+    rv = mMboxPath->Clone(getter_AddRefs(path));
+    if (NS_SUCCEEDED(rv)) {
+      rv = path->GetFileSize(&finalSize);
+    }
   }
 
   mCompactListener->OnCompactionComplete(rv, mOriginalMboxFileSize, finalSize);
