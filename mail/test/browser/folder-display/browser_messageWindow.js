@@ -59,6 +59,28 @@ add_task(async function test_open_message_window() {
   // display it
   msgc = await open_selected_message_in_new_window();
   await assert_selected_and_displayed(msgc, curMessage);
+
+  let expectedTitle =
+    msgc.document.getElementById("messageBrowser").contentTitle;
+  if (AppConstants.platform == "macosx") {
+    await TestUtils.waitForCondition(
+      () =>
+        msgc.document.getElementById("titlebar-title-label").value ==
+        expectedTitle
+    );
+    Assert.equal(
+      msgc.document.getElementById("titlebar-title-label").value,
+      expectedTitle
+    );
+  } else {
+    expectedTitle += `${msgc.document.documentElement.getAttribute(
+      "titlemenuseparator"
+    )}${msgc.document.documentElement.getAttribute("titlemodifier")}`;
+    await TestUtils.waitForCondition(
+      () => msgc.window.document.title == expectedTitle
+    );
+    Assert.equal(msgc.window.document.title, expectedTitle);
+  }
 });
 
 /**

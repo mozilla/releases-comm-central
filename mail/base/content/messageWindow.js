@@ -93,7 +93,8 @@ function OnLoadMessageWindow() {
   messageBrowser.addEventListener("DOMTitleChanged", () => {
     if (messageBrowser.contentTitle) {
       if (AppConstants.platform == "macosx") {
-        document.title = messageBrowser.contentTitle;
+        document.getElementById("titlebar-title-label").value =
+          messageBrowser.contentTitle;
       } else {
         document.title =
           messageBrowser.contentTitle +
@@ -101,7 +102,13 @@ function OnLoadMessageWindow() {
           document.documentElement.getAttribute("titlemodifier");
       }
     } else {
-      document.title = document.documentElement.getAttribute("titlemodifier");
+      const titleModifier =
+        document.documentElement.getAttribute("titlemodifier");
+      if (AppConstants.platform == "macosx") {
+        document.getElementById("titlebar-title-label").value = titleModifier;
+      } else {
+        document.title = titleModifier;
+      }
     }
   });
 
