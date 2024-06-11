@@ -385,6 +385,7 @@
   skin/classic/messenger/shared/preferences/chat.svg          (../shared/mail/preferences/chat.svg)
   skin/classic/messenger/shared/preferences/general.svg       (../shared/mail/preferences/general.svg)
   skin/classic/messenger/shared/preferences/privacy-security.svg  (../shared/mail/preferences/privacy-security.svg)
+  skin/classic/messenger/shared/list-container.css            (../shared/mail/list-container.css)
   skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
   skin/classic/messenger/shared/menulist.css                  (../shared/mail/menulist.css)
   skin/classic/messenger/shared/messageBody.css               (../shared/mail/messageBody.css)
