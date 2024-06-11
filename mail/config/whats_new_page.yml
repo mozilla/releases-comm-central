@@ -11,7 +11,7 @@
   # yamllint disable-line rule:line-length
   url: https://live.thunderbird.net/thunderbird/releasenotes?locale=%LOCALE%&version={version}&channel=esr
   conditions:
-      update-channel: esr
+      release-types: [esr128]
 - type: show-url
   # yamllint disable-line rule:line-length
   url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&oldversion=%OLD_VERSION%
