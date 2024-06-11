@@ -3367,7 +3367,7 @@ add_task(async function test_remove_button() {
     EventUtils.synthesizeMouseAtCenter(removeButton, {}, abWindow);
     await removeEvent;
 
-    await Assert.ok(
+    Assert.ok(
       !vCardEdit.vCardProperties.getFirstEntry(propertyName),
       `${propertyName} is removed.`
     );
@@ -3391,6 +3391,17 @@ add_task(async function test_remove_button() {
       );
     }
   }
+
+  // Title and role are removed with org, making sure they were also cleared
+  // from the VCard.
+  Assert.ok(
+    !vCardEdit.vCardProperties.getFirstEntry("title"),
+    "title is removed."
+  );
+  Assert.ok(
+    !vCardEdit.vCardProperties.getFirstEntry("role"),
+    "role is removed."
+  );
 
   const saveEditButton = abDocument.getElementById("saveEditButton");
   const editButton = abDocument.getElementById("editButton");

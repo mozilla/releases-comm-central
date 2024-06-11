@@ -827,8 +827,16 @@ class VCardEdit extends HTMLElement {
     this.querySelector(
       "#addr-book-edit-org .remove-property-button"
     ).addEventListener("click", event => {
-      this.querySelector("vcard-title").remove();
-      this.querySelector("vcard-role").remove();
+      const title = this.querySelector("vcard-title");
+      title.dispatchEvent(
+        new CustomEvent("vcard-remove-property", { bubbles: true })
+      );
+      title.remove();
+      const role = this.querySelector("vcard-role");
+      role.dispatchEvent(
+        new CustomEvent("vcard-remove-property", { bubbles: true })
+      );
+      role.remove();
       const org = this.querySelector("vcard-org");
       // Reveal the "Add" button so we can focus it.
       document.getElementById("vcard-add-org").hidden = false;
