@@ -219,7 +219,7 @@ async function subsubtest(
   // while the first alert is open, but we should wait a while for them.
   await promiseServerIdle(inbox.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   MockAlertsService._listener.observe(null, "alertclickcallback", alert.cookie);
   MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);

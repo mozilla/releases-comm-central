@@ -128,9 +128,6 @@ add_task(async function testConnectionRefused() {
       () => MockAlertsService._alert,
       "waiting for connection alert to show"
     );
-    MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
-    delete MockAlertsService._alert;
-    delete MockAlertsService._listener;
 
     Assert.equal(alert.imageURL, "chrome://branding/content/icon48.png");
     Assert.stringContains(
@@ -143,6 +140,16 @@ add_task(async function testConnectionRefused() {
       "the connection was refused",
       "the alert text should state the problem"
     );
+
+    // There could be multiple alerts for the same problem. These are swallowed
+    // while the first alert is open, but we should wait a while for them.
+    await promiseServerIdle(inbox.server);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
+    delete MockAlertsService._alert;
+    delete MockAlertsService._listener;
   }
 
   await promiseServerIdle(imapAccount.incomingServer);
