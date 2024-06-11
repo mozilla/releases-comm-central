@@ -135,7 +135,12 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           const nativeTab = event.target.tabOrWindow;
           const tab = tabManager.wrapTab(nativeTab);
           const msgs = getDisplayedMessages(tab);
-          fire.async(tab.convert(), convertMessages(msgs, extension));
+          if (extension.manifestVersion < 3) {
+            fire.async(tab.convert(), convertMessages(msgs, extension));
+          } else {
+            const page = await messageListTracker.startList(msgs, extension);
+            fire.async(tab.convert(), page);
+          }
         },
       };
       windowTracker.addListener("MsgsLoaded", listener);
@@ -266,11 +271,10 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
         },
         async getDisplayedMessages(tabId) {
           const tab = await getMessageDisplayTab(tabId);
-          if (!tab) {
-            return [];
-          }
-          const messages = getDisplayedMessages(tab);
-          return convertMessages(messages, extension);
+          const messages = tab ? getDisplayedMessages(tab) : [];
+          return extension.manifestVersion < 3
+            ? convertMessages(messages, extension)
+            : messageListTracker.startList(messages, extension);
         },
         async open(properties) {
           if (

@@ -29,11 +29,17 @@
             "$ref": "tabs.Tab"
           },
           {
+            "max_manifest_version": 2,
             "name": "messages",
             "type": "array",
             "items": {
               "$ref": "messages.MessageHeader"
             }
+          },
+          {
+            "min_manifest_version": 3,
+            "name": "displayedMessages",
+            "$ref": "messages.MessageList"
           }
         ]
       }
@@ -89,10 +95,19 @@
             "optional": true,
             "parameters": [
               {
-                "type": "array",
-                "items": {
-                  "$ref": "messages.MessageHeader"
-                }
+                "choices": [
+                  {
+                    "max_manifest_version": 2,
+                    "type": "array",
+                    "items": {
+                      "$ref": "messages.MessageHeader"
+                    }
+                  },
+                  {
+                    "min_manifest_version": 3,
+                    "$ref": "messages.MessageList"
+                  }
+                ]
               }
             ]
           }
