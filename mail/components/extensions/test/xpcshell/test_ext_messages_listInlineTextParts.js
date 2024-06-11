@@ -103,37 +103,6 @@ add_task(async function test_messages_listInlineTextParts() {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        // Example function to extract inline text parts. These parts are the only
-        // parts which are not returned by messages.listAttachments(). They are
-        // accessible through messages.getFull() (the only parts which include
-        // their content), but the developer needs deeper knowledge of the MIME
-        // structure of messages. This helper function simplifies getting the
-        // content of these parts and will be used in documentation and should
-        // therefore be tested.
-        async function listInlineTextParts(id) {
-          const extractInlineTextParts = part => {
-            if (
-              part.parts &&
-              (part.contentType.startsWith("multipart/") ||
-                part.contentType.startsWith("message/"))
-            ) {
-              for (const subPart of part.parts) {
-                extractInlineTextParts(subPart);
-              }
-            } else if (part.contentType.startsWith("text/") && part.body) {
-              textParts.push({
-                contentType: part.contentType,
-                content: part.body,
-              });
-            }
-          };
-
-          const textParts = [];
-          const mimeTree = await browser.messages.getFull(id);
-          extractInlineTextParts(mimeTree);
-          return textParts;
-        }
-
         const [folder] = await browser.folders.query({ name: "test1" });
         const { messages } = await browser.messages.list(folder.id);
         browser.test.assertEq(15, messages.length);
@@ -279,7 +248,7 @@ add_task(async function test_messages_listInlineTextParts() {
         for (let i = 0; i < TEST_MESSAGES.length; i++) {
           window.assertDeepEqual(
             TEST_MESSAGES[i],
-            await listInlineTextParts(messages[i].id),
+            await browser.messages.listInlineTextParts(messages[i].id),
             `Should find the correct body parts for message #${i}`,
             {
               strict: true,

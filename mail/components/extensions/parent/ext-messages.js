@@ -642,6 +642,47 @@ this.messages = class extends ExtensionAPIPersistent {
             type: "message/rfc822",
           });
         },
+        async listInlineTextParts(messageId) {
+          const msgHdr = messageManager.get(messageId);
+          if (!msgHdr) {
+            throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+          const msgHdrProcessor = new MsgHdrProcessor(msgHdr);
+          let mimeTree;
+          try {
+            mimeTree = await msgHdrProcessor.getDecryptedTree();
+          } catch (ex) {
+            console.error(ex);
+            throw new ExtensionError(`Error reading message ${messageId}`);
+          }
+
+          if (msgHdr.flags & Ci.nsMsgMessageFlags.Partial) {
+            // Do not include fake body parts.
+            mimeTree.subParts = [];
+          }
+
+          const extractInlineTextParts = mimeTreePart => {
+            const { mediatype, subtype } = mimeTreePart.headers.contentType;
+            if (mediatype == "multipart") {
+              for (const subPart of mimeTreePart.subParts) {
+                extractInlineTextParts(subPart);
+              }
+            } else if (
+              mediatype == "text" &&
+              mimeTreePart.body &&
+              !mimeTreePart.isAttachment
+            ) {
+              textParts.push({
+                contentType: `text/${subtype}`,
+                content: mimeTreePart.body,
+              });
+            }
+          };
+
+          const textParts = [];
+          extractInlineTextParts(mimeTree);
+          return textParts;
+        },
         async listAttachments(messageId) {
           const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {

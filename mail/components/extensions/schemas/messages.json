@@ -34,6 +34,21 @@
         "description": "A unique id representing a :ref:`messages.MessageHeader` and the associated message. This id doesn’t refer to the Message-ID email header. It is an internal tracking number that does not remain after a restart. Nor does it follow an email that has been moved to a different folder."
       },
       {
+        "id": "InlineTextPart",
+        "type": "object",
+        "description": "An inline part with content type <value>text/*</value>. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>",
+        "properties": {
+          "contentType": {
+            "type": "string",
+            "description": "The content type of the part. Most common types for inline text parts are <value>text/plain</value> and <value>text/html</value>. Possible other (deprecated) types are <value>text/richtext</value> and <value>text/enriched</value>. Some calendaring services include an inline text part with type <value>text/calendar</value>."
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of this inline text part."
+          }
+        }
+      },
+      {
         "id": "MessageHeader",
         "type": "object",
         "description": "Basic information about a message.",
@@ -144,7 +159,7 @@
           "messages": {
             "type": "array",
             "items": {
-              "$ref": "MessageHeader"
+              "$ref": "messages.MessageHeader"
             }
           }
         }
@@ -193,7 +208,7 @@
           "parts": {
             "type": "array",
             "items": {
-              "$ref": "MessagePart"
+              "$ref": "messages.MessagePart"
             },
             "description": "Any sub-parts of this part.",
             "optional": true
@@ -483,7 +498,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MessageHeader"
+                "$ref": "messages.MessageHeader"
               }
             ]
           }
@@ -517,7 +532,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MessagePart"
+                "$ref": "messages.MessagePart"
               }
             ]
           }
@@ -601,7 +616,32 @@
               {
                 "type": "array",
                 "items": {
-                  "$ref": "MessageAttachment"
+                  "$ref": "messages.MessageAttachment"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "listInlineTextParts",
+        "type": "function",
+        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>. If a message only includes a <value>text/html</value> part, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "messageId",
+            "$ref": "messages.MessageId"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "messages.InlineTextPart"
                 }
               }
             ]
@@ -869,7 +909,7 @@
           },
           {
             "name": "newProperties",
-            "$ref": "MessageProperties"
+            "$ref": "messages.MessageProperties"
           }
         ]
       },
