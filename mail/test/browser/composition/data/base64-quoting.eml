@@ -1,0 +1,11 @@
+From: test@example.com
+To: test@example.com
+MIME-Version: 1.0
+Subject:plain text message using base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+bGluZSAxCmxpbmUgMgpsaW5lIDMKbGluZSA0CmxpbmUgNQpsaW5lIDYKbGluZSA3IGxpbmUgNyBs
+aW5lIDcgbGluZSA3IGxpbmUgNyBsaW5lIDcgbGluZSA3IGxpbmUgNyBsaW5lIDcgbGluZSA3IGxp
+bmUgNyBsaW5lIDcgbGluZSA3IGxpbmUgNyBsaW5lIDcgbGluZSA3IGxpbmUgNyBsaW5lIDcgbGlu
+ZSA3CmxpbmUgOAo=

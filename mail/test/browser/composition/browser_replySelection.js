@@ -19,8 +19,8 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.importESModule(
   "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
-add_task(async function test_reply_w_selection_direct() {
-  const file = new FileUtils.File(getTestFilePath("data/non-flowed-plain.eml"));
+async function subtest(path) {
+  const file = new FileUtils.File(getTestFilePath(path));
   const msgc = await open_message_from_file(file);
 
   const aboutMessage = get_about_message(msgc);
@@ -52,17 +52,53 @@ add_task(async function test_reply_w_selection_direct() {
       .getElementById("messageEditor")
       .contentDocument.body.querySelector("blockquote");
 
+    const pre = blockquote.querySelector(":scope > pre");
+    Assert.ok(pre, "the non-flowed content should be in a <pre>");
     Assert.ok(
-      blockquote.querySelector(":scope > pre"),
-      "the non-flowed content should be in a <pre>"
+      pre.classList.contains("moz-quote-pre"),
+      "<pre> should have the 'moz-quote-pre' class"
     );
-
+    Assert.equal(
+      getComputedStyle(pre).whiteSpace,
+      "pre-wrap",
+      "quoted text should visually wrap"
+    );
     Assert.ok(
-      !blockquote.querySelector(":scope > pre").innerHTML.includes("<"),
+      !pre.innerHTML.includes("<"),
       "should be all text, no tags in the message text"
     );
+    if (range == range1) {
+      Assert.equal(
+        pre.textContent,
+        "line 2\nline 3",
+        "selected text should be quoted correctly"
+      );
+    }
+    if (range == range2) {
+      const text = pre.textContent;
+      const line = text.slice(
+        text.indexOf("line 7"),
+        text.lastIndexOf("line 7") + 6
+      );
+      Assert.ok(
+        !line.includes("\n"),
+        "long lines of quoted text should not contain \\n"
+      );
+    }
     await close_compose_window(cwc);
   }
 
   await BrowserTestUtils.closeWindow(msgc);
+}
+
+add_task(async function test_non_flowed() {
+  await subtest("data/non-flowed-plain.eml");
+});
+
+add_task(async function test_base64() {
+  await subtest("data/base64-quoting.eml");
+});
+
+add_task(async function test_quoted_printable() {
+  await subtest("data/quoted-printable.eml");
 });

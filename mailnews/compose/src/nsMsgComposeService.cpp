@@ -245,9 +245,10 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
 
   nsAutoString selHTML;
   IgnoredErrorResult rv2;
-  selection->ToStringWithFormat(u"text/html"_ns,
-                                nsIDocumentEncoder::SkipInvisibleContent, 0,
-                                selHTML, rv2);
+  selection->ToStringWithFormat(
+      u"text/html"_ns,
+      nsIDocumentEncoder::OutputRaw | nsIDocumentEncoder::SkipInvisibleContent,
+      0, selHTML, rv2);
   if (rv2.Failed()) {
     return NS_ERROR_FAILURE;
   }
@@ -350,8 +351,9 @@ nsMsgComposeService::OpenComposeWindow(
             // Treat the quote as <pre> for selections in moz-text-plain bodies.
             // If focusNode.localName isn't empty, we had e.g. body selected
             // and should not add <pre>.
-            pMsgComposeParams->SetHtmlToQuote("<pre>"_ns + selHTML +
-                                              "</pre>"_ns);
+            pMsgComposeParams->SetHtmlToQuote(
+                "<pre class=\"moz-quote-pre\" wrap=\"\">"_ns + selHTML +
+                "</pre>"_ns);
           } else {
             pMsgComposeParams->SetHtmlToQuote(selHTML);
           }
