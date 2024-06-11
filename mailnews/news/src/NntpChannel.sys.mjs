@@ -130,7 +130,7 @@ export class NntpChannel extends MailChannel {
       return;
     }
 
-    // It's an old entry, read from the memory cache.
+    // It's an existing cache entry, read it from the memory cache.
     this._readFromCacheStream(entry.openInputStream(0));
   }
 
@@ -237,7 +237,7 @@ export class NntpChannel extends MailChannel {
   }
 
   /**
-   * Read the article from the a stream.
+   * Read the article from a stream (memory cache or offline storage).
    *
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
@@ -295,7 +295,11 @@ export class NntpChannel extends MailChannel {
       } catch (e) {}
       client.startRunningUrl(null, msgWindow, this.URI);
       client.channel = this;
-      this._listener.onStartRequest(this);
+      try {
+        this._listener.onStartRequest(this);
+      } catch (e) {
+        this._logger.warn("onStartRequest FAILED", e);
+      }
       this._pending = true;
       client.onOpen = () => {
         if (this._messageId) {
@@ -322,6 +326,11 @@ export class NntpChannel extends MailChannel {
           // Prevent marking a message as read.
           this.URI.errorCode = status;
           // Remove the invalid cache.
+          this._cacheEntry?.asyncDoom(null);
+        } else if (this.contentLength == 0) {
+          // Prevent marking a message as read.
+          this.URI.errorCode = Cr.NS_ERROR_FAILURE;
+          this._logger.debug("Didn't get any data. Won't cache.");
           this._cacheEntry?.asyncDoom(null);
         }
         this._listener.onStopRequest(this, status);
