@@ -27,26 +27,32 @@ if (AppConstants.NIGHTLY_BUILD) {
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
-
+  InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
-
   MailMigrator: "resource:///modules/MailMigrator.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
   PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
-
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
-
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.sys.mjs",
   XULStoreUtils: "resource:///modules/XULStoreUtils.sys.mjs",
-  cal: "resource:///modules/calendar/calUtils.sys.mjs",
-  InAppNotifications: "resource:///modules/InAppNotifications.sys.mjs",
+});
+
+ChromeUtils.defineLazyGetter(lazy, "windowsAlertsService", () => {
+  // We might not have the Windows alerts service: e.g., on Windows 7 and Windows 8.
+  if (!("nsIWindowsAlertsService" in Ci)) {
+    return null;
+  }
+  return Cc["@mozilla.org/system-alerts-service;1"]
+    ?.getService(Ci.nsIAlertsService)
+    ?.QueryInterface(Ci.nsIWindowsAlertsService);
 });
 
 if (AppConstants.MOZ_UPDATER) {
@@ -411,6 +417,13 @@ MailGlue.prototype = {
         Services.startup.trackStartupCrashEnd();
         if (AppConstants.MOZ_UPDATER) {
           lazy.UpdateListener.reset();
+        }
+        if (AppConstants.platform == "win") {
+          // Windows itself does disk I/O when the notification service is
+          // initialized, so make sure that is lazy. Hopefully we're not
+          // using it for the first time at shut-down, but that would be very
+          // difficult to avoid.
+          lazy.windowsAlertsService.removeAllNotificationsForInstall();
         }
         break;
       case "mail-startup-done":

@@ -103,6 +103,23 @@ class TestCommandLine(MarionetteTestCase):
             ],
         )
 
+    def test_windows_notification(self):
+        """
+        Tests what happens if a Windows notification is clicked on while Thunderbird is closed.
+        This shouldn't happen as all notifications are removed on close, but we'll check that we
+        at least get a window opening and not a crash.
+        (Yes, we can run this test on all platforms, the expected behaviour is the same.)
+        """
+        self.subtest_open_tab(
+            [
+                "--notification-windowsTag",
+                "1244827611",
+                "--notification-windowsAction",
+                '{"action":""}',
+            ],
+            [self.mail_3pane_tab],
+        )
+
     def subtest_open_tab(self, app_args=[], expected_tabs=[]):
         self.marionette.set_context(self.marionette.CONTEXT_CHROME)
         self.marionette.quit(in_app=True)

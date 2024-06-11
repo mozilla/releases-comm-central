@@ -226,14 +226,30 @@ export class MessengerContentHandler {
         // initialized, so make sure that is lazy.
         lazy.windowsAlertsService
       ) {
+        if (cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH) {
+          Services.startup.enterLastWindowClosingSurvivalArea();
+        }
         lazy.windowsAlertsService
           .handleWindowsTag(tag)
+          .then(async ({ tagWasHandled }) => {
+            if (!tagWasHandled) {
+              // The tag received is associated with a notification created
+              // during a different session. This shouldn't happen as all
+              // notifications are removed on close, but just in case...
+              await getOrOpen3PaneWindow();
+            }
+          })
           .catch(e =>
             console.error(
               `Error handling Windows notification with tag '${tag}':`,
               e
             )
-          );
+          )
+          .finally(() => {
+            if (cmdLine.state == Ci.nsICommandLine.STATE_INITIAL_LAUNCH) {
+              Services.startup.exitLastWindowClosingSurvivalArea();
+            }
+          });
         return;
       }
     }
