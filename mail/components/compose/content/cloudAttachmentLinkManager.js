@@ -368,6 +368,15 @@ var gCloudAttachmentLinkManager = {
     if (!root.previousSibling || root.previousSibling.localName == "span") {
       root.parentNode.insertBefore(editor.document.createElement("br"), root);
     }
+    if (
+      root.nextElementSibling?.localName == "br" &&
+      root.nextElementSibling.nextElementSibling?.localName == "br" &&
+      root.nextElementSibling.nextElementSibling.nextElementSibling
+        ?.localName == "br"
+    ) {
+      // Too many <br>s. Remove one.
+      root.nextElementSibling.remove();
+    }
 
     // Remove the space, which would end up in the plain text converted
     // version.
