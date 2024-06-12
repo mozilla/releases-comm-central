@@ -246,7 +246,11 @@ class SmartMailbox {
    * @returns {string}
    */
   getTagFolderUriForKey(key) {
-    return `${this.#tagsFolder.URI}/${encodeURIComponent(key)}`;
+    // Don't use encodeURIComponent, folder URLs escape more characters.
+    return `${this.#tagsFolder.URI}/${Services.io.escapeString(
+      key,
+      Ci.nsINetUtil.ESCAPE_URL_PATH
+    )}`;
   }
 }
 
