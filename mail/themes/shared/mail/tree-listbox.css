@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
+  --listbox-border-radius: 3px;
   --listbox-selected-outline: none;
   --list-item-min-height: 26px;
   --list-item-buttons-size: 22px;
@@ -167,12 +168,6 @@
     --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
     --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
   }
-}
-
-/* tree-listbox */
-[is="tree-listbox"].multi-selected li.selected.current > .container {
-  outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
-  outline-offset: -1px;
 }
 
 .tree-view-scrollable-container {
