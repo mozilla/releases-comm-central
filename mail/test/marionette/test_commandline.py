@@ -93,6 +93,16 @@ class TestCommandLine(MarionetteTestCase):
             [self.mail_3pane_tab],
         )
 
+    def test_migration(self):
+        """
+        Opens the import tab. We really only keep this behaviour because --migration is listed in
+        the help text.
+        """
+        self.subtest_open_tab(
+            ["--migration"],
+            [self.mail_3pane_tab, {"mode": "contentTab", "url": "about:import#start"}],
+        )
+
     def test_preferences(self):
         """Opens the preferences tab."""
         self.subtest_open_tab(
