@@ -36,15 +36,21 @@ export class MailLinkParent extends JSWindowActorParent {
   }
 
   _handleMailboxLink({ data, target }) {
-    // AttachmentInfo is defined in msgHdrView.js.
     const url = new URL(data);
+    const filename = url.searchParams.get("filename");
+    // When a message is received with a 'news:' link embedded as a MIME part
+    // of the message, the internal 'cid:' link is converted to a mailbox link
+    // containing `filename=message.rfc822`. In the following function, an
+    // attachment with content-type "message/rfc822" is processed before the
+    // filename is evaluated (by its extension), so we explicitly set the
+    // content-type in this case.
     new lazy.AttachmentInfo({
-      contentType: "",
+      contentType: /\.rfc822$/.test(filename) ? "message/rfc822" : "",
       url: data,
-      name: url.searchParams.get("filename"),
+      name: filename,
       uri: "",
       isExternalAttachment: false,
-    }).open(target.browsingContext.topChromeWindow, target.browsingContext.id);
+    }).open(target.browsingContext);
   }
 
   _handleMailToLink({ data, target }) {
