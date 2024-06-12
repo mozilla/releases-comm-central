@@ -72,9 +72,9 @@ export var MailUtils = {
    * the search result corresponding to a mozeml/wdseml file, we need to figure
    * out the folder using the file's path.
    *
-   * @param aFile the nsIFile to convert to a folder
-   * @returns the nsIMsgFolder corresponding to aFile, or null if the folder
-   *          isn't found
+   * @param {nsIFile} aFile - The nsIFile to convert to a folder.
+   * @returns {?nsIMsgFolder} the nsIMsgFolder corresponding to aFile, or null
+   *   if the folder isn't found.
    */
   getFolderForFileInProfile(aFile) {
     for (const folder of lazy.MailServices.accounts.allFolders) {
@@ -88,8 +88,8 @@ export var MailUtils = {
   /**
    * Get the nsIMsgFolder corresponding to this URI.
    *
-   * @param aFolderURI the URI of the target folder
-   * @returns {nsIMsgFolder} Folder corresponding to this URI, or null if
+   * @param {string} aFolderURI - The URI of the target folder
+   * @returns {?nsIMsgFolder} Folder corresponding to this URI, or null if
    *          the folder doesn't already exist.
    */
   getExistingFolder(aFolderURI) {
@@ -103,8 +103,9 @@ export var MailUtils = {
    * Get the nsIMsgFolder corresponding to this URI, or create a detached
    * folder if it doesn't already exist.
    *
-   * @param aFolderURI the URI of the target folder
-   * @returns {nsIMsgFolder} Folder corresponding to this URI.
+   * @param {string} aFolderURI - The URI of the target folder
+   * @returns {?nsIMsgFolder} Folder corresponding to this URI. Will return null
+   *   if aUrl is not a folder url.
    */
   getOrCreateFolder(aFolderURI) {
     const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
@@ -119,8 +120,8 @@ export var MailUtils = {
    * window is already open. This function should be called when you'd like to
    * display a message to the user according to the pref set.
    *
-   * @note Do not use this if you want to open multiple messages at once. Use
-   *       |displayMessages| instead.
+   * Note: Do not use this if you want to open multiple messages at once. Use
+   *  |displayMessages| instead.
    *
    * @param {nsIMsgHdr} aMsgHdr - The message header to display.
    * @param {DBViewWrapper} [aViewWrapperToClone] - A view wrapper to clone.
@@ -141,10 +142,10 @@ export var MailUtils = {
    * Display the warning if the number of messages to be displayed is greater than
    * the limit set in preferences.
    *
-   * @param aNumMessages: number of messages to be displayed
-   * @param aConfirmTitle: title ID
-   * @param aConfirmMsg: message ID
-   * @param aLiitingPref: the name of the pref to retrieve the limit from
+   * @param {integer} aNumMessages - Number of messages to be displayed.
+   * @param {string} aConfirmTitle - Title ID.
+   * @param {string} aConfirmMsg - Message ID.
+   * @param {string} aLimitingPref - Name of the pref for limit.
    */
   confirmAction(aNumMessages, aConfirmTitle, aConfirmMsg, aLimitingPref) {
     const openWarning = Services.prefs.getIntPref(aLimitingPref);
