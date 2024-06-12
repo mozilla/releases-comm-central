@@ -3,7 +3,6 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
-@import url("chrome://messenger/skin/shared/list-container.css");
 @import url("chrome://messenger/skin/abFormFields.css");
 @import url("chrome://messenger/skin/icons.css");
 
@@ -26,8 +25,6 @@
   --books-pane-header-gap: 9px;
   --books-pane-icon-size: 16px;
   --books-pane-icon-new: var(--icon-add);
-
-  --sidebar-background: var(--sidebar-background-color, var(--ab-pane-background));
 
   &[uidensity="compact"] {
     --ab-card-line-height: 1em;
@@ -163,7 +160,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   color: var(--listbox-color);
-  background-color: var(--sidebar-background);
+  background-color: var(--sidebar-background-color, var(--ab-pane-background));
 }
 
 .books-pane-bottom {
@@ -193,30 +190,76 @@ body {
     padding: 0;
     list-style: none;
   }
-
-  & .bookRow-container,
-  & .listRow-container {
-    -moz-context-properties: fill, stroke;
-    fill: color-mix(in srgb, var(--ab-icons-color) 20%, transparent);
-    stroke: var(--ab-icons-color);
-
-    #books:focus :where(.bookRow, .listRow).selected > & {
-      fill: color-mix(in srgb, currentColor 20%, transparent);
-      stroke: currentColor;
-    }
-  }
-
-  & .listRow-container {
-    padding-inline-start: 51px;
-
-    & .listRow-icon {
-      background-image: var(--addressbook-tree-list);
-    }
-  }
 }
 
 #allAddressBooks {
   margin-block-end: 10px;
+}
+
+.bookRow-container,
+.listRow-container {
+  display: flex;
+  align-items: center;
+  margin-inline: 6px;
+  border-radius: var(--button-border-radius);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--ab-icons-color) 20%, transparent);
+  stroke: var(--ab-icons-color);
+  cursor: default;
+
+  #books:not(:focus) :where(.bookRow, .listRow).selected > & {
+    background-color: var(--listbox-selected-bg);
+    outline: var(--listbox-selected-outline);
+    outline-offset: -2px;
+  }
+
+  :where(.bookRow, .listRow) > &:hover {
+    background-color: var(--listbox-hover);
+  }
+
+  #books:focus :where(.bookRow, .listRow).selected > & {
+    background-color: var(--listbox-focused-selected-bg);
+    color: var(--listbox-selected-color);
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
+
+  :where(.bookRow, .listRow).drop-target > & {
+    background-color: var(--selected-item-color);
+    color: var(--selected-item-text-color);
+  }
+}
+
+#books:focus .selected .twisty {
+  stroke: currentColor;
+}
+
+.bookRow {
+  .twisty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--list-item-buttons-size);
+    height: var(--list-item-buttons-size);
+    -moz-context-properties: stroke;
+    stroke: var(--ab-icons-color);
+  }
+
+  &:not(.children) .twisty-icon {
+    display: none;
+  }
+
+  &.children.collapsed {
+    .twisty-icon {
+      transform: rotate(-90deg);
+    }
+
+    &:dir(rtl) {
+      .twisty-icon {
+        transform: rotate(90deg);
+      }
+    }
+  }
 }
 
 .bookRow-icon,
@@ -297,6 +340,14 @@ body {
   #books:focus-visible :where(.bookRow, .listRow).selected > div & {
     display: unset;
   }
+}
+
+.listRow-container {
+  padding-inline-start: 51px;
+}
+
+.listRow-icon {
+  background-image: var(--addressbook-tree-list);
 }
 
 /* Cards pane */
@@ -911,8 +962,24 @@ input[type="number"] {
     background-image: url("chrome://global/skin/icons/warning.svg");
     background-size: contain;
   }
+}
 
-  &.drop-loading .icon {
+@media (prefers-reduced-motion: no-preference) {
+  .bookRow-container,
+  .listRow-container,
+  .twisty {
+    transition:
+      color var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing),
+      fill var(--transition-duration) var(--transition-timing),
+      stroke var(--transition-duration) var(--transition-timing);
+  }
+
+  .bookRow .twisty-icon {
+    transition: transform var(--transition-duration) var(--transition-timing);
+  }
+
+  #photoDropTarget.drop-loading .icon {
     display: unset;
     position: relative;
     overflow: hidden;
