@@ -1263,12 +1263,12 @@ export class MessageSend {
       } else {
         continue;
       }
-      let acceptObject = false;
+      let shouldEmbed = false;
       // Before going further, check what scheme we're dealing with. Files need to
       // be converted to data URLs during composition. "Attaching" means
       // sending as a cid: part instead of original URL.
       if (/^https?:\/\//i.test(url)) {
-        acceptObject =
+        shouldEmbed =
           (isImage &&
             Services.prefs.getBoolPref(
               "mail.compose.attach_http_images",
@@ -1276,10 +1276,13 @@ export class MessageSend {
             )) ||
           mozDoNotSend == "false";
       }
-      if (/^(data|news|snews|nntp):/i.test(url)) {
-        acceptObject = true;
+      if (/^(data|nntp):/i.test(url)) {
+        shouldEmbed = true;
       }
-      if (!acceptObject) {
+      if (/^(news|snews):/i.test(url)) {
+        shouldEmbed = mozDoNotSend == "false";
+      }
+      if (!shouldEmbed) {
         continue;
       }
 

@@ -452,3 +452,52 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
 
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
 });
+
+/**
+ * Test that 'news:' URIs are just sent as they are. This test will fail if
+ * the source of the URI is attempted to be attached (see Bug 1787143).
+ */
+add_task(async function test_news_uris() {
+  const newsUri = "news://news.example.org/message-id@example.org";
+  const cwc = await open_compose_new_mail();
+  await setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing 'news' URIs",
+    `The URI ${newsUri} is just part of the text, while the following URI is` +
+      ` a pasted HTML link: `
+  );
+  cwc.document.getElementById("messageEditor").focus();
+
+  const transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+    Ci.nsITransferable
+  );
+  transferable.init(null);
+  transferable.addDataFlavor("text/html");
+  const ssHtml = Cc["@mozilla.org/supports-string;1"].createInstance(
+    Ci.nsISupportsString
+  );
+  ssHtml.data = `<a href="${newsUri}">${newsUri}</a>`;
+  transferable.setTransferData("text/html", ssHtml);
+  // Store the data into the clipboard.
+  Services.clipboard.setData(
+    transferable,
+    null,
+    Services.clipboard.kGlobalClipboard
+  );
+  // Paste the HTML link.
+  EventUtils.synthesizeKey("v", { accelKey: true }, cwc);
+
+  await save_compose_message(cwc);
+  await close_compose_window(cwc);
+
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(false) == 1,
+    "message saved to drafts folder"
+  );
+
+  await be_in_folder(draftsFolder);
+  await select_click_row(0);
+  // Clean up the created draft.
+  await press_delete(window);
+});
