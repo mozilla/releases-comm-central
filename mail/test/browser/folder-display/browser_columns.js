@@ -569,6 +569,38 @@ add_task(async function test_column_reordering_persists() {
   close_tab(tabB);
 });
 
+/**
+ * Tests that right-clicking on a column header opens the picker popup.
+ */
+add_task(async function test_column_picker_from_header() {
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
+
+  const colPickerPopup = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] menupopup`
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.document.getElementById("subjectColButton"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
+
+  colPickerPopup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
+
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.document.getElementById("dateColButton"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "shown");
+
+  colPickerPopup.hidePopup();
+  await BrowserTestUtils.waitForPopupEvent(colPickerPopup, "hidden");
+});
+
 async function open_column_picker() {
   const tabmail = document.getElementById("tabmail");
   const about3Pane = tabmail.currentAbout3Pane;

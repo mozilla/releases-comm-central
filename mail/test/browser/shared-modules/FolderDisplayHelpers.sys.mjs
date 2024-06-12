@@ -969,15 +969,12 @@ export async function right_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   const win = get_about_3pane();
-  const shownPromise = BrowserTestUtils.waitForEvent(
-    win.document.getElementById("mailContext"),
-    "popupshown"
-  );
-  const row = win.document
-    .getElementById("threadTree")
-    .getRowAtIndex(aViewIndex);
+  const row = await _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { type: "contextmenu" }, win);
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(
+    win.document.getElementById("mailContext"),
+    "shown"
+  );
 
   return get_db_view().getMsgHdrAt(aViewIndex);
 }

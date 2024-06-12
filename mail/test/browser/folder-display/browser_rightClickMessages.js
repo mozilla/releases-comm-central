@@ -86,37 +86,7 @@ add_task(async function test_right_click_with_nothing_selected() {
 
   await close_popup(window, getMailContext());
   await assert_nothing_selected();
-}).skip();
-
-/**
- * Test that clicking on the column header shows the column picker.
- */
-add_task(async function test_right_click_column_header_shows_col_picker() {
-  await be_in_folder(folder);
-
-  // The treecolpicker element itself doesn't have an id, so we have to walk
-  // down from the parent to find it.
-  //  treadCols
-  //   |- hbox                item 0
-  //   |- treecolpicker   <-- item 1 this is the one we want
-  const threadCols = document.getElementById("threadCols");
-  const treeColPicker = threadCols.querySelector("treecolpicker");
-  const popup = treeColPicker.querySelector("[anonid=popup]");
-
-  // Right click the subject column header
-  // This should show the column picker popup.
-  const subjectCol = document.getElementById("subjectCol");
-  EventUtils.synthesizeMouseAtCenter(
-    subjectCol,
-    { type: "contextmenu", button: 2 },
-    subjectCol.ownerGlobal
-  );
-
-  // Check that the popup opens.
-  await wait_for_popup_to_open(popup);
-  // Hide it again, we just wanted to know it was going to be shown.
-  await close_popup(window, popup);
-}).skip();
+});
 
 /**
  * One-thing selected, right-click on something else.
@@ -133,7 +103,7 @@ add_task(async function test_right_click_with_one_thing_selected() {
 
   await close_popup(window, getMailContext());
   await assert_selected_and_displayed(0);
-}).skip();
+});
 
 /**
  * Many things selected, right-click on something that is not in that selection.
@@ -151,7 +121,7 @@ add_task(async function test_right_click_with_many_things_selected() {
 
   await close_popup(window, getMailContext());
   await assert_selected_and_displayed([0, 5]);
-}).skip();
+});
 
 /**
  * One thing selected, right-click on that.
@@ -201,7 +171,7 @@ add_task(async function test_right_click_deletion_nothing_selected() {
   assert_message_not_in_view(delMessage);
 
   await assert_selected_and_displayed();
-}).skip();
+});
 
 /**
  * We want to make sure that the selection post-delete still includes the same
@@ -219,7 +189,7 @@ add_task(async function test_right_click_deletion_one_other_thing_selected() {
   assert_message_not_in_view(delMessage);
 
   await assert_selected_and_displayed(curMessage);
-}).skip();
+});
 
 add_task(async function test_right_click_deletion_many_other_things_selected() {
   await be_in_folder(folder);
@@ -232,7 +202,7 @@ add_task(async function test_right_click_deletion_many_other_things_selected() {
   assert_message_not_in_view(delMessage);
 
   await assert_selected_and_displayed(messages);
-}).skip();
+});
 
 add_task(async function test_right_click_deletion_of_one_selected_thing() {
   await be_in_folder(folder);

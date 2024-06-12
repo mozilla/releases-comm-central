@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // mailCommon.js
-/* globals commandController */
+/* globals commandController, dbViewWrapperListener */
 
 // about:3pane and about:message must BOTH provide these:
 
@@ -189,6 +189,9 @@ var mailContextMenu = {
       return;
     }
     if (this._selectionIsOverridden) {
+      // Prevent selection of a new message if there's a delete in progress.
+      dbViewWrapperListener._nextViewIndexAfterDelete = null;
+
       window.threadTree._selection.selectEventsSuppressed = true;
       window.threadPane.restoreSelection({ notify: false });
       this._selectionIsOverridden = false;
