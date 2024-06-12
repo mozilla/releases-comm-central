@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.transform:loader
+loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
@@ -12,7 +12,7 @@ transforms:
 kind-dependencies:
     - release-beetmover-push-to-release
 
-job-defaults:
+task-defaults:
     description: Release Promotion version bump/tag
     run-on-projects: []
     shipping-phase: ship
@@ -33,7 +33,7 @@ job-defaults:
                 comm-(beta|esr.*): true
                 default: false
 
-jobs:
+tasks:
     thunderbird-comm:
         name: thunderbird-comm-version-bump
         worker:

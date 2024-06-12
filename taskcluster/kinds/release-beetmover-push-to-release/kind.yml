@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.transform:loader
+loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
@@ -12,11 +12,11 @@ transforms:
 kind-dependencies:
     - release-generate-checksums-beetmover
 
-job-defaults:
+task-defaults:
     run-on-projects: []
     shipping-phase: push
 
-jobs:
+tasks:
     thunderbird-push-to-release:
         name: thunderbird_push_to_release
         product: thunderbird

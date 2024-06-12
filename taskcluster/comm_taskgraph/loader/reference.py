@@ -12,18 +12,18 @@ from taskgraph.util.yaml import load_yaml
 logger = logging.getLogger(__name__)
 
 
-def _get_aliases(kind, job, project):
-    aliases = {job["name"]}
+def _get_aliases(kind, task, project):
+    aliases = {task["name"]}
 
     if kind == "toolchain":
-        if job["run"].get("toolchain-alias"):
+        if task["run"].get("toolchain-alias"):
             resolve_keyed_by(
-                job["run"],
+                task["run"],
                 "toolchain-alias",
-                item_name=f"{kind}-{job['name']}",
+                item_name=f"{kind}-{task['name']}",
                 project=project,
             )
-            aliaslist = job["run"].get("toolchain-alias")
+            aliaslist = task["run"].get("toolchain-alias")
             if aliaslist is not None:
                 if isinstance(aliaslist, str):
                     aliaslist = [aliaslist]
@@ -34,13 +34,13 @@ def _get_aliases(kind, job, project):
 
 
 def _expand_aliases(kind, inputs, project):
-    """Given the list of all "reference-jobs" pulled in from upstream, return a
-    set with all job names and aliases.
+    """Given the list of all "reference-tasks" pulled in from upstream, return a
+    set with all task names and aliases.
     For example "linux64-clang" is an alias of "linux64-clang-13", and both
     of those names will be included in the returned set."""
     rv = set()
-    for input_job in inputs:
-        for alias in _get_aliases(kind, input_job, project):
+    for input_task in inputs:
+        for alias in _get_aliases(kind, input_task, project):
             rv.add(alias)
     return rv
 
@@ -55,11 +55,11 @@ def _get_loader(path, config):
 
 def loader(kind, path, config, params, loaded_tasks):
     """
-    Loads selected jobs from a different taskgraph hierarchy.
+    Loads selected tasks from a different taskgraph hierarchy.
 
-    This loads jobs of the given kind from the taskgraph rooted at `base-path`,
-    and includes all the jobs with names or aliases matching the names in the
-    `jobs` key.
+    This loads tasks of the given kind from the taskgraph rooted at `base-path`,
+    and includes all the tasks with names or aliases matching the names in the
+    `tasks` key.
     """
     base_path = config.pop("reference-base-path")
     sub_path = os.path.join(base_path, kind)
@@ -69,25 +69,27 @@ def loader(kind, path, config, params, loaded_tasks):
     _loader = _get_loader(sub_path, sub_config)
     inputs = _loader(kind, sub_path, sub_config, params, loaded_tasks)
 
-    jobs = config.pop("reference-jobs", None)
+    tasks = config.pop("reference-tasks", None)
 
     config.update(sub_config)
     project = params["project"]
 
-    if jobs is not None:
-        jobs = set(jobs)
+    if tasks is not None:
+        tasks = set(tasks)
 
-        found_reference_jobs = [job for job in inputs if (_get_aliases(kind, job, project) & jobs)]
+        found_reference_tasks = [
+            task for task in inputs if (_get_aliases(kind, task, project) & tasks)
+        ]
 
-        # Check for jobs listed as a reference job in Thunderbird's config
+        # Check for tasks listed as a reference task in Thunderbird's config
         # that do not exist in upstream.
-        reference_alias_names = _expand_aliases(kind, found_reference_jobs, project)
-        if reference_alias_names >= jobs:
-            return found_reference_jobs
+        reference_alias_names = _expand_aliases(kind, found_reference_tasks, project)
+        if reference_alias_names >= tasks:
+            return found_reference_tasks
         else:
-            missing_jobs = jobs - reference_alias_names
+            missing_tasks = tasks - reference_alias_names
             raise Exception(
-                "Reference jobs not found in kind {}: {}".format(kind, ", ".join(missing_jobs))
+                "Reference tasks not found in kind {}: {}".format(kind, ", ".join(missing_tasks))
             )
     else:
         return inputs

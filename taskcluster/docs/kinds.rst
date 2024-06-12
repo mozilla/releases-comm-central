@@ -34,7 +34,7 @@ Using
 Parameters
 ..........
 
-There are some task parameters specific to this job kind.
+There are some task parameters specific to this task kind.
 
 - locale-list:
   Points to either `shipped-locales` or `all-locales`. This file is used to
@@ -63,7 +63,7 @@ and `comm-l10n`, merge them, and create a tar file.
 shippable-l10n-pre-signing
 --------------------------
 
-Signing job for shippable-l10n-pre artifacts
+Signing task for shippable-l10n-pre artifacts
 
 
 source-docs

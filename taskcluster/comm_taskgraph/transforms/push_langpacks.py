@@ -29,7 +29,7 @@ PUSH_LANGPACK_SCOPE = (
 langpack_push_description_schema = Schema(
     {
         Optional("dependencies"): task_description_schema["dependencies"],
-        Optional("job-from"): task_description_schema["job-from"],
+        Optional("task-from"): task_description_schema["task-from"],
         Required("worker"): {
             Required("env"): {str: taskref_or_string},
             Required("channel"): optionally_keyed_by(

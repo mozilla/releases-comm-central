@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.transform:loader
+loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
@@ -12,7 +12,7 @@ transforms:
 kind-dependencies:
     - release-beetmover-push-to-release
 
-job-defaults:
+task-defaults:
     name: notify-release-drivers-push
     description: Sends email to tb-drivers telling release was pushed.
     run-on-projects: []
@@ -27,6 +27,6 @@ job-defaults:
                 try-comm-central: ["{config[params][owner]}"]
                 default: []
 
-jobs:
+tasks:
     thunderbird:
         shipping-product: thunderbird

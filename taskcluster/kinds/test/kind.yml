@@ -19,13 +19,13 @@ transforms:
     - gecko_taskgraph.transforms.job:transforms
     - gecko_taskgraph.transforms.task:transforms
 
-jobs-from:
+tasks-from:
     - compiled.yml
     - marionette.yml
     - tests.yml
 
-# These apply to all included test yml files listed in jobs-from
-job-defaults:
+# These apply to all included test yml files listed in tasks-from
+task-defaults:
     attributes:
         retrigger: true
     use-python: default

@@ -9,7 +9,7 @@ kind-dependencies:
     - fetch
     - packages
 
-reference-jobs:
+reference-tasks:
     - linux64-aarch64-compiler-rt-18
     - linux64-cargo-vet
     - linux64-cbindgen
@@ -99,6 +99,6 @@ transforms:
     - gecko_taskgraph.transforms.cached_tasks:transforms
     - gecko_taskgraph.transforms.task:transforms
 
-jobs-from:
+tasks-from:
     - clang.yml
     - libotr.yml

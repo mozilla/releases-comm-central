@@ -8,7 +8,7 @@ reference-base-path: taskcluster/kinds
 kind-dependencies:
     - packages
 
-reference-jobs:
+reference-tasks:
     - android-build
     - debian8-i386-packages
     - debian8-i386-raw
@@ -47,5 +47,5 @@ transforms:
     - gecko_taskgraph.transforms.cached_tasks:transforms
     - gecko_taskgraph.transforms.task:transforms
 
-jobs-from:
+tasks-from:
     - docker-image.yml
