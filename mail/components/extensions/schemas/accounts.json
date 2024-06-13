@@ -97,7 +97,7 @@
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>false</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <value>false</value>."
           },
           {
             "type": "function",
@@ -126,7 +126,7 @@
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should included their account's folders. Defaults to <value>true</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <value>true</value>."
           },
           {
             "type": "function",

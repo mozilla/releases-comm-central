@@ -105,6 +105,41 @@ function convertMailTab(tab, context) {
 }
 
 /**
+ * Returns the actual selection. This is different from the menus API, which
+ * returns the selection with respect to the context action, which could be just
+ * the message being clicked, if that message is *not* part of the actually
+ * selected messages.
+ *
+ * @param {Window} about3PaneWindow
+ * @returns {nsIMsgDBHdr[]} The selected messages.
+ */
+function getActualSelectedMessages(about3PaneWindow) {
+  const dbView = about3PaneWindow?.gDBView;
+  if (!dbView) {
+    return [];
+  }
+
+  // Get the indicies which are considered to be selected by the UI, which
+  // could be the ones we are *not* interested in, if a context menu is
+  // opened and the UI is supressing the selection.
+  const selectedIndices = about3PaneWindow.threadTree.selectedIndices;
+
+  if (!about3PaneWindow.threadTree._selection._selectEventsSuppressed) {
+    return selectedIndices.map(idx => dbView.getMsgHdrAt(idx));
+  }
+
+  // Get the indicies, which are considered to be invalid by the UI, which
+  // includes *all* selected indices, if the UI is supressing the selection.
+  // Filter out the indicies we are not interested in.
+  const invalidIndices = [
+    ...about3PaneWindow.threadTree._selection._invalidIndices,
+  ];
+  return invalidIndices
+    .filter(idx => !selectedIndices.includes(idx))
+    .map(idx => dbView.getMsgHdrAt(idx));
+}
+
+/**
  * Listens for changes in the UI to fire events.
  */
 var uiListener = new (class extends EventEmitter {
@@ -141,9 +176,9 @@ var uiListener = new (class extends EventEmitter {
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
     } else if (event.type == "messageURIChanged") {
-      const messages =
-        nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
-      if (messages) {
+      const about3PaneWindow = nativeTab.chromeBrowser.contentWindow;
+      if (about3PaneWindow?.gDBView) {
+        const messages = getActualSelectedMessages(about3PaneWindow);
         this.emit("messages-changed", tab, messages);
       }
     }
@@ -600,9 +635,9 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
         async getSelectedMessages(tabId) {
           const tab = await getTabOrActive(tabId);
-          const dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
-          const messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
-          return messageListTracker.startList(messageList, extension);
+          const about3PaneWindow = tab.nativeTab.chromeBrowser.contentWindow;
+          const messages = getActualSelectedMessages(about3PaneWindow);
+          return messageListTracker.startList(messages, extension);
         },
 
         async setSelectedMessages(tabId, messageIds) {
