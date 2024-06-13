@@ -422,6 +422,35 @@
         ]
       },
       {
+        "name": "getSelectedFolders",
+        "type": "function",
+        "description": "Lists the selected folders in the folder pane.",
+        "permissions": ["accountsRead"],
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "Defaults to the active tab of the current window.",
+            "optional": true,
+            "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "getSelectedMessages",
         "type": "function",
         "description": "Lists the selected messages in the current folder.",

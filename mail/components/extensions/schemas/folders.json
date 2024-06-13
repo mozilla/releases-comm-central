@@ -122,7 +122,7 @@
           "quota": {
             "type": "array",
             "items": {
-              "$ref": "MailFolderQuota"
+              "$ref": "folders.MailFolderQuota"
             },
             "optional": true,
             "description": "Quota information, if available."

@@ -10,6 +10,11 @@ add_setup(async () => {
   rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test1", null);
   rootFolder.createSubfolder("test2", null);
+  rootFolder.createSubfolder("test3", null);
+  rootFolder.createSubfolder("test4", null);
+  rootFolder.createSubfolder("test5", null);
+  rootFolder.createSubfolder("test6", null);
+  rootFolder.createSubfolder("test7", null);
   subFolders = {};
   for (const folder of rootFolder.subFolders) {
     subFolders[folder.name] = folder;
@@ -770,5 +775,164 @@ add_task(async function test_getSelectedMessagesWithOpenContextMenu() {
   await extension.unload();
 
   tabmail.closeOtherTabs(0);
+  tabmail.currentTabInfo.folder = rootFolder;
+});
+
+add_task(async function test_getSelectedFoldersWithOpenContextMenu() {
+  tabmail.currentTabInfo.folder = rootFolder;
+  const about3Pane = tabmail.currentAbout3Pane;
+
+  async function background() {
+    // Add menu entry.
+    await new Promise(resolve =>
+      browser.menus.create(
+        {
+          id: "test",
+          title: "test",
+          contexts: ["message_list"],
+        },
+        resolve
+      )
+    );
+
+    async function testSelection(description, selectedPaths, shownPaths) {
+      await window.sendMessage("selectNativeFolders", selectedPaths);
+
+      // Register a listener for the menus.onShown event.
+      const { resolve: resolveOnShownPromise, promise: onShownPromise } =
+        Promise.withResolvers();
+      const onShownListener = info => {
+        resolveOnShownPromise(info);
+      };
+      await browser.menus.onShown.addListener(onShownListener);
+
+      // Verify getSelectedFolders() before the context menu is opened.
+      window.assertDeepEqual(
+        selectedPaths,
+        (await browser.mailTabs.getSelectedFolders()).map(
+          folder => folder.path
+        ),
+        `Selected folders should be correct (${description})`,
+        { strict: true }
+      );
+
+      // Open the context menu on /test1.
+      await window.sendMessage("open folderPaneContext menu", "/test1");
+
+      // Verify getSelectedFolders() while the context menu is open.
+      window.assertDeepEqual(
+        selectedPaths,
+        (await browser.mailTabs.getSelectedFolders()).map(
+          folder => folder.path
+        ),
+        `Selected folders should still be correct after a context popup had been opened  (${description})`,
+        { strict: true }
+      );
+
+      // Close the context menu on /test1.
+      await window.sendMessage("close folderPaneContext menu");
+
+      // Verify getSelectedFolders() after the context menu has been closed.
+      window.assertDeepEqual(
+        selectedPaths,
+        (await browser.mailTabs.getSelectedFolders()).map(
+          folder => folder.path
+        ),
+        `Selected folders should still be correct after a context popup had been closed (${description})`,
+        { strict: true }
+      );
+
+      // Verify the selection reported to the menus API.
+      const onShownInfo = await onShownPromise;
+      await browser.menus.onShown.removeListener(onShownListener);
+      window.assertDeepEqual(
+        shownPaths,
+        onShownInfo.selectedFolders.map(folder => folder.path),
+        `Folders reported in onShown should be correct (${description})`,
+        { strict: true }
+      );
+    }
+
+    // We are going to open the context menu on folder /test1. Select other
+    // folders. In total two ranges.
+    await testSelection(
+      "Context menu open on unselected folder",
+      ["/test3", "/test4", "/test6", "/test7"],
+      ["/test1"]
+    );
+
+    // We are going to open the context menu on folder /test1. Select other
+    // folders and /test1. In total three ranges.
+    await testSelection(
+      "Context menu open on selected folder",
+      ["/test1", "/test3", "/test4", "/test6", "/test7"],
+      ["/test1", "/test3", "/test4", "/test6", "/test7"]
+    );
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead", "menus"],
+    },
+  });
+
+  const folderMap = new Map([
+    ["/", rootFolder],
+    ["/test1", subFolders.test1],
+    ["/test2", subFolders.test2],
+    ["/test3", subFolders.test3],
+    ["/test4", subFolders.test4],
+    ["/test5", subFolders.test5],
+    ["/test6", subFolders.test6],
+    ["/test7", subFolders.test7],
+  ]);
+
+  extension.onMessage("selectNativeFolders", async folderPaths => {
+    const folderTree = about3Pane.document.getElementById("folderTree");
+    const rows = folderPaths.map(f =>
+      about3Pane.folderPane.getRowForFolder(folderMap.get(f))
+    );
+    const selectPromise = new Promise(resolve =>
+      folderTree.addEventListener("select", resolve, { once: true })
+    );
+    setTimeout(() => {
+      folderTree.swapSelection(rows);
+    });
+    await selectPromise;
+    await new Promise(resolve => executeSoon(resolve));
+    extension.sendMessage();
+  });
+
+  extension.onMessage("open folderPaneContext menu", async folderPath => {
+    const menu = about3Pane.document.getElementById("folderPaneContext");
+    // Open the context menu of the folder pane.
+    await openMenuPopup(
+      menu,
+      about3Pane.folderPane.getRowForFolder(folderMap.get(folderPath)),
+      {
+        type: "contextmenu",
+      }
+    );
+    extension.sendMessage();
+  });
+
+  extension.onMessage("close folderPaneContext menu", async () => {
+    const menu = about3Pane.document.getElementById("folderPaneContext");
+    await closeMenuPopup(menu);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
   tabmail.currentTabInfo.folder = rootFolder;
 });

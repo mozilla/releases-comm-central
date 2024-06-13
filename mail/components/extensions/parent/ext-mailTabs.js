@@ -105,9 +105,9 @@ function convertMailTab(tab, context) {
 }
 
 /**
- * Returns the actual selection. This is different from the menus API, which
- * returns the selection with respect to the context action, which could be just
- * the message being clicked, if that message is *not* part of the actually
+ * Returns the actual selected messages. This is different from the menus API,
+ * which returns the selection with respect to the context action, which could be
+ * just the message being clicked, if that message is *not* part of the actually
  * selected messages.
  *
  * @param {Window} about3PaneWindow
@@ -137,6 +137,21 @@ function getActualSelectedMessages(about3PaneWindow) {
   return invalidIndices
     .filter(idx => !selectedIndices.includes(idx))
     .map(idx => dbView.getMsgHdrAt(idx));
+}
+
+/**
+ * Returns the actual selected folders. This is different from the menus API,
+ * which returns the selection with respect to the context action, which could be
+ * just the folder being clicked, if that folder is *not* part of the actually
+ * selected folder.
+ *
+ * @param {Window} about3PaneWindow
+ * @returns {nsIMsgFolder[]} The selected folders.
+ */
+function getActualSelectedFolders(about3PaneWindow) {
+  return [...about3PaneWindow.folderTree.selection.values()].map(row =>
+    MailServices.folderLookup.getFolderForURL(row.uri)
+  );
 }
 
 /**
@@ -254,7 +269,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
   getAPI(context) {
     const { extension } = context;
-    const { tabManager } = extension;
+    const { tabManager, folderManager } = extension;
 
     /**
      * Gets the tab for the given tab id, or the active tab if the id is null.
@@ -631,6 +646,13 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
 
           return messageListTracker.startList([], extension);
+        },
+
+        async getSelectedFolders(tabId) {
+          const tab = await getTabOrActive(tabId);
+          const about3PaneWindow = tab.nativeTab.chromeBrowser.contentWindow;
+          const folders = getActualSelectedFolders(about3PaneWindow);
+          return folders.map(folder => folderManager.convert(folder));
         },
 
         async getSelectedMessages(tabId) {

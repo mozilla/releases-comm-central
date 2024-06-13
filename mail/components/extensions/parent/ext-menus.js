@@ -1199,11 +1199,17 @@ const menuTracker = {
       case "folderPaneContext": {
         const tab = tabTracker.activeTab;
         const pageUrl = tab.linkedBrowser?.currentURI?.spec;
+        const overrideFolder = win.folderPaneContextMenu._overrideFolder;
+        const selectedFolders = overrideFolder
+          ? [overrideFolder]
+          : [...win.folderTree.selection.values()].map(row =>
+              MailServices.folderLookup.getFolderForURL(row.uri)
+            );
         gMenuBuilder.build({
           menu,
           tab,
           pageUrl,
-          selectedFolders: [win.folderPaneContextMenu.activeFolder],
+          selectedFolders,
         });
         break;
       }
