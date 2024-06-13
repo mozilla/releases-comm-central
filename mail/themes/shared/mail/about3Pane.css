@@ -8,8 +8,6 @@
 
 :root {
   --folder-mode-name-padding: 6px;
-  --folder-tree-header-gap: 9px;
-  --folder-tree-header-padding: 9px;
   --folder-pane-icon-size: 16px;
   --folder-pane-icon-new: var(--icon-add);
   --folder-pane-icon-more: var(--icon-more);
@@ -40,13 +38,10 @@
 
   &[uidensity="compact"] {
     --folder-mode-name-padding: 3px;
-    --folder-tree-header-gap: 6px;
-    --folder-tree-header-padding: 4px 6px 3px;
   }
 
   &[uidensity="touch"] {
     --folder-mode-name-padding: 9px;
-    --folder-tree-header-gap: 12px;
     --folder-pane-icon-size: 20px;
     --folder-pane-icon-new: var(--icon-add-md);
     --folder-pane-icon-more: var(--icon-more-md);
@@ -195,17 +190,9 @@ body {
 
 /* Folder tree pane. */
 
-#folderPaneHeaderBar:not([hidden]) {
-  --button-margin: 0;
-  display: flex;
+#folderPaneHeaderBar {
   flex-direction: row-reverse;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--folder-tree-header-gap);
   background-color: var(--sidebar-background-color, var(--foldertree-background));
-  color: inherit;
-  padding: var(--folder-tree-header-padding);
-  z-index: 1;
 }
 
 #folderPaneGetMessages,

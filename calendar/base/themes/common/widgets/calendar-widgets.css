@@ -377,13 +377,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 /* Calendar Side Panel */
 
 #primaryButtonSidePanel {
-  display: flex;
   justify-content: center;
-  align-items: center;
-}
-
-:root[uidensity="compact"] #primaryButtonSidePanel {
-  margin-top: var(--calendar-panel-spacer);
 }
 
 #calMinimonthBox {

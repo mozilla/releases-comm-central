@@ -21,9 +21,7 @@
   --ab-contact-photo-size: 80px;
   --ab-detail-section-padding: 15px;
   --ab-detail-title-margin-block: 0 15px;
-  --ab-header-spacing: 9px;
 
-  --books-pane-header-gap: 9px;
   --books-pane-icon-size: 16px;
   --books-pane-icon-new: var(--icon-add);
 
@@ -37,9 +35,6 @@
     --ab-contact-photo-size: 60px;
     --ab-detail-section-padding: 9px;
     --ab-detail-title-margin-block: 0 9px;
-    --ab-header-spacing: 4px 6px 3px;
-
-    --books-pane-header-gap: 6px;
   }
 
   &[uidensity="touch"] {
@@ -51,7 +46,6 @@
     --ab-detail-section-padding: 18px;
     --ab-detail-title-margin-block: 0 18px;
 
-    --books-pane-header-gap: 12px;
     --books-pane-icon-size: 20px;
     --books-pane-icon-new: var(--icon-add-md);
   }
@@ -118,14 +112,6 @@ body {
 /* Books pane Header. */
 
 #booksPaneHeaderBar {
-  --button-margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--books-pane-header-gap);
-  color: inherit;
-  padding: var(--ab-header-spacing);
-  z-index: 1;
   font-size: 1rem;
 }
 
@@ -313,7 +299,7 @@ body {
 
 #cardsPaneHeader {
   display: flex;
-  margin: var(--ab-header-spacing);
+  margin: var(--sidebar-header-spacing);
   align-items: center;
 }
 
@@ -373,10 +359,7 @@ body:not(.layout-table):not(.all-ab-selected) ~ menupopup#sortContext >
 
 #placeholderCreateContact {
   color: var(--selected-item-color);
-
-  &::before {
-    background-image: var(--icon-new-contact);
-  }
+  background-image: var(--icon-new-contact);
 }
 
 #placeholderSearching::before {
@@ -721,41 +704,19 @@ body:not(.is-editing) #editContactForm {
   justify-content: end;
 }
 
-.button-icon:where(:not(.button-primary)) {
-  &:not([hidden]) {
-    min-width: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    background-color: transparent;
-    --in-content-button-border-color: transparent;
-  }
-
-  &::before {
-    content: "";
-    width: 16px;
-    height: 16px;
-    -moz-context-properties: fill, stroke, fill-opacity;
-    fill: color-mix(in srgb, currentColor 20%, transparent);
-    stroke: currentColor;
-    fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-  }
-}
-
-#detailsWriteButton::before {
+#detailsWriteButton {
   background-image: var(--icon-pencil);
 }
 
-#detailsEventButton::before {
+#detailsEventButton {
   background-image: var(--icon-new-event);
 }
 
-#detailsSearchButton::before {
+#detailsSearchButton {
   background-image: var(--icon-search);
 }
 
-#detailsNewListButton::before {
+#detailsNewListButton {
   background-image: var(--icon-new-user-list);
 }
 
@@ -808,6 +769,7 @@ section#selectedCards {
 #detailsDeleteButton {
   color: var(--vcard-delete-button-color);
   outline-color: var(--vcard-delete-button-color);
+  background-image: var(--icon-trash);
 
   &:hover {
     background-color: var(--vcard-delete-button-color);
@@ -818,8 +780,8 @@ section#selectedCards {
     }
   }
 
-  &::before {
-    background-image: var(--icon-trash);
+  @media (prefers-reduced-motion: no-preference) {
+    transition: color .15s, background-color .15s, border-color .15s;
   }
 }
 

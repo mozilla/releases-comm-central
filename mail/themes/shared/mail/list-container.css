@@ -69,7 +69,7 @@ ul[role="tree"] {
     position: relative;
     -moz-context-properties: fill;
     margin-inline: 6px;
-    border: 1px solid var(--sidebar-background);
+    border: 1px solid transparent;
     border-radius: var(--listbox-border-radius);
     fill: currentColor;
     cursor: default;

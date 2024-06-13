@@ -47,7 +47,7 @@
     </table>
     <button id="vcard-add-email"
             data-l10n-id="vcard-email-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- URL -->
@@ -55,7 +55,7 @@
     <legend data-l10n-id="vcard-url-header"/>
     <button id="vcard-add-url"
             data-l10n-id="vcard-url-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Address -->
@@ -63,7 +63,7 @@
     <legend data-l10n-id="vcard-adr-header"/>
     <button id="vcard-add-adr"
             data-l10n-id="vcard-adr-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Tel -->
@@ -71,7 +71,7 @@
     <legend data-l10n-id="vcard-tel-header"/>
     <button id="vcard-add-tel"
             data-l10n-id="vcard-tel-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Time Zone -->
@@ -79,7 +79,7 @@
     <legend data-l10n-id="vcard-tz-header"/>
     <button id="vcard-add-tz"
             data-l10n-id="vcard-tz-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- IMPP (Chat) -->
@@ -87,7 +87,7 @@
     <legend data-l10n-id="vcard-impp2-header"/>
     <button id="vcard-add-impp"
             data-l10n-id="vcard-impp-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Birthday and Anniversary (Special dates) -->
@@ -95,7 +95,7 @@
     <legend data-l10n-id="vcard-bday-anniversary-header"/>
     <button id="vcard-add-bday-anniversary"
             data-l10n-id="vcard-bday-anniversary-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Notes -->
@@ -103,7 +103,7 @@
     <legend data-l10n-id="vcard-note-header"/>
     <button id="vcard-add-note"
             data-l10n-id="vcard-note-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
   <!-- Organization Info -->
@@ -111,11 +111,11 @@
     <legend data-l10n-id="vcard-org-header"/>
     <button id="vcard-add-org"
             data-l10n-id="vcard-org-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
     <button id="vcard-remove-org"
             type="button"
-            class="addr-book-edit-fieldset-button remove-property-button button-icon"
+            class="addr-book-edit-fieldset-button remove-property-button"
             data-l10n-id="vcard-remove-button"
             hidden="hidden"></button>
   </fieldset>
@@ -124,7 +124,7 @@
     <legend data-l10n-id="vcard-custom-header"/>
     <button id="vcard-add-custom"
             data-l10n-id="vcard-custom-add"
-            class="addr-book-edit-fieldset-button add-property-button button-icon"
+            class="addr-book-edit-fieldset-button add-property-button button button-flat"
             type="button"></button>
   </fieldset>
 </template>
@@ -206,7 +206,7 @@
   </td>
   <td>
     <button type="button"
-            class="addr-book-edit-fieldset-button remove-property-button button-icon"
+            class="addr-book-edit-fieldset-button remove-property-button only-icon"
             data-telemetry-id="vcard-remove-email"
             data-l10n-id="vcard-remove-button-title"></button>
   </td>
@@ -218,7 +218,7 @@
   <label class="screen-reader-only" for="tel"/>
   <input type="tel" data-telemetry-id="vcard-tel"/>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button only-icon"
           data-telemetry-id="vcard-remove-tel"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
@@ -229,7 +229,7 @@
   <label class="screen-reader-only" for="url"/>
   <input type="url" data-telemetry-id="vcard-url"/>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button only-icon"
           data-telemetry-id="vcard-remove-url"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
@@ -240,7 +240,7 @@
     <option value=""></option>
   </select>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button"
           data-telemetry-id="vcard-remove-tz"
           data-l10n-id="vcard-remove-button"></button>
 </template>
@@ -261,7 +261,7 @@
   <label class="screen-reader-only" for="impp" data-l10n-id="vcard-impp-input-label"></label>
   <input type="text" name="impp" pattern="..+:..+" data-telemetry-id="vcard-impp"/>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button only-icon"
           data-telemetry-id="vcard-remove-impp"
           data-l10n-id="vcard-remove-button-title"></button>
 </template>
@@ -298,7 +298,7 @@
     </select>
 
     <button type="button"
-            class="addr-book-edit-fieldset-button remove-property-button button-icon"
+            class="addr-book-edit-fieldset-button remove-property-button only-icon"
             data-telemetry-id="vcard-remove-bday-anniversary"
             data-l10n-id="vcard-remove-button-title"></button>
   </div>
@@ -331,7 +331,7 @@
     </div>
   </fieldset>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button"
           data-telemetry-id="vcard-remove-adr"
           data-l10n-id="vcard-remove-button"></button>
 </template>
@@ -340,7 +340,7 @@
 <template id="template-vcard-edit-note">
   <textarea></textarea>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button"
           data-telemetry-id="vcard-remove-note"
           data-l10n-id="vcard-remove-button"></button>
 </template>
@@ -398,7 +398,7 @@
     <input type="text" data-telemetry-id="vcard-custom"/>
   </div>
   <button type="button"
-          class="addr-book-edit-fieldset-button remove-property-button button-icon"
+          class="addr-book-edit-fieldset-button remove-property-button"
           data-telemetry-id="vcard-remove-custom"
           data-l10n-id="vcard-remove-button"></button>
 </template>

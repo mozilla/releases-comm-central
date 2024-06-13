@@ -19,6 +19,7 @@
 
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/containers.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
@@ -42,7 +43,7 @@
 </head>
 <body>
   <div id="booksPane">
-    <div id="booksPaneHeaderBar">
+    <div id="booksPaneHeaderBar" class="sidebar-panel-header">
       <button id="booksPaneCreateBook"
               class="button button-flat icon-button icon-only"
               data-l10n-id="books-pane-create-book-button"
@@ -124,7 +125,7 @@
              hidden="hidden"
              data-l10n-id="about-addressbook-placeholder-empty-book"></div>
         <button id="placeholderCreateContact"
-                class="button-icon"
+                class="button button-flat icon-button"
                 hidden="hidden"
                 data-l10n-id="about-addressbook-placeholder-new-contact"></button>
         <div id="placeholderSearchOnly"
@@ -168,16 +169,16 @@
         <section id="detailsActions" class="button-block">
           <div>
             <button type="button" id="detailsWriteButton"
-                    class="button-icon"
+                    class="button button-flat icon-button"
                     data-l10n-id="about-addressbook-write-action-button"></button>
             <button type="button" id="detailsEventButton"
-                    class="button-icon"
+                    class="button button-flat icon-button"
                     data-l10n-id="about-addressbook-event-action-button"></button>
             <button type="button" id="detailsSearchButton"
-                    class="button-icon"
+                    class="button button-flat icon-button"
                     data-l10n-id="about-addressbook-search-action-button"></button>
             <button type="button" id="detailsNewListButton"
-                    class="button-icon"
+                    class="button button-flat icon-button"
                     data-l10n-id="about-addressbook-new-list-action-button"></button>
           </div>
           <div class="edit-block">
@@ -268,7 +269,7 @@
       <div id="detailsFooter" class="button-block">
         <div>
           <button type="button" id="detailsDeleteButton"
-                  class="button-icon"
+                  class="button button-flat icon-button"
                   data-l10n-id="about-addressbook-delete-edit-contact-button"></button>
         </div>
         <div>

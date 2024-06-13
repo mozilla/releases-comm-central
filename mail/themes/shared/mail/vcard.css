@@ -377,12 +377,15 @@ vcard-adr select {
 }
 
 .addr-book-edit-fieldset-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background-color: transparent;
   padding: 3px;
   border: none;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: 3px;
+  border-radius: var(--button-border-radius);
   min-height: auto;
   width: fit-content;
 
@@ -391,12 +394,19 @@ vcard-adr select {
       background-color: var(--in-content-button-background);
     }
   }
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 .add-property-button {
-  -moz-context-properties: fill;
-  color: var(--in-content-primary-button-background);
-  fill: var(--in-content-primary-button-text-color);
+
+  &.button {
+    -moz-context-properties: fill;
+    color: var(--in-content-primary-button-background);
+    fill: var(--in-content-primary-button-text-color);
+  }
 
   &:enabled {
     &:is(:hover, :active, :hover:active) {
@@ -423,6 +433,7 @@ vcard-adr select {
 }
 
 .remove-property-button {
+  min-width: 0;
   color: var(--vcard-remove-color);
   margin-block-end: 3px;
   -moz-context-properties: fill, stroke;
@@ -430,7 +441,15 @@ vcard-adr select {
   stroke: currentColor;
   align-self: center;
 
+  &.only-icon {
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+  }
+
   &::before {
+    content: "";
     width: 12px;
     height: 12px;
     background-image: var(--icon-subtract-circle-sm);

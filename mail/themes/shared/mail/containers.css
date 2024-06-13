@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.sidebar-panel-header {
+  --button-margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sidebar-header-gap);
+  color: inherit;
+  padding: var(--sidebar-header-spacing);
+  z-index: 1;
+
+  &[hidden] {
+    display: none;
+  }
+}

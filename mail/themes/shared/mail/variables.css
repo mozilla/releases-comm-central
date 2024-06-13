@@ -66,6 +66,8 @@
   --search-outline-offset: -1px;
   --selected-item-color: var(--sidebar-highlight-background-color, AccentColor);
   --selected-item-text-color: var(--sidebar-highlight-text-color, AccentColorText);
+  --sidebar-header-gap: 9px;
+  --sidebar-header-spacing: 9px;
   --splitter-color: var(--sidebar-border-color, var(--layout-border-0));
   --sidebar-border-color: var(--layout-border-0);
 
@@ -237,9 +239,12 @@
   --button-margin: 3px;
   --button-padding: 3px;
   --button-pressed-indicator-padding: 9px;
+  --sidebar-header-gap: 6px;
+  --sidebar-header-spacing: 4px 6px 3px;
 }
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
   --button-pressed-indicator-padding: 3px;
+  --sidebar-header-gap: 12px;
 }
