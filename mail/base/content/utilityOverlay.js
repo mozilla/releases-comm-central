@@ -179,7 +179,7 @@ function openLinkText(event, what) {
       break;
     case "donateURL":
       openUILink(
-        "https://give.thunderbird.net/?utm_source=thunderbird-client&utm_medium=referral&utm_content=help-menu",
+        "https://www.thunderbird.net/donate/?utm_source=thunderbird-client&utm_medium=referral&utm_content=help-menu",
         event
       );
       break;
