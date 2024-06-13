@@ -128,7 +128,7 @@ menupopup {
   }
 
   /* Allways show the extension icons. */
-  &.no-icon-menupopup > menuitem[image^="moz-extension"] > .menu-iconic-left {
+  &.no-icon-menupopup > :is(menu, menuitem)[image^="moz-extension"] > .menu-iconic-left {
     display: flex;
   }
 }
