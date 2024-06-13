@@ -58,7 +58,7 @@ menupopup {
     &[checked="true"],
     &[selected="true"] {
       list-style-image: var(--icon-check);
-      -moz-context-properties: stroke;
+      -moz-context-properties: fill, stroke;
       stroke: currentColor;
       color: inherit;
     }
