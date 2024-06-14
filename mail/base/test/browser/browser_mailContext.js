@@ -444,15 +444,28 @@ add_task(async function testSingleMessage() {
   EventUtils.synthesizeMouseAtCenter(row0, { type: "contextmenu" }, about3Pane);
   await checkMenuitems(mailContext, "singleMessageTree");
 
-  // Open the menu through the keyboard.
+  // Open the menu from an unselected row of the thread pane.
 
-  const row = await TestUtils.waitForCondition(
-    () => threadTree.getRowAtIndex(0),
+  const row2 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
     "waiting for rows to be added"
   );
-  row.focus();
+  EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
+  await checkMenuitems(mailContext, "singleMessageTree");
+
+  // Check that the selection was restored.
+
+  Assert.equal(
+    threadTree.selectedIndex,
+    0,
+    "selection should be restored after the menu closes"
+  );
+
+  // Open the menu through the keyboard.
+
+  row0.focus();
   EventUtils.synthesizeMouseAtCenter(
-    row,
+    row0,
     { type: "contextmenu", button: 0 },
     about3Pane
   );
@@ -470,7 +483,7 @@ add_task(async function testSingleMessage() {
   threadTree.scrollToIndex(threadTree.getLastVisibleIndex() + 7, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
-  Assert.ok(row.parentNode, "Row element should still be attached");
+  Assert.ok(row0.parentNode, "Row element should still be attached");
   Assert.greater(
     threadTree.getFirstVisibleIndex(),
     5,
@@ -500,7 +513,7 @@ add_task(async function testSingleMessage() {
   threadTree.scrollToIndex(60, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
   await TestUtils.waitForCondition(
-    () => !row.parentNode,
+    () => !row0.parentNode,
     "waiting for row element to no longer be attached"
   );
   Assert.equal(threadTree.currentIndex, 5, "Row 5 is the current row");
@@ -550,13 +563,6 @@ add_task(async function testMultipleMessages() {
   const { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
-  await TestUtils.waitForTick(); // Wait for rows to be added.
-
-  // Sometimes a bit more waiting is needed.
-  const row2 = await TestUtils.waitForCondition(
-    () => threadTree.getRowAtIndex(2),
-    "waiting for rows to be added"
-  );
 
   // The message pane browser isn't visible.
 
@@ -570,8 +576,31 @@ add_task(async function testMultipleMessages() {
   );
 
   // Open the menu from the thread pane.
+
+  const row2 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(2),
+    "waiting for rows to be added"
+  );
+
   EventUtils.synthesizeMouseAtCenter(row2, { type: "contextmenu" }, about3Pane);
   await checkMenuitems(mailContext, "multipleMessagesTree");
+
+  // Open the menu from an unselected row of the thread pane.
+
+  const row4 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(4),
+    "waiting for rows to be added"
+  );
+  EventUtils.synthesizeMouseAtCenter(row4, { type: "contextmenu" }, about3Pane);
+  await checkMenuitems(mailContext, "singleMessageTree");
+
+  // Check that the selection was restored.
+
+  Assert.deepEqual(
+    threadTree.selectedIndices,
+    [1, 2, 3],
+    "selection should be restored after the menu closes"
+  );
 
   // Select a collapsed thread and open the menu.
 
@@ -827,10 +856,11 @@ add_task(async function testSyntheticFolder() {
     undefined,
     url => url.endsWith(gDBView.getKeyAt(9))
   );
+
+  // Select a draft. Open the menu from the message pane.
+
   threadTree.selectedIndex = 9;
   await loadedPromise;
-
-  // Open the menu from the message pane.
 
   Assert.ok(
     BrowserTestUtils.isVisible(messageBrowser),
@@ -852,6 +882,8 @@ add_task(async function testSyntheticFolder() {
   EventUtils.synthesizeMouseAtCenter(row9, { type: "contextmenu" }, about3Pane);
   await checkMenuitems(mailContext, "syntheticFolderDraftTree");
 
+  // Select an ordinary message. Open the menu from the message pane.
+
   loadedPromise = BrowserTestUtils.browserLoaded(
     messagePaneBrowser,
     undefined,
@@ -859,8 +891,6 @@ add_task(async function testSyntheticFolder() {
   );
   threadTree.selectedIndex = 4;
   await loadedPromise;
-
-  // Open the menu from the message pane.
 
   Assert.ok(
     BrowserTestUtils.isVisible(messageBrowser),
@@ -875,12 +905,29 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from the thread pane.
 
-  const row5 = await TestUtils.waitForCondition(
-    () => threadTree.getRowAtIndex(5),
+  const row4 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(4),
     "waiting for rows to be added"
   );
-  EventUtils.synthesizeMouseAtCenter(row5, { type: "contextmenu" }, about3Pane);
+  EventUtils.synthesizeMouseAtCenter(row4, { type: "contextmenu" }, about3Pane);
   await checkMenuitems(mailContext, "syntheticFolderTree");
+
+  // Open the menu from an unselected row of the thread pane.
+
+  const row3 = await TestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(3),
+    "waiting for rows to be added"
+  );
+  EventUtils.synthesizeMouseAtCenter(row3, { type: "contextmenu" }, about3Pane);
+  await checkMenuitems(mailContext, "syntheticFolderTree");
+
+  // Check that the selection was restored.
+
+  Assert.equal(
+    threadTree.selectedIndex,
+    4,
+    "selection should be restored after the menu closes"
+  );
 
   tabmail.closeOtherTabs(0);
 });

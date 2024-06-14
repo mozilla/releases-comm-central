@@ -4888,22 +4888,44 @@ var threadPane = {
   },
 
   /**
+   * Gets the key to use for storing the selection in `_savedSelections` or for
+   * retrieving it.
+   *
+   * @returns {string?} - A string to use as a key, or null. If null, the
+   *   selection should not be saved.
+   */
+  _getSavedSelectionKey() {
+    // Synthetic views never share an about:3pane with other views, so it's
+    // safe to use any key here.
+    if (gViewWrapper?.isSynthetic) {
+      return "synthetic";
+    }
+    // Identifying messages by key doesn't reliably work on on cross-folder
+    // views since the msgKey may not be unique.
+    if (gFolder && gDBView && !gViewWrapper?.isMultiFolder) {
+      return gFolder.URI;
+    }
+    return null;
+  },
+
+  /**
    * Store the current thread tree selection.
    */
   saveSelection() {
-    // Identifying messages by key doesn't reliably work on on cross-folder views since
-    // the msgKey may not be unique.
-    if (gFolder && gDBView && !gViewWrapper?.isMultiFolder) {
-      this._savedSelections.set(gFolder.URI, {
-        currentKey: gDBView.getKeyAt(threadTree.currentIndex),
-        // In views which are "grouped by sort", getting the key for collapsed dummy rows
-        // returns the key of the first group member, so we would restore something that
-        // wasn't selected. So filter them out.
-        selectedKeys: threadTree.selectedIndices
-          .filter(i => !gViewWrapper.isGroupedByHeaderAtIndex(i))
-          .map(gDBView.getKeyAt),
-      });
+    const selectionKey = this._getSavedSelectionKey();
+    if (!selectionKey) {
+      return;
     }
+
+    this._savedSelections.set(selectionKey, {
+      currentKey: gDBView.getKeyAt(threadTree.currentIndex),
+      // In views which are "grouped by sort", getting the key for collapsed
+      // dummy rows returns the key of the first group member, so we would
+      // restore something that wasn't selected. So filter them out.
+      selectedKeys: threadTree.selectedIndices
+        .filter(i => !gViewWrapper.isGroupedByHeaderAtIndex(i))
+        .map(gDBView.getKeyAt),
+    });
   },
 
   /**
@@ -4928,11 +4950,17 @@ var threadPane = {
    *   messages.
    */
   restoreSelection({ discard = true, notify = true, expand = true } = {}) {
-    if (!this._savedSelections.has(gFolder?.URI) || !threadTree.view) {
+    const selectionKey = this._getSavedSelectionKey();
+    if (
+      !selectionKey ||
+      !this._savedSelections.has(selectionKey) ||
+      !threadTree.view
+    ) {
       return;
     }
 
-    const { currentKey, selectedKeys } = this._savedSelections.get(gFolder.URI);
+    const { currentKey, selectedKeys } =
+      this._savedSelections.get(selectionKey);
     let currentIndex = nsMsgViewIndex_None;
     const indices = new Set();
     for (const key of selectedKeys) {
@@ -4986,7 +5014,7 @@ var threadPane = {
 
     // If all selections have already been restored, discard them as well.
     if (discard || gDBView.selection.count == selectedKeys.length) {
-      this._savedSelections.delete(gFolder.URI);
+      this._savedSelections.delete(selectionKey);
     }
   },
 
