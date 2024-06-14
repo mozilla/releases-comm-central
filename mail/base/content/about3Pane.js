@@ -4917,9 +4917,7 @@ var threadPane = {
     if (gViewWrapper?.isSynthetic) {
       return "synthetic";
     }
-    // Identifying messages by key doesn't reliably work on on cross-folder
-    // views since the msgKey may not be unique.
-    if (gFolder && gDBView && !gViewWrapper?.isMultiFolder) {
+    if (gFolder && gDBView) {
       return gFolder.URI;
     }
     return null;
@@ -4934,14 +4932,23 @@ var threadPane = {
       return;
     }
 
+    const currentIndex = threadTree.currentIndex;
+    let currentUri = null;
+    if (
+      currentIndex != -1 &&
+      currentIndex < gDBView.rowCount &&
+      !gViewWrapper.isGroupedByHeaderAtIndex(currentIndex)
+    ) {
+      currentUri = gDBView.getURIForViewIndex(threadTree.currentIndex);
+    }
     this._savedSelections.set(selectionKey, {
-      currentKey: gDBView.getKeyAt(threadTree.currentIndex),
+      currentUri,
       // In views which are "grouped by sort", getting the key for collapsed
       // dummy rows returns the key of the first group member, so we would
       // restore something that wasn't selected. So filter them out.
-      selectedKeys: threadTree.selectedIndices
+      selectedUris: threadTree.selectedIndices
         .filter(i => !gViewWrapper.isGroupedByHeaderAtIndex(i))
-        .map(gDBView.getKeyAt),
+        .map(gDBView.getURIForViewIndex),
     });
   },
 
@@ -4976,12 +4983,17 @@ var threadPane = {
       return;
     }
 
-    const { currentKey, selectedKeys } =
+    // Ignore updates from the gDBView caused by findIndexOfMsgHdr.
+    this._jsTree.beginUpdateBatch();
+
+    const { currentUri, selectedUris } =
       this._savedSelections.get(selectionKey);
     let currentIndex = nsMsgViewIndex_None;
     const indices = new Set();
-    for (const key of selectedKeys) {
-      let index = gDBView.findIndexFromKey(key, expand);
+    for (const uri of selectedUris) {
+      const msgHdr =
+        MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
+      let index = gDBView.findIndexOfMsgHdr(msgHdr, expand);
       // While the first message in a collapsed group returns the index of the
       // dummy row, other messages return none. To be consistent, we don't
       // select the dummy row in any case.
@@ -4990,7 +5002,7 @@ var threadPane = {
         !gViewWrapper.isGroupedByHeaderAtIndex(index)
       ) {
         indices.add(index);
-        if (key == currentKey) {
+        if (uri == currentUri) {
           currentIndex = index;
         }
         continue;
@@ -5003,17 +5015,12 @@ var threadPane = {
       // The message for this key can't be found. Perhaps the thread it's in
       // has been collapsed? Select the root message in that case.
       try {
-        const folder =
-          gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
-            ? gViewWrapper._underlyingFolders[0]
-            : gFolder;
-        const msgHdr = folder.GetMessageHeader(key);
         const thread = gDBView.getThreadContainingMsgHdr(msgHdr);
         const rootMsgHdr = thread.getRootHdr();
         index = gDBView.findIndexOfMsgHdr(rootMsgHdr, false);
         if (index != nsMsgViewIndex_None) {
           indices.add(index);
-          if (key == currentKey) {
+          if (uri == currentUri) {
             currentIndex = index;
           }
         }
@@ -5021,7 +5028,11 @@ var threadPane = {
         console.error(ex);
       }
     }
-    threadTree.setSelectedIndices(indices.values(), !notify);
+
+    // Set the selection and stop ignoring updates.
+    threadTree.setSelectedIndices(indices.values(), true);
+    this._jsTree.endUpdateBatch();
+    threadTree.onSelectionChanged(false, !notify);
 
     if (currentIndex != nsMsgViewIndex_None) {
       threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
@@ -5030,7 +5041,7 @@ var threadPane = {
     }
 
     // If all selections have already been restored, discard them as well.
-    if (discard || gDBView.selection.count == selectedKeys.length) {
+    if (discard || gDBView.selection.count == selectedUris.length) {
       this._savedSelections.delete(selectionKey);
     }
   },
