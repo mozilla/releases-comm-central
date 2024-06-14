@@ -375,6 +375,7 @@ var mailContextMenu = {
         ((!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic)
     );
     setSingleSelection("mailContext-forward", !onSpecialItem);
+    setSingleSelection("mailContext-forwardAsInline", !onSpecialItem);
     document.l10n.setAttributes(
       document.getElementById("mailContext-forwardAsAttachment"),
       "mail-context-menu-forward-as-attachment",
