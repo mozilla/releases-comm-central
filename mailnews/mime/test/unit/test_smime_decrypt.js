@@ -256,6 +256,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA256.multipart.mismatch-econtent.eml",
@@ -280,6 +281,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA384.multipart.mismatch-econtent.eml",
@@ -304,6 +306,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.dsig.SHA512.multipart.mismatch-econtent.eml",
@@ -336,6 +339,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.sig.SHA384.opaque.eml",
@@ -348,6 +352,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.sig.SHA512.opaque.eml",
@@ -360,6 +365,7 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
   },
 
   // encrypt-then-sign
@@ -400,6 +406,7 @@ var gMessages = [
     enc: true,
     sig: false,
     sig_good: false,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.env.sig.SHA384.opaque.eml",
@@ -413,6 +420,7 @@ var gMessages = [
     enc: true,
     sig: false,
     sig_good: false,
+    check_text: gTextAliceBob,
   },
   {
     filename: "alice.env.sig.SHA512.opaque.eml",
@@ -426,6 +434,7 @@ var gMessages = [
     enc: true,
     sig: false,
     sig_good: false,
+    check_text: gTextAliceBob,
   },
 
   // encrypt (innermost), wrapped inside multipart/mixed, then signed (outermost)
@@ -446,6 +455,29 @@ var gMessages = [
     enc: true,
     sig: true,
     sig_good: true,
+    check_text: gTextAliceBob,
+  },
+
+  // This is the same structure as 
+  // alice.dsig.SHA256.multipart.env.dsig.eml
+  // One of these tests (and files) could get removed.
+  // The outer signature layer should be ignored, per bug 1806161.
+  {
+    filename: "../smime-manual/outer-smime-bad-sig-inner-smime-enc-sig.eml",
+    enc: true,
+    sig: true,
+    sig_good: true,
+    check_text: gTextAliceBob,
+  },
+
+  // This is similar as above, but there is no inner signature.
+  // The outer signature layer should be ignored, per bug 1806161.
+  {
+    filename: "../smime-manual/outer-smime-bad-sig-inner-smime-enc.eml",
+    enc: true,
+    sig: false,
+    sig_good: false,
+    check_text: gTextAliceBob,
   },
 
   // encrypt-then-sign, then sign again
