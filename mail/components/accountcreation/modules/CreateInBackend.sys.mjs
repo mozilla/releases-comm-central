@@ -165,10 +165,16 @@ async function createAccountInBackend(config) {
       const smtpServer = outServer.QueryInterface(Ci.nsISmtpServer);
       smtpServer.hostname = config.outgoing.hostname;
       smtpServer.port = config.outgoing.port;
+
       // Note: The client ID will only be set on the server if either its own
       // `clientidEnabled` pref, or the default SMTP pref with the same name, is
       // set to true.
       smtpServer.clientid = newOutgoingClientid;
+
+      // Setting the socket type only makes sense with SMTP, since for other
+      // types (e.g. EWS) it is derived from the URL used to configure the
+      // server.
+      outServer.socketType = config.outgoing.socketType;
     } else if (config.outgoing.type == "ews") {
       const ewsServer = outServer.QueryInterface(Ci.nsIEwsServer);
       ewsServer.initialize(config.outgoing.ewsURL);
@@ -202,7 +208,6 @@ async function createAccountInBackend(config) {
       );
     }
 
-    outServer.socketType = config.outgoing.socketType;
     outServer.description = config.displayName;
 
     // If this is the first SMTP server, set it as default
