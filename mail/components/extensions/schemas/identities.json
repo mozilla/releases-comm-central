@@ -38,7 +38,7 @@
           "accountId": {
             "$ref": "accounts.MailAccountId",
             "optional": true,
-            "description": "The id of the :ref:`accounts.MailAccount` this identity belongs to. The ``accountId`` property is read-only."
+            "description": "The id of the $(ref:accounts.MailAccount) this identity belongs to. The ``accountId`` property is read-only."
           },
           "composeHtml": {
             "type": "boolean",
@@ -107,7 +107,7 @@
       {
         "name": "list",
         "type": "function",
-        "description": "Returns the identities of the specified account, or all identities if no account is specified. Do not expect the returned identities to be in any specific order. Use :ref:`identities.getDefault` to get the default identity of an account.",
+        "description": "Returns the identities of the specified account, or all identities if no account is specified. Do not expect the returned identities to be in any specific order. Use $(ref:identities.getDefault) to get the default identity of an account.",
         "async": "callback",
         "parameters": [
           {
@@ -302,7 +302,7 @@
       {
         "name": "onUpdated",
         "type": "function",
-        "description": "Fired when one or more properties of an identity have been modified. The returned :ref:`identities.MailIdentity` includes only the changed values.",
+        "description": "Fired when one or more properties of an identity have been modified. The returned $(ref:identities.MailIdentity) includes only the changed values.",
         "parameters": [
           {
             "name": "identityId",

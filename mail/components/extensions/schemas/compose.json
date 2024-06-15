@@ -231,12 +231,12 @@
               }
             ],
             "optional": true,
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolder` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolder) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
           },
           "overrideDefaultFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolderId` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>.",
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolderId) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>.",
             "optional": "omit-key-if-missing"
           },
           "plainTextBody": {
@@ -397,7 +397,7 @@
           {
             "name": "details",
             "$ref": "ComposeDetails",
-            "description": "The current state of the compose window. This is functionally the same as calling the :ref:`compose.getComposeDetails` function."
+            "description": "The current state of the compose window. This is functionally the same as calling the $(ref:compose.getComposeDetails) function."
           }
         ],
         "returns": {
@@ -411,7 +411,7 @@
             "details": {
               "$ref": "ComposeDetails",
               "optional": true,
-              "description": "Updates the compose window. This is functionally the same as calling the :ref:`compose.setComposeDetails` function."
+              "description": "Updates the compose window. This is functionally the same as calling the $(ref:compose.setComposeDetails) function."
             }
           }
         }
@@ -699,7 +699,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. The properties of the given :ref:`compose.ComposeDetails` object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
+        "description": "Updates the compose window. The properties of the given $(ref:compose.ComposeDetails) object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
         "permissions": ["compose"],
         "parameters": [
           {
@@ -717,7 +717,7 @@
         "name": "getActiveDictionaries",
         "type": "function",
         "async": "callback",
-        "description": "Returns a :ref:`compose.ComposeDictionaries` object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
+        "description": "Returns a $(ref:compose.ComposeDictionaries) object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
         "permissions": ["compose"],
         "parameters": [
           {
@@ -787,7 +787,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a :ref:`compose.ComposeAttachment` as a |File| object.",
+        "description": "Gets the content of a $(ref:compose.ComposeAttachment) as a |File| object.",
         "async": "callback",
         "parameters": [
           {
@@ -895,7 +895,7 @@
         "name": "sendMessage",
         "permissions": ["compose.send"],
         "type": "function",
-        "description": "Sends the message currently being composed. If the send mode is not specified or set to <var>default</var>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`compose.onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
+        "description": "Sends the message currently being composed. If the send mode is not specified or set to <var>default</var>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an $(ref:compose.onBeforeSend) event or if there has been an error while sending the message to the outgoing mail server.",
         "async": "callback",
         "parameters": [
           {

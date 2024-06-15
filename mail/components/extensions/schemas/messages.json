@@ -31,7 +31,7 @@
         "id": "MessageId",
         "type": "integer",
         "minimum": 1,
-        "description": "A unique id representing a :ref:`messages.MessageHeader` and the associated message. This id doesn’t refer to the Message-ID email header. It is an internal tracking number that does not remain after a restart. Nor does it follow an email that has been moved to a different folder."
+        "description": "A unique id representing a $(ref:messages.MessageHeader) and the associated message. This id doesn’t refer to the Message-ID email header. It is an internal tracking number that does not remain after a restart. Nor does it follow an email that has been moved to a different folder."
       },
       {
         "id": "InlineTextPart",
@@ -136,7 +136,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Tags associated with this message. For a list of available tags, use :ref:`messages.tags.list`."
+            "description": "Tags associated with this message. For a list of available tags, use $(ref:messages.tags.list)."
           }
         }
       },
@@ -154,7 +154,7 @@
                 "type": "null"
               }
             ],
-            "description": "Id of the message list, to be used with :ref:`messages.continueList` or :ref:`messages.abortList`."
+            "description": "Id of the message list, to be used with $(ref:messages.continueList) or $(ref:messages.abortList)."
           },
           "messages": {
             "type": "array",
@@ -203,7 +203,7 @@
           "partName": {
             "type": "string",
             "optional": true,
-            "description": "The identifier of this part, used in :ref:`messages.getAttachmentFile`."
+            "description": "The identifier of this part, used in $(ref:messages.getAttachmentFile)."
           },
           "parts": {
             "type": "array",
@@ -223,7 +223,7 @@
       {
         "id": "MessageProperties",
         "type": "object",
-        "description": "Message properties used in :ref:`messages.update` and :ref:`messages.import`. They can also be monitored by :ref:`messages.onUpdated`.",
+        "description": "Message properties used in $(ref:messages.update) and $(ref:messages.import). They can also be monitored by $(ref:messages.onUpdated).",
         "properties": {
           "flagged": {
             "type": "boolean",
@@ -233,11 +233,11 @@
           "junk": {
             "type": "boolean",
             "optional": true,
-            "description": "Whether the message is marked as junk. Only supported in :ref:`messages.update`."
+            "description": "Whether the message is marked as junk. Only supported in $(ref:messages.update)."
           },
           "new": {
             "type": "boolean",
-            "description": "Whether the message is marked as new. Only supported in :ref:`messages.import`.",
+            "description": "Whether the message is marked as new. Only supported in $(ref:messages.import).",
             "optional": true
           },
           "read": {
@@ -247,7 +247,7 @@
           },
           "tags": {
             "type": "array",
-            "description": "Tags associated with this message. For a list of available tags, call the :ref:`messages.tags.list` method.",
+            "description": "Tags associated with this message. For a list of available tags, call the $(ref:messages.tags.list) method.",
             "optional": true,
             "items": {
               "type": "string"
@@ -384,7 +384,7 @@
         "extraParameters": [
           {
             "name": "monitorAllFolders",
-            "description": "Monitor all folders (including all special use folders as defined by :ref:`folders.MailFolderSpecialUse`) instead of just inbox folders and normal folders.",
+            "description": "Monitor all folders (including all special use folders as defined by $(ref:folders.MailFolderSpecialUse)) instead of just inbox folders and normal folders.",
             "type": "boolean",
             "optional": true
           }
@@ -651,7 +651,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a :ref:`messages.MessageAttachment` as a |File| object.",
+        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a |File| object.",
         "async": "callback",
         "parameters": [
           {
@@ -749,7 +749,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Whether the message has attachments, or not. Supports to specify a :ref:`messages.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+                "description": "Whether the message has attachments, or not. Supports to specify a $(ref:messages.QueryRange) (min/max) instead of a simple boolean value (none/some)."
               },
               "author": {
                 "type": "string",
@@ -821,7 +821,7 @@
               "tags": {
                 "$ref": "messages.tags.TagsDetail",
                 "optional": true,
-                "description": "Returns only messages with the specified tags. For a list of available tags, call the :ref:`messages.tags.list` method."
+                "description": "Returns only messages with the specified tags. For a list of available tags, call the $(ref:messages.tags.list) method."
               },
               "toDate": {
                 "$ref": "extensionTypes.Date",
@@ -1277,7 +1277,7 @@
         "properties": {
           "tags": {
             "type": "object",
-            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<var>true</var>) or exclude (<var>false</var>) the tag. For a list of available tags, call the :ref:`messages.tags.list` method.",
+            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<var>true</var>) or exclude (<var>false</var>) the tag. For a list of available tags, call the $(ref:messages.tags.list) method.",
             "patternProperties": {
               ".*": {
                 "type": "boolean"

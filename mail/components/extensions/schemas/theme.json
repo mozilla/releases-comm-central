@@ -46,7 +46,7 @@
       },
       {
         "id": "ThemeExperiment",
-        "description": "Defines additional color, image and property keys to be used in :ref:`theme.ThemeType`, extending the theme-able areas of Thunderbird.",
+        "description": "Defines additional color, image and property keys to be used in $(ref:theme.ThemeType), extending the theme-able areas of Thunderbird.",
         "type": "object",
         "properties": {
           "stylesheet": {
@@ -57,7 +57,7 @@
           "images": {
             "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme image keys to internal Thunderbird CSS image variables. The new image key is usable as an image reference in :ref:`theme.ThemeType`. Example: <literalinclude>includes/theme/theme_experiment_image.json<lang>JSON</lang></literalinclude>",
+            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme image keys to internal Thunderbird CSS image variables. The new image key is usable as an image reference in $(ref:theme.ThemeType). Example: <literalinclude>includes/theme/theme_experiment_image.json<lang>JSON</lang></literalinclude>",
             "additionalProperties": {
               "type": "string"
             }
@@ -65,7 +65,7 @@
           "colors": {
             "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme color keys to internal Thunderbird CSS color variables. The example shown below maps the theme color key <var>popup_affordance</var> to the CSS color variable </var>--arrowpanel-dimmed</var>. The new color key is usable as a color reference in :ref:`theme.ThemeType`. <literalinclude>includes/theme/theme_experiment_color.json<lang>JSON</lang></literalinclude>",
+            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme color keys to internal Thunderbird CSS color variables. The example shown below maps the theme color key <var>popup_affordance</var> to the CSS color variable </var>--arrowpanel-dimmed</var>. The new color key is usable as a color reference in $(ref:theme.ThemeType). <literalinclude>includes/theme/theme_experiment_color.json<lang>JSON</lang></literalinclude>",
             "additionalProperties": {
               "type": "string"
             }
@@ -73,7 +73,7 @@
           "properties": {
             "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme property keys to internal Thunderbird CSS property variables. The new property key is usable as a property reference in :ref:`theme.ThemeType`. Example: <literalinclude>includes/theme/theme_experiment_property.json<lang>JSON</lang></literalinclude>",
+            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme property keys to internal Thunderbird CSS property variables. The new property key is usable as a property reference in $(ref:theme.ThemeType). Example: <literalinclude>includes/theme/theme_experiment_property.json<lang>JSON</lang></literalinclude>",
             "additionalProperties": {
               "type": "string"
             }
@@ -436,7 +436,7 @@
           "theme_experiment": {
             "$ref": "ThemeExperiment",
             "optional": true,
-            "description": "A theme experiment allows modifying the user interface of Thunderbird beyond what is currently possible using the built-in color, image and property keys of :ref:`theme.ThemeType`. These experiments are a precursor to proposing new theme features for inclusion in Thunderbird. Experimentation is done by mapping internal CSS color, image and property variables to new theme keys and using them in :ref:`theme.ThemeType` and by loading additional style sheets to add new CSS variables, extending the theme-able areas of Thunderbird. Can be used in static and dynamic themes."
+            "description": "A theme experiment allows modifying the user interface of Thunderbird beyond what is currently possible using the built-in color, image and property keys of $(ref:theme.ThemeType). These experiments are a precursor to proposing new theme features for inclusion in Thunderbird. Experimentation is done by mapping internal CSS color, image and property variables to new theme keys and using them in $(ref:theme.ThemeType) and by loading additional style sheets to add new CSS variables, extending the theme-able areas of Thunderbird. Can be used in static and dynamic themes."
           }
         }
       }

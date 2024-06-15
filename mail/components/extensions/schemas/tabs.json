@@ -37,7 +37,7 @@
             "type": "integer",
             "minimum": -1,
             "optional": true,
-            "description": "The ID of the tab. Tab IDs are unique within a session. Under some circumstances a Tab may not be assigned an ID. Tab ID can also be set to :ref:`tabs.TAB_ID_NONE` for apps and devtools windows."
+            "description": "The ID of the tab. Tab IDs are unique within a session. Under some circumstances a Tab may not be assigned an ID. Tab ID can also be set to $(ref:tabs.TAB_ID_NONE) for apps and devtools windows."
           },
           "index": {
             "type": "integer",
@@ -53,7 +53,7 @@
           "selected": {
             "type": "boolean",
             "description": "Whether the tab is selected.",
-            "deprecated": "Please use :ref:`tabs.Tab.highlighted`.",
+            "deprecated": "Please use $(ref:tabs.Tab.highlighted).",
             "unsupported": true
           },
           "highlighted": {
@@ -329,7 +329,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually.",
+        "description": "Creates a new content tab. Use the $(ref:messageDisplay_api) to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {
@@ -357,7 +357,7 @@
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <var>true</var>."
+                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see $(ref:windows.update)). Defaults to <var>true</var>."
               },
               "cookieStoreId": {
                 "type": "string",
@@ -406,7 +406,7 @@
             "parameters": [
               {
                 "name": "tab",
-                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested.",
+                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -501,7 +501,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": -2,
-                "description": "The ID of the parent window, or :ref:`windows.WINDOW_ID_CURRENT` for the current window."
+                "description": "The ID of the parent window, or $(ref:windows.WINDOW_ID_CURRENT) for the current window."
               },
               "windowType": {
                 "$ref": "WindowType",
@@ -573,7 +573,7 @@
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Set this to <var>true</var>, if the tab should become active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <var>false</var> has no effect."
+                "description": "Set this to <var>true</var>, if the tab should become active. Does not affect whether the window is focused (see $(ref:windows.update)). Setting this to <var>false</var> has no effect."
               }
             }
           },
@@ -585,7 +585,7 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested."
+                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested."
               }
             ]
           }
@@ -870,7 +870,7 @@
       {
         "name": "onMoved",
         "type": "function",
-        "description": "Fired when a tab is moved within a window. Only one move event is fired, representing the tab the user directly moved. Move events are not fired for the other tabs that must move in response. This event is not fired when a tab is moved between windows. For that, see :ref:`tabs.onDetached`.",
+        "description": "Fired when a tab is moved within a window. Only one move event is fired, representing the tab the user directly moved. Move events are not fired for the other tabs that must move in response. This event is not fired when a tab is moved between windows. For that, see $(ref:tabs.onDetached).",
         "parameters": [
           {
             "type": "integer",

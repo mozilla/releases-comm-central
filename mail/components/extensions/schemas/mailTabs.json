@@ -275,7 +275,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": -2,
-                "description": "The ID of the parent window, or :ref:`windows.WINDOW_ID_CURRENT` for the current window."
+                "description": "The ID of the parent window, or $(ref:windows.WINDOW_ID_CURRENT) for the current window."
               }
             }
           },
@@ -297,7 +297,7 @@
       {
         "name": "get",
         "type": "function",
-        "description": "Get the :ref:`mailTabs.MailTab` properties of a mail tab.",
+        "description": "Get the $(ref:mailTabs.MailTab) properties of a mail tab.",
         "async": "callback",
         "parameters": [
           {
@@ -321,7 +321,7 @@
         "name": "getCurrent",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Get the :ref:`mailTabs.MailTab` properties of the active mail tab. Returns <var>undefined</var>, if the active tab is not a mail tab.",
+        "description": "Get the $(ref:mailTabs.MailTab) properties of the active mail tab. Returns <var>undefined</var>, if the active tab is not a mail tab.",
         "async": "callback",
         "parameters": [
           {
@@ -341,7 +341,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new mail tab. Standard tab properties can be adjusted via :ref:`tabs.update` after the mail tab has been created. **Note:** A new mail window can be created via :ref:`windows.create`.",
+        "description": "Creates a new mail tab. Standard tab properties can be adjusted via $(ref:tabs.update) after the mail tab has been created. **Note:** A new mail window can be created via $(ref:windows.create).",
         "async": "callback",
         "parameters": [
           {

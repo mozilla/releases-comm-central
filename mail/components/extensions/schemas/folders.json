@@ -64,7 +64,7 @@
           },
           "path": {
             "type": "string",
-            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use :ref:`folders.getParentFolders` or :ref:`folders.getSubFolders` to obtain hierarchy information."
+            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use $(ref:folders.getParentFolders) or $(ref:folders.getSubFolders) to obtain hierarchy information."
           },
           "specialUse": {
             "type": "array",
@@ -101,7 +101,7 @@
       {
         "id": "MailFolderId",
         "type": "string",
-        "description": "A unique id representing a :ref:`folders.MailFolder` throughout a session. Renaming or moving a folder will invalidate its id."
+        "description": "A unique id representing a $(ref:folders.MailFolder) throughout a session. Renaming or moving a folder will invalidate its id."
       },
       {
         "id": "MailFolderInfo",
@@ -112,7 +112,7 @@
             "type": "boolean",
             "optional": true,
             "max_manifest_version": 2,
-            "description": "Deprecated. This information is now available in :ref:`folders.MailFolder`."
+            "description": "Deprecated. This information is now available in $(ref:folders.MailFolder)."
           },
           "lastUsed": {
             "$ref": "extensionTypes.Date",
@@ -313,7 +313,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) contains messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+                "description": "Whether the folder (excluding subfolders) contains messages, or not. Supports to specify a $(ref:folders.QueryRange) (min/max) instead of a simple boolean value (none/some)."
               },
               "hasUnreadMessages": {
                 "choices": [
@@ -325,7 +325,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) contains unread messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+                "description": "Whether the folder (excluding subfolders) contains unread messages, or not. Supports to specify a $(ref:folders.QueryRange) (min/max) instead of a simple boolean value (none/some)."
               },
               "hasNewMessages": {
                 "choices": [
@@ -337,7 +337,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Whether the folder (excluding subfolders) contains new messages, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+                "description": "Whether the folder (excluding subfolders) contains new messages, or not. Supports to specify a $(ref:folders.QueryRange) (min/max) instead of a simple boolean value (none/some)."
               },
               "hasSubFolders": {
                 "choices": [
@@ -349,7 +349,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Whether the folder has subfolders, or not. Supports to specify a :ref:`folders.QueryRange` (min/max) instead of a simple boolean value (none/some)."
+                "description": "Whether the folder has subfolders, or not. Supports to specify a $(ref:folders.QueryRange) (min/max) instead of a simple boolean value (none/some)."
               },
               "isFavorite": {
                 "type": "boolean",
@@ -379,7 +379,7 @@
               "limit": {
                 "type": "integer",
                 "optional": true,
-                "description": "Limits the number of returned folders. If used together with <var>recent</var>, supports being set to :ref:`folders.DEFAULT_MOST_RECENT_LIMIT`"
+                "description": "Limits the number of returned folders. If used together with <var>recent</var>, supports being set to $(ref:folders.DEFAULT_MOST_RECENT_LIMIT)"
               },
               "name": {
                 "choices": [
@@ -458,7 +458,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <var>false</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -488,7 +488,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <var>true</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1011,7 +1011,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1044,7 +1044,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1080,7 +1080,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <var>false</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each direct subfolder should also include all its nested subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -1125,7 +1125,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <var>true</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each direct subfolder should also include all its nested subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1163,7 +1163,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <var>false</var>.",
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders . Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1188,7 +1188,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "The tag key of the requested folder. See :ref:`messages.tags.list()` for the available tags. Throws when specifying an invalid tag key."
+            "description": "The tag key of the requested folder. See $(ref:messages.tags.list()) for the available tags. Throws when specifying an invalid tag key."
           },
           {
             "type": "function",

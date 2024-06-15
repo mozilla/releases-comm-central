@@ -58,7 +58,7 @@
               "$ref": "tabs.Tab"
             },
             "optional": true,
-            "description": "Array of :ref:`tabs.Tab` objects representing the current tabs in the window. Only included if requested by :ref:`windows.get`, :ref:`windows.getCurrent`, :ref:`windows.getAll` or :ref:`windows.getLastFocused`, and the optional :ref:`windows.GetInfo` parameter has its ``populate`` member set to <var>true</var>."
+            "description": "Array of $(ref:tabs.Tab) objects representing the current tabs in the window. Only included if requested by $(ref:windows.get), $(ref:windows.getCurrent), $(ref:windows.getAll) or $(ref:windows.getLastFocused), and the optional $(ref:windows.GetInfo) parameter has its ``populate`` member set to <var>true</var>."
           },
           "incognito": {
             "type": "boolean",
@@ -99,7 +99,7 @@
           "populate": {
             "type": "boolean",
             "optional": true,
-            "description": "If true, the :ref:`windows.Window` returned will have a ``tabs`` property that contains an array of :ref:`tabs.Tab` objects representing the tabs inside the window. The :ref:`tabs.Tab` objects only contain the ``url``, ``title`` and ``favIconUrl`` properties if the extension's manifest file includes the <permission>tabs</permission> permission."
+            "description": "If true, the $(ref:windows.Window) returned will have a ``tabs`` property that contains an array of $(ref:tabs.Tab) objects representing the tabs inside the window. The $(ref:tabs.Tab) objects only contain the ``url``, ``title`` and ``favIconUrl`` properties if the extension's manifest file includes the <permission>tabs</permission> permission."
           },
           "windowTypes": {
             "type": "array",
@@ -107,7 +107,7 @@
               "$ref": "WindowType"
             },
             "optional": true,
-            "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. Supported by :ref:`windows.getAll` only, ignored in all other functions."
+            "description": "If set, the $(ref:windows.Window) returned will be filtered based on its type. Supported by $(ref:windows.getAll) only, ignored in all other functions."
           }
         }
       }
@@ -489,7 +489,7 @@
       {
         "name": "onFocusChanged",
         "type": "function",
-        "description": "Fired when the currently focused window changes. Will be :ref:`windows.WINDOW_ID_NONE`, if all windows have lost focus. **Note:** On some Linux window managers, WINDOW_ID_NONE will always be sent immediately preceding a switch from one window to another.",
+        "description": "Fired when the currently focused window changes. Will be $(ref:windows.WINDOW_ID_NONE), if all windows have lost focus. **Note:** On some Linux window managers, WINDOW_ID_NONE will always be sent immediately preceding a switch from one window to another.",
         "filters": [
           {
             "name": "windowTypes",

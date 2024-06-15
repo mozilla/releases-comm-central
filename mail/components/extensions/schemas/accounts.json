@@ -19,7 +19,7 @@
     "types": [
       {
         "id": "MailAccount",
-        "description": "An object describing a mail account, as returned for example by the :ref:`accounts.list` and :ref:`accounts.get` methods.",
+        "description": "An object describing a mail account, as returned for example by the $(ref:accounts.list) and $(ref:accounts.get) methods.",
         "type": "object",
         "properties": {
           "id": {
@@ -65,7 +65,7 @@
       {
         "id": "MailAccountId",
         "type": "string",
-        "description": "A unique id representing a :ref:`accounts.MailAccount`."
+        "description": "A unique id representing a $(ref:accounts.MailAccount)."
       },
       {
         "id": "MailAccountType",
@@ -97,7 +97,7 @@
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <var>false</var>."
+            "description": "Specifies whether the returned $(ref:accounts.MailAccount) objects should include their account's folders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -126,7 +126,7 @@
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <var>true</var>."
+            "description": "Specifies whether the returned $(ref:accounts.MailAccount) objects should include their account's folders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -159,7 +159,7 @@
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>false</var>."
+            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -190,7 +190,7 @@
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>true</var>."
+            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -219,7 +219,7 @@
         "parameters": [
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>true</var>.",
+            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>true</var>.",
             "optional": true,
             "default": true,
             "type": "boolean"

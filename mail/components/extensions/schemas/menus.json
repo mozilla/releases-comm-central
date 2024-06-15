@@ -158,7 +158,7 @@
           "targetElementId": {
             "type": "integer",
             "optional": true,
-            "description": "An identifier of the clicked content element, if any. Use :ref:`menus.getTargetElement` in the page to find the corresponding element."
+            "description": "An identifier of the clicked content element, if any. Use $(ref:menus.getTargetElement) in the page to find the corresponding element."
           },
           "fieldId": {
             "type": "string",
@@ -326,7 +326,7 @@
           "targetElementId": {
             "type": "integer",
             "optional": true,
-            "description": "An identifier of the clicked content element, if any. Use :ref:`menus.getTargetElement` in the page to find the corresponding element."
+            "description": "An identifier of the clicked content element, if any. Use $(ref:menus.getTargetElement) in the page to find the corresponding element."
           },
           "fieldId": {
             "type": "string",
@@ -412,7 +412,7 @@
             "$ref": "MenuIconPath"
           }
         },
-        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a :ref:`menus.MenuIconPath`. Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
+        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath). Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
       }
     ],
     "functions": [
@@ -794,7 +794,7 @@
       {
         "name": "onShown",
         "type": "function",
-        "description": "Fired when a menu is shown. The extension can add, modify or remove menu items and call :ref:`menus.refresh` to update the menu.",
+        "description": "Fired when a menu is shown. The extension can add, modify or remove menu items and call $(ref:menus.refresh) to update the menu.",
         "parameters": [
           {
             "name": "info",

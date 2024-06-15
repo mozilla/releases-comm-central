@@ -20,7 +20,7 @@
               {
                 "type": "object",
                 "max_manifest_version": 2,
-                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_browser_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
+                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a $(ref:commands.CommandsShortcut). The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_browser_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
                 "additionalProperties": {
                   "type": "object",
                   "additionalProperties": {
@@ -77,7 +77,7 @@
               {
                 "type": "object",
                 "min_manifest_version": 3,
-                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
+                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a $(ref:commands.CommandsShortcut). The <em>name</em> may also be one of the following built-in special shortcuts: \n * <var>_execute_action</var> \n * <var>_execute_compose_action</var> \n * <var>_execute_message_display_action</var>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
                 "additionalProperties": {
                   "type": "object",
                   "additionalProperties": {

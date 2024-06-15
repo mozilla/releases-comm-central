@@ -21,10 +21,10 @@
                 "type": "string",
                 "optional": true,
                 "deprecated": true,
-                "description": "This property is no longer used. The only supported data format for the ``data`` argument in :ref:`cloudFile.onFileUpload` is |File|."
+                "description": "This property is no longer used. The only supported data format for the ``data`` argument in $(ref:cloudFile.onFileUpload) is |File|."
               },
               "reuse_uploads": {
-                "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known ``url`` and ``templateInfo`` values without triggering the registered :ref:`cloudFile.onFileUpload` listener again. Setting this option to <var>false</var> will always trigger the registered listener, providing the already known values through the ``relatedFileInfo`` parameter of the :ref:`cloudFile.onFileUpload` event, to let the provider decide how to handle these cases.",
+                "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known ``url`` and ``templateInfo`` values without triggering the registered $(ref:cloudFile.onFileUpload) listener again. Setting this option to <var>false</var> will always trigger the registered listener, providing the already known values through the ``relatedFileInfo`` parameter of the $(ref:cloudFile.onFileUpload) event, to let the provider decide how to handle these cases.",
                 "type": "boolean",
                 "optional": true,
                 "default": true
@@ -50,7 +50,7 @@
                 "type": "string",
                 "optional": true,
                 "deprecated": true,
-                "description": "This property is no longer used. The ``service_url`` property of the :ref:`cloudFile.CloudFileTemplateInfo` object returned by the :ref:`cloudFile.onFileUpload` event can be used to add a <em>Learn more about</em> link to the footer of the cloud file attachment element."
+                "description": "This property is no longer used. The ``service_url`` property of the $(ref:cloudFile.CloudFileTemplateInfo) object returned by the $(ref:cloudFile.onFileUpload) event can be used to add a <em>Learn more about</em> link to the footer of the cloud file attachment element."
               }
             },
             "optional": true
@@ -96,7 +96,7 @@
           "properties": {
             "aborted": {
               "type": "boolean",
-              "description": "Set this to <var>true</var> if the file upload was aborted by the user and an :ref:`cloudFile.onFileUploadAbort` event has been received. No error message will be shown to the user.",
+              "description": "Set this to <var>true</var> if the file upload was aborted by the user and an $(ref:cloudFile.onFileUploadAbort) event has been received. No error message will be shown to the user.",
               "optional": true
             },
             "error": {

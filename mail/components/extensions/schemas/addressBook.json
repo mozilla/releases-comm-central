@@ -325,7 +325,7 @@
     "types": [
       {
         "id": "QueryInfo",
-        "description": "Object defining a query for :ref:`contacts.quickSearch`.",
+        "description": "Object defining a query for $(ref:contacts.quickSearch).",
         "type": "object",
         "properties": {
           "parentId": {
@@ -493,7 +493,7 @@
           },
           {
             "name": "queryInfo",
-            "description": "Either a <em>string</em> with one or more space-separated terms to search for, or a complex :ref:`contacts.QueryInfo` search query.",
+            "description": "Either a <em>string</em> with one or more space-separated terms to search for, or a complex $(ref:contacts.QueryInfo) search query.",
             "choices": [
               {
                 "type": "string"
