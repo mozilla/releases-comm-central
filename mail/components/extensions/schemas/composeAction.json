@@ -41,7 +41,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "optional": true,
-                "description": "The html document to be opened as a popup when the user clicks on the composeAction button. Ignored for action buttons with type <value>menu</value>.",
+                "description": "The html document to be opened as a popup when the user clicks on the composeAction button. Ignored for action buttons with type <var>menu</var>.",
                 "preprocess": "localize"
               },
               "browser_style": {
@@ -51,13 +51,13 @@
                 "default": false
               },
               "default_area": {
-                "description": "Defines the location the composeAction button will appear. The default location is <value>maintoolbar</value>.",
+                "description": "Defines the location the composeAction button will appear. The default location is <var>maintoolbar</var>.",
                 "type": "string",
                 "enum": ["maintoolbar", "formattoolbar"],
                 "optional": true
               },
               "type": {
-                "description": "Specifies the type of the button. Default type is <value>button</value>.",
+                "description": "Specifies the type of the button. Default type is <var>button</var>.",
                 "type": "string",
                 "enum": ["button", "menu"],
                 "optional": true,
@@ -77,7 +77,7 @@
     "types": [
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <var>[255, 0, 0, 255]</var>.",
         "type": "array",
         "items": {
           "type": "integer",
@@ -148,7 +148,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "A string the composeAction button should display as its label and when moused over. Cleared by setting it to <value>null</value> or an empty string (title defined the manifest will be used)."
+                "description": "A string the composeAction button should display as its label and when moused over. Cleared by setting it to <var>null</var> or an empty string (title defined the manifest will be used)."
               },
               "tabId": {
                 "type": "integer",
@@ -230,7 +230,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "A string the composeAction button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to <value>null</value>."
+                "description": "A string the composeAction button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -258,7 +258,7 @@
       {
         "name": "getLabel",
         "type": "function",
-        "description": "Gets the label of the composeAction button. Returns <value>null</value>, if no label has been set and the title is used.",
+        "description": "Gets the label of the composeAction button. Returns <var>null</var>, if no label has been set and the title is used.",
         "async": "callback",
         "parameters": [
           {
@@ -369,7 +369,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to <value>null</value> (action will use the popup value defined in the manifest)."
+                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to <var>null</var> (action will use the popup value defined in the manifest)."
               },
               "tabId": {
                 "type": "integer",
@@ -451,7 +451,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to <value>null</value> or an empty string."
+                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to <var>null</var> or an empty string."
               },
               "tabId": {
                 "type": "integer",
@@ -536,7 +536,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as text color in the badge. Cleared by setting it to <value>null</value>."
+                "description": "The color to use as text color in the badge. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -615,7 +615,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as background in the badge. Cleared by setting it to <value>null</value>."
+                "description": "The color to use as background in the badge. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -760,7 +760,7 @@
       {
         "name": "openPopup",
         "type": "function",
-        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action has no popup, is of type <value>menu</value>, is disabled or has been removed from the toolbar.",
+        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action has no popup, is of type <var>menu</var>, is disabled or has been removed from the toolbar.",
         "async": "callback",
         "parameters": [
           {

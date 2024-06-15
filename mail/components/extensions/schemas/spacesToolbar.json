@@ -17,7 +17,7 @@
               }
             ],
             "optional": true,
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <value>[255, 0, 0, 255]</value>. Can also be a string with an HTML color name (<value>red</value>) or a HEX color value (<value>#FF0000</value> or <value>#F00</value>). Reset when set to an empty string."
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to an empty string."
           },
           "badgeText": {
             "type": "string",
@@ -52,13 +52,13 @@
           "url": {
             "type": "string",
             "optional": true,
-            "description": "The page url, loaded into a tab when the button is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages."
+            "description": "The page url, loaded into a tab when the button is clicked. Supported are <var>https://</var> and <var>http://</var> links, as well as links to WebExtension pages."
           }
         }
       },
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <var>[255, 0, 0, 255]</var>.",
         "type": "array",
         "items": {
           "type": "integer",

@@ -63,7 +63,7 @@
       {
         "name": "register",
         "type": "function",
-        "description": "Register a compose script programmatically. **Note:** Registered scripts will only be applied to newly opened message composer tabs. To apply the script to already open message composer tab, manually inject your script by calling :ref:`tabs.executeScript` for each of the open <value>messageCompose</value> tabs.",
+        "description": "Register a compose script programmatically. **Note:** Registered scripts will only be applied to newly opened message composer tabs. To apply the script to already open message composer tab, manually inject your script by calling :ref:`tabs.executeScript` for each of the open <var>messageCompose</var> tabs.",
         "async": true,
         "parameters": [
           {
@@ -105,7 +105,7 @@
             "optional": true,
             "default": "document_idle",
             "enum": ["document_start", "document_end", "document_idle"],
-            "description": "Determines when the files specified in css and js are injected. The states directly correspond to <code>Document.readyState</code>: <value>loading</value>, <value>interactive</value> and <value>complete</value>"
+            "description": "Determines when the files specified in css and js are injected. The states directly correspond to <code>Document.readyState</code>: <var>loading</var>, <var>interactive</var> and <var>complete</var>"
           }
         }
       },
@@ -128,7 +128,7 @@
       {
         "name": "register",
         "type": "function",
-        "description": "Register a message display script programmatically. **Note:** Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling :ref:`tabs.executeScript` for each of the open <value>messageDisplay</value> tabs.",
+        "description": "Register a message display script programmatically. **Note:** Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling :ref:`tabs.executeScript` for each of the open <var>messageDisplay</var> tabs.",
         "async": true,
         "parameters": [
           {

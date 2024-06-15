@@ -58,11 +58,11 @@
               "$ref": "tabs.Tab"
             },
             "optional": true,
-            "description": "Array of :ref:`tabs.Tab` objects representing the current tabs in the window. Only included if requested by :ref:`windows.get`, :ref:`windows.getCurrent`, :ref:`windows.getAll` or :ref:`windows.getLastFocused`, and the optional :ref:`windows.GetInfo` parameter has its ``populate`` member set to <value>true</value>."
+            "description": "Array of :ref:`tabs.Tab` objects representing the current tabs in the window. Only included if requested by :ref:`windows.get`, :ref:`windows.getCurrent`, :ref:`windows.getAll` or :ref:`windows.getLastFocused`, and the optional :ref:`windows.GetInfo` parameter has its ``populate`` member set to <var>true</var>."
           },
           "incognito": {
             "type": "boolean",
-            "description": "Whether the window is incognito. Since Thunderbird does not support the incognito mode, this is always <value>false</value>."
+            "description": "Whether the window is incognito. Since Thunderbird does not support the incognito mode, this is always <var>false</var>."
           },
           "type": {
             "$ref": "WindowType",
@@ -88,7 +88,7 @@
       {
         "id": "CreateType",
         "type": "string",
-        "description": "Specifies what type of window to create. Thunderbird does not support <value>panel</value> and <value>detached_panel</value>, they are interpreted as <value>popup</value>.",
+        "description": "Specifies what type of window to create. Thunderbird does not support <var>panel</var> and <var>detached_panel</var>, they are interpreted as <var>popup</var>.",
         "enum": ["normal", "popup", "panel", "detached_panel"]
       },
       {
@@ -230,7 +230,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates (opens) a new window with any optional sizing, position or default URL provided. When loading a page into a popup window, same-site links are opened within the same window, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually. Same-site links with targets other than <value>_self</value> are opened in a new tab in the most recent ``normal`` Thunderbird window.",
+        "description": "Creates (opens) a new window with any optional sizing, position or default URL provided. When loading a page into a popup window, same-site links are opened within the same window, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually. Same-site links with targets other than <var>_self</var> are opened in a new tab in the most recent ``normal`` Thunderbird window.",
         "async": "callback",
         "parameters": [
           {
@@ -240,7 +240,7 @@
             "default": {},
             "properties": {
               "url": {
-                "description": "A URL to be opened in a popup window, ignored in all other window types. This may also be an array, but only the first element is used (popup windows may not have multiple tabs). If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the popup window will navigate to the requested page. All other URLs will be opened externally after creating an empty popup window. Fully-qualified URLs must include a scheme (i.e. <value>http://www.google.com</value>, not <value>www.google.com</value>). Relative URLs will be relative to the root of the extension. Defaults to the New Tab Page.",
+                "description": "A URL to be opened in a popup window, ignored in all other window types. This may also be an array, but only the first element is used (popup windows may not have multiple tabs). If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the popup window will navigate to the requested page. All other URLs will be opened externally after creating an empty popup window. Fully-qualified URLs must include a scheme (i.e. <var>http://www.google.com</var>, not <var>www.google.com</var>). Relative URLs will be relative to the root of the extension. Defaults to the New Tab Page.",
                 "optional": true,
                 "choices": [
                   {
@@ -298,7 +298,7 @@
               "type": {
                 "$ref": "CreateType",
                 "optional": true,
-                "description": "Specifies what type of window to create. Thunderbird does not support <value>panel</value> and <value>detached_panel</value>, they are interpreted as <value>popup</value>."
+                "description": "Specifies what type of window to create. Thunderbird does not support <var>panel</var> and <var>detached_panel</var>, they are interpreted as <var>popup</var>."
               },
               "state": {
                 "$ref": "WindowState",
@@ -381,7 +381,7 @@
               "drawAttention": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Setting this to <value>true</value> will cause the window to be displayed in a manner that draws the user's attention to the window, without changing the focused window. The effect lasts until the user changes focus to the window. This option has no effect if the window already has focus."
+                "description": "Setting this to <var>true</var> will cause the window to be displayed in a manner that draws the user's attention to the window, without changing the focused window. The effect lasts until the user changes focus to the window. This option has no effect if the window already has focus."
               },
               "state": {
                 "$ref": "WindowState",
@@ -452,7 +452,7 @@
             "items": {
               "$ref": "WindowType"
             },
-            "description": "Conditions that the window's type being created must satisfy. By default it will satisfy <value>['app', 'normal', 'panel', 'popup']</value>, with <value>app</value> and <value>panel</value> window types limited to the extension's own windows."
+            "description": "Conditions that the window's type being created must satisfy. By default it will satisfy <var>['app', 'normal', 'panel', 'popup']</var>, with <var>app</var> and <var>panel</var> window types limited to the extension's own windows."
           }
         ],
         "parameters": [
@@ -474,7 +474,7 @@
             "items": {
               "$ref": "WindowType"
             },
-            "description": "Conditions that the window's type being removed must satisfy. By default it will satisfy <value>['app', 'normal', 'panel', 'popup']</value>, with <value>app</value> and <value>panel</value> window types limited to the extension's own windows."
+            "description": "Conditions that the window's type being removed must satisfy. By default it will satisfy <var>['app', 'normal', 'panel', 'popup']</var>, with <var>app</var> and <var>panel</var> window types limited to the extension's own windows."
           }
         ],
         "parameters": [
@@ -497,7 +497,7 @@
             "items": {
               "$ref": "WindowType"
             },
-            "description": "Conditions that the window's type being focused must satisfy. By default it will satisfy <value>['app', 'normal', 'panel', 'popup']</value>, with <value>app</value> and <value>panel</value> window types limited to the extension's own windows."
+            "description": "Conditions that the window's type being focused must satisfy. By default it will satisfy <var>['app', 'normal', 'panel', 'popup']</var>, with <var>app</var> and <var>panel</var> window types limited to the extension's own windows."
           }
         ],
         "parameters": [

@@ -75,7 +75,7 @@
             "description": "The special use of this folder. A folder can have multiple special uses."
           },
           "subFolders": {
-            "description": "Subfolders of this folder. The property may be <value>null</value>, if inclusion of folders had not been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
+            "description": "Subfolders of this folder. The property may be <var>null</var>, if inclusion of folders had not been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
             "choices": [
               {
                 "type": "array",
@@ -199,7 +199,7 @@
           "type": {
             "type": "string",
             "enum": ["STORAGE", "MESSAGE"],
-            "description": "The type of the quota as defined by RFC2087. A <value>STORAGE</value> quota is constraining the available storage in bytes, a <value>MESSAGE</value> quota is constraining the number of storable messages."
+            "description": "The type of the quota as defined by RFC2087. A <var>STORAGE</var> quota is constraining the available storage in bytes, a <var>MESSAGE</var> quota is constraining the number of storable messages."
           },
           "limit": {
             "type": "integer",
@@ -238,12 +238,12 @@
         "properties": {
           "regexp": {
             "type": "string",
-            "description": "A regular expression, for example <value>^Projects \\d{4}$</value>."
+            "description": "A regular expression, for example <var>^Projects \\d{4}$</var>."
           },
           "flags": {
             "type": "string",
             "pattern": "^(i|u|v|iu|iv|ui|vi)$",
-            "description": "Supported RegExp flags: <value>i</value> = case insensitive, and/or one of <value>u</value> = unicode support or <value>v</value> = extended unicode support",
+            "description": "Supported RegExp flags: <var>i</var> = case insensitive, and/or one of <var>u</var> = unicode support or <var>v</var> = extended unicode support",
             "optional": true
           }
         }
@@ -252,7 +252,7 @@
     "properties": {
       "DEFAULT_MOST_RECENT_LIMIT": {
         "value": -1,
-        "description": "The number of most recent folders used in Thunderbird's UI. Controled by the <value>mail.folder_widget.max_recent</value> preference."
+        "description": "The number of most recent folders used in Thunderbird's UI. Controled by the <var>mail.folder_widget.max_recent</var> preference."
       }
     },
     "functions": [
@@ -364,12 +364,12 @@
               "isTag": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the folder is a virtual tag folder, or not. Note: Virtual tag folders are always skipped, unless this property is set to <value>true</value>"
+                "description": "Whether the folder is a virtual tag folder, or not. Note: Virtual tag folders are always skipped, unless this property is set to <var>true</var>"
               },
               "isUnified": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the folder is a unified mailbox folder, or not. Note: Unified mailbox folders are always skipped, unless this property is set to <value>true</value>"
+                "description": "Whether the folder is a unified mailbox folder, or not. Note: Unified mailbox folders are always skipped, unless this property is set to <var>true</var>"
               },
               "isVirtual": {
                 "type": "boolean",
@@ -379,7 +379,7 @@
               "limit": {
                 "type": "integer",
                 "optional": true,
-                "description": "Limits the number of returned folders. If used together with <value>recent</value>, supports being set to :ref:`folders.DEFAULT_MOST_RECENT_LIMIT`"
+                "description": "Limits the number of returned folders. If used together with <var>recent</var>, supports being set to :ref:`folders.DEFAULT_MOST_RECENT_LIMIT`"
               },
               "name": {
                 "choices": [
@@ -458,7 +458,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <value>false</value>."
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -488,7 +488,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <value>true</value>."
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1011,7 +1011,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <value>false</value>.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1044,7 +1044,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <value>false</value>.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1080,7 +1080,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <value>false</value>."
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -1125,7 +1125,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <value>true</value>."
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object for each direct subfolder should also include all its nested subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1163,7 +1163,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <value>false</value>.",
+            "description": "Specifies whether the returned :ref:`folders.MailFolder` object should include all its nested subfolders . Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1310,7 +1310,7 @@
       {
         "name": "onUpdated",
         "type": "function",
-        "description": "Fired when properties of a folder have changed (<value>specialUse</value> and <value>isFavorite</value>).",
+        "description": "Fired when properties of a folder have changed (<var>specialUse</var> and <var>isFavorite</var>).",
         "parameters": [
           {
             "name": "originalFolder",

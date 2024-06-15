@@ -32,11 +32,11 @@
           },
           "type": {
             "type": "string",
-            "description": "What sort of account this is, e.g. <value>imap</value>, <value>nntp</value>, or <value>pop3</value>."
+            "description": "What sort of account this is, e.g. <var>imap</var>, <var>nntp</var>, or <var>pop3</var>."
           },
           "folders": {
             "max_manifest_version": 2,
-            "description": "The folders for this account. The property may be <value>null</value>, if inclusion of folders had not been requested.",
+            "description": "The folders for this account. The property may be <var>null</var>, if inclusion of folders had not been requested.",
             "choices": [
               {
                 "type": "array",
@@ -97,7 +97,7 @@
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <value>false</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -126,7 +126,7 @@
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <value>true</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` objects should include their account's folders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -147,7 +147,7 @@
         "name": "get",
         "type": "function",
         "min_manifest_version": 3,
-        "description": "Returns details of the requested account, or <value>null</value> if it doesn't exist.",
+        "description": "Returns details of the requested account, or <var>null</var> if it doesn't exist.",
         "async": "callback",
         "parameters": [
           {
@@ -159,7 +159,7 @@
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>false</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -178,7 +178,7 @@
         "name": "get",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Returns details of the requested account, or <value>null</value> if it doesn't exist.",
+        "description": "Returns details of the requested account, or <var>null</var> if it doesn't exist.",
         "async": "callback",
         "parameters": [
           {
@@ -190,7 +190,7 @@
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>."
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -214,12 +214,12 @@
       {
         "name": "getDefault",
         "type": "function",
-        "description": "Returns the default account, or <value>null</value> if it is not defined.",
+        "description": "Returns the default account, or <var>null</var> if it is not defined.",
         "async": "callback",
         "parameters": [
           {
             "name": "includeFolders",
-            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <value>true</value>.",
+            "description": "Specifies whether the returned :ref:`accounts.MailAccount` object should included the account's folders. Defaults to <var>true</var>.",
             "optional": true,
             "default": true,
             "type": "boolean"
@@ -264,7 +264,7 @@
       {
         "name": "getDefaultIdentity",
         "type": "function",
-        "description": "Returns the default identity for an account, or <value>null</value> if it is not defined.",
+        "description": "Returns the default identity for an account, or <var>null</var> if it is not defined.",
         "async": "callback",
         "max_manifest_version": 2,
         "deprecated": "Deprecated since Thunderbird 91 and removed in Manifest V3: accounts.getDefaultIdentity() is now available as identities.getDefault.",

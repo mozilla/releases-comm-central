@@ -16,7 +16,7 @@
               }
             ],
             "optional": true,
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <value>[255, 0, 0, 255]</value>. Can also be a string with an HTML color name (<value>red</value>) or a HEX color value (<value>#FF0000</value> or <value>#F00</value>). Reset when set to an empty string."
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to an empty string."
           },
           "badgeText": {
             "type": "string",
@@ -64,17 +64,17 @@
               }
             ],
             "optional": "omit-key-if-missing",
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <value>[255, 0, 0, 255]</value>. Can also be a string with an HTML color name (<value>red</value>) or a HEX color value (<value>#FF0000</value> or <value>#F00</value>). Reset when set to <value>null</value>."
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to <var>null</var>."
           },
           "badgeText": {
             "type": "string",
             "optional": "omit-key-if-missing",
-            "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to <value>null</value>."
+            "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to <var>null</var>."
           },
           "defaultIcons": {
             "$ref": "manifest.IconPath",
             "optional": "omit-key-if-missing",
-            "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to <value>null</value>."
+            "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to <var>null</var>."
           },
           "themeIcons": {
             "type": "array",
@@ -82,18 +82,18 @@
             "items": {
               "$ref": "manifest.ThemeIcons"
             },
-            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <value>null</value>."
+            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <var>null</var>."
           },
           "title": {
             "type": "string",
             "optional": "omit-key-if-missing",
-            "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to <value>null</value>."
+            "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to <var>null</var>."
           }
         }
       },
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <var>[255, 0, 0, 255]</var>.",
         "type": "array",
         "items": {
           "type": "integer",
@@ -149,7 +149,7 @@
           {
             "name": "defaultUrl",
             "type": "string",
-            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages."
+            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <var>https://</var> and <var>http://</var> links, as well as links to WebExtension pages."
           },
           {
             "name": "buttonProperties",
@@ -299,7 +299,7 @@
           {
             "name": "defaultUrl",
             "type": "string",
-            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages.",
+            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <var>https://</var> and <var>http://</var> links, as well as links to WebExtension pages.",
             "optional": true
           },
           {

@@ -77,7 +77,7 @@
             "enum": ["action", "action_menu"]
           }
         ],
-        "description": "The different contexts a menu can appear in. Specifying <value>all</value> is equivalent to the combination of all other contexts excluding <value>tab</value> and <value>tools_menu</value>. More information about each context can be found in the `Supported UI Elements <|link-ui-elements|>`__ article on developer.thunderbird.net."
+        "description": "The different contexts a menu can appear in. Specifying <var>all</var> is equivalent to the combination of all other contexts excluding <var>tab</var> and <var>tools_menu</var>. More information about each context can be found in the `Supported UI Elements <|link-ui-elements|>`__ article on developer.thunderbird.net."
       },
       {
         "id": "ItemType",
@@ -118,7 +118,7 @@
           "mediaType": {
             "type": "string",
             "optional": true,
-            "description": "One of <value>image</value>, <value>video</value>, or <value>audio</value> if the context menu was activated on one of these types of elements."
+            "description": "One of <var>image</var>, <var>video</var>, or <var>audio</var> if the context menu was activated on one of these types of elements."
           },
           "viewType": {
             "$ref": "extension.ViewType",
@@ -257,7 +257,7 @@
           "mediaType": {
             "type": "string",
             "optional": true,
-            "description": "One of <value>image</value>, <value>video</value>, or <value>audio</value> if the context menu was activated on one of these types of elements."
+            "description": "One of <var>image</var>, <var>video</var>, or <var>audio</var> if the context menu was activated on one of these types of elements."
           },
           "viewType": {
             "$ref": "extension.ViewType",
@@ -402,7 +402,7 @@
             "pattern": "^(moz-extension|blob|http|https):.*$"
           }
         ],
-        "description": "The path for a menu icon may be a relative path to an icon file, a <value>moz-extension:</value> URL, an image <value>data:</value> URL, a <value>blob:</value> URL, or a remote <value>http(s):</value> URL."
+        "description": "The path for a menu icon may be a relative path to an icon file, a <var>moz-extension:</var> URL, an image <var>data:</var> URL, a <var>blob:</var> URL, or a remote <var>http(s):</var> URL."
       },
       {
         "id": "MenuIconDictionary",
@@ -439,7 +439,7 @@
               "type": {
                 "$ref": "ItemType",
                 "optional": true,
-                "description": "The type of menu item. Defaults to <value>normal</value> if not specified."
+                "description": "The type of menu item. Defaults to <var>normal</var> if not specified."
               },
               "id": {
                 "type": "string",
@@ -461,12 +461,12 @@
               "title": {
                 "type": "string",
                 "optional": true,
-                "description": "The text to be displayed in the item; this is <em>required</em> unless ``type`` is <value>separator</value>. When the context is <value>selection</value>, you can use <value>%s</value> within the string to show the selected text. For example, if this parameter's value is <value>Translate '%s' to Latin</value> and the user selects the word <value>cool</value>, the context menu item for the selection is <value>Translate 'cool' to Latin</value>. To specify an access key for the new menu entry, include a <value>&</value> before the desired letter in the title. For example <value>&Help</value>."
+                "description": "The text to be displayed in the item; this is <em>required</em> unless ``type`` is <var>separator</var>. When the context is <var>selection</var>, you can use <var>%s</var> within the string to show the selected text. For example, if this parameter's value is <var>Translate '%s' to Latin</var> and the user selects the word <var>cool</var>, the context menu item for the selection is <var>Translate 'cool' to Latin</var>. To specify an access key for the new menu entry, include a <var>&</var> before the desired letter in the title. For example <var>&Help</var>."
               },
               "checked": {
                 "type": "boolean",
                 "optional": true,
-                "description": "The initial state of a checkbox or radio item: <value>true</value> for selected and <value>false</value> for unselected. Only one radio item can be selected at a time in a given group of radio items."
+                "description": "The initial state of a checkbox or radio item: <var>true</var> for selected and <var>false</var> for unselected. Only one radio item can be selected at a time in a given group of radio items."
               },
               "contexts": {
                 "type": "array",
@@ -475,7 +475,7 @@
                 },
                 "minItems": 1,
                 "optional": true,
-                "description": "List of contexts this menu item will appear in. Defaults to <value>['page']</value> if not specified."
+                "description": "List of contexts this menu item will appear in. Defaults to <var>['page']</var> if not specified."
               },
               "viewTypes": {
                 "type": "array",
@@ -547,12 +547,12 @@
                   {
                     "type": "string",
                     "max_manifest_version": 2,
-                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <value>_execute_browser_action</value>, <value>_execute_compose_action</value> and <value>_execute_message_display_action</value>."
+                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <var>_execute_browser_action</var>, <var>_execute_compose_action</var> and <var>_execute_message_display_action</var>."
                   },
                   {
                     "type": "string",
                     "min_manifest_version": 3,
-                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <value>_execute_action</value>, <value>_execute_compose_action</value> and <value>_execute_message_display_action</value>."
+                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <var>_execute_action</var>, <var>_execute_compose_action</var> and <var>_execute_message_display_action</var>."
                   }
                 ]
               }
@@ -752,13 +752,13 @@
                 "type": "string",
                 "enum": ["tab"],
                 "optional": true,
-                "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only <value>tab</value> is supported. ``contextOptions.showDefaults`` cannot be used with this option."
+                "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only <var>tab</var> is supported. ``contextOptions.showDefaults`` cannot be used with this option."
               },
               "tabId": {
                 "type": "integer",
                 "minimum": 0,
                 "optional": true,
-                "description": "Required when context is <value>tab</value>. Requires the <permission>tabs</permission> permission."
+                "description": "Required when context is <var>tab</var>. Requires the <permission>tabs</permission> permission."
               }
             }
           }

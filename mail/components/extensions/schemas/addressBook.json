@@ -39,7 +39,7 @@
           },
           "type": {
             "$ref": "NodeType",
-            "description": "Always set to <value>addressBook</value>."
+            "description": "Always set to <var>addressBook</var>."
           },
           "readOnly": {
             "type": "boolean",
@@ -337,31 +337,31 @@
           "searchString": {
             "type": "string",
             "optional": true,
-            "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <value>mail.addr_book.quicksearchquery.format</value>)."
+            "description": "One or more space-separated terms to search for in predefined contact fields (defined by the preference <var>mail.addr_book.quicksearchquery.format</var>)."
           },
           "includeLocal": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from local address books. Defaults to <value>true</value>."
+            "description": "Whether to include results from local address books. Defaults to <var>true</var>."
           },
           "includeRemote": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from remote address books. Defaults to <value>true</value>."
+            "description": "Whether to include results from remote address books. Defaults to <var>true</var>."
           },
           "includeReadOnly": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from read-only address books. Defaults to <value>true</value>."
+            "description": "Whether to include results from read-only address books. Defaults to <var>true</var>."
           },
           "includeReadWrite": {
             "type": "boolean",
             "optional": true,
             "default": true,
-            "description": "Whether to include results from read-write address books. Defaults to <value>true</value>."
+            "description": "Whether to include results from read-write address books. Defaults to <var>true</var>."
           }
         }
       },
@@ -381,7 +381,7 @@
           },
           "type": {
             "$ref": "addressBooks.NodeType",
-            "description": "Always set to <value>contact</value>."
+            "description": "Always set to <var>contact</var>."
           },
           "readOnly": {
             "type": "boolean",
@@ -423,7 +423,7 @@
       {
         "id": "PropertyChange",
         "type": "object",
-        "description": "A dictionary of changed properties. Keys are the property name that changed, values are an object containing ``oldValue`` and ``newValue``. Values can be either a string or <value>null</value>.",
+        "description": "A dictionary of changed properties. Keys are the property name that changed, values are an object containing ``oldValue`` and ``newValue``. Values can be either a string or <var>null</var>.",
         "patternProperties": {
           "^\\w+$": {
             "type": "object",
@@ -596,7 +596,7 @@
             ]
           }
         ],
-        "description": "Gets the photo associated with this contact. Returns <value>null</value>, if no photo is available."
+        "description": "Gets the photo associated with this contact. Returns <var>null</var>, if no photo is available."
       },
       {
         "name": "setPhoto",
@@ -694,7 +694,7 @@
           {
             "name": "properties",
             "$ref": "ContactProperties",
-            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <value>null</value>. If the provided object includes a ``vCard`` member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the ``vCard`` member instead. "
+            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <var>null</var>. If the provided object includes a ``vCard`` member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the ``vCard`` member instead. "
           }
         ],
         "description": "Updates a contact."
@@ -812,7 +812,7 @@
           },
           "type": {
             "$ref": "addressBooks.NodeType",
-            "description": "Always set to <value>mailingList</value>."
+            "description": "Always set to <var>mailingList</var>."
           },
           "readOnly": {
             "type": "boolean",

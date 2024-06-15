@@ -85,7 +85,7 @@
           "status": {
             "type": "string",
             "optional": true,
-            "description": "Either <value>loading</value> or <value>complete</value>."
+            "description": "Either <var>loading</var> or <var>complete</var>."
           },
           "width": {
             "type": "integer",
@@ -100,7 +100,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The `CookieStore <|link-cookieStore|>`__ id used by the tab. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+            "description": "The `CookieStore <|link-cookieStore|>`__ id used by the tab. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
           },
           "type": {
             "$ref": "TabType",
@@ -232,7 +232,7 @@
       {
         "name": "getCurrent",
         "type": "function",
-        "description": "Gets the tab that this script call is being made from. May be <value>undefined</value> if called from a non-tab context (for example: a background page or popup view).",
+        "description": "Gets the tab that this script call is being made from. May be <var>undefined</var> if called from a non-tab context (for example: a background page or popup view).",
         "async": "callback",
         "parameters": [
           {
@@ -329,7 +329,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <value>normal</value> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually.",
+        "description": "Creates a new content tab. Use the :ref:`messageDisplay_api` to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {
@@ -352,24 +352,24 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "The URL to navigate the tab to initially. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally after creating an empty tab. Fully-qualified URLs must include a scheme (i.e. <value>http://www.google.com</value>, not <value>www.google.com</value>). Relative URLs will be relative to the root of the extension. "
+                "description": "The URL to navigate the tab to initially. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally after creating an empty tab. Fully-qualified URLs must include a scheme (i.e. <var>http://www.google.com</var>, not <var>www.google.com</var>). Relative URLs will be relative to the root of the extension. "
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <value>true</value>."
+                "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <var>true</var>."
               },
               "cookieStoreId": {
                 "type": "string",
                 "optional": true,
-                "description": "The `CookieStore <|link-cookieStore|>`__ id the new tab should use. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                "description": "The `CookieStore <|link-cookieStore|>`__ id the new tab should use. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               },
               "selected": {
                 "deprecated": "Please use ``createProperties.active``.",
                 "unsupported": true,
                 "type": "boolean",
                 "optional": true,
-                "description": "Whether the tab should become the selected tab in the window. Defaults to <value>true</value>"
+                "description": "Whether the tab should become the selected tab in the window. Defaults to <var>true</var>"
               }
             }
           },
@@ -527,7 +527,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "The `CookieStore <|link-cookieStore|>`__ id(s) used by the tabs. Either custom ids created using the `contextualIdentities API <|link-contextualIdentity|>`__, or built-in ones: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                "description": "The `CookieStore <|link-cookieStore|>`__ id(s) used by the tabs. Either custom ids created using the `contextualIdentities API <|link-contextualIdentity|>`__, or built-in ones: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               }
             }
           },
@@ -568,12 +568,12 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. **Note:** This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <value>content</value> or <value>mail</value>)."
+                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. **Note:** This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <var>content</var> or <var>mail</var>)."
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Set this to <value>true</value>, if the tab should become active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <value>false</value> has no effect."
+                "description": "Set this to <var>true</var>, if the tab should become active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <var>false</var> has no effect."
               }
             }
           },
@@ -594,7 +594,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves one or more tabs to a new position within its current window, or to a different window. Note that tabs can only be moved to and from windows of type <value>normal</value>.",
+        "description": "Moves one or more tabs to a new position within its current window, or to a different window. Note that tabs can only be moved to and from windows of type <var>normal</var>.",
         "async": "callback",
         "parameters": [
           {
@@ -627,7 +627,7 @@
               "index": {
                 "type": "integer",
                 "minimum": -1,
-                "description": "The position to move the tab to. <value>-1</value> will place the tab at the end of the window."
+                "description": "The position to move the tab to. <var>-1</var> will place the tab at the end of the window."
               }
             }
           },
@@ -838,7 +838,7 @@
               "status": {
                 "type": "string",
                 "optional": true,
-                "description": "The status of the tab. Can be either <value>loading</value> or <value>complete</value>."
+                "description": "The status of the tab. Can be either <var>loading</var> or <var>complete</var>."
               },
               "url": {
                 "type": "string",
@@ -999,7 +999,7 @@
               },
               "isWindowClosing": {
                 "type": "boolean",
-                "description": "Is <value>true</value> when the tab is being closed because its window is being closed."
+                "description": "Is <var>true</var> when the tab is being closed because its window is being closed."
               }
             }
           }

@@ -36,11 +36,11 @@
       {
         "id": "InlineTextPart",
         "type": "object",
-        "description": "An inline part with content type <value>text/*</value>. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>",
+        "description": "An inline part with content type <var>text/*</var>. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>",
         "properties": {
           "contentType": {
             "type": "string",
-            "description": "The content type of the part. Most common types for inline text parts are <value>text/plain</value> and <value>text/html</value>. Possible other (deprecated) types are <value>text/richtext</value> and <value>text/enriched</value>. Some calendaring services include an inline text part with type <value>text/calendar</value>."
+            "description": "The content type of the part. Most common types for inline text parts are <var>text/plain</var> and <var>text/html</var>. Possible other (deprecated) types are <var>text/richtext</var> and <var>text/enriched</var>. Some calendaring services include an inline text part with type <var>text/calendar</var>."
           },
           "content": {
             "type": "string",
@@ -91,19 +91,19 @@
             "description": "The message-id header of the message."
           },
           "headersOnly": {
-            "description": "Some account types (for example <value>pop3</value>) allow to download only the headers of the message, but not its body. The body of such messages will not be available.",
+            "description": "Some account types (for example <var>pop3</var>) allow to download only the headers of the message, but not its body. The body of such messages will not be available.",
             "type": "boolean"
           },
           "id": {
             "$ref": "messages.MessageId"
           },
           "junk": {
-            "description": "Whether the message has been marked as junk. Always <value>false</value> for news/nntp messages and external messages.",
+            "description": "Whether the message has been marked as junk. Always <var>false</var> for news/nntp messages and external messages.",
             "type": "boolean"
           },
           "junkScore": {
             "type": "integer",
-            "description": "The junk score associated with the message. Always <value>0</value> for news/nntp messages and external messages.",
+            "description": "The junk score associated with the message. Always <var>0</var> for news/nntp messages and external messages.",
             "minimum": 0,
             "maximum": 100
           },
@@ -258,11 +258,11 @@
       {
         "id": "MessageAttachment",
         "type": "object",
-        "description": "Represents an attachment in a message. This includes all MIME parts with a <em>content-disposition</em> header set to <value>attachment</value>, but also related parts like inline images.",
+        "description": "Represents an attachment in a message. This includes all MIME parts with a <em>content-disposition</em> header set to <var>attachment</var>, but also related parts like inline images.",
         "properties": {
           "contentType": {
             "type": "string",
-            "description": "The content type of the attachment. A value of <value>text/x-moz-deleted</value> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
+            "description": "The content type of the attachment. A value of <var>text/x-moz-deleted</var> indicates that the original attachment was permanently deleted and replaced by a placeholder text attachment with some meta information about the original attachment."
           },
           "name": {
             "type": "string",
@@ -626,7 +626,7 @@
       {
         "name": "listInlineTextParts",
         "type": "function",
-        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>. If a message only includes a part with content type <value>text/html</value>, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
+        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
         "async": "callback",
         "parameters": [
           {
@@ -680,7 +680,7 @@
       {
         "name": "deleteAttachments",
         "type": "function",
-        "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <value>text/x-moz-deleted</value> content type. This permanently modifies the message.",
+        "description": "Deletes the specified attachments and replaces them by placeholder text attachments with meta information about the original attachments and a <var>text/x-moz-deleted</var> content type. This permanently modifies the message.",
         "permissions": ["messagesModifyPermanent"],
         "async": true,
         "parameters": [
@@ -691,7 +691,7 @@
           {
             "name": "partNames",
             "type": "array",
-            "description": "An array of attachments, identifying the to be deleted attachments by their <value>partName</value>.",
+            "description": "An array of attachments, identifying the to be deleted attachments by their <var>partName</var>.",
             "items": {
               "type": "string",
               "pattern": "^\\d+(\\.\\d+)*$"
@@ -754,7 +754,7 @@
               "author": {
                 "type": "string",
                 "optional": true,
-                "description": "Returns only messages with this value matching the author. The search value is a single email address, a name or a combination (e.g.: <value>Name <user@domain.org></value>). The address part of the search value (if provided) must match the author's address completely. The name part of the search value (if provided) must match the author's name partially. All matches are done case-insensitive."
+                "description": "Returns only messages with this value matching the author. The search value is a single email address, a name or a combination (e.g.: <var>Name <user@domain.org></var>). The address part of the search value (if provided) must match the author's address completely. The name part of the search value (if provided) must match the author's name partially. All matches are done case-insensitive."
               },
               "body": {
                 "type": "string",
@@ -806,7 +806,7 @@
               "recipients": {
                 "type": "string",
                 "optional": true,
-                "description": "Returns only messages whose recipients match all specified addresses. The search value is a semicolon separated list of email addresses, names or combinations (e.g.: <value>Name <user@domain.org></value>). For a match, all specified addresses must equal a recipient's address completely and all specified names must match a recipient's name partially. All matches are done case-insensitive."
+                "description": "Returns only messages whose recipients match all specified addresses. The search value is a semicolon separated list of email addresses, names or combinations (e.g.: <var>Name <user@domain.org></var>). For a match, all specified addresses must equal a recipient's address completely and all specified names must match a recipient's name partially. All matches are done case-insensitive."
               },
               "size": {
                 "$ref": "QueryRange",
@@ -863,12 +863,12 @@
               "autoPaginationTimeout": {
                 "type": "integer",
                 "optional": true,
-                "description": "Set the timeout in ms after which results should be returned, even if the nominal number of messages-per-page has not yet been reached. Defaults to <value>1000</value> ms. Setting it to <value>0</value> will disable auto-pagination."
+                "description": "Set the timeout in ms after which results should be returned, even if the nominal number of messages-per-page has not yet been reached. Defaults to <var>1000</var> ms. Setting it to <var>0</var> will disable auto-pagination."
               },
               "messagesPerPage": {
                 "type": "integer",
                 "optional": true,
-                "description": "Set the nominal number of messages-per-page for this query. Defaults to <value>100</value> messages."
+                "description": "Set the nominal number of messages-per-page for this query. Defaults to <var>100</var> messages."
               },
               "returnMessageListId": {
                 "type": "boolean",
@@ -1176,7 +1176,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
@@ -1187,7 +1187,7 @@
           {
             "type": "string",
             "name": "color",
-            "description": "Tag color in hex format (i.e.: <value>#000080</value> for navy blue). Value will be stored as upper case.",
+            "description": "Tag color in hex format (i.e.: <var>#000080</var> for navy blue). Value will be stored as upper case.",
             "pattern": "^#[0-9a-fA-F]{6}"
           }
         ]
@@ -1204,7 +1204,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
@@ -1238,7 +1238,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           }
         ]
@@ -1277,7 +1277,7 @@
         "properties": {
           "tags": {
             "type": "object",
-            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<value>true</value>) or exclude (<value>false</value>) the tag. For a list of available tags, call the :ref:`messages.tags.list` method.",
+            "description": "A <em>dictionary object</em> with one or more filter condition as <em>key-value</em> pairs, the <em>key</em> being the tag to filter on, and the <em>value</em> being a boolean expression, requesting whether a message must include (<var>true</var>) or exclude (<var>false</var>) the tag. For a list of available tags, call the :ref:`messages.tags.list` method.",
             "patternProperties": {
               ".*": {
                 "type": "boolean"
@@ -1325,7 +1325,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
@@ -1351,7 +1351,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
@@ -1383,7 +1383,7 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <var>()<>{/%*\"</var> or spaces.",
             "pattern": "^[^ ()/{%*<>\"]+$"
           }
         ]

@@ -10,12 +10,12 @@
           "name": {
             "type": "string",
             "optional": true,
-            "description": "The <value>display-name</value> associated with the provided address or group, if available."
+            "description": "The <var>display-name</var> associated with the provided address or group, if available."
           },
           "email": {
             "type": "string",
             "optional": true,
-            "description": "The <value>addr-spec</value> associated with the provided address, if available."
+            "description": "The <var>addr-spec</var> associated with the provided address, if available."
           },
           "group": {
             "type": "array",
@@ -67,7 +67,7 @@
       {
         "name": "formatFileSize",
         "type": "function",
-        "description": "Returns the provided file size in a human readable format (e.g. <value>12 bytes</value> or <value>11,4 GB</value>).",
+        "description": "Returns the provided file size in a human readable format (e.g. <var>12 bytes</var> or <var>11,4 GB</var>).",
         "async": "callback",
         "parameters": [
           {
@@ -96,13 +96,13 @@
           {
             "type": "string",
             "name": "mailboxString",
-            "description": "The string to be parsed (e.g. <value>User <user@example.com>, other-user@example.com</value>)"
+            "description": "The string to be parsed (e.g. <var>User <user@example.com>, other-user@example.com</var>)"
           },
           {
             "type": "boolean",
             "name": "preserveGroups",
             "optional": true,
-            "description": "Keep grouped hierachies. Groups may be specified in a mailbox string as follows: <value>GroupName : user1 <user1@example.com>, user2@example,com ;</value>."
+            "description": "Keep grouped hierachies. Groups may be specified in a mailbox string as follows: <var>GroupName : user1 <user1@example.com>, user2@example,com ;</var>."
           },
           {
             "type": "function",

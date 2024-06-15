@@ -21,7 +21,7 @@
         "choices": [
           {
             "type": "string",
-            "description": "A name and email address in the format <value>Name <email@example.com></value>, or just an email address."
+            "description": "A name and email address in the format <var>Name <email@example.com></var>, or just an email address."
           },
           {
             "type": "object",
@@ -82,7 +82,7 @@
           "additionalFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <value>null</value>.",
+            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <var>null</var>.",
             "optional": "omit-key-if-missing"
           },
           "additionalFccFolder": {
@@ -151,7 +151,7 @@
           "deliveryFormat": {
             "type": "string",
             "enum": ["auto", "plaintext", "html", "both"],
-            "description": "Defines the MIME format of the sent message (ignored on plain text messages). Defaults to <value>auto</value>, which will send html messages as plain text, if they do not include any formatting, and as <value>both</value> otherwise (a multipart/mixed message).",
+            "description": "Defines the MIME format of the sent message (ignored on plain text messages). Defaults to <var>auto</var>, which will send html messages as plain text, if they do not include any formatting, and as <var>both</var> otherwise (a multipart/mixed message).",
             "optional": true
           },
           "deliveryStatusNotification": {
@@ -169,7 +169,7 @@
               }
             ],
             "optional": true,
-            "description": "The selected encryption technology (<value>OpenPGP</value> or <value>S/MIME</value>) which is to be used to sign and/or encrypt the message. If the sending identity does not support encryption at all, this will be <value>undefined</value>."
+            "description": "The selected encryption technology (<var>OpenPGP</var> or <var>S/MIME</var>) which is to be used to sign and/or encrypt the message. If the sending identity does not support encryption at all, this will be <var>undefined</var>."
           },
           "followupTo": {
             "$ref": "ComposeRecipientList",
@@ -214,7 +214,7 @@
             "max_manifest_version": 2,
             "type": "boolean",
             "optional": true,
-            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <value>false</value> will clear the override. Setting <value>true</value> will throw an <em>ExtensionError</em>, if ``overrideDefaultFccFolder`` is not set as well."
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <var>false</var> will clear the override. Setting <var>true</var> will throw an <em>ExtensionError</em>, if ``overrideDefaultFccFolder`` is not set as well."
           },
           "overrideDefaultFccFolder": {
             "max_manifest_version": 2,
@@ -236,7 +236,7 @@
           "overrideDefaultFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolderId` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <value>null</value>.",
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a :ref:`folders.MailFolderId` specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>.",
             "optional": "omit-key-if-missing"
           },
           "plainTextBody": {
@@ -251,7 +251,7 @@
             "optional": true
           },
           "relatedMessageId": {
-            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <value>null</value> in all other cases or if the original message was opened from file.",
+            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <var>null</var> in all other cases or if the original message was opened from file.",
             "$ref": "messages.MessageId",
             "optional": true
           },
@@ -327,7 +327,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Name of a custom header, must be prefixed by <value>X-</value> (but not by <value>X-Mozilla-</value>) or be one of the explicitly allowed headers (<value>MSIP_Labels</value>)"
+            "description": "Name of a custom header, must be prefixed by <var>X-</var> (but not by <var>X-Mozilla-</var>) or be one of the explicitly allowed headers (<var>MSIP_Labels</var>)"
           },
           "value": {
             "type": "string"
@@ -340,7 +340,7 @@
         "additionalProperties": {
           "type": "boolean"
         },
-        "description": "A <em>dictionary object</em> with entries for all installed dictionaries, having a language identifier as <em>key</em> (for example <value>en-US</value>) and a boolean expression as <em>value</em>, indicating whether that dictionary is enabled for spellchecking or not."
+        "description": "A <em>dictionary object</em> with entries for all installed dictionaries, having a language identifier as <em>key</em> (for example <var>en-US</var>) and a boolean expression as <em>value</em>, indicating whether that dictionary is enabled for spellchecking or not."
       },
       {
         "id": "EncryptionPropertiesOpenPGP",
@@ -895,7 +895,7 @@
         "name": "sendMessage",
         "permissions": ["compose.send"],
         "type": "function",
-        "description": "Sends the message currently being composed. If the send mode is not specified or set to <value>default</value>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`compose.onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
+        "description": "Sends the message currently being composed. If the send mode is not specified or set to <var>default</var>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`compose.onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
         "async": "callback",
         "parameters": [
           {

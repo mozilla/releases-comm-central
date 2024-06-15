@@ -20,11 +20,11 @@
         "choices": [
           {
             "type": "string",
-            "description": "A string containing a valid `CSS color string <|link-css-color-string|>`__, including hexadecimal or functional representations. For example the color *crimson* can be specified as: <li><value>crimson</value> <li><value>#dc143c</value> <li><value>rgb(220, 20, 60)</value> (or <value>rgba(220, 20, 60, 0.5)</value> to set 50% opacity) <li><value>hsl(348, 83%, 47%)</value> (or <value>hsla(348, 83%, 47%, 0.5)</value> to set 50% opacity)"
+            "description": "A string containing a valid `CSS color string <|link-css-color-string|>`__, including hexadecimal or functional representations. For example the color *crimson* can be specified as: <li><var>crimson</var> <li><var>#dc143c</var> <li><var>rgb(220, 20, 60)</var> (or <var>rgba(220, 20, 60, 0.5)</var> to set 50% opacity) <li><var>hsl(348, 83%, 47%)</var> (or <var>hsla(348, 83%, 47%, 0.5)</var> to set 50% opacity)"
           },
           {
             "type": "array",
-            "description": "An RGB array of 3 integers. For example <value>[220, 20, 60]</value> for the color *crimson*.",
+            "description": "An RGB array of 3 integers. For example <var>[220, 20, 60]</var> for the color *crimson*.",
             "minItems": 3,
             "maxItems": 3,
             "items": {
@@ -35,7 +35,7 @@
           },
           {
             "type": "array",
-            "description": "An RGBA array of 3 integers and a fractional (a float between 0 and 1). For example <value>[220, 20, 60, 0.5]<value> for the color *crimson* with 50% opacity.",
+            "description": "An RGBA array of 3 integers and a fractional (a float between 0 and 1). For example <var>[220, 20, 60, 0.5]<var> for the color *crimson* with 50% opacity.",
             "minItems": 4,
             "maxItems": 4,
             "items": {
@@ -51,7 +51,7 @@
         "properties": {
           "stylesheet": {
             "optional": true,
-            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The `theme_experiment add-on in our example repository <https://github.com/thunderbird/sample-extensions/tree/master/manifest_v2/theme_experiment>`__ is using the stylesheet shown below, to add the <value>--chat-button-color</value> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </value>--chat-button-color</value> CSS color variable to the theme color key <value>exp_chat_button</value> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
+            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The `theme_experiment add-on in our example repository <https://github.com/thunderbird/sample-extensions/tree/master/manifest_v2/theme_experiment>`__ is using the stylesheet shown below, to add the <var>--chat-button-color</var> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </var>--chat-button-color</var> CSS color variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
             "$ref": "ExtensionURL"
           },
           "images": {
@@ -65,7 +65,7 @@
           "colors": {
             "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme color keys to internal Thunderbird CSS color variables. The example shown below maps the theme color key <value>popup_affordance</value> to the CSS color variable </value>--arrowpanel-dimmed</value>. The new color key is usable as a color reference in :ref:`theme.ThemeType`. <literalinclude>includes/theme/theme_experiment_color.json<lang>JSON</lang></literalinclude>",
+            "description": "A <em>dictionary object</em> with one or more <em>key-value</em> pairs to map new theme color keys to internal Thunderbird CSS color variables. The example shown below maps the theme color key <var>popup_affordance</var> to the CSS color variable </var>--arrowpanel-dimmed</var>. The new color key is usable as a color reference in :ref:`theme.ThemeType`. <literalinclude>includes/theme/theme_experiment_color.json<lang>JSON</lang></literalinclude>",
             "additionalProperties": {
               "type": "string"
             }

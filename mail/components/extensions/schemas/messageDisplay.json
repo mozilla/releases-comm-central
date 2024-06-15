@@ -49,7 +49,7 @@
         "name": "getDisplayedMessage",
         "max_manifest_version": 2,
         "type": "function",
-        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible), or the currently active tab. It returns <value>null</value> if no messages are displayed, or if multiple messages are displayed.",
+        "description": "Gets the currently displayed message in the specified tab (even if the tab itself is currently not visible), or the currently active tab. It returns <var>null</var> if no messages are displayed, or if multiple messages are displayed.",
         "async": "callback",
         "parameters": [
           {

@@ -90,7 +90,7 @@
       {
         "name": "registerScripts",
         "type": "function",
-        "description": "Registers one or more compose scripts for this extension, which should be injected into the message compose editor. **Note:** Registered scripts will only be applied to newly opened message compose tabs. To apply the script to already open message compose tabs, manually inject your script by calling :ref:`scripting.executeScript` for each of the open <value>messageCompose</value> tabs.",
+        "description": "Registers one or more compose scripts for this extension, which should be injected into the message compose editor. **Note:** Registered scripts will only be applied to newly opened message compose tabs. To apply the script to already open message compose tabs, manually inject your script by calling :ref:`scripting.executeScript` for each of the open <var>messageCompose</var> tabs.",
         "async": "callback",
         "parameters": [
           {
@@ -203,7 +203,7 @@
       {
         "name": "registerScripts",
         "type": "function",
-        "description": "Registers one or more message display scripts for this extension, which should be injected into displayed messages. **Note:** Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling :ref:`scripting.executeScript` for each of the open <value>messageDisplay</value> tabs.",
+        "description": "Registers one or more message display scripts for this extension, which should be injected into displayed messages. **Note:** Registered scripts will only be applied to newly opened messages. To apply the script to already open messages, manually inject your script by calling :ref:`scripting.executeScript` for each of the open <var>messageDisplay</var> tabs.",
         "async": "callback",
         "parameters": [
           {

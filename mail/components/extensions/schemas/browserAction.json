@@ -42,7 +42,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "optional": true,
-                "description": "The html document to be opened as a popup when the user clicks on the action button. Ignored for action buttons with type <value>menu</value>.",
+                "description": "The html document to be opened as a popup when the user clicks on the action button. Ignored for action buttons with type <var>menu</var>.",
                 "preprocess": "localize"
               },
               "browser_style": {
@@ -58,7 +58,7 @@
                 "deprecated": "Unsupported on Thunderbird."
               },
               "default_windows": {
-                "description": "Defines the windows, the action button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
+                "description": "Defines the windows, the action button should appear in. Defaults to showing it only in the <var>normal</var> Thunderbird window, but can also be shown in the <var>messageDisplay</var> window.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -68,7 +68,7 @@
                 "optional": true
               },
               "allowed_spaces": {
-                "description": "Defines for which spaces the action button will be added to Thunderbird's unified toolbar. Defaults to only allowing the action in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the action button is shown in all spaces.",
+                "description": "Defines for which spaces the action button will be added to Thunderbird's unified toolbar. Defaults to only allowing the action in the <var>mail</var> space. The <var>default</var> space is for tabs that don't belong to any space. If this is an empty array, the action button is shown in all spaces.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -86,7 +86,7 @@
                 "optional": true
               },
               "type": {
-                "description": "Specifies the type of the button. Default type is <value>button</value>.",
+                "description": "Specifies the type of the button. Default type is <var>button</var>.",
                 "type": "string",
                 "enum": ["button", "menu"],
                 "optional": true,
@@ -137,7 +137,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "optional": true,
-                "description": "The html document to be opened as a popup when the user clicks on the browserAction button. Ignored for action buttons with type <value>menu</value>.",
+                "description": "The html document to be opened as a popup when the user clicks on the browserAction button. Ignored for action buttons with type <var>menu</var>.",
                 "preprocess": "localize"
               },
               "browser_style": {
@@ -153,7 +153,7 @@
                 "optional": true
               },
               "default_windows": {
-                "description": "Defines the windows, the browserAction button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
+                "description": "Defines the windows, the browserAction button should appear in. Defaults to showing it only in the <var>normal</var> Thunderbird window, but can also be shown in the <var>messageDisplay</var> window.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -163,7 +163,7 @@
                 "optional": true
               },
               "allowed_spaces": {
-                "description": "Defines for which spaces the browserAction button will be added to Thunderbird's unified toolbar. Defaults to only allowing the browserAction in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the browserAction button is shown in all spaces.",
+                "description": "Defines for which spaces the browserAction button will be added to Thunderbird's unified toolbar. Defaults to only allowing the browserAction in the <var>mail</var> space. The <var>default</var> space is for tabs that don't belong to any space. If this is an empty array, the browserAction button is shown in all spaces.",
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -181,7 +181,7 @@
                 "optional": true
               },
               "type": {
-                "description": "Specifies the type of the button. Default type is <value>button</value>.",
+                "description": "Specifies the type of the button. Default type is <var>button</var>.",
                 "type": "string",
                 "enum": ["button", "menu"],
                 "optional": true,
@@ -202,7 +202,7 @@
     "types": [
       {
         "id": "ColorArray",
-        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <var>[255, 0, 0, 255]</var>.",
         "type": "array",
         "items": {
           "type": "integer",
@@ -273,7 +273,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "A string the action button should display as its label and when moused over. Cleared by setting it to <value>null</value> or an empty string (title defined the manifest will be used)."
+                "description": "A string the action button should display as its label and when moused over. Cleared by setting it to <var>null</var> or an empty string (title defined the manifest will be used)."
               },
               "tabId": {
                 "type": "integer",
@@ -355,7 +355,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "A string the action button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to <value>null</value>."
+                "description": "A string the action button should use as its label, overriding the defined title. Can be set to an empty string to not display any label at all. If the containing toolbar is configured to display text only, its title will be used. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -383,7 +383,7 @@
       {
         "name": "getLabel",
         "type": "function",
-        "description": "Gets the label of the action button. Returns <value>null</value>, if no label has been set and the title is used.",
+        "description": "Gets the label of the action button. Returns <var>null</var>, if no label has been set and the title is used.",
         "async": "callback",
         "parameters": [
           {
@@ -494,7 +494,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to <value>null</value> (popup value defined the manifest will be used)."
+                "description": "The html file to show in a popup. Can be set to an empty string to not open a popup. Cleared by setting it to <var>null</var> (popup value defined the manifest will be used)."
               },
               "tabId": {
                 "type": "integer",
@@ -576,7 +576,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to <value>null</value> or an empty string."
+                "description": "Any number of characters can be passed, but only about four can fit in the space. Cleared by setting it to <var>null</var> or an empty string."
               },
               "tabId": {
                 "type": "integer",
@@ -661,7 +661,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as text color in the badge. Cleared by setting it to <value>null</value>."
+                "description": "The color to use as text color in the badge. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -740,7 +740,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The color to use as background in the badge. Cleared by setting it to <value>null</value>."
+                "description": "The color to use as background in the badge. Cleared by setting it to <var>null</var>."
               },
               "tabId": {
                 "type": "integer",
@@ -885,7 +885,7 @@
       {
         "name": "openPopup",
         "type": "function",
-        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action has no popup, is of type <value>menu</value>, is disabled or has been removed from the toolbar.",
+        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action has no popup, is of type <var>menu</var>, is disabled or has been removed from the toolbar.",
         "async": "callback",
         "parameters": [
           {

@@ -172,7 +172,7 @@
             "optional": true
           },
           "folderMode": {
-            "description": "Sets the currently used folder mode, enabling it if required. If used without also specifying <value>displayedFolder</value>, the currently selected folder is re-selected in the new folder mode, if possible.",
+            "description": "Sets the currently used folder mode, enabling it if required. If used without also specifying <var>displayedFolder</var>, the currently selected folder is re-selected in the new folder mode, if possible.",
             "$ref": "mailTabs.FolderMode",
             "optional": true
           },
@@ -193,7 +193,7 @@
           "displayedFolderId": {
             "$ref": "folders.MailFolderId",
             "min_manifest_version": 3,
-            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <var>selectedMessages</var> is specified.",
             "optional": true
           },
           "displayedFolder": {
@@ -207,7 +207,7 @@
               }
             ],
             "max_manifest_version": 2,
-            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <value>selectedMessages</value> is specified.",
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <var>selectedMessages</var> is specified.",
             "optional": true
           }
         }
@@ -303,7 +303,7 @@
           {
             "name": "tabId",
             "type": "integer",
-            "description": "ID of the requested mail tab. Throws if the requested <value>tabId</value> does not belong to a mail tab."
+            "description": "ID of the requested mail tab. Throws if the requested <var>tabId</var> does not belong to a mail tab."
           },
           {
             "type": "function",
@@ -321,7 +321,7 @@
         "name": "getCurrent",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Get the :ref:`mailTabs.MailTab` properties of the active mail tab. Returns <value>undefined</value>, if the active tab is not a mail tab.",
+        "description": "Get the :ref:`mailTabs.MailTab` properties of the active mail tab. Returns <var>undefined</var>, if the active tab is not a mail tab.",
         "async": "callback",
         "parameters": [
           {
