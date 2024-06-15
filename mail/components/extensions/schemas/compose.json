@@ -177,7 +177,7 @@
           },
           "from": {
             "$ref": "ComposeRecipient",
-            "description": "*Caution*: Setting a value for ``from`` does not change the used identity, it overrides the <value>From</value> header. Many email servers do not accept emails where the <value>From</value> header does not match the sender identity. Must be set to exactly one valid email address.",
+            "description": "*Caution*: Setting a value for ``from`` does not change the used identity, it overrides the <em>From</em> header. Many email servers do not accept emails where the <em>From</em> header does not match the sender identity. Must be set to exactly one valid email address.",
             "optional": true
           },
           "identityId": {

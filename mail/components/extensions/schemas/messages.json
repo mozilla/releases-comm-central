@@ -258,7 +258,7 @@
       {
         "id": "MessageAttachment",
         "type": "object",
-        "description": "Represents an attachment in a message. This includes all MIME parts with a <value>content-disposition</value> header set to <value>attachment</value>, but also related parts like inline images.",
+        "description": "Represents an attachment in a message. This includes all MIME parts with a <em>content-disposition</em> header set to <value>attachment</value>, but also related parts like inline images.",
         "properties": {
           "contentType": {
             "type": "string",
@@ -626,7 +626,7 @@
       {
         "name": "listInlineTextParts",
         "type": "function",
-        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>. If a message only includes a <value>text/html</value> part, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
+        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <value>text/plain</value> or <value>text/html</value>. If a message only includes a part with content type <value>text/html</value>, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
         "async": "callback",
         "parameters": [
           {
