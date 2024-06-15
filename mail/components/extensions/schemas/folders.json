@@ -1208,7 +1208,7 @@
         "type": "function",
         "max_manifest_version": 2,
         "description": "Marks all messages in a folder as read.",
-        "async": false,
+        "async": "callback",
         "parameters": [
           {
             "name": "folder",
@@ -1221,6 +1221,12 @@
                 "$ref": "folders.MailFolder"
               }
             ]
+          },
+          {
+            "name": "callback",
+            "type": "function",
+            "optional": true,
+            "parameters": []
           }
         ]
       },
@@ -1230,11 +1236,17 @@
         "type": "function",
         "min_manifest_version": 3,
         "description": "Marks all messages in a folder as read.",
-        "async": false,
+        "async": "callback",
         "parameters": [
           {
             "name": "folderId",
             "$ref": "folders.MailFolderId"
+          },
+          {
+            "name": "callback",
+            "type": "function",
+            "optional": true,
+            "parameters": []
           }
         ]
       }
