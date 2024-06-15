@@ -9,7 +9,7 @@
         "name": "getTargetElement",
         "type": "function",
         "allowedContexts": ["content", "devtools"],
-        "description": "Retrieve the element that was associated with a recent `contextmenu <|link-contextmenu-event|>`__ event.",
+        "description": "Retrieve the element that was associated with a recent <a href='|link-contextmenu-event|'>contextmenu</a> event.",
         "parameters": [
           {
             "type": "integer",

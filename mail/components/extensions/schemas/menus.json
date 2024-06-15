@@ -77,7 +77,7 @@
             "enum": ["action", "action_menu"]
           }
         ],
-        "description": "The different contexts a menu can appear in. Specifying <var>all</var> is equivalent to the combination of all other contexts excluding <var>tab</var> and <var>tools_menu</var>. More information about each context can be found in the `Supported UI Elements <|link-ui-elements|>`__ article on developer.thunderbird.net."
+        "description": "The different contexts a menu can appear in. Specifying <var>all</var> is equivalent to the combination of all other contexts excluding <var>tab</var> and <var>tools_menu</var>. More information about each context can be found in the <a href='|link-ui-elements|'>Supported UI Elements</a> article on developer.thunderbird.net."
       },
       {
         "id": "ItemType",
@@ -412,14 +412,14 @@
             "$ref": "MenuIconPath"
           }
         },
-        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath). Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the `MDN documentation about choosing icon sizes <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes>`__ for more information on this. "
+        "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath). Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the <a href='https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_action#choosing_icon_sizes'>MDN documentation about choosing icon sizes</a> for more information on this. "
       }
     ],
     "functions": [
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new context menu item. Note that if an error occurs during creation, you may not find out until the creation callback fires (the details will be in `runtime.lastError <|link-runtime-last-error|>`__).",
+        "description": "Creates a new context menu item. Note that if an error occurs during creation, you may not find out until the creation callback fires (the details will be in <a href='|link-runtime-last-error|'>runtime.lastError</a>).",
         "returns": {
           "choices": [
             {
@@ -526,7 +526,7 @@
                   "type": "string"
                 },
                 "optional": true,
-                "description": "Lets you restrict the item to apply only to documents whose URL matches one of the given patterns. (This applies to frames as well.) For details on the format of a pattern, see `Match Patterns <|link-match-patterns|>`__."
+                "description": "Lets you restrict the item to apply only to documents whose URL matches one of the given patterns. (This applies to frames as well.) For details on the format of a pattern, see <a href='|link-match-patterns|'>Match Patterns</a>."
               },
               "targetUrlPatterns": {
                 "type": "array",
@@ -562,7 +562,7 @@
             "type": "function",
             "name": "callback",
             "optional": true,
-            "description": "Called when the item has been created in the browser. If there were any problems creating the item, details will be available in `runtime.lastError <|link-runtime-last-error|>`__.",
+            "description": "Called when the item has been created in the browser. If there were any problems creating the item, details will be available in <a href='|link-runtime-last-error|'>runtime.lastError</a>.",
             "parameters": []
           }
         ]
@@ -736,7 +736,7 @@
         "name": "overrideContext",
         "permissions": ["menus.overrideContext"],
         "type": "function",
-        "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a `contextmenu <|link-contextmenu-event|>`__ event handler, and only applies to the menu that opens after this event.",
+        "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a <a href='|link-contextmenu-event|'>contextmenu</a> event handler, and only applies to the menu that opens after this event.",
         "parameters": [
           {
             "name": "contextOptions",
@@ -776,7 +776,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a context menu item is clicked. This is a user input event handler. For asynchronous listeners some `restrictions <|link-user-input-restrictions|>`__ apply.",
+        "description": "Fired when a context menu item is clicked. This is a user input event handler. For asynchronous listeners some <a href='|link-user-input-restrictions|'>restrictions</a> apply.",
         "parameters": [
           {
             "name": "info",

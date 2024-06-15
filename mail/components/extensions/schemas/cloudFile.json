@@ -13,7 +13,7 @@
             "properties": {
               "browser_style": {
                 "type": "boolean",
-                "description": "Enable browser styles in the <val>management_url</val> page. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
+                "description": "Enable browser styles in the <val>management_url</val> page. See the <a href='|link-mdn-browser-styles|'>MDN documentation on browser styles</a> for more information.",
                 "optional": true,
                 "default": false
               },

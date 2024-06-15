@@ -47,7 +47,7 @@
               "browser_style": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
+                "description": "Enable browser styles. See the <a href='|link-mdn-browser-styles|'>MDN documentation on browser styles</a> for more information.",
                 "default": false
               },
               "default_area": {
@@ -100,7 +100,7 @@
       {
         "id": "ImageDataDictionary",
         "type": "object",
-        "description": "A <em>dictionary object</em> to specify multiple |ImageData| objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an |ImageData| object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the `MDN documentation about choosing icon sizes <|link-mdn-icon-size|>`__ for more information on this.",
+        "description": "A <em>dictionary object</em> to specify multiple |ImageData| objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an |ImageData| object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the <a href='|link-mdn-icon-size|'>MDN documentation about choosing icon sizes</a> for more information on this.",
         "patternProperties": {
           "^[1-9]\\d*$": {
             "$ref": "ImageDataType"
@@ -794,7 +794,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some `restrictions <|link-user-input-restrictions|>`__ apply.",
+        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some <a href='|link-user-input-restrictions|'>restrictions</a> apply.",
         "parameters": [
           {
             "name": "tab",
