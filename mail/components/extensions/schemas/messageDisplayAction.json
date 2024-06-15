@@ -35,7 +35,7 @@
                 "items": {
                   "$ref": "ThemeIcons"
                 },
-                "description": "Specifies dark and light icons to be used with themes. The ``light`` icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the ``default_icon`` for light backgrounds (if specified)."
+                "description": "Specifies dark and light icons to be used with themes. The <val>light</val> icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the <val>default_icon</val> for light backgrounds (if specified)."
               },
               "default_popup": {
                 "type": "string",
@@ -302,7 +302,7 @@
       {
         "name": "setIcon",
         "type": "function",
-        "description": "Sets the icon for the messageDisplayAction button. Either the ``path`` or the ``imageData`` property must be specified.",
+        "description": "Sets the icon for the messageDisplayAction button. Either the <val>path</val> or the <val>imageData</val> property must be specified.",
         "async": "callback",
         "parameters": [
           {
@@ -680,7 +680,7 @@
       {
         "name": "enable",
         "type": "function",
-        "description": "Enables the messageDisplayAction button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, a messageDisplayAction button is enabled.",
+        "description": "Enables the messageDisplayAction button for a specific tab (if a <val>tabId</val> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, a messageDisplayAction button is enabled.",
         "async": "callback",
         "parameters": [
           {
@@ -701,7 +701,7 @@
       {
         "name": "disable",
         "type": "function",
-        "description": "Disables the messageDisplayAction button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
+        "description": "Disables the messageDisplayAction button for a specific tab (if a <val>tabId</val> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
         "async": "callback",
         "parameters": [
           {

@@ -561,13 +561,13 @@
                 "choices": [
                   {
                     "max_manifest_version": 2,
-                    "description": "The message can either be returned as a DOM File or as a `binary string <|link-binary-string|>`__. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the ``File`` format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
+                    "description": "The message can either be returned as a DOM File or as a `binary string <|link-binary-string|>`__. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the <val>File</val> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   },
                   {
                     "min_manifest_version": 3,
-                    "description": "The message can either be returned as a DOM File (default) or as a `binary string <|link-binary-string|>`__. It is recommended to use the ``File`` format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
+                    "description": "The message can either be returned as a DOM File (default) or as a `binary string <|link-binary-string|>`__. It is recommended to use the <val>File</val> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   }
@@ -1024,7 +1024,7 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The ``skipTrash`` parameter allows immediate permanent deletion, bypassing the trash folder.",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The <val>skipTrash</val> parameter allows immediate permanent deletion, bypassing the trash folder.",
         "async": true,
         "permissions": ["messagesDelete"],
         "parameters": [

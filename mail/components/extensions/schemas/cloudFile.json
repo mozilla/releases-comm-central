@@ -13,7 +13,7 @@
             "properties": {
               "browser_style": {
                 "type": "boolean",
-                "description": "Enable browser styles in the ``management_url`` page. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
+                "description": "Enable browser styles in the <val>management_url</val> page. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
                 "optional": true,
                 "default": false
               },
@@ -21,10 +21,10 @@
                 "type": "string",
                 "optional": true,
                 "deprecated": true,
-                "description": "This property is no longer used. The only supported data format for the ``data`` argument in $(ref:cloudFile.onFileUpload) is |File|."
+                "description": "This property is no longer used. The only supported data format for the <val>data</val> argument in $(ref:cloudFile.onFileUpload) is |File|."
               },
               "reuse_uploads": {
-                "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known ``url`` and ``templateInfo`` values without triggering the registered $(ref:cloudFile.onFileUpload) listener again. Setting this option to <var>false</var> will always trigger the registered listener, providing the already known values through the ``relatedFileInfo`` parameter of the $(ref:cloudFile.onFileUpload) event, to let the provider decide how to handle these cases.",
+                "description": "If a previously uploaded cloud file attachment is reused at a later time in a different message, Thunderbird may use the already known <val>url</val> and <val>templateInfo</val> values without triggering the registered $(ref:cloudFile.onFileUpload) listener again. Setting this option to <var>false</var> will always trigger the registered listener, providing the already known values through the <val>relatedFileInfo</val> parameter of the $(ref:cloudFile.onFileUpload) event, to let the provider decide how to handle these cases.",
                 "type": "boolean",
                 "optional": true,
                 "default": true
@@ -33,7 +33,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: ``cloudFile``, ``extension``, ``i18n``, ``runtime``, ``storage``, ``test``."
+                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: <val>cloudFile</val>, <val>extension</val>, <val>i18n</val>, <val>runtime</val>, <val>storage</val>, <val>test</val>."
               },
               "name": {
                 "type": "string",
@@ -50,7 +50,7 @@
                 "type": "string",
                 "optional": true,
                 "deprecated": true,
-                "description": "This property is no longer used. The ``service_url`` property of the $(ref:cloudFile.CloudFileTemplateInfo) object returned by the $(ref:cloudFile.onFileUpload) event can be used to add a <em>Learn more about</em> link to the footer of the cloud file attachment element."
+                "description": "This property is no longer used. The <val>service_url</val> property of the $(ref:cloudFile.CloudFileTemplateInfo) object returned by the $(ref:cloudFile.onFileUpload) event can be used to add a <em>Learn more about</em> link to the footer of the cloud file attachment element."
               }
             },
             "optional": true
@@ -361,7 +361,7 @@
       {
         "id": "RelatedCloudFile",
         "type": "object",
-        "description": "Information about an already uploaded cloud file, which is related to a new upload. For example if the content of a cloud attachment is updated, if a repeatedly used cloud attachment is renamed (and therefore should be re-uploaded to not invalidate existing links) or if the provider has its manifest property ``reuse_uploads`` set to <var>false</var>.",
+        "description": "Information about an already uploaded cloud file, which is related to a new upload. For example if the content of a cloud attachment is updated, if a repeatedly used cloud attachment is renamed (and therefore should be re-uploaded to not invalidate existing links) or if the provider has its manifest property <val>reuse_uploads</val> set to <var>false</var>.",
         "properties": {
           "id": {
             "type": "integer",

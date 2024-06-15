@@ -97,12 +97,12 @@
                 },
                 "maxItems": 15,
                 "optional": true,
-                "description": "Additional images added to the header area and displayed behind the ``theme_frame`` image."
+                "description": "Additional images added to the header area and displayed behind the <val>theme_frame</val> image."
               },
               "headerURL": {
                 "$ref": "ImageDataOrExtensionURL",
                 "optional": true,
-                "deprecated": "Unsupported images property, use ``theme.images.theme_frame``, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported images property, use <val>theme.images.theme_frame</val>, this alias is ignored in Thunderbird >= 70."
               },
               "theme_frame": {
                 "$ref": "ImageDataOrExtensionURL",
@@ -122,12 +122,12 @@
               "tab_selected": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "Background color of the selected tab. Defaults to the color specified by ``toolbar``."
+                "description": "Background color of the selected tab. Defaults to the color specified by <val>toolbar</val>."
               },
               "accentcolor": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "deprecated": "Unsupported colors property, use ``theme.colors.frame``, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported colors property, use <val>theme.colors.frame</val>, this alias is ignored in Thunderbird >= 70."
               },
               "frame": {
                 "$ref": "ThemeColor",
@@ -142,7 +142,7 @@
               "textcolor": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "deprecated": "Unsupported color property, use ``theme.colors.tab_background_text``, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported color property, use <val>theme.colors.tab_background_text</val>, this alias is ignored in Thunderbird >= 70."
               },
               "tab_background_text": {
                 "$ref": "ThemeColor",
@@ -162,7 +162,7 @@
               "tab_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color for the selected tab. Defaults to the color specified by ``toolbar_text``."
+                "description": "The text color for the selected tab. Defaults to the color specified by <val>toolbar_text</val>."
               },
               "tab_line": {
                 "$ref": "ThemeColor",
@@ -172,12 +172,12 @@
               "toolbar": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The background color of the toolbars. Also used as default value for ``tab_selected``."
+                "description": "The background color of the toolbars. Also used as default value for <val>tab_selected</val>."
               },
               "toolbar_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color in the main Thunderbird toolbar. Also used as default value for ``icons`` and ``tab_text``."
+                "description": "The text color in the main Thunderbird toolbar. Also used as default value for <val>icons</val> and <val>tab_text</val>."
               },
               "bookmark_text": {
                 "$ref": "ThemeColor",
@@ -223,7 +223,7 @@
               "icons": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The color of the toolbar icons. Defaults to the color specified by ``toolbar_text``."
+                "description": "The color of the toolbar icons. Defaults to the color specified by <val>toolbar_text</val>."
               },
               "icons_attention": {
                 "$ref": "ThemeColor",

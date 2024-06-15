@@ -58,7 +58,7 @@
               "$ref": "tabs.Tab"
             },
             "optional": true,
-            "description": "Array of $(ref:tabs.Tab) objects representing the current tabs in the window. Only included if requested by $(ref:windows.get), $(ref:windows.getCurrent), $(ref:windows.getAll) or $(ref:windows.getLastFocused), and the optional $(ref:windows.GetInfo) parameter has its ``populate`` member set to <var>true</var>."
+            "description": "Array of $(ref:tabs.Tab) objects representing the current tabs in the window. Only included if requested by $(ref:windows.get), $(ref:windows.getCurrent), $(ref:windows.getAll) or $(ref:windows.getLastFocused), and the optional $(ref:windows.GetInfo) parameter has its <val>populate</val> member set to <var>true</var>."
           },
           "incognito": {
             "type": "boolean",
@@ -99,7 +99,7 @@
           "populate": {
             "type": "boolean",
             "optional": true,
-            "description": "If true, the $(ref:windows.Window) returned will have a ``tabs`` property that contains an array of $(ref:tabs.Tab) objects representing the tabs inside the window. The $(ref:tabs.Tab) objects only contain the ``url``, ``title`` and ``favIconUrl`` properties if the extension's manifest file includes the <permission>tabs</permission> permission."
+            "description": "If true, the $(ref:windows.Window) returned will have a <val>tabs</val> property that contains an array of $(ref:tabs.Tab) objects representing the tabs inside the window. The $(ref:tabs.Tab) objects only contain the <val>url</val>, <val>title</val> and <val>favIconUrl</val> properties if the extension's manifest file includes the <permission>tabs</permission> permission."
           },
           "windowTypes": {
             "type": "array",
@@ -230,7 +230,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates (opens) a new window with any optional sizing, position or default URL provided. When loading a page into a popup window, same-site links are opened within the same window, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually. Same-site links with targets other than <var>_self</var> are opened in a new tab in the most recent ``normal`` Thunderbird window.",
+        "description": "Creates (opens) a new window with any optional sizing, position or default URL provided. When loading a page into a popup window, same-site links are opened within the same window, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a `content script <https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3>`__ , capture click events and handle them manually. Same-site links with targets other than <var>_self</var> are opened in a new tab in the most recent <val>normal</val> Thunderbird window.",
         "async": "callback",
         "parameters": [
           {
@@ -303,7 +303,7 @@
               "state": {
                 "$ref": "WindowState",
                 "optional": true,
-                "description": "The initial state of the window. The ``minimized``, ``maximized`` and ``fullscreen`` states cannot be combined with ``left``, ``top``, ``width`` or ``height``."
+                "description": "The initial state of the window. The <val>minimized</val>, <val>maximized</val> and <val>fullscreen</val> states cannot be combined with <val>left</val>, <val>top</val>, <val>width</val> or <val>height</val>."
               },
               "allowScriptsToClose": {
                 "type": "boolean",
@@ -386,7 +386,7 @@
               "state": {
                 "$ref": "WindowState",
                 "optional": true,
-                "description": "The new state of the window. The ``minimized``, ``maximized`` and ``fullscreen`` states cannot be combined with ``left``, ``top``, ``width`` or ``height``."
+                "description": "The new state of the window. The <val>minimized</val>, <val>maximized</val> and <val>fullscreen</val> states cannot be combined with <val>left</val>, <val>top</val>, <val>width</val> or <val>height</val>."
               },
               "titlePreface": {
                 "type": "string",

@@ -177,12 +177,12 @@
           },
           "from": {
             "$ref": "ComposeRecipient",
-            "description": "*Caution*: Setting a value for ``from`` does not change the used identity, it overrides the <em>From</em> header. Many email servers do not accept emails where the <em>From</em> header does not match the sender identity. Must be set to exactly one valid email address.",
+            "description": "*Caution*: Setting a value for <val>from</val> does not change the used identity, it overrides the <em>From</em> header. Many email servers do not accept emails where the <em>From</em> header does not match the sender identity. Must be set to exactly one valid email address.",
             "optional": true
           },
           "identityId": {
             "type": "string",
-            "description": "The ID of an identity from the :doc:`accounts`. The settings from the identity will be used in the composed message. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden. The permission <permission>accountsRead</permission> is required to include the ``identityId``.",
+            "description": "The ID of an identity from the :doc:`accounts`. The settings from the identity will be used in the composed message. If <val>replyTo</val> is also specified, the <val>replyTo</val> property of the identity is overridden. The permission <permission>accountsRead</permission> is required to include the <val>identityId</val>.",
             "optional": true
           },
           "isModified": {
@@ -214,7 +214,7 @@
             "max_manifest_version": 2,
             "type": "boolean",
             "optional": true,
-            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <var>false</var> will clear the override. Setting <var>true</var> will throw an <em>ExtensionError</em>, if ``overrideDefaultFccFolder`` is not set as well."
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <var>false</var> will clear the override. Setting <var>true</var> will throw an <em>ExtensionError</em>, if <val>overrideDefaultFccFolder</val> is not set as well."
           },
           "overrideDefaultFccFolder": {
             "max_manifest_version": 2,
@@ -294,7 +294,7 @@
           },
           "name": {
             "type": "string",
-            "description": "The new name for the attachment, as displayed to the user. If not specified, the name of the provided ``file`` object is used.",
+            "description": "The new name for the attachment, as displayed to the user. If not specified, the name of the provided <val>file</val> object is used.",
             "optional": true
           }
         }
@@ -574,7 +574,7 @@
       {
         "name": "beginNew",
         "type": "function",
-        "description": "Open a new message compose window.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window.\n\n**Note:** The compose format can be set by <val>details.isPlainText</val> or by specifying only one of <val>details.body</val> or <val>details.plainTextBody</val>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <val>details.body</val> and <val>details.plainTextBody</val> without also specifying <val>details.isPlainText</val> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <val>details.body</val> or <val>details.plainTextBody</val> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -604,7 +604,7 @@
       {
         "name": "beginReply",
         "type": "function",
-        "description": "Open a new message compose window replying to a given message.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window replying to a given message.\n\n**Note:** The compose format can be set by <val>details.isPlainText</val> or by specifying only one of <val>details.body</val> or <val>details.plainTextBody</val>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <val>details.body</val> and <val>details.plainTextBody</val> without also specifying <val>details.isPlainText</val> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <val>details.body</val> or <val>details.plainTextBody</val> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -639,7 +639,7 @@
       {
         "name": "beginForward",
         "type": "function",
-        "description": "Open a new message compose window forwarding a given message.\n\n**Note:** The compose format can be set by ``details.isPlainText`` or by specifying only one of ``details.body`` or ``details.plainTextBody``. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying ``details.body`` and ``details.plainTextBody`` without also specifying ``details.isPlainText`` threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching ``details.body`` or ``details.plainTextBody`` value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
+        "description": "Open a new message compose window forwarding a given message.\n\n**Note:** The compose format can be set by <val>details.isPlainText</val> or by specifying only one of <val>details.body</val> or <val>details.plainTextBody</val>. Otherwise the default compose format of the selected identity is used.\n\n**Note:** Specifying <val>details.body</val> and <val>details.plainTextBody</val> without also specifying <val>details.isPlainText</val> threw an exception in Thunderbird up to version 97. Since Thunderbird 98, this combination creates a compose window with the compose format of the selected identity, using the matching <val>details.body</val> or <val>details.plainTextBody</val> value.\n\n**Note:** If no identity is specified, this function is using the default identity and not the identity of the referenced message.",
         "async": "callback",
         "parameters": [
           {
@@ -699,7 +699,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. The properties of the given $(ref:compose.ComposeDetails) object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
+        "description": "Updates the compose window. The properties of the given $(ref:compose.ComposeDetails) object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included. Modified settings will be treated as user initiated, and turn off further automatic changes on these settings.\n\nWhen updating any of the array properties (<val>customHeaders</val> and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for <val>details.body</val>, <val>details.plainTextBody</val> or <val>details.isPlaintext</val> no longer throws an exception, instead the compose window chooses the matching <val>details.body</val> or <val>details.plainTextBody</val> value and ignores the other.",
         "permissions": ["compose"],
         "parameters": [
           {
@@ -741,7 +741,7 @@
         "name": "setActiveDictionaries",
         "type": "function",
         "async": true,
-        "description": "Updates the active dictionaries. Throws if the ``activeDictionaries`` array contains unknown or invalid language identifiers.",
+        "description": "Updates the active dictionaries. Throws if the <val>activeDictionaries</val> array contains unknown or invalid language identifiers.",
         "permissions": ["compose"],
         "parameters": [
           {

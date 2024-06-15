@@ -122,7 +122,7 @@
           },
           "sortType": {
             "type": "string",
-            "description": "Sorts the list of messages. ``sortOrder`` must also be given.",
+            "description": "Sorts the list of messages. <val>sortOrder</val> must also be given.",
             "optional": true,
             "enum": [
               "none",
@@ -149,7 +149,7 @@
           },
           "sortOrder": {
             "type": "string",
-            "description": "Sorts the list of messages. ``sortType`` must also be given.",
+            "description": "Sorts the list of messages. <val>sortType</val> must also be given.",
             "optional": true,
             "enum": ["none", "ascending", "descending"]
           },
@@ -218,26 +218,26 @@
         "properties": {
           "text": {
             "type": "string",
-            "description": "String to match against the ``recipients``, ``author``, ``subject``, or ``body``."
+            "description": "String to match against the <val>recipients</val>, <val>author</val>, <val>subject</val>, or <val>body</val>."
           },
           "recipients": {
             "type": "boolean",
-            "description": "Shows messages where ``text`` matches the recipients.",
+            "description": "Shows messages where <val>text</val> matches the recipients.",
             "optional": true
           },
           "author": {
             "type": "boolean",
-            "description": "Shows messages where ``text`` matches the author.",
+            "description": "Shows messages where <val>text</val> matches the author.",
             "optional": true
           },
           "subject": {
             "type": "boolean",
-            "description": "Shows messages where ``text`` matches the subject.",
+            "description": "Shows messages where <val>text</val> matches the subject.",
             "optional": true
           },
           "body": {
             "type": "boolean",
-            "description": "Shows messages where ``text`` matches the message body.",
+            "description": "Shows messages where <val>text</val> matches the message body.",
             "optional": true
           }
         }
@@ -367,7 +367,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Modifies the properties of a mail tab. Properties that are not specified in ``updateProperties`` are not modified.",
+        "description": "Modifies the properties of a mail tab. Properties that are not specified in <val>updateProperties</val> are not modified.",
         "async": "callback",
         "parameters": [
           {

@@ -461,7 +461,7 @@
               "title": {
                 "type": "string",
                 "optional": true,
-                "description": "The text to be displayed in the item; this is <em>required</em> unless ``type`` is <var>separator</var>. When the context is <var>selection</var>, you can use <var>%s</var> within the string to show the selected text. For example, if this parameter's value is <var>Translate '%s' to Latin</var> and the user selects the word <var>cool</var>, the context menu item for the selection is <var>Translate 'cool' to Latin</var>. To specify an access key for the new menu entry, include a <var>&</var> before the desired letter in the title. For example <var>&Help</var>."
+                "description": "The text to be displayed in the item; this is <em>required</em> unless <val>type</val> is <var>separator</var>. When the context is <var>selection</var>, you can use <var>%s</var> within the string to show the selected text. For example, if this parameter's value is <var>Translate '%s' to Latin</var> and the user selects the word <var>cool</var>, the context menu item for the selection is <var>Translate 'cool' to Latin</var>. To specify an access key for the new menu entry, include a <var>&</var> before the desired letter in the title. For example <var>&Help</var>."
               },
               "checked": {
                 "type": "boolean",
@@ -752,7 +752,7 @@
                 "type": "string",
                 "enum": ["tab"],
                 "optional": true,
-                "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only <var>tab</var> is supported. ``contextOptions.showDefaults`` cannot be used with this option."
+                "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only <var>tab</var> is supported. <val>contextOptions.showDefaults</val> cannot be used with this option."
               },
               "tabId": {
                 "type": "integer",

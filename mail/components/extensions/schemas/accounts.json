@@ -323,7 +323,7 @@
       {
         "name": "onUpdated",
         "type": "function",
-        "description": "Fired when a property of an account has been modified. Folders and identities of accounts are not monitored by this event, use the dedicated folder and identity events instead. A changed ``defaultIdentity`` is reported only after a different identity has been assigned as default identity, but not after a property of the default identity has been changed.",
+        "description": "Fired when a property of an account has been modified. Folders and identities of accounts are not monitored by this event, use the dedicated folder and identity events instead. A changed <val>defaultIdentity</val> is reported only after a different identity has been assigned as default identity, but not after a property of the default identity has been changed.",
         "parameters": [
           {
             "name": "accountId",

@@ -273,7 +273,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Open a port to a specific frame identified by ``frameId`` instead of all frames in the tab."
+                "description": "Open a port to a specific frame identified by <val>frameId</val> instead of all frames in the tab."
               }
             },
             "optional": true
@@ -307,7 +307,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Send a message to a specific frame identified by ``frameId`` instead of all frames in the tab."
+                "description": "Send a message to a specific frame identified by <val>frameId</val> instead of all frames in the tab."
               }
             },
             "optional": true
@@ -335,7 +335,7 @@
           {
             "type": "object",
             "name": "createProperties",
-            "description": "Properties for the new tab. Defaults to an empty tab, if no ``url`` is provided.",
+            "description": "Properties for the new tab. Defaults to an empty tab, if no <val>url</val> is provided.",
             "properties": {
               "windowId": {
                 "type": "integer",
@@ -365,7 +365,7 @@
                 "description": "The `CookieStore <|link-cookieStore|>`__ id the new tab should use. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               },
               "selected": {
-                "deprecated": "Please use ``createProperties.active``.",
+                "deprecated": "Please use <val>createProperties.active</val>.",
                 "unsupported": true,
                 "type": "boolean",
                 "optional": true,
@@ -406,7 +406,7 @@
             "parameters": [
               {
                 "name": "tab",
-                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested.",
+                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain <val>url</val>, <val>title</val> and <val>favIconUrl</val> if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -429,7 +429,7 @@
                 "type": "boolean",
                 "optional": true,
                 "max_manifest_version": 2,
-                "description": "Whether the tab is a Thunderbird 3-pane tab.  If specified, the ``queryInfo.type`` property will be ignored"
+                "description": "Whether the tab is a Thunderbird 3-pane tab.  If specified, the <val>queryInfo.type</val> property will be ignored"
               },
               "spaceId": {
                 "type": "integer",
@@ -550,7 +550,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Modifies the properties of a tab. Properties that are not specified in ``updateProperties`` are not modified.",
+        "description": "Modifies the properties of a tab. Properties that are not specified in <val>updateProperties</val> are not modified.",
         "async": "callback",
         "parameters": [
           {
@@ -585,7 +585,7 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain ``url``, ``title`` and ``favIconUrl`` if the <permission>tabs</permission> permission has not been requested."
+                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain <val>url</val>, <val>title</val> and <val>favIconUrl</val> if the <permission>tabs</permission> permission has not been requested."
               }
             ]
           }

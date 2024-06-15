@@ -35,7 +35,7 @@
           "parentId": {
             "type": "string",
             "optional": true,
-            "description": "The ``id`` of the parent object."
+            "description": "The <val>id</val> of the parent object."
           },
           "type": {
             "$ref": "NodeType",
@@ -300,7 +300,7 @@
               "id": {
                 "type": "string",
                 "optional": true,
-                "description": "The unique ID of the created address book. If several listeners have been added, the ``id`` allows to identify which address book initiated the search request. If not provided, a unique ID will be generated for you."
+                "description": "The unique ID of the created address book. If several listeners have been added, the <val>id</val> allows to identify which address book initiated the search request. If not provided, a unique ID will be generated for you."
               }
             }
           }
@@ -377,7 +377,7 @@
           "parentId": {
             "type": "string",
             "optional": true,
-            "description": "The ``id`` of the parent object."
+            "description": "The <val>id</val> of the parent object."
           },
           "type": {
             "$ref": "addressBooks.NodeType",
@@ -423,7 +423,7 @@
       {
         "id": "PropertyChange",
         "type": "object",
-        "description": "A dictionary of changed properties. Keys are the property name that changed, values are an object containing ``oldValue`` and ``newValue``. Values can be either a string or <var>null</var>.",
+        "description": "A dictionary of changed properties. Keys are the property name that changed, values are an object containing <val>oldValue</val> and <val>newValue</val>. Values can be either a string or <var>null</var>.",
         "patternProperties": {
           "^\\w+$": {
             "type": "object",
@@ -477,7 +477,7 @@
             ]
           }
         ],
-        "description": "Gets all the contacts in the address book with the id ``parentId``."
+        "description": "Gets all the contacts in the address book with the id <val>parentId</val>."
       },
       {
         "name": "quickSearch",
@@ -517,7 +517,7 @@
             ]
           }
         ],
-        "description": "Gets all contacts matching ``queryInfo`` in the address book with the id ``parentId``."
+        "description": "Gets all contacts matching <val>queryInfo</val> in the address book with the id <val>parentId</val>."
       },
       {
         "name": "query",
@@ -543,7 +543,7 @@
             ]
           }
         ],
-        "description": "Gets all contacts matching ``queryInfo``."
+        "description": "Gets all contacts matching <val>queryInfo</val>."
       },
       {
         "name": "get",
@@ -635,7 +635,7 @@
           {
             "name": "properties",
             "$ref": "ContactProperties",
-            "description": "The properties object for the new contact. If it includes a ``vCard`` member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the new contact will be based on the provided vCard string. If a UID is specified in the vCard string, which is already used by another contact, an exception is thrown. **Note:** Using individual properties is deprecated, use the ``vCard`` member instead."
+            "description": "The properties object for the new contact. If it includes a <val>vCard</val> member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the new contact will be based on the provided vCard string. If a UID is specified in the vCard string, which is already used by another contact, an exception is thrown. **Note:** Using individual properties is deprecated, use the <val>vCard</val> member instead."
           },
           {
             "type": "function",
@@ -649,7 +649,7 @@
             ]
           }
         ],
-        "description": "Adds a new contact to the address book with the id ``parentId``."
+        "description": "Adds a new contact to the address book with the id <val>parentId</val>."
       },
       {
         "name": "create",
@@ -679,7 +679,7 @@
             ]
           }
         ],
-        "description": "Adds a new contact to the address book with the id ``parentId``."
+        "description": "Adds a new contact to the address book with the id <val>parentId</val>."
       },
       {
         "name": "update",
@@ -694,7 +694,7 @@
           {
             "name": "properties",
             "$ref": "ContactProperties",
-            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <var>null</var>. If the provided object includes a ``vCard`` member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the ``vCard`` member instead. "
+            "description": "An object with properties to update the specified contact. Individual properties are removed, if they are set to <var>null</var>. If the provided object includes a <val>vCard</val> member, all specified `legacy properties <|link-legacy-properties|>`__ are ignored and the details of the contact will be replaced by the provided vCard. Changes to the UID will be ignored. **Note:** Using individual properties is deprecated, use the <val>vCard</val> member instead. "
           }
         ],
         "description": "Updates a contact."
@@ -808,7 +808,7 @@
           "parentId": {
             "type": "string",
             "optional": true,
-            "description": "The ``id`` of the parent object."
+            "description": "The <val>id</val> of the parent object."
           },
           "type": {
             "$ref": "addressBooks.NodeType",
@@ -868,7 +868,7 @@
             ]
           }
         ],
-        "description": "Gets all the mailing lists in the address book with id ``parentId``."
+        "description": "Gets all the mailing lists in the address book with id <val>parentId</val>."
       },
       {
         "name": "get",
@@ -930,7 +930,7 @@
             ]
           }
         ],
-        "description": "Creates a new mailing list in the address book with id ``parentId``."
+        "description": "Creates a new mailing list in the address book with id <val>parentId</val>."
       },
       {
         "name": "update",
@@ -987,7 +987,7 @@
             "type": "string"
           }
         ],
-        "description": "Adds a contact to the mailing list with id ``id``. If the contact and mailing list are in different address books, the contact will also be copied to the list's address book."
+        "description": "Adds a contact to the mailing list with id <val>id</val>. If the contact and mailing list are in different address books, the contact will also be copied to the list's address book."
       },
       {
         "name": "listMembers",
@@ -1012,7 +1012,7 @@
             ]
           }
         ],
-        "description": "Gets all contacts that are members of the mailing list with id ``id``."
+        "description": "Gets all contacts that are members of the mailing list with id <val>id</val>."
       },
       {
         "name": "removeMember",
@@ -1028,7 +1028,7 @@
             "type": "string"
           }
         ],
-        "description": "Removes a contact from the mailing list with id ``id``. This does not delete the contact from the address book."
+        "description": "Removes a contact from the mailing list with id <val>id</val>. This does not delete the contact from the address book."
       }
     ],
     "events": [

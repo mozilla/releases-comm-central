@@ -42,7 +42,7 @@
             "items": {
               "$ref": "manifest.ThemeIcons"
             },
-            "description": "Specifies dark and light icons for the spaces toolbar button to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified."
+            "description": "Specifies dark and light icons for the spaces toolbar button to be used with themes: The <val>light</val> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified."
           },
           "title": {
             "type": "string",
@@ -73,7 +73,7 @@
       {
         "name": "addButton",
         "type": "function",
-        "description": "Adds a new button to the spaces toolbar. Throws an exception, if the used ``id`` is not unique within the extension.",
+        "description": "Adds a new button to the spaces toolbar. Throws an exception, if the used <val>id</val> is not unique within the extension.",
         "async": "callback",
         "parameters": [
           {
@@ -84,7 +84,7 @@
           },
           {
             "name": "properties",
-            "description": "Properties of the new button. The ``url`` is mandatory.",
+            "description": "Properties of the new button. The <val>url</val> is mandatory.",
             "$ref": "spacesToolbar.ButtonProperties"
           },
           {
