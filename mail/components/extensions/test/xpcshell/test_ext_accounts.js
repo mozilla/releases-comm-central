@@ -44,7 +44,7 @@ add_task(async function test_accounts() {
     "background.js": async () => {
       const [account1Id, account1Name] = await window.waitForMessage();
 
-      let defaultAccount = await browser.accounts.getDefault();
+      const defaultAccount = await browser.accounts.getDefault();
       browser.test.assertEq(
         null,
         defaultAccount,
@@ -228,8 +228,55 @@ add_task(async function test_accounts() {
         await browser.messages.list(folder);
       }
 
-      defaultAccount = await browser.accounts.getDefault();
-      browser.test.assertEq(result2[0].id, defaultAccount.id);
+      // Strict check for accounts.getDefault(false).
+      const defaultAccountFalse = await browser.accounts.getDefault(false);
+      window.assertDeepEqual(
+        {
+          id: result2[0].id,
+          name: "Mail for user@localhost",
+          type: "imap",
+          rootFolder: {
+            id: `${result2[0].id}://`,
+            name: "Root",
+            path: "/",
+            specialUse: [],
+            isFavorite: false,
+            isRoot: true,
+            isTag: false,
+            isUnified: false,
+            isVirtual: false,
+            accountId: result2[0].id,
+            subFolders: null,
+          },
+          identities: [],
+          folders: null,
+        },
+        defaultAccountFalse,
+        "The return value for accounts.getDefault(false) should be correct",
+        { strict: true }
+      );
+
+      // Remove properties, which will be different, if folders are included.
+      delete defaultAccountFalse.folders;
+      delete defaultAccountFalse.rootFolder.subFolders;
+
+      // Lazy check for accounts.getDefault(): It should return at least the same
+      // values as accounts.getDefault(false). The additional folder and subFolder
+      // properties are checked seperatly.
+      const defaultAccountTrue = await browser.accounts.getDefault();
+      window.assertDeepEqual(
+        defaultAccountFalse,
+        defaultAccountTrue,
+        "The return value for accounts.getDefault() should be correct"
+      );
+      browser.test.assertTrue(
+        Array.isArray(defaultAccountTrue.folders),
+        "The MailAccount.folders property should be an array"
+      );
+      browser.test.assertTrue(
+        Array.isArray(defaultAccountTrue.rootFolder.subFolders),
+        "The MailFolder.subFolders property should be an array"
+      );
 
       browser.test.notifyPass("finished");
     },

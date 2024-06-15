@@ -93,11 +93,11 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "includeFolders",
+            "name": "includeSubFolders",
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned $(ref:accounts.MailAccount) objects should include their account's folders. Defaults to <var>false</var>."
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of each found $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -122,11 +122,11 @@
         "async": "callback",
         "parameters": [
           {
-            "name": "includeFolders",
+            "name": "includeSubFolders",
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned $(ref:accounts.MailAccount) objects should include their account's folders. Defaults to <var>true</var>."
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of each found $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. This also affects the deprecated <val>folders</val> property of each found $(ref:accounts.MailAccount). Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -155,11 +155,11 @@
             "$ref": "MailAccountId"
           },
           {
-            "name": "includeFolders",
+            "name": "includeSubFolders",
             "optional": true,
             "default": false,
             "type": "boolean",
-            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>false</var>."
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of the returned $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -186,11 +186,11 @@
             "$ref": "MailAccountId"
           },
           {
-            "name": "includeFolders",
+            "name": "includeSubFolders",
             "optional": true,
             "default": true,
             "type": "boolean",
-            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>true</var>."
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of the returned $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. This also affects the deprecated <val>folders</val> property of the returned $(ref:accounts.MailAccount). Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -214,12 +214,46 @@
       {
         "name": "getDefault",
         "type": "function",
+        "min_manifest_version": 3,
         "description": "Returns the default account, or <var>null</var> if it is not defined.",
         "async": "callback",
         "parameters": [
           {
-            "name": "includeFolders",
-            "description": "Specifies whether the returned $(ref:accounts.MailAccount) object should included the account's folders. Defaults to <var>true</var>.",
+            "name": "includeSubFolders",
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of the default $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. Defaults to <var>false</var>",
+            "optional": true,
+            "default": false,
+            "type": "boolean"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "choices": [
+                  {
+                    "$ref": "accounts.MailAccount"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getDefault",
+        "type": "function",
+        "max_manifest_version": 2,
+        "description": "Returns the default account, or <var>null</var> if it is not defined.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "includeSubFolders",
+            "description": "Specifies whether the $(ref:folders.MailFolder) in the <val>rootFolder</val> property of the default $(ref:accounts.MailAccount) should populate its <val>subFolders</val> property, and include all (nested!) subfolders. This also affects the deprecated <val>folders</val> property of the default $(ref:accounts.MailAccount). Defaults to <var>true</var>",
             "optional": true,
             "default": true,
             "type": "boolean"

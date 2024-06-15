@@ -458,7 +458,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders. Defaults to <var>false</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -488,7 +488,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders. Defaults to <var>true</var>."
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1011,7 +1011,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
+            "description": "Specifies whether each returned parent $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1044,7 +1044,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each parent folder should include its nested subfolders. Defaults to <var>false</var>.",
+            "description": "Specifies whether each returned parent $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
@@ -1080,7 +1080,7 @@
             "optional": true,
             "type": "boolean",
             "default": false,
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each direct subfolder should also include all its nested subfolders. Defaults to <var>false</var>."
+            "description": "Specifies whether each returned direct child $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>false</var>."
           },
           {
             "type": "function",
@@ -1125,7 +1125,7 @@
             "optional": true,
             "type": "boolean",
             "default": true,
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object for each direct subfolder should also include all its nested subfolders. Defaults to <var>true</var>."
+            "description": "Specifies whether each returned direct child $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>true</var>."
           },
           {
             "type": "function",
@@ -1163,7 +1163,7 @@
           },
           {
             "name": "includeSubFolders",
-            "description": "Specifies whether the returned $(ref:folders.MailFolder) object should include all its nested subfolders . Defaults to <var>false</var>.",
+            "description": "Specifies whether the returned $(ref:folders.MailFolder) should populate its <val>subFolders</val> property and include all its (nested!) subfolders. Defaults to <var>false</var>.",
             "optional": true,
             "default": false,
             "type": "boolean"
