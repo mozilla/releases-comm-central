@@ -15,6 +15,7 @@ imply_option("MOZ_REQUIRE_SIGNING", False)
 imply_option("MOZ_SERVICES_SYNC", True)
 
 imply_option("MOZ_APP_ID", "{3550f703-e582-4d05-9a08-453d09bdfdc6}")
+imply_option("MOZ_APP_VENDOR", "Mozilla")
 
 @depends(target_is_windows, target_has_linux_kernel)
 def bundled_fonts(is_windows, is_linux):
