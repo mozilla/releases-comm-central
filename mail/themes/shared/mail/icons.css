@@ -11,7 +11,6 @@
   --icon-replies-xs: url("chrome://messenger/skin/icons/xs/replies.svg");
 
   /* SM - 16x16px icons */
-  --icon-dot-sm: url("chrome://messenger/skin/icons/sm/dot.svg");
   --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
 
@@ -44,6 +43,7 @@
   --icon-density-relaxed: url("chrome://messenger/skin/icons/new/compact/density-relaxed.svg");
   --icon-display-options: url("chrome://messenger/skin/icons/new/compact/display-options.svg");
   --icon-download: url("chrome://messenger/skin/icons/new/compact/download.svg");
+  --icon-dot: url("chrome://messenger/skin/icons/sm/dot.svg");
   --icon-draft: url("chrome://messenger/skin/icons/new/compact/draft.svg");
   --icon-error-circle: url("chrome://messenger/skin/icons/new/compact/error-circle.svg");
   --icon-export: url("chrome://messenger/skin/icons/new/compact/export.svg");
@@ -269,6 +269,7 @@
 }
 
 :root[uidensity="compact"] {
+  --icon-dot: var(--icon-dot-xs);
   --spaces-icon-mail: var(--icon-mail);
   --spaces-icon-address-book: var(--icon-address-book);
   --spaces-icon-calendar: var(--icon-calendar);

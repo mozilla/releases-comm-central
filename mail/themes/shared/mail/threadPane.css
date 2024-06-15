@@ -338,7 +338,7 @@ tr:not([data-properties~="attach"]) :is(.attachmentcol-column img, .attachment-i
   }
 
   & img {
-    content: var(--icon-dot-xs);
+    content: var(--icon-dot);
     pointer-events: none;
     fill: color-mix(in srgb, currentColor 10%, transparent);
     stroke: color-mix(in srgb, currentColor 30%, transparent);

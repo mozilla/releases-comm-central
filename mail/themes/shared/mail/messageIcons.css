@@ -121,7 +121,7 @@ treechildren::-moz-tree-image(threadCol, selected, focus) {
 /* ..... read column ..... */
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: var(--icon-dot-xs);
+  list-style-image: var(--icon-dot);
   -moz-context-properties: stroke, fill, fill-opacity;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;

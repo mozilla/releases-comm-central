@@ -8,9 +8,8 @@
   --thread-card-content-gap: 3px;
   --thread-indicator-content-padding: 2px 3px;
   --thread-line-height: 100%;
-  --read-status-unread: var(--icon-dot-sm);
   --read-status-new: var(--icon-sparkle-star-sm);
-  --read-status-icon: var(--read-status-unread);
+  --read-status-icon: var(--icon-dot);
   --read-status-size: 16px;
   --indicator-gap: 3px;
   --inset-inline-start: 0;
@@ -21,7 +20,6 @@
     --thread-card-content-block: 1px;
     --thread-card-content-gap: 1px;
     --thread-indicator-content-padding: 1px 3px;
-    --read-status-unread: var(--icon-dot-xs);
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
     --indicator-gap: 2px;
