@@ -855,6 +855,7 @@ var commandController = {
     const currentIndex = window.threadTree
       ? window.threadTree.currentIndex
       : -1;
+    let addedRowsByViewNavigate = 0;
 
     // If we're doing next unread, and a collapsed thread is selected, and
     // the top level message is unread, just set the result manually to
@@ -871,6 +872,7 @@ var commandController = {
       resultIndex.value = currentIndex;
       resultKey.value = gViewWrapper.dbView.getKeyAt(currentIndex);
     } else {
+      const countBefore = gViewWrapper.dbView.rowCount;
       gViewWrapper.dbView.viewNavigate(
         navigationType,
         resultKey,
@@ -878,6 +880,7 @@ var commandController = {
         threadIndex,
         true
       );
+      addedRowsByViewNavigate = gViewWrapper.dbView.rowCount - countBefore;
       if (resultIndex.value == nsMsgViewIndex_None) {
         if (CrossFolderNavigation(navigationType)) {
           this._navigate(navigationType);
@@ -897,11 +900,24 @@ var commandController = {
       ) {
         return;
       }
-
-      window.threadTree.expandRowAtIndex(resultIndex.value);
+      const addedRows = Math.max(
+        addedRowsByViewNavigate,
+        window.threadTree.expandRowAtIndex(resultIndex.value)
+      );
       // Do an instant scroll before setting the index to avoid animation.
       window.threadTree.scrollToIndex(resultIndex.value, true);
       window.threadTree.selectedIndex = resultIndex.value;
+      // If the thread index has not been determined by viewNavigate(), its
+      // return value will be 0.
+      const firstIndex =
+        threadIndex.value > 0 ? threadIndex.value : resultIndex.value;
+      // Scroll the thread to the most reasonable position.
+      window.threadTree.scrollExpandedRowIntoView(
+        resultIndex.value,
+        addedRows,
+        false,
+        firstIndex
+      );
       // Focus the thread tree, unless the message pane has focus.
       if (
         Services.focus.focusedWindow !=
