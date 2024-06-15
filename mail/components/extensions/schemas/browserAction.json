@@ -684,7 +684,7 @@
         "name": "getBadgeTextColor",
         "type": "function",
         "description": "Gets the text color of the badge.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "details",
@@ -712,7 +712,7 @@
             "parameters": [
               {
                 "name": "result",
-                "type": "string"
+                "$ref": "ColorArray"
               }
             ]
           }
