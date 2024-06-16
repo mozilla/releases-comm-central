@@ -12,8 +12,6 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-BROWSER_CHROME_URL=chrome://messenger/content/extensionPopup.xhtml
-
 MOZ_BRANDING_DIRECTORY=comm/mail/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird
 # This looks silly, but it's for the benefit of MSIX repackaging.
