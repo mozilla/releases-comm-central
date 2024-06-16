@@ -165,11 +165,6 @@ def comm_source_repo(from_environ, from_config, automation):
     log.info("COMM_SOURCE_REPOSITORY: {}".format(rv.comm_repo))
     log.info("COMM_SOURCE_CHANGESET: {}".format(rv.comm_rev))
 
-    # Used by old-configure to set in buildconfig. This is configure's environment
-    # not the same as used by the build itself.
-    environ["MOZ_SOURCE_REPO"] = rv.comm_repo
-    environ["MOZ_SOURCE_CHANGESET"] = rv.comm_rev
-
     return rv
 
 
@@ -256,6 +251,8 @@ def gecko_source_repo(from_environ, from_heuristics, automation):
 
 
 set_config("MOZ_COMM_SOURCE_REPO", comm_source_repo.comm_repo)
+imply_option("MOZ_SOURCE_REPO", comm_source_repo.comm_repo, reason="MOZ_SOURCE_REPO")
 set_config("MOZ_COMM_SOURCE_CHANGESET", comm_source_repo.comm_rev)
+imply_option("MOZ_SOURCE_CHANGESET", comm_source_repo.comm_rev, reason="MOZ_SOURCE_CHANGESET")
 set_config("MOZ_GECKO_SOURCE_REPO", gecko_source_repo.gecko_repo)
 set_config("MOZ_GECKO_SOURCE_CHANGESET", gecko_source_repo.gecko_rev)
