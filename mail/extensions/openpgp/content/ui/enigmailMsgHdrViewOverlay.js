@@ -612,7 +612,7 @@ var openpgpSink = {
     }
 
     let msg = msgURI.messageHeader;
-    if (!msg && this.isCurrentMessage(uri)) {
+    if (!msg && EnigmailFuncs.isCurrentMessage(gMessageURI, uri)) {
       // .eml messages opened from file://
       msg = gMessage;
     }
@@ -653,7 +653,7 @@ var openpgpSink = {
 
     Enigmail.hdrView.receivedStatusFromParts.add(mimePartNumber);
 
-    if (!this.isCurrentMessage(uri)) {
+    if (!EnigmailFuncs.isCurrentMessage(gMessageURI, uri)) {
       return;
     }
     if (!this.displaySubPart(mimePartNumber, uri)) {
@@ -690,33 +690,10 @@ var openpgpSink = {
       // the message here, because we'd run into an endless loop.
       return;
     }
-    if (this.isCurrentMessage(uri)) {
+    if (EnigmailFuncs.isCurrentMessage(gMessageURI, uri)) {
       EnigmailVerify.unregisterPGPMimeHandler();
       Enigmail.msg.messageReload(false);
     }
-  },
-
-  /**
-   * Check if this is the current message.
-   *
-   * @param {string} spec - URI spec to check.
-   * @returns {boolean} true if the uri is for the current message.
-   */
-  isCurrentMessage(spec) {
-    // FIXME: it would be nicer to just be able to compare the URI specs.
-    // That does currently not work for all cases, e.g.
-    // mailbox:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display&number=0 vs.
-    // file:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display
-
-    const uri = Services.io.newURI(spec).QueryInterface(Ci.nsIMsgMessageUrl);
-    const uri2 = EnigmailFuncs.getUrlFromUriSpec(gMessageURI);
-    if (uri.host != uri2.host) {
-      return false;
-    }
-
-    const id = EnigmailURIs.msgIdentificationFromUrl(uri);
-    const id2 = EnigmailURIs.msgIdentificationFromUrl(uri2);
-    return id.folder === id2.folder && id.msgNum === id2.msgNum;
   },
 
   /**

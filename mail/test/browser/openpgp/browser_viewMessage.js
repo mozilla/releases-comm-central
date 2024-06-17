@@ -530,9 +530,11 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
   const aboutMessage = get_about_message(msgc);
 
   Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
+  // Note this is an S/MIME signature status, at the time of writing
+  // this test, string "mismatch" is used for status "notok".
   Assert.ok(
-    OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
-    "signed icon is not displayed"
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
+    "signed icon with a mismatch status is displayed"
   );
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),

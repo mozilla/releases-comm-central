@@ -12,6 +12,11 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
+});
+
 var gTxtConverter = null;
 var inspector;
 
@@ -461,6 +466,31 @@ export var EnigmailFuncs = {
     } catch (ex) {
       return null;
     }
+  },
+
+  /**
+   * Check if the given spec refers to the currently shown message.
+   *
+   * @param {string} current - URI spec of the currently shown message
+   *   (typically the caller should pass in gMessageURI)
+   * @param {string} spec - URI spec to check.
+   * @returns {boolean} true if the uri is for the current message.
+   */
+  isCurrentMessage(current, spec) {
+    // FIXME: it would be nicer to just be able to compare the URI specs.
+    // That does currently not work for all cases, e.g.
+    // mailbox:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display&number=0 vs.
+    // file:///...data/eml/signed-encrypted-autocrypt-gossip.eml?type=application/x-message-display
+
+    const uri = Services.io.newURI(spec).QueryInterface(Ci.nsIMsgMessageUrl);
+    const uri2 = this.getUrlFromUriSpec(current);
+    if (uri.host != uri2.host) {
+      return false;
+    }
+
+    const id = lazy.EnigmailURIs.msgIdentificationFromUrl(uri);
+    const id2 = lazy.EnigmailURIs.msgIdentificationFromUrl(uri2);
+    return id.folder === id2.folder && id.msgNum === id2.msgNum;
   },
 
   /**
