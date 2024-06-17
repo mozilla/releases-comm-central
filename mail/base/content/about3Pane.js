@@ -5005,7 +5005,9 @@ var threadPane = {
     this._jsTree.endUpdateBatch();
     threadTree.onSelectionChanged(false, !notify);
 
-    if (indices.has(currentIndex)) {
+    if (currentIndex == nsMsgViewIndex_None) {
+      threadTree.currentIndex = -1;
+    } else {
       threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
       threadTree.currentIndex = currentIndex;
       threadTree.style.scrollBehavior = null;

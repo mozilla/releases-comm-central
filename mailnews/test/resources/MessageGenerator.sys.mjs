@@ -1225,6 +1225,8 @@ MessageGenerator.prototype = {
    * @property {number} [age] A dictionary with potential attributes 'minutes',
    *     'hours', 'days', 'weeks' to specify the message be created that far in
    *     the past.
+   * @property {Date} [date] The date to use for the message. Ignored if `age`
+   *     is given.
    * @property {object} [attachments] A list of dictionaries suitable for passing to
    *     syntheticPartLeaf, plus a 'body' attribute that has already been
    *     encoded. Line chopping is on you FOR NOW.
@@ -1334,6 +1336,8 @@ MessageGenerator.prototype = {
         ts -= age.weeks * 7 * 24 * 60 * 60 * 1000;
       }
       msg.date = new Date(ts);
+    } else if (aArgs.date) {
+      msg.date = aArgs.date;
     } else {
       msg.date = this.makeDate();
     }
