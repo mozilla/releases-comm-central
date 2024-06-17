@@ -22,7 +22,4 @@ MAR_CHANNEL_ID=seamonkey-comm-central
 
 MOZ_PROFILE_MIGRATOR=1
 
-# Include the DevTools client, not just the server (which is the default)
-MOZ_DEVTOOLS=all
-
 NSS_EXTRA_SYMBOLS_FILE=../comm/mailnews/nss-extra.symbols

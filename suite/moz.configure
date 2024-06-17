@@ -10,6 +10,8 @@ set_define("MOZ_SUITE", True)
 imply_option("MOZ_APP_BASENAME", "SeaMonkey")
 imply_option("MOZ_APP_ID", "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}")
 imply_option("MOZ_APP_VENDOR", "Mozilla")
+# Include the DevTools client, not just the server (which is the default)
+imply_option("MOZ_DEVTOOLS", "all")
 
 imply_option('--enable-default-browser-agent', False)
 
