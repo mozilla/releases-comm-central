@@ -580,13 +580,6 @@
   list-style-image: var(--icon-print);
 }
 
-.menu-description,
-menulist::part(description) {
-  font-style: italic;
-  opacity: 0.55;
-  margin-inline: 1ex !important;
-}
-
 .aw-firstColBox {
   /* aw-firstColBox inline padding (4px + 4px) + remove-field-button inline
    * padding (2px + 2px) + img width (16px) */
@@ -845,6 +838,14 @@ toolbarbutton.formatting-button {
     border-style: none;
     outline-style: none;
     margin-inline: 1px;
+  }
+
+  & .menu-description,
+  &::part(description) {
+    font-style: italic;
+    opacity: 0.55;
+    margin-inline: 1ex !important;
+    pointer-events: none;
   }
 }
 
