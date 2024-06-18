@@ -775,8 +775,6 @@ nsresult nsImapService::FetchMessage(nsIImapUrl* aImapUrl,
     }
   }
 
-  if (aURL) mailnewsurl.forget(aURL);
-
   return GetMessageFromUrl(aImapUrl, aImapAction, aImapMailFolder, aImapMessage,
                            aMsgWindow, aDisplayConsumer, aConvertDataToText,
                            aURL);
@@ -823,6 +821,7 @@ nsresult nsImapService::GetMessageFromUrl(
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
     rv = docShell->LoadURI(loadState, false);
+    if (aURL) url.forget(aURL);
   } else {
     nsCOMPtr<nsIStreamListener> streamListener =
         do_QueryInterface(aDisplayConsumer, &rv);
@@ -864,12 +863,9 @@ nsresult nsImapService::GetMessageFromUrl(
       //  now try to open the channel passing in our display consumer as the
       //  listener
       rv = channel->AsyncOpen(streamListener);
-    } else  // do what we used to do before
-    {
-      // I'd like to get rid of this code as I believe that we always get a
-      // docshell or stream listener passed into us in this method but i'm not
-      // sure yet... I'm going to use an assert for now to figure out if this is
-      // ever getting called
+
+      if (aURL) mailnewsUrl.forget(aURL);
+    } else {
       rv = GetImapConnectionAndLoadUrl(aImapUrl, aDisplayConsumer, aURL);
     }
   }
