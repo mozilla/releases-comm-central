@@ -8,9 +8,15 @@ var {
   click_account_tree_row,
   get_account_tree_listitem,
   open_advanced_settings,
-  remove_account,
 } = ChromeUtils.importESModule(
   "resource://testing-common/mail/AccountManagerHelpers.sys.mjs"
+);
+
+var { close_compose_window, compose_window_ready } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
+);
+var { content_tab_e } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
 );
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -20,13 +26,17 @@ var { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
 
-var { content_tab_e } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
-var gPopAccount, gOriginalAccountCount, gFeedAccount, gLocalAccount;
+var gPopAccount,
+  gOriginalAccountCount,
+  gFeedAccount,
+  gLocalAccount,
+  gComposeCtrl;
 
-add_setup(function () {
+add_setup(async function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -53,11 +63,15 @@ add_setup(function () {
   Assert.equal(
     MailServices.accounts.allServers.length,
     gOriginalAccountCount + 2,
-    "there should be one more account"
+    "there should be two more accounts"
   );
+
+  const composePromise = promise_new_window("msgcompose");
+  EventUtils.synthesizeKey("n", { accelKey: true });
+  gComposeCtrl = await compose_window_ready(composePromise);
 });
 
-registerCleanupFunction(function () {
+registerCleanupFunction(async function () {
   // Remove our test account to leave the profile clean.
   if (gPopAccount) {
     MailServices.accounts.removeAccount(gPopAccount);
@@ -72,6 +86,7 @@ registerCleanupFunction(function () {
     gOriginalAccountCount,
     "There should be only the original accounts left."
   );
+  await close_compose_window(gComposeCtrl);
 });
 
 add_task(async function test_pop_account_color() {
@@ -82,7 +97,8 @@ add_task(async function test_pop_account_color() {
 
 add_task(async function test_feed_account_color() {
   await open_advanced_settings(async function (tab) {
-    await subtest_account_color(tab, gFeedAccount);
+    // Feed accounts don't have an identity to send email from.
+    await subtest_account_color(tab, gFeedAccount, true);
   });
 });
 
@@ -92,7 +108,14 @@ add_task(async function test_local_account_color() {
   });
 });
 
-async function subtest_account_color(tab, account) {
+/**
+ *
+ * @param {XULElement} tab - The account settings tab.
+ * @param {msIMsgAccount} account - The account ot test.
+ * @param {boolean} [skipCompose=false] - If the test should skip checking for
+ *   the account color in the compose windows.
+ */
+async function subtest_account_color(tab, account, skipCompose = false) {
   const customColor = "#ff0000";
   const accountRow = get_account_tree_listitem(account.key, tab);
   const accountTree = content_tab_e(tab, "accounttree");
@@ -133,6 +156,18 @@ async function subtest_account_color(tab, account) {
     "The account icon in folder pane should have a custom color"
   );
 
+  if (!skipCompose) {
+    Assert.equal(
+      gComposeCtrl.document
+        .querySelector(
+          `#msgIdentityPopup menuitem[accountkey="${account.key}"]`
+        )
+        .style.getPropertyValue("--icon-color"),
+      customColor,
+      "The identity menuitem in the message compose should have a custom color"
+    );
+  }
+
   // Switch back to account settings.
   tabmail.switchToTab(1);
 
@@ -158,6 +193,17 @@ async function subtest_account_color(tab, account) {
       .style.getPropertyValue("--icon-color"),
     "The account icon in folder pane should not have a custom color"
   );
+
+  if (!skipCompose) {
+    Assert.ok(
+      !gComposeCtrl.document
+        .querySelector(
+          `#msgIdentityPopup menuitem[accountkey="${account.key}"]`
+        )
+        .style.getPropertyValue("--icon-color"),
+      "The identity menuitem in the message compose should not have a custom color"
+    );
+  }
 
   // Switch back to account settings.
   tabmail.switchToTab(1);

@@ -869,9 +869,44 @@ toolbarbutton.formatting-button {
   height: 14px;
 }
 
-#msgIdentityPopup >  menuitem[selected="true"] {
+#msgIdentityPopup > menuitem[selected="true"] {
   background-color: var(--autocomplete-popup-highlight-background);
   color: var(--autocomplete-popup-highlight-color);
+}
+
+#msgIdentity.has-custom-color {
+  --icon-color: var(--primary);
+
+  &[is="menulist-editable"]::part(label-box)::before {
+    display: block;
+    position: relative;
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin-inline-end: 1px;
+    background-color: var(--icon-color);
+  }
+
+  & #msgIdentityPopup > menuitem:not(:last-child) {
+    --icon-color: var(--primary);
+
+    &::before {
+      display: block;
+      position: relative;
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 3px;
+      margin-inline: -3px 4px;
+      background-color: var(--icon-color);
+    }
+
+    &[selected="true"]::before {
+      border-radius: 4px;
+      border: 1px solid var(--autocomplete-popup-highlight-color);
+    }
+  }
 }
 
 #msgSubjectContainer {

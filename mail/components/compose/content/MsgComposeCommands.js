@@ -49,6 +49,7 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
@@ -375,6 +376,25 @@ const keyObserver = {
         break;
       default:
         break;
+    }
+  },
+};
+
+const accountObserver = {
+  observe(subject, topic) {
+    if (topic == "server-color-changed") {
+      // Refresh the full list to make sure we're not dealing with stale data.
+      const identityList = document.getElementById("msgIdentity");
+      if (identityList) {
+        const currentKey = identityList.getAttribute("identitykey");
+        identityList.menupopup.replaceChildren();
+        FillIdentityList(identityList);
+        identityList.selectedItem = identityList.getElementsByAttribute(
+          "identitykey",
+          currentKey
+        )[0];
+        LoadIdentity(true);
+      }
     }
   },
 };
@@ -4590,9 +4610,12 @@ async function ComposeStartup() {
   messageEditor.addEventListener("paste", onPasteOrDrop);
   messageEditor.addEventListener("drop", onPasteOrDrop);
 
+  await FolderTreeProperties.ready;
+
   const identityList = document.getElementById("msgIdentity");
   if (identityList) {
     FillIdentityList(identityList);
+    Services.obs.addObserver(accountObserver, "server-color-changed");
   }
 
   if (!params) {
@@ -5753,6 +5776,8 @@ function ComposeUnload() {
 
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();
+
+  Services.obs.removeObserver(accountObserver, "server-color-changed");
 
   if (gMsgCompose) {
     // Notify the SendListener that Send has been aborted and Stopped
@@ -7656,6 +7681,7 @@ function toggleAttachmentAnimation() {
 function FillIdentityList(menulist) {
   const accounts = FolderUtils.allAccountsSorted(true);
 
+  let hasCustomColor = false;
   let accountHadSeparator = false;
   let firstAccountWithIdentities = true;
   for (const account of accounts) {
@@ -7686,6 +7712,13 @@ function FillIdentityList(menulist) {
         identity.fullAddress,
         account.incomingServer.prettyName
       );
+      const color = FolderTreeProperties.getColor(
+        account.incomingServer.rootFolder.URI
+      );
+      if (color) {
+        hasCustomColor = true;
+      }
+      item.style.setProperty("--icon-color", color ?? "");
       item.setAttribute("identitykey", identity.key);
       item.setAttribute("accountkey", account.key);
       if (i == 0) {
@@ -7701,6 +7734,8 @@ function FillIdentityList(menulist) {
       item.querySelector("label:last-child").after(desc);
     }
   }
+
+  menulist.classList.toggle("has-custom-color", hasCustomColor);
 
   menulist.menupopup.appendChild(document.createXULElement("menuseparator"));
   menulist.menupopup
@@ -9401,6 +9436,11 @@ function LoadIdentity(startup) {
     // Set the account key value on the menu list.
     accountKey = identityElement.selectedItem.getAttribute("accountkey");
     identityElement.setAttribute("accountkey", accountKey);
+
+    identityElement.style.setProperty(
+      "--icon-color",
+      identityElement.selectedItem.style.getPropertyValue("--icon-color") ?? ""
+    );
 
     // Update the addressing options only if a new account was selected.
     if (prevKey != getCurrentAccountKey()) {
