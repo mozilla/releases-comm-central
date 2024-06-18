@@ -96,20 +96,32 @@ var AboutSupport = {
     const accountDetails = [];
 
     for (const account of MailServices.accounts.accounts) {
-      const server = account.incomingServer;
-      accountDetails.push({
-        key: account.key,
-        name: server.prettyName,
-        hostDetails:
-          "(" +
-          server.type +
-          ") " +
-          server.hostName +
-          (server.port != -1 ? ":" + server.port : ""),
-        socketType: server.socketType,
-        authMethod: server.authMethod,
-        smtpServers: this._getSMTPDetails(account),
-      });
+      try {
+        const server = account.incomingServer;
+        accountDetails.push({
+          key: account.key,
+          name: server.prettyName,
+          hostDetails:
+            "(" +
+            server.type +
+            ") " +
+            server.hostName +
+            (server.port != -1 ? ":" + server.port : ""),
+          socketType: server.socketType,
+          authMethod: server.authMethod,
+          smtpServers: this._getSMTPDetails(account),
+        });
+      } catch (error) {
+        // Populate placeholder data.
+        accountDetails.push({
+          key: account.key,
+          name: error.message,
+          hostDetails: "",
+          sokectType: "",
+          authMethod: "",
+          smtpServers: [],
+        });
+      }
     }
 
     function idCompare(accountA, accountB) {

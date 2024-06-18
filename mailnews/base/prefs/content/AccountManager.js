@@ -1839,6 +1839,7 @@ var gAccountTree = {
       let amChrome = "about:blank";
       const panelsToKeep = [];
       let server = null;
+      let validAccount = true;
 
       // This "try {} catch {}" block is intentionally very long to catch
       // unknown exceptions and confine them to this single account.
@@ -1921,6 +1922,7 @@ var gAccountTree = {
         console.error("Error accessing account " + accountID + ": " + e);
         accountName = "Invalid account " + accountID;
         panelsToKeep.length = 0;
+        validAccount = false;
       }
 
       // Create the top level tree-item.
@@ -1940,7 +1942,7 @@ var gAccountTree = {
           treeitem.classList.add("isSecure");
         }
         // For IM accounts, we can try to fetch a protocol specific icon.
-        if (server.type == "im") {
+        if (server.type == "im" && validAccount) {
           treeitem.querySelector(".icon").style.backgroundImage =
             "url(" +
             ChatIcons.getProtocolIconURI(
