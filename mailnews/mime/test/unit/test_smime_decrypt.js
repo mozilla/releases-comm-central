@@ -458,7 +458,7 @@ var gMessages = [
     check_text: gTextAliceBob,
   },
 
-  // This is the same structure as 
+  // This is the same structure as
   // alice.dsig.SHA256.multipart.env.dsig.eml
   // One of these tests (and files) could get removed.
   // The outer signature layer should be ignored, per bug 1806161.
