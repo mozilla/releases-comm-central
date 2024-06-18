@@ -465,16 +465,13 @@ function InitViewSortByMenu() {
     return;
   }
 
-  const { gViewWrapper, threadPane } = tab.chromeBrowser.contentWindow;
+  const { gViewWrapper } = tab.chromeBrowser.contentWindow;
   if (!gViewWrapper?.dbView) {
     return;
   }
 
   const { primarySortType, primarySortOrder, showGroupedBySort, showThreaded } =
     gViewWrapper;
-  const hiddenColumns = threadPane.columns
-    .filter(c => c.hidden)
-    .map(c => c.sortKey);
 
   const isSortTypeValidForGrouping = [
     Ci.nsMsgViewSortType.byAccount,
@@ -499,11 +496,6 @@ function InitViewSortByMenu() {
       "checked",
       primarySortType == Ci.nsMsgViewSortType[sortKey]
     );
-    if (hiddenColumns.includes(sortKey)) {
-      menuItem.setAttribute("disabled", "true");
-    } else {
-      menuItem.removeAttribute("disabled");
-    }
   };
 
   setSortItemAttrs("sortByDateMenuitem", "byDate");

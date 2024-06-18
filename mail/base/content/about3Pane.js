@@ -3984,10 +3984,6 @@ var threadPaneHeader = {
       return;
     }
 
-    const hiddenColumns = threadPane.columns
-      .filter(c => c.hidden)
-      .map(c => c.id);
-
     // Update menuitem to reflect sort key.
     for (const menuitem of event.target.querySelectorAll(`[name="sortby"]`)) {
       const sortKey = menuitem.getAttribute("value");
@@ -3995,11 +3991,6 @@ var threadPaneHeader = {
         "checked",
         gViewWrapper.primarySortColumnId == sortKey
       );
-      if (hiddenColumns.includes(sortKey)) {
-        menuitem.setAttribute("disabled", "true");
-      } else {
-        menuitem.removeAttribute("disabled");
-      }
     }
 
     // Update sort direction menu items.

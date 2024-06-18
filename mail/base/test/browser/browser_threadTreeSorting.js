@@ -293,25 +293,6 @@ async function subtestMenu(menuButton, menuPopup, sortMenu, sortMenuPopup) {
 
   await doMenu("threaded", "threaded");
   await checkSort("date", "ascending", "threaded");
-
-  for (const menuitem of sortMenuPopup.querySelectorAll(
-    `menuitem[name="sortby"]`
-  )) {
-    Assert.equal(
-      menuitem.disabled,
-      [
-        "receivedCol",
-        "idCol",
-        "priorityCol",
-        "senderCol",
-        "recipientCol",
-        "sizeCol",
-        "statusCol",
-        "tagsCol",
-      ].includes(menuitem.value),
-      `${menuitem.value} is hidden`
-    );
-  }
 }
 
 /**
