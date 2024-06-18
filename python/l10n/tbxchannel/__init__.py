@@ -36,6 +36,7 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
                     "comm": "comm-central",
                     "comm-beta": "releases/comm-beta",
                     "comm-release": "releases/comm-release",
+                    "comm-esr128": "releases/comm-esr128",
                     "comm-esr115": "releases/comm-esr115",
                 },
                 "config_files": [
