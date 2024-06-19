@@ -174,22 +174,6 @@ tb.mails:
     record_in_processes:
       - 'main'
 
-tb.preferences:
-  boolean:
-    bug_numbers:
-      - 1757993
-    description: Values of boolean preferences.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: boolean
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   integer:
     bug_numbers:
       - 1800775

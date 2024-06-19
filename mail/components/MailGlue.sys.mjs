@@ -1354,12 +1354,7 @@ function reportPreferences() {
   // Fetch and report preference values
   for (const prefName of booleanPrefs) {
     const prefValue = Services.prefs.getBoolPref(prefName, false);
-
-    Services.telemetry.keyedScalarSet(
-      "tb.preferences.boolean",
-      prefName,
-      prefValue
-    );
+    Glean.tb.preferencesBoolean[prefName].set(prefValue);
   }
 
   for (const prefName of integerPrefs) {

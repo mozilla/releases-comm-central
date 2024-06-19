@@ -302,3 +302,17 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  preferences_boolean:
+    type: labeled_boolean
+    description: Values of boolean preferences.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993#c6
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
