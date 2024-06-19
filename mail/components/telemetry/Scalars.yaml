@@ -52,21 +52,6 @@ tb.test:
       - 'main'
 
 tb.account:
-  count:
-    bug_numbers:
-      - 1615981
-    description: Count of how many accounts were set up, keyed by account type.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   successful_email_account_setup:
     bug_numbers:
       - 1615987

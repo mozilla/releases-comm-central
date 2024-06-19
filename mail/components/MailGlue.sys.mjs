@@ -1040,7 +1040,7 @@ function reportAccountTypes() {
   }
 
   for (const [type, count] of Object.entries(report)) {
-    Services.telemetry.keyedScalarSet("tb.account.count", type, count);
+    Glean.tb.accountCount[type].set(count);
   }
 
   for (const [provider, count] of Object.entries(providerReport)) {

@@ -11,6 +11,21 @@ $tags:
   - 'Thunderbird :: General'
 
 tb:
+  account_count:
+    type: labeled_string
+    description:
+      Count of how many accounts were set up, keyed by account type.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615981
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
   compose_format:
     type: labeled_counter
     description:
@@ -21,7 +36,7 @@ tb:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1584889
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1584889
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
     data_sensitivity:
       - technical
     notification_emails:

@@ -82,29 +82,16 @@ add_task(async function test_account_types() {
   });
 
   MailTelemetryForTests.reportAccountTypes();
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count account types correctly.
-  Assert.equal(
-    scalars["tb.account.count"].imap,
-    NUM_IMAP,
-    "IMAP account number must be correct"
-  );
-  Assert.equal(
-    scalars["tb.account.count"].rss,
-    NUM_RSS,
-    "RSS account number must be correct"
-  );
-  Assert.equal(
-    scalars["tb.account.count"].im_irc,
-    NUM_IRC,
-    "IRC account number must be correct"
-  );
-  Assert.equal(
-    scalars["tb.account.count"].none,
-    undefined,
-    "Should not report Local Folders account"
-  );
+  const imapValue = Glean.tb.accountCount.imap.testGetValue();
+  Assert.equal(imapValue, NUM_IMAP, "IMAP account number must be correct");
+  const rssValue = Glean.tb.accountCount.rss.testGetValue();
+  Assert.equal(rssValue, NUM_RSS, "RSS account number must be correct");
+  const ircValue = Glean.tb.accountCount.im_irc.testGetValue();
+  Assert.equal(ircValue, NUM_IRC, "IRC account number must be correct");
+  const noneValue = Glean.tb.accountCount.none.testGetValue();
+  Assert.equal(noneValue, undefined, "Should not report Local Folders account");
 });
 
 /**
