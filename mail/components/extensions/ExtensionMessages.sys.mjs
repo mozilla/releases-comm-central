@@ -1678,12 +1678,13 @@ export class MessageQuery {
     const allAccounts = MailServices.accounts.accounts.map(account => ({
       key: account.key,
       rootFolder: account.incomingServer.rootFolder,
+      incomingServer: account.incomingServer,
     }));
 
-    // The queryFolder property is only supported in MV2 and specifies a single
-    // MailFolder. The queryFolderId property specifies one or more MailFolderIds.
-    // When one or more accounts and one or more folders are specified, the accounts
-    // are used as a filter on the specified folders.
+    // The queryInfo.folder property is only supported in MV2 and specifies a
+    // single MailFolder. The queryInfo.folderId property specifies one or more
+    // MailFolderIds. When one or more accounts and one or more folders are
+    // specified, the accounts are used as a filter on the specified folders.
     let queryFolders = null;
     if (this.queryInfo.folder) {
       queryFolders = [getFolder(this.queryInfo.folder)];
@@ -1704,6 +1705,27 @@ export class MessageQuery {
       queryAccounts = accountKeys.map(accountKey =>
         allAccounts.find(account => accountKey == account.key)
       );
+    }
+
+    if (this.queryInfo.online) {
+      if (!this.queryInfo.headerMessageId) {
+        throw new ExtensionError(
+          `Property headerMessageId is required for online queries.`
+        );
+      }
+      const nntpAccounts = (queryAccounts ?? allAccounts).filter(
+        account => account.incomingServer.type == "nntp"
+      );
+      for (const account of nntpAccounts) {
+        const msgHdr = await retrieveMessageFromServer(
+          this.queryInfo.headerMessageId,
+          account.incomingServer
+        );
+        if (msgHdr) {
+          return this.messageListTracker.startList([msgHdr], this.extension);
+        }
+      }
+      return this.messageListTracker.startList([], this.extension);
     }
 
     if (queryFolders) {
@@ -2157,4 +2179,42 @@ function isAddressMatch(searchTerm, addressObjects) {
   }
 
   return success;
+}
+
+async function retrieveMessageFromServer(mid, server) {
+  const url = new URL(`news://${server.hostName}:${server.port}/${mid}`);
+
+  const tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  tempFile.append("nntp-downloaded-message.eml");
+  tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+  const extAppLauncher = Cc[
+    "@mozilla.org/uriloader/external-helper-app-service;1"
+  ].getService(Ci.nsPIExternalAppLauncher);
+  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+  const messageService = Cc[
+    "@mozilla.org/messenger/messageservice;1?type=news"
+  ].getService(Ci.nsIMsgMessageService);
+  const savedPromise = new Promise(resolve => {
+    messageService.saveMessageToDisk(
+      url.href,
+      tempFile,
+      false,
+      {
+        async OnStopRunningUrl(url, status) {
+          resolve(status);
+        },
+      },
+      true,
+      null
+    );
+  });
+  const status = await savedPromise;
+  if (!Components.isSuccessCode(status) || tempFile.fileSize <= 0) {
+    console.warn(`Could not open ${url.href}`);
+    return null;
+  }
+
+  const uri = Services.io.newFileURI(tempFile).spec;
+  return MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
 }

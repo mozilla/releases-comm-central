@@ -823,6 +823,11 @@
                 "optional": true,
                 "description": "Search the specified folder recursively."
               },
+              "online": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Query the server directly instead of the local message database. Online queries currently only support querying the `headerMessageId` property. Currently only supported for NNTP accounts."
+              },
               "recipients": {
                 "type": "string",
                 "optional": true,
