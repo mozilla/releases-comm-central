@@ -316,3 +316,17 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  preferences_integer:
+    type: labeled_string
+    description: Values of integer preferences.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775#c3
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

@@ -173,18 +173,3 @@ tb.mails:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
       - 'main'
-
-  integer:
-    bug_numbers:
-      - 1800775
-    description: Values of integer preferences.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
