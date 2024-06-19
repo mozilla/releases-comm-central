@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use serde::Deserialize;
+use std::ops::{Deref, DerefMut};
+
+use serde::{Deserialize, Deserializer};
+use time::format_description::well_known::Iso8601;
 use xml_struct::XmlSerialize;
 
 pub(crate) const MESSAGES_NS_URI: &str =
@@ -246,7 +249,7 @@ pub enum BaseFolderId {
 /// The unique identifier of a folder.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/folderid>
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, XmlSerialize)]
 pub struct FolderId {
     #[serde(rename = "@Id")]
     pub id: String,
@@ -277,7 +280,7 @@ pub enum BaseItemId {
 /// The unique identifier of an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/itemid>
-#[derive(Debug, Deserialize, XmlSerialize)]
+#[derive(Clone, Debug, Deserialize, XmlSerialize, PartialEq)]
 pub struct ItemId {
     #[xml_struct(attribute)]
     #[serde(rename = "@Id")]
@@ -358,6 +361,13 @@ pub enum Folder {
     },
 }
 
+/// An array of items.
+#[derive(Debug, Deserialize)]
+pub struct Items {
+    #[serde(rename = "$value", default)]
+    pub inner: Vec<RealItem>,
+}
+
 /// An item which may appear as the result of a request to read or modify an
 /// Exchange item.
 ///
@@ -371,6 +381,7 @@ pub enum RealItem {
 ///
 /// See [`Attachment::ItemAttachment`] for details.
 // N.B.: Commented-out variants are not yet implemented.
+#[non_exhaustive]
 #[derive(Debug, Deserialize)]
 pub enum AttachmentItem {
     // Item(Item),
@@ -390,6 +401,25 @@ pub enum AttachmentItem {
 #[derive(Debug, Deserialize)]
 pub struct DateTime(#[serde(with = "time::serde::iso8601")] pub time::OffsetDateTime);
 
+impl XmlSerialize for DateTime {
+    /// Serializes a `DateTime` as an XML text content node by formatting the
+    /// inner [`time::OffsetDateTime`] as an ISO 8601-compliant string.
+    fn serialize_child_nodes<W>(
+        &self,
+        writer: &mut quick_xml::Writer<W>,
+    ) -> Result<(), xml_struct::Error>
+    where
+        W: std::io::Write,
+    {
+        let time = self
+            .0
+            .format(&Iso8601::DEFAULT)
+            .map_err(|err| xml_struct::Error::Value(err.into()))?;
+
+        time.serialize_child_nodes(writer)
+    }
+}
+
 /// An email message.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/message-ex15websvcsotherref>
@@ -398,7 +428,6 @@ pub struct DateTime(#[serde(with = "time::serde::iso8601")] pub time::OffsetDate
 pub struct Message {
     /// The MIME content of the item.
     pub mime_content: Option<MimeContent>,
-
     /// The item's Exchange identifier.
     pub item_id: ItemId,
 
@@ -416,7 +445,6 @@ pub struct Message {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/subject>
     pub subject: Option<String>,
-
     pub sensitivity: Option<Sensitivity>,
     pub body: Option<Body>,
     pub attachments: Option<Attachments>,
@@ -427,7 +455,6 @@ pub struct Message {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/categories-ex15websvcsotherref>
     pub categories: Option<Vec<StringElement>>,
-
     pub importance: Option<Importance>,
     pub in_reply_to: Option<String>,
     pub is_submitted: Option<bool>,
@@ -445,7 +472,7 @@ pub struct Message {
     pub display_to: Option<String>,
     pub has_attachments: Option<bool>,
     pub culture: Option<String>,
-    pub sender: Option<SingleRecipient>,
+    pub sender: Option<Recipient>,
     pub to_recipients: Option<ArrayOfRecipients>,
     pub cc_recipients: Option<ArrayOfRecipients>,
     pub bcc_recipients: Option<ArrayOfRecipients>,
@@ -453,13 +480,13 @@ pub struct Message {
     pub is_delivery_receipt_requested: Option<bool>,
     pub conversation_index: Option<String>,
     pub conversation_topic: Option<String>,
-    pub from: Option<SingleRecipient>,
+    pub from: Option<Recipient>,
     pub internet_message_id: Option<String>,
     pub is_read: Option<bool>,
     pub is_response_requested: Option<bool>,
-    pub reply_to: Option<SingleRecipient>,
-    pub received_by: Option<SingleRecipient>,
-    pub received_representing: Option<SingleRecipient>,
+    pub reply_to: Option<Recipient>,
+    pub received_by: Option<Recipient>,
+    pub received_representing: Option<Recipient>,
     pub last_modified_name: Option<String>,
     pub last_modified_time: Option<DateTime>,
     pub is_associated: Option<bool>,
@@ -469,28 +496,72 @@ pub struct Message {
 /// A list of attachments.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/attachments-ex15websvcsotherref>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 pub struct Attachments {
     #[serde(rename = "$value")]
+    #[xml_struct(flatten)]
     pub inner: Vec<Attachment>,
 }
 
+/// A newtype around a vector of `Recipient`s, that is deserialized using
+/// `deserialize_recipients`.
+#[derive(Debug, Default, Deserialize, XmlSerialize)]
+pub struct ArrayOfRecipients(
+    #[serde(deserialize_with = "deserialize_recipients")] pub Vec<Recipient>,
+);
+
+impl Deref for ArrayOfRecipients {
+    type Target = Vec<Recipient>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for ArrayOfRecipients {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 /// A single mailbox.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
-pub struct SingleRecipient {
+pub struct Recipient {
+    #[xml_struct(ns_prefix = "t")]
     pub mailbox: Mailbox,
 }
 
-/// A list of mailboxes.
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct ArrayOfRecipients {
-    pub mailbox: Vec<Mailbox>,
+/// Deserializes a list of recipients.
+///
+/// `quick-xml`'s `serde` implementation requires the presence of an
+/// intermediate type when dealing with lists, and this is not compatible with
+/// our model for serialization.
+///
+/// We could directly deserialize into a `Vec<Mailbox>`, which would also
+/// simplify this function a bit, but this would mean using different models
+/// to represent single vs. multiple recipient(s).
+fn deserialize_recipients<'de, D>(deserializer: D) -> Result<Vec<Recipient>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Debug, Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    struct MailboxSequence {
+        mailbox: Vec<Mailbox>,
+    }
+
+    let seq = MailboxSequence::deserialize(deserializer)?;
+
+    Ok(seq
+        .mailbox
+        .into_iter()
+        .map(|mailbox| Recipient { mailbox })
+        .collect())
 }
 
 /// A list of Internet Message Format headers.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InternetMessageHeaders {
     pub internet_message_header: Vec<InternetMessageHeader>,
@@ -499,13 +570,15 @@ pub struct InternetMessageHeaders {
 /// A reference to a user or address which can send or receive mail.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/mailbox>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, XmlSerialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 pub struct Mailbox {
     /// The name of this mailbox's user.
+    #[xml_struct(ns_prefix = "t")]
     pub name: Option<String>,
 
     /// The email address for this mailbox.
+    #[xml_struct(ns_prefix = "t")]
     pub email_address: String,
 
     /// The protocol used in routing to this mailbox.
@@ -526,7 +599,8 @@ pub struct Mailbox {
 /// A protocol used in routing mail.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/routingtype-emailaddress>
-#[derive(Clone, Copy, Debug, Default, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, XmlSerialize, PartialEq)]
+#[xml_struct(text)]
 pub enum RoutingType {
     #[default]
     SMTP,
@@ -536,7 +610,8 @@ pub enum RoutingType {
 /// The type of sender or recipient a mailbox represents.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/mailboxtype>
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize, PartialEq)]
+#[xml_struct(text)]
 pub enum MailboxType {
     Mailbox,
     PublicDL,
@@ -551,7 +626,8 @@ pub enum MailboxType {
 /// The priority level of an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/importance>
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(text)]
 pub enum Importance {
     Low,
     Normal,
@@ -561,7 +637,7 @@ pub enum Importance {
 /// A string value.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/string>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StringElement {
     /// The string content.
@@ -571,7 +647,8 @@ pub struct StringElement {
 /// The sensitivity of the contents of an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/sensitivity>
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(text)]
 pub enum Sensitivity {
     Normal,
     Personal,
@@ -582,27 +659,31 @@ pub enum Sensitivity {
 /// The body of an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/body>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 pub struct Body {
     /// The content type of the body.
     #[serde(rename = "@BodyType")]
+    #[xml_struct(attribute)]
     pub body_type: BodyType,
 
     /// Whether the body has been truncated.
     #[serde(rename = "@IsTruncated")]
+    #[xml_struct(attribute)]
     pub is_truncated: Option<bool>,
 
     /// The content of the body.
     // TODO: It's not immediately obvious why this tag may be empty, but it has
     // been encountered in real world responses. Needs a closer look.
     #[serde(rename = "$text")]
+    #[xml_struct(flatten)]
     pub content: Option<String>,
 }
 
 /// The content type of an item's body.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/body>
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, XmlSerialize)]
+#[xml_struct(text)]
 pub enum BodyType {
     HTML,
     Text,
@@ -611,7 +692,7 @@ pub enum BodyType {
 /// An attachment to an Exchange item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/attachments-ex15websvcsotherref>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 pub enum Attachment {
     /// An attachment containing an Exchange item.
     ///
@@ -727,18 +808,21 @@ pub enum Attachment {
 /// An identifier for an attachment.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/attachmentid>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 pub struct AttachmentId {
     /// A unique identifier for the attachment.
     #[serde(rename = "@Id")]
+    #[xml_struct(attribute)]
     pub id: String,
 
     /// The unique identifier of the item to which it is attached.
     #[serde(rename = "@RootItemId")]
+    #[xml_struct(attribute)]
     pub root_item_id: Option<String>,
 
     /// The change key of the item to which it is attached.
     #[serde(rename = "@RootItemChangeKey")]
+    #[xml_struct(attribute)]
     pub root_item_change_key: Option<String>,
 }
 
@@ -746,32 +830,36 @@ pub struct AttachmentId {
 /// Mail Extensions).
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/mimecontent>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 pub struct MimeContent {
     /// The character set of the MIME content if it contains [RFC 2045]-encoded
     /// text.
     ///
     /// [RFC 2045]: https://datatracker.ietf.org/doc/html/rfc2045
     #[serde(rename = "@CharacterSet")]
+    #[xml_struct(attribute)]
     pub character_set: Option<String>,
 
     /// The item content.
     #[serde(rename = "$text")]
+    #[xml_struct(flatten)]
     pub content: String,
 }
 
 /// The headers of an Exchange item's MIME content.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/internetmessageheader>
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, XmlSerialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct InternetMessageHeader {
     /// The name of the header.
     #[serde(rename = "@HeaderName")]
+    #[xml_struct(attribute)]
     pub header_name: String,
 
     /// The value of the header.
     #[serde(rename = "$text")]
+    #[xml_struct(flatten)]
     pub value: String,
 }
 
@@ -792,4 +880,106 @@ pub struct MessageXml {
     /// The duration in milliseconds to wait before making additional requests
     /// if the server is throttling operations.
     pub back_off_milliseconds: Option<usize>,
+}
+
+#[cfg(test)]
+mod tests {
+    use quick_xml::Writer;
+
+    use super::*;
+    use crate::Error;
+
+    /// Tests that an [`ArrayOfRecipients`] correctly serializes into XML. It
+    /// should serialize as multiple `<t:Mailbox>` elements, one per [`Recipient`].
+    #[test]
+    fn serialize_array_of_recipients() -> Result<(), Error> {
+        // Define the recipients to serialize.
+        let alice = Recipient {
+            mailbox: Mailbox {
+                name: Some("Alice Test".into()),
+                email_address: "alice@test.com".into(),
+                routing_type: None,
+                mailbox_type: None,
+                item_id: None,
+            },
+        };
+
+        let bob = Recipient {
+            mailbox: Mailbox {
+                name: Some("Bob Test".into()),
+                email_address: "bob@test.com".into(),
+                routing_type: None,
+                mailbox_type: None,
+                item_id: None,
+            },
+        };
+
+        let recipients = ArrayOfRecipients(vec![alice, bob]);
+
+        // Serialize into XML.
+        let mut writer = {
+            let inner: Vec<u8> = Default::default();
+            Writer::new(inner)
+        };
+        recipients.serialize_as_element(&mut writer, "Recipients")?;
+
+        // Read the contents of the `Writer`'s buffer.
+        let buf = writer.into_inner();
+        let actual = std::str::from_utf8(buf.as_slice())
+            .map_err(|e| Error::UnexpectedResponse(e.to_string().into_bytes()))?;
+
+        // Ensure the structure of the XML document is correct.
+        let expected = "<Recipients><t:Mailbox><t:Name>Alice Test</t:Name><t:EmailAddress>alice@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Bob Test</t:Name><t:EmailAddress>bob@test.com</t:EmailAddress></t:Mailbox></Recipients>";
+        assert_eq!(expected, actual);
+
+        Ok(())
+    }
+
+    /// Tests that deserializing a sequence of `<t:Mailbox>` XML elements
+    /// results in an [`ArrayOfRecipients`] with one [`Recipient`] per
+    /// `<t:Mailbox>` element.
+    #[test]
+    fn deserialize_array_of_recipients() -> Result<(), Error> {
+        // The raw XML to deserialize.
+        let xml = "<Recipients><t:Mailbox><t:Name>Alice Test</t:Name><t:EmailAddress>alice@test.com</t:EmailAddress></t:Mailbox><t:Mailbox><t:Name>Bob Test</t:Name><t:EmailAddress>bob@test.com</t:EmailAddress></t:Mailbox></Recipients>";
+
+        // Deserialize the raw XML, with `serde_path_to_error` to help
+        // troubleshoot any issue.
+        let mut de = quick_xml::de::Deserializer::from_reader(xml.as_bytes());
+        let recipients: ArrayOfRecipients = serde_path_to_error::deserialize(&mut de)?;
+
+        // Ensure we have the right number of recipients in the resulting
+        // `ArrayOfRecipients`.
+        assert_eq!(recipients.0.len(), 2);
+
+        // Ensure the first recipient correctly has a name and address.
+        assert_eq!(
+            recipients.get(0).expect("no recipient at index 0"),
+            &Recipient {
+                mailbox: Mailbox {
+                    name: Some("Alice Test".into()),
+                    email_address: "alice@test.com".into(),
+                    routing_type: None,
+                    mailbox_type: None,
+                    item_id: None,
+                },
+            }
+        );
+
+        // Ensure the second recipient correctly has a name and address.
+        assert_eq!(
+            recipients.get(1).expect("no recipient at index 1"),
+            &Recipient {
+                mailbox: Mailbox {
+                    name: Some("Bob Test".into()),
+                    email_address: "bob@test.com".into(),
+                    routing_type: None,
+                    mailbox_type: None,
+                    item_id: None,
+                },
+            }
+        );
+
+        Ok(())
+    }
 }

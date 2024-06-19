@@ -6,8 +6,8 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, BaseItemId, ItemShape, Operation, OperationResponse,
-    RealItem, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    types::sealed::EnvelopeBodyContents, BaseItemId, ItemShape, Items, Operation,
+    OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
 /// A request for the properties of one or more Exchange items, e.g. messages,
@@ -75,10 +75,4 @@ pub struct GetItemResponseMessage {
     pub message_text: Option<String>,
 
     pub items: Items,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Items {
-    #[serde(rename = "$value")]
-    pub inner: Vec<RealItem>,
 }
