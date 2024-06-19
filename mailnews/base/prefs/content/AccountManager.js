@@ -1962,6 +1962,7 @@ var gAccountTree = {
           treekids.appendChild(kidtreeitem);
           const kidtreerow = document.createElement("div");
           kidtreeitem.appendChild(kidtreerow);
+          kidtreerow.classList.add("container");
           const kidtreecell = document.createElement("span");
           kidtreecell.classList.add("name");
           kidtreecell.tabIndex = -1;

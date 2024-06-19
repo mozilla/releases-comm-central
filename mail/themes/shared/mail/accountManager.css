@@ -13,10 +13,9 @@
 :root {
   --default-account-icon-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
   --default-account-icon-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
-}
+  --sidebar-background: var(--in-content-categories-background);
 
-@media (prefers-contrast) {
-  :root {
+  @media (prefers-contrast) {
     --in-content-accent-color: var(--selected-item-color);
     --default-account-icon-fill: currentColor;
     --default-account-icon-stroke: currentColor;
@@ -41,13 +40,8 @@ body {
   height: 100vh;
   box-sizing: border-box;
   padding-top: 40px;
-  background-color: var(--in-content-categories-background);
+  background-color: var(--sidebar-background);
   border-inline-end: 1px solid var(--in-content-categories-border);
-}
-
-#accountTreeBox:-moz-locale-dir(rtl) {
-  background-image: linear-gradient(to right, transparent, transparent 3px,
-                    var(--in-content-categories-background) 3px);
 }
 
 /* Account list */
@@ -55,168 +49,124 @@ body {
 #accounttree {
   flex-grow: 1;
   overflow-y: auto;
-}
 
-#accounttree:focus-visible {
-  outline: none;
-}
-
-#accounttree, #accounttree ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-#accounttree li {
-  transition: opacity 250ms;
-}
-
-#accounttree li > div {
-  display: flex;
-  align-items: center;
-  -moz-context-properties: fill;
-  margin-inline: 6px;
-  border-radius: var(--in-content-button-border-radius);
-  fill: currentColor;
-  cursor: default;
-}
-
-#accounttree li.selected > div {
-  background-color: var(--in-content-button-background);
-}
-
-#accounttree li > div:hover {
-  background-color: var(--in-content-item-hover);
-  color: var(--in-content-item-hover-text);
-}
-
-#accounttree:focus li.selected > div {
-  background-color: var(--in-content-item-selected);
-  color: var(--in-content-item-selected-text);
-}
-
-#accounttree li .twisty {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--list-item-buttons-size);
-  height: var(--list-item-buttons-size);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
-
-#accounttree li:not(.children) .twisty-icon {
-  display: none;
-}
-
-#accounttree li.children.collapsed .twisty-icon {
-  transform: rotate(-90deg);
-}
-
-#accounttree li.children.collapsed:dir(rtl) .twisty-icon {
-  transform: rotate(90deg);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  li .twisty-icon {
-    transition: transform 200ms ease;
-  }
-}
-
-#accounttree li div.icon {
-  width: 16px;
-  height: 16px;
-  background-image: var(--icon-mail);
-  background-position: center center;
-  background-repeat: no-repeat;
-  -moz-context-properties: fill, stroke;
-  --icon-color: currentColor;
-  fill: color-mix(in srgb, var(--icon-color) 20%, transparent);
-  stroke: var(--icon-color);
-}
-
-#accounttree li.serverType-imap.isSecure div.icon,
-#accounttree li.serverType-pop3.isSecure div.icon {
-  background-image: var(--icon-mail-secure);
-}
-
-#accounttree li.serverType-feeds div.icon,
-#accounttree li.serverType-rss div.icon {
-  background-image: var(--icon-rss);
-}
-
-#accounttree li.serverType-im div.icon {
-  background-image: var(--spaces-icon-chat);
-}
-
-#accounttree li.serverType-news div.icon {
-  background-image: var(--icon-newsletter);
-}
-
-#accounttree li.serverType-nntp div.icon {
-  background-image: var(--icon-globe);
-}
-
-#accounttree li.serverType-nntp.isSecure div.icon {
-  background-image: var(--icon-globe-secure);
-}
-
-#accounttree li.serverType-none div.icon {
-  background-image: var(--icon-folder);
-}
-
-#accounttree li.serverType-smtp div.icon {
-  background-image: var(--icon-outbox);
-}
-
-#accounttree li {
-  & .name {
-    flex: 1;
-    margin-inline: 7px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow-x: hidden;
+  &:focus-visible {
+    outline: none;
   }
 
-  & .default-icon {
-    margin-inline-end: 5px;
-    content: var(--icon-star-sm);
-    -moz-context-properties: fill, stroke;
-    fill: var(--default-account-icon-fill);
-    stroke: var(--default-account-icon-stroke);
+  &,
+  & ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-}
 
-#accounttree > li > div > .name {
-  font-weight: 500;
-}
+  & > li > div > .name {
+    font-weight: 500;
+  }
 
-#accounttree > li:not(.isDefaultServer) > div > .default-icon {
-  display: none;
-}
+  & li {
 
-#accounttree ul > li > div {
-  padding-inline-start: 42px;
-}
+    &.dragging {
+      opacity: 0.75;
+    }
 
-#accounttree ul {
-  overflow: hidden;
-  height: auto;
-}
+    & .icon {
+      width: 16px;
+      height: 16px;
+      background-image: var(--icon-mail);
+      background-position: center center;
+      background-repeat: no-repeat;
+      -moz-context-properties: fill, stroke;
+      --icon-color: currentColor;
+      fill: color-mix(in srgb, var(--icon-color) 20%, transparent);
+      stroke: var(--icon-color);
+    }
 
-#accounttree li ul:empty,
-#accounttree li.collapsed ul {
-  height: 0;
-}
+    &.serverType-imap.isSecure .icon,
+    &.serverType-pop3.isSecure .icon {
+      background-image: var(--icon-mail-secure);
+    }
 
-#accounttree li.dragging {
-  opacity: 0.75;
+    &.serverType-feeds .icon,
+    &.serverType-rss .icon {
+      background-image: var(--icon-rss);
+    }
+
+    &.serverType-im .icon {
+      background-image: var(--spaces-icon-chat);
+    }
+
+    &.serverType-news .icon {
+      background-image: var(--icon-newsletter);
+    }
+
+    &.serverType-nntp .icon {
+      background-image: var(--icon-globe);
+    }
+
+    &.serverType-nntp.isSecure .icon {
+      background-image: var(--icon-globe-secure);
+    }
+
+    &.serverType-none .icon {
+      background-image: var(--icon-folder);
+    }
+
+    &.serverType-smtp .icon {
+      background-image: var(--icon-outbox);
+    }
+
+    & .name {
+      flex: 1;
+      margin-inline: 7px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow-x: hidden;
+    }
+
+    & .default-icon {
+      margin-inline-end: 5px;
+      content: var(--icon-star-sm);
+      -moz-context-properties: fill, stroke;
+      fill: var(--default-account-icon-fill);
+      stroke: var(--default-account-icon-stroke);
+    }
+
+    & ul:empty,
+    &.collapsed ul {
+      height: 0;
+    }
+  }
+
+  & > li:not(.isDefaultServer) > div > .default-icon {
+    display: none;
+  }
+
+  & ul {
+    overflow: hidden;
+    height: auto;
+
+    & > li > div {
+      padding-inline-start: 42px;
+    }
+  }
 }
 
 /* Styles for the Account Actions button */
 
 #accountActionsButton {
   margin: 6px;
+
+  & > .button-box > .button-menu-dropmarker {
+    appearance: none;
+    display: flex;
+    content: url("chrome://global/skin/icons/arrow-down-12.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
+    width: 12px;
+    height: 12px;
+  }
 }
 
 #accountActionsDropdown {
@@ -227,44 +177,34 @@ body {
   --panel-background: var(--in-content-box-background);
   --panel-color: var(--in-content-text-color);
   --panel-padding: 3px 0;
-}
 
-#accountActionsDropdown > menuitem {
-  appearance: none;
-  color: var(--in-content-text-color);
-  padding-block: 0.2em;
-  padding-inline: 10px 30px;
-}
+  & > menuitem {
+    appearance: none;
+    color: var(--in-content-text-color);
+    padding-block: 0.2em;
+    padding-inline: 10px 30px;
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
-  color: var(--in-content-item-hover-text);
-  background-color: var(--in-content-item-hover);
-}
+    &:not([disabled="true"])[_moz-menuactive="true"] {
+      color: var(--in-content-item-hover-text);
+      background-color: var(--in-content-item-hover);
+    }
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"] {
-  color: var(--in-content-item-selected-text);
-  background-color: var(--in-content-item-selected);
-}
+    &:not([disabled="true"])[selected="true"] {
+      color: var(--in-content-item-selected-text);
+      background-color: var(--in-content-item-selected);
+    }
 
-#accountActionsDropdown > menuitem[disabled="true"] {
-  color: #999;
-  /* override the [_moz-menuactive="true"] background color from
-     global/menu.css */
-  background-color: transparent;
-}
+    &[disabled="true"] {
+      color: #999;
+      /* override the [_moz-menuactive="true"] background color from
+         global/menu.css */
+      background-color: transparent;
+    }
+  }
 
-#accountActionsDropdown > menuseparator {
-  padding-inline: 8px;
-}
-
-#accountActionsButton > .button-box > .button-menu-dropmarker {
-  appearance: none;
-  display: flex;
-  content: url("chrome://global/skin/icons/arrow-down-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 12px;
-  height: 12px;
+  & > menuseparator {
+    padding-inline: 8px;
+  }
 }
 
 .sidebar-footer-list {
@@ -291,29 +231,13 @@ body {
 #editVCardDialog {
   /* Two <vcard-edit> columns. */
   width: 64em;
-}
 
-#editVCardDialog form {
-  display: flex;
-  flex-direction: column;
-}
-
-#editVCardDialog #vCardDisplayNameCheckbox {
-  display: none;
-}
-
-@media (max-width: 830px) {
-  .sidebar-footer-list {
-    align-items: unset;
-    margin-inline-start: unset;
+  & form {
+    display: flex;
+    flex-direction: column;
   }
 
-  .sidebar-footer-link {
-    width: unset;
-    height: unset;
-  }
-
-  .sidebar-footer-label {
-    display: inline-block;
+  & #vCardDisplayNameCheckbox {
+    display: none;
   }
 }

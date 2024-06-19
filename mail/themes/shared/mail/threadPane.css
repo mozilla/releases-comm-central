@@ -156,10 +156,6 @@
   margin-inline: auto;
 }
 
-.table-layout {
-  color: var(--tag-color, currentColor);
-}
-
 tr[data-properties~="tagged"] .thread-card-icon-info .thread-card-tags-info {
   display: flex;
   align-items: center;
@@ -382,6 +378,7 @@ tr[data-properties~="unread"].selected .tree-view-row-unread button {
 }
 
 .table-layout {
+  color: var(--tag-color, currentColor);
 
   & td > .thread-container {
     position: absolute;

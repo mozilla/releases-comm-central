@@ -232,11 +232,6 @@
         outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
         outline-offset: -1px;
       }
-
-      &::before {
-        background-color: var(--selection-indicator-background-unselected-focused);
-        border-color: var(--selection-indicator-border-unselected-focused);
-      }
     }
   }
 
@@ -376,6 +371,10 @@
         width: var(--indicator-width);
         box-sizing: border-box;
         transform: translateX(calc(var(--tree-card-inline) * -1));
+      }
+
+      &:dir(rtl)::before {
+        transform: translateX(var(--tree-card-inline));
       }
     }
   }
