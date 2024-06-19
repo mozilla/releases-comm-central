@@ -30,7 +30,7 @@ add_setup(async function () {
   });
   about3Pane.threadTree.selectedIndex = 0;
 
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   registerCleanupFunction(async () => {
     // Prevent the test timing out waiting for focus.
@@ -113,46 +113,47 @@ add_task(async function () {
   await SimpleTest.promiseFocus(window);
 
   // Check all of the things we clicked on have been recorded.
-
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  const calendarScalars = scalars["tb.ui.interaction.calendar"];
-  let composeScalars = scalars["tb.ui.interaction.message_compose"];
-  let displayScalars = scalars["tb.ui.interaction.message_display"];
-  let toolboxScalars = scalars["tb.ui.interaction.toolbox"];
+  let events = await Glean.tb.uiInteraction.testGetValue();
+  let calendarEvents = events.filter(e => e.extra.source == "calendar");
+  let composeEvents = events.filter(e => e.extra.source == "message-compose");
+  let displayEvents = events.filter(e => e.extra.source == "message-display");
+  let toolboxEvents = events.filter(e => e.extra.source == "toolbox");
 
   Assert.equal(
-    toolboxScalars.calendarButton,
+    toolboxEvents.filter(e => e.extra.id == "calendarButton")?.length,
     1,
-    "spaces toolbar calendar button"
+    "should have recorded spaces toolbar calendar button"
   );
   Assert.equal(
-    calendarScalars.newCalendarSidebarButton,
+    calendarEvents.filter(e => e.extra.id == "newCalendarSidebarButton")
+      ?.length,
     1,
-    "new calendar button"
+    "should have recorded newCalendarSidebarButton"
   );
-  Assert.equal(toolboxScalars["tab-close-button"], 1, "tab close button");
+  Assert.equal(
+    toolboxEvents.filter(e => e.extra.id == "tab-close-button")?.length,
+    1,
+    "should have recorded tab-close-button"
+  );
 
   // Check add-on buttons have the identifiers replaced with a generic `addonX`.
-
-  let addonKeys = Object.keys(toolboxScalars).filter(k =>
-    k.startsWith("addon")
-  );
+  let addonKeys = toolboxEvents.filter(k => k.extra.id.startsWith("addon"));
   Assert.equal(addonKeys.length, 1, "first add-on should have been recorded");
-  info(`first addon key is ${addonKeys[0]}`);
+  info(`first addon key is ${addonKeys[0].extra.id}`);
   Assert.equal(
-    toolboxScalars[addonKeys[0]],
+    addonKeys.length,
     1,
-    "first add-on browser action button"
+    "first add-on browser action button should be recoreded"
   );
   Assert.equal(
-    displayScalars[addonKeys[0]],
-    1,
-    "first add-on display action button uses the same add-on key"
+    displayEvents[0].extra.id,
+    addonKeys[0].extra.id,
+    "first add-on display action button should use the same add-on key"
   );
   Assert.equal(
-    composeScalars[addonKeys[0]],
-    1,
-    "first add-on compose action button uses the same add-on key"
+    composeEvents[0].extra.id,
+    addonKeys[0].extra.id,
+    "first add-on compose action button should use the same add-on key"
   );
 
   // Install a second add-on with action buttons.
@@ -178,43 +179,38 @@ add_task(async function () {
   // Check the second add-on has a second generic identifier and that only the
   // action button we clicked on has been recorded for it.
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  composeScalars = scalars["tb.ui.interaction.message_compose"];
-  displayScalars = scalars["tb.ui.interaction.message_display"];
-  toolboxScalars = scalars["tb.ui.interaction.toolbox"];
+  events = await Glean.tb.uiInteraction.testGetValue();
+  calendarEvents = events.filter(e => e.extra.source == "calendar");
+  composeEvents = events.filter(e => e.extra.source == "message-compose");
+  displayEvents = events.filter(e => e.extra.source == "message-display");
+  toolboxEvents = events.filter(e => e.extra.source == "toolbox");
 
-  addonKeys = Object.keys(toolboxScalars).filter(k => k.startsWith("addon"));
+  addonKeys = toolboxEvents.filter(k => k.extra.id.startsWith("addon"));
   Assert.equal(addonKeys.length, 2, "second add-on should have been recorded");
   addonKeys.sort();
-  info(`second addon key is ${addonKeys[1]}`);
-  Assert.equal(
-    toolboxScalars[addonKeys[0]],
-    1,
+  info(`second addon key is ${addonKeys[1].extra.id}`);
+  Assert.ok(
+    toolboxEvents.find(e => e.extra.id == addonKeys[0].extra.id),
     "first add-on browser action button should be unchanged"
   );
-  Assert.equal(
-    displayScalars[addonKeys[0]],
-    1,
+  Assert.ok(
+    displayEvents.find(e => e.extra.id == addonKeys[0].extra.id),
     "first add-on display action button should be unchanged"
   );
-  Assert.equal(
-    composeScalars[addonKeys[0]],
-    1,
+  Assert.ok(
+    composeEvents.find(e => e.extra.id == addonKeys[0].extra.id),
     "first add-on compose action button should be unchanged"
   );
-  Assert.equal(
-    toolboxScalars[addonKeys[1]],
-    1,
-    "second add-on browser action button"
+  Assert.ok(
+    toolboxEvents.find(e => e.extra.id == addonKeys[1].extra.id),
+    "second add-on browser action button should be recorded"
   );
-  Assert.equal(
-    displayScalars[addonKeys[1]],
-    undefined,
+  Assert.ok(
+    !displayEvents.find(e => e.extra.id == addonKeys[1].extra.id),
     "second add-on display action button should have no record"
   );
-  Assert.equal(
-    composeScalars[addonKeys[1]],
-    undefined,
+  Assert.ok(
+    !composeEvents.find(e => e.extra.id == addonKeys[1].extra.id),
     "second add-on compose action button should have no record"
   );
 
@@ -223,21 +219,25 @@ add_task(async function () {
 
   await clickExtensionButton(window, "ext-interaction1@mochi.test");
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  toolboxScalars = scalars["tb.ui.interaction.toolbox"];
+  events = await Glean.tb.uiInteraction.testGetValue();
+  calendarEvents = events.filter(e => e.extra.source == "calendar");
+  composeEvents = events.filter(e => e.extra.source == "message-compose");
+  displayEvents = events.filter(e => e.extra.source == "message-display");
+  toolboxEvents = events.filter(e => e.extra.source == "toolbox");
 
-  addonKeys = Object.keys(toolboxScalars).filter(k => k.startsWith("addon"));
-  Assert.equal(addonKeys.length, 2);
+  addonKeys = toolboxEvents.filter(k => k.extra.id.startsWith("addon"));
+  const uniqueAddOns = new Set(addonKeys.map(a => a.extra.id));
+  Assert.equal(uniqueAddOns.size, 2, "should still be two add-ons recorded");
   addonKeys.sort();
   Assert.equal(
-    toolboxScalars[addonKeys[0]],
+    toolboxEvents.filter(e => e.extra.id == addonKeys[0].extra.id)?.length,
     2,
-    "first add-on browser action button"
+    "first add-on browser action button should be recorded twice"
   );
   Assert.equal(
-    toolboxScalars[addonKeys[1]],
+    toolboxEvents.filter(e => e.extra.id == addonKeys[1].extra.id)?.length,
     1,
-    "second add-on browser action button"
+    "second add-on browser action button should be recorded once"
   );
 
   await extension1.unload();

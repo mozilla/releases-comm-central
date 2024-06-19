@@ -125,3 +125,30 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  ui_interaction:
+    type: event
+    description:
+      Records a count of interactions with various UI widgets.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1736739
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1868480
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1736739
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1868480
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      id:
+        description: Telemetry id of the widget interacted with.
+        type: string
+      source:
+        description: >
+          The source of the interaction, e.g. "addressbook", "calendar",
+          "chat", "keyboard", "message_compose", "message_display",
+          "toolbox"
+        type: string

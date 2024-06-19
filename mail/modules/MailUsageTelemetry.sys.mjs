@@ -338,8 +338,8 @@ export const MailUsageTelemetry = {
     const source = this._getWidgetContainer(node);
 
     if (item && source) {
-      const scalar = `tb.ui.interaction.${source.replace("-", "_")}`;
-      Services.telemetry.keyedScalarAdd(scalar, telemetryId(item), 1);
+      const id = telemetryId(item);
+      Glean.tb.uiInteraction.record({ id, source });
     }
   },
 
