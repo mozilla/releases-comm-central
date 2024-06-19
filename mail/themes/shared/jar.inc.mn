@@ -421,7 +421,6 @@
   skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)
   skin/classic/messenger/images/account-watermark.png         (../shared/mail/images/account-watermark.png)
   skin/classic/messenger/images/account-watermark-light.png   (../shared/mail/images/account-watermark-light.png)
-  skin/classic/messenger/images/pendingpaint.png              (../shared/mail/images/pendingpaint.png)
   skin/classic/messenger/openpgp/backupKeyPassword.css        (../shared/openpgp/backupKeyPassword.css)
   skin/classic/messenger/openpgp/changeExpiryDlg.css          (../shared/openpgp/changeExpiryDlg.css)
   skin/classic/messenger/openpgp/confirmPubkeyImport.css      (../shared/openpgp/confirmPubkeyImport.css)
