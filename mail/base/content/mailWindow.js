@@ -346,6 +346,7 @@ nsMsgStatusFeedback.prototype = {
   _statusFeedbackProgress: -1,
   _statusLastShown: 0,
   _lastStatusText: null,
+  _timeoutDelay: ChromeUtils.isInAutomation ? 50 : 500,
 
   // unload - call to remove links to listeners etc.
   unload() {
@@ -509,7 +510,7 @@ nsMsgStatusFeedback.prototype = {
     ) {
       this._startTimeoutID = setTimeout(
         () => window.MsgStatusFeedback._startMeteors(),
-        500
+        this._timeoutDelay
       );
     }
 
@@ -564,7 +565,7 @@ nsMsgStatusFeedback.prototype = {
     ) {
       this._stopTimeoutID = setTimeout(
         () => window.MsgStatusFeedback._stopMeteors(),
-        500
+        this._timeoutDelay
       );
     }
   },

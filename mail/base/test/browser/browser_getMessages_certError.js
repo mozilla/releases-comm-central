@@ -246,18 +246,7 @@ async function subsubtest(
     Assert.ok(!isTemporary.value, "certificate exception should be permanent");
 
     // This should be unnecessary.
-    EventUtils.synthesizeMouseAtCenter(
-      getMessagesButton,
-      { type: "contextmenu" },
-      about3Pane
-    );
-    await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "shown");
-    getMessagesContext.activateItem(
-      getMessagesContext.querySelector(
-        `[data-server-key="${inbox.server.key}"]`
-      )
-    );
-    await BrowserTestUtils.waitForPopupEvent(getMessagesContext, "hidden");
+    await testCallback();
 
     await TestUtils.waitForCondition(
       () => inbox.getNumUnread(false) - inbox.numPendingUnread == 10,

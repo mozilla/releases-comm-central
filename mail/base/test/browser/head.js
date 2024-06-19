@@ -367,21 +367,35 @@ async function promiseServerIdle(server) {
       () => server.allConnectionsIdle,
       "waiting for IMAP connection to become idle"
     );
-    return;
-  }
-  if (server.type == "pop3") {
+  } else if (server.type == "pop3") {
     await TestUtils.waitForCondition(
       () => !server.wrappedJSObject.runningClient,
       "waiting for POP3 connection to become idle"
     );
-    return;
-  }
-  if (server.type == "nntp") {
+  } else if (server.type == "nntp") {
     await TestUtils.waitForCondition(
       () => server.wrappedJSObject._busyConnections.length == 0,
       "waiting for NNTP connection to become idle"
     );
   }
+
+  await TestUtils.waitForCondition(
+    () =>
+      !window.MsgStatusFeedback._startTimeoutID &&
+      !window.MsgStatusFeedback._meteorsSpinning &&
+      !window.MsgStatusFeedback._stopTimeoutID,
+    "waiting for meteors to stop spinning"
+  );
+  Assert.equal(
+    window.MsgStatusFeedback._startRequests,
+    0,
+    "status bar should not have any start requests"
+  );
+  Assert.equal(
+    window.MsgStatusFeedback._activeProcesses.length,
+    0,
+    "status bar should not have any active processes"
+  );
 }
 
 // Report and remove any remaining accounts/servers. If we register a cleanup
