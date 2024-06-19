@@ -6466,13 +6466,13 @@ async function CompleteGenericSendMessage(msgType) {
     const items = [...gAttachmentBucket.itemChildren];
 
     // When any big attachment is not sent via filelink, increment
-    // `tb.filelink.ignored`.
+    // `filelink_ignored`.
     if (
       items.some(
         item => item.attachment.size >= maxSize && !item.attachment.sendViaCloud
       )
     ) {
-      Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
+      Glean.tb.filelinkIgnored.add(1);
     }
   } else if (
     msgType == Ci.nsIMsgCompDeliverMode.Save ||

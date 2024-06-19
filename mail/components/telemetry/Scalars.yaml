@@ -115,20 +115,6 @@ tb.filelink:
     record_in_processes:
       - 'main'
 
-  ignored:
-    bug_numbers:
-      - 1615984
-    description: How many times filelink suggestion are ignored.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
 tb.mails:
   sent:
     bug_numbers:

@@ -152,3 +152,17 @@ tb:
           "chat", "keyboard", "message_compose", "message_display",
           "toolbox"
         type: string
+
+  filelink_ignored:
+    type: counter
+    description: How many times suggestion to use FileLink were ignored.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615984
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

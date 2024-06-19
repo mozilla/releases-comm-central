@@ -86,7 +86,7 @@ add_task(async function test_filelink_uploaded_size() {
  * Check that we're counting filelink suggestion ignored.
  */
 add_task(async function test_filelink_ignored() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const cwc = await open_compose_new_mail(window);
   await setup_msg_contents(
@@ -104,9 +104,8 @@ add_task(async function test_filelink_ignored() {
   // Send Later to avoid uncatchable errors from the SMTP code.
   cwc.goDoCommand("cmd_sendLater");
   await aftersend;
-  const scalars = TelemetryTestUtils.getProcessScalars("parent");
   Assert.equal(
-    scalars["tb.filelink.ignored"],
+    Glean.tb.filelinkIgnored.testGetValue(),
     1,
     "Count of ignored times must be correct."
   );
