@@ -241,11 +241,15 @@ export class OutgoingServerService {
    * @returns {nsIMsgOutgoingServer}
    */
   _keyToServer(key) {
-    // We're intentionally not setting a default value, because if we're not
-    // sure of the type we want to fail early, rather than e.g. halfway through
-    // trying to configure the server with incorrect settings.
+    // Ideally we should be failing early if we can't figure out the type,
+    // because we might be trying to configure the server for the wrong
+    // protocol. However, We might be currently migrating an old profile that
+    // predates this pref being introduced, in which case we'll try to read this
+    // pref before the profile migration code has had a chance to set it. In
+    // which case, it's likely safe to assume the server's type is SMTP.
     const serverType = Services.prefs.getCharPref(
-      `mail.smtpserver.${key}.type`
+      `mail.smtpserver.${key}.type`,
+      "smtp"
     );
 
     const server = Cc[OUTGOING_CONTRACT_ID_PREFIX + serverType].createInstance(

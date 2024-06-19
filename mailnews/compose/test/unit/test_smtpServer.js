@@ -6,6 +6,26 @@
  */
 
 /**
+ * Test that, if the outgoing server service does not have a type for the
+ * server, it defaults to instantiating the SMTP implementation.
+ */
+add_task(async function test_default_server_type() {
+  // Add a new server to the outgoing server service's list. Note that we don't
+  // set any property - including a type - on this new server.
+  Services.prefs.setCharPref("mail.smtpservers", "smtp1");
+
+  // Get the new server from the service (and make sure the operation doesn't
+  // throw, which would happen if we don't have a default value).
+  const server = MailServices.outgoingServer.getServerByKey("smtp1");
+
+  // Check that the service correctly defaulted to the SMTP implementation.
+  Assert.equal(server.type, "smtp");
+
+  // Remove the server from the service to avoid any side-effect.
+  MailServices.outgoingServer.deleteServer(server);
+});
+
+/**
  * Test that cached server password is cleared when password storage changed.
  */
 add_task(async function test_passwordmgr_change() {
