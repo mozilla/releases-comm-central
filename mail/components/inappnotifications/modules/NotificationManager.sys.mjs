@@ -151,8 +151,7 @@ export class NotificationManager extends EventTarget {
         (this.#currentNotification.severity <= firstCandidate.severity &&
           notifications.some(
             notification => notification.id === this.#currentNotification.id
-          ) &&
-          Date.parse(this.#currentNotification.end_at) > Date.now()))
+          )))
     ) {
       return;
     }

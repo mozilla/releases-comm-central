@@ -8,6 +8,7 @@ with Files("**"):
 
 EXTRA_JS_MODULES += [
     "modules/InAppNotifications.sys.mjs",
+    "modules/NotificationFilter.sys.mjs",
     "modules/NotificationManager.sys.mjs",
 ]
 

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 const { InAppNotifications } = ChromeUtils.importESModule(
   "resource:///modules/InAppNotifications.sys.mjs"
 );
@@ -25,6 +27,7 @@ function getMockNotifications() {
       start_at: startDate,
       end_at: endDate,
       severity: 1,
+      targeting: {},
     },
     {
       id: "bar",
@@ -32,6 +35,7 @@ function getMockNotifications() {
       start_at: startDate,
       end_at: endDate,
       severity: 5,
+      targeting: {},
     },
   ];
 }
@@ -42,6 +46,7 @@ add_setup(async () => {
 });
 
 add_task(function test_initializedData() {
+  Assert.ok(InAppNotifications._jsonFile.dataReady, "JSON file is ready");
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     [],
@@ -81,11 +86,35 @@ add_task(function test_updateNotifications() {
     "Last update should be a timestamp in the past"
   );
 
+  InAppNotifications.markAsInteractedWith(mockData[0].id);
+  InAppNotifications._getSeed(mockData[0].id);
+
+  Assert.greater(
+    InAppNotifications._jsonFile.data.interactedWith.length,
+    0,
+    "Has interacted notifications"
+  );
+  Assert.greater(
+    Object.keys(InAppNotifications._jsonFile.data.seeds).length,
+    0,
+    "Has seed for notifications"
+  );
+
   InAppNotifications.updateNotifications([]);
   Assert.deepEqual(
     InAppNotifications.getNotifications(),
     [],
     "Should have cleared notifications"
+  );
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.interactedWith,
+    [],
+    "Should have cleared interacted with notifications"
+  );
+  Assert.deepEqual(
+    InAppNotifications._jsonFile.data.seeds,
+    {},
+    "Should have cleared seeds"
   );
 });
 
@@ -135,24 +164,28 @@ add_task(function test_getNotifications_expiry() {
       title: "lorem ipsum",
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
     },
     {
       id: "future bar",
       title: "dolor sit amet",
       start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
     },
     {
       id: "past bar",
       title: "back home now",
       start_at: new Date(now - 2 * SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
     },
     {
       id: "invalid",
       title: "invalid date strings",
       start_at: "foo",
       end_at: "bar",
+      targeting: {},
     },
   ];
   InAppNotifications.updateNotifications(mockData);
@@ -198,4 +231,71 @@ add_task(async function test_requestNotifictionsEvent() {
   );
   const { detail: notification } = await newNotificationEvent;
   Assert.deepEqual(notification, mockData[0], "Should pick first notification");
+});
+
+add_task(function test_getSeed() {
+  const seedId = "foo";
+  const seed = InAppNotifications._getSeed(seedId);
+  Assert.strictEqual(
+    InAppNotifications._getSeed(seedId),
+    seed,
+    "Seed is constant for a given ID"
+  );
+
+  Assert.notEqual(
+    InAppNotifications._getSeed("bar"),
+    seed,
+    "Different ID gives a different seed"
+  );
+
+  Assert.strictEqual(
+    InAppNotifications._getSeed(seedId),
+    seed,
+    "Seed is still constant for the same ID"
+  );
+
+  Assert.strictEqual(
+    InAppNotifications._jsonFile.data.seeds[seedId],
+    seed,
+    "Seed is stored in JSON storage"
+  );
+
+  Assert.ok(Number.isInteger(seed), "Seed is an integer");
+  Assert.greaterOrEqual(seed, 0, "Seed is at least 0");
+  Assert.lessOrEqual(seed, 100, "Seed is at most 100");
+
+  // Test multiple seeds to sample more random values and find issues faster.
+  for (let i = 0; i < 10; ++i) {
+    const testSeed = InAppNotifications._getSeed(`test${i}`);
+
+    Assert.ok(Number.isInteger(testSeed), `Seed ${i} is an integer`);
+    Assert.greaterOrEqual(testSeed, 0, `Seed ${i} is at least 0`);
+    Assert.lessOrEqual(testSeed, 100, `Seed ${i} is at most 100`);
+  }
+
+  InAppNotifications.updateNotifications([]);
+});
+
+add_task(function test_getNotification_seed() {
+  const mockData = getMockNotifications();
+  mockData[0].targeting.percent_chance = 42;
+  mockData[1].targeting.percent_chance = 42;
+  InAppNotifications.updateNotifications(mockData);
+
+  InAppNotifications._jsonFile.data.seeds[mockData[0].id] = 2;
+  InAppNotifications._jsonFile.data.seeds[mockData[1].id] = 100;
+
+  const seededResult = InAppNotifications.getNotifications();
+  Assert.deepEqual(
+    seededResult,
+    [mockData[0]],
+    "Should only see first notification based on percent chance seeds"
+  );
+  Assert.deepEqual(
+    InAppNotifications.getNotifications(),
+    seededResult,
+    "Resulting notifications are stable"
+  );
+
+  InAppNotifications.updateNotifications([]);
 });

@@ -8,6 +8,7 @@ import { NotificationManager } from "resource:///modules/NotificationManager.sys
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
+  NotificationFilter: "resource:///modules/NotificationFilter.sys.mjs",
 });
 
 const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];
@@ -78,6 +79,11 @@ export const InAppNotifications = {
         stillExistingInteractedWith
       );
     }
+    this._jsonFile.data.seeds = Object.fromEntries(
+      Object.entries(this._jsonFile.data.seeds).filter(([notificationId]) =>
+        notificationIds.has(notificationId)
+      )
+    );
     this.notificationManager.updatedNotifications(notifications);
 
     this._jsonFile.saveSoon();
@@ -87,12 +93,13 @@ export const InAppNotifications = {
    * @returns {object[]} All available notifications.
    */
   getNotifications() {
-    const now = Date.now();
     return this._jsonFile.data.notifications.filter(
       notification =>
         !this._jsonFile.data.interactedWith.includes(notification.id) &&
-        Date.parse(notification.start_at) < now &&
-        Date.parse(notification.end_at) > now
+        lazy.NotificationFilter.isActiveNotification(
+          notification,
+          this._getSeed(notification.id)
+        )
     );
   },
 
@@ -137,6 +144,27 @@ export const InAppNotifications = {
     if (!Array.isArray(data.interactedWith)) {
       data.interactedWith = [];
     }
+    if (typeof data.seeds !== "object") {
+      data.seeds = {};
+    }
     return data;
+  },
+
+  /**
+   *
+   * @param {string} notificationId - ID of the notification to get a seed for.
+   * @returns {number} Value between 0 and 100 to compare against a percent
+   *   chance. The value stays the same if the same notification ID is passed
+   *   in.
+   */
+  _getSeed(notificationId) {
+    if (Object.hasOwn(this._jsonFile.data.seeds, notificationId)) {
+      return this._jsonFile.data.seeds[notificationId];
+    }
+    // Random number between 0 and 100, including 100.
+    const seed = Math.floor(Math.random() * 101);
+    this._jsonFile.data.seeds[notificationId] = seed;
+    this._jsonFile.saveSoon();
+    return seed;
   },
 };

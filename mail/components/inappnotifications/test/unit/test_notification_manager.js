@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+"use strict";
+
 const { NotificationManager } = ChromeUtils.importESModule(
   "resource:///modules/NotificationManager.sys.mjs"
 );
@@ -26,6 +28,7 @@ function getMockNotifications() {
       end_at: endDate,
       severity: 4,
       URL: "about:blank",
+      targeting: {},
     },
     {
       id: "bar",
@@ -34,6 +37,7 @@ function getMockNotifications() {
       end_at: endDate,
       severity: 1,
       URL: "about:blank",
+      targeting: {},
     },
   ];
 }
