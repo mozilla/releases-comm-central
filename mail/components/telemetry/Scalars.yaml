@@ -52,22 +52,6 @@ tb.test:
       - 'main'
 
 tb.account:
-  successful_email_account_setup:
-    bug_numbers:
-      - 1615987
-      - 1644311
-    description: How many times email accounts setup succeeded, keyed by account config source.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   failed_email_account_setup:
     bug_numbers:
       - 1615987

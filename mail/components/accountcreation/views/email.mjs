@@ -1006,12 +1006,7 @@ class AccountHubEmail extends HTMLElement {
 
       this.#currentConfig = completeConfig;
       this.finishEmailAccountAddition(completeConfig);
-
-      Services.telemetry.keyedScalarAdd(
-        "tb.account.successful_email_account_setup",
-        telemetryKey,
-        1
-      );
+      Glean.tb.successfulEmailAccountSetup[telemetryKey].add(1);
     } catch (error) {
       // If we get no message, then something other than VerifyLogon failed.
 

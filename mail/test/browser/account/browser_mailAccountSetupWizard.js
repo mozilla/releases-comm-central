@@ -177,6 +177,8 @@ add_task(async function test_mail_account_setup() {
   // test failure messages.
   Services.prefs.setBoolPref("mail.suppressAlertsForTests", true);
 
+  Services.fog.testResetFOG();
+
   const tab = await openAccountSetup();
   const tabDocument = tab.browser.contentWindow.document;
 
@@ -277,6 +279,14 @@ add_task(async function test_mail_account_setup() {
   await tabChanged;
 
   await subtest_verify_account(tabmail.selectedTab, user);
+
+  // FIXME: the test doesn't get a successful config, so we do not yet test
+  // this probe. Should add something like:
+  /*
+  const xmlFromDbValue =
+    Glean.tb.successfulEmailAccountSetup["xml-from-db"].testGetValue();
+  Assert.equal(xmlFromDbValue, 1, "should get correct count for xml-from-db");
+  */
 
   // Close the Account Settings tab.
   tabmail.closeTab(tabmail.currentTabInfo);

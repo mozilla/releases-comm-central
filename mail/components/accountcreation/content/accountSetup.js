@@ -2428,12 +2428,7 @@ var gAccountSetup = {
             successfulConfig.outgoing.oauthSettings;
         }
         self.finish(configFilledIn);
-
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.successful_email_account_setup",
-          telemetryKey,
-          1
-        );
+        Glean.tb.successfulEmailAccountSetup[telemetryKey].add(1);
       })
       .catch(e => {
         // failed
