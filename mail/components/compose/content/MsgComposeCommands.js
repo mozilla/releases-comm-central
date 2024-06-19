@@ -2718,9 +2718,7 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
           attachmentItem.attachment.cloudFileAccountKey =
             destCloudFileAccount.accountKey;
 
-          Services.telemetry.keyedScalarAdd(
-            "tb.filelink.uploaded_size",
-            destCloudFileAccount.type,
+          Glean.tb.filelinkUploadedSize[destCloudFileAccount.type].add(
             file.fileSize
           );
         }

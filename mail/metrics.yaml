@@ -153,6 +153,22 @@ tb:
           "toolbox"
         type: string
 
+  filelink_uploaded_size:
+    type: labeled_counter
+    description: >
+      Accumulated file size (bytes) uploaded to FileLink services, keyed by
+      FileLink provider type.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615984
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
   filelink_ignored:
     type: counter
     description: How many times suggestion to use FileLink were ignored.
