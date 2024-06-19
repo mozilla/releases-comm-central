@@ -735,9 +735,19 @@
             "default": {},
             "properties": {
               "accountId": {
-                "$ref": "accounts.MailAccountId",
-                "description": "Limits the search to folders of the account with the specified id.",
-                "optional": true
+                "choices": [
+                  {
+                    "$ref": "accounts.MailAccountId"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "accounts.MailAccountId"
+                    }
+                  }
+                ],
+                "optional": true,
+                "description": "Limits the search to the specified account(s). Accounts are searched in the specified order."
               },
               "attachment": {
                 "choices": [
@@ -767,9 +777,19 @@
                 "description": "Returns only flagged (or unflagged if false) messages."
               },
               "folderId": {
-                "$ref": "folders.MailFolderId",
+                "choices": [
+                  {
+                    "$ref": "folders.MailFolderId"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "folders.MailFolderId"
+                    }
+                  }
+                ],
                 "optional": true,
-                "description": "Returns only messages from the folder with the specified id. The <permission>accountsRead</permission> permission is required."
+                "description": "Limits the search to the specified folder(s). Folders are searched in the specified order. The <permission>accountsRead</permission> permission is required."
               },
               "folder": {
                 "$ref": "folders.MailFolder",

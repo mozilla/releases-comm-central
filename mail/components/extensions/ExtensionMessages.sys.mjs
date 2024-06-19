@@ -1675,28 +1675,57 @@ export class MessageQuery {
     // Limit search to a given folder, or search all folders.
     const folders = [];
     let includeSubFolders = false;
+    const allAccounts = MailServices.accounts.accounts.map(account => ({
+      key: account.key,
+      rootFolder: account.incomingServer.rootFolder,
+    }));
 
-    // Property was renamed from folder to folderId in MV3.
-    const queryFolder = this.queryInfo.folderId || this.queryInfo.folder;
-    const queryAccountId = this.queryInfo.accountId;
-    if (queryFolder) {
+    // The queryFolder property is only supported in MV2 and specifies a single
+    // MailFolder. The queryFolderId property specifies one or more MailFolderIds.
+    // When one or more accounts and one or more folders are specified, the accounts
+    // are used as a filter on the specified folders.
+    let queryFolders = null;
+    if (this.queryInfo.folder) {
+      queryFolders = [getFolder(this.queryInfo.folder)];
+    } else if (this.queryInfo.folderId) {
+      // Enforce the order as specified.
+      const folderIds = Array.isArray(this.queryInfo.folderId)
+        ? this.queryInfo.folderId
+        : [this.queryInfo.folderId];
+      queryFolders = folderIds.map(f => getFolder(f));
+    }
+
+    let queryAccounts = null;
+    if (this.queryInfo.accountId) {
+      // Enforce the order as specified.
+      const accountKeys = Array.isArray(this.queryInfo.accountId)
+        ? this.queryInfo.accountId
+        : [this.queryInfo.accountId];
+      queryAccounts = accountKeys.map(accountKey =>
+        allAccounts.find(account => accountKey == account.key)
+      );
+    }
+
+    if (queryFolders) {
       includeSubFolders = !!this.queryInfo.includeSubFolders;
       if (!this.extension.hasPermission("accountsRead")) {
         throw new ExtensionError(
           'Querying by folder requires the "accountsRead" permission'
         );
       }
-      const { folder, accountKey } = getFolder(queryFolder);
-      if (!queryAccountId || queryAccountId == accountKey) {
-        folders.push(folder);
+      for (const queryFolder of queryFolders) {
+        const { folder, accountKey } = queryFolder;
+        if (
+          !queryAccounts ||
+          queryAccounts.some(account => accountKey == account.key)
+        ) {
+          folders.push(folder);
+        }
       }
     } else {
       includeSubFolders = true;
-      for (const account of MailServices.accounts.accounts) {
-        const accountKey = account.key;
-        if (!queryAccountId || queryAccountId == accountKey) {
-          folders.push(account.incomingServer.rootFolder);
-        }
+      for (const account of queryAccounts || allAccounts) {
+        folders.push(account.rootFolder);
       }
     }
 
