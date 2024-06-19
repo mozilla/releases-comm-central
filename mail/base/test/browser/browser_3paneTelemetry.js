@@ -5,10 +5,6 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
-
 var tabmail = document.getElementById("tabmail");
 var folders = {};
 
@@ -41,40 +37,47 @@ add_setup(async function () {
 });
 
 add_task(async function testFolderOpen() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(folders.Other.URI);
 
-  const scalarName = "tb.mails.folder_opened";
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 1);
+  Assert.equal(
+    Glean.tb.folderOpened.Other.testGetValue(),
+    1,
+    "should have recorded opening Other"
+  );
 
   about3Pane.displayFolder(folders.Templates.URI);
   about3Pane.displayFolder(folders.Other.URI);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 2);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Templates", 1);
+  Assert.equal(
+    Glean.tb.folderOpened.Other.testGetValue(),
+    2,
+    "should have recorded opening Other once more"
+  );
+  Assert.equal(
+    Glean.tb.folderOpened.Templates.testGetValue(),
+    1,
+    "should have recorded opening Templates"
+  );
 
   about3Pane.displayFolder(folders.Junk.URI);
   about3Pane.displayFolder(folders.Other.URI);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 3);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Templates", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Junk", 1);
+  Assert.equal(Glean.tb.folderOpened.Other.testGetValue(), 3);
+  Assert.equal(Glean.tb.folderOpened.Templates.testGetValue(), 1);
+  Assert.equal(Glean.tb.folderOpened.Junk.testGetValue(), 1);
 
   about3Pane.displayFolder(folders.Junk.URI);
   about3Pane.displayFolder(folders.Templates.URI);
   about3Pane.displayFolder(folders.Archive.URI);
   about3Pane.displayFolder(folders.Other.URI);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Other", 4);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Templates", 2);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Archive", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "Junk", 2);
+  Assert.equal(Glean.tb.folderOpened.Other.testGetValue(), 4);
+  Assert.equal(Glean.tb.folderOpened.Templates.testGetValue(), 2);
+  Assert.equal(Glean.tb.folderOpened.Archive.testGetValue(), 1);
+  Assert.equal(Glean.tb.folderOpened.Junk.testGetValue(), 2);
 });
 
 add_task(async function testPaneVisibility() {
