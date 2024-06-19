@@ -282,22 +282,6 @@ tb.preferences:
     record_in_processes:
       - 'main'
 
-tb.websearch:
-  usage:
-    bug_numbers:
-      - 1641773
-    description: How many times search the web was used, keyed by search engine name.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
 tb.addressbook:
   addressbook_count:
     bug_numbers:

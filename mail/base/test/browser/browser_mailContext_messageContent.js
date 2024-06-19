@@ -9,9 +9,6 @@
 const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 
 const TEST_MESSAGE_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
@@ -247,14 +244,19 @@ async function subtest(aboutMessage, mailContext) {
     true
   );
 
-  await SimpleTest.promiseClipboardChange("", () =>
-    openAndActivate("img", "mailContext-copyimage")
-  );
-  Assert.equal(
-    (await getClipboardFile()).type,
-    "image/png",
-    "should have copied the image"
-  );
+  if (!Services.env.get("MOZ_HEADLESS")) {
+    // No clipboard in headless.
+    await SimpleTest.promiseClipboardChange("", () =>
+      openAndActivate("img", "mailContext-copyimage")
+    );
+    Assert.equal(
+      (await getClipboardFile()).type,
+      "image/png",
+      "should have copied the image"
+    );
+  } else {
+    console.warn("Skipping mailContext-copyimage since in headless mode.");
+  }
 
   pickerPromise = new Promise(resolve => {
     SpecialPowers.MockFilePicker.init(window.browsingContext);
@@ -417,9 +419,9 @@ add_setup(async function () {
     MockRegistrar.unregister(mockExternalProtocolServiceCID);
     Services.prefs.clearUserPref("browser.safebrowsing.reportPhishURL");
 
-    const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+    const googleValue = Glean.tb.websearchUsage.google.testGetValue();
     Assert.equal(
-      scalars["tb.websearch.usage"]?.google,
+      googleValue,
       webSearchCount,
       "count of web searches should be correct"
     );

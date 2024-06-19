@@ -64,4 +64,17 @@ tb:
       - EditAsNew
       - EditTemplate
 
-
+  websearch_usage:
+    type: labeled_counter
+    description:
+      How many times search the web was used, keyed by search engine name.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1584889
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
