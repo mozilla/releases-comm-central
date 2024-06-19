@@ -1123,9 +1123,14 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
     prefBranch->GetBoolPref("mailnews.downloadToTempFile", &quarantining);
   }
 
+  nsAutoCString folderURI;
+  nsresult rv = aFolder->GetURI(folderURI);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIOutputStream> rawMboxStream;
-  nsresult rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr,
-                                              getter_AddRefs(rawMboxStream));
+  int64_t filePos = 0;
+  rv = InternalGetNewMsgOutputStream(aFolder, aNewMsgHdr, filePos,
+                                     getter_AddRefs(rawMboxStream));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Wrap raw stream in one which will handle "From " separator and escaping
@@ -1137,6 +1142,9 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   if (!quarantining) {
     // Caller will write directly(ish) to mbox.
     mboxStream.forget(aResult);
+    MOZ_LOG(gMboxLog, LogLevel::Info,
+            ("START MSG   stream=0x%p folder=%s offset=%" PRIi64 "",
+             (void*)(*aResult), folderURI.get(), filePos));
     return NS_OK;
   }
 
@@ -1148,11 +1156,15 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
   RefPtr<nsQuarantinedOutputStream> qStream =
       new nsQuarantinedOutputStream(mboxStream);
   qStream.forget(aResult);
+
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("START-Q MSG stream=0x%p folder=%s offset=%" PRIi64 "",
+           (void*)(*aResult), folderURI.get(), filePos));
   return NS_OK;
 }
 
 nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
-    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr,
+    nsIMsgFolder* aFolder, nsIMsgDBHdr** aNewMsgHdr, int64_t& filePos,
     nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewMsgHdr);
@@ -1215,10 +1227,8 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   }
 
   if (NS_FAILED(rv)) {
-    nsAutoCString uri;
-    aFolder->GetURI(uri);
     MOZ_LOG(gMboxLog, LogLevel::Error,
-            ("failed opening offline store for %s", uri.get()));
+            ("failed opening offline store for %s", folderURI.get()));
   }
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsISeekableStream> seekable(do_QueryInterface(*aResult, &rv));
@@ -1232,16 +1242,11 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   }
 
   if (*aNewMsgHdr) {
-    int64_t filePos;
     rv = seekable->Tell(&filePos);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
     (*aNewMsgHdr)->SetStringProperty("storeToken", storeToken);
     (*aNewMsgHdr)->SetMessageOffset(filePos);
-    MOZ_LOG(gMboxLog, LogLevel::Info,
-            ("nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(): %s "
-             "filePos=%" PRIi64 "",
-             mboxFile->HumanReadablePath().get(), filePos));
   }
   // Up and running. Add the folder to the OutstandingStreams set.
   MOZ_ALWAYS_TRUE(m_OutstandingStreams.putNew(folderURI, *aResult));
@@ -1255,23 +1260,47 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
   NS_ENSURE_ARG_POINTER(aNewHdr);
 
   nsresult rv = NS_OK;
-  MOZ_LOG(gMboxLog, LogLevel::Info, ("nsMsgBrkMBoxStore::DiscardNewMessage()"));
   // nsISafeOutputStream only writes upon finish(), so no cleanup required.
   rv = aOutputStream->Close();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Remove the folder from the OutstandingStreams set.
+  // Get folder (and uri) from hdr.
   // NOTE: aNewHdr can be null because of Bug 1737203.
+  nsAutoCString folderURI;
+  nsCOMPtr<nsIMsgFolder> folder;
+  if (aNewHdr) {
+    rv = aNewHdr->GetFolder(getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = folder->GetURI(folderURI);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Log some details.
+  {
+    // Want to log the current filesize, cloning the nsIFile to avoid stat
+    // caching.
+    int64_t fileSize = -1;
+    if (folder) {
+      nsCOMPtr<nsIFile> mboxPath;
+      rv = folder->GetFilePath(getter_AddRefs(mboxPath));
+      if (NS_SUCCEEDED(rv)) {
+        nsCOMPtr<nsIFile> tmp;
+        rv = mboxPath->Clone(getter_AddRefs(tmp));
+        if (NS_SUCCEEDED(rv)) {
+          tmp->GetFileSize(&fileSize);
+        }
+      }
+    }
+    MOZ_LOG(gMboxLog, LogLevel::Info,
+            ("DISCARD MSG stream=0x%p folder=%s filesize=%" PRId64 "",
+             aOutputStream, folderURI.get(), fileSize));
+  }
+
+  // Remove the folder from the OutstandingStreams set.
   // The stream object may hang around a bit longer than we'd like,
   // but it'll get cleared out on the next use of GetNewMsgOutputStream()
   // on the same folder.
-  if (aNewHdr) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = aNewHdr->GetFolder(getter_AddRefs(folder));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoCString folderURI;
-    rv = folder->GetURI(folderURI);
-    NS_ENSURE_SUCCESS(rv, rv);
+  if (!folderURI.IsEmpty()) {
     m_OutstandingStreams.remove(folderURI);
   }
   return NS_OK;
@@ -1282,7 +1311,6 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
                                     nsIMsgDBHdr* aNewHdr) {
   NS_ENSURE_ARG_POINTER(aOutputStream);
   nsresult rv;
-  MOZ_LOG(gMboxLog, LogLevel::Info, ("nsMsgBrkMBoxStore::FinishNewMessage()"));
 
   // We are always dealing with nsISafeOutputStream.
   // It requires an explicit commit, or the data will be discarded.
@@ -1292,18 +1320,43 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
   rv = safe->Finish();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Remove from the OutstandingStreams set.
+  // Get folder (and uri) from hdr.
   // NOTE: aNewHdr can be null because of Bug 1737203.
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsAutoCString folderURI;
+  if (aNewHdr) {
+    rv = aNewHdr->GetFolder(getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = folder->GetURI(folderURI);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  // Log some details.
+  {
+    // Want to log the current filesize, cloning the nsIFile to avoid stat
+    // caching.
+    int64_t fileSize = -1;
+    if (folder) {
+      nsCOMPtr<nsIFile> mboxPath;
+      rv = folder->GetFilePath(getter_AddRefs(mboxPath));
+      if (NS_SUCCEEDED(rv)) {
+        nsCOMPtr<nsIFile> tmp;
+        rv = mboxPath->Clone(getter_AddRefs(tmp));
+        if (NS_SUCCEEDED(rv)) {
+          tmp->GetFileSize(&fileSize);
+        }
+      }
+    }
+    MOZ_LOG(gMboxLog, LogLevel::Info,
+            ("FINISH MSG  stream=0x%p folder=%s filesize=%" PRId64 "",
+             aOutputStream, folderURI.get(), fileSize));
+  }
+
+  // Remove from the OutstandingStreams set.
   // That's OK. The stream object might hang around for a while, but it's
   // already been committed, and the next GetNewMsgOutputStream() on the
   // same folder will clear it from m_OutstandingStreams.
-  if (aNewHdr) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = aNewHdr->GetFolder(getter_AddRefs(folder));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsAutoCString folderURI;
-    rv = folder->GetURI(folderURI);
-    NS_ENSURE_SUCCESS(rv, rv);
+  if (!folderURI.IsEmpty()) {
     m_OutstandingStreams.remove(folderURI);
   }
 
