@@ -9,8 +9,13 @@ ChromeUtils.defineESModuleGetters(this, {
   TelemetryTestUtils: "resource://testing-common/TelemetryTestUtils.sys.mjs",
 });
 
-const HTML_SCALAR = "tb.compose.format_html";
-const PLAIN_TEXT_SCALAR = "tb.compose.format_plain_text";
+add_setup(function test_setup() {
+  // FOG needs a profile directory to put its data in.
+  do_get_profile();
+
+  // FOG needs to be initialized in order for data to flow.
+  Services.fog.initializeFOG();
+});
 
 /**
  * Check that we're counting HTML or Plain text when composing.
@@ -43,16 +48,17 @@ add_task(async function test_compose_format() {
   }
 
   // Did we count them correctly?
-  const scalars = TelemetryTestUtils.getProcessScalars("parent");
+  const htmlValue = Glean.tb.composeFormat.HTML.testGetValue();
   Assert.equal(
-    scalars[HTML_SCALAR],
+    htmlValue,
     NUM_HTML,
-    HTML_SCALAR + " must have the correct value."
+    "tb.compose_format metric should be correct for HTML"
   );
+  const plainTextValue = Glean.tb.composeFormat.PlainText.testGetValue();
   Assert.equal(
-    scalars[PLAIN_TEXT_SCALAR],
+    plainTextValue,
     NUM_PLAIN,
-    PLAIN_TEXT_SCALAR + " must have the correct value."
+    "tb.compose_format metric should be correct for PlainText"
   );
 });
 

@@ -829,6 +829,14 @@ MailGlue.prototype = {
           Services.prefs.clearUserPref("mail.storybook.openTab");
         },
       },
+      // FOG doesn't need to be initialized _too_ early because it has a
+      // pre-init buffer.
+      {
+        name: "initializeFOG",
+        task: () => {
+          Services.fog.initializeFOG();
+        },
+      },
       {
         task() {
           // Use idleDispatch a second time to run this after the per-window

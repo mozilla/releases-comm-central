@@ -60,6 +60,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
 #include "mozilla/Telemetry.h"
+#include "mozilla/glean/GleanMetrics.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"
@@ -860,9 +861,9 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
 
 #ifndef MOZ_SUITE
   if (m_composeHTML) {
-    Telemetry::ScalarAdd(Telemetry::ScalarID::TB_COMPOSE_FORMAT_HTML, 1);
+    mozilla::glean::tb::compose_format.Get("HTML"_ns).Add(1);
   } else {
-    Telemetry::ScalarAdd(Telemetry::ScalarID::TB_COMPOSE_FORMAT_PLAIN_TEXT, 1);
+    mozilla::glean::tb::compose_format.Get("PlainText"_ns).Add(1);
   }
   Telemetry::Accumulate(Telemetry::TB_COMPOSE_TYPE, type);
 #endif

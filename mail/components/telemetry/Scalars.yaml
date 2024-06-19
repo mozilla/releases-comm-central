@@ -146,35 +146,6 @@ tb.account:
     record_in_processes:
       - 'main'
 
-tb.compose:
-  format_html:
-    bug_numbers:
-      - 1584889
-    description: How many times messages were written in HTML composition mode.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
-  format_plain_text:
-    bug_numbers:
-      - 1584889
-    description: How many times messages were written in plain text composition mode.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
 tb.filelink:
   uploaded_size:
     bug_numbers:

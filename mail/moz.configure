@@ -77,6 +77,10 @@ set_config(
 set_config("MOZ_TELEMETRY_EXTRA_SCALAR_FILES", ["/comm/mail/components/telemetry/Scalars.yaml"])
 set_config("MOZ_TELEMETRY_EXTRA_EVENT_FILES", ["/comm/mail/components/telemetry/Events.yaml"])
 
+set_config("MOZ_GLEAN_EXTRA_METRICS_FILES", ["comm/mail/metrics.yaml"])
+# set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
+set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
+
 include("../build/moz.configure/gecko_source.configure")
 
 include("../mailnews/moz.configure")
