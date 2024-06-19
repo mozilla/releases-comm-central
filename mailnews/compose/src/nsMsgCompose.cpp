@@ -59,7 +59,6 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
-#include "mozilla/Telemetry.h"
 #include "mozilla/glean/GleanMetrics.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
@@ -865,7 +864,67 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   } else {
     mozilla::glean::tb::compose_format.Get("PlainText"_ns).Add(1);
   }
-  Telemetry::Accumulate(Telemetry::TB_COMPOSE_TYPE, type);
+
+  nsAutoCString gleanCompType;
+  switch (type) {
+    case nsIMsgCompType::New:
+      gleanCompType = "New"_ns;
+      break;
+    case nsIMsgCompType::Reply:
+      gleanCompType = "Reply"_ns;
+      break;
+    case nsIMsgCompType::ReplyAll:
+      gleanCompType = "ReplyAll"_ns;
+      break;
+    case nsIMsgCompType::ForwardAsAttachment:
+      gleanCompType = "ForwardAsAttachment"_ns;
+      break;
+    case nsIMsgCompType::ForwardInline:
+      gleanCompType = "ForwardInline"_ns;
+      break;
+    case nsIMsgCompType::NewsPost:
+      gleanCompType = "NewsPost"_ns;
+      break;
+    case nsIMsgCompType::ReplyToSender:
+      gleanCompType = "ReplyToSender"_ns;
+      break;
+    case nsIMsgCompType::ReplyToGroup:
+      gleanCompType = "ReplyToGroup"_ns;
+      break;
+    case nsIMsgCompType::ReplyToSenderAndGroup:
+      gleanCompType = "ReplyToSenderAndGroup"_ns;
+      break;
+    case nsIMsgCompType::Draft:
+      gleanCompType = "Draft"_ns;
+      break;
+    case nsIMsgCompType::Template:
+      gleanCompType = "Template"_ns;
+      break;
+    case nsIMsgCompType::MailToUrl:
+      gleanCompType = "MailToUrl"_ns;
+      break;
+    case nsIMsgCompType::ReplyWithTemplate:
+      gleanCompType = "ReplyWithTemplate"_ns;
+      break;
+    case nsIMsgCompType::ReplyToList:
+      gleanCompType = "ReplyToList"_ns;
+      break;
+    case nsIMsgCompType::Redirect:
+      gleanCompType = "Redirect"_ns;
+      break;
+    case nsIMsgCompType::EditAsNew:
+      gleanCompType = "EditAsNew"_ns;
+      break;
+    case nsIMsgCompType::EditTemplate:
+      gleanCompType = "EditTemplate"_ns;
+      break;
+    default:
+      NS_WARNING("Unexpected compose type");
+      break;
+  }
+  if (!gleanCompType.IsEmpty()) {
+    mozilla::glean::tb::compose_type.Get(gleanCompType).Add(1);
+  }
 #endif
 
   if (composeFields) {

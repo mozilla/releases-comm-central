@@ -8,33 +8,5 @@
     "kind": "categorical",
     "labels": ["CommonLabel", "Label2", "Label3"],
     "description": "A testing histogram; not meant to be touched"
-  },
-  "TB_COMPOSE_TYPE": {
-    "record_in_processes": ["main"],
-    "products": ["thunderbird"],
-    "alert_emails": ["telemetry-client-dev@thunderbird.net"],
-    "bug_numbers": [1615996],
-    "expires_in_version": "never",
-    "kind": "categorical",
-    "labels": [
-      "New",
-      "Reply",
-      "ReplyAll",
-      "ForwardAsAttachment",
-      "ForwardInline",
-      "NewsPost",
-      "ReplyToSender",
-      "ReplyToGroup",
-      "ReplyToSenderGroup",
-      "Draft",
-      "Template",
-      "MailToUrl",
-      "ReplyWithTemplate",
-      "ReplyToList",
-      "Redirect",
-      "EditAsNew",
-      "EditTemplate"
-    ],
-    "description": "Histogram of different message compose types used"
   }
 }

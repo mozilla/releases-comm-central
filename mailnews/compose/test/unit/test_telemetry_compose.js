@@ -5,10 +5,6 @@
  * Test telemetry related to message composition.
  */
 
-ChromeUtils.defineESModuleGetters(this, {
-  TelemetryTestUtils: "resource://testing-common/TelemetryTestUtils.sys.mjs",
-});
-
 add_setup(function test_setup() {
   // FOG needs a profile directory to put its data in.
   do_get_profile();
@@ -21,7 +17,7 @@ add_setup(function test_setup() {
  * Check that we're counting HTML or Plain text when composing.
  */
 add_task(async function test_compose_format() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   // Bare-bones code to initiate composing a message in given format.
   const createCompose = function (fmt) {
@@ -66,6 +62,8 @@ add_task(async function test_compose_format() {
  * Check that we're counting compose type (new/reply/fwd etc) when composing.
  */
 add_task(async function test_compose_type() {
+  Services.fog.testResetFOG();
+
   // Bare-bones code to initiate composing a message in given type.
   const createCompose = function (type) {
     const msgCompose = Cc[
@@ -79,7 +77,6 @@ add_task(async function test_compose_type() {
     params.type = type;
     msgCompose.initialize(params);
   };
-  const histogram = TelemetryTestUtils.getAndClearHistogram("TB_COMPOSE_TYPE");
 
   // Start composing arbitrary numbers of messages in each format.
   const NUM_NEW = 4;
@@ -96,19 +93,20 @@ add_task(async function test_compose_type() {
   }
 
   // Did we count them correctly?
-  const snapshot = histogram.snapshot();
   Assert.equal(
-    snapshot.values[Ci.nsIMsgCompType.New],
+    Glean.tb.composeType.New.testGetValue(),
     NUM_NEW,
     "nsIMsgCompType.New count must be correct"
   );
+
   Assert.equal(
-    snapshot.values[Ci.nsIMsgCompType.Draft],
+    Glean.tb.composeType.Draft.testGetValue(),
     NUM_DRAFT,
     "nsIMsgCompType.Draft count must be correct"
   );
+
   Assert.equal(
-    snapshot.values[Ci.nsIMsgCompType.EditTemplate],
+    Glean.tb.composeType.EditTemplate.testGetValue(),
     NUM_EDIT_TEMPLATE,
     "nsIMsgCompType.EditTemplate count must be correct"
   );
