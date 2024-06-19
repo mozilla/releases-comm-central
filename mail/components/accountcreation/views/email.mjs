@@ -1025,11 +1025,7 @@ class AccountHubEmail extends HTMLElement {
       this.#configVerifier.cleanup();
       this.initUI("manualEmail");
 
-      Services.telemetry.keyedScalarAdd(
-        "tb.account.failed_email_account_setup",
-        telemetryKey,
-        1
-      );
+      Glean.tb.failedEmailAccountSetup[telemetryKey].add(1);
     }
   }
 

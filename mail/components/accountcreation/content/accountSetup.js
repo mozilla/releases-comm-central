@@ -2456,11 +2456,7 @@ var gAccountSetup = {
         // hidden in non-manual mode, so it's fine to enable
         reTestButton.disabled = false;
 
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.failed_email_account_setup",
-          telemetryKey,
-          1
-        );
+        Glean.tb.failedEmailAccountSetup[telemetryKey].add(1);
       });
   },
 

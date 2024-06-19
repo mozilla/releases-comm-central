@@ -26,6 +26,22 @@ tb:
       - telemetry-client-dev@thunderbird.net
     expires: never
 
+  failed_email_account_setup:
+    type: labeled_counter
+    description:
+       How many times email accounts setup failed, keyed by account config source.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615987
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1644311
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
   successful_email_account_setup:
     type: labeled_counter
     description:

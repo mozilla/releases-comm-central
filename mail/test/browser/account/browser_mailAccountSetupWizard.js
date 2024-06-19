@@ -18,9 +18,6 @@ var { DNS } = ChromeUtils.importESModule("resource:///modules/DNS.sys.mjs");
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 
 var user = {
   name: "Yamato Nadeshiko",
@@ -369,7 +366,7 @@ add_task(async function test_bad_password_uses_old_settings() {
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const tab = await openAccountSetup();
   const tabDocument = tab.browser.contentWindow.document;
@@ -520,16 +517,16 @@ add_task(async function test_bad_password_uses_old_settings() {
     "Timeout waiting for error notification to be showed"
   );
 
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
-    scalars["tb.account.failed_email_account_setup"]["xml-from-db"],
+    Glean.tb.failedEmailAccountSetup["xml-from-db"].testGetValue(),
     1,
-    "Count of failed email account setup with xml config must be correct"
+    "count of failed email account setup with xml config must be correct"
   );
+
   Assert.equal(
-    scalars["tb.account.failed_email_account_setup"].user,
+    Glean.tb.failedEmailAccountSetup.user.testGetValue(),
     1,
-    "Count of failed email account setup with manual config must be correct"
+    "count of failed email account setup with manual config must be correct"
   );
 
   // Clean up
