@@ -15,6 +15,11 @@ ChromeUtils.defineLazyGetter(lazy, "gMailBundle", function () {
     "chrome://messenger/locale/messenger.properties"
   );
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl"], true)
+);
 
 if (AppConstants.NIGHTLY_BUILD) {
   ChromeUtils.defineLazyGetter(
@@ -1145,7 +1150,7 @@ function reportAddressBookTypes() {
  */
 async function reportCalendars() {
   const telemetryReport = {};
-  const home = lazy.cal.l10n.getCalString("homeCalendarName");
+  const home = lazy.l10n.formatValueSync("home-calendar-name");
 
   for (const calendar of lazy.cal.manager.getCalendars()) {
     if (calendar.name == home && calendar.type == "storage") {

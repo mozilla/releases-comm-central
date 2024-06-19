@@ -8,20 +8,14 @@
 
 @AB_CD@.jar:
 % locale calendar @AB_CD@ %locale/@AB_CD@/calendar/
-    locale/@AB_CD@/calendar/calendar-alarms.properties                   (%chrome/calendar/calendar-alarms.properties)
-    locale/@AB_CD@/calendar/calendar-event-dialog-attendees.properties   (%chrome/calendar/calendar-event-dialog-attendees.properties)
     locale/@AB_CD@/calendar/calendar-event-dialog.dtd                    (%chrome/calendar/calendar-event-dialog.dtd)
     locale/@AB_CD@/calendar/calendar-event-dialog.properties             (%chrome/calendar/calendar-event-dialog.properties)
     locale/@AB_CD@/calendar/calendar-extract.properties                  (%chrome/calendar/calendar-extract.properties)
     locale/@AB_CD@/calendar/calendar-invitations-dialog.dtd              (%chrome/calendar/calendar-invitations-dialog.dtd)
-    locale/@AB_CD@/calendar/calendar-invitations-dialog.properties       (%chrome/calendar/calendar-invitations-dialog.properties)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.dtd               (%chrome/calendar/calendar-occurrence-prompt.dtd)
-    locale/@AB_CD@/calendar/calendar-occurrence-prompt.properties        (%chrome/calendar/calendar-occurrence-prompt.properties)
     locale/@AB_CD@/calendar/calendar.dtd                                 (%chrome/calendar/calendar.dtd)
-    locale/@AB_CD@/calendar/calendar.properties                          (%chrome/calendar/calendar.properties)
     locale/@AB_CD@/calendar/calendarCreation.dtd                         (%chrome/calendar/calendarCreation.dtd)
     locale/@AB_CD@/calendar/calendarCreation.properties                  (%chrome/calendar/calendarCreation.properties)
-    locale/@AB_CD@/calendar/categories.properties                        (%chrome/calendar/categories.properties)
     locale/@AB_CD@/calendar/dateFormat.properties                        (%chrome/calendar/dateFormat.properties)
     locale/@AB_CD@/calendar/dialogs/calendar-event-dialog-reminder.dtd   (%chrome/calendar/dialogs/calendar-event-dialog-reminder.dtd)
     locale/@AB_CD@/calendar/global.dtd                                   (%chrome/calendar/global.dtd)

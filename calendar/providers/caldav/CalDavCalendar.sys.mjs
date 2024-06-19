@@ -28,7 +28,8 @@ var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
 
 var cIOL = Ci.calIOperationListener;
-
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalDavCalendar() {
   this.initProviderBase();
   this.unmappedProperties = [];
@@ -1942,11 +1943,11 @@ CalDavCalendar.prototype = {
    */
   reportDavError(aErrNo, status, extraInfo) {
     const mapError = {};
-    mapError[Ci.calIErrors.DAV_NOT_DAV] = "dav_notDav";
-    mapError[Ci.calIErrors.DAV_DAV_NOT_CALDAV] = "dav_davNotCaldav";
-    mapError[Ci.calIErrors.DAV_PUT_ERROR] = "itemPutError";
-    mapError[Ci.calIErrors.DAV_REMOVE_ERROR] = "itemDeleteError";
-    mapError[Ci.calIErrors.DAV_REPORT_ERROR] = "disabledMode";
+    mapError[Ci.calIErrors.DAV_NOT_DAV] = "dav-not-dav";
+    mapError[Ci.calIErrors.DAV_DAV_NOT_CALDAV] = "dav-dav-not-cal-dav";
+    mapError[Ci.calIErrors.DAV_PUT_ERROR] = "item-put-error";
+    mapError[Ci.calIErrors.DAV_REMOVE_ERROR] = "item-delete-error";
+    mapError[Ci.calIErrors.DAV_REPORT_ERROR] = "disabled-mode";
 
     const mapModification = {};
     mapModification[Ci.calIErrors.DAV_NOT_DAV] = false;
@@ -1962,7 +1963,7 @@ CalDavCalendar.prototype = {
       // Only notify if there is a message for this error
       return;
     }
-    const localizedMessage = cal.l10n.getCalString(message, [this.mUri.spec]);
+    const localizedMessage = lazy.l10n.formatValueSync(message, { name: this.mUri.spec });
     this.mDisabledByDavError = true;
     this.notifyError(aErrNo, localizedMessage);
     this.notifyError(
@@ -1976,16 +1977,15 @@ CalDavCalendar.prototype = {
       return "";
     }
 
-    const props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
     let statusString;
     try {
-      statusString = props.GetStringFromName("caldavRequestStatusCodeString" + status);
+      statusString = lazy.l10n.formatValueSync(`cal-dav-request-status-code-string-${status}`);
     } catch (e) {
       // Fallback on generic string if no string is defined for the status code
-      statusString = props.GetStringFromName("caldavRequestStatusCodeStringGeneric");
+      statusString = lazy.l10n.formatValueSync("cal-dav-request-status-code-string-generic");
     }
     return (
-      props.formatStringFromName("caldavRequestStatusCode", [status]) +
+      lazy.l10n.formatValueSync("cal-dav-request-status-code", { statusCode: status }) +
       ", " +
       statusString +
       "\n\n" +

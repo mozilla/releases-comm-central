@@ -9,7 +9,16 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 var { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
+var lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () =>
+    new Localization(
+      ["calendar/calendar.ftl", "calendar/calendar-event-dialog-attendees.ftl"],
+      true
+    )
+);
 ChromeUtils.defineESModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.sys.mjs",
 });
@@ -791,7 +800,11 @@ function checkDate() {
     } else {
       // Don't allow for negative durations.
       const callback = function () {
-        Services.prompt.alert(null, document.title, cal.l10n.getCalString("warningEndBeforeStart"));
+        Services.prompt.alert(
+          null,
+          document.title,
+          lazy.l10n.formatValueSync("warning-end-before-start")
+        );
       };
       setTimeout(callback, 1);
       dateTimePickerUI.endValue = previousEndTime;
@@ -1422,28 +1435,22 @@ function updateRange() {
     #updateRoleIcon() {
       const role = this.#attendee.role ?? EventAttendee.#DEFAULT_ROLE;
       const roleValueToStringKeyMap = {
-        "REQ-PARTICIPANT": "event.attendee.role.required",
-        "OPT-PARTICIPANT": "event.attendee.role.optional",
-        "NON-PARTICIPANT": "event.attendee.role.nonparticipant",
-        CHAIR: "event.attendee.role.chair",
+        "REQ-PARTICIPANT": "event-attendee-role-required",
+        "OPT-PARTICIPANT": "event-attendee-role-optional",
+        "NON-PARTICIPANT": "event-attendee-role-nonparticipant",
+        CHAIR: "event-attendee-role-chair",
       };
 
       let tooltip;
+      let tooltipArgs = undefined;
       if (role in roleValueToStringKeyMap) {
-        tooltip = cal.l10n.getString(
-          "calendar-event-dialog-attendees",
-          roleValueToStringKeyMap[role]
-        );
+        tooltip = roleValueToStringKeyMap[role];
       } else {
-        tooltip = cal.l10n.getString(
-          "calendar-event-dialog-attendees",
-          "event.attendee.role.unknown",
-          [role]
-        );
+        tooltip = "event-attendee-role-unknown";
+        tooltipArgs = { role };
       }
 
-      this.#roleIcon.setAttribute("attendeerole", role);
-      this.#roleIcon.setAttribute("title", tooltip);
+      document.l10n.setAttributes(this.#roleIcon, tooltip, tooltipArgs);
     }
 
     /**
@@ -1453,29 +1460,23 @@ function updateRange() {
     #updateUserTypeIcon() {
       const userType = this.#attendee.userType ?? EventAttendee.#DEFAULT_USER_TYPE;
       const userTypeValueToStringKeyMap = {
-        INDIVIDUAL: "event.attendee.usertype.individual",
-        GROUP: "event.attendee.usertype.group",
-        RESOURCE: "event.attendee.usertype.resource",
-        ROOM: "event.attendee.usertype.room",
+        INDIVIDUAL: "event-attendee-usertype-individual",
+        GROUP: "event-attendee-usertype-group",
+        RESOURCE: "event-attendee-usertype-resource",
+        ROOM: "event-attendee-usertype-room",
         // UNKNOWN and any unrecognized user types are handled below.
       };
 
       let tooltip;
+      let tooltipArgs = undefined;
       if (userType in userTypeValueToStringKeyMap) {
-        tooltip = cal.l10n.getString(
-          "calendar-event-dialog-attendees",
-          userTypeValueToStringKeyMap[userType]
-        );
+        tooltip = userTypeValueToStringKeyMap[userType];
       } else {
-        tooltip = cal.l10n.getString(
-          "calendar-event-dialog-attendees",
-          "event.attendee.usertype.unknown",
-          [userType]
-        );
+        tooltip = "event-attendee-usertype-unknown";
+        tooltipArgs = { userType };
       }
 
-      this.#userTypeIcon.setAttribute("usertype", userType);
-      this.#userTypeIcon.setAttribute("title", tooltip);
+      document.l10n.setAttributes(this.#userTypeIcon, tooltip, tooltipArgs);
     }
   }
   customElements.define("event-attendee", EventAttendee);

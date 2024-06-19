@@ -8,6 +8,9 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+
 /* exported cutToClipboard, pasteFromClipboard */
 
 /* eslint-enable valid-jsdoc */
@@ -216,18 +219,18 @@ function pasteFromClipboard() {
         let pasteText = "paste";
         if (withAttendees.length) {
           if (withAttendees.every(item => item.isEvent())) {
-            pasteText += "Event";
+            pasteText = `${pasteText}-event`;
           } else if (withAttendees.every(item => item.isTodo())) {
-            pasteText += "Task";
+            pasteText = `${pasteText}-task`;
           } else {
-            pasteText += "Item";
+            pasteText = `${pasteText}-item`;
           }
           if (withAttendees.length > 1) {
-            pasteText += "s";
+            pasteText = `${pasteText}s`;
           }
         }
-        const validPasteText = pasteText != "paste" && !pasteText.endsWith("Item");
-        pasteText += items.length == withAttendees.length ? "Only" : "Also";
+        const validPasteText = pasteText != "paste" && !pasteText.endsWith("-item");
+        pasteText += items.length == withAttendees.length ? "-only" : "-also";
 
         const calendars = cal.manager
           .getCalendars()
@@ -240,19 +243,19 @@ function pasteFromClipboard() {
         if (calendars.length > 1) {
           const args = {};
           args.calendars = calendars;
-          args.promptText = cal.l10n.getCalString("pastePrompt");
+          args.promptText = lazy.l10n.formatValueSync("paste-prompt");
 
           if (validPasteText) {
-            pasteText = cal.l10n.getCalString(pasteText);
-            const note = cal.l10n.getCalString("pasteNotifyAbout", [pasteText]);
+            pasteText = lazy.l10n.formatValueSync(pasteText);
+            const note = lazy.l10n.formatValueSync("paste-notify-about", { pasteItem: pasteText });
             args.promptNotify = note;
 
-            args.labelExtra1 = cal.l10n.getCalString("pasteDontNotifyLabel");
+            args.labelExtra1 = lazy.l10n.formatValueSync("paste-dont-notify-label");
             args.onExtra1 = aCal => {
               destCal = aCal;
               notify = Ci.calIItipItem.NONE;
             };
-            args.labelOk = cal.l10n.getCalString("pasteAndNotifyLabel");
+            args.labelOk = lazy.l10n.formatValueSync("paste-and-notify-label");
             args.onOk = aCal => {
               destCal = aCal;
               notify = Ci.calIItipItem.AUTO;

@@ -11,7 +11,8 @@ var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUti
 ChromeUtils.defineESModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
-
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 var gIsReadOnly = false;
 var gStartTime = null;
 var gEndTime = null;
@@ -1043,7 +1044,7 @@ function checkUntilDate() {
       Services.prompt.alert(
         null,
         document.title,
-        cal.l10n.getCalString("warningUntilDateBeforeStart")
+        lazy.l10n.formatValueSync("warning-until-date-before-start")
       );
       checkUntilDate.warning = false;
     };

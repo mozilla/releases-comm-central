@@ -7,7 +7,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
   class MozCalendarDayLabel extends MozXULElement {
     static get observedAttributes() {
       return ["selected", "relation"];
@@ -36,6 +35,8 @@
       this.longWeekdayPixels = 0;
 
       this.mDate = null;
+
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
 
       this._updateAttributes();
     }
@@ -79,16 +80,24 @@
     set date(val) {
       this.mDate = val;
       const dateFormatter = cal.dtz.formatter;
-      let label = cal.l10n.getCalString("dayHeaderLabel", [
-        dateFormatter.shortDayName(val.weekday),
-        dateFormatter.formatDateWithoutYear(val),
-      ]);
-      this.shortWeekdayName.setAttribute("value", label);
-      label = cal.l10n.getCalString("dayHeaderLabel", [
-        dateFormatter.dayName(val.weekday),
-        dateFormatter.formatDateWithoutYear(val),
-      ]);
-      this.longWeekdayName.setAttribute("value", label);
+      document.l10n.setAttributes(this.shortWeekdayName, "day-header-elem", {
+        day: dateFormatter.shortDayName(val.weekday),
+        date: dateFormatter.formatDateWithoutYear(val),
+      });
+      document.l10n.setAttributes(this.longWeekdayName, "day-header-elem", {
+        day: dateFormatter.dayName(val.weekday),
+        date: dateFormatter.formatDateWithoutYear(val),
+      });
+      const shortLabel = document.l10n.formatValueSync("day-header", {
+        dayName: dateFormatter.shortDayName(val.weekday),
+        dayIndex: dateFormatter.formatDateWithoutYear(val),
+      });
+      const longLabel = document.l10n.formatValueSync("day-header", {
+        dayName: dateFormatter.dayName(val.weekday),
+        dayIndex: dateFormatter.formatDateWithoutYear(val),
+      });
+      this.shortWeekdayName.setAttribute("value", shortLabel);
+      this.longWeekdayName.setAttribute("value", longLabel);
     }
 
     get date() {

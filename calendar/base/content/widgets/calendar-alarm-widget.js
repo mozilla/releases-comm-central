@@ -4,11 +4,17 @@
 
 "use strict";
 
-/* global Cr MozElements MozXULElement PluralForm Services */
+/* global Cr MozElements MozXULElement Services */
 
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true)
+  );
   /**
    * Represents an alarm in the alarms dialog. It appears there when an alarm is fired, and
    * allows the alarm to be snoozed, dismissed, etc.
@@ -104,9 +110,9 @@
         if (startDate) {
           // A task with a start or due date, show with label.
           startDate = startDate.getInTimezone(cal.dtz.defaultTimezone);
-          dateLabel.value = cal.l10n.getCalString("alarmStarts", [
-            formatter.formatDateTime(startDate),
-          ]);
+          document.l10n.setAttributes(dateLabel, "alarm-starts", {
+            datetime: formatter.formatDateTime(startDate),
+          });
         } else {
           // If the task has no start date, then format the alarm date.
           dateLabel.value = formatter.formatDateTime(this.mAlarm.alarmDate);
@@ -145,11 +151,11 @@
         !cal.acl.isCalendarWritable(this.mItem.calendar) ||
         !cal.acl.userCanModifyItem(this.mItem)
       ) {
-        const tooltip = "reminderDisabledSnoozeButtonTooltip";
         snoozeButton.disabled = true;
-        snoozeButton.setAttribute("tooltiptext", cal.l10n.getString("calendar-alarms", tooltip));
+        document.l10n.setAttributes(snoozeButton, "reminder-disabled-snooze-button-tooltip");
       } else {
         snoozeButton.disabled = false;
+        snoozeButton.removeAttribute("data-l10n-id");
         snoozeButton.removeAttribute("tooltiptext");
       }
     }
@@ -179,19 +185,19 @@
 
         if (this.mAlarmToday) {
           // The alarm is today.
-          relativeDateString = cal.l10n.getCalString("alarmTodayAt", [
-            formatter.formatTime(startDate),
-          ]);
+          relativeDateString = lazy.l10n.formatValueSync("alarm-today-at", {
+            datetime: formatter.formatTime(startDate),
+          });
         } else if (sinceAlarm <= sinceDayStart - 86400 && sinceAlarm > sinceDayStart - 172800) {
           // The alarm is tomorrow.
-          relativeDateString = cal.l10n.getCalString("alarmTomorrowAt", [
-            formatter.formatTime(startDate),
-          ]);
+          relativeDateString = lazy.l10n.formatValueSync("alarm-tomorrow-at", {
+            datetime: formatter.formatTime(startDate),
+          });
         } else if (sinceAlarm < sinceDayStart + 86400 && sinceAlarm > sinceDayStart) {
           // The alarm is yesterday.
-          relativeDateString = cal.l10n.getCalString("alarmYesterdayAt", [
-            formatter.formatTime(startDate),
-          ]);
+          relativeDateString = lazy.l10n.formatValueSync("alarm-yesterday-at", {
+            datetime: formatter.formatTime(startDate),
+          });
         } else {
           // The alarm is way back.
           relativeDateString = [formatter.formatDateTime(startDate)];
@@ -374,26 +380,20 @@
       const okButton = this.querySelector(".snooze-popup-ok-button");
 
       function unitName(list) {
-        return { 1: "unitMinutes", 60: "unitHours", 1440: "unitDays" }[list.value] || "unitMinutes";
+        return (
+          { 1: "unit-minutes", 60: "unit-hours", 1440: "unit-days" }[list.value] || "unit-minutes"
+        );
       }
 
-      let pluralString = cal.l10n.getCalString(unitName(unitList));
+      const unit = lazy.l10n.formatValueSync(unitName(unitList), { count: unitValue.value });
 
-      const unitPlural = PluralForm.get(unitValue.value, pluralString).replace(
-        "#1",
-        unitValue.value
-      );
-
-      const okButtonAriaLabel = cal.l10n.getString("calendar-alarms", "reminderSnoozeOkA11y", [
-        unitPlural,
-      ]);
-      okButton.setAttribute("aria-label", okButtonAriaLabel);
+      document.l10n.setAttributes(okButton, "reminder-snooze-ok-a11y", {
+        unit,
+      });
 
       const items = unitPopup.getElementsByTagName("menuitem");
       for (const menuItem of items) {
-        pluralString = cal.l10n.getCalString(unitName(menuItem));
-
-        menuItem.label = PluralForm.get(unitValue.value, pluralString).replace("#1", "").trim();
+        menuItem.label = lazy.l10n.formatValueSync(unitName(menuItem), { count: unitValue.value });
       }
     }
   }

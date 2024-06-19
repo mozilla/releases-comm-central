@@ -7,7 +7,8 @@ import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamFactory.sys.mjs";
 
 var cICL = Ci.calIChangeLog;
-
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalMemoryCalendar() {
   this.initProviderBase();
   this.initMemoryCalendar();
@@ -49,7 +50,7 @@ CalMemoryCalendar.prototype = {
   //
 
   get displayName() {
-    return cal.l10n.getCalString("memoryName");
+    return lazy.l10n.formatValueSync("memory-name");
   },
 
   get shortName() {

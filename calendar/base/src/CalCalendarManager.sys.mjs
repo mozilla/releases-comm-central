@@ -19,6 +19,8 @@ export function CalCalendarManager() {
 
   this.providerImplementations = {};
 }
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
 var calCalendarManagerInterfaces = [Ci.calICalendarManager, Ci.calIStartupService, Ci.nsIObserver];
@@ -168,7 +170,9 @@ CalCalendarManager.prototype = {
         rc = ex.result;
       }
 
-      const uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
+      const uiMessage = lazy.l10n.formatValueSync("unable-to-create-provider", {
+        location: uri.spec,
+      });
 
       // Log the original exception via error console to provide more debug info
       cal.ERROR(ex);
@@ -817,18 +821,17 @@ calMgrCalendarObserver.prototype = {
     const paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
       Ci.nsIDialogParamBlock
     );
-    const props = Services.strings.createBundle("chrome://calendar/locale/calendar.properties");
     let errMsg;
     paramBlock.SetNumberStrings(3);
     if (!this.storedReadOnly && this.calendar.readOnly) {
       // Major errors change the calendar to readOnly
-      errMsg = props.formatStringFromName("readOnlyMode", [this.calendar.name]);
+      errMsg = lazy.l10n.formatValueSync("read-only-mode", { name: this.calendar.name });
     } else if (!this.storedReadOnly && !this.calendar.readOnly) {
       // Minor errors don't, but still tell the user something went wrong
-      errMsg = props.formatStringFromName("minorError", [this.calendar.name]);
+      errMsg = lazy.l10n.formatValueSync("minor-error", { name: this.calendar.name });
     } else {
       // The calendar was already in readOnly mode, but still tell the user
-      errMsg = props.formatStringFromName("stillReadOnlyError", [this.calendar.name]);
+      errMsg = lazy.l10n.formatValueSync("still-read-only-error", { name: this.calendar.name });
     }
 
     // When possible, change the error number into its name, to
@@ -847,14 +850,14 @@ calMgrCalendarObserver.prototype = {
     let message;
     switch (aErrNo) {
       case calIErrors.CAL_UTF8_DECODING_FAILED:
-        message = props.GetStringFromName("utf8DecodeError");
+        message = lazy.l10n.formatValueSync("utf8-decode-error");
         break;
       case calIErrors.ICS_MALFORMEDDATA:
-        message = props.GetStringFromName("icsMalformedError");
+        message = lazy.l10n.formatValueSync("ics-malformed-error");
         break;
       case calIErrors.MODIFICATION_FAILED:
-        errMsg = cal.l10n.getCalString("errorWriting2", [aCalendar.name]);
-        message = cal.l10n.getCalString("errorWritingDetails");
+        errMsg = lazy.l10n.formatValueSync("error-writing2", { name: aCalendar.name });
+        message = lazy.l10n.formatValueSync("error-writing-details");
         if (aMessage) {
           message = aMessage + "\n" + message;
         }
@@ -868,8 +871,10 @@ calMgrCalendarObserver.prototype = {
     paramBlock.SetString(2, message);
 
     this.storedReadOnly = this.calendar.readOnly;
-    const errorCode = cal.l10n.getCalString("errorCode", [errCode]);
-    const errorDescription = cal.l10n.getCalString("errorDescription", [message]);
+    const errorCode = lazy.l10n.formatValueSync("error-code", { errorCode: errCode });
+    const errorDescription = lazy.l10n.formatValueSync("error-description", {
+      errorDescription: message,
+    });
     const summary = errMsg + " " + errorCode + ". " + errorDescription;
 
     // Log warnings in error console.

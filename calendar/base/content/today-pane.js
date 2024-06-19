@@ -33,9 +33,9 @@ var TodayPane = {
     this.isLoaded = true;
 
     TodayPane.paneViews = [
-      cal.l10n.getCalString("eventsandtasks"),
-      cal.l10n.getCalString("tasksonly"),
-      cal.l10n.getCalString("eventsonly"),
+      TodayPane.l10n.formatValueSync("events-and-tasks"),
+      TodayPane.l10n.formatValueSync("tasks-only"),
+      TodayPane.l10n.formatValueSync("events-only"),
     ];
 
     this.agenda = document.getElementById("agenda");
@@ -421,7 +421,7 @@ var TodayPane = {
 
     const currentweeklabel = document.getElementById("currentWeek-label");
     currentweeklabel.value =
-      cal.l10n.getCalString("shortcalendarweek") +
+      TodayPane.l10n.formatValueSync("short-calendar-week") +
       " " +
       cal.weekInfoService.getWeekTitle(this.start);
 
@@ -549,5 +549,11 @@ var TodayPane = {
       .toggleAttribute("hideLabel", hideLabel);
   },
 };
+
+ChromeUtils.defineLazyGetter(
+  TodayPane,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl"], true)
+);
 
 window.addEventListener("unload", TodayPane.onUnload, { capture: false, once: true });

@@ -9,7 +9,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
   const lazy = {};
   ChromeUtils.defineESModuleGetters(lazy, {
     CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
@@ -659,9 +658,11 @@
       if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
         calbox.setAttribute("aria-label", dateString);
       } else {
-        const monthName = cal.l10n.formatMonth(aDate.getMonth() + 1, "calendar", "monthInYear");
-        const label = cal.l10n.getCalString("monthInYear", [monthName, aDate.getFullYear()]);
-        calbox.setAttribute("aria-label", label);
+        const monthName = cal.l10n.formatMonth(aDate.getMonth() + 1, "calendar", "month-in-year");
+        document.l10n.setAttributes(calbox, "month-in-year-label", {
+          month: monthName,
+          year: aDate.getFullYear(),
+        });
       }
 
       this.dayBoxes.clear();
@@ -674,9 +675,8 @@
           const weekNumber = cal.weekInfoService.getWeekTitle(
             cal.dtz.jsDateToDateTime(date, defaultTz)
           );
-          const weekTitle = cal.l10n.getCalString("WeekTitle", [weekNumber]);
           firstElement.textContent = weekNumber;
-          firstElement.setAttribute("aria-label", weekTitle);
+          document.l10n.setAttributes(firstElement, "week-title-label", { title: weekNumber });
         }
 
         for (let i = 1; i < 8; i++) {
@@ -871,13 +871,12 @@
     }
 
     updateAccessibleLabel() {
-      let label;
       if (this.mValue) {
-        label = dateFormatter.format(this.mValue);
+        this.removeAttribute("data-l10n-id");
+        this.setAttribute("aria-label", dateFormatter.format(this.mValue));
       } else {
-        label = cal.l10n.getCalString("minimonthNoSelectedDate");
+        document.l10n.setAttributes(this, "minimonth-no-selected-date");
       }
-      this.setAttribute("aria-label", label);
     }
 
     update(aValue) {

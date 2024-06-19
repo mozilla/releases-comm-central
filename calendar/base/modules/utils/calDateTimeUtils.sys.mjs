@@ -13,6 +13,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 export var dtz = {
   /**
@@ -413,10 +414,10 @@ export var dtz = {
 
     if (!dateTime.timezone.isFloating && dateTime.timezone.tzid != kDefaultTimezone.tzid) {
       // Additionally display the original datetime with timezone.
-      const originalTime = lazy.cal.l10n.getCalString("datetimeWithTimezone", [
-        formatter.formatDateTime(dateTime),
-        dateTime.timezone.tzid,
-      ]);
+      const originalTime = lazy.l10n.formatValueSync("datetime-with-timezone", {
+        datetime: formatter.formatDateTime(dateTime),
+        timezone: dateTime.timezone.tzid,
+      });
       return `${formattedLocalTime} (${originalTime})`;
     }
     return formattedLocalTime;

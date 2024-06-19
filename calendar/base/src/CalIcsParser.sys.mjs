@@ -12,6 +12,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
   CalTodo: "resource:///modules/CalTodo.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 export function CalIcsParser() {
   this.wrappedJSObject = this;
@@ -102,8 +103,8 @@ CalIcsParser.prototype = {
         // remote subscribed calendars the user cannot change.
         if (Cc["@mozilla.org/alerts-service;1"]) {
           const notifier = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
-          const title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
-          const text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
+          const title = lazy.l10n.formatValueSync("timezone-errors-alert-title");
+          const text = lazy.l10n.formatValueSync("timezone-errors-see-console");
           try {
             const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
               Ci.nsIAlertNotification
@@ -231,8 +232,12 @@ parserState.prototype = {
         // so this UI code can be removed from the parser, and caller can
         // choose whether to alert, or show user the problem items and ask
         // for fixes, or something else.
-        const msgArgs = [tzid, item.title, cal.dtz.formatter.formatDateTime(date)];
-        const msg = cal.l10n.getCalString("unknownTimezoneInItem", msgArgs);
+        const msgArgs = {
+          timezone: tzid,
+          title: item.title,
+          datetime: cal.dtz.formatter.formatDateTime(date),
+        };
+        const msg = lazy.l10n.formatValueSync("unknown-timezone-in-item", msgArgs);
 
         cal.ERROR(msg + "\n" + item.icalString);
         this.tzErrors[hid] = true;

@@ -36,8 +36,18 @@ var gCalendarStatusFeedback = {
     }
   },
 
-  showStatusString(status) {
-    this.mStatusText.setAttribute("label", status);
+  /**
+   * @param {string} status - Fluent string ID to show in the status bar. An
+   *  empty string clears the status bar.
+   * @param {?object} args - Arguments to pass to the fluent string.
+   */
+  showStatusString(status, args) {
+    if (status) {
+      document.l10n.setAttributes(this.mStatusText, status, args);
+    } else {
+      delete this.mStatusText.dataset.l10nId;
+      this.mStatusText.setAttribute("label", "");
+    }
   },
 
   get spinning() {
@@ -60,8 +70,7 @@ var gCalendarStatusFeedback = {
       this.mStatusProgressPanel.removeAttribute("collapsed");
       if (this.mProgressMode == Ci.calIStatusObserver.DETERMINED_PROGRESS) {
         this.mStatusBar.value = 0;
-        const commonStatus = cal.l10n.getCalString("gettingCalendarInfoCommon");
-        this.showStatusString(commonStatus);
+        this.showStatusString("getting-calendar-info-common");
       }
       if (this.mThrobber) {
         this.mThrobber.setAttribute("busy", true);
@@ -95,11 +104,10 @@ var gCalendarStatusFeedback = {
           this.mCalendars[aCalendar.id] = true;
           this.mStatusBar.value = parseInt(this.mStatusBar.value, 10) + this.mCalendarStep;
           this.mCurIndex++;
-          const curStatus = cal.l10n.getCalString("gettingCalendarInfoDetail", [
-            this.mCurIndex,
-            this.mCalendarCount,
-          ]);
-          this.showStatusString(curStatus);
+          this.showStatusString("getting-calendar-info-detail", {
+            index: this.mCurIndex,
+            total: this.mCalendarCount,
+          });
         }
       }
       if (this.mThrobber) {

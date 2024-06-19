@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const lazy = {};
@@ -13,6 +12,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalDateTime: "resource:///modules/CalDateTime.sys.mjs",
   CalDuration: "resource:///modules/CalDuration.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true)
+);
 
 const ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
 const ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;
@@ -435,7 +439,7 @@ CalAlarm.prototype = {
     if (this.summary || this.action == "EMAIL") {
       const summaryProp = cal.icsService.createIcalProperty("SUMMARY");
       // Summary needs to have a non-empty value
-      summaryProp.value = this.summary || cal.l10n.getCalString("alarmDefaultSummary");
+      summaryProp.value = this.summary || lazy.l10n.formatValueSync("alarm-default-summary");
       comp.addProperty(summaryProp);
     }
 
@@ -443,7 +447,8 @@ CalAlarm.prototype = {
     if (this.description || this.action == "DISPLAY" || this.action == "EMAIL") {
       const descriptionProp = cal.icsService.createIcalProperty("DESCRIPTION");
       // description needs to have a non-empty value
-      descriptionProp.value = this.description || cal.l10n.getCalString("alarmDefaultDescription");
+      descriptionProp.value =
+        this.description || lazy.l10n.formatValueSync("alarm-default-description");
       comp.addProperty(descriptionProp);
     }
 
@@ -621,9 +626,9 @@ CalAlarm.prototype = {
   toString(aItem) {
     function alarmString(aPrefix) {
       if (!aItem || aItem.isEvent()) {
-        return aPrefix + "Event";
+        return `${aPrefix}-event`;
       } else if (aItem.isTodo()) {
-        return aPrefix + "Task";
+        return `${aPrefix}-task`;
       }
       return aPrefix;
     }
@@ -640,48 +645,47 @@ CalAlarm.prototype = {
         // No need to get the other information if the alarm is at the start
         // of the event/task.
         if (this.related == ALARM_RELATED_START) {
-          return cal.l10n.getString("calendar-alarms", alarmString("reminderTitleAtStart"));
+          return lazy.l10n.formatValueSync(alarmString("reminder-title-at-start"));
         } else if (this.related == ALARM_RELATED_END) {
-          return cal.l10n.getString("calendar-alarms", alarmString("reminderTitleAtEnd"));
+          return lazy.l10n.formatValueSync(alarmString("reminder-title-at-end"));
         }
       }
 
       let unit;
       if (alarmlen % 1440 == 0) {
         // Alarm is in days
-        unit = "unitDays";
+        unit = "unit-days";
         alarmlen /= 1440;
       } else if (alarmlen % 60 == 0) {
-        unit = "unitHours";
+        unit = "unit-hours";
         alarmlen /= 60;
       } else {
-        unit = "unitMinutes";
+        unit = "unit-minutes";
       }
-      const localeUnitString = cal.l10n.getCalString(unit);
-      const unitString = PluralForm.get(alarmlen, localeUnitString).replace("#1", alarmlen);
-      let originStringName = "reminderCustomOrigin";
+      const unitString = lazy.l10n.formatValueSync(unit, { count: alarmlen });
+      let originStringName = "reminder-custom-origin";
 
       // Origin
       switch (this.related) {
         case ALARM_RELATED_START:
-          originStringName += "Begin";
+          originStringName += "-begin";
           break;
         case ALARM_RELATED_END:
-          originStringName += "End";
+          originStringName += "-end";
           break;
       }
 
       if (this.offset.isNegative) {
-        originStringName += "Before";
+        originStringName += "-before";
       } else {
-        originStringName += "After";
+        originStringName += "-after";
       }
 
-      const originString = cal.l10n.getString("calendar-alarms", alarmString(originStringName));
-      return cal.l10n.getString("calendar-alarms", "reminderCustomTitle", [
-        unitString,
-        originString,
-      ]);
+      const originString = lazy.l10n.formatValueSync(alarmString(originStringName));
+      return lazy.l10n.formatValueSync("reminder-custom-title", {
+        unit: unitString,
+        reminderCustomOrigin: originString,
+      });
     }
     // This is an incomplete alarm, but then again we should never reach
     // this state.

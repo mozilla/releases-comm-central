@@ -16,7 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
-// The calendar console instance
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true)); // The calendar console instance
 var gCalendarConsole = console.createInstance({
   prefix: "Calendar",
   consoleID: "calendar",
@@ -86,7 +86,7 @@ export var cal = {
    *   for any window.
    */
   showError(aMsg, aWindow = null) {
-    Services.prompt.alert(aWindow, cal.l10n.getCalString("genericErrorTitle"), aMsg);
+    Services.prompt.alert(aWindow, lazy.l10n.formatValueSync("generic-error-title"), aMsg);
   },
 
   /**

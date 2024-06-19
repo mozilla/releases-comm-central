@@ -10,6 +10,7 @@
 /* import-globals-from calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+
 var { recurrenceRule2String } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calRecurrenceUtils.sys.mjs"
 );
@@ -86,7 +87,7 @@ var taskDetailsView = {
         const statusDetails = document.getElementById("calendar-task-details-status");
         switch (status) {
           case "NEEDS-ACTION": {
-            statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusNeedsAction");
+            document.l10n.setAttributes(statusDetails, "task-details-status-needs-action");
             break;
           }
           case "IN-PROCESS": {
@@ -95,22 +96,22 @@ var taskDetailsView = {
             if (property != null) {
               percent = parseInt(property, 10);
             }
-            statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusInProgress", [
+            document.l10n.setAttributes(statusDetails, "task-details-status-in-progress", {
               percent,
-            ]);
+            });
             break;
           }
           case "COMPLETED": {
             if (item.completedDate) {
               const completedDate = item.completedDate.getInTimezone(cal.dtz.defaultTimezone);
-              statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusCompletedOn", [
-                dateFormatter.formatDateTime(completedDate),
-              ]);
+              document.l10n.setAttributes(statusDetails, "task-details-status-completed-on", {
+                datetime: dateFormatter.formatDateTime(completedDate),
+              });
             }
             break;
           }
           case "CANCELLED": {
-            statusDetails.textContent = cal.l10n.getCalString("taskDetailsStatusCancelled");
+            document.l10n.setAttributes(statusDetails, "task-details-status-cancelled");
             break;
           }
           default: {
@@ -235,7 +236,7 @@ var taskDetailsView = {
     if (maxCount == 1) {
       const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("class", "menuitem-iconic");
-      menuitem.setAttribute("label", cal.l10n.getCalString("None"));
+      document.l10n.setAttributes(menuitem, "calendar-none");
       menuitem.setAttribute("type", "radio");
       if (itemCategories.length === 0) {
         menuitem.setAttribute("checked", "true");

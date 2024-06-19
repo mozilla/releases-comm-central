@@ -297,7 +297,9 @@ class CalendarTaskTreeView {
     switch (property) {
       case "title":
         // Return title, or "Untitled" if empty/null.
-        return task.title ? task.title.replace(/\n/g, " ") : cal.l10n.getCalString("eventUntitled");
+        return task.title
+          ? task.title.replace(/\n/g, " ")
+          : CalendarTaskTreeView.l10n.formatValueSync("event-untitled");
       case "entryDate":
       case "dueDate":
       case "completedDate":
@@ -490,3 +492,9 @@ class CalendarTaskTreeView {
       : "";
   }
 }
+
+ChromeUtils.defineLazyGetter(
+  CalendarTaskTreeView,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl"], true)
+);

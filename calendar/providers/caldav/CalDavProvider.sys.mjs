@@ -9,6 +9,8 @@ import { DNS } from "resource:///modules/DNS.sys.mjs";
 import { CalDavPropfindRequest } from "resource:///modules/caldav/CalDavRequest.sys.mjs";
 import { CalDavDetectionSession } from "resource:///modules/caldav/CalDavSession.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.sys.mjs under the cal.provider.caldav namespace.
 
@@ -23,7 +25,7 @@ export var CalDavProvider = {
   },
 
   get displayName() {
-    return cal.l10n.getCalString("caldavName");
+    return lazy.l10n.formatValueSync("cal-dav-name");
   },
 
   get shortName() {

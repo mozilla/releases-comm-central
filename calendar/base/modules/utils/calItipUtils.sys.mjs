@@ -21,6 +21,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRelation: "resource:///modules/CalRelation.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 export var itip = {
   /**
@@ -898,7 +899,7 @@ export var itip = {
         args.onOk = aCal => {
           targetCalendar = aCal;
         };
-        args.promptText = lazy.cal.l10n.getCalString("importPrompt");
+        args.promptText = lazy.l10n.formatValueSync("import-prompt");
         aWindow.openDialog(
           "chrome://calendar/content/chooseCalendarDialog.xhtml",
           "_blank",

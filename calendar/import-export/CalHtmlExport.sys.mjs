@@ -4,6 +4,8 @@
 
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 /**
  * HTML Export Plugin
  */
@@ -17,7 +19,7 @@ CalHtmlExporter.prototype = {
 
   getFileTypes() {
     const wildmat = "*.html; *.htm";
-    const label = cal.l10n.getCalString("filterHtml", [wildmat]);
+    const label = lazy.l10n.formatValueSync("filter-html", { wildmat });
     return [
       {
         QueryInterface: ChromeUtils.generateQI(["calIFileType"]),
@@ -31,7 +33,8 @@ CalHtmlExporter.prototype = {
   exportToStream(aStream, aItems, aTitle) {
     const document = cal.xml.parseFile("chrome://calendar/content/printing/calHtmlExport.html");
     const itemContainer = document.getElementById("item-container");
-    document.getElementById("title").textContent = aTitle || cal.l10n.getCalString("HTMLTitle");
+    document.getElementById("title").textContent =
+      aTitle || lazy.l10n.formatValueSync("html-title");
 
     // Sort aItems
     aItems.sort((a, b) => {
@@ -52,7 +55,7 @@ CalHtmlExporter.prototype = {
 
       const setupTextRow = function (classKey, propValue, prefixKey) {
         if (propValue) {
-          const prefix = cal.l10n.getCalString(prefixKey);
+          const prefix = lazy.l10n.formatValueSync(prefixKey);
           itemNode.querySelector("." + classKey + "key").textContent = prefix;
           itemNode.querySelector("." + classKey).textContent = propValue;
         } else {
@@ -71,7 +74,7 @@ CalHtmlExporter.prototype = {
       const endDate = item[cal.dtz.endDateProp(item)];
       if (startDate || endDate) {
         // This is a task with a start or due date, format accordingly
-        const prefixWhen = cal.l10n.getCalString("htmlPrefixWhen");
+        const prefixWhen = lazy.l10n.formatValueSync("html-prefix-when");
         itemNode.querySelector(".intervalkey").textContent = prefixWhen;
 
         const startNode = itemNode.querySelector(".dtstart");
@@ -91,12 +94,12 @@ CalHtmlExporter.prototype = {
       }
 
       const itemTitle = item.isCompleted
-        ? cal.l10n.getCalString("htmlTaskCompleted", [item.title])
+        ? lazy.l10n.formatValueSync("html-task-completed", { task: item.title })
         : item.title;
-      setupTextRow("summary", itemTitle, "htmlPrefixTitle");
+      setupTextRow("summary", itemTitle, "html-prefix-title");
 
-      setupTextRow("location", item.getProperty("LOCATION"), "htmlPrefixLocation");
-      setupTextRow("description", item.getProperty("DESCRIPTION"), "htmlPrefixDescription");
+      setupTextRow("location", item.getProperty("LOCATION"), "html-prefix-location");
+      setupTextRow("description", item.getProperty("DESCRIPTION"), "html-prefix-description");
 
       itemContainer.appendChild(itemNode);
     }

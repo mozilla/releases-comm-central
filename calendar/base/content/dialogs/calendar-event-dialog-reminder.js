@@ -6,10 +6,8 @@
 
 /* import-globals-from ../calendar-ui-utils.js */
 
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-
 ChromeUtils.defineESModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
 });
@@ -22,6 +20,11 @@ ChromeUtils.defineLazyGetter(this, "gReminderNotification", () => {
     document.getElementById("reminder-notifications").append(element);
   });
 });
+ChromeUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["calendar/calendar-alarms.ftl"], true)
+);
 
 window.addEventListener("load", onLoad);
 
@@ -33,24 +36,25 @@ function onLoad() {
 
   // Make sure the origin menulist uses the right labels, depending on if the
   // dialog is showing an event or task.
-  function _sn(x) {
-    return cal.l10n.getString("calendar-alarms", getItemBundleStringName(x));
-  }
 
-  document.getElementById("reminder-before-start-menuitem").label = _sn(
-    "reminderCustomOriginBeginBefore"
+  document.l10n.setAttributes(
+    document.getElementById("reminder-before-start-menuitem"),
+    getItemBundleStringName("reminder-custom-origin-begin-before")
   );
 
-  document.getElementById("reminder-after-start-menuitem").label = _sn(
-    "reminderCustomOriginBeginAfter"
+  document.l10n.setAttributes(
+    document.getElementById("reminder-after-start-menuitem"),
+    getItemBundleStringName("reminder-custom-origin-begin-after")
   );
 
-  document.getElementById("reminder-before-end-menuitem").label = _sn(
-    "reminderCustomOriginEndBefore"
+  document.l10n.setAttributes(
+    document.getElementById("reminder-before-end-menuitem"),
+    getItemBundleStringName("reminder-custom-origin-end-before")
   );
 
-  document.getElementById("reminder-after-end-menuitem").label = _sn(
-    "reminderCustomOriginEndAfter"
+  document.l10n.setAttributes(
+    document.getElementById("reminder-after-end-menuitem"),
+    getItemBundleStringName("reminder-custom-origin-end-after")
   );
 
   // Set up the action map
@@ -177,21 +181,20 @@ async function setupMaxReminders() {
   // disable the new button.
   document.getElementById("reminder-new-button").disabled = hitMaxReminders;
 
-  const localeErrorString = cal.l10n.getString(
-    "calendar-alarms",
-    getItemBundleStringName("reminderErrorMaxCountReached"),
-    [maxReminders]
-  );
-  const pluralErrorLabel = PluralForm.get(maxReminders, localeErrorString).replace(
-    "#1",
-    maxReminders
-  );
+  // const localeErrorString = this.l10n.formatValueSync("reminder-error-max-count-reached", {
+  //   count: maxReminders,
+  // });
 
   if (hitMaxReminders) {
     const notification = await gReminderNotification.appendNotification(
       "reminderNotification",
       {
-        label: pluralErrorLabel,
+        label: {
+          "l10n-id": "reminder-error-max-count-reached",
+          "l10n-args": {
+            count: maxReminders,
+          },
+        },
         priority: gReminderNotification.PRIORITY_WARNING_MEDIUM,
       },
       null
@@ -409,9 +412,9 @@ function updateReminder(event) {
  */
 function getItemBundleStringName(aPrefix) {
   if (window.arguments[0].item.isEvent()) {
-    return aPrefix + "Event";
+    return `${aPrefix}-event`;
   }
-  return aPrefix + "Task";
+  return `${aPrefix}-task`;
 }
 
 /**

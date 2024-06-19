@@ -86,6 +86,7 @@ ChromeUtils.defineLazyGetter(this, "gEventNotification", () => {
     document.getElementById("event-dialog-notifications").append(element);
   });
 });
+ChromeUtils.defineLazyGetter(this, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 var eventDialogRequestObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
@@ -138,10 +139,10 @@ var eventDialogCalendarObserver = {
       // The item has been modified outside the dialog. We only need to
       // prompt if there have been local changes also.
       if (isItemChanged()) {
-        const promptTitle = cal.l10n.getCalString("modifyConflictPromptTitle");
-        const promptMessage = cal.l10n.getCalString("modifyConflictPromptMessage");
-        const promptButton1 = cal.l10n.getCalString("modifyConflictPromptButton1");
-        const promptButton2 = cal.l10n.getCalString("modifyConflictPromptButton2");
+        const promptTitle = this.l10n.formatValueSync("modify-conflict-prompt-title");
+        const promptMessage = this.l10n.formatValueSync("modify-conflict-prompt-message");
+        const promptButton1 = this.l10n.formatValueSync("modify-conflict-prompt-button1");
+        const promptButton2 = this.l10n.formatValueSync("modify-conflict-prompt-button2");
         const flags =
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_0 +
           Ci.nsIPromptService.BUTTON_TITLE_IS_STRING * Ci.nsIPromptService.BUTTON_POS_1;
@@ -488,11 +489,11 @@ function onCommandCancel() {
     gTabmail.switchToTab(gTabInfoObject);
   }
 
-  const promptTitle = cal.l10n.getCalString(
-    window.calendarItem.isEvent() ? "askSaveTitleEvent" : "askSaveTitleTask"
+  const promptTitle = this.l10n.formatValueSync(
+    window.calendarItem.isEvent() ? "ask-save-title-event" : "ask-save-title-task"
   );
-  const promptMessage = cal.l10n.getCalString(
-    window.calendarItem.isEvent() ? "askSaveMessageEvent" : "askSaveMessageTask"
+  const promptMessage = this.l10n.formatValueSync(
+    window.calendarItem.isEvent() ? "ask-save-message-event" : "ask-save-message-task"
   );
 
   const flags =
@@ -516,7 +517,7 @@ function onCommandCancel() {
       // Save
       const itemTitle = document.getElementById("item-title");
       if (!itemTitle.value) {
-        itemTitle.value = cal.l10n.getCalString("eventUntitled");
+        itemTitle.value = this.l10n.formatValueSync("event-untitled");
       }
       onCommandSave(true);
       return true;
@@ -815,7 +816,7 @@ function loadCategories(aItem) {
   if (maxCount == 1) {
     const item = document.createXULElement("menuitem");
     item.setAttribute("class", "menuitem-iconic");
-    item.setAttribute("label", cal.l10n.getCalString("None"));
+    document.l10n.setAttributes(item, "calendar-none");
     item.setAttribute("type", "radio");
     if (itemCategories.length === 0) {
       item.setAttribute("checked", "true");
@@ -855,16 +856,15 @@ function updateCategoryMenulist() {
   // supported
   document.getElementById("event-grid-category-row").toggleAttribute("hidden", maxCount === 0);
 
-  let label;
   const categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
   if (categoryList.length > 1) {
-    label = cal.l10n.getCalString("multipleCategories");
+    document.l10n.setAttributes(categoryMenulist, "multiple-categories");
   } else if (categoryList.length == 1) {
-    label = categoryList[0].getAttribute("label");
+    categoryMenulist.removeAttribute("data-l10n-id");
+    categoryMenulist.setAttribute("label", categoryList[0].getAttribute("label"));
   } else {
-    label = cal.l10n.getCalString("None");
+    document.l10n.setAttributes(categoryMenulist, "calendar-none");
   }
-  categoryMenulist.setAttribute("label", label);
 
   const labelBox = categoryMenulist.shadowRoot.querySelector("#label-box");
   const labelLabel = labelBox.querySelector("#label");
@@ -1176,7 +1176,7 @@ function dateTimeControls2State(aStartDatepicker) {
       gStartTime = saveStartTime;
       gEndTime = saveEndTime;
       warning = true;
-      stringWarning = cal.l10n.getCalString("warningEndBeforeStart");
+      stringWarning = this.l10n.formatValueSync("warning-end-before-start");
     }
   }
 
@@ -1214,7 +1214,7 @@ function dateTimeControls2State(aStartDatepicker) {
       }
 
       warning = true;
-      stringWarning = cal.l10n.getCalString("warningUntilDateBeforeStart");
+      stringWarning = this.l10n.formatValueSync("warning-until-date-before-start");
     }
   }
 
@@ -1686,15 +1686,15 @@ function untilDateCompensation(aItem) {
 function updateTitle() {
   let strName;
   if (window.calendarItem.isEvent()) {
-    strName = window.mode == "new" ? "newEventDialog" : "editEventDialog";
+    strName = window.mode == "new" ? "new-event-dialog" : "edit-event-dialog";
   } else if (window.calendarItem.isTodo()) {
-    strName = window.mode == "new" ? "newTaskDialog" : "editTaskDialog";
+    strName = window.mode == "new" ? "new-task-dialog" : "edit-task-dialog";
   } else {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
   sendMessage({
     command: "updateTitle",
-    prefix: cal.l10n.getCalString(strName),
+    prefix: this.l10n.formatValueSync(strName),
     title: document.getElementById("item-title").value,
   });
 }
@@ -4048,7 +4048,7 @@ function checkUntilDate() {
       Services.prompt.alert(
         null,
         document.title,
-        cal.l10n.getCalString("warningUntilDateBeforeStart")
+        this.l10n.formatValueSync("warning-until-date-before-start")
       );
       enableAcceptCommand(true);
       gWarning = false;

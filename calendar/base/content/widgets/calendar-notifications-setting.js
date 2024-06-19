@@ -9,8 +9,12 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-  var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
-
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl"], true)
+  );
   /**
    * A calendar-notifications-setting provides controls to config notifications
    * times of a calendar.
@@ -185,13 +189,13 @@
           </menulist>
           <menulist class="relation-menu" crop="none" value="${relation}">
             <menupopup class="reminder-relation-origin-menupopup">
-              <menuitem data-id="reminderCustomOriginBeginBeforeEvent"
+              <menuitem data-l10n-id="reminder-custom-origin-begin-before-event-dom"
                         value="before-START"/>
-              <menuitem data-id="reminderCustomOriginBeginAfterEvent"
+               <menuitem data-l10n-id="reminder-custom-origin-begin-after-event-dom"
                         value="after-START"/>
-              <menuitem data-id="reminderCustomOriginEndBeforeEvent"
+               <menuitem data-l10n-id="reminder-custom-origin-end-before-event-dom"
                         value="before-END"/>
-              <menuitem data-id="reminderCustomOriginEndAfterEvent"
+               <menuitem data-l10n-id="reminder-custom-origin-end-after-event-dom"    
                         value="after-END"/>
             </menupopup>
           </menulist>
@@ -223,9 +227,6 @@
         const input = row.querySelector("input");
         const menulist = row.querySelector(".unit-menu");
         this._updateMenuList(input.value, menulist);
-        for (const menuItem of row.querySelectorAll(".relation-menu menuitem")) {
-          menuItem.label = cal.l10n.getString("calendar-alarms", menuItem.dataset.id);
-        }
       }
     }
 
@@ -235,14 +236,16 @@
     _updateMenuList(length, menu) {
       const getUnitEntry = unit =>
         ({
-          M: "unitMinutes",
-          H: "unitHours",
-          D: "unitDays",
-        }[unit] || "unitMinutes");
+          M: "unit-minutes",
+          H: "unit-hours",
+          D: "unit-days",
+        }[unit] || "unit-minutes");
 
       for (const menuItem of menu.getElementsByTagName("menuitem")) {
-        menuItem.label = PluralForm.get(length, cal.l10n.getCalString(getUnitEntry(menuItem.value)))
-          .replace("#1", "")
+        menuItem.label = lazy.l10n
+          .formatValueSync(getUnitEntry(menuItem.value), {
+            count: length,
+          })
           .trim();
       }
     }

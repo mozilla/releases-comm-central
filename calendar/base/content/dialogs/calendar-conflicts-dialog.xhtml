@@ -20,12 +20,14 @@
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="calendar/calendar.ftl" />
     <script defer="defer" src="chrome://calendar/content/widgets/mouseoverPreviews.js"></script>
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
     <script defer="defer" src="chrome://calendar/content/calendar-conflicts-dialog.js"></script>
+    <title data-l10n-id="item-modified-on-server-title"></title>
   </head>
   <body>
-    <xul:dialog>
+    <xul:dialog data-l10n-attrs="buttonlabelcancel" data-l10n-id="calendar-conflicts-dialog">
       <div id="conflicts-vbox">
         <div id="item-box"></div>
       </div>

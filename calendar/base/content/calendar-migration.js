@@ -6,7 +6,8 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
-
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 /* eslint-enable valid-jsdoc */
 
 /**
@@ -277,10 +278,16 @@ var gDataMigrator = {
     } catch (ex) {
       switch (ex.result) {
         case Ci.calIErrors.INVALID_TIMEZONE:
-          cal.showError(cal.l10n.getCalString("timezoneError", [icsFile.path]), window);
+          cal.showError(
+            lazy.l10n.formatValueSync("timezone-error", { filePath: icsFile.path }),
+            window
+          );
           break;
         default:
-          cal.showError(cal.l10n.getCalString("unableToRead") + icsFile.path + "\n" + ex, window);
+          cal.showError(
+            lazy.l10n.formatValueSync("unable-to-read") + icsFile.path + "\n" + ex,
+            window
+          );
       }
     } finally {
       inputStream.close();
@@ -302,15 +309,18 @@ var gDataMigrator = {
       onEnd() {
         if (this.failedCount) {
           cal.showError(
-            cal.l10n.getCalString("importItemsFailed", [
-              this.failedCount,
-              this.lastError.toString(),
-            ]),
+            lazy.l10n.formatValueSync("import-items-failed", {
+              count: this.failedCount,
+              error: this.lastError.toString(),
+            }),
             window
           );
         } else if (this.duplicateCount) {
           cal.showError(
-            cal.l10n.getCalString("duplicateError", [this.duplicateCount, icsFile.path]),
+            lazy.l10n.formatValueSync("duplicate-error", {
+              count: this.duplicateCount,
+              filePath: icsFile.path,
+            }),
             window
           );
         }

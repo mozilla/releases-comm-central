@@ -16,7 +16,12 @@
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
   const MINUTES_IN_DAY = 24 * 60;
-
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl"], true)
+  );
   /**
    * Get the nearest or next snap point for the given minute. The set of snap
    * points is given by `n * snapInterval`, where `n` is some integer.
@@ -816,9 +821,9 @@
       const item = this.mDragState.dragOccurrence;
       if (item?.isTodo()) {
         if (!item.dueDate) {
-          startStr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
+          startStr = lazy.l10n.formatValueSync("drag-label-tasks-with-only-entry-date");
         } else if (!item.entryDate) {
-          startStr = cal.l10n.getCalString("dragLabelTasksWithOnlyDueDate");
+          startStr = lazy.l10n.formatValueSync("drag-label-tasks-with-only-due-date");
         }
       }
 
@@ -1755,6 +1760,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
@@ -1765,7 +1771,7 @@
               <html:div class="event-name-label"></html:div>
               <html:input class="plain event-name-input"
                           hidden="hidden"
-                          placeholder='${cal.l10n.getCalString("newEvent")}'/>
+                          data-l10n-id="new-event"/>
               <html:div class="alarm-icons-box"></html:div>
               <html:img class="item-classification-icon" />
               <html:img class="item-recurrence-icon" />
@@ -3056,14 +3062,14 @@
           dayCol.date.makeImmutable();
 
           /* Set up day of the week headings. */
-          dayCol.shortHeading.textContent = cal.l10n.getCalString("dayHeaderLabel", [
-            dateFormatter.shortDayName(dayDate.weekday),
-            dateFormatter.formatDateWithoutYear(dayDate),
-          ]);
-          dayCol.longHeading.textContent = cal.l10n.getCalString("dayHeaderLabel", [
-            dateFormatter.dayName(dayDate.weekday),
-            dateFormatter.formatDateWithoutYear(dayDate),
-          ]);
+          document.l10n.setAttributes(dayCol.shortHeading, "day-header", {
+            dayName: dateFormatter.shortDayName(dayDate.weekday),
+            dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
+          });
+          document.l10n.setAttributes(dayCol.longHeading, "day-header", {
+            dayName: dateFormatter.dayName(dayDate.weekday),
+            dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
+          });
 
           /* Set up all-day header. */
           dayCol.header.date = dayDate;

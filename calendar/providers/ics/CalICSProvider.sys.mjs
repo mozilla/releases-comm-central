@@ -13,7 +13,8 @@ import {
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.sys.mjs under the cal.provider.ics namespace.
-
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 /**
  * @implements {calICalendarProvider}
  */
@@ -25,7 +26,7 @@ export var CalICSProvider = {
   },
 
   get displayName() {
-    return cal.l10n.getCalString("icsName");
+    return lazy.l10n.formatValueSync("ics-name-key");
   },
 
   get shortName() {

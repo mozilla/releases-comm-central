@@ -15,8 +15,7 @@ var { cancelItemDialog } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
-
+const l10n = new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true);
 const DEFVALUE = 43;
 
 add_task(async function testDefaultAlarms() {
@@ -26,13 +25,17 @@ add_task(async function testDefaultAlarms() {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
-  const localeUnitString = cal.l10n.getCalString("unitDays");
-  const unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
-  const alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
-  const originStringEvent = alarmString("reminderCustomOriginBeginBeforeEvent");
-  const originStringTask = alarmString("reminderCustomOriginBeginBeforeTask");
-  const expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
-  const expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
+  const unitString = l10n.formatValueSync("unit-days", { count: DEFVALUE });
+  const originStringEvent = l10n.formatValueSync("reminder-custom-origin-begin-before-event");
+  const originStringTask = l10n.formatValueSync("reminder-custom-origin-begin-before-task");
+  const expectedEventReminder = l10n.formatValueSync("reminder-custom-title", {
+    unit: unitString,
+    reminderCustomOrigin: originStringEvent,
+  });
+  const expectedTaskReminder = l10n.formatValueSync("reminder-custom-title", {
+    unit: unitString,
+    reminderCustomOrigin: originStringTask,
+  });
 
   // Configure the preferences.
   const { prefsWindow, prefsDocument } = await openNewPrefsTab(

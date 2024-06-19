@@ -10,7 +10,6 @@
   const { CalMetronome } = ChromeUtils.importESModule("resource:///modules/CalMetronome.sys.mjs");
   const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
   customElements.whenDefined("tree-listbox").then(() => {
     class Agenda extends CalendarFilteredViewMixin(customElements.get("tree-listbox")) {
       _showsToday = false;
@@ -410,14 +409,15 @@
       tomorrow.day++;
 
       if (date.year == today.year && date.month == today.month && date.day == today.day) {
-        this.dateHeaderElement.textContent = cal.l10n.getCalString("today");
+        document.l10n.setAttributes(this.dateHeaderElement, "calendar-today");
       } else if (
         date.year == tomorrow.year &&
         date.month == tomorrow.month &&
         date.day == tomorrow.day
       ) {
-        this.dateHeaderElement.textContent = cal.l10n.getCalString("tomorrow");
+        document.l10n.setAttributes(this.dateHeaderElement, "calendar-tomorrow");
       } else {
+        delete this.dateHeaderElement.dataset.l10nId;
         this.dateHeaderElement.textContent = cal.dtz.formatter.formatDateLongWithoutYear(date);
       }
     }

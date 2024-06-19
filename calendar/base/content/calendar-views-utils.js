@@ -589,17 +589,14 @@ var calendarNavigationBar = {
         secondWeekNo = cal.weekInfoService.getWeekTitle(endDate);
       }
       if (secondWeekNo == firstWeekNo) {
-        weekLabel.textContent = cal.l10n.getCalString("singleShortCalendarWeek", [firstWeekNo]);
-        weekLabel.tooltipText = cal.l10n.getCalString("singleLongCalendarWeek", [firstWeekNo]);
+        document.l10n.setAttributes(weekLabel, "single-calendar-week", {
+          index: firstWeekNo,
+        });
       } else {
-        weekLabel.textContent = cal.l10n.getCalString("severalShortCalendarWeeks", [
-          firstWeekNo,
-          secondWeekNo,
-        ]);
-        weekLabel.tooltipText = cal.l10n.getCalString("severalLongCalendarWeeks", [
-          firstWeekNo,
-          secondWeekNo,
-        ]);
+        document.l10n.setAttributes(weekLabel, "several-calendar-weeks", {
+          startIndex: firstWeekNo,
+          endIndex: secondWeekNo,
+        });
       }
       docTitle = intervalLabel.textContent;
     }

@@ -9,8 +9,6 @@
 /* import-globals-from calendar-identity-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
-
 /**
  * The calendar to modify, is retrieved from window.arguments[0].calendar
  */
@@ -199,9 +197,9 @@ function initRefreshInterval() {
     const menuitem = document.createXULElement("menuitem");
     menuitem.setAttribute("value", minutes);
 
-    const everyMinuteString = cal.l10n.getCalString("calendarPropertiesEveryMinute");
-    const label = PluralForm.get(minutes, everyMinuteString).replace("#1", minutes);
-    menuitem.setAttribute("label", label);
+    document.l10n.setAttributes(menuitem, "calendar-properties-every-minute", {
+      count: minutes,
+    });
 
     return menuitem;
   }

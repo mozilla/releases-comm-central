@@ -7,7 +7,6 @@
 /* import-globals-from calendar-item-editing.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -48,12 +47,20 @@ var taskEdit = {
     edit.showsInstructions = true;
 
     if (calendar.getProperty("capabilities.tasks.supported") === false) {
-      taskEdit.setupTaskField(edit, true, cal.l10n.getCalString("taskEditInstructionsCapability"));
+      taskEdit.setupTaskField(
+        edit,
+        true,
+        taskEdit.l10n.formatValueSync("task-edit-instructions-capability")
+      );
     } else if (cal.acl.isCalendarWritable(calendar)) {
       edit.showsInstructions = false;
       taskEdit.setupTaskField(edit, false, edit.savedValue || "");
     } else {
-      taskEdit.setupTaskField(edit, true, cal.l10n.getCalString("taskEditInstructionsReadonly"));
+      taskEdit.setupTaskField(
+        edit,
+        true,
+        taskEdit.l10n.formatValueSync("task-edit-instructions-readonly")
+      );
     }
   },
 
@@ -71,14 +78,22 @@ var taskEdit = {
     }
 
     if (calendar.getProperty("capabilities.tasks.supported") === false) {
-      taskEdit.setupTaskField(edit, true, cal.l10n.getCalString("taskEditInstructionsCapability"));
+      taskEdit.setupTaskField(
+        edit,
+        true,
+        taskEdit.l10n.formatValueSync("task-edit-instructions-capability")
+      );
     } else if (cal.acl.isCalendarWritable(calendar)) {
       if (!edit.showsInstructions) {
         edit.savedValue = edit.value || "";
       }
-      taskEdit.setupTaskField(edit, false, cal.l10n.getCalString("taskEditInstructions"));
+      taskEdit.setupTaskField(edit, false, taskEdit.l10n.formatValueSync("task-edit-instructions"));
     } else {
-      taskEdit.setupTaskField(edit, true, cal.l10n.getCalString("taskEditInstructionsReadonly"));
+      taskEdit.setupTaskField(
+        edit,
+        true,
+        taskEdit.l10n.formatValueSync("task-edit-instructions-readonly")
+      );
     }
 
     edit.showsInstructions = true;
@@ -179,3 +194,9 @@ var taskEdit = {
     },
   },
 };
+
+ChromeUtils.defineLazyGetter(
+  taskEdit,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl"], true)
+);

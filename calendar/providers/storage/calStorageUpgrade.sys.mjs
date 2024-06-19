@@ -76,7 +76,7 @@ import {
 } from "resource:///modules/calendar/calStorageHelpers.sys.mjs";
 
 const lazy = {};
-
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 ChromeUtils.defineESModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
   CalAttachment: "resource:///modules/CalAttachment.sys.mjs",
@@ -292,7 +292,10 @@ function handleTooNewSchema(storageCalendar) {
   storageCalendar.db.close();
 
   const appName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
-  const errorText = cal.l10n.getCalString("tooNewSchemaErrorText", [appName, copyFileName]);
+  const errorText = lazy.l10n.formatValueSync("too-new-schema-error-text", {
+    hostApplication: appName,
+    fileName: copyFileName,
+  });
   cal.ERROR(errorText);
 
   storageCalendar.prepareInitDB();

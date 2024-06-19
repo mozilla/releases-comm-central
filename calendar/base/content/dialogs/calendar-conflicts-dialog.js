@@ -5,7 +5,8 @@
 /* globals getPreviewForItem */ // From mouseoverPreviews.js
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 window.addEventListener("DOMContentLoaded", onLoad);
 
 function onLoad() {
@@ -18,20 +19,16 @@ function onLoad() {
 
   const descr = document.getElementById("conflicts-description");
 
-  // TODO These strings should move to Fluent.
-  // For that matter, this dialog should be reworked!
-  document.title = cal.l10n.getCalString("itemModifiedOnServerTitle");
-  descr.textContent = cal.l10n.getCalString("itemModifiedOnServer");
+  // TODO This dialog should be reworked!
+  descr.textContent = lazy.l10n.formatValueSync("item-modified-on-server");
 
   if (window.arguments[0].mode == "modify") {
-    descr.textContent += cal.l10n.getCalString("modifyWillLoseData");
-    dialog.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedModify"));
+    descr.textContent += lazy.l10n.formatValueSync("modify-will-lose-data");
+    document.l10n.setAttributes(dialog.getButton("accept"), "proceed-modify");
   } else {
-    descr.textContent += cal.l10n.getCalString("deleteWillLoseData");
-    dialog.getButton("accept").setAttribute("label", cal.l10n.getCalString("proceedDelete"));
+    descr.textContent += lazy.l10n.formatValueSync("delete-will-lose-data");
+    document.l10n.setAttributes(dialog.getButton("accept"), "proceed-delete");
   }
-
-  dialog.getButton("cancel").setAttribute("label", cal.l10n.getCalString("updateFromServer"));
 }
 
 document.addEventListener("dialogaccept", () => {

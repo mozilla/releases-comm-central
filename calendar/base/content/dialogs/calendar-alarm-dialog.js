@@ -10,9 +10,14 @@
 
 /* import-globals-from ../item-editing/calendar-item-editing.js */
 
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+var lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl", "calendar/calendar-alarms.ftl"], true)
+);
 
 window.addEventListener("load", () => {
   setupWindow();
@@ -291,8 +296,8 @@ function aboveSnoozeLimit(aDuration) {
 
   const durationUntilLimit = limitTime.subtractDate(currentTime);
   if (aDuration.compare(durationUntilLimit) > 0) {
-    const msg = PluralForm.get(LIMIT, cal.l10n.getCalString("alarmSnoozeLimitExceeded"));
-    cal.showError(msg.replace("#1", LIMIT), window);
+    const msg = lazy.l10n.formatValueSync("alarm-snooze-limit-exceeded", { count: LIMIT });
+    cal.showError(msg, window);
     return true;
   }
   return false;
@@ -305,8 +310,7 @@ function setupTitle() {
   const alarmRichlist = document.getElementById("alarm-richlist");
   const reminders = alarmRichlist.children.length;
 
-  const title = PluralForm.get(reminders, cal.l10n.getCalString("alarmWindowTitle.label"));
-  document.title = title.replace("#1", reminders);
+  document.title = lazy.l10n.formatValueSync("alarm-window-title-label", { count: reminders });
 }
 
 /**
@@ -426,7 +430,7 @@ async function doReadOnlyChecks() {
   const snoozeAllButton = document.getElementById("alarm-snooze-all-button");
   snoozeAllButton.disabled = countRO && countRO == alarmRichlist.children.length;
   if (snoozeAllButton.disabled) {
-    const tooltip = cal.l10n.getString("calendar-alarms", "reminderDisabledSnoozeButtonTooltip");
+    const tooltip = lazy.l10n.formatValueSync("reminder-disabled-snooze-button-tooltip");
     snoozeAllButton.setAttribute("tooltiptext", tooltip);
   } else {
     snoozeAllButton.removeAttribute("tooltiptext");
@@ -434,13 +438,13 @@ async function doReadOnlyChecks() {
 
   const notification = gReadOnlyNotification.getNotificationWithValue("calendar-readonly");
   if (countRO && !notification) {
-    const message = cal.l10n.getString("calendar-alarms", "reminderReadonlyNotification", [
-      snoozeAllButton.label,
-    ]);
     await gReadOnlyNotification.appendNotification(
       "calendar-readonly",
       {
-        label: message,
+        label: {
+          "l10n-id": "reminder-readonly-notification",
+          "l10n-args": { label: snoozeAllButton.label },
+        },
         priority: gReadOnlyNotification.PRIORITY_WARNING_MEDIUM,
       },
       null

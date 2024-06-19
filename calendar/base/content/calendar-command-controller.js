@@ -731,22 +731,21 @@ function setupContextItemType(aEvent, aItems) {
   function adaptModificationMenuItem(aMenuItemId, aItemType) {
     const menuItem = document.getElementById(aMenuItemId);
     if (menuItem) {
-      menuItem.setAttribute("label", cal.l10n.getCalString(`delete${aItemType}Label`));
-      menuItem.setAttribute("accesskey", cal.l10n.getCalString(`delete${aItemType}Accesskey`));
+      document.l10n.setAttributes(menuItem, `delete-${aItemType}`);
     }
   }
   if (aItems.some(item => item.isEvent()) && aItems.some(item => item.isTodo())) {
     aEvent.target.setAttribute("type", "mixed");
-    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
+    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "item");
   } else if (aItems.length && aItems[0].isEvent()) {
     aEvent.target.setAttribute("type", "event");
-    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Event");
+    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "event");
   } else if (aItems.length && aItems[0].isTodo()) {
     aEvent.target.setAttribute("type", "todo");
-    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Task");
+    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "task");
   } else {
     aEvent.target.removeAttribute("type");
-    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
+    adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "item");
   }
 
   const menu = document.getElementById("calendar-item-context-menu-attendance-menu");

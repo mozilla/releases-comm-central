@@ -12,7 +12,8 @@ import { upgradeDB } from "resource:///modules/calendar/calStorageUpgrade.sys.mj
 
 const kCalICalendar = Ci.calICalendar;
 const cICL = Ci.calIChangeLog;
-
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 export function CalStorageCalendar() {
   this.initProviderBase();
 }
@@ -49,7 +50,7 @@ CalStorageCalendar.prototype = {
   //
 
   get displayName() {
-    return cal.l10n.getCalString("storageName");
+    return lazy.l10n.formatValueSync("storage-name");
   },
 
   get shortName() {

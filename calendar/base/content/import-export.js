@@ -5,6 +5,7 @@
 /* import-globals-from item-editing/calendar-item-editing.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /* exported getItemsFromIcsFile, putItemsIntoCal, exportEntireCalendar */
 
@@ -36,10 +37,10 @@ function getItemsFromIcsFile(file) {
     exception = ex;
     switch (ex.result) {
       case Ci.calIErrors.INVALID_TIMEZONE:
-        cal.showError(cal.l10n.getCalString("timezoneError", [file.path]), window);
+        cal.showError(lazy.l10n.formatValueSync("timezone-error", { filePath: file.path }), window);
         break;
       default:
-        cal.showError(cal.l10n.getCalString("unableToRead") + file.path + "\n" + ex, window);
+        cal.showError(lazy.l10n.formatValueSync("unable-to-read") + file.path + "\n" + ex, window);
     }
   } finally {
     inputStream.close();
@@ -48,7 +49,10 @@ function getItemsFromIcsFile(file) {
   if (!items.length && !exception) {
     // The ics did not contain any events, so we should
     // notify the user about it, if we haven't before.
-    cal.showError(cal.l10n.getCalString("noItemsInCalendarFile2", [file.path]), window);
+    cal.showError(
+      lazy.l10n.formatValueSync("no-items-in-calendar-file2", { filePath: file.path }),
+      window
+    );
   }
 
   return items;
@@ -139,7 +143,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
   const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   picker.init(
     window.browsingContext,
-    cal.l10n.getCalString("filepickerTitleExport"),
+    lazy.l10n.formatValueSync("filepicker-title-export"),
     Ci.nsIFilePicker.modeSave
   );
 
@@ -149,7 +153,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
   } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
     filename = calendarEventArray[0].title;
   } else {
-    filename = cal.l10n.getCalString("defaultFileName");
+    filename = lazy.l10n.formatValueSync("default-file-name");
   }
   // Remove characters usually illegal on the file system.
   picker.defaultString = filename.replace(/[/\\?%*:|"<>]/g, "-");
@@ -219,7 +223,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
       exporter.exportToStream(outputStream, calendarEventArray, null);
       outputStream.close();
     } catch (ex) {
-      cal.showError(cal.l10n.getCalString("unableToWrite") + filePath, window);
+      cal.showError(lazy.l10n.formatValueSync("unable-to-write", { filePath }), window);
     }
   });
 }
@@ -249,7 +253,7 @@ function exportEntireCalendar(aCalendar) {
       // Ask what calendar to import into
       const args = {};
       args.onOk = getItemsFromCal;
-      args.promptText = cal.l10n.getCalString("exportPrompt");
+      args.promptText = lazy.l10n.formatValueSync("export-prompt");
       openDialog(
         "chrome://calendar/content/chooseCalendarDialog.xhtml",
         "_blank",

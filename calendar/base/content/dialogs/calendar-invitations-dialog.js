@@ -6,35 +6,35 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-// Wrap in a block to prevent leaking to window scope.
 {
-  class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
-    constructor() {
-      super();
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar-invitations-dialog.ftl"], true)
+  );
+  // Wrap in a block to prevent leaking to window scope.
+  {
+    class MozCalendarInvitationsRichlistitem extends MozElements.MozRichlistitem {
+      constructor() {
+        super();
 
-      this.mCalendarItem = null;
-      this.mInitialParticipationStatus = null;
-      this.mParticipationStatus = null;
-      this.calInvitationsProps = Services.strings.createBundle(
-        "chrome://calendar/locale/calendar-invitations-dialog.properties"
-      );
-    }
-
-    getString(propName) {
-      return this.calInvitationsProps.GetStringFromName(propName);
-    }
-
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasChildNodes()) {
-        return;
+        this.mCalendarItem = null;
+        this.mInitialParticipationStatus = null;
+        this.mParticipationStatus = null;
       }
 
-      this.setAttribute("is", "calendar-invitations-richlistitem");
-      this.classList.add("calendar-invitations-richlistitem");
+      connectedCallback() {
+        if (this.delayConnectedCallback() || this.hasChildNodes()) {
+          return;
+        }
 
-      this.appendChild(
-        MozXULElement.parseXULToFragment(
-          `
+        this.setAttribute("is", "calendar-invitations-richlistitem");
+        this.classList.add("calendar-invitations-richlistitem");
+
+        this.appendChild(
+          MozXULElement.parseXULToFragment(
+            `
           <hbox align="start" flex="1">
             <!-- Note: The wrapper div is only here because the XUL box does not
                - properly crop img elements with CSS object-fit and
@@ -69,142 +69,141 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
             </vbox>
           </hbox>
           `,
-          ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]
-        )
-      );
-    }
-
-    set calendarItem(val) {
-      this.setCalendarItem(val);
-    }
-
-    get calendarItem() {
-      return this.mCalendarItem;
-    }
-
-    set initialParticipationStatus(val) {
-      this.mInitialParticipationStatus = val;
-    }
-
-    get initialParticipationStatus() {
-      return this.mInitialParticipationStatus;
-    }
-
-    set participationStatus(val) {
-      this.mParticipationStatus = val;
-      const icon = this.querySelector(".calendar-invitations-richlistitem-icon");
-      // Status attribute changes the image region in CSS.
-      icon.setAttribute("status", val);
-      document.l10n.setAttributes(
-        icon,
-        `calendar-invitation-current-participation-status-icon-${val.toLowerCase()}`
-      );
-    }
-
-    get participationStatus() {
-      return this.mParticipationStatus;
-    }
-
-    setCalendarItem(item) {
-      this.mCalendarItem = item;
-      this.mInitialParticipationStatus = this.getCalendarItemParticipationStatus(item);
-      this.participationStatus = this.mInitialParticipationStatus;
-
-      const titleLabel = this.querySelector(".calendar-invitations-richlistitem-title");
-      titleLabel.setAttribute("value", item.title);
-
-      const dateLabel = this.querySelector(".calendar-invitations-richlistitem-date");
-      let dateString = cal.dtz.formatter.formatItemInterval(item);
-      if (item.startDate.isDate) {
-        dateString += ", " + this.getString("allday-event");
-      }
-      dateLabel.setAttribute("value", dateString);
-
-      const recurrenceLabel = this.querySelector(".calendar-invitations-richlistitem-recurrence");
-      if (item.recurrenceInfo) {
-        recurrenceLabel.setAttribute("value", this.getString("recurrent-event"));
-      } else {
-        recurrenceLabel.setAttribute("hidden", "true");
-        const spacer = this.querySelector(".calendar-invitations-richlistitem-spacer");
-        spacer.removeAttribute("hidden");
+            ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]
+          )
+        );
       }
 
-      const locationLabel = this.querySelector(".calendar-invitations-richlistitem-location");
-      const locationProperty = item.getProperty("LOCATION") || this.getString("none");
-      const locationString = this.calInvitationsProps.formatStringFromName("location", [
-        locationProperty,
-      ]);
+      set calendarItem(val) {
+        this.setCalendarItem(val);
+      }
 
-      locationLabel.setAttribute("value", locationString);
+      get calendarItem() {
+        return this.mCalendarItem;
+      }
 
-      const organizerLabel = this.querySelector(".calendar-invitations-richlistitem-organizer");
-      const org = item.organizer;
-      let organizerProperty = "";
-      if (org) {
-        if (org.commonName && org.commonName.length > 0) {
-          organizerProperty = org.commonName;
-        } else if (org.id) {
-          organizerProperty = org.id.replace(/^mailto:/i, "");
+      set initialParticipationStatus(val) {
+        this.mInitialParticipationStatus = val;
+      }
+
+      get initialParticipationStatus() {
+        return this.mInitialParticipationStatus;
+      }
+
+      set participationStatus(val) {
+        this.mParticipationStatus = val;
+        const icon = this.querySelector(".calendar-invitations-richlistitem-icon");
+        // Status attribute changes the image region in CSS.
+        icon.setAttribute("status", val);
+        document.l10n.setAttributes(
+          icon,
+          `calendar-invitation-current-participation-status-icon-${val.toLowerCase()}`
+        );
+      }
+
+      get participationStatus() {
+        return this.mParticipationStatus;
+      }
+
+      setCalendarItem(item) {
+        this.mCalendarItem = item;
+        this.mInitialParticipationStatus = this.getCalendarItemParticipationStatus(item);
+        this.participationStatus = this.mInitialParticipationStatus;
+
+        const titleLabel = this.querySelector(".calendar-invitations-richlistitem-title");
+        titleLabel.setAttribute("value", item.title);
+
+        const dateLabel = this.querySelector(".calendar-invitations-richlistitem-date");
+        let dateString = cal.dtz.formatter.formatItemInterval(item);
+        if (item.startDate.isDate) {
+          dateString += ", " + lazy.l10n.formatValueSync("allday-event");
         }
-      }
-      const organizerString = this.calInvitationsProps.formatStringFromName("organizer", [
-        organizerProperty,
-      ]);
-      organizerLabel.setAttribute("value", organizerString);
+        dateLabel.setAttribute("value", dateString);
 
-      const attendeeLabel = this.querySelector(".calendar-invitations-richlistitem-attendee");
-      const att = cal.itip.getInvitedAttendee(item);
-      let attendeeProperty = "";
-      if (att) {
-        if (att.commonName && att.commonName.length > 0) {
-          attendeeProperty = att.commonName;
-        } else if (att.id) {
-          attendeeProperty = att.id.replace(/^mailto:/i, "");
+        const recurrenceLabel = this.querySelector(".calendar-invitations-richlistitem-recurrence");
+        if (item.recurrenceInfo) {
+          document.l10n.setAttributes(recurrenceLabel, "recurrent-event");
+        } else {
+          recurrenceLabel.setAttribute("hidden", "true");
+          const spacer = this.querySelector(".calendar-invitations-richlistitem-spacer");
+          spacer.removeAttribute("hidden");
         }
-      }
-      const attendeeString = this.calInvitationsProps.formatStringFromName("attendee", [
-        attendeeProperty,
-      ]);
-      attendeeLabel.setAttribute("value", attendeeString);
-      Array.from(this.querySelectorAll("button")).map(button =>
-        button.setAttribute("group", item.hashId)
-      );
-    }
 
-    getCalendarItemParticipationStatus(item) {
-      const att = cal.itip.getInvitedAttendee(item);
-      return att ? att.participationStatus : null;
-    }
+        const locationLabel = this.querySelector(".calendar-invitations-richlistitem-location");
+        const locationProperty =
+          item.getProperty("LOCATION") || lazy.l10n.formatValueSync("calendar-invitations-none");
 
-    setCalendarItemParticipationStatus(item, status) {
-      if (item.calendar?.supportsScheduling) {
-        const att = item.calendar.getSchedulingSupport().getInvitedAttendee(item);
+        document.l10n.setAttributes(locationLabel, "calendar-invitations-location", {
+          locationProperty,
+        });
+
+        const organizerLabel = this.querySelector(".calendar-invitations-richlistitem-organizer");
+        const org = item.organizer;
+        let organizerProperty = "";
+        if (org) {
+          if (org.commonName && org.commonName.length > 0) {
+            organizerProperty = org.commonName;
+          } else if (org.id) {
+            organizerProperty = org.id.replace(/^mailto:/i, "");
+          }
+        }
+        document.l10n.setAttributes(organizerLabel, "organizer", {
+          organizerProperty,
+        });
+
+        const attendeeLabel = this.querySelector(".calendar-invitations-richlistitem-attendee");
+        const att = cal.itip.getInvitedAttendee(item);
+        let attendeeProperty = "";
         if (att) {
-          const att_ = att.clone();
-          att_.participationStatus = status;
-
-          // Update attendee
-          item.removeAttendee(att);
-          item.addAttendee(att_);
-          return true;
+          if (att.commonName && att.commonName.length > 0) {
+            attendeeProperty = att.commonName;
+          } else if (att.id) {
+            attendeeProperty = att.id.replace(/^mailto:/i, "");
+          }
         }
+        document.l10n.setAttributes(attendeeLabel, "calendar-invitations-attendee", {
+          attendeeProperty,
+        });
+        Array.from(this.querySelectorAll("button")).map(button =>
+          button.setAttribute("group", item.hashId)
+        );
       }
-      return false;
+
+      getCalendarItemParticipationStatus(item) {
+        const att = cal.itip.getInvitedAttendee(item);
+        return att ? att.participationStatus : null;
+      }
+
+      setCalendarItemParticipationStatus(item, status) {
+        if (item.calendar?.supportsScheduling) {
+          const att = item.calendar.getSchedulingSupport().getInvitedAttendee(item);
+          if (att) {
+            const att_ = att.clone();
+            att_.participationStatus = status;
+
+            // Update attendee
+            item.removeAttendee(att);
+            item.addAttendee(att_);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      accept() {
+        this.participationStatus = "ACCEPTED";
+      }
+
+      decline() {
+        this.participationStatus = "DECLINED";
+      }
     }
 
-    accept() {
-      this.participationStatus = "ACCEPTED";
-    }
-
-    decline() {
-      this.participationStatus = "DECLINED";
-    }
+    customElements.define("calendar-invitations-richlistitem", MozCalendarInvitationsRichlistitem, {
+      extends: "richlistitem",
+    });
   }
-  customElements.define("calendar-invitations-richlistitem", MozCalendarInvitationsRichlistitem, {
-    extends: "richlistitem",
-  });
 }
-
 window.addEventListener("DOMContentLoaded", onLoad);
 window.addEventListener("unload", onUnload);
 

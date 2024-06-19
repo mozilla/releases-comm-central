@@ -71,6 +71,11 @@ var calendarTabMonitor = {
   },
 };
 
+ChromeUtils.defineLazyGetter(
+  calendarTabMonitor,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl"], true)
+);
 var calendarTabType = {
   name: "calendar",
   panelId: "calendarTabPanel",
@@ -206,16 +211,16 @@ var calendarItemTabType = {
     // Generate and set the tab title.
     let strName;
     if (aTab.mode.type == "calendarEvent") {
-      strName = aArgs.calendarEvent.title ? "editEventDialog" : "newEventDialog";
+      strName = aArgs.calendarEvent.title ? "edit-event-dialog" : "new-event-dialog";
       aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/calendar.svg");
     } else if (aTab.mode.type == "calendarTask") {
-      strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
+      strName = aArgs.calendarEvent.title ? "edit-task-dialog" : "new-task-dialog";
       aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
     } else {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
     // name is "New Event", "Edit Task", etc.
-    const name = cal.l10n.getCalString(strName);
+    const name = calendarTabMonitor.l10n.formatValueSync(strName);
     aTab.title = name + ": " + (aArgs.calendarEvent.title || name);
 
     // allowTabClose prevents the tab from being closed until we ask

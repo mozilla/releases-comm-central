@@ -20,7 +20,7 @@ calendar.setProperty("organizerId", "mailto:pillow@example.com");
 registerCleanupFunction(() => {
   CalendarTestUtils.removeCalendar(calendar);
 });
-
+const l10n = new Localization(["calendar/categories.ftl"], true);
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
   await CalendarTestUtils.setCalendarView(window, "day");
@@ -30,7 +30,7 @@ add_task(async function testEventDialogModificationPrompt() {
 
   // Create new event.
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
-  const categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
+  const categories = l10n.formatValueSync("categories2").split(",");
   data[0].categories.push(categories[0]);
   data[1].categories.push(categories[1], categories[2]);
 

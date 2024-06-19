@@ -13,7 +13,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-
   /**
    * Implements the Drag and Drop class for the Month Day Box view.
    *
@@ -304,6 +303,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      MozXULElement.insertFTLIfNeeded("calendar/calendar.ftl");
       // NOTE: This is the same structure as EditableItem, except this has a
       // time label and we are missing the location-desc.
       this.appendChild(
@@ -313,7 +313,7 @@
           <html:div class="event-name-label"></html:div>
           <html:input class="plain event-name-input"
                       hidden="hidden"
-                      placeholder='${cal.l10n.getCalString("newEvent")}' />
+                      data-l10n-id="new-event" />
           <html:div class="alarm-icons-box"></html:div>
           <html:img class="item-classification-icon" />
           <html:img class="item-recurrence-icon" />
@@ -921,8 +921,7 @@
             if (j == weekLabelColumnPos) {
               weekLabel.removeAttribute("hidden");
               const weekNumber = cal.weekInfoService.getWeekTitle(date);
-              const weekString = cal.l10n.getCalString("multiweekViewWeek", [weekNumber]);
-              weekLabel.textContent = weekString;
+              document.l10n.setAttributes(weekLabel, "multiweek-view-week", { number: weekNumber });
             } else {
               weekLabel.hidden = true;
             }

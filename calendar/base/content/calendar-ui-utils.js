@@ -15,8 +15,9 @@
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /**
  * This function unconditionally disables the element for
@@ -197,15 +198,16 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
 function unitPluralForm(aLength, aUnit, aIncludeLength = true) {
   const unitProp =
     {
-      minutes: "unitMinutes",
-      hours: "unitHours",
-      days: "unitDays",
-      weeks: "unitWeeks",
-    }[aUnit] || "unitMinutes";
-
-  return PluralForm.get(aLength, cal.l10n.getCalString(unitProp))
-    .replace("#1", aIncludeLength ? aLength : "")
-    .trim();
+      minutes: "unit-minutes",
+      hours: "unit-hours",
+      days: "unit-days",
+      weeks: "unit-weeks",
+    }[aUnit] || "unit-minutes";
+  const unitString = lazy.l10n.formatValueSync(unitProp, { count: aLength });
+  if (aIncludeLength) {
+    return unitString;
+  }
+  return unitString.replace(aLength, "").trim();
 }
 
 /**

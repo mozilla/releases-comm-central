@@ -23,6 +23,8 @@
  */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /**
  * PUBLIC: Displays a tooltip with details when hovering over an item in the views
@@ -88,11 +90,11 @@ function getEventStatusString(aEvent) {
   switch (aEvent.status) {
     // Event status value keywords are specified in RFC2445sec4.8.1.11
     case "TENTATIVE":
-      return cal.l10n.getCalString("statusTentative");
+      return lazy.l10n.formatValueSync("status-tentative");
     case "CONFIRMED":
-      return cal.l10n.getCalString("statusConfirmed");
+      return lazy.l10n.formatValueSync("status-confirmed");
     case "CANCELLED":
-      return cal.l10n.getCalString("eventStatusCancelled");
+      return lazy.l10n.formatValueSync("event-status-cancelled");
     default:
       return "";
   }
@@ -109,13 +111,13 @@ function getToDoStatusString(aToDo) {
   switch (aToDo.status) {
     // Todo status keywords are specified in RFC2445sec4.8.1.11
     case "NEEDS-ACTION":
-      return cal.l10n.getCalString("statusNeedsAction");
+      return lazy.l10n.formatValueSync("status-needs-action");
     case "IN-PROCESS":
-      return cal.l10n.getCalString("statusInProcess");
+      return lazy.l10n.formatValueSync("status-in-process");
     case "CANCELLED":
-      return cal.l10n.getCalString("todoStatusCancelled");
+      return lazy.l10n.formatValueSync("todo-status-cancelled");
     case "COMPLETED":
-      return cal.l10n.getCalString("statusCompleted");
+      return lazy.l10n.formatValueSync("status-completed");
     default:
       return "";
   }
@@ -144,29 +146,29 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
     let hasHeader = false;
 
     if (toDoItem.title) {
-      boxAppendLabeledText(vbox, "tooltipTitle", toDoItem.title);
+      boxAppendLabeledText(vbox, "tooltip-title", toDoItem.title);
       hasHeader = true;
     }
 
     const location = toDoItem.getProperty("LOCATION");
     if (location) {
-      boxAppendLabeledText(vbox, "tooltipLocation", location);
+      boxAppendLabeledText(vbox, "tooltip-location", location);
       hasHeader = true;
     }
 
     // First try to get calendar name appearing in tooltip
     if (toDoItem.calendar.name) {
       const calendarNameString = toDoItem.calendar.name;
-      boxAppendLabeledText(vbox, "tooltipCalName", calendarNameString);
+      boxAppendLabeledText(vbox, "tooltip-cal-name", calendarNameString);
     }
 
     if (toDoItem.entryDate && toDoItem.entryDate.isValid) {
-      boxAppendLabeledDateTime(vbox, "tooltipStart", toDoItem.entryDate);
+      boxAppendLabeledDateTime(vbox, "tooltip-start", toDoItem.entryDate);
       hasHeader = true;
     }
 
     if (toDoItem.dueDate && toDoItem.dueDate.isValid) {
-      boxAppendLabeledDateTime(vbox, "tooltipDue", toDoItem.dueDate);
+      boxAppendLabeledDateTime(vbox, "tooltip-due", toDoItem.dueDate);
       hasHeader = true;
     }
 
@@ -176,19 +178,19 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
 
       // These cut-offs should match calendar-event-dialog.js
       if (priorityInteger >= 1 && priorityInteger <= 4) {
-        priorityString = cal.l10n.getCalString("highPriority");
+        priorityString = lazy.l10n.formatValueSync("high-priority");
       } else if (priorityInteger == 5) {
-        priorityString = cal.l10n.getCalString("normalPriority");
+        priorityString = lazy.l10n.formatValueSync("normal-priority");
       } else {
-        priorityString = cal.l10n.getCalString("lowPriority");
+        priorityString = lazy.l10n.formatValueSync("low-priority");
       }
-      boxAppendLabeledText(vbox, "tooltipPriority", priorityString);
+      boxAppendLabeledText(vbox, "tooltip-priority", priorityString);
       hasHeader = true;
     }
 
     if (toDoItem.status && toDoItem.status != "NONE") {
       const status = getToDoStatusString(toDoItem);
-      boxAppendLabeledText(vbox, "tooltipStatus", status);
+      boxAppendLabeledText(vbox, "tooltip-status", status);
       hasHeader = true;
     }
 
@@ -197,13 +199,13 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
       toDoItem.percentComplete != 0 &&
       toDoItem.percentComplete != 100
     ) {
-      boxAppendLabeledText(vbox, "tooltipPercent", String(toDoItem.percentComplete) + "%");
+      boxAppendLabeledText(vbox, "tooltip-percent", String(toDoItem.percentComplete) + "%");
       hasHeader = true;
     } else if (toDoItem.percentComplete == 100) {
       if (toDoItem.completedDate == null) {
-        boxAppendLabeledText(vbox, "tooltipPercent", "100%");
+        boxAppendLabeledText(vbox, "tooltip-percent", "100%");
       } else {
-        boxAppendLabeledDateTime(vbox, "tooltipCompleted", toDoItem.completedDate);
+        boxAppendLabeledDateTime(vbox, "tooltip-completed", toDoItem.completedDate);
       }
       hasHeader = true;
     }
@@ -246,34 +248,34 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
 
   if (event) {
     if (event.title) {
-      boxAppendLabeledText(vbox, "tooltipTitle", aEvent.title);
+      boxAppendLabeledText(vbox, "tooltip-title", aEvent.title);
     }
 
     const location = event.getProperty("LOCATION");
     if (location) {
-      boxAppendLabeledText(vbox, "tooltipLocation", location);
+      boxAppendLabeledText(vbox, "tooltip-location", location);
     }
     if (!(event.startDate && event.endDate)) {
       // Event may be recurrent event.   If no displayed instance specified,
       // use next instance, or previous instance if no next instance.
       event = getCurrentNextOrPreviousRecurrence(event);
     }
-    boxAppendLabeledDateTimeInterval(vbox, "tooltipDate", event);
+    boxAppendLabeledDateTimeInterval(vbox, "tooltip-date", event);
 
     // First try to get calendar name appearing in tooltip
     if (event.calendar.name) {
       const calendarNameString = event.calendar.name;
-      boxAppendLabeledText(vbox, "tooltipCalName", calendarNameString);
+      boxAppendLabeledText(vbox, "tooltip-cal-name", calendarNameString);
     }
 
     if (event.status && event.status != "NONE") {
       const statusString = getEventStatusString(event);
-      boxAppendLabeledText(vbox, "tooltipStatus", statusString);
+      boxAppendLabeledText(vbox, "tooltip-status", statusString);
     }
 
     if (event.organizer && event.getAttendees().length > 0) {
       const organizer = event.organizer;
-      boxAppendLabeledText(vbox, "tooltipOrganizer", organizer);
+      boxAppendLabeledText(vbox, "tooltip-organizer", organizer);
     }
 
     const description = event.descriptionText;
@@ -363,11 +365,10 @@ function boxInitializeHeaderTable(box) {
  * @param textString        value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
-  const labelText = cal.l10n.getCalString(labelProperty);
   const table = box.querySelector("table");
   const row = document.createElement("tr");
 
-  row.appendChild(createTooltipHeaderLabel(labelText));
+  row.appendChild(createTooltipHeaderLabel(labelProperty));
   row.appendChild(createTooltipHeaderDescription(textString));
 
   table.appendChild(row);
@@ -376,13 +377,13 @@ function boxAppendLabeledText(box, labelProperty, textString) {
 /**
  * PRIVATE: Creates an element for field label (for header table)
  *
- * @param   {string} text  The text to display in the node
+ * @param {string} text - The string ID for the text to display in the node.
  * @returns {Node} The node
  */
 function createTooltipHeaderLabel(text) {
   const labelCell = document.createElement("th");
   labelCell.setAttribute("class", "tooltipHeaderLabel");
-  labelCell.textContent = text;
+  document.l10n.setAttributes(labelCell, text);
   return labelCell;
 }
 

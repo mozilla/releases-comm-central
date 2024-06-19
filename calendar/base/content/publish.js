@@ -9,6 +9,8 @@
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /**
  * Show publish dialog, ask for URL and publish all selected items.
@@ -58,7 +60,7 @@ function publishEntireCalendar(aCalendar) {
       // Therefore return after openDialog().
       const args = {};
       args.onOk = publishEntireCalendar;
-      args.promptText = cal.l10n.getCalString("publishPrompt");
+      args.promptText = lazy.l10n.formatValueSync("publish-prompt");
       openDialog(
         "chrome://calendar/content/chooseCalendarDialog.xhtml",
         "_blank",
@@ -167,8 +169,8 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
   } catch (e) {
     Services.prompt.alert(
       null,
-      cal.l10n.getCalString("genericErrorTitle"),
-      cal.l10n.getCalString("otherPutError", [e.message])
+      lazy.l10n.formatValueSync("generic-error-title"),
+      lazy.l10n.formatValueSync("other-put-error", { statusCode: e.message })
     );
   }
 }
@@ -212,16 +214,18 @@ class PublishingListener {
 
     if (channel && !requestSucceeded) {
       this.progressDialog.wrappedJSObject.onStopUpload(0);
-      const body = cal.l10n.getCalString("httpPutError", [
-        channel.responseStatus,
-        channel.responseStatusText,
-      ]);
-      Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
+      const body = lazy.l10n.formatValueSync("http-put-error", {
+        statusCode: channel.responseStatus,
+        statusCodeInfo: channel.responseStatusText,
+      });
+      Services.prompt.alert(null, lazy.l10n.formatValueSync("generic-error-title"), body);
     } else if (!channel && !Components.isSuccessCode(request.status)) {
       this.progressDialog.wrappedJSObject.onStopUpload(0);
       // XXX this should be made human-readable.
-      const body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
-      Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
+      const body = lazy.l10n.formatValueSync("other-put-error", {
+        statusCode: request.status.toString(16),
+      });
+      Services.prompt.alert(null, lazy.l10n.formatValueSync("generic-error-title"), body);
     } else {
       this.progressDialog.wrappedJSObject.onStopUpload(100);
     }

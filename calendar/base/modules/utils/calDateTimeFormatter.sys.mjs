@@ -13,6 +13,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 ChromeUtils.defineLazyGetter(lazy, "gDateStringBundle", () =>
   Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties")
 );
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 XPCOMUtils.defineLazyPreferenceGetter(lazy, "dateFormat", "calendar.date.format", 0);
 XPCOMUtils.defineLazyPreferenceGetter(
@@ -184,70 +185,70 @@ export var formatter = {
     const format = this.formatIntervalParts(startDate, endDate);
     switch (format.type) {
       case "task-without-dates":
-        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
+        return lazy.l10n.formatValueSync("datetime-interval-task-without-date");
 
       case "task-without-due-date":
-        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutDueDate", [
-          format.startDate,
-          format.startTime,
-        ]);
+        return lazy.l10n.formatValueSync("datetime-interval-task-without-due-date", {
+          date: format.startDate,
+          time: format.startTime,
+        });
 
       case "task-without-start-date":
-        return lazy.cal.l10n.getCalString("datetimeIntervalTaskWithoutStartDate", [
-          format.endDate,
-          format.endTime,
-        ]);
+        return lazy.l10n.formatValueSync("datetime-interval-task-without-start-date", {
+          date: format.endDate,
+          time: format.endTime,
+        });
 
       case "all-day":
         return format.startDate;
 
       case "all-day-between-years":
-        return lazy.cal.l10n.getCalString("daysIntervalBetweenYears", [
-          format.startMonth,
-          format.startDay,
-          format.startYear,
-          format.endMonth,
-          format.endDay,
-          format.endYear,
-        ]);
+        return lazy.l10n.formatValueSync("days-interval-between-years", {
+          startMonth: format.startMonth,
+          startDayIndex: format.startDay,
+          startYear: format.startYear,
+          endMonth: format.endMonth,
+          endDayIndex: format.endDay,
+          endYear: format.endYear,
+        });
 
       case "all-day-in-month":
-        return lazy.cal.l10n.getCalString("daysIntervalInMonth", [
-          format.month,
-          format.startDay,
-          format.endDay,
-          format.year,
-        ]);
+        return lazy.l10n.formatValueSync("days-interval-in-month", {
+          startMonth: format.month,
+          startDayIndex: format.startDay,
+          endDayIndex: format.endDay,
+          year: format.year,
+        });
 
       case "all-day-between-months":
-        return lazy.cal.l10n.getCalString("daysIntervalBetweenMonths", [
-          format.startMonth,
-          format.startDay,
-          format.endMonth,
-          format.endDay,
-          format.year,
-        ]);
+        return lazy.l10n.formatValueSync("days-interval-between-months", {
+          startMonth: format.startMonth,
+          startDayIndex: format.startDay,
+          endMonth: format.endMonth,
+          endDayIndex: format.endDay,
+          year: format.year,
+        });
 
       case "same-date-time":
-        return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [
-          format.startDate,
-          format.startTime,
-        ]);
+        return lazy.l10n.formatValueSync("datetime-interval-on-same-date-time", {
+          startDate: format.startDate,
+          startTime: format.startTime,
+        });
 
       case "same-day":
-        return lazy.cal.l10n.getCalString("datetimeIntervalOnSameDay", [
-          format.startDate,
-          format.startTime,
-          format.endTime,
-        ]);
+        return lazy.l10n.formatValueSync("datetime-interval-on-same-day", {
+          startDate: format.startDate,
+          startTime: format.startTime,
+          endTime: format.endTime,
+        });
 
       case "several-days":
-        return lazy.cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [
-          format.startDate,
-          format.startTime,
-          format.endDate,
-          format.endTime,
-        ]);
+        return lazy.l10n.formatValueSync("datetime-interval-on-several-days", {
+          startDate: format.startDate,
+          startTime: format.startTime,
+          endDate: format.endDate,
+          endTime: format.endTime,
+        });
       default:
         return "";
     }
@@ -345,14 +346,14 @@ export var formatter = {
           startMonth: lazy.cal.l10n.formatMonth(
             startDate.month + 1,
             "calendar",
-            "daysIntervalBetweenYears"
+            "days-interval-between-years"
           ),
           startYear,
           endDay,
           endMonth: lazy.cal.l10n.formatMonth(
             originalEndDate.month + 1,
             "calendar",
-            "daysIntervalBetweenYears"
+            "days-interval-between-years"
           ),
           endYear,
         };
@@ -362,7 +363,11 @@ export var formatter = {
         return {
           type: "all-day-in-month",
           startDay,
-          month: lazy.cal.l10n.formatMonth(startDate.month + 1, "calendar", "daysIntervalInMonth"),
+          month: lazy.cal.l10n.formatMonth(
+            startDate.month + 1,
+            "calendar",
+            "days-interval-in-month"
+          ),
           endDay,
           year: endYear,
         };
@@ -374,13 +379,13 @@ export var formatter = {
         startMonth: lazy.cal.l10n.formatMonth(
           startDate.month + 1,
           "calendar",
-          "daysIntervalBetweenMonths"
+          "days-interval-between-months"
         ),
         endDay,
         endMonth: lazy.cal.l10n.formatMonth(
           originalEndDate.month + 1,
           "calendar",
-          "daysIntervalBetweenMonths"
+          "days-interval-between-months"
         ),
         year: endYear,
       };

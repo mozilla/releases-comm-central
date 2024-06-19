@@ -14,11 +14,11 @@
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.sys.mjs under the cal.print namespace.
-
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 export var print = {
   ensureInitialized() {
@@ -132,7 +132,7 @@ function addItemToDayboxNodate(document, item) {
   if (taskListBox.hasAttribute("hidden")) {
     const tasksTitle = document.getElementById("tasks-title");
     taskListBox.removeAttribute("hidden");
-    tasksTitle.textContent = lazy.cal.l10n.getCalString("tasksWithNoDueDate");
+    tasksTitle.textContent = lazy.l10n.formatValueSync("tasks-with-no-due-date");
   }
 
   // Fill in details of the task
@@ -259,7 +259,7 @@ const listView = {
 
       const setupTextRow = function (classKey, propValue, prefixKey) {
         if (propValue) {
-          const prefix = lazy.cal.l10n.getCalString(prefixKey);
+          const prefix = lazy.l10n.formatValueSync(prefixKey);
           itemNode.querySelector("." + classKey + "key").textContent = prefix;
           itemNode.querySelector("." + classKey).textContent = propValue;
         } else {
@@ -278,7 +278,7 @@ const listView = {
       const itemEndDate = item[lazy.cal.dtz.endDateProp(item)];
       if (itemStartDate || itemEndDate) {
         // This is a task with a start or due date, format accordingly
-        const prefixWhen = lazy.cal.l10n.getCalString("htmlPrefixWhen");
+        const prefixWhen = lazy.l10n.formatValueSync("html-prefix-when");
         itemNode.querySelector(".intervalkey").textContent = prefixWhen;
 
         const startNode = itemNode.querySelector(".dtstart");
@@ -298,12 +298,12 @@ const listView = {
       }
 
       const itemTitle = item.isCompleted
-        ? lazy.cal.l10n.getCalString("htmlTaskCompleted", [item.title])
+        ? lazy.l10n.formatValueSync("html-task-completed", { task: item.title })
         : item.title;
-      setupTextRow("summary", itemTitle, "htmlPrefixTitle");
+      setupTextRow("summary", itemTitle, "html-prefix-title");
 
-      setupTextRow("location", item.getProperty("LOCATION"), "htmlPrefixLocation");
-      setupTextRow("description", item.getProperty("DESCRIPTION"), "htmlPrefixDescription");
+      setupTextRow("location", item.getProperty("LOCATION"), "html-prefix-location");
+      setupTextRow("description", item.getProperty("DESCRIPTION"), "html-prefix-description");
 
       container.appendChild(itemNode);
     }
@@ -399,8 +399,15 @@ const monthGridView = {
     const month = monthTemplate.content.firstElementChild.cloneNode(true);
 
     // Set up the month title
-    const monthName = lazy.cal.l10n.formatMonth(startOfMonth.month + 1, "calendar", "monthInYear");
-    const monthTitle = lazy.cal.l10n.getCalString("monthInYear", [monthName, startOfMonth.year]);
+    const monthName = lazy.cal.l10n.formatMonth(
+      startOfMonth.month + 1,
+      "calendar",
+      "month-in-year"
+    );
+    const monthTitle = lazy.l10n.formatValueSync("month-in-year", {
+      month: monthName,
+      year: startOfMonth.year,
+    });
     month.rows[0].cells[0].firstElementChild.textContent = monthTitle;
 
     // Set up the weekday titles
@@ -531,12 +538,14 @@ const weekPlannerView = {
     // Set the page title.
     const weeks = container.querySelectorAll("table");
     if (weeks.length == 1) {
-      document.title = lazy.cal.l10n.getCalString("singleLongCalendarWeek", [weeks[0].number]);
+      document.title = lazy.l10n.formatValueSync("single-long-calendar-week", {
+        index: weeks[0].number,
+      });
     } else {
-      document.title = lazy.cal.l10n.getCalString("severalLongCalendarWeeks", [
-        weeks[0].number,
-        weeks[weeks.length - 1].number,
-      ]);
+      document.title = lazy.l10n.formatValueSync("several-long-calendar-weeks", {
+        startIndex: weeks[0].number,
+        endIndex: weeks[weeks.length - 1].number,
+      });
     }
   },
 
@@ -563,9 +572,9 @@ const weekPlannerView = {
 
     // Set up the week number title
     week.number = lazy.cal.weekInfoService.getWeekTitle(monday);
-    week.querySelector(".week-title").textContent = lazy.cal.l10n.getCalString("WeekTitle", [
-      week.number,
-    ]);
+    week.querySelector(".week-title").textContent = lazy.l10n.formatValueSync("week-title", {
+      title: week.number,
+    });
 
     // Set up the day boxes
     const currentDate = monday.clone();

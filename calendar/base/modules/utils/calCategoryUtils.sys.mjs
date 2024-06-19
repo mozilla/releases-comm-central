@@ -13,6 +13,11 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/categories.ftl"], true)
+);
 
 export var category = {
   /**
@@ -24,7 +29,7 @@ export var category = {
     const defaultBranch = Services.prefs.getDefaultBranch("");
 
     // First, set up the category names
-    const categories = lazy.cal.l10n.getString("categories", "categories2");
+    const categories = lazy.l10n.formatValueSync("categories2");
     defaultBranch.setStringPref("calendar.categories.names", categories);
 
     // Now, initialize the category default colors

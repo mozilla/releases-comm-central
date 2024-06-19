@@ -77,7 +77,7 @@ const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtil
   for (let i = 0; i < 12; i++) {
     const option = document.createElement("option");
     option.value = i;
-    option.label = cal.l10n.formatMonth(i + 1, "calendar", "monthInYear");
+    option.label = cal.l10n.formatMonth(i + 1, "calendar", "month-in-year");
     fromMonth.appendChild(option.cloneNode(false));
     toMonth.appendChild(option);
   }

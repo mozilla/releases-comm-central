@@ -12,6 +12,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 ChromeUtils.defineESModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
 });
+const l10n = new Localization(["calendar/categories.ftl"], true);
 
 const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
@@ -85,7 +86,7 @@ add_task(async function testEventDialog() {
   Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
 
   // Prepare category.
-  const categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
+  const categories = l10n.formatValueSync("categories2");
   // Pick 4th value in a comma-separated list.
   const category = categories.split(",")[4];
   // Calculate date to repeat until.

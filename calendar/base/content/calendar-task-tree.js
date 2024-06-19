@@ -8,7 +8,14 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-  const { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
+  if (!lazy) {
+    var lazy = {};
+  }
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl"], true)
+  );
 
   /**
    * An observer for the calendar event data source. This keeps the unifinder
@@ -435,18 +442,13 @@
         // { weeks: 1, days: 0 }
         // { weeks: 0, days: 8 }
         const days = dur.days + dur.weeks * 7;
-        return (
-          prefix + PluralForm.get(days, cal.l10n.getCalString("dueInDays")).replace("#1", days)
-        );
+        return prefix + lazy.l10n.formatValueSync("due-in-days", { count: days });
       } else if (absMinutes >= 60) {
         // 1 hour or more.
-        return (
-          prefix +
-          PluralForm.get(dur.hours, cal.l10n.getCalString("dueInHours")).replace("#1", dur.hours)
-        );
+        return prefix + lazy.l10n.formatValueSync("due-in-hours", { count: dur.hours });
       }
       // Less than one hour.
-      return cal.l10n.getCalString("dueInLessThanOneHour");
+      return lazy.l10n.formatValueSync("due-in-less-than-one-hour");
     }
 
     /**
@@ -581,7 +583,7 @@
     }
 
     getInitialDate() {
-      return currentView().selectedDay || cal.dtz.now();
+      return this.selectedDay || cal.dtz.now();
     }
 
     doUpdateFilter(filter) {

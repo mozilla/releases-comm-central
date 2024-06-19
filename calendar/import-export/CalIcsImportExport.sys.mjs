@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+const lazy = {};
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 // Shared functions
 function getIcsFileTypes() {
@@ -11,7 +12,7 @@ function getIcsFileTypes() {
       QueryInterface: ChromeUtils.generateQI(["calIFileType"]),
       defaultExtension: "ics",
       extensionFilter: "*.ics",
-      description: cal.l10n.getCalString("filterIcs", ["*.ics"]),
+      description: lazy.l10n.formatValueSync("filter-ics", { wildmat: "*.ics" }),
     },
   ];
 }

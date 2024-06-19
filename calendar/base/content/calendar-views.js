@@ -19,6 +19,12 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+  const lazy = {};
+  ChromeUtils.defineLazyGetter(
+    lazy,
+    "l10n",
+    () => new Localization(["calendar/calendar.ftl"], true)
+  );
 
   /**
    * The calendar view for viewing a single day.
@@ -235,10 +241,13 @@
       const monthName = cal.l10n.formatMonth(
         this.rangeStartDate.month + 1,
         "calendar",
-        "monthInYear"
+        "month-in-year"
       );
 
-      return cal.l10n.getCalString("monthInYear", [monthName, this.rangeStartDate.year]);
+      return lazy.l10n.formatValueSync("month-in-year", {
+        month: monthName,
+        year: this.rangeStartDate.year,
+      });
     }
 
     moveView(number) {
