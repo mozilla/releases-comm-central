@@ -9,11 +9,11 @@
         "name": "getTargetElement",
         "type": "function",
         "allowedContexts": ["content", "devtools"],
-        "description": "Retrieve the element that was associated with a recent <a href='|link-contextmenu-event|'>contextmenu</a> event.",
+        "description": "Retrieve the element that was associated with a recent <a href='url-contextmenu-event'>contextmenu</a> event.",
         "parameters": [
           {
             "type": "integer",
-            "description": "The identifier of the clicked element, available as <val>info.targetElementId</val> in the $(ref:menus.onShown) and $(ref:menus.onClicked) events.",
+            "description": "The identifier of the clicked element, available as <var>info.targetElementId</var> in the $(ref:menus.onShown) and $(ref:menus.onClicked) events.",
             "name": "targetElementId"
           }
         ],

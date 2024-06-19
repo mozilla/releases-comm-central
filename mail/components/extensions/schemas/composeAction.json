@@ -35,7 +35,7 @@
                 "items": {
                   "$ref": "ThemeIcons"
                 },
-                "description": "Specifies dark and light icons to be used with themes. The <val>light</val> icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the <val>default_icon</val> for light backgrounds (if specified)."
+                "description": "Specifies dark and light icons to be used with themes. The <var>light</var> icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the <var>default_icon</var> for light backgrounds (if specified)."
               },
               "default_popup": {
                 "type": "string",
@@ -47,7 +47,7 @@
               "browser_style": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Enable browser styles. See the <a href='|link-mdn-browser-styles|'>MDN documentation on browser styles</a> for more information.",
+                "description": "Enable browser styles. See the <a href='url-mdn-browser-styles'>MDN documentation on browser styles</a> for more information.",
                 "default": false
               },
               "default_area": {
@@ -95,12 +95,12 @@
           "type": "any"
         },
         "postprocess": "convertImageDataToURL",
-        "description": "Pixel data for an image. Must be an |ImageData| object (for example, from a |Canvas| element)."
+        "description": "Pixel data for an image. Must be an <a href='url-image-data'>ImageData</a> object (for example, from a <a href='url-canvas-element'>canvas</a> element)."
       },
       {
         "id": "ImageDataDictionary",
         "type": "object",
-        "description": "A <em>dictionary object</em> to specify multiple |ImageData| objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an |ImageData| object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the <a href='|link-mdn-icon-size|'>MDN documentation about choosing icon sizes</a> for more information on this.",
+        "description": "A <em>dictionary object</em> to specify multiple <a href='url-image-data'>ImageData</a> objects in different sizes, so the icon does not have to be scaled for a device with a different pixel density. Each entry is a <em>name-value</em> pair with <em>value</em> being an <a href='url-image-data'>ImageData</a> object, and <em>name</em> its size. Example: <literalinclude>includes/ImageDataDictionary.json<lang>JavaScript</lang></literalinclude>See the <a href='url-mdn-icon-size'>MDN documentation about choosing icon sizes</a> for more information on this.",
         "patternProperties": {
           "^[1-9]\\d*$": {
             "$ref": "ImageDataType"
@@ -303,7 +303,7 @@
       {
         "name": "setIcon",
         "type": "function",
-        "description": "Sets the icon for the composeAction button. Either the <val>path</val> or the <val>imageData</val> property must be specified.",
+        "description": "Sets the icon for the composeAction button. Either the <var>path</var> or the <var>imageData</var> property must be specified.",
         "async": "callback",
         "parameters": [
           {
@@ -681,7 +681,7 @@
       {
         "name": "enable",
         "type": "function",
-        "description": "Enables the composeAction button for a specific tab (if a <val>tabId</val> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, a composeAction button is enabled.",
+        "description": "Enables the composeAction button for a specific tab (if a <var>tabId</var> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, a composeAction button is enabled.",
         "async": "callback",
         "parameters": [
           {
@@ -702,7 +702,7 @@
       {
         "name": "disable",
         "type": "function",
-        "description": "Disables the composeAction button for a specific tab (if a <val>tabId</val> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
+        "description": "Disables the composeAction button for a specific tab (if a <var>tabId</var> is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
         "async": "callback",
         "parameters": [
           {
@@ -794,7 +794,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some <a href='|link-user-input-restrictions|'>restrictions</a> apply.",
+        "description": "Fired when a composeAction button is clicked. This event will not fire if the composeAction has a popup. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
         "parameters": [
           {
             "name": "tab",

@@ -9,7 +9,7 @@
         "id": "KeyName",
         "type": "string",
         "format": "manifestShortcutKey",
-        "description": "Definition of a shortcut, for example <var>Alt+F5</var>. The string must match the shortcut format as defined by the <a href='|link-commands-shortcuts|'>MDN page of the commands API</a>."
+        "description": "Definition of a shortcut, for example <var>Alt+F5</var>. The string must match the shortcut format as defined by the <a href='url-commands-shortcuts'>MDN page of the commands API</a>."
       },
       {
         "$extend": "WebExtensionManifest",
@@ -167,7 +167,7 @@
     "events": [
       {
         "name": "onCommand",
-        "description": "Fired when a registered command is activated using a keyboard shortcut. This is a user input event handler. For asynchronous listeners some <a href='|link-user-input-restrictions|'>restrictions</a> apply.",
+        "description": "Fired when a registered command is activated using a keyboard shortcut. This is a user input event handler. For asynchronous listeners some <a href='url-user-input-restrictions'>restrictions</a> apply.",
         "type": "function",
         "parameters": [
           {
@@ -232,7 +232,7 @@
                 "type": "string",
                 "format": "manifestShortcutKeyOrEmpty",
                 "optional": true,
-                "description": "An empty string to clear the shortcut, or a string matching the format defined by the <a href='|link-commands-shortcuts|'>MDN page of the commands API</a>  to set a new shortcut key. If the string does not match this format, the function throws an error."
+                "description": "An empty string to clear the shortcut, or a string matching the format defined by the <a href='url-commands-shortcuts'>MDN page of the commands API</a>  to set a new shortcut key. If the string does not match this format, the function throws an error."
               }
             }
           }

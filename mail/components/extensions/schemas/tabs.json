@@ -100,7 +100,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The <a href='|link-cookieStore|'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='|link-contextualIdentity|'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+            "description": "The <a href='url-cookieStore'>CookieStore</a> id used by the tab. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
           },
           "type": {
             "$ref": "TabType",
@@ -253,7 +253,7 @@
       {
         "name": "connect",
         "type": "function",
-        "description": "Connects to the content script(s) in the specified tab. The <a href='|link-runtime-on-connect|'>runtime.onConnect</a> event is fired in each content script running in the specified tab for the current extension. For more details, see <a href='|link-content-scripts|'>Content Script Messaging</a>.",
+        "description": "Connects to the content script(s) in the specified tab. The <a href='url-runtime-on-connect'>runtime.onConnect</a> event is fired in each content script running in the specified tab for the current extension. For more details, see <a href='url-content-scripts'>Content Script Messaging</a>.",
         "parameters": [
           {
             "type": "integer",
@@ -273,7 +273,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Open a port to a specific frame identified by <val>frameId</val> instead of all frames in the tab."
+                "description": "Open a port to a specific frame identified by <var>frameId</var> instead of all frames in the tab."
               }
             },
             "optional": true
@@ -287,7 +287,7 @@
       {
         "name": "sendMessage",
         "type": "function",
-        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The <a href='|link-runtime-on-message|'>runtime.onMessage</a> event is fired in each content script running in the specified tab for the current extension.",
+        "description": "Sends a single message to the content script(s) in the specified tab, with an optional callback to run when a response is sent back. The <a href='url-runtime-on-message'>runtime.onMessage</a> event is fired in each content script running in the specified tab for the current extension.",
         "async": "responseCallback",
         "parameters": [
           {
@@ -307,7 +307,7 @@
                 "type": "integer",
                 "optional": true,
                 "minimum": 0,
-                "description": "Send a message to a specific frame identified by <val>frameId</val> instead of all frames in the tab."
+                "description": "Send a message to a specific frame identified by <var>frameId</var> instead of all frames in the tab."
               }
             },
             "optional": true
@@ -320,7 +320,7 @@
               {
                 "name": "response",
                 "type": "any",
-                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and <a href='|link-runtime-last-error|'>runtime.lastError</a> will be set to the error message."
+                "description": "The JSON response object sent by the handler of the message. If an error occurs while connecting to the specified tab, the callback will be called with no arguments and <a href='url-runtime-last-error'>runtime.lastError</a> will be set to the error message."
               }
             ]
           }
@@ -329,13 +329,13 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the $(ref:messageDisplay_api) to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=1618828#c3'>content script</a> , capture click events and handle them manually.",
+        "description": "Creates a new content tab. Use the $(doc:messageDisplay) to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a <a href='url-content-script-click-capture'>content script</a> , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {
             "type": "object",
             "name": "createProperties",
-            "description": "Properties for the new tab. Defaults to an empty tab, if no <val>url</val> is provided.",
+            "description": "Properties for the new tab. Defaults to an empty tab, if no <var>url</var> is provided.",
             "properties": {
               "windowId": {
                 "type": "integer",
@@ -362,10 +362,10 @@
               "cookieStoreId": {
                 "type": "string",
                 "optional": true,
-                "description": "The <a href='|link-cookieStore|'>CookieStore</a> id the new tab should use. Either a custom id created using the <a href='|link-contextualIdentity|'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                "description": "The <a href='url-cookieStore'>CookieStore</a> id the new tab should use. Either a custom id created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or a built-in one: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               },
               "selected": {
-                "deprecated": "Please use <val>createProperties.active</val>.",
+                "deprecated": "Please use <var>createProperties.active</var>.",
                 "unsupported": true,
                 "type": "boolean",
                 "optional": true,
@@ -406,7 +406,7 @@
             "parameters": [
               {
                 "name": "tab",
-                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain <val>url</val>, <val>title</val> and <val>favIconUrl</val> if the <permission>tabs</permission> permission has not been requested.",
+                "description": "Details about the duplicated tab. The $(ref:tabs.Tab) object doesn't contain <var>url</var>, <var>title</var> and <var>favIconUrl</var> if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -429,7 +429,7 @@
                 "type": "boolean",
                 "optional": true,
                 "max_manifest_version": 2,
-                "description": "Whether the tab is a Thunderbird 3-pane tab.  If specified, the <val>queryInfo.type</val> property will be ignored"
+                "description": "Whether the tab is a Thunderbird 3-pane tab.  If specified, the <var>queryInfo.type</var> property will be ignored"
               },
               "spaceId": {
                 "type": "integer",
@@ -495,7 +495,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Match tabs against one or more <a href='|link-match-patterns|'>URL Patterns</a>. Note that fragment identifiers are not matched."
+                "description": "Match tabs against one or more <a href='url-match-patterns'>URL Patterns</a>. Note that fragment identifiers are not matched."
               },
               "windowId": {
                 "type": "integer",
@@ -527,7 +527,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "The <a href='|link-cookieStore|'>CookieStore</a> id(s) used by the tabs. Either custom ids created using the <a href='|link-contextualIdentity|'>contextualIdentities API</a>, or built-in ones: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
+                "description": "The <a href='url-cookieStore'>CookieStore</a> id(s) used by the tabs. Either custom ids created using the <a href='url-contextualIdentity'>contextualIdentities API</a>, or built-in ones: <var>firefox-default</var>, <var>firefox-container-1</var>, <var>firefox-container-2</var>, <var>firefox-container-3</var>, <var>firefox-container-4</var>, <var>firefox-container-5</var>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               }
             }
           },
@@ -550,7 +550,7 @@
       {
         "name": "update",
         "type": "function",
-        "description": "Modifies the properties of a tab. Properties that are not specified in <val>updateProperties</val> are not modified.",
+        "description": "Modifies the properties of a tab. Properties that are not specified in <var>updateProperties</var> are not modified.",
         "async": "callback",
         "parameters": [
           {
@@ -585,7 +585,7 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain <val>url</val>, <val>title</val> and <val>favIconUrl</val> if the <permission>tabs</permission> permission has not been requested."
+                "description": "Details about the updated tab. The $(ref:tabs.Tab) object doesn't contain <var>url</var>, <var>title</var> and <var>favIconUrl</var> if the <permission>tabs</permission> permission has not been requested."
               }
             ]
           }
@@ -716,7 +716,7 @@
         "name": "executeScript",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Injects JavaScript code into a page. For details, see the <a href='|link-content-scripts|'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Injects JavaScript code into a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -754,7 +754,7 @@
         "name": "insertCSS",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Injects CSS into a page. For details, see the <a href='|link-content-scripts|'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Injects CSS into a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {
@@ -782,7 +782,7 @@
         "name": "removeCSS",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Removes injected CSS from a page. For details, see the <a href='|link-content-scripts|'>programmatic injection</a> section of the content scripts doc.",
+        "description": "Removes injected CSS from a page. For details, see the <a href='url-content-scripts'>programmatic injection</a> section of the content scripts doc.",
         "async": "callback",
         "parameters": [
           {

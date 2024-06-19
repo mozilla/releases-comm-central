@@ -20,7 +20,7 @@
         "choices": [
           {
             "type": "string",
-            "description": "A string containing a valid <a href='|link-css-color-string|'>CSS color string</a>, including hexadecimal or functional representations. For example the color *crimson* can be specified as: <li><var>crimson</var> <li><var>#dc143c</var> <li><var>rgb(220, 20, 60)</var> (or <var>rgba(220, 20, 60, 0.5)</var> to set 50% opacity) <li><var>hsl(348, 83%, 47%)</var> (or <var>hsla(348, 83%, 47%, 0.5)</var> to set 50% opacity)"
+            "description": "A string containing a valid <a href='url-css-color-string'>CSS color string</a>, including hexadecimal or functional representations. For example the color *crimson* can be specified as: <li><var>crimson</var> <li><var>#dc143c</var> <li><var>rgb(220, 20, 60)</var> (or <var>rgba(220, 20, 60, 0.5)</var> to set 50% opacity) <li><var>hsl(348, 83%, 47%)</var> (or <var>hsla(348, 83%, 47%, 0.5)</var> to set 50% opacity)"
           },
           {
             "type": "array",
@@ -51,7 +51,7 @@
         "properties": {
           "stylesheet": {
             "optional": true,
-            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The <a href='https://github.com/thunderbird/sample-extensions/tree/master/manifest_v2/theme_experiment'>theme_experiment add-on in our example repository</a> is using the stylesheet shown below, to add the <var>--chat-button-color</var> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </var>--chat-button-color</var> CSS color variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
+            "description": "URL to a stylesheet introducing additional CSS variables, extending the theme-able areas of Thunderbird. The <a href='url-theme-experiment'>theme_experiment add-on in our example repository</a> is using the stylesheet shown below, to add the <var>--chat-button-color</var> CSS color variable: <literalinclude>includes/theme/theme_experiment_style.css<lang>CSS</lang></literalinclude>The following <em>manifest.json</em> file maps the </var>--chat-button-color</var> CSS color variable to the theme color key <var>exp_chat_button</var> and uses it to set a color for the chat button: <literalinclude>includes/theme/theme_experiment_manifest.json<lang>JSON</lang></literalinclude>",
             "$ref": "ExtensionURL"
           },
           "images": {
@@ -97,12 +97,12 @@
                 },
                 "maxItems": 15,
                 "optional": true,
-                "description": "Additional images added to the header area and displayed behind the <val>theme_frame</val> image."
+                "description": "Additional images added to the header area and displayed behind the <var>theme_frame</var> image."
               },
               "headerURL": {
                 "$ref": "ImageDataOrExtensionURL",
                 "optional": true,
-                "deprecated": "Unsupported images property, use <val>theme.images.theme_frame</val>, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported images property, use <var>theme.images.theme_frame</var>, this alias is ignored in Thunderbird >= 70."
               },
               "theme_frame": {
                 "$ref": "ImageDataOrExtensionURL",
@@ -122,12 +122,12 @@
               "tab_selected": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "Background color of the selected tab. Defaults to the color specified by <val>toolbar</val>."
+                "description": "Background color of the selected tab. Defaults to the color specified by <var>toolbar</var>."
               },
               "accentcolor": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "deprecated": "Unsupported colors property, use <val>theme.colors.frame</val>, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported colors property, use <var>theme.colors.frame</var>, this alias is ignored in Thunderbird >= 70."
               },
               "frame": {
                 "$ref": "ThemeColor",
@@ -142,7 +142,7 @@
               "textcolor": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "deprecated": "Unsupported color property, use <val>theme.colors.tab_background_text</val>, this alias is ignored in Thunderbird >= 70."
+                "deprecated": "Unsupported color property, use <var>theme.colors.tab_background_text</var>, this alias is ignored in Thunderbird >= 70."
               },
               "tab_background_text": {
                 "$ref": "ThemeColor",
@@ -162,7 +162,7 @@
               "tab_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color for the selected tab. Defaults to the color specified by <val>toolbar_text</val>."
+                "description": "The text color for the selected tab. Defaults to the color specified by <var>toolbar_text</var>."
               },
               "tab_line": {
                 "$ref": "ThemeColor",
@@ -172,12 +172,12 @@
               "toolbar": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The background color of the toolbars. Also used as default value for <val>tab_selected</val>."
+                "description": "The background color of the toolbars. Also used as default value for <var>tab_selected</var>."
               },
               "toolbar_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color in the main Thunderbird toolbar. Also used as default value for <val>icons</val> and <val>tab_text</val>."
+                "description": "The text color in the main Thunderbird toolbar. Also used as default value for <var>icons</var> and <var>tab_text</var>."
               },
               "bookmark_text": {
                 "$ref": "ThemeColor",
@@ -223,7 +223,7 @@
               "icons": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The color of the toolbar icons. Defaults to the color specified by <val>toolbar_text</val>."
+                "description": "The color of the toolbar icons. Defaults to the color specified by <var>toolbar_text</var>."
               },
               "icons_attention": {
                 "$ref": "ThemeColor",

@@ -36,7 +36,7 @@
       {
         "id": "InlineTextPart",
         "type": "object",
-        "description": "An inline part with content type <var>text/*</var>. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>",
+        "description": "An inline part with content type <var>text/*</var>. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>",
         "properties": {
           "contentType": {
             "type": "string",
@@ -143,7 +143,7 @@
       {
         "id": "MessageList",
         "type": "object",
-        "description": "See :doc:`examples/messageLists` for more information.",
+        "description": "See $(doc:examples/messageLists) for more information.",
         "properties": {
           "id": {
             "choices": [
@@ -451,7 +451,7 @@
       {
         "name": "continueList",
         "type": "function",
-        "description": "Returns the next chunk of messages in a list. See :doc:`examples/messageLists` for more information.",
+        "description": "Returns the next chunk of messages in a list. See $(doc:examples/messageLists) for more information.",
         "async": "callback",
         "parameters": [
           {
@@ -561,13 +561,13 @@
                 "choices": [
                   {
                     "max_manifest_version": 2,
-                    "description": "The message can either be returned as a DOM File or as a <a href='|link-binary-string|'>binary string</a>. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the <val>File</val> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='|link-DOMFile-text|'>File.text()</a> and <a href='|link-DOMFile-arrayBuffer|'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='|link-input-encoding|'>supported input encodings</a>).",
+                    "description": "The message can either be returned as a DOM File or as a <a href='url-binary-string'>binary string</a>. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='url-dom-file-text'>File.text()</a> and <a href='url-dom-file-array-buffer'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='url-input-encoding'>supported input encodings</a>).",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   },
                   {
                     "min_manifest_version": 3,
-                    "description": "The message can either be returned as a DOM File (default) or as a <a href='|link-binary-string|'>binary string</a>. It is recommended to use the <val>File</val> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='|link-DOMFile-text|'>File.text()</a> and <a href='|link-DOMFile-arrayBuffer|'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='|link-input-encoding|'>supported input encodings</a>).",
+                    "description": "The message can either be returned as a DOM File (default) or as a <a href='url-binary-string'>binary string</a>. It is recommended to use the <var>File</var> format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like <a href='url-dom-file-text'>File.text()</a> and <a href='url-dom-file-array-buffer'>File.arrayBuffer()</a>. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for <a href='url-input-encoding'>supported input encodings</a>).",
                     "type": "string",
                     "enum": ["File", "BinaryString"]
                   }
@@ -626,7 +626,7 @@
       {
         "name": "listInlineTextParts",
         "type": "function",
-        "description": "Lists all inline text parts of a message. These parts are not returned by :ref:`listAttachments` and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method :ref:`messengerUtilities.convertToPlainText` can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
+        "description": "Lists all inline text parts of a message. These parts are not returned by $(ref:messages.listAttachments) and usually make up the readable content of the message, mostly with content type <var>text/plain</var> or <var>text/html</var>. If a message only includes a part with content type <var>text/html</var>, the method $(ref:messengerUtilities.convertToPlainText) can be used to retreive a plain text version. \n\n**Note:** A message usually contains only one inline text part per subtype, but technically messages can contain multiple inline text parts per subtype.",
         "async": "callback",
         "parameters": [
           {
@@ -651,7 +651,7 @@
       {
         "name": "getAttachmentFile",
         "type": "function",
-        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a |File| object.",
+        "description": "Gets the content of a $(ref:messages.MessageAttachment) as a <a href='url-dom-file'>File</a> object.",
         "async": "callback",
         "parameters": [
           {
@@ -1044,7 +1044,7 @@
       {
         "name": "delete",
         "type": "function",
-        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The <val>skipTrash</val> parameter allows immediate permanent deletion, bypassing the trash folder.",
+        "description": "Deletes messages permanently, or moves them to the trash folder (honoring the account's deletion behavior settings). Deleting external messages will throw an <em>ExtensionError</em>. The <var>skipTrash</var> parameter allows immediate permanent deletion, bypassing the trash folder.",
         "async": true,
         "permissions": ["messagesDelete"],
         "parameters": [

@@ -134,12 +134,12 @@
               "messageId": {
                 "$ref": "messages.MessageId",
                 "optional": true,
-                "description": "The id of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided <val>messageId</val> is unknown or invalid."
+                "description": "The id of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided <var>messageId</var> is unknown or invalid."
               },
               "headerMessageId": {
                 "type": "string",
                 "optional": true,
-                "description": "The headerMessageId of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided <val>headerMessageId</val> is unknown or invalid. Not supported for external messages."
+                "description": "The headerMessageId of a message to be opened. Will throw an <em>ExtensionError</em>, if the provided <var>headerMessageId</var> is unknown or invalid. Not supported for external messages."
               },
               "location": {
                 "type": "string",

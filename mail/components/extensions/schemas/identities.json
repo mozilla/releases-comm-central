@@ -38,7 +38,7 @@
           "accountId": {
             "$ref": "accounts.MailAccountId",
             "optional": true,
-            "description": "The id of the $(ref:accounts.MailAccount) this identity belongs to. The <val>accountId</val> property is read-only."
+            "description": "The id of the $(ref:accounts.MailAccount) this identity belongs to. The <var>accountId</var> property is read-only."
           },
           "composeHtml": {
             "type": "boolean",
@@ -53,7 +53,7 @@
           "id": {
             "type": "string",
             "optional": true,
-            "description": "A unique identifier for this identity. The <val>id</val> property is read-only."
+            "description": "A unique identifier for this identity. The <var>id</var> property is read-only."
           },
           "label": {
             "type": "string",

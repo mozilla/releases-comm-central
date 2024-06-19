@@ -41,7 +41,7 @@
             "items": {
               "$ref": "manifest.ThemeIcons"
             },
-            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <val>light</val> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to an empty array."
+            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to an empty array."
           },
           "title": {
             "type": "string",
@@ -82,7 +82,7 @@
             "items": {
               "$ref": "manifest.ThemeIcons"
             },
-            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <val>light</val> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <var>null</var>."
+            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <var>null</var>."
           },
           "title": {
             "type": "string",
