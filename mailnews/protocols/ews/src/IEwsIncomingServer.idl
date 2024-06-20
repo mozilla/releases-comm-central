@@ -6,13 +6,6 @@
 
 interface IEwsClient;
 
-[uuid(dca19e42-eafc-11ee-a44c-b42e99ed15ca)]
-interface IEwsAuthStringListener : nsISupports
-{
-  void onAuthAvailable(in ACString authString);
-  void onError(in nsresult err);
-};
-
 /**
  * IEwsIncomingServer is intended as a workaround for limitations in the folder
  * lookup service.
@@ -29,11 +22,4 @@ interface IEwsAuthStringListener : nsISupports
 interface IEwsIncomingServer : nsISupports
 {
   IEwsClient getEwsClient();
-
-  /**
-   * Gets a value suitable for use as the body of an HTTP `Authorization`
-   * header, based on the settings and credentials available to the server
-   * object.
-   */
-  void getAuthString(in IEwsAuthStringListener listener);
 };

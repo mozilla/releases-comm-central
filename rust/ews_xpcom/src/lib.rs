@@ -4,25 +4,21 @@
 
 extern crate xpcom;
 
-use std::{
-    cell::{Cell, OnceCell},
-    ffi::c_void,
-    future::Future,
-    task::Waker,
-};
+use std::{cell::OnceCell, ffi::c_void};
 
+use authentication::credentials::{AuthenticationProvider, Credentials};
 use client::XpComEwsClient;
 use nserror::{
-    nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED,
-    NS_ERROR_UNEXPECTED, NS_OK,
+    nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
 use nsstring::nsACString;
 use url::Url;
 use xpcom::{
-    interfaces::{IEwsFolderCallbacks, IEwsIncomingServer, IEwsMessageCallbacks},
+    interfaces::{nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsMessageCallbacks},
     nsIID, xpcom_method, RefPtr,
 };
 
+mod authentication;
 mod client;
 mod outgoing;
 
@@ -47,22 +43,24 @@ struct XpcomEwsBridge {
 #[derive(Clone)]
 struct EwsConnectionDetails {
     endpoint: Url,
-    auth_source: RefPtr<IEwsIncomingServer>,
+    credentials: Credentials,
 }
 
 impl XpcomEwsBridge {
-    xpcom_method!(initialize => Initialize(endpoint: *const nsACString, server: *const IEwsIncomingServer));
+    xpcom_method!(initialize => Initialize(endpoint: *const nsACString, server: *const nsIMsgIncomingServer));
     fn initialize(
         &self,
         endpoint: &nsACString,
-        server: &IEwsIncomingServer,
+        server: &nsIMsgIncomingServer,
     ) -> Result<(), nsresult> {
         let endpoint = Url::parse(&endpoint.to_utf8()).map_err(|_| NS_ERROR_INVALID_ARG)?;
+
+        let credentials = server.get_credentials()?;
 
         self.details
             .set(EwsConnectionDetails {
                 endpoint,
-                auth_source: RefPtr::new(server),
+                credentials,
             })
             .map_err(|_| NS_ERROR_ALREADY_INITIALIZED)?;
 
@@ -135,76 +133,13 @@ impl XpcomEwsBridge {
         // clone.
         let EwsConnectionDetails {
             endpoint,
-            auth_source,
+            credentials,
         } = self.details.get().ok_or(NS_ERROR_NOT_INITIALIZED)?.clone();
 
         Ok(XpComEwsClient {
             endpoint,
-            auth_source,
+            credentials,
             client: moz_http::Client {},
         })
-    }
-}
-
-#[xpcom::xpcom(implement(IEwsAuthStringListener), atomic)]
-struct AuthStringListener {
-    result: OnceCell<Result<String, nsresult>>,
-    waker: Cell<Option<Waker>>,
-}
-
-impl AuthStringListener {
-    fn new() -> RefPtr<Self> {
-        Self::allocate(InitAuthStringListener {
-            result: Default::default(),
-            waker: Default::default(),
-        })
-    }
-
-    xpcom_method!(on_auth_available => OnAuthAvailable(auth_string: *const nsACString));
-    fn on_auth_available(&self, auth_string: &nsACString) -> Result<(), nsresult> {
-        let auth_string = String::from(auth_string.to_utf8());
-        self.result
-            .set(Ok(auth_string))
-            .map_err(|_| NS_ERROR_UNEXPECTED)?;
-
-        if let Some(waker) = self.waker.take() {
-            waker.wake();
-        }
-
-        Ok(())
-    }
-
-    xpcom_method!(on_error => OnError(err: nsresult));
-    fn on_error(&self, err: nsresult) -> Result<(), nsresult> {
-        self.result.set(Err(err)).map_err(|_| NS_ERROR_UNEXPECTED)?;
-
-        if let Some(waker) = self.waker.take() {
-            waker.wake();
-        }
-
-        Ok(())
-    }
-}
-
-impl Future for &AuthStringListener {
-    type Output = Result<String, nsresult>;
-
-    fn poll(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Self::Output> {
-        match self.result.get() {
-            Some(result) => {
-                // Because `AuthStringListener` must be allocated by XPCOM in
-                // order to pass it to XPCOM methods, we only have access to it
-                // by immutable reference, so we're stuck getting a ref to the
-                // `Result` and cloning.
-                std::task::Poll::Ready(result.clone())
-            }
-            None => {
-                self.waker.replace(Some(cx.waker().clone()));
-                std::task::Poll::Pending
-            }
-        }
     }
 }

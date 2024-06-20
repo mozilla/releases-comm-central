@@ -6,7 +6,7 @@
 
 interface nsIMsgDBHdr;
 interface nsIStreamListener;
-interface IEwsIncomingServer;
+interface nsIMsgIncomingServer;
 
 interface IEwsFolderCallbacks;
 interface IEwsMessageCallbacks;
@@ -14,7 +14,7 @@ interface IEwsMessageCallbacks;
 [uuid(4a117361-653b-48a5-9ddb-588482ef9dbb)]
 interface IEwsClient : nsISupports
 {
-  void initialize(in AUTF8String endpoint, in IEwsIncomingServer server);
+  void initialize(in AUTF8String endpoint, in nsIMsgIncomingServer server);
 
   cenum Error : 8 {
     EWS_ERR_AUTHENTICATION_FAILED,

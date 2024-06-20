@@ -28,24 +28,24 @@ OAuth2Module.prototype = {
   initFromOutgoing(aServer) {
     return this._initFromPrefs(
       "mail.smtpserver." + aServer.key + ".",
-      aServer.username,
-      aServer.serverURI.host
+      aServer.serverURI.host,
+      aServer.username
     );
   },
 
   initFromMail(aServer) {
     return this._initFromPrefs(
       "mail.server." + aServer.key + ".",
-      aServer.username,
-      aServer.hostName
+      aServer.hostName,
+      aServer.username
     );
   },
 
   initFromABDirectory(aDirectory, aHostname) {
     this._initFromPrefs(
       aDirectory.dirPrefId + ".",
-      aDirectory.getStringValue("carddav.username", "") || aDirectory.UID,
-      aHostname
+      aHostname,
+      aDirectory.getStringValue("carddav.username", "") || aDirectory.UID
     );
   },
 
@@ -58,7 +58,7 @@ OAuth2Module.prototype = {
     return this._init(details[0], details[1], aHostname, aUsername);
   },
 
-  _initFromPrefs(root, aUsername, aHostname) {
+  _initFromPrefs(root, aHostname, aUsername) {
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
 

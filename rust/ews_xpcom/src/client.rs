@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    ops::Deref as _,
-};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use ews::{
     get_folder::GetFolder,
@@ -27,16 +24,16 @@ use xpcom::{
     getter_addrefs,
     interfaces::{
         nsIMsgDBHdr, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags, nsMsgPriority,
-        IEwsClient, IEwsFolderCallbacks, IEwsIncomingServer, IEwsMessageCallbacks,
+        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
     },
     RefPtr,
 };
 
-use crate::AuthStringListener;
+use crate::authentication::credentials::Credentials;
 
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
-    pub auth_source: RefPtr<IEwsIncomingServer>,
+    pub credentials: Credentials,
     pub client: moz_http::Client,
 }
 
@@ -329,18 +326,6 @@ impl XpComEwsClient {
         }
 
         Ok(())
-    }
-
-    /// Gets a string suitable for use as an HTTP `Authorization` header value.
-    async fn get_auth_string(&self) -> Result<String, nsresult> {
-        let listener = AuthStringListener::new();
-
-        unsafe { self.auth_source.GetAuthString(&*listener.coerce()) }.to_result()?;
-
-        // Safety: Although the `Deref` impl for `RefPtr` doesn't decrease the
-        // reference count, its `Drop` implem does, meaning we don't
-        // accidentally leak the listener into the memory.
-        listener.deref().await
     }
 
     /// Builds a map from remote folder ID to distinguished folder ID.
@@ -709,14 +694,14 @@ impl XpComEwsClient {
 
         // Loop in case we need to retry the request after a delay.
         loop {
-            // Fetch the auth string for each request in case of token
-            // expiration between requests.
-            let auth_string = self.get_auth_string().await?;
+            // Fetch the Authorization header value for each request in case of
+            // token expiration between requests.
+            let auth_header_value = self.credentials.to_auth_header_value().await?;
 
             let response = self
                 .client
                 .post(&self.endpoint)?
-                .header("Authorization", &auth_string)
+                .header("Authorization", &auth_header_value)
                 .body(request_body.as_slice(), "application/xml")
                 .send()
                 .await?;
