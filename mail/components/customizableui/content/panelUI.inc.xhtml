@@ -561,6 +561,12 @@
                        data-l10n-id="appmenu-help-get-help"
                        key="key_openHelp"
                        oncommand="openSupportURL();"/>
+#if MOZ_UPDATE_CHANNEL == beta || defined(NIGHTLY_BUILD)
+        <toolbarbutton id="appmenu_openReleaseHelp"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="appmenu-help-get-release-help"
+                       oncommand="openLinkText(event, 'releaseSupportURL');" />
+#endif
         <toolbarbutton id="appmenu_keyboardShortcuts"
                        class="subviewbutton subviewbutton-iconic"
                        data-l10n-id="appmenu-help-shortcuts"

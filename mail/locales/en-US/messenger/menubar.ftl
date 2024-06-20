@@ -26,6 +26,10 @@ menu-help-get-help =
     .label = Get Help
     .accesskey = H
 
+menu-help-get-release-help =
+    .label = Get Help with { -brand-short-name }
+    .accesskey = R
+
 menu-help-shortcuts =
     .label = Keyboard Shortcuts
     .accesskey = K

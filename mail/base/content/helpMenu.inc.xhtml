@@ -10,6 +10,11 @@
                     data-l10n-id="menu-help-get-help"
                     key="key_openHelp"
                     oncommand="openSupportURL();"/>
+#if MOZ_UPDATE_CHANNEL == beta || defined(NIGHTLY_BUILD)
+          <menuitem id="menu_openReleaseHelp"
+                    data-l10n-id="menu-help-get-release-help"
+                    oncommand="openLinkText(event, 'releaseSupportURL');" />
+#endif
           <menuitem id="menu_keyboardShortcuts"
                     data-l10n-id="menu-help-shortcuts"
                     oncommand="openLinkText(event, 'keyboardShortcutsURL');"/>

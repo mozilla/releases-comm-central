@@ -209,6 +209,10 @@ appmenu-help-get-help =
   .label = Get Help
   .accesskey = H
 
+appmenu-help-get-release-help =
+    .label = Get Help with { -brand-short-name }
+    .accesskey = R
+
 appmenu-help-shortcuts =
   .label = Keyboard Shortcuts
   .accesskey = K

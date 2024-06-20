@@ -186,6 +186,14 @@ function openLinkText(event, what) {
     case "feedbackURL":
       openUILink("https://connect.mozilla.org/", event);
       break;
+    case "releaseSupportURL":
+      if (AppConstants.NIGHTLY_BUILD) {
+        openUILink("https://support.mozilla.org/kb/thunderbird-daily", event);
+        break;
+      }
+
+      openUILink("https://support.mozilla.org/kb/thunderbird-beta", event);
+      break;
   }
 }
 

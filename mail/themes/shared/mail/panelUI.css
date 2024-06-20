@@ -1125,7 +1125,8 @@ menulist {
 /* Help */
 
 #appmenu_help,
-#appmenu_openHelp {
+#appmenu_openHelp,
+#appmenu_openReleaseHelp {
   list-style-image: var(--icon-question);
 }
 
