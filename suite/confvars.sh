@@ -22,4 +22,3 @@ MAR_CHANNEL_ID=seamonkey-comm-central
 
 MOZ_PROFILE_MIGRATOR=1
 
-NSS_EXTRA_SYMBOLS_FILE=../comm/mailnews/nss-extra.symbols
