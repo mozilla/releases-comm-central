@@ -15,6 +15,9 @@ ChromeUtils.defineESModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 
+const TODAY_HEADER = { args: null, id: "calendar-today" };
+const TOMORROW_HEADER = { args: null, id: "calendar-tomorrow" };
+
 const calendar = CalendarTestUtils.createCalendar();
 Services.prefs.setIntPref("calendar.agenda.days", 7);
 registerCleanupFunction(() => {
@@ -59,9 +62,18 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
   if (dateHeader) {
     Assert.ok(BrowserTestUtils.isVisible(dateHeaderElement), "date header is visible");
     if (dateHeader instanceof CalDateTime || dateHeader instanceof Ci.calIDateTime) {
-      dateHeader = cal.dtz.formatter.formatDateLongWithoutYear(dateHeader);
+      Assert.equal(
+        dateHeaderElement.textContent,
+        cal.dtz.formatter.formatDateLongWithoutYear(dateHeader),
+        "date header has correct value"
+      );
+    } else {
+      Assert.deepEqual(
+        document.l10n.getAttributes(dateHeaderElement),
+        dateHeader,
+        "date header has correct string"
+      );
     }
-    Assert.equal(dateHeaderElement.textContent, dateHeader, "date header has correct value");
   } else {
     Assert.ok(BrowserTestUtils.isHidden(dateHeaderElement), "date header is hidden");
   }
@@ -133,20 +145,20 @@ function checkEvents(...expectedEvents) {
 
 add_task(async function testBasicAllDay() {
   const todaysEvent = await addEvent("Today's Event", "P0D", "P1D", true);
-  checkEvents({ dateHeader: "Today", title: "Today's Event" });
+  checkEvents({ dateHeader: TODAY_HEADER, title: "Today's Event" });
 
   const tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D", "P2D", true);
   checkEvents(
-    { dateHeader: "Today", title: "Today's Event" },
-    { dateHeader: "Tomorrow", title: "Tomorrow's Event" }
+    { dateHeader: TODAY_HEADER, title: "Today's Event" },
+    { dateHeader: TOMORROW_HEADER, title: "Tomorrow's Event" }
   );
 
   const events = [];
   for (let i = 2; i < 7; i++) {
     events.push(await addEvent(`Event ${i + 1}`, `P${i}D`, `P${i + 1}D`, true));
     checkEvents(
-      { dateHeader: "Today", title: "Today's Event" },
-      { dateHeader: "Tomorrow", title: "Tomorrow's Event" },
+      { dateHeader: TODAY_HEADER, title: "Today's Event" },
+      { dateHeader: TOMORROW_HEADER, title: "Tomorrow's Event" },
       ...events.map(e => {
         return { dateHeader: e.startDate, title: e.title };
       })
@@ -155,7 +167,7 @@ add_task(async function testBasicAllDay() {
 
   await calendar.deleteItem(todaysEvent);
   checkEvents(
-    { dateHeader: "Tomorrow", title: "Tomorrow's Event" },
+    { dateHeader: TOMORROW_HEADER, title: "Tomorrow's Event" },
     ...events.map(e => {
       return { dateHeader: e.startDate, title: e.title };
     })
@@ -182,20 +194,20 @@ add_task(async function testBasic() {
   time.hour = 23;
 
   const todaysEvent = await addEvent("Today's Event", "P0DT23H", "P1D");
-  checkEvents({ dateHeader: "Today", time, title: "Today's Event" });
+  checkEvents({ dateHeader: TODAY_HEADER, time, title: "Today's Event" });
 
   const tomorrowsEvent = await addEvent("Tomorrow's Event", "P1DT23H", "P2D");
   checkEvents(
-    { dateHeader: "Today", time, title: "Today's Event" },
-    { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" }
+    { dateHeader: TODAY_HEADER, time, title: "Today's Event" },
+    { dateHeader: TOMORROW_HEADER, time, title: "Tomorrow's Event" }
   );
 
   const events = [];
   for (let i = 2; i < 7; i++) {
     events.push(await addEvent(`Event ${i + 1}`, `P${i}DT23H`, `P${i + 1}D`));
     checkEvents(
-      { dateHeader: "Today", time, title: "Today's Event" },
-      { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" },
+      { dateHeader: TODAY_HEADER, time, title: "Today's Event" },
+      { dateHeader: TOMORROW_HEADER, time, title: "Tomorrow's Event" },
       ...events.map(e => {
         return { dateHeader: e.startDate, time, title: e.title };
       })
@@ -204,7 +216,7 @@ add_task(async function testBasic() {
 
   await calendar.deleteItem(todaysEvent);
   checkEvents(
-    { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" },
+    { dateHeader: TOMORROW_HEADER, time, title: "Tomorrow's Event" },
     ...events.map(e => {
       return { dateHeader: e.startDate, time, title: e.title };
     })
@@ -234,27 +246,27 @@ add_task(async function testBasic() {
 add_task(async function testSortOrder() {
   const afternoonEvent = await addEvent("Afternoon Event", "P1DT13H", "P1DT17H");
   checkEvents({
-    dateHeader: "Tomorrow",
+    dateHeader: TOMORROW_HEADER,
     time: afternoonEvent.startDate,
     title: "Afternoon Event",
   });
 
   const morningEvent = await addEvent("Morning Event", "P1DT8H", "P1DT12H");
   checkEvents(
-    { dateHeader: "Tomorrow", time: morningEvent.startDate, title: "Morning Event" },
+    { dateHeader: TOMORROW_HEADER, time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
   const allDayEvent = await addEvent("All Day Event", "P1D", "P2D", true);
   checkEvents(
-    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
   const eveningEvent = await addEvent("Evening Event", "P1DT18H", "P1DT22H");
   checkEvents(
-    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" },
     { time: eveningEvent.startDate, title: "Evening Event" }
@@ -262,20 +274,20 @@ add_task(async function testSortOrder() {
 
   await calendar.deleteItem(afternoonEvent);
   checkEvents(
-    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
     { time: eveningEvent.startDate, title: "Evening Event" }
   );
 
   await calendar.deleteItem(morningEvent);
   checkEvents(
-    { dateHeader: "Tomorrow", title: "All Day Event" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event" },
     { time: eveningEvent.startDate, title: "Evening Event" }
   );
 
   await calendar.deleteItem(allDayEvent);
   checkEvents({
-    dateHeader: "Tomorrow",
+    dateHeader: TOMORROW_HEADER,
     time: eveningEvent.startDate,
     title: "Evening Event",
   });
@@ -291,15 +303,15 @@ add_task(async function testSortOrder() {
 add_task(async function testOverlapInside() {
   const allDayEvent = await addEvent("All Day Event", "P0D", "P2D", true);
   checkEvents(
-    { dateHeader: "Today", title: "All Day Event", overlap: "start" },
-    { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" }
+    { dateHeader: TODAY_HEADER, title: "All Day Event", overlap: "start" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event", overlap: "end" }
   );
 
   const timedEvent = await addEvent("Timed Event", "P1H", "P1D23H");
   checkEvents(
-    { dateHeader: "Today", title: "All Day Event", overlap: "start" },
+    { dateHeader: TODAY_HEADER, title: "All Day Event", overlap: "start" },
     { time: timedEvent.startDate, title: "Timed Event", overlap: "start" },
-    { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" },
+    { dateHeader: TOMORROW_HEADER, title: "All Day Event", overlap: "end" },
     { time: timedEvent.endDate, title: "Timed Event", overlap: "end" }
   );
 
@@ -322,14 +334,14 @@ add_task(async function testOverlapEndAtMidnight() {
   const nextEvent = await addEvent("Next Event", "P1D", "P2D", true);
 
   checkEvents(
-    { dateHeader: "Today", time: duringEvent.startDate, title: "During Event" },
+    { dateHeader: TODAY_HEADER, time: duringEvent.startDate, title: "During Event" },
     {
       // Should show "24:00" as the time and end today.
       time: cal.dtz.formatter.formatTime(timedEvent.endDate, true),
       title: "Timed Event",
       overlap: "end",
     },
-    { dateHeader: "Tomorrow", title: "Next Event" }
+    { dateHeader: TOMORROW_HEADER, title: "Next Event" }
   );
 
   // Move the event fully into the displayed range.
@@ -353,7 +365,7 @@ add_task(async function testOverlapEndAtMidnight() {
   realEndDate.day += 2;
   checkEvents(
     {
-      dateHeader: "Tomorrow",
+      dateHeader: TOMORROW_HEADER,
       time: timedClone.startDate,
       title: "Timed Event",
       overlap: "start",
@@ -380,17 +392,17 @@ add_task(async function testOverlapEndAtMidnight() {
  */
 add_task(async function testOverlapOutside() {
   const before = await addEvent("Starts Before", "-P1D", "P1D", true);
-  checkEvents({ dateHeader: "Today", title: "Starts Before", overlap: "end" });
+  checkEvents({ dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" });
 
   const after = await addEvent("Ends After", "P0D", "P9D", true);
   checkEvents(
-    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" },
     { title: "Ends After", overlap: "start" }
   );
 
   const both = await addEvent("Beyond Start and End", "-P2D", "P9D", true);
   checkEvents(
-    { dateHeader: "Today", title: "Beyond Start and End", overlap: "continue" },
+    { dateHeader: TODAY_HEADER, title: "Beyond Start and End", overlap: "continue" },
     { title: "Starts Before", overlap: "end" },
     { title: "Ends After", overlap: "start" }
   );
@@ -401,14 +413,14 @@ add_task(async function testOverlapOutside() {
   startClone.startDate.day -= 2;
   await calendar.modifyItem(startClone, before);
   checkEvents(
-    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
     { title: "Ends After", overlap: "start" }
   );
 
   const beforeWithTime = await addEvent("Starts Before with time", "-PT5H", "PT15H");
   checkEvents(
-    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
     { title: "Ends After", overlap: "start" },
     // This is the end of the event so the end time is used.
@@ -417,7 +429,7 @@ add_task(async function testOverlapOutside() {
 
   const afterWithTime = await addEvent("Ends After with time", "PT6H", "P8DT12H");
   checkEvents(
-    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
     { title: "Ends After", overlap: "start" },
     { time: afterWithTime.startDate, title: "Ends After with time", overlap: "start" },
@@ -427,7 +439,7 @@ add_task(async function testOverlapOutside() {
 
   const bothWithTime = await addEvent("Beyond Start and End with time", "-P2DT10H", "P9DT1H");
   checkEvents(
-    { dateHeader: "Today", title: "Starts Before", overlap: "end" },
+    { dateHeader: TODAY_HEADER, title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
     { title: "Ends After", overlap: "start" },
     { time: "", title: "Beyond Start and End with time", overlap: "continue" },
@@ -461,7 +473,7 @@ add_task(async function testActive() {
   const presentEvent = await addEvent("Present Event", `PT${now.hour}H`, `PT${now.hour + 1}H`);
   const futureEvent = await addEvent("Future Event", "PT23H59M", "PT24H");
   checkEvents(
-    { dateHeader: "Today", time: pastEvent.startDate, title: "Past Event" },
+    { dateHeader: TODAY_HEADER, time: pastEvent.startDate, title: "Past Event" },
     { time: presentEvent.startDate, title: "Present Event" },
     { time: futureEvent.startDate, title: "Future Event" }
   );
@@ -508,7 +520,7 @@ add_task(async function testOtherTimeZones() {
   allDayEvent = await calendar.addItem(allDayEvent);
 
   checkEvents({
-    dateHeader: "Tomorrow",
+    dateHeader: TOMORROW_HEADER,
     title: "All-day event in Johannesburg",
   });
 
@@ -530,7 +542,7 @@ add_task(async function testOtherTimeZones() {
 
   checkEvents(
     {
-      dateHeader: "Tomorrow",
+      dateHeader: TOMORROW_HEADER,
       time: beforeEvent.startDate,
       title: "Before",
     },
@@ -566,13 +578,13 @@ add_task(async function testOtherTimeZones() {
 
   checkEvents(
     {
-      dateHeader: "Today",
+      dateHeader: TODAY_HEADER,
       time: cal.dtz.formatter.formatTime(cal.createDateTime("20000101T220000Z")), // The date used here is irrelevant.
       title: "Evening in Panama",
       overlap: "start",
     },
     {
-      dateHeader: "Tomorrow",
+      dateHeader: TOMORROW_HEADER,
       time: cal.dtz.formatter.formatTime(cal.createDateTime("20000101T040000Z")), // The date used here is irrelevant.
       title: "Evening in Panama",
       overlap: "end",
@@ -692,7 +704,7 @@ add_task(async function testRelativeTime() {
     expectedEvents.push({ ...expected, title: name, time: event.startDate });
   }
 
-  expectedEvents[0].dateHeader = "Today";
+  expectedEvents[0].dateHeader = TODAY_HEADER;
   checkEvents(...expectedEvents);
 
   for (const event of events) {

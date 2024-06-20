@@ -856,15 +856,16 @@ function updateCategoryMenulist() {
   // supported
   document.getElementById("event-grid-category-row").toggleAttribute("hidden", maxCount === 0);
 
+  let label;
   const categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
   if (categoryList.length > 1) {
-    document.l10n.setAttributes(categoryMenulist, "multiple-categories");
+    label = this.l10n.formatValueSync("multiple-categories");
   } else if (categoryList.length == 1) {
-    categoryMenulist.removeAttribute("data-l10n-id");
-    categoryMenulist.setAttribute("label", categoryList[0].getAttribute("label"));
+    label = categoryList[0].getAttribute("label");
   } else {
-    document.l10n.setAttributes(categoryMenulist, "calendar-none");
+    label = this.l10n.formatValueSync("no-categories");
   }
+  categoryMenulist.setAttribute("label", label);
 
   const labelBox = categoryMenulist.shadowRoot.querySelector("#label-box");
   const labelLabel = labelBox.querySelector("#label");

@@ -116,11 +116,10 @@ export var l10n = {
    * Gets the month name string in the right form depending on a base string.
    *
    * @param {number} aMonthNum - The month number to get, 1-based.
-   * @param {string} aBundleName - The Bundle to get the string from
    * @param {string} aStringBase - The base string name, .monthFormat will be appended
    * @returns {string} The formatted month name
    */
-  formatMonth(aMonthNum, aBundleName, aStringBase) {
+  formatMonth(aMonthNum, aStringBase) {
     let monthForm = lazy.l10n.formatValueSync(`${aStringBase}-month-format`) || "nominative";
 
     if (monthForm == "nominative") {

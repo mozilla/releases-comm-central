@@ -236,7 +236,7 @@ var taskDetailsView = {
     if (maxCount == 1) {
       const menuitem = document.createXULElement("menuitem");
       menuitem.setAttribute("class", "menuitem-iconic");
-      document.l10n.setAttributes(menuitem, "calendar-none");
+      document.l10n.setAttributes(menuitem, "no-categories");
       menuitem.setAttribute("type", "radio");
       if (itemCategories.length === 0) {
         menuitem.setAttribute("checked", "true");

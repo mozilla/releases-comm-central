@@ -343,16 +343,11 @@ export var formatter = {
         return {
           type: "all-day-between-years",
           startDay,
-          startMonth: lazy.cal.l10n.formatMonth(
-            startDate.month + 1,
-            "calendar",
-            "days-interval-between-years"
-          ),
+          startMonth: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-between-years"),
           startYear,
           endDay,
           endMonth: lazy.cal.l10n.formatMonth(
             originalEndDate.month + 1,
-            "calendar",
             "days-interval-between-years"
           ),
           endYear,
@@ -363,11 +358,7 @@ export var formatter = {
         return {
           type: "all-day-in-month",
           startDay,
-          month: lazy.cal.l10n.formatMonth(
-            startDate.month + 1,
-            "calendar",
-            "days-interval-in-month"
-          ),
+          month: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-in-month"),
           endDay,
           year: endYear,
         };
@@ -376,15 +367,10 @@ export var formatter = {
       return {
         type: "all-day-between-months",
         startDay,
-        startMonth: lazy.cal.l10n.formatMonth(
-          startDate.month + 1,
-          "calendar",
-          "days-interval-between-months"
-        ),
+        startMonth: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-between-months"),
         endDay,
         endMonth: lazy.cal.l10n.formatMonth(
           originalEndDate.month + 1,
-          "calendar",
           "days-interval-between-months"
         ),
         year: endYear,

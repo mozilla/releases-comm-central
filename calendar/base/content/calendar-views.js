@@ -238,11 +238,7 @@
     }
 
     getRangeDescription() {
-      const monthName = cal.l10n.formatMonth(
-        this.rangeStartDate.month + 1,
-        "calendar",
-        "month-in-year"
-      );
+      const monthName = cal.l10n.formatMonth(this.rangeStartDate.month + 1, "month-in-year");
 
       return lazy.l10n.formatValueSync("month-in-year", {
         month: monthName,

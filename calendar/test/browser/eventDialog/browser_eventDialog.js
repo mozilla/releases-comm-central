@@ -82,8 +82,7 @@ add_task(async function testEventDialog() {
   Assert.equal(iframeDocument.getElementById("item-calendar").value, "Test");
 
   // Check standard title.
-  const defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
-  Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
+  Assert.equal(iframeDocument.getElementById("item-title").placeholder, "New Event");
 
   // Prepare category.
   const categories = l10n.formatValueSync("categories2");

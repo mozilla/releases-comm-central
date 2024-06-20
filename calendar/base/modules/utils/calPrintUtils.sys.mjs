@@ -399,11 +399,7 @@ const monthGridView = {
     const month = monthTemplate.content.firstElementChild.cloneNode(true);
 
     // Set up the month title
-    const monthName = lazy.cal.l10n.formatMonth(
-      startOfMonth.month + 1,
-      "calendar",
-      "month-in-year"
-    );
+    const monthName = lazy.cal.l10n.formatMonth(startOfMonth.month + 1, "month-in-year");
     const monthTitle = lazy.l10n.formatValueSync("month-in-year", {
       month: monthName,
       year: startOfMonth.year,

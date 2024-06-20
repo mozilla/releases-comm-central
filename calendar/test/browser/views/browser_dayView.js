@@ -86,6 +86,7 @@ add_task(async function testDayViewDateLabel() {
   const heading = CalendarTestUtils.dayView.getColumnHeading(window);
   const labelSpan = heading.querySelector("span:not([hidden])");
 
+  await document.l10n.translateRoots();
   Assert.equal(
     labelSpan.textContent,
     "Wednesday Apr 13",

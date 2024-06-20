@@ -658,7 +658,7 @@
       if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
         calbox.setAttribute("aria-label", dateString);
       } else {
-        const monthName = cal.l10n.formatMonth(aDate.getMonth() + 1, "calendar", "month-in-year");
+        const monthName = cal.l10n.formatMonth(aDate.getMonth() + 1, "month-in-year");
         document.l10n.setAttributes(calbox, "month-in-year-label", {
           month: monthName,
           year: aDate.getFullYear(),

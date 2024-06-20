@@ -691,7 +691,7 @@ function updatePriority(aArg) {
       image.removeAttribute("src");
     } else {
       priorityPanel.removeAttribute("collapsed");
-      image.setAttribute("alt", cal.l10n.getString("calendar", `${priorityLevel}Priority`));
+      image.setAttribute("alt", this.l10n.formatValueSync(`${priorityLevel}-priority`));
       image.setAttribute(
         "src",
         `chrome://calendar/skin/shared/statusbar-priority-${priorityLevel}.svg`
