@@ -24,5 +24,3 @@ MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES=1
 
 # Enable building ./signmar and running libmar signature tests
 MOZ_ENABLE_SIGNMAR=1
-
-NSS_EXTRA_SYMBOLS_FILE=../comm/mailnews/nss-extra.symbols
