@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-L10N_CENTRAL = "https://hg.mozilla.org/l10n-central"
+FIREFOX_L10N = "https://github.com/mozilla-l10n/firefox-l10n"
 COMM_L10N = "https://hg.mozilla.org/projects/comm-l10n"
 COMM_L10N_PUSH = f"ssh{COMM_L10N[5:]}"
 COMM_STRINGS_QUARANTINE = "https://hg.mozilla.org/projects/comm-strings-quarantine"

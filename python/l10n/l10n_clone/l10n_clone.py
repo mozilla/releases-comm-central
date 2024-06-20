@@ -9,12 +9,16 @@ use by mach build installers-$AB_CD and mach build langpack-$AB_CD.
 import argparse
 import json
 import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import Union
 
 from mozpack.copier import FileCopier
 from mozpack.files import FileFinder
+from mozversioncontrol import get_tool_path
+from mozversioncontrol.repoupdate import update_git_repo as clone_git_repo
 from mozversioncontrol.repoupdate import update_mercurial_repo
 
 COMM_PATH = (Path(__file__).parent / "../../..").resolve()
@@ -25,8 +29,8 @@ sys.path.insert(1, COMM_PYTHON_L10N)
 from tbxchannel.l10n_merge import (
     COMM_L10N,
     COMM_STRINGS_PATTERNS,
+    FIREFOX_L10N,
     GECKO_STRINGS_PATTERNS,
-    L10N_CENTRAL,
 )
 
 ALL_LOCALES = [l.rstrip() for l in (COMM_PATH / "mail/locales/all-locales").open().readlines()]
@@ -36,6 +40,14 @@ def tb_locale(locale):
     if locale in ALL_LOCALES:
         return locale
     raise argparse.ArgumentTypeError("Locale {} invalid.".format(locale))
+
+
+def update_git_repo(repo: str, path: Union[str, Path], revision="main"):
+    clone_git_repo(repo, path)
+
+    git = get_tool_path("git")
+    revision = f"{revision}^0"
+    subprocess.check_call([git, "checkout", "-q", "-f", revision], cwd=str(path))
 
 
 def get_revision(project, locale):
@@ -58,12 +70,9 @@ def get_revision(project, locale):
 
 def get_strings_repos(locale, destination):
     with tempfile.TemporaryDirectory() as tmproot:
-        central_url = "{}/{}".format(L10N_CENTRAL, locale)
-        l10n_central = Path(tmproot) / "l10n-central"
-        l10n_central.mkdir()
-        central_path = l10n_central / locale
+        firefox_l10n_path = Path(tmproot) / "firefox-l10n"
         central_revision = get_revision("browser", locale)
-        update_mercurial_repo(central_url, central_path, revision=central_revision)
+        update_git_repo(FIREFOX_L10N, firefox_l10n_path, revision=central_revision)
 
         comm_l10n = Path(tmproot) / "comm-l10n"
         comm_revision = get_revision("mail", locale)
@@ -77,7 +86,7 @@ def get_strings_repos(locale, destination):
                 for _filepath, _fileobj in finder.find(pattern.format(lang=locale)):
                     file_copier.add(_filepath, _fileobj)
 
-        add_to_registry(l10n_central, GECKO_STRINGS_PATTERNS)
+        add_to_registry(firefox_l10n_path, GECKO_STRINGS_PATTERNS)
         add_to_registry(comm_l10n, COMM_STRINGS_PATTERNS)
 
         file_copier.copy(str(destination))
