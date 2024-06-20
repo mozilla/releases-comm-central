@@ -657,12 +657,24 @@ export class MessageSend {
         }
       }
       if (isNSSError) {
-        const u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        let secInfo = null;
+        let location = null;
+
+        if (url instanceof Ci.nsIMsgMailNewsUrl) {
+          // Not all URLs implement nsIMsgMailNewsUrl. Ideally we should not
+          // share the security info with the consumer by stamping it onto the
+          // URL, but for now we do what we can with what we have.
+          secInfo = url.failedSecInfo;
+          location = url.asciiHostPort;
+        } else {
+          location = `${url.host}:${url.port}`;
+        }
+
         this.notifyListenerOnTransportSecurityError(
           null,
           exitCode,
-          u.failedSecInfo,
-          u.asciiHostPort
+          secInfo,
+          location
         );
       }
       this.notifyListenerOnStopSending(null, exitCode, null, null);
@@ -1411,8 +1423,10 @@ class MsgDeliveryListener {
 
   OnStopRunningUrl(url, exitCode) {
     lazy.MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
-    const mailUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-    mailUrl.UnRegisterListener(this);
+
+    if (url instanceof Ci.nsIMsgMailNewsUrl) {
+      url.UnRegisterListener(this);
+    }
 
     this._msgSend.sendDeliveryCallback(url, this._isNewsDelivery, exitCode);
   }

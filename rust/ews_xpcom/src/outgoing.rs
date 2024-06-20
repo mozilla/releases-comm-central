@@ -175,19 +175,14 @@ impl EwsOutgoingServer {
     xpcom_method!(server_uri => GetServerURI() -> *const nsIURI);
     fn server_uri(&self) -> Result<RefPtr<nsIURI>, nsresult> {
         let ews_url = self.ews_url.get();
-        let ews_url = ews_url.as_ref().ok_or_else(|| {
+        let ews_url = ews_url.ok_or_else(|| {
             log::error!(
                 "tried retrieving a URI for the server before initializing it with an EWS URL"
             );
             Err::<(), _>(nserror::NS_ERROR_NOT_INITIALIZED)
         })?;
 
-        // Build an ews:// URI for this server. We do this because the
-        // MessageSend module expects the URI to be QI-able into
-        // Ci.nsIMsgMailnewsUrl.
-        let username = self.username.borrow();
-        let host = ews_url.host_str().ok_or(nserror::NS_ERROR_FAILURE)?;
-        let url = nsCString::from(format!("ews://{username}@{host}"));
+        let url = nsCString::from(ews_url.as_str());
 
         let io_service =
             xpcom::get_service::<nsIIOService>(cstr::cstr!("@mozilla.org/network/io-service;1"))
