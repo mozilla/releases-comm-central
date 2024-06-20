@@ -16,7 +16,13 @@ const threadTree = about3Pane.threadTree;
 // testing things that happen when about:message is hidden.
 const aboutMessage = about3Pane.messageBrowser.contentWindow;
 const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
-let rootFolder, folderA, folderB, trashFolder, sourceMessages, sourceMessageIDs;
+let rootFolder,
+  folderA,
+  folderB,
+  folderC,
+  trashFolder,
+  sourceMessages,
+  sourceMessageIDs;
 
 add_setup(async function () {
   const generator = new MessageGenerator();
@@ -32,6 +38,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   folderB = rootFolder.createLocalSubfolder("threadTreeQuirksB");
+  folderC = rootFolder
+    .createLocalSubfolder("threadTreeQuirksC")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
   // Make some messages, then change their dates to simulate a different order.
@@ -45,6 +54,9 @@ add_setup(async function () {
   syntheticMessages[4].date = generator.makeDate();
 
   folderA.addMessageBatch(
+    syntheticMessages.map(message => message.toMessageString())
+  );
+  folderC.addMessageBatch(
     syntheticMessages.map(message => message.toMessageString())
   );
   sourceMessages = [...folderA.messages];
@@ -601,6 +613,51 @@ add_task(async function testThreadTreeA11yRoles() {
     () => threadTree.dataset.showGroupedBySort == "false",
     "The tree view should not be grouped by sort"
   );
+});
+
+add_task(async function test_read_new_properties() {
+  about3Pane.restoreState({
+    messagePaneVisible: true,
+    folderURI: folderC.URI,
+  });
+
+  // Clicking the twisty to collapse a row should update the message display.
+  goDoCommand("cmd_expandAllThreads");
+  threadTree.selectedIndex = 5;
+  await messageLoaded(10);
+
+  // Ensure that a new message thread that is selected and expanded only
+  // marks its children as new and unread.
+  let row = threadTree.getRowAtIndex(5);
+  Assert.ok(!row.dataset.properties.includes("new"));
+  Assert.stringContains(row.dataset.properties, "hasNew");
+  Assert.ok(!row.dataset.properties.includes("unread"));
+  Assert.stringContains(row.dataset.properties, "hasUnread");
+
+  // Ensure that a new message thread that hasn't been selected marks both root
+  // message and its childre and new and unread.
+  row = threadTree.getRowAtIndex(0);
+  Assert.stringContains(row.dataset.properties, "new");
+  Assert.stringContains(row.dataset.properties, "hasNew");
+  Assert.stringContains(row.dataset.properties, "unread");
+  Assert.stringContains(row.dataset.properties, "hasUnread");
+
+  threadTree.selectedIndex = 4;
+  await messageLoaded(9);
+  threadTree.selectedIndex = 3;
+  await messageLoaded(8);
+  threadTree.selectedIndex = 2;
+  await messageLoaded(7);
+  threadTree.selectedIndex = 1;
+  await messageLoaded(6);
+
+  // Ensure that if all the child messages of a thread have been read, only the
+  // root message is marked as new and unread.
+  row = threadTree.getRowAtIndex(0);
+  Assert.stringContains(row.dataset.properties, "new");
+  Assert.ok(!row.dataset.properties.includes("hasNew"));
+  Assert.stringContains(row.dataset.properties, "unread");
+  Assert.ok(!row.dataset.properties.includes("hasUnread"));
 });
 
 async function messageLoaded(index) {

@@ -1161,7 +1161,8 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   uint32_t flags;
   msgHdr->GetFlags(&flags);
 
-  if (!(flags & nsMsgMessageFlags::Read))
+  bool isRead = flags & nsMsgMessageFlags::Read;
+  if (!isRead)
     properties.AppendLiteral(" unread");
   else
     properties.AppendLiteral(" read");
@@ -1174,7 +1175,8 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   if (flags & nsMsgMessageFlags::Redirected)
     properties.AppendLiteral(" redirected");
 
-  if (flags & nsMsgMessageFlags::New) properties.AppendLiteral(" new");
+  bool isNew = flags & nsMsgMessageFlags::New;
+  if (isNew) properties.AppendLiteral(" new");
 
   if (m_flags[index] & nsMsgMessageFlags::Marked)
     properties.AppendLiteral(" flagged");
@@ -1233,10 +1235,20 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   if (NS_SUCCEEDED(rv) && thread) {
     uint32_t numUnreadChildren;
     thread->GetNumUnreadChildren(&numUnreadChildren);
+    // If only one message is unread and is the parent message, don't mark the
+    // child thread with hasUnread.
+    if (numUnreadChildren == 1 && !isRead) {
+      numUnreadChildren--;
+    }
     if (numUnreadChildren > 0) properties.AppendLiteral(" hasUnread");
 
     uint32_t numNewChildren;
     thread->GetNumNewChildren(&numNewChildren);
+    // If only one message is new and is the parent message, don't mark the
+    // child thread with hasNew.
+    if (numNewChildren == 1 && isNew) {
+      numNewChildren--;
+    }
     if (numNewChildren > 0) properties.AppendLiteral(" hasNew");
 
     // For threaded display add the ignore/watch properties to the
@@ -1293,7 +1305,8 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
   uint32_t flags;
   msgHdr->GetFlags(&flags);
 
-  if (!(flags & nsMsgMessageFlags::Read))
+  bool isRead = flags & nsMsgMessageFlags::Read;
+  if (!isRead)
     properties.AppendLiteral(" unread");
   else
     properties.AppendLiteral(" read");
@@ -1408,6 +1421,11 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
   if (NS_SUCCEEDED(rv) && thread) {
     uint32_t numUnreadChildren;
     thread->GetNumUnreadChildren(&numUnreadChildren);
+    // If only one message is unread and is the parent message, don't mark the
+    // child thread with hasUnread.
+    if (numUnreadChildren == 1 && !isRead) {
+      numUnreadChildren--;
+    }
     if (numUnreadChildren > 0) properties.AppendLiteral(" hasUnread");
 
     // For threaded display add the ignore/watch properties to the
