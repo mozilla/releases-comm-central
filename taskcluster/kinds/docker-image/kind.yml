@@ -20,6 +20,7 @@ reference-tasks:
     - debian12-packages
     - debian12-raw
     - fetch
+    - fetch-more
     - funsize-update-generator
     - image_builder
     - index-task
