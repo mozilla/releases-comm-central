@@ -25,3 +25,15 @@ const stopEvent = event => {
 document.addEventListener("keydown", stopEvent);
 document.addEventListener("keypress", stopEvent);
 document.addEventListener("keyup", stopEvent);
+
+// ChromeUtils mock
+
+window.AppConstants = {
+  platform: "storybook",
+};
+
+window.ChromeUtils = {
+  importESModule(path) {
+    return window.AppConstants;
+  },
+};

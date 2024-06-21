@@ -4,6 +4,7 @@
 
 import { html } from "lit";
 import { action } from "@storybook/addon-actions";
+import "mail/themes/shared/mail/tree-listbox.css"; //eslint-disable-line import/no-unassigned-import
 import "mail/base/content/widgets/listbox/orderable-tree-listbox.mjs"; //eslint-disable-line import/no-unassigned-import
 
 export default {
