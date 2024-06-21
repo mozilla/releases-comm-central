@@ -67,13 +67,13 @@ libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 warp = { git = "https://github.com/seanmonstar/warp", rev = "9d081461ae1167eb321585ce424f4fef6cf0092b" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "3ca067683c7546e34bc8cdbe820fbe8e4089939a" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+relevancy = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "46acbeb2cee2fb7f024b6ff5943bdfdb6cc53151" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
 gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
