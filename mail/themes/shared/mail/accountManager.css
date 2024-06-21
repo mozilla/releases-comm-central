@@ -123,6 +123,7 @@ body {
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow-x: hidden;
+      user-select: none;
     }
 
     & .default-icon {
