@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="chrome://messenger/skin/inContentDialog.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/containers.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderPane.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/shared/list-container.css" />
@@ -51,7 +52,7 @@
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
   <html:aside id="accountTreeBox">
-    <html:ol is="orderable-tree-listbox" id="accounttree" class="no-overscroll"
+    <html:ol is="orderable-tree-listbox" id="accounttree" class="sidebar-panel-scroll"
              role="tree"
              flex="1"
              onselect="onAccountTreeSelect(null, null);">

@@ -10,9 +10,42 @@
   gap: var(--sidebar-header-gap);
   color: inherit;
   padding: var(--sidebar-header-spacing);
-  z-index: 1;
 
   &[hidden] {
     display: none;
+  }
+}
+
+.sidebar-panel-scroll {
+  overscroll-behavior-y: none;
+
+  @media not (prefers-contrast) {
+    & {
+      position: relative;
+    }
+
+    &::before,
+    &::after {
+      display: block;
+      content: "";
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      pointer-events: none;
+    }
+
+    &::before {
+      position: sticky;
+      background-image: radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .15), rgba(0, 0, 0, 0));
+      /* push in front of any normal layer list content */
+      z-index: 2;
+    }
+
+    &::after {
+      position: absolute;
+      background-color: var(--sidebar-background);
+      z-index: 3;
+    }
   }
 }
