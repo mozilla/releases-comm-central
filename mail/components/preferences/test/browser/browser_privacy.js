@@ -109,6 +109,9 @@ add_task(async () => {
   });
 });
 
+/**
+ * Tests the remote content dialog.
+ */
 add_task(async function testRemoteContentDialog() {
   const { prefsDocument } = await openNewPrefsTab("panePrivacy");
 
@@ -236,8 +239,14 @@ add_task(async function testRemoteContentDialog() {
   await closePrefsTab();
 });
 
+/**
+ * Tests the cookies dialogs.
+ */
 add_task(async function testCookiesDialog() {
-  const { prefsDocument } = await openNewPrefsTab("panePrivacy");
+  const { prefsDocument } = await openNewPrefsTab(
+    "panePrivacy",
+    "privacyCategory"
+  );
 
   const cookieExceptions = prefsDocument.getElementById("cookieExceptions");
   await promiseSubDialog(
@@ -382,5 +391,49 @@ add_task(async function testCookiesDialog() {
     "permission should be removed for block.invalid"
   );
 
+  await promiseSubDialog(
+    prefsDocument.getElementById("showCookiesButton"),
+    "chrome://messenger/content/preferences/cookies.xhtml",
+    () => {},
+    "closeButton"
+  );
+  await closePrefsTab();
+});
+
+/**
+ * Tests the password manager.
+ */
+add_task(async function testPasswordManager() {
+  const { prefsDocument } = await openNewPrefsTab(
+    "panePrivacy",
+    "privacyPasswordsCategory"
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("showPasswords"),
+    "chrome://messenger/content/preferences/passwordManager.xhtml",
+    () => {},
+    "closeButton"
+  );
+  await closePrefsTab();
+});
+
+/**
+ * Tests the certificate manager and device manager dialogs.
+ */
+add_task(async function testSecurityDialogs() {
+  const { prefsDocument } = await openNewPrefsTab(
+    "panePrivacy",
+    "privacySecurityCategory"
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("manageCertificatesButton"),
+    "chrome://pippki/content/certManager.xhtml",
+    () => {}
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("viewSecurityDevicesButton"),
+    "chrome://pippki/content/device_manager.xhtml",
+    () => {}
+  );
   await closePrefsTab();
 });

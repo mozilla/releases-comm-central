@@ -85,3 +85,38 @@ add_task(async () => {
     }
   );
 });
+
+/**
+ * Tests the attachment reminders dialog.
+ */
+add_task(async function testAttachmentReminderDialog() {
+  Services.prefs.setBoolPref("mail.compose.attachment_reminder", true);
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneCompose",
+    "compositionAttachmentsCategory"
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("attachment_reminder_button"),
+    "chrome://messenger/content/preferences/attachmentReminder.xhtml",
+    () => {},
+    "cancel"
+  );
+  await closePrefsTab();
+});
+
+/**
+ * Tests the LDAP directories dialog.
+ */
+add_task(async function testLDAPDialog() {
+  Services.prefs.setBoolPref("ldap_2.autoComplete.useDirectory", true);
+  const { prefsDocument } = await openNewPrefsTab(
+    "paneCompose",
+    "compositionAddressingCategory"
+  );
+  await promiseSubDialog(
+    prefsDocument.getElementById("editButton"),
+    "chrome://messenger/content/addressbook/pref-editdirectories.xhtml",
+    () => {}
+  );
+  await closePrefsTab();
+});

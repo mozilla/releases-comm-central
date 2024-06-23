@@ -105,7 +105,11 @@
         />
       </hbox>
       <hbox class="actionButtons" pack="end">
-        <button oncommand="window.close();" data-l10n-id="cancel-button" />
+        <button
+          id="closeButton"
+          oncommand="window.close();"
+          data-l10n-id="cancel-button"
+        />
         <button
           id="btnApplyChanges"
           oncommand="gPermissionManager.onApplyChanges();"
