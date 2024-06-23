@@ -315,3 +315,58 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
     }
   }
 }
+
+/**
+ * Clicks on a button to open a subdialog, waits for that subdialog to load,
+ * runs a callback, then clicks a button to close the subdialog.
+ *
+ * @param {Element} buttonToClick - The button which opens the subdialog.
+ * @param {string} dialogURL - URL of the subdialog we are expecting to open.
+ * @param {function} callback - A (possibly async) callback function to run
+ *   once the subdialog is open and has focus. The callback takes one
+ *   argument, the `window` of the subdialog.
+ * @param {string} buttonNameOrID - The name or ID of the button to click,
+ *   which causes the subdialog to close.
+ */
+async function promiseSubDialog(
+  buttonToClick,
+  dialogURL,
+  callback,
+  buttonNameOrID = "accept"
+) {
+  const openPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    dialogURL,
+    { isSubDialog: true }
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    buttonToClick,
+    {},
+    buttonToClick.ownerGlobal
+  );
+  const dialogWindow = await openPromise;
+  const dialogDocument = dialogWindow.document;
+  const basename = dialogWindow.location.href.split("/").at(-1);
+  info(`${basename} opened`);
+
+  await TestUtils.waitForCondition(
+    () => Services.focus.focusedWindow == dialogWindow,
+    "waiting for subdialog to be focused"
+  );
+
+  await callback(dialogWindow);
+
+  const closePromise = BrowserTestUtils.waitForEvent(
+    dialogWindow.browsingContext.topChromeWindow,
+    "dialogclose",
+    true
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    dialogDocument.querySelector("dialog")?.getButton(buttonNameOrID) ||
+      dialogDocument.getElementById(buttonNameOrID),
+    {},
+    dialogWindow
+  );
+  await closePromise;
+  info(`${basename} closed`);
+}

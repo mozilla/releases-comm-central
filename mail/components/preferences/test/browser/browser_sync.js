@@ -371,45 +371,34 @@ async function openEngineDialog({
     calendars: "configSyncCalendar",
     passwords: "configSyncPasswords",
   };
-  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
-    "chrome://messenger/content/preferences/syncDialog.xhtml",
-    { isSubDialog: true }
-  );
-  EventUtils.synthesizeMouseAtCenter(
+  await promiseSubDialog(
     prefsDocument.getElementById(button),
-    {},
-    prefsWindow
-  );
-  const dialogWindow = await dialogPromise;
-  const dialogDocument = dialogWindow.document;
-  await new Promise(resolve => dialogWindow.setTimeout(resolve));
+    "chrome://messenger/content/preferences/syncDialog.xhtml",
+    function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
 
-  const expectItems = expectEngines.map(
-    engine => ENGINES_TO_CHECKBOXES[engine]
-  );
+      const expectItems = expectEngines.map(
+        engine => ENGINES_TO_CHECKBOXES[engine]
+      );
 
-  const checkedItems = Array.from(
-    dialogDocument.querySelectorAll(`input[type="checkbox"]`)
-  )
-    .filter(cb => cb.checked)
-    .map(cb => cb.id);
-  Assert.deepEqual(
-    checkedItems,
-    expectItems,
-    "enabled engines checked correctly"
-  );
+      const checkedItems = Array.from(
+        dialogDocument.querySelectorAll(`input[type="checkbox"]`)
+      )
+        .filter(cb => cb.checked)
+        .map(cb => cb.id);
+      Assert.deepEqual(
+        checkedItems,
+        expectItems,
+        "enabled engines checked correctly"
+      );
 
-  for (const toggleItem of toggleEngines) {
-    const checkbox = dialogDocument.getElementById(
-      ENGINES_TO_CHECKBOXES[toggleItem]
-    );
-    checkbox.checked = !checkbox.checked;
-  }
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialogDocument.querySelector("dialog").getButton(action),
-    {},
-    dialogWindow
+      for (const toggleItem of toggleEngines) {
+        const checkbox = dialogDocument.getElementById(
+          ENGINES_TO_CHECKBOXES[toggleItem]
+        );
+        checkbox.checked = !checkbox.checked;
+      }
+    },
+    action
   );
 }

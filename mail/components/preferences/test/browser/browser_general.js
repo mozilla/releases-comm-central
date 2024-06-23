@@ -266,36 +266,17 @@ add_task(async function testTagDialog() {
     "tagsCategory"
   );
 
-  const newTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
+  await promiseSubDialog(
+    prefsDocument.getElementById("newTagButton"),
     "chrome://messenger/content/newTagDialog.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
 
-        const dialogDocument = dialogWindow.document;
-
-        EventUtils.sendString("tbird", dialogWindow);
-        // "#000080" == rgb(0, 0, 128);
-        dialogDocument.getElementById("tagColorPicker").value = "#000080";
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.querySelector("dialog").getButton("accept"),
-          {},
-          dialogWindow
-        );
-        await new Promise(r => setTimeout(r));
-      },
+      EventUtils.sendString("tbird", dialogWindow);
+      // "#000080" == rgb(0, 0, 128);
+      dialogDocument.getElementById("tagColorPicker").value = "#000080";
     }
   );
-
-  const newTagButton = prefsDocument.getElementById("newTagButton");
-  EventUtils.synthesizeMouseAtCenter(newTagButton, {}, prefsWindow);
-  await newTagDialogPromise;
 
   const tagList = prefsDocument.getElementById("tagList");
 
@@ -322,47 +303,28 @@ add_task(async function testTagDialog() {
 
   // Now edit the tag. The key should stay the same, name and color will change.
 
-  const editTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
+  await promiseSubDialog(
+    prefsDocument.getElementById("editTagButton"),
     "chrome://messenger/content/newTagDialog.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
 
-        const dialogDocument = dialogWindow.document;
+      Assert.equal(
+        dialogDocument.getElementById("name").value,
+        "tbird",
+        "should have existing tbird tag name prefilled"
+      );
+      Assert.equal(
+        dialogDocument.getElementById("tagColorPicker").value,
+        "#000080",
+        "should have existing tbird tag color prefilled"
+      );
 
-        Assert.equal(
-          dialogDocument.getElementById("name").value,
-          "tbird",
-          "should have existing tbird tag name prefilled"
-        );
-        Assert.equal(
-          dialogDocument.getElementById("tagColorPicker").value,
-          "#000080",
-          "should have existing tbird tag color prefilled"
-        );
-
-        EventUtils.sendString("-xx", dialogWindow); // => tbird-xx
-        // "#FFD700" == rgb(255, 215, 0);
-        dialogDocument.getElementById("tagColorPicker").value = "#FFD700";
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.querySelector("dialog").getButton("accept"),
-          {},
-          dialogWindow
-        );
-        await new Promise(r => setTimeout(r));
-      },
+      EventUtils.sendString("-xx", dialogWindow); // => tbird-xx
+      // "#FFD700" == rgb(255, 215, 0);
+      dialogDocument.getElementById("tagColorPicker").value = "#FFD700";
     }
   );
-
-  const editTagButton = prefsDocument.getElementById("editTagButton");
-  EventUtils.synthesizeMouseAtCenter(editTagButton, {}, prefsWindow);
-  await editTagDialogPromise;
 
   Assert.ok(
     tagList.querySelector(

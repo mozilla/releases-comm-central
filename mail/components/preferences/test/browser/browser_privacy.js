@@ -110,72 +110,54 @@ add_task(async () => {
 });
 
 add_task(async function testRemoteContentDialog() {
-  const { prefsDocument, prefsWindow } = await openNewPrefsTab("panePrivacy");
+  const { prefsDocument } = await openNewPrefsTab("panePrivacy");
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
-    "chrome://messenger/content/preferences/permissions.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
-
-        const dialogDocument = dialogWindow.document;
-        const url = dialogDocument.getElementById("url");
-        const permissionsTree =
-          dialogDocument.getElementById("permissionsTree");
-
-        EventUtils.sendString("accept.invalid", dialogWindow);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnAllow"),
-          {},
-          dialogWindow
-        );
-        await new Promise(f => setTimeout(f));
-        Assert.equal(url.value, "", "url input should be cleared");
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          1,
-          "new entry should be added to list"
-        );
-
-        Assert.ok(
-          BrowserTestUtils.isHidden(
-            dialogDocument.getElementById("btnSession")
-          ),
-          "session button should be hidden"
-        );
-
-        EventUtils.sendString("block.invalid", dialogWindow);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnBlock"),
-          {},
-          dialogWindow
-        );
-        await new Promise(f => setTimeout(f));
-        Assert.equal(url.value, "", "url input should be cleared");
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          2,
-          "new entry should be added to list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnApplyChanges"),
-          {},
-          dialogWindow
-        );
-      },
-    }
-  );
   const remoteContentExceptions = prefsDocument.getElementById(
     "remoteContentExceptions"
   );
-  EventUtils.synthesizeMouseAtCenter(remoteContentExceptions, {}, prefsWindow);
-  await dialogPromise;
+  await promiseSubDialog(
+    remoteContentExceptions,
+    "chrome://messenger/content/preferences/permissions.xhtml",
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
+      const url = dialogDocument.getElementById("url");
+      const permissionsTree = dialogDocument.getElementById("permissionsTree");
+
+      EventUtils.sendString("accept.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnAllow"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        1,
+        "new entry should be added to list"
+      );
+
+      Assert.ok(
+        BrowserTestUtils.isHidden(dialogDocument.getElementById("btnSession")),
+        "session button should be hidden"
+      );
+
+      EventUtils.sendString("block.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnBlock"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        2,
+        "new entry should be added to list"
+      );
+    },
+    "btnApplyChanges"
+  );
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
   const acceptURI = Services.io.newURI("http://accept.invalid/");
@@ -201,60 +183,44 @@ add_task(async function testRemoteContentDialog() {
     "block permission should exist for block.invalid"
   );
 
-  dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
+  await promiseSubDialog(
+    remoteContentExceptions,
     "chrome://messenger/content/preferences/permissions.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
+      const permissionsTree = dialogDocument.getElementById("permissionsTree");
 
-        const dialogDocument = dialogWindow.document;
-        const permissionsTree =
-          dialogDocument.getElementById("permissionsTree");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        2,
+        "list should be populated"
+      );
 
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          2,
-          "list should be populated"
-        );
+      permissionsTree.view.selection.select(0);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("removePermission"),
+        {},
+        dialogWindow
+      );
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        1,
+        "row should be removed from list"
+      );
 
-        permissionsTree.view.selection.select(0);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("removePermission"),
-          {},
-          dialogWindow
-        );
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          1,
-          "row should be removed from list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("removeAllPermissions"),
-          {},
-          dialogWindow
-        );
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          0,
-          "row should be removed from list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnApplyChanges"),
-          {},
-          dialogWindow
-        );
-      },
-    }
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("removeAllPermissions"),
+        {},
+        dialogWindow
+      );
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        0,
+        "row should be removed from list"
+      );
+    },
+    "btnApplyChanges"
   );
-  EventUtils.synthesizeMouseAtCenter(remoteContentExceptions, {}, prefsWindow);
-  await dialogPromise;
 
   Assert.equal(
     Services.perms.testPermissionFromPrincipal(acceptPrincipal, "image"),
@@ -271,77 +237,61 @@ add_task(async function testRemoteContentDialog() {
 });
 
 add_task(async function testCookiesDialog() {
-  const { prefsDocument, prefsWindow } = await openNewPrefsTab("panePrivacy");
+  const { prefsDocument } = await openNewPrefsTab("panePrivacy");
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
-    "chrome://messenger/content/preferences/permissions.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
-
-        const dialogDocument = dialogWindow.document;
-        const url = dialogDocument.getElementById("url");
-        const permissionsTree =
-          dialogDocument.getElementById("permissionsTree");
-
-        EventUtils.sendString("accept.invalid", dialogWindow);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnAllow"),
-          {},
-          dialogWindow
-        );
-        await new Promise(f => setTimeout(f));
-        Assert.equal(url.value, "", "url input should be cleared");
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          1,
-          "new entry should be added to list"
-        );
-
-        EventUtils.sendString("session.invalid", dialogWindow);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnSession"),
-          {},
-          dialogWindow
-        );
-        await new Promise(f => setTimeout(f));
-        Assert.equal(url.value, "", "url input should be cleared");
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          2,
-          "new entry should be added to list"
-        );
-
-        EventUtils.sendString("block.invalid", dialogWindow);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnBlock"),
-          {},
-          dialogWindow
-        );
-        await new Promise(f => setTimeout(f));
-        Assert.equal(url.value, "", "url input should be cleared");
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          3,
-          "new entry should be added to list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnApplyChanges"),
-          {},
-          dialogWindow
-        );
-      },
-    }
-  );
   const cookieExceptions = prefsDocument.getElementById("cookieExceptions");
-  EventUtils.synthesizeMouseAtCenter(cookieExceptions, {}, prefsWindow);
-  await dialogPromise;
+  await promiseSubDialog(
+    cookieExceptions,
+    "chrome://messenger/content/preferences/permissions.xhtml",
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
+      const url = dialogDocument.getElementById("url");
+      const permissionsTree = dialogDocument.getElementById("permissionsTree");
+
+      EventUtils.sendString("accept.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnAllow"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        1,
+        "new entry should be added to list"
+      );
+
+      EventUtils.sendString("session.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnSession"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        2,
+        "new entry should be added to list"
+      );
+
+      EventUtils.sendString("block.invalid", dialogWindow);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("btnBlock"),
+        {},
+        dialogWindow
+      );
+      await new Promise(f => setTimeout(f));
+      Assert.equal(url.value, "", "url input should be cleared");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        3,
+        "new entry should be added to list"
+      );
+    },
+    "btnApplyChanges"
+  );
 
   // eslint-disable-next-line @microsoft/sdl/no-insecure-url
   const acceptURI = Services.io.newURI("http://accept.invalid/");
@@ -377,60 +327,44 @@ add_task(async function testCookiesDialog() {
     "block permission should exist for block.invalid"
   );
 
-  dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    undefined,
+  await promiseSubDialog(
+    cookieExceptions,
     "chrome://messenger/content/preferences/permissions.xhtml",
-    {
-      isSubDialog: true,
-      async callback(dialogWindow) {
-        await TestUtils.waitForCondition(
-          () => Services.focus.focusedWindow == dialogWindow,
-          "waiting for subdialog to be focused"
-        );
+    async function (dialogWindow) {
+      const dialogDocument = dialogWindow.document;
+      const permissionsTree = dialogDocument.getElementById("permissionsTree");
 
-        const dialogDocument = dialogWindow.document;
-        const permissionsTree =
-          dialogDocument.getElementById("permissionsTree");
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        3,
+        "list should be populated"
+      );
 
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          3,
-          "list should be populated"
-        );
+      permissionsTree.view.selection.select(0);
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("removePermission"),
+        {},
+        dialogWindow
+      );
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        2,
+        "row should be removed from list"
+      );
 
-        permissionsTree.view.selection.select(0);
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("removePermission"),
-          {},
-          dialogWindow
-        );
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          2,
-          "row should be removed from list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("removeAllPermissions"),
-          {},
-          dialogWindow
-        );
-        Assert.equal(
-          permissionsTree.view.rowCount,
-          0,
-          "row should be removed from list"
-        );
-
-        EventUtils.synthesizeMouseAtCenter(
-          dialogDocument.getElementById("btnApplyChanges"),
-          {},
-          dialogWindow
-        );
-      },
-    }
+      EventUtils.synthesizeMouseAtCenter(
+        dialogDocument.getElementById("removeAllPermissions"),
+        {},
+        dialogWindow
+      );
+      Assert.equal(
+        permissionsTree.view.rowCount,
+        0,
+        "row should be removed from list"
+      );
+    },
+    "btnApplyChanges"
   );
-  EventUtils.synthesizeMouseAtCenter(cookieExceptions, {}, prefsWindow);
-  await dialogPromise;
 
   Assert.equal(
     Services.perms.testPermissionFromPrincipal(acceptPrincipal, "cookie"),
