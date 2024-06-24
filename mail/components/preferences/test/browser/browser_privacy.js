@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { OSKeyStore } = ChromeUtils.importESModule(
+  "resource://gre/modules/OSKeyStore.sys.mjs"
+);
+const { OSKeyStoreTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/OSKeyStoreTestUtils.sys.mjs"
+);
+
 add_task(async () => {
   await testCheckboxes(
     "panePrivacy",
@@ -400,6 +407,322 @@ add_task(async function testCookiesDialog() {
   await closePrefsTab();
 });
 
+async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
+  for (const [origin, realm, username, password] of [
+    ["https://example.com", "realm", "username", "password"],
+    ["https://example.org", "realm", "username", "password"],
+    ["https://caldav.test.test", "caldav:write", "user", "test1234"],
+    ["https://carddav.test.test", "carddav:write", "user", "test1234"],
+    ["imap://imap.test.test", "imap://imap.test.test", "user", "test1234"],
+    ["smtp://smtp.test.test", "smtp://smtp.test.test", "user", "test1234"],
+  ]) {
+    const loginInfo = Cc[
+      "@mozilla.org/login-manager/loginInfo;1"
+    ].createInstance(Ci.nsILoginInfo);
+    loginInfo.init(origin, null, realm, username, password, "", "");
+    await Services.logins.addLoginAsync(loginInfo);
+  }
+
+  await promiseSubDialog(
+    prefsDocument.getElementById("showPasswords"),
+    "chrome://messenger/content/preferences/passwordManager.xhtml",
+    async dialogWindow => {
+      const dialogDocument = dialogWindow.document;
+      const filterInput = dialogDocument.getElementById("filter");
+      const tree = dialogDocument.getElementById("signonsTree");
+      const passwordColumn = tree.columns.passwordCol;
+      const removeButton = dialogDocument.getElementById("removeSignon");
+      const removeAllButton = dialogDocument.getElementById("removeAllSignons");
+      const showPasswordButton =
+        dialogDocument.getElementById("togglePasswords");
+
+      // Sanity check.
+
+      await TestUtils.waitForCondition(
+        () => tree.view.rowCount,
+        "waiting for tree to be populated"
+      );
+      Assert.equal(filterInput.value, "", "filter value should be cleared");
+      Assert.equal(tree.view.rowCount, 6, "all logins should be displayed");
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all",
+        "remove all button should have the right label"
+      );
+
+      // Test filtering.
+
+      Assert.equal(
+        dialogDocument.activeElement,
+        filterInput,
+        "filter input should have focus"
+      );
+      EventUtils.sendString("test", dialogWindow);
+      EventUtils.synthesizeKey("KEY_Enter", {}, dialogWindow);
+      Assert.equal(
+        tree.view.rowCount,
+        4,
+        "only logins matching the filter should be displayed"
+      );
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all-shown",
+        "remove all button should have the right label"
+      );
+
+      Assert.equal(
+        dialogDocument.activeElement,
+        filterInput,
+        "filter input should have focus"
+      );
+      EventUtils.synthesizeKey("KEY_Escape", {}, dialogWindow);
+      await TestUtils.waitForCondition(
+        () => removeAllButton.dataset.l10nId == "remove-all",
+        "waiting for tree to repopulate"
+      );
+      Assert.equal(filterInput.value, "", "filter value should be cleared");
+      Assert.equal(tree.view.rowCount, 6, "all logins should be displayed");
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all",
+        "remove all button should have the right label"
+      );
+
+      Assert.equal(
+        dialogDocument.activeElement,
+        filterInput,
+        "filter input should have focus"
+      );
+      EventUtils.sendString("example", dialogWindow);
+      EventUtils.synthesizeKey("KEY_Enter", {}, dialogWindow);
+      Assert.equal(
+        tree.view.rowCount,
+        2,
+        "only logins matching the filter should be displayed"
+      );
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all-shown",
+        "remove all button should have the right label"
+      );
+
+      // Test selecting and removing a password.
+
+      tree.view.selection.select(0);
+      Assert.ok(!removeButton.disabled, "remove button should be enabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+
+      EventUtils.synthesizeMouseAtCenter(removeButton, {}, dialogWindow);
+      await TestUtils.waitForCondition(
+        () => tree.view.rowCount == 1,
+        "waiting for tree to be updated"
+      );
+      Assert.equal(
+        (await Services.logins.getAllLogins()).length,
+        5,
+        "login should have been removed"
+      );
+
+      // Clear the filter.
+
+      await TestUtils.waitForTick();
+      EventUtils.synthesizeMouseAtCenter(filterInput, {}, dialogWindow);
+      EventUtils.synthesizeKey("KEY_Escape", {}, dialogWindow);
+      await TestUtils.waitForCondition(
+        () => removeAllButton.dataset.l10nId == "remove-all",
+        "waiting for tree to repopulate"
+      );
+      Assert.equal(filterInput.value, "", "filter value should be cleared");
+      Assert.equal(
+        tree.view.rowCount,
+        5,
+        "all remaining logins should be displayed"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all",
+        "remove all button should have the right label"
+      );
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        !removeAllButton.disabled,
+        "remove all button should be enabled"
+      );
+
+      // Test the show/hide passwords toggle.
+
+      if (primaryPassword || OSKeyStoreTestUtils.canTestOSKeyStoreLogin()) {
+        Assert.ok(
+          passwordColumn.element.hidden,
+          "passwords column should be hidden"
+        );
+        Assert.equal(
+          showPasswordButton.dataset.l10nId,
+          "show-passwords",
+          "toggle passwords button should have the right label"
+        );
+
+        function promiseAlertDialog(buttonName) {
+          // If there's a primary password set, we should be asked for it.
+          // If there isn't, and we can't ask the OS for authentication, we
+          // should be asked if the user really wants to show passwords.
+          // Both of these cases use commonDialog.xhtml, so this function
+          // checks that the right question was asked by seeing if the
+          // password field is visible.
+          return BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+            callback(win) {
+              const doc = win.document;
+              const passwordInput = doc.getElementById("password1Textbox");
+              if (primaryPassword) {
+                Assert.ok(
+                  BrowserTestUtils.isVisible(passwordInput),
+                  "password input should be visible"
+                );
+                Assert.equal(
+                  doc.activeElement,
+                  passwordInput,
+                  "password input should have focus"
+                );
+                if (buttonName == "accept") {
+                  EventUtils.sendString(primaryPassword, win);
+                }
+              } else {
+                Assert.ok(
+                  BrowserTestUtils.isHidden(passwordInput),
+                  "password input should not be visible"
+                );
+              }
+              doc.querySelector("dialog").getButton(buttonName).click();
+            },
+          });
+        }
+
+        const cancelPromise =
+          OSKeyStore.canReauth() && !primaryPassword
+            ? OSKeyStoreTestUtils.waitForOSKeyStoreLogin(false)
+            : promiseAlertDialog("cancel");
+        EventUtils.synthesizeMouseAtCenter(
+          showPasswordButton,
+          {},
+          dialogWindow
+        );
+        await cancelPromise;
+        await SimpleTest.promiseFocus(dialogWindow);
+
+        // Wait to prove nothing happened.
+        // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        Assert.ok(
+          passwordColumn.element.hidden,
+          "passwords column should be hidden"
+        );
+        Assert.equal(
+          showPasswordButton.dataset.l10nId,
+          "show-passwords",
+          "toggle passwords button should have the right label"
+        );
+
+        const acceptPromise =
+          OSKeyStore.canReauth() && !primaryPassword
+            ? OSKeyStoreTestUtils.waitForOSKeyStoreLogin(true)
+            : promiseAlertDialog("accept");
+        EventUtils.synthesizeMouseAtCenter(
+          showPasswordButton,
+          {},
+          dialogWindow
+        );
+        await acceptPromise;
+        await SimpleTest.promiseFocus(dialogWindow);
+
+        await TestUtils.waitForCondition(
+          () => !passwordColumn.element.hidden,
+          "waiting for the passwords to be shown"
+        );
+        Assert.ok(
+          !passwordColumn.element.hidden,
+          "passwords column should be shown"
+        );
+        Assert.equal(
+          showPasswordButton.dataset.l10nId,
+          "hide-passwords",
+          "toggle passwords button should have the right label"
+        );
+
+        EventUtils.synthesizeMouseAtCenter(
+          showPasswordButton,
+          {},
+          dialogWindow
+        );
+
+        await TestUtils.waitForCondition(
+          () => passwordColumn.element.hidden,
+          "waiting for the passwords to be shown"
+        );
+        Assert.ok(
+          passwordColumn.element.hidden,
+          "passwords column should be hidden"
+        );
+        Assert.equal(
+          showPasswordButton.dataset.l10nId,
+          "show-passwords",
+          "toggle passwords button should have the right label"
+        );
+      } else {
+        // Some builds intentionally don't test key store logins.
+        // See OSKeyStoreTestUtils.sys.mjs for why.
+        info(
+          "Showing passwords column not tested. This should only happen in official builds or debug builds."
+        );
+      }
+
+      // Test removing all passwords.
+
+      const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+      EventUtils.synthesizeMouseAtCenter(removeAllButton, {}, dialogWindow);
+      await promptPromise;
+      await SimpleTest.promiseFocus(dialogWindow);
+      await TestUtils.waitForCondition(
+        () => tree.view.rowCount == 0,
+        "waiting for tree to be cleared"
+      );
+      Assert.equal(
+        (await Services.logins.getAllLogins()).length,
+        0,
+        "all logins should have been removed"
+      );
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        removeAllButton.disabled,
+        "remove all button should be disabled"
+      );
+    },
+    "closeButton"
+  );
+}
+
 /**
  * Tests the password manager.
  */
@@ -408,14 +731,105 @@ add_task(async function testPasswordManager() {
     "panePrivacy",
     "privacyPasswordsCategory"
   );
-  await promiseSubDialog(
-    prefsDocument.getElementById("showPasswords"),
-    "chrome://messenger/content/preferences/passwordManager.xhtml",
-    () => {},
-    "closeButton"
-  );
+  await subtestPasswordManager(prefsDocument);
   await closePrefsTab();
 });
+
+/**
+ * Tests the primary password dialogs, and the password manager with a primary
+ * password set.
+ */
+add_task(async function testPrimaryPassword() {
+  const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+    Ci.nsIPK11TokenDB
+  );
+  const token = tokendb.getInternalKeyToken();
+  Assert.ok(!token.hasPassword, "there should be no primary password");
+
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "panePrivacy",
+    "privacyPasswordsCategory"
+  );
+
+  async function changePassword(whatToClick, oldPassword, newPassword) {
+    await promiseSubDialog(
+      whatToClick,
+      "chrome://mozapps/content/preferences/changemp.xhtml",
+      async function (dialogWindow) {
+        const dialogDocument = dialogWindow.document;
+        if (oldPassword) {
+          EventUtils.synthesizeMouseAtCenter(
+            dialogDocument.getElementById("oldpw"),
+            {},
+            dialogWindow
+          );
+          EventUtils.sendString(oldPassword, dialogWindow);
+        }
+        EventUtils.synthesizeMouseAtCenter(
+          dialogDocument.getElementById("pw1"),
+          {},
+          dialogWindow
+        );
+        EventUtils.sendString(newPassword, dialogWindow);
+        EventUtils.synthesizeMouseAtCenter(
+          dialogDocument.getElementById("pw2"),
+          {},
+          dialogWindow
+        );
+        EventUtils.sendString(newPassword, dialogWindow);
+      },
+      "accept"
+    ).then(() => BrowserTestUtils.promiseAlertDialog("accept"));
+    await SimpleTest.promiseFocus(prefsWindow);
+    Assert.ok(token.hasPassword, "there should be a primary password");
+    Assert.ok(
+      token.checkPassword(newPassword),
+      `the primary password should be "${newPassword}"`
+    );
+    Assert.ok(
+      passwordCheckbox.checked,
+      "the primary password checkbox should be checked"
+    );
+  }
+
+  // Set the primary password, then check it is used in the password manager.
+
+  const passwordCheckbox = prefsDocument.getElementById("useMasterPassword");
+  if (OSKeyStore.canReauth()) {
+    // There's an OS prompt when setting the password for the first time.
+    OSKeyStoreTestUtils.waitForOSKeyStoreLogin(true);
+  }
+  await changePassword(passwordCheckbox, undefined, "super-secure");
+  await subtestPasswordManager(prefsDocument, "super-secure");
+
+  await changePassword(
+    prefsDocument.getElementById("changeMasterPassword"),
+    "super-secure",
+    "replacement"
+  );
+
+  // Clear the primary password.
+
+  await TestUtils.waitForTick();
+  await promiseSubDialog(
+    passwordCheckbox,
+    "chrome://mozapps/content/preferences/removemp.xhtml",
+    async function (dialogWindow) {
+      EventUtils.sendString("replacement", dialogWindow);
+    },
+    "accept"
+  ).then(() => BrowserTestUtils.promiseAlertDialog("accept"));
+  await SimpleTest.promiseFocus(prefsWindow);
+  Assert.ok(!token.hasPassword, "there should not be a primary password");
+  Assert.ok(
+    !passwordCheckbox.checked,
+    "the primary password checkbox should not be checked"
+  );
+
+  await closePrefsTab();
+}).skip(!OSKeyStoreTestUtils.canTestOSKeyStoreLogin());
+// Some builds intentionally don't test key store logins.
+// See OSKeyStoreTestUtils.sys.mjs for why.
 
 /**
  * Tests the certificate manager and device manager dialogs.
