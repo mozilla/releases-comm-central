@@ -37,37 +37,29 @@ export function openLinkExternally(url) {
 /**
  *
  * @param {string} query - The string to search for.
- * @param {?nsISearchEngine} engine - The search engine to use.
  */
-export function openWebSearch(query, engine) {
+export function openWebSearch(query) {
   return Services.search.init().then(async () => {
-    if (!engine) {
-      engine = await Services.search.getDefault();
-      openLinkExternally(engine.getSubmission(query).uri.spec);
+    const engine = await Services.search.getDefault();
+    openLinkExternally(engine.getSubmission(query).uri.spec);
 
-      Services.telemetry.keyedScalarAdd(
-        "tb.websearch.usage",
-        engine.name.toLowerCase(),
-        1
-      );
-    }
+    Services.telemetry.keyedScalarAdd(
+      "tb.websearch.usage",
+      engine.name.toLowerCase(),
+      1
+    );
   });
 }
 
+/**
+ * Open a URL from a click listener in the UI only when the primary mouse button
+ * is pressed.
+ *
+ * @param {string|nsIURI} url
+ * @param {MouseEvent} event
+ */
 export function openUILink(url, event) {
   if (!event.button) {
-    PlacesUtils.history
-      .insert({
-        url,
-        visits: [
-          {
-            date: new Date(),
-          },
-        ],
-      })
-      .catch(console.error);
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(url));
+    openLinkExternally(url);
   }
 }

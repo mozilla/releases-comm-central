@@ -13,6 +13,9 @@ const { BrowserTestUtils } = ChromeUtils.importESModule(
 const { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
+const { PlacesUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/PlacesUtils.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -63,8 +66,9 @@ add_setup(async function () {
     "@mozilla.org/uriloader/external-protocol-service;1",
     mockExternalProtocolService
   );
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     MockRegistrar.unregister(mockExternalProtocolServiceCID);
+    await PlacesUtils.history.clear();
   });
 });
 

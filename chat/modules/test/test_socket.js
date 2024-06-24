@@ -160,6 +160,7 @@ lorem ipsum`,
 
   socket.disconnect();
   Assert.ok(socket.disconnected, "Socket  should be disconnected");
+  dataIterator.return();
 });
 
 add_task(async function test_socket_sendString() {
@@ -185,6 +186,7 @@ lorem ipsum`,
 
   socket.disconnect();
   Assert.ok(socket.disconnected, "Socket should be disconnected");
+  dataIterator.return();
 });
 
 add_task(async function test_socket_startTLS() {
@@ -225,6 +227,7 @@ add_task(async function test_socket_sendPing() {
 
   socket.disconnect();
   Assert.ok(socket.disconnected, "Socket should be disconnected");
+  dataIterator.return();
 });
 
 add_task(async function test_socket_pingDisconnect() {
@@ -249,4 +252,5 @@ add_task(async function test_socket_pingDisconnect() {
   );
   socket.disconnect();
   Assert.ok(socket.disconnected, "Socket should be disconnected");
+  dataIterator.return();
 });
