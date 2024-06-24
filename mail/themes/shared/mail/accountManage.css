@@ -208,6 +208,10 @@ richlistitem[default="true"],
   margin-block: 4px;
 }
 
+#identity\.smtpServerKey {
+  width: 0;
+}
+
 #autosyncNotDownload {
   margin-inline-end: 12px;
 }
