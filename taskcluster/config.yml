@@ -32,6 +32,7 @@ treeherder:
         'c-Up': 'Balrog submission of complete updates'
         'cs': 'Checksum signing'
         'css': 'Checksum signing for source'
+        'Deb': 'Deb archive generation'
         'Flatpak': 'Flatpak image generation'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
