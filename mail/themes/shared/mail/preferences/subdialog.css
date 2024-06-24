@@ -14,6 +14,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 
 .dialogOverlay {
   visibility: hidden;
+  z-index: 1;
 
   &[topmost="true"] {
     background-color: rgba(0, 0, 0, 0.5);
