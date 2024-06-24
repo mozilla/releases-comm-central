@@ -248,6 +248,10 @@
   height: 28px;
 }
 
+menubar > menu[disabled="true"] {
+  color: var(--panel-disabled-color);
+}
+
 menulist {
   padding: 1px 6px !important;
 }
