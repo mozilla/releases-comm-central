@@ -457,14 +457,16 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         });
         server.hostname = lazy.Sanitizer.hostname(protocolX.Server);
         server.port = lazy.Sanitizer.integer(protocolX.Port);
-        server.socketType = Ci.nsMsgSocketType.plain;
+
         // SSL: https://msdn.microsoft.com/en-us/library/ee160260(v=exchg.80).aspx
         // Encryption: https://msdn.microsoft.com/en-us/library/ee625072(v=exchg.80).aspx
         if (
-          ("SSL" in protocolX && protocolX.SSL.toLowerCase() == "on") || // "On" or "Off"
+          ("SSL" in protocolX && protocolX.SSL.toLowerCase() == "off") || // "On" or "Off"
           ("Encryption" in protocolX &&
-            protocolX.Encryption.toLowerCase() != "none") // "None", "SSL", "TLS", "Auto"
+            protocolX.Encryption.toLowerCase() == "none") // "None", "SSL", "TLS", "Auto"
         ) {
+          server.socketType = Ci.nsMsgSocketType.plain;
+        } else {
           // SSL is too unspecific. Do they mean STARTTLS or normal TLS?
           // For now, assume normal TLS, unless it's a standard plain port.
           switch (server.port) {
