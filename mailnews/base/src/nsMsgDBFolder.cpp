@@ -64,6 +64,7 @@
 #include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
+#include "nsIPropertyBag2.h"
 
 #define oneHour 3600000000U
 
@@ -1837,7 +1838,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetDBTransferInfo(nsIDBFolderInfo** aTransferInfo) {
+nsMsgDBFolder::GetDBTransferInfo(nsIPropertyBag2** aTransferInfo) {
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   nsCOMPtr<nsIMsgDatabase> db;
   GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
@@ -1846,7 +1847,7 @@ nsMsgDBFolder::GetDBTransferInfo(nsIDBFolderInfo** aTransferInfo) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::SetDBTransferInfo(nsIDBFolderInfo* aTransferInfo) {
+nsMsgDBFolder::SetDBTransferInfo(nsIPropertyBag2* aTransferInfo) {
   NS_ENSURE_ARG(aTransferInfo);
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   nsCOMPtr<nsIMsgDatabase> db;

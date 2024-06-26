@@ -367,7 +367,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetDatabaseWithReparse(
         msgDBService->OpenFolderDB(this, true, getter_AddRefs(mDatabase));
     if (folderOpen == NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
       nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-      nsCOMPtr<nsIDBFolderInfo> transferInfo;
+      nsCOMPtr<nsIPropertyBag2> transferInfo;
       if (mDatabase) {
         mDatabase->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
         if (dbFolderInfo) {
@@ -633,7 +633,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {
     nsCOMPtr<nsIMsgFolder> parentFolder;
     rv = trashFolder->GetParent(getter_AddRefs(parentFolder));
     if (NS_SUCCEEDED(rv) && parentFolder) {
-      nsCOMPtr<nsIDBFolderInfo> transferInfo;
+      nsCOMPtr<nsIPropertyBag2> transferInfo;
       trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
       trashFolder->SetParent(nullptr);
       parentFolder->PropagateDelete(trashFolder, true);

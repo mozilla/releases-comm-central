@@ -1484,7 +1484,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    nsCOMPtr<nsIDBFolderInfo> transferInfo;
+    nsCOMPtr<nsIPropertyBag2> transferInfo;
     rv = trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
     NS_ENSURE_SUCCESS(rv, rv);
     // Bulk-delete all the messages by deleting the msf file and storage.
@@ -2497,7 +2497,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
         do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIDBFolderInfo> transferInfo;
+    nsCOMPtr<nsIPropertyBag2> transferInfo;
     if (dbFolderInfo)
       dbFolderInfo->GetTransferInfo(getter_AddRefs(transferInfo));
 

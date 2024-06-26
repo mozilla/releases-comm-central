@@ -22,6 +22,7 @@ interface nsIFile;
 interface nsIMsgIdentity;
 interface nsIMsgThread;
 interface nsIMsgPluggableStore;
+interface nsIPropertyBag2;
 
 typedef long nsMsgBiffState;
 
@@ -690,7 +691,7 @@ interface nsIMsgFolder : nsISupports {
    */
   attribute long sortOrder;
 
-  attribute nsIDBFolderInfo dBTransferInfo;
+  attribute nsIPropertyBag2 dBTransferInfo;
 
   /**
    * Set a string property on the folder.

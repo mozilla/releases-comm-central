@@ -6,6 +6,8 @@
 #include "nsISupports.idl"
 #include "MailNewsTypes2.idl"
 
+interface nsIPropertyBag2;
+
 [scriptable, uuid(a72dab4b-b3bd-471e-9a38-1b242b385459)]
 interface  nsIDBFolderInfo : nsISupports {
   attribute long flags;
@@ -79,8 +81,8 @@ interface  nsIDBFolderInfo : nsISupports {
   long long     getInt64Property(in string propertyName, in long long defaultValue);
   boolean getBooleanProperty(in string propertyName, in boolean defaultValue);
   void setBooleanProperty(in string propertyName, in boolean aPropertyValue);
-  nsIDBFolderInfo GetTransferInfo();
-  void initFromTransferInfo(in nsIDBFolderInfo transferInfo);
+  nsIPropertyBag2 GetTransferInfo();
+  void initFromTransferInfo(in nsIPropertyBag2 transferInfo);
 
   attribute AString locale;
   attribute AString mailboxName;
