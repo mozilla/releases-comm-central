@@ -470,7 +470,10 @@ add_task(async function testUpdateHistoryDialog() {
     "cancel"
   );
   await closePrefsTab();
-});
+}).skip(
+  AppConstants.platform === "win" &&
+    Services.sysinfo.getProperty("hasWinPackageId")
+); // The updates panel is disabled in MSIX builds.
 
 /**
  * Tests the network dialogs.
