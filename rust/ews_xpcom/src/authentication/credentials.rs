@@ -5,6 +5,7 @@
 use std::ops::Deref;
 
 use base64::prelude::*;
+use cstr::cstr;
 
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
@@ -126,7 +127,7 @@ impl AuthenticationProvider for &nsIMsgIncomingServer {
 
     fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
-            create_instance::<msgIOAuth2Module>(c"@mozilla.org/mail/oauth2-module;1").ok_or(
+            create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 
