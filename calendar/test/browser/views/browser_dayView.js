@@ -150,6 +150,8 @@ add_task(async function testDayViewNavbar() {
     "interval description should contain a description of the displayed date"
   );
 
+  await document.l10n.translateRoots();
+
   // Note that the value 14 here tests calculation of the calendar week based on
   // the starting day of the week; if the calculation built in an assumption of
   // Sunday or Monday as the starting day of the week, we would get 15 here.
