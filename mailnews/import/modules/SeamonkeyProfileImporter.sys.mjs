@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-
 import { ThunderbirdProfileImporter } from "resource:///modules/ThunderbirdProfileImporter.sys.mjs";
 
 /**
@@ -30,7 +29,9 @@ export class SeamonkeyProfileImporter extends ThunderbirdProfileImporter {
     const profilesIni = seamonkeyRoot.clone();
     profilesIni.append("profiles.ini");
     if (!profilesIni.exists()) {
-      // No Seamonkey profile found in the well known location.
+      this._logger.debug(
+        "No SeaMonkey profile found in the well known location."
+      );
       return [];
     }
 
@@ -54,14 +55,22 @@ export class SeamonkeyProfileImporter extends ThunderbirdProfileImporter {
         : false;
 
       let dir;
-      if (isRelative) {
-        dir = seamonkeyRoot.clone();
-        dir.append(path);
-      } else {
-        dir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-        dir.initWithPath(path);
+      try {
+        if (isRelative) {
+          dir = seamonkeyRoot.clone();
+          dir.appendRelativePath(path);
+        } else {
+          dir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+          dir.initWithPath(path);
+        }
+      } catch (ex) {
+        this._logger.warn(
+          `Path ${path} is incorrect; isRelative=${isRelative}`
+        );
+        continue;
       }
       if (!dir.exists()) {
+        this._logger.warn(`${dir.path} does not exist`);
         // Not a valid profile.
         continue;
       }
