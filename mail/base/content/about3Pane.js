@@ -3385,11 +3385,16 @@ var folderPane = {
       MailServices.mfn.notifyFolderReindexTriggered(folder);
 
       folder.msgDatabase.summaryValid = false;
-
-      const msgDB = folder.msgDatabase;
-      msgDB.summaryValid = false;
       try {
+        const isIMAP = folder.server.type == "imap";
+        let transferInfo = null;
+        if (isIMAP) {
+          transferInfo = folder.dBTransferInfo;
+        }
         folder.closeAndBackupFolderDB("");
+        if (isIMAP && transferInfo) {
+          folder.dBTransferInfo = transferInfo;
+        }
       } catch (e) {
         // In a failure, proceed anyway since we're dealing with problems
         folder.ForceDBClosed();
