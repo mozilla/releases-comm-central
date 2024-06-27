@@ -1038,7 +1038,8 @@ function onFilterActionButtonKeyPress(event) {
     ) {
       document
         .getElementById("newFilterMenupopup")
-        .openPopup(event.target.parentNode, "after_end", {
+        .openPopup(event.target.parentNode, {
+          position: "after_end",
           triggerEvent: event,
         });
       return;

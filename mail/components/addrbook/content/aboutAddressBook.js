@@ -90,7 +90,10 @@ window.addEventListener("load", () => {
     .addEventListener("click", event => {
       document
         .getElementById("booksPaneCreateBookContext")
-        .openPopup(event.target, "after_start", { triggerEvent: event });
+        .openPopup(event.target, {
+          position: "after_start",
+          triggerEvent: event,
+        });
     });
   document
     .getElementById("booksPaneCreateContact")

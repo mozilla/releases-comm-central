@@ -4476,7 +4476,8 @@ var headerToolbarNavigation = {
         event.preventDefault();
         event.target.parentNode
           .querySelector("menupopup")
-          .openPopup(event.target.parentNode, "after_end", {
+          .openPopup(event.target.parentNode, {
+            position: "after_end",
             triggerEvent: event,
           });
       } else {
