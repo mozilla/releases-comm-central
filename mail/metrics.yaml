@@ -240,3 +240,19 @@ tb:
       - hideLabels
       - subjectLarge
       - buttonStyle
+
+  calendar_count:
+    type: labeled_string
+    description: >
+      How many calendars were set up, keyed by calendar type
+      Types are e.g. "storage", "caldav", "ics" and various types from add-ons.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615985
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

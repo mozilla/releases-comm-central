@@ -237,21 +237,6 @@ tb.addressbook:
       - 'main'
 
 tb.calendar:
-  calendar_count:
-    bug_numbers:
-      - 1615985
-    description: How many calendars were set up, keyed by calendar type.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    keyed: true
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   read_only_calendar_count:
     bug_numbers:
       - 1615985

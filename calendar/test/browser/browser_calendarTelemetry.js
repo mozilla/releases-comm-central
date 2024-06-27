@@ -19,6 +19,7 @@ const { TelemetryTestUtils } = ChromeUtils.importESModule(
  */
 add_task(async function testCalendarCount() {
   Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const calendars = cal.manager.getCalendars();
   const homeCal = calendars.find(cal => cal.name == "Home");
@@ -36,9 +37,9 @@ add_task(async function testCalendarCount() {
 
   const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
-    scalars["tb.calendar.calendar_count"].memory,
+    Glean.tb.calendarCount.memory.testGetValue(),
     3,
-    "Count of calendars must be correct."
+    "memory calendar count should be correct."
   );
   Assert.equal(
     scalars["tb.calendar.read_only_calendar_count"].memory,
@@ -47,8 +48,8 @@ add_task(async function testCalendarCount() {
   );
 
   Assert.ok(
-    !scalars["tb.calendar.calendar_count"].storage,
-    "'Home' calendar not included in count while disabled"
+    !Glean.tb.calendarCount.storage.testGetValue(),
+    "'Home' calendar should not be included in count while disabled"
   );
 
   Assert.ok(
@@ -73,11 +74,13 @@ add_task(async function testHomeCalendar() {
   // Test when enabled with no events.
   calendar.setProperty("disabled", false);
   calendar.readOnly = true;
+
   Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
   await MailTelemetryForTests.reportCalendars();
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  Assert.ok(!scalars["tb.calendar.calendar_count"], "'Home' calendar not counted when unused");
+  Assert.ok(!Glean.tb.calendarCount.storage, "'Home' calendar should not be counted when unused");
   Assert.ok(
     !scalars["tb.calendar.read_only_calendar_count"],
     "'Home' calendar not included in readonly count when unused"
@@ -104,9 +107,9 @@ add_task(async function testHomeCalendar() {
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
-    scalars["tb.calendar.calendar_count"].storage,
+    Glean.tb.calendarCount.storage.testGetValue(),
     1,
-    "'Home' calendar counted when there are items"
+    "'Home' calendar should be counted when there are items"
   );
   Assert.equal(
     scalars["tb.calendar.read_only_calendar_count"].storage,
