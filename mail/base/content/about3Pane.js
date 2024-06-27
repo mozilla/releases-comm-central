@@ -2953,11 +2953,17 @@ var folderPane = {
       return;
     }
 
+    // If the currently dragged row is not part of the selection map, use it
+    // instead of the current selection entries.
+    const rows = folderTree.selection.has(folderTree.rows.indexOf(row))
+      ? folderTree.selection.values()
+      : [row];
+
     const folders = [];
     let hasServer = false;
     let hasNNTP = false;
     let hasSimpleFolder = false;
-    for (const row of folderTree.selection.values()) {
+    for (const row of rows) {
       const folder = MailServices.folderLookup.getFolderForURL(row.uri);
       folders.push(folder);
 
