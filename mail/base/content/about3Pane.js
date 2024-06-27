@@ -4775,12 +4775,16 @@ var threadPane = {
 
   _jsTree: {
     QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
-    _inBatch: false,
+    _inBatch: 0,
     beginUpdateBatch() {
-      this._inBatch = true;
+      this._inBatch++;
     },
     endUpdateBatch() {
-      this._inBatch = false;
+      this._inBatch--;
+      if (this._inBatch < 0) {
+        this._inBatch = 0;
+        console.warn("Mismatch in batch processing detected.");
+      }
     },
     ensureRowIsVisible(index) {
       if (!this._inBatch) {
@@ -4966,8 +4970,7 @@ var threadPane = {
    * Restore the previously saved thread tree selection.
    *
    * @param {boolean} [discard=true] - If false, the selection data is kept for
-   *   another call of this function, unless all selections could already be
-   *   restored in this run.
+   *   another call of this function.
    * @param {boolean} [notify=true] - Whether a change in "select" event
    *   should be fired.
    * @param {boolean} [expand=true] - Try to expand threads containing selected
@@ -4983,65 +4986,34 @@ var threadPane = {
       return;
     }
 
-    // Ignore updates from the gDBView caused by findIndexOfMsgHdr.
+    // Ignore any updates from the gDBView caused by findIndexForMsgURI
+    // expanding threads.
     this._jsTree.beginUpdateBatch();
 
     const { currentUri, selectedUris } =
       this._savedSelections.get(selectionKey);
-    let currentIndex = nsMsgViewIndex_None;
-    const indices = new Set();
-    for (const uri of selectedUris) {
-      const msgHdr =
-        MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
-      let index = gDBView.findIndexOfMsgHdr(msgHdr, expand);
-      // While the first message in a collapsed group returns the index of the
-      // dummy row, other messages return none. To be consistent, we don't
-      // select the dummy row in any case.
-      if (
-        index != nsMsgViewIndex_None &&
-        !gViewWrapper.isGroupedByHeaderAtIndex(index)
-      ) {
-        indices.add(index);
-        if (uri == currentUri) {
-          currentIndex = index;
-        }
-        continue;
-      }
-      // Since it does not seem to be possible to reliably find the dummy row
-      // for a message in a group, we continue.
-      if (gViewWrapper.showGroupedBySort) {
-        continue;
-      }
-      // The message for this key can't be found. Perhaps the thread it's in
-      // has been collapsed? Select the root message in that case.
-      try {
-        const thread = gDBView.getThreadContainingMsgHdr(msgHdr);
-        const rootMsgHdr = thread.getRootHdr();
-        index = gDBView.findIndexOfMsgHdr(rootMsgHdr, false);
-        if (index != nsMsgViewIndex_None) {
-          indices.add(index);
-          if (uri == currentUri) {
-            currentIndex = index;
-          }
-        }
-      } catch (ex) {
-        console.error(ex);
-      }
-    }
-
+    const currentIndex = currentUri
+      ? gDBView.findIndexForMsgURI(currentUri, expand)
+      : nsMsgViewIndex_None;
+    const indices = new Set(
+      selectedUris
+        .map(uri => gDBView.findIndexForMsgURI(uri, expand))
+        .filter(i => i != nsMsgViewIndex_None)
+    );
     // Set the selection and stop ignoring updates.
     threadTree.setSelectedIndices(indices.values(), true);
     this._jsTree.endUpdateBatch();
     threadTree.onSelectionChanged(false, !notify);
 
-    if (currentIndex != nsMsgViewIndex_None) {
+    if (indices.has(currentIndex)) {
       threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
       threadTree.currentIndex = currentIndex;
       threadTree.style.scrollBehavior = null;
     }
 
-    // If all selections have already been restored, discard them as well.
-    if (discard || gDBView.selection.count == selectedUris.length) {
+    // To avoid problems with restoreThreadState, do not discard any selection
+    // data until explicitly requested.
+    if (discard) {
       this._savedSelections.delete(selectionKey);
     }
   },

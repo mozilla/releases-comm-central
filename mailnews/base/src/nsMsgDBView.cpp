@@ -40,6 +40,7 @@
 #include "mozilla/intl/OSPreferences.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
+#include "nsIMsgMessageService.h"
 
 using namespace mozilla::mailnews;
 
@@ -7120,10 +7121,34 @@ nsMsgDBView::GetSupportsThreading(bool* aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::FindIndexFromKey(nsMsgKey aMsgKey, bool aExpand,
-                              nsMsgViewIndex* aIndex) {
-  NS_ENSURE_ARG_POINTER(aIndex);
-  *aIndex = FindKey(aMsgKey, aExpand);
+nsMsgDBView::FindIndexForMsgURI(const nsACString& msgURI, bool expand,
+                                nsMsgViewIndex* index) {
+  NS_ENSURE_ARG_POINTER(index);
+
+  nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  nsresult rv = GetMsgDBHdrFromURI(msgURI, getter_AddRefs(msgHdr));
+  if (NS_FAILED(rv)) {
+    *index = nsMsgViewIndex_None;
+    return NS_OK;
+  }
+
+  *index = FindHdr(msgHdr);
+  if (*index != nsMsgViewIndex_None ||
+      !(m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay)) {
+    return NS_OK;
+  }
+
+  nsMsgViewIndex threadIndex = ThreadIndexOfMsgHdr(msgHdr);
+  if (threadIndex == nsMsgViewIndex_None) {
+    return NS_OK;
+  }
+
+  if (expand && (m_flags[threadIndex] & nsMsgMessageFlags::Elided)) {
+    ExpandByIndex(threadIndex, nullptr);
+    *index = FindHdr(msgHdr, threadIndex);
+  } else {
+    *index = threadIndex;
+  }
   return NS_OK;
 }
 

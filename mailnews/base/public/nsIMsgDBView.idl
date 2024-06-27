@@ -366,15 +366,18 @@ interface nsIMsgDBView : nsISupports
   readonly attribute boolean removeRowOnMoveOrDelete;
 
   /**
-   * Finds the view index of the passed in msgKey. Note this should not
-   * be called on cross-folder views since the msgKey may not be unique.
+   * Finds the view index of the passed in message URI. If the message is part
+   * of a collapsed thread and expand is false, the view index of the root
+   * message is returned.
    *
-   * @param aMsgKey - key to find.
-   * @param aExpand - whether to expand a collapsed thread to find the key.
+   * @param msgUri - The message URI to find.
+   * @param expand - Whether to expand a collapsed thread to find the message.
    *
-   * @return        - view index of msg hdr, -1 if hdr not found.
+   * @returns the view index for the message URI, or nsMsgViewIndex_None if no
+   *   message with this URI was found.
    */
-  nsMsgViewIndex findIndexFromKey(in nsMsgKey aMsgKey, in boolean aExpand);
+  nsMsgViewIndex findIndexForMsgURI(in AUTF8String msgUri, in boolean expand);
+
   /**
    * Finds the view index of the passed in msgHdr.
    *
