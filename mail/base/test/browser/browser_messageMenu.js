@@ -50,7 +50,7 @@ const messageMenuData = {
   markReadMenuItem: { disabled: nothingSelected },
   markUnreadMenuItem: { disabled: true },
   menu_markThreadAsRead: { disabled: nothingSelected },
-  menu_markReadByDate: { disabled: nothingSelected },
+  menu_markReadByDate: { disabled: ["rootFolder"] },
   menu_markAllRead: { disabled: ["rootFolder"] },
   markFlaggedMenuItem: { disabled: nothingSelected },
   menu_markAsJunk: { disabled: nothingSelected },

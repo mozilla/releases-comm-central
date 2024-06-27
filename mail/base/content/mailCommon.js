@@ -586,7 +586,6 @@ var commandController = {
       case "cmd_removeTags":
       case "cmd_toggleTag":
       case "cmd_toggleRead":
-      case "cmd_markReadByDate":
       case "cmd_markAsFlagged":
       case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
@@ -647,6 +646,7 @@ var commandController = {
         }
         return false;
       }
+      case "cmd_markReadByDate":
       case "cmd_markAllRead":
         return gDBView?.msgFolder?.getNumUnread(false) > 0;
       case "cmd_markAsJunk":
