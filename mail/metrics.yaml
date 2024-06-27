@@ -427,3 +427,55 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  folder_total_messages:
+    type: labeled_string
+    description: How many messages each type of folder has.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615983
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615983#c7
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - Inbox
+      - Drafts
+      - Trash
+      - SentMail
+      - Templates
+      - Junk
+      - Archive
+      - Queue
+      - Virtual
+      - Other
+      - Total
+
+  folder_size_on_disk:
+    type: labeled_string
+    description: How many bytes each type of folder takes on disk.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615983
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615983#c7
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - Inbox
+      - Drafts
+      - Trash
+      - SentMail
+      - Templates
+      - Junk
+      - Archive
+      - Queue
+      - Virtual
+      - Other
+      - Total

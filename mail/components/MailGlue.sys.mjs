@@ -1044,11 +1044,15 @@ function reportAccountSizes() {
     "Queue",
   ];
   for (const key of keys) {
-    Services.telemetry.keyedScalarSet("tb.account.total_messages", key, 0);
+    Glean.tb.folderTotalMessages[key].set(0);
   }
-  Services.telemetry.keyedScalarSet("tb.account.total_messages", "Other", 0);
-  Services.telemetry.keyedScalarSet("tb.account.total_messages", "Total", 0);
+  Glean.tb.folderTotalMessages.Other.set(0);
+  Glean.tb.folderTotalMessages.Total.set(0);
 
+  const typeMessageCount = new Map();
+  const typeSizeOnDisk = new Map();
+  let totalMessages = 0;
+  let totalSizeOnDisk = 0;
   for (const server of lazy.MailServices.accounts.allServers) {
     if (
       server instanceof Ci.nsIPop3IncomingServer &&
@@ -1061,34 +1065,32 @@ function reportAccountSizes() {
     for (const folder of server.rootFolder.descendants) {
       const key =
         keys.find(x => folder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
-      const totalMessages = folder.getTotalMessages(false);
-      if (totalMessages > 0) {
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.total_messages",
-          key,
-          totalMessages
-        );
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.total_messages",
-          "Total",
-          totalMessages
-        );
+      const messageCount = folder.getTotalMessages(false);
+      if (messageCount > 0) {
+        let typeTotal = typeMessageCount.get(key) || 0;
+        typeTotal += messageCount;
+        typeMessageCount.set(key, typeTotal);
+
+        totalMessages += messageCount;
       }
       const sizeOnDisk = folder.sizeOnDisk;
       if (sizeOnDisk > 0) {
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.size_on_disk",
-          key,
-          sizeOnDisk
-        );
-        Services.telemetry.keyedScalarAdd(
-          "tb.account.size_on_disk",
-          "Total",
-          sizeOnDisk
-        );
+        let typeTotal = typeSizeOnDisk.get(key) || 0;
+        typeTotal += sizeOnDisk;
+        typeSizeOnDisk.set(key, typeTotal);
+
+        totalSizeOnDisk += sizeOnDisk;
       }
     }
   }
+  for (const [type, messageCount] of typeMessageCount.entries()) {
+    Glean.tb.folderTotalMessages[type].set(messageCount);
+  }
+  for (const [type, sizeOnDisk] of typeSizeOnDisk.entries()) {
+    Glean.tb.folderSizeOnDisk[type].set(sizeOnDisk);
+  }
+  Glean.tb.folderTotalMessages.Total.set(totalMessages);
+  Glean.tb.folderSizeOnDisk.Total.set(totalSizeOnDisk);
 }
 
 /**

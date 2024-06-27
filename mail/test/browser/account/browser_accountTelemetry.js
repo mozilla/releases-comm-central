@@ -23,9 +23,6 @@ const { add_message_to_folder, msgGen, get_special_folder, create_folder } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
   );
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
 
 /**
  * Check that we are counting account types.
@@ -34,7 +31,7 @@ add_task(async function test_account_types() {
   // Collect all added accounts to be cleaned up at the end.
   const addedAccounts = [];
 
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const NUM_IMAP = 3;
   const NUM_RSS = 1;
@@ -98,7 +95,7 @@ add_task(async function test_account_types() {
  * Check that we are counting account sizes.
  */
 add_task(async function test_account_sizes() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const NUM_INBOX = 3;
   const NUM_OTHER = 2;
@@ -124,21 +121,19 @@ add_task(async function test_account_sizes() {
   }
 
   MailTelemetryForTests.reportAccountSizes();
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-
   // Check if we count total messages correctly.
   Assert.equal(
-    scalars["tb.account.total_messages"].Inbox,
+    Glean.tb.folderTotalMessages.Inbox.testGetValue(),
     NUM_INBOX,
     "Number of messages in Inbox must be correct"
   );
   Assert.equal(
-    scalars["tb.account.total_messages"].Other,
+    Glean.tb.folderTotalMessages.Other.testGetValue(),
     NUM_OTHER,
     "Number of messages in other folders must be correct"
   );
   Assert.equal(
-    scalars["tb.account.total_messages"].Total,
+    Glean.tb.folderTotalMessages.Total.testGetValue(),
     NUM_INBOX + NUM_OTHER,
     "Number of messages in all folders must be correct"
   );
@@ -151,17 +146,17 @@ add_task(async function test_account_sizes() {
   // These sizes all assume mbox implementation uses a bare-bones "From "
   // separator without sender/timestamp.
   checkSize(
-    scalars["tb.account.size_on_disk"].Inbox,
+    Glean.tb.folderSizeOnDisk.Inbox.testGetValue(),
     818,
     "Size of Inbox must be correct"
   );
   checkSize(
-    scalars["tb.account.size_on_disk"].Other,
+    Glean.tb.folderSizeOnDisk.Other.testGetValue(),
     575,
     "Size of other folders must be correct"
   );
   checkSize(
-    scalars["tb.account.size_on_disk"].Total,
+    Glean.tb.folderSizeOnDisk.Total.testGetValue(),
     818 + 575,
     "Size of all folders must be correct"
   );
