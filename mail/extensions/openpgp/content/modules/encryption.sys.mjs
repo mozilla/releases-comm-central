@@ -69,7 +69,6 @@ export var EnigmailEncryption = {
         fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
         result.sender = "<" + fromMailAddr + ">";
       }
-      result.sender = result.sender.replace(/(["'`])/g, "\\$1");
 
       toMailAddr = lazy.EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = lazy.EnigmailFuncs.stripEmail(bccMailAddr);
