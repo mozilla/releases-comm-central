@@ -103,14 +103,10 @@ var mailTabType = {
             if (!args.background) {
               // Update telemetry once the tab has loaded and decided if the
               // panes are visible.
-              Services.telemetry.keyedScalarSet(
-                "tb.ui.configuration.pane_visibility",
-                "folderPane",
+              Glean.tb.uiConfigurationPaneVisibility.folderPane.set(
                 win.paneLayout.folderPaneVisible
               );
-              Services.telemetry.keyedScalarSet(
-                "tb.ui.configuration.pane_visibility",
-                "messagePane",
+              Glean.tb.uiConfigurationPaneVisibility.messagePane.set(
                 win.paneLayout.messagePaneVisible
               );
             }
@@ -279,14 +275,10 @@ var mailTabType = {
         // Update telemetry when switching to a 3-pane tab. The telemetry
         // reflects the state of the last 3-pane tab that was shown, but not
         // if the state changed since it was shown.
-        Services.telemetry.keyedScalarSet(
-          "tb.ui.configuration.pane_visibility",
-          "folderPane",
+        Glean.tb.uiConfigurationPaneVisibility.folderPane.set(
           tab.chromeBrowser.contentWindow.paneLayout.folderPaneVisible
         );
-        Services.telemetry.keyedScalarSet(
-          "tb.ui.configuration.pane_visibility",
-          "messagePane",
+        Glean.tb.uiConfigurationPaneVisibility.messagePane.set(
           tab.chromeBrowser.contentWindow.paneLayout.messagePaneVisible
         );
       },

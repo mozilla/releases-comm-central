@@ -268,24 +268,6 @@ tb.calendar:
       - 'main'
 
 tb.ui.configuration:
-  pane_visibility:
-    bug_numbers:
-      - 1800775
-    description: Configuration of the folder and message panes.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: boolean
-    keyed: true
-    keys:
-      - folderPane
-      - messagePane
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   message_header:
     bug_numbers:
       - 1800775

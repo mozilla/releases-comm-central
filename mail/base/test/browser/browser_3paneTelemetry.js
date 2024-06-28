@@ -90,57 +90,40 @@ add_task(async function testPaneVisibility() {
   // The scalar is updated by switching to the folder tab, so open another tab.
   window.openContentTab("about:mozilla");
 
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   tabmail.switchToTab(0);
 
-  const scalarName = "tb.ui.configuration.pane_visibility";
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "folderPane", true);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "messagePane",
-    true
-  );
+  const fpValue =
+    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+  Assert.equal(fpValue, true, "folderPane visibility should be correct");
+  const mpValue =
+    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+  Assert.equal(mpValue, true, "messagePane visibility should be correct");
 
   // Hide the folder pane.
   goDoCommand("cmd_toggleFolderPane");
   tabmail.switchToTab(1);
   tabmail.switchToTab(0);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "folderPane",
-    false
-  );
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "messagePane",
-    true
-  );
+  const fpValue2 =
+    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+  Assert.equal(fpValue2, false, "folderPane visibility should be correct");
+  const mpValue2 =
+    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+  Assert.equal(mpValue2, true, "messagePane visibility should be correct");
 
   // Hide the message pane.
   goDoCommand("cmd_toggleMessagePane");
   tabmail.switchToTab(1);
   tabmail.switchToTab(0);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "folderPane",
-    false
-  );
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "messagePane",
-    false
-  );
+  const fpValue3 =
+    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+  Assert.equal(fpValue3, false, "folderPane visibility should be correct");
+  const mpValue3 =
+    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+  Assert.equal(mpValue3, false, "messagePane visibility should be correct");
 
   // Show both panes again.
   goDoCommand("cmd_toggleFolderPane");
@@ -148,14 +131,12 @@ add_task(async function testPaneVisibility() {
   tabmail.switchToTab(1);
   tabmail.switchToTab(0);
 
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "folderPane", true);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "messagePane",
-    true
-  );
+  const fpValue4 =
+    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+  Assert.equal(fpValue4, true, "folderPane visibility should be correct");
+  const mpValue4 =
+    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+  Assert.equal(mpValue4, true, "messagePane visibility should be correct");
 
   // Close the extra tab.
   tabmail.closeOtherTabs(0);

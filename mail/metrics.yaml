@@ -197,3 +197,22 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  ui_configuration_pane_visibility:
+    type: labeled_boolean
+    description:
+      Configuration of the folder and message panes. Whether they are
+      set to be shown or not.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775#c3
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - folderPane
+      - messagePane
