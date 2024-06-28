@@ -411,3 +411,19 @@ tb:
       - Queue
       - Virtual
       - Other
+
+  oauth2_provider_count:
+    type: labeled_string
+    description: >
+      A count of incoming mail accounts using OAuth2 for authentication, keyed
+      by OAuth2 issuer.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1799726
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1799726#c6
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

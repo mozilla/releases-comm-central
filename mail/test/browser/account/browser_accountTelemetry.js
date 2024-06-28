@@ -174,12 +174,12 @@ add_task(async function test_account_oauth_providers() {
   // Collect all added accounts to be cleaned up at the end
   const addedAccounts = [];
 
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const EXPECTED_GOOGLE_COUNT = 2;
   const EXPECTED_MICROSOFT_COUNT = 1;
-  const EXPECTED_YAHOO_AOL_COUNT = 2;
-  const EXPECTED_OTHER_COUNT = 2;
+  const EXPECTED_AOL_COUNT = 1;
+  const EXPECTED_YAHOO_COUNT = 1;
 
   const hostnames = [
     "imap.googlemail.com",
@@ -235,27 +235,26 @@ add_task(async function test_account_oauth_providers() {
   });
 
   MailTelemetryForTests.reportAccountTypes();
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
 
   // Check if we count account types correctly.
   Assert.equal(
-    scalars["tb.account.oauth2_provider_count"].google,
+    Glean.tb.oauth2ProviderCount["accounts.google.com"].testGetValue(),
     EXPECTED_GOOGLE_COUNT,
     "should have expected number of Google accounts"
   );
   Assert.equal(
-    scalars["tb.account.oauth2_provider_count"].microsoft,
+    Glean.tb.oauth2ProviderCount["login.microsoftonline.com"].testGetValue(),
     EXPECTED_MICROSOFT_COUNT,
     "should have expected number of Microsoft accounts"
   );
   Assert.equal(
-    scalars["tb.account.oauth2_provider_count"].yahoo_aol,
-    EXPECTED_YAHOO_AOL_COUNT,
-    "should have expected number of Yahoo/AOL accounts"
+    Glean.tb.oauth2ProviderCount["login.aol.com"].testGetValue(),
+    EXPECTED_AOL_COUNT,
+    "should have expected number of AOL accounts"
   );
   Assert.equal(
-    scalars["tb.account.oauth2_provider_count"].other,
-    EXPECTED_OTHER_COUNT,
-    "should have expected number of other accounts"
+    Glean.tb.oauth2ProviderCount["login.yahoo.com"].testGetValue(),
+    EXPECTED_YAHOO_COUNT,
+    "should have expected number of Yahoo accounts"
   );
 });

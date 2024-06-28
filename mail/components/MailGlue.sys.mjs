@@ -978,13 +978,7 @@ function reportAccountTypes() {
     im_odnoklassniki: 0,
   };
 
-  const providerReport = {
-    google: 0,
-    microsoft: 0,
-    yahoo_aol: 0,
-    other: 0,
-  };
-
+  const accountsByOauthProviders = new Map(); // issuer -> count
   for (const account of lazy.MailServices.accounts.accounts) {
     const incomingServer = account.incomingServer;
 
@@ -1020,22 +1014,9 @@ function reportAccountTypes() {
         continue;
       }
 
-      const host = hostnameDetails[0];
-
-      switch (host) {
-        case "accounts.google.com":
-          providerReport.google++;
-          break;
-        case "login.microsoftonline.com":
-          providerReport.microsoft++;
-          break;
-        case "login.yahoo.com":
-        case "login.aol.com":
-          providerReport.yahoo_aol++;
-          break;
-        default:
-          providerReport.other++;
-      }
+      const issuer = hostnameDetails[0];
+      let count = accountsByOauthProviders.get(issuer) || 0;
+      accountsByOauthProviders.set(issuer, ++count);
     }
   }
 
@@ -1043,12 +1024,8 @@ function reportAccountTypes() {
     Glean.tb.accountCount[type].set(count);
   }
 
-  for (const [provider, count] of Object.entries(providerReport)) {
-    Services.telemetry.keyedScalarSet(
-      "tb.account.oauth2_provider_count",
-      provider,
-      count
-    );
+  for (const [issuer, count] of accountsByOauthProviders.entries()) {
+    Glean.tb.oauth2ProviderCount[issuer].set(count);
   }
 }
 
