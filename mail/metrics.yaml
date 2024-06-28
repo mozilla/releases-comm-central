@@ -182,3 +182,18 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  ui_configuration_folder_tree_modes:
+    type: string_list
+    description:
+      Configuration of the folder tree; which modes are shown.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775#c3
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

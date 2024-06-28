@@ -67,7 +67,7 @@ add_setup(async function () {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 });
 
 /**
@@ -276,15 +276,26 @@ async function subtest_toggle_tags(show) {
 /**
  * Check that the current mode(s) are accurately recorded in telemetry.
  * Note that `reportUIConfiguration` usually only runs at start-up.
+ *
+ * @param {string} expected - Comma separated list of expected modes.
  */
 function check_scalars(expected) {
   MailTelemetryForTests.reportUIConfiguration();
-  const scalarName = "tb.ui.configuration.folder_tree_modes";
-  const scalars = TelemetryTestUtils.getProcessScalars("parent");
-  if (expected) {
-    TelemetryTestUtils.assertScalar(scalars, scalarName, expected);
-  } else {
-    TelemetryTestUtils.assertScalarUnset(scalars, scalarName);
+
+  const modes = Glean.tb.uiConfigurationFolderTreeModes.testGetValue();
+  if (!expected) {
+    Assert.ok(!modes, "Should not have anything recorded");
+    return;
+  }
+  const expectedModes = expected.split(",");
+
+  Assert.equal(
+    modes.length,
+    expectedModes.length,
+    "should have correct number of modes"
+  );
+  for (const m of expectedModes) {
+    Assert.ok(expectedModes.includes(m), `should have mode ${m}`);
   }
 }
 

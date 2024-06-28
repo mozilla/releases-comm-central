@@ -268,20 +268,6 @@ tb.calendar:
       - 'main'
 
 tb.ui.configuration:
-  folder_tree_modes:
-    bug_numbers:
-      - 1800775
-    description: Configuration of the folder tree.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: string
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   pane_visibility:
     bug_numbers:
       - 1800775
