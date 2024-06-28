@@ -4393,11 +4393,17 @@ function reportMsgRead({ isNewRead = false, key = null }) {
     gSecureMsgProbe.key = key;
   }
   if (gSecureMsgProbe.key && gSecureMsgProbe.isNewRead) {
-    Services.telemetry.keyedScalarAdd(
-      "tb.mails.read_secure",
-      gSecureMsgProbe.key,
-      1
-    );
+    // The key is one of:
+    // - 'signed-smime'
+    // - 'signed-openpgp'
+    // - 'encrypted-smime'
+    // - 'encrypted-openpgp'
+    const isSigned = gSecureMsgProbe.key.startsWith("signed-");
+    const isEncrypted = gSecureMsgProbe.key.startsWith("encrypted-");
+    const security = gSecureMsgProbe.key.endsWith("-openpgp")
+      ? "OpenPGP"
+      : "S/MIME";
+    Glean.tb.mailsReadSecure.record({ security, isSigned, isEncrypted });
   }
 }
 

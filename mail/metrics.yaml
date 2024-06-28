@@ -358,3 +358,30 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  mails_read_secure:
+    type: event
+    description: >
+      How many times different kinds of secure emails are read
+      (for the first time), keyed by type.
+      TODO: should fold this and mails_read into one
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615994
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615994#c22
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      security:
+        description: Security technology, if any. "OpenPGP", "S/MIME" or "".
+        type: string
+      is_signed:
+        description: Whether the email was digitally signed.
+        type: boolean
+      is_encrypted:
+        description: Whether the email was encrypted.
+        type: boolean
