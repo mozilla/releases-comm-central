@@ -69,14 +69,6 @@ def pkg_libotr(automation):
 
 set_config("TB_LIBOTR_PREBUILT", pkg_libotr)
 
-
-set_config(
-    "MOZ_TELEMETRY_EXTRA_HISTOGRAM_FILES",
-    ["/comm/mail/components/telemetry/Histograms.json"],
-)
-set_config("MOZ_TELEMETRY_EXTRA_SCALAR_FILES", ["/comm/mail/components/telemetry/Scalars.yaml"])
-set_config("MOZ_TELEMETRY_EXTRA_EVENT_FILES", ["/comm/mail/components/telemetry/Events.yaml"])
-
 set_config("MOZ_GLEAN_EXTRA_METRICS_FILES", ["comm/mail/metrics.yaml"])
 # set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
 set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])

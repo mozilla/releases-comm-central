@@ -1,21 +1,21 @@
-# Notes on telemetry in Thunderbird
+# Notes on Glean/Telemetry in Thunderbird
 
 ## Hooking into the build process
 
-The comm-central probe definitions in this directory (`Events.yaml`,
-`Scalars.yaml` and `Histograms.json`) are used _in addition_ to
-their mozilla-central counterparts (in `toolkit/components/telemetry/`).
+The comm-central definitions in `comm/mail/metrics.yaml`,
+`comm/mail/pings.yaml` and `comm/mail/tags.yaml` are used _in addition_ to
+their mozilla-central counterparts..
 
 As part of the mozilla-central telemetry build process, scripts are used to
 generate the C++ files which define the probe registry (enums, string tables
 etc).
 
 Because of this code generation, the extra comm-central probe definitions
-need to be included when the mozilla-central telemetry is built.
+need to be included when the mozilla-central Glean is built.
 
-This is done by setting `MOZ_TELEMETRY_EXTRA_*` config values. You can
+This is done by setting `MOZ_GLEAN_EXTRA_*` config values. You can
 see these in `comm/mail/moz.configure`.
-These config values are used by `toolkit/components/telemetry/moz.build`
+These config values are used by `toolkit/components/glean/moz.build`
 (mozilla-central) to pass the extra probe definitions to the code
 generation scripts.
 
@@ -26,14 +26,6 @@ They are written in Python.
 
 To avoid clashing with the mozilla-central probes, we'll be pretty liberal
 about slapping on prefixes to our definitions.
-
-For Events and Scalars, we keep everything under `tb.`.
-
-For Histograms, we use a `TB_` or `TELEMETRY_TEST_TB_` prefix.
-
-(Why not just `TB_`? Because the telemetry test helper functions
-`getSnapshotForHistograms()`/`getSnapshotForKeyedHistograms()` have an option
-to filter out histograms with a `TELEMETRY_TEST_` prefix).
 
 ## Compile-time switches
 
@@ -49,23 +41,14 @@ There are a few `user.js` settings you'll want to set up for enabling telemetry 
 
 ### Send telemetry to a local server
 
-You'll want to set the telemetry end point to a locally-running http server, eg:
+To set the Glean end point to a locally-running http server on port 8080, use:
 ```
-user_pref("toolkit.telemetry.server", "http://localhost:12345");
-user_pref("toolkit.telemetry.server_owner", "TimmyTestfish");
-user_pref("datareporting.healthreport.uploadEnabled",true);
+user_pref("telemetry.fog.test.localhost_port", 8080);
+user_pref("datareporting.healthreport.uploadEnabled", true);
 ```
 
 For a simple test server, try https://github.com/mozilla/gzipServer
 (or alternatively https://github.com/bcampbell/webhole).
-
-### Override the official-build-only check
-
-```
-user_pref("toolkit.telemetry.send.overrideOfficialCheck", true);
-```
-
-Without toolkit.telemetry.send.overrideOfficialCheck set, telemetry is only sent for official builds.
 
 ### Bypass data policy checks
 
@@ -79,96 +62,17 @@ user_pref("datareporting.policy.dataSubmissionEnabled", true);
 
 ### Enable telemetry tracing
 
-```
-user_pref("toolkit.telemetry.log.level", "Trace");
-```
-
-The output will show up on the DevTools console:
-
-    Menu => "Tools" => "Developer Tools" => "Error Console"  (CTRL+SHIFT+J)
-
-If pings aren't showing up, look there for clues.
-
-To log to stdout as well as the console:
-```
-user_pref("toolkit.telemetry.log.dump", true);
-```
-
-### Reduce submission interval
-
-For testing it can be handy to reduce down the submission interval (it's
-usually on the order of hours), eg:
-```
-user_pref("services.sync.telemetry.submissionInterval", 20); // in seconds
-```
-
-### Example user.js file
-
-All the above suggestions in one go, for `$PROFILE/user.js`:
-
-```
-user_pref("toolkit.telemetry.server", "http://localhost:12345");
-user_pref("toolkit.telemetry.server_owner", "TimmyTestfish");
-user_pref("toolkit.telemetry.log.level", "Trace");
-user_pref("toolkit.telemetry.log.dump", true);
-user_pref("toolkit.telemetry.send.overrideOfficialCheck", true);
-user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification",true);
-user_pref("services.sync.telemetry.submissionInterval", 20);
-user_pref("datareporting.policy.dataSubmissionEnabled", true);
-user_pref("datareporting.healthreport.uploadEnabled",true);
-```
+For logging, see https://firefox-source-docs.mozilla.org/toolkit/components/glean/dev/testing.html#logging
 
 ## Troubleshooting
 
 ### Sending test pings
 
-From the DevTools console, you can send an immediate test ping:
+Go to about:glean - you can find it on Help | Troubleshooting information (about:support).
 
-```
-const { TelemetrySession } = ChromeUtils.import(
-  "resource://gre/modules/TelemetrySession.sys.mjs"
-);
-TelemetrySession.testPing();
-```
-
-### Trace message: "Telemetry is not allowed to send pings"
-
-This indicates `TelemetrySend.sendingEnabled()` is returning false;
-
-Fails if not an official build (override using `toolkit.telemetry.send.overrideOfficialCheck`).
-
-If `toolkit.telemetry.unified` and `datareporting.healthreport.uploadEnabled` are true, then
-`sendingEnabled()` returns true;
-
-If `toolkit.telemetry.unified` is false, then the intended-to-be-deprecated `toolkit.telemetry.enabled` controls the result.
-We're using unified telemetry, so this shouldn't be an issue.
-
-### Trace message: "can't send ping now, persisting to disk"
-
-Trace shows:
-```
-TelemetrySend::submitPing - can't send ping now, persisting to disk - canSendNow: false
-```
-
-This means `TelemetryReportingPolicy.canUpload()` is returning false.
-
-Requirements for `canUpload()`:
-
-`datareporting.policy.dataSubmissionEnabled` must be true.
-AND
-`datareporting.policy.dataSubmissionPolicyNotifiedTime` has a sane timestamp (and is > `OLDEST_ALLOWED_ACCEPTANCE_YEAR`).
-AND
-`datareporting.policy.dataSubmissionPolicyAcceptedVersion` >= `datareporting.policy.minimumPolicyVersion`
-
-Or the notification policy can be bypassed by setting:
-`datareporting.policy.dataSubmissionPolicyBypassNotification` to true.
 
 ## Further documentation
 
-The Telemetry documentation index is at:
+The Glean documentation is at:
 
-https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/index.html
-
-There's a good summary of settings (both compile-time and run-time prefs):
-
-https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/internals/preferences.html
+https://docs.telemetry.mozilla.org/concepts/glean/glean.html

@@ -6,7 +6,6 @@ codespell:
         - comm/chat/locales/en-US/
         - comm/docs/
         - comm/mail/branding/
-        - comm/mail/components/telemetry/
         - comm/mail/installer/windows/docs/
         - comm/mail/locales/en-US/
         - comm/mailnews/extensions/fts3/
