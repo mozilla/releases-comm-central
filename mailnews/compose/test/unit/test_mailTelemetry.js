@@ -5,10 +5,6 @@
  * Test telemetry related to mails sent.
  */
 
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
-
 let server;
 
 const kIdentityMail = "identity@foo.invalid";
@@ -22,11 +18,10 @@ const deliveryListener = {
   onStartRequest() {},
   onStopRequest() {
     if (++this.count == NUM_MAILS) {
-      const scalars = TelemetryTestUtils.getProcessScalars("parent");
       Assert.equal(
-        scalars["tb.mails.sent"],
+        Glean.tb.mailsSent.testGetValue(),
         NUM_MAILS,
-        "Count of mails sent must be correct."
+        "mails_sent must be correct"
       );
     }
   },
@@ -36,7 +31,7 @@ const deliveryListener = {
  * Check that we're counting mails sent.
  */
 add_task(async function test_mails_sent() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   server = setupServerDaemon();
   registerCleanupFunction(() => {

@@ -330,3 +330,17 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  mails_sent:
+    type: counter
+    description: How many emails were sent by the user.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615989
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

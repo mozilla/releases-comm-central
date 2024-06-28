@@ -100,20 +100,6 @@ tb.account:
       - 'main'
 
 tb.mails:
-  sent:
-    bug_numbers:
-      - 1615989
-    description: How many emails are sent.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   read:
     bug_numbers:
       - 1615990
