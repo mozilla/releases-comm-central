@@ -102,8 +102,7 @@ export var EnigmailDecryption = {
   },
 
   /**
-   * Decrypts a OpenPGP ciphertext and returns the the plaintext.
-   * NOTE: Used also to verify message signature of signed-only messages.
+   * Decrypts a PGP ciphertext and returns the the plaintext.
    *
    * @param {?window} parent - A window object.
    * @param {integer} uiFlags - See flag options in EnigmailConstants,
@@ -171,21 +170,22 @@ export var EnigmailDecryption = {
       indentStrObj
     );
 
+    lazy.log.debug(`Block type: ${blockType}`);
+
     if (!blockType || blockType == "SIGNATURE") {
       // return without displaying a message
-      lazy.log.debug("Nothing to decrypt/verify.");
+      lazy.log.debug("Nothing to decrypt.");
       return "";
     }
 
-    const verifyOnly = blockType == "SIGNED MESSAGE";
-    const isEncrypted = blockType == "MESSAGE";
-    const publicKey = blockType == "PUBLIC KEY BLOCK";
+    var publicKey = blockType == "PUBLIC KEY BLOCK";
+    var verifyOnly = blockType == "SIGNED MESSAGE";
+    var isEncrypted = blockType == "MESSAGE";
 
     if (verifyOnly) {
-      lazy.log.debug("Signed message; will only verify.");
       statusFlagsObj.value |= lazy.EnigmailConstants.PGP_MIME_SIGNED;
-    } else if (isEncrypted) {
-      lazy.log.debug("Encrypted message; will decrypt.");
+    }
+    if (isEncrypted) {
       statusFlagsObj.value |= lazy.EnigmailConstants.PGP_MIME_ENCRYPTED;
     }
 
@@ -229,7 +229,6 @@ export var EnigmailDecryption = {
         statusFlagsObj.value |= lazy.EnigmailConstants.INLINE_KEY;
         return "";
       }
-      lazy.log.debug("Public key; will import.");
 
       // Import public key
       const importedKeysObj = {};
@@ -271,7 +270,7 @@ export var EnigmailDecryption = {
     lazy.EnigmailCore.init();
 
     // limit output to 100 times message size to avoid DoS attack
-    const maxOutput = pgpBlock.length * 100;
+    var maxOutput = pgpBlock.length * 100;
     const options = {
       fromAddr: EnigmailDecryption.getFromAddr(parent),
       verifyOnly,
@@ -284,32 +283,6 @@ export var EnigmailDecryption = {
     if (!result) {
       lazy.log.warn("Decryption message finished with no result.");
       return "";
-    }
-    if (result.exitCode !== 0) {
-      const status = [
-        "BAD_SIGNATURE",
-        "UNCERTAIN_SIGNATURE",
-        "EXPIRED_SIGNATURE",
-        "EXPIRED_KEY_SIGNATURE",
-        "EXPIRED_KEY",
-        "REVOKED_KEY",
-        "NO_PUBKEY",
-        "NO_SECKEY",
-        "MISSING_PASSPHRASE",
-        "BAD_PASSPHRASE",
-        "BAD_ARMOR",
-        "NODATA",
-        "DECRYPTION_INCOMPLETE",
-        "DECRYPTION_FAILED",
-        "MISSING_MDC",
-        "OVERFLOWED",
-        "SC_OP_FAILURE",
-        "UNKNOWN_ALGO",
-      ]
-        .map(c => (result.statusFlags & lazy.EnigmailConstants[c] ? c : null))
-        .filter(Boolean)
-        .join(", ");
-      lazy.log.debug(`Decryption FAILED; status=${status}`);
     }
 
     let plainText = this.getPlaintextFromDecryptResult(result);
@@ -473,48 +446,37 @@ export var EnigmailDecryption = {
     return verifyOnly ? "" : plainText;
   },
 
-  /**
-   * @param {?window} parent - A window object.
-   * @param {integer} uiFlags - See flag options in EnigmailConstants,
-   *   UI_INTERACTIVE, UI_ALLOW_KEY_IMPORT.
-   * @param {string} text - A string containing a PGP block.
-   * @param {object} statusObject - An object containing status details.
-   */
   inlineInnerVerification(parent, uiFlags, text, statusObject) {
-    if (!text?.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
-      return text;
+    if (text?.startsWith("-----BEGIN PGP SIGNED MESSAGE-----")) {
+      var status = newStatusObject();
+      var newText = EnigmailDecryption.decryptMessage(
+        parent,
+        uiFlags,
+        text,
+        null, // date
+        status.signature,
+        status.exitCode,
+        status.statusFlags,
+        status.keyId,
+        status.userId,
+        status.sigDetails,
+        status.message,
+        status.blockSeparation,
+        status.encToDetails
+      );
+      if (status.exitCode.value === 0) {
+        text = newText;
+        // merge status into status object:
+        statusObject.statusFlags.value =
+          statusObject.statusFlags.value | status.statusFlags.value;
+        statusObject.keyId.value = status.keyId.value;
+        statusObject.userId.value = status.userId.value;
+        statusObject.sigDetails.value = status.sigDetails.value;
+        statusObject.message.value = status.message.value;
+        // we don't merge encToDetails
+      }
     }
-    lazy.log.debug(`Doing inline verification; text=${text}`);
-    const status = newStatusObject();
-    const newText = EnigmailDecryption.decryptMessage(
-      parent,
-      uiFlags,
-      text,
-      null, // date
-      status.signature,
-      status.exitCode,
-      status.statusFlags,
-      status.keyId,
-      status.userId,
-      status.sigDetails,
-      status.message,
-      status.blockSeparation,
-      status.encToDetails
-    );
-    if (status.exitCode.value === 0) {
-      text = newText;
-      lazy.log.debug(`Inline verify succeeded; text=${text}`);
-      // merge status into status object:
-      statusObject.statusFlags.value =
-        statusObject.statusFlags.value | status.statusFlags.value;
-      statusObject.keyId.value = status.keyId.value;
-      statusObject.userId.value = status.userId.value;
-      statusObject.sigDetails.value = status.sigDetails.value;
-      statusObject.message.value = status.message.value;
-      // we don't merge encToDetails
-    } else {
-      lazy.log.debug(`Verify inline FAILED.`);
-    }
+
     return text;
   },
 
