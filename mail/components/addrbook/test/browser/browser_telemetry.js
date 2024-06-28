@@ -16,7 +16,6 @@ const { TelemetryTestUtils } = ChromeUtils.importESModule(
  * Test we're counting address books and contacts.
  */
 add_task(async function test_address_book_count() {
-  Services.telemetry.clearScalars();
   Services.fog.testResetFOG();
 
   // Adding some address books and contracts.
@@ -37,7 +36,6 @@ add_task(async function test_address_book_count() {
   // Run the probe.
   MailTelemetryForTests.reportAddressBookTypes();
 
-  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
     Glean.tb.addressbookCount["moz-abldapdirectory"].testGetValue(),
     1,
@@ -49,7 +47,7 @@ add_task(async function test_address_book_count() {
     "JS address book count must be correct"
   );
   Assert.equal(
-    scalars["tb.addressbook.contact_count"].jsaddrbook,
+    Glean.tb.addressbookContactCount.jsaddrbook.testGetValue(),
     3,
     "Contact count must be correct"
   );
