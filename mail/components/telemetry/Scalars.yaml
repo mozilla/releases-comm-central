@@ -100,20 +100,6 @@ tb.account:
       - 'main'
 
 tb.mails:
-  read:
-    bug_numbers:
-      - 1615990
-    description: How many emails are read.
-    release_channel_collection: opt-out
-    expires: never
-    products:
-      - 'thunderbird'
-    kind: uint
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    record_in_processes:
-      - 'main'
-
   read_secure:
     bug_numbers:
       - 1615994

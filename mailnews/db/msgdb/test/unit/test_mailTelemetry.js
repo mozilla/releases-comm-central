@@ -5,15 +5,19 @@
  * Test telemetry related to mails read.
  */
 
-const { TelemetryTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TelemetryTestUtils.sys.mjs"
-);
+add_setup(function test_setup() {
+  // FOG needs a profile directory to put its data in.
+  do_get_profile();
+
+  // FOG needs to be initialized in order for data to flow.
+  Services.fog.initializeFOG();
+});
 
 /**
  * Check that we're counting mails read.
  */
 add_task(async function test_mails_read() {
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   localAccountUtils.loadLocalMailAccount();
 
@@ -29,10 +33,9 @@ add_task(async function test_mails_read() {
     );
   }
   localAccountUtils.inboxFolder.markAllMessagesRead(null);
-  const scalars = TelemetryTestUtils.getProcessScalars("parent");
   Assert.equal(
-    scalars["tb.mails.read"],
+    Glean.tb.mailsRead.testGetValue(),
     NUM_MAILS,
-    "Count of mails read must be correct."
+    "mails_read count should be correct"
   );
 });

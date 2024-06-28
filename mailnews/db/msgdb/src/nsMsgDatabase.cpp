@@ -16,7 +16,7 @@
 #include "nsIMsgSearchTerm.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mozilla/Logging.h"
-#include "mozilla/Telemetry.h"
+#include "mozilla/glean/GleanMetrics.h"
 #include "prprf.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIMsgAccountManager.h"
@@ -2477,7 +2477,7 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
 
 #ifndef MOZ_SUITE
     if (bRead) {
-      Telemetry::ScalarAdd(Telemetry::ScalarID::TB_MAILS_READ, 1);
+      mozilla::glean::tb::mails_read.Add(1);
     }
 #endif
 

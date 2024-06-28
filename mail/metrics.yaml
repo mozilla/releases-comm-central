@@ -344,3 +344,17 @@ tb:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  mails_read:
+    type: counter
+    description: How many emails were read by the user.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615990
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
