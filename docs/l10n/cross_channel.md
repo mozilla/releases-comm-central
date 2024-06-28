@@ -74,5 +74,5 @@ FTP archive along with the source code tar file for use by downstream packagers.
 For local development, `mach build installers-$AB_CD` and `./mach build langpack-$AB_CD`
 will do the same combining of string sources as above in one step.
 
-In both cases, the comm-l10n changset used is the one in `comm/mail/locales/l10n-changesets.json`
+In both cases, the comm-l10n changeset used is the one in `comm/mail/locales/l10n-changesets.json`
 and the l10n-central revisions are taken from `browser/locales/l10n-changesets.json`.
