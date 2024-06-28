@@ -183,6 +183,21 @@ tb:
       - telemetry-client-dev@thunderbird.net
     expires: never
 
+  addressbook_count:
+    type: labeled_string
+    description:
+      How many addressbooks were set up, keyed by addressbook directory URI scheme.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615986
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
   ui_configuration_folder_tree_modes:
     type: string_list
     description:
