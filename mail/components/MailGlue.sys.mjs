@@ -1415,15 +1415,8 @@ function reportUIConfiguration() {
   );
   if (headerLayout) {
     headerLayout = JSON.parse(headerLayout);
-    for (let [key, value] of Object.entries(headerLayout)) {
-      if (key == "buttonStyle") {
-        value = { default: 0, "only-icons": 1, "only-text": 2 }[value];
-      }
-      Services.telemetry.keyedScalarSet(
-        "tb.ui.configuration.message_header",
-        key,
-        value
-      );
+    for (const [key, value] of Object.entries(headerLayout)) {
+      Glean.tb.uiConfigurationMessageHeader[key].set(value);
     }
   }
 }

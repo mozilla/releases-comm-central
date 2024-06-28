@@ -25,7 +25,7 @@ add_setup(async function () {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
-  Services.telemetry.clearScalars();
+  Services.fog.testResetFOG();
 
   const account = createAccount();
   gFolder = await createSubfolder(account.incomingServer.rootFolder, "test0");
@@ -107,9 +107,6 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   MailTelemetryForTests.reportUIConfiguration();
-  const scalarName = "tb.ui.configuration.message_header";
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertScalarUnset(scalars, scalarName);
 
   const popup = aboutMessage.document.getElementById("otherActionsPopup");
   let popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
@@ -297,16 +294,32 @@ add_task(async function test_customize_toolbar_buttons() {
   );
 
   MailTelemetryForTests.reportUIConfiguration();
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 0);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 0);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 0);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "showFullAddress",
-    0
+
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
+    "false",
+    "should have correct subjectLarge"
+  );
+
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
+    "only-icons",
+    "should have correct buttonStyle"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.hideLabels.testGetValue(),
+    "false",
+    "should have correct hideLabels"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.showAvatar.testGetValue(),
+    "false",
+    "should have correct showAvatar"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
+    "false",
+    "should have correct showFullAddress"
   );
 
   popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
@@ -360,15 +373,30 @@ add_task(async function test_customize_toolbar_buttons() {
   await assertVisibility(firstLabel, false, "The labels column is hidden");
 
   MailTelemetryForTests.reportUIConfiguration();
-  scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 0);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 1);
-  TelemetryTestUtils.assertKeyedScalar(
-    scalars,
-    scalarName,
-    "showFullAddress",
-    1
+
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
+    "true",
+    "should have correct subjectLarge"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
+    "default",
+    "should have correct buttonStyle"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.hideLabels.testGetValue(),
+    "true",
+    "should have correct hideLabels"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.showAvatar.testGetValue(),
+    "true",
+    "should have correct showAvatar"
+  );
+  Assert.equal(
+    Glean.tb.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
+    "true",
+    "should have correct showFullAddress"
   );
 });

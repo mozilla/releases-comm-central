@@ -216,3 +216,27 @@ tb:
     labels:
       - folderPane
       - messagePane
+
+  ui_configuration_message_header:
+    type: labeled_string
+    description: >
+      Configuration of the message header display. Customization state;
+      expected values are "true" or "false".
+      For buttonStyle values are "default", "only-icons", "only-text".
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775#c3
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - showAvatar
+      - showBigAvatar
+      - showFullAddress
+      - hideLabels
+      - subjectLarge
+      - buttonStyle
