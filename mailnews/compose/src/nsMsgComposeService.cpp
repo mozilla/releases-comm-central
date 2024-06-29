@@ -184,8 +184,7 @@ nsMsgComposeService::DetermineComposeHTML(nsIMsgIdentity* aIdentity,
 }
 
 MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION nsresult
-nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
-                                            mozilla::dom::Selection* selection,
+nsMsgComposeService::GetOrigWindowSelection(mozilla::dom::Selection* selection,
                                             nsACString& aSelHTML) {
   nsresult rv;
 
@@ -339,7 +338,7 @@ nsMsgComposeService::OpenComposeWindow(
            type == nsIMsgCompType::ReplyToSenderAndGroup ||
            type == nsIMsgCompType::ReplyToList)) {
         nsAutoCString selHTML;
-        if (NS_SUCCEEDED(GetOrigWindowSelection(type, selection, selHTML))) {
+        if (NS_SUCCEEDED(GetOrigWindowSelection(selection, selHTML))) {
           nsCOMPtr<nsINode> node = selection->GetFocusNode();
           NS_ENSURE_TRUE(node, NS_ERROR_FAILURE);
           IgnoredErrorResult er;
