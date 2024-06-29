@@ -126,6 +126,14 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     await BrowserTestUtils.closeWindow(msgc);
 
     const replyWindow = await replyWindowPromise;
+
+    // Without the delay, the saving attempt that follows sometimes
+    // fails. The code to save the encrypted draft fails, because
+    // it finds no recipients. Maybe after opening the window,
+    // some time is needed to correctly populate the reply window.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     await save_compose_message(replyWindow);
     replyWindow.close();
 
