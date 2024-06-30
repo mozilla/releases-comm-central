@@ -63,7 +63,14 @@ export var EnigmailEncryption = {
     result.senderKeyIsExternal = false;
 
     try {
-      fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
+      if (/^0x[0-9a-f]+$/i.test(fromMailAddr)) {
+        result.sender = fromMailAddr;
+      } else {
+        fromMailAddr = lazy.EnigmailFuncs.stripEmail(fromMailAddr);
+        result.sender = "<" + fromMailAddr + ">";
+      }
+      result.sender = result.sender.replace(/(["'`])/g, "\\$1");
+
       toMailAddr = lazy.EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = lazy.EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
@@ -104,13 +111,6 @@ export var EnigmailEncryption = {
     if (result.bcc.length == 1 && result.bcc[0].length == 0) {
       result.bcc.splice(0, 1); // remove the single empty entry
     }
-
-    if (/^0x[0-9a-f]+$/i.test(fromMailAddr)) {
-      result.sender = fromMailAddr;
-    } else {
-      result.sender = "<" + fromMailAddr + ">";
-    }
-    result.sender = result.sender.replace(/(["'`])/g, "\\$1");
 
     if (signMsg && hashAlgorithm) {
       result.signatureHash = hashAlgorithm;

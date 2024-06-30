@@ -29,60 +29,9 @@ export var EnigmailFuncs = {
    * @returns {string} a list of pure email addresses separated by ","
    */
   stripEmail(mailAddresses) {
-    const SIMPLE = "[^<>,]+"; // RegExp for a simple email address (e.g. a@b.c)
-    const COMPLEX = "[^<>,]*<[^<>, ]+>"; // RegExp for an address containing <...> (e.g. Name <a@b.c>)
-    const MatchAddr = new RegExp(
-      "^(" + SIMPLE + "|" + COMPLEX + ")(," + SIMPLE + "|," + COMPLEX + ")*$"
-    );
-
-    let mailAddrs = mailAddresses;
-
-    let qStart, qEnd;
-    while ((qStart = mailAddrs.indexOf('"')) >= 0) {
-      qEnd = mailAddrs.indexOf('"', qStart + 1);
-      if (qEnd < 0) {
-        throw new Error(`Unmatched quote in mail address: ${mailAddresses}`);
-      }
-
-      mailAddrs =
-        mailAddrs.substring(0, qStart) + mailAddrs.substring(qEnd + 1);
-    }
-
-    // replace any ";" by ","; remove leading/trailing ","
-    mailAddrs = mailAddrs
-      .replace(/[,;]+/g, ",")
-      .replace(/^,/, "")
-      .replace(/,$/, "");
-
-    if (mailAddrs.length === 0) {
-      return "";
-    }
-
-    // having two <..> <..> in one email, or things like <a@b.c,><d@e.f> is an error
-    if (mailAddrs.search(MatchAddr) < 0) {
-      throw new Error(
-        `Invalid <..> brackets in mail address: ${mailAddresses}`
-      );
-    }
-
-    // We know that the "," and the < > are at the right places, thus we can split by ","
-    const addrList = mailAddrs.split(/,/);
-
-    for (const i in addrList) {
-      // Extract pure e-mail address list (strip out anything before angle brackets and any whitespace)
-      addrList[i] = addrList[i]
-        .replace(/^([^<>]*<)([^<>]+)(>)$/, "$2")
-        .replace(/\s/g, "");
-    }
-
-    // remove repeated, trailing and leading "," (again, as there may be empty addresses)
-    mailAddrs = addrList
-      .join(",")
-      .replace(/,,/g, ",")
-      .replace(/^,/, "")
-      .replace(/,$/, "");
-
-    return mailAddrs;
+    return this.parseEmails(mailAddresses, false)
+      .map(addr => addr.email)
+      .join(",");
   },
 
   /**
