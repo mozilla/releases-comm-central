@@ -399,6 +399,8 @@ richlistitem[is="chat-group-richlistitem"] > label {
 .smallStatusIcon {
   width: 10px;
   height: 10px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #protolist richlistitem {

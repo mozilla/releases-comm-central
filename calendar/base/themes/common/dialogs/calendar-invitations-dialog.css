@@ -9,6 +9,8 @@
 
 .calendar-invitations-updating-icon {
   opacity: 0.5;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #updating-box {

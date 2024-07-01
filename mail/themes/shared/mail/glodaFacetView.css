@@ -673,6 +673,11 @@ facet-boolean[disabled] {
   }
 }
 
+img.loading {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #facet-date {
   max-height: 104px;
   padding-block: 2px;

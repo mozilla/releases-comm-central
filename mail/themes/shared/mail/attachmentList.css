@@ -60,6 +60,8 @@
   & > .attachmentcell-icon {
     flex: 0 0 auto;
     align-self: center;
+    -moz-context-properties: fill;
+    fill: currentColor;
   }
 
   & > .attachmentcell-name {

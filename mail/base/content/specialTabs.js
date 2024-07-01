@@ -676,8 +676,7 @@ class SecurityIcon {
     let l10nId;
     let secure = false;
     if (this.loading) {
-      src = "chrome://global/skin/icons/loading.png";
-      srcSet = "chrome://global/skin/icons/loading@2x.png 2x";
+      src = "chrome://global/skin/icons/loading.svg";
       l10nId = "content-tab-page-loading-icon";
     } else {
       switch (this.securityLevel) {

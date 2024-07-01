@@ -73,6 +73,8 @@ description {
 .loading-status {
   width: 16px;
   height: 16px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 /* Import key list */

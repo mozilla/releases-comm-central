@@ -563,7 +563,7 @@
       if (type == "text/x-moz-deleted") {
         src = "chrome://messenger/skin/icons/attachment-deleted.svg";
       } else if (!item.loaded || item.uploading) {
-        src = "chrome://global/skin/icons/loading.png";
+        src = "chrome://global/skin/icons/loading.svg";
       } else if (item.cloudIcon) {
         src = item.cloudIcon;
       } else {

@@ -463,11 +463,12 @@ checkbox {
 }
 
 .update-throbber {
-  width: 16px;
-  height: 16px;
-  margin-inline: 6px 4px;
-  content: image-set(url("chrome://global/skin/icons/loading.png"),
-                     url("chrome://global/skin/icons/loading@2x.png") 2x);
+  width: 1.3em;
+  min-height: 1.3em;
+  margin-inline-end: 8px;
+  content: url("chrome://global/skin/icons/loading.svg");
+  -moz-context-properties: fill;
+  fill: var(--in-content-accent-color);
 
   /* Work around bug 560067 - animated images in visibility: hidden
    * still eat CPU. */
@@ -644,6 +645,11 @@ checkbox {
 
 #availableLocales {
   margin-inline: 0;
+
+  & > image {
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 }
 
 #warning-message {

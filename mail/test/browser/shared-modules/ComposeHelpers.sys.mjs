@@ -431,7 +431,7 @@ export async function convert_selected_to_cloud_attachment(
     const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
-      "chrome://global/skin/icons/loading.png",
+      "chrome://global/skin/icons/loading.svg",
       "Icon should be the spinner during conversion."
     );
 
@@ -529,7 +529,7 @@ export async function add_cloud_attachments(
     const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
-      "chrome://global/skin/icons/loading.png",
+      "chrome://global/skin/icons/loading.svg",
       "Icon should be the spinner during upload."
     );
 

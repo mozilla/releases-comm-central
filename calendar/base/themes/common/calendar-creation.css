@@ -26,6 +26,8 @@ td {
 /* Network status messages and images. */
 
 .network-status-image {
+  -moz-context-properties: fill;
+  fill: currentColor;
   width: 16px;
   height: 16px;
 }

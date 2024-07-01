@@ -830,6 +830,8 @@ toolbarpaletteitem toolbarbutton {
     height: 16px;
     align-self: center;
     justify-self: center;
+    -moz-context-properties: fill;
+    fill: currentColor;
   }
 
   &:not([busy="true"]) .animated-throbber-icon {

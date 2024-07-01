@@ -289,9 +289,10 @@ dialog h1 {
 #hubLoader {
   width: 16px;
   min-height: 16px;
-  content: image-set(url("chrome://global/skin/icons/loading.png"),
-      url("chrome://global/skin/icons/loading@2x.png") 2x);
   vertical-align: middle;
+  content: url("chrome://global/skin/icons/loading.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #hubSyncButton {

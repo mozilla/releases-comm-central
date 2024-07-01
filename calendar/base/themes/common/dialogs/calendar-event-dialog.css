@@ -672,3 +672,8 @@ label.label {
 #calendar-task-summary-dialog #item-end-row .headline {
   font-weight: normal;
 }
+
+.cloud-file-attach-image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}

@@ -167,11 +167,7 @@ function setStatus(status, message, args) {
     case "loading":
       uiElements.statusImage.setAttribute(
         "src",
-        "chrome://global/skin/icons/loading.png"
-      );
-      uiElements.statusImage.setAttribute(
-        "srcset",
-        "chrome://global/skin/icons/loading@2x.png 2x"
+        "chrome://global/skin/icons/loading.svg"
       );
       break;
     case "error":
