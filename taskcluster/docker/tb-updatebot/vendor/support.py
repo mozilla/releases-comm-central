@@ -109,9 +109,9 @@ def write_try_task_config(comm_src_dir: Path) -> Path:
     try_task_config_file = comm_src_dir / "try_task_config.json"
     try_task_config = {
         "tasks": [
-            "build-linux64-rust/opt",
-            "build-macosx64-rust/opt",
-            "build-win64-rust/opt",
+            "build-linux64/opt",
+            "build-macosx64/opt",
+            "build-win64/opt",
         ]
     }
     with open(try_task_config_file, "w") as try_fp:
