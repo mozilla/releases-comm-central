@@ -648,7 +648,11 @@ var compositeObserver = {
  */
 function openLocalCalendar() {
   const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  picker.init(window.browsingContext, lazy.l10n.formatValueSync("open"), Ci.nsIFilePicker.modeOpen);
+  picker.init(
+    window.browsingContext,
+    lazy.l10n.formatValueSync("calendar-open"),
+    Ci.nsIFilePicker.modeOpen
+  );
   const wildmat = "*.ics";
   const description = lazy.l10n.formatValueSync("filter-ics", { wildmat });
   picker.appendFilter(description, wildmat);
