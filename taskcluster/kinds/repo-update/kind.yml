@@ -56,9 +56,11 @@ tasks:
         routes:
             by-level:
                 "3":
-                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-any
+                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-defined
+                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-resolved
                 default:
-                    - notify.email.{owner}.on-any
+                    - notify.email.{owner}.on-defined
+                    - notify.email.{owner}.on-resolved
         scopes:
             by-level:
                 "3":

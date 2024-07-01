@@ -101,6 +101,9 @@ def run_check_upstream() -> bool:
         return True
     except subprocess.CalledProcessError as e:
         if e.returncode == 88:
+            notify(
+                f"Sheriffs: Rust changes incoming for Gecko head rev {GECKO_HEAD_REV[:12]}. Stay tuned!"
+            )
             return False
         else:
             raise
@@ -215,6 +218,7 @@ def get_conduit():
 
 
 def notify(body: str):
+    log(f"Notification: {body}")
     if OPERATING_MODE != "prod":
         log("Skipping Sheriff notification.")
         notify_user(body)
