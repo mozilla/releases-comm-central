@@ -1534,6 +1534,8 @@ class StartController extends ImporterController {
   }
 }
 
+let currentTab;
+
 /**
  * Show a specific importing tab.
  *
@@ -1547,7 +1549,8 @@ function showTab(tabId, reset = false) {
     Steps.reset();
     restart();
   }
-  const selectedPaneId = `tabPane-${tabId.split("-")[1]}`;
+  currentTab = tabId.slice(4); // Cut off "tab-".
+  const selectedPaneId = `tabPane-${currentTab}`;
   const isExport = tabId === "tab-export";
   document.getElementById("importDocs").hidden = isExport;
   document.getElementById("exportDocs").hidden = !isExport;
@@ -1559,7 +1562,7 @@ function showTab(tabId, reset = false) {
   document.querySelector("link[rel=icon]").href = isExport
     ? "chrome://messenger/skin/icons/new/compact/export.svg"
     : "chrome://messenger/skin/icons/new/compact/import.svg";
-  location.hash = tabId.slice(4); // Cut off "tab-".
+  location.hash = currentTab;
   for (const tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
@@ -1609,4 +1612,9 @@ document.addEventListener("DOMContentLoaded", () => {
     location.hash ? location.hash.replace("#", "tab-") : "tab-start",
     true
   );
+});
+window.addEventListener("hashchange", () => {
+  if (location.hash.slice(1) !== currentTab) {
+    showTab(location.hash.replace("#", "tab-"), true);
+  }
 });
