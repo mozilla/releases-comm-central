@@ -830,6 +830,12 @@ nsresult nsParseMailMessageState::ParseHeaders() {
       goto SEARCH_NEWLINE;
     }
 
+    // Null out the remainder after all the white space contained in
+    // the header has been folded.
+    if (bufWrite < buf) {
+      memset(bufWrite, '\0', buf - bufWrite);
+    }
+
     if (header) {
       value = colon + 1;
       // eliminate trailing blanks after the colon

@@ -9,6 +9,7 @@
 #include "nsIMsgSearchScopeTerm.h"
 #include "nsReadLine.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/Span.h"
 
 //---------------------------------------------------------------------------
 // nsMsgBodyHandler: used to retrieve lines from POP and IMAP offline messages.
@@ -46,9 +47,7 @@ class nsMsgBodyHandler {
   bool m_Filtering;
   int32_t GetNextFilterLine(nsCString& buf);
   // pointer into the headers list in the original message hdr db...
-  const char* m_headers;
-  uint32_t m_headersSize;
-  uint32_t m_headerBytesRead;
+  mozilla::Span<const char> m_remainingHeaders;
 
   // Reading from raw message stream.
   int32_t GetNextLocalLine(nsACString& line);

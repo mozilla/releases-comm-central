@@ -16,8 +16,7 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
   // The following are variables used when the body handler is handling stuff
   // from filters....through this constructor, that is not the case so we set
   // them to NULL.
-  m_headers = nullptr;
-  m_headersSize = 0;
+  m_remainingHeaders = nullptr;
   m_Filtering = false;  // make sure we set this before we call initialize...
 
   Initialize();  // common initialization stuff
@@ -31,15 +30,13 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
                                    nsIMsgDBHdr* msg, const char* headers,
                                    uint32_t headersSize, bool Filtering) {
   m_scope = scope;
-  m_headers = nullptr;
-  m_headersSize = 0;
+  m_remainingHeaders = nullptr;
   m_Filtering = Filtering;
 
   Initialize();
 
   if (m_Filtering) {
-    m_headers = headers;
-    m_headersSize = headersSize;
+    m_remainingHeaders = mozilla::Span(headers, headersSize);
   } else {
     nsresult rv = m_scope->GetInputStream(msg, getter_AddRefs(m_msgStream));
     NS_ENSURE_SUCCESS_VOID(rv);  // Not ideal, but warn at least.
@@ -59,7 +56,6 @@ void nsMsgBodyHandler::Initialize()
   m_partIsText = true;  // Default is text/plain, maybe proven otherwise later.
   m_pastPartHeaders = false;
   m_inMessageAttachment = false;
-  m_headerBytesRead = 0;
 }
 
 nsMsgBodyHandler::~nsMsgBodyHandler() {}
@@ -104,40 +100,33 @@ int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset) {
   return outLength;
 }
 
+// Find and extract the first header in m_remainingHeaders and assign it to
+// buf. m_remainingHeaders is usually a view over
+// nsParseMailMessageState::m_headers, which is a raw byte array containing a
+// NUL delimited list of header strings.
+// Returns the length of the header including the terminating NUL, or -1
+// if all headers have been processed before.
 int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString& buf) {
-  // m_nextHdr always points to the next header in the list....the list is NULL
-  // terminated...
-  uint32_t numBytesCopied = 0;
-  if (m_headersSize > 0) {
-    // #mscott. Ugly hack! filter headers list have CRs & LFs inside the NULL
-    // delimited list of header strings. It is possible to have: To NULL CR LF
-    // From. We want to skip over these CR/LFs if they start at the beginning of
-    // what we think is another header.
-
-    while (m_headersSize > 0 && (m_headers[0] == '\r' || m_headers[0] == '\n' ||
-                                 m_headers[0] == ' ' || m_headers[0] == '\0')) {
-      m_headers++;  // skip over these chars...
-      m_headersSize--;
-    }
-
-    if (m_headersSize > 0) {
-      numBytesCopied = strlen(m_headers) + 1;
-      buf.Assign(m_headers);
-      m_headers += numBytesCopied;
-      // be careful...m_headersSize is unsigned. Don't let it go negative or we
-      // overflow to 2^32....*yikes*
-      if (m_headersSize < numBytesCopied)
-        m_headersSize = 0;
-      else
-        m_headersSize -= numBytesCopied;  // update # bytes we have read from
-                                          // the headers list
-
-      return (int32_t)numBytesCopied;
-    }
-  } else if (m_headersSize == 0) {
+  // Each header may contain CRs & LFs. It is possible to have: To NUL CR LF
+  // From. We want to skip over these CR/LFs if they start at the beginning of
+  // what we think is another header. There may also be multiple NUL chars
+  // between headers.
+  auto nextHeader = std::find_if_not(
+      m_remainingHeaders.cbegin(), m_remainingHeaders.cend(), [](const char c) {
+        return c == '\r' || c == '\n' || c == ' ' || c == '\0';
+      });
+  auto endOfHeader = std::find(nextHeader, m_remainingHeaders.cend(), '\0');
+  if (endOfHeader == m_remainingHeaders.cend()) {
     buf.Truncate();
+    m_remainingHeaders = nullptr;
+    return -1;
   }
-  return -1;
+
+  ++endOfHeader;
+  buf.Assign(nsCString(mozilla::Span<const char>(nextHeader, endOfHeader)));
+  m_remainingHeaders =
+      mozilla::Span<const char>(endOfHeader, m_remainingHeaders.cend());
+  return endOfHeader - nextHeader;
 }
 
 // Return length of line, otherwise -1 for EOF.
