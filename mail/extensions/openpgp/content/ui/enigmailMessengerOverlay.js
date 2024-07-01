@@ -192,7 +192,6 @@ Enigmail.msg = {
       element.removeAttribute("keyid");
     }
 
-    Enigmail.msg.decryptedMessage = null;
     Enigmail.msg.securityInfo = null;
 
     Enigmail.msg.allAttachmentsDone = false;
@@ -679,7 +678,7 @@ Enigmail.msg = {
 
     const prefix = (await l10n.formatValue("debug-log-title")) + "\n\n";
 
-    this.setDisplayToText(0, prefix + Enigmail.hdrView.packetDump, "utf-8");
+    this.setDisplayToText(prefix + Enigmail.hdrView.packetDump);
   },
 
   async messageParse(
@@ -690,7 +689,7 @@ Enigmail.msg = {
     isAuto,
     pbMessageIndex = "0"
   ) {
-    var bodyElement = this.getBodyElement(pbMessageIndex);
+    var bodyElement = this.getBodyElement();
     if (!bodyElement) {
       return;
     }
@@ -799,12 +798,8 @@ Enigmail.msg = {
       return;
     }
 
-    const charset = currentCharacterSet ?? "";
-    if (charset != "UTF-8") {
-      // Encode ciphertext to charset from unicode
-      msgText = EnigmailData.convertFromUnicode(msgText, charset);
-    }
-
+    const charset = currentCharacterSet;
+    msgText = EnigmailData.convertFromUnicode(msgText, charset);
     if (isAuto) {
       const ht =
         hasHeadOrTailNode || this.hasHeadOrTailBesidesInlinePGP(msgText);
@@ -934,6 +929,11 @@ Enigmail.msg = {
     await this.messageDecrypt(null, false);
   },
 
+  /**
+   * Get the body of the message pane contentDocument.
+   *
+   * @returns {?HTMLBodyElement}
+   */
   getBodyElement() {
     const msgFrame = document.getElementById("messagepane");
     if (!msgFrame || !msgFrame.contentDocument) {
@@ -987,6 +987,10 @@ Enigmail.msg = {
       await this.importKeyFromMsgBody(msgText);
       return;
     }
+    // See https://www.rfc-editor.org/rfc/rfc4880#section-6
+    // An implementation MAY implement this key and any
+    //   translations it cares to; an implementation MAY ignore it and
+    //   assume all text is UTF-8.
     const armorHeaders = EnigmailArmor.getArmorHeaders(msgText);
     if ("charset" in armorHeaders) {
       charset = armorHeaders.charset;
@@ -1084,6 +1088,7 @@ Enigmail.msg = {
       // Bad signature/armor
       if (retry == 1) {
         msgText = MailStringUtils.stringToByteString(msgText);
+        console.warn(`Retrying decrypt; retry=${retry}, msgText=${msgText}`);
         await Enigmail.msg.messageParseCallback(
           msgText,
           msgDate,
@@ -1102,6 +1107,7 @@ Enigmail.msg = {
         );
         return;
       } else if (retry == 2) {
+        console.warn(`Retrying decrypt; retry=${retry} - direct decrypt`);
         // Try to verify signature by accessing raw message text directly
         // (avoid recursion by setting retry parameter to false on callback)
         newSignature = "";
@@ -1122,6 +1128,7 @@ Enigmail.msg = {
         return;
       } else if (retry == 3) {
         msgText = MailStringUtils.stringToByteString(msgText);
+        console.warn(`Retrying decrypt; retry=${retry}, msgText=${msgText}`);
         await Enigmail.msg.messageParseCallback(
           msgText,
           msgDate,
@@ -1221,79 +1228,74 @@ Enigmail.msg = {
       }
     }
 
-    Enigmail.msg.decryptedMessage = {
-      url: messageUrl,
-      uri: msgUriSpec,
-      headerList,
-      hasAttachments,
-      attachmentsEncrypted,
-      charset,
-      plainText,
-    };
-
     // don't display decrypted message if message selection has changed
     displayedUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
     if (msgUriSpec && displayedUriSpec && displayedUriSpec != msgUriSpec) {
       return;
     }
+    let msgContent = "";
+    if (hasAttachments && !attachmentsEncrypted) {
+      msgContent =
+        "\r\n" +
+        EnigmailData.convertFromUnicode(
+          l10n.formatValueSync("enig-content-note"),
+          charset
+        ) +
+        "\r\n\r\n";
+    }
+    msgContent += plainText;
 
-    // Create and load one-time message URI
-    var messageContent = Enigmail.msg.getDecryptedMessage(
-      "message/rfc822",
-      false
-    );
-
-    this.setDisplayToText(pbMessageIndex, messageContent, charset);
+    msgContent = MailStringUtils.byteStringToString(msgContent, charset);
+    this.setDisplayToText(msgContent);
   },
 
-  setDisplayToText(pbMessageIndex, messageContent, charset) {
-    let node;
-    const bodyElement = Enigmail.msg.getBodyElement(pbMessageIndex);
+  /**
+   * Replace visible message with the provided text.
+   *
+   * @param {string} messageContent - The content to show.
+   */
+  setDisplayToText(messageContent) {
+    const bodyElement = Enigmail.msg.getBodyElement();
+    if (!bodyElement.firstChild) {
+      return;
+    }
 
-    if (bodyElement.firstChild) {
-      node = bodyElement.firstChild;
-
-      let divFound = false;
-
-      while (node) {
-        if (node.nodeName == "DIV") {
-          if (divFound) {
-            node.innerHTML = "";
-          } else {
-            // for safety reasons, we replace the complete visible message with
-            // the decrypted or signed part (bug 983)
-            divFound = true;
-            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-              MailStringUtils.byteStringToString(messageContent, charset)
-            );
-            Enigmail.msg.movePEPsubject();
-          }
+    let node = bodyElement.firstChild;
+    let divFound = false;
+    while (node) {
+      if (node.nodeName == "DIV") {
+        if (divFound) {
+          node.innerHTML = "";
+        } else {
+          // for safety reasons, we replace the complete visible message with
+          // the decrypted or signed part (bug 983)
+          divFound = true;
+          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(messageContent);
+          Enigmail.msg.movePEPsubject();
         }
-        node = node.nextSibling;
       }
+      node = node.nextSibling;
+    }
 
-      if (divFound) {
-        return;
-      }
+    if (divFound) {
+      return;
+    }
 
-      let preFound = false;
+    let preFound = false;
 
-      // if no <DIV> node is found, try with <PRE> (bug 24762)
-      node = bodyElement.firstChild;
-      while (node) {
-        if (node.nodeName == "PRE") {
-          if (preFound) {
-            node.innerHTML = "";
-          } else {
-            preFound = true;
-            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-              MailStringUtils.byteStringToString(messageContent, charset)
-            );
-            Enigmail.msg.movePEPsubject();
-          }
+    // if no <DIV> node is found, try with <PRE> (bug 24762)
+    node = bodyElement.firstChild;
+    while (node) {
+      if (node.nodeName == "PRE") {
+        if (preFound) {
+          node.innerHTML = "";
+        } else {
+          preFound = true;
+          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(messageContent);
+          Enigmail.msg.movePEPsubject();
         }
-        node = node.nextSibling;
       }
+      node = node.nextSibling;
     }
   },
 
@@ -1512,142 +1514,6 @@ Enigmail.msg = {
       (attachment.contentType.match(/^application\/pgp(-.*)?$/i) &&
         attachment.contentType.search(/^application\/pgp-signature/i) < 0)
     );
-  },
-
-  getDecryptedMessage(contentType, includeHeaders) {
-    if (!Enigmail.msg.decryptedMessage) {
-      return "No decrypted message found!\n";
-    }
-
-    EnigmailCore.init();
-
-    var headerList = Enigmail.msg.decryptedMessage.headerList;
-    var statusLine = Enigmail.msg.securityInfo
-      ? Enigmail.msg.securityInfo.statusLine
-      : "";
-    var contentData = "";
-    var headerName;
-
-    if (contentType == "message/rfc822") {
-      if (includeHeaders) {
-        try {
-          var msg = gMessage;
-          if (msg) {
-            const msgHdr = {
-              From: msg.author,
-              Subject: msg.subject,
-              To: msg.recipients,
-              Cc: msg.ccList,
-              Date: new Services.intl.DateTimeFormat(undefined, {
-                dateStyle: "short",
-                timeStyle: "short",
-              }).format(new Date(msg.dateInSeconds * 1000)),
-            };
-
-            if (
-              msg?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup &&
-              currentHeaderData.newsgroups
-            ) {
-              msgHdr.Newsgroups = currentHeaderData.newsgroups.headerValue;
-            }
-
-            for (const headerName in msgHdr) {
-              if (msgHdr[headerName] && msgHdr[headerName].length > 0) {
-                contentData += headerName + ": " + msgHdr[headerName] + "\r\n";
-              }
-            }
-          }
-        } catch (ex) {
-          // the above seems to fail every now and then
-          // so, here is the fallback
-          for (const headerName in headerList) {
-            const headerValue = headerList[headerName];
-            contentData += headerName + ": " + headerValue + "\r\n";
-          }
-        }
-
-        contentData += "Content-Type: text/plain";
-
-        if (Enigmail.msg.decryptedMessage.charset) {
-          contentData += "; charset=" + Enigmail.msg.decryptedMessage.charset;
-        }
-
-        contentData += "\r\n";
-      }
-
-      contentData += "\r\n";
-
-      if (
-        Enigmail.msg.decryptedMessage.hasAttachments &&
-        !Enigmail.msg.decryptedMessage.attachmentsEncrypted
-      ) {
-        contentData += EnigmailData.convertFromUnicode(
-          l10n.formatValueSync("enig-content-note") + "\r\n\r\n",
-          Enigmail.msg.decryptedMessage.charset
-        );
-      }
-
-      contentData += Enigmail.msg.decryptedMessage.plainText;
-    } else {
-      // text/html or text/plain
-
-      if (contentType == "text/html") {
-        contentData +=
-          '<meta http-equiv="Content-Type" content="text/html; charset=' +
-          Enigmail.msg.decryptedMessage.charset +
-          '">\r\n';
-        contentData += "<html><head></head><body>\r\n";
-      }
-
-      if (statusLine) {
-        if (contentType == "text/html") {
-          contentData +=
-            EnigmailMsgRead.escapeTextForHTML(statusLine, false) +
-            "<br>\r\n<hr>\r\n";
-        } else {
-          contentData += statusLine + "\r\n\r\n";
-        }
-      }
-
-      if (includeHeaders) {
-        for (headerName in headerList) {
-          const headerValue = headerList[headerName];
-
-          if (headerValue) {
-            if (contentType == "text/html") {
-              contentData +=
-                "<b>" +
-                EnigmailMsgRead.escapeTextForHTML(headerName, false) +
-                ":</b> " +
-                EnigmailMsgRead.escapeTextForHTML(headerValue, false) +
-                "<br>\r\n";
-            } else {
-              contentData += headerName + ": " + headerValue + "\r\n";
-            }
-          }
-        }
-      }
-
-      if (contentType == "text/html") {
-        contentData +=
-          "<pre>" +
-          EnigmailMsgRead.escapeTextForHTML(
-            Enigmail.msg.decryptedMessage.plainText,
-            false
-          ) +
-          "</pre>\r\n";
-
-        contentData += "</body></html>\r\n";
-      } else {
-        contentData += "\r\n" + Enigmail.msg.decryptedMessage.plainText;
-      }
-
-      if (AppConstants.platform != "win") {
-        contentData = contentData.replace(/\r\n/g, "\n");
-      }
-    }
-
-    return contentData;
   },
 
   async msgDirectDecrypt(

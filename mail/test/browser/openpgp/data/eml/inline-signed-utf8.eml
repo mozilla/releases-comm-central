@@ -1,0 +1,28 @@
+Message-ID: <f5232c91-e969-4836-b44f-444928316a6f@example.com>
+Date: Fri, 31 May 2024 11:15:33 +0300
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+To: bob@example.com
+From: alice@example.com
+Subject: inline signed openpgp - in utf8
+Message-ID: <a4c62b5b-2b2a-76de-af5b-2abfbb2a577a@example.com>
+Date: Thu, 13 Jun 2024 20:39:52 +0300
+Subject: inline signed openpgp - in utf8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+àèìòù
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEE0qdgEJpR3689Qr1MDieSjyQbTSAFAmZUSBkACgkQDieSjyQb
+TSCUvQgA06lf3Xwhsa7iQrU7kK3COnnoGuRU2OBtLtwjMkV1HEtA/+xNYREqXQgJ
+EmApeXgcBGxKRwnWMwkdDSX3q6++i2tXjiSci3dEmdrwsAqj8nAqFvilDfAAGdpX
+dOnKawhwK8Lqld0va07Oe9zMeyOfTt/HLMKCnsqB1cORR5M9oj2gtmPz1jFbXGs1
+RLP0bPrc1w24ouFM6lBH2lQz5Ldq7mJzc/zraVs4rqr6ddCHj2qmfP1dr4WVV6cz
+QLpgDJR/hRbl5IfWJwv6A3Pry5JbfH+YG9caJWB0z8xm/eP6UetUGjbwvo5PYcgX
+HPoJ0DZpsU867j+BVbGKshTlOfY2BA==
+=zoKi
+-----END PGP SIGNATURE-----

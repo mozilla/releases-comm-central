@@ -22,6 +22,13 @@ export var EnigmailData = {
     return btoa(str).replace(/(.{72})/g, "$1\r\n");
   },
 
+  /**
+   * Converts the text from Unicode to the given charset.
+   *
+   * @param {string} text - The text.
+   * @param {string} charset - Target charset.
+   * @returns {BinaryString} the converted text.
+   */
   convertFromUnicode(text, charset) {
     if (!text) {
       return "";
