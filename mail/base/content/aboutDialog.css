@@ -65,9 +65,9 @@ body {
   min-height: 16px;
   margin-inline-end: 3px;
   vertical-align: middle;
-  content: url("chrome://global/skin/icons/loading.svg");
+  content: url("chrome://messenger/skin/icons/spinning.svg");
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: AccentColor;
 }
 
 #rightBox:-moz-locale-dir(rtl) {

@@ -353,9 +353,9 @@ button.tab-close-button {
   }
 
   &[busy] {
-    list-style-image: url("chrome://global/skin/icons/loading.svg") !important;
+    list-style-image: url("chrome://messenger/skin/icons/spinning.svg") !important;
     -moz-context-properties: fill;
-    fill: currentColor;
+    fill: var(--selected-item-color);
   }
 
   & > .menu-iconic-left {

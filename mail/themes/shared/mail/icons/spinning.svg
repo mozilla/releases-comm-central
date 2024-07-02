@@ -1,0 +1,50 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" id="loading-svg" width="16" height="16" viewBox="0 0 16 16" stroke="context-fill">
+  <style>
+    @keyframes loadingSVGRotate {
+      from { rotate: 0; } to { rotate: 360deg }
+    }
+    #loading-svg {
+      animation: loadingSVGRotate 1.2s linear infinite;
+      transform-origin: 50% 50%;
+    }
+  </style>
+  <circle r="7" cx="8" cy="8" stroke-opacity="252, 254, 7)"
+      transform="rotate(-90,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none" />
+  <circle r="7" cx="8" cy="8" stroke-opacity="0"
+      transform="rotate(-60,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.1"
+      transform="rotate(-30,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.2"
+      transform="rotate(0,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.3"
+      transform="rotate(30,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.4"
+      transform="rotate(60,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.5"
+      transform="rotate(90,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.6"
+      transform="rotate(120,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.7"
+      transform="rotate(150,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.8"
+      transform="rotate(180,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="0.9"
+      transform="rotate(210,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+  <circle r="7" cx="8" cy="8" stroke-opacity="1"
+      transform="rotate(240,8,8)"
+      stroke-dasharray="3.8 100" stroke-width="2" fill="none"/>
+</svg>

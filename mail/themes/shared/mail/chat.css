@@ -400,7 +400,7 @@ richlistitem[is="chat-group-richlistitem"] > label {
   width: 10px;
   height: 10px;
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
 }
 
 #protolist richlistitem {

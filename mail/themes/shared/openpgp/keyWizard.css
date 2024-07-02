@@ -74,7 +74,7 @@ description {
   width: 16px;
   height: 16px;
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
 }
 
 /* Import key list */

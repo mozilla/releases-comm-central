@@ -256,7 +256,7 @@ class SortedItemSelectList {
     this.menulist.setAttribute("data-l10n-id", messageId);
     this.menulist.setAttribute(
       "image",
-      "chrome://global/skin/icons/loading.svg"
+      "chrome://messenger/skin/icons/spinning.svg"
     );
     this.menulist.disabled = true;
     this.button.disabled = true;

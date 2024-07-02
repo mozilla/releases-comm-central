@@ -2239,7 +2239,7 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
   const file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
   const image = listItem.querySelector("img");
   listItem.attachCloudFileAccount = cloudFileAccount;
-  image.setAttribute("src", "chrome://global/skin/icons/loading.svg");
+  image.setAttribute("src", "chrome://messenger/skin/icons/spinning.svg");
   image.classList.add("cloud-file-attach-image");
   // WebExtension APIs do not support calendar tabs.
   cloudFileAccount.uploadFile(null, file, attachment.name).then(

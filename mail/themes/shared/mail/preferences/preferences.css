@@ -466,7 +466,7 @@ checkbox {
   width: 1.3em;
   min-height: 1.3em;
   margin-inline-end: 8px;
-  content: url("chrome://global/skin/icons/loading.svg");
+  content: url("chrome://messenger/skin/icons/spinning.svg");
   -moz-context-properties: fill;
   fill: var(--in-content-accent-color);
 
@@ -648,7 +648,7 @@ checkbox {
 
   & > image {
     -moz-context-properties: fill;
-    fill: currentColor;
+    fill: var(--selected-item-color);
   }
 }
 

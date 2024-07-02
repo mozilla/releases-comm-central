@@ -675,7 +675,7 @@ facet-boolean[disabled] {
 
 img.loading {
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
 }
 
 #facet-date {

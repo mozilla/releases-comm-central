@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://global/skin/in-content/common.css");
+@import url("chrome://messenger/skin/variables.css");
 @import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/widgets.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
@@ -290,9 +291,9 @@ dialog h1 {
   width: 16px;
   min-height: 16px;
   vertical-align: middle;
-  content: url("chrome://global/skin/icons/loading.svg");
+  content: url("chrome://messenger/skin/icons/spinning.svg");
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
 }
 
 #hubSyncButton {

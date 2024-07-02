@@ -87,7 +87,7 @@ export var ChatIcons = {
       case "connecting":
       case "disconnecting":
       case "joining":
-        return "chrome://global/skin/icons/loading.svg";
+        return "chrome://messenger/skin/icons/spinning.svg";
       case "idle":
         return "chrome://messenger/skin/icons/new/status-idle.svg";
       case "mobile":

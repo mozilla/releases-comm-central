@@ -320,7 +320,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   for (const item of bucket.itemChildren) {
     is(
       item.querySelector("img.attachmentcell-icon").src,
-      "chrome://global/skin/icons/loading.svg",
+      "chrome://messenger/skin/icons/spinning.svg",
       "CloudFile icon should be the loading spinner."
     );
   }

@@ -27,7 +27,7 @@ td {
 
 .network-status-image {
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
   width: 16px;
   height: 16px;
 }

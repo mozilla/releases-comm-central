@@ -675,5 +675,5 @@ label.label {
 
 .cloud-file-attach-image {
   -moz-context-properties: fill;
-  fill: currentColor;
+  fill: var(--selected-item-color);
 }

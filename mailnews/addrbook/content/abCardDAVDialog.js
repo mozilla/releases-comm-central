@@ -167,7 +167,7 @@ function setStatus(status, message, args) {
     case "loading":
       uiElements.statusImage.setAttribute(
         "src",
-        "chrome://global/skin/icons/loading.svg"
+        "chrome://messenger/skin/icons/spinning.svg"
       );
       break;
     case "error":
