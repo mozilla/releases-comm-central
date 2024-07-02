@@ -529,7 +529,7 @@ export async function add_cloud_attachments(
     const img = item.querySelector("img.attachmentcell-icon");
     Assert.equal(
       img.src,
-      "chrome://global/skin/icons/loading.svg",
+      "chrome://messenger/skin/icons/spinning.svg",
       "Icon should be the spinner during upload."
     );
 
