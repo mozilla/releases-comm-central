@@ -2032,22 +2032,37 @@ nsMsgDBView::CellDataForColumns(int32_t aRow,
   nsresult rv;
   _retval.Clear();
 
-  uint32_t count = aColumnNames.Length();
-  _retval.SetCapacity(count);
-  for (nsString column : aColumnNames) {
-    nsString text;
-    rv = CellTextForColumn(aRow, column, text);
-    if (NS_FAILED(rv)) {
-      _retval.Clear();
-      return rv;
-    }
-    _retval.AppendElement(text);
-  }
-
   rv = GetRowProperties(aRow, aProperties);
   if (NS_FAILED(rv)) {
     _retval.Clear();
     return rv;
+  }
+
+  nsTArray<nsString> _columnNames = aColumnNames.Clone();
+  // If we're rendering a dummy row, always append unread and total count if we
+  // don't fetch them already as we need them for the subject column.
+  if (aProperties.LowerCaseEqualsLiteral("dummy")) {
+    nsString unreadColName = u"unreadCol"_ns;
+    if (!_columnNames.Contains(unreadColName)) {
+      _columnNames.AppendElement(unreadColName);
+    }
+    nsString totalColName = u"totalCol"_ns;
+    if (!_columnNames.Contains(totalColName)) {
+      _columnNames.AppendElement(totalColName);
+    }
+  }
+
+  uint32_t count = _columnNames.Length();
+  _retval.SetCapacity(count);
+  for (nsString column : _columnNames) {
+    nsString text;
+    rv = CellTextForColumn(aRow, column, text);
+    if (NS_FAILED(rv)) {
+      _retval.Clear();
+      aProperties.Truncate();
+      return rv;
+    }
+    _retval.AppendElement(text);
   }
 
   rv = GetLevel(aRow, aThreadLevel);

@@ -102,12 +102,21 @@ class ThreadRow extends TreeViewTableRow {
           image.alt = "";
         }
 
+        let subjectText = cellTexts[textIndex];
+        if (isDummyRow) {
+          // Big assumption here that the total and unread are always the last 2
+          // elements of the array. Tests will ensure that.
+          const unread = Number(cellTexts.at(-2));
+          const total = Number(cellTexts.at(-1));
+          subjectText += unread ? ` (${unread}/${total})` : ` (${total})`;
+        }
+
         const span = div.querySelector("span");
-        span.textContent = cellTexts[textIndex];
+        span.textContent = subjectText;
         document.l10n.setAttributes(cell, column.l10n.cell, {
-          title: cellTexts[textIndex],
+          title: subjectText,
         });
-        ariaLabelPromises.push(cellTexts[textIndex]);
+        ariaLabelPromises.push(subjectText);
         continue;
       }
 
