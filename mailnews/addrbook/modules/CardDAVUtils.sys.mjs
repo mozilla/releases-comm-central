@@ -289,13 +289,16 @@ export var CardDAVUtils = {
         url = new URL(`https://${srvRecords[0].host}:${srvRecords[0].port}`);
         log.log(`Found a DNS SRV record pointing to ${url.host}`);
 
-        let txtRecords = await DNS.txt(domain);
-        txtRecords = txtRecords.filter(result =>
-          result.data.startsWith("path=")
-        );
+        const txtRecords = await DNS.txt(domain);
+        // RFC 6763 rules state that each string in the TXT record is treated as
+        // a key/value pair.
+        const paths = txtRecords
+          .map(result => result.strings.find(s => s.startsWith("path=")))
+          .filter(Boolean);
 
-        if (txtRecords[0]) {
-          url.pathname = txtRecords[0].data.substr(5);
+        if (paths.length) {
+          // Get the string after `path=`.
+          url.pathname = paths[0].substring(5);
           log.log(`Found a DNS TXT record pointing to ${url.href}`);
         }
       } else {

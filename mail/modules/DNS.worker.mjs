@@ -152,12 +152,13 @@ class load_libresolv {
    * returns it.
    *
    * @param {integer} aTypeID - Type, like NS_T_MX/NS_T_SRV/NS_T_MX.
-   * @param {ctypes.unsigned_char.array} aAnswer - Data.
-   * @param {index} aIdx - Offset into data, e.g. NS_HFIXEDSZ.
-   * @param {integer} aLength - Data length (not the length of the current resource data).
+   * @param {ctypes.unsigned_char.array} aAnswer - Message.
+   * @param {index} aIdx - Offset into message, e.g. NS_HFIXEDSZ.
+   * @param {integer} aLength - Message length (not the length of the current resource data).
+   * @param {integer} aDataLength - The data length.
    * @returns {SRVRecord|TXTRecord|MXRecord}
    */
-  _mapAnswer(aTypeID, aAnswer, aIdx, aLength) {
+  _mapAnswer(aTypeID, aAnswer, aIdx, aLength, aDataLength) {
     if (aTypeID == NS_T_SRV) {
       const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
       const weight = this.ns_get16(aAnswer.addressOfElement(aIdx + 2));
@@ -175,20 +176,27 @@ class load_libresolv {
       return new SRVRecord(prio, weight, host, port);
     }
     if (aTypeID == NS_T_TXT) {
-      // TXT records are a 1 byte length followed by the data.
-      const txtlen = ctypes.cast(
-        aAnswer.addressOfElement(aIdx),
-        ctypes.uint8_t.ptr
-      ).contents;
-      // Copy the data to a new array since readString() does not accept a length
-      // property (and may overrun the string if there are additional answers).
-      const txtbuf = ctypes.unsigned_char.array(txtlen)();
-      for (let i = 0; i < txtlen; ++i) {
-        txtbuf.addressOfElement(i).contents = aAnswer.addressOfElement(
-          aIdx + 1 + i
+      // TXT records are 1 or more strings of 1 byte length followed by the data.
+      const strings = [];
+      let offset = 0;
+      while (offset < aDataLength) {
+        const txtlen = ctypes.cast(
+          aAnswer.addressOfElement(aIdx + offset),
+          ctypes.uint8_t.ptr
         ).contents;
+        // Copy the data to a new array since readString() does not accept a length
+        // property (and may overrun the string if there are additional answers).
+        const txtstr = ctypes.unsigned_char.array(txtlen)();
+        for (let i = 0; i < txtlen; ++i) {
+          txtstr.addressOfElement(i).contents = aAnswer.addressOfElement(
+            aIdx + offset + 1 + i
+          ).contents;
+        }
+        strings.push(txtstr.readString());
+        // Move past the current string.
+        offset += txtlen + 1;
       }
-      return new TXTRecord(txtbuf.readString());
+      return new TXTRecord(strings);
     }
     if (aTypeID == NS_T_MX) {
       const prio = this.ns_get16(aAnswer.addressOfElement(aIdx));
@@ -258,7 +266,13 @@ class load_libresolv {
       idx += this.NS_RRFIXEDSZ;
 
       if (type === aTypeID) {
-        const resource = this._mapAnswer(aTypeID, answer, idx, length);
+        const resource = this._mapAnswer(
+          aTypeID,
+          answer,
+          idx,
+          length,
+          dataLength
+        );
         resource.type = type;
         resource.nsclass = this.ns_get16(answer.addressOfElement(rridx + 2));
         resource.ttl = this.ns_get32(answer.addressOfElement(rridx + 4)) | 0;
@@ -376,9 +390,13 @@ class load_dnsapi {
     }
     if (aTypeID == NS_T_TXT) {
       const txtdata = ctypes.cast(aData, this.DNS_TXT_DATA);
-      if (txtdata.dwStringCount > 0) {
-        return new TXTRecord(txtdata.pStringArray[0].readString());
-      }
+      const pStringArray = ctypes.cast(
+        txtdata.pStringArray.addressOfElement(0),
+        ctypes.char16_t.ptr.array(txtdata.dwStringCount).ptr
+      );
+      return new TXTRecord(
+        Array.from(pStringArray.contents, str => str.readString())
+      );
     }
     if (aTypeID == NS_T_MX) {
       const mxdata = ctypes.cast(aData, this.DNS_MX_DATA);
@@ -454,10 +472,10 @@ function SRVRecord(prio, weight, host, port) {
  * Represents a TXT record.
  * Used to make results of different libraries consistent for TXT queries.
  *
- * @param {string} data
+ * @param {string} strings
  */
-function TXTRecord(data) {
-  this.data = data;
+function TXTRecord(strings) {
+  this.strings = strings;
 }
 
 /**

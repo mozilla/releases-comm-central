@@ -400,7 +400,9 @@ add_task(async function testDNSWithTXT() {
     Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
     return [
       {
-        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        strings: [
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        ],
       },
     ];
   };

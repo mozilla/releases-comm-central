@@ -153,10 +153,12 @@ class CalDavDetector {
     dnsres.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
 
     // Determine path from TXT, if available.
-    let pathres = await DNS.txt(host);
-    pathres = pathres.filter(result => result.data.startsWith("path="));
+    const txtRecords = await DNS.txt(host);
+    const pathres = txtRecords
+      .map(result => result.strings.find(s => s.startsWith("path=")))
+      .filter(Boolean);
     // Get the string after `path=`.
-    const path = pathres.length ? pathres[0].data.substr(5) : "";
+    const path = pathres[0]?.substring(5);
 
     let calendars;
     if (path) {

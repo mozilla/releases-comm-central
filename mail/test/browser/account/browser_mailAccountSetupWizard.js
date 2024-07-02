@@ -120,22 +120,30 @@ DNS.srv = function (name) {
 };
 DNS.txt = function (name) {
   if (name == "_caldavs._tcp.localhost") {
-    return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
+    return [
+      { strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] },
+    ];
   }
   if (name == "_carddavs._tcp.localhost") {
     return [
       {
-        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        strings: [
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        ],
       },
     ];
   }
   if (name == "_caldavs._tcp.imap.test") {
-    return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
+    return [
+      { strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] },
+    ];
   }
   if (name == "_carddavs._tcp.imap.test") {
     return [
       {
-        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        strings: [
+          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        ],
       },
     ];
   }

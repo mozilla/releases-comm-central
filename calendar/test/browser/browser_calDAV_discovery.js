@@ -127,7 +127,7 @@ add_task(async function testDNS() {
   };
   DNS.txt = function (name) {
     Assert.equal(name, "_caldavs._tcp.dnstest.invalid");
-    return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
+    return [{ strings: ["path=/browser/comm/calendar/test/browser/data/dns.sjs"] }];
   };
 
   await openWizard({
