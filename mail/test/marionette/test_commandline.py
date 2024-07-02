@@ -205,3 +205,10 @@ class TestCommandLine(MarionetteTestCase):
         self.marionette.clear_pref("mail.server.server1.type")
         self.marionette.close_chrome_window()
         self.marionette.instance.app_args = []
+
+    def test_zzz(self):
+        """
+        Quits and restarts Thunderbird one more time to workaround code
+        coverage data not being recorded properly.
+        """
+        self.subtest_open_tab([], [mail_3pane_tab])

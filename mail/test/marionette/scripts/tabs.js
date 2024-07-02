@@ -18,14 +18,15 @@ for (const tab of tabmail.tabInfo) {
     continue;
   }
   if (tab.browser.isLoadingDocument) {
-    loadPromises.push(
-      new Promise(function (resolve) {
-        tab.browser.addEventListener("load", resolve, {
-          once: true,
-          capture: true,
-        });
-      })
-    );
+    const promise = Promise.withResolvers();
+    loadPromises.push(promise.promise);
+    function listener(event) {
+      if (event.target.location != "about:blank") {
+        tab.browser.removeEventListener("load", listener, { capture: true });
+        promise.resolve();
+      }
+    }
+    tab.browser.addEventListener("load", listener, { capture: true });
   }
 }
 
