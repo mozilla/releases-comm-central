@@ -1580,6 +1580,10 @@ function showTab(tabId, reset = false) {
       case "tab-calendar":
         calendarController.showInitialStep();
         break;
+      case "tab-app":
+        // Profile import can't be restored to - app selection is in start flow.
+        showTab("tab-start", true);
+        break;
       default:
     }
   }

@@ -6,7 +6,20 @@
 
 "use strict";
 
-add_task(async function () {
+async function waitForHash(targetHash, tabWindow) {
+  if (tabWindow.location.hash === targetHash) {
+    return TestUtils.waitForTick();
+  }
+  return new Promise(resolve => {
+    tabWindow.addEventListener("hashchange", () => {
+      if (tabWindow.location.hash === targetHash) {
+        resolve();
+      }
+    });
+  });
+}
+
+add_task(async function test_paneChange() {
   const tab = await new Promise(resolve => {
     const tab = window.openTab("contentTab", {
       url: "about:import",
@@ -16,21 +29,9 @@ add_task(async function () {
     });
   });
   const tabWindow = tab.browser.contentWindow;
-  async function waitForHash(targetHash) {
-    if (tabWindow.location.hash === targetHash) {
-      return TestUtils.waitForTick();
-    }
-    return new Promise(resolve => {
-      tabWindow.addEventListener("hashchange", () => {
-        if (tabWindow.location.hash === targetHash) {
-          resolve();
-        }
-      });
-    });
-  }
 
   window.toExport();
-  await waitForHash("#export");
+  await waitForHash("#export", tabWindow);
   Assert.ok(
     BrowserTestUtils.isVisible(
       tabWindow.document.getElementById("tabPane-export")
@@ -39,7 +40,7 @@ add_task(async function () {
   );
 
   window.toImport("addressBook");
-  await waitForHash("#addressBook");
+  await waitForHash("#addressBook", tabWindow);
   Assert.ok(
     BrowserTestUtils.isVisible(
       tabWindow.document.getElementById("tabPane-addressBook")
@@ -48,7 +49,7 @@ add_task(async function () {
   );
 
   window.toImport("calendar");
-  await waitForHash("#calendar");
+  await waitForHash("#calendar", tabWindow);
   Assert.ok(
     BrowserTestUtils.isVisible(
       tabWindow.document.getElementById("tabPane-calendar")
@@ -57,7 +58,29 @@ add_task(async function () {
   );
 
   window.toImport();
-  await waitForHash("#start");
+  await waitForHash("#start", tabWindow);
+  Assert.ok(
+    BrowserTestUtils.isVisible(
+      tabWindow.document.getElementById("tabPane-start")
+    ),
+    "Import start pane should be visible"
+  );
+
+  window.tabmail.closeTab(tab);
+});
+
+add_task(async function test_profileImportRestore() {
+  const tab = await new Promise(resolve => {
+    const tab = window.openTab("contentTab", {
+      url: "about:import#app",
+      onLoad() {
+        resolve(tab);
+      },
+    });
+  });
+  const tabWindow = tab.browser.contentWindow;
+
+  await waitForHash("#start", tabWindow);
   Assert.ok(
     BrowserTestUtils.isVisible(
       tabWindow.document.getElementById("tabPane-start")
