@@ -22,11 +22,9 @@
   opacity: 0.6;
 }
 
-/* workaround to avoid Window Flick */
 #unifinder-search-results-tree {
-  appearance: none;
-  min-height: 92px;
   margin: 0;
+  border: 0;
 }
 
 :root[lwt-tree] #unifinder-searchBox {

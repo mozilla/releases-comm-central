@@ -124,9 +124,26 @@ async function loadCalendarComponent() {
   taskViewOnLoad();
   taskEdit.onLoad();
 
-  document.getElementById("calSidebar").style.width = `${document
-    .getElementById("calSidebar")
-    .getAttribute("width")}px`;
+  for (const [id, attribute] of [
+    ["calSidebar", "width"],
+    ["bottom-events-box", "height"],
+    ["todo-tab-panel", "height"],
+    ["calendar-task-details-container", "height"],
+    ["unifinder-search-results-tree-col-title", "width"],
+    ["unifinder-search-results-tree-col-startdate", "width"],
+    ["unifinder-search-results-tree-col-enddate", "width"],
+    ["unifinder-search-results-tree-col-categories", "width"],
+    ["unifinder-search-results-tree-col-location", "width"],
+    ["unifinder-search-results-tree-col-status", "width"],
+    ["unifinder-search-results-tree-col-calendarname", "width"],
+  ]) {
+    // These values are correctly being restored to the elements' attributes
+    // but XUL does not honour them any more. Convert to style rules.
+    const element = document.getElementById(id);
+    if (element) {
+      element.style[attribute] = `${element.getAttribute(attribute)}px`;
+    }
+  }
 
   Services.obs.notifyObservers(window, "calendar-startup-done");
 }
