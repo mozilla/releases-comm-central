@@ -19,15 +19,13 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * on it will work through the available notifications, until none are left and
  * it will wait for a call to updatedNotifications again.
  *
- * @emits {CustomEvent} newnotification - Has the notification to display in the
- *   detail.
- * @emits {CustomEvent} clearnotification - Sent when no notification should be
- *   shown.
- * @emits {CustomEvent} notificationinteractedwith - Emitted when a notification
- *   has been interacted with.
- * @emits {CustomEvent} requestnotifications - Emitted to request an update on
- *   the currently available notifications. Listeners should call updatedNotifications
- *   with an array of the notifications.
+ * @fires newnotification - Has the notification to display in the detail.
+ * @fires clearnotification - Sent when no notification should be shown.
+ * @fires notificationinteractedwith - Emitted when a notification has been
+ *   interacted with.
+ * @fires requestnotifications - Emitted to request an update on
+ *   the currently available notifications. Listeners should call
+ *   updatedNotifications with an array of the notifications.
  */
 export class NotificationManager extends EventTarget {
   static NEW_NOTIFICATION_EVENT = "newnotification";

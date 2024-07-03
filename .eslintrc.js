@@ -174,6 +174,8 @@ module.exports = {
 
         "chat/modules/imContentSink.sys.mjs",
 
+        "mail/components/inappnotifications/**",
+
         "mail/modules/QuickFilterManager.sys.mjs",
       ],
       excludedFiles: [".eslintrc.js"],
