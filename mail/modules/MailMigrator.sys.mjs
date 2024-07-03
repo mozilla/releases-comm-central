@@ -15,7 +15,6 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
   clearXULToolbarState: "resource:///modules/ToolbarMigration.sys.mjs",
-  migrateMailnews: "resource:///modules/MailnewsMigrator.sys.mjs",
   migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
@@ -29,9 +28,6 @@ export var MailMigrator = {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
     const UI_VERSION = 43;
-    const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
-    const MESSENGERCOMPOSE_DOCURL =
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -39,129 +35,13 @@ export var MailMigrator = {
       return;
     }
 
-    const xulStore = Services.xulStore;
-
     const newProfile = currentUIVersion == 0;
     if (newProfile) {
-      // Collapse the main menu by default if the override pref
-      // "mail.main_menu.collapse_by_default" is set to true.
-      if (Services.prefs.getBoolPref("mail.main_menu.collapse_by_default")) {
-        xulStore.setValue(
-          MESSENGER_DOCURL,
-          "toolbar-menubar",
-          "autohide",
-          "true"
-        );
-      }
-
       // Set to current version to skip all the migration below.
       currentUIVersion = UI_VERSION;
     }
 
     try {
-      // Migrate mail.biff.use_new_count_in_mac_dock to
-      // mail.biff.use_new_count_in_badge.
-      if (currentUIVersion < 29) {
-        if (
-          Services.prefs.getBoolPref(
-            "mail.biff.use_new_count_in_mac_dock",
-            false
-          )
-        ) {
-          Services.prefs.setBoolPref("mail.biff.use_new_count_in_badge", true);
-          Services.prefs.clearUserPref("mail.biff.use_new_count_in_mac_dock");
-        }
-      }
-
-      // Clear ui.systemUsesDarkTheme after bug 1736252.
-      if (currentUIVersion < 30) {
-        Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
-      }
-
-      if (currentUIVersion < 32) {
-        this._migrateIncomingToOAuth2("imap.gmail.com");
-        this._migrateIncomingToOAuth2("pop.gmail.com");
-        this._migrateOutgoingServerToOAuth2("smtp.gmail.com");
-      }
-
-      if (currentUIVersion < 33) {
-        // Put button-encryption and button-encryption-options on the
-        // Composition Toolbar.
-        // First, get value of currentset (string of comma-separated button ids).
-        let cs = xulStore.getValue(
-          MESSENGERCOMPOSE_DOCURL,
-          "composeToolbar2",
-          "currentset"
-        );
-        if (cs) {
-          // Button ids from currentset string.
-          const buttonIds = cs.split(",");
-
-          // We want to insert the two buttons at index 2 and 3.
-          buttonIds.splice(2, 0, "button-encryption");
-          buttonIds.splice(3, 0, "button-encryption-options");
-
-          cs = buttonIds.join(",");
-          // Apply changes to currentset.
-          xulStore.setValue(
-            MESSENGERCOMPOSE_DOCURL,
-            "composeToolbar2",
-            "currentset",
-            cs
-          );
-        }
-      }
-
-      if (currentUIVersion < 34) {
-        // Migrate from
-        // + mailnews.sendformat.auto_downgrade - Whether we should
-        //   auto-downgrade to plain text when the message is plain.
-        // + mail.default_html_action - The default sending format if we didn't
-        //   auto-downgrade.
-        // to mail.default_send_format
-        const defaultHTMLAction = Services.prefs.getIntPref(
-          "mail.default_html_action",
-          3
-        );
-        Services.prefs.clearUserPref("mail.default_html_action");
-        const autoDowngrade = Services.prefs.getBoolPref(
-          "mailnews.sendformat.auto_downgrade",
-          true
-        );
-        Services.prefs.clearUserPref("mailnews.sendformat.auto_downgrade");
-
-        let sendFormat;
-        switch (defaultHTMLAction) {
-          case 0:
-            // Was AskUser. Move to the new Auto default.
-            sendFormat = Ci.nsIMsgCompSendFormat.Auto;
-            break;
-          case 1:
-            // Was PlainText only. Keep as plain text. Note, autoDowngrade has
-            // no effect on this option.
-            sendFormat = Ci.nsIMsgCompSendFormat.PlainText;
-            break;
-          case 2:
-            // Was HTML. Keep as HTML if autoDowngrade was false, otherwise use
-            // the Auto default.
-            sendFormat = autoDowngrade
-              ? Ci.nsIMsgCompSendFormat.Auto
-              : Ci.nsIMsgCompSendFormat.HTML;
-            break;
-          case 3:
-            // Was Both. If autoDowngrade was true, this is the same as the
-            // new Auto default. Otherwise, keep as Both.
-            sendFormat = autoDowngrade
-              ? Ci.nsIMsgCompSendFormat.Auto
-              : Ci.nsIMsgCompSendFormat.Both;
-            break;
-          default:
-            sendFormat = Ci.nsIMsgCompSendFormat.Auto;
-            break;
-        }
-        Services.prefs.setIntPref("mail.default_send_format", sendFormat);
-      }
-
       if (currentUIVersion < 35) {
         // Both IMAP and POP settings currently use this domain
         this._migrateIncomingToOAuth2("outlook.office365.com");
@@ -336,7 +216,6 @@ export var MailMigrator = {
    * been loaded.
    */
   migrateAtProfileStartup() {
-    lazy.migrateMailnews();
     this._migrateUI();
   },
 };

@@ -121,7 +121,6 @@ EXTRA_JS_MODULES += [
     "MailAuthenticator.sys.mjs",
     "MailChannel.sys.mjs",
     "MailCryptoUtils.sys.mjs",
-    "MailnewsMigrator.sys.mjs",
     "MailNotificationManager.sys.mjs",
     "MailNotificationService.sys.mjs",
     "MailServices.sys.mjs",

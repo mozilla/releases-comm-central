@@ -204,41 +204,6 @@ function loadInboxForNewAccount() {
   }
 }
 
-// returns true if we migrated - it knows this because 4.x did not have the
-// pref mailnews.quotingPrefs.version, so if it's not set, we're either
-// migrating from 4.x, or a much older version of Mozilla.
-function migrateGlobalQuotingPrefs(allIdentities) {
-  // if reply_on_top and auto_quote exist then, if non-default
-  // migrate and delete, if default just delete.
-  var reply_on_top = 0;
-  var auto_quote = true;
-  var quotingPrefs = Services.prefs.getIntPref(
-    "mailnews.quotingPrefs.version",
-    0
-  );
-  var migrated = false;
-
-  // If the quotingPrefs version is 0 then we need to migrate our preferences
-  if (quotingPrefs == 0) {
-    migrated = true;
-    try {
-      reply_on_top = Services.prefs.getIntPref("mailnews.reply_on_top");
-      auto_quote = Services.prefs.getBoolPref("mail.auto_quote");
-    } catch (ex) {}
-
-    if (!auto_quote || reply_on_top) {
-      for (const identity of allIdentities) {
-        if (identity.valid) {
-          identity.autoQuote = auto_quote;
-          identity.replyOnTop = reply_on_top;
-        }
-      }
-    }
-    Services.prefs.setIntPref("mailnews.quotingPrefs.version", 1);
-  }
-  return migrated;
-}
-
 /**
  * Open the Account Setup Tab or focus it if it's already open.
  */

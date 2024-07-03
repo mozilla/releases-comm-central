@@ -387,26 +387,15 @@ var gMailInit = {
  */
 function verifyExistingAccounts() {
   try {
-    // Migrate quoting preferences from global to per account. This function
-    // returns true if it had to migrate, which we will use to mean this is a
-    // just migrated or new profile.
-    let newProfile = migrateGlobalQuotingPrefs(
-      MailServices.accounts.allIdentities
-    );
-
+    let newProfile = true;
     // If there are no accounts, or all accounts are "invalid" then kick off the
     // account migration. Or if this is a new (to Mozilla) profile. MCD can set
     // up accounts without the profile being used yet.
-    if (newProfile) {
-      // Check if MCD is configured. If not, say this is not a new profile so
-      // that we don't accidentally remigrate non MCD profiles.
-      var adminUrl = Services.prefs.getCharPref(
-        "autoadmin.global_config_url",
-        ""
-      );
-      if (!adminUrl) {
-        newProfile = false;
-      }
+
+    // Check if MCD is configured. If not, say this is not a new profile so
+    // that we don't accidentally remigrate non MCD profiles.
+    if (!Services.prefs.getCharPref("autoadmin.global_config_url", "")) {
+      newProfile = false;
     }
 
     const accounts = MailServices.accounts.accounts;
@@ -450,7 +439,7 @@ function verifyExistingAccounts() {
  */
 function switchToMailTab() {
   const tabmail = document.getElementById("tabmail");
-  if (tabmail?.selectedTab.mode.name != "folder") {
+  if (tabmail?.selectedTab.mode.name != "mail3PaneTab") {
     tabmail.switchToTab(0);
   }
 }

@@ -504,11 +504,6 @@ pref("spellchecker.dictionary", "");
 // Dictionary download preference
 pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/dictionaries/");
 
-// profile.force.migration can be used to bypass the migration wizard, forcing migration from a particular
-// mail application without any user intervention. Possible values are:
-// seamonkey (mozilla suite) and outlook.
-pref("profile.force.migration", "");
-
 // prefs to control the mail alert notification
 #ifndef XP_MACOSX
 pref("alerts.totalOpenTime", 10000);
@@ -683,9 +678,6 @@ pref("font.size.variable.el", 15);
 pref("font.size.monospace.el", 12);
 #endif
 
-// Since different versions of Windows need different settings, we'll handle
-// this in MailMigrator.sys.mjs.
-
 // Linux, in other words.  Other OSes may wish to override.
 #ifdef UNIX_BUT_NOT_MAC
 // The font.name-list fallback is defined in case font.name isn't
@@ -841,10 +833,6 @@ pref("privacy.userContext.enabled", false);
 // Set to true to add toggles to the WebRTC indicator for globally
 // muting the camera and microphone.
 pref("privacy.webrtc.globalMuteToggles", false);
-
-// If set to true, Thunderbird will collapse the main menu for new profiles
-// (or, more precisely, profiles that start with no accounts created).
-pref("mail.main_menu.collapse_by_default", true);
 
 // If set to true, when saving a message to a file, use underscore
 // instead of space in the file name.

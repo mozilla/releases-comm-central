@@ -381,8 +381,6 @@ pref("mailnews.localizedRe", "chrome://messenger-region/locale/region.properties
 pref("mailnews.search_date_format", "chrome://messenger/locale/messenger.properties");
 pref("mailnews.search_date_separator", "chrome://messenger/locale/messenger.properties");
 pref("mailnews.search_date_leading_zeros", "chrome://messenger/locale/messenger.properties");
-// used to decide whether to migrate global quoting prefs
-pref("mailnews.quotingPrefs.version", 0);
 
 // the first time, we'll warn the user about the blind send, and they can disable the warning if they want.
 pref("mapi.blind-send.enabled", true);
@@ -443,10 +441,6 @@ pref("ldap_2.servers.default.attrmap.Custom3", "mozillaCustom3,custom3");
 pref("ldap_2.servers.default.attrmap.Custom4", "mozillaCustom4,custom4");
 pref("ldap_2.servers.default.attrmap.Notes", "description,notes");
 pref("ldap_2.servers.default.attrmap.LastModifiedDate", "modifytimestamp");
-
-pref("ldap_2.user_id", 0);
-// Update kCurrentListVersion in include/dirprefs.h if you change this
-pref("ldap_2.version", 3);
 
 pref("mailnews.ldap.loglevel", "Warn");
 
@@ -921,32 +915,6 @@ pref("mailnews.show_send_progress", true);
 pref("mail.server.default.retainBy", 1);
 
 pref("mailnews.ui.junk.manualMarkAsJunkMarksRead", true);
-
-// for manual upgrades of certain UI features.
-// 1 -> 2 is for the folder pane tree landing, to hide the
-// unread and total columns, see messenger.js
-pref("mail.ui.folderpane.version", 1);
-
-// for manual upgrades of certain UI features.
-// 1 -> 2 is for the ab results pane tree landing
-// to hide the non default columns in the addressbook dialog
-// see abCommon.js and addressbook.js
-pref("mailnews.ui.addressbook_results.version", 1);
-// for manual upgrades of certain UI features.
-// 1 -> 2 is for the ab results pane tree landing
-// to hide the non default columns in the addressbook sidebar panel
-// see abCommon.js and addressbook-panel.js
-pref("mailnews.ui.addressbook_panel_results.version", 1);
-// for manual upgrades of certain UI features.
-// 1 -> 2 is for the ab results pane tree landing
-// to hide the non default columns in the select addresses dialog
-// see abCommon.js and abSelectAddressesDialog.js
-pref("mailnews.ui.select_addresses_results.version", 1);
-// for manual upgrades of certain UI features.
-// 1 -> 2 is for the ab results pane
-// to hide the non default columns in the advanced directory search dialog
-// see abCommon.js and abSearchDialog.js
-pref("mailnews.ui.advanced_directory_search_results.version", 1);
 
 // default description and color prefs for tags
 // (we keep the .labels. names for backwards compatibility)
