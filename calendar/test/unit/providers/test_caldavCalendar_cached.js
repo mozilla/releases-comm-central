@@ -98,6 +98,38 @@ add_task(async function testModifyItemWithNoChanges() {
 });
 
 /**
+ * Test that adding an ICS item with some special characters in its UID
+ * generates a correct HTTP PUT request.
+ */
+add_task(async function testPutSpecialCharactersInUID() {
+  const calendar = createCalendar("caldav", CalDAVServer.url, false);
+
+  const event = new CalEvent();
+  event.id = "this/id@has/weird characters#in-it";
+  event.title = "A New Event with weird characters in its UID";
+  event.startDate = cal.createDateTime("20200303T205500Z");
+  event.endDate = cal.createDateTime("20200303T210200Z");
+
+  calendarObserver._batchRequired = true;
+  calendarObserver._onLoadPromise = Promise.withResolvers();
+  calendarObserver._onAddItemPromise = Promise.withResolvers();
+  const storedEvent = await calendar.addItem(event);
+  await Promise.any([
+    calendarObserver._onLoadPromise.promise,
+    calendarObserver._onAddItemPromise.promise,
+  ]);
+
+  // The event is stored with its original uid in the calendar.
+  Assert.ok(
+    await calendar.getItem("this/id@has/weird characters#in-it"),
+    "the event has not been stored successfully"
+  );
+
+  await calendar.deleteItem(storedEvent);
+  cal.manager.unregisterCalendar(calendar);
+});
+
+/**
  * Tests that an error response from the server when syncing doesn't delete
  * items from the local calendar.
  */

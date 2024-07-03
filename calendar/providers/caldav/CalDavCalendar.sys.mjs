@@ -26,6 +26,7 @@ import { CalReadableStreamFactory } from "resource:///modules/CalReadableStreamF
 
 var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
+var FORBIDDEN_PATH_CHARACTERS = /[^a-zA-Z0-9_\-\.]/g;
 
 var cIOL = Ci.calIOperationListener;
 const lazy = {};
@@ -467,7 +468,7 @@ CalDavCalendar.prototype = {
       return this.mItemInfoCache[aItem.id].locationPath;
     }
     // New items just use id.ics
-    return aItem.id + ".ics";
+    return aItem.id.replaceAll(FORBIDDEN_PATH_CHARACTERS, "_") + ".ics";
   },
 
   getProperty(aName) {
