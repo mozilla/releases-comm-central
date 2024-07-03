@@ -15,28 +15,6 @@ function test_discoverSubFolders() {
   mailbox.msgStore.discoverSubFolders(mailbox, true);
 }
 
-function test_sliceStream() {
-  const mailbox = setup_mailbox("none", create_temporary_directory());
-
-  const str = "Just a test string.";
-  const strStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-    Ci.nsIStringInputStream
-  );
-  strStream.setData(str, str.length);
-
-  const sliced = mailbox.msgStore.sliceStream(strStream, 7, 4);
-
-  const s = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-    Ci.nsIScriptableInputStream
-  );
-  s.init(sliced);
-
-  const chunk = s.read(1024);
-  Assert.equal(chunk, "test", "Check we got the expected subset.");
-  Assert.equal(s.available(), 0, "Check no more bytes available.");
-  Assert.equal(s.read(1024), "", "Check read() returns EOF.");
-}
-
 // Load messages into a msgStore and make sure we can read
 // them back correctly using asyncScan().
 async function test_AsyncScan() {
@@ -90,6 +68,5 @@ function withStore(store, fn) {
 
 for (const store of localAccountUtils.pluggableStores) {
   add_task(withStore(store, test_discoverSubFolders));
-  add_task(withStore(store, test_sliceStream));
   add_task(withStore(store, test_AsyncScan));
 }

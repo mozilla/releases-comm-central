@@ -1355,16 +1355,6 @@ nsresult nsMsgMaildirStore::CreateDirectoryForFolder(nsIFile* path,
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgMaildirStore::SliceStream(nsIInputStream* inStream, uint64_t start,
-                               uint32_t length, nsIInputStream** result) {
-  nsCOMPtr<nsIInputStream> in(inStream);
-  RefPtr<mozilla::SlicedInputStream> slicedStream =
-      new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
-  slicedStream.forget(result);
-  return NS_OK;
-}
-
 // For maildir store, our estimate is just the total of the file sizes.
 NS_IMETHODIMP nsMsgMaildirStore::EstimateFolderSize(nsIMsgFolder* folder,
                                                     int64_t* size) {

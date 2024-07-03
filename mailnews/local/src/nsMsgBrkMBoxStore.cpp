@@ -1643,16 +1643,6 @@ nsresult nsMsgBrkMBoxStore::CreateDirectoryForFolder(nsIFile* path) {
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgBrkMBoxStore::SliceStream(nsIInputStream* inStream, uint64_t start,
-                               uint32_t length, nsIInputStream** result) {
-  nsCOMPtr<nsIInputStream> in(inStream);
-  RefPtr<mozilla::SlicedInputStream> slicedStream =
-      new mozilla::SlicedInputStream(in.forget(), start, uint64_t(length));
-  slicedStream.forget(result);
-  return NS_OK;
-}
-
 // For mbox store, we'll just use mbox file size as our estimate.
 NS_IMETHODIMP nsMsgBrkMBoxStore::EstimateFolderSize(nsIMsgFolder* folder,
                                                     int64_t* size) {

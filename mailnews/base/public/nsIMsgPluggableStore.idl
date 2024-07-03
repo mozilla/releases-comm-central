@@ -200,23 +200,6 @@ interface nsIMsgPluggableStore : nsISupports {
                                    in ACString aMsgToken);
 
   /**
-   * This is a hack to expose to allow JsAccount folders to implement a
-   * working getLocalMsgStream().
-   * It just provides a way to construct a SlicedInputStream from JS.
-   * It'll be removed once Bug 1733849 is complete.
-   *
-   * @param inStream The stream providing the data to be sliced.
-   *                 Should not be read after calling this function.
-   * @param start Where slice begins, from current position of inStream.
-   * @param length The size of the slice.
-   *
-   * @return A new input stream which produces the data slice when read from.
-   */
-  nsIInputStream sliceStream(in nsIInputStream inStream,
-                             in unsigned long long start,
-                             in unsigned long length);
-
-  /**
    * Delete the passed in messages. These message should all be in the
    * same folder.
    * @param aHdrArray array of nsIMsgDBHdr's.
