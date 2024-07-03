@@ -23,8 +23,8 @@
 }
 
 #unifinder-search-results-tree {
+  appearance: none;
   margin: 0;
-  border: 0;
 }
 
 :root[lwt-tree] #unifinder-searchBox {
