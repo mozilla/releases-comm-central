@@ -66,6 +66,7 @@ const folderPaneContextData = {
   "folderPaneContext-properties": [...realFolders, "virtual", "nntpGroup"],
   "folderPaneContext-markAllFoldersRead": [...servers],
   "folderPaneContext-settings": [...servers],
+  "folderPaneContext-filters": [...servers],
   "folderPaneContext-manageTags": ["tags"],
 };
 
@@ -475,9 +476,13 @@ add_task(async function testNewRenameDelete() {
 });
 
 /**
- * Tests "Properties" (folders) and "Settings" (servers).
+ * Tests "Properties" (folders), "Settings" and "Message Filters" (servers).
  */
-add_task(async function testPropertiesSettings() {
+add_task(async function testPropertiesSettingsFilters() {
+  // Open a folder that isn't the subject of this test. This proves that these
+  // menu commands used the right-clicked-on folder, not the current folder.
+  leftClickOn(inboxFolder);
+
   const folderPropsPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://messenger/content/folderProps.xhtml",
@@ -497,7 +502,6 @@ add_task(async function testPropertiesSettings() {
       },
     }
   );
-  leftClickOn(plainFolder);
   await rightClickAndActivate(plainFolder, "folderPaneContext-properties");
   await folderPropsPromise;
 
@@ -524,7 +528,6 @@ add_task(async function testPropertiesSettings() {
       },
     }
   );
-  leftClickOn(virtualFolder);
   await rightClickAndActivate(virtualFolder, "folderPaneContext-properties");
   await virtualPropsPromise;
 
@@ -532,7 +535,6 @@ add_task(async function testPropertiesSettings() {
     tabmail.tabContainer,
     "TabOpen"
   );
-  leftClickOn(rootFolder);
   await rightClickAndActivate(rootFolder, "folderPaneContext-settings");
   const {
     detail: { tabInfo },
@@ -556,6 +558,27 @@ add_task(async function testPropertiesSettings() {
     "account should be selected"
   );
   tabmail.closeTab(tabInfo);
+
+  const filtersPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/FilterListDialog.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const serverMenu = doc.getElementById("serverMenu");
+
+        Assert.equal(serverMenu.value, rootFolder.URI);
+
+        EventUtils.synthesizeKey("KEY_Escape", {}, win);
+      },
+    }
+  );
+  await rightClickAndActivate(rootFolder, "folderPaneContext-filters");
+  await filtersPromise;
+
+  await SimpleTest.promiseFocus(window);
 });
 
 /**

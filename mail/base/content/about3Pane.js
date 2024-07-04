@@ -659,6 +659,7 @@ var folderPaneContextMenu = {
     this._showMenuItem("folderPaneContext-markAllFoldersRead", isServer);
 
     this._showMenuItem("folderPaneContext-settings", isServer);
+    this._showMenuItem("folderPaneContext-filters", isServer);
 
     this._showMenuItem("folderPaneContext-manageTags", isSmartTagsFolder);
 
@@ -728,6 +729,7 @@ var folderPaneContextMenu = {
     this._showMenuItem("folderPaneContext-sendUnsentMessages", false);
     this._showMenuItem("folderPaneContext-markAllFoldersRead", false);
     this._showMenuItem("folderPaneContext-settings", false);
+    this._showMenuItem("folderPaneContext-filters", false);
     this._showMenuItem("folderPaneContext-manageTags", false);
 
     // Show only the standard commands that don't require special conditions.
@@ -914,6 +916,9 @@ var folderPaneContextMenu = {
         break;
       case "folderPaneContext-settings":
         folderPane.editFolder(folder);
+        break;
+      case "folderPaneContext-filters":
+        topChromeWindow.MsgFilters(undefined, folder);
         break;
       case "folderPaneContext-manageTags":
         goDoCommand("cmd_manageTags");
