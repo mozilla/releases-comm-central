@@ -272,8 +272,8 @@ add_task(async () => {
 
   // Test reordering calendars.
 
-  const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+  const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+  dragService.startDragSessionForTests(window, Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
   await new Promise(resolve => window.setTimeout(resolve));
 
@@ -292,7 +292,7 @@ add_task(async () => {
 
   EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, calendarList.rows[0]);
   EventUtils.sendDragEvent({ type: "dragend" }, calendarList.rows[0]);
-  dragSession.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
   await new Promise(resolve => setTimeout(resolve));
 
   checkSortOrder(3, 0, 1, 2);

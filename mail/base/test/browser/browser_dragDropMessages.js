@@ -52,6 +52,7 @@ add_setup(async function () {
 add_task(async function testDragMessageSource() {
   function beginDrag(index) {
     dragService.startDragSessionForTests(
+      about3Pane,
       Ci.nsIDragService.DRAGDROP_ACTION_NONE
     );
 
@@ -184,7 +185,7 @@ add_task(async function testDragMessageSource() {
       {}
     );
 
-    dragService.endDragSession(true);
+    dragService.getCurrentSession().endDragSession(true);
   }
 
   function checkMove([isMove, , destFolder, destMessages], expectedMessageIDs) {
@@ -285,7 +286,10 @@ add_task(async function testDragMessageDestination() {
   });
   ensure_table_view();
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    about3Pane,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
   let result, dataTransfer;
 
   function dragOver(folder, modifiers, expectedEffect) {
@@ -332,7 +336,7 @@ add_task(async function testDragMessageDestination() {
     { type: "dragend" }
   );
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 });
 
 /**
@@ -350,6 +354,7 @@ add_task(async function testDragImportFileMessage() {
       }
     }
     dragService.startDragSessionForTests(
+      about3Pane,
       Ci.nsIDragService.DRAGDROP_ACTION_MOVE
     );
     const session = dragService.getCurrentSession();
@@ -380,7 +385,7 @@ add_task(async function testDragImportFileMessage() {
       about3Pane,
       {}
     );
-    dragService.endDragSession(true);
+    dragService.getCurrentSession().endDragSession(true);
     return movePromise;
   }
 

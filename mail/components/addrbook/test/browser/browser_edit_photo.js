@@ -78,7 +78,10 @@ function dropFile(target, path) {
   dataTransfer.dropEffect = "copy";
   dataTransfer.mozSetDataAt("application/x-moz-file", file, 0);
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_COPY);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_COPY
+  );
   dragService.getCurrentSession().dataTransfer = dataTransfer;
 
   EventUtils.synthesizeDragOver(
@@ -97,7 +100,7 @@ function dropFile(target, path) {
     _domDispatchOnly: true,
   });
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 }
 
 function checkDialogElements({

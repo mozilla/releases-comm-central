@@ -61,7 +61,10 @@ async function startDrag(index, shouldWait = false) {
   const clientY = listRect.top + index * 32 + 4;
 
   const transitionPromise = waitForTransition(shouldWait);
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    win,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
   [, dataTransfer] = EventUtils.synthesizeDragOver(
     list.rows[index],
     list,
@@ -114,7 +117,7 @@ async function endDrag(index, shouldWait = false) {
     _domDispatchOnly: true,
   });
   list.dispatchEvent(new CustomEvent("dragend", { bubbles: true }));
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   await transitionPromise;
 }

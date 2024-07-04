@@ -48,7 +48,10 @@ async function startDrag(element, target) {
   const elementRow = about3Pane.folderPane.getRowForFolder(element);
   const targetRow = about3Pane.folderPane.getRowForFolder(target);
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+  dragService.startDragSessionForTests(
+    about3Pane,
+    Ci.nsIDragService.DRAGDROP_ACTION_MOVE
+  );
   [result, dataTransfer] = EventUtils.synthesizeDragOver(
     elementRow,
     targetRow,
@@ -77,7 +80,7 @@ async function endDrag(target) {
     about3Pane,
     { type: "drop" }
   );
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
   await new Promise(resolve => setTimeout(resolve));
 }
 

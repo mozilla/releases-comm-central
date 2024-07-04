@@ -70,7 +70,7 @@ function getDropTarget(win) {
   return win.document.getElementById("dropAttachmentOverlay");
 }
 
-function initDragSession({ dragData, dropEffect }) {
+function initDragSession(win, dragData, dropEffect) {
   let dropAction;
   switch (dropEffect) {
     case null:
@@ -98,7 +98,7 @@ function initDragSession({ dragData, dropEffect }) {
     }
   }
 
-  dragService.startDragSessionForTests(dropAction);
+  dragService.startDragSessionForTests(win, dropAction);
   const session = dragService.getCurrentSession();
   session.dataTransfer = dataTransfer;
 
@@ -113,7 +113,7 @@ async function simulateDragAndDrop(win, dragData, type) {
   const dragOverTarget = getDragOverTarget(win);
   const dropEffect = "move";
 
-  const session = initDragSession({ dragData, dropEffect });
+  const session = initDragSession(win, dragData, dropEffect);
 
   info("Simulate drag over and wait for the drop target to be visible");
 
@@ -188,7 +188,7 @@ async function simulateDragAndDrop(win, dragData, type) {
     );
   }
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 }
 
 /**
@@ -487,7 +487,10 @@ async function drag_between_buckets(srcBucket, destBucket) {
   const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(
     Ci.nsIDragService
   );
-  dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+  dragSession.startDragSessionForTests(
+    srcBucket.ownerGlobal,
+    Ci.nsIDragService.DRAGDROP_ACTION_MOVE
+  );
 
   // NOTE: Attachment #4 is never dragged from the source to the destination
   // bucket as part of this test.
@@ -529,7 +532,7 @@ async function drag_between_buckets(srcBucket, destBucket) {
   ]);
   destUrls.push(attachmentSet[5].url.split("=").pop());
   await moveAttachments(attachmentSet[1].srcItem, destBucket, destUrls);
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 }
 
 /**

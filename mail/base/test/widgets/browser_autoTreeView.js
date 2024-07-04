@@ -341,6 +341,7 @@ add_task(async function () {
       Ci.nsIDragService
     );
     dragService.startDragSessionForTests(
+      win,
       Ci.nsIDragService.DRAGDROP_ACTION_NONE
     );
 
@@ -387,7 +388,7 @@ add_task(async function () {
     );
 
     headerRow.dispatchEvent(new CustomEvent("dragend", { bubbles: true }));
-    dragService.endDragSession(true);
+    dragService.getCurrentSession().endDragSession(true);
   }
   dragColumn(0, 1); // Drag colour to between continent and wonder.
 

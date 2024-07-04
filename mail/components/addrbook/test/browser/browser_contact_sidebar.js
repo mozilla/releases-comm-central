@@ -480,6 +480,7 @@ add_task(async function testSidebar() {
     clickOnRow(5, {});
 
     dragService.startDragSessionForTests(
+      sidebarWindow,
       Ci.nsIDragService.DRAGDROP_ACTION_NONE
     );
     const [result, dataTransfer] = EventUtils.synthesizeDragOver(
@@ -497,7 +498,7 @@ add_task(async function testSidebar() {
       composeWindow
     );
 
-    dragService.endDragSession(true);
+    dragService.getCurrentSession().endDragSession(true);
     checkPills(toAddrRow, ["năthån test <năthån.test@invalid>"]);
 
     clearPills();

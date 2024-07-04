@@ -167,8 +167,8 @@ add_task(async function testMonthViewDragEventItem() {
 
   let eventItem = await CalendarTestUtils.monthView.waitForItemAt(window, 3, 3, 1);
   const dayBox = await CalendarTestUtils.monthView.getDayBox(window, 3, 2);
-  const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+  const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+  dragService.startDragSessionForTests(window, Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
   const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     eventItem,
@@ -179,7 +179,7 @@ add_task(async function testMonthViewDragEventItem() {
     dayBox.ownerGlobal
   );
   EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
-  dragSession.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   Assert.ok(
     !CalendarTestUtils.monthView.getItemAt(window, 3, 3, 1),
@@ -213,8 +213,8 @@ add_task(async function testMultiWeekViewDragEventItem() {
 
   let eventItem = await CalendarTestUtils.multiweekView.waitForItemAt(window, 1, 3, 1);
   const dayBox = await CalendarTestUtils.multiweekView.getDayBox(window, 1, 2);
-  const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+  const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+  dragService.startDragSessionForTests(window, Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
   const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     eventItem,
@@ -225,7 +225,7 @@ add_task(async function testMultiWeekViewDragEventItem() {
     dayBox.ownerGlobal
   );
   EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, dayBox);
-  dragSession.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   Assert.ok(
     !CalendarTestUtils.multiweekView.getItemAt(window, 1, 3, 1),

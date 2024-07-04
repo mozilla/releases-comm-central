@@ -36,7 +36,10 @@ function doDragToBooksList(sourceIndex, destIndex, modifiers, expectedEffect) {
   const abWindow = getAddressBookWindow();
   const booksList = abWindow.document.getElementById("books");
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
 
   const [result, dataTransfer] = doDrag(
     sourceIndex,
@@ -53,7 +56,7 @@ function doDragToBooksList(sourceIndex, destIndex, modifiers, expectedEffect) {
     modifiers
   );
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 }
 
 async function doDragToComposeWindow(sourceIndices, expectedPills) {
@@ -75,7 +78,10 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   const abWindow = getAddressBookWindow();
   const cardsList = abWindow.document.getElementById("cards");
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
 
   cardsList.selectedIndices = sourceIndices;
   const [result, dataTransfer] = EventUtils.synthesizeDragOver(
@@ -93,7 +99,7 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
     composeWindow
   );
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   const pills = toAddrRow.querySelectorAll("mail-address-pill");
   Assert.equal(pills.length, expectedPills.length);
@@ -226,22 +232,31 @@ add_task(async function test_drag() {
 
   // Drag just contact1.
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
   let [, dataTransfer] = doDrag(0, null, {}, "none");
   await check([contact1]);
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   // Drag contact2 without selecting it.
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
   [, dataTransfer] = doDrag(1, null, {}, "none");
   await check([contact2]);
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   // Drag all contacts.
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(2),
     { shiftKey: true },
@@ -249,7 +264,7 @@ add_task(async function test_drag() {
   );
   [, dataTransfer] = doDrag(0, null, {}, "none");
   await check([contact1, contact2, contact3]);
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   await closeAddressBookWindow();
 
@@ -283,7 +298,10 @@ add_task(async function test_drop_on_books_list() {
   Assert.equal(cardsList.view.rowCount, 4);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
 
   doDrag(0, 0, {}, "none"); // All Address Books
   doDrag(0, 0, { ctrlKey: true }, "none");
@@ -306,14 +324,17 @@ add_task(async function test_drop_on_books_list() {
   doDrag(0, 6, {}, "move"); // Collected Addresses
   doDrag(0, 6, { ctrlKey: true }, "copy");
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   // Check drag effect set correctly for dragging a list.
 
   Assert.equal(cardsList.view.rowCount, 4);
   EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(3), {}, abWindow);
 
-  dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
+  dragService.startDragSessionForTests(
+    abWindow,
+    Ci.nsIDragService.DRAGDROP_ACTION_NONE
+  );
 
   doDrag(3, 0, {}, "none"); // All Address Books
   doDrag(3, 0, { ctrlKey: true }, "none");
@@ -336,7 +357,7 @@ add_task(async function test_drop_on_books_list() {
   doDrag(3, 6, {}, "none"); // Collected Addresses
   doDrag(3, 6, { ctrlKey: true }, "none");
 
-  dragService.endDragSession(true);
+  dragService.getCurrentSession().endDragSession(true);
 
   // Drag contact1 into sourceList.
 
