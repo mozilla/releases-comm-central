@@ -414,6 +414,53 @@ add_task(async function test_filter_text_constraints_propagate() {
 });
 
 /**
+ * The loading icon appears when a "searching" classname is attached to the
+ * quick filter bar. It should disappear when the results are found. This test
+ * runs successfully when there are messsages in the folder being searched.
+ */
+add_task(async function test_loading_icon() {
+  const folder = await create_folder("QuickFilterBarTextSingleWordLoading");
+  const whoFoo = ["zabba", "foo@madeup.invalid"];
+  await make_message_sets_in_folders(
+    [folder],
+    [
+      { count: 1 },
+      { count: 1, from: whoFoo },
+      { count: 1, to: [whoFoo] },
+      { count: 1, subject: "foo" },
+      { count: 1, body: { body: "foo" } },
+    ]
+  );
+  await be_in_folder(folder);
+
+  const about3Pane = get_about_3pane();
+  const searchBar = about3Pane.document.getElementById("qfb-qs-textbox");
+  const eventPromise = BrowserTestUtils.waitForEvent(searchBar, "autocomplete");
+
+  searchBar.focus();
+  EventUtils.sendString("foo", searchBar.ownerGlobal);
+  await BrowserTestUtils.waitForMutationCondition(
+    about3Pane.document.getElementById("quick-filter-bar"),
+    { attributeFilter: ["class"] },
+    () =>
+      about3Pane.document
+        .getElementById("quick-filter-bar")
+        .classList.contains("searching")
+  );
+
+  const throbber = about3Pane.document.getElementById("qfb-searching-throbber");
+  Assert.ok(
+    BrowserTestUtils.isVisible(throbber),
+    "Throbber should be visible during the search"
+  );
+  await eventPromise;
+  Assert.ok(
+    BrowserTestUtils.isHidden(throbber),
+    "Throbber should be hidden during the search"
+  );
+});
+
+/**
  * Here is what the results label does:
  * - No filter active: results label is not visible.
  * - Filter active, messages: it says the number of messages.

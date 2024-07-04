@@ -467,6 +467,10 @@ var quickFilterBar = {
         threadPane.setAttribute("filterActive", "searching");
         this.domNode.setAttribute("filterActive", "searching");
       }, 500);
+
+      this.domNode.classList.add("searching");
+    } else {
+      this.domNode.classList.remove("searching");
     }
   },
 
