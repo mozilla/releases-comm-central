@@ -770,15 +770,22 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
                                   nsAString& aValue) {
   if (!IsValidIndex(aRow)) return NS_MSG_INVALID_DBVIEW_INDEX;
 
-  if (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) ||
-      aColumnName.EqualsLiteral("unreadCol") ||
-      aColumnName.EqualsLiteral("newCol"))
-    return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
+  bool isTotalCol = aColumnName.EqualsLiteral("totalCol");
 
-  // We only treat "subject" and "total" here.
-  bool isSubject;
-  if (!(isSubject = aColumnName.EqualsLiteral("subjectCol")) &&
-      !aColumnName.EqualsLiteral("totalCol")) {
+  if (!((m_viewFlags & nsMsgViewFlagsType::kGroupBySort) && isTotalCol) &&
+      (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) ||
+       aColumnName.EqualsLiteral("unreadCol") ||
+       aColumnName.EqualsLiteral("newCol"))) {
+    return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
+  }
+
+  bool isSubjectCol = aColumnName.EqualsLiteral("subjectCol");
+
+  if (!isSubjectCol && !isTotalCol) {
+    // We only treat "subject" and "total" here.
+    // The "subject" of the group row will be formed by the group-by criteria.
+    // Here we also handle totalCol - for non-dummy rows.
+    // Other rows won't be processed here.
     return NS_OK;
   }
 
@@ -792,7 +799,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
   m_groupsTable.Get(hashKey, getter_AddRefs(msgThread));
   nsMsgGroupThread* groupThread =
       static_cast<nsMsgGroupThread*>(msgThread.get());
-  if (isSubject) {
+  if (isSubjectCol) {
     uint32_t flags;
     bool rcvDate = false;
     msgHdr->GetFlags(&flags);
@@ -895,11 +902,13 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         NS_ASSERTION(false, "we don't sort by group for this type");
         break;
     }
-  } else {
+  } else if (isTotalCol) {
     nsAutoString formattedCountString;
     uint32_t numChildren = (groupThread) ? groupThread->NumRealChildren() : 0;
     formattedCountString.AppendInt(numChildren);
     aValue.Assign(formattedCountString);
+  } else {
+    MOZ_ASSERT_UNREACHABLE("only handling subjectCol and totalCol");
   }
   return NS_OK;
 }
