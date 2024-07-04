@@ -14,9 +14,6 @@
 /* stylelint-disable-next-line media-query-no-invalid */
 @media (-moz-bool-pref: "mail.theme.macos.native-theme") {
   :root:not([lwtheme]) {
-    -moz-default-appearance: -moz-mac-unified-toolbar-window;
-    appearance: auto;
-
     #compose-toolbox {
       background: transparent;
 

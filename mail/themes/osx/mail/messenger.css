@@ -11,9 +11,6 @@
 /* stylelint-disable-next-line media-query-no-invalid */
 @media (-moz-bool-pref: "mail.theme.macos.native-theme") {
   :root[tabsintitlebar]:not([lwtheme]) {
-    -moz-default-appearance: -moz-mac-unified-toolbar-window;
-    appearance: auto;
-
     #navigation-toolbox {
       background: transparent;
 
