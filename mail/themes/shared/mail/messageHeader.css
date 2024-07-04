@@ -854,9 +854,6 @@ button.email-action-flagged {
 .header-message-url a {
   display: inline-block;
   max-width: 80vw;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .tags-list {
