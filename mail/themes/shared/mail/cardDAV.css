@@ -12,7 +12,7 @@
   &[status=error] {
     background-color: #FFE900;
     border-color: #F2D00F;
-    color: -moz-DialogText;
+    color: var(--color-ink-90);
   }
 
   &[status=loading] {
