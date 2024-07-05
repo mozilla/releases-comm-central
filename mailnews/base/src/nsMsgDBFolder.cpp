@@ -296,10 +296,10 @@ NS_IMETHODIMP nsMsgDBFolder::Shutdown(bool shutdownChildren) {
     mDatabase->RemoveListener(this);
     mDatabase->ForceClosed();
     mDatabase = nullptr;
-    if (mBackupDatabase) {
-      mBackupDatabase->ForceClosed();
-      mBackupDatabase = nullptr;
-    }
+  }
+  if (mBackupDatabase) {
+    mBackupDatabase->ForceClosed();
+    mBackupDatabase = nullptr;
   }
 
   if (shutdownChildren) {
