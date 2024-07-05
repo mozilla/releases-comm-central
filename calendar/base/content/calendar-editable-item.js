@@ -108,9 +108,14 @@
         }
       });
 
-      // We have two event listeners for dragstart. This event listener is for the bubbling phase.
       this.addEventListener("dragstart", event => {
-        if (document.monthDragEvent?.localName == "calendar-event-box") {
+        let target = event.target;
+        if (target?.nodeType == Node.TEXT_NODE) {
+          target = target.parentNode;
+        }
+        if (!target.closest(`[draggable="true"]`)) {
+          // Day/week view items are not draggable, because the day view does
+          // dragging with mouse event handlers instead of drag event handlers.
           return;
         }
         const item = this.occurrence;
@@ -126,7 +131,7 @@
         if (!this.selected) {
           this.select(event);
         }
-        invokeEventDragSession(item, this);
+        invokeEventDragSession(event, item);
       });
     }
 
@@ -154,18 +159,6 @@
       );
 
       this.classList.add("calendar-color-box", "calendar-item-container");
-
-      // We have two event listeners for dragstart. This event listener is for the capturing phase
-      // where we are setting up the document.monthDragEvent which will be used in the event listener
-      // in the bubbling phase.
-      this.addEventListener(
-        "dragstart",
-        () => {
-          document.monthDragEvent = this;
-        },
-        true
-      );
-
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
       this.setAttribute("tabindex", "-1");

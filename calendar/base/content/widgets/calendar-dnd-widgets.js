@@ -107,7 +107,11 @@
     }
 
     onDragStart(event) {
-      const draggedDOMNode = document.monthDragEvent || event.target;
+      let target = event.target;
+      if (target?.nodeType == Node.TEXT_NODE) {
+        target = target.parentNode;
+      }
+      const draggedDOMNode = target.closest(`[draggable="true"]`);
       if (!draggedDOMNode?.occurrence || !this.contains(draggedDOMNode)) {
         return;
       }
@@ -131,8 +135,7 @@
     }
 
     onDragOver(event) {
-      const session = cal.dragService.getCurrentSession();
-      if (!session?.sourceNode?.sourceObject) {
+      if (!event.dataTransfer.mozTypesAt(0).contains("application/vnd.x-moz-cal-item")) {
         // No source item? Then this is not for us.
         return;
       }
@@ -142,8 +145,7 @@
     }
 
     onDragEnter(event) {
-      const session = cal.dragService.getCurrentSession();
-      if (!session?.sourceNode?.sourceObject) {
+      if (!event.dataTransfer.mozTypesAt(0).contains("application/vnd.x-moz-cal-item")) {
         // No source item? Then this is not for us.
         return;
       }
@@ -164,12 +166,11 @@
     }
 
     onDrop(event) {
-      const session = cal.dragService.getCurrentSession();
-      const item = session?.sourceNode?.sourceObject;
-      if (!item) {
+      if (!event.dataTransfer.mozTypesAt(0).contains("application/vnd.x-moz-cal-item")) {
         // No source node? Not our drag.
         return;
       }
+      const item = event.dataTransfer.mozGetDataAt("application/vnd.x-moz-cal-item", 0);
       this.setAttribute("dropbox", "false");
       const newItem = this.onDropItem(item).clone();
       const newStart = newItem.startDate || newItem.entryDate || newItem.dueDate;

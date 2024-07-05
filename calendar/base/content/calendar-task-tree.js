@@ -258,7 +258,7 @@
         if (!item || item.calendar.readOnly) {
           return;
         }
-        invokeEventDragSession(item, event.target);
+        invokeEventDragSession(event, item);
       });
 
       this.mTaskArray = [];

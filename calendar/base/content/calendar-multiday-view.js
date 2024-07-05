@@ -921,7 +921,6 @@
           col.calendarView.setSelectedItems([event.ctrlKey ? item.parentItem : item]);
         }
         // NOTE: Dragging to the allday header will fail (bug 1675056).
-        invokeEventDragSession(dragState.dragOccurrence, col);
         return;
       }
 
@@ -1743,17 +1742,6 @@
         // gripbars, which are otherwise shown on hover.
         this.classList.toggle("event-readonly", !canEditEventItem(this.occurrence));
       });
-
-      // We have two event listeners for dragstart. This event listener is for the capturing phase
-      // where we are setting up the document.monthDragEvent which will be used in the event listener
-      // in the bubbling phase which is set up in the calendar-editable-item.
-      this.addEventListener(
-        "dragstart",
-        () => {
-          document.monthDragEvent = this;
-        },
-        true
-      );
     }
 
     connectedCallback() {

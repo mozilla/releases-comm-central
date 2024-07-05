@@ -322,19 +322,8 @@
       );
       this.timeLabel = this.querySelector(".item-time-label");
 
+      this.setAttribute("draggable", "true");
       this.classList.add("calendar-color-box", "calendar-item-flex");
-
-      // We have two event listeners for dragstart. This event listener is for the capturing phase
-      // where we are setting up the document.monthDragEvent which will be used in the event listener
-      // in the bubbling phase which is set up in the calendar-editable-item.
-      this.addEventListener(
-        "dragstart",
-        () => {
-          document.monthDragEvent = this;
-        },
-        true
-      );
-
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
       this.addEventNameTextboxListener();

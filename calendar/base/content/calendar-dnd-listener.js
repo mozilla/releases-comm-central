@@ -865,60 +865,19 @@ var calendarTaskButtonDNDObserver;
  * Invoke a drag session for the passed item. The passed box will be used as a
  * source.
  *
- * @param {object} aItem - The item to drag.
- * @param {object} aXULBox - The XUL box to invoke the drag session from.
+ * @param {Event} event - The dragstart event currently being handled.
+ * @param {object} item - The item to drag.
  */
-function invokeEventDragSession(aItem, aXULBox) {
-  const transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
-  transfer.init(null);
-  transfer.addDataFlavor("text/calendar");
-
-  const flavourProvider = {
-    QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
-
-    item: aItem,
-    getFlavorData(aInTransferable, aInFlavor, aOutData) {
-      if (
-        aInFlavor == "application/vnd.x-moz-cal-event" ||
-        aInFlavor == "application/vnd.x-moz-cal-task"
-      ) {
-        aOutData.value = aItem;
-      } else {
-        cal.ASSERT(false, "error:" + aInFlavor);
-      }
-    },
-  };
-
-  if (aItem.isEvent()) {
-    transfer.addDataFlavor("application/vnd.x-moz-cal-event");
-    transfer.setTransferData("application/vnd.x-moz-cal-event", flavourProvider);
-  } else if (aItem.isTodo()) {
-    transfer.addDataFlavor("application/vnd.x-moz-cal-task");
-    transfer.setTransferData("application/vnd.x-moz-cal-task", flavourProvider);
-  }
+function invokeEventDragSession(event, item) {
+  event.dataTransfer.mozSetDataAt("application/vnd.x-moz-cal-item", item, 0);
 
   // Also set some normal data-types, in case we drag into another app
   const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  serializer.addItems([aItem]);
+  serializer.addItems([item]);
 
-  const supportsString = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
-  supportsString.data = serializer.serializeToString();
-  transfer.setTransferData("text/calendar", supportsString);
-  transfer.setTransferData("text/plain", supportsString);
-
-  const action = Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-  const mutArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  mutArray.appendElement(transfer);
-  aXULBox.sourceObject = aItem;
-  try {
-    cal.dragService.invokeDragSession(aXULBox, null, null, null, mutArray, action);
-  } catch (e) {
-    if (e.result != Cr.NS_ERROR_FAILURE) {
-      // Pressing Escape on some platforms results in NS_ERROR_FAILURE
-      // being thrown. Catch this exception, but throw anything else.
-      throw e;
-    }
-  }
+  const data = serializer.serializeToString();
+  event.dataTransfer.setData("text/calendar", data);
+  event.dataTransfer.setData("text/plain", data);
 }
