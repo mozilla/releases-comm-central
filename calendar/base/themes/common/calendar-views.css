@@ -557,17 +557,45 @@ calendar-event-column,
   background-color: var(--viewTodayWeekendBackground);
 }
 
-.day-column-selected {
-  & :is(
-    calendar-header-container,
-    .multiday-hour-box
-  ) {
+.multiday-grid:not(.multiday-grid-rotated) .day-column-selected {
+
+  & calendar-header-container {
     background-color: var(--viewDayBoxSelectedBackground);
     border-inline: 1px solid var(--viewHighlightBorderColor);
   }
 
+  calendar-event-column {
+    border-inline-start-color: var(--viewHighlightBorderColor);
+  }
+
+  .multiday-hour-box {
+    background-color: var(--viewDayBoxSelectedBackground);
+    border-inline-end: 1px solid var(--viewHighlightBorderColor);
+  }
+
   & .day-column-heading {
     border-inline: 1px solid var(--viewHighlightBorderColor);
+  }
+}
+
+.multiday-grid.multiday-grid-rotated .day-column-selected {
+
+  & calendar-header-container {
+    background-color: var(--viewDayBoxSelectedBackground);
+    border-block: 1px solid var(--viewHighlightBorderColor);
+  }
+
+  calendar-event-column {
+    border-block-start-color: var(--viewHighlightBorderColor);
+  }
+
+  .multiday-hour-box {
+    background-color: var(--viewDayBoxSelectedBackground);
+    border-block-end: 1px solid var(--viewHighlightBorderColor);
+  }
+
+  & .day-column-heading {
+    border-block: 1px solid var(--viewHighlightBorderColor);
   }
 }
 
