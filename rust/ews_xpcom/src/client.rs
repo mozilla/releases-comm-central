@@ -4,17 +4,14 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use base64::prelude::*;
 use ews::{
-    create_item::{self, CreateItem, MessageDisposition},
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
     ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, Folder, FolderShape, Importance,
-    ItemShape, Message, MimeContent, Operation, PathToElement, RealItem, ResponseClass,
-    ResponseCode,
+    ItemShape, Message, Operation, PathToElement, RealItem, ResponseClass,
 };
 use fxhash::FxHashMap;
 use moz_http::StatusCode;
@@ -26,13 +23,13 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgDBHdr, nsIRequestObserver, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags,
-        nsMsgPriority, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        nsIMsgDBHdr, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags, nsMsgPriority,
+        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
     },
     RefPtr,
 };
 
-use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
+use crate::authentication::credentials::Credentials;
 
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
@@ -628,12 +625,41 @@ impl XpComEwsClient {
 
             let response = self.make_operation_request(op).await?;
             for response_message in response.response_messages.get_item_response_message {
-                process_response_message_class(
-                    "GetItem",
-                    response_message.response_class,
-                    response_message.response_code,
-                    response_message.message_text,
-                )?;
+                match response_message.response_class {
+                    ResponseClass::Success => (),
+
+                    ResponseClass::Warning => {
+                        let message = if let Some(code) = response_message.response_code {
+                            if let Some(text) = response_message.message_text {
+                                format!("GetItem operation encountered `{code:?}' warning: {text}")
+                            } else {
+                                format!("GetItem operation encountered `{code:?}' warning")
+                            }
+                        } else if let Some(text) = response_message.message_text {
+                            format!("GetItem operation encountered warning: {text}")
+                        } else {
+                            format!("GetItem operation encountered unknown warning")
+                        };
+
+                        log::warn!("{message}");
+                    }
+
+                    ResponseClass::Error => {
+                        let message = if let Some(code) = response_message.response_code {
+                            if let Some(text) = response_message.message_text {
+                                format!("GetItem operation encountered `{code:?}' error: {text}")
+                            } else {
+                                format!("GetItem operation encountered `{code:?}' error")
+                            }
+                        } else if let Some(text) = response_message.message_text {
+                            format!("GetItem operation encountered error: {text}")
+                        } else {
+                            format!("GetItem operation encountered unknown error")
+                        };
+
+                        return Err(XpComEwsError::Processing { message });
+                    }
+                }
 
                 // The expected shape of the list of response messages is
                 // underspecified, but EWS always seems to return one message
@@ -653,108 +679,6 @@ impl XpComEwsClient {
         }
 
         Ok(items)
-    }
-
-    /// Send a message by performing a [`CreateItem`] operation via EWS.
-    ///
-    /// All headers except for Bcc are expected to be included in the provided
-    /// MIME content.
-    ///
-    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
-    pub async fn send_message(
-        self,
-        mime_content: String,
-        message_id: String,
-        should_request_dsn: bool,
-        observer: RefPtr<nsIRequestObserver>,
-    ) {
-        let cancellable_request = CancellableRequest::new();
-
-        // Notify that the request has started.
-        if let Err(err) =
-            unsafe { observer.OnStartRequest(cancellable_request.coerce()) }.to_result()
-        {
-            log::error!("aborting sending: an error occurred while starting the observer: {err}");
-            return;
-        }
-
-        // Send the request, using an inner method to more easily handle errors.
-        // Use the return value to determine which status we should use when
-        // notifying the end of the request.
-        let status = match self
-            .send_message_inner(mime_content, message_id, should_request_dsn)
-            .await
-        {
-            Ok(_) => nserror::NS_OK,
-            Err(err) => {
-                log::error!("an error occurred while attempting to send the message: {err:?}");
-
-                match err {
-                    XpComEwsError::XpCom(status) => status,
-                    XpComEwsError::Http(err) => err.into(),
-
-                    _ => nserror::NS_ERROR_FAILURE,
-                }
-            }
-        };
-
-        // Notify that the request has finished.
-        if let Err(err) =
-            unsafe { observer.OnStopRequest(cancellable_request.coerce(), status) }.to_result()
-        {
-            log::error!("an error occurred while stopping the observer: {err}")
-        }
-    }
-
-    async fn send_message_inner(
-        &self,
-        mime_content: String,
-        message_id: String,
-        should_request_dsn: bool,
-    ) -> Result<(), XpComEwsError> {
-        // Create a new message using the default values, and set the ones we
-        // need.
-        let message = create_item::Message {
-            mime_content: Some(MimeContent {
-                character_set: None,
-                content: BASE64_STANDARD.encode(mime_content),
-            }),
-            is_delivery_receipt_requested: Some(should_request_dsn),
-            internet_message_id: Some(message_id),
-            ..Default::default()
-        };
-
-        let create_item = CreateItem {
-            items: vec![create_item::Item::Message(message)],
-
-            // We don't need EWS to copy messages to the Sent folder after
-            // they've been sent, because the internal MessageSend module
-            // already takes care of it, and will include additional headers we
-            // don't send to EWS (such as Bcc).
-            message_disposition: Some(MessageDisposition::SendOnly),
-            saved_item_folder_id: None,
-        };
-
-        let response = self.make_operation_request(create_item).await?;
-
-        // We have only sent one message, therefore the response should only
-        // contain one response message.
-        let response_messages = response.response_messages.create_item_response_message;
-        if response_messages.len() != 1 {
-            return Err(XpComEwsError::Processing {
-                message: String::from("expected only one message in CreateItem response"),
-            });
-        }
-
-        // Get the first (and only) response message, and check if there's a
-        // warning or an error we should handle.
-        let response_message = response_messages.into_iter().next().unwrap();
-        process_response_message_class(
-            "CreateItem",
-            response_message.response_class,
-            response_message.response_code,
-            response_message.message_text,
-        )
     }
 
     /// Makes a request to the EWS endpoint to perform an operation.
@@ -1055,52 +979,5 @@ where
         };
 
         handler(client_err, desc);
-    }
-}
-
-/// Look at the response class of a response message, and do nothing, warn or
-/// return an error accordingly.
-fn process_response_message_class(
-    op_name: &str,
-    response_class: ResponseClass,
-    response_code: Option<ResponseCode>,
-    message_text: Option<String>,
-) -> Result<(), XpComEwsError> {
-    match response_class {
-        ResponseClass::Success => Ok(()),
-
-        ResponseClass::Warning => {
-            let message = if let Some(code) = response_code {
-                if let Some(text) = message_text {
-                    format!("{op_name} operation encountered `{code:?}' warning: {text}")
-                } else {
-                    format!("{op_name} operation encountered `{code:?}' warning")
-                }
-            } else if let Some(text) = message_text {
-                format!("{op_name} operation encountered warning: {text}")
-            } else {
-                format!("{op_name} operation encountered unknown warning")
-            };
-
-            log::warn!("{message}");
-
-            Ok(())
-        }
-
-        ResponseClass::Error => {
-            let message = if let Some(code) = response_code {
-                if let Some(text) = message_text {
-                    format!("{op_name} operation encountered `{code:?}' error: {text}")
-                } else {
-                    format!("{op_name} operation encountered `{code:?}' error")
-                }
-            } else if let Some(text) = message_text {
-                format!("{op_name} operation encountered error: {text}")
-            } else {
-                format!("{op_name} operation encountered unknown error")
-            };
-
-            Err(XpComEwsError::Processing { message })
-        }
     }
 }

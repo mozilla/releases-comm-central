@@ -171,7 +171,7 @@ async function createAccountInBackend(config) {
       smtpServer.clientid = newOutgoingClientid;
     } else if (config.outgoing.type == "ews") {
       const ewsServer = outServer.QueryInterface(Ci.nsIEwsServer);
-      ewsServer.initialize(config.outgoing.ewsURL);
+      ewsServer.ewsURL = config.outgoing.ewsURL;
     } else {
       // Note: createServer should already have thrown if given a type we don't
       // support, so if we're able to reach this then something has gone very

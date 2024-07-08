@@ -6,7 +6,6 @@ use std::cell::{OnceCell, RefCell};
 use std::os::raw::{c_char, c_void};
 use std::ptr;
 
-use cstr::cstr;
 use nserror::nsresult;
 use nserror::NS_OK;
 use nsstring::{nsACString, nsCString};
@@ -14,15 +13,12 @@ use url::Url;
 use xpcom::{create_instance, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
-        msgIOAuth2Module, nsIFile, nsIFileInputStream, nsIIOService, nsIMsgIdentity,
-        nsIMsgStatusFeedback, nsIMsgWindow, nsIRequestObserver, nsIURI, nsIUrlListener,
-        nsMsgAuthMethodValue, nsMsgSocketTypeValue,
+        nsIFile, nsIFileInputStream, nsIIOService, nsIMsgIdentity, nsIMsgStatusFeedback,
+        nsIMsgWindow, nsIRequestObserver, nsIURI, nsIUrlListener, nsMsgAuthMethodValue,
+        nsMsgSocketTypeValue,
     },
     xpcom_method, RefPtr,
 };
-
-use crate::authentication::credentials::AuthenticationProvider;
-use crate::client::XpComEwsClient;
 
 #[no_mangle]
 pub unsafe extern "C" fn nsEwsOutgoingServerConstructor(
@@ -189,7 +185,7 @@ impl EwsOutgoingServer {
         let url = nsCString::from(ews_url.as_str());
 
         let io_service =
-            xpcom::get_service::<nsIIOService>(cstr!("@mozilla.org/network/io-service;1"))
+            xpcom::get_service::<nsIIOService>(cstr::cstr!("@mozilla.org/network/io-service;1"))
                 .ok_or(nserror::NS_ERROR_FAILURE)?;
 
         getter_addrefs(|p| unsafe { io_service.NewURI(&*url, ptr::null(), ptr::null(), p) })
@@ -235,44 +231,28 @@ impl EwsOutgoingServer {
         _sender: &nsACString,
         _password: &nsACString,
         _status_listener: &nsIMsgStatusFeedback,
-        should_request_dsn: bool,
-        message_id: &nsACString,
+        _request_dsn: bool,
+        _message_id: &nsACString,
         observer: &nsIRequestObserver,
     ) -> Result<(), nsresult> {
+        unsafe {
+            // For now we don't pass in a request. Null/empty requests are
+            // supported by the MessageSend module, so it won't cause an issue
+            // if the user tries to abort before the operation completes. Once
+            // sending to EWS is implemented, we will retrieve the nsIChannel
+            // from the moz_http request and turn it into an nsIRequest, to let
+            // Necko deal with cancellations.
+            observer.OnStartRequest(ptr::null());
+        }
+
         let message_content = read_file(file_path)?;
         let message_content =
             String::from_utf8(message_content).or(Err(nserror::NS_ERROR_FAILURE))?;
+        println!("{}", message_content);
 
-        // Ensure the URL is properly set.
-        let url = self
-            .ews_url
-            .get()
-            .ok_or_else(|| {
-                log::error!("EwsOutgoingServer::SendMailMessage: EWS URL not set");
-                nserror::NS_ERROR_NOT_INITIALIZED
-            })?
-            .clone();
-
-        let credentials = self.get_credentials()?;
-
-        // Set up the client to build and send the request.
-        let client = XpComEwsClient {
-            endpoint: url,
-            credentials,
-            client: moz_http::Client::new(),
-        };
-
-        // Send the request asynchronously.
-        moz_task::spawn_local(
-            "send_mail",
-            client.send_message(
-                message_content,
-                message_id.to_utf8().into(),
-                should_request_dsn,
-                RefPtr::new(observer),
-            ),
-        )
-        .detach();
+        unsafe {
+            observer.OnStopRequest(ptr::null(), NS_OK);
+        }
 
         Ok(())
     }
@@ -326,39 +306,12 @@ impl EwsOutgoingServer {
     }
 }
 
-// Make it possible to create an Auth from this server's attributes.
-impl AuthenticationProvider for &EwsOutgoingServer {
-    fn username(&self) -> Result<nsCString, nsresult> {
-        Ok(self.username.borrow().clone())
-    }
-
-    fn password(&self) -> Result<nsCString, nsresult> {
-        Ok(self.password.borrow().clone())
-    }
-
-    fn auth_method(&self) -> Result<nsMsgAuthMethodValue, nsresult> {
-        Ok(self.auth_method.borrow().clone())
-    }
-
-    fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
-        let oauth2_module =
-            create_instance::<msgIOAuth2Module>(c"@mozilla.org/mail/oauth2-module;1").ok_or(
-                Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
-            )?;
-
-        let mut oauth2_supported = false;
-        unsafe { oauth2_module.InitFromOutgoing(self.coerce(), &mut oauth2_supported) }
-            .to_result()?;
-
-        Ok(oauth2_supported.then_some(oauth2_module))
-    }
-}
-
 /// Open the file provided and read its content into a vector of bytes.
 fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
-    let file_stream =
-        create_instance::<nsIFileInputStream>(cstr!("@mozilla.org/network/file-input-stream;1"))
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
+    let file_stream = create_instance::<nsIFileInputStream>(cstr::cstr!(
+        "@mozilla.org/network/file-input-stream;1"
+    ))
+    .ok_or(nserror::NS_ERROR_FAILURE)?;
 
     // Open a stream from the file, and figure out how many bytes can be read
     // from it.

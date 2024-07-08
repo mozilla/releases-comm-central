@@ -19,7 +19,6 @@ use xpcom::{
 };
 
 mod authentication;
-mod cancellable_request;
 mod client;
 mod outgoing;
 
