@@ -101,14 +101,14 @@ git = "https://github.com/servo/unicode-bidi"
 rev = "ca612daf1c08c53abe07327cb3e6ef6e0a760f0c"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/thunderbird/ews-rs.git?rev=d55eab675be323b037be939eeee0285da5e6971a"]
+[source."git+https://github.com/thunderbird/ews-rs.git?rev=e5249875870fcd4bbbb3bfc37384e39aa8875f5b"]
 git = "https://github.com/thunderbird/ews-rs.git"
-rev = "d55eab675be323b037be939eeee0285da5e6971a"
+rev = "e5249875870fcd4bbbb3bfc37384e39aa8875f5b"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=0374b50878596a08ef9c9ac2dfcc7325b9c39b83"]
+[source."git+https://github.com/thunderbird/xml-struct-rs.git?rev=87723b90425d474fd29095d8b710baefd7c9b13a"]
 git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
+rev = "87723b90425d474fd29095d8b710baefd7c9b13a"
 replace-with = "vendored-sources"
 
 [source."git+https://github.com/zakarumych/gpu-descriptor?rev=7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d"]

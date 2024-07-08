@@ -226,4 +226,4 @@ macro_rules! impl_as_text_for {
     };
 }
 
-impl_as_text_for!(i8, u8, i16, u16, i32, u32, i64, u64);
+impl_as_text_for!(i8, u8, i16, u16, i32, u32, i64, u64, usize);
