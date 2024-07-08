@@ -28,7 +28,6 @@ BASE_TAG_RE = r"^FIREFOX_RELEASE_{major_version}_BASE$"
 RELEASE_TAG_RE = r"^FIREFOX_{major_version}_{minor_version}[\dbesr_]+(RELEASE|BUILD\d)$"
 
 BEHAVIOR_2_GECKO_REPO = {
-    "comm-central-to-beta": "mozilla-beta",
     "comm-beta-to-release": "mozilla-release",
     "comm-release-to-esr": "mozilla-esr128",
     "comm-bump-esr128": "mozilla-esr128",
@@ -130,15 +129,7 @@ def get_last_tag(version, repo):
 
 
 def mk_gecko_rev_replacement(key, old, new):
-    """
-    Build a replacement structure for Treescript.
-    The return value is applied to the overall replacements list via .extend().
-    In the case where the value does not change, an empty list is returned
-    so .extend() has no effect.
-    """
-    rv = []
-    if new != old:
-        rv.append([".gecko_rev.yml", f"{key}: {old}", f"{key}: {new}"])
+    rv = [".gecko_rev.yml", f"{key}: {old}", f"{key}: {new}"]
     return rv
 
 
@@ -157,27 +148,18 @@ def pin_gecko_rev_yml(config, tasks):
                 thunderbird_version = get_thunderbird_version(merge_config["to-repo"])
                 thunderbird_version = thunderbird_version.bump("minor_number")
                 gecko_rev_yml = get_gecko_rev_yml(merge_config["to-repo"])
-            elif behavior == "comm-release-to-esr":
-                thunderbird_version = get_thunderbird_version(merge_config["to-repo"])
-                gecko_rev_yml = get_gecko_rev_yml(merge_config["to-repo"])
             else:
                 thunderbird_version = get_thunderbird_version(merge_config["from-repo"])
                 gecko_rev_yml = get_gecko_rev_yml(merge_config["from-repo"])
 
             tag_data = get_last_tag(thunderbird_version, gecko_repo)
-            head_repo = MOZ_HG_URL.format(repo=gecko_repo)
             replacements = merge_config["replacements"]
-            replacements.extend(
-                mk_gecko_rev_replacement(
-                    "GECKO_HEAD_REPOSITORY", gecko_rev_yml["GECKO_HEAD_REPOSITORY"], head_repo
-                )
-            )
-            replacements.extend(
+            replacements.append(
                 mk_gecko_rev_replacement(
                     "GECKO_HEAD_REF", gecko_rev_yml["GECKO_HEAD_REF"], tag_data["tag"]
                 )
             )
-            replacements.extend(
+            replacements.append(
                 mk_gecko_rev_replacement(
                     "GECKO_HEAD_REV", gecko_rev_yml["GECKO_HEAD_REV"], tag_data["node"]
                 )
