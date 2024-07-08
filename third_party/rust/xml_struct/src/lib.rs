@@ -134,10 +134,4 @@ pub trait XmlSerializeAttr {
 pub enum Error {
     #[error("failed to process XML document")]
     Xml(#[from] quick_xml::Error),
-
-    /// An error representing a failure in formatting a data structure prior to
-    /// serializing it into XML. Its inner type is generic on purpose, as the
-    /// specific error type might be defined by a third-party crate.
-    #[error("failed to serialize value as text")]
-    Value(#[from] anyhow::Error),
 }

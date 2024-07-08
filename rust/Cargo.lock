@@ -1512,7 +1512,7 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=e5249875870fcd4bbbb3bfc37384e39aa8875f5b#e5249875870fcd4bbbb3bfc37384e39aa8875f5b"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=d55eab675be323b037be939eeee0285da5e6971a#d55eab675be323b037be939eeee0285da5e6971a"
 dependencies = [
  "log",
  "quick-xml",
@@ -5923,9 +5923,8 @@ checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 [[package]]
 name = "xml_struct"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=87723b90425d474fd29095d8b710baefd7c9b13a#87723b90425d474fd29095d8b710baefd7c9b13a"
+source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=0374b50878596a08ef9c9ac2dfcc7325b9c39b83#0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
 dependencies = [
- "anyhow",
  "quick-xml",
  "thiserror",
  "xml_struct_derive",
@@ -5934,7 +5933,7 @@ dependencies = [
 [[package]]
 name = "xml_struct_derive"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=87723b90425d474fd29095d8b710baefd7c9b13a#87723b90425d474fd29095d8b710baefd7c9b13a"
+source = "git+https://github.com/thunderbird/xml-struct-rs.git?rev=0374b50878596a08ef9c9ac2dfcc7325b9c39b83#0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
 dependencies = [
  "proc-macro2",
  "quote",

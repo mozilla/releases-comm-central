@@ -37,7 +37,6 @@ features = ["derive"]
 [dependencies.time]
 version = "0.3.23"
 features = [
-    "formatting",
     "parsing",
     "serde",
 ]
@@ -45,4 +44,4 @@ features = [
 [dependencies.xml_struct]
 version = "0.1.0"
 git = "https://github.com/thunderbird/xml-struct-rs.git"
-rev = "87723b90425d474fd29095d8b710baefd7c9b13a"
+rev = "0374b50878596a08ef9c9ac2dfcc7325b9c39b83"
