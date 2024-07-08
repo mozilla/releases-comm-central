@@ -6,8 +6,8 @@ about-addressbook-title = Address Book
 
 ## Toolbar
 
-about-addressbook-toolbar-new-address-book =
-  .label = New Address Book
+about-addressbook-toolbar-add-address-book =
+  .label = Add Local Address Book
 about-addressbook-toolbar-add-carddav-address-book =
   .label = Add CardDAV Address Book
 about-addressbook-toolbar-add-ldap-address-book =
