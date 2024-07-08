@@ -11,6 +11,25 @@
 
 /* ::::: Mail Toolbars and Menubars ::::: */
 
+/* stylelint-disable-next-line media-query-no-invalid */
+@media (-moz-bool-pref: "mail.theme.macos.native-theme") {
+  #mail-toolbox:not([lwtheme]) {
+    background: transparent;
+
+    /* This is conceptually a background, but putting this on a
+     * pseudo-element avoids it from suppressing the chrome-content separator
+     * border, etc */
+    &::after {
+      -moz-default-appearance: -moz-window-titlebar;
+      appearance: auto;
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+    }
+  }
+}
+
 #titlebar {
   -moz-window-dragging: drag;
   height: 22px;
