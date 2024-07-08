@@ -52,10 +52,6 @@ add_task(async function test_mails_sent() {
     const smtpServer = getBasicSmtpServer(server.port);
     const identity = getSmtpIdentity(kIdentityMail, smtpServer);
 
-    const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-      .createInstance(Ci.nsIMsgCompUtils)
-      .msgGenerateMessageId(identity, null);
-
     for (let i = 0; i < NUM_MAILS; i++) {
       smtpServer.sendMailMessage(
         testFile,
@@ -65,7 +61,7 @@ add_task(async function test_mails_sent() {
         null,
         null,
         false,
-        messageId,
+        "",
         deliveryListener
       );
     }

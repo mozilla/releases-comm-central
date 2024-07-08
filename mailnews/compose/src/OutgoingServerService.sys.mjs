@@ -72,11 +72,7 @@ export class OutgoingServerService {
   }
 
   /**
-   * This method offers an async interface to call sendMailMessage on the
-   * outgoing server used by the provided identity (or the default outgoing
-   * server if none is configured for the identity and a default is set).
-   *
-   * @see nsIMsgOutgoingServer.sendMailMessage
+   * @see nsIMsgOutgoingServerService
    */
   async sendMailMessage(
     messageFile,

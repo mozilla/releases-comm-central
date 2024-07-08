@@ -14,15 +14,6 @@ typedef long EDisposeType;
 typedef long ReceiptHdrType;
 typedef long MDNIncorporateType;
 
-/**
- * A generator for Message Disposition Notification (MDN) replies.
- *
- * MDN replies inform the sender of a message upon actions taken by the
- * recipient or on behalf of the recipient, such as displaying or deleting the
- * message.
- *
- * See https://www.rfc-editor.org/rfc/rfc8098 for details.
- */
 [scriptable, uuid(440EA3DE-DACA-4886-9875-84E6CD7D7927)]
 interface nsIMsgMdnGenerator : nsISupports
 {

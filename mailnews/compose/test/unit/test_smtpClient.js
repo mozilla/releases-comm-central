@@ -34,10 +34,6 @@ add_task(async function testAbort() {
     },
   };
 
-  const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-    .createInstance(Ci.nsIMsgCompUtils)
-    .msgGenerateMessageId(identity, null);
-
   // Send a message.
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
@@ -48,7 +44,7 @@ add_task(async function testAbort() {
     null,
     null,
     false,
-    messageId,
+    "",
     requestObserver
   );
   server.performTest();
@@ -69,10 +65,6 @@ add_task(async function testClientIdentityExtension() {
   smtpServer.QueryInterface(Ci.nsISmtpServer).clientid = "uuid-111";
 
   // Send a message.
-  const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-    .createInstance(Ci.nsIMsgCompUtils)
-    .msgGenerateMessageId(identity, null);
-
   const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
@@ -83,7 +75,7 @@ add_task(async function testClientIdentityExtension() {
     null,
     null,
     false,
-    messageId,
+    "",
     requestObserver
   );
 
@@ -110,10 +102,6 @@ add_task(async function testDeduplicateRecipients() {
   const identity = getSmtpIdentity("identity@foo.invalid", smtpServer);
 
   // Send a message, notice to1 appears twice in the recipients argument.
-  const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-    .createInstance(Ci.nsIMsgCompUtils)
-    .msgGenerateMessageId(identity, null);
-
   const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
@@ -124,7 +112,7 @@ add_task(async function testDeduplicateRecipients() {
     null,
     null,
     false,
-    messageId,
+    "",
     requestObserver
   );
 

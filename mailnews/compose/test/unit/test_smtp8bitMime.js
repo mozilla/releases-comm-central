@@ -44,10 +44,6 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
 
     Services.prefs.setBoolPref("mail.strictly_mime", aStrictMime);
 
-    const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-      .createInstance(Ci.nsIMsgCompUtils)
-      .msgGenerateMessageId(identity, null);
-
     const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -57,7 +53,7 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
       null,
       null,
       false,
-      messageId,
+      "",
       requestObserver
     );
 

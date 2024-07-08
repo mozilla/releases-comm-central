@@ -94,10 +94,6 @@ function nextTest() {
   kAuthSchemes = curTest.serverAuthMethods;
   smtpServer.authMethod = curTest.clientAuthMethod;
 
-  const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-    .createInstance(Ci.nsIMsgCompUtils)
-    .msgGenerateMessageId(identity, null);
-
   // Run test
   const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
   smtpServer.sendMailMessage(
@@ -108,7 +104,7 @@ function nextTest() {
     null,
     null,
     false,
-    messageId,
+    "",
     requestObserver
   );
 

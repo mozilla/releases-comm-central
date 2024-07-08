@@ -107,10 +107,6 @@ add_task(async function () {
 
     dump("Send\n");
 
-    const messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-      .createInstance(Ci.nsIMsgCompUtils)
-      .msgGenerateMessageId(identity, null);
-
     const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
@@ -120,7 +116,7 @@ add_task(async function () {
       null,
       null,
       false,
-      messageId,
+      "",
       requestObserver
     );
 
