@@ -539,7 +539,6 @@ export class SmtpServer {
   async sendMailMessage(
     messageFile,
     recipients,
-    bccRecipients,
     userIdentity,
     sender,
     password,
@@ -587,7 +586,9 @@ export class SmtpServer {
       // Init when fresh==true OR re-init sending when client.isRetry==true.
       fresh = false;
       let from = sender;
-      const to = recipients.concat(bccRecipients).map(rec => rec.email);
+      const to = MailServices.headerParser
+        .parseEncodedHeaderW(recipients)
+        .map(rec => rec.email);
 
       if (
         !Services.prefs.getBoolPref("mail.smtp.useSenderForSmtpMailFrom", false)

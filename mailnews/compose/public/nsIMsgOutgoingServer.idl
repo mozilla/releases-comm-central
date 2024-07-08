@@ -14,7 +14,6 @@ interface nsIMsgStatusFeedback;
 interface nsIRequestObserver;
 interface nsIMsgIdentity;
 interface nsIMsgWindow;
-interface msgIAddressObject;
 
 /**
  * This interface represents a single outgoing Server. An outgoing server
@@ -103,14 +102,8 @@ interface nsIMsgOutgoingServer : nsISupports {
    *       throughout the file, and the <CRLF>.<CRLF> at the end of the file.
    *       sendMailMessage does no processing/additions on the file.
    *
-   * @note Some protocols require custom handling for Bcc recipients (since they
-   *       are excluded from the MIME content), so they are passed separately
-   *       from To and Cc recipients.
-   *
    * @param aFilePath               The file to send.
-   * @param aVisibleRecipients      The visible recipients (i.e. To and Cc) for
-   *                                this message.
-   * @param aBccRecipients          The Bcc recipients for this message.
+   * @param aRecipients             A comma delimited list of recipients.
    * @param aSenderIdentity         The identity of the sender.
    * @param aSender                 The senders email address.
    * @param aPassword               Pass this in to prevent a dialog if the
@@ -129,8 +122,7 @@ interface nsIMsgOutgoingServer : nsISupports {
    *                                for an available connection when necessary).
    */
   void sendMailMessage(in nsIFile aFilePath,
-                       in Array<msgIAddressObject> aVisibleRecipients,
-                       in Array<msgIAddressObject> aBccRecipients,
+                       in AUTF8String aRecipients,
                        in nsIMsgIdentity aSenderIdentity,
                        in AUTF8String aSender,
                        in AUTF8String aPassword,

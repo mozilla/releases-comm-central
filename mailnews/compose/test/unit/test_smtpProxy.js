@@ -34,8 +34,7 @@ add_task(async function sendMessage() {
   const smtpServer = MailServices.outgoingServer.getServerByIdentity(identity);
   smtpServer.sendMailMessage(
     testFile,
-    MailServices.headerParser.parseEncodedHeaderW("somebody@example.org"),
-    [],
+    "somebody@example.org",
     identity,
     "me@example.org",
     null,

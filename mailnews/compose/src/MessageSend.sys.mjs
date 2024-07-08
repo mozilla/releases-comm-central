@@ -1114,39 +1114,28 @@ export class MessageSend {
   }
 
   /**
-   * Send this._deliveryFile to the outgoing service.
+   * Send this._deliveryFile to smtp service.
    */
   async _deliverAsMail() {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
     );
-
-    // Turn the `to` and `cc` comp fields (which are both strings) into one
-    // continuous string, filtering out either of them if it's empty.
-    const visibleRecipients = [this._compFields.to, this._compFields.cc]
-      .filter(Boolean)
-      .join(",");
-
-    const parsedVisibleRecipients =
-      MailServices.headerParser.parseEncodedHeaderW(visibleRecipients);
-
-    // Parse the `bcc` comp field (a string) into a parsed array of
-    // `msgIAddressObject`.
-    let parsedBccRecipients = [];
-    if (this._compFields.bcc) {
-      parsedBccRecipients = MailServices.headerParser.parseEncodedHeaderW(
-        this._compFields.bcc
-      );
-    }
-
-    // Collect all recipients into the address book at once.
-    this._collectAddressesToAddressBook(
-      [this._compFields.to, this._compFields.cc, this._compFields.bcc].filter(
-        Boolean
-      )
+    const recipients = [
+      this._compFields.to,
+      this._compFields.cc,
+      this._compFields.bcc,
+    ].filter(Boolean);
+    this._collectAddressesToAddressBook(recipients);
+    const converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
+      Ci.nsIMimeConverter
     );
-
+    const encodedRecipients = converter.encodeMimePartIIStr_UTF8(
+      recipients.join(","),
+      true,
+      0,
+      Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
+    );
     lazy.MsgUtils.sendLogger.debug(
       `Delivering mail message <${this._compFields.messageId}>`
     );
@@ -1160,8 +1149,7 @@ export class MessageSend {
     // cancel function can be obtained.
     await MailServices.outgoingServer.wrappedJSObject.sendMailMessage(
       this._deliveryFile,
-      parsedVisibleRecipients,
-      parsedBccRecipients,
+      encodedRecipients,
       this._userIdentity,
       this._compFields.from,
       this._smtpPassword,

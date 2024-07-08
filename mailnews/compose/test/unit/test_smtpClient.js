@@ -42,8 +42,7 @@ add_task(async function testAbort() {
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
     testFile,
-    MailServices.headerParser.parseEncodedHeaderW("to@foo.invalid"),
-    [],
+    "to@foo.invalid",
     identity,
     "from@foo.invalid",
     null,
@@ -78,8 +77,7 @@ add_task(async function testClientIdentityExtension() {
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
     testFile,
-    MailServices.headerParser.parseEncodedHeaderW("to@foo.invalid"),
-    [],
+    "to@foo.invalid",
     identity,
     "from@foo.invalid",
     null,
@@ -120,10 +118,7 @@ add_task(async function testDeduplicateRecipients() {
   const testFile = do_get_file("data/message1.eml");
   smtpServer.sendMailMessage(
     testFile,
-    MailServices.headerParser.parseEncodedHeaderW(
-      "to1@foo.invalid,to2@foo.invalid,to1@foo.invalid"
-    ),
-    [],
+    "to1@foo.invalid,to2@foo.invalid,to1@foo.invalid",
     identity,
     "from@foo.invalid",
     null,

@@ -3,24 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::cell::{OnceCell, RefCell};
-use std::ffi::CString;
 use std::os::raw::{c_char, c_void};
 use std::ptr;
-
-use ews::{Mailbox, Recipient};
-use thin_vec::ThinVec;
 
 use cstr::cstr;
 use nserror::nsresult;
 use nserror::NS_OK;
-use nsstring::{nsACString, nsCString, nsString};
+use nsstring::{nsACString, nsCString};
 use url::Url;
 use xpcom::{create_instance, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
-        msgIAddressObject, msgIOAuth2Module, nsIFile, nsIFileInputStream, nsIIOService,
-        nsIMsgIdentity, nsIMsgStatusFeedback, nsIMsgWindow, nsIRequestObserver, nsIURI,
-        nsIUrlListener, nsMsgAuthMethodValue, nsMsgSocketTypeValue,
+        msgIOAuth2Module, nsIFile, nsIFileInputStream, nsIIOService, nsIMsgIdentity,
+        nsIMsgStatusFeedback, nsIMsgWindow, nsIRequestObserver, nsIURI, nsIUrlListener,
+        nsMsgAuthMethodValue, nsMsgSocketTypeValue,
     },
     xpcom_method, RefPtr,
 };
@@ -222,8 +218,7 @@ impl EwsOutgoingServer {
 
     xpcom_method!(send_mail => SendMailMessage(
         aFilePath: *const nsIFile,
-        aRecipients: *const ThinVec<Option<RefPtr<msgIAddressObject>>>,
-        aBccRecipients: *const ThinVec<Option<RefPtr<msgIAddressObject>>>,
+        aRecipients: *const nsACString,
         aSenderIdentity: *const nsIMsgIdentity,
         aSender: *const nsACString,
         aPassword: *const nsACString,
@@ -235,8 +230,7 @@ impl EwsOutgoingServer {
     fn send_mail(
         &self,
         file_path: &nsIFile,
-        _recipients: &ThinVec<Option<RefPtr<msgIAddressObject>>>,
-        bcc_recipients: &ThinVec<Option<RefPtr<msgIAddressObject>>>,
+        _recipients: &nsACString,
         _sender_identity: &nsIMsgIdentity,
         _sender: &nsACString,
         _password: &nsACString,
@@ -248,39 +242,6 @@ impl EwsOutgoingServer {
         let message_content = read_file(file_path)?;
         let message_content =
             String::from_utf8(message_content).or(Err(nserror::NS_ERROR_FAILURE))?;
-
-        // Turn each msgIAddressObject into an ews-rs `Recipient`.
-        let bcc_recipients = bcc_recipients
-            .iter()
-            .map(|item| {
-                // Filter out potential null pointers in the array.
-                let addr_obj = item.as_ref().ok_or(nserror::NS_ERROR_NULL_POINTER)?;
-
-                let mut address = nsString::new();
-                let mut name = nsString::new();
-
-                unsafe { addr_obj.GetEmail(&mut *address) }.to_result()?;
-                unsafe { addr_obj.GetName(&mut *name) }.to_result()?;
-
-                // The name is an optional part of the recipient, in which case,
-                // the string we get across the XPCOM boundary will be empty.
-                // However, ews-rs expects this optionality to be represented by
-                // an `Option`.
-                let name = if !name.is_empty() {
-                    Some(name.to_string())
-                } else {
-                    None
-                };
-
-                let mailbox = Mailbox {
-                    name,
-                    email_address: address.to_string(),
-                    ..Default::default()
-                };
-
-                Ok(Recipient { mailbox })
-            })
-            .collect::<Result<Vec<Recipient>, nsresult>>()?;
 
         // Ensure the URL is properly set.
         let url = self
@@ -308,7 +269,6 @@ impl EwsOutgoingServer {
                 message_content,
                 message_id.to_utf8().into(),
                 should_request_dsn,
-                bcc_recipients,
                 RefPtr::new(observer),
             ),
         )
