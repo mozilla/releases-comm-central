@@ -1142,6 +1142,11 @@ pref("mail.export.loglevel", "Warn");
 pref("mail.imap.use_disk_cache2", true);
 
 #ifdef MOZ_THUNDERBIRD_RUST
-// Enable support for Microsoft Exchange via Exchange Web Services.
-pref("experimental.mail.ews.enabled", false);
+  // Enable support for Microsoft Exchange via Exchange Web Services.
+#ifdef NIGHTLY_BUILD
+pref("experimental.mail.ews.enabled", true);
+#else
+pref("experimental.mail.ews.enabled", false)
+#endif
+
 #endif
