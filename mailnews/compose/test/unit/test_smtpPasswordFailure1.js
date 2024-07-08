@@ -104,7 +104,8 @@ add_task(async function () {
 
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,

@@ -81,6 +81,7 @@ export class OutgoingServerService {
   async sendMailMessage(
     messageFile,
     recipients,
+    bccRecipients,
     userIdentity,
     sender,
     password,
@@ -125,6 +126,7 @@ export class OutgoingServerService {
       server.sendMailMessage(
         messageFile,
         recipients,
+        bccRecipients,
         userIdentity,
         sender,
         password,

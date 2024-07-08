@@ -59,7 +59,8 @@ add_task(async function test_mails_sent() {
     for (let i = 0; i < NUM_MAILS; i++) {
       smtpServer.sendMailMessage(
         testFile,
-        kTo,
+        MailServices.headerParser.parseEncodedHeaderW(kTo),
+        [],
         identity,
         kSender,
         null,

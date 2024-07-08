@@ -51,7 +51,8 @@ async function test_8bitmime(aStrictMime, aServer8bit) {
     const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,

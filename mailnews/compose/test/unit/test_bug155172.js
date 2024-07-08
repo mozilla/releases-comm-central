@@ -86,7 +86,8 @@ add_task(async function () {
     const requestObserver = new PromiseTestUtils.PromiseRequestObserver();
     smtpServer.sendMailMessage(
       testFile,
-      kTo,
+      MailServices.headerParser.parseEncodedHeaderW(kTo),
+      [],
       identity,
       kSender,
       null,
