@@ -68,7 +68,10 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIRequestObserver {
   nsMsgKey m_key;
   nsCString m_email;
   nsCString m_mimeSeparator;
+  // The Message-ID of the MDN reply.
   nsCString m_messageId;
+  // The Message-ID of the message the MDN reply is for.
+  nsCString m_originalMessageId;
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsCOMPtr<nsIMsgIncomingServer> m_server;
   nsCOMPtr<nsIMimeHeaders> m_headers;

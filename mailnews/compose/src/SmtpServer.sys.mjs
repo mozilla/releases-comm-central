@@ -595,11 +595,6 @@ export class SmtpServer {
       ) {
         from = userIdentity.email;
       }
-      if (!messageId) {
-        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-          .createInstance(Ci.nsIMsgCompUtils)
-          .msgGenerateMessageId(userIdentity, null);
-      }
       client.useEnvelope({
         from: MailServices.headerParser.parseEncodedHeaderW(from)[0].email,
         to,
