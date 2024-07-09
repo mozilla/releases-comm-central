@@ -14,19 +14,28 @@
       release-types: [esr128]
 - type: show-url
   # yamllint disable-line rule:line-length
-  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&oldversion=%OLD_VERSION%
+  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel=esr&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
-      release-types: [release]
+      release-types: [esr128]
       products: [thunderbird]
-      update-channel: release
+      update-channel: esr
       # e.g.: ["<78.0"] for the current release. {version.major_number} reflects
       # the current version and compares to the version the client is updating from
       # on Balrog
       versions: ["<{version.major_number}.0"]
 - type: show-url
   # yamllint disable-line rule:line-length
-  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&oldversion=%OLD_VERSION%
+  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel=release&oldversion=%OLD_VERSION%
+  conditions:
+      blob-types: [wnp]
+      release-types: [release]
+      products: [thunderbird]
+      update-channel: release
+      versions: ["<{version.major_number}.0"]
+- type: show-url
+  # yamllint disable-line rule:line-length
+  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel=beta&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
       release-types: [beta]
