@@ -54,16 +54,15 @@ enum PrefName {
 
 impl From<PrefName> for CString {
     fn from(value: PrefName) -> Self {
-        let value = match value {
-            PrefName::Key => "key",
-            PrefName::Uid => "uid",
-            PrefName::Description => "description",
-            PrefName::Username => "username",
-            PrefName::AuthMethod => "auth_method",
-            PrefName::EwsUrl => "ews_url",
-        };
-
-        cstr!(value).into()
+        match value {
+            PrefName::Key => cstr!("key"),
+            PrefName::Uid => cstr!("uid"),
+            PrefName::Description => cstr!("description"),
+            PrefName::Username => cstr!("username"),
+            PrefName::AuthMethod => cstr!("auth_method"),
+            PrefName::EwsUrl => cstr!("ews_url"),
+        }
+        .into()
     }
 }
 
@@ -675,7 +674,7 @@ impl AuthenticationProvider for &EwsOutgoingServer {
 
     fn oauth2_module(&self) -> Result<Option<RefPtr<msgIOAuth2Module>>, nsresult> {
         let oauth2_module =
-            create_instance::<msgIOAuth2Module>(c"@mozilla.org/mail/oauth2-module;1").ok_or(
+            create_instance::<msgIOAuth2Module>(cstr!("@mozilla.org/mail/oauth2-module;1")).ok_or(
                 Err::<RefPtr<msgIOAuth2Module>, _>(nserror::NS_ERROR_FAILURE),
             )?;
 
