@@ -108,7 +108,7 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
       QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
       onStartCopy() {},
       onProgress() {},
-      aetMessageKey() {},
+      setMessageKey() {},
       getMessageId() {
         return null;
       },
