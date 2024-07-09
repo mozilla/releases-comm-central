@@ -34,7 +34,6 @@ memmap2_0_5 = { package = "memmap2", path = "../../build/rust/memmap2-0.5" }
 memmap2 = { path = "../../build/rust/memmap2" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
-tinyvec = { path = "../../build/rust/tinyvec" }
 base64 = { path = "../../build/rust/base64" }
 wasi = { path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }

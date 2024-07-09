@@ -54,6 +54,7 @@ gecko_logger = { path = "../../../xpcom/rust/gecko_logger" }
 geckoservo = { path = "../../../servo/ports/geckolib" }
 gkrust_utils = { path = "../../../xpcom/rust/gkrust_utils" }
 http_sfv = { path = "../../../netwerk/base/http-sfv" }
+idna_glue = { path = "../../../netwerk/base/idna_glue" }
 jog = { path = "../../../toolkit/components/glean/bindings/jog" }
 jsrust_shared = { path = "../../../js/src/rust/shared" }
 kvstore = { path = "../../../toolkit/components/kvstore" }
