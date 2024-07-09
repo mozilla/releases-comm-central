@@ -420,7 +420,7 @@ thead[is="tree-view-table-header"] {
 
 th[is="tree-view-table-header-cell"] {
   height: var(--tree-header-table-height);
-  min-width: 7ch;
+  min-width: 5ch;
   padding: 0;
   position: relative;
   overflow: hidden;
