@@ -32,8 +32,13 @@ class Theme {
   /**
    * Creates a theme instance.
    *
-   * @param {string} extension - Extension that created the theme.
-   * @param {Integer} windowId - The windowId where the theme is applied.
+   * @param {object} options
+   * @param {string} options.extension - Extension that created the theme.
+   * @param {Integer} options.windowId - The windowId where the theme is applied.
+   * @param {object} options.details
+   * @param {object} options.darkDetails
+   * @param {object} options.experiment
+   * @param {object} options.startupData - startupData if this is a static theme.
    */
   constructor({
     extension,
@@ -48,15 +53,30 @@ class Theme {
     this.darkDetails = darkDetails;
     this.windowId = windowId;
 
-    if (startupData && startupData.lwtData) {
-      Object.assign(this, startupData);
+    if (startupData?.lwtData) {
+      // Parsed theme from a previous load() already available in startupData
+      // of parsed theme. We assume that reparsing the theme will yield the same
+      // result, and therefore reuse the value of startupData. This is a minor
+      // optimization; the more important use of startupData is before startup,
+      // by Extension.sys.mjs for LightweightThemeManager.fallbackThemeData.
+      //
+      // Note: the assumption "yield the same result" is not obviously true: the
+      // startupData persists across application updates, so it is possible for
+      // a browser update to occur that interprets the static theme differently.
+      // In this case we would still be using the old interpretation instead of
+      // the new one, until the user disables and re-enables/installs the theme.
+      this.lwtData = startupData.lwtData;
+      this.lwtStyles = startupData.lwtStyles;
+      this.lwtDarkStyles = startupData.lwtDarkStyles;
+      this.experiment = startupData.experiment;
     } else {
+      // lwtData will be populated by load().
+      this.lwtData = null;
       // TODO: Update this part after bug 1550090.
       this.lwtStyles = {};
-      this.lwtDarkStyles = null;
-      if (darkDetails) {
-        this.lwtDarkStyles = {};
-      }
+      this.lwtDarkStyles = darkDetails ? {} : null;
+
+      this.experiment = null;
 
       if (experiment) {
         if (extension.canUseThemeExperiment()) {
@@ -101,6 +121,7 @@ class Theme {
    * This method will override any currently applied theme.
    */
   load() {
+    // this.lwtData is usually null, unless populated from startupData.
     if (!this.lwtData) {
       this.loadDetails(this.details, this.lwtStyles);
       if (this.darkDetails) {
@@ -116,13 +137,19 @@ class Theme {
         this.lwtData.experiment = this.experiment;
       }
 
-      this.extension.startupData = {
-        lwtData: this.lwtData,
-        lwtStyles: this.lwtStyles,
-        lwtDarkStyles: this.lwtDarkStyles,
-        experiment: this.experiment,
-      };
-      this.extension.saveStartupData();
+      if (this.extension.type === "theme") {
+        // Store the parsed theme in startupData, so it is available early at
+        // browser startup, to use as LightweightThemeManager.fallbackThemeData,
+        // which is assigned from Extension.sys.mjs to avoid having to wait for
+        // this ext-theme.js file to be loaded.
+        this.extension.startupData = {
+          lwtData: this.lwtData,
+          lwtStyles: this.lwtStyles,
+          lwtDarkStyles: this.lwtDarkStyles,
+          experiment: this.experiment,
+        };
+        this.extension.saveStartupData();
+      }
     }
 
     if (this.windowId) {
@@ -450,6 +477,8 @@ this.theme = class extends ExtensionAPIPersistent {
     const { extension } = this;
     const { manifest } = extension;
 
+    // Note: only static themes are processed here; extensions with the "theme"
+    // permission do not enter this code path.
     defaultTheme = new Theme({
       extension,
       details: manifest.theme,
@@ -457,6 +486,15 @@ this.theme = class extends ExtensionAPIPersistent {
       experiment: manifest.theme_experiment,
       startupData: extension.startupData,
     });
+    if (extension.startupData.lwtData?._processedColors) {
+      // We should ideally not be modifying startupData, but we did so before,
+      // before bug 1830136 was fixed. startupData persists across browser
+      // updates and is only erased when the theme is updated or uninstalled.
+      // To prevent this stale _processedColors from bloating the database
+      // unnecessarily, we delete it here.
+      delete extension.startupData.lwtData._processedColors;
+      extension.saveStartupData();
+    }
   }
 
   onShutdown(isAppShutdown) {
