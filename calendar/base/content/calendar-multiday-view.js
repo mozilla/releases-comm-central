@@ -3061,12 +3061,14 @@
           dayCol.date.isDate = true;
           dayCol.date.makeImmutable();
 
-          /* Set up day of the week headings. */
-          document.l10n.setAttributes(dayCol.shortHeading, "day-header", {
+          // Set up day of the week headings. This needs to happen synchronously
+          // so that it happens before the layout calculations, so we don't use
+          // `document.l10n.setAttributes` here.
+          dayCol.shortHeading.textContent = lazy.l10n.formatValueSync("day-header", {
             dayName: dateFormatter.shortDayName(dayDate.weekday),
             dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
           });
-          document.l10n.setAttributes(dayCol.longHeading, "day-header", {
+          dayCol.longHeading.textContent = lazy.l10n.formatValueSync("day-header", {
             dayName: dateFormatter.dayName(dayDate.weekday),
             dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
           });
