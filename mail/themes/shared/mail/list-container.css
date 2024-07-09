@@ -160,8 +160,7 @@
     }
   }
 
-  &:focus-within li.selected > .container,
-  & li.drop-target > .container {
+  &:focus-within li.selected > .container {
     border-color: var(--list-container-border-selected-focused);
     background-color: var(--list-container-background-selected-focused);
     --indicator-border: var(--list-indicator-border-selected-focused);
@@ -173,7 +172,8 @@
     }
   }
 
-  &:focus-within li.selected.current > .container {
+  &:focus-within li.selected.current > .container,
+  & li.drop-target > .container {
     border-color: var(--list-container-border-selected-current-focused);
     background-color: var(--list-container-background-selected-current-focused);
 
