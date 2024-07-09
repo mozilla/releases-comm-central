@@ -174,7 +174,7 @@
   position: relative;
   display: flex;
   align-items: start;
-  overflow-y: scroll;
+  overflow-y: auto;
   overscroll-behavior-y: none;
   height: 100%;
   background-color: var(--tree-view-bg);

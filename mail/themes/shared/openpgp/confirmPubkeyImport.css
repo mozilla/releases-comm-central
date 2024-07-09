@@ -51,7 +51,7 @@ description {
 
 #importKeyListContainer {
   height: 25em;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #importKeyList {

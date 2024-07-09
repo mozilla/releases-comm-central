@@ -200,7 +200,7 @@ dialog h1 {
   flex-direction: column;
   flex: 1;
   border-inline-end: 1px solid var(--hub-account-button-border-color);
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-block: 20px;
   padding-inline: 20px
 }

@@ -43,7 +43,7 @@ notification {
 }
 
 #calendar-event-summary-dialog {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #calendar-summary-dialog-custom-button-footer {
