@@ -1369,9 +1369,9 @@ pref("services.sync.engine.servers", true);
 #endif
 
 // Donation appeal.
-pref("app.donation.eoy.version", 5);
+pref("app.donation.eoy.version", 6);
 pref("app.donation.eoy.version.viewed", 0);
-pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/115.0/spring24/");
+pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/128.0/appeal/");
 
 // IMAP-JS disabled, Bug 1707547.
 pref("mailnews.imap.jsmodule", false);
