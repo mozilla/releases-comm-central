@@ -18,8 +18,8 @@ jobs:
           target-tasks-method: nightly_desktop
       run-on-projects:
           - comm-central
-      when: [{hour: 11, minute: 0}]
-      # when: []
+      # when: [{hour: 11, minute: 0}]
+      when: []
 
     - name: nightly-linux
       job:
