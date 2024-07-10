@@ -1848,10 +1848,9 @@ nsresult nsMsgAccountManager::findServerInternal(
   }
   nsresult rv;
   nsCString hostname;
-  bool isAscii;
   nsCOMPtr<nsIIDNService> idnService =
       do_GetService("@mozilla.org/network/idn-service;1");
-  rv = idnService->ConvertToDisplayIDN(serverHostname, &isAscii, hostname);
+  rv = idnService->ConvertToDisplayIDN(serverHostname, hostname);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
@@ -1883,7 +1882,7 @@ nsresult nsMsgAccountManager::findServerInternal(
       if (NS_FAILED(rv)) continue;
     }
 
-    rv = idnService->ConvertToDisplayIDN(thisHostname, &isAscii, thisHostname);
+    rv = idnService->ConvertToDisplayIDN(thisHostname, thisHostname);
     if (NS_FAILED(rv)) continue;
 
     nsCString thisUsername;
