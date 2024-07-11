@@ -1850,8 +1850,18 @@ nsresult nsMsgAccountManager::findServerInternal(
   nsCString hostname;
   nsCOMPtr<nsIIDNService> idnService =
       do_GetService("@mozilla.org/network/idn-service;1");
+
   rv = idnService->ConvertToDisplayIDN(serverHostname, hostname);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIURL> url;
+  rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+           .SetSpec("imap://"_ns + hostname)
+           .Finalize(url);
+  if (NS_SUCCEEDED(rv)) {
+    rv = url->GetHost(hostname);
+  }
+
   nsCOMPtr<nsIIOService> ioService = mozilla::components::IO::Service();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
 
@@ -1865,25 +1875,25 @@ nsresult nsMsgAccountManager::findServerInternal(
     rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
 
+    // URL mutation expects percent-escaping in the hostname, which
+    // `ConvertToDisplayIDN` will do for us.
+    nsCString normalizedHostname;
+    rv = idnService->ConvertToDisplayIDN(thisHostname, normalizedHostname);
+    if (NS_FAILED(rv)) continue;
+
     // If the hostname will get normalized during URI mutation.
     // E.g. for IP with trailing dot, or hostname that's just a number.
     // We may well be here in findServerInternal to find a server from a folder
     // URI. We need to use the normalized version to find the server.
     // Create an imap url to see what it's normalized to. The normalization
     // is the same for all protocols.
-    nsCOMPtr<nsIURL> url;
     rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-             .SetSpec("imap://"_ns + thisHostname)
+             .SetSpec("imap://"_ns + normalizedHostname)
              .Finalize(url);
     if (NS_SUCCEEDED(rv)) {
-      // Notably, this will fail for "Local Folders" which isn't a valid
-      // hostname.
-      rv = url->GetHost(thisHostname);
+      rv = url->GetHost(normalizedHostname);
       if (NS_FAILED(rv)) continue;
     }
-
-    rv = idnService->ConvertToDisplayIDN(thisHostname, thisHostname);
-    if (NS_FAILED(rv)) continue;
 
     nsCString thisUsername;
     rv = server->GetUsername(thisUsername);
@@ -1906,7 +1916,8 @@ nsresult nsMsgAccountManager::findServerInternal(
     // attribute treat it as a match
     if ((type.IsEmpty() || thisType.Equals(type)) &&
         (hostname.IsEmpty() ||
-         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator)) &&
+         normalizedHostname.Equals(hostname,
+                                   nsCaseInsensitiveCStringComparator)) &&
         (!(port != 0) || (port == thisPort)) &&
         (username.IsEmpty() || thisUsername.Equals(username))) {
       // stop on first find; cache for next time
