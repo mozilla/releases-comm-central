@@ -84,6 +84,13 @@ CARGO_FILES = {
     "mc_cargo_lock": "Cargo.lock",
 }
 
+# Features on dependencies local to mozilla-central that aren't present in m-c's
+# `gkrust/Cargo.toml`, but that we need to preserve to enable
+# Thunderbird-specific behaviour.
+FEATURES_TO_PRESERVE = [
+    "mailnews",
+]
+
 
 def get_cargo(command_context):
     """
@@ -298,13 +305,27 @@ def regen_toml_files(command_context, workspace):
     features = comm_workspace.features
     members = comm_workspace.workspace_members
 
-    # Preserve original deps to gkrust (path = relative)
+    # Preserve original deps to gkrust (path = relative). Also see whether these
+    # deps include features that we need to preserve despite not being present
+    # in m-c.
     comm_gkrust = CargoFile(comm_gkrust_toml)
     local_deps = dict()
+    preserved_features = dict()
     for dep_id in comm_gkrust.dependencies:
         dep = comm_gkrust.dependencies[dep_id]
         if "path" not in dep:
             continue
+
+        if "features" in dep:
+            to_preserve = []
+
+            for feature in dep["features"]:
+                if feature in FEATURES_TO_PRESERVE:
+                    to_preserve.append(feature)
+
+            if len(to_preserve) != 0:
+                preserved_features[dep_id] = to_preserve
+
         path = os.path.abspath(os.path.join(workspace, dep["path"]))
         if os.path.dirname(path) == workspace:
             local_deps[dep_id] = dep
@@ -347,6 +368,15 @@ def regen_toml_files(command_context, workspace):
             del data["default_features"]
         elif "default-features" in data:
             del data["default-features"]
+
+        # Add any feature we need to preserve.
+        if key in preserved_features:
+            dep_features = data.get("features", tomlkit.array())
+            for feature in preserved_features[key]:
+                dep_features.insert(0, feature)
+
+            data["features"] = dep_features
+
         dependencies += inline_encoded_toml(key, data) + "\n"
 
     with open(comm_gkrust_toml, "w") as cargo:
