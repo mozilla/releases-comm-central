@@ -49,6 +49,10 @@ body {
   margin-inline: 30px;
   -moz-context-properties: fill;
   fill: currentColor;
+
+  &:-moz-locale-dir(rtl) {
+    background-position: 100% 0;
+  }
 }
 
 #detailsBox {
@@ -58,20 +62,6 @@ body {
 #updateDeck {
   align-items: center;
   min-height: 33px;
-}
-
-.update-throbber {
-  width: 16px;
-  min-height: 16px;
-  margin-inline-end: 3px;
-  vertical-align: middle;
-  content: url("chrome://messenger/skin/icons/spinning.svg");
-  -moz-context-properties: fill;
-  fill: AccentColor;
-}
-
-#rightBox:-moz-locale-dir(rtl) {
-  background-position: 100% 0;
 }
 
 #bottomBox {
@@ -107,28 +97,22 @@ body {
   display: flex;
   align-items: center;
   position: fixed;
-}
 
-.update-deck-container > * {
-  flex: 0 0 fit-content;
-}
+  & > * {
+    flex: 0 0 fit-content;
+  }
 
-.update-deck-container.deck-selected {
-  visibility: visible;
-}
+  &.deck-selected {
+    visibility: visible;
+  }
 
-.update-deck-container span {
-  font-style: italic;
-}
+  & span {
+    font-style: italic;
 
-.update-deck-container span > a {
-  font-style: normal;
-}
-
-.update-throbber {
-  width: 16px;
-  height: 16px;
-  margin-inline-end: 3px;
+    & > a {
+      font-style: normal;
+    }
+  }
 }
 
 .trademark-label,
@@ -146,14 +130,10 @@ body {
 
 .text-link {
   color: var(--link-color);
-}
 
-.text-link:not(:hover) {
-  text-decoration: var(--link-decoration);
-}
-
-#updateNotes {
-  margin-inline-start: 5px;
+  &:not(:hover) {
+    text-decoration: var(--link-decoration);
+  }
 }
 
 #currentChannel {
@@ -162,19 +142,27 @@ body {
   font-weight: bold;
 }
 
-#icons > .icon {
+#icons {
   -moz-context-properties: fill;
   margin: 10px 5px;
   width: 16px;
   height: 16px;
-}
 
-#icons:not(.checkingForUpdates, .downloading, .applying, .restarting) > .update-throbber,
-#icons:not(.noUpdatesFound) > .noUpdatesFound,
-#icons:not(.apply) > .apply {
-  display: none;
-}
+  &.noUpdatesFound {
+    content: url("chrome://global/skin/icons/check.svg");
+    fill: #16a34a;
+  }
 
-#icons > .noUpdatesFound {
-  fill: #16a34a;
+  &.apply {
+    content: url("chrome://global/skin/icons/reload.svg");
+  }
+
+  &:is(.checkingForUpdates, .downloading, .applying, .restarting) {
+    content: url("chrome://messenger/skin/icons/spinning.svg");
+    fill: AccentColor;
+  }
+
+  &:not(.noUpdatesFound, .apply, .checkingForUpdates, .downloading, .applying, .restarting) {
+    display: none;
+  }
 }
