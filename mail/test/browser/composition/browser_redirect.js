@@ -44,7 +44,7 @@ add_setup(function () {
   const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
-    "Redirect Addresses Testing",
+    "RedirectAddressesTesting",
     "pop3"
   );
 

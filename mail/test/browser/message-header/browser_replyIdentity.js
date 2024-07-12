@@ -115,7 +115,7 @@ add_setup(async function () {
 function addIdentitiesAndFolder() {
   const server = MailServices.accounts.createIncomingServer(
     "nobody",
-    "Reply Identity Testing",
+    "ReplyIdentityTesting",
     "pop3"
   );
   testFolder = server.rootFolder

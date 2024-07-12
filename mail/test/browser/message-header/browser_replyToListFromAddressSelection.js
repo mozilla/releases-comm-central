@@ -77,7 +77,7 @@ function addIdentitiesAndFolder() {
 
   const server = MailServices.accounts.createIncomingServer(
     "nobody",
-    "Test Local Folders",
+    "TestLocalFolders",
     "pop3"
   );
   const localRoot = server.rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);

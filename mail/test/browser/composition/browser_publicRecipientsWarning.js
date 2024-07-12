@@ -45,7 +45,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
-    "BCC Reply Testing",
+    "BCCReplyTesting",
     "pop3"
   );
 

@@ -50,7 +50,7 @@ add_setup(async function () {
   account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
-    "New Msg Compose Identity Testing",
+    "NewMsgComposeIdentityTesting",
     "pop3"
   );
 

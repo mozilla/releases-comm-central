@@ -20,12 +20,12 @@ var mailboxURLs = [
   },
   {
     url: "mailbox://nobody@Local%20Folders/folder?number=2",
-    spec: "mailbox://nobody@local%20folders/folder?number=2",
-    host: "local%20folders",
+    spec: "mailbox://nobody@Local%20Folders/folder?number=2",
+    host: "Local%20Folders",
     port: -1,
     scheme: "mailbox",
     pathQueryRef: "/folder?number=2",
-    prePath: "mailbox://nobody@local%20folders",
+    prePath: "mailbox://nobody@Local%20Folders",
   },
   {
     url: "mailbox://" + mailboxFileName + "?number=3",

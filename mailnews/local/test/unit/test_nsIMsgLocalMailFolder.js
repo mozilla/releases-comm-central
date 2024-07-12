@@ -296,7 +296,7 @@ function run_all_tests(aHostName) {
 }
 
 function run_test() {
-  let hostName = "Local Folders";
+  let hostName = "LocalFoldersTest";
   let index = 0;
   while (index < gPluggableStores.length) {
     Services.prefs.setCharPref(

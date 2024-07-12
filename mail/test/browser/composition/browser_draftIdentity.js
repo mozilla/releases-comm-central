@@ -52,7 +52,7 @@ add_setup(async function () {
   gAccount = MailServices.accounts.createAccount();
   gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
-    "Draft Identity Testing",
+    "DraftIdentityTesting",
     "pop3"
   );
 
