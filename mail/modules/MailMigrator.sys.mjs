@@ -325,7 +325,7 @@ export var MigrationTasks = {
   },
 
   /**
-   * @type MigrationTask[]
+   * @type {MigrationTask[]}
    */
   get tasks() {
     return this._tasks;
@@ -341,7 +341,7 @@ class MigrationTask {
    * migration.ftl. If not specified, this task won't appear in the list of
    * migration tasks.
    *
-   * @type string
+   * @type {string}
    */
   fluentID = null;
 
@@ -349,16 +349,16 @@ class MigrationTask {
    * Smaller tasks for this task. If there are sub-tasks, a progress bar will
    * be displayed to the user, showing how many sub-tasks are complete.
    *
-   * @note A sub-task may not have sub-sub-tasks.
+   * Note: A sub-task may not have sub-sub-tasks.
    *
-   * @type MigrationTask[]
+   * @type {MigrationTask[]}
    */
   subTasks = [];
 
   /**
    * Current status of the task. Either "pending", "running" or "finished".
    *
-   * @type string
+   * @type {string}
    */
   _status = "pending";
 
@@ -376,7 +376,7 @@ class MigrationTask {
    * Current status of the task. Either "pending", "running" or "finished".
    * Emits a "status-change" notification on change.
    *
-   * @type string
+   * @type {string}
    */
   get status() {
     return this._status;
