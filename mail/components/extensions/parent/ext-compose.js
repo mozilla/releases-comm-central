@@ -490,10 +490,13 @@ async function getComposeDetails(composeWindow, extension) {
   };
 
   // Handle encryption. Check the actual state of the composer, which could be
-  // invalid, but required by Thunderbird's security engineer.
-  const encryptionEnabled = !!composeWindow.document
-    .getElementById("button-encryption")
-    .getAttribute("checked");
+  // invalid, but required by Thunderbird's security engineer. If the encryption
+  // button has been removed, fallback to gSendEncrypted. Both should be identical,
+  // but the API should always use the actual button state, if available.
+  const encButton = composeWindow.document.getElementById("button-encryption");
+  const encryptionEnabled = encButton
+    ? !!encButton.getAttribute("checked")
+    : composeWindow.gSendEncrypted;
   const isPgpConfigured = composeWindow.isPgpConfigured();
   const isSmimeSigningConfigured = composeWindow.isSmimeSigningConfigured();
   const isSmimeEncryptionConfigured =
