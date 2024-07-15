@@ -82,7 +82,7 @@
           "additionalFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <var>null</var>.",
+            "description": "An additional fcc folder which can be selected while composing the message. Cleared when set to <var>null</var>. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": "omit-key-if-missing"
           },
           "additionalFccFolder": {
@@ -99,7 +99,7 @@
                 "enum": [""]
               }
             ],
-            "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used.",
+            "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": true
           },
           "attachPublicPGPKey": {
@@ -214,7 +214,7 @@
             "max_manifest_version": 2,
             "type": "boolean",
             "optional": true,
-            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <var>false</var> will clear the override. Setting <var>true</var> will throw an <em>ExtensionError</em>, if <var>overrideDefaultFccFolder</var> is not set as well."
+            "description": "Indicates whether the default fcc setting (defined by the used identity) is being overridden for this message. Setting <var>false</var> will clear the override. Setting <var>true</var> will throw an <em>ExtensionError</em>, if <var>overrideDefaultFccFolder</var> is not set as well. The permission <permission>accountsRead</permission> is required to use this property."
           },
           "overrideDefaultFccFolder": {
             "max_manifest_version": 2,
@@ -231,12 +231,12 @@
               }
             ],
             "optional": true,
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolder) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all."
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolder) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. The permission <permission>accountsRead</permission> is required to use this property."
           },
           "overrideDefaultFccFolderId": {
             "min_manifest_version": 3,
             "$ref": "folders.MailFolderId",
-            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolderId) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>.",
+            "description": " This value overrides the default fcc setting (defined by the used identity) for this message only. Either a $(ref:folders.MailFolderId) specifying the folder for the copy of the sent message, or an empty string to not save a copy at all. Reset when set to <var>null</var>. The permission <permission>accountsRead</permission> is required to use this property.",
             "optional": "omit-key-if-missing"
           },
           "plainTextBody": {

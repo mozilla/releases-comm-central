@@ -422,14 +422,22 @@ async function getComposeDetails(composeWindow, extension) {
     overrideDefaultFcc = true;
   }
   let overrideDefaultFccFolder = "";
-  if (overrideDefaultFcc && !composeFields.fcc.startsWith("nocopy://")) {
+  if (
+    extension.hasPermission("accountsRead") &&
+    overrideDefaultFcc &&
+    !composeFields.fcc.startsWith("nocopy://")
+  ) {
     const folder = MailUtils.getExistingFolder(composeFields.fcc);
     if (folder) {
       overrideDefaultFccFolder = extension.folderManager.convert(folder);
     }
   }
   let additionalFccFolder = "";
-  if (composeFields.fcc2 && !composeFields.fcc2.startsWith("nocopy://")) {
+  if (
+    extension.hasPermission("accountsRead") &&
+    composeFields.fcc2 &&
+    !composeFields.fcc2.startsWith("nocopy://")
+  ) {
     const folder = MailUtils.getExistingFolder(composeFields.fcc2);
     if (folder) {
       additionalFccFolder = extension.folderManager.convert(folder);
@@ -525,24 +533,24 @@ async function getComposeDetails(composeWindow, extension) {
     details.relatedMessageId = relatedMessageId;
   }
 
-  // overrideDefaultFcc is no longer needed in MV3.
-  if (extension.manifest.manifest_version < 3) {
-    details.additionalFccFolder = additionalFccFolder;
-    details.overrideDefaultFcc = overrideDefaultFcc;
-    if (overrideDefaultFcc) {
-      details.overrideDefaultFccFolder = overrideDefaultFccFolder;
-    }
-  } else {
-    if (additionalFccFolder?.id) {
-      details.additionalFccFolderId = additionalFccFolder.id;
-    }
-    if (overrideDefaultFcc) {
-      // Either a valid folder or disabled.
-      details.overrideDefaultFccFolderId = overrideDefaultFccFolder.id || "";
-    }
-  }
-
   if (extension.hasPermission("accountsRead")) {
+    // overrideDefaultFcc is no longer needed in MV3.
+    if (extension.manifest.manifest_version < 3) {
+      details.additionalFccFolder = additionalFccFolder;
+      details.overrideDefaultFcc = overrideDefaultFcc;
+      if (overrideDefaultFcc) {
+        details.overrideDefaultFccFolder = overrideDefaultFccFolder;
+      }
+    } else {
+      if (additionalFccFolder?.id) {
+        details.additionalFccFolderId = additionalFccFolder.id;
+      }
+      if (overrideDefaultFcc) {
+        // Either a valid folder or disabled.
+        details.overrideDefaultFccFolderId = overrideDefaultFccFolder.id || "";
+      }
+    }
+
     details.identityId = composeWindow.getCurrentIdentityKey();
   }
   return details;
@@ -658,51 +666,56 @@ async function setComposeDetails(composeWindow, details, extension) {
   await setFromField(composeWindow, details, extension);
 
   // Set file carbon copy values.
-  if (extension.manifest.manifest_version < 3) {
-    if (details.overrideDefaultFcc === false) {
-      composeFields.fcc = "";
-    } else if (details.overrideDefaultFccFolder != null) {
-      // Override identity fcc with enforced value.
-      if (details.overrideDefaultFccFolder) {
-        const { folder } = getFolder(details.overrideDefaultFccFolder);
-        composeFields.fcc = folder.URI;
-      } else {
+  if (extension.hasPermission("accountsRead")) {
+    if (extension.manifest.manifest_version < 3) {
+      if (details.overrideDefaultFcc === false) {
+        composeFields.fcc = "";
+      } else if (details.overrideDefaultFccFolder != null) {
+        // Override identity fcc with enforced value.
+        if (details.overrideDefaultFccFolder) {
+          const { folder } = getFolder(details.overrideDefaultFccFolder);
+          composeFields.fcc = folder.URI;
+        } else {
+          composeFields.fcc = "nocopy://";
+        }
+      } else if (
+        details.overrideDefaultFcc === true &&
+        composeFields.fcc == ""
+      ) {
+        throw new ExtensionError(
+          `Setting overrideDefaultFcc to true requires setting overrideDefaultFccFolder as well`
+        );
+      }
+
+      if (details.additionalFccFolder != null) {
+        if (details.additionalFccFolder) {
+          const { folder } = getFolder(details.additionalFccFolder);
+          composeFields.fcc2 = folder.URI;
+        } else {
+          composeFields.fcc2 = "";
+        }
+      }
+    } else {
+      // We need === here to differentiate between null and undefined.
+      if (details.overrideDefaultFccFolderId === null) {
+        composeFields.fcc = "";
+      } else if (details.overrideDefaultFccFolderId == "") {
         composeFields.fcc = "nocopy://";
+      } else if (details.overrideDefaultFccFolderId) {
+        // Override identity fcc with enforced value.
+        const { folder } = getFolder(details.overrideDefaultFccFolderId);
+        composeFields.fcc = folder.URI;
       }
-    } else if (details.overrideDefaultFcc === true && composeFields.fcc == "") {
-      throw new ExtensionError(
-        `Setting overrideDefaultFcc to true requires setting overrideDefaultFccFolder as well`
-      );
-    }
 
-    if (details.additionalFccFolder != null) {
-      if (details.additionalFccFolder) {
-        const { folder } = getFolder(details.additionalFccFolder);
-        composeFields.fcc2 = folder.URI;
-      } else {
+      if (
+        details.additionalFccFolderId === null ||
+        details.additionalFccFolderId == ""
+      ) {
         composeFields.fcc2 = "";
+      } else if (details.additionalFccFolderId) {
+        const { folder } = getFolder(details.additionalFccFolderId);
+        composeFields.fcc2 = folder.URI;
       }
-    }
-  } else {
-    // We need === here to differentiate between null and undefined.
-    if (details.overrideDefaultFccFolderId === null) {
-      composeFields.fcc = "";
-    } else if (details.overrideDefaultFccFolderId == "") {
-      composeFields.fcc = "nocopy://";
-    } else if (details.overrideDefaultFccFolderId) {
-      // Override identity fcc with enforced value.
-      const { folder } = getFolder(details.overrideDefaultFccFolderId);
-      composeFields.fcc = folder.URI;
-    }
-
-    if (
-      details.additionalFccFolderId === null ||
-      details.additionalFccFolderId == ""
-    ) {
-      composeFields.fcc2 = "";
-    } else if (details.additionalFccFolderId) {
-      const { folder } = getFolder(details.additionalFccFolderId);
-      composeFields.fcc2 = folder.URI;
     }
   }
 
