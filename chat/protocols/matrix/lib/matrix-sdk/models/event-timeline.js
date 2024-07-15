@@ -4,11 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.EventTimeline = exports.Direction = void 0;
-var _logger = require("../logger");
 var _roomState = require("./room-state");
 var _event = require("../@types/event");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -331,25 +330,13 @@ class EventTimeline {
    * @param event - new event
    * @param options - addEvent options
    */
-
-  /**
-   * @deprecated In favor of the overload with `IAddEventOptions`
-   */
-
-  addEvent(event, toStartOfTimelineOrOpts, roomState) {
-    let toStartOfTimeline = !!toStartOfTimelineOrOpts;
-    let timelineWasEmpty;
-    if (typeof toStartOfTimelineOrOpts === "object") {
-      ({
-        toStartOfTimeline,
-        roomState,
-        timelineWasEmpty
-      } = toStartOfTimelineOrOpts);
-    } else if (toStartOfTimelineOrOpts !== undefined) {
-      // Deprecation warning
-      // FIXME: Remove after 2023-06-01 (technical debt)
-      _logger.logger.warn("Overload deprecated: " + "`EventTimeline.addEvent(event, toStartOfTimeline, roomState?)` " + "is deprecated in favor of the overload with `EventTimeline.addEvent(event, IAddEventOptions)`");
-    }
+  addEvent(event, {
+    toStartOfTimeline,
+    roomState,
+    timelineWasEmpty
+  } = {
+    toStartOfTimeline: false
+  }) {
     if (!roomState) {
       roomState = toStartOfTimeline ? this.startState : this.endState;
     }

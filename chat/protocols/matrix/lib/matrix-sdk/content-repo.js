@@ -35,10 +35,15 @@ limitations under the License.
  * for such URLs.
  * @param allowRedirects - If true, the caller supports the URL being 307 or
  * 308 redirected to another resource upon request. If false, redirects
- * are not expected.
+ * are not expected. Implied `true` when `useAuthentication` is `true`.
+ * @param useAuthentication - If true, the caller supports authenticated
+ * media and wants an authentication-required URL. Note that server support
+ * for authenticated media will *not* be checked - it is the caller's responsibility
+ * to do so before calling this function. Note also that `useAuthentication`
+ * implies `allowRedirects`. Defaults to false (unauthenticated endpoints).
  * @returns The complete URL to the content.
  */
-function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirectLinks = false, allowRedirects) {
+function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirectLinks = false, allowRedirects, useAuthentication) {
   if (typeof mxc !== "string" || !mxc) {
     return "";
   }
@@ -49,8 +54,21 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
       return "";
     }
   }
+  if (useAuthentication) {
+    allowRedirects = true; // per docs (MSC3916 always expects redirects)
+
+    // Dev note: MSC3916 (as of writing) removes `allow_redirect` entirely, but
+    // for explicitness we set it here. This makes it slightly more obvious to
+    // callers, hopefully.
+  }
   let serverAndMediaId = mxc.slice(6); // strips mxc://
-  let prefix = "/_matrix/media/v3/download/";
+  let prefix;
+  if (useAuthentication) {
+    // TODO: Use stable once available (requires FCP on MSC3916).
+    prefix = "/_matrix/client/unstable/org.matrix.msc3916/media/download/";
+  } else {
+    prefix = "/_matrix/media/v3/download/";
+  }
   const params = {};
   if (width) {
     params["width"] = Math.round(width).toString();
@@ -64,7 +82,12 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
   if (Object.keys(params).length > 0) {
     // these are thumbnailing params so they probably want the
     // thumbnailing API...
-    prefix = "/_matrix/media/v3/thumbnail/";
+    if (useAuthentication) {
+      // TODO: Use stable once available (requires FCP on MSC3916).
+      prefix = "/_matrix/client/unstable/org.matrix.msc3916/media/thumbnail/";
+    } else {
+      prefix = "/_matrix/media/v3/thumbnail/";
+    }
   }
   if (typeof allowRedirects === "boolean") {
     // We add this after, so we don't convert everything to a thumbnail request.

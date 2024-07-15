@@ -41,6 +41,7 @@ var _event2 = require("../models/event");
 var _client = require("../client");
 var _RoomList = require("./RoomList");
 var _typedEventEmitter = require("../models/typed-event-emitter");
+var _CryptoBackend = require("../common-crypto/CryptoBackend");
 var _roomState = require("../models/room-state");
 var _utils = require("../utils");
 var _secretStorage = require("../secret-storage");
@@ -48,13 +49,14 @@ var _cryptoApi = require("../crypto-api");
 var _deviceConverter = require("./device-converter");
 var _httpApi = require("../http-api");
 var _base = require("../base64");
+var _membership = require("../@types/membership");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd
@@ -161,8 +163,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    * @param clientStore - the MatrixClient data store.
    *
    * @param cryptoStore - storage for the crypto layer.
-   *
-   * @param roomList - An initialised RoomList object
    *
    * @param verificationMethods - Array of verification methods to use.
    *    Each element can either be a string from MatrixClient.verificationMethods
@@ -463,7 +463,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi#getVersion}.
+   * Implementation of {@link Crypto.CryptoApi#getVersion}.
    */
   getVersion() {
     const olmVersionTuple = Crypto.getOlmVersion();
@@ -616,7 +616,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi#getCrossSigningStatus}
+   * Implementation of {@link Crypto.CryptoApi#getCrossSigningStatus}
    */
   async getCrossSigningStatus() {
     const publicKeysOnDevice = Boolean(this.crossSigningInfo.getId());
@@ -646,15 +646,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *   secret storage (if it has been setup)
    *
    * The cross-signing API is currently UNSTABLE and may change without notice.
-   *
-   * @param authUploadDeviceSigningKeys - Function
-   * called to await an interactive auth flow when uploading device signing keys.
-   * @param setupNewCrossSigning - Optional. Reset even if keys
-   * already exist.
-   * Args:
-   *     A function that makes the request requiring auth. Receives the
-   *     auth data as an object. Can be called multiple times, first with an empty
-   *     authDict, to obtain the flows.
    */
   async bootstrapCrossSigning({
     authUploadDeviceSigningKeys,
@@ -753,20 +744,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * The Secure Secret Storage API is currently UNSTABLE and may change without notice.
    *
-   * @param createSecretStorageKey - Optional. Function
-   * called to await a secret storage key creation flow.
-   *     Returns a Promise which resolves to an object with public key metadata, encoded private
-   *     recovery key which should be disposed of after displaying to the user,
-   *     and raw private key to avoid round tripping if needed.
-   * @param keyBackupInfo - The current key backup object. If passed,
-   * the passphrase and recovery key from this backup will be used.
-   * @param setupNewKeyBackup - If true, a new key backup version will be
-   * created and the private key stored in the new SSSS store. Ignored if keyBackupInfo
-   * is supplied.
-   * @param setupNewSecretStorage - Optional. Reset even if keys already exist.
-   * @param getKeyBackupPassphrase - Optional. Function called to get the user's
-   *     current key backup passphrase. Should return a promise that resolves with a Buffer
-   *     containing the key, or rejects if the key cannot be obtained.
    * Returns:
    *     A promise which resolves to key creation data for
    *     SecretStorage#addKey: an object with `passphrase` etc fields.
@@ -979,7 +956,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi#resetKeyBackup}.
+   * Implementation of {@link Crypto.CryptoApi#resetKeyBackup}.
    */
   async resetKeyBackup() {
     // Delete existing ones
@@ -1007,7 +984,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi#deleteKeyBackupVersion}.
+   * Implementation of {@link Crypto.CryptoApi#deleteKeyBackupVersion}.
    */
   async deleteKeyBackupVersion(version) {
     await this.backupManager.deleteKeyBackupVersion(version);
@@ -1148,7 +1125,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Get the current status of key backup.
    *
-   * Implementation of {@link CryptoApi.getActiveSessionBackupVersion}.
+   * Implementation of {@link Crypto.CryptoApi.getActiveSessionBackupVersion}.
    */
   async getActiveSessionBackupVersion() {
     if (this.backupManager.getKeyBackupEnabled()) {
@@ -1170,7 +1147,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Force a re-check of the key backup and enable/disable it as appropriate.
    *
-   * Implementation of {@link CryptoApi.checkKeyBackupAndEnable}.
+   * Implementation of {@link Crypto.CryptoApi.checkKeyBackupAndEnable}.
    */
   async checkKeyBackupAndEnable() {
     const checkResult = await this.backupManager.checkKeyBackup();
@@ -1369,7 +1346,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi.getUserVerificationStatus}.
+   * Implementation of {@link Crypto.CryptoApi.getUserVerificationStatus}.
    */
   async getUserVerificationStatus(userId) {
     return this.checkUserTrust(userId);
@@ -1599,7 +1576,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Implementation of {@link CryptoBackend#importBackedUpRoomKeys}.
    */
-  importBackedUpRoomKeys(keys, opts = {}) {
+  importBackedUpRoomKeys(keys, backupVersion, opts = {}) {
     opts.source = "backup";
     return this.importRoomKeys(keys, opts);
   }
@@ -1692,7 +1669,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @returns base64-encoded ed25519 key.
    *
-   * @deprecated Use {@link CryptoApi#getOwnDeviceKeys}.
+   * @deprecated Use {@link Crypto.CryptoApi#getOwnDeviceKeys}.
    */
   getDeviceEd25519Key() {
     return this.olmDevice.deviceEd25519Key;
@@ -1703,14 +1680,14 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @returns base64-encoded curve25519 key.
    *
-   * @deprecated Use {@link CryptoApi#getOwnDeviceKeys}
+   * @deprecated Use {@link Crypto.CryptoApi#getOwnDeviceKeys}
    */
   getDeviceCurve25519Key() {
     return this.olmDevice.deviceCurve25519Key;
   }
 
   /**
-   * Implementation of {@link CryptoApi#getOwnDeviceKeys}.
+   * Implementation of {@link Crypto.CryptoApi#getOwnDeviceKeys}.
    */
   async getOwnDeviceKeys() {
     if (!this.olmDevice.deviceCurve25519Key) {
@@ -2016,7 +1993,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Mark the given device as locally verified.
    *
-   * Implementation of {@link CryptoApi#setDeviceVerified}.
+   * Implementation of {@link Crypto.CryptoApi#setDeviceVerified}.
    */
   async setDeviceVerified(userId, deviceId, verified = true) {
     await this.setDeviceVerification(userId, deviceId, verified);
@@ -2025,7 +2002,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Blindly cross-sign one of our other devices.
    *
-   * Implementation of {@link CryptoApi#crossSignDevice}.
+   * Implementation of {@link Crypto.CryptoApi#crossSignDevice}.
    */
   async crossSignDevice(deviceId) {
     await this.setDeviceVerified(this.userId, deviceId, true);
@@ -2410,7 +2387,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi.getEncryptionInfoForEvent}.
+   * Implementation of {@link Crypto.CryptoApi.getEncryptionInfoForEvent}.
    */
   async getEncryptionInfoForEvent(event) {
     const encryptionInfo = this.getEventEncryptionInfo(event);
@@ -3070,7 +3047,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
 
       // ignore any rooms which we have left
       const myMembership = room.getMyMembership();
-      return myMembership === "join" || myMembership === "invite";
+      return myMembership === _membership.KnownMembership.Join || myMembership === _membership.KnownMembership.Invite;
     });
   }
 
@@ -3414,11 +3391,11 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // the result of anyway, as we'll need to do a query again once all the members are fetched
     // by calling _trackRoomDevices
     if (roomId in this.roomDeviceTrackingState) {
-      if (member.membership == "join") {
+      if (member.membership == _membership.KnownMembership.Join) {
         _logger.logger.log("Join event for " + member.userId + " in " + roomId);
         // make sure we are tracking the deviceList for this user
         this.deviceList.startTrackingDeviceList(member.userId);
-      } else if (member.membership == "invite" && this.clientStore.getRoom(roomId)?.shouldEncryptForInvitedMembers()) {
+      } else if (member.membership == _membership.KnownMembership.Invite && this.clientStore.getRoom(roomId)?.shouldEncryptForInvitedMembers()) {
         _logger.logger.log("Invite event for " + member.userId + " in " + roomId);
         this.deviceList.startTrackingDeviceList(member.userId);
       }
@@ -3600,7 +3577,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     }
     const AlgClass = algorithms.DECRYPTION_CLASSES.get(algorithm);
     if (!AlgClass) {
-      throw new algorithms.DecryptionError("UNKNOWN_ENCRYPTION_ALGORITHM", 'Unknown encryption algorithm "' + algorithm + '".');
+      throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.UNKNOWN_ENCRYPTION_ALGORITHM, 'Unknown encryption algorithm "' + algorithm + '".');
     }
     alg = new AlgClass({
       userId: this.userId,
@@ -3658,7 +3635,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Implementation of {@link CryptoApi#isEncryptionEnabledInRoom}.
+   * Implementation of {@link Crypto.CryptoApi#isEncryptionEnabledInRoom}.
    */
   async isEncryptionEnabledInRoom(roomId) {
     return this.isRoomEncrypted(roomId);
@@ -3670,6 +3647,21 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    */
   getRoomEncryption(roomId) {
     return this.roomList.getRoomEncryption(roomId);
+  }
+
+  /**
+   * Returns whether dehydrated devices are supported by the crypto backend
+   * and by the server.
+   */
+  async isDehydrationSupported() {
+    return false;
+  }
+
+  /**
+   * Stub function -- dehydration is not implemented here, so throw error
+   */
+  async startDehydration(createNewKey) {
+    throw new Error("Not implemented");
   }
 }
 

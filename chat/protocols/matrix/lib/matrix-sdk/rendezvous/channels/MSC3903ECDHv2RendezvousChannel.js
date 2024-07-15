@@ -9,8 +9,8 @@ var _base = require("../../base64");
 var _crypto = require("../../crypto/crypto");
 var _SASDecimal = require("../../crypto/verification/SASDecimal");
 var _NamespacedValue = require("../../NamespacedValue");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -41,6 +41,9 @@ async function importKey(key) {
  * Implementation of the unstable [MSC3903](https://github.com/matrix-org/matrix-spec-proposals/pull/3903)
  * X25519/ECDH key agreement based secure rendezvous channel.
  * Note that this is UNSTABLE and may have breaking changes without notice.
+ * MSC3886/MSC3903/MSC3906 are now closed and so this functionality will be removed in future.
+ * However, we want to keep this implementation around for some time.
+ * TODO: define an end-of-life date for this implementation.
  */
 class MSC3903ECDHv2RendezvousChannel {
   constructor(transport, theirPublicKey, onFailure) {
@@ -91,7 +94,7 @@ class MSC3903ECDHv2RendezvousChannel {
         algorithm
       } = res;
       if (!algorithm || !ECDH_V2.matches(algorithm) || !key) {
-        throw new _.RendezvousError("Unsupported algorithm: " + algorithm, _.RendezvousFailureReason.UnsupportedAlgorithm);
+        throw new _.RendezvousError("Unsupported algorithm: " + algorithm, _.LegacyRendezvousFailureReason.UnsupportedAlgorithm);
       }
       this.theirPublicKey = (0, _base.decodeBase64)(key);
     } else {

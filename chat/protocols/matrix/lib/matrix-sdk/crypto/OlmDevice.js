@@ -6,11 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.WITHHELD_MESSAGES = exports.PayloadTooLargeError = exports.OlmDevice = void 0;
 var _logger = require("../logger");
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
-var algorithms = _interopRequireWildcard(require("./algorithms"));
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+var _cryptoApi = require("../crypto-api");
+var _CryptoBackend = require("../common-crypto/CryptoBackend");
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -125,11 +124,7 @@ class OlmDevice {
    *
    * Reads the device keys from the OlmAccount object.
    *
-   * @param fromExportedDevice - (Optional) data from exported device
-   *     that must be re-created.
-   *     If present, opts.pickleKey is ignored
-   *     (exported data already provides a pickle key)
-   * @param pickleKey - (Optional) pickle key to set instead of default one
+   * @param IInitOpts - opts to initialise the OlmAccount with
    */
   async init({
     pickleKey,
@@ -944,7 +939,7 @@ class OlmDevice {
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData, withheld) => {
         if (session === null || sessionData === null) {
           if (withheld) {
-            error = new algorithms.DecryptionError("MEGOLM_UNKNOWN_INBOUND_SESSION_ID", calculateWithheldMessage(withheld), {
+            error = new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.MEGOLM_UNKNOWN_INBOUND_SESSION_ID, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });
           }
@@ -956,7 +951,7 @@ class OlmDevice {
           res = session.decrypt(body);
         } catch (e) {
           if (e?.message === "OLM.UNKNOWN_MESSAGE_INDEX" && withheld) {
-            error = new algorithms.DecryptionError("MEGOLM_UNKNOWN_INBOUND_SESSION_ID", calculateWithheldMessage(withheld), {
+            error = new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.MEGOLM_UNKNOWN_INBOUND_SESSION_ID, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });
           } else {

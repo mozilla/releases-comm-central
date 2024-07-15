@@ -4,13 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var _exportNames = {
+  DecryptionFailureCode: true,
   UserVerificationStatus: true,
   DeviceVerificationStatus: true,
   CrossSigningKey: true,
   EventShieldColour: true,
   EventShieldReason: true
 };
-exports.UserVerificationStatus = exports.EventShieldReason = exports.EventShieldColour = exports.DeviceVerificationStatus = exports.CrossSigningKey = void 0;
+exports.UserVerificationStatus = exports.EventShieldReason = exports.EventShieldColour = exports.DeviceVerificationStatus = exports.DecryptionFailureCode = exports.CrossSigningKey = void 0;
 var _verification = require("./crypto-api/verification");
 Object.keys(_verification).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -35,8 +36,8 @@ Object.keys(_keybackup).forEach(function (key) {
     }
   });
 });
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
@@ -53,17 +54,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 /**
  * Public interface to the cryptography parts of the js-sdk
  *
  * @remarks Currently, this is a work-in-progress. In time, more methods will be added here.
  */
-
+/** A reason code for a failure to decrypt an event. */
+let DecryptionFailureCode = exports.DecryptionFailureCode = /*#__PURE__*/function (DecryptionFailureCode) {
+  DecryptionFailureCode["MEGOLM_UNKNOWN_INBOUND_SESSION_ID"] = "MEGOLM_UNKNOWN_INBOUND_SESSION_ID";
+  DecryptionFailureCode["OLM_UNKNOWN_MESSAGE_INDEX"] = "OLM_UNKNOWN_MESSAGE_INDEX";
+  DecryptionFailureCode["HISTORICAL_MESSAGE_NO_KEY_BACKUP"] = "HISTORICAL_MESSAGE_NO_KEY_BACKUP";
+  DecryptionFailureCode["HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED"] = "HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED";
+  DecryptionFailureCode["HISTORICAL_MESSAGE_WORKING_BACKUP"] = "HISTORICAL_MESSAGE_WORKING_BACKUP";
+  DecryptionFailureCode["HISTORICAL_MESSAGE_USER_NOT_JOINED"] = "HISTORICAL_MESSAGE_USER_NOT_JOINED";
+  DecryptionFailureCode["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
+  DecryptionFailureCode["MEGOLM_BAD_ROOM"] = "MEGOLM_BAD_ROOM";
+  DecryptionFailureCode["MEGOLM_MISSING_FIELDS"] = "MEGOLM_MISSING_FIELDS";
+  DecryptionFailureCode["OLM_DECRYPT_GROUP_MESSAGE_ERROR"] = "OLM_DECRYPT_GROUP_MESSAGE_ERROR";
+  DecryptionFailureCode["OLM_BAD_ENCRYPTED_MESSAGE"] = "OLM_BAD_ENCRYPTED_MESSAGE";
+  DecryptionFailureCode["OLM_BAD_RECIPIENT"] = "OLM_BAD_RECIPIENT";
+  DecryptionFailureCode["OLM_BAD_RECIPIENT_KEY"] = "OLM_BAD_RECIPIENT_KEY";
+  DecryptionFailureCode["OLM_BAD_ROOM"] = "OLM_BAD_ROOM";
+  DecryptionFailureCode["OLM_BAD_SENDER_CHECK_FAILED"] = "OLM_BAD_SENDER_CHECK_FAILED";
+  DecryptionFailureCode["OLM_BAD_SENDER"] = "OLM_BAD_SENDER";
+  DecryptionFailureCode["OLM_FORWARDED_MESSAGE"] = "OLM_FORWARDED_MESSAGE";
+  DecryptionFailureCode["OLM_MISSING_CIPHERTEXT"] = "OLM_MISSING_CIPHERTEXT";
+  DecryptionFailureCode["OLM_NOT_INCLUDED_IN_RECIPIENTS"] = "OLM_NOT_INCLUDED_IN_RECIPIENTS";
+  DecryptionFailureCode["UNKNOWN_ENCRYPTION_ALGORITHM"] = "UNKNOWN_ENCRYPTION_ALGORITHM";
+  return DecryptionFailureCode;
+}({});
 /**
  * Options object for `CryptoApi.bootstrapCrossSigning`.
  */
-
 /**
  * Represents the ways in which we trust a user
  */

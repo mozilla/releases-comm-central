@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v31.4.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v33.1.0.
 
 The following npm dependencies are included:
 
@@ -15,7 +15,7 @@ The following npm dependencies are included:
 * oidc-client-ts: https://www.npmjs.com/package/oidc-client-ts v3.0.1
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.2
 * retry: https://www.npmjs.com/package/retry v0.13.1
-* sdp-transform: https://www.npmjs.com/package/sdp-transform v2.14.1
+* sdp-transform: https://www.npmjs.com/package/sdp-transform v2.14.2
 * unhomoglyph: https://www.npmjs.com/package/unhomoglyph v1.0.6
 
 The following npm dependencies are shimmed:
@@ -36,11 +36,11 @@ in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
 ## Updating matrix-js-sdk
 
 1.  Download the matrix-js-sdk repository from https://github.com/matrix-org/matrix-js-sdk/.
-2.  Modify `.babelrc` (see below).
+2.  Modify `babel.config.js` (see below).
 3.  (If this is an old checkout, remove any previous artifacts. Run `rm -r lib; rm -r node_modules`.)
 4.  Run `yarn install`.
 5.  Run Babel in the matrix-js-sdk checkout:
-    `./node_modules/.bin/babel --source-maps false -d lib --extensions ".ts,.js" src`
+    `./node_modules/.bin/babel -d lib --extensions ".ts,.js" src`
     (at time of writing identical to `yarn build:compile`)
 6.  The following commands assume you're in mozilla-central/comm and that the
     matrix-js-sdk is checked out next to mozilla-central.
@@ -49,35 +49,39 @@ in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
 0.  Copy the Babel-ified JavaScript files from the matrix-js-sdk to vendored
     location: `cp -r ../../matrix-js-sdk/lib/* chat/protocols/matrix/lib/matrix-sdk`
 10. Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
-11. Modify `chat/protocols/matrix/lib/moz.build` to add/remove/rename modified
-    files. Note that some modules that have no actual contents (just an empty
-    export) are not currently included.
-12. Modify `matrix-sdk.sys.mjs` to add/remove/rename any changed modules.
+11. Find "empty" files: `md5sum chat/protocols/matrix/lib/**/*.js | grep a7ef62a133eed5bbaa2a23637d04d13b | cut -d "/" -f 5-`
+12. Modify `chat/protocols/matrix/lib/moz.build` to add/remove/rename modified
+    files. Empty files (see step 11) have no useful content and are not packaged.
+13. Modify `matrix-sdk.sys.mjs` to add/remove/rename any changed modules. Empty
+    files (see step 11) which are imported should be explictly pointed to `empty.js`.
 
 ### Custom `.babelrc`
 
 By default, the matrix-js-sdk targets a version of ECMAScript that is far below
 what Gecko supports, this causes lots of additional processing to occur (e.g.
-converting async functions, etc.) To disable this, a custom `.babelrc` file is
+converting async functions, etc.) To disable this, a custom `babel.config.js` file is
 used:
 
 ```javascript
-{
-    "sourceMaps": false,
-    "presets": [
-        ["@babel/preset-env", {
-            "targets": "last 1 firefox versions",
-            "modules": "commonjs"
-        }],
-        "@babel/preset-typescript"
+module.exports = {
+    sourceMaps: false,
+    presets: [
+        [
+            "@babel/preset-env",
+            {
+                targets: "last 1 firefox versions",
+                modules: "commonjs",
+            },
+        ],
+        "@babel/preset-typescript",
     ],
-    "plugins": [
+    plugins: [
         "@babel/plugin-proposal-numeric-separator",
         "@babel/plugin-proposal-class-properties",
         "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-syntax-dynamic-import"
-    ]
-}
+        "@babel/plugin-syntax-dynamic-import",
+    ],
+};
 ```
 
 Babel doesn't natively understand class properties yet, even though we would

@@ -10,8 +10,9 @@ var _Error = require("./Error");
 var _base = require("../../base64");
 var _logger = require("../../logger");
 var _verification = require("../../crypto-api/verification");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+var _types = require("../../types");
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -29,8 +30,8 @@ limitations under the License.
 */ /**
  * QR code key verification.
  */
-const SHOW_QR_CODE_METHOD = exports.SHOW_QR_CODE_METHOD = "m.qr_code.show.v1";
-const SCAN_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = "m.qr_code.scan.v1";
+const SHOW_QR_CODE_METHOD = exports.SHOW_QR_CODE_METHOD = _types.VerificationMethod.ShowQrCode;
+const SCAN_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = _types.VerificationMethod.ScanQrCode;
 
 /** @deprecated use VerifierEvent */
 

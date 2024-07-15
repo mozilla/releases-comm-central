@@ -4,14 +4,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.migrateFromLegacyCrypto = migrateFromLegacyCrypto;
+exports.migrateLegacyLocalTrustIfNeeded = migrateLegacyLocalTrustIfNeeded;
 exports.migrateRoomSettingsFromLegacyCrypto = migrateRoomSettingsFromLegacyCrypto;
 var RustSdkCryptoJs = _interopRequireWildcard(require("@matrix-org/matrix-sdk-crypto-wasm"));
 var _base = require("../crypto/store/base");
 var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
 var _aes = require("../crypto/aes");
 var _backup = require("./backup");
+var _utils = require("../utils");
+var _base2 = require("../base64");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
 Copyright 2023-2024 The Matrix.org Foundation C.I.C.
 
@@ -52,6 +55,17 @@ async function migrateFromLegacyCrypto(args) {
     return;
   }
   await legacyStore.startup();
+  let accountPickle = null;
+  await legacyStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+    legacyStore.getAccount(txn, acctPickle => {
+      accountPickle = acctPickle;
+    });
+  });
+  if (!accountPickle) {
+    // This store is not properly set up. Nothing to migrate.
+    logger.debug("Legacy crypto store is not set up (no account found). Not migrating.");
+    return;
+  }
   let migrationState = await legacyStore.getMigrationState();
   if (migrationState >= _base.MigrationState.MEGOLM_SESSIONS_MIGRATED) {
     // All migration is done for now. The room list comes later, once we have an OlmMachine.
@@ -70,7 +84,7 @@ async function migrateFromLegacyCrypto(args) {
   const pickleKey = new TextEncoder().encode(args.legacyPickleKey);
   if (migrationState === _base.MigrationState.NOT_STARTED) {
     logger.info("Migrating data from legacy crypto store. Step 1: base data");
-    await migrateBaseData(args.http, args.userId, args.deviceId, legacyStore, pickleKey, args.storeHandle);
+    await migrateBaseData(args.http, args.userId, args.deviceId, legacyStore, pickleKey, args.storeHandle, logger);
     migrationState = _base.MigrationState.INITIAL_DATA_MIGRATED;
     await legacyStore.setMigrationState(migrationState);
   }
@@ -92,7 +106,7 @@ async function migrateFromLegacyCrypto(args) {
   args.legacyMigrationProgressListener?.(-1, -1);
   logger.info("Migration from legacy crypto store complete");
 }
-async function migrateBaseData(http, userId, deviceId, legacyStore, pickleKey, storeHandle) {
+async function migrateBaseData(http, userId, deviceId, legacyStore, pickleKey, storeHandle, logger) {
   const migrationData = new RustSdkCryptoJs.BaseMigrationData();
   migrationData.userId = new RustSdkCryptoJs.UserId(userId);
   migrationData.deviceId = new RustSdkCryptoJs.DeviceId(deviceId);
@@ -102,12 +116,37 @@ async function migrateBaseData(http, userId, deviceId, legacyStore, pickleKey, s
   const recoveryKey = await getAndDecryptCachedSecretKey(legacyStore, pickleKey, "m.megolm_backup.v1");
 
   // If we have a backup recovery key, we need to try to figure out which backup version it is for.
-  // All we can really do is ask the server for the most recent version.
+  // All we can really do is ask the server for the most recent version and check if the cached key we have matches.
+  // It is possible that the backup has changed since last time his session was opened.
   if (recoveryKey) {
-    const backupInfo = await (0, _backup.requestKeyBackupVersion)(http);
-    if (backupInfo) {
-      migrationData.backupVersion = backupInfo.version;
-      migrationData.backupRecoveryKey = recoveryKey;
+    let backupCallDone = false;
+    let backupInfo = null;
+    while (!backupCallDone) {
+      try {
+        backupInfo = await (0, _backup.requestKeyBackupVersion)(http);
+        backupCallDone = true;
+      } catch (e) {
+        logger.info("Failed to get backup version during migration, retrying in 2 seconds", e);
+        // Retry until successful, use simple constant delay
+        await (0, _utils.sleep)(2000);
+      }
+    }
+    if (backupInfo && backupInfo.algorithm == "m.megolm_backup.v1.curve25519-aes-sha2") {
+      // check if the recovery key matches, as the active backup version may have changed since the key was cached
+      // and the migration started.
+      try {
+        const decryptionKey = RustSdkCryptoJs.BackupDecryptionKey.fromBase64(recoveryKey);
+        const publicKey = backupInfo.auth_data?.public_key;
+        const isValid = decryptionKey.megolmV1PublicKey.publicKeyBase64 == publicKey;
+        if (isValid) {
+          migrationData.backupVersion = backupInfo.version;
+          migrationData.backupRecoveryKey = recoveryKey;
+        } else {
+          logger.debug("The backup key to migrate does not match the active backup version", `Cached pub key: ${decryptionKey.megolmV1PublicKey.publicKeyBase64}`, `Active pub key: ${publicKey}`);
+        }
+      } catch (e) {
+        logger.warn("Failed to check if the backup key to migrate matches the active backup version", e);
+      }
     }
   }
   migrationData.privateCrossSigningMasterKey = await getAndDecryptCachedSecretKey(legacyStore, pickleKey, "master");
@@ -258,11 +297,108 @@ async function migrateRoomSettingsFromLegacyCrypto({
   await legacyStore.setMigrationState(_base.MigrationState.ROOM_SETTINGS_MIGRATED);
 }
 async function getAndDecryptCachedSecretKey(legacyStore, legacyPickleKey, name) {
-  let encodedKey = null;
-  await legacyStore.doTxn("readonly", "account", txn => {
-    legacyStore.getSecretStorePrivateKey(txn, k => {
-      encodedKey = k;
-    }, name);
+  const key = await new Promise(resolve => {
+    legacyStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+      legacyStore.getSecretStorePrivateKey(txn, resolve, name);
+    });
   });
-  return encodedKey === null ? undefined : await (0, _aes.decryptAES)(encodedKey, legacyPickleKey, name);
+  if (key && key.ciphertext && key.iv && key.mac) {
+    return await (0, _aes.decryptAES)(key, legacyPickleKey, name);
+  } else if (key instanceof Uint8Array) {
+    // This is a legacy backward compatibility case where the key was stored in clear.
+    return (0, _base2.encodeBase64)(key);
+  } else {
+    return undefined;
+  }
+}
+
+/**
+ * Check if the user's published identity (ie, public cross-signing keys) was trusted by the legacy session,
+ * and if so mark it as trusted in the Rust session if needed.
+ *
+ * By default, if the legacy session didn't have the private MSK, the migrated session will revert to unverified,
+ * even if the user has verified the session in the past.
+ *
+ * This only occurs if the private MSK was not cached in the crypto store (USK and SSK private keys won't help
+ * to establish trust: the trust is rooted in the MSK).
+ *
+ * Rust crypto will only consider the current session as trusted if we import the private MSK itself.
+ *
+ * We could prompt the user to verify the session again, but it's probably better to just mark the user identity
+ * as locally verified if it was before.
+ *
+ * See https://github.com/element-hq/element-web/issues/27079
+ *
+ * @param args - Argument object.
+ */
+async function migrateLegacyLocalTrustIfNeeded(args) {
+  const {
+    legacyCryptoStore,
+    rustCrypto,
+    logger
+  } = args;
+  // Get the public cross-signing identity from rust.
+  const rustOwnIdentity = await rustCrypto.getOwnIdentity();
+  if (!rustOwnIdentity) {
+    // There are no cross-signing keys published server side, so nothing to do here.
+    return;
+  }
+  if (rustOwnIdentity.isVerified()) {
+    // The rust session already trusts the keys, so again, nothing to do.
+    return;
+  }
+  const legacyLocallyTrustedMSK = await getLegacyTrustedPublicMasterKeyBase64(legacyCryptoStore);
+  if (!legacyLocallyTrustedMSK) {
+    // The user never verified their identity in the legacy session, so nothing to do.
+    return;
+  }
+  const mskInfo = JSON.parse(rustOwnIdentity.masterKey);
+  if (!mskInfo.keys || Object.keys(mskInfo.keys).length === 0) {
+    // This should not happen, but let's be safe
+    logger.error("Post Migration | Unexpected error: no master key in the rust session.");
+    return;
+  }
+  const rustSeenMSK = Object.values(mskInfo.keys)[0];
+  if (rustSeenMSK && rustSeenMSK == legacyLocallyTrustedMSK) {
+    logger.info(`Post Migration: Migrating legacy trusted MSK: ${legacyLocallyTrustedMSK} to locally verified.`);
+    // Let's mark the user identity as locally verified as part of the migration.
+    await rustOwnIdentity.verify();
+    // As well as marking the MSK as trusted, `OlmMachine.verify` returns a
+    // `SignatureUploadRequest` which will publish a signature of the MSK using
+    // this device. In this case, we ignore the request: since the user hasn't
+    // actually re-verified the MSK, we don't publish a new signature. (`.verify`
+    // doesn't store the signature, and if we drop the request here it won't be
+    // retried.)
+    //
+    // Not publishing the signature is consistent with the behaviour of
+    // matrix-crypto-sdk when the private key is imported via
+    // `importCrossSigningKeys`, and when the identity is verified via interactive
+    // verification.
+    //
+    // [Aside: device signatures on the MSK are not considered by the rust-sdk to
+    // establish the trust of the user identity so in any case, what we actually do
+    // here is somewhat moot.]
+  }
+}
+
+/**
+ * Checks if the legacy store has a trusted public master key, and returns it if so.
+ *
+ * @param legacyStore - The legacy store to check.
+ *
+ * @returns `null` if there were no cross signing keys or if they were not trusted. The trusted public master key if it was.
+ */
+async function getLegacyTrustedPublicMasterKeyBase64(legacyStore) {
+  let maybeTrustedKeys = null;
+  await legacyStore.doTxn("readonly", "account", txn => {
+    legacyStore.getCrossSigningKeys(txn, keys => {
+      // can be an empty object after resetting cross-signing keys, see storeTrustedSelfKeys
+      const msk = keys?.master;
+      if (msk && Object.keys(msk.keys).length != 0) {
+        // `msk.keys` is an object with { [`ed25519:${pubKey}`]: pubKey }
+        maybeTrustedKeys = Object.values(msk.keys)[0];
+      }
+    });
+  });
+  return maybeTrustedKeys;
 }

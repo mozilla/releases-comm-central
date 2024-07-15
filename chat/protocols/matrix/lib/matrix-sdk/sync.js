@@ -13,7 +13,6 @@ var _utils = require("./utils");
 var _filter = require("./filter");
 var _eventTimeline = require("./models/event-timeline");
 var _logger = require("./logger");
-var _errors = require("./errors");
 var _client = require("./client");
 var _httpApi = require("./http-api");
 var _event = require("./@types/event");
@@ -22,10 +21,11 @@ var _roomMember = require("./models/room-member");
 var _beacon = require("./models/beacon");
 var _sync = require("./@types/sync");
 var _feature = require("./feature");
+var _membership = require("./@types/membership");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
 
@@ -160,9 +160,9 @@ class SyncApi {
       }
       return filter;
     });
-    _defineProperty(this, "checkLazyLoadStatus", async () => {
-      debuglog("Checking lazy load status...");
-      if (this.opts.lazyLoadMembers && this.client.isGuest()) {
+    _defineProperty(this, "prepareLazyLoadingForSync", async () => {
+      debuglog("Prepare lazy loading for sync...");
+      if (this.client.isGuest()) {
         this.opts.lazyLoadMembers = false;
       }
       if (this.opts.lazyLoadMembers) {
@@ -172,25 +172,11 @@ class SyncApi {
         }
         this.opts.filter.setLazyLoadMembers(true);
       }
-      // need to vape the store when enabling LL and wasn't enabled before
-      debuglog("Checking whether lazy loading has changed in store...");
-      const shouldClear = await this.wasLazyLoadingToggled(this.opts.lazyLoadMembers);
-      if (shouldClear) {
-        this.storeIsInvalid = true;
-        const error = new _errors.InvalidStoreError(_errors.InvalidStoreState.ToggledLazyLoading, !!this.opts.lazyLoadMembers);
-        this.updateSyncState(SyncState.Error, {
-          error
-        });
-        // bail out of the sync loop now: the app needs to respond to this error.
-        // we leave the state as 'ERROR' which isn't great since this normally means
-        // we're retrying. The client must be stopped before clearing the stores anyway
-        // so the app should stop the client, clear the store and start it again.
-        _logger.logger.warn("InvalidStoreError: store is not usable: stopping sync.");
-        return;
-      }
       if (this.opts.lazyLoadMembers) {
         this.syncOpts.crypto?.enableLazyLoading();
       }
+    });
+    _defineProperty(this, "storeClientOptions", async () => {
       try {
         debuglog("Storing client options...");
         await this.client.storeClientOptions();
@@ -533,25 +519,6 @@ class SyncApi {
     });
     await keepaliveProm;
   }
-
-  /**
-   * Is the lazy loading option different than in previous session?
-   * @param lazyLoadMembers - current options for lazy loading
-   * @returns whether or not the option has changed compared to the previous session */
-  async wasLazyLoadingToggled(lazyLoadMembers = false) {
-    // assume it was turned off before
-    // if we don't know any better
-    let lazyLoadMembersBefore = false;
-    const isStoreNewlyCreated = await this.client.store.isNewlyCreated();
-    if (!isStoreNewlyCreated) {
-      const prevClientOptions = await this.client.store.getClientOptions();
-      if (prevClientOptions) {
-        lazyLoadMembersBefore = !!prevClientOptions.lazyLoadMembers;
-      }
-      return lazyLoadMembersBefore !== lazyLoadMembers;
-    }
-    return false;
-  }
   shouldAbortSync(error) {
     if (error.errcode === "M_UNKNOWN_TOKEN") {
       // The logout already happened, we just need to stop.
@@ -598,14 +565,15 @@ class SyncApi {
     //   1) We need to get push rules so we can check if events should bing as we get
     //      them from /sync.
     //   2) We need to get/create a filter which we can use for /sync.
-    //   3) We need to check the lazy loading option matches what was used in the
-    //       stored sync. If it doesn't, we can't use the stored sync.
+    //   3) We need to prepare lazy loading for sync
+    //   4) We need to store the client options
 
     // Now start the first incremental sync request: this can also
     // take a while so if we set it going now, we can wait for it
     // to finish while we process our saved sync data.
     await this.getPushRules();
-    await this.checkLazyLoadStatus();
+    await this.prepareLazyLoadingForSync();
+    await this.storeClientOptions();
     const {
       filterId,
       filter
@@ -1146,11 +1114,11 @@ class SyncApi {
       }
       const unreadThreadNotifications = joinObj[_sync.UNREAD_THREAD_NOTIFICATIONS.name] ?? joinObj[_sync.UNREAD_THREAD_NOTIFICATIONS.altName];
       if (unreadThreadNotifications) {
-        // Only partially reset unread notification
-        // We want to keep the client-generated count. Particularly important
-        // for encrypted room that refresh their notification count on event
-        // decryption
-        room.resetThreadUnreadNotificationCount(Object.keys(unreadThreadNotifications));
+        // This mirrors the logic above for rooms: take the *total* notification count from
+        // the server for unencrypted rooms or is it's zero. Any threads not present in this
+        // object implicitly have zero notifications, so start by clearing the total counts
+        // for all such threads.
+        room.resetThreadUnreadNotificationCountFromSync(Object.keys(unreadThreadNotifications));
         for (const [threadId, unreadNotification] of Object.entries(unreadThreadNotifications)) {
           if (!encrypted || unreadNotification.notification_count === 0) {
             room.setThreadUnreadNotificationCount(threadId, _room.NotificationCountType.Total, unreadNotification.notification_count ?? 0);
@@ -1161,7 +1129,7 @@ class SyncApi {
           }
         }
       } else {
-        room.resetThreadUnreadNotificationCount();
+        room.resetThreadUnreadNotificationCountFromSync();
       }
       joinObj.timeline = joinObj.timeline || {};
       if (joinObj.isBrandNewRoom) {
@@ -1462,7 +1430,7 @@ class SyncApi {
     const client = this.client;
     // For each invited room member we want to give them a displayname/avatar url
     // if they have one (the m.room.member invites don't contain this).
-    room.getMembersWithMembership("invite").forEach(function (member) {
+    room.getMembersWithMembership(_membership.KnownMembership.Invite).forEach(function (member) {
       if (member.requestedProfileInfo) return;
       member.requestedProfileInfo = true;
       // try to get a cached copy first.
@@ -1481,7 +1449,7 @@ class SyncApi {
         // the code paths remain the same between invite/join display name stuff
         // which is a worthy trade-off for some minor pollution.
         const inviteEvent = member.events.member;
-        if (inviteEvent?.getContent().membership !== "invite") {
+        if (inviteEvent?.getContent().membership !== _membership.KnownMembership.Invite) {
           // between resolving and now they have since joined, so don't clobber
           return;
         }

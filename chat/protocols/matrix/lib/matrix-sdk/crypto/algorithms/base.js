@@ -3,10 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UnknownDeviceError = exports.EncryptionAlgorithm = exports.ENCRYPTION_CLASSES = exports.DecryptionError = exports.DecryptionAlgorithm = exports.DECRYPTION_CLASSES = void 0;
+exports.DecryptionAlgorithm = exports.DECRYPTION_CLASSES = void 0;
+Object.defineProperty(exports, "DecryptionError", {
+  enumerable: true,
+  get: function () {
+    return _CryptoBackend.DecryptionError;
+  }
+});
+exports.UnknownDeviceError = exports.EncryptionAlgorithm = exports.ENCRYPTION_CLASSES = void 0;
 exports.registerAlgorithm = registerAlgorithm;
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+var _CryptoBackend = require("../../common-crypto/CryptoBackend");
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 /*
 Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
@@ -162,35 +170,7 @@ class DecryptionAlgorithm {
     return false;
   }
 }
-
-/**
- * Exception thrown when decryption fails
- *
- * @param msg - user-visible message describing the problem
- *
- * @param details - key/value pairs reported in the logs but not shown
- *   to the user.
- */
 exports.DecryptionAlgorithm = DecryptionAlgorithm;
-class DecryptionError extends Error {
-  constructor(code, msg, details) {
-    super(msg);
-    this.code = code;
-    _defineProperty(this, "detailedString", void 0);
-    this.code = code;
-    this.name = "DecryptionError";
-    this.detailedString = detailedStringForDecryptionError(this, details);
-  }
-}
-exports.DecryptionError = DecryptionError;
-function detailedStringForDecryptionError(err, details) {
-  let result = err.name + "[msg: " + err.message;
-  if (details) {
-    result += ", " + Object.keys(details).map(k => k + ": " + details[k]).join(", ");
-  }
-  result += "]";
-  return result;
-}
 class UnknownDeviceError extends Error {
   /**
    * Exception thrown specifically when we want to warn the user to consider
@@ -222,3 +202,5 @@ function registerAlgorithm(algorithm, encryptor, decryptor) {
   ENCRYPTION_CLASSES.set(algorithm, encryptor);
   DECRYPTION_CLASSES.set(algorithm, decryptor);
 }
+
+/* Re-export for backwards compatibility. Deprecated: this is an internal class. */

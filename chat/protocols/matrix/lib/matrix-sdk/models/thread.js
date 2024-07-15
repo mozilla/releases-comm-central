@@ -20,8 +20,8 @@ var _read_receipts = require("../@types/read_receipts");
 var _feature = require("../feature");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2021 - 2023 The Matrix.org Foundation C.I.C.
 
@@ -45,9 +45,6 @@ let ThreadEvent = exports.ThreadEvent = /*#__PURE__*/function (ThreadEvent) {
   ThreadEvent["Delete"] = "Thread.delete";
   return ThreadEvent;
 }({});
-/**
- * @deprecated please use ThreadEventHandlerMap instead
- */
 let FeatureSupport = exports.FeatureSupport = /*#__PURE__*/function (FeatureSupport) {
   FeatureSupport[FeatureSupport["None"] = 0] = "None";
   FeatureSupport[FeatureSupport["Experimental"] = 1] = "Experimental";
@@ -92,7 +89,7 @@ class Thread extends _readReceipt.ReadReceipt {
      *
      * So it looks like this is only really relevant when initialEventsFetched
      * is false, because as soon as the initial events have been fetched, we
-     * should have a timeline (I think).
+     * should have a proper chunk of timeline from the pagination fetch.
      *
      * If all replies in this thread are redacted, this is set to the root
      * event. I'm not clear what the meaning of this is, since usually after the
@@ -122,6 +119,7 @@ class Thread extends _readReceipt.ReadReceipt {
      * that we've already fetched them.
      */
     _defineProperty(this, "initialEventsFetched", !Thread.hasServerSideSupport);
+    _defineProperty(this, "initalEventFetchProm", void 0);
     /**
      * An array of events to add to the timeline once the thread has been initialised
      * with server suppport.
@@ -214,8 +212,8 @@ class Thread extends _readReceipt.ReadReceipt {
     this.setEventMetadata(this.rootEvent);
   }
   async fetchRootEvent() {
-    this.rootEvent = this.room.findEventById(this.id);
-    // If the rootEvent does not exist in the local stores, then fetch it from the server.
+    // Always fetch the root event, even if we already have it, so we can get the latest
+    // state (via unsigned).
     try {
       const eventData = await this.client.fetchRoomEvent(this.roomId, this.id);
       const mapper = this.client.getEventMapper();
@@ -318,20 +316,20 @@ class Thread extends _readReceipt.ReadReceipt {
       // When there's no server-side support, just add it to the end of the timeline.
       this.addEventToTimeline(event, toStartOfTimeline);
       this.client.decryptEventIfNeeded(event);
-    } else if (!toStartOfTimeline && this.initialEventsFetched && isNewestReply) {
-      // When we've asked for the event to be added to the end, and we're
-      // not in the initial state, and this event belongs at the end, add it.
-      this.addEventToTimeline(event, false);
-      this.fetchEditsWhereNeeded(event);
     } else if (event.isRelation(_event.RelationType.Annotation) || event.isRelation(_event.RelationType.Replace)) {
       this.addRelatedThreadEvent(event, toStartOfTimeline);
       return;
-    } else if (this.initialEventsFetched) {
-      // If initial events have not been fetched, we are OK to throw away
-      // this event, because we are about to fetch all the events for this
-      // thread from the server.
-
+    } else if (!toStartOfTimeline && isNewestReply) {
+      // When we've asked for the event to be added to the end,
+      // and this event belongs at the end, add it.
+      this.addEventToTimeline(event, false);
+      this.fetchEditsWhereNeeded(event);
+    } else {
       // Otherwise, we should add it, but we suspect it is out of order.
+      // This may be because we've just created the thread object and are
+      // still fetching events, in which case add it where we think is sensible
+      // and it will be removed and replaced with the events from the pagination
+      // request once that completes.
       if (toStartOfTimeline) {
         // If we're adding at the start of the timeline, it doesn't
         // matter that it's out of order.
@@ -518,29 +516,48 @@ class Thread extends _readReceipt.ReadReceipt {
     }
     await this.processRootEventPromise;
     if (!this.initialEventsFetched) {
-      this.initialEventsFetched = true;
-      // fetch initial event to allow proper pagination
-      try {
-        // if the thread has regular events, this will just load the last reply.
-        // if the thread is newly created, this will load the root event.
-        if (this.replyCount === 0 && this.rootEvent) {
-          this.timelineSet.addEventsToTimeline([this.rootEvent], true, this.liveTimeline, null);
-          this.liveTimeline.setPaginationToken(null, _eventTimeline.Direction.Backward);
-        } else {
-          await this.client.paginateEventTimeline(this.liveTimeline, {
-            backwards: true
-          });
+      if (this.initalEventFetchProm) {
+        await this.initalEventFetchProm;
+      } else {
+        // fetch initial events to allow proper pagination
+        try {
+          // clear out any events that were added before the pagination request
+          // completed (eg. from sync). They'll be replaced by those from the pagination.
+          // Really, we should do this after the pagination request completes, but
+          // paginateEventTimeline does the request and adds the events in one go, so
+          // this would need a refactor in order to do. It's therefore possible there's
+          // a remaining race where an event comes in while the pagination request is
+          // happening.
+          this.timelineSet.resetLiveTimeline();
+          // if the thread has regular events, this will just load the last reply.
+          // if the thread is newly created, this will load the root event.
+          if (this.replyCount === 0 && this.rootEvent) {
+            this.timelineSet.addEventsToTimeline([this.rootEvent], true, this.liveTimeline, null);
+            this.liveTimeline.setPaginationToken(null, _eventTimeline.Direction.Backward);
+          } else {
+            this.initalEventFetchProm = this.client.paginateEventTimeline(this.liveTimeline, {
+              backwards: true
+            });
+            await this.initalEventFetchProm;
+          }
+          // We have now fetched the initial events, so set the flag. We need to do this before
+          // we actually add the events, so `this.addEvents` knows that it can now safely add
+          // them rather than buffer them in the pending event list. The main thing is that this
+          // must remain false while the async fetch happens, so we don't try to add events before
+          // the pagination has finished. The important thing is that we're not await-ing anything
+          // else between setting this and adding events, so no races.
+          this.initialEventsFetched = true;
+          for (const event of this.replayEvents) {
+            this.addEvent(event, false);
+          }
+          this.replayEvents = null;
+          // just to make sure that, if we've created a timeline window for this thread before the thread itself
+          // existed (e.g. when creating a new thread), we'll make sure the panel is force refreshed correctly.
+          this.emit(_room.RoomEvent.TimelineReset, this.room, this.timelineSet, true);
+        } catch (e) {
+          _logger.logger.error("Failed to load start of newly created thread: ", e);
+          this.initialEventsFetched = false;
         }
-        for (const event of this.replayEvents) {
-          this.addEvent(event, false);
-        }
-        this.replayEvents = null;
-        // just to make sure that, if we've created a timeline window for this thread before the thread itself
-        // existed (e.g. when creating a new thread), we'll make sure the panel is force refreshed correctly.
-        this.emit(_room.RoomEvent.TimelineReset, this.room, this.timelineSet, true);
-      } catch (e) {
-        _logger.logger.error("Failed to load start of newly created thread: ", e);
-        this.initialEventsFetched = false;
       }
     }
     this.emit(ThreadEvent.Update, this);
@@ -589,7 +606,7 @@ class Thread extends _readReceipt.ReadReceipt {
   /**
    * Return last reply to the thread, if known.
    */
-  lastReply(matches = ev => ev.isRelation(_event.RelationType.Thread)) {
+  lastReply(matches = ev => ev.isRelation(THREAD_RELATION_TYPE.name)) {
     for (let i = this.timeline.length - 1; i >= 0; i--) {
       const event = this.timeline[i];
       if (matches(event)) {

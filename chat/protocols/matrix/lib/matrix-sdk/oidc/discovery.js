@@ -3,13 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.discoverAndValidateAuthenticationConfig = void 0;
+exports.discoverAndValidateOIDCIssuerWellKnown = void 0;
 var _oidcClientTs = require("oidc-client-ts");
 var _validate = require("./validate");
+var _httpApi = require("../http-api");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -28,21 +29,26 @@ limitations under the License.
 /**
  * @experimental
  * Discover and validate delegated auth configuration
- * - m.authentication config is present and valid
  * - delegated auth issuer openid-configuration is reachable
  * - delegated auth issuer openid-configuration is configured correctly for us
+ * Fetches https://oidc-issuer.example.com/.well-known/openid-configuration and other files linked therein.
  * When successful, validated metadata is returned
- * @param wellKnown - configuration object as returned
- * by the .well-known auto-discovery endpoint
+ * @param issuer - the OIDC issuer as returned by the /auth_issuer API
  * @returns validated authentication metadata and optionally signing keys
  * @throws when delegated auth config is invalid or unreachable
  */
-const discoverAndValidateAuthenticationConfig = async authenticationConfig => {
-  const homeserverAuthenticationConfig = (0, _validate.validateWellKnownAuthentication)(authenticationConfig);
+const discoverAndValidateOIDCIssuerWellKnown = async issuer => {
+  const issuerOpenIdConfigUrl = new URL(".well-known/openid-configuration", issuer);
+  const issuerWellKnownResponse = await fetch(issuerOpenIdConfigUrl, {
+    method: _httpApi.Method.Get,
+    signal: (0, _httpApi.timeoutSignal)(5000)
+  });
+  const issuerWellKnown = await issuerWellKnownResponse.json();
+  const validatedIssuerConfig = (0, _validate.validateOIDCIssuerWellKnown)(issuerWellKnown);
 
-  // create a temporary settings store so we can use metadata service for discovery
+  // create a temporary settings store, so we can use metadata service for discovery
   const settings = new _oidcClientTs.OidcClientSettingsStore({
-    authority: homeserverAuthenticationConfig.issuer,
+    authority: issuer,
     redirect_uri: "",
     // Not known yet, this is here to make the type checker happy
     client_id: "" // Not known yet, this is here to make the type checker happy
@@ -51,9 +57,9 @@ const discoverAndValidateAuthenticationConfig = async authenticationConfig => {
   const metadata = await metadataService.getMetadata();
   const signingKeys = (await metadataService.getSigningKeys()) ?? undefined;
   (0, _validate.isValidatedIssuerMetadata)(metadata);
-  return _objectSpread(_objectSpread({}, homeserverAuthenticationConfig), {}, {
+  return _objectSpread(_objectSpread({}, validatedIssuerConfig), {}, {
     metadata,
     signingKeys
   });
 };
-exports.discoverAndValidateAuthenticationConfig = discoverAndValidateAuthenticationConfig;
+exports.discoverAndValidateOIDCIssuerWellKnown = discoverAndValidateOIDCIssuerWellKnown;

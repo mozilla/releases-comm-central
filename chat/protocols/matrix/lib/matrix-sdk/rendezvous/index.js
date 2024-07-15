@@ -14,6 +14,17 @@ Object.keys(_MSC3906Rendezvous).forEach(function (key) {
     }
   });
 });
+var _MSC4108SignInWithQR = require("./MSC4108SignInWithQR");
+Object.keys(_MSC4108SignInWithQR).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _MSC4108SignInWithQR[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _MSC4108SignInWithQR[key];
+    }
+  });
+});
 var _RendezvousChannel = require("./RendezvousChannel");
 Object.keys(_RendezvousChannel).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -77,6 +88,28 @@ Object.keys(_RendezvousTransport).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _RendezvousTransport[key];
+    }
+  });
+});
+var _transports = require("./transports");
+Object.keys(_transports).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _transports[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _transports[key];
+    }
+  });
+});
+var _channels = require("./channels");
+Object.keys(_channels).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _channels[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _channels[key];
     }
   });
 });

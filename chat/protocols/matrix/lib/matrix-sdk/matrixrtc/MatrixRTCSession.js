@@ -12,8 +12,9 @@ var _CallMembership = require("./CallMembership");
 var _roomState = require("../models/room-state");
 var _randomstring = require("../randomstring");
 var _base = require("../base64");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+var _membership = require("../@types/membership");
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -82,7 +83,6 @@ class MatrixRTCSession extends _typedEventEmitter.TypedEventEmitter {
     for (const memberEvent of callMemberEvents) {
       const eventMemberships = memberEvent.getContent()["memberships"];
       if (eventMemberships === undefined) {
-        _logger.logger.debug(`Ignoring malformed member event from ${memberEvent.getSender()}: no memberships section`);
         continue;
       }
       if (!Array.isArray(eventMemberships)) {
@@ -101,7 +101,7 @@ class MatrixRTCSession extends _typedEventEmitter.TypedEventEmitter {
             _logger.logger.info(`Ignoring expired device membership ${membership.sender}/${membership.deviceId}`);
             continue;
           }
-          if (!room.hasMembershipState(membership.sender ?? "", "join")) {
+          if (!room.hasMembershipState(membership.sender ?? "", _membership.KnownMembership.Join)) {
             _logger.logger.info(`Ignoring membership of user ${membership.sender} who is not in the room.`);
             continue;
           }
@@ -512,7 +512,7 @@ class MatrixRTCSession extends _typedEventEmitter.TypedEventEmitter {
   }
   /**
    * Constructs our own membership
-   * @param prevEvent - The previous version of our call membership, if any
+   * @param prevMembership - The previous value of our call membership, if any
    */
   makeMyMembership(prevMembership) {
     if (this.relativeExpiry === undefined) {

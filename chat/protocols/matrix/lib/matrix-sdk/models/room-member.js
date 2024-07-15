@@ -9,8 +9,9 @@ var _utils = require("../utils");
 var _logger = require("../logger");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _event = require("../@types/event");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+var _membership = require("../@types/membership");
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -238,7 +239,7 @@ class RoomMember extends _typedEventEmitter.TypedEventEmitter {
     return this.modified;
   }
   isKicked() {
-    return this.membership === "leave" && this.events.member !== undefined && this.events.member.getSender() !== this.events.member.getStateKey();
+    return this.membership === _membership.KnownMembership.Leave && this.events.member !== undefined && this.events.member.getSender() !== this.events.member.getStateKey();
   }
 
   /**
@@ -260,11 +261,11 @@ class RoomMember extends _typedEventEmitter.TypedEventEmitter {
       const memberEvent = this.events.member;
       let memberContent = memberEvent.getContent();
       let inviteSender = memberEvent.getSender();
-      if (memberContent.membership === "join") {
+      if (memberContent.membership === _membership.KnownMembership.Join) {
         memberContent = memberEvent.getPrevContent();
         inviteSender = memberEvent.getUnsigned().prev_sender;
       }
-      if (memberContent.membership === "invite" && memberContent.is_direct) {
+      if (memberContent.membership === _membership.KnownMembership.Invite && memberContent.is_direct) {
         return inviteSender;
       }
     }

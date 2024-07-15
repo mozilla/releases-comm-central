@@ -3,8 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSIGNED_THREAD_ID_FIELD = exports.ToDeviceMessageId = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.PUSHER_ENABLED = exports.PUSHER_DEVICE_ID = exports.MsgType = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
+exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSIGNED_THREAD_ID_FIELD = exports.UNSIGNED_MEMBERSHIP_FIELD = exports.ToDeviceMessageId = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.PUSHER_ENABLED = exports.PUSHER_DEVICE_ID = exports.MsgType = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
 var _NamespacedValue = require("../NamespacedValue");
+var _beacon = require("./beacon");
+var _polls = require("./polls");
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.
 
@@ -37,6 +39,9 @@ let EventType = exports.EventType = /*#__PURE__*/function (EventType) {
   EventType["RoomServerAcl"] = "m.room.server_acl";
   EventType["RoomTombstone"] = "m.room.tombstone";
   EventType["RoomPredecessor"] = "org.matrix.msc3946.room_predecessor";
+  EventType["PolicyRuleUser"] = "m.policy.rule.user";
+  EventType["PolicyRuleRoom"] = "m.policy.rule.room";
+  EventType["PolicyRuleServer"] = "m.policy.rule.server";
   EventType["SpaceChild"] = "m.space.child";
   EventType["SpaceParent"] = "m.space.parent";
   EventType["RoomRedaction"] = "m.room.redaction";
@@ -221,3 +226,18 @@ const LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.LOCAL_NOTIFICATION_SETTINGS_P
  * @experimental
  */
 const UNSIGNED_THREAD_ID_FIELD = exports.UNSIGNED_THREAD_ID_FIELD = new _NamespacedValue.UnstableValue("thread_id", "org.matrix.msc4023.thread_id");
+
+/**
+ * https://github.com/matrix-org/matrix-spec-proposals/pull/4115
+ *
+ * @experimental
+ */
+const UNSIGNED_MEMBERSHIP_FIELD = exports.UNSIGNED_MEMBERSHIP_FIELD = new _NamespacedValue.NamespacedValue("membership", "io.element.msc4115.membership");
+
+/**
+ * Mapped type from event type to content type for all specified non-state room events.
+ */
+
+/**
+ * Mapped type from event type to content type for all specified room state events.
+ */

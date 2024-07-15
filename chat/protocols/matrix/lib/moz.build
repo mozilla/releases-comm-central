@@ -37,11 +37,17 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/sliding-sync.js",
     "matrix-sdk/sync-accumulator.js",
     "matrix-sdk/sync.js",
+    "matrix-sdk/testing.js",
     "matrix-sdk/thread-utils.js",
     "matrix-sdk/timeline-window.js",
     "matrix-sdk/ToDeviceMessageQueue.js",
+    "matrix-sdk/types.js",
     "matrix-sdk/utils.js",
     "matrix-sdk/version-support.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.common_crypto += [
+    "matrix-sdk/common-crypto/CryptoBackend.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
@@ -167,6 +173,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.oidc += [
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
     "matrix-sdk/rendezvous/index.js",
     "matrix-sdk/rendezvous/MSC3906Rendezvous.js",
+    "matrix-sdk/rendezvous/MSC4108SignInWithQR.js",
     "matrix-sdk/rendezvous/RendezvousError.js",
     "matrix-sdk/rendezvous/RendezvousFailureReason.js",
     "matrix-sdk/rendezvous/RendezvousIntent.js",
@@ -174,19 +181,21 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.channels += [
     "matrix-sdk/rendezvous/channels/index.js",
-    "matrix-sdk/rendezvous/channels/MSC3903ECDHv1RendezvousChannel.js",
     "matrix-sdk/rendezvous/channels/MSC3903ECDHv2RendezvousChannel.js",
+    "matrix-sdk/rendezvous/channels/MSC4108SecureChannel.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
     "matrix-sdk/rendezvous/transports/index.js",
     "matrix-sdk/rendezvous/transports/MSC3886SimpleHttpRendezvousTransport.js",
+    "matrix-sdk/rendezvous/transports/MSC4108RendezvousSession.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.rust_crypto += [
     "matrix-sdk/rust-crypto/backup.js",
     "matrix-sdk/rust-crypto/constants.js",
     "matrix-sdk/rust-crypto/CrossSigningIdentity.js",
+    "matrix-sdk/rust-crypto/DehydratedDeviceManager.js",
     "matrix-sdk/rust-crypto/device-converter.js",
     "matrix-sdk/rust-crypto/index.js",
     "matrix-sdk/rust-crypto/KeyClaimManager.js",
@@ -216,6 +225,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/event.js",
     "matrix-sdk/@types/extensible_events.js",
     "matrix-sdk/@types/location.js",
+    "matrix-sdk/@types/membership.js",
     "matrix-sdk/@types/partials.js",
     "matrix-sdk/@types/polls.js",
     "matrix-sdk/@types/PushRules.js",

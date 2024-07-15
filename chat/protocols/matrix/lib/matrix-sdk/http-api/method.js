@@ -24,5 +24,8 @@ let Method = exports.Method = /*#__PURE__*/function (Method) {
   Method["Put"] = "PUT";
   Method["Post"] = "POST";
   Method["Delete"] = "DELETE";
+  Method["Options"] = "OPTIONS";
+  Method["Head"] = "HEAD";
+  Method["Patch"] = "PATCH";
   return Method;
 }({});

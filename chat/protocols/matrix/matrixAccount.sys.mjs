@@ -29,12 +29,12 @@ ChromeUtils.defineLazyGetter(
 ChromeUtils.defineESModuleGetters(lazy, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.sys.mjs",
-  MatrixCrypto: "resource:///modules/matrix-sdk.sys.mjs",
   MatrixMessageContent: "resource:///modules/matrixMessageContent.sys.mjs",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.sys.mjs",
   MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
   OlmLib: "resource:///modules/matrix-sdk.sys.mjs",
   ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
+  VerificationMethod: "resource:///modules/matrix-sdk.sys.mjs",
   Logger: "resource:///modules/matrixAccountLogger.sys.mjs",
 });
 
@@ -1871,7 +1871,7 @@ MatrixAccount.prototype = {
           return [keyId, key];
         },
       },
-      verificationMethods: [lazy.MatrixCrypto.verificationMethods.SAS],
+      verificationMethods: [lazy.VerificationMethod.Sas],
       roomNameGenerator: getRoomName,
       logger: new lazy.Logger(this, "matrix-js-sdk"),
     };

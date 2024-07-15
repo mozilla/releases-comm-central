@@ -4,18 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.AutoDiscoveryError = exports.AutoDiscoveryAction = exports.AutoDiscovery = void 0;
-var _client = require("./client");
 var _logger = require("./logger");
 var _httpApi = require("./http-api");
-var _discovery = require("./oidc/discovery");
-var _validate = require("./oidc/validate");
-var _error = require("./oidc/error");
 var _versionSupport = require("./version-support");
-var _class;
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2018 New Vector Ltd
 Copyright 2019 The Matrix.org Foundation C.I.C.
@@ -53,16 +46,9 @@ let AutoDiscoveryError = exports.AutoDiscoveryError = /*#__PURE__*/function (Aut
   AutoDiscoveryError["MissingWellknown"] = "No .well-known JSON file found";
   AutoDiscoveryError["InvalidJson"] = "Invalid JSON";
   AutoDiscoveryError["UnsupportedHomeserverSpecVersion"] = "The homeserver does not meet the version requirements";
-  AutoDiscoveryError["HomeserverTooOld"] = "The homeserver does not meet the version requirements";
   return AutoDiscoveryError;
 }({}); // TODO: Implement when Sydent supports the `/versions` endpoint - https://github.com/matrix-org/sydent/issues/424
 //IdentityServerTooOld = "The identity server does not meet the minimum version requirements",
-/**
- * @deprecated in favour of OidcClientConfig
- */
-/**
- * @experimental
- */
 /**
  * Utilities for automatically discovery resources, such as homeservers
  * for users to log in to.
@@ -225,84 +211,9 @@ class AutoDiscovery {
         clientConfig[k] = wellknown[k];
       }
     });
-    const authConfig = await this.discoverAndValidateAuthenticationConfig(wellknown);
-    clientConfig[_client.M_AUTHENTICATION.stable] = authConfig;
 
     // Step 8: Give the config to the caller (finally)
     return Promise.resolve(clientConfig);
-  }
-
-  /**
-   * Validate delegated auth configuration
-   * @deprecated use discoverAndValidateAuthenticationConfig
-   * - m.authentication config is present and valid
-   * - delegated auth issuer openid-configuration is reachable
-   * - delegated auth issuer openid-configuration is configured correctly for us
-   * When successful, DelegatedAuthConfig will be returned with endpoints used for delegated auth
-   * Any errors are caught, and AutoDiscoveryState returned with error
-   * @param wellKnown - configuration object as returned
-   * by the .well-known auto-discovery endpoint
-   * @returns Config or failure result
-   */
-  static async validateDiscoveryAuthenticationConfig(wellKnown) {
-    try {
-      const authentication = _client.M_AUTHENTICATION.findIn(wellKnown) || undefined;
-      const homeserverAuthenticationConfig = (0, _validate.validateWellKnownAuthentication)(authentication);
-      const issuerOpenIdConfigUrl = `${this.sanitizeWellKnownUrl(homeserverAuthenticationConfig.issuer)}/.well-known/openid-configuration`;
-      const issuerWellKnown = await this.fetchWellKnownObject(issuerOpenIdConfigUrl);
-      if (issuerWellKnown.action !== AutoDiscoveryAction.SUCCESS) {
-        _logger.logger.error("Failed to fetch issuer openid configuration");
-        throw new Error(_error.OidcError.General);
-      }
-      const validatedIssuerConfig = (0, _validate.validateOIDCIssuerWellKnown)(issuerWellKnown.raw);
-      const delegatedAuthConfig = _objectSpread(_objectSpread({
-        state: AutoDiscoveryAction.SUCCESS,
-        error: null
-      }, homeserverAuthenticationConfig), validatedIssuerConfig);
-      return delegatedAuthConfig;
-    } catch (error) {
-      const errorMessage = error.message;
-      const errorType = Object.values(_error.OidcError).includes(errorMessage) ? errorMessage : _error.OidcError.General;
-      const state = errorType === _error.OidcError.NotSupported ? AutoDiscoveryAction.IGNORE : AutoDiscoveryAction.FAIL_ERROR;
-      return {
-        state,
-        error: errorType
-      };
-    }
-  }
-
-  /**
-   * Validate delegated auth configuration
-   * - m.authentication config is present and valid
-   * - delegated auth issuer openid-configuration is reachable
-   * - delegated auth issuer openid-configuration is configured correctly for us
-   * When successful, validated authentication metadata and optionally signing keys will be returned
-   * Any errors are caught, and AutoDiscoveryState returned with error
-   * @param wellKnown - configuration object as returned
-   * by the .well-known auto-discovery endpoint
-   * @returns Config or failure result
-   */
-  static async discoverAndValidateAuthenticationConfig(wellKnown) {
-    try {
-      const authentication = _client.M_AUTHENTICATION.findIn(wellKnown) || undefined;
-      const result = await (0, _discovery.discoverAndValidateAuthenticationConfig)(authentication);
-
-      // include this for backwards compatibility
-      const validatedIssuerConfig = (0, _validate.validateOIDCIssuerWellKnown)(result.metadata);
-      const response = _objectSpread(_objectSpread({
-        state: AutoDiscoveryAction.SUCCESS,
-        error: null
-      }, validatedIssuerConfig), result);
-      return response;
-    } catch (error) {
-      const errorMessage = error.message;
-      const errorType = Object.values(_error.OidcError).includes(errorMessage) ? errorMessage : _error.OidcError.General;
-      const state = errorType === _error.OidcError.NotSupported ? AutoDiscoveryAction.IGNORE : AutoDiscoveryAction.FAIL_ERROR;
-      return {
-        state,
-        error: errorType
-      };
-    }
   }
 
   /**
@@ -501,7 +412,6 @@ class AutoDiscovery {
   }
 }
 exports.AutoDiscovery = AutoDiscovery;
-_class = AutoDiscovery;
 // Dev note: the constants defined here are related to but not
 // exactly the same as those in the spec. This is to hopefully
 // translate the meaning of the states in the spec, but also
@@ -516,8 +426,6 @@ _defineProperty(AutoDiscovery, "ERROR_INVALID_IS", AutoDiscoveryError.InvalidIs)
 _defineProperty(AutoDiscovery, "ERROR_MISSING_WELLKNOWN", AutoDiscoveryError.MissingWellknown);
 _defineProperty(AutoDiscovery, "ERROR_INVALID_JSON", AutoDiscoveryError.InvalidJson);
 _defineProperty(AutoDiscovery, "ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION", AutoDiscoveryError.UnsupportedHomeserverSpecVersion);
-/** @deprecated Replaced by ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION */
-_defineProperty(AutoDiscovery, "ERROR_HOMESERVER_TOO_OLD", _class.ERROR_UNSUPPORTED_HOMESERVER_SPEC_VERSION);
 _defineProperty(AutoDiscovery, "ALL_ERRORS", Object.keys(AutoDiscoveryError));
 /**
  * The auto discovery failed. The client is expected to communicate

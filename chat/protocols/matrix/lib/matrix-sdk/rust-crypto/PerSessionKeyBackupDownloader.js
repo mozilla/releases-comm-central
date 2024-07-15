@@ -7,8 +7,8 @@ exports.PerSessionKeyBackupDownloader = void 0;
 var _httpApi = require("../http-api");
 var _matrix = require("../matrix");
 var _utils = require("../utils");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2023 The Matrix.org Foundation C.I.C.
 
@@ -53,7 +53,11 @@ class KeyDownloadRateLimitError extends Error {
 
 /** Details of a megolm session whose key we are trying to fetch. */
 
-/** Holds the current backup decryptor and version that should be used. */
+/** Holds the current backup decryptor and version that should be used.
+ *
+ * This is intended to be used as an immutable object (a new instance should be created if the configuration changes),
+ * and some of the logic relies on that, so the properties are marked as `readonly`.
+ */
 
 /**
  * Used when an 'unable to decrypt' error occurs. It attempts to download the key from the backup.
@@ -79,7 +83,11 @@ class PerSessionKeyBackupDownloader {
     this.http = http;
     this.backupManager = backupManager;
     _defineProperty(this, "stopped", false);
-    /** The version and decryption key to use with current backup if all set up correctly */
+    /**
+     * The version and decryption key to use with current backup if all set up correctly.
+     *
+     * Will not be set unless `hasConfigurationProblem` is `false`.
+     */
     _defineProperty(this, "configuration", null);
     /** We remember when a session was requested and not found in backup to avoid query again too soon.
      * Map of session_id to timestamp */
@@ -113,6 +121,24 @@ class PerSessionKeyBackupDownloader {
     backupManager.on(_matrix.CryptoEvent.KeyBackupStatus, this.onBackupStatusChanged);
     backupManager.on(_matrix.CryptoEvent.KeyBackupFailed, this.onBackupStatusChanged);
     backupManager.on(_matrix.CryptoEvent.KeyBackupDecryptionKeyCached, this.onBackupStatusChanged);
+  }
+
+  /**
+   * Check if key download is successfully configured and active.
+   *
+   * @return `true` if key download is correctly configured and active; otherwise `false`.
+   */
+  isKeyBackupDownloadConfigured() {
+    return this.configuration !== null;
+  }
+
+  /**
+   * Return the details of the latest backup on the server, when we last checked.
+   *
+   * This is just a convenience method to expose {@link RustBackupManager.getServerBackupInfo}.
+   */
+  async getServerBackupInfo() {
+    return await this.backupManager.getServerBackupInfo();
   }
 
   /**
@@ -325,7 +351,7 @@ class PerSessionKeyBackupDownloader {
     for (const k of keys) {
       k.room_id = sessionInfo.roomId;
     }
-    await this.backupManager.importBackedUpRoomKeys(keys);
+    await this.backupManager.importBackedUpRoomKeys(keys, configuration.backupVersion);
   }
 
   /**
@@ -363,7 +389,7 @@ class PerSessionKeyBackupDownloader {
   async internalCheckFromServer() {
     let currentServerVersion = null;
     try {
-      currentServerVersion = await this.backupManager.requestKeyBackupVersion();
+      currentServerVersion = await this.backupManager.getServerBackupInfo();
     } catch (e) {
       this.logger.debug(`Backup: error while checking server version: ${e}`);
       this.hasConfigurationProblem = true;

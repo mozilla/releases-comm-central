@@ -3,17 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "OidcDiscoveryError", {
-  enumerable: true,
-  get: function () {
-    return _error.OidcError;
-  }
-});
+exports.decodeIdToken = void 0;
 exports.isValidatedIssuerMetadata = isValidatedIssuerMetadata;
 exports.validateBearerTokenResponse = validateBearerTokenResponse;
 exports.validateOIDCIssuerWellKnown = exports.validateIdToken = void 0;
 exports.validateStoredUserState = validateStoredUserState;
-exports.validateWellKnownAuthentication = void 0;
 var _jwtDecode = require("jwt-decode");
 var _logger = require("../logger");
 var _error = require("./error");
@@ -33,31 +27,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/**
- * re-export for backwards compatibility
- * @deprecated use OidcError
- */
-
-/**
- * Validates MSC2965 m.authentication config
- * Returns valid configuration
- * @param wellKnown - client well known as returned from ./well-known/client/matrix
- * @returns config - when present and valid
- * @throws when config is not found or invalid
- */
-const validateWellKnownAuthentication = authentication => {
-  if (!authentication) {
-    throw new Error(_error.OidcError.NotSupported);
-  }
-  if (typeof authentication.issuer === "string" && (!authentication.hasOwnProperty("account") || typeof authentication.account === "string")) {
-    return {
-      issuer: authentication.issuer,
-      account: authentication.account
-    };
-  }
-  throw new Error(_error.OidcError.Misconfigured);
-};
-exports.validateWellKnownAuthentication = validateWellKnownAuthentication;
 const isRecord = value => !!value && typeof value === "object" && !Array.isArray(value);
 const requiredStringProperty = (wellKnown, key) => {
   if (!wellKnown[key] || !optionalStringProperty(wellKnown, key)) {
@@ -102,7 +71,7 @@ const validateOIDCIssuerWellKnown = wellKnown => {
     _logger.logger.error("Issuer configuration not found or malformed");
     throw new Error(_error.OidcError.OpSupport);
   }
-  const isInvalid = [requiredStringProperty(wellKnown, "authorization_endpoint"), requiredStringProperty(wellKnown, "token_endpoint"), requiredStringProperty(wellKnown, "revocation_endpoint"), optionalStringProperty(wellKnown, "registration_endpoint"), optionalStringProperty(wellKnown, "account_management_uri"), optionalStringArrayProperty(wellKnown, "account_management_actions_supported"), requiredArrayValue(wellKnown, "response_types_supported", "code"), requiredArrayValue(wellKnown, "grant_types_supported", "authorization_code"), requiredArrayValue(wellKnown, "code_challenge_methods_supported", "S256")].some(isValid => !isValid);
+  const isInvalid = [requiredStringProperty(wellKnown, "authorization_endpoint"), requiredStringProperty(wellKnown, "token_endpoint"), requiredStringProperty(wellKnown, "revocation_endpoint"), optionalStringProperty(wellKnown, "registration_endpoint"), optionalStringProperty(wellKnown, "account_management_uri"), optionalStringProperty(wellKnown, "device_authorization_endpoint"), optionalStringArrayProperty(wellKnown, "account_management_actions_supported"), requiredArrayValue(wellKnown, "response_types_supported", "code"), requiredArrayValue(wellKnown, "grant_types_supported", "authorization_code"), requiredArrayValue(wellKnown, "code_challenge_methods_supported", "S256")].some(isValid => !isValid);
   if (!isInvalid) {
     return {
       authorizationEndpoint: wellKnown["authorization_endpoint"],
@@ -131,13 +100,6 @@ exports.validateOIDCIssuerWellKnown = validateOIDCIssuerWellKnown;
 function isValidatedIssuerMetadata(metadata) {
   validateOIDCIssuerWellKnown(metadata);
 }
-
-/**
- * Standard JWT claims.
- *
- * @see https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
- */
-
 const decodeIdToken = token => {
   try {
     return (0, _jwtDecode.jwtDecode)(token);
@@ -156,6 +118,7 @@ const decodeIdToken = token => {
  * @param nonce - nonce used in the authentication request
  * @throws when id token is invalid
  */
+exports.decodeIdToken = decodeIdToken;
 const validateIdToken = (idToken, issuer, clientId, nonce) => {
   try {
     if (!idToken) {
@@ -181,7 +144,7 @@ const validateIdToken = (idToken, issuer, clientId, nonce) => {
      * If a nonce value was sent in the Authentication Request, a nonce Claim MUST be present and its value checked
      * to verify that it is the same value as the one that was sent in the Authentication Request.
      */
-    if (claims.nonce !== nonce) {
+    if (nonce !== undefined && claims.nonce !== nonce) {
       throw new Error("Invalid nonce");
     }
 

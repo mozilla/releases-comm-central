@@ -31,7 +31,6 @@ var _exportNames = {
   Relations: true,
   RelationsEvent: true,
   LocalStorageErrors: true,
-  DeviceVerificationStatus: true,
   Crypto: true
 };
 Object.defineProperty(exports, "CallEvent", {
@@ -51,12 +50,6 @@ Object.defineProperty(exports, "CryptoEvent", {
   enumerable: true,
   get: function () {
     return _crypto2.CryptoEvent;
-  }
-});
-Object.defineProperty(exports, "DeviceVerificationStatus", {
-  enumerable: true,
-  get: function () {
-    return _Crypto.DeviceVerificationStatus;
   }
 });
 Object.defineProperty(exports, "GroupCall", {
@@ -830,7 +823,7 @@ var _localStorageEventsEmitter = require("./store/local-storage-events-emitter")
 var _Crypto = _interopRequireWildcard(require("./crypto-api"));
 exports.Crypto = _Crypto;
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && Object.prototype.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 /*
 Copyright 2015-2022 The Matrix.org Foundation C.I.C.
 
@@ -854,18 +847,6 @@ limitations under the License.
  *
  * The most important is {@link Crypto.CryptoApi}, an instance of which can be retrieved via
  * {@link MatrixClient.getCrypto}.
- */
-
-/**
- * Backwards compatibility re-export
- * @internal
- * @deprecated use {@link Crypto.CryptoApi}
- */
-
-/**
- * Backwards compatibility re-export
- * @internal
- * @deprecated use {@link Crypto.DeviceVerificationStatus}
  */
 
 let cryptoStoreFactory = () => new _memoryCryptoStore.MemoryCryptoStore();
@@ -900,6 +881,21 @@ function amendClientOpts(opts) {
 function createClient(opts) {
   return new _client.MatrixClient(amendClientOpts(opts));
 }
-function createRoomWidgetClient(widgetApi, capabilities, roomId, opts) {
-  return new _embedded.RoomWidgetClient(widgetApi, capabilities, roomId, amendClientOpts(opts));
+
+/**
+ * Construct a Matrix Client that works in a widget.
+ * This client has a subset of features compared to a full client.
+ * It uses the widget-api to communicate with matrix. (widget \<-\> client \<-\> homeserver)
+ * @returns A new matrix client with a subset of features.
+ * @param opts - The configuration options for this client. These configuration
+ * options will be passed directly to {@link MatrixClient}.
+ * @param widgetApi - The widget api to use for communication.
+ * @param capabilities - The capabilities the widget client will request.
+ * @param roomId - The room id the widget is associated with.
+ * @param sendContentLoaded - Whether to send a content loaded widget action immediately after initial setup.
+ *   Set to `false` if the widget uses `waitForIFrameLoad=true` (in this case the client does not expect a content loaded action at all),
+ *   or if the the widget wants to send the `ContentLoaded` action at a later point in time after the initial setup.
+ */
+function createRoomWidgetClient(widgetApi, capabilities, roomId, opts, sendContentLoaded = true) {
+  return new _embedded.RoomWidgetClient(widgetApi, capabilities, roomId, amendClientOpts(opts), sendContentLoaded);
 }

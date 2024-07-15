@@ -8,8 +8,8 @@ var _logger = require("./logger");
 var _event = require("./@types/event");
 var _utils = require("./utils");
 var _httpApi = require("./http-api");
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -39,37 +39,13 @@ const DEBUG = false; // set true to enable console logging.
 // eslint-disable-next-line camelcase
 class MatrixScheduler {
   /**
-   * Retries events up to 4 times using exponential backoff. This produces wait
-   * times of 2, 4, 8, and 16 seconds (30s total) after which we give up. If the
-   * failure was due to a rate limited request, the time specified in the error is
-   * waited before being retried.
+   * Default retry algorithm for the matrix scheduler. Retries events up to 4 times with exponential backoff.
    * @param attempts - Number of attempts that have been made, including the one that just failed (ie. starting at 1)
    * @see retryAlgorithm
    */
   // eslint-disable-next-line @typescript-eslint/naming-convention
   static RETRY_BACKOFF_RATELIMIT(event, attempts, err) {
-    if (err.httpStatus === 400 || err.httpStatus === 403 || err.httpStatus === 401) {
-      // client error; no amount of retrying with save you now.
-      return -1;
-    }
-    if (err instanceof _httpApi.ConnectionError) {
-      return -1;
-    }
-
-    // if event that we are trying to send is too large in any way then retrying won't help
-    if (err.name === "M_TOO_LARGE") {
-      return -1;
-    }
-    if (err.name === "M_LIMIT_EXCEEDED") {
-      const waitTime = err.data.retry_after_ms;
-      if (waitTime > 0) {
-        return waitTime;
-      }
-    }
-    if (attempts > 4) {
-      return -1; // give up
-    }
-    return 1000 * Math.pow(2, attempts);
+    return (0, _httpApi.calculateRetryBackoff)(err, attempts, false);
   }
 
   /**

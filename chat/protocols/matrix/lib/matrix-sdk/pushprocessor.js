@@ -10,8 +10,8 @@ var _PushRules = require("./@types/PushRules");
 var _event = require("./@types/event");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : String(i); }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*
 Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -36,50 +36,130 @@ const RULEKINDS_IN_ORDER = [_PushRules.PushRuleKind.Override, _PushRules.PushRul
 //      more details.
 //   2. We often want to start using push rules ahead of the server supporting them,
 //      and so we can put them here.
-const DEFAULT_OVERRIDE_RULES = [{
-  // For homeservers which don't support MSC2153 yet
-  rule_id: ".m.rule.reaction",
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "type",
-    pattern: "m.reaction"
-  }],
-  actions: [_PushRules.PushRuleActionName.DontNotify]
-}, {
-  // For homeservers which don't support MSC3786 yet
-  rule_id: ".org.matrix.msc3786.rule.room.server_acl",
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "type",
-    pattern: _event.EventType.RoomServerAcl
-  }, {
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "state_key",
-    pattern: ""
-  }],
-  actions: []
-}];
-const DEFAULT_UNDERRIDE_RULES = [{
-  // For homeservers which don't support MSC3914 yet
-  rule_id: ".org.matrix.msc3914.rule.room.call",
-  default: true,
-  enabled: true,
-  conditions: [{
-    kind: _PushRules.ConditionKind.EventMatch,
-    key: "type",
-    pattern: "org.matrix.msc3401.call"
-  }, {
-    kind: _PushRules.ConditionKind.CallStarted
-  }],
-  actions: [_PushRules.PushRuleActionName.Notify, {
-    set_tweak: _PushRules.TweakName.Sound,
-    value: "default"
-  }]
-}];
+const DEFAULT_OVERRIDE_RULES = {
+  ".m.rule.is_room_mention": {
+    // Matrix v1.7
+    rule_id: ".m.rule.is_room_mention",
+    default: true,
+    enabled: true,
+    conditions: [{
+      kind: _PushRules.ConditionKind.EventPropertyIs,
+      key: "content.m\\.mentions.room",
+      value: true
+    }, {
+      kind: _PushRules.ConditionKind.SenderNotificationPermission,
+      key: "room"
+    }],
+    actions: [_PushRules.PushRuleActionName.Notify, {
+      set_tweak: _PushRules.TweakName.Highlight
+    }]
+  },
+  ".m.rule.reaction": {
+    // For homeservers which don't support MSC2153 yet
+    rule_id: ".m.rule.reaction",
+    default: true,
+    enabled: true,
+    conditions: [{
+      kind: _PushRules.ConditionKind.EventMatch,
+      key: "type",
+      pattern: "m.reaction"
+    }],
+    actions: [_PushRules.PushRuleActionName.DontNotify]
+  },
+  ".org.matrix.msc3786.rule.room.server_acl": {
+    // For homeservers which don't support MSC3786 yet
+    rule_id: ".org.matrix.msc3786.rule.room.server_acl",
+    default: true,
+    enabled: true,
+    conditions: [{
+      kind: _PushRules.ConditionKind.EventMatch,
+      key: "type",
+      pattern: _event.EventType.RoomServerAcl
+    }, {
+      kind: _PushRules.ConditionKind.EventMatch,
+      key: "state_key",
+      pattern: ""
+    }],
+    actions: []
+  }
+};
+
+// A special rule id for `EXPECTED_DEFAULT_OVERRIDE_RULE_IDS` and friends which denotes where user-defined rules live in the order.
+const UserDefinedRules = Symbol("UserDefinedRules");
+const EXPECTED_DEFAULT_OVERRIDE_RULE_IDS = [_PushRules.RuleId.Master, UserDefinedRules, _PushRules.RuleId.SuppressNotices, _PushRules.RuleId.InviteToSelf, _PushRules.RuleId.MemberEvent, _PushRules.RuleId.IsUserMention, _PushRules.RuleId.ContainsDisplayName, _PushRules.RuleId.IsRoomMention, _PushRules.RuleId.AtRoomNotification, _PushRules.RuleId.Tombstone, ".m.rule.reaction", ".m.rule.room.server_acl", ".org.matrix.msc3786.rule.room.server_acl", ".m.rule.suppress_edits"];
+const DEFAULT_UNDERRIDE_RULES = {
+  ".org.matrix.msc3914.rule.room.call": {
+    // For homeservers which don't support MSC3914 yet
+    rule_id: ".org.matrix.msc3914.rule.room.call",
+    default: true,
+    enabled: true,
+    conditions: [{
+      kind: _PushRules.ConditionKind.EventMatch,
+      key: "type",
+      pattern: "org.matrix.msc3401.call"
+    }, {
+      kind: _PushRules.ConditionKind.CallStarted
+    }],
+    actions: [_PushRules.PushRuleActionName.Notify, {
+      set_tweak: _PushRules.TweakName.Sound,
+      value: "default"
+    }]
+  }
+};
+const EXPECTED_DEFAULT_UNDERRIDE_RULE_IDS = [UserDefinedRules, _PushRules.RuleId.IncomingCall, ".org.matrix.msc3914.rule.room.call", _PushRules.RuleId.EncryptedDM, _PushRules.RuleId.DM, _PushRules.RuleId.Message, _PushRules.RuleId.EncryptedMessage];
+
+/**
+ * Make sure that each of the rules listed in `defaultRuleIds` is listed in the given set of push rules.
+ *
+ * @param kind - the kind of push rule set being merged.
+ * @param incomingRules - the existing set of known push rules for the user.
+ * @param defaultRules - a lookup table for the default definitions of push rules.
+ * @param orderedRuleIds - the IDs of the expected push rules, in order.
+ *
+ * @returns A copy of `incomingRules`, with any missing default rules inserted in the right place.
+ */
+function mergeRulesWithDefaults(kind, incomingRules, defaultRules, orderedRuleIds) {
+  // Split the incomingRules into defaults and custom
+  const incomingDefaultRules = incomingRules.filter(rule => rule.default);
+  const incomingCustomRules = incomingRules.filter(rule => !rule.default);
+  function insertDefaultPushRule(ruleId) {
+    if (ruleId === UserDefinedRules) {
+      // Re-insert any user-defined rules that were in `incomingRules`
+      newRules.push(...incomingCustomRules);
+    } else if (ruleId in defaultRules) {
+      _logger.logger.warn(`Adding default global ${kind} push rule ${ruleId}`);
+      newRules.push(defaultRules[ruleId]);
+    } else {
+      _logger.logger.warn(`Missing default global ${kind} push rule ${ruleId}`);
+    }
+  }
+  let nextExpectedRuleIdIndex = 0;
+  const newRules = [];
+  // Merge our expected rules (including the incoming custom rules) into the incoming default rules.
+  for (const rule of incomingDefaultRules) {
+    const ruleIndex = orderedRuleIds.indexOf(rule.rule_id);
+    if (ruleIndex === -1) {
+      // an unrecognised rule; copy it over
+      newRules.push(rule);
+      continue;
+    }
+    while (ruleIndex > nextExpectedRuleIdIndex) {
+      // insert new rules
+      const defaultRuleId = orderedRuleIds[nextExpectedRuleIdIndex];
+      insertDefaultPushRule(defaultRuleId);
+      nextExpectedRuleIdIndex += 1;
+    }
+    // copy over the existing rule
+    newRules.push(rule);
+    nextExpectedRuleIdIndex += 1;
+  }
+
+  // Now copy over any remaining default rules
+  for (const ruleId of orderedRuleIds.slice(nextExpectedRuleIdIndex)) {
+    insertDefaultPushRule(ruleId);
+  }
+  return newRules;
+}
 class PushProcessor {
   /**
    * Construct a Push Processor.
@@ -139,49 +219,8 @@ class PushProcessor {
     if (!newRules.global.underride) newRules.global.underride = [];
 
     // Merge the client-level defaults with the ones from the server
-    const globalOverrides = newRules.global.override;
-    for (const originalOverride of DEFAULT_OVERRIDE_RULES) {
-      const existingRule = globalOverrides.find(r => r.rule_id === originalOverride.rule_id);
-
-      // Dynamically add the user ID as the value for the is_user_mention rule.
-      let override;
-      if (originalOverride.rule_id === _PushRules.RuleId.IsUserMention) {
-        // If the user ID wasn't provided, skip the rule.
-        if (!userId) {
-          continue;
-        }
-        override = JSON.parse(JSON.stringify(originalOverride)); // deep clone
-        override.conditions[0].value = userId;
-      } else {
-        override = originalOverride;
-      }
-      if (existingRule) {
-        // Copy over the actions, default, and conditions. Don't touch the user's preference.
-        existingRule.default = override.default;
-        existingRule.conditions = override.conditions;
-        existingRule.actions = override.actions;
-      } else {
-        // Add the rule
-        const ruleId = override.rule_id;
-        _logger.logger.warn(`Adding default global override for ${ruleId}`);
-        globalOverrides.push(override);
-      }
-    }
-    const globalUnderrides = newRules.global.underride ?? [];
-    for (const underride of DEFAULT_UNDERRIDE_RULES) {
-      const existingRule = globalUnderrides.find(r => r.rule_id === underride.rule_id);
-      if (existingRule) {
-        // Copy over the actions, default, and conditions. Don't touch the user's preference.
-        existingRule.default = underride.default;
-        existingRule.conditions = underride.conditions;
-        existingRule.actions = underride.actions;
-      } else {
-        // Add the rule
-        const ruleId = underride.rule_id;
-        _logger.logger.warn(`Adding default global underride for ${ruleId}`);
-        globalUnderrides.push(underride);
-      }
-    }
+    newRules.global.override = mergeRulesWithDefaults(_PushRules.PushRuleKind.Override, newRules.global.override, DEFAULT_OVERRIDE_RULES, EXPECTED_DEFAULT_OVERRIDE_RULE_IDS);
+    newRules.global.underride = mergeRulesWithDefaults(_PushRules.PushRuleKind.Underride, newRules.global.underride, DEFAULT_UNDERRIDE_RULES, EXPECTED_DEFAULT_UNDERRIDE_RULE_IDS);
     return newRules;
   }
 

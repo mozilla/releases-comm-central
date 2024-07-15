@@ -24,9 +24,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-let crypto = exports.crypto = globalThis.window?.crypto;
-let subtleCrypto = exports.subtleCrypto = globalThis.window?.crypto?.subtle ?? global.window?.crypto?.webkitSubtle;
-let TextEncoder = exports.TextEncoder = globalThis.window?.TextEncoder;
+let crypto = exports.crypto = globalThis.crypto;
+let subtleCrypto = exports.subtleCrypto = crypto?.subtle ?? crypto?.webkitSubtle; // TODO: Stop using webkitSubtle fallback
+let TextEncoder = exports.TextEncoder = globalThis.TextEncoder;
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 if (!crypto) {
