@@ -545,6 +545,22 @@ nsresult nsMsgAccountManager::createKeyedServer(
   nsresult rv;
   *aServer = nullptr;
 
+  if (hostname.Equals("Local Folders") || hostname.Equals("smart mailboxes")) {
+    // Allow these special hostnames, but only for "none" servers.
+    if (type != "none") {
+      return NS_ERROR_MALFORMED_URI;
+    }
+  } else if (hostname.Equals("Local%20Folders") ||
+             hostname.Equals("smart%20mailboxes")) {
+    // Don't allow these %-encoded special hostnames.
+    return NS_ERROR_MALFORMED_URI;
+  } else {
+    // Check the hostname is valid.
+    nsAutoCString unused;
+    rv = NS_DomainToASCII(hostname, unused);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   // construct the contractid
   nsAutoCString serverContractID("@mozilla.org/messenger/server;1?type=");
   serverContractID += type;

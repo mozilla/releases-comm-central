@@ -257,4 +257,39 @@ add_task(async function () {
     twoServerNorm?.hostName,
     "should find server by uri for normalized hostname '2'"
   );
+
+  MailServices.accounts.createIncomingServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+
+  function checkBadHostname(hostname, error = /NS_ERROR_MALFORMED_URI/) {
+    Assert.throws(
+      () =>
+        MailServices.accounts.createIncomingServer("nobody", hostname, "none"),
+      error,
+      `bad hostname "${hostname}" should fail for "none" type servers`
+    );
+    Assert.throws(
+      () =>
+        MailServices.accounts.createIncomingServer("nobody", hostname, "imap"),
+      /NS_ERROR_MALFORMED_URI/,
+      `bad hostname "${hostname}" should fail for "imap" type servers`
+    );
+  }
+
+  checkBadHostname(" bad.test ");
+  checkBadHostname("b%61d.test");
+  checkBadHostname("b/d.test");
+  checkBadHostname("b:d.test");
+  checkBadHostname("b@d.test");
+  checkBadHostname("b d.test");
+  // Valid for "none" type, but already exists.
+  checkBadHostname("Local Folders", /NS_ERROR_FAILURE/);
+  checkBadHostname("Local Folders 2");
+  checkBadHostname("Local%20Folders");
+  // Valid for "none" type, but already exists.
+  checkBadHostname("smart mailboxes", /NS_ERROR_FAILURE/);
+  checkBadHostname("smart%20mailboxes");
 });

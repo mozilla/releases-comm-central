@@ -197,7 +197,7 @@ function setup_mailbox(type, mailboxPath) {
   const user = Services.uuid.generateUUID().toString();
   const incomingServer = MailServices.accounts.createIncomingServer(
     user,
-    "Local Folders",
+    "test.localhost",
     type
   );
   incomingServer.localPath = mailboxPath;
