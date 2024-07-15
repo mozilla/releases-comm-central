@@ -53,7 +53,7 @@ task-defaults:
                 by-project:
                     comm-esr.*: stable
                     default: beta
-            MANIFEST_URL: "{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/runme.sh"
+            MANIFEST_URL: "{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/repack.sh"
             RELEASE_NOTES_URL:
                 by-project:
                     comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}/releasenotes/"
