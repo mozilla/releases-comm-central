@@ -85,3 +85,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   flex: 1;
   min-height: 100vh;
 }
+
+#selectOffline {
+  background-color: var(--in-content-page-background);
+}
