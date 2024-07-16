@@ -162,7 +162,7 @@ flatpak build-finish build                                        \
         --share=network                                           \
         --socket=pulseaudio                                       \
         --socket=wayland                                          \
-        --socket=x11                                              \
+        --socket=fallback-x11                                     \
         --socket=pcsc                                             \
         --socket=cups                                             \
         --require-version=0.10.3                                  \
