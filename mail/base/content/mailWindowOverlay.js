@@ -755,12 +755,6 @@ function InitViewBodyMenu() {
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
   }
-
-  // Separate render prefs not implemented for feeds, bug 458606.  Show the
-  // checked item for feeds as for the regular pref.
-  //  let html_as = Services.prefs.getIntPref("rss.display.html_as");
-  //  let prefer_plaintext = Services.prefs.getBoolPref("rss.display.prefer_plaintext");
-  //  let disallow_classes = Services.prefs.getIntPref("rss.display.disallow_mime_handlers");
   const html_as = Services.prefs.getIntPref("mailnews.display.html_as");
   const prefer_plaintext = Services.prefs.getBoolPref(
     "mailnews.display.prefer_plaintext"
@@ -830,11 +824,13 @@ function InitViewBodyMenu() {
   // else (the user edited prefs/user.js) check none of the radio menu items
 
   if (isFeed) {
-    AllowHTML_menuitem.hidden = !FeedMessageHandler.gShowSummary;
-    Sanitized_menuitem.hidden = !FeedMessageHandler.gShowSummary;
-    AsPlaintext_menuitem.hidden = !FeedMessageHandler.gShowSummary;
-    document.getElementById("viewFeedSummarySeparator").hidden =
-      !gShowFeedSummary;
+    const hideOptions =
+      FeedMessageHandler.onSelectPref ==
+      FeedMessageHandler.kSelectOverrideWebPage;
+    AllowHTML_menuitem.hidden = hideOptions;
+    Sanitized_menuitem.hidden = hideOptions;
+    AsPlaintext_menuitem.hidden = hideOptions;
+    document.getElementById("viewFeedSummarySeparator").hidden = hideOptions;
   }
 }
 
@@ -1383,18 +1379,6 @@ function MsgBodyAllParts() {
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 4);
   Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
-}
-
-function MsgFeedBodyRenderPrefs(plaintext, html, mime) {
-  // Separate render prefs not implemented for feeds, bug 458606.
-  //  Services.prefs.setBoolPref("rss.display.prefer_plaintext", plaintext);
-  //  Services.prefs.setIntPref("rss.display.html_as", html);
-  //  Services.prefs.setIntPref("rss.display.disallow_mime_handlers", mime);
-
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", plaintext);
-  Services.prefs.setIntPref("mailnews.display.html_as", html);
-  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", mime);
-  // Reload only if showing rss summary; menuitem hidden if web page..
 }
 
 function ToggleInlineAttachment(target) {

@@ -706,19 +706,19 @@
                     name="viewFeedBodyHTMLGroup"
                     label="&bodyAllowHTML.label;"
                     accesskey="&bodyAllowHTML.accesskey;"
-                    oncommand="MsgFeedBodyRenderPrefs(false, 0, 0)"/>
+                    oncommand="MsgBodyAllowHTML()"/>
           <menuitem id="bodyFeedSummarySanitized"
                     type="radio"
                     name="viewFeedBodyHTMLGroup"
                     label="&bodySanitized.label;"
                     accesskey="&bodySanitized.accesskey;"
-                    oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
+                    oncommand="MsgBodySanitized()"/>
           <menuitem id="bodyFeedSummaryAsPlaintext"
                     type="radio"
                     name="viewFeedBodyHTMLGroup"
                     label="&bodyAsPlaintext.label;"
                     accesskey="&bodyAsPlaintext.accesskey;"
-                    oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
+                    oncommand="MsgBodyAsPlaintext()"/>
         </menupopup>
       </menu>
       <menuitem id="viewAttachmentsInlineMenuitem" label="&viewAttachmentsInlineCmd.label;" accesskey="&viewAttachmentsInlineCmd.accesskey;"

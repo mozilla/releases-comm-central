@@ -756,11 +756,6 @@ pref("mailnews.display.disallow_mime_handlers", 0);
 //       This mode will limit the features available (e.g. uncommon
 //       attachment types and inline images) and is for paranoid users.
 
-// RSS rendering options, see prior 4 prefs above.
-pref("rss.display.prefer_plaintext", false);
-pref("rss.display.html_as", 0);
-pref("rss.display.disallow_mime_handlers", 0);
-
 // Feed message display (summary or web page), on select.
 // 0 - global override, load web page
 // 1 - global override, load summary

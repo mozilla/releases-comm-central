@@ -269,7 +269,7 @@
                 class="menu-iconic"
                 label="&bodyMenu.label;">
             <menupopup id="hdrFeedBodyAsDropdown"
-                       onpopupshowing="InitOtherActionsViewBodyMenu();">
+                       onpopupshowing="InitOtherActionsViewBodyMenu(true);">
               <menuitem id="otherActionsMenu_bodyFeedGlobalWebPage"
                         type="radio"
                         name="viewFeedSummaryGroup"
@@ -293,17 +293,17 @@
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodyAllowHTML.label;"
-                        oncommand="top.MsgFeedBodyRenderPrefs(false, 0, 0)"/>
+                        oncommand="top.MsgBodyAllowHTML()"/>
               <menuitem id="otherActionsMenu_bodyFeedSummarySanitized"
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodySanitized.label;"
-                        oncommand="top.MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
+                        oncommand="top.MsgBodySanitized()"/>
               <menuitem id="otherActionsMenu_bodyFeedSummaryAsPlaintext"
                         type="radio"
                         name="viewFeedBodyHTMLGroup"
                         label="&bodyAsPlaintext.label;"
-                        oncommand="top.MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
+                        oncommand="top.MsgBodyAsPlaintext()"/>
             </menupopup>
           </menu>
           <menuseparator/>

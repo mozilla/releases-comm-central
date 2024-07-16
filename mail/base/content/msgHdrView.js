@@ -2429,7 +2429,7 @@ function onShowOtherActionsPopup() {
   document.getElementById("otherActionsFeedBodyAs").hidden = !isFeed;
 }
 
-function InitOtherActionsViewBodyMenu() {
+function InitOtherActionsViewBodyMenu(isFeed = false) {
   const html_as = Services.prefs.getIntPref("mailnews.display.html_as");
   const prefer_plaintext = Services.prefs.getBoolPref(
     "mailnews.display.prefer_plaintext"
@@ -2437,7 +2437,6 @@ function InitOtherActionsViewBodyMenu() {
   const disallow_classes = Services.prefs.getIntPref(
     "mailnews.display.disallow_mime_handlers"
   );
-  const isFeed = false; // TODO
   const kDefaultIDs = [
     "otherActionsMenu_bodyAllowHTML",
     "otherActionsMenu_bodySanitized",
@@ -2465,14 +2464,6 @@ function InitOtherActionsViewBodyMenu() {
 
   document.getElementById("otherActionsMenu_bodyAllParts").hidden =
     !Services.prefs.getBoolPref("mailnews.display.show_all_body_parts_menu");
-
-  // Clear all checkmarks.
-  AllowHTML_menuitem.removeAttribute("checked");
-  Sanitized_menuitem.removeAttribute("checked");
-  AsPlaintext_menuitem.removeAttribute("checked");
-  if (AllBodyParts_menuitem) {
-    AllBodyParts_menuitem.removeAttribute("checked");
-  }
 
   if (
     !prefer_plaintext &&
