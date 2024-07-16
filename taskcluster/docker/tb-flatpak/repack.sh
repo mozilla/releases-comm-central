@@ -167,6 +167,7 @@ flatpak build-finish build                                        \
         --socket=cups                                             \
         --require-version=0.10.3                                  \
         --persist=.thunderbird                                    \
+        --env=DICPATH=/usr/share/hunspell                         \
         --filesystem=xdg-download:rw                              \
         --filesystem=~/.gnupg                                     \
         --filesystem=xdg-run/gnupg:ro                             \
