@@ -581,6 +581,14 @@ body {
   }
 }
 
+/* Use tabular numerals in date/numeric columns. */
+.receivedcol-column,
+.datecol-column,
+.sizecol-column,
+.idcol-column {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Message browser pane. */
 
 #webBrowser,
