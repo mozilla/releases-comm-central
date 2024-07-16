@@ -40,6 +40,7 @@ BROWSER_CHROME_MANIFESTS += [
     "smime/browser.ini",
     "subscribe/browser.ini",
     "tabmail/browser.ini",
+    "update/browser.toml",
     "utils/browser.ini",
 ]
 

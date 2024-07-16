@@ -1,0 +1,17 @@
+[DEFAULT]
+head = "head.js"
+support-files = [
+  "data/shared.js",
+  "data/sharedUpdateXML.js",
+  "testConstants.js",
+]
+prefs = [
+  "app.update.BITS.enabled=false",
+  "app.update.langpack.enabled=true",
+  "mailnews.start_page.url=about:blank",
+  "mailnews.auto_config_url=about:blank",
+  "mailnews.auto_config.addons_url=about:blank",
+]
+subsuite = "thunderbird"
+
+["browser_showWhatsNewPageTest.js"]
