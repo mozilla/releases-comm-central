@@ -10,7 +10,7 @@ _mail-builder_ is a flexible **e-mail builder library** written in Rust. It incl
 - Generates **e-mail** messages conforming to the Internet Message Format standard (_RFC 5322_).
 - Full **MIME** support (_RFC 2045 - 2049_) with automatic selection of the most optimal encoding for each message body part.
 - **Fast Base64 encoding** based on Chromium's decoder ([the fastest non-SIMD encoder](https://github.com/lemire/fastbase64)).
-- Minimal dependencies.
+- No dependencies (`gethostname` is optional).
 
 Please note that this library does not support sending or parsing e-mail messages as these functionalities are provided by the crates [`mail-send`](https://crates.io/crates/mail-send) and [`mail-parser`](https://crates.io/crates/mail-parser).
 

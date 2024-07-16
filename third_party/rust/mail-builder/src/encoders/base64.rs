@@ -130,6 +130,7 @@ pub fn base64_encode_mime(
 }
 
 #[cfg(test)]
+#[allow(clippy::items_after_test_module)]
 mod tests {
 
     #[test]

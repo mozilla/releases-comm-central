@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "mail-builder"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Stalwart Labs <hello@stalw.art>"]
 description = "E-mail builder library for Rust"
 homepage = "https://github.com/stalwartlabs/mail-builder"
@@ -29,6 +29,7 @@ repository = "https://github.com/stalwartlabs/mail-builder"
 
 [dependencies.gethostname]
 version = "0.4.0"
+optional = true
 
 [dev-dependencies.mail-parser]
 version = "0.9"
@@ -44,5 +45,6 @@ version = "1.0"
 version = "0.9.10"
 
 [features]
-default = []
+default = ["gethostname"]
+gethostname = ["dep:gethostname"]
 ludicrous_mode = []

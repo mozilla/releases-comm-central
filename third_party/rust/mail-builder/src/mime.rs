@@ -104,11 +104,12 @@ impl<'x> From<&'x String> for ContentType<'x> {
     }
 }
 
-thread_local!(static COUNTER: Cell<u64> = Cell::new(0));
+thread_local!(static COUNTER: Cell<u64> = const { Cell::new(0) });
 
 pub fn make_boundary(separator: &str) -> String {
+    // Create a pseudo-unique boundary
     let mut s = DefaultHasher::new();
-    gethostname::gethostname().hash(&mut s);
+    ((&s as *const DefaultHasher) as usize).hash(&mut s);
     thread::current().id().hash(&mut s);
     let hash = s.finish();
 

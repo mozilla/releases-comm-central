@@ -1,3 +1,7 @@
+mail-builder 0.3.2
+================================
+- Made `gethostname` crate optional.
+
 mail-builder 0.3.1
 ================================
 - Added `MimePart::transfer_encoding` method to disable automatic Content-Transfer-Encoding detection and treat it as a raw MIME part.
