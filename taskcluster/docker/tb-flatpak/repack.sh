@@ -179,7 +179,6 @@ flatpak build-finish build                                        \
         --talk-name="org.gtk.vfs.*"                               \
         --talk-name=org.a11y.Bus                                  \
         --system-talk-name=org.freedesktop.NetworkManager         \
-        --env=TMPDIR=~/.var/app/org.mozilla.Thunderbird/cache/tmp \
         --command=thunderbird
 
 # Export Flatpak build into repo
