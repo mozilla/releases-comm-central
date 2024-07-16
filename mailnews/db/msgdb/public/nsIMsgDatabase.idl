@@ -258,18 +258,40 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   //Returns whether or not this database contains the given key
   boolean containsKey(in nsMsgKey key);
 
-/**
- * Must call AddNewHdrToDB after creating. The idea is that you create
- * a new header, fill in its properties, and then call AddNewHdrToDB.
- * AddNewHdrToDB will send notifications to any listeners.
- *
- * @param aKey msgKey for the new header. If aKey is nsMsgKey_None,
- *             we will auto-assign a new key.
- */
+  /**
+   * Create a new nsIMsgDBHdr, but don't add it to the database.
+   * Must call AddNewHdrToDB to actually add it. The idea is that you create
+   * a new header, fill in its properties, and then call AddNewHdrToDB.
+   * AddNewHdrToDB will (optionally) send notifications to any listeners.
+   *
+   * @param aKey msgKey for the new header. If aKey is nsMsgKey_None,
+   *             we will auto-assign a new key.
+   *
+   * NOTE: if there is already a header with the given key in the database,
+   * that existing header will be returned, _not_ a new one!
+   */
   nsIMsgDBHdr createNewHdr(in nsMsgKey aKey);
 
+  /**
+   * Add newHdr to the database. The key should already be set upon the
+   * header.
+   * If the database already contains another header with the same key,
+   * addNewHdrToDB() will fail.
+   * If notify is true, then any registered nsIDBChangeListener objects
+   * on the database will have their onHdrAdded callback invoked.
+   */
   void addNewHdrToDB(in nsIMsgDBHdr newHdr, in boolean notify);
 
+  /**
+   * Copy existingHdr to create a new one.
+   *
+   * If addHdrToDB is false, the new header will be left detached from the
+   * database. If true, it will immediately be added to the DB and the
+   * onHdrAdded notification will be issued to listeners.
+   *
+   * The new header will be assigned the given key, unless it is
+   * nsMsgKey_None, in which case a new key will be auto-assigned.
+   */
   nsIMsgDBHdr copyHdrFromExistingHdr(in nsMsgKey key, in nsIMsgDBHdr existingHdr, in boolean addHdrToDB);
 
   /**
