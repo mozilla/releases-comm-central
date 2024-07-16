@@ -76,10 +76,13 @@ def build_template(
     locales: List[str],
     fluent_resources: List[str],
     is_beta: bool,
+    is_esr: bool,
 ):
     wmclass = "thunderbird"
     if is_beta:
         wmclass = wmclass + "-beta"
+    elif is_esr:
+        wmclass = wmclass + "-esr"
     locales_plus = locales + ["en-US"]
     l10n_strings = FluentTranslator(l10n_base.resolve(), locales_plus, fluent_resources)
 
@@ -140,6 +143,13 @@ def main():
         default=False,
         help="Mark this build a beta version",
     )
+    parser.add_argument(
+        "--esr",
+        dest="is_esr",
+        action="store_true",
+        default=False,
+        help="Mark this build an ESR version",
+    )
 
     args = parser.parse_args()
 
@@ -151,7 +161,13 @@ def main():
     get_strings(args.l10n_base, comm_l10n_rev, args.fluent_files)
 
     build_template(
-        args.output, args.template, args.l10n_base, locales, args.fluent_files, args.is_beta
+        args.output,
+        args.template,
+        args.l10n_base,
+        locales,
+        args.fluent_files,
+        args.is_beta,
+        args.is_esr,
     )
 
 
