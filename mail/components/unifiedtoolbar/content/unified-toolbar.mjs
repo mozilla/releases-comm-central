@@ -267,7 +267,7 @@ class UnifiedToolbar extends HTMLElement {
       menuItem.removeAttribute("checked");
     } else {
       menuItem.setAttribute("checked", true);
-      menubarToolbar.removeAttribute("autohide");
+      menubarToolbar.setAttribute("autohide", "false");
     }
     Services.xulStore.persist(menubarToolbar, "autohide");
   };

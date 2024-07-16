@@ -360,8 +360,12 @@ function onViewToolbarsPopupShowing(
           toolbar.setAttribute(hidingAttribute, "true");
           menuItem.removeAttribute("checked");
         } else {
-          menuItem.setAttribute("checked", true);
-          toolbar.removeAttribute(hidingAttribute);
+          menuItem.setAttribute("checked", "true");
+          if (hidingAttribute == "autohide") {
+            toolbar.setAttribute(hidingAttribute, "false");
+          } else {
+            toolbar.removeAttribute(hidingAttribute);
+          }
         }
         Services.xulStore.persist(toolbar, hidingAttribute);
       });
