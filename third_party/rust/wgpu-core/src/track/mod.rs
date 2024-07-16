@@ -102,22 +102,25 @@ mod stateless;
 mod texture;
 
 use crate::{
-    binding_model, command, conv,
+    binding_model, command,
     hal_api::HalApi,
     lock::{rank, Mutex, RwLock},
     pipeline,
-    resource::{self, Resource, ResourceErrorIdent},
+    resource::{self, Labeled, ResourceErrorIdent},
     snatch::SnatchGuard,
 };
 
 use std::{fmt, ops, sync::Arc};
 use thiserror::Error;
 
-pub(crate) use buffer::{BufferBindGroupState, BufferTracker, BufferUsageScope};
+pub(crate) use buffer::{
+    BufferBindGroupState, BufferTracker, BufferUsageScope, DeviceBufferTracker,
+};
 use metadata::{ResourceMetadata, ResourceMetadataProvider};
 pub(crate) use stateless::{StatelessBindGroupState, StatelessTracker};
 pub(crate) use texture::{
-    TextureBindGroupState, TextureSelector, TextureTracker, TextureUsageScope,
+    DeviceTextureTracker, TextureBindGroupState, TextureSelector, TextureTracker,
+    TextureTrackerSetSingle, TextureUsageScope,
 };
 use wgt::strict_assert_ne;
 
@@ -126,11 +129,7 @@ use wgt::strict_assert_ne;
 pub(crate) struct TrackerIndex(u32);
 
 impl TrackerIndex {
-    /// A dummy value to place in ResourceInfo for resources that are never tracked.
-    pub const INVALID: Self = TrackerIndex(u32::MAX);
-
     pub fn as_usize(self) -> usize {
-        debug_assert!(self != Self::INVALID);
         self.0 as usize
     }
 }
@@ -142,6 +141,7 @@ impl TrackerIndex {
 /// - IDs of dead handles can be recycled while resources are internally held alive (and tracked).
 /// - The plan is to remove IDs in the long run
 ///   ([#5121](https://github.com/gfx-rs/wgpu/issues/5121)).
+///
 /// In order to produce these tracker indices, there is a shared TrackerIndexAllocator
 /// per resource type. Indices have the same lifetime as the internal resource they
 /// are associated to (alloc happens when creating the resource and free is called when
@@ -217,7 +217,6 @@ impl SharedTrackerIndexAllocator {
 
 pub(crate) struct TrackerIndexAllocators {
     pub buffers: Arc<SharedTrackerIndexAllocator>,
-    pub staging_buffers: Arc<SharedTrackerIndexAllocator>,
     pub textures: Arc<SharedTrackerIndexAllocator>,
     pub texture_views: Arc<SharedTrackerIndexAllocator>,
     pub samplers: Arc<SharedTrackerIndexAllocator>,
@@ -235,7 +234,6 @@ impl TrackerIndexAllocators {
     pub fn new() -> Self {
         TrackerIndexAllocators {
             buffers: Arc::new(SharedTrackerIndexAllocator::new()),
-            staging_buffers: Arc::new(SharedTrackerIndexAllocator::new()),
             textures: Arc::new(SharedTrackerIndexAllocator::new()),
             texture_views: Arc::new(SharedTrackerIndexAllocator::new()),
             samplers: Arc::new(SharedTrackerIndexAllocator::new()),
@@ -327,7 +325,7 @@ pub(crate) trait ResourceUses:
 fn invalid_resource_state<T: ResourceUses>(state: T) -> bool {
     // Is power of two also means "is one bit set". We check for this as if
     // we're in any exclusive state, we must only be in a single state.
-    state.any_exclusive() && !conv::is_power_of_two_u16(state.bits())
+    state.any_exclusive() && !state.bits().is_power_of_two()
 }
 
 /// Returns true if the transition from one state to another does not require
@@ -386,12 +384,6 @@ impl ResourceUsageCompatibilityError {
                 new_state,
             },
         }
-    }
-}
-
-impl crate::error::PrettyError for ResourceUsageCompatibilityError {
-    fn fmt_pretty(&self, fmt: &mut crate::error::ErrorFormatter) {
-        fmt.error(self);
     }
 }
 
@@ -610,16 +602,26 @@ impl<'a, A: HalApi> UsageScope<'a, A> {
     }
 }
 
-pub(crate) trait ResourceTracker {
-    fn remove_abandoned(&mut self, index: TrackerIndex) -> bool;
+/// A tracker used by Device.
+pub(crate) struct DeviceTracker<A: HalApi> {
+    pub buffers: DeviceBufferTracker<A>,
+    pub textures: DeviceTextureTracker<A>,
 }
 
-/// A full double sided tracker used by CommandBuffers and the Device.
+impl<A: HalApi> DeviceTracker<A> {
+    pub fn new() -> Self {
+        Self {
+            buffers: DeviceBufferTracker::new(),
+            textures: DeviceTextureTracker::new(),
+        }
+    }
+}
+
+/// A full double sided tracker used by CommandBuffers.
 pub(crate) struct Tracker<A: HalApi> {
     pub buffers: BufferTracker<A>,
     pub textures: TextureTracker<A>,
     pub views: StatelessTracker<resource::TextureView<A>>,
-    pub samplers: StatelessTracker<resource::Sampler<A>>,
     pub bind_groups: StatelessTracker<binding_model::BindGroup<A>>,
     pub compute_pipelines: StatelessTracker<pipeline::ComputePipeline<A>>,
     pub render_pipelines: StatelessTracker<pipeline::RenderPipeline<A>>,
@@ -633,7 +635,6 @@ impl<A: HalApi> Tracker<A> {
             buffers: BufferTracker::new(),
             textures: TextureTracker::new(),
             views: StatelessTracker::new(),
-            samplers: StatelessTracker::new(),
             bind_groups: StatelessTracker::new(),
             compute_pipelines: StatelessTracker::new(),
             render_pipelines: StatelessTracker::new(),
