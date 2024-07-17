@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:is(#event-toolbox, #FormatToolbox) > toolbar {
+  color: inherit;
+}
+
+:root:not([lwtheme-image]) :is(#event-toolbox, #FormatToolbox) > toolbar {
+  background-color: inherit;
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog keep duration button
  *-------------------------------------------------------------------*/

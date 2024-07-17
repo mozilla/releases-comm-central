@@ -48,7 +48,6 @@
 
 #MsgHeadersToolbar {
   appearance: none !important;
-  color: WindowText;
   text-shadow: none;
   padding-block-start: 7px;
 }
@@ -121,7 +120,8 @@
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
-  color: WindowText;
+  background-color: inherit;
+  color: inherit;
   margin-inline: 3px;
   padding-block: 4px;
 }

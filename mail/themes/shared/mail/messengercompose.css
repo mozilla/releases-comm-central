@@ -352,6 +352,7 @@
     /* force iconsize="small" on these toolbars */
     counter-reset: smallicons;
     background-color: var(--toolbar-bgcolor);
+    color: inherit;
   }
 }
 
@@ -478,8 +479,17 @@
   }
 }
 
+:is(#MsgHeadersToolbar, #FormatToolbox) {
+  background-color: var(--layout-background-2);
+  color: var(--layout-color-1);
+  color-scheme: light-dark;
+}
+
 #MsgHeadersToolbar {
   grid-area: headers;
+  display: grid;
+  grid-template-rows: min-content minmax(0, min-content) min-content;
+  grid-template-columns: auto;
 }
 
 #FormatToolbox {
@@ -1179,12 +1189,6 @@ toolbarbutton.formatting-button {
   :root[lwt-tree] & {
     stroke: var(--toolbar-field-background-color);
   }
-}
-
-#MsgHeadersToolbar {
-  display: grid;
-  grid-template-rows: min-content minmax(0, min-content) min-content;
-  grid-template-columns: auto;
 }
 
 .address-identity-recipient {

@@ -26,7 +26,6 @@
 }
 
 #MsgHeadersToolbar {
-  color: -moz-DialogText;
   text-shadow: none;
   padding-block: 4px 2px;
 }
@@ -48,6 +47,7 @@
     }
 
     & #MsgHeadersToolbar {
+
       & .address-pill {
         box-shadow: inset 0 0 0 1px ThreeDShadow;
 
