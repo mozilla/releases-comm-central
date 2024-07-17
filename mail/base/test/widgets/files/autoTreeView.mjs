@@ -79,8 +79,9 @@ L10nRegistry.getInstance().registerSources([
       // Those weird column header names are a work-around for a bug that
       // means columns can only be dragged from the text of the header.
       // We need to have some text in the centre of the header cell.
+      // See bug 1908314.
       source: `
-colour-header = ColourColourColourColourColour
+colour-header = ColourColourColourColourColourColour
   .title = Sort by Colour
 colour-menuitem =
   .label = Colour
