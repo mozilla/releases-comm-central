@@ -14,8 +14,8 @@ class EwsProtocolInfo : public nsIMsgProtocolInfo {
 
   EwsProtocolInfo();
 
-  protected:
-    virtual ~EwsProtocolInfo();
+ protected:
+  virtual ~EwsProtocolInfo();
 };
 
 #endif

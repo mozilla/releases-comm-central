@@ -274,10 +274,27 @@ impl XpComEwsClient {
 
                         // Have the database create a new header instance for
                         // us. We don't create it ourselves so that the database
-                        // can fill out any fields it wants beforehand.
-                        let header =
-                            getter_addrefs(|hdr| unsafe { callbacks.CreateNewHeader(hdr) })?;
+                        // can fill out any fields it wants beforehand. The
+                        // header we get back will have its EWS ID already set.
+                        let ews_id = nsCString::from(&item_id);
+                        let result = getter_addrefs(|hdr| unsafe {
+                            callbacks.CreateNewHeaderForItem(&*ews_id, hdr)
+                        });
 
+                        if let Err(nserror::NS_OK) = result {
+                            // If a header already existed for the given item,
+                            // `CreateNewHeaderForItem()` will return `NULL`.
+                            // `getter_addrefs()` represents this as an error
+                            // with `NS_OK`. We assume here that a previous sync
+                            // encountered an error partway through and skip
+                            // this item.
+                            log::debug!(
+                                "Message with ID {item_id} already exists in database, skipping"
+                            );
+                            continue;
+                        }
+
+                        let header = result?;
                         populate_message_header_from_item(&header, &msg)?;
 
                         unsafe { callbacks.CommitHeader(&*header) }.to_result()?;

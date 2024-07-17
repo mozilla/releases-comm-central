@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsProtocolInfo.h"
+
 #include "EwsIncomingServer.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsMsgUtils.h"

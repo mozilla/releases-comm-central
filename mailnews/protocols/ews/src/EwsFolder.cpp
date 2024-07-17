@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsFolder.h"
+
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 #include "MailNewsTypes.h"
@@ -20,8 +21,8 @@ class MessageSyncListener : public IEwsMessageCallbacks {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_IEWSMESSAGECALLBACKS
 
-  MessageSyncListener(RefPtr<EwsFolder> folder, RefPtr<nsIMsgWindow> window)
-      : mFolder(std::move(folder)), mWindow(std::move(window)) {}
+  MessageSyncListener(EwsFolder* folder, nsIMsgWindow* window)
+      : mFolder(folder), mWindow(window) {}
 
  protected:
   virtual ~MessageSyncListener() = default;
@@ -41,12 +42,31 @@ NS_IMETHODIMP MessageSyncListener::CommitHeader(nsIMsgDBHdr* hdr) {
   return db->AddNewHdrToDB(hdr, true);
 }
 
-NS_IMETHODIMP MessageSyncListener::CreateNewHeader(nsIMsgDBHdr** _retval) {
+NS_IMETHODIMP MessageSyncListener::CreateNewHeaderForItem(
+    const nsACString& ewsId, nsIMsgDBHdr** _retval) {
   RefPtr<nsIMsgDatabase> db;
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return db->CreateNewHdr(nsMsgKey_None, _retval);
+  RefPtr<nsIMsgDBHdr> existingHeader;
+  rv = db->GetMsgHdrForEwsItemID(ewsId, getter_AddRefs(existingHeader));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (existingHeader.get() != nullptr) {
+    // If the header already exists, don't create a new one.
+    *_retval = nullptr;
+    return NS_OK;
+  }
+
+  RefPtr<nsIMsgDBHdr> newHeader;
+  rv = db->CreateNewHdr(nsMsgKey_None, getter_AddRefs(newHeader));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = newHeader->SetStringProperty(ID_PROPERTY, ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  newHeader.forget(_retval);
+  return NS_OK;
 }
 
 NS_IMETHODIMP MessageSyncListener::UpdateSyncState(
@@ -217,7 +237,7 @@ NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
                  "folder %s initialized as EWS folder, but has no EWS ID",
                  URI().get())
                  .get());
-    return NS_ERROR_FAILURE;
+    return NS_ERROR_UNEXPECTED;
   }
 
   // EWS provides us an opaque value which specifies the last version of
@@ -228,6 +248,6 @@ NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
     syncStateToken = EmptyCString();
   }
 
-  auto listener = RefPtr(new MessageSyncListener(this, RefPtr(aWindow)));
+  auto listener = RefPtr(new MessageSyncListener(this, aWindow));
   return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
 }

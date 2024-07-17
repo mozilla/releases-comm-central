@@ -41,7 +41,7 @@ interface IEwsFolderCallbacks : nsISupports
 [uuid(dec2ddd5-b5a2-4724-bfc7-e5de31840f76)]
 interface IEwsMessageCallbacks : nsISupports
 {
-  nsIMsgDBHdr createNewHeader();
+  nsIMsgDBHdr createNewHeaderForItem(in AUTF8String ewsId);
   void commitHeader(in nsIMsgDBHdr hdr);
 
   void updateSyncState(in AUTF8String syncStateToken);
