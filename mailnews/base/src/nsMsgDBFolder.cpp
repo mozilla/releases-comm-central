@@ -72,6 +72,7 @@ using namespace mozilla;
 
 extern LazyLogModule FILTERLOGMODULE;
 extern LazyLogModule DBLog;
+extern LazyLogModule gCompactLog;  // "compact" (Defined in FolderCompactor).
 
 static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
                                       // purge threshold
@@ -1595,6 +1596,8 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
       do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+
+  MOZ_LOG(gCompactLog, LogLevel::Debug, ("Performing AutoCompactEvent check"));
   if (NS_SUCCEEDED(rv)) {
     nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
     rv = accountMgr->GetAllServers(allServers);
@@ -1654,6 +1657,12 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
       int32_t purgeThreshold;
       rv = GetPurgeThreshold(&purgeThreshold);
       NS_ENSURE_SUCCESS(rv, rv);
+
+      MOZ_LOG(gCompactLog, LogLevel::Info,
+              ("AutoCompactEvent check: totalExpungedBytes=%" PRIi64
+               ", purgeThreshold=%" PRIi64 "",
+               totalExpungedBytes, ((int64_t)purgeThreshold * 1024)));
+
       if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
         bool okToCompact = false;
         nsCOMPtr<nsIPrefService> pref =
@@ -1699,8 +1708,13 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
             if (neverAsk)  // [X] Remove deletions automatically and do not ask
               branch->SetBoolPref(PREF_MAIL_PURGE_ASK, false);
           }
-        } else
+        } else {
           okToCompact = aWindow || !askBeforePurge;
+        }
+
+        MOZ_LOG(gCompactLog, LogLevel::Info,
+                ("AutoCompactEvent check: okToCompact=%s",
+                 okToCompact ? "true" : " false"));
 
         if (okToCompact) {
           NotifyFolderEvent(kAboutToCompact);
@@ -1726,6 +1740,32 @@ nsresult nsMsgDBFolder::AutoCompact(nsIMsgWindow* aWindow) {
   NS_ENSURE_SUCCESS(rv, rv);
   PRTime timeNow = PR_Now();  // time in microseconds
   PRTime timeAfterOneHourOfLastPurgeCheck = gtimeOfLastPurgeCheck + oneHour;
+
+  // Logging.
+  {
+    // Format the current time.
+    PRExplodedTime nowExploded;
+    char nowBuf[64];
+    PR_ExplodeTime(timeNow, PR_LocalTimeParameters, &nowExploded);
+    PR_FormatTimeUSEnglish(nowBuf, sizeof(nowBuf), "%Y-%m-%d %H:%M:%S",
+                           &nowExploded);
+
+    // Format the next-allowed-compaction time.
+    PRExplodedTime nextExploded;
+    char nextBuf[64];
+    PR_ExplodeTime(timeAfterOneHourOfLastPurgeCheck, PR_LocalTimeParameters,
+                   &nextExploded);
+    PR_FormatTimeUSEnglish(nextBuf, sizeof(nextBuf), "%Y-%m-%d %H:%M:%S",
+                           &nextExploded);
+
+    MOZ_LOG(gCompactLog, LogLevel::Debug,
+            ("AutoCompact check (triggered by '%s'): ", mURI.get()));
+
+    MOZ_LOG(gCompactLog, LogLevel::Debug,
+            (" prompt: %s, now: %s, next autocompact check allowed after: %s",
+             prompt ? "true" : "false", nowBuf, nextBuf));
+  }
+
   if (timeAfterOneHourOfLastPurgeCheck < timeNow && prompt) {
     gtimeOfLastPurgeCheck = timeNow;
     nsCOMPtr<nsIRunnable> event = new AutoCompactEvent(aWindow, this);
