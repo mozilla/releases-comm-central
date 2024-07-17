@@ -1190,6 +1190,9 @@ Enigmail.msg = {
     const newSecurityInfo = this.resetDirty();
     this.dirty = 1;
 
+    const SIGN = EnigmailConstants.SEND_SIGNED;
+    const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
+
     try {
       this.modifiedAttach = null;
 
@@ -1217,8 +1220,6 @@ Enigmail.msg = {
         await this.attachOwnKey(senderKeyId);
       }
 
-      const SIGN = EnigmailConstants.SEND_SIGNED;
-      const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
       const autocryptGossipHeaders = await this.getAutocryptGossip();
 
       var usingPGPMime =
@@ -1305,6 +1306,18 @@ Enigmail.msg = {
     } catch (ex) {
       console.warn("Prepare send message FAILED.", ex);
       return false;
+    }
+
+    // Make sure that we use base64 encoding for signed payload of
+    // signed-only emails, only, because some MTAs rewrite the encoding
+    // of message with a 7bit/8bit encoding.
+    // We don't use base64 encoding for the inner payload of encrypted
+    // messages, even if that payload is a signed message, because
+    // we already have sufficient wrapping when using encryption.
+    // (We don't encode PGP/INLINE signed messages, that would be
+    // against the intention.)
+    if (usingPGPMime && sendFlags & SIGN && !(sendFlags & ENCRYPT)) {
+      gMsgCompose.compFields.forceMsgEncoding = true;
     }
 
     // The encryption process for PGP/MIME messages follows "here".
