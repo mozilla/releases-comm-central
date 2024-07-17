@@ -38,7 +38,6 @@ nsresult JaBaseCppMsgFolder::GetDatabase() {
       // reindexes do not show all of the messages.
       // mDatabase->SetSummaryValid(true);
       mDatabase->SetSummaryValid(false);
-      CreateDummyFile(this);
     }
 
     if (rv != NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE)
@@ -75,30 +74,6 @@ nsresult JaBaseCppMsgFolder::GetDatabase() {
   }
 
   return rv;
-}
-
-/*
- * The utility function GetSummaryFileLocation takes a folder file,
- *  then appends .msf to come up with the name of the database file. So
- *  we need a placeholder file with simply the folder name. This method
- *  creates an appropriate file as a placeholder, or you may use the file if
- *  appropriate.
- */
-nsresult JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder) {
-  nsresult rv;
-  if (!aMailFolder) return NS_OK;
-  nsCOMPtr<nsIFile> path;
-  // need to make sure folder exists...
-  aMailFolder->GetFilePath(getter_AddRefs(path));
-  if (path) {
-    bool exists;
-    rv = path->Exists(&exists);
-    if (!exists) {
-      rv = path->Create(nsIFile::NORMAL_FILE_TYPE, 0644);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-  return NS_OK;
 }
 
 // Delegator object to bypass JS method override.

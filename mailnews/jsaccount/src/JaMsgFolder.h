@@ -41,11 +41,6 @@ class JaBaseCppMsgFolder : public nsMsgDBFolder,
 
   nsresult GetDatabase() override;
 
-  // Local Utility Functions
-
-  // Create a placeholder file to represent a folder.
-  nsresult CreateDummyFile(nsIMsgFolder* aMailFolder);
-
  protected:
   virtual ~JaBaseCppMsgFolder() {}
 };
