@@ -3680,6 +3680,25 @@ export var RNP = {
     return email;
   },
 
+  /**
+   * Test if the given array appears to contain an OpenPGP ASCII Armored
+   * data block. This is done by checking the initial bytes of the array
+   * contain the -----BEGIN string. This check should be sufficient to
+   * distinguish it from a data block that contains a binary encoding
+   * of OpenPGP data packets.
+   *
+   * @param {TypedArray} typedArray - It's assumed this parameter
+   *   was created by obtaining a memory buffer from js-ctypes, casting
+   *   it to ctypes.uint8_t.array, and calling readTypedArray().
+   * @returns {boolean} - Returns true if the block looks ASCII armored
+   */
+  isASCIIArmored(typedArray) {
+    const armorBegin = "-----BEGIN";
+    return lazy.MailStringUtils.uint8ArrayToByteString(
+      typedArray.slice(0, armorBegin.length)
+    ).startsWith(armorBegin);
+  },
+
   async encryptAndOrSign(plaintext, args, resultStatus) {
     let signedInner;
 
@@ -3703,6 +3722,12 @@ export var RNP = {
         const orgEncrypt = args.encrypt;
         args.encrypt = false;
         signedInner = await lazy.GPGME.sign(plaintext, args, resultStatus);
+        // Despite our request to produce binary data, GPGME.sign might
+        // have produce ASCII armored encoding, e.g. if the user has
+        // a configuration file that enables it.
+        if (this.isASCIIArmored(signedInner)) {
+          signedInner = this.deArmorTypedArray(signedInner);
+        }
         args.encrypt = orgEncrypt;
       } else {
         // We aren't asked to encrypt, but sign only. That means the
@@ -4883,6 +4908,51 @@ export var RNP = {
       ).contents;
 
       result = char_array.readString();
+    }
+
+    RNPLib.rnp_input_destroy(input_from_memory);
+    RNPLib.rnp_output_destroy(output_to_memory);
+
+    return result;
+  },
+
+  deArmorTypedArray(input_array) {
+    const input_from_memory = new RNPLib.rnp_input_t();
+    RNPLib.rnp_input_from_memory(
+      input_from_memory.address(),
+      input_array,
+      input_array.length,
+      false
+    );
+    const max_out = input_array.length * 2 + 150; // extra bytes for head/tail/hash lines
+
+    const output_to_memory = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
+
+    if (RNPLib.rnp_dearmor(input_from_memory, output_to_memory)) {
+      throw new Error("rnp_dearmor failed");
+    }
+
+    let result = null;
+
+    const result_buf = new lazy.ctypes.uint8_t.ptr();
+    const result_len = new lazy.ctypes.size_t();
+    if (
+      !RNPLib.rnp_output_memory_get_buf(
+        output_to_memory,
+        result_buf.address(),
+        result_len.address(),
+        false
+      )
+    ) {
+      // type casting the pointer type to an array type allows us to
+      // access the elements by index.
+      const uint8_array = lazy.ctypes.cast(
+        result_buf,
+        lazy.ctypes.uint8_t.array(result_len.value).ptr
+      ).contents;
+
+      result = uint8_array.readTypedArray();
     }
 
     RNPLib.rnp_input_destroy(input_from_memory);

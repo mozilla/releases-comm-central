@@ -1743,6 +1743,14 @@ function enableRNPLibJS() {
       ctypes.char.ptr
     ),
 
+    rnp_dearmor: librnp.declare(
+      "rnp_dearmor",
+      abi,
+      rnp_result_t,
+      rnp_input_t,
+      rnp_output_t
+    ),
+
     rnp_op_verify_get_protection_info: librnp.declare(
       "rnp_op_verify_get_protection_info",
       abi,
