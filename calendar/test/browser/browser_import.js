@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This tests importing an ICS file.
+/** This tests importing/exporting an ICS file. */
 
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
@@ -210,6 +210,28 @@ add_task(async function () {
   is(result.length, 4, "all items that were imported were in fact imported");
 
   await CalendarTestUtils.monthView.waitForItemAt(window, 1, 3, 4);
+
+  // While we're here, make sure we can export the "Test" calendar as well.
+  const exportedFile = await IOUtils.getFile(PathUtils.tempDir, "export.ics");
+  MockFilePicker.setFiles([exportedFile]);
+
+  const context = document.getElementById("list-calendars-context-menu");
+  EventUtils.synthesizeMouseAtCenter(
+    document.querySelector("#calendar-list li:nth-child(2)"),
+    { type: "contextmenu" },
+    window
+  );
+  await BrowserTestUtils.waitForPopupEvent(context, "shown");
+  context.activateItem(document.getElementById("list-calendars-context-export"));
+
+  await TestUtils.waitForCondition(() => exportedFile.exists());
+
+  const icsExported = await IOUtils.readUTF8(exportedFile.path);
+  Assert.ok(icsExported.includes("\r\nNAME:Test\r\n"), "ics export should contain calendar NAME");
+  Assert.ok(
+    icsExported.includes("\r\nX-WR-CALNAME:Test\r\n"),
+    "ics export should contain calendar X-WR-CALNAME"
+  );
 
   for (const item of result) {
     await calendar.deleteItem(item);
