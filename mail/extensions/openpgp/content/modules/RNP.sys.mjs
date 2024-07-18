@@ -1768,10 +1768,49 @@ export var RNP = {
     return true;
   },
 
-  async decrypt(encrypted, options, alreadyDecrypted = false) {
-    const arr = encrypted.split("").map(e => e.charCodeAt());
-    var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
+  /**
+   * Decrypts/Decodes an OpenPGP message, verify signatures, and
+   * return associated meta data.
+   *
+   * @param {string} encrypted_string - A string of bytes containing
+   *   the encrypted message.
+   * @param {object} options - Various pieces of information that are
+   *   necessary for correctly processing the encrypted message.
+   * @param {boolean} alreadyDecrypted - Usually callers should set this
+   *   flag to false, to request both decryption and full decoding of
+   *   all available meta data. Value True is intended to allow
+   *   recursive calling of this function. Value True means, a previous
+   *   action has already processed the outer encryption layer, only,
+   *   (include querying of encryption strength and the list keys that
+   *   are known to be able to decrypt the message), but processing of
+   *   the inner payload has not yet been done, such as decompression
+   *   and verification of the inner signature.
+   *   If the value is set to True, then meta data related to
+   *   the encryption layer is read from the "options" parameter and
+   *   copied over to the result object.
+   * @returns {object} - Various flags that contain the decrypted data
+   *   and related meta data.
+   */
+  async decrypt(encrypted_string, options, alreadyDecrypted = false) {
+    const arr = encrypted_string.split("").map(e => e.charCodeAt());
+    const encrypted_array = lazy.ctypes.uint8_t.array()(arr);
+    return this.decryptArray(encrypted_array, options, alreadyDecrypted);
+  },
 
+  /**
+   * Decrypts/Decodes an OpenPGP message, verify signatures, and
+   * return associated meta data.
+   *
+   * @param {string} encrypted_array - An array of bytes that contains
+   *   the encrypted message.
+   * @param {object} options - See description of the same parameter
+   *   of function decrypt().
+   * @param {boolean} alreadyDecrypted - See description of the same
+   *   parameter of function decrypt().
+   * @returns {object} - See description of the result object of
+   *   function decrypt().
+   */
+  async decryptArray(encrypted_array, options, alreadyDecrypted = false) {
     const result = {};
     result.decryptedData = "";
     result.statusFlags = 0;
@@ -1792,7 +1831,7 @@ export var RNP = {
     // Allow compressed encrypted messages, max factor 1200, up to 100 MiB.
     const max_decrypted_message_size = 100 * 1024 * 1024;
     const max_out = Math.min(
-      encrypted.length * 1200,
+      encrypted_array.length * 1200,
       max_decrypted_message_size
     );
 
@@ -1990,13 +2029,13 @@ export var RNP = {
           lazy.EnigmailConstants.NO_SECKEY;
         break;
       case RNPLib.RNP_ERROR_BAD_FORMAT:
+        queryAllEncryptionRecipients = true;
         if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
           // Same handling as RNP_ERROR_DECRYPT_FAILED, to allow
           // handling of some corrupt messages, see bug 1898832.
           rnpCannotDecrypt = true;
           useDecodedData = false;
           processSignature = false;
-          queryAllEncryptionRecipients = true;
           result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
           break;
         }
@@ -2170,8 +2209,8 @@ export var RNP = {
       lazy.GPGME.allDependenciesLoaded()
     ) {
       // failure processing with RNP, attempt decryption with GPGME
-      const r2 = await lazy.GPGME.decrypt(
-        encrypted,
+      const r2 = await lazy.GPGME.decryptArray(
+        encrypted_array,
         this.enArmorCDataMessage.bind(this)
       );
       if (!r2.exitCode && r2.decryptedData) {
@@ -2185,7 +2224,19 @@ export var RNP = {
         // and optional signature data. Recursively call ourselves
         // to perform the remaining processing.
         options.encToDetails = result.encToDetails;
-        return RNP.decrypt(r2.decryptedData, options, true);
+
+        // Handle badly encoded messages, see bugs 1898832 and 1906903.
+        const deArmored = this.deArmorString(r2.decryptedData);
+        const isDeArmoredStillAsciiArmored = this.isASCIIArmored(deArmored);
+
+        let retval2;
+        if (isDeArmoredStillAsciiArmored) {
+          retval2 = await RNP.decryptArray(deArmored, options, true);
+        } else {
+          retval2 = await RNP.decrypt(r2.decryptedData, options, true);
+        }
+
+        return retval2;
       }
     }
 
@@ -4916,6 +4967,13 @@ export var RNP = {
     return result;
   },
 
+  /**
+   * Removes ASCII armor layer from the input.
+   *
+   * @param {TypedArray} input_array - An array of bytes containing
+   *   an OpenPGP message in ASCII armored data format.
+   * @returns {object} - A typed array with the result bytes.
+   */
   deArmorTypedArray(input_array) {
     const input_from_memory = new RNPLib.rnp_input_t();
     RNPLib.rnp_input_from_memory(
@@ -4959,6 +5017,18 @@ export var RNP = {
     RNPLib.rnp_output_destroy(output_to_memory);
 
     return result;
+  },
+
+  /**
+   * Removes ASCII armor layer from the input.
+   *
+   * @param {string} str - A string of bytes that contains OpenPGP
+   *   ASCII armored data.
+   * @returns {object} - A typed array with the result bytes.
+   */
+  deArmorString(str) {
+    const array = lazy.MailStringUtils.byteStringToUint8Array(str);
+    return this.deArmorTypedArray(array);
   },
 
   // Will change the expiration date of all given keys to newExpiry.
