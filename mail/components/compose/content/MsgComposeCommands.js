@@ -2718,7 +2718,7 @@ async function UpdateAttachment(attachmentItem, updateSettings = {}) {
           attachmentItem.attachment.cloudFileAccountKey =
             destCloudFileAccount.accountKey;
 
-          Glean.tb.filelinkUploadedSize[destCloudFileAccount.type].add(
+          Glean.filelink.uploadedSize[destCloudFileAccount.type].add(
             file.fileSize
           );
         }
@@ -6470,7 +6470,7 @@ async function CompleteGenericSendMessage(msgType) {
         item => item.attachment.size >= maxSize && !item.attachment.sendViaCloud
       )
     ) {
-      Glean.tb.filelinkIgnored.add(1);
+      Glean.filelink.filelinkIgnored.add(1);
     }
   } else if (
     msgType == Ci.nsIMsgCompDeliverMode.Save ||

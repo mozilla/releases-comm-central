@@ -289,7 +289,7 @@ add_task(async function test_mail_account_setup() {
   // this probe. Should add something like:
   /*
   const xmlFromDbValue =
-    Glean.tb.successfulEmailAccountSetup["xml-from-db"].testGetValue();
+    Glean.mail.successfulEmailAccountSetup["xml-from-db"].testGetValue();
   Assert.equal(xmlFromDbValue, 1, "should get correct count for xml-from-db");
   */
 
@@ -526,13 +526,13 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   Assert.equal(
-    Glean.tb.failedEmailAccountSetup["xml-from-db"].testGetValue(),
+    Glean.mail.failedEmailAccountSetup["xml-from-db"].testGetValue(),
     1,
     "count of failed email account setup with xml config must be correct"
   );
 
   Assert.equal(
-    Glean.tb.failedEmailAccountSetup.user.testGetValue(),
+    Glean.mail.failedEmailAccountSetup.user.testGetValue(),
     1,
     "count of failed email account setup with manual config must be correct"
   );

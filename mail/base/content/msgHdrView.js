@@ -4394,7 +4394,7 @@ function reportMsgRead({ isNewRead = false, key = null }) {
     const security = gSecureMsgProbe.key.endsWith("-openpgp")
       ? "OpenPGP"
       : "S/MIME";
-    Glean.tb.mailsReadSecure.record({ security, isSigned, isEncrypted });
+    Glean.mail.mailsReadSecure.record({ security, isSigned, isEncrypted });
   }
 }
 

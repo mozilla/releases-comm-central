@@ -43,7 +43,7 @@ export function openWebSearch(query) {
     const engine = await Services.search.getDefault();
     openLinkExternally(engine.getSubmission(query).uri.spec);
 
-    Glean.tb.websearchUsage[engine.name.toLowerCase()].add(1);
+    Glean.mail.websearchUsage[engine.name.toLowerCase()].add(1);
   });
 }
 

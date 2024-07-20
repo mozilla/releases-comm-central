@@ -43,7 +43,7 @@ add_task(async function testFolderOpen() {
   about3Pane.displayFolder(folders.Other.URI);
 
   Assert.equal(
-    Glean.tb.folderOpened.Other.testGetValue(),
+    Glean.mail.folderOpened.Other.testGetValue(),
     1,
     "should have recorded opening Other"
   );
@@ -52,12 +52,12 @@ add_task(async function testFolderOpen() {
   about3Pane.displayFolder(folders.Other.URI);
 
   Assert.equal(
-    Glean.tb.folderOpened.Other.testGetValue(),
+    Glean.mail.folderOpened.Other.testGetValue(),
     2,
     "should have recorded opening Other once more"
   );
   Assert.equal(
-    Glean.tb.folderOpened.Templates.testGetValue(),
+    Glean.mail.folderOpened.Templates.testGetValue(),
     1,
     "should have recorded opening Templates"
   );
@@ -65,19 +65,19 @@ add_task(async function testFolderOpen() {
   about3Pane.displayFolder(folders.Junk.URI);
   about3Pane.displayFolder(folders.Other.URI);
 
-  Assert.equal(Glean.tb.folderOpened.Other.testGetValue(), 3);
-  Assert.equal(Glean.tb.folderOpened.Templates.testGetValue(), 1);
-  Assert.equal(Glean.tb.folderOpened.Junk.testGetValue(), 1);
+  Assert.equal(Glean.mail.folderOpened.Other.testGetValue(), 3);
+  Assert.equal(Glean.mail.folderOpened.Templates.testGetValue(), 1);
+  Assert.equal(Glean.mail.folderOpened.Junk.testGetValue(), 1);
 
   about3Pane.displayFolder(folders.Junk.URI);
   about3Pane.displayFolder(folders.Templates.URI);
   about3Pane.displayFolder(folders.Archive.URI);
   about3Pane.displayFolder(folders.Other.URI);
 
-  Assert.equal(Glean.tb.folderOpened.Other.testGetValue(), 4);
-  Assert.equal(Glean.tb.folderOpened.Templates.testGetValue(), 2);
-  Assert.equal(Glean.tb.folderOpened.Archive.testGetValue(), 1);
-  Assert.equal(Glean.tb.folderOpened.Junk.testGetValue(), 2);
+  Assert.equal(Glean.mail.folderOpened.Other.testGetValue(), 4);
+  Assert.equal(Glean.mail.folderOpened.Templates.testGetValue(), 2);
+  Assert.equal(Glean.mail.folderOpened.Archive.testGetValue(), 1);
+  Assert.equal(Glean.mail.folderOpened.Junk.testGetValue(), 2);
 });
 
 add_task(async function testPaneVisibility() {
@@ -98,10 +98,10 @@ add_task(async function testPaneVisibility() {
   tabmail.switchToTab(0);
 
   const fpValue =
-    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.folderPane.testGetValue();
   Assert.equal(fpValue, true, "folderPane visibility should be correct");
   const mpValue =
-    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.messagePane.testGetValue();
   Assert.equal(mpValue, true, "messagePane visibility should be correct");
 
   // Hide the folder pane.
@@ -110,10 +110,10 @@ add_task(async function testPaneVisibility() {
   tabmail.switchToTab(0);
 
   const fpValue2 =
-    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.folderPane.testGetValue();
   Assert.equal(fpValue2, false, "folderPane visibility should be correct");
   const mpValue2 =
-    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.messagePane.testGetValue();
   Assert.equal(mpValue2, true, "messagePane visibility should be correct");
 
   // Hide the message pane.
@@ -122,10 +122,10 @@ add_task(async function testPaneVisibility() {
   tabmail.switchToTab(0);
 
   const fpValue3 =
-    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.folderPane.testGetValue();
   Assert.equal(fpValue3, false, "folderPane visibility should be correct");
   const mpValue3 =
-    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.messagePane.testGetValue();
   Assert.equal(mpValue3, false, "messagePane visibility should be correct");
 
   // Show both panes again.
@@ -135,10 +135,10 @@ add_task(async function testPaneVisibility() {
   tabmail.switchToTab(0);
 
   const fpValue4 =
-    Glean.tb.uiConfigurationPaneVisibility.folderPane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.folderPane.testGetValue();
   Assert.equal(fpValue4, true, "folderPane visibility should be correct");
   const mpValue4 =
-    Glean.tb.uiConfigurationPaneVisibility.messagePane.testGetValue();
+    Glean.mail.uiConfigurationPaneVisibility.messagePane.testGetValue();
   Assert.equal(mpValue4, true, "messagePane visibility should be correct");
 
   // Close the extra tab.

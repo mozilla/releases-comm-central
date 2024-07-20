@@ -37,17 +37,17 @@ add_task(async function test_address_book_count() {
   MailTelemetryForTests.reportAddressBookTypes();
 
   Assert.equal(
-    Glean.tb.addressbookCount["moz-abldapdirectory"].testGetValue(),
+    Glean.addrbook.addressbookCount["moz-abldapdirectory"].testGetValue(),
     1,
     "LDAP address book count must be correct"
   );
   Assert.equal(
-    Glean.tb.addressbookCount.jsaddrbook.testGetValue(),
+    Glean.addrbook.addressbookCount.jsaddrbook.testGetValue(),
     4,
     "JS address book count must be correct"
   );
   Assert.equal(
-    Glean.tb.addressbookContactCount.jsaddrbook.testGetValue(),
+    Glean.addrbook.contactCount.jsaddrbook.testGetValue(),
     3,
     "Contact count must be correct"
   );

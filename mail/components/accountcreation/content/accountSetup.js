@@ -2428,7 +2428,7 @@ var gAccountSetup = {
             successfulConfig.outgoing.oauthSettings;
         }
         self.finish(configFilledIn);
-        Glean.tb.successfulEmailAccountSetup[telemetryKey].add(1);
+        Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);
       })
       .catch(e => {
         // failed
@@ -2456,7 +2456,7 @@ var gAccountSetup = {
         // hidden in non-manual mode, so it's fine to enable
         reTestButton.disabled = false;
 
-        Glean.tb.failedEmailAccountSetup[telemetryKey].add(1);
+        Glean.mail.failedEmailAccountSetup[telemetryKey].add(1);
       });
   },
 

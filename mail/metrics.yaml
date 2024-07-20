@@ -10,7 +10,7 @@ $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 $tags:
   - 'Thunderbird :: General'
 
-tb:
+mail:
   account_count:
     type: labeled_string
     description:
@@ -58,59 +58,6 @@ tb:
       - telemetry-client-dev@thunderbird.net
     expires: never
 
-  compose_format:
-    type: labeled_counter
-    description:
-      How many times messages were written in HTML composition mode,
-      vs. how many were written in plain text composition mode.
-      Label names are from nsIMsgCompFormat.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1584889
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-    labels:
-      - HTML
-      - PlainText
-
-  compose_type:
-    type: labeled_counter
-    description:
-      How many times each message compose type was used when creating a message.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615996
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-    labels:
-      - New
-      - Reply
-      - ReplyAll
-      - ForwardAsAttachment
-      - ForwardInline
-      - NewsPost
-      - ReplyToSender
-      - ReplyToGroup
-      - ReplyToSenderGroup
-      - Draft
-      - Template
-      - MailToUrl
-      - ReplyWithTemplate
-      - ReplyToList
-      - Redirect
-      - EditAsNew
-      - EditTemplate
-
   websearch_usage:
     type: labeled_counter
     description:
@@ -152,66 +99,6 @@ tb:
           "chat", "keyboard", "message_compose", "message_display",
           "toolbox"
         type: string
-
-  filelink_uploaded_size:
-    type: labeled_counter
-    description: >
-      Accumulated file size (bytes) uploaded to FileLink services, keyed by
-      FileLink provider type.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615984
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
-  filelink_ignored:
-    type: counter
-    description: How many times suggestion to use FileLink were ignored.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615984
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
-  addressbook_count:
-    type: labeled_string
-    description:
-      How many addressbooks were set up, keyed by addressbook directory URI scheme.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615986
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
-  addressbook_contact_count:
-    type: labeled_string
-    description: >
-      Count of contacts in all addressbooks, keyed by addressbook directory URI scheme.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615986
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
 
   ui_configuration_folder_tree_modes:
     type: string_list
@@ -271,38 +158,6 @@ tb:
       - subjectLarge
       - buttonStyle
 
-  calendar_count:
-    type: labeled_string
-    description: >
-      How many calendars were set up, keyed by calendar type
-      Types are e.g. "storage", "caldav", "ics" and various types from add-ons.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615985
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
-  calendar_count_read_only:
-    type: labeled_string
-    description: >
-      How many read-only calendars were set up, keyed by calendar type.
-      Types are e.g. "storage", "caldav", "ics" and various types from add-ons.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615985
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
   preferences_boolean:
     type: labeled_boolean
     description: Values of boolean preferences.
@@ -325,20 +180,6 @@ tb:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1800775#c3
-    data_sensitivity:
-      - technical
-    notification_emails:
-      - telemetry-client-dev@thunderbird.net
-    expires: never
-
-  mails_sent:
-    type: counter
-    description: How many emails were sent by the user.
-    bugs:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1615989
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1903006
     data_sensitivity:
       - technical
     notification_emails:

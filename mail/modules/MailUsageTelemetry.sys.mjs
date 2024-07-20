@@ -339,7 +339,7 @@ export const MailUsageTelemetry = {
 
     if (item && source) {
       const id = telemetryId(item);
-      Glean.tb.uiInteraction.record({ id, source });
+      Glean.mail.uiInteraction.record({ id, source });
     }
   },
 

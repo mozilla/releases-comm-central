@@ -74,7 +74,7 @@ add_task(async function test_filelink_uploaded_size() {
   await wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   const value =
-    Glean.tb.filelinkUploadedSize[provider.displayName].testGetValue();
+    Glean.filelink.uploadedSize[provider.displayName].testGetValue();
   Assert.equal(value, totalSize, "Count of uploaded size must be correct.");
   await close_compose_window(cwc);
 });
@@ -101,6 +101,6 @@ add_task(async function test_filelink_ignored() {
   // Send Later to avoid uncatchable errors from the SMTP code.
   cwc.goDoCommand("cmd_sendLater");
   await aftersend;
-  const count = Glean.tb.filelinkIgnored.testGetValue();
+  const count = Glean.filelink.filelinkIgnored.testGetValue();
   Assert.equal(count, 1, "Count of ignored times must be correct.");
 });

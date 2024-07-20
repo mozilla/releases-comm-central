@@ -81,13 +81,13 @@ add_task(async function test_account_types() {
   MailTelemetryForTests.reportAccountTypes();
 
   // Check if we count account types correctly.
-  const imapValue = Glean.tb.accountCount.imap.testGetValue();
+  const imapValue = Glean.mail.accountCount.imap.testGetValue();
   Assert.equal(imapValue, NUM_IMAP, "IMAP account number must be correct");
-  const rssValue = Glean.tb.accountCount.rss.testGetValue();
+  const rssValue = Glean.mail.accountCount.rss.testGetValue();
   Assert.equal(rssValue, NUM_RSS, "RSS account number must be correct");
-  const ircValue = Glean.tb.accountCount.im_irc.testGetValue();
+  const ircValue = Glean.mail.accountCount.im_irc.testGetValue();
   Assert.equal(ircValue, NUM_IRC, "IRC account number must be correct");
-  const noneValue = Glean.tb.accountCount.none.testGetValue();
+  const noneValue = Glean.mail.accountCount.none.testGetValue();
   Assert.equal(noneValue, undefined, "Should not report Local Folders account");
 });
 
@@ -123,17 +123,17 @@ add_task(async function test_account_sizes() {
   MailTelemetryForTests.reportAccountSizes();
   // Check if we count total messages correctly.
   Assert.equal(
-    Glean.tb.folderTotalMessages.Inbox.testGetValue(),
+    Glean.mail.folderTotalMessages.Inbox.testGetValue(),
     NUM_INBOX,
     "Number of messages in Inbox must be correct"
   );
   Assert.equal(
-    Glean.tb.folderTotalMessages.Other.testGetValue(),
+    Glean.mail.folderTotalMessages.Other.testGetValue(),
     NUM_OTHER,
     "Number of messages in other folders must be correct"
   );
   Assert.equal(
-    Glean.tb.folderTotalMessages.Total.testGetValue(),
+    Glean.mail.folderTotalMessages.Total.testGetValue(),
     NUM_INBOX + NUM_OTHER,
     "Number of messages in all folders must be correct"
   );
@@ -146,17 +146,17 @@ add_task(async function test_account_sizes() {
   // These sizes all assume mbox implementation uses a bare-bones "From "
   // separator without sender/timestamp.
   checkSize(
-    Glean.tb.folderSizeOnDisk.Inbox.testGetValue(),
+    Glean.mail.folderSizeOnDisk.Inbox.testGetValue(),
     818,
     "Size of Inbox must be correct"
   );
   checkSize(
-    Glean.tb.folderSizeOnDisk.Other.testGetValue(),
+    Glean.mail.folderSizeOnDisk.Other.testGetValue(),
     575,
     "Size of other folders must be correct"
   );
   checkSize(
-    Glean.tb.folderSizeOnDisk.Total.testGetValue(),
+    Glean.mail.folderSizeOnDisk.Total.testGetValue(),
     818 + 575,
     "Size of all folders must be correct"
   );
@@ -233,22 +233,22 @@ add_task(async function test_account_oauth_providers() {
 
   // Check if we count account types correctly.
   Assert.equal(
-    Glean.tb.oauth2ProviderCount["accounts.google.com"].testGetValue(),
+    Glean.mail.oauth2ProviderCount["accounts.google.com"].testGetValue(),
     EXPECTED_GOOGLE_COUNT,
     "should have expected number of Google accounts"
   );
   Assert.equal(
-    Glean.tb.oauth2ProviderCount["login.microsoftonline.com"].testGetValue(),
+    Glean.mail.oauth2ProviderCount["login.microsoftonline.com"].testGetValue(),
     EXPECTED_MICROSOFT_COUNT,
     "should have expected number of Microsoft accounts"
   );
   Assert.equal(
-    Glean.tb.oauth2ProviderCount["login.aol.com"].testGetValue(),
+    Glean.mail.oauth2ProviderCount["login.aol.com"].testGetValue(),
     EXPECTED_AOL_COUNT,
     "should have expected number of AOL accounts"
   );
   Assert.equal(
-    Glean.tb.oauth2ProviderCount["login.yahoo.com"].testGetValue(),
+    Glean.mail.oauth2ProviderCount["login.yahoo.com"].testGetValue(),
     EXPECTED_YAHOO_COUNT,
     "should have expected number of Yahoo accounts"
   );

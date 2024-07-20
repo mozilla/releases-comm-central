@@ -34,7 +34,7 @@ add_task(async function test_mails_read() {
   }
   localAccountUtils.inboxFolder.markAllMessagesRead(null);
   Assert.equal(
-    Glean.tb.mailsRead.testGetValue(),
+    Glean.mail.mailsRead.testGetValue(),
     NUM_MAILS,
     "mails_read count should be correct"
   );

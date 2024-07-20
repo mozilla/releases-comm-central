@@ -1021,11 +1021,11 @@ function reportAccountTypes() {
   }
 
   for (const [type, count] of Object.entries(report)) {
-    Glean.tb.accountCount[type].set(count);
+    Glean.mail.accountCount[type].set(count);
   }
 
   for (const [issuer, count] of accountsByOauthProviders.entries()) {
-    Glean.tb.oauth2ProviderCount[issuer].set(count);
+    Glean.mail.oauth2ProviderCount[issuer].set(count);
   }
 }
 
@@ -1044,10 +1044,10 @@ function reportAccountSizes() {
     "Queue",
   ];
   for (const key of keys) {
-    Glean.tb.folderTotalMessages[key].set(0);
+    Glean.mail.folderTotalMessages[key].set(0);
   }
-  Glean.tb.folderTotalMessages.Other.set(0);
-  Glean.tb.folderTotalMessages.Total.set(0);
+  Glean.mail.folderTotalMessages.Other.set(0);
+  Glean.mail.folderTotalMessages.Total.set(0);
 
   const typeMessageCount = new Map();
   const typeSizeOnDisk = new Map();
@@ -1084,13 +1084,13 @@ function reportAccountSizes() {
     }
   }
   for (const [type, messageCount] of typeMessageCount.entries()) {
-    Glean.tb.folderTotalMessages[type].set(messageCount);
+    Glean.mail.folderTotalMessages[type].set(messageCount);
   }
   for (const [type, sizeOnDisk] of typeSizeOnDisk.entries()) {
-    Glean.tb.folderSizeOnDisk[type].set(sizeOnDisk);
+    Glean.mail.folderSizeOnDisk[type].set(sizeOnDisk);
   }
-  Glean.tb.folderTotalMessages.Total.set(totalMessages);
-  Glean.tb.folderSizeOnDisk.Total.set(totalSizeOnDisk);
+  Glean.mail.folderTotalMessages.Total.set(totalMessages);
+  Glean.mail.folderSizeOnDisk.Total.set(totalSizeOnDisk);
 }
 
 /**
@@ -1119,8 +1119,8 @@ function reportAddressBookTypes() {
   }
 
   for (const [type, { count, contactCount }] of Object.entries(report)) {
-    Glean.tb.addressbookCount[type].set(count);
-    Glean.tb.addressbookContactCount[type].set(contactCount);
+    Glean.addrbook.addressbookCount[type].set(count);
+    Glean.addrbook.contactCount[type].set(contactCount);
   }
 }
 
@@ -1160,8 +1160,8 @@ async function reportCalendars() {
   for (const [type, { count, readOnlyCount }] of Object.entries(
     telemetryReport
   )) {
-    Glean.tb.calendarCount[type.toLowerCase()].set(count);
-    Glean.tb.calendarCountReadOnly[type.toLowerCase()].set(readOnlyCount);
+    Glean.calendar.calendarCount[type.toLowerCase()].set(count);
+    Glean.calendar.readOnlyCalendarCount[type.toLowerCase()].set(readOnlyCount);
   }
 }
 
@@ -1333,12 +1333,12 @@ function reportPreferences() {
   // Fetch and report preference values
   for (const prefName of booleanPrefs) {
     const prefValue = Services.prefs.getBoolPref(prefName, false);
-    Glean.tb.preferencesBoolean[prefName].set(prefValue);
+    Glean.mail.preferencesBoolean[prefName].set(prefValue);
   }
 
   for (const prefName of integerPrefs) {
     const prefValue = Services.prefs.getIntPref(prefName, 0);
-    Glean.tb.preferencesInteger[prefName].set(prefValue);
+    Glean.mail.preferencesInteger[prefName].set(prefValue);
   }
 }
 
@@ -1358,7 +1358,7 @@ function reportUIConfiguration() {
       folderTreeMode += " (compact)";
     }
 
-    Glean.tb.uiConfigurationFolderTreeModes.set(folderTreeMode.split(","));
+    Glean.mail.uiConfigurationFolderTreeModes.set(folderTreeMode.split(","));
   }
 
   let headerLayout = lazy.XULStoreUtils.getValue(
@@ -1369,7 +1369,7 @@ function reportUIConfiguration() {
   if (headerLayout) {
     headerLayout = JSON.parse(headerLayout);
     for (const [key, value] of Object.entries(headerLayout)) {
-      Glean.tb.uiConfigurationMessageHeader[key].set(value);
+      Glean.mail.uiConfigurationMessageHeader[key].set(value);
     }
   }
 }

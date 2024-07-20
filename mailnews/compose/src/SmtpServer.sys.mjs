@@ -653,7 +653,7 @@ export class SmtpServer {
     };
     client.ondone = () => {
       if (!AppConstants.MOZ_SUITE) {
-        Glean.tb.mailsSent.add(1);
+        Glean.compose.mailsSent.add(1);
       }
 
       requestObserver?.onStopRequest(request, Cr.NS_OK);

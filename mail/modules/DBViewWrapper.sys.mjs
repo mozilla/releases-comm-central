@@ -826,7 +826,7 @@ DBViewWrapper.prototype = {
         "Queue",
         "Virtual",
       ].find(x => aFolder.getFlag(Ci.nsMsgFolderFlags[x])) || "Other";
-    Glean.tb.folderOpened[typeForTelemetry].add(1);
+    Glean.mail.folderOpened[typeForTelemetry].add(1);
 
     this.beginViewUpdate();
     let msgDatabase;

@@ -113,7 +113,7 @@ add_task(async function () {
   await SimpleTest.promiseFocus(window);
 
   // Check all of the things we clicked on have been recorded.
-  let events = await Glean.tb.uiInteraction.testGetValue();
+  let events = await Glean.mail.uiInteraction.testGetValue();
   let calendarEvents = events.filter(e => e.extra.source == "calendar");
   let composeEvents = events.filter(e => e.extra.source == "message-compose");
   let displayEvents = events.filter(e => e.extra.source == "message-display");
@@ -179,7 +179,7 @@ add_task(async function () {
   // Check the second add-on has a second generic identifier and that only the
   // action button we clicked on has been recorded for it.
 
-  events = await Glean.tb.uiInteraction.testGetValue();
+  events = await Glean.mail.uiInteraction.testGetValue();
   calendarEvents = events.filter(e => e.extra.source == "calendar");
   composeEvents = events.filter(e => e.extra.source == "message-compose");
   displayEvents = events.filter(e => e.extra.source == "message-display");
@@ -219,7 +219,7 @@ add_task(async function () {
 
   await clickExtensionButton(window, "ext-interaction1@mochi.test");
 
-  events = await Glean.tb.uiInteraction.testGetValue();
+  events = await Glean.mail.uiInteraction.testGetValue();
   calendarEvents = events.filter(e => e.extra.source == "calendar");
   composeEvents = events.filter(e => e.extra.source == "message-compose");
   displayEvents = events.filter(e => e.extra.source == "message-display");

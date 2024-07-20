@@ -69,7 +69,16 @@ def pkg_libotr(automation):
 
 set_config("TB_LIBOTR_PREBUILT", pkg_libotr)
 
-set_config("MOZ_GLEAN_EXTRA_METRICS_FILES", ["comm/mail/metrics.yaml"])
+set_config(
+    "MOZ_GLEAN_EXTRA_METRICS_FILES",
+    [
+        "comm/mail/metrics.yaml",
+        "comm/mail/components/addrbook/metrics.yaml",
+        "comm/mail/components/cloudfile/metrics.yaml",
+        "comm/mail/components/compose/metrics.yaml",
+        "comm/calendar/metrics.yaml",
+    ],
+)
 # set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
 set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
 
@@ -84,7 +93,10 @@ imply_option("--enable-app-system-headers", True)
 @imports("re")
 def thunderbird_official_branding(milestone, update_channel):
     rv = "nightly"
-    if update_channel in ("release", "esr"):  # No separate "esr" branding, use same as release
+    if update_channel in (
+        "release",
+        "esr",
+    ):  # No separate "esr" branding, use same as release
         rv = "thunderbird"
     elif update_channel == "beta":
         rv = "tb_beta"
@@ -120,7 +132,9 @@ def moz_override_cargo_config(enable_rust):
 
 
 set_config(
-    "MOZ_OVERRIDE_CARGO_CONFIG", moz_override_cargo_config, when="--enable-thunderbird-rust"
+    "MOZ_OVERRIDE_CARGO_CONFIG",
+    moz_override_cargo_config,
+    when="--enable-thunderbird-rust",
 )
 
 include("../../toolkit/moz.configure")

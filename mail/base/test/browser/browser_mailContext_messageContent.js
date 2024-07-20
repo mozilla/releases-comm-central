@@ -419,7 +419,7 @@ add_setup(async function () {
     MockRegistrar.unregister(mockExternalProtocolServiceCID);
     Services.prefs.clearUserPref("browser.safebrowsing.reportPhishURL");
 
-    const googleValue = Glean.tb.websearchUsage.google.testGetValue();
+    const googleValue = Glean.mail.websearchUsage.google.testGetValue();
     Assert.equal(
       googleValue,
       webSearchCount,

@@ -1006,7 +1006,7 @@ class AccountHubEmail extends HTMLElement {
 
       this.#currentConfig = completeConfig;
       this.finishEmailAccountAddition(completeConfig);
-      Glean.tb.successfulEmailAccountSetup[telemetryKey].add(1);
+      Glean.mail.successfulEmailAccountSetup[telemetryKey].add(1);
     } catch (error) {
       // If we get no message, then something other than VerifyLogon failed.
 
@@ -1025,7 +1025,7 @@ class AccountHubEmail extends HTMLElement {
       this.#configVerifier.cleanup();
       this.initUI("manualEmail");
 
-      Glean.tb.failedEmailAccountSetup[telemetryKey].add(1);
+      Glean.mail.failedEmailAccountSetup[telemetryKey].add(1);
     }
   }
 

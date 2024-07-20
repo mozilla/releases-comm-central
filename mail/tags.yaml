@@ -10,5 +10,13 @@
 
 ---
 $schema: moz://mozilla.org/schemas/glean/tags/1-0-0
+'Calendar :: General':
+  description: The Bugzilla component which applies to this object.
+'Thunderbird :: Address Book':
+  description: The Bugzilla component which applies to this object.
+'Thunderbird :: FileLink':
+  description: The Bugzilla component which applies to this object.
 'Thunderbird :: General':
+  description: The Bugzilla component which applies to this object.
+'Thunderbird :: Message Compose Window':
   description: The Bugzilla component which applies to this object.

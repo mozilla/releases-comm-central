@@ -2477,7 +2477,7 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
 
 #ifndef MOZ_SUITE
     if (bRead) {
-      mozilla::glean::tb::mails_read.Add(1);
+      mozilla::glean::mail::mails_read.Add(1);
     }
 #endif
 

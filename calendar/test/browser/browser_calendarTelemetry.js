@@ -35,24 +35,24 @@ add_task(async function testCalendarCount() {
   await MailTelemetryForTests.reportCalendars();
 
   Assert.equal(
-    Glean.tb.calendarCount.memory.testGetValue(),
+    Glean.calendar.calendarCount.memory.testGetValue(),
     3,
     "memory calendar count should be correct."
   );
   Assert.equal(
-    Glean.tb.calendarCountReadOnly.memory.testGetValue(),
+    Glean.calendar.readOnlyCalendarCount.memory.testGetValue(),
     2,
     "memory calendar read-only count should be correct."
   );
 
   Assert.equal(
-    Glean.tb.calendarCount.storage.testGetValue(),
+    Glean.calendar.calendarCount.storage.testGetValue(),
     null,
     "'Home' calendar should not be included in count while disabled"
   );
 
   Assert.equal(
-    Glean.tb.calendarCountReadOnly.storage.testGetValue(),
+    Glean.calendar.readOnlyCalendarCount.storage.testGetValue(),
     null,
     "'Home' calendar should not be included in read-only count while disabled"
   );
@@ -79,12 +79,12 @@ add_task(async function testHomeCalendar() {
   await MailTelemetryForTests.reportCalendars();
 
   Assert.equal(
-    Glean.tb.calendarCount.storage.testGetValue(),
+    Glean.calendar.calendarCount.storage.testGetValue(),
     null,
     "'Home' calendar should not be counted when unused"
   );
   Assert.equal(
-    Glean.tb.calendarCountReadOnly.storage.testGetValue(),
+    Glean.calendar.readOnlyCalendarCount.storage.testGetValue(),
     null,
     "'Home' calendar should not included in read-only count when unused"
   );
@@ -109,12 +109,12 @@ add_task(async function testHomeCalendar() {
   await MailTelemetryForTests.reportCalendars();
 
   Assert.equal(
-    Glean.tb.calendarCount.storage.testGetValue(),
+    Glean.calendar.calendarCount.storage.testGetValue(),
     1,
     "'Home' calendar should be counted when there are items"
   );
   Assert.equal(
-    Glean.tb.calendarCountReadOnly.storage.testGetValue(),
+    Glean.calendar.readOnlyCalendarCount.storage.testGetValue(),
     1,
     "'Home' calendar should be included in read-only count when used"
   );

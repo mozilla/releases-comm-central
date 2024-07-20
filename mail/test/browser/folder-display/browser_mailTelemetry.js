@@ -79,7 +79,7 @@ add_task(async function test_secure_mails_read() {
     await select_click_row(i);
   }
 
-  let events = Glean.tb.mailsReadSecure.testGetValue();
+  let events = Glean.mail.mailsReadSecure.testGetValue();
   Assert.equal(
     events.filter(e => e.extra.security == "S/MIME" && e.extra.is_encrypted)
       ?.length,
@@ -102,7 +102,7 @@ add_task(async function test_secure_mails_read() {
     await select_click_row(i);
   }
 
-  events = Glean.tb.mailsReadSecure.testGetValue();
+  events = Glean.mail.mailsReadSecure.testGetValue();
   Assert.equal(
     events.filter(e => e.extra.security == "S/MIME" && e.extra.is_encrypted)
       ?.length,

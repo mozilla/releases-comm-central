@@ -19,7 +19,7 @@ const deliveryListener = {
   onStopRequest() {
     if (++this.count == NUM_MAILS) {
       Assert.equal(
-        Glean.tb.mailsSent.testGetValue(),
+        Glean.compose.mailsSent.testGetValue(),
         NUM_MAILS,
         "mails_sent must be correct"
       );

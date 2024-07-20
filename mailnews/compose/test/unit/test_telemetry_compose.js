@@ -44,13 +44,13 @@ add_task(async function test_compose_format() {
   }
 
   // Did we count them correctly?
-  const htmlValue = Glean.tb.composeFormat.HTML.testGetValue();
+  const htmlValue = Glean.compose.composeFormat.HTML.testGetValue();
   Assert.equal(
     htmlValue,
     NUM_HTML,
     "tb.compose_format metric should be correct for HTML"
   );
-  const plainTextValue = Glean.tb.composeFormat.PlainText.testGetValue();
+  const plainTextValue = Glean.compose.composeFormat.PlainText.testGetValue();
   Assert.equal(
     plainTextValue,
     NUM_PLAIN,
@@ -94,19 +94,19 @@ add_task(async function test_compose_type() {
 
   // Did we count them correctly?
   Assert.equal(
-    Glean.tb.composeType.New.testGetValue(),
+    Glean.compose.composeType.New.testGetValue(),
     NUM_NEW,
     "nsIMsgCompType.New count must be correct"
   );
 
   Assert.equal(
-    Glean.tb.composeType.Draft.testGetValue(),
+    Glean.compose.composeType.Draft.testGetValue(),
     NUM_DRAFT,
     "nsIMsgCompType.Draft count must be correct"
   );
 
   Assert.equal(
-    Glean.tb.composeType.EditTemplate.testGetValue(),
+    Glean.compose.composeType.EditTemplate.testGetValue(),
     NUM_EDIT_TEMPLATE,
     "nsIMsgCompType.EditTemplate count must be correct"
   );

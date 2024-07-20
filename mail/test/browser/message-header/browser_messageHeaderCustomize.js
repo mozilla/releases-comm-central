@@ -296,28 +296,28 @@ add_task(async function test_customize_toolbar_buttons() {
   MailTelemetryForTests.reportUIConfiguration();
 
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
     "false",
     "should have correct subjectLarge"
   );
 
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
     "only-icons",
     "should have correct buttonStyle"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.hideLabels.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.hideLabels.testGetValue(),
     "false",
     "should have correct hideLabels"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.showAvatar.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.showAvatar.testGetValue(),
     "false",
     "should have correct showAvatar"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
     "false",
     "should have correct showFullAddress"
   );
@@ -375,27 +375,27 @@ add_task(async function test_customize_toolbar_buttons() {
   MailTelemetryForTests.reportUIConfiguration();
 
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.subjectLarge.testGetValue(),
     "true",
     "should have correct subjectLarge"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.buttonStyle.testGetValue(),
     "default",
     "should have correct buttonStyle"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.hideLabels.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.hideLabels.testGetValue(),
     "true",
     "should have correct hideLabels"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.showAvatar.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.showAvatar.testGetValue(),
     "true",
     "should have correct showAvatar"
   );
   Assert.equal(
-    Glean.tb.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
+    Glean.mail.uiConfigurationMessageHeader.showFullAddress.testGetValue(),
     "true",
     "should have correct showFullAddress"
   );

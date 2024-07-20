@@ -282,7 +282,7 @@ async function subtest_toggle_tags(show) {
 function check_scalars(expected) {
   MailTelemetryForTests.reportUIConfiguration();
 
-  const modes = Glean.tb.uiConfigurationFolderTreeModes.testGetValue();
+  const modes = Glean.mail.uiConfigurationFolderTreeModes.testGetValue();
   if (!expected) {
     Assert.ok(!modes, "Should not have anything recorded");
     return;

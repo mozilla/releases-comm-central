@@ -860,9 +860,9 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
 
 #ifndef MOZ_SUITE
   if (m_composeHTML) {
-    mozilla::glean::tb::compose_format.Get("HTML"_ns).Add(1);
+    mozilla::glean::compose::compose_format.Get("HTML"_ns).Add(1);
   } else {
-    mozilla::glean::tb::compose_format.Get("PlainText"_ns).Add(1);
+    mozilla::glean::compose::compose_format.Get("PlainText"_ns).Add(1);
   }
 
   nsAutoCString gleanCompType;
@@ -923,7 +923,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
       break;
   }
   if (!gleanCompType.IsEmpty()) {
-    mozilla::glean::tb::compose_type.Get(gleanCompType).Add(1);
+    mozilla::glean::compose::compose_type.Get(gleanCompType).Add(1);
   }
 #endif
 
