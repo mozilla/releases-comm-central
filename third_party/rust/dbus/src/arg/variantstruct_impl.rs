@@ -1,6 +1,7 @@
 use super::*;
-use {message, Signature};
+use crate::Signature;
 use std::any;
+use std::collections::VecDeque;
 
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 /// A simple wrapper to specify a D-Bus variant.
@@ -8,19 +9,11 @@ use std::any;
 /// See the argument guide and module level documentation for details and examples.
 pub struct Variant<T>(pub T);
 
-impl Variant<Box<RefArg>> {
+impl Variant<Box<dyn RefArg>> {
     /// Creates a new refarg from an Iter. Mainly for internal use.
     pub fn new_refarg<'a>(i: &mut Iter<'a>) -> Option<Self> {
-        i.recurse(ArgType::Variant).and_then(|mut si| si.get_refarg()).map(|v| Variant(v))
+        i.recurse(ArgType::Variant).and_then(|mut si| si.get_refarg()).map(Variant)
     }
-}
-
-impl Default for Variant<Box<RefArg>> {
-    // This is a bit silly, because there is no such thing as a default argument.
-    // Unfortunately due to a design mistake while making the SignalArgs trait, we'll
-    // have to work around that by adding a default implementation here.
-    // https://github.com/diwic/dbus-rs/issues/136
-    fn default() -> Self { Variant(Box::new(0u8) as Box<RefArg>) }
 }
 
 impl<T:Default> Default for Variant<T> {
@@ -30,61 +23,52 @@ impl<T:Default> Default for Variant<T> {
 
 impl<T> Arg for Variant<T> {
     const ARG_TYPE: ArgType = ArgType::Variant;
-    fn signature() -> Signature<'static> { unsafe { Signature::from_slice_unchecked(b"v\0") } }
+    fn signature() -> Signature<'static> { unsafe { Signature::from_slice_unchecked("v\0") } }
 }
 
 impl<T: Arg + Append> Append for Variant<T> {
-    fn append(self, i: &mut IterAppend) {
-        let z = self.0;
-        i.append_container(ArgType::Variant, Some(T::signature().as_cstr()), |s| z.append(s));
+    fn append_by_ref(&self, i: &mut IterAppend) {
+        let z = &self.0;
+        i.append_container(ArgType::Variant, Some(T::signature().as_cstr()), |s| z.append_by_ref(s));
     }
 }
 
-impl Append for Variant<message::MessageItem> {
-    fn append(self, i: &mut IterAppend) {
-        let z = self.0;
-        let asig = z.signature();
-        let sig = asig.as_cstr();
-        i.append_container(ArgType::Variant, Some(&sig), |s| z.append(s));
-    }
-}
-
-impl Append for Variant<Box<RefArg>> {
-    fn append(self, i: &mut IterAppend) {
-        let z = self.0;
+impl Append for Variant<Box<dyn RefArg>> {
+    fn append_by_ref(&self, i: &mut IterAppend) {
+        let z = &self.0;
         i.append_container(ArgType::Variant, Some(z.signature().as_cstr()), |s| z.append(s));
     }
 }
 
 impl<'a, T: Get<'a>> Get<'a> for Variant<T> {
     fn get(i: &mut Iter<'a>) -> Option<Variant<T>> {
-        i.recurse(ArgType::Variant).and_then(|mut si| si.get().map(|v| Variant(v)))
+        i.recurse(ArgType::Variant).and_then(|mut si| si.get().map(Variant))
     }
 }
 
 impl<'a> Get<'a> for Variant<Iter<'a>> {
     fn get(i: &mut Iter<'a>) -> Option<Variant<Iter<'a>>> {
-        i.recurse(ArgType::Variant).map(|v| Variant(v))
+        i.recurse(ArgType::Variant).map(Variant)
     }
 }
 /*
-impl<'a> Get<'a> for Variant<Box<RefArg>> {
-    fn get(i: &mut Iter<'a>) -> Option<Variant<Box<RefArg>>> {
+impl<'a> Get<'a> for Variant<Box<dyn RefArg>> {
+    fn get(i: &mut Iter<'a>) -> Option<Variant<Box<dyn RefArg>>> {
         i.recurse(ArgType::Variant).and_then(|mut si| si.get_refarg().map(|v| Variant(v)))
     }
 }
 */
 impl<T: RefArg> RefArg for Variant<T> {
-    fn arg_type(&self) -> ArgType { ArgType::Variant } 
-    fn signature(&self) -> Signature<'static> { unsafe { Signature::from_slice_unchecked(b"v\0") } }
+    fn arg_type(&self) -> ArgType { ArgType::Variant }
+    fn signature(&self) -> Signature<'static> { unsafe { Signature::from_slice_unchecked("v\0") } }
     fn append(&self, i: &mut IterAppend) {
         let z = &self.0;
         i.append_container(ArgType::Variant, Some(z.signature().as_cstr()), |s| z.append(s));
     }
     #[inline]
-    fn as_any(&self) -> &any::Any where T: 'static { self }
+    fn as_any(&self) -> &dyn any::Any where T: 'static { self }
     #[inline]
-    fn as_any_mut(&mut self) -> &mut any::Any where T: 'static { self }
+    fn as_any_mut(&mut self) -> &mut dyn any::Any where T: 'static { self }
     #[inline]
     fn as_i64(&self) -> Option<i64> { self.0.as_i64() }
     #[inline]
@@ -94,19 +78,23 @@ impl<T: RefArg> RefArg for Variant<T> {
     #[inline]
     fn as_str(&self) -> Option<&str> { self.0.as_str() }
     #[inline]
-    fn as_iter<'a>(&'a self) -> Option<Box<Iterator<Item=&'a RefArg> + 'a>> {
+    fn as_iter<'a>(&'a self) -> Option<Box<dyn Iterator<Item=&'a dyn RefArg> + 'a>> {
         use std::iter;
-        let z: &RefArg = &self.0;
+        let z: &dyn RefArg = &self.0;
         Some(Box::new(iter::once(z)))
     }
     #[inline]
-    fn box_clone(&self) -> Box<RefArg + 'static> { Box::new(Variant(self.0.box_clone())) }
+    fn box_clone(&self) -> Box<dyn RefArg + 'static> { Box::new(Variant(self.0.box_clone())) }
+    #[inline]
+    fn as_static_inner(&self, index: usize) -> Option<&(dyn RefArg + 'static)> where Self: 'static {
+        if index == 0 { Some(&self.0) } else { None }
+    }
 }
 
 macro_rules! struct_impl {
     ( $($n: ident $t: ident,)+ ) => {
 
-/// Tuples are represented as D-Bus structs. 
+/// Tuples are represented as D-Bus structs.
 impl<$($t: Arg),*> Arg for ($($t,)*) {
     const ARG_TYPE: ArgType = ArgType::Struct;
     fn signature() -> Signature<'static> {
@@ -118,9 +106,9 @@ impl<$($t: Arg),*> Arg for ($($t,)*) {
 }
 
 impl<$($t: Append),*> Append for ($($t,)*) {
-    fn append(self, i: &mut IterAppend) {
+    fn append_by_ref(&self, i: &mut IterAppend) {
         let ( $($n,)*) = self;
-        i.append_container(ArgType::Struct, None, |s| { $( $n.append(s); )* });
+        i.append_container(ArgType::Struct, None, |s| { $( $n.append_by_ref(s); )* });
     }
 }
 
@@ -153,20 +141,25 @@ impl<$($t: RefArg),*> RefArg for ($($t,)*) {
         let &( $(ref $n,)*) = self;
         i.append_container(ArgType::Struct, None, |s| { $( $n.append(s); )* });
     }
-    fn as_any(&self) -> &any::Any where Self: 'static { self }
-    fn as_any_mut(&mut self) -> &mut any::Any where Self: 'static { self }
-    fn as_iter<'a>(&'a self) -> Option<Box<Iterator<Item=&'a RefArg> + 'a>> {
+    fn as_any(&self) -> &dyn any::Any where Self: 'static { self }
+    fn as_any_mut(&mut self) -> &mut dyn any::Any where Self: 'static { self }
+    fn as_iter<'a>(&'a self) -> Option<Box<dyn Iterator<Item=&'a dyn RefArg> + 'a>> {
         let &( $(ref $n,)*) = self;
         let v = vec!(
-        $( $n as &RefArg, )*
+        $( $n as &dyn RefArg, )*
         );
         Some(Box::new(v.into_iter()))
     }
-    #[inline]
-    fn box_clone(&self) -> Box<RefArg + 'static> {
+    fn as_static_inner(&self, index: usize) -> Option<&(dyn RefArg + 'static)> where Self: 'static {
         let &( $(ref $n,)*) = self;
-        let mut z = vec!();
-        $( z.push($n.box_clone()); )*
+        let arr = [ $($n as &dyn RefArg,)*];
+        arr.get(index).map(|x| *x)
+    }
+    #[inline]
+    fn box_clone(&self) -> Box<dyn RefArg + 'static> {
+        let &( $(ref $n,)*) = self;
+        let mut z = VecDeque::new();
+        $( z.push_back($n.box_clone()); )*
         Box::new(z)
     }
 }
@@ -187,7 +180,7 @@ struct_impl!(a A, b B, c C, d D, e E, f F, g G, h H, i I, j J,);
 struct_impl!(a A, b B, c C, d D, e E, f F, g G, h H, i I, j J, k K,);
 struct_impl!(a A, b B, c C, d D, e E, f F, g G, h H, i I, j J, k K, l L,);
 
-impl RefArg for Vec<Box<RefArg>> {
+impl RefArg for VecDeque<Box<dyn RefArg>> {
     fn arg_type(&self) -> ArgType { ArgType::Struct }
     fn signature(&self) -> Signature<'static> {
         let mut s = String::from("(");
@@ -203,40 +196,19 @@ impl RefArg for Vec<Box<RefArg>> {
         });
     }
     #[inline]
-    fn as_any(&self) -> &any::Any where Self: 'static { self }
+    fn as_any(&self) -> &dyn any::Any where Self: 'static { self }
     #[inline]
-    fn as_any_mut(&mut self) -> &mut any::Any where Self: 'static { self }
-    fn as_iter<'a>(&'a self) -> Option<Box<Iterator<Item=&'a RefArg> + 'a>> {
+    fn as_any_mut(&mut self) -> &mut dyn any::Any where Self: 'static { self }
+    fn as_iter<'a>(&'a self) -> Option<Box<dyn Iterator<Item=&'a dyn RefArg> + 'a>> {
         Some(Box::new(self.iter().map(|b| &**b)))
     }
     #[inline]
-    fn box_clone(&self) -> Box<RefArg + 'static> {
-        let t: Vec<Box<RefArg + 'static>> = self.iter().map(|x| x.box_clone()).collect();
+    fn as_static_inner(&self, index: usize) -> Option<&(dyn RefArg + 'static)> where Self: 'static {
+        self.get(index).map(|x| x as &dyn RefArg)
+    }
+    #[inline]
+    fn box_clone(&self) -> Box<dyn RefArg + 'static> {
+        let t: VecDeque<Box<dyn RefArg + 'static>> = self.iter().map(|x| x.box_clone()).collect();
         Box::new(t)
     }
 }
-
-impl Append for message::MessageItem {
-    fn append(self, i: &mut IterAppend) {
-        message::append_messageitem(&mut i.0, &self)
-    }
-}
-
-impl<'a> Get<'a> for message::MessageItem {
-    fn get(i: &mut Iter<'a>) -> Option<Self> {
-        message::get_messageitem(&mut i.0)
-    }
-}
-
-impl RefArg for message::MessageItem {
-    fn arg_type(&self) -> ArgType { ArgType::from_i32(self.array_type()).unwrap() }
-    fn signature(&self) -> Signature<'static> { message::MessageItem::signature(&self) }
-    fn append(&self, i: &mut IterAppend) { message::append_messageitem(&mut i.0, self) }
-    #[inline]
-    fn as_any(&self) -> &any::Any where Self: 'static { self }
-    #[inline]
-    fn as_any_mut(&mut self) -> &mut any::Any where Self: 'static { self }
-    #[inline]
-    fn box_clone(&self) -> Box<RefArg + 'static> { Box::new(self.clone()) }
-}
-

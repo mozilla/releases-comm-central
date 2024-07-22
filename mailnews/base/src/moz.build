@@ -101,7 +101,6 @@ if CONFIG["OS_ARCH"] == "WINNT":
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
     SOURCES += [
-        "nsMessengerUnixIntegration.cpp",
         "nsUserInfoUnix.cpp",
     ]
 elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":

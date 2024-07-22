@@ -10,7 +10,7 @@ gkrust-gtest = ["gkrust"]
 
 
 [workspace]
-members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest']
+members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray']
 
 [workspace.dependencies]
 uniffi = { version = "0.27.3" }

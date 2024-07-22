@@ -7,16 +7,12 @@
 #define __nsMessengerUnixIntegration_h
 
 #include "nsIMessengerOSIntegration.h"
+#include "nsID.h"
 
-class nsMessengerUnixIntegration : public nsIMessengerOSIntegration {
- public:
-  nsMessengerUnixIntegration();
-
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIMESSENGEROSINTEGRATION
-
- private:
-  virtual ~nsMessengerUnixIntegration() {}
-};
+extern "C" {
+// Implemented in Rust.
+MOZ_EXPORT nsresult nsLinuxSysTrayHandlerConstructor(REFNSIID aIID,
+                                                     void** aResult);
+}  // extern "C"
 
 #endif  // __nsMessengerUnixIntegration_h

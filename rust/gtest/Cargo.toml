@@ -8,6 +8,7 @@ description = "Testing code for libgkrust"
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ["gkrust-gtest"], optional = true }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+sys_tray = { version = "0.1.0", path = "../sys_tray" }
 bench-collections-gtest = { path = "../../../xpcom/rust/gtest/bench-collections" }
 l10nregistry-ffi-gtest = { path = "../../../intl/l10n/rust/gtest" }
 moz_task-gtest = { path = "../../../xpcom/rust/gtest/moz_task" }

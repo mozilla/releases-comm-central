@@ -1,0 +1,19 @@
+[package]
+name = "sys_tray"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cstr = "0.2"
+fluent = "0.16"
+log = "0.4"
+moz_task = { path = "../../../xpcom/rust/moz_task" }
+mozbuild = { path = "../../../build/rust/mozbuild" }
+nserror = { path = "../../../xpcom/rust/nserror" }
+nsstring = { path = "../../../xpcom/rust/nsstring" }
+thin-vec = "0.2"
+unic-langid = "0.9"
+xpcom = { path = "../../../xpcom/rust/xpcom" }
+
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
+ksni = "0.2.2"

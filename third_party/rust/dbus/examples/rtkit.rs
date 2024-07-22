@@ -2,42 +2,23 @@
    Rtkit puts a few limitations on us to let us become realtime, such as setting
    RLIMIT_RTTIME correctly, hence the syscalls. */
 
-extern crate dbus;
-extern crate libc;
-
 use std::cmp;
+use std::time::Duration;
 
-use dbus::{Connection, BusType, Props, MessageItem, Message};
+fn make_realtime(prio: u32) -> Result<u32, Box<dyn std::error::Error>> {
+    let c = dbus::blocking::Connection::new_system()?;
 
-fn item_as_i64(i: MessageItem) -> Result<i64, Box<std::error::Error>> {
-    match i {
-        MessageItem::Int32(i) => Ok(i as i64),
-        MessageItem::Int64(i) => Ok(i),
-        _ => Err(Box::from(&*format!("Property is not integer ({:?})", i)))
-    }
-}
-
-fn rtkit_set_realtime(c: &Connection, thread: u64, prio: u32) -> Result<(), ::dbus::Error> {
-    let mut m = Message::new_method_call("org.freedesktop.RealtimeKit1", "/org/freedesktop/RealtimeKit1",
-        "org.freedesktop.RealtimeKit1", "MakeThreadRealtime").unwrap();
-    m.append_items(&[thread.into(), prio.into()]);
-    let mut r = try!(c.send_with_reply_and_block(m, 10000));
-    r.as_result().map(|_| ())
-}
-
-fn make_realtime(prio: u32) -> Result<u32, Box<std::error::Error>> {
-    let c = try!(Connection::get_private(BusType::System));
-
-    let p = Props::new(&c, "org.freedesktop.RealtimeKit1", "/org/freedesktop/RealtimeKit1",
-        "org.freedesktop.RealtimeKit1", 10000);
+    let proxy = c.with_proxy("org.freedesktop.RealtimeKit1", "/org/freedesktop/RealtimeKit1",
+        Duration::from_millis(10000));
+    use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 
     // Make sure we don't fail by wanting too much
-    let max_prio = try!(item_as_i64(try!(p.get("MaxRealtimePriority")))) as u32;
-    let prio = cmp::min(prio, max_prio);
+    let max_prio: i32 = proxy.get("org.freedesktop.RealtimeKit1", "MaxRealtimePriority")?;
+    let prio = cmp::min(prio, max_prio as u32);
 
     // Enforce RLIMIT_RTPRIO, also a must before asking rtkit for rtprio
-    let max_rttime = try!(item_as_i64(try!(p.get("RTTimeUSecMax")))) as u64;
-    let new_limit = libc::rlimit64 { rlim_cur: max_rttime, rlim_max: max_rttime };
+    let max_rttime: i64 = proxy.get("org.freedesktop.RealtimeKit1", "RTTimeUSecMax")?;
+    let new_limit = libc::rlimit64 { rlim_cur: max_rttime as u64, rlim_max: max_rttime as u64 };
     let mut old_limit = new_limit;
     if unsafe { libc::getrlimit64(libc::RLIMIT_RTTIME, &mut old_limit) } < 0 {
         return Err(Box::from("getrlimit failed"));
@@ -48,13 +29,13 @@ fn make_realtime(prio: u32) -> Result<u32, Box<std::error::Error>> {
 
     // Finally, let's ask rtkit to make us realtime
     let thread_id = unsafe { libc::syscall(libc::SYS_gettid) };
-    let r = rtkit_set_realtime(&c, thread_id as u64, prio);
+    let r = proxy.method_call("org.freedesktop.RealtimeKit1", "MakeThreadRealtime", (thread_id as u64, prio));
 
     if r.is_err() {
         unsafe { libc::setrlimit64(libc::RLIMIT_RTTIME, &old_limit) };
     }
 
-    try!(r);
+    r?;
     Ok(prio)
 }
 

@@ -1,89 +1,112 @@
 //! Types and traits for easily getting a message's arguments, or appening a message with arguments.
 //!
-//! Also see the arguments guide (in the examples directory).
+//! Also see the argument's guide (in the examples directory) for details about which Rust
+//! types correspond to which D-Bus types.
 //!
-//! A message has `read1`, `read2` etc, and `append1`, `append2` etc, which is your
-//! starting point into this module's types. 
-//!
-//! **Append a**:
-//!
-//! `bool, u8, u16, u32, u64, i16, i32, i64, f64` - the corresponding D-Bus basic type
-//!
-//! `&str` - a D-Bus string. D-Bus strings do not allow null characters, so 
-//! if the string contains null characters, it will be cropped
-//! to only include the data before the null character. (Tip: This allows for skipping an
-//! allocation by writing a string literal which ends with a null character.)
-//!
-//! `&[T] where T: Append` - a D-Bus array. Note: can use an efficient fast-path in case of 
-//! T being an FixedArray type.
-//!
-//! `Array<T, I> where T: Append, I: Iterator<Item=T>` - a D-Bus array, maximum flexibility.
-//!
-//! `Variant<T> where T: Append` - a D-Bus variant.
-//!
-//! `(T1, T2) where T1: Append, T2: Append` - tuples are D-Bus structs. Implemented up to 12.
-//!
-//! `Dict<K, V, I> where K: Append + DictKey, V: Append, I: Iterator<Item=(&K, &V)>` - A D-Bus dict (array of dict entries).
-//!
-//! `Path` - a D-Bus object path.
-//!
-//! `Signature` - a D-Bus signature.
-//!
-//! `OwnedFd` - shares the file descriptor with the remote side.
-//!
-//! **Get / read a**:
-//!
-//! `bool, u8, u16, u32, u64, i16, i32, i64, f64` - the corresponding D-Bus basic type
-//!
-//! `&str`, `&CStr` - a D-Bus string. D-Bus strings are always UTF-8 and do not contain null characters.
-//!
-//! `&[T] where T: FixedArray` - a D-Bus array of integers or f64.
-//!
-//! `Array<T, Iter> where T: Get` - a D-Bus array, maximum flexibility. Implements Iterator so you can easily
-//! collect it into, e g, a `Vec`.
-//!
-//! `Variant<T> where T: Get` - a D-Bus variant. Use this type of Variant if you know the inner type.
-//!
-//! `Variant<Iter>` - a D-Bus variant. This type of Variant allows you to examine the inner type.
-//!
-//! `(T1, T2) where T1: Get, T2: Get` - tuples are D-Bus structs. Implemented up to 12.
-//!
-//! `Dict<K, V, Iter> where K: Get + DictKey, V: Get` - A D-Bus dict (array of dict entries). Implements Iterator so you can easily
-//! collect it into, e g, a `HashMap`.
-//!
-//! `Path` - a D-Bus object path.
-//!
-//! `Signature` - a D-Bus signature.
-//!
-//! `OwnedFd` - a file descriptor sent from the remote side.
-//!
+//! A message has `read1`, `read2` etc, and `append1`, `append2` etc, which is one
+//! starting point into this module's types.
+
 
 mod msgarg;
 mod basic_impl;
 mod variantstruct_impl;
 mod array_impl;
 
-pub use self::msgarg::{Arg, FixedArray, Get, DictKey, Append, RefArg, AppendAll, ReadAll, cast, cast_mut};
+pub mod messageitem;
+
+pub use self::msgarg::{Arg, FixedArray, Get, DictKey, Append, RefArg, AppendAll, ReadAll, ArgAll,
+    cast, cast_mut, prop_cast, PropMap};
 pub use self::array_impl::{Array, Dict};
 pub use self::variantstruct_impl::Variant;
 
 use std::{fmt, mem, ptr, error};
-use {ffi, Message, Signature, Path, OwnedFd};
+use crate::{ffi, Message, Signature, Path};
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_void, c_int};
+#[cfg(unix)]
+use std::os::unix::io::{RawFd, AsRawFd, FromRawFd, IntoRawFd};
+use std::collections::VecDeque;
 
+fn check(f: &str, i: u32) { if i == 0 { panic!("D-Bus error: '{}' failed", f) }}
 
-fn check(f: &str, i: u32) { if i == 0 { panic!("D-Bus error: '{}' failed", f) }} 
+fn ffi_iter() -> ffi::DBusMessageIter {
+    // Safe because DBusMessageIter contains only fields that are allowed to be zeroed (i e no references or similar)
+    unsafe { mem::zeroed() }
+}
 
-fn ffi_iter() -> ffi::DBusMessageIter { unsafe { mem::zeroed() }} 
+/// An RAII wrapper around Fd to ensure that file descriptor is closed
+/// when the scope ends.
+#[derive(Debug, PartialEq, PartialOrd)]
+pub struct OwnedFd {
+    #[cfg(unix)]
+    fd: RawFd
+}
+
+#[cfg(unix)]
+impl OwnedFd {
+    /// Create a new OwnedFd from a RawFd.
+    ///
+    /// This function is unsafe, because you could potentially send in an invalid file descriptor,
+    /// or close it during the lifetime of this struct. This could potentially be unsound.
+    pub unsafe fn new(fd: RawFd) -> OwnedFd {
+        OwnedFd { fd: fd }
+    }
+
+    /// Convert an OwnedFD back into a RawFd.
+    pub fn into_fd(self) -> RawFd {
+        let s = self.fd;
+        ::std::mem::forget(self);
+        s
+    }
+}
+
+#[cfg(unix)]
+impl Drop for OwnedFd {
+    fn drop(&mut self) {
+        unsafe { libc::close(self.fd); }
+    }
+}
+
+impl Clone for OwnedFd {
+    #[cfg(unix)]
+    fn clone(&self) -> OwnedFd {
+        let x = unsafe { libc::dup(self.fd) };
+        if x == -1 { panic!("Duplicating file descriptor failed") }
+        unsafe { OwnedFd::new(x) }
+    }
+
+    #[cfg(windows)]
+    fn clone(&self) -> OwnedFd {
+        OwnedFd {}
+    }
+}
+
+#[cfg(unix)]
+impl AsRawFd for OwnedFd {
+    fn as_raw_fd(&self) -> RawFd {
+        self.fd
+    }
+}
+
+#[cfg(unix)]
+impl IntoRawFd for OwnedFd {
+    fn into_raw_fd(self) -> RawFd {
+        self.into_fd()
+    }
+}
+
+#[cfg(unix)]
+impl FromRawFd for OwnedFd {
+    unsafe fn from_raw_fd(fd: RawFd) -> Self { OwnedFd::new(fd) }
+}
 
 #[derive(Clone, Copy)]
-/// Helper struct for appending one or more arguments to a Message. 
+/// Helper struct for appending one or more arguments to a Message.
 pub struct IterAppend<'a>(ffi::DBusMessageIter, &'a Message);
 
 impl<'a> IterAppend<'a> {
     /// Creates a new IterAppend struct.
-    pub fn new(m: &'a mut Message) -> IterAppend<'a> { 
+    pub fn new(m: &'a mut Message) -> IterAppend<'a> {
         let mut i = ffi_iter();
         unsafe { ffi::dbus_message_iter_init_append(m.ptr(), &mut i) };
         IterAppend(i, m)
@@ -109,7 +132,7 @@ impl<'a> IterAppend<'a> {
     ///
     /// In order not to get D-Bus errors: during the call to "f" you need to call "append" on
     /// the supplied `IterAppend` exactly once,
-    /// and with a value which has the same signature as inner_sig.  
+    /// and with a value which has the same signature as inner_sig.
     pub fn append_variant<F: FnOnce(&mut IterAppend<'a>)>(&mut self, inner_sig: &Signature, f: F) {
         self.append_container(ArgType::Variant, Some(inner_sig.as_cstr()), f)
     }
@@ -165,8 +188,8 @@ impl<'a> IterAppend<'a> {
 pub struct Iter<'a>(ffi::DBusMessageIter, &'a Message, u32);
 
 impl<'a> Iter<'a> {
-    /// Creates a new struct for iterating over the arguments of a message, starting with the first argument. 
-    pub fn new(m: &'a Message) -> Iter<'a> { 
+    /// Creates a new struct for iterating over the arguments of a message, starting with the first argument.
+    pub fn new(m: &'a Message) -> Iter<'a> {
         let mut i = ffi_iter();
         unsafe { ffi::dbus_message_iter_init(m.ptr(), &mut i) };
         Iter(i, m, 0)
@@ -177,34 +200,29 @@ impl<'a> Iter<'a> {
         T::get(self)
     }
 
-    /// Returns the current argument as a trait object (experimental).
+    /// Returns the current argument as a trait object.
     ///
-    /// Note: For the more complex arguments (arrays / dicts / structs, and especially
-    /// combinations thereof), their internal representations are still a bit in flux.
-    /// Instead, use as_iter() to read the values of those.
-    ///
-    /// The rest are unlikely to change - Variants are `Variant<Box<RefArg>>`, strings are `String`,
-    /// paths are `Path<'static>`, signatures are `Signature<'static>`, Int32 are `i32s` and so on.
-    pub fn get_refarg(&mut self) -> Option<Box<RefArg + 'static>> {
+    /// See the argument guide's reference part for information on what types hide inside the RefArg.
+    pub fn get_refarg(&mut self) -> Option<Box<dyn RefArg + 'static>> {
         Some(match self.arg_type() {
-	    ArgType::Array => array_impl::get_array_refarg(self),
-	    ArgType::Variant => Box::new(Variant::new_refarg(self).unwrap()),
-	    ArgType::Boolean => Box::new(self.get::<bool>().unwrap()),
-	    ArgType::Invalid => return None,
-	    ArgType::String => Box::new(self.get::<String>().unwrap()),
-	    ArgType::DictEntry => unimplemented!(),
-	    ArgType::Byte => Box::new(self.get::<u8>().unwrap()),
-	    ArgType::Int16 => Box::new(self.get::<i16>().unwrap()),
-	    ArgType::UInt16 => Box::new(self.get::<u16>().unwrap()),
-	    ArgType::Int32 => Box::new(self.get::<i32>().unwrap()),
-	    ArgType::UInt32 => Box::new(self.get::<u32>().unwrap()),
-	    ArgType::Int64 => Box::new(self.get::<i64>().unwrap()),
-	    ArgType::UInt64 => Box::new(self.get::<u64>().unwrap()),
-	    ArgType::Double => Box::new(self.get::<f64>().unwrap()),
-	    ArgType::UnixFd => Box::new(self.get::<OwnedFd>().unwrap()),
-	    ArgType::Struct => Box::new(self.recurse(ArgType::Struct).unwrap().collect::<Vec<_>>()),
-	    ArgType::ObjectPath => Box::new(self.get::<Path>().unwrap().into_static()),
-	    ArgType::Signature => Box::new(self.get::<Signature>().unwrap().into_static()),
+            ArgType::Array => array_impl::get_array_refarg(self),
+            ArgType::Variant => Box::new(Variant::new_refarg(self).unwrap()),
+            ArgType::Boolean => Box::new(self.get::<bool>().unwrap()),
+            ArgType::Invalid => return None,
+            ArgType::String => Box::new(self.get::<String>().unwrap()),
+            ArgType::DictEntry => unimplemented!(),
+            ArgType::Byte => Box::new(self.get::<u8>().unwrap()),
+            ArgType::Int16 => Box::new(self.get::<i16>().unwrap()),
+            ArgType::UInt16 => Box::new(self.get::<u16>().unwrap()),
+            ArgType::Int32 => Box::new(self.get::<i32>().unwrap()),
+            ArgType::UInt32 => Box::new(self.get::<u32>().unwrap()),
+            ArgType::Int64 => Box::new(self.get::<i64>().unwrap()),
+            ArgType::UInt64 => Box::new(self.get::<u64>().unwrap()),
+            ArgType::Double => Box::new(self.get::<f64>().unwrap()),
+            ArgType::UnixFd => Box::new(self.get::<std::fs::File>().unwrap()),
+            ArgType::Struct => Box::new(self.recurse(ArgType::Struct).unwrap().collect::<VecDeque<_>>()),
+            ArgType::ObjectPath => Box::new(self.get::<Path>().unwrap().into_static()),
+            ArgType::Signature => Box::new(self.get::<Signature>().unwrap().into_static()),
         })
     }
 
@@ -214,7 +232,7 @@ impl<'a> Iter<'a> {
             let c = ffi::dbus_message_iter_get_signature(&mut self.0);
             assert!(c != ptr::null_mut());
             let cc = CStr::from_ptr(c);
-            let r = Signature::new(cc.to_bytes());
+            let r = Signature::new(std::str::from_utf8(cc.to_bytes()).unwrap());
             ffi::dbus_free(c as *mut c_void);
             r.unwrap()
         }
@@ -233,10 +251,10 @@ impl<'a> Iter<'a> {
     /// Returns false if there are no more items.
     pub fn next(&mut self) -> bool {
         self.2 += 1;
-        unsafe { ffi::dbus_message_iter_next(&mut self.0) != 0 } 
+        unsafe { ffi::dbus_message_iter_next(&mut self.0) != 0 }
     }
 
-    /// Wrapper around `get` and `next`. Calls `get`, and then `next` if `get` succeeded. 
+    /// Wrapper around `get` and `next`. Calls `get`, and then `next` if `get` succeeded.
     ///
     /// Also returns a `Result` rather than an `Option` to give an error if successful.
     ///
@@ -264,8 +282,8 @@ impl<'a> Iter<'a> {
     /// }
     /// ```
     pub fn read<T: Arg + Get<'a>>(&mut self) -> Result<T, TypeMismatchError> {
-        let r = try!(self.get().ok_or_else(||
-             TypeMismatchError { expected: T::ARG_TYPE, found: self.arg_type(), position: self.2 }));
+        let r = self.get().ok_or_else(||
+             TypeMismatchError { expected: T::ARG_TYPE, found: self.arg_type(), position: self.2 })?;
         self.next();
         Ok(r)
     }
@@ -301,7 +319,7 @@ impl<'a> fmt::Debug for Iter<'a> {
 }
 
 impl<'a> Iterator for Iter<'a> {
-    type Item = Box<RefArg + 'static>;
+    type Item = Box<dyn RefArg + 'static>;
     fn next(&mut self) -> Option<Self::Item> {
         let r = self.get_refarg();
         if r.is_some() { self.next(); }
@@ -311,7 +329,7 @@ impl<'a> Iterator for Iter<'a> {
 
 /// Type of Argument
 ///
-/// use this to figure out, e g, which type of argument is at the current position of Iter. 
+/// use this to figure out, e g, which type of argument is at the current position of Iter.
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ArgType {
@@ -343,9 +361,9 @@ pub enum ArgType {
     UInt64 = ffi::DBUS_TYPE_UINT64 as u8,
     /// f64
     Double = ffi::DBUS_TYPE_DOUBLE as u8,
-    /// OwnedFd
+    /// File
     UnixFd = ffi::DBUS_TYPE_UNIX_FD as u8,
-    /// Use tuples or Vec<Box<RefArg>> to read/write structs.
+    /// Use tuples or Vec<Box<dyn RefArg>> to read/write structs.
     Struct = ffi::DBUS_TYPE_STRUCT as u8,
     /// Path
     ObjectPath = ffi::DBUS_TYPE_OBJECT_PATH as u8,
@@ -353,7 +371,7 @@ pub enum ArgType {
     Signature = ffi::DBUS_TYPE_SIGNATURE as u8,
 }
 
-const ALL_ARG_TYPES: [(ArgType, &'static str); 18] =
+const ALL_ARG_TYPES: [(ArgType, &str); 18] =
     [(ArgType::Variant, "Variant"),
     (ArgType::Array, "Array/Dict"),
     (ArgType::Struct, "Struct"),
@@ -361,7 +379,7 @@ const ALL_ARG_TYPES: [(ArgType, &'static str); 18] =
     (ArgType::DictEntry, "Dict entry"),
     (ArgType::ObjectPath, "Path"),
     (ArgType::Signature, "Signature"),
-    (ArgType::UnixFd, "OwnedFd"),
+    (ArgType::UnixFd, "File"),
     (ArgType::Boolean, "bool"),
     (ArgType::Byte, "u8"),
     (ArgType::Int16, "i16"),
@@ -374,9 +392,14 @@ const ALL_ARG_TYPES: [(ArgType, &'static str); 18] =
     (ArgType::Invalid, "nothing")];
 
 impl ArgType {
-    /// A str corresponding to the name of a Rust type. 
+    /// A str corresponding to the name of a Rust type.
     pub fn as_str(self) -> &'static str {
         ALL_ARG_TYPES.iter().skip_while(|a| a.0 != self).next().unwrap().1
+    }
+
+    /// Returns a Vec of all possible argtypes.
+    pub fn all() -> Vec<Self> {
+        ALL_ARG_TYPES.iter().map(|x| x.0).collect()
     }
 
     /// Converts an i32 to an ArgType (or an error).
@@ -391,7 +414,7 @@ impl ArgType {
 
 /// Error struct to indicate a D-Bus argument type mismatch.
 ///
-/// Might be returned from `iter::read()`. 
+/// Might be returned from `iter::read()`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TypeMismatchError {
     expected: ArgType,
@@ -403,7 +426,7 @@ impl TypeMismatchError {
     /// The ArgType we were trying to read, but failed
     pub fn expected_arg_type(&self) -> ArgType { self.expected }
 
-    /// The ArgType we should have been trying to read, if we wanted the read to succeed 
+    /// The ArgType we should have been trying to read, if we wanted the read to succeed
     pub fn found_arg_type(&self) -> ArgType { self.found }
 
     /// At what argument was the error found?
@@ -414,13 +437,12 @@ impl TypeMismatchError {
 
 impl error::Error for TypeMismatchError {
     fn description(&self) -> &str { "D-Bus argument type mismatch" }
-    fn cause(&self) -> Option<&error::Error> { None }
+    fn cause(&self) -> Option<&dyn error::Error> { None }
 }
 
 impl fmt::Display for TypeMismatchError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} at position {}: expected {}, found {}",
-            (self as &error::Error).description(),
+        write!(f, "D-Bus argument type mismatch at position {}: expected {}, found {}",
             self.position, self.expected.as_str(),
             if self.expected == self.found { "same but still different somehow" } else { self.found.as_str() }
         )
@@ -430,11 +452,11 @@ impl fmt::Display for TypeMismatchError {
 
 #[allow(dead_code)]
 fn test_compile() {
-    let mut q = IterAppend::new(unsafe { mem::transmute(0usize) });
+    let mut msg = Message::new_signal("/", "a.b", "C").unwrap();
+    let mut q = IterAppend::new(&mut msg);
 
     q.append(5u8);
     q.append(Array::new(&[5u8, 6, 7]));
     q.append((8u8, &[9u8, 6, 7][..]));
     q.append(Variant((6u8, 7u8)));
 }
-
