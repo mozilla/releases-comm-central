@@ -755,28 +755,28 @@ extract-using-region = Using { $languageName } ({ $region })
 # LOCALIZATION NOTE (unit)
 # Used to determine the correct plural form of a unit
 # $count count
-unit-minutes =
+event-duration-unit-minutes =
     { $count ->
-        [one] { $count } minute
-        *[other] { $count } minutes
+        [one] minute
+        *[other] minutes
     }
 # $count count
-unit-hours =
+event-duration-unit-hours =
     { $count ->
-        [one] { $count } hour
-        *[other] { $count } hours
+        [one] hour
+        *[other] hours
     }
 # $count count
-unit-days =
+event-duration-unit-days =
     { $count ->
-        [one] { $count } day
-        *[other] { $count } days
+        [one] day
+        *[other] days
     }
 # $count count
-unit-weeks =
+event-duration-unit-weeks =
     { $count ->
-        [one] { $count } week
-        *[other] { $count } weeks
+        [one] week
+        *[other] weeks
     }
 
 # LOCALIZATION NOTE (show-calendar)
