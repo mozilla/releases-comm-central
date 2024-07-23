@@ -14,7 +14,8 @@
 #pragma once
 #endif
 
-#if defined (WIN64) && !defined (_WIN64)
+
+#if (defined (WIN64) && !defined (_WIN64)) || defined(_M__X86_64)
 #define _WIN64
 #endif
 
@@ -273,7 +274,7 @@ DECLARE_MAPI_INTERFACE_PTR(IPropData, LPPROPDATA);
 
 /*	CreateIProp()
  *		Creates the internal memory structures and object handle
- *		to bring a new property interface into existence.
+ *		to bring a new property interface into existance.
  *
  *	lpInterface
  *		Interface ID of the TableData object (IID_IMAPIPropData)
@@ -343,16 +344,11 @@ CreateIProp( LPCIID					lpInterface,
  *	individual firo's.	Listed below are the possible bit flags.
  *
  *		FIROWAIT and FIROINTERVAL are mutually exclusive.
- *		If neither of the flags are specified, the default action
- *		is to ignore the time parameter of the idle function and
- *		call it as often as possible if firoPerBlock is not set;
- *		otherwise call it one time only during the idle block
- *		once the time constraint has been set. FIROINTERVAL
- *		is also incompatible with FIROPERBLOCK.
  *
  *		FIROWAIT		- time given is minimum idle time before calling
- *						  for the first time in the block of idle time,
- *						  afterwhich call as often as possible.
+ *					  for the first time in the block of idle time,
+ *					  afterwhich every subsequent call has to wait
+ *					  for the specified idle time.
  *		FIROINTERVAL	- time given is minimum interval between each
  *						  successive call
  *		FIROPERBLOCK	- called only once per contiguous block of idle
@@ -410,7 +406,7 @@ typedef FTG  FAR *PFTG;
  -
  *	Purpose:
  *		Initialises the idle engine
- *		If the initialisation succeeded, returns 0, else returns -1
+ *		If the initialisation succeded, returns 0, else returns -1
  *
  *	Arguments:
  *		lpvReserved		Reserved, must be NULL.
@@ -505,7 +501,7 @@ typedef HRESULT (STDMETHODCALLTYPE FAR * LPOPENSTREAMONFILE) (
 	__in_opt LPCTSTR	lpszPrefix,
 	LPSTREAM FAR *		lppStream);
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
 #define OPENSTREAMONFILE "OpenStreamOnFile"
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
@@ -536,7 +532,7 @@ UlPropSize(	LPSPropValue	lpSPropValue );
 STDAPI_(BOOL)
 FEqualNames( LPMAPINAMEID lpName1, LPMAPINAMEID lpName2 );
 
-#if (defined(_WIN64) || defined(_WIN32)) && !defined(_WINNT) && !defined(_WIN95) && !defined(_MAC)
+#if (defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)) && !defined(_WINNT) && !defined(_WIN95) && !defined(_MAC)
 #define _WINNT
 #endif
 
@@ -827,7 +823,7 @@ WrapCompressedRTFStream (__in LPSTREAM lpCompressedRTFStream,
 
 /* Storage on Stream */
 
-#if defined(_WIN64) || defined(_WIN32) || defined(WIN16)
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
 STDAPI_(HRESULT)
 HrIStorageFromStream (LPUNKNOWN lpUnkIn,
 	LPCIID lpInterface, ULONG ulFlags, LPSTORAGE FAR * lppStorageOut);
@@ -853,7 +849,7 @@ STDAPI_(VOID)			DeinitMapiUtil(VOID);
 
 /*
  *	Entry point names.
- *
+ *	
  *	These are for new entry points defined since MAPI first shipped
  *	in Windows 95. Using these names in a GetProcAddress call makes
  *	it easier to write code which uses them optionally.
@@ -863,6 +859,8 @@ STDAPI_(VOID)			DeinitMapiUtil(VOID);
 #define szHrDispatchNotifications "HrDispatchNotifications"
 #elif defined (_WIN32) && defined (_X86_)
 #define szHrDispatchNotifications "_HrDispatchNotifications@4"
+#elif defined (_M_ARM) || defined(_M_ARM64)
+#define szHrDispatchNotifications "HrDispatchNotifications"
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32/X86 and Win64/AMD64"
 #endif
@@ -874,6 +872,8 @@ typedef DISPATCHNOTIFICATIONS FAR * LPDISPATCHNOTIFICATIONS;
 #define szScCreateConversationIndex "ScCreateConversationIndex"
 #elif defined (_WIN32) && defined (_X86_)
 #define szScCreateConversationIndex "_ScCreateConversationIndex@16"
+#elif defined (_M_ARM) || defined(_M_ARM64)
+#define szScCreateConversationIndex "ScCreateConversationIndex"
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32/X86 and Win64/AMD64"
 #endif
@@ -882,8 +882,13 @@ typedef SCODE (STDAPICALLTYPE CREATECONVERSATIONINDEX)(ULONG cbParent,
 	LPBYTE lpbParent, ULONG FAR *lpcbConvIndex, LPBYTE FAR *lppbConvIndex);
 typedef CREATECONVERSATIONINDEX FAR *LPCREATECONVERSATIONINDEX;
 
+typedef BOOL (STDAPICALLTYPE FGETCOMPONENTPATH) (LPTSTR szComponent,
+	LPTSTR szQualifier, LPTSTR szDllPath, DWORD cchBufferSize, BOOL fInstall);
+typedef FGETCOMPONENTPATH FAR * LPFGETCOMPONENTPATH;
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* _MAPIUTIL_H_ */
+

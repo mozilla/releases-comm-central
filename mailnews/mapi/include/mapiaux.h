@@ -230,6 +230,6 @@ DECLARE_MAPI_INTERFACE_(IMsgServiceAdmin2, IUnknown)
 
 #ifdef	__cplusplus
 }		/*	extern "C" */
-#endif
+#endif	
 
 #endif /* MAPIAUX_H */

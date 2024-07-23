@@ -73,7 +73,7 @@ extern "C" {
 #endif
 
 
-#if defined(_MAC)
+#if defined(_MAC)	
 
 #define	MULDIV(x,y,z)				MulDiv(x,y,z)
 
@@ -85,7 +85,7 @@ LPVOID FAR PASCAL	PvGetVerifyInstanceGlobals(DWORD dwPid, DWORD wDataSet);
 LPVOID FAR PASCAL	PvSlowGetInstanceGlobals(DWORD dwPid, DWORD wDataSet);
 BOOL FAR PASCAL		FCleanupInstanceGlobals(WORD, DWORD);
 
-#elif defined(_WIN64) || defined(_WIN32)
+#elif defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
 
 #define	MULDIV(x,y,z)				MulDiv(x,y,z)
 
@@ -98,9 +98,9 @@ extern LPVOID pinstX;
 
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
-#endif
+#endif	
 
-#if (defined(_WIN64) || defined(_WIN32)) && !defined(_MAC)
+#if (defined(_WIN64) || defined(_WIN32)) && !defined(_MAC)  || defined(_M_ARM)
 #define szMAPIDLLSuffix		"32"
 #elif defined(DOS)
 #define szMAPIDLLSuffix		""
@@ -116,7 +116,7 @@ extern LPVOID pinstX;
 /*	or the other.				*/
 /********************************/
 
-#if !defined(_WIN64) && !defined(_WIN32)
+#if !defined(_WIN64) && !defined(_WIN32) && !defined(_M_ARM)
 #define	ZeroMemory(pb,cb)			memset((pb),0,(cb))
 #define FillMemory(pb,cb,b)			memset((pb),(b),(cb))
 #define CopyMemory(pbDst,pbSrc,cb)	do								\
@@ -272,3 +272,5 @@ BOOL WINAPI IsBadBoundedStringPtr(const void FAR* lpsz, UINT cchMax);
 #endif
 
 #endif /* __MAPIWIN_H__ */
+
+

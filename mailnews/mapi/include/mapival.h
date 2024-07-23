@@ -1,9 +1,9 @@
 /*
  *	M A P I V A L . H
- *
+ *	
  *	Macros used to validate parameters on standard MAPI object methods.
  *	Used in conjunction with routines found in MAPIU.DLL.
- *
+ *	
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
@@ -33,7 +33,7 @@ typedef enum _tagMethods
 	MAKE_ENUM(QueryInterface, IUnknown) = 0,
 	MAKE_ENUM(AddRef, IUnknown),			/* For completness */
 	MAKE_ENUM(Release, IUnknown),			/* For completness */
-
+	
 /* IMAPIProps */
 	MAKE_ENUM(GetLastError, IMAPIProp),
 	MAKE_ENUM(SaveChanges, IMAPIProp),
@@ -178,12 +178,12 @@ typedef enum _tagMethods
 	MAKE_ENUM(Advise, IMSLogon),
 	MAKE_ENUM(Unadvise, IMSLogon),
 	MAKE_ENUM(OpenStatusEntry, IMSLogon),
-
+	
 /* IMAPIControl */
 	MAKE_ENUM(GetLastError, IMAPIControl),
 	MAKE_ENUM(Activate, IMAPIControl),
 	MAKE_ENUM(GetState, IMAPIControl),
-
+	
 /* IMAPIStatus */
 	MAKE_ENUM(ValidateState, IMAPIStatus),
 	MAKE_ENUM(SettingsDialog, IMAPIStatus),
@@ -210,7 +210,7 @@ typedef enum _tagMethods
 
 
 /* Macro wrappers to hide the Validate function return handling */
-#if defined(_AMD64_) || defined(_X86_)
+#if defined(_AMD64_) || defined(_X86_) || defined(_M_ARM) || defined(_M_ARM64)
 #ifdef __cplusplus
 
 /* C++ methods can't take the address of the This pointer, so we must
@@ -253,7 +253,9 @@ typedef enum _tagMethods
 		AssertSz(HR_SUCCEEDED(__ValidateParameters(eMethod, ppThis)), "Parameter validation failed for method called by MAPI!")
 
 #endif /* __cplusplus */
-#endif /* _X86_ || _AMD64_ */
+#else
+#error	"Unknown Platform: MAPI is currently supported on X86 and AMD64 and ARM"
+#endif /* _X86_ || _AMD64_ || _M_ARM || _M_ARM64 */
 
 /* Prototypes for functions used to validate complex parameters.
  */
@@ -493,50 +495,44 @@ FBadColumnSet( LPSPropTagArray lpptaCols );
 /* Validation function
 
 	The eMethod parameter tells us which internal validation to perform.
-
+	
 	The ppThis parameter tells us where the stack is, so we can access the other
 	parameters.
-
+	
 	Becuase of this *magic* we MUST obtain the pointer to the This pointer in
 	the method function.
-
+	
 */
 
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
 #define BASED_STACK
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
 #endif
 
-#if defined(_WIN64) || defined(_WIN32)
-HRESULT	 STDAPICALLTYPE
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
+HRESULT	 STDAPICALLTYPE		
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
 #endif
 
 __CPPValidateParameters(METHODS eMethod, const LPVOID ppFirst);
 
-#if defined(_WIN64) || defined(_WIN32)
-HRESULT	 STDAPICALLTYPE
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
+HRESULT	 STDAPICALLTYPE		
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
 #endif
 __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 
-#ifdef _MAC
-#define STDAPIVCALLTYPE         __cdecl
-#define STDAPIV                 EXTERN_C HRESULT STDAPIVCALLTYPE
-#define STDAPIV_(type)          EXTERN_C type STDAPIVCALLTYPE
-#endif /* _MAC */
-
 /* Macro wrappers for platform independent validation */
 
-#if defined(_AMD64_) || defined(_X86_)
+#if defined(_AMD64_) || defined(_X86_) || defined (_M_ARM) || defined(_M_ARM64)
 
 #define ArgShiftN (1 + (sizeof(DWORD_PTR)>>2))
 #define ArgSize(T) ((sizeof(T)+sizeof(DWORD_PTR)-1)>>ArgShiftN)
 
-#define MakeArg1(idx, a1) memcpy(__rgArgs+idx, &a1, ArgSize(a1)*sizeof(DWORD_PTR))
+#define MakeArg1(idx, a1) memcpy(__rgArgs+idx, &a1, sizeof(a1))
 #define MakeArg2(idx, a1, a2) MakeArg1(idx, a1); MakeArg1(idx+ArgSize(a1), a2)
 #define MakeArg3(idx, a1, a2, a3) MakeArg1(idx, a1); MakeArg2(idx+ArgSize(a1), a2, a3)
 #define MakeArg4(idx, a1, a2, a3, a4) MakeArg1(idx, a1); MakeArg3(idx+ArgSize(a1), a2, a3, a4)
@@ -619,7 +615,7 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 
 
 
-#define ValidateParameters1( m, a1 )
+#define ValidateParameters1( m, a1 ) 
 #define ValidateParameters2( m, a1, a2 ) \
 			{ HRESULT _hr_; \
 			MakeArray1(a2); \
@@ -681,7 +677,7 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 			MakeArray15(a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); \
 			_hr_ = HrValidateParameters(m, (void **)__rgArgs); if (HR_FAILED(_hr_)) return (_hr_); }
 
-#define UlValidateParameters1( m, a1 )
+#define UlValidateParameters1( m, a1 ) 
 #define UlValidateParameters2( m, a1, a2 ) \
 			{ HRESULT _hr_; \
 			MakeArray1(a2); \
@@ -744,7 +740,7 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 			_hr_ = HrValidateParameters(m, (void **)__rgArgs); if (HR_FAILED(_hr_)) return ((ULONG)_hr_); }
 
 #ifdef DEBUG
-#define CheckParameters1( m, a1 )
+#define CheckParameters1( m, a1 ) 
 #define CheckParameters2( m, a1, a2 ) \
 			{ \
 			MakeArray1(a2); \
@@ -806,7 +802,7 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 			MakeArray15(a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); \
 			AssertSz(HR_SUCCEEDED( HrValidateParameters(m, (void **)__rgArgs)), "Parameter validation failed for method called by MAPI!"); }
 #else /* DEBUG */
-#define CheckParameters1( m, a1 )
+#define CheckParameters1( m, a1 ) 
 #define CheckParameters2( m, a1, a2 )
 #define CheckParameters3( m, a1, a2, a3 )
 #define CheckParameters4( m, a1, a2, a3, a4 )
@@ -823,7 +819,7 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 #define CheckParameters15( m, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 )
 #define CheckParameters16( m, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 )
 #endif /* DEBUG */
-#else /* !_AMD64_ && !_X86_ */
+#else /* !_AMD64_ && !_X86_  && !_M_ARM  && !_M_ARM64 */
 #define ValidateParms(x)	{ HRESULT _hr_ = HrValidateParametersV x; if (HR_FAILED(_hr_)) return (_hr_); }
 #define UlValidateParms(x)	{ HRESULT _hr_ = HrValidateParametersV x; if (HR_FAILED(_hr_)) return (ULONG)(_hr_); }
 #define CheckParms(x) 		AssertSz(HR_SUCCEEDED( HrValidateParametersV x ), "Parameter validation failed for method called by MAPI!")
@@ -1957,11 +1953,8 @@ __ValidateParameters(METHODS eMethod, LPVOID ppThis);
 #define CheckParameters_IMAPIAdviseSink_OnNotify( a1, a2, a3 ) \
 			 CheckParameters3( IMAPIAdviseSink_OnNotify, a1, a2, a3 )
 
-#if defined(_AMD64_) || defined(_X86_)
+#if defined (_AMD64_) || defined(_X86_) || defined (_M_ARM) || defined(_M_ARM64)
 STDAPI	HrValidateParameters( METHODS eMethod, LPVOID FAR *ppFirstArg );
-#elif defined(DOS) || defined(_MAC)
-STDAPIV	HrValidateParametersV( METHODS eMethod, ... );
-STDAPIV HrValidateParametersValist( METHODS eMethod, va_list arglist );
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
 #endif

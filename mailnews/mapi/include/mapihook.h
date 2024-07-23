@@ -46,12 +46,12 @@ extern "C" {
                 ULONG FAR *                 lpulFlags,              \
                 ULONG FAR *                 lpcbEntryID,            \
                 LPBYTE FAR *                lppEntryID) IPURE;      \
-
+    
 #undef       INTERFACE
 #define      INTERFACE  ISpoolerHook
 DECLARE_MAPI_INTERFACE_(ISpoolerHook, IUnknown)
 {
-    BEGIN_INTERFACE
+    BEGIN_INTERFACE 
     MAPI_IUNKNOWN_METHODS(PURE)
     MAPI_ISPOOLERHOOK_METHODS(PURE)
 };

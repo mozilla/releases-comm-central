@@ -31,6 +31,8 @@ extern "C" {
 #if !defined(WINAPI)
 	#if defined(_WIN64) && (_MSC_VER >= 800)
 		#define WINAPI
+	#elif defined(_M_ARM) && (_MSC_VER >= 800)
+		#define WINAPI
 	#elif defined(_WIN32) && (_MSC_VER >= 800)
 		#define WINAPI				__stdcall
 	#else
@@ -77,7 +79,7 @@ typedef const void FAR *				LPCVOID;
 
 #ifndef _MAC
 #ifndef LPOLESTR
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32) || defined(_M_ARM)
 #define LPOLESTR        LPWSTR
 #define LPCOLESTR       LPCWSTR
 #define OLECHAR         WCHAR
@@ -92,7 +94,7 @@ typedef const void FAR *				LPCVOID;
 #define NORM_IGNORENONSPACE  			0x00000002     /* ignore diacritics */
 #define NORM_IGNORESYMBOLS   			0x00000004     /* ignore symbols */
 
-#if defined(_WIN64) || defined (_WIN32) /* from winnls.h */
+#if defined(_WIN64) || defined (_WIN32) || defined(_M_ARM) /* from winnls.h */
 #define NORM_IGNOREKANATYPE				0x00010000     /* ignore kanatype */
 #define NORM_IGNOREWIDTH				0x00020000	   /* ignore width */
 #else
@@ -157,7 +159,7 @@ int		WINAPI	MNLS_lstrcmpW(LPCWSTR lpString1, LPCWSTR lpString2);
 LPWSTR	WINAPI	MNLS_lstrcpyW(LPWSTR lpString1, LPCWSTR lpString2);
 BOOL	WINAPI	MNLS_IsBadStringPtrW(LPCWSTR lpsz, UINT ucchMax);
 
-#if (defined (_WIN64) || defined(_WIN32)) && !defined(_WINNT) && !defined(_WIN95) && !defined(_MAC)
+#if (defined (_WIN64) || defined(_WIN32) || defined(_M_ARM)) && !defined(_WINNT) && !defined(_WIN95) && !defined(_MAC)
 #define _WINNT
 #endif
 

@@ -1,15 +1,17 @@
 The contents of this directory are from the MAPI Stub Library, formerly
 Outlook MAPI Headers.
 
-The files were downloaded from https://github.com/stephenegriffin/MAPIStubLibrary
-at revision 01f9bf8cd2ac39078aabfc4662c873159efd75d6.
+The files were downloaded from https://github.com/microsoft/MAPIStubLibrary
+at revision a888542d2e2630bf0da3b3855d198773b61c700e.
 
-The files have been renamed to lower-cased filenames for cross-compiling
+Changes:
+
+- The files have been renamed to lower-cased filenames for cross-compiling
 compatibility.
+- MAPI.h was intentionally removed.
+- MAPIx.h has had its #include lines changed to use double quotes rather than
+  angled brackets
 
-The content of the imported files was validated by comparing them to the
-ones found in the Outlook2010MAPIHeaders.exe that was previously available
-from MSDN. No differences were found that affect the code (mostly whitespace).
 
 MIT License
 

@@ -1,8 +1,8 @@
 /*
  *	M A P I X . H
- *
+ *	
  *	Definitions of objects/flags, etc used by Extended MAPI.
- *
+ *	
  *  Copyright (c) 2009 Microsoft Corporation. All Rights Reserved.
  */
 
@@ -29,7 +29,7 @@
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
+#endif	
 
 #ifndef BEGIN_INTERFACE
 #define BEGIN_INTERFACE
@@ -273,7 +273,7 @@ MAPIADMINPROFILES MAPIAdminProfiles;
 #define		 INTERFACE  IMAPISession
 DECLARE_MAPI_INTERFACE_(IMAPISession, IUnknown)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IMAPISESSION_METHODS(PURE)
 };
@@ -390,7 +390,7 @@ DECLARE_MAPI_INTERFACE_(IMAPISession, IUnknown)
 #define		 INTERFACE  IAddrBook
 DECLARE_MAPI_INTERFACE_(IAddrBook, IMAPIProp)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IMAPIPROP_METHODS(PURE)
 	MAPI_IADDRBOOK_METHODS(PURE)
@@ -454,7 +454,7 @@ DECLARE_MAPI_INTERFACE_PTR(IAddrBook, LPADRBOOK);
 #define		 INTERFACE  IProfAdmin
 DECLARE_MAPI_INTERFACE_(IProfAdmin, IUnknown)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IPROFADMIN_METHODS(PURE)
 };
@@ -533,13 +533,14 @@ DECLARE_MAPI_INTERFACE_(IProfAdmin, IUnknown)
 #define 	 INTERFACE	IMsgServiceAdmin
 DECLARE_MAPI_INTERFACE_(IMsgServiceAdmin, IUnknown)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IMSGSERVICEADMIN_METHODS(PURE)
 };
 
 #ifdef	__cplusplus
 }		/*	extern "C" */
-#endif
+#endif	
 
 #endif /* MAPIX_H */
+

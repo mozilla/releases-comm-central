@@ -17,7 +17,7 @@
 
 /*
  *	List of GUIDS allocated by MAPI
- *
+ *	
  *	0x00020300	IID_IMAPISession
  *	0x00020301	IID_IMAPITable
  *	0x00020302	IID_IMAPIAdviseSink
@@ -76,7 +76,7 @@
  *	0x00020385	MUID_PROFILE_INSTANCE
  *	0x00020397	IID_IMAPIClientShutdown
  *	0x00020398	IID_IMAPIProviderShutdown
- *
+ *	
  *	The remaining GUIDs from 0x00020300 to 0x000203FF are reserved by
  *	MAPI for future use.  The current maximum used by MAPI is 0x00020398
  *
@@ -299,7 +299,7 @@ DEFINE_OLEGUID(IID_IMAPIMessageSite, 0x00020370, 0, 0);
 
 
 /* Well known guids routing property sets.
-   Useful when writing applications that route documents
+   Usefull when writing applications that route documents
    (i.e. Workflow) across gateways.  Gateways that speak MAPI
    should convert the properties found in the follow property
    sets appropriately. */
@@ -351,3 +351,4 @@ DEFINE_OLEGUID(IID_IMAPIProviderShutdown, 0x00020398, 0, 0);
 #endif
 
 #endif	/* MAPIGUID_H */
+

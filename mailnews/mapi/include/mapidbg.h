@@ -196,7 +196,7 @@ typedef unsigned long DWORD;
 
 EXTERN_C_BEGIN
 
-#if defined(_WIN64) || defined (_WIN32)
+#if defined(_WIN64) || defined (_WIN32) || defined (_M_ARM)
 #define	EXPORTDBG
 #else
 #error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
@@ -213,7 +213,7 @@ SCODE EXPORTDBG __cdecl		ScodeFromSzFn(char *psz);
 void * EXPORTDBG __cdecl	DBGMEM_EncapsulateFn(void * pmalloc, char *pszSubsys, int fCheckOften);
 void EXPORTDBG __cdecl		DBGMEM_ShutdownFn(void * pmalloc);
 void EXPORTDBG __cdecl		DBGMEM_CheckMemFn(void * pmalloc, int fReportOrphans);
-#if defined(_WIN64) || defined(_WIN32)
+#if defined(_WIN64) || defined(_WIN32) || defined (_M_ARM)
 void EXPORTDBG __cdecl		DBGMEM_LeakHook(FARPROC pfn);
 void EXPORTDBG __cdecl		GetCallStack(DWORD_PTR *, int, int);
 #endif
@@ -271,9 +271,9 @@ EXTERN_C_END
 
 #else
 
-#define SzDecodeScode(_sc)				(0)
-#define SzDecodeUlPropType(_ulPropType)	(0)
-#define SzDecodeUlPropTag(_ulPropTag)	(0)
+#define SzDecodeScode(_sc)				("")
+#define SzDecodeUlPropType(_ulPropType)	("")
+#define SzDecodeUlPropTag(_ulPropTag)	("")
 #define UlPropTagFromSz(_sz)			(0)
 #define ScodeFromSz(_sz)				(0)
 
@@ -288,6 +288,7 @@ EXTERN_C_END
 #define DBGMEM_Shutdown(pmalloc) \
 	((pmalloc)->lpVtbl->Release(pmalloc))
 #endif
+
 #define DBGMEM_CheckMem(pm, f)
 #define DBGMEM_NoLeakDetect(pm, pv)
 #define DBGMEM_SetFailureAt(pm, ul)

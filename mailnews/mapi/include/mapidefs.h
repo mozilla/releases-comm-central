@@ -25,7 +25,7 @@
 #define _WIN32
 #endif
 
-#if defined (_WIN64) || defined(_WIN32) /* Must include WINDOWS.H on Win32/Win64 */
+#if defined (_WIN64) || defined(_WIN32) || defined (_M_ARM) /* Must include WINDOWS.H on Win32/Win64 */
 #ifndef _WINDOWS_
 #define INC_OLE2 /* Get the OLE2 stuff */
 #define INC_RPC  /* harmless on Windows NT; Windows 95 needs it */
@@ -53,6 +53,9 @@
 
 /* Array dimension for structures with variable-sized arrays at the end. */
 
+#pragma warning(push)
+#pragma warning(disable:4200) // nonstandard extension used : zero-sized array in struct/union
+
 #ifndef MAPI_DIM
 #define MAPI_DIM	1
 #endif
@@ -60,10 +63,10 @@
 /* Provider init type. Force to cdecl always */
 
 #ifndef STDMAPIINITCALLTYPE
-#if !defined (_MAC) && (defined (_WIN64) || defined(_WIN32))
+#if defined (_WIN64) || defined(_WIN32) || defined (_M_ARM)
 #define STDMAPIINITCALLTYPE		__cdecl
 #else
-#define STDMAPIINITCALLTYPE		STDMETHODCALLTYPE
+#error	"Unknown Platform: MAPI is currently supported on Win32 and Win64"
 #endif
 #define	STDINITMETHODIMP		HRESULT STDMAPIINITCALLTYPE
 #define STDINITMETHODIMP_(type)	type STDMAPIINITCALLTYPE
@@ -81,12 +84,7 @@ extern "C" {
 
 #if !defined (MIDL_PASS) /* MIDL doesn't want to see these */
 
-#ifndef _MAC
 typedef wchar_t WCHAR;    // wc,   16-bit UNICODE character
-#else
-// some Macintosh compilers don't define wchar_t in a convenient location, or define it as a char
-typedef unsigned short WCHAR;    // wc,   16-bit UNICODE character
-#endif
 
 #ifdef UNICODE
 typedef WCHAR				TCHAR;
@@ -107,7 +105,10 @@ typedef const TCHAR FAR *	LPCTSTR;
 typedef BYTE FAR *			LPBYTE;
 #endif /* defined MIDL_PASS */
 
+#if !defined(_LPULONG_DEFINED) //+MS_TARGET_APPLE
+#define _LPULONG_DEFINED
 typedef ULONG FAR *			LPULONG;
+#endif //_LPULONG_DEFINED
 
 #ifndef __LHANDLE
 #define __LHANDLE
@@ -396,7 +397,9 @@ struct _SPropTagArray_ ## _name \
 /* Property Value */
 /* -------------- */
 
+#if !MS_TARGET_APPLE
 typedef struct _SPropValue	SPropValue;
+#endif
 
 
 /* 32-bit CURRENCY definition stolen from oaidl.h */
@@ -407,24 +410,24 @@ typedef struct _SPropValue	SPropValue;
 #define _CY_DEFINED
 #if defined (DOS) && !defined (_VARIANT_H_)
 typedef struct FARSTRUCT tagCY {
-#ifdef _MAC
-        long      Hi;
-        long Lo;
+#if TARGET_RT_BIG_ENDIAN //def _MAC //MS_TARGET_APPLE: _MAC is obsolete
+        LONG      Hi;
+        LONG Lo;
 #else
-        unsigned long Lo;
-        long      Hi;
+        ULONG Lo;
+        LONG      Hi;
 #endif
 } CY;
-#elif defined (_WIN64) || defined(_WIN32)
+#elif defined (_WIN64) || defined(_WIN32) || defined (_M_ARM)
 /* real definition that makes the C++ compiler happy */
 typedef union tagCY {
     struct {
-#ifdef _MAC
-        long      Hi;
-        long Lo;
+#if TARGET_RT_BIG_ENDIAN //def _MAC //MS_TARGET_APPLE: _MAC is obsolete
+        LONG      Hi;
+        LONG Lo;
 #else
-        unsigned long Lo;
-        long      Hi;
+        ULONG Lo;
+        LONG      Hi;
 #endif
     };
     LONGLONG int64;
@@ -432,7 +435,10 @@ typedef union tagCY {
 #endif
 #endif
 			/* size is 8 */
+#if !defined(_CURRENCY_DEFINED) //+MS_TARGET_APPLE
+#define _CURRENCY_DEFINED
 typedef CY CURRENCY;
+#endif //!_CURRENCY_DEFINED +MS_TARGET_APPLE
 
 typedef struct _SBinary
 {
@@ -682,12 +688,12 @@ struct _SRowSet_ ## _name \
 /* MAPI Allocation Routines ------------------------------------------------ */
 
 typedef SCODE (STDMETHODCALLTYPE ALLOCATEBUFFER)(
-	ULONG			cbSize,
+	ULONG		cbSize,
 	LPVOID FAR *	lppBuffer
 );
 
 typedef SCODE (STDMETHODCALLTYPE ALLOCATEMORE)(
-	ULONG			cbSize,
+	ULONG		cbSize,
 	LPVOID			lpObject,
 	LPVOID FAR *	lppBuffer
 );
@@ -719,8 +725,13 @@ typedef FREEBUFFER FAR *	LPFREEBUFFER;
 #define DECLARE_MAPI_INTERFACE_PTR(iface, piface)                       \
 		interface iface; typedef iface FAR * piface
 #else
+#if !MS_TARGET_APPLE
 #define DECLARE_MAPI_INTERFACE_PTR(iface, piface)                       \
 		typedef interface iface iface, FAR * piface
+#else // MS_TARGET_APPLE
+#define DECLARE_MAPI_INTERFACE_PTR(iface, piface)                       \
+		typedef interface iface FAR * piface
+#endif //MS_TARGET_APPLE
 #endif
 #endif
 
@@ -913,7 +924,7 @@ DECLARE_MAPI_INTERFACE_(IMAPIAdviseSink, IUnknown)
 
 /* Callback function type for MAPIAllocAdviseSink */
 
-typedef long (STDAPICALLTYPE NOTIFCALLBACK) (
+typedef LONG (STDAPICALLTYPE NOTIFCALLBACK) (
 	LPVOID			lpvContext,
 	ULONG			cNotification,
 	LPNOTIFICATION	lpNotifications);
@@ -1124,6 +1135,9 @@ DECLARE_MAPI_INTERFACE_(IMAPIProp, IUnknown)
 #define TABLE_SORT_DESCEND		((ULONG) 0x00000001)
 #define TABLE_SORT_COMBINE		((ULONG) 0x00000002)
 
+// Documented here: https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/ssortorder
+#define TABLE_SORT_CATEG_MAX	((ULONG) 0x00000004)
+#define TABLE_SORT_CATEG_MIN	((ULONG) 0x00000008)
 
 /* Data structures */
 
@@ -1375,7 +1389,7 @@ typedef struct _SRestriction
 				LPSPropTagArray FAR *		lpPropTagArray) IPURE;		\
 	MAPIMETHOD(GetRowCount)												\
 		(THIS_	ULONG						ulFlags,					\
-				ULONG FAR *					lpulCount) IPURE;			\
+				ULONG FAR *				lpulCount) IPURE;			\
 	MAPIMETHOD(SeekRow)													\
 		(THIS_	BOOKMARK					bkOrigin,					\
 				LONG						lRowCount,					\
@@ -1419,11 +1433,11 @@ typedef struct _SRestriction
 		(THIS_	ULONG						cbInstanceKey,				\
 				LPBYTE						pbInstanceKey,				\
 				ULONG						ulFlags,					\
-				ULONG FAR *					lpulRowCount) IPURE;		\
+				ULONG FAR *				lpulRowCount) IPURE;		\
 	MAPIMETHOD(WaitForCompletion)										\
 		(THIS_	ULONG						ulFlags,					\
 				ULONG						ulTimeout,					\
-				ULONG FAR *					lpulTableStatus) IPURE;		\
+				ULONG FAR *				lpulTableStatus) IPURE;		\
 	MAPIMETHOD(GetCollapseState)										\
 		(THIS_	ULONG						ulFlags,					\
 				ULONG						cbInstanceKey,				\
@@ -1433,7 +1447,7 @@ typedef struct _SRestriction
 	MAPIMETHOD(SetCollapseState)										\
 		(THIS_	ULONG						ulFlags,					\
 				ULONG						cbCollapseState,			\
-				LPBYTE						pbCollapseState,			\
+				_Pre_writable_size_(cbCollapseState) LPBYTE						pbCollapseState,			\
 				BOOKMARK FAR *				lpbkLocation) IPURE;		\
 
 #undef		 INTERFACE
@@ -1687,7 +1701,7 @@ typedef struct _flaglist
 				LPMAPIPROP FAR	*			lppMAPIPropEntry) IPURE;	\
 	MAPIMETHOD(CopyEntries)												\
 		(THIS_	LPENTRYLIST					lpEntries,					\
-				ULONG_PTR					ulUIParam,					\
+				ULONG_PTR					ulUIParam,						\
 				LPMAPIPROGRESS				lpProgress,					\
 				ULONG						ulFlags) IPURE;				\
 	MAPIMETHOD(DeleteEntries)											\
@@ -1922,7 +1936,7 @@ DECLARE_MAPI_INTERFACE_(IDistList, IMAPIContainer)
 				ULONG						ulFlags) IPURE;				\
 	MAPIMETHOD(DeleteMessages)											\
 		(THIS_	LPENTRYLIST					lpMsgList,					\
-				ULONG_PTR					ulUIParam,					\
+				ULONG_PTR					ulUIParam,						\
 				LPMAPIPROGRESS				lpProgress,					\
 				ULONG						ulFlags) IPURE;				\
 	MAPIMETHOD(CreateFolder)											\
@@ -1949,7 +1963,7 @@ DECLARE_MAPI_INTERFACE_(IDistList, IMAPIContainer)
 				ULONG						ulFlags) IPURE;				\
 	MAPIMETHOD(SetReadFlags)											\
 		(THIS_	LPENTRYLIST					lpMsgList,					\
-				ULONG_PTR					ulUIParam,					\
+				ULONG_PTR					ulUIParam,						\
 				LPMAPIPROGRESS				lpProgress,					\
 				ULONG						ulFlags) IPURE;				\
 	MAPIMETHOD(GetMessageStatus)										\
@@ -2175,9 +2189,9 @@ DECLARE_MAPI_INTERFACE_(IMsgStore, IMAPIProp)
 #define SECURITY_ENCRYPTED		((ULONG) 0x00000002)
 
 /* PR_PRIORITY values */
-#define PRIO_URGENT				((long)  1)
-#define PRIO_NORMAL				((long)  0)
-#define PRIO_NONURGENT			((long) -1)
+#define PRIO_URGENT				((LONG)  1)
+#define PRIO_NORMAL				((LONG)  0)
+#define PRIO_NONURGENT			((LONG) -1)
 
 /* PR_SENSITIVITY values */
 #define SENSITIVITY_NONE					((ULONG) 0x00000000)
@@ -2186,9 +2200,9 @@ DECLARE_MAPI_INTERFACE_(IMsgStore, IMAPIProp)
 #define SENSITIVITY_COMPANY_CONFIDENTIAL	((ULONG) 0x00000003)
 
 /* PR_IMPORTANCE values */
-#define IMPORTANCE_LOW			((long) 0)
-#define IMPORTANCE_NORMAL		((long) 1)
-#define IMPORTANCE_HIGH			((long) 2)
+#define IMPORTANCE_LOW			((LONG) 0)
+#define IMPORTANCE_NORMAL		((LONG) 1)
+#define IMPORTANCE_HIGH			((LONG) 2)
 
 #define MAPI_IMESSAGE_METHODS(IPURE)									\
 	MAPIMETHOD(GetAttachmentTable)										\
@@ -2378,6 +2392,11 @@ typedef struct _ADRPARM
 
 #define AB_NO_DIALOG			((ULONG) 0x00000001)
 
+#ifndef AB_UNICODEUI
+#define AB_UNICODEUI			((ULONG) 0x00000040)
+#endif
+
+
 /* IMAPIControl Interface -------------------------------------------------- */
 
 /* Interface used in controls (particularly the button) defined by */
@@ -2398,7 +2417,7 @@ typedef struct _ADRPARM
 				ULONG_PTR					ulUIParam) IPURE;			\
 	MAPIMETHOD(GetState)												\
 		(THIS_	ULONG						ulFlags,					\
-				ULONG FAR *					lpulState) IPURE;			\
+				ULONG FAR *				lpulState) IPURE;			\
 
 #undef		 INTERFACE
 #define		 INTERFACE  IMAPIControl
@@ -2601,7 +2620,7 @@ typedef struct _DTBLRADIOBUTTON
 	ULONG ulFlags;
 	ULONG ulcButtons;
 	ULONG ulPropTag;
-	long lReturnValue;
+	LONG lReturnValue;
 } DTBLRADIOBUTTON, FAR * LPDTBLRADIOBUTTON;
 #define SizedDtblRadioButton(n,u) \
 struct _DTBLRADIOBUTTON_ ## u \
@@ -2701,7 +2720,7 @@ DECLARE_MAPI_INTERFACE_PTR(IMAPIClientShutdown,	LPMAPICLIENTSHUTDOWN);
 #define		 INTERFACE  IMAPIClientShutdown
 DECLARE_MAPI_INTERFACE_(IMAPIClientShutdown, IUnknown)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IMAPICLIENTSHUTDOWN_METHODS(PURE)
 };
@@ -2722,15 +2741,16 @@ DECLARE_MAPI_INTERFACE_PTR(IMAPIProviderShutdown,	LPMAPIPROVIDERSHUTDOWN);
 #define		 INTERFACE  IMAPIProviderShutdown
 DECLARE_MAPI_INTERFACE_(IMAPIProviderShutdown, IUnknown)
 {
-	BEGIN_INTERFACE
+	BEGIN_INTERFACE	
 	MAPI_IUNKNOWN_METHODS(PURE)
 	MAPI_IMAPIPROVIDERSHUTDOWN_METHODS(PURE)
 };
-
-
 
 #ifdef	__cplusplus
 }		/*	extern "C" */
 #endif
 
+#pragma warning(pop)
+
 #endif /* MAPIDEFS_H */
+

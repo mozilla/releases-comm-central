@@ -23,6 +23,10 @@
 #include <mapitags.h>
 #endif
 
+#pragma warning(push)
+#pragma warning(disable:4200) // nonstandard extension used : zero-sized array in struct/union
+
+
 #ifndef BEGIN_INTERFACE
 #define BEGIN_INTERFACE
 #endif
@@ -165,7 +169,7 @@ DECLARE_MAPI_INTERFACE_(IMAPIMessageSite, IUnknown)
         /*in*/  LPMAPIVIEWCONTEXT pViewContext) IPURE;                  \
     MAPIMETHOD(GetViewContext) (THIS_                                   \
         /*out*/ LPMAPIVIEWCONTEXT FAR * ppViewContext) IPURE;           \
-    MAPIMETHOD(ShutdownForm)(THIS_                                      \
+    MAPIMETHOD(ShutdownForm)(THIS_                                             \
         /*in*/  ULONG ulSaveOptions) IPURE;                             \
     MAPIMETHOD(DoVerb) (THIS_                                           \
         /*in*/  LONG iVerb,                                             \
@@ -174,9 +178,9 @@ DECLARE_MAPI_INTERFACE_(IMAPIMessageSite, IUnknown)
         /*in*/  LPCRECT lprcPosRect) IPURE;                             \
     MAPIMETHOD(Advise)(THIS_                                            \
         /*in*/  LPMAPIVIEWADVISESINK pAdvise,                           \
-        /*out*/ ULONG_PTR FAR * pdwStatus) IPURE;                       \
+        /*out*/ ULONG_PTR FAR * pdwStatus) IPURE;                           \
     MAPIMETHOD(Unadvise) (THIS_                                         \
-        /*in*/  ULONG_PTR ulConnection) IPURE;                          \
+        /*in*/  ULONG_PTR ulConnection) IPURE;                              \
 
 #undef INTERFACE
 #define INTERFACE IMAPIForm
@@ -629,4 +633,8 @@ DECLARE_MAPI_INTERFACE_(IMAPIFormFactory, IUnknown)
 	MAPI_IMAPIFORMFACTORY_METHODS(PURE)
 };
 
+#pragma warning(pop)
+
 #endif							/* MAPIFORM_H */
+
+
