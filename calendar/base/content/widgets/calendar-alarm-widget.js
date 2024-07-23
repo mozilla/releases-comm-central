@@ -381,11 +381,7 @@
 
       function unitName(list) {
         return (
-          {
-            1: "event-duration-unit-minutes",
-            60: "event-duration-unit-hours",
-            1440: "event-duration-unit-days",
-          }[list.value] || "event-duration-unit-minutes"
+          { 1: "unit-minutes", 60: "unit-hours", 1440: "unit-days" }[list.value] || "unit-minutes"
         );
       }
 

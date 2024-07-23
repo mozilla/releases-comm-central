@@ -198,11 +198,11 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
 function unitPluralForm(aLength, aUnit, aIncludeLength = true) {
   const unitProp =
     {
-      minutes: "event-duration-unit-minutes",
-      hours: "event-duration-unit-hours",
-      days: "event-duration-unit-days",
-      weeks: "event-duration-unit-weeks",
-    }[aUnit] || "event-duration-unit-minutes";
+      minutes: "unit-minutes",
+      hours: "unit-hours",
+      days: "unit-days",
+      weeks: "unit-weeks",
+    }[aUnit] || "unit-minutes";
   const unitString = lazy.l10n.formatValueSync(unitProp, { count: aLength });
   if (aIncludeLength) {
     return unitString;

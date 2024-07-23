@@ -195,7 +195,7 @@
                         value="after-START"/>
                <menuitem data-l10n-id="reminder-custom-origin-end-before-event-dom"
                         value="before-END"/>
-               <menuitem data-l10n-id="reminder-custom-origin-end-after-event-dom"
+               <menuitem data-l10n-id="reminder-custom-origin-end-after-event-dom"    
                         value="after-END"/>
             </menupopup>
           </menulist>
@@ -236,10 +236,10 @@
     _updateMenuList(length, menu) {
       const getUnitEntry = unit =>
         ({
-          M: "event-duration-unit-minutes",
-          H: "event-duration-unit-hours",
-          D: "event-duration-unit-days",
-        }[unit] || "event-duration-unit-minutes");
+          M: "unit-minutes",
+          H: "unit-hours",
+          D: "unit-days",
+        }[unit] || "unit-minutes");
 
       for (const menuItem of menu.getElementsByTagName("menuitem")) {
         menuItem.label = lazy.l10n

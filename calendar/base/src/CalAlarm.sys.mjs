@@ -654,13 +654,13 @@ CalAlarm.prototype = {
       let unit;
       if (alarmlen % 1440 == 0) {
         // Alarm is in days
-        unit = "event-duration-unit-days";
+        unit = "unit-days";
         alarmlen /= 1440;
       } else if (alarmlen % 60 == 0) {
-        unit = "event-duration-unit-hours";
+        unit = "unit-hours";
         alarmlen /= 60;
       } else {
-        unit = "event-duration-unit-minutes";
+        unit = "unit-minutes";
       }
       const unitString = lazy.l10n.formatValueSync(unit, { count: alarmlen });
       let originStringName = "reminder-custom-origin";
