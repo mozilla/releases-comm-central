@@ -890,6 +890,8 @@ MailGlue.prototype = {
    */
   _scheduleBestEffortUserIdleTasks() {
     const idleTasks = [
+      // Migration work that needs happen after we're up and running.
+      () => lazy.MailMigrator.migrateAfterStartupComplete(),
       // Certificates revocation list, etc.
       () => lazy.RemoteSecuritySettings.init(),
       // If we haven't already, ensure the address book manager is ready.
