@@ -8,9 +8,6 @@ const { AddressBooksEngine, AddressBookRecord } = ChromeUtils.importESModule(
 const { Service } = ChromeUtils.importESModule(
   "resource://services-sync/service.sys.mjs"
 );
-const { TestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/TestUtils.sys.mjs"
-);
 
 let engine, store, tracker;
 
@@ -58,7 +55,9 @@ add_task(async function testCardDAVAddressBook() {
   const deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(book.URI);
   await deletedPromise;
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, AddressBookRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 
@@ -94,7 +93,9 @@ add_task(async function testLDAPAddressBook() {
   const deletedPromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(book.URI);
   await deletedPromise;
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, AddressBookRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 

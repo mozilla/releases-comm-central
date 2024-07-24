@@ -302,10 +302,14 @@ IdentityTracker.prototype = {
       }
     };
 
-    if (
-      ["account-identity-added", "account-identity-removed"].includes(topic)
-    ) {
+    if (topic == "account-identity-added") {
       markAsChanged(subject.QueryInterface(Ci.nsIMsgIdentity));
+      return;
+    }
+    if (topic == "account-identity-removed") {
+      subject.QueryInterface(Ci.nsIMsgIdentity);
+      this.engine._store.markDeleted(subject.UID);
+      markAsChanged(subject);
       return;
     }
 

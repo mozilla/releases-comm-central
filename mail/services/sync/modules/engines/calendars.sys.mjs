@@ -308,6 +308,7 @@ CalendarTracker.prototype = {
     }
 
     if (shouldSyncCalendar(calendar)) {
+      this.engine._store.markDeleted(calendar.id);
       this._changedIDs.add(calendar.id);
       this.score += SCORE_INCREMENT_XLARGE;
     }

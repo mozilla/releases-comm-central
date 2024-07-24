@@ -81,7 +81,9 @@ add_task(async function testIdentity() {
   ]);
 
   accountA.removeIdentity(identity);
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, IdentityRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 

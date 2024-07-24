@@ -45,38 +45,92 @@ async function setData(engine, key, value) {
   jsonFile.saveSoon();
 }
 
+/**
+ * An engine store that automatically caches data sent to and from the server.
+ *
+ * @extends {Store}
+ * @see {engines.sys.mjs}
+ */
 export function CachedStore(name, engine) {
   Store.call(this, name, engine);
 }
 CachedStore.prototype = {
   __proto__: Store.prototype,
+  _deleted: new Set(),
 
+  /**
+   * Apply a single record against the store.
+   *
+   * @param {CryptoWrapper} record
+   */
   async create(record) {
     await setData(this.name, record.id, record.cleartext);
   },
 
+  /**
+   * Remove an item in the store from a record.
+   *
+   * @param {CryptoWrapper} record
+   */
   async remove(record) {
     await setData(this.name, record.id, null);
   },
 
+  /**
+   * Remove record data from the cache, but first record the record's ID as
+   * deleted, so we can return immediately.
+   *
+   * @param {string} id
+   */
+  markDeleted(id) {
+    this._deleted.add(id);
+    setData(this.name, id, null).then(() => this._deleted.delete(id));
+  },
+
+  /**
+   * Update an item from a record.
+   *
+   * @param {CryptoWrapper} record
+   */
   async update(record) {
     await setData(this.name, record.id, record.cleartext);
   },
 
+  /**
+   * Determine whether a record with the specified ID exists.
+   *
+   * @param {string} id
+   * @return {boolean}
+   */
   async itemExists(id) {
     return id in (await this.getAllIDs());
   },
 
+  /**
+   * Obtain the set of all known record IDs.
+   *
+   * @return {object}
+   */
   async getAllIDs() {
     const ids = {};
     const keys = await getDataKeys(this.name);
     for (const k of keys) {
-      ids[k] = true;
+      if (!this._deleted.has(ids[k])) {
+        ids[k] = true;
+      }
     }
     return ids;
   },
 
+  /**
+   * Get record data from the cache, but not if the ID is marked as deleted.
+   *
+   * @return {object}
+   */
   async getCreateRecordData(id) {
+    if (this._deleted.has(id)) {
+      return null;
+    }
     return getData(this.name, id);
   },
 };

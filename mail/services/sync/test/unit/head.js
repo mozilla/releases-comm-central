@@ -10,6 +10,12 @@ const { BulkKeyBundle } = ChromeUtils.importESModule(
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 add_setup(async function () {
   try {
@@ -118,8 +124,14 @@ async function roundTripRecord(record, constructor) {
  *
  * @param {Tracker} tracker
  * @param {string} expectedUID - The UID of an object that has changed.
+ * @param {CryptoWrapper} record - The result of `createRecord` called before
+ *   clearing the tracker.
  */
 async function assertChangeTracked(tracker, expectedUID) {
+  await TestUtils.waitForCondition(
+    () => tracker.engine.score > 0,
+    "waiting for tracker score to change"
+  );
   Assert.equal(
     tracker.engine.score,
     301,
@@ -131,8 +143,12 @@ async function assertChangeTracked(tracker, expectedUID) {
     `${expectedUID} is marked as changed`
   );
 
+  const record = await tracker.engine._store.createRecord(expectedUID);
+
   tracker.clearChangedIDs();
   tracker.resetScore();
+
+  return record;
 }
 
 /**
@@ -141,6 +157,8 @@ async function assertChangeTracked(tracker, expectedUID) {
  * @param {Tracker} tracker
  */
 async function assertNoChangeTracked(tracker) {
+  // Wait a bit, to prove nothing happened.
+  await new Promise(resolve => setTimeout(resolve, 250));
   Assert.equal(
     tracker.engine.score,
     0,

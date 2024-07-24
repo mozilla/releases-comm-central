@@ -338,8 +338,11 @@ AddressBookTracker.prototype = {
         break;
       }
       case "addrbook-directory-created":
+        book = subject;
+        break;
       case "addrbook-directory-deleted":
         book = subject;
+        this.engine._store.markDeleted(book.UID);
         break;
     }
 

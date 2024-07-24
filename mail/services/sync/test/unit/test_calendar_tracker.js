@@ -63,7 +63,9 @@ add_task(async function testNetworkCalendar() {
 
   cal.manager.unregisterCalendar(calendar);
   cal.manager.removeCalendar(calendar);
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, CalendarRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 

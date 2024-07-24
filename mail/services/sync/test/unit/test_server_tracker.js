@@ -58,7 +58,9 @@ add_task(async function testTrackingIncomingServers() {
   ]);
 
   MailServices.accounts.removeIncomingServer(incomingServer, false);
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, ServerRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 
@@ -84,7 +86,9 @@ add_task(async function testTrackingOutgoingServers() {
   ]);
 
   MailServices.outgoingServer.deleteServer(outgoingServer);
-  await assertChangeTracked(tracker, id);
+  let record = await assertChangeTracked(tracker, id);
+  record = await roundTripRecord(record, ServerRecord);
+  Assert.ok(record.deleted, "record should be a tombstone record");
   await assertNoChangeTracked(tracker);
 });
 
