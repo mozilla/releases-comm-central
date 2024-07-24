@@ -406,6 +406,7 @@ pref("network.protocol-handler.expose.mailbox", true);
 // (e.g. message pane) where we may divert them out to external applications.
 pref("network.protocol-handler.expose.about", true);
 pref("network.protocol-handler.expose.blob", true);
+pref("network.protocol-handler.expose.chrome", true);
 pref("network.protocol-handler.expose.data", true);
 pref("network.protocol-handler.expose.file", true);
 pref("network.protocol-handler.expose.http", true);
