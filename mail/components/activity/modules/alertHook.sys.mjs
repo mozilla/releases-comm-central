@@ -128,12 +128,10 @@ export var alertHook = {
 
     let errorString;
     const errorArgs = { hostname: url.host };
-    let isAlertClickable = true;
 
     switch (securityInfo.overridableErrorCategory) {
       case Ci.nsITransportSecurityInfo.ERROR_DOMAIN:
         errorString = "cert-error-domain-mismatch";
-        isAlertClickable = false;
         break;
       case Ci.nsITransportSecurityInfo.ERROR_TIME: {
         const cert = securityInfo.serverCert;
@@ -163,7 +161,7 @@ export var alertHook = {
       "chrome://branding/content/icon48.png",
       this.brandShortName,
       await l10n.formatValue(errorString, errorArgs),
-      isAlertClickable /* clickable */,
+      true /* clickable */,
       cookie
     );
     this.alertService.showAlert(alert, this);
@@ -174,14 +172,6 @@ export var alertHook = {
   observe(subject, topic, data) {
     if (topic == "alertclickcallback") {
       const { securityInfo, url } = activeAlerts.get(data);
-      if (
-        !securityInfo ||
-        securityInfo.overridableErrorCategory ==
-          Ci.nsITransportSecurityInfo.ERROR_DOMAIN
-      ) {
-        return;
-      }
-
       const params = {
         exceptionAdded: false,
         securityInfo,

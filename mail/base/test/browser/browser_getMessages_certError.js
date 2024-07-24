@@ -54,7 +54,7 @@ add_setup(async function () {
 });
 
 add_task(async function testDomainMismatch() {
-  await subtest("tls", "mitm.test.test", "not valid for");
+  await subtest("tls", "mitm.test.test", "not valid for", "valid");
 });
 
 add_task(async function testExpired() {
@@ -188,15 +188,10 @@ async function subsubtest(
 
   await testCallback();
 
-  let dialogPromise;
-  if (expectedCert) {
-    dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
-      "extra1",
-      "chrome://pippki/content/exceptionDialog.xhtml"
-    );
-  } else {
-    dialogPromise = Promise.resolve();
-  }
+  const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "extra1",
+    "chrome://pippki/content/exceptionDialog.xhtml"
+  );
 
   const alert = await TestUtils.waitForCondition(
     () => MockAlertsService._alert,
