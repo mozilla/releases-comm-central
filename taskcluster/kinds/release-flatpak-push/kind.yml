@@ -31,7 +31,7 @@ task-defaults:
         channel:
             by-release-type:
                 beta: beta
-                release: stable
+                esr128: stable
                 default: mock
 
 tasks:
