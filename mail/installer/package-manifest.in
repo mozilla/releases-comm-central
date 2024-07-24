@@ -204,6 +204,7 @@
 @RESPATH@/chrome/icons/default/calendar-general-dialog.ico
 #elifdef UNIX_BUT_NOT_MAC
 @RESPATH@/chrome/icons/default/*.png
+@RESPATH@/chrome/icons/default/*.svg
 #endif
 
 ; Gloda
