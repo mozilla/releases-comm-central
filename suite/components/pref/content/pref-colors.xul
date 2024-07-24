@@ -36,6 +36,9 @@
       <preference id="browser.display.document_color_use"
                   name="browser.display.document_color_use"
                   type="int"/>
+      <preference id="browser.display.prefers_color_scheme"
+                  name="browser.display.prefers_color_scheme"
+                  type="int"/>
     </preferences>
     <hbox>
       <groupbox flex="1" id="pageColours">
@@ -127,5 +130,26 @@
       </radiogroup>
 
     </groupbox>
+
+    <groupbox>
+      <caption label="&prefersColorScheme;"/>
+
+      <radiogroup id="prefersColorSchemeSelection"
+                  preference="browser.display.prefers_color_scheme">
+        <radio value="1"
+               label="&prefersColorSchemeLight.label;"
+               accesskey="&prefersColorSchemeLight.accesskey;"/>
+        <radio value="2"
+               label="&prefersColorSchemeDark.label;"
+               accesskey="&prefersColorSchemeDark.accesskey;"/>
+        <radio value="0"
+               label="&prefersColorSchemeDisabled.label;"
+               accesskey="&prefersColorSchemeDisabled.accesskey;"/>
+      </radiogroup>
+
+      <description>&prefersColorSchemeWarning;</description>
+
+    </groupbox>
+
   </prefpane>
 </overlay>
