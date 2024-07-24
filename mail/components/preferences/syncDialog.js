@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const engineItems = {
-  configSyncAccount: "services.sync.engine.accounts",
+  configSyncAccount: "services.sync.engine.servers",
   configSyncAddress: "services.sync.engine.addressbooks",
   configSyncCalendar: "services.sync.engine.calendars",
   configSyncIdentity: "services.sync.engine.identities",

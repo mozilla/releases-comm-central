@@ -17,7 +17,7 @@ FxAccounts.config.promiseChangeAvatarURI = entryPoint =>
   `https://example.org/?page=avatar&entryPoint=${entryPoint}`;
 
 const ALL_ENGINES = [
-  "accounts",
+  "servers",
   "identities",
   "addressbooks",
   "calendars",
@@ -303,7 +303,7 @@ add_task(async function testEngines() {
 
   function assertEnginesShown(...expectEngines) {
     const ENGINES_TO_ITEMS = {
-      accounts: "showSyncAccount",
+      servers: "showSyncAccount",
       identities: "showSyncIdentity",
       addressbooks: "showSyncAddress",
       calendars: "showSyncCalendar",
@@ -318,7 +318,7 @@ add_task(async function testEngines() {
   }
 
   assertEnginesShown(...ALL_ENGINES);
-  Services.prefs.setBoolPref(`${PREF_PREFIX}.accounts`, false);
+  Services.prefs.setBoolPref(`${PREF_PREFIX}.servers`, false);
   assertEnginesShown("identities", "addressbooks", "calendars", "passwords");
   Services.prefs.setBoolPref(`${PREF_PREFIX}.identities`, false);
   Services.prefs.setBoolPref(`${PREF_PREFIX}.addressbooks`, false);
@@ -329,29 +329,29 @@ add_task(async function testEngines() {
 
   info("Checking the engine selection dialog");
   await openEngineDialog({
-    toggleEngines: ["accounts", "identities", "passwords"],
+    toggleEngines: ["servers", "identities", "passwords"],
   });
 
-  assertEnginesEnabled("accounts", "identities", "passwords");
-  assertEnginesShown("accounts", "identities", "passwords");
+  assertEnginesEnabled("servers", "identities", "passwords");
+  assertEnginesShown("servers", "identities", "passwords");
 
   await openEngineDialog({
-    expectEngines: ["accounts", "identities", "passwords"],
+    expectEngines: ["servers", "identities", "passwords"],
     toggleEngines: ["calendars", "passwords"],
     action: "cancel",
   });
 
-  assertEnginesEnabled("accounts", "identities", "passwords");
-  assertEnginesShown("accounts", "identities", "passwords");
+  assertEnginesEnabled("servers", "identities", "passwords");
+  assertEnginesShown("servers", "identities", "passwords");
 
   await openEngineDialog({
-    expectEngines: ["accounts", "identities", "passwords"],
+    expectEngines: ["servers", "identities", "passwords"],
     toggleEngines: ["calendars", "passwords"],
     action: "accept",
   });
 
-  assertEnginesEnabled("accounts", "identities", "calendars");
-  assertEnginesShown("accounts", "identities", "calendars");
+  assertEnginesEnabled("servers", "identities", "calendars");
+  assertEnginesShown("servers", "identities", "calendars");
 
   Services.prefs.setBoolPref(`${PREF_PREFIX}.addressbooks`, true);
   Services.prefs.setBoolPref(`${PREF_PREFIX}.passwords`, true);
@@ -365,7 +365,7 @@ async function openEngineDialog({
   button = "syncChangeOptions",
 }) {
   const ENGINES_TO_CHECKBOXES = {
-    accounts: "configSyncAccount",
+    servers: "configSyncAccount",
     identities: "configSyncIdentity",
     addressbooks: "configSyncAddress",
     calendars: "configSyncCalendar",

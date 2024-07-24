@@ -5,6 +5,8 @@
 /* import-globals-from preferences.js */
 
 ChromeUtils.defineESModuleGetters(this, {
+  EnsureFxAccountsWebChannel:
+    "resource://gre/modules/FxAccountsWebChannel.sys.mjs",
   UIState: "resource://services-sync/UIState.sys.mjs",
   Weave: "resource://services-sync/main.sys.mjs",
 });
@@ -282,9 +284,8 @@ var gSyncPane = {
       return;
     }
 
-    const url =
-      (await FxAccounts.config.promiseForceSigninURI("preferences")) ||
-      (await FxAccounts.config.promiseConnectAccountURI("preferences"));
+    EnsureFxAccountsWebChannel();
+    const url = await FxAccounts.config.promiseConnectAccountURI("preferences");
     window.browsingContext.topChromeWindow.openContentTab(url);
   },
 
@@ -361,7 +362,7 @@ var gSyncPane = {
     };
 
     const engineItems = {
-      showSyncAccount: "services.sync.engine.accounts",
+      showSyncAccount: "services.sync.engine.servers",
       showSyncIdentity: "services.sync.engine.identities",
       showSyncAddress: "services.sync.engine.addressbooks",
       showSyncCalendar: "services.sync.engine.calendars",
