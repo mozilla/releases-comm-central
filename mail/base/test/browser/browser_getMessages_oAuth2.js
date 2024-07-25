@@ -69,7 +69,7 @@ add_setup(async function () {
   );
   Services.prefs.getStringPref(
     "mail.server." + imapAccount.incomingServer.key + ".oauth2.scope",
-    "test_scope"
+    "test_mail test_addressbook test_calendar"
   );
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapInbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
@@ -91,13 +91,13 @@ add_setup(async function () {
   );
   Services.prefs.getStringPref(
     "mail.server." + pop3Account.incomingServer.key + ".oauth2.scope",
-    "test_scope"
+    "test_mail test_addressbook test_calendar"
   );
   pop3RootFolder = pop3Account.incomingServer.rootFolder;
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
-  oAuth2Server = await OAuth2TestUtils.startServer(this);
+  oAuth2Server = await OAuth2TestUtils.startServer();
 
   const alertsService = new MockObjectRegisterer(
     "@mozilla.org/alerts-service;1",
@@ -176,7 +176,11 @@ function checkSavedPassword() {
   );
   Assert.equal(logins[0].origin, "oauth://test.test", "login origin");
   Assert.equal(logins[0].formActionOrigin, null, "login formActionOrigin");
-  Assert.equal(logins[0].httpRealm, "test_scope", "login httpRealm");
+  Assert.equal(
+    logins[0].httpRealm,
+    "test_mail test_addressbook test_calendar",
+    "login httpRealm"
+  );
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "refresh_token", "login password");
   Assert.equal(logins[0].usernameField, "", "login usernameField");
@@ -220,7 +224,7 @@ add_task(async function testNoAccessToken() {
   loginInfo.init(
     "oauth://test.test",
     null,
-    "test_scope",
+    "test_mail test_addressbook test_calendar",
     "user",
     "refresh_token",
     "",
@@ -257,7 +261,7 @@ add_task(async function testExpiredAccessToken() {
   loginInfo.init(
     "oauth://test.test",
     null,
-    "test_scope",
+    "test_mail test_addressbook test_calendar",
     "user",
     "refresh_token",
     "",
@@ -307,7 +311,7 @@ add_task(async function testBadAccessToken() {
   loginInfo.init(
     "oauth://test.test",
     null,
-    "test_scope",
+    "test_mail test_addressbook test_calendar",
     "user",
     "refresh_token",
     "",
@@ -372,7 +376,7 @@ add_task(async function testBadRefreshToken() {
     loginInfo.init(
       "oauth://test.test",
       null,
-      "test_scope",
+      "test_mail test_addressbook test_calendar",
       "user",
       "old_refresh_token",
       "",

@@ -51,6 +51,11 @@ import {
   AuthCRAM,
 } from "resource://testing-common/mailnews/Auth.sys.mjs";
 
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  OAuth2TestUtils: "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs",
+});
+
 export class ImapDaemon {
   constructor(flags, syncFunc) {
     this._flags = flags;
@@ -2490,7 +2495,8 @@ export var IMAP_OAUTH2_extension = {
     const [user, auth] = atob(lineRest).split("\u0001");
     if (
       user == `user=${this.kUsername}` &&
-      auth == `auth=Bearer ${this.kPassword}`
+      auth == `auth=Bearer ${this.kPassword}` &&
+      lazy.OAuth2TestUtils.validateToken(this.kPassword, "test_mail")
     ) {
       this._state = IMAP_STATE_AUTHED;
       return "OK Yeah, that's the right access token.";

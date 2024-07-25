@@ -71,7 +71,7 @@ var kHostnames = new Map([
 
   // For testing purposes.
   ["mochi.test", ["test.test", "test_scope"]],
-  ["test.test", ["test.test", "test_scope"]],
+  ["test.test", ["test.test", "test_mail test_addressbook test_calendar"]],
 ]);
 
 /**

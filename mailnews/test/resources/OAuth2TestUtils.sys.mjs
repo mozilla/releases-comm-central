@@ -15,6 +15,7 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 import { OAuth2Module } from "resource:///modules/OAuth2Module.sys.mjs";
 
 const validCodes = new Set();
+const tokens = new Map();
 
 export const OAuth2TestUtils = {
   /**
@@ -27,7 +28,10 @@ export const OAuth2TestUtils = {
       "oauth",
       "oauth.test.test"
     );
-    TestUtils.promiseTestFinished?.then(() => this.stopServer());
+    TestUtils.promiseTestFinished?.then(() => {
+      this.stopServer();
+      this.forgetObjects();
+    });
     return this._oAuth2Server;
   },
 
@@ -73,11 +77,21 @@ export const OAuth2TestUtils = {
    *
    * @param {object} options
    * @param {string} [options.expectedHint] - If given, the login_hint URL parameter
-   *   will be checked.
+   * @param {string} [options.expectedScope] - If given, the scope URL parameter
+   *   will be checked. A space-separated list.
    * @param {string} options.username - The username to use to log in.
    * @param {string} options.password - The password to use to log in.
+   * @param {string} [options.grantedScope] - A subset of `expectedScope` to grant
+   *   permission for. If not given, all scopes will be allowed. If an empty string,
+   *   no scopes will be allowed.
    */
-  submitOAuthLogin: ({ expectedHint, username, password }) => {
+  submitOAuthLogin: async ({
+    expectedHint,
+    expectedScope = "test_mail test_addressbook test_calendar",
+    username,
+    password,
+    grantedScope,
+  }) => {
     /* globals content, EventUtils */
     const searchParams = new URL(content.location).searchParams;
     Assert.equal(
@@ -95,7 +109,7 @@ export const OAuth2TestUtils = {
       "https://localhost",
       "request redirect_uri"
     );
-    Assert.equal(searchParams.get("scope"), "test_scope", "request scope");
+    Assert.equal(searchParams.get("scope"), expectedScope, "request scope");
     if (expectedHint) {
       Assert.equal(
         searchParams.get("login_hint"),
@@ -116,11 +130,39 @@ export const OAuth2TestUtils = {
       content
     );
     EventUtils.sendString(password, content);
+
+    if (grantedScope === undefined) {
+      grantedScope = expectedScope;
+    }
+    if (grantedScope) {
+      for (const scope of grantedScope.split(" ")) {
+        content.document.querySelector(
+          `input[name="scope"][value="${scope}"]`
+        ).checked = true;
+      }
+    }
+
     EventUtils.synthesizeMouseAtCenter(
       content.document.querySelector(`input[type="submit"]`),
       {},
       content
     );
+  },
+
+  /**
+   * Check that the granted `token` is valid for the `scope`.
+   *
+   * @param {string} token
+   * @param {string} scope
+   * @returns {boolean}
+   */
+  validateToken(token, scope) {
+    const grantedScope = tokens.get(token);
+    if (!token) {
+      return false;
+    }
+
+    return grantedScope.split(" ").includes(scope);
   },
 };
 
@@ -155,6 +197,7 @@ class OAuth2Server {
     const port = this.httpServer.identity.primaryPort;
     this.httpServer.stop();
     dump(`OAuth2 server at localhost:${port} closed\n`);
+    tokens.clear();
   }
 
   formHandler(request, response) {
@@ -162,11 +205,18 @@ class OAuth2Server {
       throw HTTP_405;
     }
     const params = new URLSearchParams(request.queryString);
+    this.requestedScope = params.get("scope");
     this._formHandler(response, params.get("redirect_uri"));
   }
 
   _formHandler(response, redirectUri) {
     response.setHeader("Content-Type", "text/html", false);
+    const scopeCheckboxes = this.requestedScope
+      .split(" ")
+      .map(
+        scope =>
+          `<label><input type="checkbox" name="scope" value="${scope}"> ${scope}</label>`
+      );
     response.write(`<!DOCTYPE html>
       <html>
       <head>
@@ -179,6 +229,7 @@ class OAuth2Server {
           <input type="text" name="redirect_uri" readonly="readonly" value="${redirectUri}" />
           <input type="text" name="username" />
           <input type="password" name="password" />
+          ${scopeCheckboxes.join("")}
           <input type="submit" />
         </form>
       </body>
@@ -201,6 +252,8 @@ class OAuth2Server {
       this._formHandler(response, params.get("redirect_uri"));
       return;
     }
+
+    this.grantedScope = params.getAll("scope").join(" ");
 
     // Create a unique code. It will become invalid after the first use.
     const bytes = new Uint8Array(12);
@@ -246,6 +299,7 @@ class OAuth2Server {
       validCodes.delete(code);
       data.access_token = this.accessToken;
       data.refresh_token = this.refreshToken;
+      tokens.set(this.accessToken, this.grantedScope);
     } else if (
       goodRequest &&
       grantType == "refresh_token" &&
@@ -253,9 +307,14 @@ class OAuth2Server {
     ) {
       // Client provided a valid refresh token.
       data.access_token = this.accessToken;
+      tokens.set(this.accessToken, this.grantedScope);
     } else {
       response.setStatusLine("1.1", 400, "Bad Request");
       data.error = "invalid_grant";
+    }
+
+    if (typeof this.grantedScope == "string") {
+      data.scope = this.grantedScope;
     }
 
     if (data.access_token && this.expiry !== null) {

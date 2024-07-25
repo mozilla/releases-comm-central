@@ -500,7 +500,7 @@ add_task(async function testOAuth() {
 
   const logins = Services.logins.findLogins("oauth://test.test", null, "");
   Assert.equal(logins.length, 1, "login was saved");
-  Assert.equal(logins[0].httpRealm, "test_scope");
+  Assert.equal(logins[0].httpRealm, "test_mail test_addressbook test_calendar");
   Assert.equal(logins[0].username, "dave@test.test");
   Assert.equal(logins[0].password, "refresh_token");
 
