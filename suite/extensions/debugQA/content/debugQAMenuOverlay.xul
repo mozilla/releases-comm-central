@@ -130,6 +130,10 @@
                   oncommand="openQAUrl('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-central Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent comm-esr128 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr128/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
+        <menuitem label="Recent mozilla-esr128 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr128/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent comm-esr115 Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr115/pushloghtml?startdate=2+weeks+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-esr115 Checkins"
