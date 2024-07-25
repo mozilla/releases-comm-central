@@ -397,22 +397,6 @@
               <textbox id="QQ" flex="1" onchange="updateChatName();"/>
             </hbox>
           </hbox>
-          <hbox id="MSNContainer" align="center">
-            <spacer flex="1"/>
-            <label control="MSN" value="&MSN.label;"
-                   accesskey="&MSN.accesskey;"/>
-            <hbox class="CardEditWidth">
-              <textbox id="MSN" flex="1" onchange="updateChatName();"/>
-            </hbox>
-          </hbox>
-          <hbox id="ICQContainer" align="center">
-            <spacer flex="1"/>
-            <label control="ICQ" value="&ICQ.label;"
-                   accesskey="&ICQ.accesskey;"/>
-            <hbox class="CardEditWidth">
-              <textbox id="ICQ" flex="1" onchange="updateChatName();"/>
-            </hbox>
-          </hbox>
           <hbox id="XMPPContainer" align="center">
             <spacer flex="1"/>
             <label control="XMPP" value="&XMPP.label;"

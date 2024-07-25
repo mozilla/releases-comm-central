@@ -126,10 +126,6 @@
 <!ENTITY Skype.accesskey                "S">
 <!ENTITY QQ.label                       "QQ:">
 <!ENTITY QQ.accesskey                   "Q">
-<!ENTITY MSN.label                      "MSN:">
-<!ENTITY MSN.accesskey                  "N">
-<!ENTITY ICQ.label                      "ICQ:">
-<!ENTITY ICQ.accesskey                  "I">
 <!ENTITY XMPP.label                     "Jabber ID:">
 <!ENTITY XMPP.accesskey                 "J">
 <!ENTITY IRC.label                      "IRC Nick:">

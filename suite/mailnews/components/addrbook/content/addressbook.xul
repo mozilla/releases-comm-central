@@ -650,8 +650,6 @@
                     <description class="CardViewText" id="cvYahoo"/>
                     <description class="CardViewText" id="cvSkype"/>
                     <description class="CardViewText" id="cvQQ"/>
-                    <description class="CardViewText" id="cvMSN"/>
-                    <description class="CardViewText" id="cvICQ"/>
                     <description class="CardViewText" id="cvXMPP"/>
                     <description class="CardViewText" id="cvIRC"/>
                   </vbox>

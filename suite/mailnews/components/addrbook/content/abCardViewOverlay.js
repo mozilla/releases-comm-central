@@ -27,8 +27,6 @@ var zCustom4;
 var zYahoo;
 var zSkype;
 var zQQ;
-var zMSN;
-var zICQ;
 var zXMPP;
 var zIRC;
 
@@ -56,8 +54,6 @@ function OnLoadCardView()
   zYahoo = gAddressBookBundle.getString("propertyYahoo");
   zSkype = gAddressBookBundle.getString("propertySkype");
   zQQ = gAddressBookBundle.getString("propertyQQ");
-  zMSN = gAddressBookBundle.getString("propertyMSN");
-  zICQ = gAddressBookBundle.getString("propertyICQ");
   zXMPP = gAddressBookBundle.getString("propertyXMPP");
   zIRC = gAddressBookBundle.getString("propertyIRC");
 
@@ -142,8 +138,6 @@ function OnLoadCardView()
   cvData.cvYahoo      = doc.getElementById("cvYahoo");
   cvData.cvSkype      = doc.getElementById("cvSkype");
   cvData.cvQQ         = doc.getElementById("cvQQ");
-  cvData.cvMSN        = doc.getElementById("cvMSN");
-  cvData.cvICQ        = doc.getElementById("cvICQ");
   cvData.cvXMPP       = doc.getElementById("cvXMPP");
   cvData.cvIRC        = doc.getElementById("cvIRC");
 }
@@ -297,10 +291,6 @@ function DisplayCardViewPane(realCard)
                                  card.getProperty("_Skype")) || visible;
     visible = cvSetNodeWithLabel(data.cvQQ, zQQ,
                                  card.getProperty("_QQ")) || visible;
-    visible = cvSetNodeWithLabel(data.cvMSN, zMSN,
-                                 card.getProperty("_MSN")) || visible;
-    visible = cvSetNodeWithLabel(data.cvICQ, zICQ,
-                                 card.getProperty("_ICQ")) || visible;
     visible = cvSetNodeWithLabel(data.cvXMPP, zXMPP,
                                  card.getProperty("_JabberId")) || visible;
     visible = cvSetNodeWithLabel(data.cvIRC, zIRC,

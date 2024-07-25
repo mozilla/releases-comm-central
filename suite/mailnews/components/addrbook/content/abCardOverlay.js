@@ -57,8 +57,6 @@ const kVcardFields =
          ["Yahoo", "_Yahoo"],
          ["Skype", "_Skype"],
          ["QQ", "_QQ"],
-         ["MSN", "_MSN"],
-         ["ICQ", "_ICQ"],
          ["XMPP", "_JabberId"],
          ["IRC", "_IRC"]
         ];
@@ -606,6 +604,14 @@ function CheckAndSetCardValues(cardproperty, doc, check)
     cardproperty.setProperty("_AimScreenName", "");
   }
   catch (ex) {}
+  try {
+    cardproperty.setProperty("_MSN", "");
+  }
+  catch (ex) {}
+  try {
+    cardproperty.setProperty("_ICQ", "");
+  }
+  catch (ex) {}
 
   return true;
 }
@@ -901,7 +907,7 @@ function modifyDatepicker(aDatepicker) {
 }
 
 var chatNameFieldIds =
-  ["Yahoo", "Skype", "QQ", "MSN", "ICQ", "XMPP", "IRC"];
+  ["Yahoo", "Skype", "QQ", "XMPP", "IRC"];
 
 /**
  * Show the 'Chat' tab and focus the first field that has a value, or
