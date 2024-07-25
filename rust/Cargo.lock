@@ -6307,10 +6307,5 @@ name = "terminal_size"
 version = "0.3.999"
 
 [[patch.unused]]
-name = "warp"
-version = "0.3.6"
-source = "git+https://github.com/seanmonstar/warp?rev=9d081461ae1167eb321585ce424f4fef6cf0092b#9d081461ae1167eb321585ce424f4fef6cf0092b"
-
-[[patch.unused]]
 name = "windows-sys"
 version = "0.48.999"
