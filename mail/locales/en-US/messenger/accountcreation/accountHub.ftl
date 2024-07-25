@@ -125,3 +125,19 @@ account-hub-find-settings-failed = { -brand-full-name } failed to find the setti
 account-hub-notification-show-more = Show more
 
 account-hub-notification-show-less = Show less
+
+account-hub-email-setup-header = Add your email address
+
+account-hub-email-setup-incoming = Incoming server settings
+
+account-hub-email-setup-outgoing = Outgoing server settings
+
+account-hub-email-config-found = Choose your email account type
+
+account-hub-email-enter-password = Enter your email account password
+
+account-hub-email-sync-accounts = Sync your calendars and address books
+
+account-hub-test-configuration = Test
+
+account-hub-add-new-email = Add another email

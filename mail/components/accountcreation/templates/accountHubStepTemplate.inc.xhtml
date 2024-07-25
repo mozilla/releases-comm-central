@@ -1,0 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#include ./accountHubHeaderTemplate.inc.xhtml
+
+<html:template id="accountHubStepTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <account-hub-header>
+    <span id="title" slot="title">
+    </span>
+    <span id="subheader" slot="subheader">
+    </span>
+  </account-hub-header>
+  <div class="account-hub-grid">
+      <slot name="content"></slot>
+  </div>
+</html:template>

@@ -1,0 +1,32 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="accountHubHeaderTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <header id="accountHubHeader" class="hub-header">
+    <!-- Title Text for Email Setup -->
+    <h1 id="accountHubHeaderTitle"
+        class="sub-view-title">
+      <slot name="title"></slot>
+    </h1>
+    <!-- Sub Header Text for Email Setup -->
+    <p id="accountHubHeaderSubHeader"
+       class="sub-view-subheader">
+      <slot name="subheader"></slot>
+    </p>
+    <details id="emailFormNotification" class="notification-bar">
+      <summary id="emailFormNotificationSummary"
+               class="notification-title-container">
+        <img class="form-icon notification-icon warning-icon"
+             src=""
+             alt=""/>
+        <p id="emailFormNotificationTitle" class="notification-title"></p>
+        <div id="emailFormNotificationToggle">
+          <span data-l10n-id="account-hub-notification-show-more"></span>
+          <span data-l10n-id="account-hub-notification-show-less"></span>
+        </div>
+      </summary>
+      <p id="emailFormNotificationText" class="notification-text"></p>
+    </details>
+  </header>
+</html:template>

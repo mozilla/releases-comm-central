@@ -61,19 +61,19 @@ dialog {
 
 /* Typography */
 
-dialog h1 {
+header {
   font-weight: 300;
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
 
-  &.sub-view-title {
+  .sub-view-title {
     font-size: 2rem;
     font-weight: 400;
     margin-block-start: 9px;
   }
 
-  &.sub-view-subheader {
+  .sub-view-subheader {
     font-size: 1.3rem;
     font-weight: 400;
     margin-block-start: 15px;

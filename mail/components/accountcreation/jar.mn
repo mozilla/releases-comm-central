@@ -3,10 +3,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-  content/messenger/accountcreation/accountHub.js             (content/accountHub.js)
-  content/messenger/accountcreation/accountSetup.js           (content/accountSetup.js)
-  content/messenger/accountcreation/accountSetup.xhtml        (content/accountSetup.xhtml)
+  content/messenger/accountcreation/accountHub.js                                     (content/accountHub.js)
+  content/messenger/accountcreation/accountSetup.js                                   (content/accountSetup.js)
+  content/messenger/accountcreation/accountSetup.xhtml                                (content/accountSetup.xhtml)
+
 # Custom elements
-  content/messenger/accountcreation/views/container.mjs       (views/container.mjs)
-  content/messenger/accountcreation/views/email.mjs           (views/email.mjs)
-  content/messenger/accountcreation/views/start.mjs           (views/start.mjs)
+  content/messenger/accountcreation/views/container.mjs                               (views/container.mjs)
+  content/messenger/accountcreation/views/email.mjs                                   (views/email.mjs)
+  content/messenger/accountcreation/views/start.mjs                                   (views/start.mjs)
+  content/messenger/accountcreation/content/widgets/email-auto-form.mjs               (content/widgets/email-auto-form.mjs)
+  content/messenger/accountcreation/content/widgets/email-manual-incoming-form.mjs    (content/widgets/email-manual-incoming-form.mjs)
+  content/messenger/accountcreation/content/widgets/email-manual-outgoing-form.mjs    (content/widgets/email-manual-outgoing-form.mjs)
+  content/messenger/accountcreation/content/widgets/email-config-found.mjs             (content/widgets/email-config-found.mjs)
+  content/messenger/accountcreation/content/widgets/account-hub-step.mjs              (content/widgets/account-hub-step.mjs)
+  content/messenger/accountcreation/content/widgets/account-hub-header.mjs            (content/widgets/account-hub-header.mjs)
+  content/messenger/accountcreation/content/widgets/account-hub-footer.mjs            (content/widgets/account-hub-footer.mjs)

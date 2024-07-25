@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="accountHubEmailAutoFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
+    <form id="autoConfigEmailForm" class="account-hub-form" slot="content">
+      <div class="hub-body">
+        <label for="realName" data-l10n-id="account-setup-name-label" data-l10n-attrs="accesskey">
+        </label>
+        <div class="input-control">
+          <input id="realName" type="text" class="input-field" data-l10n-id="account-setup-name-input"
+            required="required" />
+          <img src="chrome://messenger/skin/icons/new/compact/info.svg" data-l10n-id="account-setup-name-info-icon" alt=""
+            class="form-icon" />
+          <img src="chrome://messenger/skin/icons/new/compact/warning.svg" data-l10n-id="account-setup-name-warning-icon"
+            alt="" class="form-icon icon-warning" />
+        </div>
+
+        <label for="email" data-l10n-id="account-setup-email-label" data-l10n-attrs="accesskey">
+        </label>
+        <div class="input-control">
+          <input id="email" type="email" data-l10n-id="account-setup-email-input" class="input-field" required="required" />
+          <img id="emailInfo" src="chrome://messenger/skin/icons/new/compact/info.svg"
+            data-l10n-id="account-setup-email-info-icon" alt="" class="form-icon" />
+          <img id="emailWarning" src="chrome://messenger/skin/icons/new/compact/warning.svg"
+            data-l10n-id="account-setup-email-warning-icon" alt="" class="form-icon icon-warning" />
+        </div>
+      </div>
+    </form>
+</html:template>
