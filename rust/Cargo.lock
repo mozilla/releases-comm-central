@@ -3612,6 +3612,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "neqo-udp"
+version = "0.8.1"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+dependencies = [
+ "log",
+ "neqo-common",
+ "quinn-udp",
+]
+
+[[package]]
 name = "neqo_glue"
 version = "0.1.0"
 dependencies = [
@@ -3622,6 +3632,7 @@ dependencies = [
  "neqo-http3",
  "neqo-qpack",
  "neqo-transport",
+ "neqo-udp",
  "nserror",
  "nsstring",
  "qlog",
@@ -4201,6 +4212,18 @@ checksum = "1004a344b30a54e2ee58d66a71b32d2db2feb0a31f9a2d302bf0536f15de2a33"
 dependencies = [
  "memchr",
  "serde",
+]
+
+[[package]]
+name = "quinn-udp"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8bffec3605b73c6f1754535084a85229fa8a30f86014e6c81aeec4abb68b0285"
+dependencies = [
+ "libc",
+ "once_cell",
+ "socket2 0.5.7",
+ "windows-sys",
 ]
 
 [[package]]
