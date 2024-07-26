@@ -16,7 +16,7 @@ members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray'
 uniffi = { version = "0.27.3" }
 uniffi_bindgen = { version = "0.27.3" }
 rusqlite = { version = "0.31.0" }
-glean = { version = "=60.3.0" }
+glean = { version = "=60.4.0" }
 
 [patch.crates-io]
 mozilla-central-workspace-hack = { path = "." }
