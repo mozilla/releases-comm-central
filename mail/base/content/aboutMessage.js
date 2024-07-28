@@ -48,12 +48,28 @@ function messagePaneOnResize() {
     return;
   }
 
-  for (const img of doc.images) {
-    img.toggleAttribute(
-      "overflowing",
-      img.clientWidth - doc.body.offsetWidth >= 0 &&
-        (img.clientWidth <= img.naturalWidth || !img.naturalWidth)
-    );
+  const availableWidth = Math.max(
+    document.body.scrollWidth,
+    window.visualViewport.width
+  );
+
+  for (const img of doc.querySelectorAll(
+    "img:is([shrinktofit],[overflowing])"
+  )) {
+    if (!img.complete) {
+      continue;
+    }
+    if (img.hasAttribute("shrinktofit")) {
+      // Determine if the image could be enlarged.
+      img.toggleAttribute("overflowing", img.naturalWidth > img.clientWidth);
+    } else if (
+      img.hasAttribute("overflowing") &&
+      img.clientWidth < availableWidth
+    ) {
+      // Handle zoomed images that are no longer overflowing after a resize.
+      img.removeAttribute("overflowing");
+      img.setAttribute("shrinktofit", "true");
+    }
   }
 }
 

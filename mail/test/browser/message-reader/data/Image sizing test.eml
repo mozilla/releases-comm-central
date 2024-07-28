@@ -1,0 +1,111 @@
+Content-Type: multipart/mixed; boundary="------------UiZbVg1oKjs0D10f7pt76MRm"
+Message-ID: <54fd483e-e65e-4dbb-9d75-063906300436@example.com>
+Date: Thu, 4 Jul 2024 19:28:23 +0200
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+Content-Language: en-US
+To: test@example.com
+From: Image Test <imagetest@example.com>
+Subject: Image sizing test
+
+This is a multi-part message in MIME format.
+--------------UiZbVg1oKjs0D10f7pt76MRm
+Content-Type: multipart/related;
+ boundary="------------2wxAK7EB6xhF55w8q3jayJAH"
+
+--------------2wxAK7EB6xhF55w8q3jayJAH
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Image sizing test</title>
+  </head>
+  <body>
+    <div style="height: 5000px">
+      Vertical padding to make sure the images are below the fold.
+    </div>
+    <p>An inline image:</p>
+    <img src="cid:part1.4u939f0L.9JKhIMXF@example.com" width="5000"
+        height="16" alt="">
+    <p>A stretched image:</p>
+    <img src="cid:part2.vmSs2Orn.F295w1yW@example.com" alt=""
+      width="5000" height="16" id="stretched">
+  </body>
+</html>
+--------------2wxAK7EB6xhF55w8q3jayJAH
+Content-Type: image/png; name="wideInline.png"
+Content-Disposition: inline; filename="wideInline.png"
+Content-Id: <part1.4u939f0L.9JKhIMXF@example.com>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAE4gAAAAQCAIAAAB1+QLhAAABfWlDQ1BJQ0MgcHJvZmlsZQAA
+KJF9kT1IQlEYhp97LYwoJHKwaLiDNdVSEY1mgQQGYgVaDd2fNMF7lXuVFsegVWjoZ8lqaGmu
+taE1CIJ+IJobmopaQm4cFZTIvuU8vOd7P873HpArWd10OkJgWgU7HgkrieSK4n3FSwd9BBhQ
+dSc/E4tFaVtf90jivBsTs9r3/Vm9xoajg6QAIT1vF0BaB6a2CnnB+4Bf31QNkM6BUTuRXAHp
+Uehand8Ep2ssi5l+eyk+C7IfUNItrLWwvmmbIE8CQcO0DJATdTYElwSb2aLeeKfYsGfDWl4U
+OjBEhHkWiKGgUSRDlgJjZLBQcIgTIdzGP1jzxyiikSWDjsIcOUzUmh/xB7+zdVIT4/VJPWHo
+fHHdj2Hw7kK17Lrfx65bPQHPM1xZTX+uAtOf4Ck3teAR+Lbh4rqpaXtwuQOBp7xqqzXJA8ip
+FLyfQW8S+m+he7WeW+Oe0wdYKkH0Bg4OYSQNvrU2e3e15vZvTyO/H14Icp4xZljzAAAACXBI
+WXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcEERknKG+tPAAAABl0RVh0Q29tbWVudABDcmVh
+dGVkIHdpdGggR0lNUFeBDhcAAAEkSURBVHja7dtBEQAgDMCwgn9BcwcKOAwkEvrvak4AAAAA
+AAAAAAAAAAAAAPCzJQAAAAAAAAAAAAAAAAAAIGMqAAAAAAAAAAAAAAAAAAAZUwEAAAAAAAAA
+AAAAAAAAyJgKAAAAAAAAAAAAAAAAAEDGVAAAAAAAAAAAAAAAAAAAMqYCAAAAAAAAAAAAAAAA
+AJAxFQAAAAAAAAAAAAAAAACAjKkAAAAAAAAAAAAAAAAAAJAxFQAAAAAAAAAAAAAAAACAjKkA
+AAAAAAAAAAAAAAAAAGRMBQAAAAAAAAAAAAAAAAAgYyoAAAAAAAAAAAAAAAAAABlTAQAAAAAA
+AAAAAAAAAADImAoAAAAAAAAAAAAAAAAAQMZUAAAAAAAAAAAAAAAAAAB4uWXtAdcN96SqAAAA
+AElFTkSuQmCC
+--------------2wxAK7EB6xhF55w8q3jayJAH
+Content-Type: image/png; name="inline.png"
+Content-Disposition: inline; filename="inline.png"
+Content-Id: <part2.vmSs2Orn.F295w1yW@example.com>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAZAAAAAQCAYAAAA4eCmgAAAABmJLR0QA/wD/AP+gvaeTAAAA
+CXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcWEAkgBxvf7QAAAEtJREFUeNrt1TEBAAAE
+AEH0D6QdBSz2uwi/fEbPBAA8lQQAGAgABgKAgQBgIABgIAAYCAAGAoCBAGAgAGAgABgIAAYC
+gIEAYCAAcFnwQgLWPcAPQAAAAABJRU5ErkJggg==
+
+--------------2wxAK7EB6xhF55w8q3jayJAH--
+--------------UiZbVg1oKjs0D10f7pt76MRm
+Content-Type: image/png; name="wide.png"
+Content-Disposition: attachment; filename="wide.png"
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAE4gAAAAQCAIAAAB1+QLhAAABfWlDQ1BJQ0MgcHJvZmlsZQAA
+KJF9kT1IQlEYhp97LYwoJHKwaLiDNdVSEY1mgQQGYgVaDd2fNMF7lXuVFsegVWjoZ8lqaGmu
+taE1CIJ+IJobmopaQm4cFZTIvuU8vOd7P873HpArWd10OkJgWgU7HgkrieSK4n3FSwd9BBhQ
+dSc/E4tFaVtf90jivBsTs9r3/Vm9xoajg6QAIT1vF0BaB6a2CnnB+4Bf31QNkM6BUTuRXAHp
+Uehand8Ep2ssi5l+eyk+C7IfUNItrLWwvmmbIE8CQcO0DJATdTYElwSb2aLeeKfYsGfDWl4U
+OjBEhHkWiKGgUSRDlgJjZLBQcIgTIdzGP1jzxyiikSWDjsIcOUzUmh/xB7+zdVIT4/VJPWHo
+fHHdj2Hw7kK17Lrfx65bPQHPM1xZTX+uAtOf4Ck3teAR+Lbh4rqpaXtwuQOBp7xqqzXJA8ip
+FLyfQW8S+m+he7WeW+Oe0wdYKkH0Bg4OYSQNvrU2e3e15vZvTyO/H14Icp4xZljzAAAACXBI
+WXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcEERkUl7/MKgAAABl0RVh0Q29tbWVudABDcmVh
+dGVkIHdpdGggR0lNUFeBDhcAAAEiSURBVHja7dtBEQAgDMCwDv+eQcEOA4mE/js3AAAAAAAA
+AAAAAAAAAAD4OxIAAAAAAAAAAAAAAAAAAJAxFQAAAAAAAAAAAAAAAACAjKkAAAAAAAAAAAAA
+AAAAAGRMBQAAAAAAAAAAAAAAAAAgYyoAAAAAAAAAAAAAAAAAABlTAQAAAAAAAAAAAAAAAADI
+mAoAAAAAAAAAAAAAAAAAQMZUAAAAAAAAAAAAAAAAAADImAoAAAAAAAAAAAAAAAAAQMZUAAAA
+AAAAAAAAAAAAAAAypgIAAAAAAAAAAAAAAAAAkDEVAAAAAAAAAAAAAAAAAICMqQAAAAAAAAAA
+AAAAAAAAZEwFAAAAAAAAAAAAAAAAACBjKgAAAAAAAAAAAAAAAAAAbB5iXQEfve3cIwAAAABJ
+RU5ErkJggg==
+--------------UiZbVg1oKjs0D10f7pt76MRm
+Content-Type: image/png; name="tiny.png"
+Content-Disposition: attachment; filename="tiny.png"
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABfWlDQ1BJQ0MgcHJvZmlsZQAA
+KJF9kT1IQlEYhp97LYwoJHKwaLiDNdVSEY1mgQQGYgVaDd2fNMF7lXuVFsegVWjoZ8lqaGmu
+taE1CIJ+IJobmopaQm4cFZTIvuU8vOd7P873HpArWd10OkJgWgU7HgkrieSK4n3FSwd9BBhQ
+dSc/E4tFaVtf90jivBsTs9r3/Vm9xoajg6QAIT1vF0BaB6a2CnnB+4Bf31QNkM6BUTuRXAHp
+Uehand8Ep2ssi5l+eyk+C7IfUNItrLWwvmmbIE8CQcO0DJATdTYElwSb2aLeeKfYsGfDWl4U
+OjBEhHkWiKGgUSRDlgJjZLBQcIgTIdzGP1jzxyiikSWDjsIcOUzUmh/xB7+zdVIT4/VJPWHo
+fHHdj2Hw7kK17Lrfx65bPQHPM1xZTX+uAtOf4Ck3teAR+Lbh4rqpaXtwuQOBp7xqqzXJA8ip
+FLyfQW8S+m+he7WeW+Oe0wdYKkH0Bg4OYSQNvrU2e3e15vZvTyO/H14Icp4xZljzAAAACXBI
+WXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AcEERg7JXXAMgAAABl0RVh0Q29tbWVudABDcmVh
+dGVkIHdpdGggR0lNUFeBDhcAAAAWSURBVCjPY/zPQBpgYhjVMKph2GoAAEAuAR+xkMJNAAAA
+AElFTkSuQmCC
+
+--------------UiZbVg1oKjs0D10f7pt76MRm--

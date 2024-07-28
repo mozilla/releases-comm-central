@@ -90,21 +90,24 @@ mailattachcount {
 
 /* ::::: images ::::: */
 
-img[overflowing]:not([shrinktofit]) {
-  cursor: zoom-out;
-  width: auto !important;
-}
-
-img[overflowing][shrinktofit] {
-  cursor: zoom-in;
-  max-width: 100% !important;
-  height: auto !important;
-}
-
-@media print {
-  img[shrinktofit] {
+img {
+  &[shrinktofit] {
     max-width: 100% !important;
+
+    &[overflowing] {
+      cursor: zoom-in;
+      /* If we detect we're shrinking the image, force it to keep its aspect
+       * ratio, since it possibly had hard-coded sizings. */
+      height: auto !important;
+    }
+  }
+
+  &[overflowing]:not([shrinktofit]) {
+    cursor: zoom-out;
+    /* Unbound the sizing of the image so it is displayed at full size. */
     height: auto !important;
+    width: auto !important;
+    max-width: none !important;
   }
 }
 

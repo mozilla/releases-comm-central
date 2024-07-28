@@ -935,12 +935,16 @@ var messageProgressListener = {
           }
         }
 
-        img.addEventListener("load", function () {
-          if (this.clientWidth > this.parentNode.clientWidth) {
-            img.setAttribute("overflowing", "true");
-            img.setAttribute("shrinktofit", "true");
-          }
-        });
+        img.addEventListener(
+          "load",
+          function () {
+            if (this.clientWidth > this.parentNode.clientWidth) {
+              img.setAttribute("overflowing", "true");
+              img.setAttribute("shrinktofit", "true");
+            }
+          },
+          { once: true }
+        );
       }
     }
 
@@ -4198,18 +4202,33 @@ function OnMsgParsed(aUrl) {
     }
   }
 
+  const stylesReadyPromise = new Promise(resolve => {
+    if (doc.readyState === "complete") {
+      resolve();
+      return;
+    }
+    browser.contentWindow.addEventListener("load", resolve, {
+      once: true,
+    });
+  });
+
+  const applyOverflowingToImg = async img => {
+    img.setAttribute("shrinktofit", "true");
+    if (!img.complete) {
+      await new Promise(resolve => {
+        img.addEventListener("load", resolve, { once: true });
+      });
+    }
+    await stylesReadyPromise;
+    if (img.naturalWidth > img.clientWidth) {
+      img.setAttribute("overflowing", "true");
+    }
+  };
+
   // Scale any overflowing images, exclude http content.
   const imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
   for (const img of imgs) {
-    if (
-      img.clientWidth - doc.body.offsetWidth >= 0 &&
-      (img.clientWidth <= img.naturalWidth || !img.naturalWidth)
-    ) {
-      img.setAttribute("overflowing", "true");
-    }
-
-    // This is the default case for images when a message is loaded.
-    img.setAttribute("shrinktofit", "true");
+    applyOverflowingToImg(img);
   }
 }
 
