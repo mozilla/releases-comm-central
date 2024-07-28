@@ -21,6 +21,14 @@ DIRS += [
     "themes/modern",
 ]
 
+if CONFIG["MOZ_THUNDERBIRD_RUST"]:
+    DEFINES["MOZ_THUNDERBIRD_RUST"] = 1
+
+if CONFIG["MOZ_OVERRIDE_GKRUST"]:
+    DIRS += [
+        "../rust",
+    ]
+
 if CONFIG['MOZ_IRC']:
     DIRS += ['chatzilla']
 

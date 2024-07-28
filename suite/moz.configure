@@ -79,6 +79,28 @@ set_defconf("SEAMONKEY_VERSION_DISPLAY", seamonkey_version.version_display)
 imply_option("MOZ_PLACES", True)
 imply_option("MOZ_SERVICES_SYNC", False)
 
+# Thunderbird Rust code is now the default
+option("--disable-thunderbird-rust", help="Enable Rust support within Thunderbird")
+
+set_config("MOZ_THUNDERBIRD_RUST", True, when="--enable-thunderbird-rust")
+set_define("MOZ_THUNDERBIRD_RUST", True, when="--enable-thunderbird-rust")
+set_config("MOZ_OVERRIDE_GKRUST", True, when="--enable-thunderbird-rust")
+
+
+@depends("--enable-thunderbird-rust")
+def moz_override_cargo_config(enable_rust):
+    rust_override = "comm/rust/.cargo/config.toml.in"
+    if enable_rust:
+        log.info(f"Using {rust_override} for Rust code.")
+        return rust_override
+
+
+set_config(
+    "MOZ_OVERRIDE_CARGO_CONFIG",
+    moz_override_cargo_config,
+    when="--enable-thunderbird-rust",
+)
+
 # Building extensions is disabled by default.
 
 # =========================================================

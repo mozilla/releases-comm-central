@@ -23,3 +23,13 @@ libs:: $(DIST)/bin/platform.ini
 	sed -e "s/^\(SourceStamp=\).*/\1$(MOZ_REV)/" $(DIST)/bin/platform.ini \
 		> $(DIST)/bin/platform.ini~
 	mv -f $(DIST)/bin/platform.ini~ $(DIST)/bin/platform.ini
+
+
+vendored-rust-check:
+ifdef MOZ_THUNDERBIRD_RUST
+	@echo "Checking vendored Rust libs"
+	$(PYTHON3) $(commtopsrcdir)/python/rocbuild/rocbuild/rust.py verify_vendored_dependencies
+endif
+
+export:: vendored-rust-check
+
