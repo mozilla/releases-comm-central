@@ -52,13 +52,6 @@ var FeedMessageHandler = {
   },
 
   /**
-   * Load web page on threadpane select.
-   */
-  get loadWebPageOnSelectPref() {
-    return Services.prefs.getIntPref("rss.message.loadWebPageOnSelect");
-  },
-
-  /**
    * How to load message on open (enter/dbl click in threadpane, contextmenu).
    */
   get onOpenPref() {
@@ -165,14 +158,6 @@ var FeedMessageHandler = {
       }
     }
 
-    // Auto load web page in browser on select, per pref; shouldShowSummary() is
-    // always called first to 1)test if feed, 2)get summary pref, so do it here.
-    if (this.loadWebPageOnSelectPref) {
-      setTimeout(FeedMessageHandler.loadWebPage, 20, aMsgHdr, {
-        browser: true,
-      });
-    }
-
     return showSummary;
   },
 
@@ -211,6 +196,7 @@ var FeedMessageHandler = {
           );
           return;
         }
+        //TODO browser currently only used from SearchDialog for kOpenLoadInBrowser
         if (aWhere.browser) {
           Cc["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Ci.nsIExternalProtocolService)

@@ -770,11 +770,6 @@ pref("rss.show.summary", 1);
 // 3 - load content-base url in browser
 pref("rss.show.content-base", 0);
 
-// Feed message additional web page display.
-// 0 - no action
-// 1 - load web page in default browser, on select
-pref("rss.message.loadWebPageOnSelect", 0);
-
 // Feed auto updates / "Pause Updates"
 // true  = If updating a feed results in an error code, disable the feed until next manual check or application restart.
 // false = Keep feed automatic updates scheduled, even if the feed source responds with an error code.
