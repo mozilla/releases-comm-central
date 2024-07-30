@@ -566,3 +566,99 @@ win64-ccov/opt:
             - win64-rust-size
             - win64-sccache
             - win64-winchecksec
+
+win64-aarch64/debug:
+    description: "AArch64 Win64 Debug"
+    index:
+        product: thunderbird
+        job-name: win64-aarch64-debug
+    attributes:
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: windows2012-aarch64/debug
+        symbol: B
+        tier: 1
+    worker-type: b-linux-gcp
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+            - builds/taskcluster_sub_win64/debug.py
+        extra-config:
+            mozconfig_platform: win64-aarch64
+        mozconfig-variant: debug
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+        fetch:
+            - upx-3.95-win
+    optimization:
+        never: null
+
+
+win64-aarch64/opt:
+    description: "AArch64 Win64 Opt"
+    index:
+        product: thunderbird
+        job-name: win64-aarch64-opt
+    attributes:
+        enable-build-signing: true
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: windows2012-aarch64/opt
+        symbol: B
+        tier: 1
+    worker-type: b-linux-gcp
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: aarch64
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            stage_platform: win64-aarch64
+            mozconfig_platform: win64-aarch64
+    run-on-projects: ['comm-central']
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-dump_syms
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust-cross
+            - linux64-rust-size
+            - linux64-sccache
+            - linux64-winchecksec
+            - linux64-wine
+            - sysroot-wasm32-wasi
+            - sysroot-x86_64-linux-gnu
+        fetch:
+            - upx-3.95-win
+    optimization:
+        never: null
