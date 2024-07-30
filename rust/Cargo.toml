@@ -74,4 +74,5 @@ tabs = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6f2f8acd38579bd3142fecda9272957b72" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6f2f8acd38579bd3142fecda9272957b72" }
 mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
+mio = { path = "../../build/rust/mio" }
 gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
