@@ -137,6 +137,8 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         LDFLAGS += ["clang_rt.builtins-i386.lib"]
     elif CONFIG["TARGET_CPU"] == "x86_64":
         LDFLAGS += ["clang_rt.builtins-x86_64.lib"]
+    elif CONFIG["TARGET_CPU"] == "aarch64":
+        LDFLAGS += ["clang_rt.builtins-aarch64.lib"]
 
 SYMBOLS_FILE = "rnp.symbols"
 
