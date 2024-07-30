@@ -55,9 +55,11 @@ with only_when(target_has_linux_kernel & compile_environment):
     set_config("MOZ_NO_PIE_COMPAT", depends_if("MOZ_NO_PIE_COMPAT")(lambda _: True))
 
 
-@depends("MOZ_AUTOMATION")
+@depends("MOZ_AUTOMATION", target)
 @imports(_from="os", _import="environ")
-def pkg_libotr(automation):
+def pkg_libotr(automation, target):
+    if target.os == "WINNT" and target.cpu == "aarch64":
+        return
     if automation:
         fetch_dir = environ.get("MOZ_FETCHES_DIR", None)
         if fetch_dir:
