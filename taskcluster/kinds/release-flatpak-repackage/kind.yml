@@ -56,7 +56,7 @@ task-defaults:
             MANIFEST_URL: "{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/repack.sh"
             RELEASE_NOTES_URL:
                 by-project:
-                    comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}/releasenotes/"
+                    comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}esr/releasenotes/"
                     default: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}beta/releasenotes/"
             RAW_FILE_URL: "{config_params[comm_head_repository]}/raw-file/{config_params[comm_head_rev]}"
         chain-of-trust: true
