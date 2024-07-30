@@ -1,0 +1,11 @@
+# This file is sourced by the nightly and release mozconfigs.
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+
+ac_add_options --enable-update-channel=${MOZ_UPDATE_CHANNEL}
+
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
+
+# Package js shell.
+export MOZ_PACKAGE_JSSHELL=1

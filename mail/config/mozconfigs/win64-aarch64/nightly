@@ -1,0 +1,10 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/build/mozconfig.win-common"
+. "$topsrcdir/build/mozconfig.common"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64-aarch64/common-win64"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64-aarch64/common-opt"
+
+ac_add_options --with-branding=comm/mail/branding/nightly
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+
