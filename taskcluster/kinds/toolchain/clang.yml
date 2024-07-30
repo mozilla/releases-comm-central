@@ -48,6 +48,7 @@ linux64-clang-18:
             - macosx64-x64-compiler-rt-18
             - wasm32-wasi-compiler-rt-18
             - win32-compiler-rt-18
+            - win64-aarch64-compiler-rt-18
             - win64-compiler-rt-18
 
 win64-clang-18:
@@ -77,4 +78,5 @@ win64-clang-18:
             - macosx64-x64-compiler-rt-18
             - wasm32-wasi-compiler-rt-18
             - win32-compiler-rt-18
+            - win64-aarch64-compiler-rt-18
             - win64-compiler-rt-18

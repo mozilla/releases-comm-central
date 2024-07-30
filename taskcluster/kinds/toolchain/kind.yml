@@ -74,6 +74,7 @@ reference-tasks:
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
+    - win64-aarch64-compiler-rt-18
     - win64-cbindgen
     - win64-cmake
     - win64-clang-18-raw
