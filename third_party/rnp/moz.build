@@ -195,6 +195,9 @@ SOURCES += [
     "src/libsexpp/src/sexp-simple-string.cpp",
 ]
 
+if CONFIG["CC_TYPE"] == "clang-cl" and CONFIG["TARGET_CPU"] == "aarch64":
+    SOURCES["src/librepgp/stream-dump.cpp"].flags += ["/EHa"]
+
 SOURCES["src/lib/crypto/sha1cd/sha1.c"].flags += ["-Wno-unsafe-buffer-usage", "-Wno-extra-semi-stmt"]
 SOURCES["src/lib/crypto/sha1cd/ubc_check.c"].flags += ["-Wno-unsafe-buffer-usage"]
 
