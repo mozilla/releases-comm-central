@@ -435,34 +435,15 @@ var quickFilterBar = {
    *  when something happens event-wise in terms of search.
    *
    * We can have one of two states:
-   * - No filter is active; no attributes exposed for CSS to do anything.
-   * - A filter is active and we are still searching; filterActive=searching.
+   * - No filter is active; nothing exposed for CSS to do anything.
+   * - A filter is active and we are still searching; class `searching` added.
    */
   reflectFiltererResults() {
-    const threadPane = document.getElementById("threadTree");
-
-    // bail early if the view is in the process of being created
+    // Bail early if the view is in the process of being created.
     if (!gDBView) {
       return;
     }
-
-    // no filter active
-    if (!gViewWrapper.search || !gViewWrapper.search.userTerms) {
-      threadPane.removeAttribute("filterActive");
-      this.domNode.removeAttribute("filterActive");
-    } else if (gViewWrapper.searching) {
-      // filter active, still searching
-      // Do not set this immediately; wait a bit and then only set this if we
-      //  still are in this same state (and we are still the active tab...)
-      setTimeout(() => {
-        threadPane.setAttribute("filterActive", "searching");
-        this.domNode.setAttribute("filterActive", "searching");
-      }, 500);
-
-      this.domNode.classList.add("searching");
-    } else {
-      this.domNode.classList.remove("searching");
-    }
+    this.domNode.classList.toggle("searching", gViewWrapper.searching);
   },
 
   // ----------------------
