@@ -2501,12 +2501,23 @@ function InitOtherActionsViewBodyMenu(isFeed = false) {
   // else (the user edited prefs/user.js) check none of the radio menu items
 
   if (isFeed) {
-    AllowHTML_menuitem.hidden = !gShowFeedSummary;
-    Sanitized_menuitem.hidden = !gShowFeedSummary;
-    AsPlaintext_menuitem.hidden = !gShowFeedSummary;
+    const viewRssMenuItemIds = [
+      "otherActionsMenu_bodyFeedGlobalWebPage",
+      "otherActionsMenu_bodyFeedGlobalSummary",
+      "otherActionsMenu_bodyFeedPerFolderPref",
+    ];
+    const checked = FeedMessageHandler.onSelectPref;
+    for (const [index, id] of viewRssMenuItemIds.entries()) {
+      document.getElementById(id).setAttribute("checked", index == checked);
+    }
+    // Unlike the global menu we use the variable here to possibly have the
+    // value relevant to the current mode if the per folder option is selected.
+    AllowHTML_menuitem.hidden = !FeedMessageHandler.gShowSummary;
+    Sanitized_menuitem.hidden = !FeedMessageHandler.gShowSummary;
+    AsPlaintext_menuitem.hidden = !FeedMessageHandler.gShowSummary;
     document.getElementById(
       "otherActionsMenu_viewFeedSummarySeparator"
-    ).hidden = !gShowFeedSummary;
+    ).hidden = !FeedMessageHandler.gShowSummary;
   }
 }
 

@@ -111,14 +111,11 @@ async function subtestCycleThroughFeedFormat(
   const summaryItem = doc.getElementById(summaryItemId);
   const folderSpecificItem = doc.getElementById(folderSpecificItemId);
 
-  //TODO disabled due to bug 1906830
-  if (summaryItemId != "otherActionsMenu_bodyFeedGlobalSummary") {
-    Assert.equal(
-      summaryItem.getAttribute("checked"),
-      "true",
-      "Summary should be selected"
-    );
-  }
+  Assert.equal(
+    summaryItem.getAttribute("checked"),
+    "true",
+    "Summary should be selected"
+  );
 
   displayAsMenuPopup.activateItem(webPageItem);
 

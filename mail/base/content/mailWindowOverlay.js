@@ -351,16 +351,6 @@ function view_init(event) {
   const viewFeedSummary = document.getElementById("viewFeedSummary");
   viewFeedSummary.hidden = !isFeed;
 
-  const viewRssMenuItemIds = [
-    "bodyFeedGlobalWebPage",
-    "bodyFeedGlobalSummary",
-    "bodyFeedPerFolderPref",
-  ];
-  const checked = FeedMessageHandler.onSelectPref;
-  for (const [index, id] of viewRssMenuItemIds.entries()) {
-    document.getElementById(id).setAttribute("checked", index == checked);
-  }
-
   // Initialize the View Attachment Inline menu
   var viewAttachmentInline = Services.prefs.getBoolPref(
     "mail.inline_attachments"
@@ -824,9 +814,16 @@ function InitViewBodyMenu() {
   // else (the user edited prefs/user.js) check none of the radio menu items
 
   if (isFeed) {
-    const hideOptions =
-      FeedMessageHandler.onSelectPref ==
-      FeedMessageHandler.kSelectOverrideWebPage;
+    const viewRssMenuItemIds = [
+      "bodyFeedGlobalWebPage",
+      "bodyFeedGlobalSummary",
+      "bodyFeedPerFolderPref",
+    ];
+    const checked = FeedMessageHandler.onSelectPref;
+    for (const [index, id] of viewRssMenuItemIds.entries()) {
+      document.getElementById(id).setAttribute("checked", index == checked);
+    }
+    const hideOptions = checked == FeedMessageHandler.kSelectOverrideWebPage;
     AllowHTML_menuitem.hidden = hideOptions;
     Sanitized_menuitem.hidden = hideOptions;
     AsPlaintext_menuitem.hidden = hideOptions;
