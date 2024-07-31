@@ -6,18 +6,19 @@
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_SERVICE_H
 
 #include "nsIMsgMessageService.h"
-#include "nsIProtocolHandler.h"
 
-class EwsService : public nsIMsgMessageService, public nsIProtocolHandler {
+class EwsService : public nsIMsgMessageService {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGMESSAGESERVICE
-  NS_DECL_NSIPROTOCOLHANDLER
 
   EwsService();
 
  protected:
   virtual ~EwsService();
+
+ private:
+  nsresult MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval);
 };
 
 #endif

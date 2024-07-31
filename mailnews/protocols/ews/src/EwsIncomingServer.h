@@ -5,7 +5,6 @@
 #ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_INCOMING_SERVER_H
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_INCOMING_SERVER_H
 
-#include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 #include "msgIOAuth2Module.h"
 #include "nsMsgIncomingServer.h"

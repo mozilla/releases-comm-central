@@ -4,6 +4,7 @@
 
 #include "EwsIncomingServer.h"
 
+#include "IEwsClient.h"
 #include "nsIMsgWindow.h"
 #include "nsNetUtil.h"
 #include "nsPrintfCString.h"
