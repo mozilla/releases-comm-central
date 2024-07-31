@@ -51,8 +51,8 @@ add_setup(async () => {
   );
 
   registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(account, true);
-    MailServices.accounts.removeAccount(feedAccount, true);
+    MailServices.accounts.removeAccount(account, false);
+    MailServices.accounts.removeAccount(feedAccount, false);
     document.getElementById("toolbar-menubar").setAttribute("autohide", "true");
   });
 });
