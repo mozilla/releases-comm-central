@@ -9,6 +9,7 @@ import json
 import os
 from contextlib import contextmanager
 
+from mozilla_version.gecko import ThunderbirdVersion
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.dependencies import get_primary_dependency
 from taskgraph.util.schema import Schema, optionally_keyed_by, resolve_keyed_by, taskref_or_string
@@ -53,12 +54,38 @@ def remove_name(config, jobs):
 
 
 @transforms.add
-def make_task_description(config, jobs):
-    for job in jobs:
+def drop_task(config, tasks):
+    """Only run push_langpacks under certain conditions.
+
+    - comm-beta: Always run as langpacks are always updated
+    - comm-release: Run on major version bump (eg 130.0 but not 130.0.1)
+    - comm-esrXX: Run on major version bump and minor version bump
+        (128.0esr not 128.0.1esr and 128.1.0esr not 128.1.1esr)
+
+    Makes heavy use of mozilla_version to parse the version number, determine
+    its type (beta, release, esr) and separate out the subvalues,
+    """
+    version = ThunderbirdVersion.parse(config.params.get("version"))
+
+    for task in tasks:
         # Do not attempt to run when staging releases on try-comm-central
         if release_level(config.params["project"]) != "production":
             continue
 
+        if version.is_beta:
+            yield task
+        elif version.is_release and version.is_major:
+            yield task
+        elif version.is_esr:
+            if version.major_number == 0 and version.patch_number in (None, 0):
+                yield task
+            elif version.minor_number > 0 and version.patch_number == 0:
+                yield task
+
+
+@transforms.add
+def make_task_description(config, jobs):
+    for job in jobs:
         dep_job = get_primary_dependency(config, job)
         assert dep_job
 
