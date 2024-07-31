@@ -16,8 +16,8 @@ harness = false
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
-ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
 sys_tray = { version = "0.1.0", path = "../sys_tray" }
+ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "d94278ed9c7020f50232689a26d1277eb0eb74d2" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
 audio_thread_priority = { version = "0.32" }
@@ -64,7 +64,7 @@ l10nregistry-ffi = { path = "../../../intl/l10n/rust/l10nregistry-ffi" }
 lmdb-rkv-sys = { version = "0.11", features = ['mdb_idl_logn_9'] }
 localization-ffi = { path = "../../../intl/l10n/rust/localization-ffi" }
 log = { version = "0.4", features = ['release_max_level_info'] }
-mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "c7651a0cffff41996ad13c44f689bd9cd2192c01" }
+mapped_hyph = { git = "https://github.com/jfkthame/mapped_hyph.git", rev = "eff105f6ad7ec9b79816cfc1985a28e5340ad14b" }
 mdns_service = { path = "../../../dom/media/webrtc/transport/mdns_service", optional = true }
 midir_impl = { path = "../../../dom/midi/midir_impl", optional = true }
 mime-guess-ffi = { path = "../../../dom/fs/parent/rust/mime-guess-ffi" }

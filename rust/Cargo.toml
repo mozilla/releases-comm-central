@@ -30,8 +30,6 @@ windows = { path = "../../build/rust/windows" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
-memmap2_0_5 = { package = "memmap2", path = "../../build/rust/memmap2-0.5" }
-memmap2 = { path = "../../build/rust/memmap2" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
 base64 = { path = "../../build/rust/base64" }
