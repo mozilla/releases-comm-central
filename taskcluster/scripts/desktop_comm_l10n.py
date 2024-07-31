@@ -44,7 +44,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
             ],
             {
                 "action": "store",
-                "dest": "hg_comm_locales_file",
+                "dest": "comm_locales_file",
                 "type": "string",
                 "help": "File with HG revision of comm-l10n monorepo to use",
             },
@@ -66,7 +66,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         buildscript_kwargs = {
             "all_actions": [
                 "clone-gecko-locales",
-                "clone-monorepo",
+                "clone-comm-locales",
                 "merge-repos",
                 "pack-merged",
                 "gen-changesets",
@@ -74,7 +74,7 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
             "config": {
                 "ignore_locales": ["en-US"],
                 "log_name": "multi_locale",
-                "hg_merged_dir": "l10n_merged",
+                "merged_dir": "l10n_merged",
                 "objdir": "obj-build",
                 "upload_file": "strings_all.tar.zst",
                 "changesets_file": "l10n-changesets.json",
@@ -157,11 +157,11 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         self.get_gecko_l10n_revisions()
         self.pull_locale_source()
 
-    def clone_monorepo(self):
+    def clone_comm_locales(self):
         c = self.config
         dirs = self.query_abs_dirs()
 
-        locales_file = os.path.join(dirs["abs_src_dir"], c["hg_comm_locales_file"])
+        locales_file = os.path.join(dirs["abs_src_dir"], c["comm_locales_file"])
         locales_data = {}
         if locales_file.endswith(".json"):
             with open(locales_file) as fh:
@@ -169,18 +169,29 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
         # would use en-US, but it's not in this file!
         self.comm_l10n_revision = locales_data.get("en-GB", {}).get("revision")
 
+        git_repository = c.get("comm_git_repository")
+        hg_repository = c.get("hg_comm_l10n_repo")
+        if git_repository:
+            checkout_args = {
+                "repo": git_repository,
+                "vcs": "gittool",
+                "revision": self.comm_l10n_revision,
+            }
+            repo_name = "thunderbird-l10n"
+        else:
+            checkout_args = {"repo": hg_repository, "vcs": "hg", "branch": self.comm_l10n_revision}
+            repo_name = "comm-l10n"
+
         if self.comm_l10n_revision:
             self.mkdir_p(dirs["abs_checkout_dir"])
             self.vcs_checkout(
                 dest=dirs["abs_comm_l10n_dir"],
-                repo=c["hg_comm_l10n_repo"],
-                branch=self.comm_l10n_revision,
-                vcs="hg",
+                **checkout_args,
             )
         else:
             raise Exception(
-                f"Unable to find revision from comm-l10n repo using "
-                f"{c['hg_comm_locales_file']}."
+                f"Unable to find revision {self.comm_l10n_revision} in {repo_name} repo using "
+                f"{c['comm_locales_file']}."
             )
 
     def merge_repos(self):

@@ -31,7 +31,7 @@ task-defaults:
         comm-checkout: true
         actions:
             - clone-gecko-locales
-            - clone-monorepo
+            - clone-comm-locales
             - merge-repos
             - pack-merged
         script: comm/taskcluster/scripts/desktop_comm_l10n.py
