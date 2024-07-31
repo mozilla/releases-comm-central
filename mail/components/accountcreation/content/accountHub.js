@@ -155,8 +155,6 @@ class AccountHubControllerClass {
     if (view) {
       view.hidden = false;
       this.#currentView = view;
-      // Update the UI to make sure we're refreshing old views.
-      this.#currentView.initUI();
       return;
     }
     view = document.createElement(id);
@@ -179,7 +177,7 @@ class AccountHubControllerClass {
    *
    * @param {?string} type - Which account flow to load when the modal opens.
    */
-  open(type = "START") {
+  open(type = "MAIL") {
     // Interrupt if something went wrong while cleaning up a previously loaded
     // view.
     if (!this.#reset()) {

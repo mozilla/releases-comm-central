@@ -100,6 +100,10 @@ class AccountHubHeader extends HTMLElement {
     this.shadowRoot.querySelector("#emailFormNotification").hidden = true;
     this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden = true;
   }
+
+  showBrandingHeader() {
+    this.shadowRoot.querySelector("#brandingHeader").hidden = false;
+  }
 }
 
 customElements.define("account-hub-header", AccountHubHeader);

@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<html:template id="accountHubFooterTemplate" xmlns="http://www.w3.org/1999/xhtml">
+<html:template id="accountHubFooterTemplate" class="hub-footer" xmlns="http://www.w3.org/1999/xhtml">
   <!-- Email setup footer -->
-  <footer id="emailFooter" class="hub-footer">
-    <menu id="emailFooterMenu" class="dialog-menu-container two-columns">
+  <footer id="accountHubFooter">
+    <menu id="accountHubFooterMenu" class="dialog-menu-container two-columns">
       <li id="footerButtonsLeftColumn">
         <button id="custom"
                 type="button"
@@ -26,5 +26,27 @@
         </button>
       </li>
     </menu>
+    <hr/>
+    <ul class="reset-list footer-links">
+      <li>
+        <a href="https://support.mozilla.org/products/thunderbird"
+           data-l10n-id="account-hub-support"
+           onclick="openLinkExternally(this.href);">
+        </a>
+      </li>
+      <li hidden="hidden">
+        <a id="hubReleaseNotes"
+           href=""
+           data-l10n-id="account-hub-release-notes"
+           onclick="openLinkExternally(this.href)">
+        </a>
+      </li>
+      <li>
+        <a href="https://www.thunderbird.net/donate/?utm_source=thunderbird_account_hub&amp;utm_medium=referral&amp;utm_content=hub_footer"
+           data-l10n-id="account-hub-donate"
+           onclick="openLinkExternally(this.href);">
+        </a>
+      </li>
+    </ul>
   </footer>
 </html:template>

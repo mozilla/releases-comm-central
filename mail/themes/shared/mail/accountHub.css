@@ -20,11 +20,19 @@ dialog {
   --hub-account-primary-button-background-hover: var(--in-content-primary-button-background-hover);
   --hub-account-primary-button-background-active: var(--in-content-primary-button-background-active);
   --hub-notification-background-color-warning: var(--color-yellow-30);
+  --hub-border-color: light-dark(#f0f8ff, #58c9ff);
+  --hub-divider-color: light-dark(var(--color-white), #1a202c);
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
+  --hub-close-button-color: light-dark(#18181b, #eeeef0);
+  --hub-close-button-hover-background: light-dark(#f7f7f7, #18181b);
+  --hub-close-button-active-background: light-dark(#bdbdbd, #262d3b);
+  --hub-close-button-focus-background: light-dark(#e4e4e7, #18181b);
+  --hub-close-button-focus-outline-color: light-dark(#4c4d58, #3d4d67);
+  /* TODO: apply dark mode styling */
 }
 
 @media (prefers-contrast) {
@@ -42,10 +50,30 @@ dialog {
 
 .account-hub-dialog {
   display: grid;
-  min-width: 660px;
-  min-height: 360px;
-  max-width: 680px;
-  max-height: 70vh;
+  width: 800px;
+  height: 600px;
+  overflow: initial;
+  padding: 0;
+  box-shadow: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 17%;
+    left: 50%;
+    width: 765px;
+    height: 500px;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, rgba(159, 244, 240, 1), rgba(76, 177, 249, 1), rgba(168, 85, 247, 1));
+    filter: blur(15px);
+    z-index: -1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &::after {
+      background: linear-gradient(to right, rgb(11, 140, 134, 1), rgba(28, 99, 149, 1));
+    }
+  }
 }
 
 .account-hub-view:not([hidden]),
@@ -53,10 +81,25 @@ dialog {
 .account-hub-grid {
   display: grid;
   grid-template: "header" min-content
-                 "body" minmax(auto, 1fr)
-                 "footer" min-content;
+    "body" minmax(auto, 1fr) "footer" min-content;
   gap: 21px;
   text-align: center;
+  z-index: 1;
+}
+
+.account-hub-view:not([hidden]) {
+  padding-inline: 20px;
+  padding-block: 40px 20px;
+  border-radius: inherit;
+  border: 1px solid var(--hub-border-color);
+  background-image: url("chrome://messenger/skin/images/accounthub-bg-light.webp");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  @media (prefers-color-scheme: dark) {
+    background-image: url("chrome://messenger/skin/images/accounthub-bg-dark.webp");
+  }
 }
 
 /* Typography */
@@ -70,7 +113,7 @@ header {
   .sub-view-title {
     font-size: 2rem;
     font-weight: 400;
-    margin-block-start: 9px;
+    margin-block-start: 35px;
   }
 
   .sub-view-subheader {
@@ -82,17 +125,19 @@ header {
 
 /* Header */
 
-.start-header {
+.branding-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
-  gap: 15px;
+  gap: 11px;
 
   h1 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-block: 0 2px;
+    align-self: center;
   }
 }
 
@@ -104,14 +149,24 @@ header {
   gap: 5px;
   background-color: transparent;
   --in-content-button-border-color: transparent;
-}
 
-#closeButton:hover {
-  background-color: var(--in-content-button-background);
-}
+  &:hover {
+    background-color: var(--hub-close-button-hover-background);
+  }
 
-#closeButton:hover:active {
-  background-color: var(--in-content-button-background-active);
+  &:active {
+    background-color: var(--hub-close-button-active-background);
+  }
+
+  &hover:active {
+    background-color: var(--hub-close-button-active-background);
+  }
+
+  &:focus {
+    background-color: var(--hub-close-button-focus-background);
+    outline: 2px solid var(--hub-close-button-focus-outline-color);
+    outline-offset: 1px;
+  }
 }
 
 #closeButton {
@@ -121,21 +176,23 @@ header {
   appearance: none;
   border: none;
   border-radius: 50%;
-  width: 21px;
-  height: 21px;
+  width: 32px;
+  height: 32px;
+  z-index: 2;
 }
 
 #closeButton:hover {
   background-color: var(--button-hover-background-color);
 }
+
 #closeButton:hover:active {
   background-color: var(--button-active-background-color);
 }
 
 #closeButton img {
+  stroke: var(--hub-close-button-color);
   -moz-context-properties: stroke;
-  stroke: currentColor;
-  content: var(--icon-close);
+  content: var(--icon-close-lg);
 }
 
 #welcomeHeader > img {
@@ -143,17 +200,21 @@ header {
   height: 90px;
 }
 
-#defaultHeader > img {
-  width: 60px;
-  height: 60px;
+#brandingHeader > img {
+  width: 45px;
+  height: 45px;
 }
 
-#defaultHeader .start-header-brand-name {
+#brandingHeader .branding-header-name {
   font-size: 1.3rem;
+  font-weight: 500;
+  padding-block-end: 2px;
 }
 
-#defaultHeader .start-header-title {
-  font-size: 2rem;
+#brandingHeader .branding-header-title {
+  font-size: 2.8rem;
+  font-weight: 200;
+  letter-spacing: 1px;
 }
 
 #welcomeHeader h1 {
@@ -351,18 +412,46 @@ header {
   .center-column {
     justify-content: center;
   }
+
+  hr {
+    border: none;
+    height: 1px;
+    margin-block: 10px;
+    background: linear-gradient(to right, transparent, rgba(26, 32, 44, 0.2), transparent);
+    color: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    hr {
+      background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    }
+  }
 }
 
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 6px;
+  gap: 3px 10px;
   justify-content: center;
+  align-items: baseline;
+
+  li > a {
+    font-size: 1.1rem;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+    font-weight: 200;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .footer-links li:not([hidden]) ~ li:not([hidden])::before {
   content: "·";
-  margin-inline-end: 6px;
+  margin-inline-end: 10px;
+  font-size: 1.4rem;
+  font-weight: bold;
 }
 
 /* Animations */

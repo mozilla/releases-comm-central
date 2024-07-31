@@ -229,3 +229,7 @@ input:user-invalid ~ .icon-warning {
 .remember-button-container {
   margin-block-start: -18px;
 }
+
+#accountHubFooterMenu {
+  background-color: transparent;
+}

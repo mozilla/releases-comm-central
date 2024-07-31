@@ -69,6 +69,10 @@ export class AccountHubStep extends HTMLElement {
     }
   }
 
+  showBrandingHeader() {
+    this.#header.showBrandingHeader();
+  }
+
   /**
    * Calls the error notification method in the header template.
    *
