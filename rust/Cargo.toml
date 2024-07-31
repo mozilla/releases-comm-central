@@ -24,14 +24,13 @@ cmake = { path = "../../build/rust/cmake" }
 vcpkg = { path = "../../build/rust/vcpkg" }
 mozbuild = { path = "../../build/rust/mozbuild" }
 windows-targets = { path = "../../build/rust/windows-targets" }
-windows-targets_0_48 = { package = "windows-targets", path = "../../build/rust/windows-targets-0.48" }
-windows-sys = { path = "../../build/rust/windows-sys" }
 windows = { path = "../../build/rust/windows" }
 oslog = { path = "../../build/rust/oslog" }
 terminal_size = { path = "../../build/rust/terminal_size" }
 bitflags = { path = "../../build/rust/bitflags" }
 redox_users = { path = "../../build/rust/redox_users" }
 redox_syscall = { path = "../../build/rust/redox_syscall" }
+hermit-abi = { path = "../../build/rust/hermit-abi" }
 base64 = { path = "../../build/rust/base64" }
 wasi = { path = "../../build/rust/wasi" }
 backtrace = { path = "../../build/rust/backtrace" }
@@ -71,6 +70,4 @@ sync15 = { git = "https://github.com/mozilla/application-services", rev = "8fd08
 tabs = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6f2f8acd38579bd3142fecda9272957b72" }
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6f2f8acd38579bd3142fecda9272957b72" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "8fd08c6f2f8acd38579bd3142fecda9272957b72" }
-mio_0_8 = { package = "mio", git = "https://github.com/glandium/mio", rev = "9a2ef335c366044ffe73b1c4acabe50a1daefe05" }
-mio = { path = "../../build/rust/mio" }
 gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
