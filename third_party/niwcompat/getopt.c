@@ -39,15 +39,12 @@ int	  optopt;	/* character checked for validity */
 int	  optreset;	/* reset getopt */
 char *optarg;	/* argument associated with option */
 
-#define __P(x) x
 #define _DIAGASSERT(x) assert(x)
 
-static char * __progname __P((char *));
-int getopt_internal __P((int, char * const *, const char *));
+static char * __progname(char *);
+int getopt_internal (int, char**, const char *);
 
-static char *
-__progname(nargv0)
-	char * nargv0;
+static char * __progname(char * nargv0)
 {
 	char * tmp;
 
@@ -70,10 +67,7 @@ __progname(nargv0)
  *	Parse argc/argv argument vector.
  */
 int
-getopt_internal(nargc, nargv, ostr)
-	int nargc;
-	char * const *nargv;
-	const char *ostr;
+getopt_internal(int nargc, char** nargv, const char* ostr)
 {
 	static char *place = EMSG;		/* option letter processing */
 	char *oli;				/* option letter list index */
@@ -135,10 +129,7 @@ getopt_internal(nargc, nargv, ostr)
  *	Parse argc/argv argument vector.
  */
 int
-getopt(nargc, nargv, ostr)
-	int nargc;
-	char * const *nargv;
-	const char *ostr;
+getopt(int nargc, char** nargv, const char* ostr)
 {
 	int retval;
 
@@ -155,12 +146,7 @@ getopt(nargc, nargv, ostr)
  *	Parse argc/argv argument vector.
  */
 int
-getopt_long(nargc, nargv, options, long_options, index)
-	int nargc;
-	char ** nargv;
-	const char * options;
-	const struct option * long_options;
-	int * index;
+getopt_long(int nargc, char** nargv, const char* options, const struct option* long_options, int* index)
 {
 	int retval;
 
@@ -171,7 +157,8 @@ getopt_long(nargc, nargv, options, long_options, index)
 
 	if ((retval = getopt_internal(nargc, nargv, options)) == -2) {
 		char *current_argv = nargv[optind++] + 2, *has_equal;
-		int i, current_argv_len, match = -1;
+		int i, match = -1;
+		size_t current_argv_len;
 
 		if (*current_argv == '\0') {
 			return(-1);
@@ -182,11 +169,11 @@ getopt_long(nargc, nargv, options, long_options, index)
 		} else
 			current_argv_len = strlen(current_argv);
 
-		for (i = 0; long_options[i].name; i++) { 
+		for (i = 0; long_options[i].name; i++) {
 			if (strncmp(current_argv, long_options[i].name, current_argv_len))
 				continue;
 
-			if (strlen(long_options[i].name) == (unsigned)current_argv_len) { 
+			if (strlen(long_options[i].name) == current_argv_len) {
 				match = i;
 				break;
 			}

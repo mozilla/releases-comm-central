@@ -1,5 +1,14 @@
-Directory ./niwcompat contains dirent.h from vcpkg and an empty getopt.h.
-to compile RNP with Clang-cl for Windows.
+Directory ./niwcompat contains files needed to compile RNP with Clang-cl for Windows.
+
+
+dirent.h
+  https://github.com/tronkko/dirent 39c1f1bc98ef3326237d03006f35d7dd44620e43
+
+getopt
+  Copied from ipc/chromium/src/third_party/libevent/WIN32-Code 17630c12ac58fd6623fb5d6816eccd9b17933729
+  getopt_long.c -> getopt.c
+  Applied patch in ../patches/getopt/getopt.diff to fix warnings
+
 
 niwcompat = wincompat where "win" is spelled backwards
 
