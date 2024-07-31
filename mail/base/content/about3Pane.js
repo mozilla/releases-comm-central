@@ -6493,6 +6493,13 @@ var sortController = {
     ];
     gViewWrapper.showGroupedBySort = false;
     gViewWrapper.endViewUpdate();
+    // Virtual folders don't persist viewFlags well in the back end,
+    // due to a virtual folder being either 'real' or synthetic, so make
+    // sure it's done here.
+    if (gViewWrapper.isVirtual) {
+      gViewWrapper.dbView.viewFlags = gViewWrapper._viewFlags;
+    }
+
     return true;
   },
   reverseSortThreadPane() {
@@ -6562,6 +6569,12 @@ var sortController = {
     gViewWrapper.beginViewUpdate();
     gViewWrapper.showGroupedBySort = true;
     gViewWrapper.endViewUpdate();
+    // Virtual folders don't persist viewFlags well in the back end,
+    // due to a virtual folder being either 'real' or synthetic, so make
+    // sure it's done here.
+    if (gViewWrapper.isVirtual) {
+      gViewWrapper.dbView.viewFlags = gViewWrapper._viewFlags;
+    }
     threadPane.restoreThreadState(!gViewWrapper.isSingleFolder);
   },
   sortUnthreaded() {
