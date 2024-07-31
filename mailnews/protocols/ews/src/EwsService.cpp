@@ -12,23 +12,6 @@ EwsService::EwsService() = default;
 
 EwsService::~EwsService() = default;
 
-nsresult EwsService::NewURI(const nsACString& spec, nsIURI** _retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-
-  nsresult rv;
-  nsCOMPtr<nsIURI> newUri =
-      do_CreateInstance("@mozilla.org/messenger/url;1?type=ews", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUri = do_QueryInterface(newUri);
-  rv = mailnewsUri->SetSpecInternal(spec);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  newUri.forget(_retval);
-
-  return rv;
-}
-
 NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
                                       nsIStreamListener* aCopyListener,
                                       bool aMoveMessage,
@@ -68,7 +51,7 @@ NS_IMETHODIMP EwsService::SaveMessageToDisk(const nsACString& aMessageURI,
 NS_IMETHODIMP EwsService::GetUrlForUri(const nsACString& aMessageURI,
                                        nsIMsgWindow* aMsgWindow,
                                        nsIURI** _retval) {
-  return EwsService::NewURI(aMessageURI, _retval);
+  return NS_NewURI(_retval, aMessageURI);
 }
 
 NS_IMETHODIMP EwsService::Search(nsIMsgSearchSession* aSearchSession,

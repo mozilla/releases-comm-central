@@ -7,7 +7,6 @@ SOURCES += [
     "EwsIncomingServer.cpp",
     "EwsProtocolInfo.cpp",
     "EwsService.cpp",
-    "EwsUrl.cpp",
 ]
 
 XPCOM_MANIFESTS += [

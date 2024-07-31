@@ -16,8 +16,6 @@ class EwsService : public nsIMsgMessageService, public nsIProtocolHandler {
 
   EwsService();
 
-  static nsresult NewURI(const nsACString& spec, nsIURI** _retval);
-
  protected:
   virtual ~EwsService();
 };

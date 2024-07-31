@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "EwsIncomingServer.h"
-#include "EwsService.h"
+
 #include "nsIMsgWindow.h"
+#include "nsNetUtil.h"
 #include "nsPrintfCString.h"
 #include "plbase64.h"
 
@@ -267,7 +268,7 @@ EwsIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
   spec.Append(hostname);
 
   RefPtr<nsIURI> uri;
-  rv = EwsService::NewURI(spec, getter_AddRefs(uri));
+  rv = NS_NewURI(getter_AddRefs(uri), spec);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Notify the caller that verification has succeeded. This is the one thing we

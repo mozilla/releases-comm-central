@@ -20,9 +20,13 @@
 #include "../../addrbook/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpUrl.h"
-#include "../../protocols/ews/src/EwsService.h"
 #include "../src/nsCidProtocolHandler.h"
 
+// Instantiates a new `nsIURI` of the appropriate concrete type for the provided
+// URI spec.
+//
+// This is primarily intended to be called by `NS_NewURI` in necko for
+// handling Thunderbird-specific URI schemes.
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,
                            nsIURI* aBaseURI /* = nullptr */) {
@@ -123,8 +127,10 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
         .Finalize(aURI);
   }
 #if defined(MOZ_THUNDERBIRD_RUST)
-  if (scheme.EqualsLiteral("ews")) {
-    return EwsService::NewURI(aSpec, aURI);
+  if (scheme.EqualsLiteral("ews") || scheme.EqualsLiteral("ews-message")) {
+    return NS_MutateURI(new mozilla::net::nsStandardURL::Mutator())
+        .SetSpec(aSpec)
+        .Finalize(aURI);
   }
 #endif
 

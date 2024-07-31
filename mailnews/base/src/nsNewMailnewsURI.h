@@ -8,6 +8,8 @@
 
 #include "nsIURI.h"
 
+// Instantiates a new `nsIURI` of the appropriate concrete type for the provided
+// URI spec.
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,
                            nsIURI* aBaseURI /* = nullptr */);
