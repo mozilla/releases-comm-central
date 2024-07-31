@@ -55,12 +55,34 @@
       margin: 1em;
     }
 
-    .resized {
+    .resized,
+    .fill2 {
       background-color: lightblue;
     }
 
     .fill {
       background-color: lightslategrey;
+    }
+
+    #window-resize-splitter-vertical {
+      display: grid;
+      --splitter6-height: 400px;
+      grid-template-rows: auto min-content minmax(auto, var(--splitter6-height));
+      height: 80vh;
+      width: 100px;
+      margin: 1em;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    #window-resize-splitter {
+      display: grid;
+      --splitter5-width: 400px;
+      grid-template-columns: auto min-content minmax(auto, var(--splitter5-width));
+      width: 100vw;
+      height: 100px;
+      margin: 1em;
     }
   </style>
   <!-- This path is used for the automated test. -->
@@ -84,7 +106,10 @@
 
     window.addEventListener("load", () => {
       for (let splitter of document.querySelectorAll('hr[is="pane-splitter"]')) {
-        splitter.resizeElement = splitter.parentNode.querySelector(".resized");
+        const element = splitter.parentNode.querySelector(".resized")
+        if (element) {
+          splitter.resizeElement = element;
+        }
       }
     });
   </script>
@@ -114,6 +139,30 @@
       <hr is="pane-splitter" id="splitter4" resize="next" />
       <div id="splitter4-after" class="resized"></div>
     </div>
+  </div>
+
+  <div id="window-resize-splitter">
+    <div id="resizeSplitter-before" class="fill"></div>
+    <hr
+      is="pane-splitter"
+      id="splitter5"
+      resize-id="resizeSplitter-after"
+      resize-direction="horizontal"
+      resize-lock-ids="resizeSplitter-before"
+      resize-with-window="true"/>
+    <div id="resizeSplitter-after" class="fill2"></div>
+  </div>
+
+  <div id="window-resize-splitter-vertical">
+    <div id="resizeSplitter-vertical-before" class="fill"></div>
+    <hr
+      is="pane-splitter"
+      id="splitter6"
+      resize-id="resizeSplitter-vertical-after"
+      resize-direction="vertical"
+      resize-lock-ids="resizeSplitter-vertical-before"
+      resize-with-window="true"/>
+    <div id="resizeSplitter-vertical-after" class="fill2"></div>
   </div>
 
   <div id="markerX" style="position: absolute; top: 0px; border-left: 1px red solid;"></div>

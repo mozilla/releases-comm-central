@@ -142,6 +142,119 @@ add_task(async function testHorizontalBefore() {
   await subtestCollapseExpand();
 });
 
+// Simulate a user resizing the window.
+async function resizeWindow(delta, prop) {
+  const isWidth = prop === "width";
+  if (delta === 0) {
+    throw new Error("Cannot resize by 0");
+  }
+
+  for (let i = 0; i < Math.abs(delta); i++) {
+    window.top.resizeBy(
+      isWidth ? Math.sign(delta) : 0,
+      isWidth ? 0 : Math.sign(delta)
+    );
+    await new Promise(requestAnimationFrame);
+  }
+}
+
+async function isSizeClose({ resizeElement, idealSize, margin = 3, prop }) {
+  await new Promise(resolve =>
+    setTimeout(() => {
+      resolve();
+    })
+  );
+  Assert.lessOrEqual(
+    Math.abs(resizeElement.getBoundingClientRect()[prop] - idealSize),
+    margin,
+    `Difference in size is less than than ${margin}`
+  );
+}
+
+async function waitForSize(resizeElement, prop, size) {
+  const propTest = new RegExp(prop);
+  const sizeRegEx = new RegExp(`${size}px`);
+  await BrowserTestUtils.waitForMutationCondition(
+    resizeElement.parentNode,
+    {
+      attributes: true,
+      attributeFilter: ["style"],
+    },
+    () => {
+      return resizeElement.parentNode
+        .getAttribute("style")
+        .split(";")
+        .some(prop => {
+          if (size) {
+            return propTest.test(prop) && sizeRegEx.test(prop);
+          }
+          return propTest.test(prop) && /px/.test(prop);
+        });
+    }
+  );
+}
+
+add_task(async function testResizeWithWindow() {
+  const resizeElement = doc.getElementById("resizeSplitter-after");
+  const size = resizeElement.getBoundingClientRect().width;
+
+  await resizeWindow(-100, "width");
+  await waitForSize(resizeElement, "--splitter5-width");
+
+  Assert.equal(resizeElement.getBoundingClientRect().width, size - 100);
+
+  await resizeWindow(100, "width");
+  await waitForSize(resizeElement, "--splitter5-width");
+
+  Assert.equal(resizeElement.getBoundingClientRect().width, size);
+});
+
+add_task(async function testResizeWithWindowSingleEvent() {
+  const resizeElement = doc.getElementById("resizeSplitter-after");
+  const size = resizeElement.getBoundingClientRect().width;
+
+  window.resizeBy(-100, 0);
+  await waitForSize(resizeElement, "--splitter5-width", 300);
+
+  Assert.equal(resizeElement.getBoundingClientRect().width, size - 100);
+
+  window.resizeBy(100, 0);
+  await waitForSize(resizeElement, "--splitter5-width", 400);
+
+  Assert.equal(resizeElement.getBoundingClientRect().width, size);
+});
+
+add_task(async function testResizeWithWindowVertical() {
+  const resizeElement = doc.getElementById("resizeSplitter-vertical-after");
+  const size = resizeElement.getBoundingClientRect().height;
+
+  await resizeWindow(-100, "height");
+
+  await waitForSize(resizeElement, "--splitter6-height");
+
+  Assert.equal(resizeElement.getBoundingClientRect().height, size - 100);
+
+  await resizeWindow(100, "height");
+  await waitForSize(resizeElement, "--splitter6-height");
+
+  Assert.equal(resizeElement.getBoundingClientRect().height, size);
+});
+
+add_task(async function testResizeWithWindowVerticalSingleEvent() {
+  const resizeElement = doc.getElementById("resizeSplitter-vertical-after");
+  const size = resizeElement.getBoundingClientRect().height;
+
+  window.resizeBy(0, -100);
+  await waitForSize(resizeElement, "--splitter6-height", 300);
+
+  Assert.equal(resizeElement.getBoundingClientRect().height, size - 100);
+
+  window.resizeBy(0, 100);
+  await waitForSize(resizeElement, "--splitter6-height", 400);
+
+  Assert.equal(resizeElement.getBoundingClientRect().height, size);
+});
+
 add_task(async function testHorizontalAfter() {
   const outer = doc.getElementById("horizontal-after");
   const fill = outer.querySelector(".fill");
