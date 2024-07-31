@@ -530,12 +530,13 @@ ircChannel.prototype = {
     return participant;
   },
 
-  /*
+  /**
    * Add/remove modes from this channel.
    *
-   * aNewMode is the new mode string, it MUST begin with + or -.
-   * aModeParams is a list of ordered string parameters for the mode string.
-   * aSetter is the nick of the person (or service) that set the mode.
+   * @param {string} aNewMode - The new mode string, it MUST begin with + or -.
+   * @param {string[]} aModeParams - A list of ordered string parameters for the
+   *   mode string.
+   * @param {string} aSetter - The nick of the person (or service) that set the mode.
    */
   setMode(aNewMode, aModeParams, aSetter) {
     // Save this for a comparison after the new modes have been set.
@@ -591,7 +592,6 @@ ircChannel.prototype = {
         continue;
       } else if (aNewMode[i] == "k") {
         // Channel key.
-        let newFields = this.name;
         if (addNewMode) {
           const key = getNextParam();
           // A new channel key was set, display a message if this key is not
@@ -606,17 +606,15 @@ ircChannel.prototype = {
             nick: aSetter,
             newPassword: key,
           });
-          newFields += " " + key;
+          this.chatRoomFields.setValue("password", key);
         } else {
           msg = lazy.l10n.formatValueSync("message-channel-key-removed", {
             nick: aSetter,
           });
+          this.chatRoomFields.setValue("password", undefined);
         }
 
         this.writeMessage(aSetter, msg, { system: true });
-        // Store the new fields for reconnect.
-        this.chatRoomFields =
-          this._account.getChatRoomDefaultFieldValues(newFields);
       } else if (aNewMode[i] == "b") {
         // A banmask was added or removed.
         const banMask = getNextParam();
@@ -2029,8 +2027,7 @@ ircAccount.prototype = {
     conv.joining = true;
 
     // Store the prplIChatRoomFieldValues to enable later reconnections.
-    const defaultName = key ? channel + " " + key : channel;
-    conv.chatRoomFields = this.getChatRoomDefaultFieldValues(defaultName);
+    conv.chatRoomFields = aComponents;
 
     return conv;
   },

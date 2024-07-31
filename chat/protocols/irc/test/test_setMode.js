@@ -22,6 +22,7 @@ FakeAccount.prototype = {
 function run_test() {
   add_test(test_topicSettable);
   add_test(test_topicSettableJoinAsOp);
+  add_test(test_addRemoveKey);
 
   run_next_test();
 }
@@ -65,6 +66,38 @@ function test_topicSettableJoinAsOp() {
   channel.setMode("+t", [], "ChanServ");
   // The topic should still be editable.
   equal(channel.topicSettable, true);
+
+  run_next_test();
+}
+
+function test_addRemoveKey() {
+  const account = new FakeAccount();
+  const channel = new ircChannel(account, "#test", "nick");
+
+  // Add chat room fields to the channel.
+  channel.chatRoomFields = account.getChatRoomDefaultFieldValues("#test");
+
+  equal(
+    channel.chatRoomFields.getValue("password"),
+    undefined,
+    "Start with no password set"
+  );
+
+  // Receive the channel mode.
+  channel.setMode("+k", ["foo"], "ChanServ");
+  equal(
+    channel.chatRoomFields.getValue("password"),
+    "foo",
+    "The password should be stored"
+  );
+
+  // Receive the channel mode.
+  channel.setMode("-k", [], "ChanServ");
+  equal(
+    channel.chatRoomFields.getValue("password"),
+    undefined,
+    "The password should be cleared"
+  );
 
   run_next_test();
 }
