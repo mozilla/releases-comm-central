@@ -139,7 +139,7 @@ widths: 30 70
   -
     * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
 * - Peer(s) Emeritus
-  - Mark Banner, Siddharth Agarwal, Justin Wood, Joshua Cranmer, Tom Prince
+  - Mark Banner, Siddharth Agarwal, Justin Wood, Joshua Cranmer, Tom Prince, aleth
 * - Includes
   -
     * build/\*\*
@@ -268,6 +268,10 @@ widths: 30 70
 * - Peer(s)
   -
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
+* - Owner(s) Emeritus
+  - Daniel Bölzle, Michiel van Leeuwen
+* - Peer(s) Emeritus
+  - Martin Schröder, Daniel Bölzle, Clint Talbert, Dan Mosendale, Michiel van Leeuwen, Paul Morris, Mark Carson, Robert Strong, Simon Paquet, Bruno Browning, Sebastian Schwieger, Stefan Sitter, Matthew Mecca, Blake Winton, Andreas Nilsson, Christian Jansen, Bryan Clark, Tobias Markus, Tom Ellins, Matthew Willis, Joey Minta, Michael Büttner, Berend Cornelius, Mostafa Hosseini
 * - Includes
   -
     * calendar/\*\*
@@ -389,12 +393,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
-* - Peer(s)
-  -
-    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
-    * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Peer(s) Emeritus
   - Jonathan Protzenko
 * - Includes
@@ -414,12 +412,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [gene smith (gds)](https://people.mozilla.org/s?query=gds)
-* - Peer(s)
-  -
-    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
-    * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Peer(s) Emeritus
   - Kent James
 * - Includes
@@ -433,14 +425,14 @@ widths: 30 70
 #### Import
 
 
+```{warning}
+    This module does not have any owners specified.
+```
 ```{list-table}
 ---
 stub-columns: 1
 widths: 30 70
 ---
-* - Owner(s)
-  -
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
 * - Peer(s)
   -
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
@@ -548,12 +540,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
-* - Peer(s)
-  -
-    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
-    * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Peer(s) Emeritus
   - David Bienvenu (bienvenu)
 * - Includes
@@ -576,12 +562,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [Kai Engert (KaiE)](https://people.mozilla.org/s?query=KaiE)
-* - Peer(s)
-  -
-    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
-    * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Includes
   -
     * mailnews/extensions/smime/\*\*
@@ -602,12 +582,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [Ping Chen (rnons)](https://people.mozilla.org/s?query=rnons)
-* - Peer(s)
-  -
-    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
-    * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Includes
   -
     * mailnews/compose/\*\*
