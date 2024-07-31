@@ -14,7 +14,10 @@ use nserror::{
 use nsstring::nsACString;
 use url::Url;
 use xpcom::{
-    interfaces::{nsIMsgIncomingServer, IEwsFolderCallbacks, IEwsMessageCallbacks},
+    interfaces::{
+        nsIMsgIncomingServer, nsIRequest, nsIStreamListener, IEwsFolderCallbacks,
+        IEwsMessageCallbacks,
+    },
     nsIID, xpcom_method, RefPtr,
 };
 
@@ -120,6 +123,30 @@ impl XpcomEwsBridge {
                 RefPtr::new(callbacks),
                 folder_id.to_utf8().into_owned(),
                 sync_state,
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(get_message => GetMessage(id: *const nsACString, request: *const nsIRequest, listener: *const nsIStreamListener));
+    fn get_message(
+        &self,
+        id: &nsACString,
+        request: &nsIRequest,
+        listener: &nsIStreamListener,
+    ) -> Result<(), nsresult> {
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "get_message",
+            client.get_message(
+                id.to_utf8().into(),
+                RefPtr::new(request),
+                RefPtr::new(listener),
             ),
         )
         .detach();

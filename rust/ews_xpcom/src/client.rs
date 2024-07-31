@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    ffi::c_char,
+};
 
-use base64::prelude::*;
+use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
     create_item::{self, CreateItem, MessageDisposition},
     get_folder::GetFolder,
@@ -18,7 +21,7 @@ use ews::{
 };
 use fxhash::FxHashMap;
 use moz_http::StatusCode;
-use nserror::{nsresult, NS_ERROR_FAILURE};
+use nserror::nsresult;
 use nsstring::{nsCString, nsString};
 use thiserror::Error;
 use url::Url;
@@ -26,8 +29,9 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgDBHdr, nsIRequestObserver, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags,
-        nsMsgPriority, IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
+        nsIMsgDBHdr, nsIRequest, nsIRequestObserver, nsIStreamListener, nsIStringInputStream,
+        nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags, nsMsgPriority, IEwsClient,
+        IEwsFolderCallbacks, IEwsMessageCallbacks,
     },
     RefPtr,
 };
@@ -241,6 +245,7 @@ impl XpComEwsClient {
                         "item:HasAttachments",
                         "item:Importance",
                     ],
+                    false,
                 )
                 .await?
                 .into_iter()
@@ -348,6 +353,102 @@ impl XpComEwsClient {
         Ok(())
     }
 
+    pub(crate) async fn get_message(
+        self,
+        id: String,
+        request: RefPtr<nsIRequest>,
+        listener: RefPtr<nsIStreamListener>,
+    ) {
+        unsafe { listener.OnStartRequest(&*request) };
+
+        // Call an inner function to perform the operation in order to allow us
+        // to handle errors while letting the inner function simply propagate.
+        let result = self
+            .get_message_inner(id.clone(), &request, &listener)
+            .await;
+
+        let status = match result {
+            Ok(_) => nserror::NS_OK,
+            Err(err) => {
+                log::error!("an unexpected error occurred while fetching message {id}: {err:?}");
+
+                nsresult::from(err)
+            }
+        };
+
+        unsafe { listener.OnStopRequest(&*request, status) };
+    }
+
+    async fn get_message_inner(
+        self,
+        id: String,
+        request: &nsIRequest,
+        listener: &nsIStreamListener,
+    ) -> Result<(), XpComEwsError> {
+        let items = self.get_items([id], &[], true).await?;
+        if items.len() != 1 {
+            return Err(XpComEwsError::Processing {
+                message: format!(
+                    "provided single ID to GetItem operation, got {} responses",
+                    items.len()
+                ),
+            });
+        }
+
+        // Extract the Internet Message Format content of the message from the
+        // response. We've guaranteed above that the iteration will produce
+        // at least one element, so unwrapping is okay here.
+        let message = if let RealItem::Message(message) = items.into_iter().next().unwrap() {
+            message
+        } else {
+            return Err(XpComEwsError::Processing {
+                message: format!("item is not a message"),
+            });
+        };
+
+        let raw_mime = if let Some(raw_mime) = message.mime_content {
+            raw_mime.content
+        } else {
+            return Err(XpComEwsError::Processing {
+                message: format!("item has no content"),
+            });
+        };
+
+        // EWS returns the content of the email b64encoded on top of any
+        // encoding within the message.
+        let mime_content =
+            BASE64_STANDARD
+                .decode(raw_mime)
+                .map_err(|_| XpComEwsError::Processing {
+                    message: format!("MIME content for item is not validly base64 encoded"),
+                })?;
+
+        let len: i32 = mime_content
+            .len()
+            .try_into()
+            .map_err(|_| XpComEwsError::Processing {
+                message: format!(
+                    "item is of length {}, larger than supported size of 2GiB",
+                    mime_content.len()
+                ),
+            })?;
+
+        let stream = xpcom::create_instance::<nsIStringInputStream>(cstr::cstr!(
+            "@mozilla.org/io/string-input-stream;1"
+        ))
+        .ok_or(nserror::NS_ERROR_UNEXPECTED)?;
+
+        // We use `SetData()` here instead of one of the alternatives to ensure
+        // that the data is copied. Otherwise, the pointer may become invalid
+        // before the stream is dropped.
+        unsafe { stream.SetData(mime_content.as_ptr() as *const c_char, len) }.to_result()?;
+
+        unsafe { listener.OnDataAvailable(&*request, &*stream.coerce(), 0, len as u32) }
+            .to_result()?;
+
+        Ok(())
+    }
+
     /// Builds a map from remote folder ID to distinguished folder ID.
     ///
     /// This allows translating from the folder ID returned by `GetFolder`
@@ -442,7 +543,7 @@ impl XpComEwsClient {
                         ..
                     } => {
                         let id = folder_id.id;
-                        let display_name = display_name.ok_or(NS_ERROR_FAILURE)?;
+                        let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
 
                         let well_known_folder_flag = well_known_map
                             .as_ref()
@@ -451,7 +552,7 @@ impl XpComEwsClient {
                             .unwrap_or_default();
 
                         let id = nsCString::from(id);
-                        let parent_struct = parent_folder_id.ok_or(NS_ERROR_FAILURE)?;
+                        let parent_struct = parent_folder_id.ok_or(nserror::NS_ERROR_FAILURE)?;
                         let parent_folder_id = nsCString::from(parent_struct.id);
 
                         let display_name = {
@@ -469,7 +570,7 @@ impl XpComEwsClient {
                         .to_result()?;
                     }
 
-                    _ => return Err(NS_ERROR_FAILURE.into()),
+                    _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
         }
@@ -484,7 +585,7 @@ impl XpComEwsClient {
                         ..
                     } => {
                         let id = folder_id.id;
-                        let display_name = display_name.ok_or(NS_ERROR_FAILURE)?;
+                        let display_name = display_name.ok_or(nserror::NS_ERROR_FAILURE)?;
 
                         let id = nsCString::from(id);
                         let display_name = nsCString::from(display_name);
@@ -492,7 +593,7 @@ impl XpComEwsClient {
                         unsafe { callbacks.Update(&*id, &*display_name) }.to_result()?;
                     }
 
-                    _ => return Err(NS_ERROR_FAILURE.into()),
+                    _ => return Err(nserror::NS_ERROR_FAILURE.into()),
                 }
             }
         }
@@ -595,6 +696,7 @@ impl XpComEwsClient {
         &self,
         ids: IdColl,
         fields: &[&str],
+        include_mime_content: bool,
     ) -> Result<Vec<RealItem>, XpComEwsError>
     where
         IdColl: IntoIterator<Item = String>,
@@ -638,6 +740,7 @@ impl XpComEwsClient {
                     // are only getting the message header.
                     base_shape: BaseShape::IdOnly,
                     additional_properties,
+                    include_mime_content: Some(include_mime_content),
                     ..Default::default()
                 },
                 item_ids: batch_ids,
@@ -707,12 +810,7 @@ impl XpComEwsClient {
             Err(err) => {
                 log::error!("an error occurred while attempting to send the message: {err:?}");
 
-                match err {
-                    XpComEwsError::XpCom(status) => status,
-                    XpComEwsError::Http(err) => err.into(),
-
-                    _ => nserror::NS_ERROR_FAILURE,
-                }
+                nsresult::from(err)
             }
         };
 
@@ -1039,6 +1137,17 @@ pub(crate) enum XpComEwsError {
 
     #[error("error in processing response")]
     Processing { message: String },
+}
+
+impl From<XpComEwsError> for nsresult {
+    fn from(value: XpComEwsError) -> Self {
+        match value {
+            XpComEwsError::XpCom(value) => value,
+            XpComEwsError::Http(value) => value.into(),
+
+            _ => nserror::NS_ERROR_UNEXPECTED,
+        }
+    }
 }
 
 /// Returns a function for processing an error and providing it to the provided

@@ -5,6 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIMsgDBHdr;
+interface nsIRequest;
 interface nsIStreamListener;
 interface nsIMsgIncomingServer;
 
@@ -23,6 +24,7 @@ interface IEwsClient : nsISupports
 
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
+  void getMessage(in AUTF8String id, in nsIRequest request, in nsIStreamListener listener);
 };
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]
