@@ -47,14 +47,21 @@ tasks:
                 # thunderbird-msi-latest-ssl: msi
                 # thunderbird-msix-latest-ssl: msix
                 esr115:
+                    # esr115 is the last of the "esr" branches to use the
+                    # thunderbird-latest aliases that are moving to monthly
+                    # releases
+                    thunderbird-latest-ssl: installer-ssl
+                    thunderbird-latest: installer
+                    thunderbird-msi-latest-ssl: msi
+                    thunderbird-msix-latest-ssl: msix
+                esr128:
                     # when there is one ESR branch both sets of aliases work
-                    # when there are two ESR branches ...
-                    # ... these always point to the older branch
                     thunderbird-esr-latest-ssl: installer-ssl
                     thunderbird-esr-latest: installer
                     thunderbird-esr-msi-latest-ssl: msi
                     thunderbird-esr-msix-latest-ssl: msix
-                esr128:
+                    # when there are two ESR branches ...
+                    # ... these always point to the older branch
                     thunderbird-esr-next-latest-ssl: installer-ssl
                     thunderbird-esr-next-latest: installer
                     thunderbird-esr-next-msi-latest-ssl: msi
