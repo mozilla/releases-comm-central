@@ -73,9 +73,13 @@ jobs:
           treeherder-symbol: l10n-bump
           target-tasks-method: l10n_bump
       run-on-projects:
+          - comm-central
           - comm-beta
-      when: [{hour: 8, minute: 30}]
-      # when: []
+      when:
+          by-project:
+              comm-central: [{hour: 6, minute: 45}, {hour: 18, minute: 45}]
+              comm-beta: [{hour: 9, minute: 00}]
+              # No default
 
     - name: l10n-cross-channel
       job:
