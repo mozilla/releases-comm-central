@@ -158,7 +158,7 @@ header {
     background-color: var(--hub-close-button-active-background);
   }
 
-  &hover:active {
+  &:hover:active {
     background-color: var(--hub-close-button-active-background);
   }
 

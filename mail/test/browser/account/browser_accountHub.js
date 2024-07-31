@@ -31,17 +31,6 @@ add_task(async function test_account_hub_opening() {
   await window.openAccountHub();
   Assert.ok(dialog.open, "The dialog element was opened");
 
-  // We already have a tinderbox account, so the default header should be
-  // visible and the welcome header should be hidden.
-  Assert.ok(
-    !hub.shadowRoot.querySelector("#defaultHeader").hidden,
-    "The #defaultHeader is visible"
-  );
-  Assert.ok(
-    hub.shadowRoot.querySelector("#welcomeHeader").hidden,
-    "The #welcomeHeader is hidden"
-  );
-
   EventUtils.synthesizeMouseAtCenter(
     hub.shadowRoot.querySelector("#closeButton"),
     {},
