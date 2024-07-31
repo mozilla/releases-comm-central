@@ -297,7 +297,7 @@ add_task(async function testDragMessageDestination() {
       threadTree.getRowAtIndex(0),
       folderPane.getRowForFolder(folder),
       null,
-      null,
+      expectedEffect,
       about3Pane,
       about3Pane,
       modifiers

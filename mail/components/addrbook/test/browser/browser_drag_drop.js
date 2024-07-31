@@ -20,7 +20,7 @@ function doDrag(sourceIndex, destIndex, modifiers, expectedEffect) {
     cardsList.getRowAtIndex(sourceIndex),
     destElement,
     null,
-    null,
+    expectedEffect,
     abWindow,
     abWindow,
     modifiers

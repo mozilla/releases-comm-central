@@ -934,7 +934,6 @@ customElements.whenDefined("tree-listbox").then(() => {
             return;
           }
         }
-        event.dataTransfer.dropEffect = event.ctrlKey ? "copy" : "move";
       }
 
       this._clearDropTarget();
