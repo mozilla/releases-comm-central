@@ -137,3 +137,70 @@ add_task(function test_joinChat() {
     "room@server/nick"
   );
 });
+
+add_task(function test_getChatRoomFieldValuesFromString() {
+  function XMPPAccount() {}
+  XMPPAccount.prototype = XMPPAccountPrototype;
+
+  const NICK = "alice";
+  const MUC_SERVICE = "muc.test";
+  const account = new XMPPAccount();
+  account._jid = { node: NICK };
+  account._mucService = MUC_SERVICE;
+
+  let result = account.getChatRoomFieldValuesFromString("test");
+  Assert.deepEqual(
+    result.values,
+    { room: "test", server: MUC_SERVICE, nick: NICK },
+    "Unexpected result for bare node"
+  );
+
+  result = account.getChatRoomFieldValuesFromString("test@foo");
+  Assert.deepEqual(
+    result.values,
+    { room: "test", server: "foo", nick: NICK },
+    "Unexpected values for node & server"
+  );
+
+  result = account.getChatRoomFieldValuesFromString("test/bob");
+  Assert.deepEqual(
+    result.values,
+    { room: "test", server: MUC_SERVICE, nick: "bob" },
+    "Unexpected values for room & nick"
+  );
+
+  result = account.getChatRoomFieldValuesFromString("test@foo/bob");
+  Assert.deepEqual(
+    result.values,
+    { room: "test", server: "foo", nick: "bob" },
+    "Unexpected values for node, server & nick"
+  );
+
+  result = account.getChatRoomFieldValuesFromString("test pass");
+  Assert.deepEqual(
+    result.values,
+    { room: "test", server: MUC_SERVICE, nick: NICK, password: "pass" },
+    "Unexpected values for node & password"
+  );
+
+  result = account.getChatRoomFieldValuesFromString("");
+  Assert.deepEqual(result.values, { nick: NICK }, "Unexpected room for empty");
+});
+
+add_task(function test_getChatRoomDefaultFieldValues() {
+  function XMPPAccount() {}
+  XMPPAccount.prototype = XMPPAccountPrototype;
+
+  const NICK = "alice";
+  const MUC_SERVICE = "muc.test";
+  const account = new XMPPAccount();
+  account._jid = { node: NICK };
+  account._mucService = MUC_SERVICE;
+
+  const result = account.getChatRoomDefaultFieldValues();
+  Assert.deepEqual(
+    result.values,
+    { server: MUC_SERVICE, nick: NICK },
+    "Unexpected default values"
+  );
+});

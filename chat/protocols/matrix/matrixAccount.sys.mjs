@@ -6,6 +6,7 @@ import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { nsSimpleEnumerator } from "resource:///modules/imXPCOMUtils.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import {
+  ChatRoomFieldValues,
   GenericAccountPrototype,
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
@@ -3125,12 +3126,12 @@ MatrixAccount.prototype = {
       required: true,
     },
   },
-  parseDefaultChatName(aDefaultName) {
+  getChatRoomFieldValuesFromString(aString) {
     const chatFields = {
-      roomIdOrAlias: aDefaultName,
+      roomIdOrAlias: aString,
     };
 
-    return chatFields;
+    return new ChatRoomFieldValues(chatFields);
   },
   joinChat(components) {
     // For the format of room id and alias, see the matrix documentation:

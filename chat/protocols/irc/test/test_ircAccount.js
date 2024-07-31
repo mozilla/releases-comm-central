@@ -89,3 +89,26 @@ add_task(function test_joinChat() {
   // Test input with commas.
   joinChat("Commas", "#foo bar,", "", "#foo");
 });
+
+add_task(function test_getChatRoomFieldValuesFromString() {
+  let result = ircAccount.prototype.getChatRoomFieldValuesFromString("#test");
+  Assert.deepEqual(
+    result.values,
+    { channel: "#test" },
+    "Unexpected results for bare channel"
+  );
+
+  result = ircAccount.prototype.getChatRoomFieldValuesFromString("#test pass");
+  Assert.deepEqual(
+    result.values,
+    { channel: "#test", password: "pass" },
+    "Unexpected results for channel & password"
+  );
+
+  result = ircAccount.prototype.getChatRoomFieldValuesFromString("");
+  Assert.deepEqual(
+    result.values,
+    { channel: "" },
+    "Unexpected results for empty"
+  );
+});

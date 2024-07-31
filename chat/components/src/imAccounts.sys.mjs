@@ -285,7 +285,7 @@ imAccount.prototype = {
         if (autojoin) {
           for (const room of autojoin.trim().split(/,\s*/)) {
             if (room) {
-              this.joinChat(this.getChatRoomDefaultFieldValues(room));
+              this.joinChat(this.getChatRoomFieldValuesFromString(room));
             }
           }
         }
@@ -930,10 +930,11 @@ imAccount.prototype = {
   getChatRoomFields() {
     return this._ensurePrplAccount.getChatRoomFields();
   },
-  getChatRoomDefaultFieldValues(aDefaultChatName) {
-    return this._ensurePrplAccount.getChatRoomDefaultFieldValues(
-      aDefaultChatName
-    );
+  getChatRoomDefaultFieldValues() {
+    return this._ensurePrplAccount.getChatRoomDefaultFieldValues();
+  },
+  getChatRoomFieldValuesFromString(aString) {
+    return this._ensurePrplAccount.getChatRoomFieldValuesFromString(aString);
   },
   get canJoinChat() {
     return this.prplAccount ? this.prplAccount.canJoinChat : false;

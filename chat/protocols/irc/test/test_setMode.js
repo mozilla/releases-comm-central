@@ -75,7 +75,7 @@ function test_addRemoveKey() {
   const channel = new ircChannel(account, "#test", "nick");
 
   // Add chat room fields to the channel.
-  channel.chatRoomFields = account.getChatRoomDefaultFieldValues("#test");
+  channel.chatRoomFields = account.getChatRoomFieldValuesFromString("#test");
 
   equal(
     channel.chatRoomFields.getValue("password"),

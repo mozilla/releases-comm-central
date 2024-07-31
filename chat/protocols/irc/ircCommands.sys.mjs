@@ -273,7 +273,7 @@ export var commands = [
       params.forEach(function (joinParam) {
         if (joinParam) {
           const chatroomfields =
-            account.getChatRoomDefaultFieldValues(joinParam);
+            account.getChatRoomFieldValuesFromString(joinParam);
           conv = account.joinChat(chatroomfields);
         }
       });

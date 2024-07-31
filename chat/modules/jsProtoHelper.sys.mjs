@@ -395,24 +395,12 @@ export var GenericAccountPrototype = {
       fieldName => new ChatRoomField(fieldName, this.chatRoomFields[fieldName])
     );
   },
-  getChatRoomDefaultFieldValues(aDefaultChatName) {
-    if (!this.chatRoomFields) {
-      return new ChatRoomFieldValues({});
-    }
-
-    const defaultFieldValues = {};
-    for (const fieldName in this.chatRoomFields) {
-      defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
-    }
-
-    if (aDefaultChatName && "parseDefaultChatName" in this) {
-      const parsedDefaultChatName = this.parseDefaultChatName(aDefaultChatName);
-      for (const field in parsedDefaultChatName) {
-        defaultFieldValues[field] = parsedDefaultChatName[field];
-      }
-    }
-
-    return new ChatRoomFieldValues(defaultFieldValues);
+  getChatRoomDefaultFieldValues() {
+    // Return no defaults as a fallback.
+    return new ChatRoomFieldValues({});
+  },
+  getChatRoomFieldValuesFromString() {
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   requestRoomInfo() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -1626,7 +1614,7 @@ ChatRoomField.prototype = ClassInfo(
   "ChatRoomField object"
 );
 
-function ChatRoomFieldValues(aMap) {
+export function ChatRoomFieldValues(aMap) {
   this.values = aMap;
 }
 ChatRoomFieldValues.prototype = {

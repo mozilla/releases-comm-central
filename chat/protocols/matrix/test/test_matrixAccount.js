@@ -397,3 +397,13 @@ add_task(async function test_deleteAccount() {
   equal(removedListeners, MatrixSDK.ClientEvent.Sync);
   equal(account._verificationRequestTimeouts.size, 0);
 });
+
+add_task(function test_getChatRoomFieldValuesFromString() {
+  const result =
+    MatrixAccount.prototype.getChatRoomFieldValuesFromString("#test:test");
+  Assert.deepEqual(
+    result.values,
+    { roomIdOrAlias: "#test:test" },
+    "Unexpected channel for bare channel"
+  );
+});

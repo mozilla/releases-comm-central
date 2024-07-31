@@ -223,7 +223,7 @@ export var ircNonStandard = {
       // so you are automatically being transferred to the redirect channel.
       // Join redirect channel so when the automatic join happens, we are
       // not surprised.
-      this.joinChat(this.getChatRoomDefaultFieldValues(aMessage.params[2]));
+      this.joinChat(this.getChatRoomFieldValuesFromString(aMessage.params[2]));
       // Mark requested channel as left and add a system message.
       return conversationErrorMessage(
         this,

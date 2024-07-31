@@ -157,7 +157,7 @@ export var commands = [
 
         params = conv.name;
       }
-      const chatRoomFields = account.getChatRoomDefaultFieldValues(params);
+      const chatRoomFields = account.getChatRoomFieldValuesFromString(params);
       conv = account.joinChat(chatRoomFields);
 
       if (aReturnedConv) {

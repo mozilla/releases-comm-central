@@ -14,6 +14,7 @@ import {
   kListRefreshInterval,
 } from "resource:///modules/ircUtils.sys.mjs";
 import {
+  ChatRoomFieldValues,
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
@@ -1024,7 +1025,7 @@ ircRoomInfo.prototype = {
     return this._account._channelList.get(this.name).participantCount;
   },
   get chatRoomFieldValues() {
-    return this._account.getChatRoomDefaultFieldValues(this.name);
+    return this._account.getChatRoomFieldValuesFromString(this.name);
   },
 };
 
@@ -2019,15 +2020,15 @@ ircAccount.prototype = {
       }
     }
 
-    const key = aComponents.getValue("password");
-    this.sendBufferedCommand("JOIN", channel, key);
-
     // Open conversation early for better responsiveness.
     const conv = this.getConversation(channel);
     conv.joining = true;
 
     // Store the prplIChatRoomFieldValues to enable later reconnections.
     conv.chatRoomFields = aComponents;
+
+    const key = aComponents.getValue("password");
+    this.sendBufferedCommand("JOIN", channel, key);
 
     return conv;
   },
@@ -2047,13 +2048,13 @@ ircAccount.prototype = {
     },
   },
 
-  parseDefaultChatName(aDefaultName) {
-    const params = aDefaultName.trim().split(/\s+/);
+  getChatRoomFieldValuesFromString(aString) {
+    const params = aString.trim().split(/\s+/);
     const chatFields = { channel: params[0] };
     if (params.length > 1) {
       chatFields.password = params[1];
     }
-    return chatFields;
+    return new ChatRoomFieldValues(chatFields);
   },
 
   // Attributes

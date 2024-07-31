@@ -201,7 +201,7 @@ export var ircBase = {
       this.addChatRequest(
         channel,
         () => {
-          this.joinChat(this.getChatRoomDefaultFieldValues(channel));
+          this.joinChat(this.getChatRoomFieldValuesFromString(channel));
         },
         request => {
           // Inform the user when an invitation was automatically ignored.
@@ -259,10 +259,11 @@ export var ircBase = {
           if (!conversation.chatRoomFields) {
             this.WARN(
               "Opening a MUC without storing its " +
-                "prplIChatRoomFieldValues first."
+                "prplIChatRoomFieldValues first: " +
+                channelName
             );
             conversation.chatRoomFields =
-              this.getChatRoomDefaultFieldValues(channelName);
+              this.getChatRoomFieldValuesFromString(channelName);
           }
         } else {
           // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
