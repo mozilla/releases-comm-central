@@ -27,9 +27,8 @@ add_task(async function testProfileExport() {
 
   const tab = await new Promise(resolve => {
     const tab = window.openTab("contentTab", {
-      url: "about:import",
-      onLoad(event, browser) {
-        browser.contentWindow.showTab("tab-export", true);
+      url: "about:import#export",
+      onLoad() {
         resolve(tab);
       },
     });

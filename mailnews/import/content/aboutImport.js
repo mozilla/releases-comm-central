@@ -1460,7 +1460,7 @@ class StartController extends ImporterController {
       {
         returnTo: () => {
           this.reset();
-          showTab("tab-start");
+          showTab("start");
           //showTab will always call showInitialStep
         },
       },
@@ -1484,7 +1484,7 @@ class StartController extends ImporterController {
         break;
       default:
         await profileController._onSelectSource(checkedInput.value);
-        showTab("tab-app");
+        showTab("app");
         // Don't change back button state, since we switch to app flow.
         return;
     }
@@ -1497,7 +1497,7 @@ class StartController extends ImporterController {
       {
         returnTo: () => {
           this.reset();
-          showTab("tab-start");
+          showTab("start");
           this._showFile();
         },
       },
@@ -1517,17 +1517,17 @@ class StartController extends ImporterController {
         await profileController._onSelectSource("Thunderbird");
         document.getElementById("appFilePickerZip").checked = true;
         await profileController._onSelectProfile();
-        showTab("tab-app");
+        showTab("app");
         break;
       case "calendar":
         calendarController.reset();
-        showTab("tab-calendar");
+        showTab("calendar");
         calendarController.showInitialStep();
         await calendarController._onSelectSource();
         break;
       case "addressbook":
         addrBookController.reset();
-        showTab("tab-addressBook");
+        showTab("addressBook");
         addrBookController.showInitialStep();
         break;
     }
@@ -1539,19 +1539,19 @@ let currentTab;
 /**
  * Show a specific importing tab.
  *
- * @param {"tab-app"|"tab-addressBook"|"tab-calendar"|"tab-export"|"tab-start"} tabId -
+ * @param {"app"|"addressBook"|"calendar"|"export"|"start"} paneId -
  *  Tab to show.
  * @param {boolean} [reset=false] - If the state should be reset as if this was
  *  the initial tab shown.
  */
-function showTab(tabId, reset = false) {
+function showTab(paneId, reset = false) {
   if (reset) {
     Steps.reset();
     restart();
   }
-  currentTab = tabId.slice(4); // Cut off "tab-".
-  const selectedPaneId = `tabPane-${currentTab}`;
-  const isExport = tabId === "tab-export";
+  currentTab = paneId;
+  const selectedPaneId = `tabPane-${paneId}`;
+  const isExport = paneId === "export";
   document.getElementById("importDocs").hidden = isExport;
   document.getElementById("exportDocs").hidden = !isExport;
   Steps.toggle(!isExport);
@@ -1562,27 +1562,24 @@ function showTab(tabId, reset = false) {
   document.querySelector("link[rel=icon]").href = isExport
     ? "chrome://messenger/skin/icons/new/compact/export.svg"
     : "chrome://messenger/skin/icons/new/compact/import.svg";
-  location.hash = currentTab;
+  location.hash = paneId;
   for (const tabPane of document.querySelectorAll("[id^=tabPane-]")) {
     tabPane.hidden = tabPane.id != selectedPaneId;
   }
-  for (const el of document.querySelectorAll("[id^=tab-]")) {
-    el.classList.toggle("is-selected", el.id == tabId);
-  }
   if (!Steps.hasStepHistory()) {
-    switch (tabId) {
-      case "tab-start":
+    switch (paneId) {
+      case "start":
         startController.showInitialStep();
         break;
-      case "tab-addressBook":
+      case "addressBook":
         addrBookController.showInitialStep();
         break;
-      case "tab-calendar":
+      case "calendar":
         calendarController.showInitialStep();
         break;
-      case "tab-app":
+      case "app":
         // Profile import can't be restored to - app selection is in start flow.
-        showTab("tab-start", true);
+        showTab("start", true);
         break;
       default:
     }
@@ -1612,13 +1609,11 @@ document.addEventListener("DOMContentLoaded", () => {
   calendarController = new CalendarImporterController();
   exportController = new ExportController();
   startController = new StartController();
-  showTab(
-    location.hash ? location.hash.replace("#", "tab-") : "tab-start",
-    true
-  );
+  showTab(location.hash ? location.hash.slice(1) : "start", true);
 });
 window.addEventListener("hashchange", () => {
-  if (location.hash.slice(1) !== currentTab) {
-    showTab(location.hash.replace("#", "tab-"), true);
+  const requestedTab = location.hash.slice(1);
+  if (requestedTab !== currentTab) {
+    showTab(requestedTab, true);
   }
 });

@@ -13,7 +13,7 @@ function checkSteps(importDocument, currentStep, totalSteps) {
   ok(
     stepNav
       .querySelector(`*:nth-child(${currentStep})`)
-      .classList.contains("current"),
+      ?.classList.contains("current"),
     `Expected step ${currentStep} is active`
   );
 }
@@ -23,7 +23,7 @@ function checkVisiblePane(importDocument, activePaneId, activeStepId) {
   for (const pane of panes) {
     if (pane.id === activePaneId) {
       ok(BrowserTestUtils.isVisible(pane), `Pane ${activePaneId} is visible`);
-      const steps = pane.querySelectorAll("section");
+      const steps = pane.querySelectorAll("section[id]");
       for (const step of steps) {
         if (step.id === activeStepId) {
           ok(
