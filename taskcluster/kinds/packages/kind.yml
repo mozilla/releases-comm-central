@@ -4,3 +4,9 @@
 ---
 loader: comm_taskgraph.loader.reference:loader
 reference-base-path: taskcluster/kinds
+
+# reference-tasks now uses gitignore style pattern matching via
+# pathspec. See
+reference-tasks:
+    - "*"
+    - "!ub22-arm64*"

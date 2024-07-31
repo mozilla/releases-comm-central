@@ -5,6 +5,7 @@
 import logging
 import os
 
+import pathspec
 from taskgraph.util.python_path import find_object
 from taskgraph.util.schema import resolve_keyed_by
 from taskgraph.util.yaml import load_yaml
@@ -75,21 +76,24 @@ def loader(kind, path, config, params, loaded_tasks):
     project = params["project"]
 
     if tasks is not None:
-        tasks = set(tasks)
+        spec = pathspec.PathSpec.from_lines("gitwildmatch", tasks)
 
-        found_reference_tasks = [
-            task for task in inputs if (_get_aliases(kind, task, project) & tasks)
-        ]
+        found_reference_tasks = []
+        for task in inputs:
+            matches = list(spec.match_files(_get_aliases(kind, task, project)))
+            if matches:
+                found_reference_tasks.append(task)
 
-        # Check for tasks listed as a reference task in Thunderbird's config
-        # that do not exist in upstream.
-        reference_alias_names = _expand_aliases(kind, found_reference_tasks, project)
-        if reference_alias_names >= tasks:
-            return found_reference_tasks
-        else:
-            missing_tasks = tasks - reference_alias_names
-            raise Exception(
-                "Reference tasks not found in kind {}: {}".format(kind, ", ".join(missing_tasks))
-            )
+        return found_reference_tasks
+        # # Check for tasks listed as a reference task in Thunderbird's config
+        # # that do not exist in upstream.
+        # reference_alias_names = _expand_aliases(kind, found_reference_tasks, project)
+        # if reference_alias_names >= tasks:
+        #     return found_reference_tasks
+        # else:
+        #     missing_tasks = tasks - reference_alias_names
+        #     raise Exception(
+        #         "Reference tasks not found in kind {}: {}".format(kind, ", ".join(missing_tasks))
+        #     )
     else:
         return inputs

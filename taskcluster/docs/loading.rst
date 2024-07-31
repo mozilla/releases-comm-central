@@ -21,6 +21,43 @@ base path.
 
 ``packages``, and ``fetch`` use this loader.
 
+When using the ``reference`` loader, optionally include ``reference-tasks``
+in kind.yml to select which tasks to import. ``reference-tasks`` uses gitignore
+style pattern matching via `pathspec`.
+
+**Include patterns**
+
+.. code-block:: yaml
+  reference-tasks:
+    - linux64-aarch64-compiler-rt-18
+    - linux64-cargo-vet
+    - linux64-cbindgen
+    - linux64-cctools-port
+    - linux64-clang-18-profile
+    - linux64-clang-18-raw
+
+**or use wildcards**
+
+.. code-block:: yaml
+  reference-tasks:
+    - linux64-*
+    - win64-*
+
+**and exclude patterns**
+
+.. code-block:: yaml
+  reference-tasks:
+    - "*"
+    - "!ub22-arm64*"
+
+***Note:***
+
+When using exclude patterns only, first you must include everything with an "*"
+entry.
+The "*" line and the exclusion lines must be quoted due to ensure YAML interprets
+those lines as strings.
+
+
 merge
 .....
 
