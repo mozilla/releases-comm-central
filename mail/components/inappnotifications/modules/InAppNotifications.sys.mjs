@@ -56,7 +56,7 @@ export const InAppNotifications = {
     //TODO set up refresh from network
     //TODO possibly don't do this here and wait for the network refresh to have
     // completed/failed instead.
-    this.notificationManager.updatedNotifications(this.getNotifications());
+    this._updateNotificationManager();
   },
 
   /**
@@ -84,7 +84,7 @@ export const InAppNotifications = {
         notificationIds.has(notificationId)
       )
     );
-    this.notificationManager.updatedNotifications(notifications);
+    this._updateNotificationManager();
 
     this._jsonFile.saveSoon();
   },
@@ -126,7 +126,7 @@ export const InAppNotifications = {
         this.markAsInteractedWith(event.detail);
         break;
       case NotificationManager.REQUEST_NOTIFICATIONS_EVENT:
-        this.notificationManager.updatedNotifications(this.getNotifications());
+        this._updateNotificationManager();
         break;
     }
   },
@@ -166,5 +166,13 @@ export const InAppNotifications = {
     this._jsonFile.data.seeds[notificationId] = seed;
     this._jsonFile.saveSoon();
     return seed;
+  },
+
+  /**
+   * Update the notifications the notification manager decides the active
+   * notification with.
+   */
+  _updateNotificationManager() {
+    this.notificationManager.updatedNotifications(this.getNotifications());
   },
 };

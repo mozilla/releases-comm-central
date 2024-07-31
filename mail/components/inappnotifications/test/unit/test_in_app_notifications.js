@@ -13,6 +13,9 @@ const { NotificationManager } = ChromeUtils.importESModule(
 const { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -295,6 +298,90 @@ add_task(function test_getNotification_seed() {
     InAppNotifications.getNotifications(),
     seededResult,
     "Resulting notifications are stable"
+  );
+
+  InAppNotifications.updateNotifications([]);
+});
+
+add_task(async function test_updateNotificationManager() {
+  const updatedNotificationsSpy = sinon.spy(
+    InAppNotifications.notificationManager,
+    "updatedNotifications"
+  );
+  const now = Date.now();
+  const mockData = [
+    {
+      id: "future bar",
+      title: "dolor sit amet",
+      start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
+      severity: 1,
+    },
+    {
+      id: "foo",
+      title: "lorem ipsum",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
+      severity: 5,
+    },
+  ];
+
+  const newNotificationEvent = BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+  InAppNotifications.updateNotifications(mockData);
+  const { detail: notification } = await newNotificationEvent;
+
+  Assert.deepEqual(
+    notification,
+    mockData[1],
+    "Should have filtered current notification"
+  );
+  Assert.ok(
+    updatedNotificationsSpy.calledWith(
+      sinon.match(InAppNotifications.getNotifications())
+    ),
+    "Should have passed the filtered list to updatedNotifiations"
+  );
+
+  InAppNotifications.updateNotifications([]);
+  InAppNotifications.notificationManager.updatedNotifications.restore();
+});
+
+add_task(async function test_updateNotifications_filtered() {
+  const now = Date.now();
+  const mockData = [
+    {
+      id: "future bar",
+      title: "dolor sit amet",
+      start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + 2 * SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
+      severity: 1,
+    },
+    {
+      id: "foo",
+      title: "lorem ipsum",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
+      severity: 5,
+    },
+  ];
+
+  const newNotificationEvent = BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+  InAppNotifications.updateNotifications(mockData);
+  const { detail: notification } = await newNotificationEvent;
+  Assert.deepEqual(
+    notification,
+    mockData[1],
+    "Should have filtered current notification"
   );
 
   InAppNotifications.updateNotifications([]);
