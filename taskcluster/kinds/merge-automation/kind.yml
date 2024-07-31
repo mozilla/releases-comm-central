@@ -35,7 +35,8 @@ tasks:
                         - name: Thunderbird l10n changesets
                           path: mail/locales/l10n-changesets.json
                           version-path: mail/config/version.txt
-                          l10n-repo-url: "https://hg.mozilla.org/projects/comm-l10n/json-pushes?version=2&tipsonly=1"
+                          l10n-repo-url: "https://github.com/thunderbird/thunderbird-l10n"
+                          l10n-repo-target-branch: main
                           ignore-config:
                               ja:
                                   - macosx64

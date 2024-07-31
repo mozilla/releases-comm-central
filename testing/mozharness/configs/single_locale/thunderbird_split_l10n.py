@@ -13,7 +13,7 @@ config = {
     # URL of comm-l10n monorepo
     "hg_comm_l10n_repo": "https://hg.mozilla.org/projects/comm-l10n",
     # If set, takes precedence over `hg_comm_l10n_repo`
-    "comm_git_repository": "",
+    "comm_git_repository": "https://github.com/thunderbird/thunderbird-l10n",
     "locales_dir": "comm/mail/locales",
     "ignore_locales": ["en-US"],
     "bootstrap_env": {

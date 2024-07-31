@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 FIREFOX_L10N = "https://github.com/mozilla-l10n/firefox-l10n"
+THUNDERBIRD_L10N = "https://github.com/thunderbird/thunderbird-l10n"
 COMM_L10N = "https://hg.mozilla.org/projects/comm-l10n"
 COMM_L10N_PUSH = f"ssh{COMM_L10N[5:]}"
 COMM_STRINGS_QUARANTINE = "https://hg.mozilla.org/projects/comm-strings-quarantine"
