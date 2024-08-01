@@ -834,7 +834,7 @@ MailGlue.prototype = {
       {
         name: "initializeFOG",
         task: () => {
-          Services.fog.initializeFOG();
+          Services.fog.initializeFOG(undefined, "thunderbird.desktop");
         },
       },
       {
