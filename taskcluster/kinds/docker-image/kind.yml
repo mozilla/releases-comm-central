@@ -19,7 +19,6 @@ reference-tasks:
     - debian12-base
     - debian12-packages
     - debian12-raw
-    - debian12-repackage
     - fetch
     - fetch-more
     - funsize-update-generator
