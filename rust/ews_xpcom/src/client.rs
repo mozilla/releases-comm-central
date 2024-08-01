@@ -398,12 +398,8 @@ impl XpComEwsClient {
         // Extract the Internet Message Format content of the message from the
         // response. We've guaranteed above that the iteration will produce
         // at least one element, so unwrapping is okay here.
-        let message = if let RealItem::Message(message) = items.into_iter().next().unwrap() {
-            message
-        } else {
-            return Err(XpComEwsError::Processing {
-                message: format!("item is not a message"),
-            });
+        let message = match items.into_iter().next().unwrap() {
+            RealItem::Message(message) => message,
         };
 
         let raw_mime = if let Some(raw_mime) = message.mime_content {
