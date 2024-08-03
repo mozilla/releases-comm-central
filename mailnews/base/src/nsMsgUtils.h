@@ -393,13 +393,13 @@ void MsgRemoveQueryPart(nsCString& aSpec);
  */
 
 NS_MSG_BASE
-void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
+void MsgLogToConsole4(const nsAString& aErrorText, const nsCString& aFilename,
                       uint32_t aLine, uint32_t flags);
 
 // Macro with filename and line number
-#define MSG_LOG_TO_CONSOLE(_text, _flag)                  \
-  MsgLogToConsole4(NS_LITERAL_STRING_FROM_CSTRING(_text), \
-                   NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__, _flag)
+#define MSG_LOG_TO_CONSOLE(_text, _flag)                                       \
+  MsgLogToConsole4(NS_LITERAL_STRING_FROM_CSTRING(_text), nsCString(__FILE__), \
+                   __LINE__, _flag)
 #define MSG_LOG_ERR_TO_CONSOLE(_text) \
   MSG_LOG_TO_CONSOLE(_text, nsIScriptError::errorFlag)
 #define MSG_LOG_WARN_TO_CONSOLE(_text) \

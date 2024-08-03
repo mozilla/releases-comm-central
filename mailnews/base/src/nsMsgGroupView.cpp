@@ -680,8 +680,7 @@ nsMsgGroupView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
     if (!numChildren || !IsValidIndex(viewIndexOfThread)) {
       MsgLogToConsole4(
           u"The view is rebuilt because an invalid group thread was detected."_ns,
-          NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
-          nsIScriptError::warningFlag);
+          nsCString(__FILE__), __LINE__, nsIScriptError::warningFlag);
       return RebuildView(m_viewFlags);
     }
 

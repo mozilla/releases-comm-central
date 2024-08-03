@@ -80,7 +80,7 @@
 // (adapted from nsContentUtils::LogSimpleConsoleError).
 // Flag can indicate error, warning or info.
 NS_MSG_BASE void MsgLogToConsole4(const nsAString& aErrorText,
-                                  const nsAString& aFilename,
+                                  const nsCString& aFilename,
                                   uint32_t aLinenumber, uint32_t aFlag) {
   nsCOMPtr<nsIScriptError> scriptError =
       do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
@@ -88,9 +88,8 @@ NS_MSG_BASE void MsgLogToConsole4(const nsAString& aErrorText,
   nsCOMPtr<nsIConsoleService> console =
       do_GetService(NS_CONSOLESERVICE_CONTRACTID);
   if (NS_WARN_IF(!console)) return;
-  if (NS_FAILED(scriptError->Init(aErrorText, aFilename, EmptyString(),
-                                  aLinenumber, 0, aFlag, "mailnews"_ns, false,
-                                  false)))
+  if (NS_FAILED(scriptError->Init(aErrorText, aFilename, aLinenumber, 0, aFlag,
+                                  "mailnews"_ns, false, false)))
     return;
   console->LogMessage(scriptError);
   return;
