@@ -1867,10 +1867,14 @@ CalDavCalendar.prototype = {
         // TODO with multiple address sets, we should just use the ACL manager.
         const homeSets = response.firstProps["C:calendar-home-set"];
         if (homeSets.length == 1 || homeSets.some(homeSetMatches)) {
-          for (const addr of response.firstProps["C:calendar-user-address-set"]) {
-            if (addr.match(/^mailto:/i)) {
-              this.mCalendarUserAddress = addr;
+          const addrSet = response.firstProps["C:calendar-user-address-set"];
+          // The first address in the list is expected to be the primary address among the aliases.
+          const firstAddr = addrSet.find(addr => addr.match(/^mailto:/i));
+          if (firstAddr) {
+            if (this.verboseLogging()) {
+              cal.LOG("CalDAV: mCalendarUserAddress set to " + firstAddr);
             }
+            this.mCalendarUserAddress = firstAddr;
           }
 
           this.mInboxUrl = createBoxUrl(response.firstProps["C:schedule-inbox-URL"]);
