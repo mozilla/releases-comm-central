@@ -1922,12 +1922,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       }
     }
     isFirstPass = false;
-    if (nextUri) {
-      // `nextUri` can be a null pointer if `strstr` did not find `://` in the
-      // URI earlier. Only increment it if that is not the case, to avoid
-      // undefined behaviors.
-      uri = nextUri + 1;
-    }
+    uri = nextUri + 1;
   } while (nextUri);
   PR_Free(uriList);
   return rv;
