@@ -6790,21 +6790,21 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_killThread",
   () => {
+    threadPane.hideIgnoredMessageNotification();
+    const folder =
+      gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
+        ? gViewWrapper._underlyingFolders[0]
+        : gFolder;
+    if (!folder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
+      threadPane.showIgnoredMessageNotification(
+        gDBView.getSelectedMsgHdrs(),
+        false
+      );
+    }
+    commandController._navigate(Ci.nsMsgNavigationType.toggleThreadKilled);
     // Delaying to an animation frame to avoid synchronously flushing from the
     // context menu.
     window.requestAnimationFrame(() => {
-      threadPane.hideIgnoredMessageNotification();
-      const folder =
-        gViewWrapper.isVirtual && gViewWrapper.isSingleFolder
-          ? gViewWrapper._underlyingFolders[0]
-          : gFolder;
-      if (!folder.msgDatabase.isIgnored(gDBView.keyForFirstSelectedMessage)) {
-        threadPane.showIgnoredMessageNotification(
-          gDBView.getSelectedMsgHdrs(),
-          false
-        );
-      }
-      commandController._navigate(Ci.nsMsgNavigationType.toggleThreadKilled);
       // Invalidation should be unnecessary but the back end doesn't notify us
       // properly and resists attempts to fix this.
       threadTree.reset();
@@ -6815,17 +6815,17 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_killSubthread",
   () => {
+    threadPane.hideIgnoredMessageNotification();
+    if (!gDBView.hdrForFirstSelectedMessage.isKilled) {
+      threadPane.showIgnoredMessageNotification(
+        gDBView.getSelectedMsgHdrs(),
+        true
+      );
+    }
+    commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
     // Delaying to an animation frame to avoid synchronously flushing from the
     // context menu.
     window.requestAnimationFrame(() => {
-      threadPane.hideIgnoredMessageNotification();
-      if (!gDBView.hdrForFirstSelectedMessage.isKilled) {
-        threadPane.showIgnoredMessageNotification(
-          gDBView.getSelectedMsgHdrs(),
-          true
-        );
-      }
-      commandController._navigate(Ci.nsMsgNavigationType.toggleSubthreadKilled);
       // Invalidation should be unnecessary but the back end doesn't notify us
       // properly and resists attempts to fix this.
       threadTree.reset();
