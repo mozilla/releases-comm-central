@@ -80,7 +80,7 @@ def get_strings_repos(locale, destination):
         file_copier = FileCopier()
 
         def add_to_registry(base_path, patterns):
-            finder = FileFinder(base_path)
+            finder = FileFinder(str(base_path))
             for pattern in patterns:
                 for _filepath, _fileobj in finder.find(pattern.format(lang=locale)):
                     file_copier.add(_filepath, _fileobj)
