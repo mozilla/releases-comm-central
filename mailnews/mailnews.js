@@ -1136,7 +1136,7 @@ pref("mail.imap.use_disk_cache2", true);
 #ifdef NIGHTLY_BUILD
 pref("experimental.mail.ews.enabled", true);
 #else
-pref("experimental.mail.ews.enabled", false)
+pref("experimental.mail.ews.enabled", false);
 #endif
 
 #endif
