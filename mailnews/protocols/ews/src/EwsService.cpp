@@ -160,10 +160,8 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   // must match one it has in its database. Folders are created with an `ews`
   // scheme, and we need to remove the message key from the ref.
   RefPtr<nsIURI> folderUri;
-  rv = NS_MutateURI(uri)
-           .SetScheme("ews"_ns)
-           .SetRef(""_ns)
-           .Finalize(getter_AddRefs(folderUri));
+  rv = NS_MutateURI(uri).SetScheme("ews"_ns).SetRef(""_ns).Finalize(
+      getter_AddRefs(folderUri));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString folderSpec;

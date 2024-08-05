@@ -213,10 +213,8 @@ NS_IMETHODIMP EwsMessageChannel::AsyncOpen(nsIStreamListener* aListener) {
   // the value returned by an incoming server's `GetType()` method. In our case,
   // that should be `ews`.
   nsCOMPtr<nsIURI> serverUri;
-  rv = NS_MutateURI(m_uri)
-           .SetScheme("ews"_ns)
-           .SetPathQueryRef(ewsId)
-           .Finalize(serverUri);
+  rv = NS_MutateURI(m_uri).SetScheme("ews"_ns).SetPathQueryRef(ewsId).Finalize(
+      serverUri);
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = accountManager->FindServerByURI(serverUri, getter_AddRefs(server));
