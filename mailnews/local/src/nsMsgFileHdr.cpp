@@ -14,6 +14,8 @@
 #include "nsIMimeConverter.h"
 #include "prio.h"
 #include "prtime.h"
+#include "mozilla/Buffer.h"
+#include <algorithm>
 
 static inline uint32_t PRTimeToSeconds(PRTime aTimeUsec) {
   return uint32_t(aTimeUsec / PR_USEC_PER_SEC);
@@ -47,9 +49,15 @@ nsresult nsMsgFileHdr::ReadFile() {
   rv = fileStream->Init(mFile, PR_RDONLY, 0664, 0);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  int64_t fileSize;
+  rv = mFile->GetFileSize(&fileSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // The gmail 500KiB header limit seems like a reasonable one.
+  // https://support.google.com/a/answer/14016360
+  mozilla::Buffer<char> buffer(std::min(fileSize, 500 * 1024L));
   uint32_t count;
-  char buffer[8192];
-  rv = fileStream->Read(&buffer[0], 8192, &count);
+  rv = fileStream->Read(buffer.Elements(), buffer.Length(), &count);
   NS_ENSURE_SUCCESS(rv, rv);
 
   auto cb = [&](HeaderReader::Hdr const& hdr) {
