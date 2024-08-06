@@ -32,44 +32,13 @@
    * given size.
    */
   class PaneSplitter extends HTMLHRElement {
-    static observedAttributes = [
-      "resize-direction",
-      "resize-id",
-      "resize-with-window",
-      "resize-lock-ids",
-      "id",
-    ];
-
-    /** type {boolean} */
-    #windowResizing = false;
-
-    /** type {boolean} */
-    #windowListener = false;
-
-    /** type {HTMLElement[]} */
-    #resizeLockElements = [];
-
-    /** type {string} */
-    #resizeProperty;
-
-    /** type {number} */
-    #windowStartSize;
-
-    /** type {number} */
-    #windowResizeTimeout;
+    static observedAttributes = ["resize-direction", "resize-id", "id"];
 
     connectedCallback() {
       this.addEventListener("mousedown", this);
       // Try and find the _resizeElement from the resize-id attribute.
       this._updateResizeElement();
       this._updateStyling();
-      this.#updateResizeWithWindow();
-    }
-
-    disconnectedCallback() {
-      if (this.#windowListener) {
-        this.resizeWithWindow = false;
-      }
     }
 
     attributeChangedCallback(name) {
@@ -79,12 +48,6 @@
           break;
         case "resize-id":
           this._updateResizeElement();
-          break;
-        case "resize-with-window":
-          this.#updateResizeWithWindow();
-          break;
-        case "resize-lock-ids":
-          this.#updateResizeLockIds();
           break;
         case "id":
           this._updateStyling();
@@ -107,124 +70,7 @@
     }
 
     set resizeDirection(val) {
-      this.#resizeProperty = val === "vertical" ? "height" : "width";
       this.setAttribute("resize-direction", val);
-    }
-
-    /**
-     * If the splitter should resize the element with the window
-     *
-     * This corresponds to the "resize-with-window" attribute and defaults to
-     * "false" when none is given.
-     *
-     * @type {Boolean}
-     */
-    get resizeWithWindow() {
-      return this.hasAttribute("resize-with-window");
-    }
-
-    set resizeWithWindow(val) {
-      if (val && !this.#windowListener) {
-        this.#windowStartSize = this.#getWindowDimension();
-        window.top.addEventListener("resize", this);
-        this.#windowListener = true;
-        setTimeout(() => {
-          this[this.#resizeProperty] =
-            this.resizeElement.getBoundingClientRect()[this.#resizeProperty];
-        });
-      } else if (this.#windowListener && !val) {
-        window.top.removeEventListener("resize", this);
-        this.#windowListener = false;
-      }
-      if (val !== this.hasAttribute("resize-with-window")) {
-        this.toggleAttribute("resize-with-window", val);
-      }
-    }
-
-    #getWindowDimension() {
-      this.#resizeProperty =
-        this.getAttribute("resize-direction") === "vertical"
-          ? "height"
-          : "width";
-      return window.top[
-        `outer${
-          this.#resizeProperty[0].toUpperCase() + this.#resizeProperty.slice(1)
-        }`
-      ];
-    }
-
-    #onWindowResize(event) {
-      if (event.target !== window.top) {
-        return;
-      }
-
-      if (!this.#windowResizing) {
-        this.#updateLockElements();
-        this.#windowResizing = true;
-        this._updateStyling();
-      }
-
-      clearTimeout(this.#windowResizeTimeout);
-
-      this.#windowResizeTimeout = setTimeout(() => {
-        this.#windowResizing = false;
-
-        if (typeof this[`_${this.#resizeProperty}`] === "undefined") {
-          this.#onWindowResizeEnd();
-          this._updateStyling();
-          return;
-        }
-
-        if (this.#windowStartSize === this.#getWindowDimension()) {
-          this._updateStyling();
-          return;
-        }
-
-        const size =
-          parseInt(this[`_${this.#resizeProperty}`]) +
-          (this.#getWindowDimension() - this.#windowStartSize);
-
-        this[this.#resizeProperty] = Math.max(0, size);
-        this.#onWindowResizeEnd();
-      }, 500);
-    }
-
-    #onWindowResizeEnd() {
-      this.#updateLockElements(true);
-      this.#windowStartSize = this.#getWindowDimension();
-    }
-
-    #updateLockElements(removeSize) {
-      const missedDelta = this.#windowStartSize - this.#getWindowDimension();
-      for (const element of this.#resizeLockElements) {
-        element.style.setProperty(
-          this.#resizeProperty,
-          removeSize
-            ? null
-            : `${
-                element.getBoundingClientRect()[this.#resizeProperty] +
-                missedDelta
-              }px`,
-          "important"
-        );
-      }
-    }
-
-    #updateResizeLockIds() {
-      if (!this.hasAttribute("resize-lock-ids")) {
-        this.#resizeLockElements = [];
-        return;
-      }
-
-      this.#resizeLockElements = this.getAttribute("resize-lock-ids")
-        .split(",")
-        .map(id => {
-          return document.getElementById(id);
-        });
-    }
-
-    #updateResizeWithWindow() {
-      this.resizeWithWindow = this.hasAttribute("resize-with-window");
     }
 
     _updateResizeDirection() {
@@ -232,8 +78,6 @@
       // resizing.
       this.endResize();
       this._updateStyling();
-      this.#resizeProperty =
-        this.resizeDirection === "vertical" ? "height" : "width";
     }
 
     _resizeElement = null;
@@ -499,15 +343,6 @@
      * Update styling to reflect the current state.
      */
     _updateStyling() {
-      if (this.#windowResizing) {
-        this.parentNode.style.setProperty(
-          this._cssName[
-            this.resizeDirection === "vertical" ? "height" : "width"
-          ],
-          `100%`
-        );
-        return;
-      }
       if (!this.resizeElement || !this.parentNode || !this.id) {
         // Wait until we have a resizeElement, a parent and an id.
         return;
@@ -563,9 +398,6 @@
           break;
         case "mouseup":
           this._onMouseUp(event);
-          break;
-        case "resize":
-          this.#onWindowResize(event);
           break;
       }
     }
