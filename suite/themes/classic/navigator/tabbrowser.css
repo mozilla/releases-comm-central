@@ -178,19 +178,10 @@ tabpanels {
   list-style-image: url("chrome://navigator/skin/icons/tab-new.png");
 }
 
-.tab-drop-indicator-bar {
-    height: 11px;
-    margin-top: -11px;
-    margin-inline-start: -6px;
-    position: relative;
-}
-
 .tab-drop-indicator {
-    height: 11px;
-    width: 11px;
-    margin-bottom: -5px;
-    position: relative;
-    list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.png');
+  position: relative;
+  z-index: 1;
+  list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.png');
 }
 
 tooltip[tabpreview="true"] {
