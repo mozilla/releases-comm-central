@@ -13,6 +13,7 @@ from comm_taskgraph.parameters import register_parameters
 
 class TestCommParameters(unittest.TestCase):
     vals = {
+        "android_perftest_backstop": True,
         "app_version": "app_version",
         "backstop": False,
         "base_repository": "base_repository",
