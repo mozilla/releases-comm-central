@@ -1,175 +1,337 @@
----
-app_version: '120.0'
+app_version: '127.0'
 backstop: true
 base_ref: default
 base_repository: https://hg.mozilla.org/mozilla-unified
-base_rev: fc01df84fa6d91b9dabb4b608eb947cef3230871
-build_date: 1700061384
+base_rev: 41e8bcefc0ec9c22e3dfe0dbc8dd122cfe6316f8
+build_date: 1717614638
 build_number: 1
 comm_base_ref: default
-comm_base_repository: https://hg.mozilla.org/releases/comm-release
-comm_base_rev: 67cd1eab1cd7d4347d7052c0d007a1a6cbcbea94
-comm_head_ref: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_base_repository: https://hg.mozilla.org/comm-unified
+comm_base_rev: 09294725cf5881d49d9814b09b90b397623c0072
+comm_head_ref: 7c63765f288c38c32a2e39247e624e49ad38b043
 comm_head_repository: https://hg.mozilla.org/releases/comm-release
-comm_head_rev: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_head_rev: 7c63765f288c38c32a2e39247e624e49ad38b043
 comm_src_path: comm/
 do_not_optimize: []
+enable_always_target:
+  - docker-image
 existing_tasks:
-    build-linux-shippable/opt: LIqL7xSHTiGo8SCOtgIB8A
-    build-linux-shippable/opt-upload-symbols: bZb7eA5jQpOLdG94iQLOKg
-    build-linux64-shippable/opt: DZk4BUxcTSSmGLFz9EgjEA
-    build-linux64-shippable/opt-upload-symbols: ITVcYUIUR3aUl6qzd6OPIg
-    build-linux64/debug: KH1E3NVATW-k60miKOkncg
-    build-mac-notarization-macosx64-shippable/opt: bVO3OdnPQL26CnMnWx1Fwg
-    build-mac-signing-macosx64-shippable/opt: QpL1rX7jQ9ucrR7gzrwwng
-    build-macosx64-aarch64-shippable/opt: EwiOrbfBSMS-UC7XtXuqNA
-    build-macosx64-aarch64-shippable/opt-upload-symbols: VsKdR5b7TUK1TihFeR0ISw
-    build-macosx64-shippable/opt: Alp550RfRxaE2CHYSr9n9g
-    build-macosx64-x64-shippable/opt: FQvFu_xTS4-Vqq7uLE8Vcg
-    build-macosx64-x64-shippable/opt-upload-symbols: XQ7D9Q-bRS6mv3oY7vkMcw
-    build-signing-linux-shippable/opt: EhhShyNqS0CCG-1Nag0aag
-    build-signing-linux64-shippable/opt: GyA1Scw9QhecJUlIxgVBig
-    build-signing-win32-shippable/opt: Fy8nrxnsRV6l8e9UrA8ELQ
-    build-signing-win64-shippable/opt: R0A4l93jSMOzSsfHv4EaBA
-    build-win32-shippable/opt: PV4BaS4TSnSXNEduqceLpg
-    build-win32-shippable/opt-upload-symbols: GEOxpyZHSWKNz6DdGWVphQ
-    build-win64-shippable/opt: dA8Pm8ZpRD6hR8FEdyBfWg
-    build-win64-shippable/opt-upload-symbols: TQ714fsLQi-i6ilrPM-x0A
-    repackage-linux-shippable/opt: aJcMZh6KRU6TILYmGs8UGg
-    repackage-linux64-shippable/opt: MoARKRrrSpaQoAOkERcQ1A
-    repackage-macosx64-shippable/opt: EthF8PGXQsGIFy8vmJXkUw
-    repackage-msi-win32-shippable/opt: VF0MPqg6RvSURoKZs4coEA
-    repackage-msi-win64-shippable/opt: fcZe2FaUQxqOeQ7yzGDeDw
-    repackage-shippable-l10n-msix-win32-shippable/opt: YBnx1m8XSQWFhLHbDdx13Q
-    repackage-shippable-l10n-msix-win64-shippable/opt: VyltlrQ2RBu6hAH0nZ3rVg
-    repackage-signing-msi-win32-shippable/opt: EU9sx4a2SrCBYYZE9xKegw
-    repackage-signing-msi-win64-shippable/opt: KBZDzKGHSJmlvCXX5QCGBQ
-    repackage-signing-shippable-l10n-msix-win32-shippable/opt: XDcVScdmRKuHffVZz1oBIw
-    repackage-signing-shippable-l10n-msix-win64-shippable/opt: cFp8ynMqRAuN0e3eCGqyRw
-    repackage-signing-win32-shippable/opt: S1HOnjhRSc-FiVswUWSRrw
-    repackage-signing-win64-shippable/opt: EvgRwbHbToOWdTgNpCEhDg
-    repackage-win32-shippable/opt: H1ueJZLaR1mMoTw-ho-4aw
-    repackage-win64-shippable/opt: czhatiTWT7qZgLx_vQxO7g
-    shippable-l10n-linux64-shippable-1/opt: NYBEY8soRq-6gdDiHuHJTQ
-    shippable-l10n-linux64-shippable-10/opt: T2yLpk-qSZaQuM9r9tBm-w
-    shippable-l10n-linux64-shippable-11/opt: M93t34aETYGWDnamo31ALQ
-    shippable-l10n-linux64-shippable-12/opt: Pz71JN48QkSuJDs4lZcsDA
-    shippable-l10n-linux64-shippable-13/opt: bGsJZpHbQaeqUur-KucYdA
-    shippable-l10n-linux64-shippable-2/opt: Nf8A9520To2OUSkmKDvEqw
-    shippable-l10n-linux64-shippable-3/opt: AvsovHAxTFGRjLTRPtyoZA
-    shippable-l10n-linux64-shippable-4/opt: KTmK5PfBSUS_miEKWyf5Yw
-    shippable-l10n-linux64-shippable-5/opt: fdd_KJyDQ_O9IXWcPw7fog
-    shippable-l10n-linux64-shippable-6/opt: Jsdh-9wKTy2_e_7XUFwctg
-    shippable-l10n-linux64-shippable-7/opt: JNtord3sSHiWCYVwHy3Bjg
-    shippable-l10n-linux64-shippable-8/opt: LFu62u4HQ7qFD6Bi23Mcpw
-    shippable-l10n-linux64-shippable-9/opt: HVrQaopIStK2yZ9NJ3J4Ew
-    shippable-l10n-pre-shippable-l10n-pre/opt: ObJxrX3YQCKUPENIqyiqMw
-    source-test-mozlint-codespell: RKChtqbcTKmyPZv0N9UFcQ
-    source-test-mozlint-eslint: XzrWgK9vQUeqZLWB-hkteQ
-    source-test-mozlint-file-perm: F8KtVkhrSNebArqJjjeT_A
-    source-test-mozlint-file-whitespace: KeKWvat4QLeX8mEm4Uw55A
-    source-test-mozlint-license: JT3cjqa5RiiAvYUlrn5ODQ
-    source-test-mozlint-lintpref: Sil4BbO2RqioVghhTmAOFg
-    source-test-mozlint-localization: Ddq-Jq2PS26GKCMloCE6Pw
-    source-test-mozlint-py-black: Om7WeoHMSKinpKAN8PW7cQ
-    source-test-mozlint-py-ruff: OelwSmGaSbC1hNXm_nMODQ
-    source-test-mozlint-stylelint: db_sSPLKRv6t6Y5IfE482Q
-    source-test-mozlint-trojan-source: blAqMv3SRomOKr6J0rY3Sw
-    source-test-mozlint-yaml: QbXcRdxbQb-Et8M4g5sAVw
-    source-test-python-comm_taskgraph-tests: ZskBs7KoRZOoZ88eoVOsNg
-    source-test-taskgraph-diff: C9nrz1DuSmWju3HnYfaAoQ
-    test-linux1804-64-shippable-qr/opt-gtest-1proc: Xt1ve6daQx21Z9Q3MLBLow
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-1: FPjAjESuQOecvH0ytNVrJw
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-2: HAK7CmpoRqC_EtUp4va40g
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-3: MAuDj_daRNSyuNTniuvETw
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-4: RwXP6V10QMiamt9afqXE0w
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-5: H4ApngNYSAaUJhx4fMS52g
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-6: WA2vaQ-rRryViCWNcQE9FA
-    test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-7: Ds95vm_YTryiThuNv7PZ1Q
-    test-linux1804-64-shippable-qr/opt-xpcshell-1: JNMFQyNMTDqQWpC5_7GU2Q
-    test-linux1804-64-shippable-qr/opt-xpcshell-2: cEzuCnk9R4OPIDBB4J4C_w
-    test-linux1804-64-shippable-qr/opt-xpcshell-3: EsIzsGPCRR2FpWePigv9wg
-    test-linux1804-64-shippable-qr/opt-xpcshell-4: QHII9gUASdy8oPFYZdArMQ
-    test-linux1804-64-shippable-qr/opt-xpcshell-5: eGeP24JnRI6v4SwKJqFEHQ
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-1: GAkJ6jo3RtKAxq7tDLdO5w
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-2: NNtjO571RvKc3px7aWCIbw
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-3: C_iAlmmzRvGKBIwS7gXC4A
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-4: YPpiQAVvRm6ruQxLksMMqw
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-5: eA2ptFnvR2-LmEf39YxZUQ
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-6: D4J12rK3Qk-Rd8CIVnUVkA
-    test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-7: Id9_xuz8RymrCRz9NgH9Nw
-    test-macosx1015-64-shippable-qr/opt-xpcshell-1: XPzN-TspQZOyUfWi7xdt-g
-    test-macosx1015-64-shippable-qr/opt-xpcshell-2: CWLludPZTTm7UK3eQc0vYQ
-    test-macosx1015-64-shippable-qr/opt-xpcshell-3: d0LoUvfURQC8ewdCpsYIww
-    test-macosx1015-64-shippable-qr/opt-xpcshell-4: etV_kpSoQJ60lBzrS2ToIA
-    test-macosx1015-64-shippable-qr/opt-xpcshell-5: By_etuV2QS2fGnBP5skH8A
-    test-windows11-32-2009-shippable-qr/opt-gtest-1proc: DR62AeivQDuZuZfTf_r74g
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-1: RDTLX9uvRl2JjPZbaw1RBw
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-2: Nfx4mYZkRZeDRBzJn3AOcQ
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-3: ZI77a07HRySQW_clWwsqIQ
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-4: Kb5GGVDpQTCxnZjxUB-xdA
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-5: TDnwqYClR1C6ZtMYm8j2EQ
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-6: L0hh0FGXQkSHoF_lViHnWw
-    test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-7: aq3kT9JkTNaHfhJGRBLllg
-    test-windows11-32-2009-shippable-qr/opt-xpcshell-1: SDb-anmeSGuxOfdZv23I8w
-    test-windows11-32-2009-shippable-qr/opt-xpcshell-2: N2WCXyjKQrWGPSjUcO_V5w
-    test-windows11-32-2009-shippable-qr/opt-xpcshell-3: GSZ2tcZtRzOkllzYuGouFw
-    test-windows11-32-2009-shippable-qr/opt-xpcshell-4: Qf4YSPrdR6CdmPnynv9skA
-    test-windows11-32-2009-shippable-qr/opt-xpcshell-5: IM_zHhUkR22TgrDZBaI_EA
-    test-windows11-64-2009-shippable-qr/opt-gtest-1proc: R7DBpbm1TsuvtKhhlu-JBA
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-1: B_9w6Ei_QY6TAiWVF629mQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-2: bTYjgQtKQk2ekLzNFaLN2w
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-3: cTVHLljWQPa95hx8x2bocQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-4: IYK702QyQSGBaeDYe3zdwA
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-5: Tf39QcdTSV6Y593QWlyugQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-6: Bt-8u4XpR1y9h83sWPAFjw
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-7: dLLXMf1DRW-eW852CdM-xQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-1: Li0-BzWoQY-QsC3vwlFyhQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-2: JPj6U5v1TySJTpqSwhI49w
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-3: KImGEl3vT7mIjQvHBxyYZQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-4: OhQOvFzoTt-l6OVF03f_Tw
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-5: Nc7XACkSTYG5QpeFc8FSkw
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-6: acEAsBPbSEmMoFz7v_9CFQ
-    test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-7: Rv5mPtN_Sb2q1hs80iTIlA
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-1: Jkk4tqICTum06pftaOfCGA
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-2: TepyBpTyS2aKjA-W_Fjhxg
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-3: ElzFqcHKROirTtxv6sUqqQ
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-4: du_yQumSTUeig3fdrlmqVg
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-5: OXiQ-hz7TwGs34MsJHpRzw
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-1: KysiFGhgTj6jkqdmJsyfsw
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-2: OKHFWeaLTXyXnEHwoc9MTA
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-3: c3lVFTLtTPa9Ock2w0ccmw
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-4: PrZ4ZKDeTnWNTiCAe2-GQw
-    test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-5: bW9ZPog3SKOUOQpb40Rpuw
+  build-linux-shippable/opt: cHmy9VMRSE2oA1kvrUOlXg
+  build-linux-shippable/opt-upload-symbols: bGMtV7RES2-QgZUCB3oUhQ
+  build-linux64-shippable/opt: XCGjyZwqTmOdcuibKDWoaw
+  build-linux64-shippable/opt-upload-symbols: VmAOfGL2R16qz2fr2RzyDg
+  build-linux64/debug: KkwMFr8xR12k2W-RIP198Q
+  build-mac-notarization-macosx64-shippable/opt: Y_EDkrCJTj6wKXZZK8U2iw
+  build-mac-signing-macosx64-shippable/opt: aJmsmTO8RwaM1YzoymPrBw
+  build-macosx64-aarch64-shippable/opt: NJvQu9GGQoGnxQUoXxrscA
+  build-macosx64-aarch64-shippable/opt-upload-symbols: CBX45V3hTtuUTq-vjwqGLw
+  build-macosx64-shippable/opt: QdddrIGdTxeTXxohfipW0Q
+  build-macosx64-x64-shippable/opt: EjcafFuTQWu8Z79sMfdKlw
+  build-macosx64-x64-shippable/opt-upload-symbols: U1Cz2eHxRq6ftmCbHWw8OQ
+  build-signing-linux-shippable/opt: cew8pJvFRpOWQiYTxrGJ-A
+  build-signing-linux64-shippable/opt: ENfc1eDvT_WfIbPfxnExPw
+  build-signing-win32-shippable/opt: NgJJdIrYSHugHneVerI3Qw
+  build-signing-win64-shippable/opt: fTshHVgpSxWPPJU8lbojzQ
+  build-win32-shippable/opt: V87nC7EtQR-vDD8c9glFBA
+  build-win32-shippable/opt-upload-symbols: JZbiPQZKQm-dn8OxADbBBQ
+  build-win64-shippable/opt: NnpjJZyqQky5XZgSqmr7FA
+  build-win64-shippable/opt-upload-symbols: O-oYoTVtTdmLkv1hi-jpVQ
+  docker-image-android-build: Lbr2Z4zuRI6_3NITn2seUg
+  docker-image-deb12-toolchain-build: LMr-YZA4RHm9O5gIHp4L0A
+  docker-image-debian12-amd64-build: bs3PoddNT12Bo4dTvBuGoQ
+  docker-image-debian12-base: AjPodxmpSuu8J_iSey9JnQ
+  docker-image-debian12-packages: Lga3qx2zQeym205cj7_stQ
+  docker-image-debian12-raw: OXUz5O-USK2rGp0Ob-xAjg
+  docker-image-debian8-i386-packages: Nzj4VtUWS5mbLEzjyr0nKw
+  docker-image-debian8-i386-raw: I99BPtVSR6eRghbyhvbyUw
+  docker-image-debian8-packages: U7H1UKKsQMO0qpeOBVbXvg
+  docker-image-debian8-raw: b7UVynp0RjyIftQZNLIBaA
+  docker-image-fetch: S4akqX6-R4mgiIS6jWFrBg
+  docker-image-funsize-update-generator: O4GKiNeuTsml16kqjqGmng
+  docker-image-image_builder: U0KhLi9mQFWq7Y1LDdOcUw
+  docker-image-index-task: KqTgfdFQTESRxL1VZBT7Xw
+  docker-image-lint: Y5AnCtXoSUinJ8J94IfUeg
+  docker-image-push-to-try: ZhGG5mZnRyiECZP2Qemndw
+  docker-image-static-analysis-build: C4lk6VeQRpWLlu4t8K6OYQ
+  docker-image-tb-atn: SKnVIfRKQEeX3sx2SuDsEg
+  docker-image-tb-debian-mingw: e19xEPMLQvKZ_bHdhu6JGA
+  docker-image-tb-flatpak: LH3JIONdQYa56rPqEPx2wg
+  docker-image-tb-snap: Q2ZaIaGXR3iWxJeirArfAQ
+  docker-image-tb-updatebot: LANUZMt4QpSrzTxSpKanJg
+  docker-image-ubuntu1804-base: Mk619P1QSm-kniqjgxDXFw
+  docker-image-ubuntu1804-build-python: f6Yle2umQLODLPf8zpoYWA
+  docker-image-ubuntu1804-i386-packages: aMD9RonUSQWqPePF-5VcGQ
+  docker-image-ubuntu1804-i386-raw: Cupq6-XBQLSTudu-t8kIcA
+  docker-image-ubuntu1804-packages: BoVN61ZKTGukQRn8krlZkA
+  docker-image-ubuntu1804-raw: G6LtHo8RTz67lfkvka728A
+  docker-image-ubuntu1804-test: SBLW7LLQQFmKytrEmW1jiw
+  docker-image-ubuntu1804-test-base: DHbpXvwASyCvlgNQvbjyxg
+  docker-image-ubuntu2004-base: Tnd61xVJQfGw-p2y3iKzvg
+  docker-image-ubuntu2004-packages: FjymBXnUS6601uYeu6CpbQ
+  docker-image-ubuntu2004-raw: TNUXEr_vSPShRBgi43Fi9A
+  docker-image-ubuntu2204-base: O3thy331QvmxPCkhTWkQFw
+  docker-image-ubuntu2204-packages: J6rerRX2QKyJY2FNMHb6bw
+  docker-image-ubuntu2204-raw: B_I1YiQNQPudlQF-EGJz0g
+  docker-image-update-verify: L_-4TWyARiilKk_FkgI6pw
+  fetch-bomutils: QxnkIW74QeW6RvJpC1u5cw
+  fetch-cargo-vet: OWOkZSw_RyKsvZZFAc1G4Q
+  fetch-cbindgen-0.26.0: HWS48HmWQEWdlBTKVSqRqg
+  fetch-cctools-port: AzF3rgz-RgyutzkwuRHG8w
+  fetch-clang-17: RN-dj8DvS0yO5muy6mdOqw
+  fetch-cmake: QfA_43efTHGxgMbu1FxOeg
+  fetch-cpython-3.8.10: dJnx7gOgTv22-rX61xLa0w
+  fetch-cpython-3.8.10.exe: cNoIu5Y0TaG4d8tSh9yFtA
+  fetch-dump-syms: BvME6qNmQ5qhKaS5liM8Iw
+  fetch-fix-stacks: Ljjfb_eCQMen3abd-BC6Ug
+  fetch-gcc-11.4.0: WWVbvBQlTLOx9n1jZDvoxQ
+  fetch-gcc-9.5.0: cJ8pULHAQN6gX39uW_62NQ
+  fetch-gmp-6.1.0: Ilb_6CytRKiQtL9tt2dR4Q
+  fetch-gnumake: Hp_5TbA3TXaAfuD7T6M0bw
+  fetch-hfsplus-tools: ASXkePwWRu2BtXUvj5Mu_w
+  fetch-isl-0.16.1: bRlV58L-TI6Iwm4_SKCXmw
+  fetch-ldid: YZO5LJosTJyQ7fYLXIiiDQ
+  fetch-libdmg-hfsplus: VOlGHFiqTmO5gmiLwJYBiw
+  fetch-libtapi: LRk3olaaQc2qGy7EixbHCQ
+  fetch-libxml2: CdMbg5n1TXmpq-XAxrPHgg
+  fetch-llvm-mingw: U5S_rdkdTey6ljmuZL3pSw
+  fetch-makecab: DmObdrdcRcSSj8sNwX6gsg
+  fetch-mingw-w64: WvNmDzgaR_-0OakHLv9ljw
+  fetch-mpc-1.0.3: FmnJUU0STECIzi_SPqwzvw
+  fetch-mpfr-3.1.4: fwgUTdyFQuKz3-WPVcFx8w
+  fetch-nasm-2.15.05: Ma08k42MTqaXrJ4OxC2tug
+  fetch-ninja: Mg3ii2FLTAGG9gRNyvA6YQ
+  fetch-nodejs-18-macosx64: T8PYo08TQY2RGgwPBjvdqg
+  fetch-nodejs-18-source: UR3rjrasRcm7R5byMNwGOA
+  fetch-nodejs-18-win32: AHKweNpvTi6ma5XKif5mnw
+  fetch-nodejs-18-win64: J-eld9hnQtyF2gmT7CKBOg
+  fetch-nsis-3.07: C2k9oZtDRo2FcQh8qo66SA
+  fetch-nsis-3.07-win: SBG5qY8SSiOxFKzhA_V7aA
+  fetch-pkgconf: chBtwuDJSp-3ixKPlfNtuw
+  fetch-rust-minidump: HAzp_iVVThWdziVmtztbfw
+  fetch-rust-size: KPH_mq9xQGqJ9c984x37tQ
+  fetch-sccache: e_h7LEWGTYadzYATKKBwBQ
+  fetch-upx-3.95-win: MI3nLNriSIy7vOAPUehG3Q
+  fetch-wasi-sdk: FdeZYYDdSYG6t1fy9qIjwA
+  fetch-winchecksec: RqomR33rSICzeQK6ApVcog
+  fetch-windows-rs: HynKBHPBQQWjAPvAEoobMg
+  fetch-wine: Q-GVrNPNRQa0Y4CYX2nP9A
+  fetch-wix-3.14.0: NT8HjQpjQmmS2pNKaV_erg
+  fetch-xar: WiEHNvtTTOewZ_jreRrV7g
+  packages-deb12-mercurial: L3es5XCPQGiRGXsPPCLQKg
+  packages-deb12-python-zstandard: OE0PWXz5QHKAuLJzAN6TRA
+  packages-deb8-32-gcc-8: JvihwtzWRN6r7EUb1hJzuA
+  packages-deb8-gcc-8: TGbFCOPBQVyClvUE4EKDsQ
+  packages-ub18-32-libc6: DMY4SUktSAayvO2GgpKCBQ
+  packages-ub18-libc6: GEhgIcJiRv-JHBc4WYBUZA
+  packages-ub18-mercurial: DQVCdD1UQwiK5OECiWow_w
+  packages-ub18-pyatspi: LacZYFxKRyGu-UAftpc-SA
+  packages-ub18-pygobject: d92BEqP8QCKEN5vdFOmX9w
+  packages-ub18-python-psutil: ZS3xYbtNR-azTs7nAW7R5w
+  packages-ub18-python-zstandard: GC95O9YBQ8KXcfHuqK41SA
+  packages-ub20-mercurial: F37jrpSXS9iu2I7-cuVOmw
+  packages-ub20-python-zstandard: IETAeMqBSBuyMqyMaa_Nzg
+  packages-ub22-mercurial: aiAMAxFRQ6a8tb_bALCKQA
+  packages-ub22-python-zstandard: IHciMEMUTYqmx9cPV9iC_w
+  repackage-linux-shippable/opt: XIgsNilOQX6qB4AP8H9TsA
+  repackage-linux64-shippable/opt: WEyl-PwJSxWb70xOE87g6A
+  repackage-macosx64-shippable/opt: T_wx_mKGQb2XpPzcXoqN6A
+  repackage-msi-win32-shippable/opt: fHH47XxWTkO7ZhqTAmpsrg
+  repackage-msi-win64-shippable/opt: HTHCW1hFQPSICy_BvCct3A
+  repackage-signing-msi-win32-shippable/opt: H61TsLcOQ4WqoIm8JaHBCg
+  repackage-signing-msi-win64-shippable/opt: H3cdjx6kRYuVqmUxjQio-g
+  repackage-signing-win32-shippable/opt: Jrmw-vCkQZmBUHgdUs_dPg
+  repackage-signing-win64-shippable/opt: NdjgDwVUTYebl8uJwpII9A
+  repackage-win32-shippable/opt: SGTpfvhRTIKaKwRfF66w1g
+  repackage-win64-shippable/opt: DgDQxFGwSYOjPpi46HLaeQ
+  source-test-mozlint-codespell: JbC-TKMUQyuQAYho0SvB0Q
+  source-test-mozlint-eslint: Z45zttkERmqYw_si2lVdeA
+  source-test-mozlint-file-perm: EyohQfvoTHawNwJnUd78og
+  source-test-mozlint-file-whitespace: DfTKeczNTdGPOR3eH2mH4w
+  source-test-mozlint-license: TWBs14c7ScqCIJiZGiyaZQ
+  source-test-mozlint-lintpref: PsR_F8BJQaCm3yI7b-7KgA
+  source-test-mozlint-yaml: TwMmkaW1SvmGfeCJT-I3kg
+  source-test-taskgraph-diff: ZYuiEzBzRQKIPmFgzAZPrw
+  test-linux1804-64-shippable-qr/opt-gtest-1proc: YxtjPDXQS--Hmx19fGXaCg
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-1: dlodhXu6QNyk_P8ruisrTw
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-2: QrVF6Q2RT7KqwWbdepa3EA
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-3: ZODHzuRkTpGMIrx30BRsKQ
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-4: PNH9pytCRM67ietzFgmCnQ
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-5: XO7HVXL4QMWYUx6Rw2rPbg
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-6: XrrEgbkeRIiI4TLnZ4yB7Q
+  test-linux1804-64-shippable-qr/opt-mochitest-thunderbird-7: Kw9SyqE-SRCYPt6AAr6dPQ
+  test-linux1804-64-shippable-qr/opt-xpcshell-1: aDz2-nf-Qty8j1oNMiE3Rw
+  test-linux1804-64-shippable-qr/opt-xpcshell-2: R2PMl3p4TTCT-IGMhMa0cg
+  test-linux1804-64-shippable-qr/opt-xpcshell-3: Q_o57s5GTGCemwLjGEckqw
+  test-linux1804-64-shippable-qr/opt-xpcshell-4: JyE3yOoCRVyu_lUl28evhA
+  test-linux1804-64-shippable-qr/opt-xpcshell-5: An3pEpHeT8euCQ1LywjpyQ
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-1: F7F6FJFdRiqzZcHpy7kjsQ
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-2: UHeag-WjTUOoe0fQKFH1-w
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-3: GcTBqLnpSLK-3W3QGGRZlg
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-4: IygpUw71SXSmx269GaIk3g
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-5: JTPXibhkS-qKSiwnCdeJrw
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-6: ZIjxZeHFQcGh0-mvFlQtrA
+  test-macosx1015-64-shippable-qr/opt-mochitest-thunderbird-7: JiTpmnKCSxmX2zyM1IFEnQ
+  test-macosx1015-64-shippable-qr/opt-xpcshell-1: XFci2IdhTCKYAoe2zlUB_w
+  test-macosx1015-64-shippable-qr/opt-xpcshell-2: Q72m4_phR565LQWIMWI2pg
+  test-macosx1015-64-shippable-qr/opt-xpcshell-3: RAT35FpmQU6BjwpqtVjfxA
+  test-macosx1015-64-shippable-qr/opt-xpcshell-4: DPFDl8n3SFSkzm5ULxSytg
+  test-macosx1015-64-shippable-qr/opt-xpcshell-5: R7cgIKZpTRyZ7uF6ij2jmw
+  test-windows11-32-2009-shippable-qr/opt-gtest-1proc: ZnVsJJ-WSIO_GRZmp2wfSQ
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-1: LIUy2OyeQVehYEmfCR3e6A
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-2: IzxxOAAmSHCVGKz5AuBGXA
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-3: ao9dScYHSH6UvF4LY_KYYA
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-4: RIMmNx7ASfKNsFvI7meTdg
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-5: buQ8aaq9Tly0hSE43X93MQ
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-6: HAfyREhgSRKpxN7WGclJ6g
+  test-windows11-32-2009-shippable-qr/opt-mochitest-thunderbird-7: Xb1iiXtKTlWZnyPrP4Hacg
+  test-windows11-32-2009-shippable-qr/opt-xpcshell-1: DgGrD0x5RGCqnwJpEZuNPQ
+  test-windows11-32-2009-shippable-qr/opt-xpcshell-2: dUwdcAKySqWDZcntA8qOUQ
+  test-windows11-32-2009-shippable-qr/opt-xpcshell-3: WtMTIQfsT82IdtiDruLaaw
+  test-windows11-32-2009-shippable-qr/opt-xpcshell-4: d993ik8TTRSfd2HU5D0FPw
+  test-windows11-32-2009-shippable-qr/opt-xpcshell-5: ZJbyT558SpOwbFZjxYlbCQ
+  test-windows11-64-2009-shippable-qr/opt-gtest-1proc: LAEW7kK6TkGk2gFGaDXt0A
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-1: VxKJPv6WTS6nzdCWn7BfdA
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-2: Q_KvGXtvQR2AvS629QX_FA
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-3: fIUYX6orQWWzQM9RAqbKRA
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-4: BcSj_gdCS0eCGvSJsggTHw
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-5: ICNSC6WFSGW7W_UDNdY8_w
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-6: KbZE8WPmTWm0uYusv5BazA
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-7: XQ-FHiRdTbCA1o38Yp4e3g
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-1: SGdbTC3iQ9GEJnJIugRg5g
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-2: EZxlSCX5RQ2zNPujCU1KVQ
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-3: Da_Rhc7TRlKR1sErJ9zp2A
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-4: bOor8RT7SLKTHHAIulU3jg
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-5: f3g1B0PoRjKawJ7iYdEgQg
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-6: V51QdVEnTC6nqoNEnif38g
+  test-windows11-64-2009-shippable-qr/opt-mochitest-thunderbird-msix-7: A_ApGR1OTKqAojn7asTi5Q
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-1: V2ss5EbHQyGU8gT5RRUT4w
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-2: XKsbZwkQTVWd7zpyfyWbQA
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-3: G-10E56aSi-ecfpv65jkYQ
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-4: TlOI3bkOQdOXNx5S9pTMOw
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-5: OCD-QZ86SqeWhTgThC2FTg
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-1: ONocyKQ-TFOJ2AsN5JpUyg
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-2: ZTy9H8IWSmOaGpaEaTtBIQ
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-3: CsPdLIMTTJavGGpliMB0tw
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-4: Spo235r3TQGrfBkfI3l0Fg
+  test-windows11-64-2009-shippable-qr/opt-xpcshell-msix-5: aZFH3LIVR9KUbscXkLHDzA
+  toolchain-linux32-libotr: AR9JMK8oQ7yiK7DWE1_WiA
+  toolchain-linux64-aarch64-compiler-rt-17: dKjpXLncQsqmZiFAhQKJUg
+  toolchain-linux64-cargo-vet: F8FdSTL3RVKihm6pDDQZVg
+  toolchain-linux64-cbindgen: OgQf0MKtQFac1LBQu_qWRA
+  toolchain-linux64-cctools-port: WNgkIJutSiiWx6Q3rViQKQ
+  toolchain-linux64-clang-17: U1-O4O_9TeS8BrXb_NUITQ
+  toolchain-linux64-clang-17-mingw-x64: GtMQcHIeQLytoWFM9Xy-NA
+  toolchain-linux64-clang-17-profile: YdXX_n2GT0eWM94CHHhrOA
+  toolchain-linux64-clang-17-raw: BQt14H_8TfyeALqlTqRK3Q
+  toolchain-linux64-clang-17-stage1: dcuAsjv5TaKlcluRb0xKRQ
+  toolchain-linux64-clang-tidy: GFKIaF_cSzSBErkoQGdWrg
+  toolchain-linux64-dump_syms: HjbbAmuRS8m-a8Y_sq2Yrg
+  toolchain-linux64-fix-stacks: AvEpIXhmR-eZhDs_zlS6hw
+  toolchain-linux64-gcc-11: d_pbRVI7Ttu7RvzKL9yYiQ
+  toolchain-linux64-hfsplus: X2as_NqnRxCY_LWX1f5j0Q
+  toolchain-linux64-libdmg: HEq165ajSleO-zus0q0r5w
+  toolchain-linux64-libotr: dbBufmy4SRW8prlL1peAyw
+  toolchain-linux64-makecab: APTvG_9VSbqYJaO8Il8zzg
+  toolchain-linux64-mar-tools: Vu4mNMPQS-egMPQaqGaaYQ
+  toolchain-linux64-minidump-stackwalk: O-eb0zdtTvKC8TyJBvhCuQ
+  toolchain-linux64-mkbom: MP5SLMAzTxS05yGZMYceGg
+  toolchain-linux64-nasm: bN2TXZVlSHKlmukXRozK8Q
+  toolchain-linux64-node-18: ULSOf5ptQ7mkORTmTAnsBg
+  toolchain-linux64-pkgconf: dqd5bpkPQVaJgeV71Re4NA
+  toolchain-linux64-python-3.8: bscYr5BDR6mIkbooJ6fC-g
+  toolchain-linux64-rust-1.76: DcwuCFXwTUOn_lS4TEE4pA
+  toolchain-linux64-rust-1.77: IizJ84YNQE-QpGxVhEwVNw
+  toolchain-linux64-rust-cross-1.77: bPnQogkHQXGQMiS16SLZvg
+  toolchain-linux64-rust-macos-1.70: Vmb_LV1BSemi9j6I7JZHaQ
+  toolchain-linux64-rust-macos-1.77: UK3AsE7SRRSWbxcc_8i5zA
+  toolchain-linux64-rust-size: AjJlzOkaTa6im2Xn6pOSgA
+  toolchain-linux64-rust-windows-1.70: XDMYs9qAQmGWSh80aha6kw
+  toolchain-linux64-rust-windows-1.77: JmFRTAZmRUiJxNy-wcwVlA
+  toolchain-linux64-sccache: WK5wBnClSuOWDlSKatBdRA
+  toolchain-linux64-toolchain-sysroot: aLC2BsUdSauxWQhWQFXvpw
+  toolchain-linux64-upx: LNEflY6lT02EG4VWS_7XMw
+  toolchain-linux64-winchecksec: QdJDJoHkTomEVqUW-VlRsA
+  toolchain-linux64-wine: UDJgq6GIQU-WC-a7ZpCLAA
+  toolchain-linux64-x64-compiler-rt-17: Wcl5hMFgT3OTAKaH1LTT5Q
+  toolchain-linux64-x86-compiler-rt-17: UeBmQ5qoS1K_7fVKMEo8FQ
+  toolchain-linux64-xar: Du5PsCp6TSGki1G1B_dLpA
+  toolchain-macosx64-aarch64-compiler-rt-17: UYhpsf0IRtakyoWLyMQl9A
+  toolchain-macosx64-aarch64-libotr: Q6rLRmjxSV-1A3caIczRPg
+  toolchain-macosx64-fix-stacks: Laglsf3UQIiUSe_PvEIcEQ
+  toolchain-macosx64-minidump-stackwalk: NuFIluT7R4-00tAqpUAV0w
+  toolchain-macosx64-node-18: dWdJD0aYQc2GJzNs9nK0QA
+  toolchain-macosx64-sdk-14.4: IHvhzaGBTcOTavmlEvqJFw
+  toolchain-macosx64-x64-compiler-rt-17: GOFe8a-nSFueyKAySfgjGA
+  toolchain-macosx64-x64-libotr: PZvjmQ4HS2WpLFmu-iaEGg
+  toolchain-nsis: fGJJGpYCQAufqNokfECGjQ
+  toolchain-sysroot-aarch64-linux-gnu: K-WdaTCfQsqOD6_r3RJ-ZQ
+  toolchain-sysroot-i686-linux-gnu: CcwuCrqSS7ymmnzdT8qK3w
+  toolchain-sysroot-wasm32-wasi-clang-17: XvExnnnrTaWZunKS-IKkyg
+  toolchain-sysroot-x86_64-linux-gnu: P-bzwa2MSlW0ryxVIJ-buQ
+  toolchain-wasm32-wasi-compiler-rt-17: YnONUofwSUae5w22BmLkZg
+  toolchain-win32-compiler-rt-17: aXPHC71_Ta-YpOQJpirCGg
+  toolchain-win32-fix-stacks: AiNv-VRYTTm_zfuOtTR97Q
+  toolchain-win32-libotr: d2CHJjSIR9C766NovT356w
+  toolchain-win32-minidump-stackwalk: O9pTmQa3TiyppuyMCqbbcA
+  toolchain-win32-node-18: Bf-EznRXSu6qY8R1g1M5RQ
+  toolchain-win64-cbindgen: OjucSjd4RymQwQyQTRMxQw
+  toolchain-win64-clang-17: af_a2p8PSbOGCOOhAyw8ng
+  toolchain-win64-clang-17-raw: RLpsAINiRGKhJXksK4IK2Q
+  toolchain-win64-clang-17-stage1: DLAqn8NOS7OEXJR7E4WmpA
+  toolchain-win64-compiler-rt-17: OaSG9YXoT3K7DQ_rvjY5fw
+  toolchain-win64-dump_syms: GXNu3X0tREe-aH2cXjitzQ
+  toolchain-win64-libotr: HQnZr3JLSWOiDnZnTwX_Lg
+  toolchain-win64-libxml2: EeBGzOgBTemeRfQiQ-YOVg
+  toolchain-win64-mozmake: AKh1szXySDm68WGeHL_Zrw
+  toolchain-win64-nasm: WKXF4yJpShWSK8OBK153cA
+  toolchain-win64-node-18: Ty2KUGNtTiGhcBY7L9QlaA
+  toolchain-win64-python-3.8: dgEFfsfGRU6iQRdtT6W8SA
+  toolchain-win64-sccache: L7K3QdjXQTekvTps1aTJDg
+  toolchain-win64-vs2022: NW-Z1gGISHKVULh60xr0xg
+  toolchain-win64-winchecksec: JqPOE5D3QV2yIc0B86tjqw
+  toolchain-windows-rs: BagwtM8yTPiAa0qhwt3mtQ
 files_changed:
-    - dom/html/HTMLDetailsElement.cpp
-    - gfx/thebes/gfxUserFontSet.cpp
-    - comm/mail/base/content/about3Pane.js
-    - comm/mail/base/content/about3Pane.xhtml
-filters: [target_tasks_method]
-head_ref: FIREFOX_120_0_1_RELEASE
+  - mobile/android/fenix/app/src/main/res/raw/initial_experiments.json
+  - netwerk/dns/effective_tld_names.dat
+  - security/manager/ssl/StaticHPKPins.h
+  - security/manager/ssl/nsSTSPreloadList.inc
+  - services/settings/dumps/blocklists/addons-bloomfilters.json
+  - services/settings/dumps/main/cookie-banner-rules-list.json
+  - services/settings/dumps/main/search-config-v2.json
+  - services/settings/dumps/security-state/intermediates.json
+  - comm/mail/base/content/release-candidate.html
+  - comm/mail/base/jar.mn
+  - comm/mail/branding/include/release-prefs.js
+  - comm/taskcluster/kinds/beetmover-repackage/kind.yml
+  - comm/taskcluster/kinds/repackage-shippable-l10n-msix/kind.yml
+  - comm/taskcluster/kinds/test/kind.yml
+  - comm/taskcluster/kinds/test/test-platforms.yml
+filters:
+  - target_tasks_method
+head_ref: FIREFOX_127_0_BUILD1
 head_repository: https://hg.mozilla.org/releases/mozilla-release
-head_rev: d80eefe94738ab6bd35cca64747d877c49337318
+head_rev: 81170fe36cb2562215e1bb410166e76be7b24206
 head_tag: ''
 hg_branch: default
 level: '3'
-message: ' '
-# morph_templates: {}
-moz_build_date: '20171028042225'
-optimize_target_tasks: false
-owner: tb-builds@thunderbird.net
-phabricator_diff:
+message: ''
+moz_build_date: '20240605191038'
+next_version: 127.0.1
+optimize_strategies: null
+optimize_target_tasks: true
+owner: user@example.com
+phabricator_diff: null
 project: comm-release
-pushdate: 1700061384
-pushlog_id: '4449'
+pushdate: 1717614638
+pushlog_id: '422'
 release_enable_emefree: false
 release_enable_partner_attribution: false
 release_enable_partner_repack: false
-release_eta:
+release_eta: null
 release_history: {}
 release_partner_build_number: 1
 release_partner_config: {}
-release_partners:
+release_partners: null
 release_product: thunderbird
 release_type: release
 repository_type: hg
@@ -178,7 +340,7 @@ signoff_urls: {}
 target_tasks_method: promote_desktop
 tasks_for: hg-push
 test_manifest_loader: default
-try_mode:
-try_options:
+try_mode: null
+try_options: null
 try_task_config: {}
-version: "120.0"
+version: '127.0'

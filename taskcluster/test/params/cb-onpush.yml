@@ -1,41 +1,44 @@
----
-app_version: '120.0'
+app_version: '129.0'
 backstop: true
 base_ref: default
 base_repository: https://hg.mozilla.org/mozilla-unified
-base_rev: fc01df84fa6d91b9dabb4b608eb947cef3230871
-build_date: 1700061384
+base_rev: 07b2916fb63bae8b0ad339dc50b0abeafb9207ae
+build_date: 1722275002
 build_number: 1
 comm_base_ref: default
-comm_base_repository: https://hg.mozilla.org/releases/comm-beta
-comm_base_rev: 67cd1eab1cd7d4347d7052c0d007a1a6cbcbea94
-comm_head_ref: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_base_repository: https://hg.mozilla.org/comm-unified
+comm_base_rev: b26ce873d09d53e6cfd546201a92e74d9f8ab90e
+comm_head_ref: 180bb5e1db5440906de55ba8962e48d0b2467a05
 comm_head_repository: https://hg.mozilla.org/releases/comm-beta
-comm_head_rev: 5fef80a909002a7ff1e94299c0e0f212233f91d4
+comm_head_rev: 180bb5e1db5440906de55ba8962e48d0b2467a05
 comm_src_path: comm/
 do_not_optimize: []
+enable_always_target:
+  - docker-image
 existing_tasks: {}
 files_changed:
-    - dom/html/HTMLDetailsElement.cpp
-    - gfx/thebes/gfxUserFontSet.cpp
-    - comm/mail/base/content/about3Pane.js
-    - comm/mail/base/content/about3Pane.xhtml
-filters: [target_tasks_method]
-head_ref: FIREFOX_RELEASE_120_BASE
+  - browser/locales/l10n-changesets.json
+  - mobile/locales/l10n-changesets.json
+  - comm/mail/base/test/browser/browser_getMessages_certError.js
+  - comm/mail/components/activity/modules/alertHook.sys.mjs
+filters:
+  - target_tasks_method
+head_ref: FIREFOX_129_0b9_RELEASE
 head_repository: https://hg.mozilla.org/releases/mozilla-beta
-head_rev: e2b2510f97612093f381ee1f4220e71ff949d845
+head_rev: 9496866ff16d0a4d437095f155fd10b3d12f3228
 head_tag: ''
 hg_branch: default
 level: '3'
 message: ''
-moz_build_date: '20231115151624'
-next_version:
-optimize_target_tasks: false
-owner: tb-builds@thunderbird.net
-phabricator_diff:
+moz_build_date: '20240729174322'
+next_version: null
+optimize_strategies: null
+optimize_target_tasks: true
+owner: user@example.com
+phabricator_diff: null
 project: comm-beta
-pushdate: 1700061384
-pushlog_id: '4449'
+pushdate: 1722275002
+pushlog_id: '4844'
 release_enable_emefree: false
 release_enable_partner_attribution: false
 release_enable_partner_repack: false
@@ -44,7 +47,7 @@ release_history: {}
 release_partner_build_number: 1
 release_partner_config: {}
 release_partners: []
-release_product:
+release_product: null
 release_type: beta
 repository_type: hg
 required_signoffs: []
@@ -52,7 +55,7 @@ signoff_urls: {}
 target_tasks_method: mozilla_beta_tasks
 tasks_for: hg-push
 test_manifest_loader: default
-try_mode:
-try_options:
+try_mode: null
+try_options: null
 try_task_config: {}
-version: "120.0b7"
+version: 129.0b6

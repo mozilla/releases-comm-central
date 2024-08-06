@@ -1,43 +1,51 @@
----
-app_version: "121.0a1"
+android_perftest_backstop: true
+app_version: 130.0a1
 backstop: false
 base_ref: default
 base_repository: https://hg.mozilla.org/mozilla-unified
-base_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
-build_date: 1699267904
+base_rev: c756f74154bfee318b22bbd0f8d5e27dee83fcee
+build_date: 1722379520
 build_number: 1
 comm_base_ref: default
 comm_base_repository: https://hg.mozilla.org/comm-unified
-comm_base_rev: 72918f80c3787d95892f3ea72b9802b3820a65ae
-comm_head_ref: bd719e91319162b001bf11e363cdf06b65ef2831
+comm_base_rev: 6285185e781452924f2b43f85ffbc64e61ee4310
+comm_head_ref: c11e788c342418d508bad8725bdc159d3a4ab73e
 comm_head_repository: https://hg.mozilla.org/comm-central
-comm_head_rev: bd719e91319162b001bf11e363cdf06b65ef2831
+comm_head_rev: c11e788c342418d508bad8725bdc159d3a4ab73e
 comm_src_path: comm/
 do_not_optimize: []
-enable_always_target: [docker-image]
+enable_always_target:
+  - docker-image
 existing_tasks: {}
 files_changed:
-    - dom/html/HTMLDetailsElement.cpp
-    - gfx/thebes/gfxUserFontSet.cpp
-    - comm/mail/base/content/about3Pane.js
-    - comm/mail/base/content/about3Pane.xhtml
-filters: [target_tasks_method]
+  - modules/libpref/init/StaticPrefList.yaml
+  - comm/rust/.cargo/config.toml.in
+  - comm/rust/Cargo.lock
+  - comm/rust/Cargo.toml
+  - comm/rust/checksums.json
+  - comm/rust/gkrust/Cargo.toml
+  - comm/third_party/rust/audioipc2-server/.cargo-checksum.json
+  - comm/third_party/rust/audioipc2-server/src/server.rs
+  - comm/third_party/rust/audioipc2/.cargo-checksum.json
+  - comm/third_party/rust/audioipc2/Cargo.toml
+filters:
+  - target_tasks_method
 head_ref: default
 head_repository: https://hg.mozilla.org/mozilla-central
-head_rev: 925231a8fb5eccf055afb3e9921596d8f990128b
+head_rev: c756f74154bfee318b22bbd0f8d5e27dee83fcee
 head_tag: ''
 hg_branch: default
 level: '3'
 message: ''
-moz_build_date: '20231106105144'
-next_version:
-optimize_strategies:
-optimize_target_tasks: false
-owner: tb-builds@thunderbird.net
-phabricator_diff:
+moz_build_date: '20240730224520'
+next_version: null
+optimize_strategies: null
+optimize_target_tasks: true
+owner: user@example.com
+phabricator_diff: null
 project: comm-central
-pushdate: 1699267904
-pushlog_id: '21535'
+pushdate: 1722379520
+pushlog_id: '22370'
 release_enable_emefree: false
 release_enable_partner_attribution: false
 release_enable_partner_repack: false
@@ -46,7 +54,7 @@ release_history: {}
 release_partner_build_number: 1
 release_partner_config: {}
 release_partners: []
-release_product:
+release_product: null
 release_type: nightly
 repository_type: hg
 required_signoffs: []
@@ -54,7 +62,7 @@ signoff_urls: {}
 target_tasks_method: comm_central_tasks
 tasks_for: hg-push
 test_manifest_loader: default
-try_mode:
-try_options:
+try_mode: null
+try_options: null
 try_task_config: {}
-version: "121.0a1"
+version: 130.0a1
