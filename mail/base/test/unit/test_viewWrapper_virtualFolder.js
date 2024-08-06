@@ -212,8 +212,8 @@ add_task(async function test_sort_secondary_implicit() {
   verify_messages_in_view([setOne], viewWrapper);
   viewWrapper.showThreaded = true;
 
-  viewWrapper.magicSort("subjectCol", Ci.nsMsgViewSortOrder.descending);
-  viewWrapper.magicSort("senderCol", Ci.nsMsgViewSortOrder.ascending);
+  viewWrapper.sort("subjectCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort("senderCol", Ci.nsMsgViewSortOrder.ascending);
 
   const checkSorts = () => {
     assert_equals(

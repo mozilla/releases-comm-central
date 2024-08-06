@@ -52,6 +52,12 @@ nsMsgSearchDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
   nsresult rv = nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // For other view types this will happen in OpenWithHdrs called by
+  // RebuildView.
+  if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
+    SaveSortInfo(sortType, sortOrder);
+  }
+
   nsCOMPtr<nsIPrefBranch> prefBranch(
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);

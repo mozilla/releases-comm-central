@@ -2223,6 +2223,15 @@ nsMsgDBView::Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
 
     RestoreSortInfo();
 
+    // For newly created folders initialize m_sortColumns with the current sort,
+    // which UpdateSortInfo() will turn into the next secondary sort.
+    if (!m_sortColumns.Length()) {
+      MsgViewSortColumnInfo sortColumnInfo;
+      sortColumnInfo.mSortType = sortType;
+      sortColumnInfo.mSortOrder = sortOrder;
+      m_sortColumns.AppendElement(sortColumnInfo);
+    }
+
     // Determine if we are in a news folder or not. If yes, we'll show lines
     // instead of size, and special icons in the thread pane.
     nsCOMPtr<nsIMsgIncomingServer> server;
@@ -3947,8 +3956,10 @@ void nsMsgDBView::UpdateSortInfo(nsMsgViewSortTypeValue sortType,
 
     PushSort(sortColumnInfo);
   } else {
-    // For primary sort, remember the sort order on a per column basis.
+    // Since m_sortType may not be in sync with m_sortColumns, update this in
+    // any case.
     if (m_sortColumns.Length()) {
+      m_sortColumns[0].mSortType = sortType;
       m_sortColumns[0].mSortOrder = sortOrder;
     }
   }
@@ -4131,9 +4142,14 @@ nsresult nsMsgDBView::RestoreSortInfo() {
     folderInfo->GetProperty("sortColumns", sortColumnsString);
     DecodeColumnSort(sortColumnsString);
     if (m_sortColumns.Length() > 1) {
-      m_secondarySort = m_sortColumns[1].mSortType;
-      m_secondarySortOrder = m_sortColumns[1].mSortOrder;
-      m_secondaryCustomColumn = m_sortColumns[1].mCustomColumnName;
+      if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
+        // Discard any persisted secondary sort information.
+        m_sortColumns.RemoveElementAt(1);
+      } else {
+        m_secondarySort = m_sortColumns[1].mSortType;
+        m_secondarySortOrder = m_sortColumns[1].mSortOrder;
+        m_secondaryCustomColumn = m_sortColumns[1].mCustomColumnName;
+      }
     }
 
     // Restore curCustomColumn from db.

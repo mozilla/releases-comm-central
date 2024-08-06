@@ -6493,15 +6493,8 @@ var sortController = {
     // So, first set the desired sortType and sortOrder, then set viewFlags in
     // batch mode, then apply it all (open a new view) with endViewUpdate().
     gViewWrapper.beginViewUpdate();
-    // Note: this.dbView still remembers the last secondery sort, before group
-    // sort was entered. If we do not specify a secondary sort here, dbView.open()
-    // will use the new primary sort and the old (!) secondary sort. Let's push
-    // the current primary sort as the new secondary sort. The clocking mechanism
-    // in DBViewWrapper._createView() will then do the right thing.
-    const [curPrimarySort] = gViewWrapper._sort;
     gViewWrapper._sort = [
       [newSortType, Ci.nsMsgViewSortOrder.ascending, newSortColumnId],
-      curPrimarySort,
     ];
     gViewWrapper.showGroupedBySort = false;
     gViewWrapper.endViewUpdate();

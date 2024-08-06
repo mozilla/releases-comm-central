@@ -116,49 +116,6 @@ add_task(async function test_sort_primary() {
 });
 
 /**
- * Verify that we handle explicit secondary sorts correctly.
- */
-add_task(async function test_sort_secondary_explicit() {
-  const viewWrapper = make_view_wrapper();
-  // we need to put messages in the folder or the sort logic doesn't actually
-  //  save the sort state. (this is the C++ view's fault.)
-  const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
-
-  await view_open(viewWrapper, folder);
-  viewWrapper.sort(
-    "senderCol",
-    Ci.nsMsgViewSortOrder.ascending,
-    "subjectCol",
-    Ci.nsMsgViewSortOrder.descending
-  );
-  // check once for what we just did, then again after refreshing to make
-  //  sure the sort order 'stuck'
-  for (let i = 0; i < 2; i++) {
-    assert_equals(
-      viewWrapper.dbView.sortType,
-      Ci.nsMsgViewSortType.byAuthor,
-      "sort should be by author"
-    );
-    assert_equals(
-      viewWrapper.dbView.sortOrder,
-      Ci.nsMsgViewSortOrder.ascending,
-      "sort order should be ascending"
-    );
-    assert_equals(
-      viewWrapper.dbView.secondarySortType,
-      Ci.nsMsgViewSortType.bySubject,
-      "secondary sort should be by subject"
-    );
-    assert_equals(
-      viewWrapper.dbView.secondarySortOrder,
-      Ci.nsMsgViewSortOrder.descending,
-      "secondary sort order should be descending"
-    );
-    await view_refresh(viewWrapper);
-  }
-});
-
-/**
  * Verify that we handle implicit secondary sorts correctly.
  * An implicit secondary sort is when we sort by Y, then we sort by X, and it's
  *  okay to have the effective sort of [X, Y].  The UI has/wants this, so, uh,
@@ -173,8 +130,8 @@ add_task(async function test_sort_secondary_implicit() {
   const [[folder]] = await messageInjection.makeFoldersWithSets(1, [{}]);
 
   await view_open(viewWrapper, folder);
-  viewWrapper.magicSort("subjectCol", Ci.nsMsgViewSortOrder.descending);
-  viewWrapper.magicSort("senderCol", Ci.nsMsgViewSortOrder.ascending);
+  viewWrapper.sort("subjectCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort("senderCol", Ci.nsMsgViewSortOrder.ascending);
   // check once for what we just did, then again after refreshing to make
   //  sure the sort order 'stuck'
   for (let i = 0; i < 2; i++) {
@@ -234,12 +191,8 @@ add_task(async function test_sort_group_by_sort() {
   // - return to unthreaded, have an illegal secondary sort, go group-by-sort
   await view_group_by_sort(viewWrapper, false);
 
-  viewWrapper.sort(
-    "dateCol",
-    Ci.nsMsgViewSortOrder.descending,
-    "idCol",
-    Ci.nsMsgViewSortOrder.descending
-  );
+  viewWrapper.sort("idCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort("dateCol", Ci.nsMsgViewSortOrder.descending);
 
   await view_group_by_sort(viewWrapper, true);
   // we should now only have a single sort type and it should be date
@@ -256,7 +209,7 @@ add_task(async function test_sort_group_by_sort() {
 
   // - try and make group-by-sort sort by something illegal
   // (we're still in group-by-sort mode)
-  viewWrapper.magicSort("idCol", Ci.nsMsgViewSortOrder.descending);
+  viewWrapper.sort("idCol", Ci.nsMsgViewSortOrder.descending);
   assert_equals(
     viewWrapper.primarySortType,
     Ci.nsMsgViewSortType.byDate,

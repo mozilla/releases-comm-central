@@ -35,7 +35,8 @@ function getSortStatusFromView(dbView) {
     (secondarySort[0] != Ci.nsMsgViewSortType.byCustom &&
       secondarySort[0] == primarySort[0]) ||
     (secondarySort[0] == Ci.nsMsgViewSortType.byCustom &&
-      secondarySort[2] == primarySort[2])
+      secondarySort[2] == primarySort[2]) ||
+    dbView.viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort
   ) {
     return [primarySort];
   }
@@ -1156,13 +1157,7 @@ DBViewWrapper.prototype = {
       this.listener.msgWindow,
       this.listener.threadPaneCommandUpdater
     );
-    // Excluding Group By views, use the least-specific sort so we can clock
-    // them back through to build up the correct sort order,
-    const index =
-      viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort
-        ? 0
-        : this._sort.length - 1;
-    const [sortType, sortOrder] = this._sort[index];
+    const [sortType, sortOrder] = this._sort[0];
 
     // when the underlying folder is a single real folder (virtual or no), we
     //  tell the view about the underlying folder.
@@ -1203,22 +1198,7 @@ DBViewWrapper.prototype = {
     //  so no one else has to do this.
     dbView.QueryInterface(Ci.nsITreeView);
 
-    // If Grouped By, the view has already been opened with the most specific
-    // sort (groups themselves are always sorted by date).
-    if (!(viewFlags & Ci.nsMsgViewFlagsType.kGroupBySort)) {
-      // clock through the rest of the sorts, if there are any
-      for (let iSort = this._sort.length - 2; iSort >= 0; iSort--) {
-        const [_sortType, _sortOrder, _sortColumnId] = this._sort[iSort];
-        dbView.curCustomColumn =
-          _sortType == Ci.nsMsgViewSortType.byCustom ? _sortColumnId : "";
-        dbView.sort(_sortType, _sortOrder);
-      }
-      this._sort = getSortStatusFromView(dbView);
-    } else {
-      // We currently do not cache any secondary sort information for group sorts
-      // in this._sort, which is tested by test_viewWrapper_logic.js.
-      this._sort = getSortStatusFromView(dbView).slice(0, 1);
-    }
+    this._sort = getSortStatusFromView(dbView);
 
     return dbView;
   },
@@ -1699,66 +1679,13 @@ DBViewWrapper.prototype = {
 
   sortAscending() {
     if (!this.isSortedAscending) {
-      this.magicSort(this.primarySortColumnId, Ci.nsMsgViewSortOrder.ascending);
+      this.sort(this.primarySortColumnId, Ci.nsMsgViewSortOrder.ascending);
     }
   },
   sortDescending() {
     if (!this.isSortedDescending) {
-      this.magicSort(
-        this.primarySortColumnId,
-        Ci.nsMsgViewSortOrder.descending
-      );
+      this.sort(this.primarySortColumnId, Ci.nsMsgViewSortOrder.descending);
     }
-  },
-
-  /**
-   * Explicit sort command.  We ignore all previous sort state and only apply
-   *  what you tell us.  If you want implied secondary sort, use |magicSort|.
-   * You must use this sort command, and never directly call the sort commands
-   *  on the underlying db view!  If you do not, make sure to fight us every
-   *   step of the way, because we will keep clobbering your manually applied
-   *   sort.
-   *
-   * @param {string} aSortColumnId
-   * @param {nsMsgViewSortOrderValue} aSortOrder
-   * @param {string} aSecondaryColumnId
-   * @param {nsMsgViewSortOrderValue} aSecondaryOrder
-   */
-  sort(aSortColumnId, aSortOrder, aSecondaryColumnId, aSecondaryOrder) {
-    // For sort changes, do not make a random selection if there is not
-    // actually anything selected; some views do this (looking at xfvf).
-    if (this.dbView.selection && this.dbView.selection.count == 0) {
-      this.dbView.selection.currentIndex = -1;
-    }
-
-    // Convert sortTypes to columnIds for dbView.sort().
-    this._sort = [[this.getSortType(aSortColumnId), aSortOrder, aSortColumnId]];
-    if (aSecondaryColumnId) {
-      this._sort.push([
-        this.getSortType(aSecondaryColumnId),
-        aSecondaryOrder,
-        aSecondaryColumnId,
-      ]);
-    }
-
-    // make sure the sort won't make the view angry...
-    this._ensureValidSort();
-    // if we are not in a view update, invoke the sort.
-    if (this._viewUpdateDepth == 0 && this.dbView) {
-      for (let iSort = this._sort.length - 1; iSort >= 0; iSort--) {
-        // apply them in the reverse order
-        const [sortType, sortOrder, sortColumnId] = this._sort[iSort];
-        this.dbView.curCustomColumn =
-          sortType == Ci.nsMsgViewSortType.byCustom ? sortColumnId : "";
-        this.dbView.sort(sortType, sortOrder);
-      }
-      this._sort = getSortStatusFromView(this.dbView);
-
-      // (only generate the event since we're not in a update batch)
-      this.listener.onSortChanged();
-    }
-    // (if we are in a view update, then a new view will be created when the
-    //  update ends, and it will just use the new sort order anyways.)
   },
 
   /**
@@ -1771,7 +1698,7 @@ DBViewWrapper.prototype = {
    * @param {string} aSortColumnId
    * @param {nsMsgViewSortOrderValue} aSortOrder
    */
-  magicSort(aSortColumnId, aSortOrder) {
+  sort(aSortColumnId, aSortOrder) {
     if (this.dbView) {
       // For sort changes, do not make a random selection if there is not
       // actually anything selected; some views do this (looking at xfvf).
