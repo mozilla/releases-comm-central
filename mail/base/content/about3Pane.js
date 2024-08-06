@@ -577,6 +577,15 @@ var folderPaneContextMenu = {
     const isSmartVirtualFolder = FolderUtils.isSmartVirtualFolder(folder);
     const isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
     const serverType = server.type;
+    const hasNoSearchTerms = () => {
+      if (!isVirtual) {
+        return true;
+      }
+      const wrapper = VirtualFolderHelper.wrapVirtualFolder(folder);
+      const noSearchTerms = ["", "ALL"].includes(wrapper.searchString);
+      wrapper.cleanUpMessageDatabase();
+      return noSearchTerms;
+    };
 
     this._showMenuItem(
       "folderPaneContext-getMessages",
@@ -636,7 +645,10 @@ var folderPaneContextMenu = {
 
     this._showMenuItem(
       "folderPaneContext-markMailFolderAllRead",
-      !isServer && !isSmartTagsFolder && serverType != "nntp"
+      !isServer &&
+        !isSmartTagsFolder &&
+        hasNoSearchTerms() &&
+        serverType != "nntp"
     );
     this._showMenuItem(
       "folderPaneContext-markNewsgroupAllRead",

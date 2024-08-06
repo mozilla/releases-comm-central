@@ -18,6 +18,7 @@ const { VirtualFolderHelper } = ChromeUtils.importESModule(
 
 const servers = ["server", "nntpRoot", "rssRoot"];
 const realFolders = ["plain", "inbox", "junk", "trash", "rssFeed"];
+const virtualFolders = ["virtual", "virtualFiltered"];
 
 const folderPaneContextData = {
   "folderPaneContext-getMessages": [...servers, "nntpGroup", "rssFeed"],
@@ -32,15 +33,15 @@ const folderPaneContextData = {
   "folderPaneContext-remove": [
     "plain",
     "junk",
-    "virtual",
+    ...virtualFolders,
     "nntpGroup",
     "rssFeed",
     "multiselect-plain",
   ],
-  "folderPaneContext-rename": ["plain", "junk", "virtual", "rssFeed"],
+  "folderPaneContext-rename": ["plain", "junk", ...virtualFolders, "rssFeed"],
   "folderPaneContext-moveMenu": [
     "plain",
-    "virtual",
+    ...virtualFolders,
     "rssFeed",
     "multiselect-plain",
   ],
@@ -62,8 +63,16 @@ const folderPaneContextData = {
   "folderPaneContext-emptyTrash": ["trash"],
   "folderPaneContext-emptyJunk": ["junk"],
   "folderPaneContext-sendUnsentMessages": [],
-  "folderPaneContext-favoriteFolder": [...realFolders, "virtual", "nntpGroup"],
-  "folderPaneContext-properties": [...realFolders, "virtual", "nntpGroup"],
+  "folderPaneContext-favoriteFolder": [
+    ...realFolders,
+    ...virtualFolders,
+    "nntpGroup",
+  ],
+  "folderPaneContext-properties": [
+    ...realFolders,
+    ...virtualFolders,
+    "nntpGroup",
+  ],
   "folderPaneContext-markAllFoldersRead": [...servers],
   "folderPaneContext-settings": [...servers],
   "folderPaneContext-filters": [...servers],
@@ -83,7 +92,8 @@ let rootFolder,
   inboxSubfolder,
   junkFolder,
   trashFolder,
-  virtualFolder;
+  virtualFolder,
+  virtualFilteredFolder;
 let nntpRootFolder, nntpGroupFolder;
 let rssRootFolder, rssFeedFolder, rssTrashFolder;
 let tagsFolder;
@@ -123,10 +133,17 @@ add_setup(async function () {
     .createLocalSubfolder("folderPaneContextVirtual")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
-  const msgDatabase = virtualFolder.msgDatabase;
-  const folderInfo = msgDatabase.dBFolderInfo;
-  folderInfo.setCharProperty("searchStr", "ALL");
-  folderInfo.setCharProperty("searchFolderUri", plainFolder.URI);
+  const folderInfoA = virtualFolder.msgDatabase.dBFolderInfo;
+  folderInfoA.setCharProperty("searchStr", "ALL");
+  folderInfoA.setCharProperty("searchFolderUri", plainFolder.URI);
+
+  virtualFilteredFolder = rootFolder
+    .createLocalSubfolder("folderPaneContextVirtualFiltered")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  virtualFilteredFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
+  const folderInfoB = virtualFilteredFolder.msgDatabase.dBFolderInfo;
+  folderInfoB.setCharProperty("searchStr", "AND (date,is after,31-Dec-1999)");
+  folderInfoB.setCharProperty("searchFolderUri", plainFolder.URI);
 
   nntpServer = new NNTPServer();
   nntpServer.addGroup("folder.pane.context.newsgroup");
@@ -190,6 +207,8 @@ add_task(async function testShownItems() {
   await rightClickOn(trashFolder, "trash");
   leftClickOn(virtualFolder);
   await rightClickOn(virtualFolder, "virtual");
+  leftClickOn(virtualFilteredFolder);
+  await rightClickOn(virtualFilteredFolder, "virtualFiltered");
   leftClickOn(nntpRootFolder);
   await rightClickOn(nntpRootFolder, "nntpRoot");
   leftClickOn(nntpGroupFolder);
