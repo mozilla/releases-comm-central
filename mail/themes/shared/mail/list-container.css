@@ -173,7 +173,7 @@
   }
 
   &:focus-within li.selected.current > .container,
-  & li.drop-target > .container {
+  & li[role="treeitem"].drop-target > .container {
     border-color: var(--list-container-border-selected-current-focused);
     background-color: var(--list-container-background-selected-current-focused);
 
