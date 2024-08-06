@@ -6,7 +6,7 @@ loader: taskgraph.loader.transform:loader
 
 transforms:
     - gecko_taskgraph.transforms.release_deps:transforms
-    - gecko_taskgraph.transforms.release_version_bump:transforms
+    - comm_taskgraph.transforms.release_version_bump:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 kind-dependencies:
@@ -21,11 +21,14 @@ task-defaults:
         implementation: treescript
         dontbuild: true
         tags: ['release']
-        bump: true
+        bump:
+            by-project:
+                comm-esr.*: false
+                default: true
         bump-files:
             by-project:
                 default: ["mail/config/version_display.txt"]
-                comm-(beta|esr.*):
+                comm-beta:
                     - "mail/config/version.txt"
                     - "mail/config/version_display.txt"
         push:
