@@ -19,7 +19,6 @@
 pref("startup.homepage_override_url","chrome://navigator-region/locale/region.properties");
 pref("general.skins.selectedSkin", "classic/1.0");
 
-pref("browser.chromeURL","chrome://navigator/content/navigator.xul");
 pref("browser.hiddenWindowChromeURL", "chrome://navigator/content/hiddenWindow.xul");
 
 // prompt for Master Password on startup

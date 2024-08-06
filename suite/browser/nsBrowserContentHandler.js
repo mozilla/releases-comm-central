@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
+
 const nsISupports             = Ci.nsISupports;
 const nsIBrowserDOMWindow     = Ci.nsIBrowserDOMWindow;
 const nsIBrowserHistory       = Ci.nsIBrowserHistory;
@@ -167,11 +171,7 @@ function openPreferences()
 
 function getBrowserURL()
 {
-  try {
-    return Services.prefs.getCharPref("browser.chromeURL");
-  } catch (e) {
-  }
-  return "chrome://navigator/content/navigator.xul";
+  return AppConstants.BROWSER_CHROME_URL;
 }
 
 function handURIToExistingBrowser(aUri, aLocation, aFeatures, aTriggeringPrincipal)

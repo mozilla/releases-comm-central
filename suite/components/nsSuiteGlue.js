@@ -1554,8 +1554,7 @@ SuiteGlue.prototype = {
         var args = Cc["@mozilla.org/supports-string;1"]
                      .createInstance(Ci.nsISupportsString);
         args.data = url;
-        var chromeURL = Services.prefs.getCharPref("browser.chromeURL");
-        Services.ww.openWindow(null, chromeURL, "_blank", "chrome,all,dialog=no", args);
+        Services.ww.openWindow(null, AppConstants.BROWSER_CHROME_URL, "_blank", "chrome,all,dialog=no", args);
       }
     } catch (e) {
       Cu.reportError("Error displaying tab received by Sync: " + e);

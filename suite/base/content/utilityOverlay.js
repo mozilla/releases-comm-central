@@ -11,6 +11,9 @@
 var { XPCOMUtils } =
   ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BrowserUtils: "resource://gre/modules/BrowserUtils.jsm",
@@ -217,14 +220,7 @@ function setOfflineUI(offline)
 }
 
 function getBrowserURL() {
-
-  try {
-    var url = Services.prefs.getCharPref("browser.chromeURL");
-    if (url)
-      return url;
-  } catch(e) {
-  }
-  return "chrome://navigator/content/navigator.xul";
+  return AppConstants.BROWSER_CHROME_URL;
 }
 
 function goPreferences(paneID)

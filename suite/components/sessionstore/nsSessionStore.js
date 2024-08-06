@@ -3512,7 +3512,7 @@ SessionStoreService.prototype = {
     }
 
     var window =
-      Services.ww.openWindow(null, this._prefBranch.getCharPref("chromeURL"),
+      Services.ww.openWindow(null, AppConstants.BROWSER_CHROME_URL,
                              "_blank", features, argString);
 
     do {

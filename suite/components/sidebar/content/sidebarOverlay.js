@@ -1075,17 +1075,13 @@ function SidebarCustomize() {
 function BrowseMorePanels()
 {
   var url = '';
-  var browser_url = "chrome://navigator/content/navigator.xul";
   var locale;
   try {
     url = Services.prefs.getCharPref("sidebar.customize.directory.url");
-    var temp = Services.prefs.getCharPref("browser.chromeURL");
-    if (temp)
-      browser_url = temp;
   } catch(ex) {
     debug("Unable to get prefs: "+ex);
   }
-  window.openDialog(browser_url, "_blank", "chrome,all,dialog=no", url);
+  window.openDialog(AppConstants.BROWSER_CHROME_URL, "_blank", "chrome,all,dialog=no", url);
 }
 
 
