@@ -413,6 +413,30 @@
           }
         },
         "description": "A <em>dictionary object</em> to specify paths for multiple icons in different sizes, so the best matching icon can be used, instead of scaling a standard icon to fit the pixel density of the user's display. Each entry is a <em>name-value</em> pair, with <em>name</em> being a size and <em>value</em> being a $(ref:menus.MenuIconPath). Example: <literalinclude>includes/IconPath.json<lang>JSON</lang></literalinclude>See the <a href='url-choosing-icon-size'>MDN documentation about choosing icon sizes</a> for more information on this. "
+      },
+      {
+        "id": "MenuActionCommand",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "_execute_browser_action",
+              "_execute_compose_action",
+              "_execute_message_display_action"
+            ],
+            "max_manifest_version": 2
+          },
+          {
+            "type": "string",
+            "enum": [
+              "_execute_action",
+              "_execute_compose_action",
+              "_execute_message_display_action"
+            ],
+            "min_manifest_version": 3
+          }
+        ],
+        "description": "A predefined command to open an action popup."
       }
     ],
     "functions": [
@@ -545,16 +569,13 @@
                 "optional": true,
                 "choices": [
                   {
-                    "type": "string",
-                    "max_manifest_version": 2,
-                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <var>_execute_browser_action</var>, <var>_execute_compose_action</var> and <var>_execute_message_display_action</var>."
+                    "type": "string"
                   },
                   {
-                    "type": "string",
-                    "min_manifest_version": 3,
-                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <var>_execute_action</var>, <var>_execute_compose_action</var> and <var>_execute_message_display_action</var>."
+                    "$ref": "menus.MenuActionCommand"
                   }
-                ]
+                ],
+                "description": "Specifies a command to issue for the context click. Can either be a user defined command, or one of the predefined action commands."
               }
             }
           },

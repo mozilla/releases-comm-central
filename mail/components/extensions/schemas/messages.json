@@ -49,25 +49,30 @@
         }
       },
       {
+        "id": "MailBoxHeaderString",
+        "type": "string",
+        "description": "Content may either be a single email address, or a mailbox string (see RFC 5322, section 3.4). Use $(ref:messengerUtilities.parseMailboxString) to extract the name and/or the email from the mailbox string."
+      },
+      {
         "id": "MessageHeader",
         "type": "object",
         "description": "Basic information about a message.",
         "properties": {
           "author": {
-            "type": "string"
+            "$ref": "messages.MailBoxHeaderString"
           },
           "bccList": {
             "description": "The Bcc recipients. Not populated for news/nntp messages.",
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "messages.MailBoxHeaderString"
             }
           },
           "ccList": {
             "description": "The Cc recipients. Not populated for news/nntp messages.",
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "messages.MailBoxHeaderString"
             }
           },
           "date": {
@@ -120,7 +125,7 @@
             "description": "The To recipients. Not populated for news/nntp messages.",
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "messages.MailBoxHeaderString"
             }
           },
           "size": {

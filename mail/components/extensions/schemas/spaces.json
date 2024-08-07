@@ -3,7 +3,7 @@
     "namespace": "spaces",
     "types": [
       {
-        "id": "SpaceButtonProperties_MV2",
+        "id": "ButtonProperties",
         "type": "object",
         "properties": {
           "badgeBackgroundColor": {
@@ -51,7 +51,7 @@
         }
       },
       {
-        "id": "SpaceButtonProperties_MV3",
+        "id": "SpaceButtonProperties",
         "type": "object",
         "properties": {
           "badgeBackgroundColor": {
@@ -156,11 +156,11 @@
             "description": "Properties of the button for the new space.",
             "choices": [
               {
-                "$ref": "spaces.SpaceButtonProperties_MV3",
+                "$ref": "spaces.SpaceButtonProperties",
                 "min_manifest_version": 3
               },
               {
-                "$ref": "spaces.SpaceButtonProperties_MV2",
+                "$ref": "spaces.ButtonProperties",
                 "max_manifest_version": 2
               }
             ],
@@ -307,11 +307,11 @@
             "description": "Only specified button properties will be updated.",
             "choices": [
               {
-                "$ref": "spaces.SpaceButtonProperties_MV3",
+                "$ref": "spaces.SpaceButtonProperties",
                 "min_manifest_version": 3
               },
               {
-                "$ref": "spaces.SpaceButtonProperties_MV2",
+                "$ref": "spaces.ButtonProperties",
                 "max_manifest_version": 2
               }
             ],

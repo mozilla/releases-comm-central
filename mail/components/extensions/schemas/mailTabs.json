@@ -193,7 +193,7 @@
           "displayedFolderId": {
             "$ref": "folders.MailFolderId",
             "min_manifest_version": 3,
-            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <var>selectedMessages</var> is specified.",
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any.",
             "optional": true
           },
           "displayedFolder": {
@@ -207,7 +207,7 @@
               }
             ],
             "max_manifest_version": 2,
-            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any. This property is ignored, if <var>selectedMessages</var> is specified.",
+            "description": "Sets the folder displayed in the mail tab. Requires the <permission>accountsRead</permission> permission. The previous message selection in the given folder will be restored, if any.",
             "optional": true
           }
         }
