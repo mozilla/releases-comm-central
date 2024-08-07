@@ -3526,8 +3526,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-common"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "enum-map",
  "env_logger",
@@ -3539,8 +3539,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-crypto"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "bindgen 0.69.4",
  "log",
@@ -3554,8 +3554,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-http3"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "enumset",
  "log",
@@ -3570,8 +3570,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-qpack"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "log",
  "neqo-common",
@@ -3582,8 +3582,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-transport"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "enum-map",
  "indexmap",
@@ -3597,8 +3597,8 @@ dependencies = [
 
 [[package]]
 name = "neqo-udp"
-version = "0.8.1"
-source = "git+https://github.com/mozilla/neqo?tag=v0.8.1#f0bffce01be53309a9cc93dc344141f57918cb3b"
+version = "0.8.2"
+source = "git+https://github.com/mozilla/neqo?tag=v0.8.2#b7e17668eb8f2fb13c1d945a9a7f79bd31257eb8"
 dependencies = [
  "log",
  "neqo-common",
@@ -4205,6 +4205,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8bffec3605b73c6f1754535084a85229fa8a30f86014e6c81aeec4abb68b0285"
 dependencies = [
  "libc",
+ "log",
  "once_cell",
  "socket2 0.5.7",
  "windows-sys",
