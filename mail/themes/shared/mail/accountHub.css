@@ -16,12 +16,26 @@ dialog {
   --hub-account-button-background-hover: light-dark(var(--color-ink-10), var(--color-gray-80));
   --hub-account-button-background-hover-active: light-dark(var(--color-gray-10), var(--color-gray-90));
   --hub-account-button-border-color: light-dark(var(--color-gray-30), var(--color-gray-60));
-  --hub-account-primary-button-background: var(--in-content-primary-button-background);
-  --hub-account-primary-button-background-hover: var(--in-content-primary-button-background-hover);
-  --hub-account-primary-button-background-active: var(--in-content-primary-button-background-active);
+  --hub-account-primary-button-color: light-dark(#feffff, #1a202c);
+  --hub-account-primary-button-background: light-dark(#1373d9, #58c9ff);
+  --hub-account-primary-button-background-hover: light-dark(#175fb6, #32aeff);
+  --hub-account-primary-button-background-active: light-dark(#19518f, #1b90f5);
+  --hub-account-primary-button-background-focus: light-dark(#175FB6, #32aeff);
+  --hub-account-primary-button-border: light-dark(#175fb6, #32aeff);
+  --hub-account-primary-button-border-active: light-dark(#19518f, #1b90f5);
+  --hub-account-secondary-button-color: light-dark(#18181b, #eeeef0);
+  --hub-account-secondary-button-background: light-dark(#f7f7f7, #262d3b);
+  --hub-account-secondary-button-background-hover: light-dark(#f7f7f7, #1a202c);
+  --hub-account-secondary-button-background-active: light-dark(#e4e4e7, #18181b);
+  --hub-account-secondary-button-background-focus: light-dark(#f7f7f7, #1a202c);
+  --hub-account-secondary-button-border: light-dark(#e4e4e7, #303a4a);
+  --hub-account-secondary-button-border-active: light-dark(#777580, #3d4d67);
+  --hub-account-button-outline-focus: light-dark(#1373d9, #58c9ff);
+  --hub-account-button-hover-active-color: #e4e4e7;
+  --hub-account-footer-link-color: light-dark(#1373d9, #58c9ff);
   --hub-notification-background-color-warning: var(--color-yellow-30);
   --hub-border-color: light-dark(#f0f8ff, #58c9ff);
-  --hub-divider-color: light-dark(var(--color-white), #1a202c);
+  --hub-divider-color: light-dark(#ffffff, #1a202c);
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
@@ -416,7 +430,7 @@ header {
   hr {
     border: none;
     height: 1px;
-    margin-block: 10px;
+    margin-block: 20px;
     background: linear-gradient(to right, transparent, rgba(26, 32, 44, 0.2), transparent);
     color: transparent;
   }
@@ -424,6 +438,88 @@ header {
   @media (prefers-color-scheme: dark) {
     hr {
       background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    }
+  }
+
+  .footer-button {
+    font-size: 1.1rem;
+    min-width: 128px;
+    padding: 10px 25px;
+    text-align: center;
+  }
+
+  .footer-primary {
+    background-color: var(--hub-account-primary-button-background);
+    color: var(--hub-account-primary-button-color);
+    border-color: var(--hub-account-primary-button-border);
+    box-shadow: 0 6px 3px -4px rgba(21, 66, 124, 0.3);
+
+    &:hover {
+      background-color: var(--hub-account-primary-button-background-hover);
+      color: var(--hub-account-primary-button-color);
+      border-color: var(--hub-account-primary-button-border-active);
+      box-shadow: 0 4px 2px -3px rgba(21, 66, 124, 0.3);
+
+      &:active {
+        background-color: var(--hub-account-primary-button-background-active);
+        color: var(--hub-account-primary-button-color);
+        border-color: var(--hub-account-primary-button-border-active);
+        box-shadow: none;
+      }
+    }
+
+    &:active {
+      background-color: var(--hub-account-primary-button-background-active);
+      color: var(--hub-account-primary-button-color);
+      border-color: var(--hub-account-primary-button-border-active);
+      box-shadow: none;
+    }
+
+    &:focus {
+      background-color: var(--hub-account-primary-button-background-focus);
+      color: var(--hub-account-primary-button-color);
+      outline: 2px solid var(--hub-account-button-outline-focus);
+      outline-offset: 1px;
+      box-shadow: none;
+      border-color: var(--hub-account-primary-button-border-active);
+    }
+  }
+
+  .footer-secondary {
+    background-color: var(--hub-account-secondary-button-background);
+    color: var(--hub-account-secondary-button-color);
+    border-color: var(--hub-account-secondary-button-border);
+    box-shadow: 0 6px 3px -4px rgba(0, 0, 0, 0.1);
+    margin-inline-end: 15px;
+
+    &:hover {
+      background-color: var(--hub-account-secondary-button-background-hover);
+      color: var(--hub-account-secondary-button-color);
+      border-color: var(--hub-account-secondary-button-border);
+      box-shadow: 0 4px 2px -3px rgba(0, 0, 0, 0.1);
+
+      &:active {
+        background-color: var(--hub-account-secondary-button-background-active);
+        color: var(--hub-account-secondary-button-color);
+        border-color: var(--hub-account-secondary-button-border-active);
+        box-shadow: none;
+      }
+    }
+
+    &:active {
+      background-color: var(--hub-account-secondary-button-background-active);
+      color: var(--hub-account-secondary-button-color);
+      border-color: var(--hub-account-secondary-button-border-active);
+      box-shadow: none;
+    }
+
+    &:focus {
+      background-color: var(--hub-account-secondary-button-background-focus);
+      color: var(--hub-account-secondary-button-color);
+      outline: 2px solid var(--hub-account-button-outline-focus);
+      outline-offset: 1px;
+      box-shadow: none;
+      border-color: var(--hub-account-secondary-button-border);
     }
   }
 }
@@ -440,6 +536,7 @@ header {
     text-decoration: none;
     letter-spacing: 0.2px;
     font-weight: 200;
+    color: var(--hub-account-footer-link-color);
 
     &:hover {
       text-decoration: underline;
