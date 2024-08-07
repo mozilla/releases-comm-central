@@ -469,7 +469,7 @@ var gMenuBuilder = {
         }[item.command];
         if (actionFor) {
           const win = event.target.ownerGlobal;
-          actionFor(item.extension).triggerAction(win);
+          actionFor(item.extension).triggerAction(win.top);
           return;
         }
 
