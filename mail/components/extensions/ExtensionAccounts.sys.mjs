@@ -9,6 +9,18 @@ import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sy
 
 var { ExtensionError } = ExtensionUtils;
 
+/**
+ * Return all mail accounts, which are supported by Thunderbird's WebExtension APIs.
+ * This excludes chat accounts and the preliminary EWS accounts.
+ *
+ * @returns {nsIMsgAccount[]}
+ */
+export function getMailAccounts() {
+  return MailServices.accounts.accounts.filter(
+    account => !["im", "ews"].includes(account.incomingServer.type)
+  );
+}
+
 export class AccountManager {
   constructor(extension) {
     this.extension = extension;
@@ -28,13 +40,25 @@ export class AccountManager {
     }
 
     const type = server.type;
+
+    // Skip chat accounts which are currently not accessible through the accounts
+    // API. Also skip the preliminary Exchange accounts.
+    if (["im", "ews"].includes(type)) {
+      return null;
+    }
+
+    if (type == "none") {
+      return this.extension.manifestVersion < 3 ? "none" : "local";
+    }
+
     if (["imap", "pop3", "nntp"].includes(type)) {
       return type;
     }
-    if (type != "none") {
-      return null;
-    }
-    return this.extension.manifestVersion < 3 ? "none" : "local";
+
+    // Experiment extensions may have registered custom types. Since there is no
+    // officially way for extension to register their types, we return all unknown
+    // types as extensions types.
+    return `extension:${type}`;
   }
 
   /**

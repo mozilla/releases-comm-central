@@ -19,8 +19,9 @@ var {
   CachedFolder,
   folderURIToPath,
   getFolder,
-  specialUseMap,
+  getMailAccounts,
   getWildcardVirtualFolders,
+  specialUseMap,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
@@ -680,7 +681,7 @@ this.folders = class extends ExtensionAPIPersistent {
               }
             }
           } else {
-            for (const account of MailServices.accounts.accounts) {
+            for (const account of getMailAccounts()) {
               const accountId = account.key;
               if (!queryInfo.accountId || queryInfo.accountId == accountId) {
                 parentFolders.push({

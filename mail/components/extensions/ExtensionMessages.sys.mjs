@@ -11,6 +11,7 @@ import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import {
   getFolder,
+  getMailAccounts,
   getWildcardVirtualFolders,
 } from "resource:///modules/ExtensionAccounts.sys.mjs";
 
@@ -1675,7 +1676,7 @@ export class MessageQuery {
     // Limit search to a given folder, or search all folders.
     const folders = [];
     let includeSubFolders = false;
-    const allAccounts = MailServices.accounts.accounts.map(account => ({
+    const allAccounts = getMailAccounts().map(account => ({
       key: account.key,
       rootFolder: account.incomingServer.rootFolder,
       incomingServer: account.incomingServer,

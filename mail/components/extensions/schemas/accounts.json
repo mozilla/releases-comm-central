@@ -31,8 +31,15 @@
             "description": "The human-friendly name of this account."
           },
           "type": {
-            "type": "string",
-            "description": "What sort of account this is, e.g. <var>imap</var>, <var>nntp</var>, or <var>pop3</var>."
+            "choices": [
+              {
+                "$ref": "accounts.NativeMailAccountType"
+              },
+              {
+                "$ref": "accounts.ExtensionMailAccountType"
+              }
+            ],
+            "description": "What sort of account this is. Either one of the natively supported account types, or an account type added by an extension."
           },
           "folders": {
             "max_manifest_version": 2,
@@ -68,8 +75,8 @@
         "description": "A unique id representing a $(ref:accounts.MailAccount)."
       },
       {
-        "id": "MailAccountType",
-        "description": "The type of an account.",
+        "id": "NativeMailAccountType",
+        "description": "The type of an account natively supported by Thunderbird.",
         "choices": [
           {
             "max_manifest_version": 2,
@@ -82,6 +89,12 @@
             "enum": ["imap", "pop3", "nntp", "local"]
           }
         ]
+      },
+      {
+        "id": "ExtensionMailAccountType",
+        "description": "The type of an account which was added by an extension. For the time being there is no guarantee for account types added by extensions to always work as expected.",
+        "type": "string",
+        "pattern": "^extension:.*$"
       }
     ],
     "functions": [

@@ -5,9 +5,8 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-var { CachedAccount, convertMailIdentity } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionAccounts.sys.mjs"
-);
+var { CachedAccount, convertMailIdentity, getMailAccounts } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 
 /**
  * @implements {nsIObserver}
@@ -20,7 +19,7 @@ var accountsTracker = new (class extends EventEmitter {
     this.monitoredAccounts = new Map();
 
     // Keep track of accounts data monitored for changes.
-    for (const nativeAccount of MailServices.accounts.accounts) {
+    for (const nativeAccount of getMailAccounts()) {
       this.monitoredAccounts.set(
         nativeAccount.key,
         this.getMonitoredProperties(nativeAccount)
@@ -227,7 +226,7 @@ this.accounts = class extends ExtensionAPIPersistent {
       accounts: {
         async list(includeFolders) {
           const accounts = [];
-          for (let account of MailServices.accounts.accounts) {
+          for (let account of getMailAccounts()) {
             account = context.extension.accountManager.convert(
               account,
               includeFolders

@@ -10,12 +10,12 @@ ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
 
-var { convertMailIdentity } = ChromeUtils.importESModule(
+var { convertMailIdentity, getMailAccounts } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
 function findIdentityAndAccount(identityId) {
-  for (const account of MailServices.accounts.accounts) {
+  for (const account of getMailAccounts()) {
     for (const identity of account.identities) {
       if (identity.key == identityId) {
         return { account, identity };
@@ -80,7 +80,7 @@ var identitiesTracker = new (class extends EventEmitter {
     // Keep track of identities and their values, to suppress superfluous
     // update notifications. The deferredTask timer is used to collapse multiple
     // update notifications.
-    for (const account of MailServices.accounts.accounts) {
+    for (const account of getMailAccounts()) {
       for (const identity of account.identities) {
         this.identities.set(
           identity.key,
@@ -267,7 +267,7 @@ this.identities = class extends ExtensionAPIPersistent {
         async list(accountId) {
           const accounts = accountId
             ? [MailServices.accounts.getAccount(accountId)]
-            : MailServices.accounts.accounts;
+            : getMailAccounts();
 
           const identities = [];
           for (const account of accounts) {
