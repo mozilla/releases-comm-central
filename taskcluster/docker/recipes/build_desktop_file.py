@@ -156,7 +156,8 @@ def main():
     with open(args.locales_file) as fp:
         locale_data = json.load(fp)
         locales = [l for l in locale_data.keys() if l != "ja-JP-mac"]
-        comm_l10n_rev = locale_data.get("en-GB", {}).get("revision")
+        # Bug 1912126 - hard code this until this script is updated for Github proper
+        comm_l10n_rev = "4d226985e366c377cf397e4e42aa95e9e2ed3336"
 
     get_strings(args.l10n_base, comm_l10n_rev, args.fluent_files)
 
