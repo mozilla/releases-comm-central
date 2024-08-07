@@ -12,6 +12,8 @@ EXTRA_JS_MODULES += [
     "modules/NotificationManager.sys.mjs",
 ]
 
+JAR_MANIFESTS += ["jar.mn"]
+
 XPCSHELL_TESTS_MANIFESTS += [
     "test/unit/xpcshell.toml",
 ]
