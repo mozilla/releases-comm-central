@@ -11,8 +11,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
   persist="width height screenX screenY"
-  width="400"
-  height="370"
+  style="min-width: 27em; min-height: 25em"
   windowtype="mailnews:virtualFolderList"
   scrolling="false"
 >
@@ -40,7 +39,7 @@
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   >
-    <dialog>
+    <dialog style="min-width: 27em; min-height: 25em">
       <stringbundle
         id="bundle_messenger"
         src="chrome://messenger/locale/messenger.properties"
@@ -50,7 +49,6 @@
       <tree
         id="folderPickerTree"
         flex="1"
-        style="height: 290px"
         hidecolumnpicker="true"
         seltype="multiple"
         disableKeyNavigation="true"
