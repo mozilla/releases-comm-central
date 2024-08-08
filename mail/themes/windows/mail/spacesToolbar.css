@@ -3,3 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/spacesToolbar.css");
+
+@media (-moz-windows-accent-color-in-titlebar) {
+  :root[sizemode=normal][tabsintitlebar] #spacesToolbar {
+    margin-top: 1px;
+  }
+}

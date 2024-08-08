@@ -66,6 +66,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         color: AccentColorText;
       }
     }
+
+    :root[tabsintitlebar][sizemode="normal"] {
+      border-top: .5px solid ActiveBorder;
+
+      &:-moz-window-inactive {
+        border-top-color: InactiveBorder;
+      }
+    }
   }
 }
 
