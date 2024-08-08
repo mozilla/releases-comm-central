@@ -1311,12 +1311,20 @@ Enigmail.msg = {
     // Make sure that we use base64 encoding for signed payload of
     // signed-only emails, only, because some MTAs rewrite the encoding
     // of message with a 7bit/8bit encoding.
-    // We don't use base64 encoding for the inner payload of encrypted
-    // messages, even if that payload is a signed message, because
-    // we already have sufficient wrapping when using encryption.
+    // We usually don't use base64 encoding for the inner payload of
+    // encrypted messages, even if that payload is a signed message,
+    // because we already have sufficient wrapping when using
+    // encryption (avoiding unnecessary base64 layers saves space).
+    // However, when using GPGME for signing, the UTF-8 bytes given to
+    // GPGME might get incorrectly transformed, so let's use base64
+    // here, too.
     // (We don't encode PGP/INLINE signed messages, that would be
     // against the intention.)
-    if (usingPGPMime && sendFlags & SIGN && !(sendFlags & ENCRYPT)) {
+    if (
+      usingPGPMime &&
+      sendFlags & SIGN &&
+      (senderKeyIsGnuPG || !(sendFlags & ENCRYPT))
+    ) {
       gMsgCompose.compFields.forceMsgEncoding = true;
     }
 
