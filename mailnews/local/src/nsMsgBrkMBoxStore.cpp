@@ -128,7 +128,7 @@ nsresult MboxScanner::BeginScan(nsIFile* mboxFile,
 
 NS_IMETHODIMP MboxScanner::OnStartRequest(nsIRequest* req) {
   nsresult rv;
-  size_t msgOffset = mMboxStream->MsgOffset();
+  uint64_t msgOffset = mMboxStream->MsgOffset();
   if (msgOffset == 0) {
     rv = mScanListener->OnStartScan();
     if (NS_FAILED(rv)) {
@@ -148,7 +148,7 @@ NS_IMETHODIMP MboxScanner::OnStartRequest(nsIRequest* req) {
   }
 
   nsAutoCString token;
-  token.AppendInt((uint64_t)msgOffset);
+  token.AppendInt(msgOffset);
   rv = mScanListener->OnStartMessage(token);
   if (NS_FAILED(rv)) {
     return rv;

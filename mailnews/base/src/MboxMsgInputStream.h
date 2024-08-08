@@ -70,7 +70,7 @@ class MboxMsgInputStream : public nsIInputStream {
    * message is located. This would be the location of the "From " separator
    * line.
    */
-  size_t MsgOffset() { return mMsgOffset; }
+  uint64_t MsgOffset() { return mMsgOffset; }
 
  protected:
   virtual ~MboxMsgInputStream();
@@ -89,9 +89,9 @@ class MboxMsgInputStream : public nsIInputStream {
   size_t mUnused;
 
   // Total bytes consumed from mbox file so far.
-  size_t mTotalUsed;
+  uint64_t mTotalUsed;
   // The offset at which the current message began.
-  size_t mMsgOffset;
+  uint64_t mMsgOffset;
 
   // Hide gory parsing details with pIMPL.
   mozilla::UniquePtr<MboxParser> mParser;
