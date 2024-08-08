@@ -374,26 +374,24 @@
      * input, like for plurals, when you change from "[1] [minute]" to "[2] [minutes]".
      */
     updateUIText() {
-      const unitList = this.querySelector(".snooze-unit-menulist");
       const unitPopup = this.querySelector(".snooze-unit-menupopup");
       const unitValue = this.querySelector(".snooze-value-textbox");
-      const okButton = this.querySelector(".snooze-popup-ok-button");
 
       function unitName(list) {
         return (
-          { 1: "unit-minutes", 60: "unit-hours", 1440: "unit-days" }[list.value] || "unit-minutes"
+          {
+            1: "event-duration-menuitem-minutes",
+            60: "event-duration-menuitem-hours",
+            1440: "event-duration-menuitem-days",
+          }[list.value] || "event-duration-menuitem-minutes"
         );
       }
 
-      const unit = lazy.l10n.formatValueSync(unitName(unitList), { count: unitValue.value });
-
-      document.l10n.setAttributes(okButton, "reminder-snooze-ok-a11y", {
-        unit,
-      });
-
       const items = unitPopup.getElementsByTagName("menuitem");
       for (const menuItem of items) {
-        menuItem.label = lazy.l10n.formatValueSync(unitName(menuItem), { count: unitValue.value });
+        document.l10n.setAttributes(menuItem, unitName(menuItem), {
+          count: unitValue.value,
+        });
       }
     }
   }

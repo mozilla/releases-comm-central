@@ -16,8 +16,6 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 /**
  * This function unconditionally disables the element for
@@ -187,30 +185,6 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
 }
 
 /**
- * Gets the correct plural form of a given unit.
- *
- * @param aLength         The number to use to determine the plural form
- * @param aUnit           The unit to find the plural form of
- * @param aIncludeLength  (optional) If true, the length will be included in the
- *                          result. If false, only the pluralized unit is returned.
- * @returns A string containing the pluralized version of the unit
- */
-function unitPluralForm(aLength, aUnit, aIncludeLength = true) {
-  const unitProp =
-    {
-      minutes: "unit-minutes",
-      hours: "unit-hours",
-      days: "unit-days",
-      weeks: "unit-weeks",
-    }[aUnit] || "unit-minutes";
-  const unitString = lazy.l10n.formatValueSync(unitProp, { count: aLength });
-  if (aIncludeLength) {
-    return unitString;
-  }
-  return unitString.replace(aLength, "").trim();
-}
-
-/**
  * Update the given unit label to show the correct plural form.
  *
  * @param aLengthFieldId     The ID of the element containing the number
@@ -219,9 +193,13 @@ function unitPluralForm(aLength, aUnit, aIncludeLength = true) {
  */
 function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
   const label = document.getElementById(aLabelId);
-  const length = Number(document.getElementById(aLengthFieldId).value);
+  const count = Number(document.getElementById(aLengthFieldId).value);
 
-  label.value = unitPluralForm(length, aUnit, false);
+  // event-duration-label-minutes
+  // event-duration-label-hours
+  // event-duration-label-days
+  // event-duration-label-weeks
+  document.l10n.setAttributes(label, `event-duration-label-${aUnit}`, { count });
 }
 
 /**
@@ -232,12 +210,14 @@ function updateUnitLabelPlural(aLengthFieldId, aLabelId, aUnit) {
  */
 function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
   const menu = document.getElementById(aMenuId);
-  const length = Number(document.getElementById(aLengthFieldId).value);
+  const count = Number(document.getElementById(aLengthFieldId).value);
 
   // update the menu items
   const items = menu.getElementsByTagName("menuitem");
   for (const menuItem of items) {
-    menuItem.label = unitPluralForm(length, menuItem.value, false);
+    document.l10n.setAttributes(menuItem, `event-duration-menuitem-${menuItem.value}`, {
+      count,
+    });
   }
 
   // force the menu selection to redraw

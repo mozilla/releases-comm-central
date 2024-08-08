@@ -113,11 +113,13 @@ var gCalendarGeneralPane = {
     const items = menulist.getElementsByTagName("menuitem");
     for (const menuItem of items) {
       const menuitemValue = Number(menuItem.value);
-      if (menuitemValue > 7) {
-        menuItem.label = unitPluralForm(menuitemValue / 7, "weeks");
-      } else {
-        menuItem.label = unitPluralForm(menuitemValue, "days");
-      }
+      const count = menuitemValue > 7 ? menuitemValue / 7 : menuitemValue;
+      const timeUnit = menuitemValue > 7 ? "weeks" : "days";
+      // event-duration-menuitem-count-weeks
+      // event-duration-menuitem-count-days
+      document.l10n.setAttributes(menuItem, `event-duration-menuitem-count-${timeUnit}`, {
+        count,
+      });
     }
 
     const pref = Preferences.get("calendar.agenda.days");

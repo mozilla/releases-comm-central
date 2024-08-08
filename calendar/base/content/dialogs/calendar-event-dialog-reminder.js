@@ -412,9 +412,9 @@ function updateReminder(event) {
  */
 function getItemBundleStringName(aPrefix) {
   if (window.arguments[0].item.isEvent()) {
-    return `${aPrefix}-event`;
+    return `${aPrefix}-event-dom`;
   }
-  return `${aPrefix}-task`;
+  return `${aPrefix}-task-dom`;
 }
 
 /**

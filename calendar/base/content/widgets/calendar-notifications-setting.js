@@ -9,12 +9,6 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
-  const lazy = {};
-  ChromeUtils.defineLazyGetter(
-    lazy,
-    "l10n",
-    () => new Localization(["calendar/calendar.ftl"], true)
-  );
   /**
    * A calendar-notifications-setting provides controls to config notifications
    * times of a calendar.
@@ -191,11 +185,11 @@
             <menupopup class="reminder-relation-origin-menupopup">
               <menuitem data-l10n-id="reminder-custom-origin-begin-before-event-dom"
                         value="before-START"/>
-               <menuitem data-l10n-id="reminder-custom-origin-begin-after-event-dom"
+              <menuitem data-l10n-id="reminder-custom-origin-begin-after-event-dom"
                         value="after-START"/>
-               <menuitem data-l10n-id="reminder-custom-origin-end-before-event-dom"
+              <menuitem data-l10n-id="reminder-custom-origin-end-before-event-dom"
                         value="before-END"/>
-               <menuitem data-l10n-id="reminder-custom-origin-end-after-event-dom"    
+              <menuitem data-l10n-id="reminder-custom-origin-end-after-event-dom"
                         value="after-END"/>
             </menupopup>
           </menulist>
@@ -226,27 +220,25 @@
       for (const row of this._elList.children) {
         const input = row.querySelector("input");
         const menulist = row.querySelector(".unit-menu");
-        this._updateMenuList(input.value, menulist);
+        this._updateMenuList(Number(input.value), menulist);
       }
     }
 
     /**
      * Update the plurality of a menulist (unit) options to the input value (time).
      */
-    _updateMenuList(length, menu) {
+    _updateMenuList(count, menu) {
       const getUnitEntry = unit =>
         ({
-          M: "unit-minutes",
-          H: "unit-hours",
-          D: "unit-days",
-        }[unit] || "unit-minutes");
+          M: "event-duration-menuitem-minutes",
+          H: "event-duration-menuitem-hours",
+          D: "event-duration-menuitem-days",
+        }[unit] || "event-duration-menuitem-minutes");
 
       for (const menuItem of menu.getElementsByTagName("menuitem")) {
-        menuItem.label = lazy.l10n
-          .formatValueSync(getUnitEntry(menuItem.value), {
-            count: length,
-          })
-          .trim();
+        document.l10n.setAttributes(menuItem, getUnitEntry(menuItem.value), {
+          count,
+        });
       }
     }
 
