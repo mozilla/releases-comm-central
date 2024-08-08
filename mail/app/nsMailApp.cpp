@@ -7,6 +7,7 @@
 #include "mozilla/CmdLineAndEnvUtils.h"
 #include "mozilla/Logging.h"
 #include "mozilla/TimeStamp.h"
+#include "XREChildData.h"
 #include "XREShellData.h"
 
 #include "application.ini.h"
@@ -17,6 +18,7 @@
 #if defined(XP_WIN)
 #  include <windows.h>
 #  include <stdlib.h>
+#  include "nsWindowsWMain.cpp"
 #elif defined(XP_UNIX)
 #  include <sys/resource.h>
 #  include <unistd.h>
@@ -35,6 +37,7 @@
 #  define strcasecmp _stricmp
 #  ifdef MOZ_SANDBOX
 #    include "mozilla/sandboxing/SandboxInitialization.h"
+#    include "mozilla/sandboxing/sandboxLogging.h"
 #  endif
 #endif
 #include "BinaryPath.h"
@@ -90,7 +93,6 @@ __attribute__((constructor)) static void SSE2Check() {
 
 #if !defined(MOZ_WIDGET_COCOA) && !defined(MOZ_WIDGET_ANDROID)
 #  define MOZ_BROWSER_CAN_BE_CONTENTPROC
-#  include "plugin-container.cpp"
 #endif
 
 using namespace mozilla;
@@ -331,12 +333,31 @@ int main(int argc, char* argv[], char* envp[]) {
       return 255;
     }
 
-    int result = content_process_main(gBootstrap.get(), argc, argv);
+    XREChildData childData;
+
+#  if defined(XP_WIN) && defined(MOZ_SANDBOX)
+    if (IsSandboxedProcess()) {
+      childData.sandboxTargetServices =
+          mozilla::sandboxing::GetInitializedTargetServices();
+      if (!childData.sandboxTargetServices) {
+        return 1;
+      }
+
+      childData.ProvideLogFunction = mozilla::sandboxing::ProvideLogFunction;
+    }
+
+    if (GetGeckoProcessType() == GeckoProcessType_RemoteSandboxBroker) {
+      childData.sandboxBrokerServices =
+          mozilla::sandboxing::GetInitializedBrokerServices();
+    }
+#  endif
+
+    rv = gBootstrap->XRE_InitChildProcess(argc, argv, &childData);
 
     // InitXPCOMGlue calls NS_LogInit, so we need to balance it here.
     gBootstrap->NS_LogTerm();
 
-    return result;
+    return NS_FAILED(rv) ? 1 : 0;
   }
 #endif
 
