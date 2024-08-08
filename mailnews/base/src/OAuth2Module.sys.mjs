@@ -59,6 +59,7 @@ OAuth2Module.prototype = {
   },
 
   _initFromPrefs(root, aHostname, aUsername) {
+    this._prefRoot = root;
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
 
@@ -171,6 +172,7 @@ OAuth2Module.prototype = {
               "@mozilla.org/hash-property-bag;1"
             ].createInstance(Ci.nsIWritablePropertyBag);
             propBag.setProperty("password", token);
+            propBag.setProperty("httpRealm", this._oauth.scope ?? this._scope);
             Services.logins.modifyLogin(login, propBag);
           }
         } else {
@@ -188,7 +190,7 @@ OAuth2Module.prototype = {
       login.init(
         this._loginOrigin,
         null,
-        this._scope,
+        this._oauth.scope ?? this._scope,
         this._username,
         token,
         "",
@@ -236,6 +238,12 @@ OAuth2Module.prototype = {
             if (this._oauth.refreshToken != oldRefreshToken) {
               // Refresh token changed; save it.
               await this.setRefreshToken(this._oauth.refreshToken);
+            }
+            if (this._prefRoot && this._oauth.scope != this._scope) {
+              Services.prefs.setStringPref(
+                `${this._prefRoot}oauth2.scope`,
+                this._oauth.scope
+              );
             }
 
             let retval = this._oauth.accessToken;

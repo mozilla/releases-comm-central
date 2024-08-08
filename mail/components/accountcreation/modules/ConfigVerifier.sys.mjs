@@ -52,6 +52,11 @@ export class ConfigVerifier {
   OnStopRunningUrl(url, status) {
     if (Components.isSuccessCode(status)) {
       this._log.debug(`Configuration verified successfully!`);
+      if (this.server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
+        const grantedScope = this.server.getUnicharValue("oauth2.scope", "");
+        this.config.incoming.oauthSettings.scope = grantedScope;
+        this.config.outgoing.oauthSettings.scope = grantedScope;
+      }
       this.cleanup();
       this.successCallback(this.config);
       return;
