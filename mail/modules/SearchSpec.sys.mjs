@@ -144,8 +144,8 @@ SearchSpec.prototype = {
    * Given a list of terms, mutate them so that they form a single boolean
    *  group.
    *
-   * @param aTerms The search terms
-   * @param aCloneTerms Do we need to clone the terms?
+   * @param {nsIMsgSearchTerm[]} aTerms - The search terms.
+   * @param {boolean} aCloneTerms - Do we need to clone the terms?
    */
   _flattenGroupifyTerms(aTerms, aCloneTerms) {
     let iTerm = 0,
@@ -191,14 +191,13 @@ SearchSpec.prototype = {
    * This particular logic is desired because it allows the quick filter bar to
    *  produce interesting and useful filters.
    *
-   * @param aTerms The search terms
-   * @param aCloneTerms Do we need to clone the terms?
+   * @param {nsIMsgSearchTerm[]} aTerms - The search terms.
+   * @param {boolean} aCloneTerms Do we need to clone the terms?
    */
   _groupifyTerms(aTerms, aCloneTerms) {
-    let term;
     const outTerms = aCloneTerms ? [] : aTerms;
     let inGroup = false;
-    for (term of aTerms) {
+    for (let term of aTerms) {
       // If we're in a group, all that is forbidden is the creation of new
       // groups.
       if (inGroup) {
@@ -245,7 +244,8 @@ SearchSpec.prototype = {
    *  weird combo-box that lets you view your unread messages, messages by tag,
    *  messages that aren't deleted, etc.
    *
-   * @param aViewTerms The list of terms.  We take ownership and mutate it.
+   * @param {nsIMsgSearchTerm[]} aViewTerms - The list of terms.
+   *  We take ownership and mutate it.
    */
   set viewTerms(aViewTerms) {
     if (aViewTerms) {
@@ -259,7 +259,8 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @returns the view terms currently in effect.  Do not mutate this.
+   * @returns {nsIMsgSearchTerm[]} the view terms currently in effect.
+   *   Do not mutate this.
    */
   get viewTerms() {
     return this._viewTerms;
@@ -268,8 +269,8 @@ SearchSpec.prototype = {
    * Set search terms that are defined by the 'virtual folder' definition.  This
    *  could also be thought of as the 'saved search' part of a saved search.
    *
-   * @param aVirtualFolderTerms The list of terms.  We make our own copy and
-   *     do not mutate yours.
+   * @param {nsIMsgSearchTerm[]} aVirtualFolderTerms - The list of terms.
+   *   We make our own copy and do not mutate yours.
    */
   set virtualFolderTerms(aVirtualFolderTerms) {
     if (aVirtualFolderTerms) {
@@ -285,7 +286,8 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @returns the Virtual folder terms currently in effect.  Do not mutate this.
+   * @returns {nsIMsgSearchTerm[]} the virtual folder terms currently in effect.
+   *   Do not mutate this.
    */
   get virtualFolderTerms() {
     return this._virtualFolderTerms;
@@ -296,7 +298,8 @@ SearchSpec.prototype = {
    *  augmented with the 'context' search terms potentially provided by
    *  viewTerms and virtualFolderTerms.
    *
-   * @param aUserTerms The list of terms.  We take ownership and mutate it.
+   * @param {nsIMsgSearchTerm[]} aUserTerms - The list of terms.
+   *   We take ownership and mutate it.
    */
   set userTerms(aUserTerms) {
     if (aUserTerms) {
@@ -310,8 +313,9 @@ SearchSpec.prototype = {
     this.owner._applyViewChanges();
   },
   /**
-   * @returns the user terms currently in effect as set via the |userTerms|
-   *     attribute or via the |quickSearch| method.  Do not mutate this.
+   * @returns {nsIMsgSearchTerm[]} the user terms currently in effect as set
+   *   via the |userTerms| attribute or via the |quickSearch| method.
+   *   Do not mutate this.
    */
   get userTerms() {
     return this._userTerms;
