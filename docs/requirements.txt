@@ -96,5 +96,5 @@ sphinxcontrib-serializinghtml==1.1.9
     # via sphinx
 uc-micro-py==1.0.1
     # via linkify-it-py
-urllib3==1.26.14
+urllib3==1.26.18
     # via requests
