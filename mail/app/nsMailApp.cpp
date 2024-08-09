@@ -260,11 +260,6 @@ int main(int argc, char* argv[], char* envp[]) {
     SetGeckoProcessType(argv[--argc]);
     SetGeckoChildID(argv[--argc]);
 
-    // Register an external module to report on otherwise uncatchable
-    // exceptions. Note that in child processes this must be called after Gecko
-    // process type has been set.
-    CrashReporter::RegisterRuntimeExceptionModule();
-
 #  if defined(MOZ_ENABLE_FORKSERVER)
     if (GetGeckoProcessType() == GeckoProcessType_ForkServer) {
       nsresult rv = InitXPCOMGlue(LibLoadingStrategy::NoReadAhead);
@@ -295,8 +290,12 @@ int main(int argc, char* argv[], char* envp[]) {
 
   mozilla::TimeStamp start = mozilla::TimeStamp::Now();
 
+  // Register an external module to report on otherwise uncatchable
+  // exceptions. Note that in child processes this must be called after Gecko
+  // process type has been set.
+  CrashReporter::RegisterRuntimeExceptionModule();
+
   // Make sure we unregister the runtime exception module before returning.
-  // We do this here to cover both registers for child and main processes.
   auto unregisterRuntimeExceptionModule =
       MakeScopeExit([] { CrashReporter::UnregisterRuntimeExceptionModule(); });
 
