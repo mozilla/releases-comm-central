@@ -16,13 +16,13 @@ harness = false
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
-sys_tray = { version = "0.1.0", path = "../sys_tray" }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "d94278ed9c7020f50232689a26d1277eb0eb74d2" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
 audio_thread_priority = { version = "0.32" }
-audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "c200b1efa8d4a567b875b46ce7c395ca172fae5b", optional = true }
-audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "c200b1efa8d4a567b875b46ce7c395ca172fae5b", optional = true }
+audioipc2-client = { git = "https://github.com/mozilla/audioipc", rev = "e6f44a2bd1e57d11dfc737632a9e849077632330", optional = true }
+audioipc2-server = { git = "https://github.com/mozilla/audioipc", rev = "e6f44a2bd1e57d11dfc737632a9e849077632330", optional = true }
 authrs_bridge = { path = "../../../dom/webauthn/authrs_bridge" }
 binary_http = { path = "../../../netwerk/protocol/http/binary_http" }
 bitsdownload = { path = "../../../toolkit/components/bitsdownload", optional = true }
