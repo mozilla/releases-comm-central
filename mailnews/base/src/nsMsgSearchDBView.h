@@ -88,6 +88,8 @@ class nsMsgSearchDBView : public nsMsgGroupView,
 
   NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
 
+  NS_IMETHOD OnDeleteCompleted(bool aSucceeded) override;
+
  protected:
   virtual ~nsMsgSearchDBView();
   virtual void InternalClose() override;
@@ -118,8 +120,12 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsMsgViewIndex FindHdr(nsIMsgDBHdr* msgHdr,
                                  nsMsgViewIndex startIndex = 0,
                                  bool allowDummy = false) override;
+
+  // Functions for copy, move, and delete operations.
   nsresult GetFoldersAndHdrsForSelection(
-      nsTArray<nsMsgViewIndex> const& selection, uint32_t* hdrCount = nullptr);
+      nsTArray<nsMsgViewIndex> const& selection);
+  nsresult ProcessNextFolder(nsIMsgWindow* window);
+
   nsresult GroupSearchResultsByFolder();
   nsresult PartitionSelectionByFolder(
       nsTArray<nsMsgViewIndex> const& selection,
@@ -141,6 +147,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   // and is kept in sync with them.
   nsCOMArray<nsIMsgFolder> m_folders;
 
+  // Used for copy, move, and delete operations.
   nsTArray<nsTArray<RefPtr<nsIMsgDBHdr>>> m_hdrsForEachFolder;
   nsCOMArray<nsIMsgFolder> m_uniqueFoldersSelected;
   uint32_t mCurIndex;
@@ -151,8 +158,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   nsCOMPtr<nsIMsgFolder> mDestFolder;
   nsWeakPtr m_searchSession;
 
-  nsresult ProcessRequestsInOneFolder(nsIMsgWindow* window);
-  nsresult ProcessRequestsInAllFolders(nsIMsgWindow* window);
   // these are for doing threading of the search hits
 
   // used for assigning thread id's to xfview threads.

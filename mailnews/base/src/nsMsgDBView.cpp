@@ -1212,8 +1212,7 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
   if (flags & nsMsgMessageFlags::Attachment)
     properties.AppendLiteral(" attach");
 
-  if ((mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) &&
-      (flags & nsMsgMessageFlags::IMAPDeleted))
+  if ((flags & nsMsgMessageFlags::IMAPDeleted))
     properties.AppendLiteral(" imapdeleted");
 
   nsCString imageSize;
@@ -1345,8 +1344,7 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
   if (flags & nsMsgMessageFlags::Attachment)
     properties.AppendLiteral(" attach");
 
-  if ((mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) &&
-      (flags & nsMsgMessageFlags::IMAPDeleted))
+  if ((flags & nsMsgMessageFlags::IMAPDeleted))
     properties.AppendLiteral(" imapdeleted");
 
   nsCString imageSize;
