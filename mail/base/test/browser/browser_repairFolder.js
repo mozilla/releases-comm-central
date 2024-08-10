@@ -26,7 +26,7 @@ add_setup(async function () {
   const generator = new MessageGenerator();
 
   const account = MailServices.accounts.createLocalMailAccount();
-  const rootFolder = account.incomingServer.rootFolder.QueryInterface(
+  rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );
   localTestFolder = rootFolder
@@ -85,17 +85,16 @@ async function subtestRepairFolder(folder) {
   );
 
   const dialog = await openFolderProperties(folder);
-  const selectPromise = BrowserTestUtils.waitForEvent(
-    about3Pane,
-    "folderURIChanged"
-  );
   dialog.repairFolder();
   await dialog.accept();
-  await selectPromise;
   await BrowserTestUtils.waitForCondition(
     () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
     "waiting for message list to finish loading"
   );
+  // Leave the folder and return to ensure that the current view settings are
+  // actually persisted in the folder database.
+  about3Pane.displayFolder(rootFolder);
+  about3Pane.displayFolder(folder);
 
   assert_visible_columns([
     "threadCol",

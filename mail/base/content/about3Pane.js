@@ -3398,10 +3398,8 @@ var folderPane = {
         );
       }
 
-      // We may be rebuilding a folder that is not the displayed one.
-      // TODO: Close any open views of this folder.
-
-      // Send a notification that we are triggering a database rebuild.
+      // The following notification causes all DBViewWrappers that include
+      // this folder to rebuild their views.
       MailServices.mfn.notifyFolderReindexTriggered(folder);
 
       folder.msgDatabase.summaryValid = false;
@@ -3419,13 +3417,7 @@ var folderPane = {
         // In a failure, proceed anyway since we're dealing with problems
         folder.ForceDBClosed();
       }
-      if (gFolder == folder) {
-        gViewWrapper?.close();
-        folder.updateFolder(top.msgWindow);
-        folderTree.dispatchEvent(new CustomEvent("select"));
-      } else {
-        folder.updateFolder(top.msgWindow);
-      }
+      folder.updateFolder(top.msgWindow);
     }
 
     window.openDialog(

@@ -90,7 +90,8 @@ var FolderNotificationHelper = {
       Ci.nsIMsgFolderNotificationService.folderDeleted |
         // we need to track renames because we key off of URIs. frick.
         Ci.nsIMsgFolderNotificationService.folderRenamed |
-        Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted
+        Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted |
+        Ci.nsIMsgFolderNotificationService.folderReindexTriggered
     );
   },
 
@@ -314,6 +315,40 @@ var FolderNotificationHelper = {
       }
       // if the folder is deleted, it's not going to ever do anything again
       delete this._interestedWrappers[aFolder.URI];
+    }
+  },
+
+  /**
+   * This notification is received when a folder is about to be reindexed. We
+   * use the same mechanism for refreshing the view of the affected wrappers as
+   * we do when folders are being compacted.
+   *
+   * @param {nsIMsgFolder} aFolder - The folder being reindexed.
+   */
+  folderReindexTriggered(aFolder) {
+    if (aFolder.server.type == "imap") {
+      return;
+    }
+
+    const wrappers = this._interestedWrappers[aFolder.URI];
+    if (wrappers) {
+      for (const wrapper of wrappers) {
+        wrapper._aboutToCompactFolder(aFolder);
+      }
+      const folderListener = {
+        onFolderEvent(aEventFolder, aEvent) {
+          if (aEvent == "FolderLoaded" && aEventFolder.URI == aFolder.URI) {
+            MailServices.mailSession.RemoveFolderListener(this);
+            for (const wrapper of wrappers) {
+              wrapper.refresh();
+            }
+          }
+        },
+      };
+      MailServices.mailSession.AddFolderListener(
+        folderListener,
+        Ci.nsIFolderListener.event
+      );
     }
   },
 };
