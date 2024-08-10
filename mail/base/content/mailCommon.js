@@ -75,6 +75,7 @@ var commandController = {
     cmd_markAsRead: Ci.nsMsgViewCommandType.markMessagesRead,
     cmd_markAsUnread: Ci.nsMsgViewCommandType.markMessagesUnread,
     cmd_markThreadAsRead: Ci.nsMsgViewCommandType.markThreadRead,
+    cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
@@ -165,15 +166,6 @@ var commandController = {
         gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       }
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.junk);
-    },
-    cmd_markAllRead() {
-      if (gFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
-        top.MsgMarkAllRead(
-          VirtualFolderHelper.wrapVirtualFolder(gFolder).searchFolders
-        );
-      } else {
-        top.MsgMarkAllRead([gFolder]);
-      }
     },
     /**
      * Moves the selected messages to the destination folder.
