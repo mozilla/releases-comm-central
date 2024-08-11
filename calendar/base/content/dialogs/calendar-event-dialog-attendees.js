@@ -1450,6 +1450,7 @@ function updateRange() {
         tooltipArgs = { role };
       }
 
+      this.#roleIcon.setAttribute("attendeerole", role);
       document.l10n.setAttributes(this.#roleIcon, tooltip, tooltipArgs);
     }
 
@@ -1476,6 +1477,7 @@ function updateRange() {
         tooltipArgs = { userType };
       }
 
+      this.#userTypeIcon.setAttribute("usertype", userType);
       document.l10n.setAttributes(this.#userTypeIcon, tooltip, tooltipArgs);
     }
   }
