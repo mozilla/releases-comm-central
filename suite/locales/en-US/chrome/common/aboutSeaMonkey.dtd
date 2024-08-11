@@ -2,13 +2,14 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!ENTITY seamonkey.title.1.30
-'The Book of Mozilla, 1.30'>
+<!-- SeaMonkey is a copyrighted name. Do not translate it. -->
+<!ENTITY seamonkey.title.1.30a
+'The Book of SeaMonkey, 1.30'>
 
 <!ENTITY seamonkey.quote.1.30
 'And the meek shall be made <em>legion</em>, their numbers shall be increased.
-<br/>The din of many keyboards like unto a great <em>storm</em> shall cover the earth and the
-followers of the beast and Mammon shall <em>tremble</em>.'>
+<br/>The din of many keyboards like unto a great <em>storm</em> shall cover the
+earth and the followers of the beast and Mammon shall <em>tremble</em>.'>
 
 <!ENTITY seamonkey.from.1.30
 'from <strong>The Book of SeaMonkey</strong>, 1:30'>
