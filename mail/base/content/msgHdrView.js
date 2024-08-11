@@ -4419,12 +4419,12 @@ function reportMsgRead({ isNewRead = false, key = null }) {
     // - 'signed-openpgp'
     // - 'encrypted-smime'
     // - 'encrypted-openpgp'
-    const isSigned = gSecureMsgProbe.key.startsWith("signed-");
-    const isEncrypted = gSecureMsgProbe.key.startsWith("encrypted-");
+    const is_signed = gSecureMsgProbe.key.startsWith("signed-");
+    const is_encrypted = gSecureMsgProbe.key.startsWith("encrypted-");
     const security = gSecureMsgProbe.key.endsWith("-openpgp")
       ? "OpenPGP"
       : "S/MIME";
-    Glean.mail.mailsReadSecure.record({ security, isSigned, isEncrypted });
+    Glean.mail.mailsReadSecure.record({ security, is_signed, is_encrypted });
   }
 }
 
