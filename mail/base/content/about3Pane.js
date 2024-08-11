@@ -5232,6 +5232,7 @@ var threadPane = {
       // The order of the columns have changed, which warrants a rebuild of the
       // full table header.
       this.treeTable.setColumns(this.columns);
+      this.restoreSortIndicator();
     }
     this.treeTable.restoreColumnsWidths("messenger");
   },
