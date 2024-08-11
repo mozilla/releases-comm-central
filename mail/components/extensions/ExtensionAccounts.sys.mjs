@@ -51,7 +51,7 @@ export class AccountManager {
       return this.extension.manifestVersion < 3 ? "none" : "local";
     }
 
-    if (["imap", "pop3", "nntp"].includes(type)) {
+    if (["imap", "pop3", "nntp", "rss"].includes(type)) {
       return type;
     }
 
