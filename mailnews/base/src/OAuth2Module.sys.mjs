@@ -141,16 +141,19 @@ OAuth2Module.prototype = {
   },
 
   getRefreshToken() {
+    const scopes = this._scope.split(" ");
+
     for (const login of Services.logins.findLogins(
       this._loginOrigin,
       null,
       ""
     )) {
-      if (
-        login.username == this._username &&
-        (login.httpRealm == this._scope ||
-          login.httpRealm.split(" ").includes(this._scope))
-      ) {
+      if (login.username != this._username) {
+        continue;
+      }
+
+      const loginScopes = login.httpRealm.split(" ");
+      if (scopes.every(scope => loginScopes.includes(scope))) {
         return login.password;
       }
     }
