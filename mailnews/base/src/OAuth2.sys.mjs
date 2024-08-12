@@ -384,7 +384,7 @@ OAuth2.prototype = {
         if ("scope" in result && this.scope != result.scope) {
           const deltaScope = this.scope
             .split(" ")
-            .some(s => !result.scope.includes(s));
+            .some(s => !result.scope.split(" ").includes(s));
           if (deltaScope) {
             this.log.warn(
               `Scope "${this.scope}" was requested, but "${result.scope}" was granted`
