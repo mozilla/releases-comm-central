@@ -45,9 +45,34 @@ add_task(async function test_urlBar() {
   is(urlBar.value, browser.currentURI.spec, "Initial page is shown in URL bar");
 
   const redirect = BrowserTestUtils.browserLoaded(browser);
-  BrowserTestUtils.startLoadingURIString(browser, "about:blank");
+  BrowserTestUtils.startLoadingURIString(browser, "https://example.org/");
   await redirect;
-  is(urlBar.value, "about:blank", "URL bar value follows browser");
+  is(urlBar.value, "https://example.org/", "URL bar value follows browser");
+
+  // Create an iframe in the page and load a document in it. The address in
+  // the URL bar must not change.
+  await SpecialPowers.spawn(browser, [], async () => {
+    const deferred = Promise.withResolvers();
+    const iframe = content.document.createElement("iframe");
+    iframe.addEventListener("load", () => {
+      // We need to be sure that the page loads, or the test is useless.
+      if (iframe.contentWindow.location.href == "https://example.org/bad") {
+        deferred.resolve();
+      }
+    });
+    content.document.body.insertBefore(
+      iframe,
+      content.document.body.firstChild
+    );
+    iframe.src = "https://example.org/bad";
+    await deferred.promise;
+  });
+  await TestUtils.waitForTick();
+  is(
+    urlBar.value,
+    "https://example.org/",
+    "URL bar value should not be changed by iframe load"
+  );
 
   const closeEvent = new Event("close");
   requestWindow.dispatchEvent(closeEvent);

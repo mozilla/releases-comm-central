@@ -50,7 +50,9 @@ var reporterListener = {
     /* in nsIRequest*/ aRequest,
     /* in nsIURI*/ aLocation
   ) {
-    document.getElementById("headerMessage").value = aLocation.spec;
+    if (aWebProgress.isTopLevel) {
+      document.getElementById("headerMessage").value = aLocation.spec;
+    }
   },
   onStatusChange() {},
   onSecurityChange(
