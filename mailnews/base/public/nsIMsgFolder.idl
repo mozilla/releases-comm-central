@@ -18,7 +18,6 @@ interface nsIMsgFilterList;
 interface nsIFile;
 interface nsIOutputStream;
 interface nsIInputStream;
-interface nsIFile;
 interface nsIMsgIdentity;
 interface nsIMsgThread;
 interface nsIMsgPluggableStore;
