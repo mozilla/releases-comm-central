@@ -242,6 +242,9 @@ const signonsTreeView = {
       _editLogin("password");
     }
   },
+  getParentIndex() {
+    return -1;
+  },
 };
 
 function SortTree(column, ascending) {

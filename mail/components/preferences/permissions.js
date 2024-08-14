@@ -86,6 +86,9 @@ var gPermissionManager = {
       }
       return "";
     },
+    getParentIndex() {
+      return -1;
+    },
   },
 
   async _getCapabilityString(aCapability) {
