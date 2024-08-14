@@ -56,6 +56,7 @@ pub struct CreateItem {
 // N.B.: Commented-out variants are not yet implemented.
 #[non_exhaustive]
 #[derive(Debug, XmlSerialize)]
+#[xml_struct(variant_ns_prefix = "t")]
 pub enum Item {
     // Item(Item),
     Message(Message),
@@ -81,13 +82,17 @@ pub enum Item {
 #[derive(Debug, Default, XmlSerialize)]
 pub struct Message {
     /// The MIME content of the item.
+    #[xml_struct(ns_prefix = "t")]
     pub mime_content: Option<MimeContent>,
     // Whether to request a delivery receipt.
+    #[xml_struct(ns_prefix = "t")]
     pub is_delivery_receipt_requested: Option<bool>,
     // The message ID for the message, semantically identical to the Message-ID
     // header.
+    #[xml_struct(ns_prefix = "t")]
     pub internet_message_id: Option<String>,
     // Recipients to include as Bcc, who won't be included in the MIME content.
+    #[xml_struct(ns_prefix = "t")]
     pub bcc_recipients: Option<ArrayOfRecipients>,
 }
 
