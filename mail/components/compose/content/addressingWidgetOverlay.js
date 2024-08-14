@@ -164,7 +164,7 @@ function CompFields2Recipients(msgCompFields) {
       setAddressRowFromCompField(
         "addressRowFollowup",
         msgCompFields.followupTo,
-        true
+        false
       );
     }
 
