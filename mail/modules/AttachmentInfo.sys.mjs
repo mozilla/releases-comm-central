@@ -64,7 +64,7 @@ export class AttachmentInfo {
    *   been detached to file or is a link attachment.
    * @param {object} options.message - The message object associated to this
    *   attachment.
-   * @param {Function} [updateAttachmentsDisplayFn] - An optional callback
+   * @param {Function} [options.updateAttachmentsDisplayFn] - An optional callback
    *   function that is called to update the attachment display at appropriate
    *   times.
    */
@@ -135,9 +135,8 @@ export class AttachmentInfo {
   /**
    * Open this attachment.
    *
-   * @param {integer} [browsingContextId]
-   *   The browsingContext of the browser that this attachment is being opened
-   *   from.
+   * @param {BrowsingContext} browsingContext - The browsingContext of the
+   *   browser that this attachment is being opened from.
    */
   async open(browsingContext) {
     if (!this.hasFile) {
@@ -443,7 +442,7 @@ export class AttachmentInfo {
   /**
    * This method checks whether the attachment has been deleted or not.
    *
-   * @returns true if the attachment has been deleted, false otherwise.
+   * @returns {boolean} true if the attachment has been deleted, false otherwise.
    */
   get isDeleted() {
     return this.contentType == "text/x-moz-deleted";
@@ -452,7 +451,7 @@ export class AttachmentInfo {
   /**
    * This method checks whether the attachment is a detached file.
    *
-   * @returns true if the attachment is a detached file, false otherwise.
+   * @returns {boolean} true if the attachment is a detached file, false otherwise.
    */
   get isFileAttachment() {
     return this.isExternalAttachment && this.url.startsWith("file:");
@@ -461,7 +460,7 @@ export class AttachmentInfo {
   /**
    * This method checks whether the attachment is an http link.
    *
-   * @returns true if the attachment is an http link, false otherwise.
+   * @returns {boolean} true if the attachment is an http link, false otherwise.
    */
   get isLinkAttachment() {
     return this.isExternalAttachment && /^https?:/.test(this.url);
@@ -472,7 +471,7 @@ export class AttachmentInfo {
    * Deleted attachments or detached attachments with missing external files
    * do *not* have a file.
    *
-   * @returns true if the attachment has an associated file, false otherwise.
+   * @returns {boolean} true if the attachment has an associated file, false otherwise.
    */
   get hasFile() {
     if (this.sizeResolved && this.size == -1) {
