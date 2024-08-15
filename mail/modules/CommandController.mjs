@@ -16,7 +16,7 @@ const commandController = {
    * Add a new command available in the current tab.
    *
    * @param {string} commandName - Name of the command to register
-   * @param {(...args) => {}} callback - Callback to execute when the command is
+   * @param {Function} callback - Callback to execute when the command is
    *   triggered.
    * @param {boolean|() => boolean} [isEnabled = true] - Callback (or boolean)
    *   whether the command is enabled.
