@@ -302,13 +302,9 @@ var gFunctions = [
 
 export var PluralForm = {
   /**
-   * Get the correct plural form of a word based on the number
+   * Get the correct plural form getter.
    *
-   * @param aNum
-   *        The number to decide which plural form to use
-   * @param aWords
-   *        A semi-colon (;) separated string of words to pick the plural form
-   * @returns The appropriate plural form of the word
+   * @returns {Function} The appropriate plural form getter.
    */
   get get() {
     // This method will lazily load to avoid perf when it is first needed and
@@ -330,9 +326,8 @@ export var PluralForm = {
   /**
    * Create a pair of plural form functions for the given plural rule number.
    *
-   * @param aRuleNum
-   *        The plural rule number to create functions
-   * @returns A pair: [function that gets the right plural form,
+   * @param {integer} aRuleNum - The plural rule number to create functions.
+   * @returns {Function[]} a pair: [function that gets the right plural form,
    *                  function that returns the number of plural forms]
    */
   makeGetter(aRuleNum) {
@@ -388,9 +383,9 @@ export var PluralForm = {
   },
 
   /**
-   * Get the number of forms for the current plural rule
+   * Get the number of forms for the current plural rule.
    *
-   * @returns The number of forms
+   * @returns {integer} The number of forms.
    */
   get numForms() {
     // We lazily load numForms, so trigger the init logic with get()
@@ -401,7 +396,7 @@ export var PluralForm = {
   /**
    * Get the plural rule number for the current app locale
    *
-   * @returns The plural rule number
+   * @returns {integer} The plural rule number.
    */
   get ruleNum() {
     return LOCALE_PLURAL_NUMBER[Services.locale.appLocaleAsBCP47] ?? 0;
@@ -409,10 +404,9 @@ export var PluralForm = {
 };
 
 /**
- * Private helper function to log errors to the error console and command line
+ * Private helper function to log errors to the error console and command line.
  *
- * @param aMsg
- *        Error message to log or an array of strings to concat
+ * @param {string} aMsg - Error message to log or an array of strings to concat.
  */
 function log(aMsg) {
   const msg = "PluralForm.sys.mjs: " + (aMsg.join ? aMsg.join("") : aMsg);
