@@ -162,27 +162,28 @@ OAuth2Module.prototype = {
   async setRefreshToken(token) {
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
-    const logins = Services.logins.findLogins(
-      this._loginOrigin,
-      null,
-      this._scope
-    );
+    const logins = Services.logins.findLogins(this._loginOrigin, null, "");
     for (const login of logins) {
-      if (login.username == this._username) {
-        if (token) {
-          if (token != login.password) {
-            const propBag = Cc[
-              "@mozilla.org/hash-property-bag;1"
-            ].createInstance(Ci.nsIWritablePropertyBag);
-            propBag.setProperty("password", token);
-            propBag.setProperty("httpRealm", this._oauth.scope ?? this._scope);
-            Services.logins.modifyLogin(login, propBag);
-          }
-        } else {
-          Services.logins.removeLogin(login);
-        }
-        return;
+      if (login.username != this._username) {
+        continue;
       }
+
+      if (token) {
+        const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+          Ci.nsIWritablePropertyBag
+        );
+        if (token != login.password) {
+          propBag.setProperty("password", token);
+        }
+        const scope = this._oauth.scope ?? this._scope;
+        if (scope != login.httpRealm) {
+          propBag.setProperty("httpRealm", scope);
+        }
+        Services.logins.modifyLogin(login, propBag);
+      } else {
+        Services.logins.removeLogin(login);
+      }
+      return;
     }
 
     // Unless the token is null, we need to create and fill in a new login
@@ -242,7 +243,7 @@ OAuth2Module.prototype = {
               // Refresh token changed; save it.
               await this.setRefreshToken(this._oauth.refreshToken);
             }
-            if (this._prefRoot && this._oauth.scope != this._scope) {
+            if (this._prefRoot) {
               Services.prefs.setStringPref(
                 `${this._prefRoot}oauth2.scope`,
                 this._oauth.scope

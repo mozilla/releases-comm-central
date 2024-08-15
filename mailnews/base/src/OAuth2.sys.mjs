@@ -382,15 +382,25 @@ OAuth2.prototype = {
           this.tokenExpires = Number.MAX_VALUE;
         }
         if ("scope" in result && this.scope != result.scope) {
+          const returnedScopes = result.scope.split(" ");
+
+          // If we are dealing with Microsoft, and offline_access is missing, add it to the check
+          if (
+            this.tokenEndpoint ==
+              "https://login.microsoftonline.com/common/oauth2/v2.0/token" &&
+            !returnedScopes.includes("offline_access")
+          ) {
+            returnedScopes.push("offline_access");
+          }
           const deltaScope = this.scope
             .split(" ")
-            .some(s => !result.scope.split(" ").includes(s));
+            .some(s => !returnedScopes.includes(s));
           if (deltaScope) {
             this.log.warn(
-              `Scope "${this.scope}" was requested, but "${result.scope}" was granted`
+              `Scope "${this.scope}" was requested, but "${result.scope}" was granted.`
             );
           }
-          this.scope = result.scope;
+          this.scope = returnedScopes.join(" ");
         }
         this._resolve();
       })
