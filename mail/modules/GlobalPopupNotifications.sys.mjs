@@ -127,8 +127,7 @@ Notification.prototype = {
    *
    * Statistics for reopened notifications are recorded in separate buckets.
    *
-   * @param value
-   *        One of the TELEMETRY_STAT_ constants.
+   * @param {integer} value - One of the TELEMETRY_STAT_ constants.
    */
   _recordTelemetryStat(value) {
     if (this.wasDismissed) {
@@ -145,27 +144,21 @@ Notification.prototype = {
  * The PopupNotifications object manages popup notifications for a given browser
  * window.
  *
- * @param tabbrowser
- *        window's TabBrowser. Used to observe tab switching events and
- *        for determining the active browser element.
- * @param panel
- *        The <xul:panel/> element to use for notifications. The panel is
- *        populated with <popupnotification> children and displayed it as
- *        needed.
- * @param iconBox
- *        Reference to a container element that should be hidden or
- *        unhidden when notifications are hidden or shown. It should be the
- *        parent of anchor elements whose IDs are passed to show().
- *        It is used as a fallback popup anchor if notifications specify
- *        invalid or non-existent anchor IDs.
- * @param options
- *        An optional object with the following optional properties:
- *        {
- *          shouldSuppress:
- *            If this function returns true, then all notifications are
- *            suppressed for this window. This state is checked on construction
- *            and when the "anchorVisibilityChange" method is called.
- *        }
+ * @param {tabbrowser} tabbrowser - The window's TabBrowser. Used to observe tab
+ *   switching events and for determining the active browser element.
+ * @param {Element} panel - The <xul:panel/> element to use for notifications.
+ *   The panel is populated with <popupnotification> children and displayed it
+ *   as needed.
+ * @param {Element} iconBox - Reference to a container element that should be
+ *   hidden or unhidden when notifications are hidden or shown. It should be the
+ *   parent of anchor elements whose IDs are passed to show().
+ *   It is used as a fallback popup anchor if notifications specify invalid or
+ *   non-existent anchor IDs.
+ * @param {object} [options] - An optional object with the following properties
+ * @param {function():boolean} [options.shouldSuppress] - If this function
+ *   returns true, then all notifications are suppressed for this window.
+ *   This state is checked on construction and when the "anchorVisibilityChange"
+ *   method is called.
  */
 export function PopupNotifications(tabbrowser, panel, iconBox, options = {}) {
   if (!tabbrowser) {
@@ -280,14 +273,10 @@ PopupNotifications.prototype = {
   /**
    * Retrieve a Notification object associated with the browser/ID pair.
    *
-   * @param id
-   *        The Notification ID to search for.
-   * @param browser
-   *        The browser whose notifications should be searched. If null, the
-   *        currently selected browser's notifications will be searched.
+   * @param {string} id - The Notification ID to search for.
    *
-   * @returns the corresponding Notification object, or null if no such
-   *          notification exists.
+   * @returns {?Notification} the corresponding Notification object, or null
+   *   if no such notification exists.
    */
   getNotification(id) {
     return popupNotificationsMap.find(x => x.id == id) || null;
@@ -296,26 +285,22 @@ PopupNotifications.prototype = {
   /**
    * Adds a new popup notification.
    *
-   * @param browser
-   *        The <xul:browser> element associated with the notification. Must not
-   *        be null.
-   * @param id
-   *        A unique ID that identifies the type of notification (e.g.
-   *        "geolocation"). Only one notification with a given ID can be visible
-   *        at a time. If a notification already exists with the given ID, it
-   *        will be replaced.
-   * @param message
-   *        A string containing the text to be displayed as the notification header.
-   *        The string may optionally contain "<>" as a  placeholder which is later
-   *        replaced by a host name or an addon name that is formatted to look bold,
-   *        in which case the options.name property needs to be specified.
-   * @param anchorID
-   *        The ID of the element that should be used as this notification
-   *        popup's anchor. May be null, in which case the notification will be
-   *        anchored to the iconBox.
-   * @param mainAction
-   *        A JavaScript object literal describing the notification button's
-   *        action. If present, it must have the following properties:
+   * @param {Browser} browser - The <xul:browser> element associated with the
+   *   notification. Must not be null.
+   * @param {string} id - A unique ID that identifies the type of notification
+   *   (e.g. "geolocation"). Only one notification with a given ID can be visible
+   *   at a time. If a notification already exists with the given ID, it
+   *   will be replaced.
+   * @param {string} message - A string containing the text to be displayed as
+   *   the notification header. The string may optionally contain "<>" as a
+   *   placeholder which is later replaced by a host name or an addon name that
+   *   is formatted to look bold, in which case the options.name property needs
+   *   to be specified.
+   * @param {?string} anchorID - The ID of the element that should be used as
+   *   this notification popup's anchor.
+   *   May be null, in which case the notification will be anchored to the iconBox.
+   * @param {?object} [mainAction] - A JavaScript object describing the
+   *   notification button's action. If present, it must have the following properties:
    *          - label (string): the button's label.
    *          - accessKey (string): the button's accessKey.
    *          - callback (function): a callback to be invoked when the button is
@@ -332,14 +317,12 @@ PopupNotifications.prototype = {
    *            will not apply the default highlight style.
    *        If null, the notification will have a default "OK" action button
    *        that can be used to dismiss the popup and secondaryActions will be ignored.
-   * @param secondaryActions
-   *        An optional JavaScript array describing the notification's alternate
-   *        actions. The array should contain objects with the same properties
-   *        as mainAction. These are used to populate the notification button's
-   *        dropdown menu.
-   * @param options
-   *        An options JavaScript object holding additional properties for the
-   *        notification. The following properties are currently supported:
+   * @param {?object[]} [secondaryActions] An optional JavaScript array
+   *   describing the notification's alternate actions. The array should contain
+   *   objects with the same properties as mainAction. These are used to
+   *   populate the notification button's dropdown menu.
+   * @param {object} options - An options JavaScript object holding additional
+   *   properties for the notification. The following properties are currently supported:
    *        persistence: An integer. The notification will not automatically
    *                     dismiss for this many page loads.
    *        timeout:     A time in milliseconds. The notification will not
@@ -436,7 +419,7 @@ PopupNotifications.prototype = {
    *                     An optional string formatted to look bold and used in the
    *                     notifiation description header text. Usually a host name or
    *                     addon name.
-   * @returns the Notification object corresponding to the added notification.
+   * @returns {Notification} the Notification object corresponding to the added notification.
    */
   show(browser, id, message, anchorID, mainAction, secondaryActions, options) {
     function isInvalidAction(a) {
@@ -512,7 +495,7 @@ PopupNotifications.prototype = {
   },
 
   /**
-   * Returns true if the notification popup is currently being displayed.
+   * Returns {boolean} true if the notification popup is currently being displayed.
    */
   get isPanelOpen() {
     const panelState = this.panel.state;
@@ -523,8 +506,7 @@ PopupNotifications.prototype = {
   /**
    * Removes a Notification.
    *
-   * @param notification
-   *        The Notification object to remove.
+   * @param {Notification} notification -The Notification object to remove.
    */
   remove(notification) {
     this._remove(notification);
@@ -667,18 +649,17 @@ PopupNotifications.prototype = {
    * and splits it into three parts if the message contains "<>" as
    * placeholder.
    *
-   * param notification
-   *       The Notification object which contains the message to format.
+   * @param {Notification} n - The object which contains the message to format.
    *
-   * @returns a Javascript object that has the following properties:
-   * start: A start label string containing the first part of the message.
-   *        It may contain the whole string if the description message
-   *        does not have "<>" as a placeholder. For example, local
-   *        file URIs with description messages that don't display hostnames.
-   * name:  A string that is formatted to look bold. It replaces the
-   *        placeholder with the options.name property from the notification
-   *        object which is usually an addon name or a host name.
-   * end:   The last part of the description message.
+   * @returns {object} object - an object that has the following properties:
+   * @returns {string} object.start - A start label string containing the first part
+   *   of the message. It may contain the whole string if the description message
+   *   does not have "<>" as a placeholder. For example, local file URIs with
+   *   description messages that don't display hostnames.
+   * @returns {string} object.name - A string that is formatted to look bold.
+   *   It replaces the placeholder with the options.name property from the
+   *   notification object which is usually an addon name or a host name.
+   * @returns {string} object.end - The last part of the description message.
    */
   _formatDescriptionMessage(n) {
     const text = {};
@@ -1052,14 +1033,13 @@ PopupNotifications.prototype = {
    * Updates the notification state in response to window activation or tab
    * selection changes.
    *
-   * @param notifications an array of Notification instances. if null,
-   *                      notifications will be retrieved off the current
-   *                      browser tab
-   * @param anchors       is a XUL element or a Set of XUL elements that the
-   *                      notifications panel(s) will be anchored to.
-   * @param dismissShowing if true, dismiss any currently visible notifications
-   *                       if there are no notifications to show. Otherwise,
-   *                       currently displayed notifications will be left alone.
+   * @param {?Notification[]} notifications - An array of Notification instances.
+   *   If null, notifications will be retrieved off the current browser tab.
+   * @param {Element|Set<Element>} anchors - Is a XUL element or a Set of XUL
+   *   elements that the notifications panel(s) will be anchored to.
+   * @param {boolean} dismissShowing - If true, dismiss any currently visible
+   *   notifications if there are no notifications to show. Otherwise,
+   *   currently displayed notifications will be left alone.
    */
   _update(notifications, anchors = new Set(), dismissShowing = false) {
     if (ChromeUtils.getClassName(anchors) == "XULElement") {
