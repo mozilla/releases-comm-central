@@ -40,6 +40,11 @@ def set_defconf(k, v):
     add_old_configure_assignment(k, v)
 
 
+set_defconf("MAR_CHANNEL_ID", "seamonkey-comm-release")
+
+set_defconf("ACCEPTED_MAR_CHANNEL_IDS",
+            "seamonkey-comm-release,seamonkey-comm-central")
+
 add_old_configure_assignment("commtopsrcdir", commtopsrcdir)
 set_config("commtopsrcdir", commtopsrcdir)
 
