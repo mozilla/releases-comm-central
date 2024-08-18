@@ -15,20 +15,21 @@ export var ExtensionSupport = {
    * Register listening for windows getting opened that will run the specified callback function
    * when a matching window is loaded.
    *
-   * @param aID {String} - Some identification of the caller, usually the extension ID.
-   * @param aExtensionHook {Object} - The object describing the hook the caller wants to register.
+   * @param {string} aID - Some identification of the caller, usually the extension ID.
+   * @param {object} aExtensionHook - The object describing the hook the caller wants to register.
    *        Members of the object can be (all optional, but one callback must be supplied):
-   *        chromeURLs {Array}         An array of strings of document URLs on which
-   *                                   the given callback should run. If not specified,
-   *                                   run on all windows.
-   *        onLoadWindow {function}    The callback function to run when window loads
-   *                                   the matching document.
-   *        onUnloadWindow {function}  The callback function to run when window
-   *                                   unloads the matching document.
-   *        Both callbacks receive the matching window object as argument.
+   * @param {string[]} [aExtensionHook.chromeURLs] - An array of strings of
+   *   document URLs on which the given callback should run. If not specified,
+   *   run on all windows.
+   * @param {function(window):void} [aExtensionHook.onLoadWindow] - The callback function to
+   *   run when window loads the matching document.
+   *   Receives the matching window object as argument.
+   * @param {function(window):void} [aExtensionHook.onUnloadWindow] - The callback function to
+   *   run when window unloads the matching document.
+   *   Receives the matching window object as argument.
    *
-   * @returns {boolean} True if the passed arguments were valid and the caller could be registered.
-   *                    False otherwise.
+   * @returns {boolean} true if the passed arguments were valid and the caller
+   *   could be registered. false otherwise.
    */
   registerWindowListener(aID, aExtensionHook) {
     if (!aID) {
@@ -86,10 +87,10 @@ export var ExtensionSupport = {
   /**
    * Unregister listening for windows for the given caller.
    *
-   * @param aID {String} - Some identification of the caller, usually the extension ID.
+   * @param {string} aID - Some identification of the caller, usually the extension ID.
    *
-   * @returns {boolean} True if the passed arguments were valid and the caller could be unregistered.
-   *                    False otherwise.
+   * @returns {boolean} true if the passed arguments were valid and the caller
+   *   could be unregistered. false otherwise.
    */
   unregisterWindowListener(aID) {
     if (!aID) {
@@ -123,8 +124,8 @@ export var ExtensionSupport = {
     return openWindowList.values();
   },
 
+  /** @implements {nsIWindowMediatorListener} */
   _windowListener: {
-    // nsIWindowMediatorListener functions
     onOpenWindow(appWindow) {
       // A new window has opened.
       const domWindow = appWindow.docShell.domWindow;
@@ -143,8 +144,8 @@ export var ExtensionSupport = {
   /**
    * Set up listeners to run the callbacks on the given window.
    *
-   * @param aWindow {nsIDOMWindow} - The window to set up.
-   * @param aID {String} Optional.  ID of the new caller that has registered right now.
+   * @param {nsIDOMWindow} aWindow - The window to set up.
+   * @param {string} [aID] Optional ID of the new caller that has registered right now.
    */
   _waitForLoad(aWindow, aID) {
     // Wait for the load event of the window. At that point
@@ -163,8 +164,8 @@ export var ExtensionSupport = {
    * add it to our list, attach the "unload" listener to it and notify interested
    * callers.
    *
-   * @param aWindow {nsIDOMWindow} - The window to process.
-   * @param aID {String} Optional.  ID of the new caller that has registered right now.
+   * @param {nsIDOMWindow} aWindow - The window to process.
+   * @param {string} [aID]  Optional ID of the new caller that has registered right now.
    */
   _addToListAndNotify(aWindow, aID) {
     openWindowList.add(aWindow);
@@ -181,10 +182,10 @@ export var ExtensionSupport = {
   /**
    * Check if the caller matches the given window and run its callback function.
    *
-   * @param aWindow {nsIDOMWindow} - The window to run the callbacks on.
-   * @param aEventType {String} - Which callback to run if caller matches (load/unload).
-   * @param aID {String} - Optional ID of the caller whose callback is to be run.
-   *                                If not given, all registered callers are notified.
+   * @param {nsIDOMWindow} aWindow - The window to run the callbacks on.
+   * @param {string} aEventType - Which callback to run if caller matches (load/unload).
+   * @param {string} [aID] - Optional ID of the caller whose callback is to be run.
+   *   If not given, all registered callers are notified.
    */
   _checkAndRunMatchingExtensions(aWindow, aEventType, aID) {
     if (aID) {
@@ -199,8 +200,8 @@ export var ExtensionSupport = {
      * Check if the single given caller matches the given window
      * and run its callback function.
      *
-     * @param aExtensionHook {Object} - The object describing the hook the caller
-     *                                 has registered.
+     * @param {object} aExtensionHook - The object describing the hook the caller
+     *   has registered.
      */
     function checkAndRunExtensionCode(aExtensionHook) {
       try {
