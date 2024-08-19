@@ -125,9 +125,9 @@ var FolderNotificationHelper = {
   /**
    * Request notification of every little thing these folders do.
    *
-   * @param aFolders The folders.
-   * @param aNotherFolder A folder that may or may not be in aFolders.
-   * @param aViewWrapper The view wrapper that is up to no good.
+   * @param {nsIMsgFolder[]} aFolders - The folders.
+   * @param {nsIMsgFolder} aNotherFolder - A folder that may or may not be in aFolders.
+   * @param {DBViewWrapper} aViewWrapper - The view wrapper that is up to no good.
    */
   stalkFolders(aFolders, aNotherFolder, aViewWrapper) {
     const folders = aFolders ? aFolders.concat() : [];
@@ -146,8 +146,8 @@ var FolderNotificationHelper = {
   /**
    * Request notification of every little thing every folder does.
    *
-   * @param aViewWrapper - the viewWrapper interested in every notification.
-   *                       This will be a search results view of some sort.
+   * @param {DBViewWrapper} aViewWrapper - The viewWrapper interested in every
+   *   notification. This will be a search results view of some sort.
    */
   noteCuriosity(aViewWrapper) {
     this._curiousWrappers.push(aViewWrapper);
@@ -156,9 +156,9 @@ var FolderNotificationHelper = {
   /**
    * Removal helper for use by removeNotifications.
    *
-   * @param aTable The table mapping URIs to list of view wrappers.
-   * @param aFolder The folder we care about.
-   * @param aViewWrapper The view wrapper of interest.
+   * @param {object} aTable - The table mapping URIs to list of view wrappers.
+   * @param {nsIMsgFolder} aFolder - The folder we care about.
+   * @param {DBViewWrapper} aViewWrapper - The view wrapper of interest.
    */
   _removeWrapperFromListener(aTable, aFolder, aViewWrapper) {
     const wrappers = aTable[aFolder.URI];
@@ -175,6 +175,9 @@ var FolderNotificationHelper = {
   /**
    * Remove notification requests on the provided folders by the given view
    *  wrapper.
+   *
+   * @param {nsIMsgFolder[]} aFolders - Folders.
+   * @param {DBViewWrapper} aViewWrapper - Wrapper.
    */
   removeNotifications(aFolders, aViewWrapper) {
     if (!aFolders) {
@@ -199,9 +202,9 @@ var FolderNotificationHelper = {
   },
 
   /**
-   * @returns true if there are any listeners still registered.  This is intended
-   *     to support debugging code.  If you are not debug code, you are a bad
-   *     person/code.
+   * @returns {boolean} true if there are any listeners still registered.
+   *   This is intended to support debugging code. If you are not debug code,
+   *   you are a bad person/code.
    */
   haveListeners() {
     if (Object.keys(this._pendingFolderUriToViewWrapperLists).length > 0) {
@@ -263,12 +266,20 @@ var FolderNotificationHelper = {
     }
   },
 
+  /**
+   * @param {nsIMsgFolder} aFolder - The folder.
+   * @param {string} aProperty - The property.
+   */
   onFolderIntPropertyChanged(aFolder, aProperty) {
     if (aProperty == "TotalMessages" || aProperty == "TotalUnreadMessages") {
       this._notifyHelper(aFolder, "_messageCountsChanged");
     }
   },
 
+  /**
+   * @param {nsIMsgFolder} aOldFolder - The old folder.
+   * @param {nsIMsgFolder} aNewFolder - The new folder.
+   */
   _folderMoveHelper(aOldFolder, aNewFolder) {
     const oldURI = aOldFolder.URI;
     const newURI = aNewFolder.URI;
@@ -306,6 +317,9 @@ var FolderNotificationHelper = {
     }
   },
 
+  /**
+   * @param {nsIMsgFolder} aFolder - The folder.
+   */
   folderDeleted(aFolder) {
     const wrappers = this._interestedWrappers[aFolder.URI];
     if (wrappers) {
@@ -420,12 +434,12 @@ IDBViewWrapperListener.prototype = {
   /**
    * This event is generated just before we close/destroy a message view.
    *
-   * @param aFolderIsComingBack Indicates whether we are planning to create a
-   *     new view to display the same folder after we destroy this view.  This
-   *     will be the case unless we are switching to display a new folder or
-   *     closing the view wrapper entirely.
+   * @param {boolean} _aFolderIsComingBack - Indicates whether we are planning
+   *  to create a new view to display the same folder after we destroy this view.
+   *  This will be the case unless we are switching to display a new folder or
+   *  closing the view wrapper entirely.
    */
-  onDestroyingView() {},
+  onDestroyingView(_aFolderIsComingBack) {},
 
   /**
    * Generated when we are loading information about the folder from its
@@ -575,7 +589,7 @@ DBViewWrapper.prototype = {
    * Returns the sortType of the column assoziated with the given columnId.
    *
    * @param {string} columnId
-   * @returns {integer?} the sort type as defined by Ci.nsMsgViewSortType, if any
+   * @returns {nsMsgViewSortType|undefined} the sort type as defined by Ci.nsMsgViewSortType, if any
    */
   getSortType(columnId) {
     const column = ThreadPaneColumns.getDefaultColumns().find(
@@ -588,18 +602,18 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if the folder being displayed is backed by a single 'real'
-   *     folder.  This folder can be a saved search on that folder or just
-   *     an outright un-filtered display of that folder.
+   * @returns {boolean} true if the folder being displayed is backed by a
+   *   single 'real'folder. This folder can be a saved search on that folder or
+   *   just an outright un-filtered display of that folder.
    */
   get isSingleFolder() {
     return this._underlyingData == this.kUnderlyingRealFolder;
   },
 
   /**
-   * @returns true if the folder being displayed is a virtual folder backed by
-   *     multiple 'real' folders or a search view.  This corresponds to a
-   *     cross-folder saved search.
+   * @returns {boolean} true if the folder being displayed is a virtual folder
+   *   backed by multiple 'real' folders or a search view. This corresponds to a
+   *   cross-folder saved search.
    */
   get isMultiFolder() {
     return (
@@ -609,16 +623,16 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if the folder being displayed is not a real folder at all,
-   *     but rather the result of an un-scoped search, such as a gloda search.
+   * @returns {boolean} true if the folder being displayed is not a real folder
+   *   at all, but rather the result of an un-scoped search, such as a gloda search.
    */
   get isSynthetic() {
     return this._underlyingData == this.kUnderlyingSynthetic;
   },
 
   /**
-   * @returns true if the folder being displayed is not a real folder at all,
-   *         but rather the result of a search.
+   * @returns {boolean} true if the folder being displayed is not a real folder
+   *   at all, but rather the result of a search.
    */
   get isSearch() {
     return this._underlyingData == this.kUnderlyingSearchView;
@@ -631,6 +645,8 @@ DBViewWrapper.prototype = {
    *  effectively a test against displayedFolder.
    * If you want to see if the displayed folder is a folder, just compare
    *  against the displayedFolder attribute.
+   *
+   * @returns {boolean} true is the given folder is an underlying folder.
    */
   isUnderlyingFolder(aFolder) {
     return this._underlyingFolders.some(
@@ -680,7 +696,7 @@ DBViewWrapper.prototype = {
   /**
    * Clone this DBViewWrapper and its underlying nsIMsgDBView.
    *
-   * @param aListener {IDBViewWrapperListener} The listener to use on the new view.
+   * @param {IDBViewWrapperListener} aListener -The listener to use on the new view.
    */
   clone(aListener) {
     const doppel = new DBViewWrapper(aListener);
@@ -1429,7 +1445,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns the current set of viewFlags.  This may be:
+   * @returns {integer} the current set of viewFlags. This may be:
    * - A modified set of flags that are pending application because a view
    *    update is in effect and we don't want to modify the view when it's just
    *    going to get destroyed.
@@ -1566,9 +1582,9 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if the folder is an outgoing folder by virtue of being a
-   *     sent mail folder, drafts folder, queue folder, or template folder,
-   *     or being a sub-folder of one of those types of folders.
+   * @returns {boolean} true if the folder is an outgoing folder by virtue of
+   *   being a sent mail folder, drafts folder, queue folder, or template folder,
+   *   or being a sub-folder of one of those types of folders.
    */
   get isOutgoingFolder() {
     return (
@@ -1580,8 +1596,8 @@ DBViewWrapper.prototype = {
     );
   },
   /**
-   * @returns true if the folder is not known to be a special outgoing folder
-   *     or the descendent of a special outgoing folder.
+   * @returns {boolean} true if the folder is not known to be a special outgoing
+   *   folder or the descendent of a special outgoing folder.
    */
   get isIncomingFolder() {
     return !this.isOutgoingFolder;
@@ -1661,23 +1677,21 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns the primary sort type (as one of the numeric constants from
-   *      nsMsgViewSortType).
+   * @returns {nsMsgViewSortType} the primary sort type.
    */
   get primarySortType() {
     return this._sort[0][0];
   },
 
   /**
-   * @returns the primary sort order (as one of the numeric constants from
-   *     nsMsgViewSortOrder.)
+   * @returns {nsMsgViewSortOrder} the primary sort order.
    */
   get primarySortOrder() {
     return this._sort[0][1];
   },
 
   /**
-   * @returns true if the dominant sort is ascending.
+   * @returns {boolean} true if the dominant sort is ascending.
    */
   get isSortedAscending() {
     return (
@@ -1686,7 +1700,7 @@ DBViewWrapper.prototype = {
     );
   },
   /**
-   * @returns true if the dominant sort is descending.
+   * @returns {boolean} true if the dominant sort is descending.
    */
   get isSortedDescending() {
     return (
@@ -1697,7 +1711,7 @@ DBViewWrapper.prototype = {
   /**
    * Indicate if we are sorting by time or something correlated with time.
    *
-   * @returns true if the dominant sort is by time.
+   * @returns {boolean} true if the dominant sort is by time.
    */
   get sortImpliesTemporalOrdering() {
     if (!this._sort.length) {
@@ -1765,8 +1779,8 @@ DBViewWrapper.prototype = {
    *  safe if it is not.  Most specifically, some sorts are illegal when
    *  grouping by sort, and we reset the sort to date in those cases.
    *
-   * @param aViewFlags Optional set of view flags to consider instead of the
-   *     potentially live view flags.
+   * @param {?integer} [aViewFlags] - Optional set of view flags to consider
+   *   instead of the potentially live view flags.
    */
   _ensureValidSort(aViewFlags) {
     if (
@@ -1912,7 +1926,7 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if we are showing only unread messages.
+   * @returns {boolean} true if we are showing only unread messages.
    */
   get showUnreadOnly() {
     return Boolean(this._viewFlags & Ci.nsMsgViewFlagsType.kUnreadOnly);
@@ -1980,8 +1994,8 @@ DBViewWrapper.prototype = {
     this.endViewUpdate();
   },
   /**
-   * @returns true if the special view that shows threads with unread messages
-   *     in them is active.
+   * @returns {boolean} true if the special view that shows threads with unread
+   *   messages in them is active.
    */
   get specialViewThreadsWithUnread() {
     return this._specialView == Ci.nsMsgViewType.eShowThreadsWithUnread;
@@ -1997,8 +2011,8 @@ DBViewWrapper.prototype = {
     this._setSpecialView(Ci.nsMsgViewType.eShowThreadsWithUnread);
   },
   /**
-   * @returns true if the special view that shows watched threads with unread
-   *     messages in them is active.
+   * @returns {boolean} true if the special view that shows watched threads with
+   *   unread messages in them is active.
    */
   get specialViewWatchedThreadsWithUnread() {
     return this._specialView == Ci.nsMsgViewType.eShowWatchedThreadsWithUnread;
@@ -2027,13 +2041,13 @@ DBViewWrapper.prototype = {
    *  data (normally only used for the 'tag' mail views.)  We persist the state
    *  change
    *
-   * @param aMailViewIndex The view to use, one of the kViewItem* constants from
-   *     msgViewPickerOverlay.js OR the name of a custom view.  (It's really up
-   *     to MailViewManager.getMailViewByIndex...)
-   * @param aData Some piece of data appropriate to the mail view, currently
-   *     this is only used for the tag name for kViewItemTags (sans the ":").
-   * @param aDoNotPersist If true, we don't save this change to the db folder
-   *     info.  This is intended for internal use only.
+   * @param {integer|string} aMailViewIndex - The view to use, one of the
+   *   kViewItem* constants from msgViewPickerOverlay.js OR the name of a
+   *   custom view.  (It's really up to MailViewManager.getMailViewByIndex...)
+   * @param {srting} aData - Some piece of data appropriate to the mail view,
+   *    currently this is only used for the tag name for kViewItemTags (sans the ":").
+   * @param {boolean} aDoNotPersist If true, we don't save this change to the
+   *   db folderinfo. This is intended for internal use only.
    */
   setMailView(aMailViewIndex, aData, aDoNotPersist) {
     const mailViewDef = MailViewManager.getMailViewByIndex(aMailViewIndex);
@@ -2070,8 +2084,8 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if the row at the given index contains a collapsed thread,
-   *     false if the row is a collapsed group or anything else.
+   * @returns {boolean} true if the row at the given index contains a collapsed thread,
+   *   false if the row is a collapsed group or anything else.
    */
   isCollapsedThreadAtIndex(aViewIndex) {
     const flags = this.dbView.getFlagsAt(aViewIndex);
@@ -2099,8 +2113,8 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns true if the row at the given index is a grouped view dummy header
-   *     row, false if anything else.
+   * @returns {boolean} true if the row at the given index is a grouped view dummy header
+   *   row, false if anything else.
    */
   isGroupedByHeaderAtIndex(aViewIndex) {
     if (
@@ -2159,15 +2173,15 @@ DBViewWrapper.prototype = {
    *
    * - If this isn't, we trust findIndexOfMsgHdr to do the right thing.
    *
-   * @param aMsgHdr The message header for which the view index should be
-   *                returned.
-   * @param [aForceFind] If the message is not in the view and this is true, we
-   *                     will drop any applied view filters to look for the
-   *                     message. The dropping of view filters is persistent, so
-   *                     use with care. Defaults to false.
+   * @param {nsIMsgDBHdr} aMsgHdr - The message header for which the view index
+   *   should be returned.
+   * @param {boolean} [aForceFind=false] If the message is not in the view and
+   *   this is true, we will drop any applied view filters to look for the
+   *   message. The dropping of view filters is persistent, so use with care.
+   *   Defaults to false.
    *
-   * @returns the view index for this header, or nsMsgViewIndex_None if it isn't
-   *          found.
+   * @returns {integer} the view index for this header, or nsMsgViewIndex_None
+   *   if it isn't found.
    *
    * @public
    */
@@ -2217,11 +2231,11 @@ DBViewWrapper.prototype = {
    *  are using the message database's getMsgHdrForMessageID method to be fast,
    *  our semantics are limited to telling you about only the first one we find.
    *
-   * @param aMessageId The message-id of the message you want.
-   * @returns The first nsIMsgDBHdr found in any of the underlying folders with
-   *     the given message header, null if none are found.  The fact that we
-   *     return something does not guarantee that it is actually visible in the
-   *     view.  (The search may be filtering it out.)
+   * @param {string} aMessageId - The message-id of the message you want.
+   * @returns {?nsIMsgDBHdr} the first nsIMsgDBHdr found in any of the
+   *   underlying folders with the given message header, null if none are found.
+   *   The fact that we return something does not guarantee that it is actually
+   *   visible in the view.  (The search may be filtering it out.)
    */
   getMsgHdrForMessageID(aMessageId) {
     if (this._syntheticView) {
