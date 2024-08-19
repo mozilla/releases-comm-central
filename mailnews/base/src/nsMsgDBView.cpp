@@ -4826,11 +4826,6 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
   nsresult rv = GetThreadContainingIndex(index, getter_AddRefs(pThread));
   NS_ENSURE_SUCCESS(rv, rv);
   if (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) {
-    // Keep top level hdr in thread, even though read.
-    if (flags & nsMsgMessageFlags::Read) {
-      m_levels.AppendElement(0);
-    }
-
     rv = ListUnreadIdsInThread(pThread, index, &numExpanded);
   } else {
     rv = ListIdsInThread(pThread, index, &numExpanded);

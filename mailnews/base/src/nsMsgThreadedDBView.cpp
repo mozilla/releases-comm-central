@@ -784,7 +784,6 @@ nsresult nsMsgThreadedDBView::RemoveByIndex(nsMsgViewIndex index) {
     // flags set correctly.
     if (threadHdr) {
       nsMsgDBView::RemoveByIndex(index);
-      nsCOMPtr<nsIMsgThread> nextThreadHdr;
       // Above RemoveByIndex may now make index out of bounds.
       if (IsValidIndex(index) && numThreadChildren > 0) {
         // unreadOnly
