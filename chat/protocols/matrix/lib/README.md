@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.3.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.3.1.
 
 The following npm dependencies are included:
 
@@ -36,7 +36,7 @@ in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
 ## Updating matrix-js-sdk
 
 1.  Download the matrix-js-sdk repository from https://github.com/matrix-org/matrix-js-sdk/.
-2.  Modify `babel.config.js` (see below).
+2.  Modify `babel.config.cjs` (see below).
 3.  (If this is an old checkout, remove any previous artifacts. Run `rm -r lib; rm -r node_modules`.)
 4.  Run `yarn install`.
 5.  Run Babel in the matrix-js-sdk checkout:
@@ -59,7 +59,7 @@ in `chat/protocols/matrix/matrix-sdk.sys.mjs`.
 
 By default, the matrix-js-sdk targets a version of ECMAScript that is far below
 what Gecko supports, this causes lots of additional processing to occur (e.g.
-converting async functions, etc.) To disable this, a custom `babel.config.js` file is
+converting async functions, etc.) To disable this, a custom `babel.config.cjs` file is
 used:
 
 ```javascript
@@ -76,9 +76,9 @@ module.exports = {
         "@babel/preset-typescript",
     ],
     plugins: [
-        "@babel/plugin-proposal-numeric-separator",
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-proposal-object-rest-spread",
+        "@babel/plugin-transform-numeric-separator",
+        "@babel/plugin-transform-class-properties",
+        "@babel/plugin-transform-object-rest-spread",
         "@babel/plugin-syntax-dynamic-import",
     ],
 };

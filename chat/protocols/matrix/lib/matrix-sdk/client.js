@@ -3916,10 +3916,15 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   }
   findPredecessorRooms(room, verifyLinks, msc3946ProcessDynamicPredecessor) {
     const ret = [];
+    const seenRoomIDs = new Set([room.roomId]);
 
     // Work backwards from newer to older rooms
     let predecessorRoomId = room.findPredecessor(msc3946ProcessDynamicPredecessor)?.roomId;
     while (predecessorRoomId !== null) {
+      if (predecessorRoomId) {
+        if (seenRoomIDs.has(predecessorRoomId)) break;
+        seenRoomIDs.add(predecessorRoomId);
+      }
       const predecessorRoom = this.getRoom(predecessorRoomId);
       if (predecessorRoom === null) {
         break;
