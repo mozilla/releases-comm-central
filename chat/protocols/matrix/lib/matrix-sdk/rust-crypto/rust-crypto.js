@@ -22,10 +22,9 @@ var _CrossSigningIdentity = require("./CrossSigningIdentity");
 var _secretStorage2 = require("./secret-storage");
 var _key_passphrase = require("../crypto/key_passphrase");
 var _recoverykey = require("../crypto/recoverykey");
-var _crypto = require("../crypto/crypto");
 var _verification = require("./verification");
 var _event2 = require("../@types/event");
-var _crypto2 = require("../crypto");
+var _crypto = require("../crypto");
 var _typedEventEmitter = require("../models/typed-event-emitter");
 var _backup = require("./backup");
 var _ReEmitter = require("../ReEmitter");
@@ -115,7 +114,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
     this.perSessionBackupDownloader = new _PerSessionKeyBackupDownloader.PerSessionKeyBackupDownloader(this.logger, this.olmMachine, this.http, this.backupManager);
     this.dehydratedDeviceManager = new _DehydratedDeviceManager.DehydratedDeviceManager(this.logger, olmMachine, http, this.outgoingRequestProcessor, secretStorage);
     this.eventDecryptor = new EventDecryptor(this.logger, olmMachine, this.perSessionBackupDownloader);
-    this.reemitter.reEmit(this.backupManager, [_crypto2.CryptoEvent.KeyBackupStatus, _crypto2.CryptoEvent.KeyBackupSessionsRemaining, _crypto2.CryptoEvent.KeyBackupFailed, _crypto2.CryptoEvent.KeyBackupDecryptionKeyCached]);
+    this.reemitter.reEmit(this.backupManager, [_crypto.CryptoEvent.KeyBackupStatus, _crypto.CryptoEvent.KeyBackupSessionsRemaining, _crypto.CryptoEvent.KeyBackupFailed, _crypto.CryptoEvent.KeyBackupDecryptionKeyCached]);
     this.crossSigningIdentity = new _CrossSigningIdentity.CrossSigningIdentity(olmMachine, this.outgoingRequestProcessor, secretStorage);
 
     // Check and start in background the key backup connection
@@ -733,7 +732,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
     } else {
       // Using the navigator crypto API to generate the private key
       const key = new Uint8Array(32);
-      _crypto.crypto.getRandomValues(key);
+      globalThis.crypto.getRandomValues(key);
       return {
         privateKey: key,
         encodedPrivateKey: (0, _recoverykey.encodeRecoveryKey)(key)
@@ -879,7 +878,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
       throw new Error("Not a known device");
     }
     try {
-      const [request, outgoingRequest] = await device.requestVerification(this._supportedVerificationMethods.map(_verification.verificationMethodIdentifierToMethod));
+      const [request, outgoingRequest] = device.requestVerification(this._supportedVerificationMethods.map(_verification.verificationMethodIdentifierToMethod));
       await this.outgoingRequestProcessor.makeOutgoingRequest(outgoingRequest);
       return new _verification.RustVerificationRequest(this.olmMachine, request, this.outgoingRequestProcessor, this._supportedVerificationMethods);
     } finally {
@@ -1066,7 +1065,11 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
     // look for interesting to-device messages
     for (const message of processed) {
       if (message.type === _event2.EventType.KeyVerificationRequest) {
-        this.onIncomingKeyVerificationRequest(message.sender, message.content);
+        const sender = message.sender;
+        const transactionId = message.content.transaction_id;
+        if (transactionId && sender) {
+          this.onIncomingKeyVerificationRequest(sender, transactionId);
+        }
       }
     }
     return processed;
@@ -1149,20 +1152,20 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Handle an incoming m.key.verification request event
+   * Handle an incoming m.key.verification.request event, received either in-room or in a to-device message.
    *
    * @param sender - the sender of the event
-   * @param content - the content of the event
+   * @param transactionId - the transaction ID for the verification. For to-device messages, this comes from the
+   *    content of the message; for in-room messages it is the event ID.
    */
-  onIncomingKeyVerificationRequest(sender, content) {
-    const transactionId = content.transaction_id;
-    if (!transactionId || !sender) {
-      // not a valid request: ignore
-      return;
-    }
+  onIncomingKeyVerificationRequest(sender, transactionId) {
     const request = this.olmMachine.getVerificationRequest(new RustSdkCryptoJs.UserId(sender), transactionId);
     if (request) {
-      this.emit(_crypto2.CryptoEvent.VerificationRequestReceived, new _verification.RustVerificationRequest(this.olmMachine, request, this.outgoingRequestProcessor, this._supportedVerificationMethods));
+      this.emit(_crypto.CryptoEvent.VerificationRequestReceived, new _verification.RustVerificationRequest(this.olmMachine, request, this.outgoingRequestProcessor, this._supportedVerificationMethods));
+    } else {
+      // There are multiple reasons this can happen; probably the most likely is that the event is an
+      // in-room event which is too old.
+      this.logger.info(`Ignoring just-received verification request ${transactionId} which did not start a rust-side verification`);
     }
   }
 
@@ -1204,7 +1207,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
   onRoomKeyUpdated(key) {
     if (this.stopped) return;
     this.logger.debug(`Got update for session ${key.senderKey.toBase64()}|${key.sessionId} in ${key.roomId.toString()}`);
-    const pendingList = this.eventDecryptor.getEventsPendingRoomKey(key);
+    const pendingList = this.eventDecryptor.getEventsPendingRoomKey(key.roomId.toString(), key.sessionId);
     if (pendingList.length === 0) return;
     this.logger.debug("Retrying decryption on events:", pendingList.map(e => `${e.getId()}`));
 
@@ -1224,6 +1227,32 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
+   * Callback for `OlmMachine.registerRoomKeyWithheldCallback`.
+   *
+   * Called by the rust sdk whenever we are told that a key has been withheld. We see if we had any events that
+   * failed to decrypt for the given session, and update their status if so.
+   *
+   * @param withheld - Details of the withheld sessions.
+   */
+  async onRoomKeysWithheld(withheld) {
+    for (const session of withheld) {
+      this.logger.debug(`Got withheld message for session ${session.sessionId} in ${session.roomId.toString()}`);
+      const pendingList = this.eventDecryptor.getEventsPendingRoomKey(session.roomId.toString(), session.sessionId);
+      if (pendingList.length === 0) return;
+
+      // The easiest way to update the status of the event is to have another go at decrypting it.
+      this.logger.debug("Retrying decryption on events:", pendingList.map(e => `${e.getId()}`));
+      for (const ev of pendingList) {
+        ev.attemptDecryption(this, {
+          isRetry: true
+        }).catch(_e => {
+          // It's somewhat expected that we still can't decrypt here.
+        });
+      }
+    }
+  }
+
+  /**
    * Callback for `OlmMachine.registerUserIdentityUpdatedCallback`
    *
    * Called by the rust-sdk whenever there is an update to any user's cross-signing status. We re-check their trust
@@ -1233,12 +1262,12 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
    */
   async onUserIdentityUpdated(userId) {
     const newVerification = await this.getUserVerificationStatus(userId.toString());
-    this.emit(_crypto2.CryptoEvent.UserTrustStatusChanged, userId.toString(), newVerification);
+    this.emit(_crypto.CryptoEvent.UserTrustStatusChanged, userId.toString(), newVerification);
 
     // If our own user identity has changed, we may now trust the key backup where we did not before.
     // So, re-check the key backup status and enable it if available.
     if (userId.toString() === this.userId) {
-      this.emit(_crypto2.CryptoEvent.KeysChanged, {});
+      this.emit(_crypto.CryptoEvent.KeysChanged, {});
       await this.checkKeyBackupAndEnable();
     }
   }
@@ -1254,8 +1283,8 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
    * @param userIds - an array of user IDs of users whose devices have updated.
    */
   async onDevicesUpdated(userIds) {
-    this.emit(_crypto2.CryptoEvent.WillUpdateDevices, userIds, false);
-    this.emit(_crypto2.CryptoEvent.DevicesUpdated, userIds, false);
+    this.emit(_crypto.CryptoEvent.WillUpdateDevices, userIds, false);
+    this.emit(_crypto.CryptoEvent.DevicesUpdated, userIds, false);
   }
 
   /**
@@ -1316,7 +1345,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
     const processEvent = async evt => {
       // Process only verification event
       if ((0, _verification.isVerificationEvent)(event)) {
-        await this.onKeyVerificationRequest(evt);
+        await this.onKeyVerificationEvent(evt);
       }
     };
 
@@ -1340,11 +1369,11 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Handle key verification request.
+   * Handle an in-room key verification event.
    *
    * @param event - a key validation request event.
    */
-  async onKeyVerificationRequest(event) {
+  async onKeyVerificationEvent(event) {
     const roomId = event.getRoomId();
     if (!roomId) {
       throw new Error("missing roomId in the event");
@@ -1359,13 +1388,7 @@ class RustCrypto extends _typedEventEmitter.TypedEventEmitter {
       origin_server_ts: event.getTs()
     }), new RustSdkCryptoJs.RoomId(roomId));
     if (event.getType() === _event2.EventType.RoomMessage && event.getContent().msgtype === _event2.MsgType.KeyVerificationRequest) {
-      const request = this.olmMachine.getVerificationRequest(new RustSdkCryptoJs.UserId(event.getSender()), event.getId());
-      if (!request) {
-        // There are multiple reasons this can happen; probably the most likely is that the event is too old.
-        this.logger.info(`Ignoring just-received verification request ${event.getId()} which did not start a rust-side verification`);
-      } else {
-        this.emit(_crypto2.CryptoEvent.VerificationRequestReceived, new _verification.RustVerificationRequest(this.olmMachine, request, this.outgoingRequestProcessor, this._supportedVerificationMethods));
-      }
+      this.onIncomingKeyVerificationRequest(event.getSender(), event.getId());
     }
 
     // that may have caused us to queue up outgoing requests, so make sure we send them.
@@ -1393,7 +1416,7 @@ class EventDecryptor {
     /**
      * Events which we couldn't decrypt due to unknown sessions / indexes.
      *
-     * Map from senderKey to sessionId to Set of MatrixEvents
+     * Map from roomId to sessionId to Set of MatrixEvents
      */
     _defineProperty(this, "eventsPendingKey", new _utils.MapWithDefault(() => new _utils.MapWithDefault(() => new Set())));
   }
@@ -1462,6 +1485,14 @@ class EventDecryptor {
         }
       }
     }
+
+    // If we got a withheld code, expose that.
+    if (err.maybe_withheld) {
+      // Unfortunately the Rust SDK API doesn't let us distinguish between different withheld cases, other than
+      // by string-matching.
+      const failureCode = err.maybe_withheld === "The sender has disabled encrypting to unverified devices." ? _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
+      throw new _CryptoBackend.DecryptionError(failureCode, err.maybe_withheld, errorDetails);
+    }
     switch (err.code) {
       case RustSdkCryptoJs.DecryptionErrorCode.MissingRoomKey:
         throw new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.MEGOLM_UNKNOWN_INBOUND_SESSION_ID, "The sender's device has not sent us the keys for this message.", errorDetails);
@@ -1495,27 +1526,24 @@ class EventDecryptor {
    * Look for events which are waiting for a given megolm session
    *
    * Returns a list of events which were encrypted by `session` and could not be decrypted
-   *
-   * @param session -
    */
-  getEventsPendingRoomKey(session) {
-    const senderPendingEvents = this.eventsPendingKey.get(session.senderKey.toBase64());
-    if (!senderPendingEvents) return [];
-    const sessionPendingEvents = senderPendingEvents.get(session.sessionId);
+  getEventsPendingRoomKey(roomId, sessionId) {
+    const roomPendingEvents = this.eventsPendingKey.get(roomId);
+    if (!roomPendingEvents) return [];
+    const sessionPendingEvents = roomPendingEvents.get(sessionId);
     if (!sessionPendingEvents) return [];
-    const roomId = session.roomId.toString();
-    return [...sessionPendingEvents].filter(ev => ev.getRoomId() === roomId);
+    return [...sessionPendingEvents];
   }
 
   /**
    * Add an event to the list of those awaiting their session keys.
    */
   addEventToPendingList(event) {
-    const content = event.getWireContent();
-    const senderKey = content.sender_key;
-    const sessionId = content.session_id;
-    const senderPendingEvents = this.eventsPendingKey.getOrCreate(senderKey);
-    const sessionPendingEvents = senderPendingEvents.getOrCreate(sessionId);
+    const roomId = event.getRoomId();
+    // We shouldn't have events without a room id here.
+    if (!roomId) return;
+    const roomPendingEvents = this.eventsPendingKey.getOrCreate(roomId);
+    const sessionPendingEvents = roomPendingEvents.getOrCreate(event.getWireContent().session_id);
     sessionPendingEvents.add(event);
   }
 
@@ -1523,20 +1551,19 @@ class EventDecryptor {
    * Remove an event from the list of those awaiting their session keys.
    */
   removeEventFromPendingList(event) {
-    const content = event.getWireContent();
-    const senderKey = content.sender_key;
-    const sessionId = content.session_id;
-    const senderPendingEvents = this.eventsPendingKey.get(senderKey);
-    if (!senderPendingEvents) return;
-    const sessionPendingEvents = senderPendingEvents.get(sessionId);
+    const roomId = event.getRoomId();
+    if (!roomId) return;
+    const roomPendingEvents = this.eventsPendingKey.getOrCreate(roomId);
+    if (!roomPendingEvents) return;
+    const sessionPendingEvents = roomPendingEvents.get(event.getWireContent().session_id);
     if (!sessionPendingEvents) return;
     sessionPendingEvents.delete(event);
 
     // also clean up the higher-level maps if they are now empty
     if (sessionPendingEvents.size === 0) {
-      senderPendingEvents.delete(sessionId);
-      if (senderPendingEvents.size === 0) {
-        this.eventsPendingKey.delete(senderKey);
+      roomPendingEvents.delete(event.getWireContent().session_id);
+      if (roomPendingEvents.size === 0) {
+        this.eventsPendingKey.delete(roomId);
       }
     }
   }

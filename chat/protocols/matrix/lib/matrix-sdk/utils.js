@@ -9,7 +9,6 @@ exports.averageBetweenStrings = averageBetweenStrings;
 exports.baseToString = baseToString;
 exports.checkObjectHasKeys = checkObjectHasKeys;
 exports.chunkPromises = chunkPromises;
-exports.compare = compare;
 exports.decodeParams = decodeParams;
 exports.deepCompare = deepCompare;
 exports.deepCopy = deepCopy;
@@ -437,9 +436,12 @@ async function logDuration(logger, name, block) {
 
 /**
  * Promise/async version of {@link setImmediate}.
+ *
+ * Implementation is based on `setTimeout` for wider compatibility.
+ * @deprecated Use {@link sleep} instead.
  */
 function immediate() {
-  return new Promise(setImmediate);
+  return new Promise(resolve => setTimeout(resolve));
 }
 function isNullOrUndefined(val) {
   return val === null || val === undefined;
@@ -659,15 +661,6 @@ function lexicographicCompare(a, b) {
   } else {
     return 0;
   }
-}
-const collator = new Intl.Collator();
-/**
- * Performant language-sensitive string comparison
- * @param a - the first string to compare
- * @param b - the second string to compare
- */
-function compare(a, b) {
-  return collator.compare(a, b);
 }
 
 /**

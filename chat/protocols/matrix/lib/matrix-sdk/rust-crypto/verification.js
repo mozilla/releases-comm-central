@@ -61,26 +61,38 @@ class RustVerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "_cancelling", false);
     _defineProperty(this, "_verifier", void 0);
     this.reEmitter = new _ReEmitter.TypedReEmitter(this);
-    const onChange = async () => {
-      const verification = this.inner.getVerification();
 
-      // Set the _verifier object (wrapping the rust `Verification` as a js-sdk Verifier) if:
-      // - we now have a `Verification` where we lacked one before
-      // - we have transitioned from QR to SAS
-      // - we are verifying with SAS, but we need to replace our verifier with a new one because both parties
-      //   tried to start verification at the same time, and we lost the tie breaking
-      if (verification instanceof RustSdkCryptoJs.Sas) {
-        if (this._verifier === undefined || this._verifier instanceof RustQrCodeVerifier) {
-          this.setVerifier(new RustSASVerifier(verification, this, outgoingRequestProcessor));
-        } else if (this._verifier instanceof RustSASVerifier) {
-          this._verifier.replaceInner(verification);
-        }
-      } else if (verification instanceof RustSdkCryptoJs.Qr && this._verifier === undefined) {
-        this.setVerifier(new RustQrCodeVerifier(verification, outgoingRequestProcessor));
+    // Obviously, the Rust object maintains a reference to the callback function. If the callback function maintains
+    // a reference to the Rust object, then we have a reference cycle which means that `RustVerificationRequest`
+    // will never be garbage-collected, and hence the underlying rust object will never be freed.
+    //
+    // To avoid this reference cycle, use a weak reference in the callback function. If the `RustVerificationRequest`
+    // gets garbage-collected, then there is nothing to update!
+    const weakThis = new WeakRef(this);
+    inner.registerChangesCallback(async () => weakThis.deref()?.onChange());
+  }
+
+  /**
+   * Hook which is called when the underlying rust class notifies us that there has been a change.
+   */
+  onChange() {
+    const verification = this.inner.getVerification();
+
+    // Set the _verifier object (wrapping the rust `Verification` as a js-sdk Verifier) if:
+    // - we now have a `Verification` where we lacked one before
+    // - we have transitioned from QR to SAS
+    // - we are verifying with SAS, but we need to replace our verifier with a new one because both parties
+    //   tried to start verification at the same time, and we lost the tie breaking
+    if (verification instanceof RustSdkCryptoJs.Sas) {
+      if (this._verifier === undefined || this._verifier instanceof RustQrCodeVerifier) {
+        this.setVerifier(new RustSASVerifier(verification, this, this.outgoingRequestProcessor));
+      } else if (this._verifier instanceof RustSASVerifier) {
+        this._verifier.replaceInner(verification);
       }
-      this.emit(_verification.VerificationRequestEvent.Change);
-    };
-    inner.registerChangesCallback(onChange);
+    } else if (verification instanceof RustSdkCryptoJs.Qr && this._verifier === undefined) {
+      this.setVerifier(new RustQrCodeVerifier(verification, this.outgoingRequestProcessor));
+    }
+    this.emit(_verification.VerificationRequestEvent.Change);
   }
   setVerifier(verifier) {
     // if we already have a verifier, unsubscribe from its events
@@ -436,9 +448,12 @@ class BaseRustVerifer extends _typedEventEmitter.TypedEventEmitter {
     /** A deferred which completes when the verification completes (or rejects when it is cancelled/fails) */
     _defineProperty(this, "completionDeferred", void 0);
     this.completionDeferred = (0, _utils.defer)();
-    inner.registerChangesCallback(async () => {
-      this.onChange();
-    });
+
+    // As with RustVerificationRequest, we need to avoid a reference cycle.
+    // See the comments in RustVerificationRequest.
+    const weakThis = new WeakRef(this);
+    inner.registerChangesCallback(async () => weakThis.deref()?.onChange());
+
     // stop the runtime complaining if nobody catches a failure
     this.completionDeferred.promise.catch(() => null);
   }
@@ -696,9 +711,12 @@ class RustSASVerifier extends BaseRustVerifer {
   replaceInner(inner) {
     if (this.inner != inner) {
       this.inner = inner;
-      inner.registerChangesCallback(async () => {
-        this.onChange();
-      });
+
+      // As with RustVerificationRequest, we need to avoid a reference cycle.
+      // See the comments in RustVerificationRequest.
+      const weakThis = new WeakRef(this);
+      inner.registerChangesCallback(async () => weakThis.deref()?.onChange());
+
       // replaceInner will only get called if we started the verification at the same time as the other side, and we lost
       // the tie breaker.  So we need to re-accept their verification.
       this.sendAccept();

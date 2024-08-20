@@ -29,6 +29,7 @@ var _poll = require("./poll");
 var _roomReceipts = require("./room-receipts");
 var _compareEventOrdering = require("./compare-event-ordering");
 var _membership = require("../@types/membership");
+var _serverCapabilities = require("../serverCapabilities");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
@@ -123,6 +124,7 @@ class Room extends _readReceipt.ReadReceipt {
    */
   constructor(roomId, client, myUserId, opts = {}) {
     super();
+
     // In some cases, we add listeners for every displayed Matrix event, so it's
     // common to have quite a few more than the default limit.
     this.roomId = roomId;
@@ -202,7 +204,7 @@ class Room extends _readReceipt.ReadReceipt {
      *             Use getLiveTimeline().getState(EventTimeline.FORWARDS) instead.
      */
     _defineProperty(this, "currentState", void 0);
-    _defineProperty(this, "relations", new _relationsContainer.RelationsContainer(this.client, this));
+    _defineProperty(this, "relations", void 0);
     /**
      * A collection of events known by the client
      * This is not a comprehensive list of the threads that exist in this room
@@ -305,6 +307,7 @@ class Room extends _readReceipt.ReadReceipt {
     opts.pendingEventOrdering = opts.pendingEventOrdering || _client.PendingEventOrdering.Chronological;
     this.name = roomId;
     this.normalizedName = roomId;
+    this.relations = new _relationsContainer.RelationsContainer(this.client, this);
 
     // Listen to our own receipt event as a more modular way of processing our own
     // receipts. No need to remove the listener: it's on ourself anyway.
@@ -428,7 +431,10 @@ class Room extends _readReceipt.ReadReceipt {
    * Resolves to the version the room should be upgraded to.
    */
   async getRecommendedVersion() {
-    const capabilities = await this.client.getCapabilities();
+    let capabilities = {};
+    try {
+      capabilities = await this.client.getCapabilities();
+    } catch (e) {}
     let versionCap = capabilities["m.room_versions"];
     if (!versionCap) {
       versionCap = {
@@ -436,7 +442,7 @@ class Room extends _readReceipt.ReadReceipt {
         available: {}
       };
       for (const safeVer of SAFE_ROOM_VERSIONS) {
-        versionCap.available[safeVer] = _client.RoomVersionStability.Stable;
+        versionCap.available[safeVer] = _serverCapabilities.RoomVersionStability.Stable;
       }
     }
     let result = this.checkVersionAgainstCapability(versionCap);
@@ -448,8 +454,12 @@ class Room extends _readReceipt.ReadReceipt {
       // room version is not stable. As a solution, we'll refresh
       // the capability we're using to determine this.
       _logger.logger.warn("Refreshing room version capability because the server looks " + "to be supporting a newer room version we don't know about.");
-      const caps = await this.client.getCapabilities(true);
-      versionCap = caps["m.room_versions"];
+      try {
+        capabilities = await this.client.fetchCapabilities();
+      } catch (e) {
+        _logger.logger.warn("Failed to refresh room version capabilities", e);
+      }
+      versionCap = capabilities["m.room_versions"];
       if (!versionCap) {
         _logger.logger.warn("No room version capability - assuming upgrade required.");
         return result;
@@ -2892,7 +2902,8 @@ class Room extends _readReceipt.ReadReceipt {
         return true;
       });
       // make sure members have stable order
-      otherMembers.sort((a, b) => (0, _utils.compare)(a.userId, b.userId));
+      const collator = new Intl.Collator();
+      otherMembers.sort((a, b) => collator.compare(a.userId, b.userId));
       // only 5 first members, immitate summaryHeroes
       otherMembers = otherMembers.slice(0, 5);
       otherNames = otherMembers.map(m => m.name);

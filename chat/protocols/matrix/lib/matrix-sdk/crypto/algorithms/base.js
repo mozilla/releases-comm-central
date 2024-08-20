@@ -57,13 +57,11 @@ class EncryptionAlgorithm {
     _defineProperty(this, "crypto", void 0);
     _defineProperty(this, "olmDevice", void 0);
     _defineProperty(this, "baseApis", void 0);
-    _defineProperty(this, "roomId", void 0);
     this.userId = params.userId;
     this.deviceId = params.deviceId;
     this.crypto = params.crypto;
     this.olmDevice = params.olmDevice;
     this.baseApis = params.baseApis;
-    this.roomId = params.roomId;
   }
 
   /**
@@ -105,12 +103,10 @@ class DecryptionAlgorithm {
     _defineProperty(this, "crypto", void 0);
     _defineProperty(this, "olmDevice", void 0);
     _defineProperty(this, "baseApis", void 0);
-    _defineProperty(this, "roomId", void 0);
     this.userId = params.userId;
     this.crypto = params.crypto;
     this.olmDevice = params.olmDevice;
     this.baseApis = params.baseApis;
-    this.roomId = params.roomId;
   }
 
   /**

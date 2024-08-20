@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v33.1.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v34.3.0.
 
 The following npm dependencies are included:
 

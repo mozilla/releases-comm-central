@@ -87,6 +87,7 @@ async function initOlmMachine(logger, http, userId, deviceId, secretStorage, cry
   olmMachine.roomKeyRequestsEnabled = false;
   const rustCrypto = new _rustCrypto.RustCrypto(logger, olmMachine, http, userId, deviceId, secretStorage, cryptoCallbacks);
   await olmMachine.registerRoomKeyUpdatedCallback(sessions => rustCrypto.onRoomKeysUpdated(sessions));
+  await olmMachine.registerRoomKeysWithheldCallback(withheld => rustCrypto.onRoomKeysWithheld(withheld));
   await olmMachine.registerUserIdentityUpdatedCallback(userId => rustCrypto.onUserIdentityUpdated(userId));
   await olmMachine.registerDevicesUpdatedCallback(userIds => rustCrypto.onDevicesUpdated(userIds));
 

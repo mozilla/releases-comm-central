@@ -76,13 +76,25 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
    * As the timeline might get reset while they are loading, this state needs to be inherited
    * and shared when the room state is cloned for the new timeline.
    * This should only be passed from clone.
+   * @param isStartTimelineState - Optional. This state is marked as a start state.
+   * This is used to skip state insertions that are
+   * in the wrong order. The order is determined by the `replaces_state` id.
+   *
+   * Example:
+   * A current state events `replaces_state` value is `1`.
+   * Trying to insert a state event with `event_id` `1` in its place would fail if isStartTimelineState = false.
+   *
+   * A current state events `event_id` is `2`.
+   * Trying to insert a state event where its `replaces_state` value is `2` would fail if isStartTimelineState = true.
    */
+
   constructor(roomId, oobMemberFlags = {
     status: OobStatus.NotStarted
-  }) {
+  }, isStartTimelineState = false) {
     super();
     this.roomId = roomId;
     this.oobMemberFlags = oobMemberFlags;
+    this.isStartTimelineState = isStartTimelineState;
     _defineProperty(this, "reEmitter", new _ReEmitter.TypedReEmitter(this));
     _defineProperty(this, "sentinels", {});
     // userId: RoomMember
@@ -315,7 +327,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
    * Fires {@link RoomStateEvent.Events}
    * Fires {@link RoomStateEvent.Marker}
    */
-  setStateEvents(stateEvents, markerFoundOptions) {
+  setStateEvents(stateEvents, options) {
     this.updateModifiedTime();
 
     // update the core event dict
@@ -325,6 +337,21 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
         this.setBeacon(event);
       }
       const lastStateEvent = this.getStateEventMatching(event);
+
+      // Safety measure to not update the room (and emit the update) with older state.
+      // The sync loop really should not send old events but it does very regularly.
+      // Logging on return in those two conditions results in a large amount of logging. (on startup and when running element)
+      const lastReplaceId = lastStateEvent?.event.unsigned?.replaces_state;
+      const lastId = lastStateEvent?.event.event_id;
+      const newReplaceId = event.event.unsigned?.replaces_state;
+      const newId = event.event.event_id;
+      if (this.isStartTimelineState) {
+        // Add an event to the start of the timeline. Its replace id should not be the same as the one of the current/last start state event.
+        if (newReplaceId && lastId && newReplaceId === lastId) return;
+      } else {
+        // Add an event to the end of the timeline. It should not be the same as the one replaced by the current/last end state event.
+        if (lastReplaceId && newId && lastReplaceId === newId) return;
+      }
       this.setStateEvent(event);
       if (event.getType() === _event.EventType.RoomMember) {
         this.updateDisplayNameCache(event.getStateKey(), event.getContent().displayname ?? "");
@@ -374,7 +401,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
         // assume all our sentinels are now out-of-date
         this.sentinels = {};
       } else if (_event.UNSTABLE_MSC2716_MARKER.matches(event.getType())) {
-        this.emit(RoomStateEvent.Marker, event, markerFoundOptions);
+        this.emit(RoomStateEvent.Marker, event, options);
       }
     });
     this.emit(RoomStateEvent.Update, this);

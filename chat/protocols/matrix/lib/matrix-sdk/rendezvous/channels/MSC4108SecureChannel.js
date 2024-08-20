@@ -44,17 +44,17 @@ class MSC4108SecureChannel {
   /**
    * Generate a QR code for the current session.
    * @param mode the mode to generate the QR code in, either `Login` or `Reciprocate`.
-   * @param homeserverBaseUrl the base URL of the homeserver to connect to, required for `Reciprocate` mode.
+   * @param serverName the name of the homeserver to connect to, as defined by server discovery in the spec, required for `Reciprocate` mode.
    */
 
-  async generateCode(mode, homeserverBaseUrl) {
+  async generateCode(mode, serverName) {
     const {
       url
     } = this.rendezvousSession;
     if (!url) {
       throw new Error("No rendezvous session URL");
     }
-    return new _matrixSdkCryptoWasm.QrCodeData(this.secureChannel.public_key(), url, mode === _matrixSdkCryptoWasm.QrCodeMode.Reciprocate ? homeserverBaseUrl : undefined).to_bytes();
+    return new _matrixSdkCryptoWasm.QrCodeData(this.secureChannel.public_key(), url, mode === _matrixSdkCryptoWasm.QrCodeMode.Reciprocate ? serverName : undefined).toBytes();
   }
 
   /**

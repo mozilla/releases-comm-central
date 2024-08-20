@@ -68,7 +68,7 @@ function encodeUnpaddedBase64(uint8Array) {
  * @returns The unpadded base64.
  */
 function encodeUnpaddedBase64Url(uint8Array) {
-  return encodeUnpaddedBase64(uint8Array).replace("+", "-").replace("/", "_");
+  return encodeUnpaddedBase64(uint8Array).replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 /**
@@ -84,7 +84,7 @@ function decodeBase64(base64) {
     const itFunc = function* () {
       const decoded = atob(
       // built-in atob doesn't support base64url: convert so we support either
-      base64.replace("-", "+").replace("_", "/"));
+      base64.replace(/-/g, "+").replace(/_/g, "/"));
       for (let i = 0; i < decoded.length; ++i) {
         yield decoded.charCodeAt(i);
       }

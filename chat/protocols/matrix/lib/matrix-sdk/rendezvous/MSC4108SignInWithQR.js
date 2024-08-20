@@ -97,7 +97,7 @@ class MSC4108SignInWithQR {
       return;
     }
     if (this.ourIntent === _matrixSdkCryptoWasm.QrCodeMode.Reciprocate && this.client) {
-      this._code = await this.channel.generateCode(this.ourIntent, this.client.getHomeserverUrl());
+      this._code = await this.channel.generateCode(this.ourIntent, this.client.getDomain());
     } else if (this.ourIntent === _matrixSdkCryptoWasm.QrCodeMode.Login) {
       this._code = await this.channel.generateCode(this.ourIntent);
     }
@@ -146,7 +146,7 @@ class MSC4108SignInWithQR {
           await this.send({
             type: PayloadType.Protocols,
             protocols: ["device_authorization_grant"],
-            homeserver: this.client?.getHomeserverUrl() ?? ""
+            homeserver: this.client.getDomain()
           });
         } else {
           await this.send({
@@ -171,7 +171,7 @@ class MSC4108SignInWithQR {
         throw new _.RendezvousError("Unexpected message received", _.MSC4108FailureReason.UnexpectedMessageReceived);
       }
       return {
-        homeserverBaseUrl: payload.homeserver
+        serverName: payload.homeserver
       };
     } else {
       // MSC4108-Flow: NewScanned - nothing to do

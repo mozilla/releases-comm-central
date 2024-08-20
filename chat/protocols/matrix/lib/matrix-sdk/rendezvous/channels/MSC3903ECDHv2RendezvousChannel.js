@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.MSC3903ECDHv2RendezvousChannel = void 0;
 var _ = require("..");
 var _base = require("../../base64");
-var _crypto = require("../../crypto/crypto");
 var _SASDecimal = require("../../crypto/verification/SASDecimal");
 var _NamespacedValue = require("../../NamespacedValue");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -28,10 +27,10 @@ limitations under the License.
 */
 const ECDH_V2 = new _NamespacedValue.UnstableValue("m.rendezvous.v2.curve25519-aes-sha256", "org.matrix.msc3903.rendezvous.v2.curve25519-aes-sha256");
 async function importKey(key) {
-  if (!_crypto.subtleCrypto) {
+  if (!globalThis.crypto.subtle) {
     throw new Error("Web Crypto is not available");
   }
-  const imported = _crypto.subtleCrypto.importKey("raw", key, {
+  const imported = globalThis.crypto.subtle.importKey("raw", key, {
     name: "AES-GCM"
   }, false, ["encrypt", "decrypt"]);
   return imported;
@@ -120,13 +119,13 @@ class MSC3903ECDHv2RendezvousChannel {
     return (0, _SASDecimal.generateDecimalSas)(Array.from(rawChecksum)).join("-");
   }
   async encrypt(data) {
-    if (!_crypto.subtleCrypto) {
+    if (!globalThis.crypto.subtle) {
       throw new Error("Web Crypto is not available");
     }
     const iv = new Uint8Array(32);
-    _crypto.crypto.getRandomValues(iv);
-    const encodedData = new _crypto.TextEncoder().encode(JSON.stringify(data));
-    const ciphertext = await _crypto.subtleCrypto.encrypt({
+    globalThis.crypto.getRandomValues(iv);
+    const encodedData = new TextEncoder().encode(JSON.stringify(data));
+    const ciphertext = await globalThis.crypto.subtle.encrypt({
       name: "AES-GCM",
       iv,
       tagLength: 128
@@ -153,10 +152,10 @@ class MSC3903ECDHv2RendezvousChannel {
       throw new Error("Missing ciphertext and/or iv");
     }
     const ciphertextBytes = (0, _base.decodeBase64)(ciphertext);
-    if (!_crypto.subtleCrypto) {
+    if (!globalThis.crypto.subtle) {
       throw new Error("Web Crypto is not available");
     }
-    const plaintext = await _crypto.subtleCrypto.decrypt({
+    const plaintext = await globalThis.crypto.subtle.decrypt({
       name: "AES-GCM",
       iv: (0, _base.decodeBase64)(iv),
       tagLength: 128

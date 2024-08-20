@@ -91,10 +91,8 @@ class RoomEncryptor {
   onRoomMembership(member) {
     if (member.membership == _membership.KnownMembership.Join || member.membership == _membership.KnownMembership.Invite && this.room.shouldEncryptForInvitedMembers()) {
       // make sure we are tracking the deviceList for this user
-      (0, _utils.logDuration)(this.prefixedLogger, "updateTrackedUsers", async () => {
-        this.olmMachine.updateTrackedUsers([new _matrixSdkCryptoWasm.UserId(member.userId)]).catch(e => {
-          this.prefixedLogger.error("Unable to update tracked users", e);
-        });
+      this.olmMachine.updateTrackedUsers([new _matrixSdkCryptoWasm.UserId(member.userId)]).catch(e => {
+        this.prefixedLogger.error("Unable to update tracked users", e);
       });
     }
 
@@ -225,7 +223,11 @@ class RoomEncryptor {
 
     // When this.room.getBlacklistUnverifiedDevices() === null, the global settings should be used
     // See Room#getBlacklistUnverifiedDevices
-    rustEncryptionSettings.onlyAllowTrustedDevices = this.room.getBlacklistUnverifiedDevices() ?? globalBlacklistUnverifiedDevices;
+    if (this.room.getBlacklistUnverifiedDevices() ?? globalBlacklistUnverifiedDevices) {
+      rustEncryptionSettings.sharingStrategy = _matrixSdkCryptoWasm.CollectStrategy.DeviceBasedStrategyOnlyTrustedDevices;
+    } else {
+      rustEncryptionSettings.sharingStrategy = _matrixSdkCryptoWasm.CollectStrategy.DeviceBasedStrategyAllDevices;
+    }
     await (0, _utils.logDuration)(this.prefixedLogger, "shareRoomKey", async () => {
       const shareMessages = await this.olmMachine.shareRoomKey(new _matrixSdkCryptoWasm.RoomId(this.room.roomId),
       // safe to pass without cloning, as it's not reused here (before or after)

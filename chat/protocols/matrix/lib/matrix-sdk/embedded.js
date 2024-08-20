@@ -116,6 +116,12 @@ class RoomWidgetClient extends _client.MatrixClient {
     }) => widgetApi.requestCapabilityToReceiveState(eventType, stateKey));
     capabilities.sendToDevice?.forEach(eventType => widgetApi.requestCapabilityToSendToDevice(eventType));
     capabilities.receiveToDevice?.forEach(eventType => widgetApi.requestCapabilityToReceiveToDevice(eventType));
+    if (capabilities.sendDelayedEvents && (capabilities.sendEvent?.length || capabilities.sendMessage === true || Array.isArray(capabilities.sendMessage) && capabilities.sendMessage.length || capabilities.sendState?.length)) {
+      widgetApi.requestCapability(_matrixWidgetApi.MatrixCapabilities.MSC4157SendDelayedEvent);
+    }
+    if (capabilities.updateDelayedEvents) {
+      widgetApi.requestCapability(_matrixWidgetApi.MatrixCapabilities.MSC4157UpdateDelayedEvent);
+    }
     if (capabilities.turnServers) {
       widgetApi.requestCapability(_matrixWidgetApi.MatrixCapabilities.MSC3846TurnServers);
     }
@@ -168,6 +174,12 @@ class RoomWidgetClient extends _client.MatrixClient {
         _logger.logger.info(`Backfilled event ${event.getId()} ${event.getType()} ${event.getStateKey()}`);
       });
     }) ?? []);
+    if (opts.clientWellKnownPollPeriod !== undefined) {
+      this.clientWellKnownIntervalID = setInterval(() => {
+        this.fetchClientWellKnown();
+      }, 1000 * opts.clientWellKnownPollPeriod);
+      this.fetchClientWellKnown();
+    }
     this.setSyncState(_sync.SyncState.Syncing);
     _logger.logger.info("Finished backfilling events");
     this.matrixRTC.start();
@@ -185,7 +197,12 @@ class RoomWidgetClient extends _client.MatrixClient {
     if (roomIdOrAlias === this.roomId) return this.room;
     throw new Error(`Unknown room: ${roomIdOrAlias}`);
   }
-  async encryptAndSendEvent(room, event) {
+  async encryptAndSendEvent(room, event, delayOpts) {
+    if (delayOpts) {
+      // TODO: updatePendingEvent for delayed events?
+      const response = await this.widgetApi.sendRoomEvent(event.getType(), event.getContent(), room.roomId, "delay" in delayOpts ? delayOpts.delay : undefined, "parent_delay_id" in delayOpts ? delayOpts.parent_delay_id : undefined);
+      return this.validateSendDelayedEventResponse(response);
+    }
     let response;
     try {
       response = await this.widgetApi.sendRoomEvent(event.getType(), event.getContent(), room.roomId);
@@ -193,13 +210,52 @@ class RoomWidgetClient extends _client.MatrixClient {
       this.updatePendingEventStatus(room, event, _event.EventStatus.NOT_SENT);
       throw e;
     }
+
+    // This also checks for an event id on the response
     room.updatePendingEvent(event, _event.EventStatus.SENT, response.event_id);
     return {
       event_id: response.event_id
     };
   }
   async sendStateEvent(roomId, eventType, content, stateKey = "") {
-    return await this.widgetApi.sendStateEvent(eventType, stateKey, content, roomId);
+    const response = await this.widgetApi.sendStateEvent(eventType, stateKey, content, roomId);
+    if (response.event_id === undefined) {
+      throw new Error("'event_id' absent from response to an event request");
+    }
+    return {
+      event_id: response.event_id
+    };
+  }
+
+  /**
+   * @experimental This currently relies on an unstable MSC (MSC4140).
+   */
+  // eslint-disable-next-line
+  async _unstable_sendDelayedStateEvent(roomId, delayOpts, eventType, content, stateKey = "") {
+    if (!(await this.doesServerSupportUnstableFeature(_client.UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    const response = await this.widgetApi.sendStateEvent(eventType, stateKey, content, roomId, "delay" in delayOpts ? delayOpts.delay : undefined, "parent_delay_id" in delayOpts ? delayOpts.parent_delay_id : undefined);
+    return this.validateSendDelayedEventResponse(response);
+  }
+  validateSendDelayedEventResponse(response) {
+    if (response.delay_id === undefined) {
+      throw new Error("'delay_id' absent from response to a delayed event request");
+    }
+    return {
+      delay_id: response.delay_id
+    };
+  }
+
+  /**
+   * @experimental This currently relies on an unstable MSC (MSC4140).
+   */
+  // eslint-disable-next-line
+  async _unstable_updateDelayedEvent(delayId, action) {
+    if (!(await this.doesServerSupportUnstableFeature(_client.UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    return await this.widgetApi.updateDelayedEvent(delayId, action);
   }
   async sendToDevice(eventType, contentMap) {
     await this.widgetApi.sendToDevice(eventType, false, (0, _utils.recursiveMapToObject)(contentMap));

@@ -230,6 +230,18 @@ Object.keys(_embedded).forEach(function (key) {
     }
   });
 });
+var _serverCapabilities = require("./serverCapabilities");
+Object.keys(_serverCapabilities).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _serverCapabilities[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _serverCapabilities[key];
+    }
+  });
+});
 var _httpApi = require("./http-api");
 Object.keys(_httpApi).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;

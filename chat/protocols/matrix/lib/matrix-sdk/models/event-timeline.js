@@ -97,7 +97,7 @@ class EventTimeline {
     });
     this.roomId = eventTimelineSet.room?.roomId ?? null;
     if (this.roomId) {
-      this.startState = new _roomState.RoomState(this.roomId);
+      this.startState = new _roomState.RoomState(this.roomId, undefined, true);
       this.endState = new _roomState.RoomState(this.roomId);
     }
 
@@ -243,7 +243,7 @@ class EventTimeline {
   /**
    * Get a pagination token
    *
-   * @param direction -   EventTimeline.BACKWARDS to get the pagination
+   * @param direction - EventTimeline.BACKWARDS to get the pagination
    *   token for going backwards in time; EventTimeline.FORWARDS to get the
    *   pagination token for going forwards in time.
    *

@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.SHOW_QR_CODE_METHOD = exports.SCAN_QR_CODE_METHOD = exports.ReciprocateQRCode = exports.QrCodeEvent = exports.QRCodeData = void 0;
-var _crypto = require("../crypto");
 var _Base = require("./Base");
 var _Error = require("./Error");
 var _base = require("../../base64");
@@ -178,7 +177,7 @@ class QRCodeData {
   }
   static generateSharedSecret() {
     const secretBytes = new Uint8Array(11);
-    _crypto.crypto.getRandomValues(secretBytes);
+    globalThis.crypto.getRandomValues(secretBytes);
     return (0, _base.encodeUnpaddedBase64)(secretBytes);
   }
   static async getOtherDeviceKey(request, client) {

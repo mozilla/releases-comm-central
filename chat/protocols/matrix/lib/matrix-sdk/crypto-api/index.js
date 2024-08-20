@@ -12,7 +12,7 @@ var _exportNames = {
   EventShieldReason: true
 };
 exports.UserVerificationStatus = exports.EventShieldReason = exports.EventShieldColour = exports.DeviceVerificationStatus = exports.DecryptionFailureCode = exports.CrossSigningKey = void 0;
-var _verification = require("./crypto-api/verification");
+var _verification = require("./verification");
 Object.keys(_verification).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -24,7 +24,7 @@ Object.keys(_verification).forEach(function (key) {
     }
   });
 });
-var _keybackup = require("./crypto-api/keybackup");
+var _keybackup = require("./keybackup");
 Object.keys(_keybackup).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
@@ -62,6 +62,8 @@ limitations under the License.
 /** A reason code for a failure to decrypt an event. */
 let DecryptionFailureCode = exports.DecryptionFailureCode = /*#__PURE__*/function (DecryptionFailureCode) {
   DecryptionFailureCode["MEGOLM_UNKNOWN_INBOUND_SESSION_ID"] = "MEGOLM_UNKNOWN_INBOUND_SESSION_ID";
+  DecryptionFailureCode["MEGOLM_KEY_WITHHELD"] = "MEGOLM_KEY_WITHHELD";
+  DecryptionFailureCode["MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE"] = "MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE";
   DecryptionFailureCode["OLM_UNKNOWN_MESSAGE_INDEX"] = "OLM_UNKNOWN_MESSAGE_INDEX";
   DecryptionFailureCode["HISTORICAL_MESSAGE_NO_KEY_BACKUP"] = "HISTORICAL_MESSAGE_NO_KEY_BACKUP";
   DecryptionFailureCode["HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED"] = "HISTORICAL_MESSAGE_BACKUP_UNCONFIGURED";

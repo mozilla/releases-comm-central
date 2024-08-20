@@ -89,7 +89,10 @@ class MSC3906Rendezvous {
     _logger.logger.info(`Connected to secure channel with checksum: ${checksum} our intent is ${this.ourIntent}`);
 
     // in stable and unstable r1 the availability is exposed as a capability
-    const capabilities = await this.client.getCapabilities();
+    let capabilities = {};
+    try {
+      capabilities = await this.client.getCapabilities();
+    } catch (e) {}
     // in r0 of MSC3882 the availability is exposed as a feature flag
     const features = await (0, _feature.buildFeatureSupportMap)(await this.client.getVersions());
     const capability = _client.GET_LOGIN_TOKEN_CAPABILITY.findIn(capabilities);

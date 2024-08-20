@@ -5,9 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.decodeRecoveryKey = decodeRecoveryKey;
 exports.encodeRecoveryKey = encodeRecoveryKey;
-var bs58 = _interopRequireWildcard(require("bs58"));
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+var _bs = _interopRequireDefault(require("bs58"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /*
 Copyright 2018 New Vector Ltd
 
@@ -37,11 +36,11 @@ function encodeRecoveryKey(key) {
     parity ^= buf[i];
   }
   buf[buf.length - 1] = parity;
-  const base58key = bs58.encode(buf);
+  const base58key = _bs.default.encode(buf);
   return base58key.match(/.{1,4}/g)?.join(" ");
 }
 function decodeRecoveryKey(recoveryKey) {
-  const result = bs58.decode(recoveryKey.replace(/ /g, ""));
+  const result = _bs.default.decode(recoveryKey.replace(/ /g, ""));
   let parity = 0;
   for (const b of result) {
     parity ^= b;

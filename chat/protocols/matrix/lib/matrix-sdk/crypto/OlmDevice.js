@@ -939,7 +939,8 @@ class OlmDevice {
       this.getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData, withheld) => {
         if (session === null || sessionData === null) {
           if (withheld) {
-            error = new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.MEGOLM_UNKNOWN_INBOUND_SESSION_ID, calculateWithheldMessage(withheld), {
+            const failureCode = withheld.code === "m.unverified" ? _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
+            error = new _CryptoBackend.DecryptionError(failureCode, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });
           }
@@ -951,7 +952,8 @@ class OlmDevice {
           res = session.decrypt(body);
         } catch (e) {
           if (e?.message === "OLM.UNKNOWN_MESSAGE_INDEX" && withheld) {
-            error = new _CryptoBackend.DecryptionError(_cryptoApi.DecryptionFailureCode.MEGOLM_UNKNOWN_INBOUND_SESSION_ID, calculateWithheldMessage(withheld), {
+            const failureCode = withheld.code === "m.unverified" ? _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE : _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD;
+            error = new _CryptoBackend.DecryptionError(failureCode, calculateWithheldMessage(withheld), {
               session: senderKey + "|" + sessionId
             });
           } else {

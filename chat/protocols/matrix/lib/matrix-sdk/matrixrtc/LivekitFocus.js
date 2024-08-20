@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UpdateDelayedEventAction = void 0;
+exports.isLivekitFocusConfig = exports.isLivekitFocusActive = exports.isLivekitFocus = void 0;
 /*
-Copyright 2021 The Matrix.org Foundation C.I.C.
+Copyright 2023 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// allow camelcase as these are things that go onto the wire
-/* eslint-disable camelcase */
-let UpdateDelayedEventAction = exports.UpdateDelayedEventAction = /*#__PURE__*/function (UpdateDelayedEventAction) {
-  UpdateDelayedEventAction["Cancel"] = "cancel";
-  UpdateDelayedEventAction["Restart"] = "restart";
-  UpdateDelayedEventAction["Send"] = "send";
-  return UpdateDelayedEventAction;
-}({});
-/* eslint-enable camelcase */
+
+const isLivekitFocusConfig = object => object.type === "livekit" && "livekit_service_url" in object;
+exports.isLivekitFocusConfig = isLivekitFocusConfig;
+const isLivekitFocus = object => isLivekitFocusConfig(object) && "livekit_alias" in object;
+exports.isLivekitFocus = isLivekitFocus;
+const isLivekitFocusActive = object => object.type === "livekit" && "focus_selection" in object;
+exports.isLivekitFocusActive = isLivekitFocusActive;

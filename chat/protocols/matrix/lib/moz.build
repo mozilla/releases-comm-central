@@ -11,7 +11,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/client.js",
     "matrix-sdk/content-helpers.js",
     "matrix-sdk/content-repo.js",
-    "matrix-sdk/crypto-api.js",
+    "matrix-sdk/digest.js",
     "matrix-sdk/embedded.js",
     "matrix-sdk/errors.js",
     "matrix-sdk/event-mapper.js",
@@ -32,6 +32,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/room-hierarchy.js",
     "matrix-sdk/scheduler.js",
     "matrix-sdk/secret-storage.js",
+    "matrix-sdk/serverCapabilities.js",
     "matrix-sdk/service-types.js",
     "matrix-sdk/sliding-sync-sdk.js",
     "matrix-sdk/sliding-sync.js",
@@ -103,6 +104,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto_api += [
+    "matrix-sdk/crypto-api/index.js",
     "matrix-sdk/crypto-api/verification.js",
 ]
 
@@ -127,9 +129,11 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.http_api += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.matrixrtc += [
-  "matrix-sdk/matrixrtc/CallMembership.js",
-  "matrix-sdk/matrixrtc/MatrixRTCSession.js",
-  "matrix-sdk/matrixrtc/MatrixRTCSessionManager.js",
+    "matrix-sdk/matrixrtc/CallMembership.js",
+    "matrix-sdk/matrixrtc/index.js",
+    "matrix-sdk/matrixrtc/LivekitFocus.js",
+    "matrix-sdk/matrixrtc/MatrixRTCSession.js",
+    "matrix-sdk/matrixrtc/MatrixRTCSessionManager.js",
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
@@ -230,6 +234,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
     "matrix-sdk/@types/polls.js",
     "matrix-sdk/@types/PushRules.js",
     "matrix-sdk/@types/read_receipts.js",
+    "matrix-sdk/@types/requests.js",
     "matrix-sdk/@types/search.js",
     "matrix-sdk/@types/sync.js",
     "matrix-sdk/@types/threepids.js",

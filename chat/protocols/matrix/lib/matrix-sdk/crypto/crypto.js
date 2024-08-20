@@ -3,11 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.crypto = exports.TextEncoder = void 0;
 exports.setCrypto = setCrypto;
-exports.setTextEncoder = setTextEncoder;
-exports.subtleCrypto = void 0;
-var _logger = require("../logger");
 /*
 Copyright 2022 The Matrix.org Foundation C.I.C.
 
@@ -24,34 +20,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-let crypto = exports.crypto = globalThis.crypto;
-let subtleCrypto = exports.subtleCrypto = crypto?.subtle ?? crypto?.webkitSubtle; // TODO: Stop using webkitSubtle fallback
-let TextEncoder = exports.TextEncoder = globalThis.TextEncoder;
-
-/* eslint-disable @typescript-eslint/no-var-requires */
-if (!crypto) {
-  try {
-    exports.crypto = crypto = require("crypto").webcrypto;
-  } catch (e) {
-    _logger.logger.error("Failed to load webcrypto", e);
-  }
-}
-if (!subtleCrypto) {
-  exports.subtleCrypto = subtleCrypto = crypto?.subtle;
-}
-if (!TextEncoder) {
-  try {
-    exports.TextEncoder = TextEncoder = require("util").TextEncoder;
-  } catch (e) {
-    _logger.logger.error("Failed to load TextEncoder util", e);
-  }
-}
-/* eslint-enable @typescript-eslint/no-var-requires */
-
-function setCrypto(_crypto) {
-  exports.crypto = crypto = _crypto;
-  exports.subtleCrypto = subtleCrypto = _crypto.subtle ?? _crypto.webkitSubtle;
-}
-function setTextEncoder(_TextEncoder) {
-  exports.TextEncoder = TextEncoder = _TextEncoder;
-}
+/** @deprecated this is a no-op and should no longer be called. */
+function setCrypto(_crypto) {}

@@ -15,7 +15,6 @@ var _recoverykey = require("./recoverykey");
 var _aes = require("./aes");
 var _NamespacedValue = require("../NamespacedValue");
 var _index = require("./index");
-var _crypto = require("./crypto");
 var _httpApi = require("../http-api");
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
@@ -612,7 +611,7 @@ exports.Curve25519 = Curve25519;
 _defineProperty(Curve25519, "algorithmName", "m.megolm_backup.v1.curve25519-aes-sha2");
 function randomBytes(size) {
   const buf = new Uint8Array(size);
-  _crypto.crypto.getRandomValues(buf);
+  globalThis.crypto.getRandomValues(buf);
   return buf;
 }
 const UNSTABLE_MSC3270_NAME = new _NamespacedValue.UnstableValue("m.megolm_backup.v1.aes-hmac-sha2", "org.matrix.msc3270.v1.aes-hmac-sha2");

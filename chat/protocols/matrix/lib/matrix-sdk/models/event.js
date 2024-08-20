@@ -18,7 +18,6 @@ var _thread = require("./thread");
 var _ReEmitter = require("../ReEmitter");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _CryptoBackend = require("../common-crypto/CryptoBackend");
-var _OlmDevice = require("../crypto/OlmDevice");
 var _eventTimeline = require("./event-timeline");
 var _cryptoApi = require("../crypto-api");
 var _eventStatus = require("./event-status");
@@ -147,11 +146,6 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
      */
     _defineProperty(this, "thread", void 0);
     _defineProperty(this, "threadId", void 0);
-    /*
-     * True if this event is an encrypted event which we failed to decrypt, the receiver's device is unverified and
-     * the sender has disabled encrypting to unverified devices.
-     */
-    _defineProperty(this, "encryptedDisabledForUnverifiedDevices", false);
     /* Set an approximate timestamp for the event relative the local clock.
      * This will inherently be approximate because it doesn't take into account
      * the time between the server putting the 'age' field on the event as it sent
@@ -588,12 +582,14 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     return this._decryptionFailureReason;
   }
 
-  /*
+  /**
    * True if this event is an encrypted event which we failed to decrypt, the receiver's device is unverified and
    * the sender has disabled encrypting to unverified devices.
+   *
+   * @deprecated: Prefer `event.decryptionFailureReason === DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE`.
    */
   get isEncryptedDisabledForUnverifiedDevices() {
-    return this.isDecryptionFailure() && this.encryptedDisabledForUnverifiedDevices;
+    return this.decryptionFailureReason === _cryptoApi.DecryptionFailureCode.MEGOLM_KEY_WITHHELD_FOR_UNVERIFIED_DEVICE;
   }
   shouldAttemptDecryption() {
     if (this.isRedacted()) return false;
@@ -765,7 +761,6 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     this.claimedEd25519Key = decryptionResult.claimedEd25519Key ?? null;
     this.forwardingCurve25519KeyChain = decryptionResult.forwardingCurve25519KeyChain || [];
     this.untrusted = decryptionResult.untrusted || false;
-    this.encryptedDisabledForUnverifiedDevices = false;
     this.invalidateExtensibleEvent();
   }
 
@@ -786,7 +781,6 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     this.claimedEd25519Key = null;
     this.forwardingCurve25519KeyChain = [];
     this.untrusted = false;
-    this.encryptedDisabledForUnverifiedDevices = reason === `DecryptionError: ${_OlmDevice.WITHHELD_MESSAGES["m.unverified"]}`;
     this.invalidateExtensibleEvent();
   }
 

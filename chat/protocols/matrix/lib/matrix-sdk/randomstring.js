@@ -8,7 +8,6 @@ exports.randomString = randomString;
 exports.randomUppercaseString = randomUppercaseString;
 exports.secureRandomBase64Url = secureRandomBase64Url;
 var _base = require("./base64");
-var _crypto = require("./crypto/crypto");
 /*
 Copyright 2018 New Vector Ltd
 Copyright 2019 The Matrix.org Foundation C.I.C.
@@ -31,7 +30,7 @@ const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIGITS = "0123456789";
 function secureRandomBase64Url(len) {
   const key = new Uint8Array(len);
-  _crypto.crypto.getRandomValues(key);
+  globalThis.crypto.getRandomValues(key);
   return (0, _base.encodeUnpaddedBase64Url)(key);
 }
 function randomString(len) {

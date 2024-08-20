@@ -28,6 +28,7 @@ const KNOWN_INDEX_JS = new Set([
   "sdp_transform",
   "unhomoglyph",
   "matrix_sdk/crypto",
+  "matrix_sdk/crypto_api",
   "matrix_sdk/crypto/algorithms",
   "matrix_sdk/http_api",
   "matrix_sdk/oidc",
@@ -87,13 +88,9 @@ const loader = Loader({
     "matrix-sdk/@types/IIdentityServerProvider": matrixPath + "empty.js",
     "matrix-sdk/@types/local_notifications": matrixPath + "empty.js",
     "matrix-sdk/@types/registration": matrixPath + "empty.js",
-    "matrix-sdk/@types/requests": matrixPath + "empty.js",
     "matrix-sdk/@types/uia": matrixPath + "empty.js",
     "matrix-sdk/common-crypto": matrixPath + "matrix_sdk/common_crypto",
-    // The entire directory can't be mapped from crypto-api to crypto_api since
-    // there's also a matrix-sdk/crypto-api.js.
-    "matrix-sdk/crypto-api/verification":
-      matrixPath + "matrix_sdk/crypto_api/verification.js",
+    "matrix-sdk/crypto-api": matrixPath + "matrix_sdk/crypto_api",
     "matrix-sdk/crypto-api/keybackup": matrixPath + "empty.js",
     "matrix-sdk/http-api": matrixPath + "matrix_sdk/http_api",
     "matrix-sdk/rust-crypto": matrixPath + "matrix_sdk/rust_crypto",

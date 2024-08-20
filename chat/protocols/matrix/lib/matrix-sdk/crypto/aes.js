@@ -7,7 +7,6 @@ exports.calculateKeyCheck = calculateKeyCheck;
 exports.decryptAES = decryptAES;
 exports.encryptAES = encryptAES;
 var _base = require("../base64");
-var _crypto = require("./crypto");
 /*
 Copyright 2020 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -40,7 +39,7 @@ async function encryptAES(data, key, name, ivStr) {
     iv = (0, _base.decodeBase64)(ivStr);
   } else {
     iv = new Uint8Array(16);
-    _crypto.crypto.getRandomValues(iv);
+    globalThis.crypto.getRandomValues(iv);
 
     // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
     // (which would mean we wouldn't be able to decrypt on Android). The loss
@@ -48,13 +47,13 @@ async function encryptAES(data, key, name, ivStr) {
     iv[8] &= 0x7f;
   }
   const [aesKey, hmacKey] = await deriveKeys(key, name);
-  const encodedData = new _crypto.TextEncoder().encode(data);
-  const ciphertext = await _crypto.subtleCrypto.encrypt({
+  const encodedData = new TextEncoder().encode(data);
+  const ciphertext = await globalThis.crypto.subtle.encrypt({
     name: "AES-CTR",
     counter: iv,
     length: 64
   }, aesKey, encodedData);
-  const hmac = await _crypto.subtleCrypto.sign({
+  const hmac = await globalThis.crypto.subtle.sign({
     name: "HMAC"
   }, hmacKey, ciphertext);
   return {
@@ -74,12 +73,12 @@ async function encryptAES(data, key, name, ivStr) {
 async function decryptAES(data, key, name) {
   const [aesKey, hmacKey] = await deriveKeys(key, name);
   const ciphertext = (0, _base.decodeBase64)(data.ciphertext);
-  if (!(await _crypto.subtleCrypto.verify({
+  if (!(await globalThis.crypto.subtle.verify({
     name: "HMAC"
   }, hmacKey, (0, _base.decodeBase64)(data.mac), ciphertext))) {
     throw new Error(`Error decrypting secret ${name}: bad MAC`);
   }
-  const plaintext = await _crypto.subtleCrypto.decrypt({
+  const plaintext = await globalThis.crypto.subtle.decrypt({
     name: "AES-CTR",
     counter: (0, _base.decodeBase64)(data.iv),
     length: 64
@@ -87,23 +86,23 @@ async function decryptAES(data, key, name) {
   return new TextDecoder().decode(new Uint8Array(plaintext));
 }
 async function deriveKeys(key, name) {
-  const hkdfkey = await _crypto.subtleCrypto.importKey("raw", key, {
+  const hkdfkey = await globalThis.crypto.subtle.importKey("raw", key, {
     name: "HKDF"
   }, false, ["deriveBits"]);
-  const keybits = await _crypto.subtleCrypto.deriveBits({
+  const keybits = await globalThis.crypto.subtle.deriveBits({
     name: "HKDF",
     salt: zeroSalt,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: https://github.com/microsoft/TypeScript-DOM-lib-generator/pull/879
-    info: new _crypto.TextEncoder().encode(name),
+    info: new TextEncoder().encode(name),
     hash: "SHA-256"
   }, hkdfkey, 512);
   const aesKey = keybits.slice(0, 32);
   const hmacKey = keybits.slice(32);
-  const aesProm = _crypto.subtleCrypto.importKey("raw", aesKey, {
+  const aesProm = globalThis.crypto.subtle.importKey("raw", aesKey, {
     name: "AES-CTR"
   }, false, ["encrypt", "decrypt"]);
-  const hmacProm = _crypto.subtleCrypto.importKey("raw", hmacKey, {
+  const hmacProm = globalThis.crypto.subtle.importKey("raw", hmacKey, {
     name: "HMAC",
     hash: {
       name: "SHA-256"

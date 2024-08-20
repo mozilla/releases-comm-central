@@ -7,7 +7,6 @@ exports.deriveKey = deriveKey;
 exports.keyFromAuthData = keyFromAuthData;
 exports.keyFromPassphrase = keyFromPassphrase;
 var _randomstring = require("../randomstring");
-var _crypto = require("./crypto");
 /*
 Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
 
@@ -32,18 +31,12 @@ const DEFAULT_BITSIZE = 256;
 /* eslint-enable camelcase */
 
 function keyFromAuthData(authData, password) {
-  if (!global.Olm) {
-    throw new Error("Olm is not available");
-  }
   if (!authData.private_key_salt || !authData.private_key_iterations) {
     throw new Error("Salt and/or iterations not found: " + "this backup cannot be restored with a passphrase");
   }
   return deriveKey(password, authData.private_key_salt, authData.private_key_iterations, authData.private_key_bits || DEFAULT_BITSIZE);
 }
 async function keyFromPassphrase(password) {
-  if (!global.Olm) {
-    throw new Error("Olm is not available");
-  }
   const salt = (0, _randomstring.randomString)(32);
   const key = await deriveKey(password, salt, DEFAULT_ITERATIONS, DEFAULT_BITSIZE);
   return {
@@ -53,15 +46,15 @@ async function keyFromPassphrase(password) {
   };
 }
 async function deriveKey(password, salt, iterations, numBits = DEFAULT_BITSIZE) {
-  if (!_crypto.subtleCrypto || !_crypto.TextEncoder) {
+  if (!globalThis.crypto.subtle || !TextEncoder) {
     throw new Error("Password-based backup is not available on this platform");
   }
-  const key = await _crypto.subtleCrypto.importKey("raw", new _crypto.TextEncoder().encode(password), {
+  const key = await globalThis.crypto.subtle.importKey("raw", new TextEncoder().encode(password), {
     name: "PBKDF2"
   }, false, ["deriveBits"]);
-  const keybits = await _crypto.subtleCrypto.deriveBits({
+  const keybits = await globalThis.crypto.subtle.deriveBits({
     name: "PBKDF2",
-    salt: new _crypto.TextEncoder().encode(salt),
+    salt: new TextEncoder().encode(salt),
     iterations: iterations,
     hash: "SHA-512"
   }, key, numBits);

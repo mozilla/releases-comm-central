@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_MSC3852_LAST_SEEN_UA = exports.UNSTABLE_MSC2666_SHARED_ROOMS = exports.UNSTABLE_MSC2666_QUERY_MUTUAL_ROOMS = exports.UNSTABLE_MSC2666_MUTUAL_ROOMS = exports.RoomVersionStability = exports.PendingEventOrdering = exports.MatrixClient = exports.GET_LOGIN_TOKEN_CAPABILITY = exports.ClientEvent = exports.CRYPTO_ENABLED = void 0;
+exports.UNSTABLE_MSC4140_DELAYED_EVENTS = exports.UNSTABLE_MSC3852_LAST_SEEN_UA = exports.UNSTABLE_MSC2666_SHARED_ROOMS = exports.UNSTABLE_MSC2666_QUERY_MUTUAL_ROOMS = exports.UNSTABLE_MSC2666_MUTUAL_ROOMS = exports.PendingEventOrdering = exports.MatrixClient = exports.GET_LOGIN_TOKEN_CAPABILITY = exports.ClientEvent = exports.CRYPTO_ENABLED = void 0;
 exports.fixNotificationCountOnDecryption = fixNotificationCountOnDecryption;
 exports.inMainTimelineForReceipt = inMainTimelineForReceipt;
 exports.threadIdForReceipt = threadIdForReceipt;
@@ -60,6 +60,8 @@ var _secretStorage = require("./secret-storage");
 var _MatrixRTCSessionManager = require("./matrixrtc/MatrixRTCSessionManager");
 var _threadUtils = require("./thread-utils");
 var _membership = require("./@types/membership");
+var _serverCapabilities = require("./serverCapabilities");
+var _digest = require("./digest");
 const _excluded = ["server", "limit", "since"];
 function _objectWithoutProperties(e, t) { if (null == e) return {}; var o, r, i = _objectWithoutPropertiesLoose(e, t); if (Object.getOwnPropertySymbols) { var n = Object.getOwnPropertySymbols(e); for (r = 0; r < n.length; r++) o = n[r], t.indexOf(o) >= 0 || {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]); } return i; }
 function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t = {}; for (var n in r) if ({}.hasOwnProperty.call(r, n)) { if (e.indexOf(n) >= 0) continue; t[n] = r[n]; } return t; }
@@ -88,7 +90,6 @@ limitations under the License.
  */
 const SCROLLBACK_DELAY_MS = 3000;
 const CRYPTO_ENABLED = exports.CRYPTO_ENABLED = (0, _crypto.isCryptoAvailable)();
-const CAPABILITIES_CACHE_MS = 21600000; // 6 hours - an arbitrary value
 const TURN_CHECK_INTERVAL = 10 * 60 * 1000; // poll for turn credentials every 10 minutes
 
 const UNSTABLE_MSC3852_LAST_SEEN_UA = exports.UNSTABLE_MSC3852_LAST_SEEN_UA = new _NamespacedValue.UnstableValue("last_seen_user_agent", "org.matrix.msc3852.last_seen_user_agent");
@@ -97,20 +98,11 @@ let PendingEventOrdering = exports.PendingEventOrdering = /*#__PURE__*/function 
   PendingEventOrdering["Detached"] = "detached";
   return PendingEventOrdering;
 }({});
-let RoomVersionStability = exports.RoomVersionStability = /*#__PURE__*/function (RoomVersionStability) {
-  RoomVersionStability["Stable"] = "stable";
-  RoomVersionStability["Unstable"] = "unstable";
-  return RoomVersionStability;
-}({});
 const GET_LOGIN_TOKEN_CAPABILITY = exports.GET_LOGIN_TOKEN_CAPABILITY = new _NamespacedValue.NamespacedValue("m.get_login_token", "org.matrix.msc3882.get_login_token");
 const UNSTABLE_MSC2666_SHARED_ROOMS = exports.UNSTABLE_MSC2666_SHARED_ROOMS = "uk.half-shot.msc2666";
 const UNSTABLE_MSC2666_MUTUAL_ROOMS = exports.UNSTABLE_MSC2666_MUTUAL_ROOMS = "uk.half-shot.msc2666.mutual_rooms";
 const UNSTABLE_MSC2666_QUERY_MUTUAL_ROOMS = exports.UNSTABLE_MSC2666_QUERY_MUTUAL_ROOMS = "uk.half-shot.msc2666.query_mutual_rooms";
-
-/**
- * A representation of the capabilities advertised by a homeserver as defined by
- * [Capabilities negotiation](https://spec.matrix.org/v1.6/client-server-api/#get_matrixclientv3capabilities).
- */
+const UNSTABLE_MSC4140_DELAYED_EVENTS = exports.UNSTABLE_MSC4140_DELAYED_EVENTS = "org.matrix.msc4140";
 var CrossSigningKeyType = /*#__PURE__*/function (CrossSigningKeyType) {
   CrossSigningKeyType["MasterKey"] = "master_key";
   CrossSigningKeyType["SelfSigningKey"] = "self_signing_key";
@@ -230,7 +222,6 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // Promise to a response of the server's /versions response
     // TODO: This should expire: https://github.com/matrix-org/matrix-js-sdk/issues/1020
     _defineProperty(this, "serverVersionsPromise", void 0);
-    _defineProperty(this, "cachedCapabilities", void 0);
     _defineProperty(this, "clientWellKnown", void 0);
     _defineProperty(this, "clientWellKnownPromise", void 0);
     _defineProperty(this, "turnServers", []);
@@ -253,6 +244,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // A manager for determining which invites should be ignored.
     _defineProperty(this, "ignoredInvites", void 0);
     _defineProperty(this, "matrixRTC", void 0);
+    _defineProperty(this, "serverCapabilitiesService", void 0);
     _defineProperty(this, "startCallEventHandler", () => {
       if (this.isInitialSyncComplete()) {
         if ((0, _call.supportsMatrixCall)()) {
@@ -364,6 +356,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     // NB. We initialise MatrixRTC whether we have call support or not: this is just
     // the underlying session management and doesn't use any actual media capabilities
     this.matrixRTC = new _MatrixRTCSessionManager.MatrixRTCSessionManager(this);
+    this.serverCapabilitiesService = new _serverCapabilities.ServerCapabilities(this.http);
     this.on(ClientEvent.Sync, this.fixupRoomNotifications);
     this.timelineSupport = Boolean(opts.timelineSupport);
     this.cryptoStore = opts.cryptoStore;
@@ -465,6 +458,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       this.fetchClientWellKnown();
     }
     this.toDeviceMessageQueue.start();
+    this.serverCapabilitiesService.start();
   }
 
   /**
@@ -509,6 +503,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     }
     this.toDeviceMessageQueue.stop();
     this.matrixRTC.stop();
+    this.serverCapabilitiesService.stop();
   }
 
   /**
@@ -956,37 +951,35 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Gets the capabilities of the homeserver. Always returns an object of
-   * capability keys and their options, which may be empty.
-   * @param fresh - True to ignore any cached values.
-   * @returns Promise which resolves to the capabilities of the homeserver
-   * @returns Rejects: with an error response.
+   * Gets the cached capabilities of the homeserver, returning cached ones if available.
+   * If there are no cached capabilities and none can be fetched, throw an exception.
+   *
+   * @returns Promise resolving with The capabilities of the homeserver
    */
-  getCapabilities(fresh = false) {
-    const now = new Date().getTime();
-    if (this.cachedCapabilities && !fresh) {
-      if (now < this.cachedCapabilities.expiration) {
-        this.logger.debug("Returning cached capabilities");
-        return Promise.resolve(this.cachedCapabilities.capabilities);
-      }
-    }
-    return this.http.authedRequest(_httpApi.Method.Get, "/capabilities").catch(e => {
-      // We swallow errors because we need a default object anyhow
-      this.logger.error(e);
-      return {};
-    }).then((r = {}) => {
-      const capabilities = r["capabilities"] || {};
+  async getCapabilities() {
+    const caps = this.serverCapabilitiesService.getCachedCapabilities();
+    if (caps) return caps;
+    return this.serverCapabilitiesService.fetchCapabilities();
+  }
 
-      // If the capabilities missed the cache, cache it for a shorter amount
-      // of time to try and refresh them later.
-      const cacheMs = Object.keys(capabilities).length ? CAPABILITIES_CACHE_MS : 60000 + Math.random() * 5000;
-      this.cachedCapabilities = {
-        capabilities,
-        expiration: now + cacheMs
-      };
-      this.logger.debug("Caching capabilities: ", capabilities);
-      return capabilities;
-    });
+  /**
+   * Gets the cached capabilities of the homeserver. If none have been fetched yet,
+   * return undefined.
+   *
+   * @returns The capabilities of the homeserver
+   */
+  getCachedCapabilities() {
+    return this.serverCapabilitiesService.getCachedCapabilities();
+  }
+
+  /**
+   * Fetches the latest capabilities from the homeserver, ignoring any cached
+   * versions. The newly returned version is cached.
+   *
+   * @returns A promise which resolves to the capabilities of the homeserver
+   */
+  fetchCapabilities() {
+    return this.serverCapabilitiesService.fetchCapabilities();
   }
 
   /**
@@ -1083,8 +1076,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       cryptoCallbacks: this.cryptoCallbacks,
       storePrefix: args.useIndexedDB === false ? null : _constants.RUST_SDK_STORE_PREFIX,
       storeKey: args.storageKey,
-      // temporary compatibility hack: if there is no storageKey nor storagePassword, fall back to the pickleKey
-      storePassphrase: args.storagePassword ?? this.pickleKey,
+      storePassphrase: args.storagePassword,
       legacyCryptoStore: this.cryptoStore,
       legacyPickleKey: this.pickleKey ?? "DEFAULT_KEY",
       legacyMigrationProgressListener: (progress, total) => {
@@ -2916,9 +2908,13 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       url.searchParams.set("mxid", this.credentials.userId);
       signPromise = this.http.requestOtherUrl(_httpApi.Method.Post, url);
     }
-    const queryString = {};
+    let queryParams = {};
     if (opts.viaServers) {
-      queryString["server_name"] = opts.viaServers;
+      queryParams.server_name = opts.viaServers;
+      queryParams.via = opts.viaServers;
+      if (this.canSupport.get(_feature.Feature.MigrateServerNameToVia) === _feature.ServerSupport.Unstable) {
+        queryParams = (0, _utils.replaceParam)("via", "org.matrix.msc4156.via", queryParams);
+      }
     }
     const data = {};
     const signedInviteObj = await signPromise;
@@ -2928,7 +2924,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     const path = utils.encodeUri("/join/$roomid", {
       $roomid: roomIdOrAlias
     });
-    const res = await this.http.authedRequest(_httpApi.Method.Post, path, queryString, data);
+    const res = await this.http.authedRequest(_httpApi.Method.Post, path, queryParams, data);
     const roomId = res.room_id;
     // In case we were originally given an alias, check the room cache again
     // with the resolved ID - this method is supposed to no-op if we already
@@ -2961,9 +2957,13 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     const path = utils.encodeUri("/knock/$roomIdOrAlias", {
       $roomIdOrAlias: roomIdOrAlias
     });
-    const queryParams = {};
+    let queryParams = {};
     if (opts.viaServers) {
       queryParams.server_name = opts.viaServers;
+      queryParams.via = opts.viaServers;
+      if (this.canSupport.get(_feature.Feature.MigrateServerNameToVia) === _feature.ServerSupport.Unstable) {
+        queryParams = (0, _utils.replaceParam)("via", "org.matrix.msc4156.via", queryParams);
+      }
     }
     const body = {};
     if (opts.reason) {
@@ -3169,9 +3169,18 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       eventType = eventTypeOrContent;
       threadId = threadIdOrEventType;
     }
+    this.addThreadRelationIfNeeded(content, threadId, roomId);
+    return this.sendCompleteEvent(roomId, threadId, {
+      type: eventType,
+      content
+    }, txnId);
+  }
 
-    // If we expect that an event is part of a thread but is missing the relation
-    // we need to add it manually, as well as the reply fallback
+  /**
+   * If we expect that an event is part of a thread but is missing the relation
+   * we need to add it manually, as well as the reply fallback
+   */
+  addThreadRelationIfNeeded(content, threadId, roomId) {
     if (threadId && !content["m.relates_to"]?.rel_type) {
       const isReply = !!content["m.relates_to"]?.["m.in_reply_to"];
       content["m.relates_to"] = _objectSpread(_objectSpread({}, content["m.relates_to"]), {}, {
@@ -3189,10 +3198,6 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
         };
       }
     }
-    return this.sendCompleteEvent(roomId, threadId, {
-      type: eventType,
-      content
-    }, txnId);
   }
 
   /**
@@ -3201,7 +3206,25 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * @returns Promise which resolves: to an empty object `{}`
    * @returns Rejects: with an error response.
    */
-  sendCompleteEvent(roomId, threadId, eventObject, txnId) {
+
+  /**
+   * Sends a delayed event (MSC4140).
+   * @param eventObject - An object with the partial structure of an event, to which event_id, user_id, room_id and origin_server_ts will be added.
+   * @param delayOpts - Properties of the delay for this event.
+   * @param txnId - Optional.
+   * @returns Promise which resolves: to an empty object `{}`
+   * @returns Rejects: with an error response.
+   */
+
+  sendCompleteEvent(roomId, threadId, eventObject, delayOptsOrTxnId, txnIdOrVoid) {
+    let delayOpts;
+    let txnId;
+    if (typeof delayOptsOrTxnId === "string") {
+      txnId = delayOptsOrTxnId;
+    } else {
+      delayOpts = delayOptsOrTxnId;
+      txnId = txnIdOrVoid;
+    }
     if (!txnId) {
       txnId = this.makeTxnId();
     }
@@ -3220,10 +3243,11 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     if (thread) {
       localEvent.setThread(thread);
     }
-
-    // set up re-emitter for this new event - this is normally the job of EventMapper but we don't use it here
-    this.reEmitter.reEmit(localEvent, [_event.MatrixEventEvent.Replaced, _event.MatrixEventEvent.VisibilityChange]);
-    room?.reEmitter.reEmit(localEvent, [_event.MatrixEventEvent.BeforeRedaction]);
+    if (!delayOpts) {
+      // set up re-emitter for this new event - this is normally the job of EventMapper but we don't use it here
+      this.reEmitter.reEmit(localEvent, [_event.MatrixEventEvent.Replaced, _event.MatrixEventEvent.VisibilityChange]);
+      room?.reEmitter.reEmit(localEvent, [_event.MatrixEventEvent.BeforeRedaction]);
+    }
 
     // if this is a relation or redaction of an event
     // that hasn't been sent yet (e.g. with a local id starting with a ~)
@@ -3237,27 +3261,43 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       });
     }
     const type = localEvent.getType();
-    this.logger.debug(`sendEvent of type ${type} in ${roomId} with txnId ${txnId}`);
+    this.logger.debug(`sendEvent of type ${type} in ${roomId} with txnId ${txnId}${delayOpts ? " (delayed event)" : ""}`);
     localEvent.setTxnId(txnId);
     localEvent.setStatus(_event.EventStatus.SENDING);
 
-    // add this event immediately to the local store as 'sending'.
-    room?.addPendingEvent(localEvent, txnId);
+    // TODO: separate store for delayed events?
+    if (!delayOpts) {
+      // add this event immediately to the local store as 'sending'.
+      room?.addPendingEvent(localEvent, txnId);
 
-    // addPendingEvent can change the state to NOT_SENT if it believes
-    // that there's other events that have failed. We won't bother to
-    // try sending the event if the state has changed as such.
-    if (localEvent.status === _event.EventStatus.NOT_SENT) {
-      return Promise.reject(new Error("Event blocked by other events not yet sent"));
+      // addPendingEvent can change the state to NOT_SENT if it believes
+      // that there's other events that have failed. We won't bother to
+      // try sending the event if the state has changed as such.
+      if (localEvent.status === _event.EventStatus.NOT_SENT) {
+        return Promise.reject(new Error("Event blocked by other events not yet sent"));
+      }
+      return this.encryptAndSendEvent(room, localEvent);
+    } else {
+      return this.encryptAndSendEvent(room, localEvent, delayOpts);
     }
-    return this.encryptAndSendEvent(room, localEvent);
   }
 
   /**
    * encrypts the event if necessary; adds the event to the queue, or sends it; marks the event as sent/unsent
    * @returns returns a promise which resolves with the result of the send request
    */
-  async encryptAndSendEvent(room, event) {
+
+  /**
+   * Simply sends a delayed event without encrypting it.
+   * TODO: Allow encrypted delayed events, and encrypt them properly
+   * @param delayOpts - Properties of the delay for this event.
+   * @returns returns a promise which resolves with the result of the delayed send request
+   */
+
+  async encryptAndSendEvent(room, event, delayOpts) {
+    if (delayOpts) {
+      return this.sendEventHttpRequest(event, delayOpts);
+    }
     try {
       let cancelled;
       this.eventsBeingEncrypted.add(event.getId());
@@ -3392,7 +3432,7 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
       event.setStatus(newStatus);
     }
   }
-  sendEventHttpRequest(event) {
+  sendEventHttpRequest(event, delayOpts) {
     let txnId = event.getTxnId();
     if (!txnId) {
       txnId = this.makeTxnId();
@@ -3419,10 +3459,15 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     } else {
       path = utils.encodeUri("/rooms/$roomId/send/$eventType/$txnId", pathParams);
     }
-    return this.http.authedRequest(_httpApi.Method.Put, path, undefined, event.getWireContent()).then(res => {
-      this.logger.debug(`Event sent to ${event.getRoomId()} with event id ${res.event_id}`);
-      return res;
-    });
+    const content = event.getWireContent();
+    if (!delayOpts) {
+      return this.http.authedRequest(_httpApi.Method.Put, path, undefined, content).then(res => {
+        this.logger.debug(`Event sent to ${event.getRoomId()} with event id ${res.event_id}`);
+        return res;
+      });
+    } else {
+      return this.http.authedRequest(_httpApi.Method.Put, path, getUnstableDelayQueryOpts(delayOpts), content);
+    }
   }
 
   /**
@@ -3608,6 +3653,88 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     }
     const content = ContentHelpers.makeHtmlEmote(body, htmlBody);
     return this.sendMessage(roomId, threadId, content);
+  }
+
+  /**
+   * Send a delayed timeline event.
+   *
+   * Note: This endpoint is unstable, and can throw an `Error`.
+   *   Check progress on [MSC4140](https://github.com/matrix-org/matrix-spec-proposals/pull/4140) for more details.
+   */
+  // eslint-disable-next-line
+  async _unstable_sendDelayedEvent(roomId, delayOpts, threadId, eventType, content, txnId) {
+    if (!(await this.doesServerSupportUnstableFeature(UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    this.addThreadRelationIfNeeded(content, threadId, roomId);
+    return this.sendCompleteEvent(roomId, threadId, {
+      type: eventType,
+      content
+    }, delayOpts, txnId);
+  }
+
+  /**
+   * Send a delayed state event.
+   *
+   * Note: This endpoint is unstable, and can throw an `Error`.
+   *   Check progress on [MSC4140](https://github.com/matrix-org/matrix-spec-proposals/pull/4140) for more details.
+   */
+  // eslint-disable-next-line
+  async _unstable_sendDelayedStateEvent(roomId, delayOpts, eventType, content, stateKey = "", opts = {}) {
+    if (!(await this.doesServerSupportUnstableFeature(UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    const pathParams = {
+      $roomId: roomId,
+      $eventType: eventType,
+      $stateKey: stateKey
+    };
+    let path = utils.encodeUri("/rooms/$roomId/state/$eventType", pathParams);
+    if (stateKey !== undefined) {
+      path = utils.encodeUri(path + "/$stateKey", pathParams);
+    }
+    return this.http.authedRequest(_httpApi.Method.Put, path, getUnstableDelayQueryOpts(delayOpts), content, opts);
+  }
+
+  /**
+   * Get all pending delayed events for the calling user.
+   *
+   * Note: This endpoint is unstable, and can throw an `Error`.
+   *   Check progress on [MSC4140](https://github.com/matrix-org/matrix-spec-proposals/pull/4140) for more details.
+   */
+  // eslint-disable-next-line
+  async _unstable_getDelayedEvents(fromToken) {
+    if (!(await this.doesServerSupportUnstableFeature(UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    const queryDict = fromToken ? {
+      from: fromToken
+    } : undefined;
+    return await this.http.authedRequest(_httpApi.Method.Get, "/delayed_events", queryDict, undefined, {
+      prefix: `${_httpApi.ClientPrefix.Unstable}/${UNSTABLE_MSC4140_DELAYED_EVENTS}`
+    });
+  }
+
+  /**
+   * Manage a delayed event associated with the given delay_id.
+   *
+   * Note: This endpoint is unstable, and can throw an `Error`.
+   *   Check progress on [MSC4140](https://github.com/matrix-org/matrix-spec-proposals/pull/4140) for more details.
+   */
+  // eslint-disable-next-line
+  async _unstable_updateDelayedEvent(delayId, action) {
+    if (!(await this.doesServerSupportUnstableFeature(UNSTABLE_MSC4140_DELAYED_EVENTS))) {
+      throw Error("Server does not support the delayed events API");
+    }
+    const path = utils.encodeUri("/delayed_events/$delayId", {
+      $delayId: delayId
+    });
+    const data = {
+      action
+    };
+    return await this.http.authedRequest(_httpApi.Method.Post, path, undefined, data, {
+      prefix: `${_httpApi.ClientPrefix.Unstable}/${UNSTABLE_MSC4140_DELAYED_EVENTS}`
+    });
   }
 
   /**
@@ -4807,13 +4934,14 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
    * Peek into a room and receive updates about the room. This only works if the
    * history visibility for the room is world_readable.
    * @param roomId - The room to attempt to peek into.
+   * @param limit - The number of timeline events to initially retrieve.
    * @returns Promise which resolves: Room object
    * @returns Rejects: with an error response.
    */
-  peekInRoom(roomId) {
+  peekInRoom(roomId, limit = 20) {
     this.peekSync?.stopPeeking();
     this.peekSync = new _sync.SyncApi(this, this.clientOpts, this.buildSyncApiOptions());
-    return this.peekSync.peek(roomId);
+    return this.peekSync.peek(roomId, limit);
   }
 
   /**
@@ -7199,17 +7327,17 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
 
     // When picking an algorithm, we pick the hashed over no hashes
     if (hashes["algorithms"].includes("sha256")) {
-      // Abuse the olm hashing
-      const olmutil = new global.Olm.Utility();
-      params["addresses"] = addressPairs.map(p => {
+      params["addresses"] = await Promise.all(addressPairs.map(async p => {
         const addr = p[0].toLowerCase(); // lowercase to get consistent hashes
         const med = p[1].toLowerCase();
-        const hashed = olmutil.sha256(`${addr} ${med} ${params["pepper"]}`).replace(/\+/g, "-").replace(/\//g, "_"); // URL-safe base64
+        const hashBuffer = await (0, _digest.sha256)(`${addr} ${med} ${params["pepper"]}`);
+        const hashed = (0, _base.encodeUnpaddedBase64Url)(hashBuffer);
+
         // Map the hash to a known (case-sensitive) address. We use the case
         // sensitive version because the caller might be expecting that.
         localMapping[hashed] = p[0];
         return hashed;
-      });
+      }));
       params["algorithm"] = "sha256";
     } else if (hashes["algorithms"].includes("none")) {
       params["addresses"] = addressPairs.map(p => {
@@ -7711,14 +7839,17 @@ class MatrixClient extends _typedEventEmitter.TypedEventEmitter {
     });
   }
 }
+exports.MatrixClient = MatrixClient;
+_defineProperty(MatrixClient, "RESTORE_BACKUP_ERROR_BAD_KEY", "RESTORE_BACKUP_ERROR_BAD_KEY");
+function getUnstableDelayQueryOpts(delayOpts) {
+  return Object.fromEntries(Object.entries(delayOpts).map(([k, v]) => [`${UNSTABLE_MSC4140_DELAYED_EVENTS}.${k}`, v]));
+}
 
 /**
  * recalculates an accurate notifications count on event decryption.
  * Servers do not have enough knowledge about encrypted events to calculate an
  * accurate notification_count
  */
-exports.MatrixClient = MatrixClient;
-_defineProperty(MatrixClient, "RESTORE_BACKUP_ERROR_BAD_KEY", "RESTORE_BACKUP_ERROR_BAD_KEY");
 function fixNotificationCountOnDecryption(cli, event) {
   const ourUserId = cli.getUserId();
   const eventId = event.getId();

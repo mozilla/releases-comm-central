@@ -5,11 +5,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.generateScope = exports.generateOidcAuthorizationUrl = exports.generateAuthorizationUrl = exports.generateAuthorizationParams = exports.completeAuthorizationCodeGrant = void 0;
 var _oidcClientTs = require("oidc-client-ts");
-var _crypto = require("../crypto/crypto");
 var _logger = require("../logger");
 var _randomstring = require("../randomstring");
 var _error = require("./error");
 var _validate = require("./validate");
+var _digest = require("../digest");
+var _base = require("../base64");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -50,14 +51,13 @@ const generateScope = deviceId => {
 // https://www.rfc-editor.org/rfc/rfc7636
 exports.generateScope = generateScope;
 const generateCodeChallenge = async codeVerifier => {
-  if (!_crypto.subtleCrypto) {
+  if (!globalThis.crypto.subtle) {
     // @TODO(kerrya) should this be allowed? configurable?
     _logger.logger.warn("A secure context is required to generate code challenge. Using plain text code challenge");
     return codeVerifier;
   }
-  const utf8 = new _crypto.TextEncoder().encode(codeVerifier);
-  const digest = await _crypto.subtleCrypto.digest("SHA-256", utf8);
-  return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const hashBuffer = await (0, _digest.sha256)(codeVerifier);
+  return (0, _base.encodeUnpaddedBase64Url)(hashBuffer);
 };
 
 /**
