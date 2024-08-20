@@ -3407,7 +3407,14 @@ var folderPane = {
         const isIMAP = folder.server.type == "imap";
         let transferInfo = null;
         if (isIMAP) {
-          transferInfo = folder.dBTransferInfo;
+          transferInfo = folder.dBTransferInfo.QueryInterface(
+            Ci.nsIWritablePropertyBag2
+          );
+          transferInfo.setPropertyAsACString("numMsgs", "0");
+          transferInfo.setPropertyAsACString("numNewMsgs", "0");
+          // Reset UID validity so that nsImapMailFolder::UpdateImapMailboxInfo
+          // will recognize that a folder repair is in progress.
+          transferInfo.setPropertyAsACString("UIDValidity", "-1"); // == kUidUnknown
         }
         folder.closeAndBackupFolderDB("");
         if (isIMAP && transferInfo) {
