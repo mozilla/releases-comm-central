@@ -66,7 +66,7 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
   nsString chromeOptions(u"chrome,dependent,centerscreen"_ns);
   if (inDisplayModal) chromeOptions.AppendLiteral(",modal");
 
-  return parent->OpenDialog(NS_ConvertASCIItoUTF16(dialogURL), u"_blank"_ns,
+  return parent->OpenDialog(nsDependentCString(dialogURL), u"_blank"_ns,
                             chromeOptions, array, getter_AddRefs(newWindow));
 }
 
