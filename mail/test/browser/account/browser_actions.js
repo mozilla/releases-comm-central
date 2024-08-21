@@ -73,7 +73,7 @@ registerCleanupFunction(function () {
  * @param {object} tab - The account manager tab.
  * @param {number} accountKey - The key of the account to select.
  * @param {boolean} isSetAsDefaultEnabled - True if the menuitem should be enabled, false otherwise.
- * @param {boolean} isRemoveEnabled - True if the menuitem should be enabled, false otherwise.
+ *                                           "none" if the button doesn't exist.
  * @param {boolean} isAddAccountEnabled - True if the menuitems (Add Mail Account+Add Other Account)
  *                                         should be enabled, false otherwise.
  */
@@ -81,20 +81,19 @@ async function subtest_check_account_actions(
   tab,
   accountKey,
   isSetAsDefaultEnabled,
-  isRemoveEnabled,
   isAddAccountEnabled
 ) {
   const accountRow = get_account_tree_row(accountKey, null, tab);
   await click_account_tree_row(tab, accountRow);
 
-  // click the Actions Button to bring up the popup with menuitems to test
-  const button = content_tab_e(tab, "accountActionsButton");
+  // click the New Account Button to bring up the popup with menuitems to test
+  const button = content_tab_e(tab, "accountTreeCreateAccount");
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
     button.ownerGlobal
   );
-  await wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
+  await wait_for_popup_to_open(content_tab_e(tab, "accountAddPopup"));
 
   const actionAddMailAccount = content_tab_e(
     tab,
@@ -115,42 +114,36 @@ async function subtest_check_account_actions(
     !actionAddOtherAccount.getAttribute("disabled"),
     isAddAccountEnabled
   );
+  await close_popup(window, content_tab_e(tab, "accountAddPopup"));
+
+  if (isSetAsDefaultEnabled == "none") {
+    // The button doesn't exist.
+    return;
+  }
 
   const actionSetDefault = content_tab_e(
     tab,
-    "accountActionsDropdownSetDefault"
-  );
+    "contentFrame"
+  ).contentDocument.getElementById("defaultAccount");
   Assert.notEqual(actionSetDefault, undefined);
   Assert.equal(
     !actionSetDefault.getAttribute("disabled"),
     isSetAsDefaultEnabled
   );
-
-  const actionRemove = content_tab_e(tab, "accountActionsDropdownRemove");
-  Assert.notEqual(actionRemove, undefined);
-  Assert.equal(!actionRemove.getAttribute("disabled"), isRemoveEnabled);
-
-  await close_popup(window, content_tab_e(tab, "accountActionsDropdown"));
 }
 
 add_task(async function test_account_actions() {
-  // IMAP account: can be default, can be removed.
+  // IMAP account: can be default.
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(tab, imapAccount.key, true, true, true);
+    await subtest_check_account_actions(tab, imapAccount.key, true, true);
   });
 
-  // NNTP (News) account: can't be default, can be removed.
+  // NNTP (News) account: can't be default.
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(
-      tab,
-      nntpAccount.key,
-      false,
-      true,
-      true
-    );
+    await subtest_check_account_actions(tab, nntpAccount.key, false, true);
   });
 
-  // Local Folders account: can't be removed, can't be default.
+  // Local Folders account: can't be default.
   var localFoldersAccount = MailServices.accounts.findAccountForServer(
     MailServices.accounts.localFoldersServer
   );
@@ -158,14 +151,13 @@ add_task(async function test_account_actions() {
     await subtest_check_account_actions(
       tab,
       localFoldersAccount.key,
-      false,
-      false,
+      "none",
       true
     );
   });
-  // SMTP server row: can't be removed, can't be default.
+  // SMTP server row: can't be default.
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(tab, "smtp", false, false, true);
+    await subtest_check_account_actions(tab, "smtp", "none", true);
   });
 
   // on the IMAP account, disable Delete Account menu item
@@ -176,13 +168,7 @@ add_task(async function test_account_actions() {
   Services.prefs.lockPref(disableItemPref);
 
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(
-      tab,
-      imapAccount.key,
-      true,
-      false,
-      true
-    );
+    await subtest_check_account_actions(tab, imapAccount.key, true, true);
   });
 
   Services.prefs.unlockPref(disableItemPref);
@@ -195,13 +181,7 @@ add_task(async function test_account_actions() {
   Services.prefs.lockPref(disableItemPref);
 
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(
-      tab,
-      imapAccount.key,
-      false,
-      true,
-      true
-    );
+    await subtest_check_account_actions(tab, imapAccount.key, false, true);
   });
 
   Services.prefs.unlockPref(disableItemPref);
@@ -214,13 +194,7 @@ add_task(async function test_account_actions() {
   Services.prefs.lockPref(disableItemPref);
 
   await open_advanced_settings(async function (tab) {
-    await subtest_check_account_actions(
-      tab,
-      imapAccount.key,
-      true,
-      true,
-      false
-    );
+    await subtest_check_account_actions(tab, imapAccount.key, true, false);
   });
 
   Services.prefs.unlockPref(disableItemPref);

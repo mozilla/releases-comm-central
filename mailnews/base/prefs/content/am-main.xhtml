@@ -43,6 +43,17 @@
 
       <hbox id="am-main-title" class="dialogheader">
         <label class="dialogheader-title" defaultTitle="&accountTitle.label;" />
+        <spacer flex="1" />
+        <button
+          id="defaultAccount"
+          data-l10n-id="default-account-button"
+          oncommand="top.onSetDefault(event);"
+        />
+        <button
+          id="deleteAccount"
+          data-l10n-id="delete-account-button"
+          oncommand="top.onRemoveAccount(event);"
+        />
       </hbox>
 
       <separator class="thin" />

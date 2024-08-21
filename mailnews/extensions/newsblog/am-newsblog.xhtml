@@ -60,6 +60,12 @@
     <vbox id="containerBox" flex="1">
       <hbox id="am-newsblog-title" class="dialogheader">
         <label class="dialogheader-title" defaultTitle="&accountTitle.label;" />
+        <spacer flex="1" />
+        <button
+          id="deleteAccount"
+          data-l10n-id="delete-account-button"
+          oncommand="top.onRemoveAccount(event);"
+        />
       </hbox>
 
       <description class="secDesc">&accountSettingsDesc.label;</description>

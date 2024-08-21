@@ -52,7 +52,7 @@ ChromeUtils.defineESModuleGetters(this, {
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.importESModule(
   "resource:///modules/hostnameUtils.sys.mjs"
 );
-var { ChatIcons } = ChromeUtils.importESModule(
+const { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
@@ -182,6 +182,19 @@ function onLoad() {
 
   const contentFrame = document.getElementById("contentFrame");
   contentFrame.addEventListener("load", () => {
+    document
+      .getElementById("accountTreeCreateAccount")
+      .addEventListener("click", event => {
+        document.getElementById("accountAddPopup").openPopup(event.target, {
+          position: "after_start",
+          triggerEvent: event,
+        });
+      });
+    document
+      .getElementById("accounttree")
+      .addEventListener("contextmenu", event => {
+        event.preventDefault();
+      });
     const inputElements = contentFrame.contentDocument.querySelectorAll(
       "checkbox, input, menulist, textarea, radiogroup, richlistbox"
     );
@@ -880,7 +893,7 @@ function onSetDefault(event) {
 }
 
 function onRemoveAccount(event) {
-  if (event.target.getAttribute("disabled") == "true" || !currentAccount) {
+  if (event.target.getAttribute("disabled") == "true") {
     return;
   }
 
@@ -1084,64 +1097,6 @@ function saveAccount(accountValues, account) {
   }
 
   return true;
-}
-
-/**
- * Set enabled/disabled state for the actions in the Account Actions menu.
- * Called only by Thunderbird.
- */
-function initAccountActionsButtons(menupopup) {
-  if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
-    document.getElementById("accountActionsAddIMAccount").hidden = true;
-  }
-
-  updateItems(
-    document.getElementById("accounttree"),
-    getCurrentAccount(),
-    document.getElementById("accountActionsAddMailAccount"),
-    document.getElementById("accountActionsDropdownSetDefault"),
-    document.getElementById("accountActionsDropdownRemove")
-  );
-
-  updateBlockedItems(menupopup.children, true);
-}
-
-/**
- * Determine enabled/disabled state for the passed in elements
- * representing account actions.
- */
-function updateItems(
-  tree,
-  account,
-  addAccountItem,
-  setDefaultItem,
-  removeItem
-) {
-  // Start with items disabled and then find out what can be enabled.
-  let canSetDefault = false;
-  let canDelete = false;
-
-  if (account && tree.selectedIndex >= 0) {
-    // Only try to check properties if there was anything selected in the tree
-    // and it belongs to an account.
-    // Otherwise we have either selected a SMTP server, or there is some
-    // problem. Either way, we don't want the user to act on it.
-    const server = account.incomingServer;
-
-    if (
-      account != MailServices.accounts.defaultAccount &&
-      server.canBeDefaultServer &&
-      account.identities.length > 0
-    ) {
-      canSetDefault = true;
-    }
-
-    canDelete = server.protocolInfo.canDelete;
-  }
-
-  setEnabled(addAccountItem, true);
-  setEnabled(setDefaultItem, canSetDefault);
-  setEnabled(removeItem, canDelete);
 }
 
 /**

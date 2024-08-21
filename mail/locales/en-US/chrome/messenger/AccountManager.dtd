@@ -6,18 +6,3 @@
 
 <!ENTITY accountManagerTitle.label "Account Settings">
 <!ENTITY  accountManagerCloseButton.label "Close">
-
-<!ENTITY accountActionsButton.label "Account Actions">
-<!ENTITY accountActionsButton.accesskey "A">
-<!ENTITY addMailAccountButton.label "Add Mail Account…">
-<!ENTITY addMailAccountButton.accesskey "A">
-<!ENTITY addIMAccountButton.label "Add Chat Account…">
-<!ENTITY addIMAccountButton.accesskey "C">
-<!ENTITY addFeedAccountButton.label "Add Feed Account…">
-<!ENTITY addFeedAccountButton.accesskey "F">
-<!ENTITY setDefaultButton.label "Set as Default">
-<!ENTITY setDefaultButton.accesskey "D">
-<!ENTITY removeButton.label "Remove Account">
-<!ENTITY removeButton.accesskey "R">
-
-<!ENTITY addonsButton.label "Extensions &amp; Themes">

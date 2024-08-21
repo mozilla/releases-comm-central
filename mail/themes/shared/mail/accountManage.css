@@ -112,6 +112,21 @@ fieldset {
   flex-grow: 0;
 }
 
+#deleteAccount {
+  --in-content-button-background: light-dark(var(--color-red-60), var(--color-red-50));
+  --in-content-button-background-hover: light-dark(var(--color-red-70), var(--color-red-40));
+  --in-content-button-background-active: light-dark(var(--color-red-80), var(--color-red-30));
+  color: var(--color-white);
+  list-style-image: var(--icon-trash);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+
+  & > .button-box > .button-icon {
+    margin-inline-end: 6px;
+  }
+}
+
 #resetColor {
   background-image: var(--icon-restore);
 }

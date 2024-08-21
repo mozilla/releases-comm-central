@@ -14,11 +14,18 @@
   --default-account-icon-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
   --default-account-icon-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
   --sidebar-background: var(--in-content-categories-background);
+  --account-tree-icon-new: var(--icon-add);
+  --account-tree-icon-size: 16px;
 
   @media (prefers-contrast) {
     --in-content-accent-color: var(--selected-item-color);
     --default-account-icon-fill: currentColor;
     --default-account-icon-stroke: currentColor;
+  }
+
+  &[uidensity="touch"] {
+    --account-tree-icon-new: var(--icon-add-md);
+    --account-tree-icon-size: 20px;
   }
 }
 
@@ -39,9 +46,25 @@ body {
   min-width: 18em;
   height: 100vh;
   box-sizing: border-box;
-  padding-top: 40px;
   background-color: var(--sidebar-background);
   border-inline-end: 1px solid var(--in-content-categories-border);
+}
+
+#accountTreeHeaderBar {
+  justify-content: center;
+  font-size: 1rem;
+}
+
+#accountTreeCreateAccount {
+  background-image: var(--account-tree-icon-new);
+  min-height: 24px;
+  --icon-size: var(--account-tree-icon-size);
+}
+
+@media not (-moz-bool-pref: "mail.chat.enabled") {
+  #accountActionsAddChatAccount {
+    display: none;
+  }
 }
 
 /* Account list */

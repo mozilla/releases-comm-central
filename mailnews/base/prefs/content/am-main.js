@@ -27,6 +27,28 @@ function onInit() {
     onDefaultIdentityChange,
     "account-default-identity-changed"
   );
+
+  const defaultAccount = document.getElementById("defaultAccount");
+  if (
+    gAccount != MailServices.accounts.defaultAccount &&
+    gAccount.incomingServer.canBeDefaultServer &&
+    gAccount.identities.length > 0 &&
+    !(
+      Services.prefs.prefIsLocked("mail.disable_button.set_default_account") &&
+      Services.prefs.getBoolPref("mail.disable_button.set_default_account")
+    )
+  ) {
+    defaultAccount.removeAttribute("disabled");
+  } else {
+    defaultAccount.setAttribute("disabled", true);
+  }
+
+  const deleteAccount = document.getElementById("deleteAccount");
+  if (gAccount.incomingServer.protocolInfo.canDelete) {
+    deleteAccount.removeAttribute("disabled");
+  } else {
+    deleteAccount.setAttribute("disabled", true);
+  }
 }
 
 window.addEventListener("unload", () => {

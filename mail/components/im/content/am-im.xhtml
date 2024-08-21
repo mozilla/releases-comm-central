@@ -20,6 +20,7 @@
       href="chrome://messenger/skin/shared/grid-layout.css"
     />
     <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/accountSettings.ftl" />
     <link rel="localization" href="messenger/preferences/am-im.ftl" />
     <link rel="localization" href="messenger/otr/am-im-otr.ftl" />
     <script
@@ -45,6 +46,12 @@
           <label
             class="dialogheader-title"
             defaultTitle="&accountWindow.title;"
+          />
+          <spacer flex="1" />
+          <button
+            id="deleteAccount"
+            data-l10n-id="delete-account-button"
+            oncommand="top.onRemoveAccount(event);"
           />
         </hbox>
 

@@ -6,8 +6,22 @@ open-preferences-sidebar-button2 = { -brand-short-name } Settings
 
 open-addons-sidebar-button = Add-ons and Themes
 
-account-action-add-newsgroup-account =
-    .label = Add Newsgroup Account…
+account-tree-create-account-button = New Account
+
+account-tree-add-mail-account =
+    .label = Mail Account…
+    .accesskey = M
+
+account-tree-add-chat-account =
+    .label = Chat Account…
+    .accesskey = C
+
+account-tree-add-feed-account =
+    .label = Feed Account…
+    .accesskey = F
+
+account-tree-add-newsgroup-account =
+    .label = Newsgroup Account…
     .accesskey = N
 
 server-change-restart-required = Restart is required to apply the server name or username change.

@@ -7,3 +7,9 @@ account-settings-color-label = Color:
 
 account-settings-reset-color-button =
   .title = Reset color
+
+delete-account-button =
+  .label = Delete
+
+default-account-button =
+  .label = Set as Default

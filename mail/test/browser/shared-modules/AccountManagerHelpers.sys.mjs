@@ -137,24 +137,15 @@ export async function remove_account(
   await click_account_tree_row(tab, accountRow);
 
   account = null;
-  // Use the Remove item in the Account actions menu.
-  const actionsButton = content_tab_e(tab, "accountActionsButton");
+  const win =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentWindow;
   EventUtils.synthesizeMouseAtCenter(
-    actionsButton,
-    { clickCount: 1 },
-    actionsButton.ownerGlobal
+    win.document.getElementById("deleteAccount"),
+    {},
+    win
   );
-  const actionsDd = content_tab_e(tab, "accountActionsDropdown");
-  await TestUtils.waitForCondition(
-    () => actionsDd.state == "open" || actionsDd.state == "showing"
-  );
-  const remove = content_tab_e(tab, "accountActionsDropdownRemove");
-  EventUtils.synthesizeMouseAtCenter(
-    remove,
-    { clickCount: 1 },
-    remove.ownerGlobal
-  );
-  await TestUtils.waitForCondition(() => actionsDd.state == "closed");
 
   const cdc = await wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
