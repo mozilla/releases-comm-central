@@ -4882,7 +4882,7 @@ var threadPane = {
     const cardClass = customElements.get("thread-card");
     const currentFontSize = UIFontSize.size;
     const cardRows = 3;
-    const cardRowConstant = Math.round(1.43 * cardRows * currentFontSize); // subject line-height * line-height * cardRows * current font-size
+    const cardRowConstant = Math.round(1.5 * cardRows * currentFontSize); // subject line-height * cardRows * current font-size
     let rowHeight = Math.ceil(currentFontSize * 1.4);
     let lineGap;
     let densityPaddingConstant;
