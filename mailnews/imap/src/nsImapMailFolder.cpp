@@ -78,6 +78,7 @@
 #include "nsReadableUtils.h"
 #include "UrlListener.h"
 #include "nsIObserverService.h"
+#include "nsIPropertyBag2.h"
 
 #define NS_PARSEMAILMSGSTATE_CID                   \
   { /* 2B79AC51-1459-11d3-8097-006008128C4E */     \

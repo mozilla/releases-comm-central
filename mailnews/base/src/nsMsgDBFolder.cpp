@@ -64,7 +64,7 @@
 #include "mozilla/Utf8.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
-#include "nsIPropertyBag2.h"
+#include "nsIWritablePropertyBag2.h"
 
 #define oneHour 3600000000U
 

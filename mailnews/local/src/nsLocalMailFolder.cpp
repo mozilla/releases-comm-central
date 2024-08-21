@@ -50,6 +50,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/UniquePtr.h"
 #include "StoreIndexer.h"
+#include "nsIPropertyBag2.h"
 
 #include <algorithm>
 #include <functional>

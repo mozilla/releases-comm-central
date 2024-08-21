@@ -52,6 +52,7 @@ XPIDL_SOURCES += [
     "nsIMsgStatusFeedback.idl",
     "nsIMsgTagService.idl",
     "nsIMsgThread.idl",
+    "nsIMsgTxn.idl",
     "nsIMsgUserFeedbackListener.idl",
     "nsIMsgWindow.idl",
     "nsISpamSettings.idl",

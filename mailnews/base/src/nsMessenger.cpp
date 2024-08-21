@@ -1169,17 +1169,17 @@ nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
 
 NS_IMETHODIMP nsMessenger::GetUndoTransactionType(uint32_t* txnType) {
   NS_ENSURE_TRUE(txnType && mTxnMgr, NS_ERROR_NULL_POINTER);
-
-  nsresult rv;
   *txnType = nsMessenger::eUnknown;
   nsCOMPtr<nsITransaction> txn;
-  rv = mTxnMgr->PeekUndoStack(getter_AddRefs(txn));
-  if (NS_SUCCEEDED(rv) && txn) {
-    nsCOMPtr<nsIPropertyBag2> propertyBag = do_QueryInterface(txn, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return propertyBag->GetPropertyAsUint32(u"type"_ns, txnType);
+  nsresult rv = mTxnMgr->PeekUndoStack(getter_AddRefs(txn));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!txn) {
+    return NS_OK;  // Nothing to undo.
   }
-  return rv;
+  // Manager holds nsITransactions, but txnType is added by nsIMsgTxn.
+  nsCOMPtr<nsIMsgTxn> msgTxn = do_QueryInterface(txn, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return msgTxn->GetTxnType(txnType);
 }
 
 NS_IMETHODIMP nsMessenger::CanUndo(bool* bValue) {
@@ -1196,16 +1196,17 @@ NS_IMETHODIMP nsMessenger::CanUndo(bool* bValue) {
 NS_IMETHODIMP nsMessenger::GetRedoTransactionType(uint32_t* txnType) {
   NS_ENSURE_TRUE(txnType && mTxnMgr, NS_ERROR_NULL_POINTER);
 
-  nsresult rv;
   *txnType = nsMessenger::eUnknown;
   nsCOMPtr<nsITransaction> txn;
-  rv = mTxnMgr->PeekRedoStack(getter_AddRefs(txn));
-  if (NS_SUCCEEDED(rv) && txn) {
-    nsCOMPtr<nsIPropertyBag2> propertyBag = do_QueryInterface(txn, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    return propertyBag->GetPropertyAsUint32(u"type"_ns, txnType);
+  nsresult rv = mTxnMgr->PeekRedoStack(getter_AddRefs(txn));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!txn) {
+    return NS_OK;  // Nothing to redo.
   }
-  return rv;
+  // Manager holds nsITransactions, but txnType is added by nsIMsgTxn.
+  nsCOMPtr<nsIMsgTxn> msgTxn = do_QueryInterface(txn, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return msgTxn->GetTxnType(txnType);
 }
 
 NS_IMETHODIMP nsMessenger::CanRedo(bool* bValue) {

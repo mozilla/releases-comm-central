@@ -66,7 +66,7 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
       m_srcMessageIds.AppendElement(messageId);
     }
   }
-  return nsMsgTxn::Init();
+  return NS_OK;
 }
 
 nsImapMoveCopyMsgTxn::~nsImapMoveCopyMsgTxn() {}

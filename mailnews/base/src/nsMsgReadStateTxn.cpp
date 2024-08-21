@@ -18,7 +18,7 @@ nsresult nsMsgReadStateTxn::Init(nsIMsgFolder* aParentFolder, uint32_t aNumKeys,
   mParentFolder = aParentFolder;
   mMarkedMessages.AppendElements(aMsgKeyArray, aNumKeys);
 
-  return nsMsgTxn::Init();
+  return NS_OK;
 }
 
 NS_IMETHODIMP

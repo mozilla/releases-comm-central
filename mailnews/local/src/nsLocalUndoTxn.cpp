@@ -40,7 +40,7 @@ nsresult nsLocalMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
   rv = srcFolder->GetURI(protocolType);
   protocolType.SetLength(protocolType.FindChar(':'));
   if (protocolType.LowerCaseEqualsLiteral("imap")) m_srcIsImap4 = true;
-  return nsMsgTxn::Init();
+  return NS_OK;
 }
 nsresult nsLocalMoveCopyMsgTxn::GetSrcIsImap(bool* isImap) {
   *isImap = m_srcIsImap4;
