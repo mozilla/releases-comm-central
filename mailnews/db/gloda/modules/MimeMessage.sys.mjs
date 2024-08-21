@@ -138,7 +138,14 @@ CallbackStreamListener.prototype = {
   },
 };
 
+/**
+ * @param {?MimeContainer} aPart - MIME part to handle.
+ * @returns {?MimeContainer} the MIME part, with encrypted parts removed.
+ */
 function stripEncryptedParts(aPart) {
+  if (!aPart) {
+    return null;
+  }
   if (aPart.parts && aPart.isEncrypted) {
     aPart.parts = []; // Show an empty container.
   } else if (aPart.parts) {
