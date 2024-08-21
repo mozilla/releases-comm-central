@@ -9629,6 +9629,7 @@ function LoadIdentity(startup) {
       dump("### Cannot change the identity: " + ex + "\n");
     }
 
+    gContentChanged = true;
     window.dispatchEvent(new CustomEvent("compose-from-changed"));
 
     gComposeNotificationBar.clearIdentityWarning();
@@ -9751,6 +9752,15 @@ function subjectKeyPress(event) {
   if (event.key == "Enter" && !event.ctrlKey && !event.metaKey) {
     focusMsgBody();
   }
+}
+
+/**
+ * Handle the input event of the editable from field..
+ *
+ * @param {Event} event - A DOM input event on #msgIdentity.
+ */
+function msgIdentityOnInput() {
+  gContentChanged = true;
 }
 
 /**

@@ -2085,7 +2085,9 @@
         <menulist is="menulist-editable" id="msgIdentity"
                   type="description"
                   disableautoselect="true" onkeypress="fromKeyPress(event);"
-                  oncommand="LoadIdentity(false);" disableonsend="true">
+                  oncommand="LoadIdentity(false);"
+                  oninput="msgIdentityOnInput(event);"
+                  disableonsend="true">
           <menupopup id="msgIdentityPopup"/>
         </menulist>
 
