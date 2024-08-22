@@ -104,6 +104,8 @@ class ATNUploader:
                 rv = retry(self.upload_langpack, args=(locale,), attempts=3, sleeptime=10)
                 if "error" not in rv:
                     success.append((locale, rv))
+                elif rv["error"].find("Version already exists. Latest version is:") == 0:
+                    success.append((locale, rv))
                 else:
                     failed.append((locale, rv))
             except requests.HTTPError as e:
