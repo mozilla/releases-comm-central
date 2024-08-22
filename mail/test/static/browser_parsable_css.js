@@ -42,12 +42,6 @@ const ignoreList = [
     errorMessage: /Unknown pseudo-class.*-moz-/i,
     isFromDevTools: false,
   },
-  // Reserved to UA sheets unless layout.css.overflow-clip-box.enabled flipped to true.
-  {
-    sourceName: /(?:res|gre-resources)\/forms\.css$/i,
-    errorMessage: /Unknown property.*overflow-clip-box/i,
-    isFromDevTools: false,
-  },
   {
     sourceName: /\b(html)\.css$/i,
     errorMessage: /Error in parsing value for ‘content’/i,

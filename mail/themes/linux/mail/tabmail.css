@@ -48,8 +48,8 @@ tabpanels {
     border-style: none !important;
   }
 
-  &:not([scrolledtostart=true])::part(scrollbutton-up):hover,
-  &:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+  &:not([scrolledtostart])::part(scrollbutton-up):hover,
+  &:not([scrolledtoend])::part(scrollbutton-down):hover {
     background: var(--toolbarbutton-active-background);
   }
 

@@ -63,32 +63,32 @@ tabmail > tabbox > tabpanels {
     margin: 0 0 var(--tabs-tabbar-border-size) !important;
   }
 
-  &:not([scrolledtostart=true])::part(scrollbutton-up):hover,
-  &:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+  &:not([scrolledtostart])::part(scrollbutton-up):hover,
+  &:not([scrolledtoend])::part(scrollbutton-down):hover {
     background-image: linear-gradient(transparent, rgba(0,0,0,0.15));
   }
 
-  &:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
-  &:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
+  &:not([scrolledtostart])::part(scrollbutton-up):hover:active,
+  &:not([scrolledtoend])::part(scrollbutton-down):hover:active {
     background-image: linear-gradient(transparent, rgba(0,0,0,0.3));
   }
 
   #tabs-toolbar[brighttext]
-    &:not([scrolledtostart=true])::part(scrollbutton-up):hover,
+    &:not([scrolledtostart])::part(scrollbutton-up):hover,
   #tabs-toolbar[brighttext]
-    &:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+    &:not([scrolledtoend])::part(scrollbutton-down):hover {
     background-image: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25));
   }
 
   #tabs-toolbar[brighttext]
-    &:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
+    &:not([scrolledtostart])::part(scrollbutton-up):hover:active,
   #tabs-toolbar[brighttext]
-    &:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
+    &:not([scrolledtoend])::part(scrollbutton-down):hover:active {
     background-image: linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35));
   }
 
-  &[scrolledtostart=true]::part(scrollbutton-up),
-  &[scrolledtoend=true]::part(scrollbutton-down) {
+  &[scrolledtostart]::part(scrollbutton-up),
+  &[scrolledtoend]::part(scrollbutton-down) {
     --toolbarbutton-icon-fill-opacity: .5;
     background-image: none;
   }

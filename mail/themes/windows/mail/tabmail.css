@@ -55,8 +55,8 @@ tabpanels {
     margin-inline-end: 1px !important;
   }
 
-  &[scrolledtostart=true]::part(scrollbutton-up),
-  &[scrolledtoend=true]::part(scrollbutton-down) {
+  &[scrolledtostart]::part(scrollbutton-up),
+  &[scrolledtoend]::part(scrollbutton-down) {
     --toolbarbutton-icon-fill-opacity: .4;
   }
 
@@ -65,8 +65,8 @@ tabpanels {
     margin-inline: 1px 0 !important;
   }
 
-  &:not([scrolledtostart=true])::part(scrollbutton-up):hover,
-  &:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+  &:not([scrolledtostart])::part(scrollbutton-up):hover,
+  &:not([scrolledtoend])::part(scrollbutton-down):hover {
     background: var(--toolbarbutton-active-background);
   }
 }

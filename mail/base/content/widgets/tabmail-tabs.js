@@ -424,8 +424,8 @@
       // they would also get called for the all-tabs popup scrollbox.
       // Also, we can't rely on event.target because these are all
       // anonymous nodes.
-      this.arrowScrollbox.shadowRoot.addEventListener("overflow", this);
-      this.arrowScrollbox.shadowRoot.addEventListener("underflow", this);
+      this.arrowScrollbox.addEventListener("overflow", this);
+      this.arrowScrollbox.addEventListener("underflow", this);
 
       this.addEventListener("select", event => {
         this._handleTabSelect();
@@ -554,12 +554,7 @@
         case "overflow":
           this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
 
-          // filter overflow events which were dispatched on nested scrollboxes
-          // and ignore vertical events.
-          if (
-            aEvent.target != this.arrowScrollbox.scrollbox ||
-            aEvent.detail == 0
-          ) {
+          if (aEvent.target != this.arrowScrollbox) {
             return;
           }
 
@@ -567,12 +562,7 @@
           alltabsButton.removeAttribute("hidden");
           break;
         case "underflow":
-          // filter underflow events which were dispatched on nested scrollboxes
-          // and ignore vertical events.
-          if (
-            aEvent.target != this.arrowScrollbox.scrollbox ||
-            aEvent.detail == 0
-          ) {
+          if (aEvent.target != this.arrowScrollbox) {
             return;
           }
 

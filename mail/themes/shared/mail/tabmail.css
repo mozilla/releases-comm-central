@@ -273,7 +273,7 @@ button.tab-close-button {
 #tabmail-arrowscrollbox {
   min-height: var(--tab-min-height);
 
-  &::part(scrollbox-clip) {
+  &::part(scrollbox) {
     contain: inline-size;
   }
 
