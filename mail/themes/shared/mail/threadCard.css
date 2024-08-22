@@ -110,7 +110,7 @@
       --read-status-fill: var(--color-green-40);
       --read-status-stroke: var(--color-green-60);
 
-      & :is(.sender, .subject) {
+      & .card-container :is(.sender, .subject) {
         font-weight: bold;
       }
 
