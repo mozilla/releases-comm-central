@@ -82,7 +82,7 @@ for f in "${files[@]}"; do
             case $action in
                 *-thunderbird)
                     product=thunderbird
-                    action=${action%-$product}
+                    action=${action%-"$product"}
                     phase=${action}_${product}
                     ;;
                 *)
