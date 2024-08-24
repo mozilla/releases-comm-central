@@ -482,15 +482,13 @@ nsresult nsMsgQuickSearchDBView::SortThreads(
     }
   }
 
+  // Need to sort the top level threads now by sort order, even if it's by id
+  // and ascending (which is the order per above), to ensure certain side
+  // effects of nsMsgDBView::Sort().
   m_sortType = nsMsgViewSortType::byNone;  // sort from scratch
-  // need to sort the top level threads now by sort order, if it's not by id
-  // and ascending (which is the order per above).
-  if (!(sortType == nsMsgViewSortType::byId &&
-        sortOrder == nsMsgViewSortOrder::ascending)) {
-    m_keys.SwapElements(threadRootIds);
-    nsMsgDBView::Sort(sortType, sortOrder);
-    threadRootIds.SwapElements(m_keys);
-  }
+  m_keys.SwapElements(threadRootIds);
+  nsMsgDBView::Sort(sortType, sortOrder);
+  threadRootIds.SwapElements(m_keys);
   m_keys.Clear();
   m_levels.Clear();
   m_flags.Clear();
