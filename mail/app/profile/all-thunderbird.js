@@ -123,8 +123,6 @@ pref("app.update.service.enabled", true);
 pref("app.update.BITS.enabled", false);
 #endif
 
-pref("app.update.langpack.enabled", true);
-
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
 
