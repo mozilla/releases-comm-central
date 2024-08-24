@@ -18,7 +18,6 @@ SOURCES += ["nsSuiteApp.cpp"]
 
 LOCAL_INCLUDES += [
     "!/build",
-    "/ipc/contentproc/",
     "/toolkit/xre",
     "/xpcom/base",
     "/xpcom/build",
