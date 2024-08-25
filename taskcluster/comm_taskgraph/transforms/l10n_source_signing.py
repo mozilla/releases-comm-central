@@ -21,7 +21,6 @@ transforms.add(add_signed_routes)
 def define_upstream_artifacts(config, jobs):
     for job in jobs:
         dep_job = get_primary_dependency(config, job)
-        upstream_artifact_task = job.pop("upstream-artifact-task", dep_job)
 
         job.setdefault("attributes", {}).update(copy_attributes_from_dependent_job(dep_job))
 
@@ -35,9 +34,9 @@ def define_upstream_artifacts(config, jobs):
             }
         ]
 
-        task_ref = f"<{upstream_artifact_task.kind}>"
+        task_ref = f"<{dep_job.kind}>"
         task_type = "build"
-        if "notarization" in upstream_artifact_task.kind:
+        if "notarization" in dep_job.kind:
             task_type = "scriptworker"
 
         job["upstream-artifacts"] = [
