@@ -312,7 +312,6 @@ export var cal = {
    * if (foo) {
    *   foo.barMethod();
    * }
-   *
    */
   wrapInstance(aObj, aInterface) {
     if (!aObj) {

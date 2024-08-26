@@ -56,7 +56,7 @@ export class QuickFilterState {
    * Maps filter names to their current states. We rely on QuickFilterManager
    * to do most of the interesting manipulation of this value.
    *
-   * @type {?Object<string, any>}
+   * @type {?Record<string, any>}
    */
   filterValues = null;
   /**
@@ -396,7 +396,7 @@ export var QuickFilterManager = {
   /**
    * Keys are filter definition names, values are the filter defs.
    *
-   * @type {Object<string, FilterDefinition>}
+   * @type {Record<string, FilterDefinition>}
    */
   filterDefsByName: {},
   /**
@@ -1293,19 +1293,19 @@ export var MessageTextFilter = {
   /**
    * Maps text filter names to whether they are enabled by default.
    *
-   * @type {Object<string, boolean>}
+   * @type {Record<string, boolean>}
    */
   _defaultStates: {},
   /**
    * Maps text filter name to text filter def.
    *
-   * @type {Object<string, object>}
+   * @type {Record<string, object>}
    */
   textFilterDefs: {},
   /**
    * Maps dom id to text filter def.
    *
-   * @type {Object<string, object>}
+   * @type {Record<string, object>}
    */
   textFilterDefsByDomId: {},
   /**

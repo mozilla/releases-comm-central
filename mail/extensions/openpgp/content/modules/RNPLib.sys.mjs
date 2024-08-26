@@ -630,7 +630,6 @@ function enableRNPLibJS() {
      *
      * @param {rnp_key_handle_t} handle - handle of the key to query
      * @returns {boolean} - true if secret key material is available
-     *
      */
     isSecretKeyMaterialAvailable(handle) {
       const protection_type = new ctypes.char.ptr();

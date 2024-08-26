@@ -4343,7 +4343,6 @@ export var RNP = {
    * @param {rnp_key_handle_t} expKey - RNP key handle
    * @param {boolean} keepUserIDs - if true keep users IDs
    * @param {rnp_output_t} out_binary - output stream handle
-   *
    */
   export_pubkey_strip_sigs_uids(expKey, keepUserIDs, out_binary) {
     const expKeyId = this.getKeyIDFromHandle(expKey);

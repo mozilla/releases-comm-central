@@ -249,7 +249,6 @@ export var mailTestUtils = {
    *   If this isfalse, then the underlying system doesn't support marking files as
    *   sparse. If an exception is thrown, then the system does support marking
    *   files as sparse, but an error occurred while doing so.
-   *
    */
   mark_file_region_sparse(aFile, aRegionStart, aRegionBytes) {
     const fileSystem = this.get_file_system(aFile);

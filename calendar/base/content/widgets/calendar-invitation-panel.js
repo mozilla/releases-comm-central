@@ -298,7 +298,7 @@
      * Map-like object where each key is an InvitationPanel mode and the values
      * are descriptors used to generate the notification bar for that mode.
      *
-     * @type {Object<string, InvitationStatusBarDescriptor>}
+     * @type {Record<string, InvitationStatusBarDescriptor>}
      */
     notices = {
       [InvitationPanel.MODE_NEW]: {
@@ -571,7 +571,7 @@
   /**
    * BaseInvitationChangeListItem is the <li> element used for change lists.
    *
-   * @template {T}
+   * @template {T} item
    */
   class BaseInvitationChangeListItem extends HTMLLIElement {
     /**

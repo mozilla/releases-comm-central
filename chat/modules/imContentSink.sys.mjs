@@ -279,7 +279,7 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  * returns a boolean of whether the attribute should be accepted or not.
  *
  * @typedef Ruleset
- * @type {Object<string, (boolean | ValueRule)>}}
+ * @type {Record<string, (boolean | ValueRule)>}}
  */
 
 /**
@@ -290,18 +290,16 @@ export function removeGlobalAllowedStyleRule(aStyle) {
  *
  * @typedef CleanRules
  * @type {object}
- * @property {Ruleset} attrs
- *    An object whose properties are the allowed attributes for any tag.
- * @property {Object<string, (boolean|Ruleset)>} tags
- *    An object whose properties are the allowed tags.
- *
+ * @property {Ruleset} attrs - An object whose properties are the allowed
+ *   attributes for any tag.
+ * @property {Record<string, (boolean|Ruleset)>} tags - An object whose
+ *   properties are the allowed tags.
  *    The value can point to a {@link Ruleset} for that tag which augments the
  *    ones provided by attrs. If either of the {@link Ruleset}s from attrs or
  *    tags allows an attribute, then it is accepted.
- * @property {Object<string, boolean>} styles
- *    An object whose properties are the allowed CSS style rules.
- *
- *    The value of each property is unused.
+ * @property {Record<string, boolean>} styles - An object whose properties are
+ *   the allowed CSS style rules.
+ *   The value of each property is unused.
  *
  *    FIXME: make styles accept functions to filter the CSS values like Ruleset.
  *
