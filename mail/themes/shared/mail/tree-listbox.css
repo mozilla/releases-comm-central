@@ -91,15 +91,15 @@
     /* Unfocused Colors */
     --tree-card-background-current-unfocused: light-dark(
       color-mix(in srgb, var(--layout-background-0) 98%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-90))
+      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-gray-50))
     );
     --tree-card-background-selected-unfocused: light-dark(
       color-mix(in srgb, var(--layout-background-0) 95%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-90))
+      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-gray-50))
     );
     --tree-card-background-selected-current-unfocused: light-dark(
       color-mix(in srgb, var(--layout-background-0) 90%, var(--color-gray-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-90))
+      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-gray-50))
     );
     --tree-card-border-selected-unfocused: light-dark(var(--color-gray-40), var(--color-gray-80));
     --indicator-background-selected-unfocused: light-dark(var(--color-gray-30), var(--color-gray-70));
