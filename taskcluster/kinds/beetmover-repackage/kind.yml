@@ -32,6 +32,7 @@ kind-dependencies:
     - repackage-signing-shippable-l10n-msix
     - mar-signing
     - mar-signing-l10n
+    - upload-symbols
 
 only-for-build-platforms:
     - linux-shippable/opt
