@@ -982,6 +982,11 @@ var folderPane = {
       },
 
       addFolder(parentFolder, childFolder) {
+        // Prevent "Empty Trash on Exit" for POP3 accounts from changing the
+        // collapsed state when the trash folder is replaced by an empty one.
+        if (MailServices.accounts.shutdownInProgress) {
+          return;
+        }
         FolderTreeProperties.setIsExpanded(childFolder.URI, this.name, true);
         if (
           childFolder.server.hidden ||
