@@ -56,11 +56,13 @@ export class MailLinkParent extends JSWindowActorParent {
   _handleMailToLink({ data, target }) {
     let identity = null;
 
-    // If the document with the link is a message, try to get the identity
-    // from the message and use it when composing.
+    // If the document with the link is a message from a local database,
+    // try to get the identity from the message and use it when composing.
     const documentURI = target.windowContext.documentURI;
-    if (documentURI instanceof Ci.nsIMsgMessageUrl) {
-      documentURI.QueryInterface(Ci.nsIMsgMessageUrl);
+    if (
+      documentURI instanceof Ci.nsIMsgMessageUrl &&
+      documentURI.messageHeader
+    ) {
       [identity] = lazy.MailUtils.getIdentityForHeader(
         documentURI.messageHeader
       );

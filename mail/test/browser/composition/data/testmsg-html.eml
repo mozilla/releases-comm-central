@@ -1,0 +1,16 @@
+From: "Mailtomaton" <email@mailtomaton.invalid>
+To: <user@example.com>
+Subject: 'mailto:' link
+Date: Mon, 26 Aug 2024 21:13:10 +0200
+MIME-Version: 1.0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<a href="mailto:email@mailtomaton.invalid" id="mailtolink">Mailto Link</a>
+
+ </body>

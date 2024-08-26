@@ -10,6 +10,7 @@
 
 var {
   close_compose_window,
+  compose_window_ready,
   get_compose_body,
   open_compose_with_forward,
   open_compose_with_reply,
@@ -19,6 +20,7 @@ var {
 );
 var {
   be_in_folder,
+  get_about_message,
   get_special_folder,
   open_message_from_file,
   press_delete,
@@ -29,6 +31,10 @@ var {
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+
+var { promise_new_window } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/WindowHelpers.sys.mjs"
 );
 
 var gDrafts;
@@ -193,5 +199,23 @@ add_task(async function test_forward_eml_catchall() {
   MailServices.accounts.defaultAccount.defaultIdentity.catchAll = false;
 
   await close_compose_window(replyWin); // close compose window
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
+});
+
+/**
+ * Test that clicking on a 'mailto:' link in an .eml opens a compose window.
+ */
+add_task(async function test_mailto_link_in_eml() {
+  // Open an .eml file.
+  const file = new FileUtils.File(getTestFilePath("data/testmsg-html.eml"));
+  const msgc = await open_message_from_file(file);
+  const composePromise = promise_new_window("msgcompose");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#mailtolink",
+    {},
+    get_about_message(msgc).getMessagePaneBrowser()
+  );
+  const cwc = await compose_window_ready(composePromise);
+  await close_compose_window(cwc);
   await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
