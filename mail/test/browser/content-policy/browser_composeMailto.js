@@ -39,6 +39,17 @@ add_task(async function test_openComposeFromMailToLink() {
     {},
     gNewTab.browser
   );
+  const cwc = await compose_window_ready(composePromise);
+  await close_compose_window(cwc);
+});
+
+add_task(async function test_openComposeFromMailToLinkWithMarkup() {
+  const composePromise = promise_new_window("msgcompose");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#mailtolink_strong",
+    {},
+    gNewTab.browser
+  );
   gCwc = await compose_window_ready(composePromise);
 });
 

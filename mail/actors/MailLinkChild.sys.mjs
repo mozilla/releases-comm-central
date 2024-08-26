@@ -7,7 +7,7 @@ const PROTOCOLS = ["mailto:", "mid:", "news:", "snews:"];
 
 export class MailLinkChild extends JSWindowActorChild {
   handleEvent(event) {
-    const href = event.target.href;
+    const href = event.target.closest("a")?.href;
     const location = this.document.location;
     if (
       !href ||
