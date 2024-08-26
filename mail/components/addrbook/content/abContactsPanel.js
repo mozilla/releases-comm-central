@@ -99,7 +99,6 @@ function updateCardPropertiesMenu() {
   separator.hidden = false;
   menuitem.hidden = false;
 }
-
 /**
  * Handle the click event of the results tree (workaround for XUL tree
  * bug 1331377).
@@ -107,8 +106,6 @@ function updateCardPropertiesMenu() {
  * @param aEvent  a click event
  */
 function contactsListOnClick(aEvent) {
-  CommandUpdate_AddressBook();
-
   // Any click on gAbResultsTree view (rows or blank space).
   const row = aEvent.target.closest(`tr[is="auto-tree-view-table-row"]`);
   if (!row) {
@@ -229,7 +226,7 @@ function AbPanelLoad() {
   gAbResultsTree.table.body.addEventListener("click", event =>
     contactsListOnClick(event)
   );
-  gAbResultsTree.table.addEventListener("select", () => {
+  gAbResultsTree.addEventListener("select", () => {
     gAbResultsTree.view.selectionChanged();
     document.commandDispatcher.updateCommands("addrbook-select");
   });
