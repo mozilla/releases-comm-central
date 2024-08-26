@@ -594,6 +594,7 @@ win64-aarch64/debug:
         extra-config:
             mozconfig_platform: win64-aarch64
         mozconfig-variant: debug
+    run-on-projects: ['comm-central']
     use-sccache: true
     fetches:
         toolchain:
