@@ -98,6 +98,9 @@ def run_check_upstream() -> bool:
         run_cmd(["./mach", "tb-rust", "check-upstream"])
         log("Rust code is in sync with upstream.")
         notify(f"Sheriffs: No rust changes for Gecko head rev {GECKO_HEAD_REV[:12]}.")
+        if OPERATING_MODE == "dev":
+            notify("Forcing complete run in dev mode.")
+            return False
         return True
     except subprocess.CalledProcessError as e:
         if e.returncode == 88:
