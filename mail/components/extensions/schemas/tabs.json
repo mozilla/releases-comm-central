@@ -232,7 +232,7 @@
       {
         "name": "getCurrent",
         "type": "function",
-        "description": "Gets the tab that this script call is being made from. May be <var>undefined</var> if called from a non-tab context (for example: a background page or popup view).",
+        "description": "Gets the tab that this script call is being made from. Returns <var>undefined</var> if called from a non-tab context (for example a background page or a popup view).",
         "async": "callback",
         "parameters": [
           {
@@ -243,8 +243,7 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "optional": true,
-                "description": "This may return undefined"
+                "optional": true
               }
             ]
           }

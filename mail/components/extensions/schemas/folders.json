@@ -19,84 +19,145 @@
     "types": [
       {
         "id": "MailFolder",
-        "type": "object",
         "description": "An object describing a folder.",
-        "properties": {
-          "accountId": {
-            "$ref": "accounts.MailAccountId",
-            "optional": true,
-            "description": "The id of the account this folder belongs to."
+        "choices": [
+          {
+            "max_manifest_version": 2,
+            "type": "object",
+            "properties": {
+              "accountId": {
+                "$ref": "accounts.MailAccountId",
+                "optional": true,
+                "description": "The id of the account this folder belongs to."
+              },
+              "id": {
+                "$ref": "folders.MailFolderId",
+                "optional": true,
+                "description": "An identifier for the folder."
+              },
+              "isFavorite": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a favorite folder."
+              },
+              "isRoot": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a root folder."
+              },
+              "isTag": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a virtual tag folder."
+              },
+              "isUnified": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a unified mailbox folder."
+              },
+              "isVirtual": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether this folder is a virtual search folder."
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "description": "The human-friendly name of this folder."
+              },
+              "path": {
+                "type": "string",
+                "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use $(ref:folders.getParentFolders) or $(ref:folders.getSubFolders) to obtain hierarchy information."
+              },
+              "specialUse": {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolderSpecialUse"
+                },
+                "optional": true,
+                "description": "The special use of this folder. A folder can have multiple special uses."
+              },
+              "subFolders": {
+                "description": "Subfolders of this folder. If the inclusion of subfolders had not been requested, this property will be <var>null</var> for the <var>rootfolder</var> property of $(ref:accounts.MailAccount) or <var>undefined</var> in all other cases. The folders will be returned in the same order as used in Thunderbird's folder pane.",
+                "choices": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "folders.MailFolder"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "optional": true
+              },
+              "type": {
+                "$ref": "folders.MailFolderSpecialUse",
+                "optional": true,
+                "description": "Deprecated. Was used to represent the type of this folder."
+              }
+            }
           },
-          "id": {
-            "$ref": "folders.MailFolderId",
-            "optional": true,
-            "description": "An identifier for the folder."
-          },
-          "isFavorite": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a favorite folder."
-          },
-          "isRoot": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a root folder."
-          },
-          "isTag": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a virtual tag folder."
-          },
-          "isUnified": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a unified mailbox folder."
-          },
-          "isVirtual": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Whether this folder is a virtual search folder."
-          },
-          "name": {
-            "type": "string",
-            "optional": true,
-            "description": "The human-friendly name of this folder."
-          },
-          "path": {
-            "type": "string",
-            "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use $(ref:folders.getParentFolders) or $(ref:folders.getSubFolders) to obtain hierarchy information."
-          },
-          "specialUse": {
-            "type": "array",
-            "items": {
-              "$ref": "folders.MailFolderSpecialUse"
-            },
-            "optional": true,
-            "description": "The special use of this folder. A folder can have multiple special uses."
-          },
-          "subFolders": {
-            "description": "Subfolders of this folder. The property may be <var>null</var>, if inclusion of folders had not been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
-            "choices": [
-              {
+          {
+            "min_manifest_version": 3,
+            "type": "object",
+            "properties": {
+              "accountId": {
+                "$ref": "accounts.MailAccountId",
+                "description": "The id of the account this folder belongs to. This property is optional and not available for unified mailbox folders or virtual tag folders.",
+                "optional": true
+              },
+              "id": {
+                "$ref": "folders.MailFolderId",
+                "description": "An identifier for the folder."
+              },
+              "isFavorite": {
+                "type": "boolean",
+                "description": "Whether this folder is a favorite folder."
+              },
+              "isRoot": {
+                "type": "boolean",
+                "description": "Whether this folder is a root folder."
+              },
+              "isTag": {
+                "type": "boolean",
+                "description": "Whether this folder is a virtual tag folder."
+              },
+              "isUnified": {
+                "type": "boolean",
+                "description": "Whether this folder is a unified mailbox folder."
+              },
+              "isVirtual": {
+                "type": "boolean",
+                "description": "Whether this folder is a virtual search folder."
+              },
+              "name": {
+                "type": "string",
+                "description": "The human-friendly name of this folder."
+              },
+              "path": {
+                "type": "string",
+                "description": "Path to this folder in the account. Although paths look predictable, never guess a folder's path, as there are a number of reasons why it may not be what you think it is. Use $(ref:folders.getParentFolders) or $(ref:folders.getSubFolders) to obtain hierarchy information."
+              },
+              "specialUse": {
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolderSpecialUse"
+                },
+                "description": "The special use of this folder. A folder can have multiple special uses."
+              },
+              "subFolders": {
+                "description": "Subfolders of this folder. This property is optional and only present if the inclusion of subfolders had been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
                 "type": "array",
                 "items": {
                   "$ref": "folders.MailFolder"
-                }
-              },
-              {
-                "max_manifest_version": 2,
-                "type": "null"
+                },
+                "optional": true
               }
-            ],
-            "optional": true
-          },
-          "type": {
-            "max_manifest_version": 2,
-            "$ref": "folders.MailFolderSpecialUse",
-            "optional": true,
-            "description": "Deprecated. Was used to represent the type of this folder."
+            }
           }
-        }
+        ]
       },
       {
         "id": "MailFolderId",
@@ -1184,7 +1245,7 @@
       {
         "name": "getTagFolder",
         "type": "function",
-        "description": "Get one of the special unified mailbox tag folders, which are virtual search folders and group messages from all mail accounts based on their tags.",
+        "description": "Get one of the special virtual tag folders, which are virtual search folders and group messages from all mail accounts based on their tags.",
         "async": "callback",
         "parameters": [
           {

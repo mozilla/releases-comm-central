@@ -251,7 +251,7 @@
             "optional": true
           },
           "relatedMessageId": {
-            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <var>null</var> in all other cases or if the original message was opened from file.",
+            "description": "The id of the original message (in case of draft, template, forward or reply). Read-only. Is <var>undefined</var> in all other cases or if the original message was opened from file.",
             "$ref": "messages.MessageId",
             "optional": true
           },

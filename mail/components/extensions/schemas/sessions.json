@@ -27,7 +27,7 @@
       {
         "name": "getTabValue",
         "type": "function",
-        "description": "Retrieve a previously stored value for a given tab, given its key. Returns <var>undefined</var> if the key does not exist.",
+        "description": "Retrieve a previously stored value for a given tab, given its key. Returns <var>undefined</var> if the requested <var>key</var> does not exist for the given <var>tabId</var>.",
         "async": "callback",
         "parameters": [
           {
@@ -47,8 +47,7 @@
             "parameters": [
               {
                 "type": "string",
-                "optional": true,
-                "description": "This may return undefined"
+                "optional": true
               }
             ]
           }

@@ -180,8 +180,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "accounts.MailAccount",
-                "optional": true
+                "choices": [
+                  {
+                    "$ref": "accounts.MailAccount"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             ]
           }

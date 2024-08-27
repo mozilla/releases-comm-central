@@ -331,8 +331,7 @@
             "parameters": [
               {
                 "$ref": "mailTabs.MailTab",
-                "optional": true,
-                "description": "This may return undefined"
+                "optional": true
               }
             ]
           }
