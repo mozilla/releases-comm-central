@@ -78,18 +78,11 @@
                 "description": "The special use of this folder. A folder can have multiple special uses."
               },
               "subFolders": {
-                "description": "Subfolders of this folder. If the inclusion of subfolders had not been requested, this property will be <var>null</var> for the <var>rootfolder</var> property of $(ref:accounts.MailAccount) or <var>undefined</var> in all other cases. The folders will be returned in the same order as used in Thunderbird's folder pane.",
-                "choices": [
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "folders.MailFolder"
-                    }
-                  },
-                  {
-                    "type": "null"
-                  }
-                ],
+                "description": "Subfolders of this folder. This property is optional and only present if the inclusion of subfolders had been requested. The folders will be returned in the same order as used in Thunderbird's folder pane.",
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolder"
+                },
                 "optional": true
               },
               "type": {

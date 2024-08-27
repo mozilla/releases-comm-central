@@ -98,12 +98,12 @@ export class AccountManager {
         account.key
       );
       mailAccount.rootFolder.subFolders = subFolders;
-    } else if (this.extension.manifestVersion < 3) {
-      mailAccount.rootFolder.subFolders = null;
     }
 
     if (this.extension.manifestVersion < 3) {
-      mailAccount.folders = mailAccount.rootFolder.subFolders;
+      mailAccount.folders = includeFolders
+        ? mailAccount.rootFolder.subFolders
+        : null;
     }
 
     return mailAccount;
