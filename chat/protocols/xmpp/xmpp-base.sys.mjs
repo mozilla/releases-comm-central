@@ -415,8 +415,8 @@ export var XMPPMUCConversationPrototype = {
 
         // Who caused the participant to leave the room.
         const actor = item.getElement(["actor"]);
-        const actorNick = actor ? actor.attributes.nick : "";
-        const isActor = actorNick ? "-actor" : "";
+        let actorNick = actor ? actor.attributes.nick : "";
+        let isActor = actorNick ? "-actor" : "";
 
         // Why the participant left.
         let reasonNode = item.getElement(["reason"]);
@@ -425,6 +425,9 @@ export var XMPPMUCConversationPrototype = {
 
         const isYou = nick == this.nick ? "-you" : "";
         const affectedNick = isYou ? "" : nick;
+
+        let participant = "";
+        let reasonMessage = "";
         if (isYou) {
           this.left = true;
         }
@@ -433,29 +436,61 @@ export var XMPPMUCConversationPrototype = {
         if (codes.includes("301")) {
           // XEP-0045 (9.1): Banning a User.
           message = "conversation-message-banned";
+          // conversation-message-banned-reason
+          // conversation-message-banned-actor
+          // conversation-message-banned-actor-reason
+          // conversation-message-banned-you
+          // conversation-message-banned-you-reason
+          // conversation-message-banned-you-actor
+          // conversation-message-banned-you-actor-reason
         } else if (codes.includes("307")) {
           // XEP-0045 (8.2): Kicking an Occupant.
           message = "conversation-message-kicked";
+          // conversation-message-kicked-reason
+          // conversation-message-kicked-actor
+          // conversation-message-kicked-actor-reason
+          // conversation-message-kicked-you
+          // conversation-message-kicked-you-reason
+          // conversation-message-kicked-you-actor
+          // conversation-message-kicked-you-actor-reason
         } else if (codes.includes("322") || codes.includes("321")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the room has been changed to members-only and the
           // user is not a member.
           message = "conversation-message-removed-non-member";
+          // conversation-message-removed-non-member-actor
+          // conversation-message-removed-non-member-you
+          // conversation-message-remove-non-member-you-actor
+
+          // Reason is not supported by these strings.
+          reason = isReason = "";
         } else if (codes.includes("332")) {
           // XEP-0045: Inform user that he or she is being removed from the
           // room because the MUC service is being shut down.
           message = "conversation-message-muc-shutdown";
+          // conversation-message-removed-non-member-actor
+          // conversation-message-removed-non-member-you
+          // conversation-message-removed-non-member-you-actor
 
           // The reason here just duplicates what's in the system message.
           reason = isReason = "";
         } else {
           // XEP-0045 (7.14): Received when the user parts a room.
           message = "conversation-message-parted";
+          // conversation-message-parted-reason
+          // conversation-message-parted-you
+          // conversation-message-parted-you-reason
 
           // The reason is in a status element in this case.
           reasonNode = aStanza.getElement(["status"]);
-          reason = reasonNode ? reasonNode.innerText : "";
-          isReason = reason ? "-reason" : "";
+          reasonMessage = reasonNode ? reasonNode.innerText : "";
+          reason = "";
+          isReason = reasonMessage ? "-reason" : "";
+
+          // Actor is not supported for these messages.
+          actorNick = isActor = "";
+
+          participant = affectedNick;
         }
 
         if (message) {
@@ -464,6 +499,8 @@ export var XMPPMUCConversationPrototype = {
             actorNick,
             affectedNick,
             reason,
+            participant,
+            message: reasonMessage,
           };
           this.writeMessage(
             this.name,
