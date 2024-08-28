@@ -4504,10 +4504,9 @@ var threadPane = {
    * Handle threadPane select events.
    */
   _onSelect() {
-    if (!paneLayout.messagePaneVisible.isCollapsed) {
+    if (!paneLayout.messagePaneVisible.isCollapsed && gDBView) {
       messagePane.clearWebPage();
-      const numSelected = gDBView ? gDBView.numSelected : 0;
-      switch (numSelected) {
+      switch (gDBView.numSelected) {
         case 0:
           messagePane.clearMessage();
           messagePane.clearMessages();
@@ -6171,13 +6170,8 @@ var folderListener = {
 
     folderPane.removeFolder(parentFolder, childFolder);
     if (childFolder == gFolder) {
-      // Clean up the display if the deleted folder was being displayed. At this
-      // point, `DBViewWrapper._folderDeleted` has already cleaned up `gDBView`.
       gFolder = null;
       gViewWrapper?.close(true);
-      gViewWrapper = null;
-      threadPaneHeader.onFolderSelected();
-      threadPane._onSelect(); // Ensure no message is displayed.
     }
 
     // We need to rebuild the selection map if a folder was removed while we had
