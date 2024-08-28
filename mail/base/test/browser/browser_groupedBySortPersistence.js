@@ -138,4 +138,9 @@ add_task(async function testSingleVirtual() {
 /** Test a virtual folder with multiple backing folders. */
 add_task(async function testXFVirtual() {
   await subTest(virtualFolderAB);
-});
+}).skip(
+  // Permanent failure on CI, bug 1911891.
+  AppConstants.platform == "win" &&
+    AppConstants.DEBUG &&
+    !Services.appinfo.is64Bit
+);
