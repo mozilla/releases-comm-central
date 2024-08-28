@@ -3450,6 +3450,12 @@ dependencies = [
 [[package]]
 name = "mozilla-central-workspace-hack"
 version = "0.1.0"
+dependencies = [
+ "core-foundation-sys",
+ "scopeguard",
+ "winapi",
+ "windows-sys",
+]
 
 [[package]]
 name = "mozurl"

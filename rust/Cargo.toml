@@ -18,6 +18,141 @@ uniffi_bindgen = { version = "0.27.3" }
 rusqlite = { version = "0.31.0" }
 glean = { version = "=60.5.0" }
 
+[target."cfg(windows)".dependencies.scopeguard]
+version = "1"
+optional = true
+
+[target."cfg(windows)".dependencies.winapi]
+version = "0.3.6"
+features = [
+ "avrt",
+ "basetsd",
+ "bits",
+ "bits2_5",
+ "bitsmsg",
+ "cfg",
+ "combaseapi",
+ "consoleapi",
+ "d3d11",
+ "d3d11_1",
+ "d3d11_2",
+ "d3d11sdklayers",
+ "d3d12",
+ "d3d12sdklayers",
+ "d3d12shader",
+ "d3dcommon",
+ "d3dcompiler",
+ "dcomp",
+ "dwrite",
+ "dwrite_1",
+ "dwrite_3",
+ "dxgi1_2",
+ "dxgi1_3",
+ "dxgi1_4",
+ "dxgi1_5",
+ "dxgi1_6",
+ "dxgidebug",
+ "dxgiformat",
+ "errhandlingapi",
+ "evntrace",
+ "fileapi",
+ "guiddef",
+ "handleapi",
+ "hidclass",
+ "hidpi",
+ "hidusage",
+ "impl-debug",
+ "impl-default",
+ "in6addr",
+ "inaddr",
+ "ioapiset",
+ "knownfolders",
+ "libloaderapi",
+ "memoryapi",
+ "minwinbase",
+ "minwindef",
+ "mmeapi",
+ "mmsystem",
+ "mswsock",
+ "namedpipeapi",
+ "ntdef",
+ "ntsecapi",
+ "ntstatus",
+ "oaidl",
+ "objbase",
+ "oleauto",
+ "processenv",
+ "processthreadsapi",
+ "profileapi",
+ "psapi",
+ "rpcndr",
+ "setupapi",
+ "shlobj",
+ "std",
+ "synchapi",
+ "sysinfoapi",
+ "taskschd",
+ "timeapi",
+ "timezoneapi",
+ "unknwnbase",
+ "winbase",
+ "wincon",
+ "wincrypt",
+ "windef",
+ "winerror",
+ "wininet",
+ "winioctl",
+ "winnls",
+ "winnt",
+ "winreg",
+ "winsock2",
+ "winuser",
+ "ws2def",
+ "ws2ipdef",
+ "ws2tcpip",
+ "wtypes",
+ "wtypesbase"
+]
+
+[target."cfg(windows)".dependencies.windows-sys]
+version = "0.52"
+optional = true
+features = [
+ "Wdk_Foundation",
+ "Wdk_Storage",
+ "Wdk_Storage_FileSystem",
+ "Wdk_System_IO",
+ "Wdk_System_Threading",
+ "Win32_Foundation",
+ "Win32_Globalization",
+ "Win32_Graphics_Gdi",
+ "Win32_Networking",
+ "Win32_Networking_WinSock",
+ "Win32_Security",
+ "Win32_Storage_FileSystem",
+ "Win32_System_Com",
+ "Win32_System_Diagnostics_Debug",
+ "Win32_System_ErrorReporting",
+ "Win32_System_IO",
+ "Win32_System_Kernel",
+ "Win32_System_LibraryLoader",
+ "Win32_System_Memory",
+ "Win32_System_Pipes",
+ "Win32_System_ProcessStatus",
+ "Win32_System_SystemInformation",
+ "Win32_System_SystemServices",
+ "Win32_System_Threading",
+ "Win32_System_WindowsProgramming",
+ "Win32_UI_Controls",
+ "Win32_UI_Input_KeyboardAndMouse",
+ "Win32_UI_Shell",
+ "Win32_UI_WindowsAndMessaging"
+]
+
+[target."cfg(any(target_os = \"macos\", target_os = \"ios\"))".dependencies.core-foundation-sys]
+version = "0.8"
+optional = true
+
 [patch.crates-io]
 mozilla-central-workspace-hack = { path = "." }
 cmake = { path = "../../build/rust/cmake" }

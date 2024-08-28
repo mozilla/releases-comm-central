@@ -75,12 +75,15 @@ members = {members}
 [workspace.dependencies]
 {dependencies}
 
+{target_dependencies}
+
 {patches}
 """
 
 CARGO_FILES = {
     "mc_workspace_toml": "Cargo.toml",
     "mc_gkrust_toml": "toolkit/library/rust/shared/Cargo.toml",
+    "mc_hack_toml": "build/workspace-hack/Cargo.toml",
     "mc_cargo_lock": "Cargo.lock",
 }
 
@@ -137,6 +140,7 @@ class CargoFile:
         self.workspace_members = list()
         self.workspace_deps = dict()
         self.features = dict()
+        self.target_deps = dict()
 
         data = TOMLFile(filename).read()
 
@@ -154,6 +158,19 @@ class CargoFile:
                 self._handle_workspace(data[section])
             elif section == "features":
                 self.features = data["features"]
+            elif section == "target":
+                self.target_deps.update(self._handle_target_dependencies(data[section]))
+
+    def _handle_target_dependencies(self, data):
+        """Store configuration-specific (e.g. platform-specific dependencies)"""
+        target_deps = dict()
+        for target in data:
+            deps = data[target].get("dependencies")
+
+            if deps:
+                target_deps[target] = deps
+
+        return target_deps
 
     def _handle_dependencies(self, data):
         """Store each dependency"""
@@ -292,9 +309,11 @@ def regen_toml_files(command_context, workspace):
     """
     mc_workspace_toml = os.path.join(command_context.topsrcdir, CARGO_FILES["mc_workspace_toml"])
     mc_gkrust_toml = os.path.join(command_context.topsrcdir, CARGO_FILES["mc_gkrust_toml"])
+    mc_hack_toml = os.path.join(command_context.topsrcdir, CARGO_FILES["mc_hack_toml"])
 
     mc_workspace = CargoFile(mc_workspace_toml)
     mc_gkrust = CargoFile(mc_gkrust_toml)
+    mc_hack = CargoFile(mc_hack_toml)
 
     comm_gkrust_toml = os.path.join(workspace, "gkrust", "Cargo.toml")
     comm_gkrust_dir = os.path.dirname(comm_gkrust_toml)
@@ -389,6 +408,19 @@ def regen_toml_files(command_context, workspace):
     for dep in mc_workspace.workspace_deps:
         workspace_dependencies.append(inline_encoded_toml(dep, mc_workspace.workspace_deps[dep]))
 
+    # Target-specific dependencies for the workspace
+    target_deps = ""
+    for target, deps in mc_hack.target_deps.items():
+        target_name = target.replace('"', '\\"')
+
+        for dep_name, dep in deps.items():
+            target_deps += f'[target."{target_name}".dependencies.{dep_name}]\n'
+
+            for key, value in dep.items():
+                target_deps += inline_encoded_toml(key, value) + "\n"
+
+            target_deps += "\n"
+
     # Patch emission
     for section in patches:
         data = patches[section]
@@ -410,6 +442,7 @@ def regen_toml_files(command_context, workspace):
         cargo_toml = (
             workspace_template.format(
                 dependencies="\n".join(workspace_dependencies),
+                target_dependencies=target_deps.strip(),
                 members=workspace_members,
                 features=tomlkit.dumps(features),
                 patches=workspace_patches,
@@ -443,20 +476,47 @@ def inline_encoded_toml(id, data):
     """
     if isinstance(data, str):
         return f'{id} = "{data}"'
-    ret = f"{id} = {{"
+    if isinstance(data, bool):
+        return f"{id} = {str(data).lower()}"
+
+    # Keep track of whether the data structure we're dealing with is a list or a
+    # dict, because lists need some extra formatting tweaks compared to dicts.
+    is_list = isinstance(data, list)
+
+    if is_list:
+        ret = f"{id} = [\n"
+    else:
+        ret = f"{id} = {{"
+
     for idx, key in enumerate(data):
-        if isinstance(data[key], bool):
-            value = (str(data[key])).lower()
-        elif isinstance(data[key], list):
-            value = str(data[key])
+        if is_list:
+            value = data[idx]
         else:
-            value = '"' + data[key] + '"'
+            value = data[key]
+
+        if isinstance(value, bool):
+            value = (str(value)).lower()
+        elif isinstance(value, list):
+            value = str(value)
+        else:
+            value = '"' + value + '"'
         if idx > 0:
-            ret += ", "
+            ret += ","
+            if is_list:
+                ret += "\n"
+            ret += " "
         else:
             ret += " "
-        ret += f"{key} = {value}"
-    return ret + " }"
+
+        if is_list:
+            ret += f"{value}"
+        else:
+            ret += f"{key} = {value}"
+
+    if is_list:
+        return ret + "\n]"
+    else:
+        return ret + " }"
 
 
 def verify_vendored_dependencies(topsrcdir):
