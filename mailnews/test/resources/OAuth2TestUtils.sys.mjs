@@ -172,12 +172,14 @@ class OAuth2Server {
     password = "password",
     accessToken = "access_token",
     refreshToken = "refresh_token",
+    rotateTokens = false,
     expiry = null,
   } = {}) {
     this.username = username;
     this.password = password;
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
+    this.rotateTokens = rotateTokens;
     this.expiry = expiry;
 
     this.httpServer = new HttpServer();
@@ -307,6 +309,17 @@ class OAuth2Server {
     ) {
       // Client provided a valid refresh token.
       data.access_token = this.accessToken;
+      if (this.rotateTokens) {
+        if (/\d+$/.test(this.refreshToken)) {
+          this.refreshToken = this.refreshToken.replace(
+            /\d+$/,
+            suffix => parseInt(suffix, 10) + 1
+          );
+        } else {
+          this.refreshToken = this.refreshToken + "_1";
+        }
+        data.refresh_token = this.refreshToken;
+      }
       tokens.set(this.accessToken, this.grantedScope);
     } else {
       response.setStatusLine("1.1", 400, "Bad Request");
