@@ -118,6 +118,10 @@ add_task(async function test_cid_image_load() {
       { label: gImageFolder.prettyName },
     ]
   );
+  await TestUtils.waitForCondition(
+    () => gImageFolder.getTotalMessages(false) == 1,
+    "waiting for copy to gImageFolder to complete"
+  );
   await BrowserTestUtils.closeWindow(msgc);
 });
 
