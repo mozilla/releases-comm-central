@@ -832,3 +832,8 @@ button.existing {
     }
   }
 }
+
+/* Hide built-in password visibility toggle. See bug 1913889. */
+.input-field[type="password"] {
+  appearance: textfield !important;
+}
