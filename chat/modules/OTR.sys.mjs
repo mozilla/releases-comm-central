@@ -82,22 +82,40 @@ function Context(context) {
 Context.prototype = {
   constructor: Context,
   get username() {
+    if (this._context.isNull()) {
+      return null;
+    }
     return this._context.contents.username.readString();
   },
   get account() {
+    if (this._context.isNull()) {
+      return null;
+    }
     return this._context.contents.accountname.readString();
   },
   get protocol() {
+    if (this._context.isNull()) {
+      return null;
+    }
     return this._context.contents.protocol.readString();
   },
   get msgstate() {
+    if (this._context.isNull()) {
+      return null;
+    }
     return this._context.contents.msgstate;
   },
   get fingerprint() {
+    if (this._context.isNull()) {
+      return null;
+    }
     return this._context.contents.active_fingerprint;
   },
   get trust() {
     return trustFingerprint(this.fingerprint);
+  },
+  isNull() {
+    return this._context.isNull();
   },
 };
 
