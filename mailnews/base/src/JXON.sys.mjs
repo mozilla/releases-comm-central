@@ -11,17 +11,13 @@ export var JXON = new (function () {
   const sElementListPrefix = "$";
   const sConflictSuffix = "_"; // used when there's a name conflict with special JXON properties
   const aCache = [];
-  const rIsBool = /^(?:true|false)$/i;
 
   function parseText(sValue) {
-    if (rIsBool.test(sValue)) {
+    if (/^(?:true|false)$/i.test(sValue)) {
       return sValue.toLowerCase() === "true";
     }
     if (isFinite(sValue)) {
       return parseFloat(sValue);
-    }
-    if (isFinite(Date.parse(sValue))) {
-      return new Date(sValue);
     }
     return sValue;
   }
