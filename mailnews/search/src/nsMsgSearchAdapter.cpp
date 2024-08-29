@@ -609,6 +609,7 @@ nsresult nsMsgSearchAdapter::EncodeImap(
                                                             termEncoding);
       delete[] termEncoding;
     } else {
+      delete[] termEncoding;
       break;
     }
   }
