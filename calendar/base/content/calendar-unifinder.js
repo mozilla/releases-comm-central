@@ -238,7 +238,9 @@ function updateUnifinderFilterText() {
   if (searchBox.value) {
     const normalize = str => str.normalize().toLowerCase();
     const normalValue = normalize(searchBox.value);
-    filteredView.setFilterFunction(item => normalize(item.title).includes(normalValue));
+    filteredView.setFilterFunction(
+      item => item.title && normalize(item.title).includes(normalValue)
+    );
   } else {
     filteredView.clearFilter();
   }
