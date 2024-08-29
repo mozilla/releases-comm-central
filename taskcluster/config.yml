@@ -19,10 +19,14 @@ treeherder:
         'I': 'Docker Image Builds'
         'TA': 'Toolchain builds for Android'
         'TL': 'Toolchain builds for Linux 64-bits'
-        'TM': 'Toolchain builds for OSX'
+        'TL32': 'Toolchain builds for Linux 32-bits'
+        'TLA64': 'Toolchain builds for Linux AArch64'
+        'TM': 'Toolchain builds for macOS'
+        'TMA64': 'Toolchain builds for macOS Aarch64'
         'TMW': 'Toolchain builds for Windows MinGW'
         'TW32': 'Toolchain builds for Windows 32-bits'
         'TW64': 'Toolchain builds for Windows 64-bits'
+        'TWA64': 'Toolchain builds for Windows AArch64'
 
         # Release promotion
         'BM': 'Beetmover'

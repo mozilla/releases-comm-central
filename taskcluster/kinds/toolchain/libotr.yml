@@ -20,7 +20,7 @@ task-defaults:
 
 linux32-libotr:
     treeherder:
-        symbol: TL(lib32otr)
+        symbol: TL32(libotr)
     run:
         arguments: ['linux32']
     fetches:
@@ -40,7 +40,7 @@ linux64-libotr:
 
 linux-aarch64-libotr:
     treeherder:
-        symbol: TL(libotr-aarch64)
+        symbol: TLA64(libotr)
         tier: 2
     run:
         arguments: ['linux-aarch64']
@@ -67,7 +67,7 @@ macosx64-x64-libotr:
 
 macosx64-aarch64-libotr:
     treeherder:
-        symbol: TM(libotr-aarch64)
+        symbol: TMA64(libotr)
     worker:
         env:
             MACOS_SDK_DIR: "MacOSX14.4.sdk"
