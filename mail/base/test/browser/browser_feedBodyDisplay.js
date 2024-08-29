@@ -203,9 +203,6 @@ async function subtestSelectArticleAndCheckMode(website = false) {
       "Should not display web article"
     );
   }
-
-  // Clear the selection to avoid leaking when the account is removed.
-  about3Pane.threadTree.selectedIndex = -1;
 }
 
 add_task(async function test_feedBodyFormat_messageHeader() {
