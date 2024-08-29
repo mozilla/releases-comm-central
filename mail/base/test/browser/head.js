@@ -379,23 +379,59 @@ async function promiseServerIdle(server) {
     );
   }
 
-  await TestUtils.waitForCondition(
-    () =>
-      !window.MsgStatusFeedback._startTimeoutID &&
-      !window.MsgStatusFeedback._meteorsSpinning &&
-      !window.MsgStatusFeedback._stopTimeoutID,
-    "waiting for meteors to stop spinning"
+  const status = window.MsgStatusFeedback;
+  try {
+    await TestUtils.waitForCondition(
+      () =>
+        !status._startTimeoutID &&
+        !status._meteorsSpinning &&
+        !status._stopTimeoutID,
+      "waiting for meteors to stop spinning"
+    );
+  } catch (ex) {
+    // If the meteors don't stop spinning within 5 seconds, something has got
+    // confused somewhere and they'll probably keep spinning forever.
+    // Reset and hope we can continue without more problems.
+    Assert.ok(!status._startTimeoutID, "meteors should not have a start timer");
+    Assert.ok(!status._meteorsSpinning, "meteors should not be spinning");
+    Assert.ok(!status._stopTimeoutID, "meteors should not have a stop timer");
+    if (status._startTimeoutID) {
+      clearTimeout(status._startTimeoutID);
+      status._startTimeoutID = null;
+    }
+    if (status._stopTimeoutID) {
+      clearTimeout(status._stopTimeoutID);
+      status._stopTimeoutID = null;
+    }
+    status._stopMeteors();
+  }
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(status._progressBar),
+    "progress bar should not be visible"
   );
+  Assert.ok(
+    status._progressBar.hasAttribute("value"),
+    "progress bar should not be in the indeterminate state"
+  );
+  if (BrowserTestUtils.isVisible(status._progressBar)) {
+    // Somehow the progress bar is still visible and probably in the
+    // indeterminate state, meaning vsync timers are still active. Reset it.
+    status._stopMeteors();
+  }
+
   Assert.equal(
-    window.MsgStatusFeedback._startRequests,
+    status._startRequests,
     0,
     "status bar should not have any start requests"
   );
   Assert.equal(
-    window.MsgStatusFeedback._activeProcesses.length,
+    status._activeProcesses.length,
     0,
     "status bar should not have any active processes"
   );
+  status._startRequests = 0;
+  status._activeProcesses.length = 0;
 }
 
 // Report and remove any remaining accounts/servers. If we register a cleanup
