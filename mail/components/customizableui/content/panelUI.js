@@ -565,7 +565,6 @@ const PanelUI = {
           n.options.onDismissed(window);
         }
       });
-      this._clearBadge();
       if (!notifications[0].options.badgeOnly) {
         this._showBannerItem(notifications[0]);
       }
