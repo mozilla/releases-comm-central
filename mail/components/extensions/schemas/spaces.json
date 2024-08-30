@@ -3,93 +3,98 @@
     "namespace": "spaces",
     "types": [
       {
-        "id": "ButtonProperties",
-        "type": "object",
-        "properties": {
-          "badgeBackgroundColor": {
-            "choices": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "spaces.ColorArray"
-              }
-            ],
-            "optional": true,
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to an empty string."
-          },
-          "badgeText": {
-            "type": "string",
-            "optional": true,
-            "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to an empty string."
-          },
-          "defaultIcons": {
-            "choices": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "manifest.IconPath"
-              }
-            ],
-            "optional": true,
-            "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to an empty string."
-          },
-          "themeIcons": {
-            "type": "array",
-            "optional": true,
-            "items": {
-              "$ref": "manifest.ThemeIcons"
-            },
-            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to an empty array."
-          },
-          "title": {
-            "type": "string",
-            "optional": true,
-            "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to an empty string."
-          }
-        }
-      },
-      {
         "id": "SpaceButtonProperties",
-        "type": "object",
-        "properties": {
-          "badgeBackgroundColor": {
-            "choices": [
-              {
-                "type": "string"
+        "choices": [
+          {
+            "max_manifest_version": 2,
+            "type": "object",
+            "properties": {
+              "badgeBackgroundColor": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "spaces.ColorArray"
+                  }
+                ],
+                "optional": true,
+                "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to an empty string."
               },
-              {
-                "$ref": "spaces.ColorArray"
+              "badgeText": {
+                "type": "string",
+                "optional": true,
+                "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to an empty string."
+              },
+              "defaultIcons": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "manifest.IconPath"
+                  }
+                ],
+                "optional": true,
+                "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to an empty string."
+              },
+              "themeIcons": {
+                "type": "array",
+                "optional": true,
+                "items": {
+                  "$ref": "manifest.ThemeIcons"
+                },
+                "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to an empty array."
+              },
+              "title": {
+                "type": "string",
+                "optional": true,
+                "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to an empty string."
               }
-            ],
-            "optional": "omit-key-if-missing",
-            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to <var>null</var>."
+            }
           },
-          "badgeText": {
-            "type": "string",
-            "optional": "omit-key-if-missing",
-            "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to <var>null</var>."
-          },
-          "defaultIcons": {
-            "$ref": "manifest.IconPath",
-            "optional": "omit-key-if-missing",
-            "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to <var>null</var>."
-          },
-          "themeIcons": {
-            "type": "array",
-            "optional": "omit-key-if-missing",
-            "items": {
-              "$ref": "manifest.ThemeIcons"
-            },
-            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <var>null</var>."
-          },
-          "title": {
-            "type": "string",
-            "optional": "omit-key-if-missing",
-            "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to <var>null</var>."
+          {
+            "min_manifest_version": 3,
+            "type": "object",
+            "properties": {
+              "badgeBackgroundColor": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "spaces.ColorArray"
+                  }
+                ],
+                "optional": "omit-key-if-missing",
+                "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <var>[255, 0, 0, 255]</var>. Can also be a string with an HTML color name (<var>red</var>) or a HEX color value (<var>#FF0000</var> or <var>#F00</var>). Reset when set to <var>null</var>."
+              },
+              "badgeText": {
+                "type": "string",
+                "optional": "omit-key-if-missing",
+                "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to <var>null</var>."
+              },
+              "defaultIcons": {
+                "$ref": "manifest.IconPath",
+                "optional": "omit-key-if-missing",
+                "description": "The paths to one or more icons for the button in the spaces toolbar. Reset to the extension icon, when set to <var>null</var>."
+              },
+              "themeIcons": {
+                "type": "array",
+                "optional": "omit-key-if-missing",
+                "items": {
+                  "$ref": "manifest.ThemeIcons"
+                },
+                "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The <var>light</var> icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified. Reset when set to <var>null</var>."
+              },
+              "title": {
+                "type": "string",
+                "optional": "omit-key-if-missing",
+                "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Reset to the name of the extension, when set to <var>null</var>."
+              }
+            }
           }
-        }
+        ]
       },
       {
         "id": "ColorArray",
@@ -154,16 +159,7 @@
           {
             "name": "buttonProperties",
             "description": "Properties of the button for the new space.",
-            "choices": [
-              {
-                "$ref": "spaces.SpaceButtonProperties",
-                "min_manifest_version": 3
-              },
-              {
-                "$ref": "spaces.ButtonProperties",
-                "max_manifest_version": 2
-              }
-            ],
+            "$ref": "spaces.SpaceButtonProperties",
             "optional": true,
             "default": {}
           },
@@ -305,16 +301,7 @@
           {
             "name": "buttonProperties",
             "description": "Only specified button properties will be updated.",
-            "choices": [
-              {
-                "$ref": "spaces.SpaceButtonProperties",
-                "min_manifest_version": 3
-              },
-              {
-                "$ref": "spaces.ButtonProperties",
-                "max_manifest_version": 2
-              }
-            ],
+            "$ref": "spaces.SpaceButtonProperties",
             "optional": true
           }
         ]
