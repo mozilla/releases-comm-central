@@ -1711,19 +1711,18 @@
       filterAction.type = gFilterActionStrings.indexOf(filterActionString);
       const actionTarget = this.children[1];
       const actionItem = actionTarget.ruleactiontargetElement;
-      const nsMsgFilterAction = Ci.nsMsgFilterAction;
       switch (filterAction.type) {
-        case nsMsgFilterAction.ChangePriority:
+        case Ci.nsMsgFilterAction.ChangePriority:
           filterAction.priority = actionItem.children[0].getAttribute("value");
           break;
-        case nsMsgFilterAction.MoveToFolder:
-        case nsMsgFilterAction.CopyToFolder:
+        case Ci.nsMsgFilterAction.MoveToFolder:
+        case Ci.nsMsgFilterAction.CopyToFolder:
           filterAction.targetFolderUri = actionItem.children[0].value;
           break;
-        case nsMsgFilterAction.JunkScore:
+        case Ci.nsMsgFilterAction.JunkScore:
           filterAction.junkScore = actionItem.children[0].value;
           break;
-        case nsMsgFilterAction.Custom:
+        case Ci.nsMsgFilterAction.Custom:
           filterAction.customId = filterActionString;
         // Fall through to set the value.
         default:
