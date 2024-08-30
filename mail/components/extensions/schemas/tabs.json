@@ -328,7 +328,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new content tab. Use the $(doc:messageDisplay) to open messages. Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a <a href='url-content-script-click-capture'>content script</a> , capture click events and handle them manually.",
+        "description": "Creates a new content tab. To create message tabs, use the $(ref:messageDisplay.open). Only supported in <var>normal</var> windows. Same-site links in the loaded page are opened within Thunderbird, all other links are opened in the user's default browser. To override this behavior, add-ons have to register a <a href='url-content-script-click-capture'>content script</a> , capture click events and handle them manually.",
         "async": "callback",
         "parameters": [
           {
@@ -380,7 +380,7 @@
               {
                 "name": "tab",
                 "$ref": "Tab",
-                "description": "Details about the created tab. Will contain the ID of the new tab."
+                "description": "A Promise that will be fulfilled with a $(ref:tabs.Tab) object containing details about the created tab. If the tab could not be created (for example, because it was added to a non-normal window) the promise will be rejected with an error message. The returned promise resolves as soon as the tab has been created. The tab may still be loading, with its title being <var>loading...</var> and its URL being <var>about:blank</var>. To detect when the tab has finished loading, listen to the $(ref:tabs.onUpdated) event before creating the tab."
               }
             ]
           }
@@ -810,7 +810,7 @@
       {
         "name": "onCreated",
         "type": "function",
-        "description": "Fired when a tab is created. Note that the tab's URL may not be set at the time this event fired, but you can listen to onUpdated events to be notified when a URL is set.",
+        "description": "Fired when a tab is created. The tab may still be loading, with its title being <var>loading...</var> and its URL being <var>about:blank</var>. To detect when the tab has finished loading, listen to the $(ref:tabs.onUpdated) event.",
         "parameters": [
           {
             "$ref": "Tab",
