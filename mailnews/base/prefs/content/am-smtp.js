@@ -141,33 +141,31 @@ var gSmtpServerListWindow = {
         "smtpServer-ConnectionSecurityType-" + aServer.socketType
       );
 
-    const AuthMethod = Ci.nsMsgAuthMethod;
-    const SocketType = Ci.nsMsgSocketType;
     var authStr = "";
     switch (aServer.authMethod) {
-      case AuthMethod.none:
+      case Ci.nsMsgAuthMethod.none:
         authStr = "authNo";
         break;
-      case AuthMethod.passwordEncrypted:
+      case Ci.nsMsgAuthMethod.passwordEncrypted:
         authStr = "authPasswordEncrypted";
         break;
-      case AuthMethod.GSSAPI:
+      case Ci.nsMsgAuthMethod.GSSAPI:
         authStr = "authKerberos";
         break;
-      case AuthMethod.NTLM:
+      case Ci.nsMsgAuthMethod.NTLM:
         authStr = "authNTLM";
         break;
-      case AuthMethod.secure:
+      case Ci.nsMsgAuthMethod.secure:
         authStr = "authAnySecure";
         break;
-      case AuthMethod.passwordCleartext:
+      case Ci.nsMsgAuthMethod.passwordCleartext:
         authStr =
-          aServer.socketType == SocketType.SSL ||
-          aServer.socketType == SocketType.alwaysSTARTTLS
+          aServer.socketType == Ci.nsMsgSocketType.SSL ||
+          aServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS
             ? "authPasswordCleartextViaSSL"
             : "authPasswordCleartextInsecurely";
         break;
-      case AuthMethod.OAuth2:
+      case Ci.nsMsgAuthMethod.OAuth2:
         authStr = "authOAuth2";
         break;
       default:
