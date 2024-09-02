@@ -34,7 +34,11 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media not (prefers-contrast) {
   :root:not([lwtheme]) {
-    background-color: light-dark(var(--color-gray-10), var(--color-gray-90));
+    background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
+
+    &:-moz-window-inactive {
+      background-color: light-dark(var(--color-gray-10), var(--color-gray-90));
+    }
   }
 
   :root[lwtheme] {
@@ -45,30 +49,11 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
-  @media (-moz-windows-accent-color-in-titlebar: 0) {
-    :root[sizemode=normal][tabsintitlebar] {
-      border-top: 1px solid rgba(0, 0, 0, 0.7);
+  :root[tabsintitlebar][sizemode=normal] {
+    border-top: .5px solid rgba(0, 0, 0, 0.7);
 
-      &[always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
-        border-top-color: AccentColor;
-      }
-    }
-    :root[tabsintitlebar]:not([lwtheme],:-moz-window-inactive) {
-      background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
-    }
-  }
-
-  @media (-moz-windows-accent-color-in-titlebar) {
-    :root[tabsintitlebar]:not([lwtheme],:-moz-window-inactive) {
-      background-color: AccentColor;
-
-      & #navigation-toolbox {
-        color: AccentColorText;
-      }
-    }
-
-    :root[tabsintitlebar][sizemode="normal"] {
-      border-top: .5px solid ActiveBorder;
+    @media (-moz-windows-accent-color-in-titlebar) {
+      border-top-color: ActiveBorder;
 
       &:-moz-window-inactive {
         border-top-color: InactiveBorder;
@@ -78,7 +63,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  /* TODO: ActiveCaption and InactiveCaption don't seem to work. */
   :root[tabsintitlebar]:not([lwtheme]) #navigation-toolbox {
     background-color: ActiveCaption;
     color: CaptionText;
@@ -101,14 +85,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   padding: 9px 17px;
   -moz-context-properties: stroke;
   stroke: currentColor;
-
-  @media not (prefers-contrast) {
-    @media (-moz-windows-accent-color-in-titlebar) {
-      :root:not([lwtheme]) &:not(:-moz-window-inactive) {
-        stroke: AccentColorText;
-      }
-    }
-  }
 
   & > .toolbarbutton-icon {
     display: inline-flex;
