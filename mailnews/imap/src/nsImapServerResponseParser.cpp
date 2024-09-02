@@ -1935,6 +1935,7 @@ void nsImapServerResponseParser::xmailboxinfo_data() {
       }
     } while (fNextToken && !fAtEndOfLine && ContinueParse());
   }
+  PR_FREEIF(mailboxName);
 }
 
 void nsImapServerResponseParser::xserverinfo_data() {
