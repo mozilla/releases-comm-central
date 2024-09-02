@@ -258,6 +258,8 @@ add_task(async function () {
     "should find server by uri for normalized hostname '2'"
   );
 
+  // Now, general Testing of bad hostnames.
+
   MailServices.accounts.createIncomingServer(
     "nobody",
     "smart mailboxes",
@@ -279,17 +281,55 @@ add_task(async function () {
     );
   }
 
+  // Valid for "none" type, but already exists.
+  checkBadHostname("Local Folders", /NS_ERROR_FAILURE/);
+  checkBadHostname("Local%20Folders");
+  // Valid for "none" type, but already exists.
+  checkBadHostname("smart mailboxes", /NS_ERROR_FAILURE/);
+  checkBadHostname("smart%20mailboxes");
+
+  checkBadHostname("Local Folders 2");
   checkBadHostname(" bad.test ");
   checkBadHostname("b%61d.test");
   checkBadHostname("b/d.test");
   checkBadHostname("b:d.test");
   checkBadHostname("b@d.test");
   checkBadHostname("b d.test");
-  // Valid for "none" type, but already exists.
-  checkBadHostname("Local Folders", /NS_ERROR_FAILURE/);
-  checkBadHostname("Local Folders 2");
-  checkBadHostname("Local%20Folders");
-  // Valid for "none" type, but already exists.
-  checkBadHostname("smart mailboxes", /NS_ERROR_FAILURE/);
-  checkBadHostname("smart%20mailboxes");
+
+  // non-IPv4 hostnames that end in numbers are not valid.
+  checkBadHostname("invalid.192.168.1.2");
+
+  /**
+   * Check that servers created with these invalid hostnames get created, but
+   * as a <key>.invalid hostname instead (e.g. "server1.invalid").
+   * This is for the case where bad data is already in the prefs.
+   */
+  function checkHostnameRescue(hostname) {
+    const server = MailServices.accounts.createIncomingServer(
+      "nobody",
+      "tobechanged",
+      "none"
+    );
+    Services.prefs.setCharPref(`mail.server.${server.key}.hostname`, hostname);
+
+    MailServices.accounts.unloadAccounts();
+    MailServices.accounts.loadAccounts();
+
+    const serverLater = MailServices.accounts.getIncomingServer(server.key);
+
+    Assert.equal(
+      serverLater.hostName,
+      `${server.key}.invalid`,
+      `invalid hostname ${hostname} should turn into <key>.invalid"`
+    );
+    MailServices.accounts.removeIncomingServer(serverLater, false);
+  }
+  // Only try rescue for a few. If we try to many we get a crash.
+  // Seems loadAccounts/unloadAccounts has some bug.
+
+  checkHostnameRescue("b%61d.test");
+  checkHostnameRescue("b/d.test");
+
+  // non-IPv4 hostnames that end in numbers are not valid.
+  checkHostnameRescue("invalid.192.168.1.2");
 });

@@ -410,6 +410,28 @@ nsMsgAccountManager::CreateIncomingServer(const nsACString& username,
                                           nsIMsgIncomingServer** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
+  // Make sure the hostname is usable when creating a new incoming server.
+
+  if (hostname.Equals("Local%20Folders") ||
+      hostname.Equals("smart%20mailboxes")) {
+    return NS_ERROR_MALFORMED_URI;
+  }
+  if (hostname.Equals("Local Folders") || hostname.Equals("smart mailboxes")) {
+    // Allow these special hostnames, but only for "none" servers.
+    if (!type.Equals("none")) {
+      return NS_ERROR_MALFORMED_URI;
+    }
+  } else {
+    nsAutoCString unused;
+    nsresult rv = NS_DomainToASCII(hostname, unused);
+    NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
+    nsCOMPtr<nsIURL> url;
+    rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+             .SetSpec("imap://"_ns + hostname)
+             .Finalize(url);
+    NS_ENSURE_SUCCESS(rv, NS_ERROR_MALFORMED_URI);
+  }
+
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -535,16 +557,17 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer* aServer,
   return rv;
 }
 
-/*
- * create a server when you know the key and the type
+/**
+ * Create a server when you know the key and the type
  */
 nsresult nsMsgAccountManager::createKeyedServer(
     const nsACString& key, const nsACString& username,
-    const nsACString& hostname, const nsACString& type,
+    const nsACString& hostnameIn, const nsACString& type,
     nsIMsgIncomingServer** aServer) {
   nsresult rv;
   *aServer = nullptr;
 
+  nsAutoCString hostname(hostnameIn);
   if (hostname.Equals("Local Folders") || hostname.Equals("smart mailboxes")) {
     // Allow these special hostnames, but only for "none" servers.
     if (type != "none") {
@@ -558,7 +581,17 @@ nsresult nsMsgAccountManager::createKeyedServer(
     // Check the hostname is valid.
     nsAutoCString unused;
     rv = NS_DomainToASCII(hostname, unused);
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIURL> url;
+      rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+               .SetSpec("imap://"_ns + hostname)
+               .Finalize(url);
+    }
+    if (NS_FAILED(rv)) {
+      // In case of failure, use a <key>.invalid hostname instead
+      // so that access to the account is not lost.
+      hostname = key + ".invalid"_ns;
+    }
   }
 
   // construct the contractid
