@@ -178,6 +178,8 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
     if (NS_SUCCEEDED(err) && offlineOpRow) {
       NS_IF_ADDREF(*offlineOp =
                        new nsMsgOfflineImapOperation(this, offlineOpRow));
+      // The offlineOpRow uses msgKey as its oid, but we'll also explicitly
+      // set the messageKey field.
       (*offlineOp)->SetMessageKey(msgKey);
     }
     if (!hasOid && m_dbFolderInfo) {

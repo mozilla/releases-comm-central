@@ -1449,6 +1449,10 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
         nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
             do_QueryInterface(trashDB, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
+
+        // Offline operations are usually indexed by a msgKey. There's no
+        // message here, so we pretend and generate a fake msgKey to hang the
+        // offline op from. Ugh.
         nsMsgKey fakeKey;
         opsDb->GetNextFakeOfflineMsgKey(&fakeKey);
 
@@ -6581,7 +6585,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           NS_ERROR("bad msg in src array");
           continue;
         }
-        // Set up an offline op for this message.
+        // Set up an offline op for this message in the source DB.
         nsCOMPtr<nsIMsgOfflineImapOperation> sourceOp;
         rv = opsDb->GetOfflineOpForKey(originalKey, true,
                                        getter_AddRefs(sourceOp));
@@ -6687,6 +6691,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
               destDB->MarkOffline(fakeKey, false, nullptr);
             }
 
+            // Create a corresponding offline op in the destination DB.
             nsCOMPtr<nsIMsgOfflineOpsDatabase> opsDb =
                 do_QueryInterface(destDB, &rv);
             NS_ENSURE_SUCCESS(rv, rv);
@@ -6700,7 +6705,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                 opsDb->RemoveOfflineOp(destOp);
               } else {
                 SetFlag(nsMsgFolderFlags::OfflineEvents);
+                // SetSourceFolderURI() sets the op to kMoveResult.
                 destOp->SetSourceFolderURI(originalSrcFolderURI);
+                // Attach the key of the source message (in the srcDB).
                 destOp->SetSrcMessageKey(originalKey);
                 addedKeys.AppendElement(fakeKey);
                 addedHdrs.AppendObject(newMailHdr);

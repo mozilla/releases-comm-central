@@ -269,6 +269,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::AddMessageCopyOperation(
 // we write out the folders as one string, separated by 0x1.
 #define FOLDER_SEP_CHAR '\001'
 
+// Helper to read m_copyDestinations list from db.
 nsresult nsMsgOfflineImapOperation::GetCopiesFromDB() {
   nsCString copyDests;
   m_copyDestinations.Clear();
@@ -296,6 +297,7 @@ nsresult nsMsgOfflineImapOperation::GetCopiesFromDB() {
   return rv;
 }
 
+// Helper to write m_copyDestinations list to db.
 nsresult nsMsgOfflineImapOperation::SetCopiesToDB() {
   nsAutoCString copyDests;
 

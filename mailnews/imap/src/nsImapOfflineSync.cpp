@@ -724,7 +724,10 @@ nsImapOfflineSync::ProcessNextOperation() {
             nsOfflineImapOperationType opType;
             currentOp->GetOperation(&opType);
 
+            // kMoveResult op holds the source folder URI and the source
+            // msgKey.
             if (opType == nsIMsgOfflineImapOperation::kMoveResult) {
+              // Get the destination msgKey.
               nsMsgKey curKey;
               currentOp->GetMessageKey(&curKey);
               m_currentDB->RemoveOfflineOp(currentOp);

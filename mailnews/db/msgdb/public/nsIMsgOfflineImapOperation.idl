@@ -14,7 +14,7 @@ typedef long nsOfflineImapOperationType;
 interface nsIMsgOfflineImapOperation : nsISupports
 {
 // type of stored imap operations
-  const long kFlagsChanged      = 0x1;
+  const long kFlagsChanged      = 0x1;  // Set IMAP flags on msg.
   const long kMsgMoved          = 0x2;
   const long kMsgCopy           = 0x4;
   const long kMoveResult        = 0x8;
@@ -23,26 +23,34 @@ interface nsIMsgOfflineImapOperation : nsISupports
   const long kDeletedMsg        = 0x40;
   const long kMsgMarkedDeleted  = 0x80;
   const long kAppendTemplate    = 0x100;
-  const long kDeleteAllMsgs     = 0x200;
+  const long kDeleteAllMsgs     = 0x200;  // Delete all msgs in folder (eg empty trash).
   const long kAddKeywords       = 0x400;
   const long kRemoveKeywords    = 0x800;
 
+  // Bitflags indicating which operation(s) this represents.
   attribute nsOfflineImapOperationType operation;
   void clearOperation(in nsOfflineImapOperationType operation);
+
   attribute nsMsgKey messageKey;
 
-  // for move/copy operations, the msg key of the source msg.
+  // For move/copy operations, the msg key of the source msg (in source DB).
   attribute nsMsgKey srcMessageKey;
 
   attribute imapMessageFlagsType flagOperation;
   attribute imapMessageFlagsType newFlags; // for kFlagsChanged
   attribute AUTF8String destinationFolderURI; // for move or copy
+  // Setting this sets the kMoveResult bitflag in .operation.
   attribute AUTF8String sourceFolderURI;
+  // Calling this sets the kAddKeywords bitflag in .operation.
   void addKeywordToAdd(in string aKeyword);
+  // Calling this sets the kRemoveKeywords bitflag in .operation.
   void addKeywordToRemove(in string aKeyword);
   readonly attribute string keywordsToAdd;
   readonly attribute string keywordsToRemove;
   readonly attribute long numberOfCopies;
+  // Calling this sets the kMsgCopy bitflag in .operation.
+  // Can be called multiple times to copy to multiple destinations.
+  // NOTE: No code ever seems to use this. There's only ever one destination.
   void addMessageCopyOperation(in AUTF8String destinationBox);
   string getCopyDestination(in long copyIndex);
   attribute unsigned long msgSize;
