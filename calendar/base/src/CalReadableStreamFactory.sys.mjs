@@ -223,7 +223,7 @@ export class CalReadableStreamFactory {
   /**
    * The default amount of items to queue before providing via the reader.
    */
-  static defaultQueueSize = 10;
+  static defaultQueueSize = 100;
 
   /**
    * Creates a generic ReadableStream using the passed object as the

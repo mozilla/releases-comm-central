@@ -196,49 +196,33 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
   }
 
   addItems(items) {
+    this._tree?.beginUpdateBatch();
+    this.#saveSelection();
+
     let anyItemsMatchedFilter = false;
 
     for (const item of items) {
-      const row = new CalendarFilteredTreeViewRow(item);
-
-      const sortValue = row.getValue(this.#sortColumn);
-
-      let addIndex = null;
-      for (let i = 0; addIndex === null && i < this.#allRows.length; i++) {
-        const comparison = this.#collator.compare(
-          sortValue,
-          this.#allRows[i].getValue(this.#sortColumn)
-        );
-        if (
-          (comparison < 0 && this.#sortDirection == "ascending") ||
-          (comparison >= 0 && this.#sortDirection == "descending")
-        ) {
-          addIndex = i;
-        }
-      }
-
-      if (addIndex === null) {
-        addIndex = this.#allRows.length;
-      }
-      this.#allRows.splice(addIndex, 0, row);
+      this.#allRows.push(new CalendarFilteredTreeViewRow(item));
 
       if (this.#itemMatchesFilterIfAny(item)) {
         anyItemsMatchedFilter = true;
       }
     }
 
+    this.#sortBy(this.#sortColumn, this.#sortDirection, true);
+
     if (anyItemsMatchedFilter) {
-      this.#saveSelection();
-
-      this._tree?.beginUpdateBatch();
       this._rowMap = this.#allRows.filter(row => this.#itemMatchesFilterIfAny(row.item));
-      this._tree?.endUpdateBatch();
-
-      this.#restoreSelection();
     }
+
+    this.#restoreSelection();
+    this._tree?.endUpdateBatch();
   }
 
   removeItems(items) {
+    this._tree?.beginUpdateBatch();
+    this.#saveSelection();
+
     const hashIdsToRemove = items.map(i => i.hashId);
     for (let i = this.#allRows.length - 1; i >= 0; i--) {
       if (hashIdsToRemove.includes(this.#allRows[i].item.hashId)) {
@@ -246,15 +230,11 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
       }
     }
 
-    this.#saveSelection();
-
-    this._tree?.beginUpdateBatch();
     for (let i = this._rowMap.length - 1; i >= 0; i--) {
       if (hashIdsToRemove.includes(this._rowMap[i].item.hashId)) {
         this._rowMap.splice(i, 1);
       }
     }
-    this._tree?.endUpdateBatch();
 
     if (this.selection) {
       // Don't leave behind bogus rows in the selection. Restoring the selection
@@ -267,6 +247,7 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
     }
 
     this.#restoreSelection();
+    this._tree?.endUpdateBatch();
   }
 
   removeItemsFromCalendar(calendarId) {
@@ -291,9 +272,9 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
     this.#sortBy(column.id, direction);
   }
 
-  #sortBy(sortColumn, sortDirection) {
+  #sortBy(sortColumn, sortDirection, force) {
     // Sort underlying array of rows first.
-    if (sortColumn == this.#sortColumn) {
+    if (sortColumn == this.#sortColumn && !force) {
       if (sortDirection == this.#sortDirection) {
         // Sort order hasn't changed; do nothing.
         return;

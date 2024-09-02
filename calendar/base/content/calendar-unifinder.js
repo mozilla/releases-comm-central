@@ -257,6 +257,13 @@ function refreshUnifinderFilterInterval() {
 
   const intervalSelection = document.getElementById("event-filter-menulist").selectedItem.value;
   switch (intervalSelection) {
+    case "past":
+      startDate = today.clone();
+      // Use last 100 yrs instead of unbounded value, to avoid performance
+      // issues with recurring events.
+      startDate.year -= 100;
+      endDate = today;
+      break;
     case "today":
       startDate = today;
       endDate = today.clone();
@@ -301,12 +308,19 @@ function refreshUnifinderFilterInterval() {
       startDate = view.startDate;
       endDate = view.endDate;
       break;
+    case "all":
+      // Use last +-100 yrs instead of unbounded values, to avoid performance
+      // issues with recurring events.
+      startDate = today.clone();
+      startDate.year -= 100;
+      endDate = today.clone();
+      endDate.year += 100;
+      break;
   }
 
   const filteredView = getUnifinderView();
   if (filteredView) {
-    filteredView.startDate = startDate;
-    filteredView.endDate = endDate;
+    filteredView.setDateRange(startDate, endDate);
     filteredView.refreshItems();
   }
 }

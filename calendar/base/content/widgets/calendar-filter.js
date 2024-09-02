@@ -1123,6 +1123,35 @@ let CalendarFilteredViewMixin = Base =>
     }
 
     /**
+     * Set start and end range of the filter, all at once, avoiding the
+     * double #invalidate() calls that would otherwise take place.
+     *
+     * @param {?calIDateTime} start - Start time.
+     * @param {?calIDateTime} end - End time.
+     */
+    setDateRange(start, end) {
+      let changed = false;
+      if (
+        this.startDate?.compare(start) != 0 ||
+        this.startDate?.timezone.tzid != start.timezone.tzid
+      ) {
+        this.#filter.startDate = start.clone();
+        this.#filter.startDate.makeImmutable();
+        changed = true;
+      }
+
+      if (this.endDate?.compare(end) != 0 || this.endDate?.timezone.tzid != end.timezone.tzid) {
+        this.#filter.endDate = end.clone();
+        this.#filter.endDate.makeImmutable();
+        changed = true;
+      }
+
+      if (changed) {
+        this.#invalidate();
+      }
+    }
+
+    /**
      * One of the calICalendar.ITEM_FILTER_TYPE constants.
      * This must be set to a non-zero value in order to display any items.
      *
@@ -1289,9 +1318,8 @@ let CalendarFilteredViewMixin = Base =>
       }
       const iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));
       this.#iterators.add(iterator);
-      for await (const chunk of iterator) {
-        this.addItems(chunk);
-      }
+      const items = await Array.fromAsync(iterator);
+      this.addItems(items.flat());
       this.#iterators.delete(iterator);
     }
 
