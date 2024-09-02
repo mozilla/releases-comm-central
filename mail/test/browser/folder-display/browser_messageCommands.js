@@ -70,7 +70,7 @@ add_setup(async function () {
   ]);
 
   await make_message_sets_in_folders([unreadFolder], [{ count: 2 }]);
-  await make_message_sets_in_folders([shiftDeleteFolder], [{ count: 3 }]);
+  await make_message_sets_in_folders([shiftDeleteFolder], [{ count: 4 }]);
   await add_message_sets_to_folders(
     [threadDeleteFolder],
     [create_thread(3), create_thread(3), create_thread(3)]
@@ -492,6 +492,15 @@ add_task(async function test_shift_delete_prompt() {
   Assert.equal(curMessage, await select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
+  dialogPromise = promise_and_check_alert_dialog("accept", warning);
+  await press_delete(window, { shiftKey: true });
+  await dialogPromise;
+  // Make sure we really did delete the message.
+  Assert.notEqual(curMessage, await select_click_row(0));
+
+  // Third, focus the message pane, then try shift-deleting and accepting
+  // the deletion.
+  EventUtils.synthesizeKey("KEY_F6", {});
   dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window, { shiftKey: true });
   await dialogPromise;

@@ -285,26 +285,26 @@ var commandController = {
       }
     },
     cmd_deleteMessage() {
-      if (!MailUtils.confirmDelete(false, gDBView, gFolder)) {
-        return;
-      }
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
         parent.commandController.doCommand("cmd_deleteMessage");
         return;
       }
+      if (!MailUtils.confirmDelete(false, gDBView, gFolder)) {
+        return;
+      }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDeleteMessage() {
-      if (!MailUtils.confirmDelete(true, gDBView, gFolder)) {
-        return;
-      }
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
         parent.commandController.doCommand("cmd_shiftDeleteMessage");
+        return;
+      }
+      if (!MailUtils.confirmDelete(true, gDBView, gFolder)) {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
