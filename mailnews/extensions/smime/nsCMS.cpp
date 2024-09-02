@@ -457,7 +457,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
 
   if (!aDigestData.IsEmpty()) {
     SECOidTag oidTag;
-    SECItem digest;
+    SECItem digest = {siBuffer, NULL, 0};
     // NSS_CMSSignedData_SetDigestValue() takes a copy and won't mutate our
     // data, so we're OK to cast away the const here.
     digest.data = const_cast<uint8_t*>(aDigestData.Elements());
