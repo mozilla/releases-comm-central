@@ -4244,13 +4244,8 @@ int32_t nsMsgDBView::SecondaryCompare(nsMsgKey key1, nsIMsgFolder* folder1,
 
       return FnSortIdKey(&EntryInfo1, &EntryInfo2, &ctx);
     case kU32:
-      if (sortType == nsMsgViewSortType::byId) {
-        EntryInfo1.dword = EntryInfo1.id;
-        EntryInfo2.dword = EntryInfo2.id;
-      } else {
-        GetLongField(hdr1, sortType, &EntryInfo1.dword, colHandler);
-        GetLongField(hdr2, sortType, &EntryInfo2.dword, colHandler);
-      }
+      GetLongField(hdr1, sortType, &EntryInfo1.dword, colHandler);
+      GetLongField(hdr2, sortType, &EntryInfo2.dword, colHandler);
       return FnSortIdUint32(&EntryInfo1, &EntryInfo2, &ctx);
     default:
       return 0;
