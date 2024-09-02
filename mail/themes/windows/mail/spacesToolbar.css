@@ -9,3 +9,10 @@
     margin-top: 1px;
   }
 }
+
+@media (prefers-contrast) {
+  :root[tabsintitlebar]:not([lwtheme]) #spacesToolbar {
+    margin-top: 2px;
+    color: -moz-DialogText;
+  }
+}

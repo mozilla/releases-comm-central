@@ -63,13 +63,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  :root[tabsintitlebar]:not([lwtheme]) #navigation-toolbox {
+  :root[tabsintitlebar]:not([lwtheme]) {
+    padding-top: 2px;
     background-color: ActiveCaption;
     color: CaptionText;
 
     &:-moz-window-inactive {
       background-color: InactiveCaption;
       color: InactiveCaptionText;
+    }
+
+    & #navigation-toolbox {
+      background-color: -moz-Dialog;
+      color: -moz-DialogText;
     }
   }
 }
