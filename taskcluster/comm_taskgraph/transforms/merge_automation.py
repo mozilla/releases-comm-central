@@ -13,7 +13,6 @@ import urllib.request
 import yaml
 from mozilla_version.gecko import GeckoVersion
 from taskgraph.transforms.base import TransformSequence
-from taskgraph.util.schema import resolve_keyed_by
 
 from comm_taskgraph import COMM
 
@@ -23,6 +22,16 @@ MOZ_HG_URL = "https://hg.mozilla.org/releases/{repo}"
 MOZ_HG_TB_VERSION_URL = "{repo_base_url}/raw-file/tip/mail/config/version.txt"
 MOZ_HG_TB_GECKO_REV_URL = "{repo_base_url}/raw-file/tip/.gecko_rev.yml"
 MOZ_HG_TAG_URL = "https://hg.mozilla.org/releases/{repo}/json-tags"
+# Matcher for RELEASE_BASE tags (used for late betas)
+BASE_TAG_RE = r"^FIREFOX_RELEASE_{major_version}_BASE$"
+# Most recent tag that's a RELEASE or BUILD1
+RELEASE_TAG_RE = r"^FIREFOX_{major_version}_{minor_version}[\dbesr_]+(RELEASE|BUILD\d)$"
+
+BEHAVIOR_2_GECKO_REPO = {
+    "comm-beta-to-release": "mozilla-release",
+    "comm-release-to-esr": "mozilla-esr128",
+    "comm-bump-esr128": "mozilla-esr128",
+}
 
 
 def do_suite_verbump(replacements):
@@ -91,46 +100,36 @@ def get_gecko_rev_yml(repo_base_url):
     return yaml.safe_load(data)
 
 
-def get_upstream_tag(tag_regex, base_regex, repo):
-    base_tag_matcher = re.compile(base_regex)
-    release_tag_matcher = re.compile(tag_regex)
+def get_last_tag(version, repo):
+    base_tag_regex = BASE_TAG_RE.format(major_version=version.major_number)
+    release_tag_regex = RELEASE_TAG_RE.format(
+        major_version=version.major_number, minor_version=version.minor_number
+    )
+    base_tag_matcher = re.compile(base_tag_regex)
+    release_tag_matcher = re.compile(release_tag_regex)
 
     def check_match(tag_name):
-        return release_tag_matcher.match(tag_name)
-
-    def check_base_match(tag_name):
-        return base_tag_matcher.match(tag_name)
+        base_m = base_tag_matcher.match(tag_name)
+        rel_m = release_tag_matcher.match(tag_name)
+        return base_m or rel_m
 
     j = get_json_tags(repo)
 
-    for tag in j["tags"]:
+    for i in range(0, 10):
+        tag = j["tags"][i]
         m = check_match(tag["tag"])
         if m:
             print("Found matching tag: {}".format(m.group(0)))
-            print("Tag: {}".format(tag["tag"]))
-            print("Rev: {}".format(tag["node"]))
-            return {"tag": tag["tag"], "node": tag["node"]}
-        m = check_base_match(tag["tag"])
-        if m:
-            print("No release/build tag found.")
-            print("Using base tag {}".format(m.group(0)))
+
             print("Tag: {}".format(tag["tag"]))
             print("Rev: {}".format(tag["node"]))
             return {"tag": tag["tag"], "node": tag["node"]}
 
-    raise Exception("Unable to find a suitable upstream tag!")
+    raise Exception("No release tag found in first 10 tags downloaded.")
 
 
 def mk_gecko_rev_replacement(key, old, new):
-    """
-    Build a replacement structure for Treescript.
-    The return value is applied to the overall replacements list via .extend().
-    In the case where the value does not change, an empty list is returned
-    so .extend() has no effect.
-    """
-    rv = []
-    if new != old:
-        rv.append([".gecko_rev.yml", f"{key}: {old}", f"{key}: {new}"])
+    rv = [".gecko_rev.yml", f"{key}: {old}", f"{key}: {new}"]
     return rv
 
 
@@ -140,55 +139,30 @@ def pin_gecko_rev_yml(config, tasks):
         if "merge_config" not in config.params:
             break
 
-        resolve_keyed_by(
-            task,
-            "worker.gecko-rev",
-            item_name=task["name"],
-            **{
-                "project": config.params["project"],
-                "release-type": config.params["release_type"],
-                "behavior": config.params["merge_config"]["behavior"],
-            },
-        )
+        behavior = config.params["merge_config"]["behavior"]
+        if behavior in BEHAVIOR_2_GECKO_REPO:
+            gecko_repo = BEHAVIOR_2_GECKO_REPO[behavior]
 
-        merge_config = task["worker"]["merge-info"]
-        if gecko_rev := task["worker"].pop("gecko-rev", None):
-            source_repo = merge_config[gecko_rev["source"]]
-            gecko_head_repo = MOZ_HG_URL.format(repo=gecko_rev["upstream"])
+            merge_config = task["worker"]["merge-info"]
+            if behavior == "comm-bump-esr128":
+                thunderbird_version = get_thunderbird_version(merge_config["to-repo"])
+                thunderbird_version = thunderbird_version.bump("minor_number")
+                gecko_rev_yml = get_gecko_rev_yml(merge_config["to-repo"])
+            else:
+                thunderbird_version = get_thunderbird_version(merge_config["from-repo"])
+                gecko_rev_yml = get_gecko_rev_yml(merge_config["from-repo"])
 
-            gecko_rev_yml = get_gecko_rev_yml(source_repo)
-            thunderbird_version = get_thunderbird_version(source_repo)
-
-            tag_regex = gecko_rev["tag"].format(
-                major_version=thunderbird_version.major_number,
-                minor_version=thunderbird_version.minor_number,
-                minor_version_plus1=thunderbird_version.minor_number + 1,
-            )
-            base_regex = gecko_rev["base"].format(
-                major_version=thunderbird_version.major_number,
-                minor_version=thunderbird_version.minor_number,
-            )
-            tag_data = get_upstream_tag(tag_regex, base_regex, gecko_rev["upstream"])
-
-            replacements = []
-            replacements.extend(
-                mk_gecko_rev_replacement(
-                    "GECKO_HEAD_REPOSITORY",
-                    gecko_rev_yml["GECKO_HEAD_REPOSITORY"],
-                    gecko_head_repo,
-                )
-            )
-            replacements.extend(
+            tag_data = get_last_tag(thunderbird_version, gecko_repo)
+            replacements = merge_config["replacements"]
+            replacements.append(
                 mk_gecko_rev_replacement(
                     "GECKO_HEAD_REF", gecko_rev_yml["GECKO_HEAD_REF"], tag_data["tag"]
                 )
             )
-            replacements.extend(
+            replacements.append(
                 mk_gecko_rev_replacement(
                     "GECKO_HEAD_REV", gecko_rev_yml["GECKO_HEAD_REV"], tag_data["node"]
                 )
             )
-
-            merge_config["replacements"].extend(replacements)
 
         yield task

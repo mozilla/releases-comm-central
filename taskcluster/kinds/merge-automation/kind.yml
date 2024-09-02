@@ -56,27 +56,5 @@ tasks:
                               "path": "mail/locales/shipped-locales",
                           }]
                     default: null
-            gecko-rev:
-                by-behavior:
-                    comm-central-to-beta:
-                        source: from-repo
-                        upstream: mozilla-beta
-                        tag: 'FIREFOX_{major_version}_0b1_BUILD\d'
-                        base: 'FIREFOX_BETA_{major_version}_BASE'
-                    comm-beta-to-release:
-                        source: from-repo
-                        upstream: mozilla-release
-                        tag: 'FIREFOX_{major_version}_0_BUILD\d'
-                        base: 'FIREFOX_RELEASE_{major_version}_BASE'
-                    comm-release-to-esr:
-                        source: to-repo
-                        upstream: mozilla-esr128
-                        tag: 'FIREFOX_{major_version}_0esr_BUILD\d'
-                        base: 'FIREFOX_ESR_{major_version}_BASE'
-                    comm-bump-esr128:
-                        source: to-repo
-                        upstream: mozilla-esr128
-                        tag: 'FIREFOX_{major_version}_{minor_version_plus1}(_\d+)?esr_BUILD\d'
-                        base: '(FIREFOX_ESR_{major_version}_BASE|FIREFOX_{major_version}_{minor_version}(_\d+)?)esr_BUILD\d'
         run-on-projects: []
         expiration-policy: long
