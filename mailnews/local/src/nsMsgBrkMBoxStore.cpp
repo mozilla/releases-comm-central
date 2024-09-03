@@ -241,8 +241,6 @@ class MboxCompactor : public nsIStoreScanListener {
       : mFolder(folder),
         mCompactListener(listener),
         mOriginalMboxFileSize(0),
-        mMsgFlags(0),
-        mNewMsgSize(0),
         mPatchXMozillaHeaders(patchXMozillaHeaders) {}
 
   /*

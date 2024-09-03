@@ -14,7 +14,6 @@ import tomlkit
 from tomlkit.toml_file import TOMLFile
 
 from mozbuild.vendor.vendor_rust import VendorRust
-from mozpack import path as mozpath
 
 config_footer = """
 # Take advantage of the fact that cargo will treat lines starting with #
@@ -134,7 +133,7 @@ class CargoFile:
     our_directory = None
 
     def __init__(self, filename):
-        self.our_directory = mozpath.dirname(filename)
+        self.our_directory = os.path.dirname(filename)
         self.dependencies = dict()
         self.patches = dict()
         self.filename = filename
@@ -183,7 +182,7 @@ class CargoFile:
             if isinstance(dep, str):
                 dep = {"version": dep}
             if "path" in dep:
-                path = mozpath.abspath(mozpath.join(self.our_directory, dep["path"]))
+                path = os.path.abspath(os.path.join(self.our_directory, dep["path"]))
                 dep["path"] = path
             deps[_id] = dep
 
@@ -196,7 +195,7 @@ class CargoFile:
         for id in data:
             patch = data[id]
             if "path" in patch:
-                path = mozpath.abspath(mozpath.join(self.our_directory, patch["path"]))
+                path = os.path.abspath(os.path.join(self.our_directory, patch["path"]))
                 patch["path"] = path
             patches[id] = patch
 
@@ -220,7 +219,7 @@ def check_vendored_dependencies(topsrcdir):
 
     :rtype: List[str]: List of paths to Cargo.toml files
     """
-    checksums_file = mozpath.join(topsrcdir, "comm", "rust", "checksums.json")
+    checksums_file = os.path.join(topsrcdir, "comm", "rust", "checksums.json")
     try:
         checksum_data = json.load(open(checksums_file))
     except FileNotFoundError:
@@ -239,7 +238,7 @@ def check_vendored_dependencies(topsrcdir):
 def get_current_checksums(topsrcdir):
     current_checksums = {}
     for key, path in CARGO_FILES.items():
-        filename = mozpath.join(topsrcdir, path)
+        filename = os.path.join(topsrcdir, path)
         if os.path.isfile(filename):
             with open(filename) as f:
                 content = f.read().encode("utf-8")
@@ -249,7 +248,7 @@ def get_current_checksums(topsrcdir):
 
 def save_vendored_checksums(topsrcdir):
     current_checksums = get_current_checksums(topsrcdir)
-    checksums_file = mozpath.join(topsrcdir, "comm", "rust", "checksums.json")
+    checksums_file = os.path.join(topsrcdir, "comm", "rust", "checksums.json")
     with open(checksums_file, "w") as fp:
         json.dump(current_checksums, fp)
 
@@ -257,9 +256,9 @@ def save_vendored_checksums(topsrcdir):
 def run_tb_cargo_sync(command_context):
     cargo = get_cargo(command_context)
 
-    mc_lock = mozpath.join(command_context.topsrcdir, "Cargo.lock")
-    workspace = mozpath.join(command_context.topsrcdir, "comm", "rust")
-    our_lock = mozpath.join(workspace, "Cargo.lock")
+    mc_lock = os.path.join(command_context.topsrcdir, "Cargo.lock")
+    workspace = os.path.join(command_context.topsrcdir, "comm", "rust")
+    our_lock = os.path.join(workspace, "Cargo.lock")
 
     regen_toml_files(command_context, workspace)
     command_context.log(logging.INFO, "tb-rust", {}, f"[INFO] Syncing {mc_lock} with {our_lock}")
@@ -272,9 +271,9 @@ def run_tb_rust_vendor(command_context):
     cargo = get_cargo(command_context)
 
     run_tb_cargo_sync(command_context)
-    workspace = mozpath.join(command_context.topsrcdir, "comm", "rust")
-    config = mozpath.join(workspace, ".cargo", "config.toml.in")
-    third_party = mozpath.join(command_context.topsrcdir, "comm", "third_party", "rust")
+    workspace = os.path.join(command_context.topsrcdir, "comm", "rust")
+    config = os.path.join(workspace, ".cargo", "config.toml.in")
+    third_party = os.path.join(command_context.topsrcdir, "comm", "third_party", "rust")
 
     if os.path.exists(third_party):
         command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Removing comm/third_party/rust")
@@ -346,8 +345,8 @@ def regen_toml_files(command_context, workspace):
             if len(to_preserve) != 0:
                 preserved_features[dep_id] = to_preserve
 
-        path = mozpath.abspath(mozpath.join(workspace, dep["path"]))
-        if mozpath.dirname(path) == workspace:
+        path = os.path.abspath(os.path.join(workspace, dep["path"]))
+        if os.path.dirname(path) == workspace:
             local_deps[dep_id] = dep
 
     # Deps copied from gkrust-shared
@@ -370,7 +369,7 @@ def regen_toml_files(command_context, workspace):
     }
     global_deps["gkrust-shared"] = {
         "version": "0.1.0",
-        "path": mozpath.join(command_context.topsrcdir, "toolkit", "library", "rust", "shared"),
+        "path": os.path.join(command_context.topsrcdir, "toolkit", "library", "rust", "shared"),
     }
     for i in local_deps.keys():
         keys.insert(0, i)
@@ -383,7 +382,7 @@ def regen_toml_files(command_context, workspace):
         data = global_deps[key]
         # Rewrite paths relative to us.
         if "path" in data:
-            data["path"] = mozpath.relpath(data["path"], comm_gkrust_dir)
+            data["path"] = os.path.relpath(data["path"], comm_gkrust_dir)
         if "default_features" in data:
             del data["default_features"]
         elif "default-features" in data:
@@ -435,7 +434,7 @@ def regen_toml_files(command_context, workspace):
         for _id in data:
             patch = data[_id]
             if "path" in patch:
-                patch["path"] = mozpath.relpath(patch["path"], workspace)
+                patch["path"] = os.path.relpath(patch["path"], workspace)
             workspace_patches += inline_encoded_toml(_id, patch) + "\n"
         workspace_patches += "\n"
 
