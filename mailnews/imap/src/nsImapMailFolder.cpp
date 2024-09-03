@@ -8802,6 +8802,7 @@ void nsImapMailFolder::PlaybackTimerCallback(nsITimer* aTimer, void* aClosure) {
                "wrong playback request pointer");
 
   RefPtr<nsImapOfflineSync> offlineSync = new nsImapOfflineSync();
+  // Execute the offline operations, in pseudoOffline mode.
   offlineSync->Init(request->MsgWindow, nullptr, request->SrcFolder, true);
   if (offlineSync) {
     mozilla::DebugOnly<nsresult> rv = offlineSync->ProcessNextOperation();

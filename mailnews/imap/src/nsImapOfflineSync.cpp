@@ -674,6 +674,8 @@ nsImapOfflineSync::ProcessNextOperation() {
     if (m_singleFolderToUpdate) {
       if (!m_pseudoOffline) {
         AdvanceToFirstIMAPFolder();
+        // Because IMAP folder creation is async, we might exit now and
+        // continue later on (via OnStopRunningUrl()).
         if (CreateOfflineFolders()) return NS_OK;
       }
     } else {
