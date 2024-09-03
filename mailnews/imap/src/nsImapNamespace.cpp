@@ -345,7 +345,10 @@ nsImapNamespace* nsImapNamespaceList::GetNamespaceForFolder(
   if (convertedFolderName) {
     nsCOMPtr<nsIImapHostSessionList> hostSessionList =
         do_GetService(kCImapHostSessionListCID, &rv);
-    if (NS_FAILED(rv)) return nullptr;
+    if (NS_FAILED(rv)) {
+      PR_FREEIF(convertedFolderName);
+      return nullptr;
+    }
     hostSessionList->GetNamespaceForMailboxForHost(
         hostName, convertedFolderName, resultNamespace);
     PR_Free(convertedFolderName);
