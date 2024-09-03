@@ -528,7 +528,7 @@ export var RNP = {
       }
       await lazy.OpenPGPMasterpass.ensurePasswordIsCached();
     } catch (e) {
-      console.warn("Loading RNP FAILED!", e);
+      lazy.log.warn("Loading RNP FAILED!", e);
     }
   },
 
@@ -754,7 +754,7 @@ export var RNP = {
    * @param {rnp_ffi_t} ffi - RNP library handle to key storage area
    * @param {boolean} forListing - Request additional attributes
    *   in the returned objects, for backwards compatibility.
-   * @param {string[]} onlyKeys - An array of key IDs or fingerprints.
+   * @param {?string[]} onlyKeys - An array of key IDs or fingerprints.
    *   If non-null, only the given elements will be returned.
    *   If null, all elements are returned.
    * @param {boolean} onlySecret - If true, only information for
@@ -762,8 +762,8 @@ export var RNP = {
    * @param {boolean} withPubKey - If true, an additional attribute
    *   "pubKey" will be added to each returned KeyObj, which will
    *   contain an ascii armor copy of the public key.
-   * @returns {KeyObj[]} - An array of KeyObj objects that describe the
-   *                       available keys.
+   * @returns {KeyObj[]} an array of KeyObj objects that describe the
+   *   available keys.
    */
   async getKeysFromFFI(
     ffi,
@@ -781,8 +781,8 @@ export var RNP = {
     const keys = [];
 
     if (onlyKeys) {
-      for (let ki = 0; ki < onlyKeys.length; ki++) {
-        const handle = await this.getKeyHandleByIdentifier(ffi, onlyKeys[ki]);
+      for (const id of onlyKeys) {
+        const handle = await this.getKeyHandleByIdentifier(ffi, id);
         if (!handle || handle.isNull()) {
           continue;
         }
@@ -802,7 +802,8 @@ export var RNP = {
             continue;
           }
         } catch (ex) {
-          console.warn(`Get key info from handle FAILED for 0x${keyObj.id}`);
+          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`);
+          continue;
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
         }
@@ -861,7 +862,9 @@ export var RNP = {
             continue;
           }
         } catch (ex) {
-          console.warn(`Get key info from handle FAILED for 0x${keyObj.id}`);
+          const id = RNP.getKeyIDFromHandle(handle);
+          lazy.log.warn(`Get key info from handle FAILED for 0x${id}`);
+          continue;
         } finally {
           RNPLib.rnp_key_handle_destroy(handle);
         }
@@ -1713,7 +1716,7 @@ export var RNP = {
         RNPLib.rnp_uid_handle_destroy(uid_handle);
       }
     } catch (ex) {
-      console.warn("Getting signatures FAILED!", ex);
+      lazy.log.warn(`Getting signatures for 0x{keyObj.keyId} FAILED!`, ex);
     }
     return rList;
   },
