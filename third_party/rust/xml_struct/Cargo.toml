@@ -9,10 +9,25 @@
 # will likely look very different (and much more reasonable).
 # See Cargo.toml.orig for the original contents.
 
+bin = []
+example = []
+test = []
+bench = []
+
 [package]
 edition = "2021"
 name = "xml_struct"
 version = "0.1.0"
+build = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+readme = false
+
+[lib]
+name = "xml_struct"
+path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0.69"
