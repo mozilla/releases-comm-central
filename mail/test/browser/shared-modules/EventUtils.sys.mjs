@@ -1,3 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { AppConstants } from "resource:///modules/AppConstants.sys.mjs";
+
 // Export all available functions for Mozmill
 function computeButton(aEvent) {
   if (typeof aEvent.button != "undefined") {
@@ -27,8 +33,6 @@ function computeButtons(aEvent, utils) {
  * synthesizeMouse and synthesizeKey.
  */
 function _parseModifiers(aEvent) {
-  var hwindow = Services.appShell.hiddenDOMWindow;
-
   var mval = 0;
   if (aEvent.shiftKey) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_SHIFT;
@@ -43,9 +47,10 @@ function _parseModifiers(aEvent) {
     mval |= Ci.nsIDOMWindowUtils.MODIFIER_META;
   }
   if (aEvent.accelKey) {
-    mval |= hwindow.navigator.platform.includes("Mac")
-      ? Ci.nsIDOMWindowUtils.MODIFIER_META
-      : Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
+    mval |=
+      AppConstants.platform == "macosx"
+        ? Ci.nsIDOMWindowUtils.MODIFIER_META
+        : Ci.nsIDOMWindowUtils.MODIFIER_CONTROL;
   }
 
   return mval;

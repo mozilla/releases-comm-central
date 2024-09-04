@@ -98,35 +98,6 @@ class MAPISendListener : public nsIMsgSendListener,
   virtual ~MAPISendListener() {}
 };
 
-/// Helper for setting up the hidden window for blind MAPI.
-class MOZ_STACK_CLASS AutoHiddenWindow {
- public:
-  explicit AutoHiddenWindow(nsresult& rv)
-      : mAppService(do_GetService("@mozilla.org/appshell/appShellService;1")) {
-    mCreatedHiddenWindow = false;
-    rv = mAppService->GetHiddenDOMWindow(getter_AddRefs(mHiddenWindow));
-    if (rv == NS_ERROR_FAILURE) {
-      // Try to get a hidden window. If it doesn't exist, create a hidden
-      // window for us to use.
-      rv = mAppService->CreateHiddenWindow();
-      NS_ENSURE_SUCCESS_VOID(rv);
-      mCreatedHiddenWindow = true;
-      rv = mAppService->GetHiddenDOMWindow(getter_AddRefs(mHiddenWindow));
-    }
-    NS_ENSURE_SUCCESS_VOID(rv);
-  }
-  ~AutoHiddenWindow() {
-    if (mCreatedHiddenWindow) mAppService->DestroyHiddenWindow();
-  }
-  mozIDOMWindowProxy* operator->() { return mHiddenWindow; }
-  operator mozIDOMWindowProxy*() { return mHiddenWindow; }
-
- private:
-  nsCOMPtr<nsIAppShellService> mAppService;
-  nsCOMPtr<mozIDOMWindowProxy> mHiddenWindow;
-  bool mCreatedHiddenWindow;
-};
-
 NS_IMPL_ISUPPORTS(MAPISendListener, nsIMsgSendListener)
 
 bool nsMapiHook::isMapiService = false;
@@ -276,10 +247,6 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
 
   if (!IsBlindSendAllowed()) return NS_ERROR_FAILURE;
 
-  // Get a hidden window to use for compose.
-  AutoHiddenWindow hiddenWindow(rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // smtp password and Logged in used IdKey from MapiConfig (session obj)
   nsMAPIConfiguration* pMapiConfig =
       nsMAPIConfiguration::GetMAPIConfiguration();
@@ -322,7 +289,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   nsCOMPtr<nsIMsgCompose> pMsgCompose(
       do_CreateInstance("@mozilla.org/messengercompose/compose;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = pMsgCompose->Initialize(pMsgComposeParams, hiddenWindow, nullptr);
+  rv = pMsgCompose->Initialize(pMsgComposeParams, nullptr, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If we're in offline mode, we'll need to queue it for later.

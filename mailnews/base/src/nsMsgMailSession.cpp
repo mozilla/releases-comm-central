@@ -17,7 +17,6 @@
 #include "nsIObserverService.h"
 #include "nsIAppStartup.h"
 #include "nsISupportsPrimitives.h"
-#include "nsIAppShellService.h"
 #include "nsAppShellCID.h"
 #include "nsIWindowMediator.h"
 #include "nsIWindowWatcher.h"
@@ -603,15 +602,8 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports* aSubject,
       nsCOMPtr<nsIWindowMediator> winMed =
           do_GetService(NS_WINDOWMEDIATOR_CONTRACTID);
       winMed->GetMostRecentWindow(nullptr, getter_AddRefs(internalDomWin));
-
-      // If not use the hidden window.
-      if (!internalDomWin) {
-        nsCOMPtr<nsIAppShellService> appShell(
-            do_GetService(NS_APPSHELLSERVICE_CONTRACTID));
-        appShell->GetHiddenDOMWindow(getter_AddRefs(internalDomWin));
-        NS_ENSURE_TRUE(internalDomWin,
-                       NS_ERROR_FAILURE);  // bail if we don't get a window.
-      }
+      NS_ENSURE_TRUE(internalDomWin,
+                     NS_ERROR_FAILURE);  // Bail if we don't get a window.
     }
 
     if (!mQuitForced) {

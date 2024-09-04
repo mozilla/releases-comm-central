@@ -166,15 +166,20 @@ export var Notifications = {
           mainWindow.showChatTab();
           mainWindow.chatHandler.focusConversation(uiConv);
         } else {
-          Services.appShell.hiddenDOMWindow.openDialog(
+          const args = Cc["@mozilla.org/array;1"].createInstance(
+            Ci.nsIMutableArray
+          );
+          args.appendElement(null);
+          args.appendElement({
+            tabType: "chat",
+            tabParams: { convType: "focus", conv: uiConv },
+          });
+          Services.ww.openWindow(
+            null,
             "chrome://messenger/content/messenger.xhtml",
             "_blank",
             "chrome,dialog=no,all",
-            null,
-            {
-              tabType: "chat",
-              tabParams: { convType: "focus", conv: uiConv },
-            }
+            args
           );
         }
         if (AppConstants.platform == "macosx") {

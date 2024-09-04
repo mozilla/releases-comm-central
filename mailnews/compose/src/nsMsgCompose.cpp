@@ -1189,7 +1189,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   if (progress) {
     mProgress = progress;
 
-    if (deliverMode != nsIMsgCompDeliverMode::AutoSaveAsDraft) {
+    if (m_window && deliverMode != nsIMsgCompDeliverMode::AutoSaveAsDraft) {
       nsAutoString msgSubject;
       m_compFields->GetSubject(msgSubject);
 
