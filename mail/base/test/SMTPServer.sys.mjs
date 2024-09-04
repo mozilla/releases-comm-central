@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  SmtpDaemon,
-  SMTP_RFC2821_handler,
-} from "resource://testing-common/mailnews/Smtpd.sys.mjs";
+import * as SmtpD from "resource://testing-common/mailnews/Smtpd.sys.mjs";
 import { nsMailServer } from "resource://testing-common/mailnews/Maild.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
@@ -15,15 +12,18 @@ import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 export class SMTPServer {
   constructor(options = {}) {
     this.options = options;
-    this.open();
+    this.open(options.handler);
   }
 
-  open() {
+  open(handlerName = "RFC2821") {
     if (!this.daemon) {
-      this.daemon = new SmtpDaemon();
+      this.daemon = new SmtpD.SmtpDaemon();
     }
     this.server = new nsMailServer(daemon => {
-      const handler = new SMTP_RFC2821_handler(daemon, this.options);
+      const handler = new SmtpD[`SMTP_${handlerName}_handler`](
+        daemon,
+        this.options
+      );
       if (this.options.offerStartTLS) {
         // List startTLS as a capability, even though we don't support it.
         handler.kCapabilities.push("STARTTLS");
@@ -46,5 +46,9 @@ export class SMTPServer {
 
   get port() {
     return this.server.port;
+  }
+
+  get lastMessage() {
+    return this.daemon.post;
   }
 }

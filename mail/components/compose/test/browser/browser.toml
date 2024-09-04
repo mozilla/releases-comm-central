@@ -1,0 +1,19 @@
+[DEFAULT]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.oauth.loglevel=Debug",
+  "mailnews.send.loglevel=Debug",
+  "mailnews.smtp.loglevel=Debug",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+
+["browser_sendMessage.js"]
+["browser_sendMessage_badPassword.js"]
+["browser_sendMessage_certError.js"]
+["browser_sendMessage_oAuth2.js"]
+tags = "oauth"
