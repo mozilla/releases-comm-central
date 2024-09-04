@@ -2814,7 +2814,7 @@ nsImapIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
   }
 
   msgFolder.forget(aFolder);
-  return (aFolder ? NS_OK : NS_ERROR_FAILURE);
+  return NS_OK;
 }
 
 nsresult nsImapIncomingServer::GetExistingMsgFolder(
