@@ -50,6 +50,7 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(localAccount, false);
     certOverrideService.clearAllOverrides();
+    alertsService.unregister();
   });
 });
 

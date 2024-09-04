@@ -61,12 +61,11 @@ add_setup(async function () {
   imapAccount.addIdentity(MailServices.accounts.createIdentity());
   imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
-    "localhost",
+    "test.test",
     "imap"
   );
   imapAccount.incomingServer.prettyName = "IMAP Account";
-  imapAccount.incomingServer.port = imapServer.port;
-  imapAccount.incomingServer.password = "password";
+  imapAccount.incomingServer.port = 143;
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapInbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(imapInbox);
@@ -75,24 +74,41 @@ add_setup(async function () {
   pop3Account.addIdentity(MailServices.accounts.createIdentity());
   pop3Account.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
-    "localhost",
+    "test.test",
     "pop3"
   );
   pop3Account.incomingServer.prettyName = "POP3 Account";
-  pop3Account.incomingServer.port = pop3Server.port;
-  pop3Account.incomingServer.password = "password";
+  pop3Account.incomingServer.port = 110;
   pop3RootFolder = pop3Account.incomingServer.rootFolder;
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
 
+  // Add saved passwords for the defined accounts. This is deliberately above
+  // the NNTP set-up, as that doesn't require a password.
+  for (const inbox of allInboxes) {
+    const loginInfo = Cc[
+      "@mozilla.org/login-manager/loginInfo;1"
+    ].createInstance(Ci.nsILoginInfo);
+    loginInfo.init(
+      `${inbox.server.localStoreType}://test.test`,
+      null,
+      `${inbox.server.localStoreType}://test.test`,
+      "user",
+      "password",
+      "",
+      ""
+    );
+    await Services.logins.addLoginAsync(loginInfo);
+  }
+
   nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "user",
-    "localhost",
+    "test.test",
     "nntp"
   );
   nntpAccount.incomingServer.prettyName = "NNTP Account";
-  nntpAccount.incomingServer.port = nntpServer.port;
+  nntpAccount.incomingServer.port = 119;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
   nntpRootFolder.createSubfolder("getmessages.newsgroup", null);
   nntpFolder = nntpRootFolder.getChildNamed("getmessages.newsgroup");
@@ -117,6 +133,7 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(pop3Account, false);
     MailServices.accounts.removeAccount(nntpAccount, false);
     storeState({});
+    Services.logins.removeAllLogins();
   });
 });
 

@@ -63,14 +63,6 @@ add_setup(async function () {
   imapAccount.incomingServer.prettyName = "IMAP Account";
   imapAccount.incomingServer.port = 143;
   imapAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
-  Services.prefs.getStringPref(
-    "mail.server." + imapAccount.incomingServer.key + ".oauth2.issuer",
-    "mochi.test"
-  );
-  Services.prefs.getStringPref(
-    "mail.server." + imapAccount.incomingServer.key + ".oauth2.scope",
-    "test_mail test_addressbook test_calendar"
-  );
   imapRootFolder = imapAccount.incomingServer.rootFolder;
   imapInbox = imapRootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(imapInbox);
@@ -85,14 +77,6 @@ add_setup(async function () {
   pop3Account.incomingServer.prettyName = "POP3 Account";
   pop3Account.incomingServer.port = 110;
   pop3Account.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
-  Services.prefs.getStringPref(
-    "mail.server." + pop3Account.incomingServer.key + ".oauth2.issuer",
-    "mochi.test"
-  );
-  Services.prefs.getStringPref(
-    "mail.server." + pop3Account.incomingServer.key + ".oauth2.scope",
-    "test_mail test_addressbook test_calendar"
-  );
   pop3RootFolder = pop3Account.incomingServer.rootFolder;
   pop3Inbox = pop3RootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   allInboxes.push(pop3Inbox);
