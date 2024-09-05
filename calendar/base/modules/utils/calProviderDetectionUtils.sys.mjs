@@ -98,7 +98,7 @@ export var detection = {
    * @param {ProviderFilter[]} aPreDetectFilters - Functions for filtering out providers.
    * @param {object} aExtraProperties - Extra properties to pass on to the
    *   providers.
-   * @returns {Promise<Map<string,calICalendar[]>>} a Map of provider type to calendars found.
+   * @returns {Promise<Map<calICalendarProvider,calICalendar[]>>} a Map of provider type to calendars found.
    */
   async detect(
     aUsername,

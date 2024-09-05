@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Assert } from "resource://testing-common/Assert.sys.mjs";
-
 import { CommonUtils } from "resource://services-common/utils.sys.mjs";
 import { HttpServer } from "resource://testing-common/httpd.sys.mjs";
 
@@ -21,6 +19,7 @@ export var ICSServer = {
     this.username = username;
     this.password = password;
     this.server.registerPathHandler("/ping", this.ping);
+    this.server.registerPathHandler("/http302", this.http302);
     this.server.registerPathHandler(this.path, this.handleICS.bind(this));
 
     this.reset();
@@ -98,6 +97,15 @@ export var ICSServer = {
     response.write("pong");
   },
 
+  http302(request, response) {
+    const params = new URLSearchParams(request.queryString);
+    const path = params.get("path");
+    response.setStatusLine("1.1", 302, "Found");
+    response.setHeader("Location", `${ICSServer.origin}/${path}`);
+    response.setHeader("Content-Type", "text/plain; charset=UTF-8");
+    response.setHeader("Content-Length", "0");
+  },
+
   handleICS(request, response) {
     if (!this.checkAuth(request, response)) {
       return;
@@ -115,7 +123,6 @@ export var ICSServer = {
         return;
     }
 
-    Assert.report(true, undefined, undefined, "Should not have reached here");
     response.setStatusLine("1.1", 405, "Method Not Allowed");
     response.setHeader("Content-Type", "text/plain");
     response.write(`Method not allowed: ${request.method}`);

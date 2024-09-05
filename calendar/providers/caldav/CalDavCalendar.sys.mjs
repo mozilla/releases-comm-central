@@ -99,8 +99,6 @@ CalDavCalendar.prototype = {
     return this != this.superCalendar;
   },
 
-  mLastRedirectStatus: null,
-
   ensureTargetCalendar() {
     if (!this.isCached && !this.mOfflineStorage) {
       // If this is a cached calendar, the actual cache is taken care of

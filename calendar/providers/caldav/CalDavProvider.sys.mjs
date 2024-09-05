@@ -307,7 +307,7 @@ class CalDavDetector {
 
     // `request.commit()` can throw; errors should be caught by calling functions.
     const response = await request.commit();
-    const homeSets = response.firstProps["C:calendar-home-set"];
+    const homeSets = response.firstProps ? response.firstProps["C:calendar-home-set"] : null;
     const target = response.uri;
 
     if (response.authError) {
