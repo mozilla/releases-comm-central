@@ -951,6 +951,10 @@ var gAccountSetup = {
       );
 
       if (oauthSettings) {
+        // EWS needs more scope. Don't request it for other protocols, as
+        // it may be disallowed for some users.
+        ewsIncoming.oauthSettings.scope +=
+          " https://outlook.office.com/EWS.AccessAsUser.All";
         [ewsIncoming.oauthSettings.issuer, ewsIncoming.oauthSettings.scope] =
           oauthSettings;
       } else {
