@@ -3,4 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-  content/messenger/notifications/inappnotifications/in-app-notification-close-button.mjs                 (content/in-app-notification-close-button.mjs)
+  content/messenger/in-app-notification-button.mjs                 (content/in-app-notification-button.mjs)
+  content/messenger/in-app-notification-close-button.mjs           (content/in-app-notification-close-button.mjs)

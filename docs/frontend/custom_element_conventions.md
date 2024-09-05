@@ -61,7 +61,7 @@
 /**
  * Example component serving as a boilerplate demonstration.
  * You should never see this description in the wild.
- * Template ID: myElementTemplate
+ * Template ID: #myElementTemplate
  *
  * @attribute {string} label - Label of the button. Observed for changes.
  * @tagname my-element

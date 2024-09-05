@@ -4,18 +4,18 @@
 
 /**
  * Close button for in app notifications.
- * Template ID: inAppNotificationCloseButtonTemplate
+ * Template ID: #inAppNotificationCloseButtonTemplate
  */
 
 class InAppNotificationCloseButton extends HTMLButtonElement {
   connectedCallback() {
-    if (!this.shadowRoot) {
-      const shadowRoot = this.attachShadow();
+    if (!this.hasConnected) {
+      this.hasConnected = true;
       const template = document
         .getElementById("inAppNotificationCloseButtonTemplate")
         .content.cloneNode(true);
 
-      shadowRoot.append(template);
+      this.append(template);
     }
 
     window.MozXULElement?.insertFTLIfNeeded("messenger/inAppNotifications.ftl");
