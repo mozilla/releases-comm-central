@@ -4,6 +4,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMsgSendLater.h"
+#include "nsCOMPtr.h"
+#include "nsComponentManagerUtils.h"
+#include "nsDebug.h"
+#include "nsIMsgCompUtils.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgCompFields.h"
 #include "nsMsgCopy.h"
@@ -19,6 +23,7 @@
 #include "nsISmtpUrl.h"
 #include "nsIChannel.h"
 #include "nsNetUtil.h"
+#include "nsString.h"
 #include "prlog.h"
 #include "prmem.h"
 #include "nsComposeStrings.h"
@@ -56,6 +61,7 @@ nsMsgSendLater::nsMsgSendLater() {
   m_to = nullptr;
   m_bcc = nullptr;
   m_fcc = nullptr;
+  m_messageId = nullptr;
   m_newsgroups = nullptr;
   m_newshost = nullptr;
   m_headers = nullptr;
@@ -507,6 +513,25 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
     fields->SetFcc(m_fcc);
   }
 
+  char* messageId = m_messageId;
+
+  if (!messageId) {
+    // If the message headers don't include a message ID, generate one.
+    // Otherwise, the message won't be able to send with some protocols (e.g.
+    // SMTP).
+    nsCOMPtr<nsIMsgCompUtils> compUtils =
+        do_CreateInstance("@mozilla.org/messengercompose/computils;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsCString newMessageId;
+    rv = compUtils->MsgGenerateMessageId(identity, ""_ns, newMessageId);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    messageId = ToNewCString(newMessageId);
+  }
+
+  fields->SetMessageId(messageId);
+
   if (m_newsgroups) fields->SetNewsgroups(m_newsgroups);
 
   // Extract the returnReceipt, receiptHeaderType and DSN from the draft info.
@@ -899,6 +924,11 @@ nsresult nsMsgSendLater::BuildHeaders() {
       case 'L':
       case 'l':
         if (!PL_strncasecmp("Lines", buf, end - buf)) prune_p = true;
+        break;
+      case 'M':
+      case 'm':
+        if (!PL_strncasecmp("Message-ID", buf, end - buf))
+          header = &m_messageId;
         break;
       case 'N':
       case 'n':

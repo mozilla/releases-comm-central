@@ -30,7 +30,7 @@ export class SMTP_RFC2821_handler {
   kUsername = "testsmtp";
   kPassword = "smtptest";
   kAuthSchemes = ["CRAM-MD5", "PLAIN", "LOGIN"];
-  kCapabilities = ["8BITMIME", "SIZE", "CLIENTID"];
+  kCapabilities = ["8BITMIME", "SIZE", "CLIENTID", "DSN"];
   _nextAuthFunction = undefined;
 
   constructor(daemon, { username = "testsmtp", password = "smtptest" } = {}) {

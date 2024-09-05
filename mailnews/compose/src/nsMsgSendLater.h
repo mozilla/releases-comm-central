@@ -119,6 +119,7 @@ class nsMsgSendLater : public nsIMsgSendLater,
   char* m_to;
   char* m_bcc;
   char* m_fcc;
+  char* m_messageId;
   char* m_newsgroups;
   char* m_newshost;
   char* m_headers;
