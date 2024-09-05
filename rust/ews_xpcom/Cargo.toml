@@ -9,7 +9,6 @@ cstr = "0.2"
 ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "1dbda0fa9662170519e43ef217639c6fe100b6a6", version = "0.1.0" }
 fxhash = "0.2.1"
 log = "0.4.21"
-mail-builder = "0.3.1"
 moz_http = { version = "0.1.0", path = "../moz_http" }
 moz_task = { version = "0.1.0", path = "../../../xpcom/rust/moz_task" }
 nserror = { version = "0.1.0", path = "../../../xpcom/rust/nserror" }
@@ -21,5 +20,9 @@ url = "2.5.0"
 uuid = { version = "1.3.0", features = ["v4"] }
 xpcom = { version = "0.1.0", path = "../../../xpcom/rust/xpcom" }
 xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
+
+[dependencies.mail-builder]
+version = "0.3.2"
+default-features = false 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
