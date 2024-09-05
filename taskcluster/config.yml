@@ -230,11 +230,6 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
-        b-osx-arm64:
-            provisioner: releng-hardware
-            implementation: generic-worker
-            os: macosx
-            worker-type: '{alias}'
         b-win2022:
             provisioner: 'comm-{level}'
             implementation: generic-worker
