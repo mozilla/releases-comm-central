@@ -29,6 +29,28 @@ export class MessageSend {
   ]);
   classID = Components.ID("{028b9c1e-8d0a-4518-80c2-842e07846eaa}");
 
+  /**
+   * Create an rfc822 message and send it.
+
+   * @param {nsIEditor} editor - nsIEditor instance that contains message.
+   *   May be a dummy, especially in the case of import.
+   * @param {nsIMsgIdentity} userIdentity - Identity to send from.
+   * @param {?string} accountKey - Account we're sending message from.
+   * @param {nsIMsgCompFields} compFields - Composition fields.
+   * @param {boolean} isDigest - Is this a digest message?
+   * @param {boolean} dontDeliver - Set to false by the import code -
+   *   used when we're trying to create a message from parts.
+   * @param {nsMsgDeliverMode} deliverMode - Delivery mode.
+   * @param {?nsIMsgDBHdr} msgToReplace - E.g., when saving a draft over an old draft.
+   * @param {string} bodyType - Content type of message body.
+   * @param {string} body - Message body text (should have native line endings)
+   * @param {?mozIDOMWindowProxy} parentWindow - Compose window.
+   * @param {?nsIMsgProgress} progress - Where to send progress info.
+   * @param {?nsIMsgSendListener} listener - Optional listener for send progress.
+   * @param {?string} smtpPassword - Optional smtp server password
+   * @param {?string} originalMsgURI - URI of original messsage.
+   * @param {nsIMsgCompType} compType - Compose type.
+   */
   async createAndSendMessage(
     editor,
     userIdentity,
@@ -451,11 +473,12 @@ export class MessageSend {
         );
         if (buttonPressed == 0) {
           // retry button clicked
-          // Check we have a progress dialog.
           if (
-            this._sendProgress.processCanceledByUser &&
+            this._sendProgress?.processCanceledByUser &&
             Services.prefs.getBoolPref("mailnews.show_send_progress")
           ) {
+            // We had a progress dialog and the user cancelled it, create a
+            // new one.
             const progress = Cc[
               "@mozilla.org/messenger/progress;1"
             ].createInstance(Ci.nsIMsgProgress);
@@ -488,7 +511,9 @@ export class MessageSend {
             this._isRetry = true;
           }
           // Ensure statusFeedback is set so progress percent bargraph occurs.
-          this._sendProgress.msgWindow.statusFeedback = this._sendProgress;
+          if (this._sendProgress instanceof Ci.nsIMsgStatusFeedback) {
+            this._sendProgress.msgWindow.statusFeedback = this._sendProgress;
+          }
 
           this._mimeDoFcc();
           return;
