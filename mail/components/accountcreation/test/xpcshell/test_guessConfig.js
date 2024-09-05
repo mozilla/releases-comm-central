@@ -368,6 +368,7 @@ const expectedSMTPResponse = [
   "250-8BITMIME",
   "250-SIZE",
   "250-CLIENTID",
+  "250-DSN",
   "250-AUTH CRAM-MD5 PLAIN LOGIN",
   "250 HELP",
   "221 done",
@@ -403,7 +404,7 @@ add_task(async function testSocketUtilSMTPStartTLS() {
   );
   const response = await promise;
   const expectedResponse = expectedSMTPResponse.slice();
-  expectedResponse.splice(5, 0, "250-STARTTLS");
+  expectedResponse.splice(6, 0, "250-STARTTLS");
   Assert.deepEqual(response.join("").split("\r\n"), expectedResponse);
   Assert.ok(!sslErrors._gotCertError);
 });
