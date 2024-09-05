@@ -548,6 +548,19 @@ function renderCalendarList(calendarList, calendars) {
 }
 
 /**
+ * Make all enabled calendars' checkboxes checked/unchecked.
+ *
+ * @param {boolean} checked - Whether the checkboxes should be checked.
+ */
+function adjustCheckboxesForAllCalendars(checked) {
+  for (const item of document.querySelectorAll(
+    "#network-calendar-list > richlistitem > checkbox:not([disabled])"
+  )) {
+    item.checked = checked;
+  }
+}
+
+/**
  * Update dialog fields based on the value of the "no credentials" checkbox.
  *
  * @param {boolean} noCredentials - True, if "no credentials" is checked.
@@ -835,4 +848,10 @@ window.addEventListener("load", () => {
       checkRequired();
     }
   }
+  document.getElementById("selectcalendars-all").addEventListener("click", () => {
+    adjustCheckboxesForAllCalendars(true);
+  });
+  document.getElementById("selectcalendars-none").addEventListener("click", () => {
+    adjustCheckboxesForAllCalendars(false);
+  });
 });

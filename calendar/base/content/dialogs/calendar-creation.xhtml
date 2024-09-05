@@ -27,8 +27,8 @@
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-creation.css" />
-
     <link rel="localization" href="toolkit/global/wizard.ftl" />
+    <link rel="localization" href="calendar/calendar-creation.ftl" />
     <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
     <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
     <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
@@ -241,6 +241,11 @@
           id="network-calendar-list"
           propertiesbuttonlabel="&calendar.context.properties.label;"
         />
+        <html:hr />
+        <hbox>
+          <html:button id="selectcalendars-all" data-l10n-id="select-all-calendars"></html:button>
+          <html:button id="selectcalendars-none" data-l10n-id="select-none-calendars"></html:button>
+        </hbox>
       </vbox>
 
       <!-- Panel: Add-on Calendar Settings -->
