@@ -242,7 +242,16 @@ export class AttachmentInfo {
         let tempFile = this.#temporaryFiles.get(url);
         if (!tempFile?.exists()) {
           tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-          tempFile.append("subPart.eml");
+          // Try to use the name of the attachment for the temporary file, so
+          // that the name is included in the URI of the message that is
+          // opened, and possibly saved as a file later by the user.
+          let sanitizedName = lazy.DownloadPaths.sanitize(this.name);
+          if (!sanitizedName) {
+            sanitizedName = "message.eml";
+          } else if (!/\.eml$/i.test(sanitizedName)) {
+            sanitizedName += ".eml";
+          }
+          tempFile.append(sanitizedName);
           tempFile.createUnique(0, 0o600);
           await saveToFile(tempFile.path, true);
 

@@ -484,10 +484,33 @@ function SubscribeOKCallback(changeTable) {
   }
 }
 
+/**
+ * Save as file.
+ *
+ * @param {string[]} uris - URIs of files to save.
+ */
 function SaveAsFile(uris) {
   const filenames = [];
 
   for (const uri of uris) {
+    // Save an .eml files directly from its URL.
+    if (/type=application\/x-message-display$/.test(uri)) {
+      top.saveURL(
+        uri, // URL
+        null, // originalURL
+        "", // fileName (ignored)
+        null, // filePickerTitleKey
+        true, // shouldBypassCache
+        false, // skipPrompt
+        null, // referrerInfo
+        null, // cookieJarSettings
+        document, // sourceDocument
+        null, // isContentWindowPrivate,
+        Services.scriptSecurityManager.getSystemPrincipal() // principal
+      );
+      return;
+    }
+
     const msgHdr =
       MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
     const nameBase = GenerateFilenameFromMsgHdr(msgHdr);

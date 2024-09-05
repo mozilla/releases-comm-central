@@ -203,6 +203,57 @@ add_task(async function test_forward_eml_catchall() {
 });
 
 /**
+ * Test that saving an .eml opened from a file works.
+ */
+add_task(async function test_save_eml_as_file() {
+  const file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  const msgc = await open_message_from_file(file);
+  const pickerPromise = new Promise(resolve => {
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.showCallback = picker => {
+      resolve(picker.defaultString);
+      return Ci.nsIFilePicker.returnOK;
+    };
+  });
+  EventUtils.synthesizeKey("s", { accelKey: true }, msgc);
+  Assert.equal(await pickerPromise, "testmsg.eml");
+  SpecialPowers.MockFilePicker.cleanup();
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
+ * Test that an attached .eml that has been opened retains the correct filename
+ * when it is subsequently saved.
+ */
+add_task(async function test_save_eml_as_file() {
+  const file = new FileUtils.File(getTestFilePath("data/testmsg-nested.eml"));
+  const msgc = await open_message_from_file(file);
+  const aboutMessage = get_about_message(msgc);
+  const newWindowPromise = promise_new_window("mail:messageWindow");
+  await EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("attachmentName"),
+    {},
+    aboutMessage
+  );
+  const msgc2 = await newWindowPromise;
+  const pickerPromise = new Promise(resolve => {
+    SpecialPowers.MockFilePicker.init(window.browsingContext);
+    SpecialPowers.MockFilePicker.showCallback = picker => {
+      resolve(picker.defaultString);
+      return Ci.nsIFilePicker.returnOK;
+    };
+  });
+  EventUtils.synthesizeKey("s", { accelKey: true }, msgc2);
+  Assert.ok(
+    /that's why(-(\d)+)?\.eml/.test(await pickerPromise),
+    "Correct filename"
+  );
+  SpecialPowers.MockFilePicker.cleanup();
+  await BrowserTestUtils.closeWindow(msgc2);
+  await BrowserTestUtils.closeWindow(msgc);
+});
+
+/**
  * Test that clicking on a 'mailto:' link in an .eml opens a compose window.
  */
 add_task(async function test_mailto_link_in_eml() {
