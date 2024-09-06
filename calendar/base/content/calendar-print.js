@@ -29,6 +29,8 @@ const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtil
     link.href = href;
   }
 
+  document.l10n.addResourceIds(["calendar/calendar.ftl"]);
+
   const otherForm = document.querySelector("form");
   otherForm.hidden = true;
 

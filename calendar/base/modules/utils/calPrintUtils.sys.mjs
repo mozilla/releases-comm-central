@@ -596,7 +596,7 @@ const weekPlannerView = {
 Services.obs.addObserver(
   {
     async observe(subDialogWindow) {
-      if (!subDialogWindow.location.href.startsWith("chrome://global/content/print.html?")) {
+      if (!subDialogWindow.location.href.startsWith("chrome://global/content/print.html")) {
         return;
       }
 
