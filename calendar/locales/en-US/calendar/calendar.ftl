@@ -592,15 +592,6 @@ due-in-hours = {
 
 due-in-less-than-one-hour = < 1 hour
 
-# LOCALIZATION NOTE (month-in-year):
-# used for display of Month-dates like 'December 2008'
-#    $month will be replaced with name of the month
-#    $year will be replaced with the year
-month-in-year = { $month } { $year }
-month-in-year-label =
-    .aria-label = { $month } { $year }
-
-
 # LOCALIZATION NOTE (month-in-year-month-format):
 # If your language requires a different declension, change this to
 # one of the values specified in dateFormat.properties.

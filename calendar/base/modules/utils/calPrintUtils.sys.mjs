@@ -398,13 +398,11 @@ const monthGridView = {
     const monthTemplate = document.getElementById("month-template");
     const month = monthTemplate.content.firstElementChild.cloneNode(true);
 
-    // Set up the month title
-    const monthName = lazy.cal.l10n.formatMonth(startOfMonth.month + 1, "month-in-year");
-    const monthTitle = lazy.l10n.formatValueSync("month-in-year", {
-      month: monthName,
-      year: startOfMonth.year,
-    });
-    month.rows[0].cells[0].firstElementChild.textContent = monthTitle;
+    // Set up the month title.
+    month.rows[0].cells[0].firstElementChild.textContent = new Date(
+      startOfMonth.year,
+      startOfMonth.month
+    ).toLocaleDateString(undefined, { month: "long", year: "numeric" });
 
     // Set up the weekday titles
     const weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
