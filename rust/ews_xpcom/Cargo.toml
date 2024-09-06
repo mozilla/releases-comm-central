@@ -23,6 +23,6 @@ xpcom_async = { version = "0.1.0", path = "../xpcom_async" }
 
 [dependencies.mail-builder]
 version = "0.3.2"
-default-features = false 
+default-features = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
