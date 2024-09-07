@@ -59,6 +59,19 @@ aboutDialog-version = { $version } ({ $bits }-bit)
 #   $bits (Number): bits of the architecture (32 or 64)
 aboutDialog-version-nightly = { $version } ({ $isodate }) ({ $bits }-bit)
 
+# Example of resulting string: 131.0a1 (aarch64)
+# Variables:
+#   $version (String): version of Thunderbird, e.g. 66.0.1
+#   $arch (String): name of the architecture (arm, aarch64, etc.)
+aboutdialog-version-arch = { $version } ({ $arch })
+
+# Example of resulting string: 131.0a1 (2024-08-27) (aarch64)
+# Variables:
+#   $version (String): version of Thunderbird for Daily builds, e.g. 66.0a1
+#   $isodate (String): date in ISO format, e.g. 2019-01-16
+#   $arch (String): name of the architecture (arm, aarch64, etc.)
+aboutdialog-version-arch-nightly = { $version } ({ $isodate }) ({ $arch })
+
 aboutdialog-update-checking-failed = Failed to check for updates.
 
 community-experimental = <a data-l10n-name="community-exp-mozilla-link">{ -vendor-short-name }</a> is a <a data-l10n-name="community-exp-credits-link">global community</a> working together to keep the Web open, public and accessible to all.

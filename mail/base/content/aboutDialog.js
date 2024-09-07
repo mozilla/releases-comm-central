@@ -52,15 +52,28 @@ function onLoad(event) {
   }
 
   // Include the build ID and display warning if this is an "a#" (nightly or aurora) build
-  let versionId = "aboutDialog-version";
+  const versionIdMap = new Map([
+    ["base", "aboutDialog-version"],
+    ["base-nightly", "aboutDialog-version-nightly"],
+    ["base-arch", "aboutdialog-version-arch"],
+    ["base-arch-nightly", "aboutdialog-version-arch-nightly"],
+  ]);
+  let versionIdKey = "base";
   const versionAttributes = {
     version: AppConstants.MOZ_APP_VERSION_DISPLAY,
-    bits: Services.appinfo.is64Bit ? 64 : 32,
   };
+
+  const arch = Services.sysinfo.get("arch");
+  if (["x86", "x86-64"].includes(arch)) {
+    versionAttributes.bits = Services.appinfo.is64Bit ? 64 : 32;
+  } else {
+    versionIdKey += "-arch";
+    versionAttributes.arch = arch;
+  }
 
   const version = Services.appinfo.version;
   if (/a\d+$/.test(version)) {
-    versionId = "aboutDialog-version-nightly";
+    versionIdKey += "-nightly";
     const buildID = Services.appinfo.appBuildID;
     const year = buildID.slice(0, 4);
     const month = buildID.slice(4, 6);
@@ -74,7 +87,11 @@ function onLoad(event) {
   // Use Fluent arguments for append version and the architecture of the build
   const versionField = document.getElementById("version");
 
-  document.l10n.setAttributes(versionField, versionId, versionAttributes);
+  document.l10n.setAttributes(
+    versionField,
+    versionIdMap.get(versionIdKey),
+    versionAttributes
+  );
 
   if (!AppConstants.NIGHTLY_BUILD) {
     // Show a release notes link if we have a URL.
