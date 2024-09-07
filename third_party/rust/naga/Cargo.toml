@@ -9,10 +9,6 @@
 # will likely look very different (and much more reasonable).
 # See Cargo.toml.orig for the original contents.
 
-bin = []
-example = []
-bench = []
-
 [package]
 edition = "2021"
 rust-version = "1.76"
@@ -48,10 +44,6 @@ all-features = true
 [lib]
 name = "naga"
 path = "src/lib.rs"
-
-[[test]]
-name = "naga-test"
-path = "tests/root.rs"
 
 [dependencies]
 log = "0.4"
@@ -92,7 +84,7 @@ optional = true
 version = "1.1.0"
 
 [dependencies.serde]
-version = "1.0.208"
+version = "1.0.209"
 features = ["derive"]
 optional = true
 
@@ -119,6 +111,9 @@ version = "0.11"
 
 [dev-dependencies.hlsl-snapshots]
 path = "./hlsl-snapshots"
+
+[dev-dependencies.itertools]
+version = "0.10.5"
 
 [dev-dependencies.rspirv]
 version = "0.11"
