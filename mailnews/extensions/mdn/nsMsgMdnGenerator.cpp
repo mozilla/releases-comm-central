@@ -769,9 +769,7 @@ nsresult nsMsgMdnGenerator::SendMdnMsg() {
   rv = outgoingServerService->GetServerByIdentity(
       m_identity, getter_AddRefs(outgoingServer));
   NS_ENSURE_SUCCESS(rv, rv);
-  NS_ASSERTION(
-      outgoingServer,
-      "there should be an outgoing server configured (or set as default)");
+  NS_ENSURE_TRUE(outgoingServer, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr<nsIMsgHeaderParser> parserService =
       do_GetService("@mozilla.org/messenger/headerparser;1", &rv);
