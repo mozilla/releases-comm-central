@@ -83,7 +83,9 @@ var account = {
 
     document.getElementById("server.alias").value = this.account.alias;
 
-    if (ChatEncryption.canConfigureEncryption(this.account.protocol)) {
+    if (!ChatEncryption.canConfigureEncryption(this.account.protocol)) {
+      document.getElementById("imTabEncryption").hidden = true;
+    } else {
       document.getElementById("imTabEncryption").hidden = false;
       document.querySelector(".otr-settings").hidden = !OTRUI.enabled;
       document.getElementById("server.otrAllowMsgLog").value =
