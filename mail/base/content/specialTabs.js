@@ -1018,7 +1018,7 @@ var specialTabs = {
    *
    * @see {BrowserContentHandler.needHomepageOverride}
    */
-  showWhatsNewPage() {
+  async showWhatsNewPage() {
     const old_mstone = Services.prefs.getCharPref(
       "mailnews.start_page_override.mstone",
       ""
@@ -1033,7 +1033,7 @@ var specialTabs = {
       const um = Cc["@mozilla.org/updates/update-manager;1"].getService(
         Ci.nsIUpdateManager
       );
-      const update = um.lastUpdateInstalled;
+      const update = await um.lastUpdateInstalled();
 
       if (
         update &&

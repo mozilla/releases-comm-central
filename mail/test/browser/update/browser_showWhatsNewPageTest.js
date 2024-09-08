@@ -155,7 +155,7 @@ async function WnpTest({
   logTestInfo(`Set appinfo to use version=${Services.appinfo.version}`);
 
   reloadUpdateManagerData(false);
-  window.specialTabs.showWhatsNewPage();
+  await window.specialTabs.showWhatsNewPage();
 
   if (expectedPostUpdatePage !== NO_POST_UPDATE_PAGE) {
     const postUpdatePage = await uriResolver.promise;
