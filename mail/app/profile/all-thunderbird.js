@@ -1351,8 +1351,6 @@ pref("identity.fxaccounts.remote.oauth.uri", "https://oauth.stage.mozaws.net/v1"
 pref("identity.sync.tokenserver.uri", "https://token.stage.mozaws.net/1.0/sync/1.5");
 
 #ifdef NIGHTLY_BUILD
-// Adds stage server to the white list, because we need it.
-pref("webchannel.allowObject.urlWhitelist", "https://content.cdn.mozilla.net https://support.mozilla.org https://install.mozilla.org https://accounts.stage.mozaws.net");
 // Adds Firefox/10x.0 to the User-Agent string, because we need it.
 // TODO: Fix this.
 pref("general.useragent.compatMode.firefox", true);
