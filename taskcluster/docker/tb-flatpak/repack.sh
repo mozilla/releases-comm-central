@@ -74,13 +74,14 @@ python3 "${SCRIPT_DIR}/build_desktop_file.py"               \
   -L "${WORKSPACE}/l10n-changesets.json"                    \
   -f "mail/branding/thunderbird/brand.ftl"                  \
   -f "mail/messenger/flatpak.ftl"                           \
-  $VERSION_FLAG
+  "$VERSION_FLAG"
 )
 
 # Generate AppData XML from template, add various 
 envsubst < "$SCRIPT_DIR/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
 cp -v "$SCRIPT_DIR/distribution.ini" "$WORKSPACE"
 cp -v "$SCRIPT_DIR/launch_script.sh" "$WORKSPACE"
+cp -v "$SCRIPT_DIR/tb_symbolic.svg" "$WORKSPACE"
 cd "${WORKSPACE}"
 
 # Fetch and install Firefox base app (as user, not system-wide)
@@ -127,6 +128,7 @@ install -D -m644 -t "${appdir}/share/applications" org.mozilla.Thunderbird.deskt
 for size in 16 32 48 64 128; do
     install -D -m644 "${appdir}/lib/thunderbird/chrome/icons/default/default${size}.png" "${appdir}/share/icons/hicolor/${size}x${size}/apps/org.mozilla.Thunderbird.png"
 done
+install -D -m644 tb_symbolic.svg "${appdir}/share/icons/hicolor/symbolic/apps/org.mozilla.Thunderbird-symbolic.svg"
 
 # Generate AppStream metadata and add screenshots from Flathub
 appstream-compose --prefix="${appdir}" --origin=flatpak --basename=org.mozilla.Thunderbird org.mozilla.Thunderbird
