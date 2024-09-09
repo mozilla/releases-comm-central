@@ -52,7 +52,11 @@ function test_rules() {
       // Check each date
       const expectedDate = cal.createDateTime(expected[i]);
       dump(
-        "Expecting instance at " + expectedDate + "(" + fmt.dayName(expectedDate.weekday) + ")\n"
+        "Expecting instance at " +
+          expectedDate +
+          "(" +
+          fmt.weekdayNames[expectedDate.weekday] +
+          ")\n"
       );
       dump("Recdate:");
       equal(recdates[i].icalString, expected[i]);

@@ -289,13 +289,6 @@
 <!ENTITY event.recurrence.monthly.fourth.label          "The Fourth">
 <!ENTITY event.recurrence.monthly.fifth.label           "The Fifth">
 <!ENTITY event.recurrence.monthly.last.label            "The Last">
-<!ENTITY event.recurrence.pattern.monthly.week.1.label  "Sunday" >
-<!ENTITY event.recurrence.pattern.monthly.week.2.label  "Monday" >
-<!ENTITY event.recurrence.pattern.monthly.week.3.label  "Tuesday" >
-<!ENTITY event.recurrence.pattern.monthly.week.4.label  "Wednesday" >
-<!ENTITY event.recurrence.pattern.monthly.week.5.label  "Thursday" >
-<!ENTITY event.recurrence.pattern.monthly.week.6.label  "Friday" >
-<!ENTITY event.recurrence.pattern.monthly.week.7.label  "Saturday" >
 <!ENTITY event.recurrence.repeat.dayofmonth.label       "Day of the month">
 <!ENTITY event.recurrence.repeat.recur.label            "Recur on day(s)">
 
@@ -312,18 +305,6 @@
 -->
 <!ENTITY event.recurrence.pattern.yearly.of.label            "" >
 
-<!ENTITY event.recurrence.pattern.yearly.month.1.label       "January" >
-<!ENTITY event.recurrence.pattern.yearly.month.2.label       "February" >
-<!ENTITY event.recurrence.pattern.yearly.month.3.label       "March" >
-<!ENTITY event.recurrence.pattern.yearly.month.4.label       "April" >
-<!ENTITY event.recurrence.pattern.yearly.month.5.label       "May" >
-<!ENTITY event.recurrence.pattern.yearly.month.6.label       "June" >
-<!ENTITY event.recurrence.pattern.yearly.month.7.label       "July" >
-<!ENTITY event.recurrence.pattern.yearly.month.8.label       "August" >
-<!ENTITY event.recurrence.pattern.yearly.month.9.label       "September" >
-<!ENTITY event.recurrence.pattern.yearly.month.10.label      "October" >
-<!ENTITY event.recurrence.pattern.yearly.month.11.label      "November" >
-<!ENTITY event.recurrence.pattern.yearly.month.12.label      "December" >
 <!ENTITY event.recurrence.yearly.every.label                 "Every">
 <!ENTITY event.recurrence.yearly.first.label                 "The First">
 <!ENTITY event.recurrence.yearly.second.label                "The Second">
@@ -331,27 +312,8 @@
 <!ENTITY event.recurrence.yearly.fourth.label                "The Fourth">
 <!ENTITY event.recurrence.yearly.fifth.label                 "The Fifth">
 <!ENTITY event.recurrence.yearly.last.label                  "The Last">
-<!ENTITY event.recurrence.pattern.yearly.week.1.label        "Sunday" >
-<!ENTITY event.recurrence.pattern.yearly.week.2.label        "Monday" >
-<!ENTITY event.recurrence.pattern.yearly.week.3.label        "Tuesday" >
-<!ENTITY event.recurrence.pattern.yearly.week.4.label        "Wednesday" >
-<!ENTITY event.recurrence.pattern.yearly.week.5.label        "Thursday" >
-<!ENTITY event.recurrence.pattern.yearly.week.6.label        "Friday" >
-<!ENTITY event.recurrence.pattern.yearly.week.7.label        "Saturday" >
 <!ENTITY event.recurrence.pattern.yearly.day.label           "day" >
 <!ENTITY event.recurrence.of.label                           "of" >
-<!ENTITY event.recurrence.pattern.yearly.month2.1.label      "January" >
-<!ENTITY event.recurrence.pattern.yearly.month2.2.label      "February" >
-<!ENTITY event.recurrence.pattern.yearly.month2.3.label      "March" >
-<!ENTITY event.recurrence.pattern.yearly.month2.4.label      "April" >
-<!ENTITY event.recurrence.pattern.yearly.month2.5.label      "May" >
-<!ENTITY event.recurrence.pattern.yearly.month2.6.label      "June" >
-<!ENTITY event.recurrence.pattern.yearly.month2.7.label      "July" >
-<!ENTITY event.recurrence.pattern.yearly.month2.8.label      "August" >
-<!ENTITY event.recurrence.pattern.yearly.month2.9.label      "September" >
-<!ENTITY event.recurrence.pattern.yearly.month2.10.label     "October" >
-<!ENTITY event.recurrence.pattern.yearly.month2.11.label     "November" >
-<!ENTITY event.recurrence.pattern.yearly.month2.12.label     "December" >
 
 <!ENTITY event.recurrence.range.label                   "Range of recurrence">
 <!ENTITY event.recurrence.forever.label                 "No end date" >

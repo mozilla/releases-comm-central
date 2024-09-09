@@ -592,12 +592,6 @@ due-in-hours = {
 
 due-in-less-than-one-hour = < 1 hour
 
-# LOCALIZATION NOTE (month-in-year-month-format):
-# If your language requires a different declension, change this to
-# one of the values specified in dateFormat.properties.
-# In any case, DO NOT TRANSLATE.
-month-in-year-month-format = nominative
-
 # LOCALIZATION NOTE (format-date-long):
 # used for display dates in long format like 'Mon 15 Oct 2008' when it's
 # impossible to retrieve the formatatted date from the OS.
@@ -618,82 +612,6 @@ format-date-long = { $dayName } { $dayIndex } { $monthName } { $year }
 day-header = { $dayName } { $dayIndex }
 day-header-elem =
     .label = { day-header }
-
-# LOCALIZATION NOTE (days-interval-in-month):
-# used for display of intervals in the form of 'March 3 - 9, 2008'
-#    $startMonth will be replaced with name of the month of the start date
-#    $startDayIndex will be replaced with the day-index of the start date possibly followed by an ordinal symbol
-#    $endDayIndex will be replaced with the day-index of the end date possibly followed by an ordinal symbol
-#    $year will be replaced with the common year of both dates
-# The presence of the ordinal symbol in the day-indexes depends on the string
-# dayOrdinalSymbol in dateFormat.properties
-days-interval-in-month = { $startMonth } { $startDayIndex } – { $endDayIndex }, { $year }
-
-# LOCALIZATION NOTE (days-interval-in-month-month-format):
-# If your language requires a different declension, change this to
-# one of the values specified in dateFormat.properties.
-# In any case, DO NOT TRANSLATE.
-days-interval-in-month-month-format = nominative
-
-# LOCALIZATION NOTE (days-interval-between-months):
-# used for display of intervals in the form 'September 29 - October 5, 2008'
-#    $startMonth will be replaced with name of the month of the start date
-#    $startDayIndex will be replaced with the day-index of the start date possibly followed by an ordinal symbol
-#    $endMonth will be replaced with name of the month of the end date
-#    $endDayIndex will be replaced with the day-index of the end date possibly followed by an ordinal symbol
-#    $year will be replaced with the common year of both dates
-# The presence of the ordinal symbol in the day-indexes depends on the string
-# dayOrdinalSymbol in dateFormat.properties
-days-interval-between-months = { $startMonth } { $startDayIndex } – { $endMonth } { $endDayIndex }, { $year }
-
-# LOCALIZATION NOTE (days-interval-between-months-month-format):
-# If your language requires a different declension, change this to
-# one of the values specified in dateFormat.properties.
-# In any case, DO NOT TRANSLATE.
-days-interval-between-months-month-format = nominative
-
-# LOCALIZATION NOTE (days-interval-between-years):
-# used for display of intervals in the form 'December 29, 2008 - January 4, 2009'
-#    $startMonth will be replaced with name of the month of the start date
-#    $startDayIndex will be replaced with the day-index of the start date possibly followed by an ordinal symbol
-#    $startYear will be replaced with the year of the start date
-#    $endMonth will be replaced with name of the month of the end date
-#    $endDayIndex will be replaced with the day-index of the end date possibly followed by an ordinal symbol
-#    $endYear will be replaced with the year of the end date
-# The presence of the ordinal symbol in the day-indexes depends on the string
-# dayOrdinalSymbol in dateFormat.properties
-days-interval-between-years = { $startMonth } { $startDayIndex }, { $startYear } – { $endMonth } { $endDayIndex }, { $endYear }
-
-# LOCALIZATION NOTE (days-interval-between-years-month-format):
-# If your language requires a different declension, change this to
-# one of the values specified in dateFormat.properties.
-# In any case, DO NOT TRANSLATE.
-days-interval-between-years-month-format = nominative
-
-# LOCALIZATION NOTE (datetime-interval-on-same-date-time):
-# used for intervals where end is equals to start
-# displayed form is '5 Jan 2006 13:00'
-#    $startDate will be replaced with the date of the start date
-#    $startTime will be replaced with the time of the start date
-datetime-interval-on-same-date-time = { $startDate } { $startTime }
-
-# LOCALIZATION NOTE (datetime-interval-on-same-day):
-# used for intervals where end is on the same day as start, so we can leave out the
-# end date but still include end time
-# displayed form is '5 Jan 2006 13:00 - 17:00'
-#    $startDate will be replaced with the date of the start date
-#    $startTime will be replaced with the time of the start date
-#    $endTime will be replaced with the time of the end date
-datetime-interval-on-same-day = { $startDate } { $startTime } – { $endTime }
-
-# LOCALIZATION NOTE (datetime-interval-on-several-days):
-# used for intervals spanning multiple days by including date and time
-# displayed form is '5 Jan 2006 13:00 - 7 Jan 2006 9:00'
-#    $startDate will be replaced with the date of the start date
-#    $startTime will be replaced with the time of the start date
-#    $endDate will be replaced with the date of the end date
-#    $endTime will be replaced with the time of the end date
-datetime-interval-on-several-days = { $startDate } { $startTime } – { $endDate } { $endTime }
 
 # LOCALIZATION NOTE (datetime-interval-task-without-date):
 # used for task without start and due date

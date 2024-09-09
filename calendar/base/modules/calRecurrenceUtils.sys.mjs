@@ -304,8 +304,8 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
         ) {
           // RRULE:FREQ=YEARLY;BYMONTH=x;BYMONTHDAY=y.
           // RRULE:FREQ=YEARLY;BYMONTHDAY=x (takes the month from the start date).
-          const monthNumber = bymonth ? bymonth[0] : startDate.month + 1;
-          const month = getRString("repeatDetailsMonth" + monthNumber);
+          const monthNumber = bymonth ? bymonth[0] - 1 : startDate.month;
+          const month = cal.dtz.formatter.monthNames[monthNumber];
           const monthDay =
             bymonthday[0] == -1
               ? getRString("monthlyLastDay")
@@ -315,7 +315,7 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
         } else if (checkRecurrenceRule(rule, ["BYMONTH"]) && checkRecurrenceRule(rule, ["BYDAY"])) {
           // RRULE:FREQ=YEARLY;BYMONTH=x;BYDAY=y1,y2,....
           const byday = rule.getComponent("BYDAY");
-          const month = getRString("repeatDetailsMonth" + bymonth[0]);
+          const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
           if (everyWeekDay(byday)) {
             // Every day of the month.
             let yearlyString = "yearlyEveryDayOf";
@@ -351,11 +351,11 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
           }
         } else if (checkRecurrenceRule(rule, ["BYMONTH"])) {
           // RRULE:FREQ=YEARLY;BYMONTH=x (takes the day from the start date).
-          const month = getRString("repeatDetailsMonth" + bymonth[0]);
+          const month = cal.dtz.formatter.monthNames[bymonth[0] - 1];
           const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
           ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
         } else {
-          const month = getRString("repeatDetailsMonth" + (startDate.month + 1));
+          const month = cal.dtz.formatter.monthNames[startDate.month];
           const yearlyString = getRString("yearlyNthOn", [month, startDate.day]);
           ruleString = PluralForm.get(rule.interval, yearlyString).replace("#3", rule.interval);
         }

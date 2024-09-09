@@ -422,8 +422,7 @@
   customElements.define("calendar-invitation-panel-status-bar", InvitationPanelStatusBar);
 
   /**
-   * InvitationInterval displays the formatted interval of the event. Formatting
-   * relies on cal.dtz.formatter.formatIntervalParts().
+   * InvitationInterval displays the formatted interval of the event.
    */
   class InvitationInterval extends HTMLElement {
     /**
@@ -432,13 +431,7 @@
      * @type {calIEvent}
      */
     set item(value) {
-      const [startDate, endDate] = cal.dtz.formatter.getItemDates(value);
-      const timezone = startDate.timezone.displayName;
-      const parts = cal.dtz.formatter.formatIntervalParts(startDate, endDate);
-      document.l10n.setAttributes(this, `calendar-invitation-interval-${parts.type}`, {
-        ...parts,
-        timezone,
-      });
+      this.textContent = cal.dtz.formatter.formatItemInterval(value);
     }
   }
   customElements.define("calendar-invitation-interval", InvitationInterval);

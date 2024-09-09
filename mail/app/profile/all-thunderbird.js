@@ -853,8 +853,8 @@ pref("security.allow_eval_with_system_principal", false);
 // Enable FIDO U2F
 pref("security.webauth.u2f", true);
 
-// Use OS date and time settings by default.
-pref("intl.regional_prefs.use_os_locales", true);
+// Use application date and time settings by default.
+pref("intl.regional_prefs.use_os_locales", false);
 
 // Multi-lingual preferences:
 //  *.enabled - Are langpacks available for the build of Firefox?

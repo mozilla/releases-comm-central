@@ -9,9 +9,6 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.sys.mjs under the cal.l10n namespace.
 
-const lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
-
 /**
  * Gets the value of a string in a .properties file.
  *
@@ -111,24 +108,6 @@ export var l10n = {
    * @returns {string} The formatted string
    */
   getDateFmtString: _getString.bind(undefined, "calendar", "dateFormat"),
-
-  /**
-   * Gets the month name string in the right form depending on a base string.
-   *
-   * @param {number} aMonthNum - The month number to get, 1-based.
-   * @param {string} aStringBase - The base string name, .monthFormat will be appended
-   * @returns {string} The formatted month name
-   */
-  formatMonth(aMonthNum, aStringBase) {
-    let monthForm = lazy.l10n.formatValueSync(`${aStringBase}-month-format`) || "nominative";
-
-    if (monthForm == "nominative") {
-      // Fall back to the default name format
-      monthForm = "name";
-    }
-
-    return l10n.getDateFmtString(`month.${aMonthNum}.${monthForm}`);
-  },
 
   /**
    * Sort an array of strings in place, according to the current locale.

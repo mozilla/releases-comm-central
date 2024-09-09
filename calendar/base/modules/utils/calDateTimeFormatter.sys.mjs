@@ -2,6 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Date/time formatting functions for display. These functions should be used
+ * to get the whole formatted string. DO NOT attempt to create date/time
+ * strings by assembling parts.
+ */
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.sys.mjs under the cal.dtz.formatter namespace.
+
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
@@ -16,22 +25,9 @@ ChromeUtils.defineLazyGetter(lazy, "gDateStringBundle", () =>
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
 XPCOMUtils.defineLazyPreferenceGetter(lazy, "dateFormat", "calendar.date.format", 0);
-XPCOMUtils.defineLazyPreferenceGetter(
-  lazy,
-  "timeBeforeDate",
-  "calendar.date.formatTimeBeforeDate",
-  false
-);
 
 /** Cache of calls to new Services.intl.DateTimeFormat. */
 var formatCache = new Map();
-
-/*
- * Date time formatting functions for display.
- */
-
-// NOTE: This module should not be loaded directly, it is available when
-// including calUtils.sys.mjs under the cal.dtz.formatter namespace.
 
 export var formatter = {
   /**
@@ -87,6 +83,17 @@ export var formatter = {
   },
 
   /**
+   * Format only the day number. In most languages this just returns the day
+   * given, but not all languages (notably Japanese and Korean).
+   *
+   * @param {calIDateTime} aDate - The datetime to format.
+   * @returns {string}
+   */
+  formatDateOnly(aDate) {
+    return formatDateTimeWithOptions(aDate, { day: "numeric" });
+  },
+
+  /**
    * Format the time portion of a date-time object. Note: only the hour and
    * minutes are shown.
    *
@@ -139,13 +146,10 @@ export var formatter = {
    * @returns {string} A string representing the datetime.
    */
   formatDateTime(aDate) {
-    const formattedDate = this.formatDate(aDate);
-    const formattedTime = this.formatTime(aDate);
-
-    if (lazy.timeBeforeDate) {
-      return formattedTime + " " + formattedDate;
-    }
-    return formattedDate + " " + formattedTime;
+    return formatDateTimeWithOptions(aDate, {
+      dateStyle: lazy.dateFormat == 0 ? "full" : "short",
+      timeStyle: "short",
+    });
   },
 
   /**
@@ -166,10 +170,10 @@ export var formatter = {
       return "";
     }
 
-    // TODO do we need l10n for this?
-    // TODO should we check for the same day? The caller should know what
-    // he is doing...
-    return this.formatTime(aStartDate) + "\u2013" + this.formatTime(aEndDate);
+    return getFormatter({ timeStyle: "short" }).formatRange(
+      getDateTimeAsAdjustedJsDate(aStartDate),
+      getDateTimeAsAdjustedJsDate(aEndDate)
+    );
   },
 
   /**
@@ -182,237 +186,32 @@ export var formatter = {
    * @returns {string} - A string describing the interval in a legible form.
    */
   formatInterval(startDate, endDate) {
-    const format = this.formatIntervalParts(startDate, endDate);
-    switch (format.type) {
-      case "task-without-dates":
-        return lazy.l10n.formatValueSync("datetime-interval-task-without-date");
-
-      case "task-without-due-date":
-        return lazy.l10n.formatValueSync("datetime-interval-task-without-due-date", {
-          date: format.startDate,
-          time: format.startTime,
-        });
-
-      case "task-without-start-date":
-        return lazy.l10n.formatValueSync("datetime-interval-task-without-start-date", {
-          date: format.endDate,
-          time: format.endTime,
-        });
-
-      case "all-day":
-        return format.startDate;
-
-      case "all-day-between-years":
-        return lazy.l10n.formatValueSync("days-interval-between-years", {
-          startMonth: format.startMonth,
-          startDayIndex: format.startDay,
-          startYear: format.startYear,
-          endMonth: format.endMonth,
-          endDayIndex: format.endDay,
-          endYear: format.endYear,
-        });
-
-      case "all-day-in-month":
-        return lazy.l10n.formatValueSync("days-interval-in-month", {
-          startMonth: format.month,
-          startDayIndex: format.startDay,
-          endDayIndex: format.endDay,
-          year: format.year,
-        });
-
-      case "all-day-between-months":
-        return lazy.l10n.formatValueSync("days-interval-between-months", {
-          startMonth: format.startMonth,
-          startDayIndex: format.startDay,
-          endMonth: format.endMonth,
-          endDayIndex: format.endDay,
-          year: format.year,
-        });
-
-      case "same-date-time":
-        return lazy.l10n.formatValueSync("datetime-interval-on-same-date-time", {
-          startDate: format.startDate,
-          startTime: format.startTime,
-        });
-
-      case "same-day":
-        return lazy.l10n.formatValueSync("datetime-interval-on-same-day", {
-          startDate: format.startDate,
-          startTime: format.startTime,
-          endTime: format.endTime,
-        });
-
-      case "several-days":
-        return lazy.l10n.formatValueSync("datetime-interval-on-several-days", {
-          startDate: format.startDate,
-          startTime: format.startTime,
-          endDate: format.endDate,
-          endTime: format.endTime,
-        });
-      default:
-        return "";
-    }
-  },
-
-  /**
-   * Object used to describe the parts of a formatted interval.
-   *
-   * @typedef {object} IntervalParts
-   * @property {string} type
-   *   Used to distinguish IntervalPart results.
-   * @property {string?} startDate
-   *   The full date of the start of the interval.
-   * @property {string?} startTime
-   *   The time part of the start of the interval.
-   * @property {string?} startDay
-   *   The day (of the month) the interval starts on.
-   * @property {string?} startMonth
-   *   The month the interval starts on.
-   * @property {string?} startYear
-   *   The year interval starts on.
-   * @property {string?} endDate
-   *   The full date of the end of the interval.
-   * @property {string?} endTime
-   *   The time part of the end of the interval.
-   * @property {string?} endDay
-   *   The day (of the month) the interval ends on.
-   * @property {string?} endMonth
-   *   The month the interval ends on.
-   * @property {string?} endYear
-   *   The year interval ends on.
-   * @property {string?} month
-   *   The month the interval occurs in when the start is all day and the
-   *   interval does not span multiple months.
-   * @property {string?} year
-   *   The year the interval occurs in when the the start is all day and the
-   *   interval does not span multiple years.
-   */
-
-  /**
-   * Format a date interval into various parts suitable for building
-   * strings that describe the interval. This result may leave out some parts of
-   * either date based on the closeness of the two.
-   *
-   * @param {calIDateTime} startDate - The start of the interval.
-   * @param {calIDateTime} endDate - The end of the interval.
-   * @returns {IntervalParts} An object to be used to create an
-   *                                       interval string.
-   */
-  formatIntervalParts(startDate, endDate) {
     if (endDate == null && startDate == null) {
-      return { type: "task-without-dates" };
+      return lazy.l10n.formatValueSync("datetime-interval-task-without-date");
     }
 
     if (endDate == null) {
-      return {
-        type: "task-without-due-date",
-        startDate: this.formatDate(startDate),
-        startTime: this.formatTime(startDate),
-      };
+      return lazy.l10n.formatValueSync("datetime-interval-task-without-due-date", {
+        date: this.formatDate(startDate),
+        time: this.formatTime(startDate),
+      });
     }
 
     if (startDate == null) {
-      return {
-        type: "task-without-start-date",
-        endDate: this.formatDate(endDate),
-        endTime: this.formatTime(endDate),
-      };
+      return lazy.l10n.formatValueSync("datetime-interval-task-without-start-date", {
+        date: this.formatDate(endDate),
+        time: this.formatTime(endDate),
+      });
     }
 
-    // Here there are only events or tasks with both start and due date.
-    // make sure start and end use the same timezone when formatting intervals:
-    const testdate = startDate.clone();
-    testdate.isDate = true;
-    const originalEndDate = endDate.clone();
-    endDate = endDate.getInTimezone(startDate.timezone);
-    const sameDay = testdate.compare(endDate) == 0;
-    if (startDate.isDate) {
-      // All-day interval, so we should leave out the time part
-      if (sameDay) {
-        return {
-          type: "all-day",
-          startDate: this.formatDateLong(startDate),
-        };
-      }
-
-      const startDay = this.formatDayWithOrdinal(startDate.day);
-      const startYear = String(startDate.year);
-      const endDay = this.formatDayWithOrdinal(endDate.day);
-      const endYear = String(endDate.year);
-      if (startDate.year != endDate.year) {
-        return {
-          type: "all-day-between-years",
-          startDay,
-          startMonth: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-between-years"),
-          startYear,
-          endDay,
-          endMonth: lazy.cal.l10n.formatMonth(
-            originalEndDate.month + 1,
-            "days-interval-between-years"
-          ),
-          endYear,
-        };
-      }
-
-      if (startDate.month == endDate.month) {
-        return {
-          type: "all-day-in-month",
-          startDay,
-          month: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-in-month"),
-          endDay,
-          year: endYear,
-        };
-      }
-
-      return {
-        type: "all-day-between-months",
-        startDay,
-        startMonth: lazy.cal.l10n.formatMonth(startDate.month + 1, "days-interval-between-months"),
-        endDay,
-        endMonth: lazy.cal.l10n.formatMonth(
-          originalEndDate.month + 1,
-          "days-interval-between-months"
-        ),
-        year: endYear,
-      };
-    }
-
-    const startDateString = this.formatDate(startDate);
-    const startTime = this.formatTime(startDate);
-    const endDateString = this.formatDate(endDate);
-    const endTime = this.formatTime(endDate);
-    // non-allday, so need to return date and time
-    if (sameDay) {
-      // End is on the same day as start, so we can leave out the end date
-      if (startTime == endTime) {
-        // End time is on the same time as start, so we can leave out the end time
-        // "5 Jan 2006 13:00"
-        return {
-          type: "same-date-time",
-          startDate: startDateString,
-          startTime,
-        };
-      }
-      // still include end time
-      // "5 Jan 2006 13:00 - 17:00"
-      return {
-        type: "same-day",
-        startDate: startDateString,
-        startTime,
-        endTime,
-      };
-    }
-
-    // Spanning multiple days, so need to include date and time
-    // for start and end
-    // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
-    return {
-      type: "several-days",
-      startDate: startDateString,
-      startTime,
-      endDate: endDateString,
-      endTime,
+    const options = {
+      dateStyle: startDate.isDate ? "long" : "full",
+      timeStyle: startDate.isDate ? undefined : "short",
     };
+    return getFormatter(options).formatRange(
+      getDateTimeAsAdjustedJsDate(startDate),
+      getDateTimeAsAdjustedJsDate(endDate)
+    );
   },
 
   /**
@@ -476,49 +275,111 @@ export var formatter = {
   },
 
   /**
-   * Get the month name.
+   * Format a month and year, using the short name for the month.
    *
-   * @param {number} aMonthIndex - Zero-based month number (0 is january, 11 is december).
-   * @returns {string} The month name in the current locale.
+   * @param {integer} year
+   * @param {integer} month - Zero-indexed.
+   * @returns {string}
    */
-  monthName(aMonthIndex) {
-    const oneBasedMonthIndex = aMonthIndex + 1;
-    return lazy.gDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".name");
+  formatMonthShort(year, month) {
+    return getFormatter({ month: "short", year: "numeric" }).format(new Date(year, month, 15));
   },
 
   /**
-   * Get the abbreviation of the month name.
+   * Format a month and year, using the long name for the month.
    *
-   * @param {number} aMonthIndex - Zero-based month number (0 is january, 11 is december).
-   * @returns {string} The abbreviated month name in the current locale.
+   * @param {integer} year
+   * @param {integer} month - Zero-indexed.
+   * @returns {string}
    */
-  shortMonthName(aMonthIndex) {
-    const oneBasedMonthIndex = aMonthIndex + 1;
-    return lazy.gDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".Mmm");
+  formatMonthLong(year, month) {
+    return getFormatter({ month: "long", year: "numeric" }).format(new Date(year, month, 15));
   },
 
   /**
-   * Get the day name.
+   * Format a year. In most languages this just returns the year given, but
+   * not all languages (notably Japanese and Korean).
    *
-   * @param {number} aDayIndex - Zero-based day number (0 is sunday, 6 is saturday).
-   * @returns {string} The day name in the current locale.
+   * @param {integer} year
+   * @returns {string}
    */
-  dayName(aDayIndex) {
-    const oneBasedDayIndex = aDayIndex + 1;
-    return lazy.gDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".name");
-  },
-
-  /**
-   * Get the abbreviation of the day name.
-   *
-   * @param {number} aDayIndex - Zero-based day number (0 is sunday, 6 is saturday).
-   * @returns {string} The abbrevidated day name in the current locale.
-   */
-  shortDayName(aDayIndex) {
-    const oneBasedDayIndex = aDayIndex + 1;
-    return lazy.gDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".Mmm");
+  formatYear(year) {
+    return getFormatter({ year: "numeric" }).format(new Date(year, 0, 15));
   },
 };
+
+/**
+ * A zero-indexed array of narrow weekday names in the current locale.
+ * DO NOT use these to construct a date string from parts.
+ */
+ChromeUtils.defineLazyGetter(formatter, "narrowWeekdayNames", function () {
+  const weekdayFormatter = getFormatter({ weekday: "narrow" });
+  return [
+    weekdayFormatter.format(new Date(2001, 0, 7)), // en: S, ja: 日, de: S
+    weekdayFormatter.format(new Date(2001, 0, 1)), // en: M, ja: 月, de: M
+    weekdayFormatter.format(new Date(2001, 0, 2)), // en: T, ja: 火, de: D
+    weekdayFormatter.format(new Date(2001, 0, 3)), // en: W, ja: 水, de: M
+    weekdayFormatter.format(new Date(2001, 0, 4)), // en: T, ja: 木, de: D
+    weekdayFormatter.format(new Date(2001, 0, 5)), // en: F, ja: 金, de: F
+    weekdayFormatter.format(new Date(2001, 0, 6)), // en: S, ja: 土, de: S
+  ];
+});
+
+/**
+ * A zero-indexed array of short weekday names in the current locale.
+ * DO NOT use these to construct a date string from parts.
+ */
+ChromeUtils.defineLazyGetter(formatter, "shortWeekdayNames", function () {
+  const weekdayFormatter = getFormatter({ weekday: "short" });
+  return [
+    weekdayFormatter.format(new Date(2001, 0, 7)), // en: Sun, ja: 日, de: So
+    weekdayFormatter.format(new Date(2001, 0, 1)), // en: Mon, ja: 月, de: Mo
+    weekdayFormatter.format(new Date(2001, 0, 2)), // en: Tue, ja: 火, de: Di
+    weekdayFormatter.format(new Date(2001, 0, 3)), // en: Wed, ja: 水, de: Mi
+    weekdayFormatter.format(new Date(2001, 0, 4)), // en: Thu, ja: 木, de: Do
+    weekdayFormatter.format(new Date(2001, 0, 5)), // en: Fri, ja: 金, de: Fr
+    weekdayFormatter.format(new Date(2001, 0, 6)), // en: Sat, ja: 土, de: Sa
+  ];
+});
+
+/**
+ * A zero-indexed array of weekday names in the current locale.
+ * DO NOT use these to construct a date string from parts.
+ */
+ChromeUtils.defineLazyGetter(formatter, "weekdayNames", function () {
+  const weekdayFormatter = getFormatter({ weekday: "long" });
+  return [
+    weekdayFormatter.format(new Date(2001, 0, 7)), // en: Sunday, ja: 日曜日, de: Sonntag
+    weekdayFormatter.format(new Date(2001, 0, 1)), // en: Monday, ja: 月曜日, de: Montag
+    weekdayFormatter.format(new Date(2001, 0, 2)), // en: Tuesday, ja: 火曜日, de: Dienstag
+    weekdayFormatter.format(new Date(2001, 0, 3)), // en: Wednesday, ja: 水曜日, de: Mittwoch
+    weekdayFormatter.format(new Date(2001, 0, 4)), // en: Thursday, ja: 木曜日, de: Donnerstag
+    weekdayFormatter.format(new Date(2001, 0, 5)), // en: Friday, ja: 金曜日, de: Freitag
+    weekdayFormatter.format(new Date(2001, 0, 6)), // en: Saturday, ja: 土曜日, de: Samstag
+  ];
+});
+
+/**
+ * A zero-indexed array of month names in the current locale.
+ * DO NOT use these to construct a date string from parts.
+ */
+ChromeUtils.defineLazyGetter(formatter, "monthNames", function () {
+  const monthFormatter = getFormatter({ month: "long" });
+  return [
+    monthFormatter.format(new Date(2001, 0, 1)), // en: January, ja: 1月, de: Januar
+    monthFormatter.format(new Date(2001, 1, 1)), // en: February, ja: 2月, de: Februar
+    monthFormatter.format(new Date(2001, 2, 1)), // en: March, ja: 3月, de: März
+    monthFormatter.format(new Date(2001, 3, 1)), // en: April, ja: 4月, de: April
+    monthFormatter.format(new Date(2001, 4, 1)), // en: May, ja: 5月, de: Mai
+    monthFormatter.format(new Date(2001, 5, 1)), // en: June, ja: 6月, de: Juni
+    monthFormatter.format(new Date(2001, 6, 1)), // en: July, ja: 7月, de: Juli
+    monthFormatter.format(new Date(2001, 7, 1)), // en: August, ja: 8月, de: August
+    monthFormatter.format(new Date(2001, 8, 1)), // en: September, ja: 9月, de: September
+    monthFormatter.format(new Date(2001, 9, 1)), // en: October, ja: 10月, de: Oktober
+    monthFormatter.format(new Date(2001, 10, 1)), // en: November, ja: 11月, de: November
+    monthFormatter.format(new Date(2001, 11, 1)), // en: December, ja: 12月, de: Dezember
+  ];
+});
 
 /**
  * Determine whether a datetime is specified relative to the user, i.e. a date

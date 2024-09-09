@@ -26,7 +26,7 @@ add_task(async function formatDate_test() {
         timezone: "Pacific/Fakaofo",
         dateformat: 0, // long
       },
-      expected: ["Saturday, April 01, 2017", "Saturday, April 1, 2017"],
+      expected: ["Saturday, 1 April 2017", "Saturday, April 1, 2017"],
     },
     {
       input: {
@@ -520,38 +520,40 @@ add_task(async function formatInterval_test() {
     //4: all-day
     {
       input: {
-        start: "20220916T140000Z",
-        end: "20220916T140000Z",
-        allDay: true,
+        start: "20220916",
+        end: "20220916",
       },
       expected: "Friday, September 16, 2022",
     },
     //5: all-day-between-years
     {
       input: {
-        start: "20220916T140000Z",
-        end: "20230916T140000Z",
-        allDay: true,
+        start: "20220916",
+        end: "20230916",
       },
-      expected: "September 16, 2022 – September 16, 2023",
+      expected: [
+        "September 16, 2022 – September 16, 2023",
+        "Friday, September 16, 2022 – Saturday, September 16, 2023",
+      ],
     },
     //6: all-day-in-month
     {
       input: {
-        start: "20220916T140000Z",
-        end: "20220920T140000Z",
-        allDay: true,
+        start: "20220916",
+        end: "20220920",
       },
-      expected: "September 16 – 20, 2022",
+      expected: ["September 16 – 20, 2022", "Friday, September 16 – Tuesday, September 20, 2022"],
     },
     //7: all-day-between-months
     {
       input: {
-        start: "20220916T140000Z",
-        end: "20221020T140000Z",
-        allDay: true,
+        start: "20220916",
+        end: "20221020",
       },
-      expected: "September 16 – October 20, 2022",
+      expected: [
+        "September 16 – October 20, 2022",
+        "Friday, September 16 – Thursday, October 20, 2022",
+      ],
     },
     //8: same-date-time
     {
@@ -559,7 +561,11 @@ add_task(async function formatInterval_test() {
         start: "20220916T140000Z",
         end: "20220916T140000Z",
       },
-      expected: ["Friday, September 16, 2022 2:00 PM", "Friday, September 16, 2022 14:00"],
+      expected: [
+        "Friday, September 16, 2022 at 2:00 PM",
+        "Friday, September 16, 2022, 2:00 PM",
+        "Friday, September 16, 2022 at 14:00",
+      ],
     },
     //9: same-day
     {
@@ -568,8 +574,8 @@ add_task(async function formatInterval_test() {
         end: "20220916T160000Z",
       },
       expected: [
-        "Friday, September 16, 2022 2:00 PM – 4:00 PM",
-        "Friday, September 16, 2022 14:00 – 16:00",
+        "Friday, September 16, 2022, 2:00 – 4:00 PM",
+        "Friday, September 16, 2022, 14:00 – 16:00",
       ],
     },
     //10: several-days
@@ -579,8 +585,8 @@ add_task(async function formatInterval_test() {
         end: "20220920T160000Z",
       },
       expected: [
-        "Friday, September 16, 2022 2:00 PM – Tuesday, September 20, 2022 4:00 PM",
-        "Friday, September 16, 2022 14:00 – Tuesday, September 20, 2022 16:00",
+        "Friday, September 16, 2022 at 2:00 PM – Tuesday, September 20, 2022 at 4:00 PM",
+        "Friday, September 16, 2022 at 14:00 – Tuesday, September 20, 2022 at 16:00",
       ],
     },
   ];
@@ -590,10 +596,6 @@ add_task(async function formatInterval_test() {
     i++;
     const startDate = test.input.start ? cal.createDateTime(test.input.start) : null;
     const endDate = test.input.end ? cal.createDateTime(test.input.end) : null;
-
-    if (test.input.allDay) {
-      startDate.isDate = true;
-    }
 
     const formatted = formatter.formatInterval(startDate, endDate);
     ok(

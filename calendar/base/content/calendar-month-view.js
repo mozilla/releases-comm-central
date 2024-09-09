@@ -116,7 +116,7 @@
       if (val) {
         this.setAttribute("value", cal.dtz.formatter.formatDateWithoutYear(this.mDate));
       } else {
-        this.setAttribute("value", this.mDate.day);
+        this.setAttribute("value", cal.dtz.formatter.formatDateOnly(this.mDate));
       }
     }
 
@@ -157,7 +157,7 @@
       if (this.mShowMonthLabel) {
         this.setAttribute("value", cal.dtz.formatter.formatDateWithoutYear(this.mDate));
       } else {
-        this.setAttribute("value", aDate.day);
+        this.setAttribute("value", cal.dtz.formatter.formatDateOnly(this.mDate));
       }
     }
 

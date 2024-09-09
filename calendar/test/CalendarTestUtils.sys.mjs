@@ -1000,10 +1000,8 @@ export const CalendarTestUtils = {
    */
   async goToDate(win, year, month, day) {
     const miniMonth = win.document.getElementById("calMinimonth");
-
-    const activeYear = miniMonth.querySelector(".minimonth-year-name").getAttribute("value");
-
-    const activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
+    const activeYear = miniMonth.getAttribute("year");
+    const activeMonth = miniMonth.getAttribute("month");
 
     async function doScroll(name, difference, sleepTime) {
       if (difference === 0) {

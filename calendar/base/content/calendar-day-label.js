@@ -69,8 +69,8 @@
 
     set weekDay(val) {
       this.mWeekday = val % 7;
-      this.longWeekdayName.value = cal.dtz.formatter.dayName(val);
-      this.shortWeekdayName.value = cal.dtz.formatter.shortDayName(val);
+      this.longWeekdayName.value = cal.dtz.formatter.weekdayNames[val];
+      this.shortWeekdayName.value = cal.dtz.formatter.shortWeekdayNames[val];
     }
 
     get weekDay() {
@@ -81,7 +81,7 @@
       this.mDate = val;
       const dateFormatter = cal.dtz.formatter;
       document.l10n.setAttributes(this.shortWeekdayName, "day-header-elem", {
-        day: dateFormatter.shortDayName(val.weekday),
+        day: dateFormatter.shortWeekdayNames[val.weekday],
         date: dateFormatter.formatDateWithoutYear(val),
       });
       document.l10n.setAttributes(this.longWeekdayName, "day-header-elem", {
@@ -89,7 +89,7 @@
         date: dateFormatter.formatDateWithoutYear(val),
       });
       const shortLabel = document.l10n.formatValueSync("day-header", {
-        dayName: dateFormatter.shortDayName(val.weekday),
+        dayName: dateFormatter.shortWeekdayNames[val.weekday],
         dayIndex: dateFormatter.formatDateWithoutYear(val),
       });
       const longLabel = document.l10n.formatValueSync("day-header", {

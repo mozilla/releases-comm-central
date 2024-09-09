@@ -44,6 +44,15 @@
       this.selectedDay = timezoneDate;
     }
 
+    /**
+     * Gets the description of the range displayed by the view.
+     *
+     * @returns {string}
+     */
+    getRangeDescription() {
+      return cal.dtz.formatter.formatDateLong(this.rangeStartDate);
+    }
+
     moveView(number) {
       if (number) {
         const currentDay = this.startDay.clone();
@@ -236,10 +245,7 @@
      * @returns {string}
      */
     getRangeDescription() {
-      return new Date(this.rangeStartDate.year, this.rangeStartDate.month).toLocaleDateString(
-        undefined,
-        { month: "long", year: "numeric" }
-      );
+      return cal.dtz.formatter.formatMonthLong(this.rangeStartDate.year, this.rangeStartDate.month);
     }
 
     moveView(number) {

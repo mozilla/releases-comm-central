@@ -1021,12 +1021,25 @@ var gGeneralPane = {
     );
     const appLocale = Services.locale.appLocalesAsBCP47[0];
     const rsLocale = osprefs.regionalPrefsLocales[0];
+    const appLocaleRadio = document.getElementById("appLocale");
+    const rsLocaleRadio = document.getElementById("rsLocale");
+
+    if (
+      !Cu.isInAutomation &&
+      appLocale.split("-")[0] == rsLocale.split("-")[0]
+    ) {
+      // If the app locale and regional settings locale are the same language,
+      // regardless of region, intl.regional_prefs.use_os_locales is ignored
+      // and the regional settings locale is always used, making these radio
+      // buttons useless. Hide them.
+      appLocaleRadio.closest("fieldset").hidden = true;
+      return;
+    }
+
     const names = Services.intl.getLocaleDisplayNames(undefined, [
       appLocale,
       rsLocale,
     ]);
-    const appLocaleRadio = document.getElementById("appLocale");
-    const rsLocaleRadio = document.getElementById("rsLocale");
     const appLocaleLabel = this._prefsBundle.getFormattedString(
       "appLocale.label",
       [names[0]]

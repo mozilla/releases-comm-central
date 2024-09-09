@@ -354,7 +354,9 @@ function updateTodayPaneButton() {
   const iconLabel = document.createXULElement("label");
   iconLabel.classList.add("toolbarbutton-day-text");
 
-  const dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
+  // Only the number of the date is used here. `formatDateOnly` is avoided as
+  // the extra characters in CJK languages won't fit.
+  const dayNumber = new Date().getDate();
   iconLabel.textContent = dayNumber;
 
   iconStack.appendChild(iconBegin);
@@ -379,7 +381,9 @@ function updateTodayPaneButton() {
 function updateTodayPaneButtonDate() {
   const todaypane = document.getElementById("calendar-status-todaypane-button");
 
-  const dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
+  // Only the number of the date is used here. `formatDateOnly` is avoided as
+  // the extra characters in CJK languages won't fit.
+  const dayNumber = new Date().getDate();
   todaypane.querySelector(".toolbarbutton-day-text").textContent = dayNumber;
 }
 

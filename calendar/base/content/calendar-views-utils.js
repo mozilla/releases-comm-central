@@ -579,15 +579,13 @@ var calendarNavigationBar = {
     let docTitle = "";
     if (startDate) {
       const intervalLabel = document.getElementById("intervalDescription");
+      intervalLabel.textContent = currentView().getRangeDescription();
       const firstWeekNo = cal.weekInfoService.getWeekTitle(startDate);
-      let secondWeekNo = firstWeekNo;
+      const secondWeekNo =
+        startDate.nativeTime == endDate.nativeTime
+          ? firstWeekNo
+          : cal.weekInfoService.getWeekTitle(endDate);
       const weekLabel = document.getElementById("calendarWeek");
-      if (startDate.nativeTime == endDate.nativeTime) {
-        intervalLabel.textContent = cal.dtz.formatter.formatDate(startDate);
-      } else {
-        intervalLabel.textContent = currentView().getRangeDescription();
-        secondWeekNo = cal.weekInfoService.getWeekTitle(endDate);
-      }
       if (secondWeekNo == firstWeekNo) {
         document.l10n.setAttributes(weekLabel, "single-calendar-week", {
           index: firstWeekNo,

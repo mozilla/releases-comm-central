@@ -62,7 +62,6 @@
     static get inheritedAttributes() {
       return {
         ".minimonth-header": "readonly,month,year",
-        ".minimonth-year-name": "value=year",
       };
     }
 
@@ -188,13 +187,7 @@
       this.mValue = new Date(); // Default to "today".
       this.mFocused = null;
 
-      let width = 0;
-      // Start loop from 1 as it is needed to get the first month name string
-      // and avoid extra computation of adding one.
-      for (let i = 1; i <= 12; i++) {
-        const dateString = cal.l10n.getDateFmtString(`month.${i}.name`);
-        width = Math.max(dateString.length, width);
-      }
+      const width = Math.max(...cal.dtz.formatter.monthNames.map(n => n.length));
       this.querySelector(".minimonth-month-name").style.width = `${width + 1}ch`;
 
       this.refreshDisplay();
@@ -522,69 +515,12 @@
 
     setHeader() {
       // Reset the headers.
-      const dayList = new Array(7);
-      const longDayList = new Array(7);
-      const tempDate = new Date();
-      let i, j;
-      let useOSFormat;
-      tempDate.setDate(tempDate.getDate() - (tempDate.getDay() - this.weekStart));
-      for (i = 0; i < 7; i++) {
-        // If available, use UILocale days, else operating system format.
-        try {
-          dayList[i] = cal.l10n.getDateFmtString(`day.${tempDate.getDay() + 1}.short`);
-        } catch (e) {
-          dayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "short" });
-          useOSFormat = true;
-        }
-        longDayList[i] = tempDate.toLocaleDateString(undefined, { weekday: "long" });
-        tempDate.setDate(tempDate.getDate() + 1);
-      }
-
-      if (useOSFormat) {
-        // To keep datepicker popup compact, shrink localized weekday
-        // abbreviations down to 1 or 2 chars so each column of week can
-        // be as narrow as 2 digits.
-        //
-        // 1. Compute the minLength of the day name abbreviations.
-        const minLength = dayList.map(name => name.length).reduce((min, len) => Math.min(min, len));
-
-        // 2. If some day name abbrev. is longer than 2 chars (not Catalan),
-        //    and ALL localized day names share same prefix (as in Chinese),
-        //    then trim shared "day-" prefix.
-        if (dayList.some(dayAbbr => dayAbbr.length > 2)) {
-          for (let endPrefix = 0; endPrefix < minLength; endPrefix++) {
-            const suffix = dayList[0][endPrefix];
-            if (dayList.some(dayAbbr => dayAbbr[endPrefix] != suffix)) {
-              if (endPrefix > 0) {
-                for (i = 0; i < dayList.length; i++) {
-                  // trim prefix chars.
-                  dayList[i] = dayList[i].substring(endPrefix);
-                }
-              }
-              break;
-            }
-          }
-        }
-        // 3. Trim each day abbreviation to 1 char if unique, else 2 chars.
-        for (i = 0; i < dayList.length; i++) {
-          let foundMatch = 1;
-          for (j = 0; j < dayList.length; j++) {
-            if (i != j) {
-              if (dayList[i].substring(0, 1) == dayList[j].substring(0, 1)) {
-                foundMatch = 2;
-                break;
-              }
-            }
-          }
-          dayList[i] = dayList[i].substring(0, foundMatch);
-        }
-      }
-
       this._getCalBoxNode(0, 0).hidden = !this.showWeekNumber;
       for (let column = 1; column < 8; column++) {
         const node = this._getCalBoxNode(0, column);
-        node.textContent = dayList[column - 1];
-        node.setAttribute("aria-label", longDayList[column - 1]);
+        const day = (column + 6 + this.weekStart) % 7;
+        node.textContent = cal.dtz.formatter.narrowWeekdayNames[day];
+        node.setAttribute("aria-label", cal.dtz.formatter.weekdayNames[day]);
       }
     }
 
@@ -646,22 +582,24 @@
       this.setAttribute("month", aDate.getMonth());
 
       const miniMonthName = this.querySelector(".minimonth-month-name");
-      const dateString = cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`);
-      miniMonthName.setAttribute("value", dateString);
+      const miniYearName = this.querySelector(".minimonth-year-name");
+      const monthString = cal.dtz.formatter.monthNames[aDate.getMonth()];
+      miniMonthName.setAttribute("value", monthString);
       miniMonthName.setAttribute("monthIndex", aDate.getMonth());
-      this.mReadOnlyHeader.textContent = dateString + " " + aDate.getFullYear();
+      miniYearName.setAttribute("value", cal.dtz.formatter.formatYear(aDate.getFullYear()));
+      this.mReadOnlyHeader.textContent = cal.dtz.formatter.formatMonthLong(
+        aDate.getFullYear(),
+        aDate.getMonth()
+      );
 
       // Update the calendar.
       const calbox = this.querySelector(".minimonth-calendar");
       const date = this._getStartDate(aDate);
 
       if (aDate.getFullYear() == (this.mValue || this.mExtraDate).getFullYear()) {
-        calbox.setAttribute("aria-label", dateString);
+        calbox.ariaLabel = monthString;
       } else {
-        calbox.ariaLabel = new Date(aDate.getFullYear(), aDate.getMonth()).toLocaleDateString(
-          undefined,
-          { month: "long", year: "numeric" }
-        );
+        calbox.ariaLabel = cal.dtz.formatter.formatMonthLong(aDate.getFullYear(), aDate.getMonth());
       }
 
       this.dayBoxes.clear();

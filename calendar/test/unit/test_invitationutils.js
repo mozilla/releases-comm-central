@@ -790,11 +790,11 @@ add_task(async function updateInvitationOverlay_test() {
           // If you get a failure for this test, add your pattern here.
           {
             type: "added",
-            text: /^Wednesday, (September 0?9,|0?9 September) 2015 (2:00 PM – 3:00 PM|14:00 – 15:00)$/,
+            text: /^Wednesday, (September 0?9,|0?9 September) 2015, (2:00( PM)? – 3:00 PM|14:00 – 15:00)$/,
           },
           {
             type: "removed",
-            text: /^Wednesday, (September 0?9,|0?9 September) 2015 (1:00 PM – 2:00 PM|13:00 – 14:00)$/,
+            text: /^Wednesday, (September 0?9,|0?9 September) 2015, (1:00( PM)? – 2:00 PM|13:00 – 14:00)$/,
           },
         ],
       },
@@ -1426,15 +1426,15 @@ add_task(async function parseCounter_test() {
           },
           dtstart: {
             proposed:
-              /^Thursday, (September 10,|10 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
+              /^Thursday, (September 10,|10 September) 2015( at|,) (9:00 PM|21:00) Europe\/Berlin$/,
             original:
-              /^Wednesday, (September 0?9,|0?9 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
+              /^Wednesday, (September 0?9,|0?9 September) 2015( at|,) (9:00 PM|21:00) Europe\/Berlin$/,
           },
           dtend: {
             proposed:
-              /^Thursday, (September 10,|10 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
+              /^Thursday, (September 10,|10 September) 2015( at|,) (10:00 PM|22:00) Europe\/Berlin$/,
             original:
-              /^Wednesday, (September 0?9,|0?9 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
+              /^Wednesday, (September 0?9,|0?9 September) 2015( at|,) (10:00 PM|22:00) Europe\/Berlin$/,
           },
           comment: {
             proposed: "Sorry, I cannot make it that time.",

@@ -293,8 +293,7 @@ const DaypickerWeekday = {
       if (dow >= 7) {
         dow -= 7;
       }
-      const day = cal.l10n.getString("dateFormat", `day.${dow + 1}.Mmm`);
-      child.label = day;
+      child.label = cal.dtz.formatter.shortWeekdayNames[dow];
       child.calendar = mainbox;
     }
   },
@@ -424,6 +423,7 @@ function onLoad() {
   RecurrencePreview.init();
   DaypickerWeekday.init();
   DaypickerMonthday.init();
+  initRecurrencePatternWidgets();
   changeWidgetsOrder();
 
   const args = window.arguments[0];
@@ -1093,6 +1093,45 @@ function updateRecurrenceControls() {
   updateRecurrenceRange();
   updatePreview();
   window.sizeToContent();
+}
+
+/**
+ * Initialize the weekday and month pickers to have localized strings, and
+ * start with the first day of the week.
+ */
+function initRecurrencePatternWidgets() {
+  let popup = document.getElementById("monthly-weekday-menupopup");
+  const first = Services.prefs.getIntPref("calendar.week.start");
+  for (let i = first; i < first + 7; i++) {
+    const item = document.createXULElement("menuitem");
+    item.label = cal.dtz.formatter.weekdayNames[i % 7];
+    item.value = (i % 7) + 1;
+    popup.insertBefore(item, popup.lastElementChild);
+  }
+
+  popup = document.getElementById("yearly-month-ordinal-menupopup");
+  for (let i = 0; i < 12; i++) {
+    const item = document.createXULElement("menuitem");
+    item.label = cal.dtz.formatter.monthNames[i];
+    item.value = i + 1;
+    popup.appendChild(item);
+  }
+
+  popup = document.getElementById("yearly-weekday-menupopup");
+  for (let i = first; i < first + 7; i++) {
+    const item = document.createXULElement("menuitem");
+    item.label = cal.dtz.formatter.weekdayNames[i % 7];
+    item.value = (i % 7) + 1;
+    popup.insertBefore(item, popup.lastElementChild);
+  }
+
+  popup = document.getElementById("yearly-month-rule-menupopup");
+  for (let i = 0; i < 12; i++) {
+    const item = document.createXULElement("menuitem");
+    item.label = cal.dtz.formatter.monthNames[i];
+    item.value = i + 1;
+    popup.appendChild(item);
+  }
 }
 
 /**

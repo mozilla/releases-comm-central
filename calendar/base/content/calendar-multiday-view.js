@@ -3059,11 +3059,11 @@
           // so that it happens before the layout calculations, so we don't use
           // `document.l10n.setAttributes` here.
           dayCol.shortHeading.textContent = lazy.l10n.formatValueSync("day-header", {
-            dayName: dateFormatter.shortDayName(dayDate.weekday),
+            dayName: dateFormatter.shortWeekdayNames[dayDate.weekday],
             dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
           });
           dayCol.longHeading.textContent = lazy.l10n.formatValueSync("day-header", {
-            dayName: dateFormatter.dayName(dayDate.weekday),
+            dayName: dateFormatter.weekdayNames[dayDate.weekday],
             dayIndex: dateFormatter.formatDateWithoutYear(dayDate),
           });
 

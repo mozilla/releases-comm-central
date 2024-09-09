@@ -392,7 +392,7 @@ function checkTooltip(row, col, startTime, endTime) {
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
   const startDate = cal.dtz.formatter.formatDate(currDate);
 
-  Assert.ok(dateTime.includes(`${startDate} ${startTime} – `));
+  Assert.stringContains(dateTime, `${startDate}, ${startTime.replace(/ [AP]M/, "")}`);
 
   // This could be on the next day if it is 00:00.
   Assert.ok(dateTime.endsWith(endTime));

@@ -399,18 +399,17 @@ const monthGridView = {
     const month = monthTemplate.content.firstElementChild.cloneNode(true);
 
     // Set up the month title.
-    month.rows[0].cells[0].firstElementChild.textContent = new Date(
+    month.rows[0].cells[0].firstElementChild.textContent = lazy.cal.dtz.formatter.formatMonthLong(
       startOfMonth.year,
       startOfMonth.month
-    ).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    );
 
     // Set up the weekday titles
     const weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
     for (let i = 0; i < 7; i++) {
       const dayNumber = ((i + weekStart) % 7) + 1;
-      month.rows[1].cells[i].firstElementChild.textContent = lazy.cal.l10n.getDateFmtString(
-        `day.${dayNumber}.Mmm`
-      );
+      month.rows[1].cells[i].firstElementChild.textContent =
+        lazy.cal.dtz.formatter.shortWeekdayNames[dayNumber];
     }
 
     // Set up each week

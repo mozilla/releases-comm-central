@@ -409,15 +409,16 @@ var TodayPane = {
     this.start = aNewDate.clone();
 
     const daylabel = document.getElementById("datevalue-label");
+    // Only the number of the date is used here. `formatDateOnly` is avoided as
+    // the extra characters in CJK languages won't fit.
     daylabel.value = this.start.day;
 
     document
       .getElementById("weekdayNameLabel")
-      .setAttribute("value", cal.l10n.getDateFmtString(`day.${this.start.weekday + 1}.Mmm`));
+      .setAttribute("value", cal.dtz.formatter.shortWeekdayNames[this.start.weekday]);
 
     const monthnamelabel = document.getElementById("monthNameContainer");
-    monthnamelabel.value =
-      cal.dtz.formatter.shortMonthName(this.start.month) + " " + this.start.year;
+    monthnamelabel.value = cal.dtz.formatter.formatMonthShort(this.start.year, this.start.month);
 
     const currentweeklabel = document.getElementById("currentWeek-label");
     currentweeklabel.value =
