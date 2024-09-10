@@ -3589,6 +3589,7 @@ NS_IMETHODIMP nsImapMailFolder::PlaybackOfflineFolderCreate(
   return imapService->CreateFolder(this, aFolderName, this, url);
 }
 
+// "this" is the source folder.
 NS_IMETHODIMP
 nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
                                         bool isMove, nsIMsgFolder* aDstFolder,
@@ -3656,6 +3657,8 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey>& aMsgKeys,
   nsCOMPtr<nsIURI> resultUrl;
   nsAutoCString uids;
   AllocateUidStringFromKeys(aMsgKeys, uids);
+  // Tell IMAP to copy (or move) messages with given uids in this folder to
+  // aDstFolder.
   rv = imapService->OnlineMessageCopy(this, uids, aDstFolder, true, isMove,
                                       aUrlListener, getter_AddRefs(resultUrl),
                                       nullptr, aWindow);

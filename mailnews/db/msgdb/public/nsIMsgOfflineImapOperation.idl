@@ -15,6 +15,16 @@ interface nsIMsgOfflineImapOperation : nsISupports
 {
 // type of stored imap operations
   const long kFlagsChanged      = 0x1;  // Set IMAP flags on msg.
+
+  /**
+   * For Move operations, a pair of operations is used: kMsgMoved and kMoveResult.
+   * A kMsgMoved op is added to the source folder.
+   * A kMsgMoveResult is attached to the destination folder.
+   * The kMsgMoveResult op also holds the key(/UID) of the source message
+   * (in the source DB). This is because the message in the src DB might
+   * already be removed by the time the move operation is actually executed
+   * against the server, so we have to keep track of it.
+   */
   const long kMsgMoved          = 0x2;
   const long kMsgCopy           = 0x4;
   const long kMoveResult        = 0x8;
@@ -23,7 +33,8 @@ interface nsIMsgOfflineImapOperation : nsISupports
   const long kDeletedMsg        = 0x40;
   const long kMsgMarkedDeleted  = 0x80;
   const long kAppendTemplate    = 0x100;
-  const long kDeleteAllMsgs     = 0x200;  // Delete all msgs in folder (eg empty trash).
+  /** Delete all msgs in folder (eg empty trash). */
+  const long kDeleteAllMsgs     = 0x200;
   const long kAddKeywords       = 0x400;
   const long kRemoveKeywords    = 0x800;
 
