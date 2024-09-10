@@ -16,8 +16,11 @@ const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];
 /**
  * Controller for the In-App Notification system for showing messages from the
  * project to users.
+ *
+ * @implements {nsIObserver}
  */
 export const InAppNotifications = {
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
   /**
    * @type {?JSONFile}
    */
@@ -53,6 +56,7 @@ export const InAppNotifications = {
       NotificationManager.REQUEST_NOTIFICATIONS_EVENT,
       this
     );
+    Services.obs.addObserver(this, "intl:app-locales-changed");
     //TODO set up refresh from network
     //TODO possibly don't do this here and wait for the network refresh to have
     // completed/failed instead.
@@ -126,6 +130,15 @@ export const InAppNotifications = {
         this.markAsInteractedWith(event.detail);
         break;
       case NotificationManager.REQUEST_NOTIFICATIONS_EVENT:
+        this._updateNotificationManager();
+        break;
+    }
+  },
+
+  observe(subject, topic) {
+    switch (topic) {
+      case "intl:app-locales-changed":
+        // When locales change, the filtered notifications can change.
         this._updateNotificationManager();
         break;
     }

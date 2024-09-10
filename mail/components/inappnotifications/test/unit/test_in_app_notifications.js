@@ -13,6 +13,9 @@ const { NotificationManager } = ChromeUtils.importESModule(
 const { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
@@ -385,4 +388,82 @@ add_task(async function test_updateNotifications_filtered() {
   );
 
   InAppNotifications.updateNotifications([]);
+});
+
+add_task(async function test_updateNotificationManager_localeChange() {
+  const currentLocales = Services.locale.requestedLocales;
+  const availableLocales = Services.locale.availableLocales;
+  if (!availableLocales.includes("en-EU")) {
+    Services.locale.availableLocales = ["en-EU", ...availableLocales];
+  }
+  if (currentLocales.includes("en-EU")) {
+    Services.locale.requestedLocales = ["en-US"];
+  }
+  const now = Date.now();
+  const mockData = [
+    {
+      id: "normal bar",
+      title: "dolor sit amet",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      targeting: {
+        exclude: [
+          {
+            locales: ["en-EU"],
+          },
+        ],
+      },
+      severity: 5,
+    },
+    {
+      id: "foo weird",
+      title: "lorem ipsum",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      targeting: {
+        include: [
+          {
+            locales: ["en-EU"],
+          },
+        ],
+      },
+      severity: 5,
+    },
+  ];
+  InAppNotifications.updateNotifications(mockData);
+
+  const { detail: notification } = await BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+
+  Assert.equal(
+    notification.id,
+    "normal bar",
+    "Should see non-en-EU notification"
+  );
+
+  const localeChanged = TestUtils.topicObserved("intl:app-locales-changed");
+
+  Services.locale.requestedLocales = ["en-EU"];
+  await localeChanged;
+
+  const { detail: newNotification } = await BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+
+  Assert.notEqual(
+    newNotification.id,
+    notification.id,
+    "Should get a different notification with the different locale"
+  );
+  Assert.equal(
+    newNotification.id,
+    "foo weird",
+    "Should see en-EU notification"
+  );
+
+  Services.locale.availableLocales = availableLocales;
+  Services.locale.requestedLocales = currentLocales;
 });
