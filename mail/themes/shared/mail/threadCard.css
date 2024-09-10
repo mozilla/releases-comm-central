@@ -6,7 +6,7 @@
   --thread-child-start: 20px;
   --thread-card-content-block: 3px;
   --thread-card-content-gap: 3px;
-  --thread-indicator-content-padding: 2px 3px;
+  --thread-indicator-content-padding: 1px 3px;
   --thread-line-height: 100%;
   --read-status-new: var(--icon-sparkle-star-sm);
   --read-status-icon: var(--icon-dot);
@@ -19,7 +19,7 @@
     --thread-child-start: 8px;
     --thread-card-content-block: 1px;
     --thread-card-content-gap: 1px;
-    --thread-indicator-content-padding: 1px 3px;
+    --thread-indicator-content-padding: 0 3px;
     --read-status-new: var(--icon-sparkle-star-xs);
     --read-status-size: 12px;
     --indicator-gap: 2px;
@@ -127,10 +127,11 @@
     }
 
     &[data-properties~="hasUnread"] {
+
       & .replies-icon,
       & .thread-replies {
         font-weight: bold;
-        color: var(--new-color);
+        color: var(--unread-color);
         fill: color-mix(in srgb, currentColor 20%, transparent);
         stroke: currentColor;
       }
@@ -143,35 +144,54 @@
           position: absolute;
           inset-inline-start: -3px;
           inset-block-start: -3px;
-          content: var(--icon-sparkle-star-xs);
+          content: var(--icon-dot-xs);
           -moz-context-properties: fill, stroke;
-          fill: var(--color-yellow-30);
-          stroke: var(--color-amber-50);
+          fill: var(--color-green-50);
+          stroke: var(--color-green-60);
           overflow: visible;
         }
 
         & .thread-replies {
-          font-weight: bold;
           color: var(--unread-color);
         }
       }
 
-      &:not([data-properties~="hasNew"]) {
-        & .replies-icon,
-        & .thread-replies {
-          color: var(--unread-color);
-        }
+      &.collapsed button.twisty {
+        border-color: var(--selected-item-color);
 
-        & .twisty::before {
-          overflow: visible;
-          content: var(--icon-dot-xs);
-          fill: var(--color-green-50);
-          stroke: var(--color-green-60);
+        @media (prefers-contrast) {
+          :root:not([lwtheme]) & {
+            border-color: SelectedItemText;
+
+            & .replies-icon,
+            & .thread-replies {
+              color: inherit;
+            }
+          }
         }
       }
     }
 
+    &[data-properties~="hasNew"] {
+
+      & .replies-icon,
+      & .thread-replies {
+        color: var(--new-color);
+      }
+
+      & button.twisty::before {
+        content: var(--icon-sparkle-star-xs);
+        fill: var(--color-yellow-30);
+        stroke: var(--color-amber-50);
+      }
+
+      & .thread-replies {
+        color: var(--new-color);
+      }
+    }
+
     &[data-properties~="replied"] {
+
       & .state.replied {
         display: inline-flex;
       }
@@ -206,6 +226,7 @@
     }
 
     &[data-properties~="forwarded"] {
+
       & .state.forwarded {
         display: inline-flex;
       }
@@ -226,6 +247,7 @@
     }
 
     &[data-properties~="redirected"] {
+
       & .state.redirected {
         display: inline-flex;
       }
@@ -278,7 +300,6 @@
             align-items: center;
             justify-content: space-around;
             font-size: 0.9rem;
-            font-weight: 700;
             position: relative;
             padding: var(--thread-indicator-content-padding);
           }

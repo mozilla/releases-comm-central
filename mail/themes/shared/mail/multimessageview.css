@@ -94,6 +94,17 @@ body {
     padding-bottom: 9px;
     padding-inline: 12px 9px;
     border-bottom: 1px solid var(--layout-background-4);
+
+    &.unread::before {
+      position: absolute;
+      inset-inline-start: -6px;
+      inset-block-start: 8px;
+      content: var(--icon-dot);
+      -moz-context-properties: fill, stroke;
+      fill: var(--color-green-50);
+      stroke: var(--color-green-60);
+      overflow: visible;
+    }
   }
 }
 
