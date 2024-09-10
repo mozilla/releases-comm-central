@@ -79,7 +79,7 @@ impl LinuxSysTrayHandler {
         let tray = SystemTray::new("Thunderbird", icon, "Thunderbird Daily").with_items(menus);
         let service = ksni::TrayService::new(tray);
         let handle = service.handle();
-        service.spawn();
+        service.spawn_without_dbus_name();
         LinuxSysTrayHandler::allocate(InitLinuxSysTrayHandler { handle })
     }
 
