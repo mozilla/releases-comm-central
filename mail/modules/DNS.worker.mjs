@@ -19,6 +19,11 @@ const NS_T_MX = 15; // DNS_TYPE_MX
 class load_libresolv {
   library = null;
 
+  /**
+   * Constuctor.
+   *
+   * @param {string} os - The OS - from AppConstants.unixstyle.
+   */
   constructor(os) {
     this._open(os);
   }
@@ -26,15 +31,15 @@ class load_libresolv {
   /**
    * Tries to find and load library.
    *
-   * @param {string} os - Operating System.
+   * @param {string} os - Operating System - from AppConstants.unixstyle.
    */
   _open(os) {
     function findLibrary() {
       let lastException = null;
       let candidates = [];
-      if (os == "FreeBSD") {
+      if (os == "freebsd") {
         candidates = [{ name: "c", suffix: ".7" }];
-      } else if (os == "OpenBSD") {
+      } else if (os == "openbsd") {
         candidates = [{ name: "c", suffix: "" }];
       } else {
         candidates = [
@@ -53,7 +58,7 @@ class load_libresolv {
           lastException = ex;
         }
       }
-      throw new Error(`Couldn't find libresolv; tried: ${tried}`, {
+      throw new Error(`Couldn't find libresolv for ${os}; tried: ${tried}`, {
         cause: lastException,
       });
     }
@@ -494,8 +499,9 @@ const worker = new PromiseWorker.AbstractWorker();
 worker.dispatch = (method, args = []) => {
   return worker[method](...args); // Call worker.execute()
 };
-worker.execute = (os, method, args) => {
-  const DNS = os == "WINNT" ? new load_dnsapi() : new load_libresolv(os);
+worker.execute = (platform, unixstyle, method, args) => {
+  const DNS =
+    platform == "win" ? new load_dnsapi() : new load_libresolv(unixstyle);
   return DNS[method].apply(DNS, args);
 };
 worker.postMessage = function (...args) {

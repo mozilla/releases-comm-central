@@ -7,6 +7,7 @@
  * loading system DNS libraries on Linux, Mac and Windows.
  */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { BasePromiseWorker } from "resource://gre/modules/PromiseWorker.sys.mjs";
 
 // These constants are luckily shared, but with different names
@@ -44,7 +45,8 @@ export const DNS = {
     let result;
     try {
       result = await worker.post("execute", [
-        Services.appinfo.OS,
+        AppConstants.platform,
+        AppConstants.unixstyle,
         "lookup",
         [...arguments],
       ]);
