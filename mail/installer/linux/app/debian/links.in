@@ -1,9 +1,0 @@
-${DEB_PKG_INSTALL_PATH}/thunderbird usr/bin/${DEB_PKG_NAME}
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default16.png usr/share/icons/hicolor/16x16/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default22.png usr/share/icons/hicolor/22x22/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default24.png usr/share/icons/hicolor/24x24/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default32.png usr/share/icons/hicolor/32x32/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default48.png usr/share/icons/hicolor/48x48/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default64.png usr/share/icons/hicolor/64x64/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default128.png usr/share/icons/hicolor/128x128/apps/org.mozilla.Thunderbird.png
-${DEB_PKG_INSTALL_PATH}/chrome/icons/default/default256.png usr/share/icons/hicolor/256x256/apps/org.mozilla.Thunderbird.png
