@@ -8,8 +8,10 @@ prefs = [
   "mailnews.start_page.url=about:blank",
 ]
 support-files = [
+  "files/inAppNotificationContainer.xhtml",
   "files/inAppNotificationManager.xhtml",
 ]
 subsuite = "thunderbird"
 
+["browser_inAppNotificationContainer.js"]
 ["browser_inAppNotificationManager.js"]

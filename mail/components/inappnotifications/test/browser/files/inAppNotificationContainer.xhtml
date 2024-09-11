@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>In app notification container test</title>
+    <script src="chrome://messenger/content/in-app-notification-container.mjs" type="module"></script>
+  </head>
+  <body>
+    <template id="inAppNotificationCloseButtonTemplate">
+      <img src="" data-l10n-id="in-app-notification-close-image" />
+    </template>
+
+    <template id="inAppNotificationContainerTemplate">
+      <div class="in-app-notification-container in-app-notification-donation">
+        <button is="in-app-notification-close-button"></button>
+        <img src="" alt="" class="icon"/>
+        <div class="in-app-notification-content">
+          <h1 class="in-app-notification-heading"></h1>
+          <div class="in-app-notification-description-wrapper">
+            <p class="in-app-notification-description">
+            </p>
+          </div>
+          <a is="in-app-notification-button">
+            <span class="in-app-notification-cta"></span>
+          </a>
+        </div>
+      </div>
+    </template>
+    <in-app-notification-container></in-app-notification-container>
+  </body>
+</html>
