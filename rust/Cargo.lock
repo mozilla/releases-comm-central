@@ -3604,6 +3604,7 @@ dependencies = [
 name = "neqo_glue"
 version = "0.1.0"
 dependencies = [
+ "firefox-on-glean",
  "libc",
  "log",
  "neqo-common",
@@ -4949,7 +4950,6 @@ dependencies = [
  "style_derive",
  "style_traits",
  "thin-vec",
- "time 0.1.45",
  "to_shmem",
  "to_shmem_derive",
  "toml",
