@@ -1,0 +1,123 @@
+.TH "${DEB_DISPLAY_NAME}" "1" "${DEB_MANPAGE_DATE}" "${DEB_PKG_NAME}" "Linux User's Manual"
+.SH NAME
+${DEB_PKG_NAME} - ${DEB_DISPLAY_NAME} is a free and open source email, newsfeed, chat, and calendaring client
+.SH SYNOPSIS
+.B ${DEB_PKG_NAME}
+[\fIOPTIONS\fR] [\fIURL\fR]
+
+.B /usr/lib/${DEB_PKG_NAME}/${DEB_PKG_NAME}
+[\fIOPTIONS\fR] [\fIURL\fR]
+
+.SH DESCRIPTION
+\fB${DEB_DISPLAY_NAME}\fR is a free and open source email, newsfeed, chat, and
+calendaring client, that’s easy to set up and customize.
+
+.SH USAGE
+If there is a ${DEB_DISPLAY_NAME} mail client already running, \fB${DEB_PKG_NAME}\fR will
+arrange for it to create a new mail client window; otherwise it will start
+a new instance.
+
+.SH OPTIONS
+A summary of the options supported by \fB${DEB_PKG_NAME}\fR is included below.
+
+.SS "X11 options"
+.TP
+.BI \-\-display= DISPLAY
+X display to use
+.TP
+.B \-\-sync
+Make X calls synchronous
+.TP
+.B \-\-g\-fatal\-warnings
+Make all warnings fatal
+
+.SS "${DEB_DISPLAY_NAME} options"
+.TP
+.B \-h, \-help
+Show summary of options.
+.TP
+.B \-v, \-version
+Print ${DEB_DISPLAY_NAME} version.
+.TP
+\fB\-P\fR [\fIprofile\fR]
+Start with \fIprofile\fR. When no profile is given, displays the Profile Manager. May require \fB\-no\-remote\fR, see below.
+.TP
+.B \-\-profile [\fIpath\fR]
+Start with with [\fIprofile\fR] from the given [\fIpath\fR].
+.TP
+.B \-\-migration
+Start with migration wizard. May require \fB\-no\-remote\fR, see below.
+.TP
+.B \-\-ProfileManager
+Start with profile manager. May require \fB\-no\-remote\fR, see below.
+.TP
+.B \-\-no\-remote
+Don't connect to a running ${DEB_DISPLAY_NAME} instance. This option can be necessary
+in conjunction to several of the options above, that won't have any effect
+when an ${DEB_DISPLAY_NAME} instance is running unless \fB\-no\-remote\fR is used at
+the same time.
+.TP
+.B \-\-new\-instance
+Open a new instance instead of a new windows in the running instance.
+.TP
+.B \-\-safe\-mode
+Starts ${DEB_DISPLAY_NAME} in Troubleshoot Mode (previously Safe Mode),
+i.e. disabling all extensions and showing a bit more debugging messages.
+.TP
+.B \-\-jsconsole
+Start with Javascript Console
+.TP
+.B \-addressbook
+Open the address book at startup.
+.TP
+.B \-calendar
+Open the calendar at startup.
+.TP
+.B \-compose
+Compose a new mail or news message.
+.TP
+.B \-mail
+Open the mail folder view.
+.TP
+\fB\-mail\fR \fIURL\fR
+Open the message pointed to by \fIURL\fR.
+.TP
+.B \-news
+Open the news client.
+.TP
+.B \-setDefaultMail
+Set ${DEB_DISPLAY_NAME} as the default mail client.
+.TP
+.B \-options
+Open the options dialog.
+.TP
+.B \-file
+Open the specified email file or ICS calendar file.
+.TP
+.B \-keymanager
+Open the OpenPGP Key Manager.
+
+.SH DEBUGGING
+.TP
+.B \-g
+Starts ${DEB_DISPLAY_NAME} through a debugger (gdb by default).
+
+.SH ENVIRONMENT
+\fIMOZILLA_DISABLE_PLUGINS\fR - when set, totally disables loading plugins.
+
+.SH FILES
+\fI/usr/bin/${DEB_PKG_NAME}\fR - symbolic link to \fB/usr/lib/${DEB_PKG_NAME}/${DEB_PKG_NAME}\fR.
+.br
+
+\fI/usr/lib/${DEB_PKG_NAME}/${DEB_PKG_NAME}\fR - ${DEB_DISPLAY_NAME} executable.
+
+\fI/usr/lib/${DEB_PKG_NAME}/thunderbird\-bin\fR - Legacy executable.
+.br
+
+.SH BUGS
+To report a bug, please visit \fIhttp://bugzilla.mozilla.org/\fR
+
+.SH AUTHORS
+.TP
+.B The Mozilla Organization
+.I https://www.mozilla.org/en-US/about/
