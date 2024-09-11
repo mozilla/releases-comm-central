@@ -281,4 +281,3 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
 // This is used to remember that the db is out of sync with the mail folder
 // and needs to be regenerated.
 void nsMailDatabase::SetReparse(bool reparse) { m_reparse = reparse; }
-
