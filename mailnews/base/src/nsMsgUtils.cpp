@@ -1217,16 +1217,6 @@ nsresult GetSummaryFileLocation(nsIFile* fileLocation,
   return NS_OK;
 }
 
-void MsgGenerateNowStr(nsACString& nowStr) {
-  char dateBuf[100];
-  dateBuf[0] = '\0';
-  PRExplodedTime exploded;
-  PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
-  PR_FormatTimeUSEnglish(dateBuf, sizeof(dateBuf), "%a %b %d %H:%M:%S %Y",
-                         &exploded);
-  nowStr.Assign(dateBuf);
-}
-
 // Gets a special directory and appends the supplied file name onto it.
 nsresult GetSpecialDirectoryWithFileName(const char* specialDirName,
                                          const char* fileName,
