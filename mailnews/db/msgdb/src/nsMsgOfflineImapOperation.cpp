@@ -122,8 +122,9 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetSrcMessageKey(
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetSrcMessageKey(
     nsMsgKey aMessageKey) {
-  m_messageKey = aMessageKey;
-  return m_mdb->SetUint32Property(m_mdbRow, PROP_SRC_MESSAGE_KEY, m_messageKey);
+  m_sourceMessageKey = aMessageKey;
+  return m_mdb->SetUint32Property(m_mdbRow, PROP_SRC_MESSAGE_KEY,
+                                  m_sourceMessageKey);
 }
 
 /* attribute imapMessageFlagsType flagOperation; */
