@@ -127,4 +127,42 @@
 
   --color-white: #ffffff;
   --color-black: #000000;
+
+  --color-neutral-base: light-dark(#feffff, #1a202c);
+  --color-neutral-subtle: light-dark(#f7f7f7, #262d3b);
+  --color-neutral-border: light-dark(#e4e4e7, #303a4a);
+  --color-neutral-border-intense: light-dark(#777580, #3d4d67);
+  --color-primary-soft: light-dark(#f0f8ff, #262c40);
+  --color-primary-default: light-dark(#1373d9, #58c9ff);
+  --color-primary-hover: light-dark(#175fb6, #32aeff);
+  --color-primary-pressed: light-dark(#19518f, #1b90f5);
+  --color-secondary-soft: light-dark(#faf5ff, #3a0764);
+  --color-secondary-default: light-dark(#6b21a8, #f5e8ff);
+  --color-secondary-hover: light-dark(#571c87, #ecd5ff);
+  --color-secondary-pressed: light-dark(#3a0764, #ddb4fe);
+  --color-success-soft: light-dark(#f4f9f4, #082b16);
+  --color-success-default: light-dark(#1d783b, #defae7);
+  --color-success-hover: light-dark(#1c5f32, #c0f2cf);
+  --color-success-pressed: light-dark(#194e2c, #8ee7aa);
+  --color-warning-soft: light-dark(#fefae8, #423606);
+  --color-warning-default: light-dark(#facc15, #fef2c3);
+  --color-warning-hover: light-dark(#eabd08, #fee78a);
+  --color-warning-pressed: light-dark(#caa204, #fdd847);
+  --color-danger-soft: light-dark(#fef2f2, #7f1d1d);
+  --color-danger-default: light-dark(#991b1b, #fee2e2);
+  --color-danger-hover: light-dark(#7f1d1d, #fecaca);
+  --color-danger-pressed: light-dark(#7f1d1d, #fca5a5);
+  --color-text-base: light-dark(#1a202c, #eeeef0);
+  --color-text-secondary: light-dark(#4c4d58, #d9d9de);
+  --color-text-muted: light-dark(#737584, #7f94ac);
+  --color-text-highlight: light-dark(#1373d9, #58c9ff);
+  --color-text-warning: light-dark(#713f12, #fee78a);
+  --color-text-critical: light-dark(#dc2626, #ef4444);
+  --color-text-success: light-dark(#1d783b, #55d37e);
+  --color-accent-teal: light-dark(#25a6a0, #a3ece3);
+  --color-accent-blue: light-dark(#37adf9, #58c9ff);
+  --color-accent-purple: light-dark(#ae55f7, #8022ce);
+  --color-accent-orange: light-dark(#ea7308, #fec18a);
+  --color-accent-pink: light-dark(#e247c4, #fbd3f6);
+  --color-accent-gray: light-dark(#6e6f9b, #c3cade);
 }
