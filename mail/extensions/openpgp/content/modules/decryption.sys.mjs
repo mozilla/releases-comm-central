@@ -553,7 +553,7 @@ export var EnigmailDecryption = {
   ) {
     const attachmentHead = byteData.substr(0, 200);
     if (attachmentHead.match(/-----BEGIN PGP \w{5,10} KEY BLOCK-----/)) {
-      lazy.log("The attachment appears to be a PGP key file.");
+      lazy.log.debug("The attachment appears to be a PGP key file.");
       if (
         !Services.prompt.confirmEx(
           parent,
