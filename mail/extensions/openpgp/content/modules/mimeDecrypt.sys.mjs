@@ -150,6 +150,7 @@ MimeDecryptHandler.prototype = {
     }
 
     this.uri = mimeSvc.messageURI;
+    this.outputRaw = this.uri && /[&?]outputformat=raw/.test(this.uri.spec);
 
     this.pipe = null;
     this.closePipe = false;
@@ -225,6 +226,11 @@ MimeDecryptHandler.prototype = {
 
     if (count > 0) {
       var data = this.inStream.read(count);
+
+      if (this.outputRaw) {
+        this.cacheData(data);
+        return;
+      }
 
       if (this.mimePartCount == 0 && this.dataIsBase64 === null) {
         // try to determine if this could be a base64 encoded message part
@@ -326,11 +332,16 @@ MimeDecryptHandler.prototype = {
       return;
     }
 
+    const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
+    if (this.outputRaw) {
+      this.returnData(mimeSvc, this.outQueue);
+      return;
+    }
+
     if (this.dataIsBase64) {
       this.processBase64Message();
     }
 
-    const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = lazy.EnigmailVerify.lastMsgUri;
 
     const href = Services.wm.getMostRecentWindow(null)?.document?.location.href;
