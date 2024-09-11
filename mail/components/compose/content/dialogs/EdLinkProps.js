@@ -4,6 +4,7 @@
 
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
+/* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 
 var gActiveEditor;
 var anchorElement = null;
@@ -39,7 +40,6 @@ function Startup() {
   gDialog.linkTextMessage = document.getElementById("linkTextMessage");
   gDialog.linkTextInput = document.getElementById("linkTextInput");
   gDialog.hrefInput = document.getElementById("hrefInput");
-  gDialog.makeRelativeLink = document.getElementById("MakeRelativeLink");
   gDialog.AdvancedEditSection = document.getElementById("AdvancedEdit");
 
   // See if we have a single selected image
@@ -205,6 +205,7 @@ function InitDialog() {
   // Must use getAttribute, not "globalElement.href",
   //  or foreign chars aren't converted correctly!
   gDialog.hrefInput.value = globalElement.getAttribute("href");
+  SetAttachCheckbox();
 }
 
 function doEnabling() {
@@ -221,6 +222,7 @@ function doEnabling() {
 }
 
 function ChangeLinkLocation() {
+  SetAttachCheckbox();
   // Set OK button enable state
   doEnabling();
 }

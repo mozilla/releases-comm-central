@@ -14,8 +14,7 @@
 
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
-
-// Cancel() is in EdDialogCommon.js
+/* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 
 window.addEventListener("load", Startup);
 document.addEventListener("dialogaccept", onAccept);

@@ -5,6 +5,7 @@
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 /* import-globals-from EdImageDialog.js */
+/* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 
 var gAnchorElement = null;
 var gLinkElement = null;
@@ -20,7 +21,6 @@ function Startup() {
 
   ImageStartup();
   gDialog.hrefInput = document.getElementById("hrefInput");
-  gDialog.makeRelativeLink = document.getElementById("MakeRelativeLink");
   gDialog.showLinkBorder = document.getElementById("showLinkBorder");
   gDialog.linkTab = document.getElementById("imageLinkTab");
   gDialog.linkAdvanced = document.getElementById("LinkAdvancedEditButton");
@@ -125,6 +125,7 @@ function InitDialog() {
 
 function ChangeLinkLocation() {
   var href = TrimString(gDialog.hrefInput.value);
+  SetAttachCheckbox();
   gDialog.showLinkBorder.disabled = !href;
   gDialog.linkAdvanced.disabled = !href;
   gLinkElement.setAttribute("href", href);

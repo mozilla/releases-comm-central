@@ -14,6 +14,7 @@
 
 /* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
+/* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 
 var gInsertNewImage = true;
 var gDoAltTextError = false;
@@ -222,6 +223,7 @@ function chooseFile() {
   GetLocalFileURL("img").then(fileURL => {
     gDialog.srcInput.value = fileURL;
 
+    SetAttachCheckbox();
     doOverallEnabling();
     LoadPreviewImage();
   });
