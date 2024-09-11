@@ -52,6 +52,7 @@ var tabmail = document.getElementById("tabmail");
 var NUM_MESSAGES_IN_THREAD = 6;
 
 add_setup(async function () {
+  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
   folder = await create_folder("RightClickMiddleClickA");
   threadedFolder = await create_folder("RightClickMiddleClickB");
   // We want exactly as many messages as we plan to delete, so that we can test
@@ -70,6 +71,7 @@ add_setup(async function () {
     threadedFolder.deleteSelf(null);
     reset_context_menu_background_tabs();
     reset_open_message_behavior();
+    Services.prefs.clearUserPref("mailnews.default_sort_order");
   });
 });
 

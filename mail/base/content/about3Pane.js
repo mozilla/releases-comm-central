@@ -4992,7 +4992,7 @@ var threadPane = {
    * @param {boolean} [discard=true] - If false, the selection data is kept for
    *   another call of this function.
    * @param {boolean} [notify=true] - Whether a change in "select" event
-   *   should be fired.
+   *   should be fired and the current index should be scrolled into view.
    * @param {boolean} [expand=true] - Try to expand threads containing selected
    *   messages.
    */
@@ -5027,10 +5027,14 @@ var threadPane = {
 
     if (currentIndex == nsMsgViewIndex_None) {
       threadTree.currentIndex = -1;
-    } else {
+    } else if (notify) {
       threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
       threadTree.currentIndex = currentIndex;
       threadTree.style.scrollBehavior = null;
+    } else {
+      // Don't scroll at all.
+      threadTree._selection.currentIndex = currentIndex;
+      threadTree._updateCurrentIndexClasses();
     }
 
     // To avoid problems with restoreThreadState, do not discard any selection
