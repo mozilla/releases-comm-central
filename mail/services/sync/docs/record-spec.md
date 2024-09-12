@@ -10,7 +10,6 @@ Renamed from Accounts in version 1. Same type for incoming and outgoing servers.
     URL instead, where appropriate)
 - `socketType` (one of): (from nsMsgSocketType)
   - "plain"
-  - "tryStartTLS"
   - "alwaysStartTLS"
   - "tls"
 - `authMethod` (one of): (see nsMsgAuthMethod)

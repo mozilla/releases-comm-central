@@ -395,13 +395,6 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, FetchByChunks, "fetch_by_chunks")
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, SendID, "send_client_info")
 
 NS_IMETHODIMP
-nsImapIncomingServer::UpdateTrySTARTTLSPref(bool aStartTLSSucceeded) {
-  SetSocketType(aStartTLSSucceeded ? nsMsgSocketType::alwaysSTARTTLS
-                                   : nsMsgSocketType::plain);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
                                                   nsISupports* aConsumer) {
   nsCOMPtr<nsIImapProtocol> aProtocol;

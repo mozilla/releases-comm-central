@@ -28,7 +28,7 @@ var gAccountList = [
     port: 2345,
     user: "imapuser",
     password: "imappassword",
-    socketType: Ci.nsMsgSocketType.trySTARTTLS,
+    socketType: Ci.nsMsgSocketType.alwaysSTARTTLS,
     authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
     smtpServers: [
       {

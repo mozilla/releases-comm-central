@@ -40,14 +40,9 @@ interface nsMsgPriority : nsISupports {
 interface nsMsgSocketType : nsISupports {
     /// No SSL or STARTTLS
     const nsMsgSocketTypeValue plain = 0;
-    /// Use TLS via STARTTLS, but only if server offers it.
-    /// @deprecated This is vulnerable to MITM attacks
-    const nsMsgSocketTypeValue trySTARTTLS = 1;
-    /// Insist on TLS via STARTTLS.
-    /// Uses normal port.
+    /// Insist on TLS via STARTTLS. Uses normal port.
     const nsMsgSocketTypeValue alwaysSTARTTLS = 2;
-    /// Connect via SSL.
-    /// Needs special SSL port.
+    /// Connect via SSL. Needs special SSL port.
     const nsMsgSocketTypeValue SSL = 3;
 };
 

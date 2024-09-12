@@ -156,13 +156,6 @@ interface nsIImapServerSink : nsISupports {
   attribute boolean userAuthenticated;
   void setMailServerUrls(in AUTF8String manageMailAccount, in AUTF8String manageLists, in AUTF8String manageFilters);
 
-  /** Used by the imap thread when upgrading from the socketType
-   * trySTARTTLS.
-   * @param aSucceeded whether STARTTLS succeeded. If it did, the server
-   * will set the socket type to alwaysSTARTTLS, otherwise plain.
-   */
-  void UpdateTrySTARTTLSPref(in boolean aSucceeded);
-
   readonly attribute AUTF8String arbitraryHeaders;
   void forgetPassword();
 

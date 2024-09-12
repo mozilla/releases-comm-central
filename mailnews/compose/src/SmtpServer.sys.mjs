@@ -194,7 +194,10 @@ export class SmtpServer {
   }
 
   get authMethod() {
-    return this._getIntPrefWithDefault("authMethod", 3);
+    return this._getIntPrefWithDefault(
+      "authMethod",
+      Ci.nsMsgAuthMethod.passwordCleartext
+    );
   }
 
   set authMethod(value) {
@@ -202,7 +205,7 @@ export class SmtpServer {
   }
 
   get socketType() {
-    return this._getIntPrefWithDefault("try_ssl", 0);
+    return this._getIntPrefWithDefault("try_ssl", Ci.nsMsgSocketType.plain);
   }
 
   set socketType(value) {

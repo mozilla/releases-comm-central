@@ -508,7 +508,7 @@ nsImapProtocol::nsImapProtocol()
   m_prefAuthMethods = kCapabilityUndefined;
   m_failedAuthMethods = 0;
   m_currentAuthMethod = kCapabilityUndefined;
-  m_socketType = nsMsgSocketType::trySTARTTLS;
+  m_socketType = nsMsgSocketType::alwaysSTARTTLS;
   m_connectionStatus = NS_OK;
   m_safeToCloseConnection = false;
   m_hostSessionList = nullptr;
@@ -994,10 +994,6 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
     connectionType = "ssl";
   else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS)
     connectionType = "starttls";
-  // This can go away once we think everyone is migrated
-  // away from the trySTARTTLS socket type.
-  else if (m_socketType == nsMsgSocketType::trySTARTTLS)
-    connectionType = "starttls";
 
   int32_t port = -1;
   nsCOMPtr<nsIURI> uri = do_QueryInterface(m_runningUrl, &rv);
@@ -1011,13 +1007,7 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   rv = socketService->CreateTransport(connectionTypeArray, m_hostName, port,
                                       aProxyInfo, nullptr,
                                       getter_AddRefs(m_transport));
-  if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS) {
-    connectionType = nullptr;
-    m_socketType = nsMsgSocketType::plain;
-    rv = socketService->CreateTransport(connectionTypeArray, m_hostName, port,
-                                        aProxyInfo, nullptr,
-                                        getter_AddRefs(m_transport));
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   // remember so we can know whether we can issue a start tls or not...
   m_connectionType = connectionType;
@@ -1684,8 +1674,7 @@ void nsImapProtocol::EstablishServerConnection() {
     // We can skip sending a password and transition right into the
     // kAuthenticated state; but we won't if the user has configured STARTTLS.
     // (STARTTLS can only occur with the server in non-authenticated state.)
-    if (!(m_socketType == nsMsgSocketType::alwaysSTARTTLS ||
-          m_socketType == nsMsgSocketType::trySTARTTLS)) {
+    if (m_socketType != nsMsgSocketType::alwaysSTARTTLS) {
       GetServerStateParser().PreauthSetAuthenticatedState();
 
       if (GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined)
@@ -1872,11 +1861,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
 
       SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     } else {
-      if ((m_connectionType.EqualsLiteral("starttls") &&
-           (m_socketType == nsMsgSocketType::trySTARTTLS &&
-            (GetServerStateParser().GetCapabilityFlag() &
-             kHasStartTLSCapability))) ||
-          m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
+      if (m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
         StartTLS();  // Send imap STARTTLS command
         if (GetServerStateParser().LastCommandSuccessful()) {
           NS_ENSURE_TRUE(m_transport, false);
@@ -1918,14 +1903,6 @@ bool nsImapProtocol::ProcessCurrentURL() {
             // the TLS negotiation handshakes.
             Capability();
 
-            // If user has set pref mail.server.serverX.socketType to 1
-            // (trySTARTTLS, now deprecated in UI) and Capability()
-            // succeeds, indicating TLS handshakes succeeded, set and
-            // latch the socketType to 2 (alwaysSTARTTLS) for this server.
-            if ((m_socketType == nsMsgSocketType::trySTARTTLS) &&
-                GetServerStateParser().LastCommandSuccessful())
-              m_imapServerSink->UpdateTrySTARTTLSPref(true);
-
             // Courier imap doesn't return STARTTLS capability if we've done
             // a STARTTLS! But we need to remember this capability so we'll
             // try to use STARTTLS next time.
@@ -1948,30 +1925,12 @@ bool nsImapProtocol::ProcessCurrentURL() {
             if (m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
               SetConnectionStatus(rv);  // stop netlib
               if (m_transport) m_transport->Close(rv);
-            } else if (m_socketType == nsMsgSocketType::trySTARTTLS)
-              m_imapServerSink->UpdateTrySTARTTLSPref(false);
+            }
           }
         } else if (m_socketType == nsMsgSocketType::alwaysSTARTTLS) {
           SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
           if (m_transport) m_transport->Close(rv);
-        } else if (m_socketType == nsMsgSocketType::trySTARTTLS) {
-          // STARTTLS failed, so downgrade socket type
-          m_imapServerSink->UpdateTrySTARTTLSPref(false);
         }
-      } else if (m_socketType == nsMsgSocketType::trySTARTTLS) {
-        // we didn't know the server supported TLS when we created
-        // the socket, so we're going to retry with a STARTTLS socket
-        if (GetServerStateParser().GetCapabilityFlag() &
-            kHasStartTLSCapability) {
-          ClearFlag(IMAP_CONNECTION_IS_OPEN);
-          TellThreadToDie();
-          SetConnectionStatus(NS_ERROR_FAILURE);
-          return RetryUrl();
-        }
-        // trySTARTTLS set, but server doesn't have TLS capability,
-        // so downgrade socket type
-        m_imapServerSink->UpdateTrySTARTTLSPref(false);
-        m_socketType = nsMsgSocketType::plain;
       }
       if (!DeathSignalReceived() && (NS_SUCCEEDED(GetConnectionStatus()))) {
         // Run TryToLogon() under the protection of the server's logon monitor.

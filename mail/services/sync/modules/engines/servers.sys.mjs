@@ -12,7 +12,6 @@ import { Utils } from "resource://services-sync/util.sys.mjs";
 // Mappings between Ci.nsMsgSocketType types and Sync types.
 const SOCKET_TYPES = [
   [Ci.nsMsgSocketType.plain, "plain"],
-  [Ci.nsMsgSocketType.trySTARTTLS, "tryStartTLS"],
   [Ci.nsMsgSocketType.alwaysSTARTTLS, "alwaysStartTLS"],
   [Ci.nsMsgSocketType.SSL, "tls"],
 ];

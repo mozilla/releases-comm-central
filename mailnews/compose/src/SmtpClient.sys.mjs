@@ -66,9 +66,7 @@ export class SmtpClient {
    */
   constructor(server) {
     this.options = {
-      alwaysSTARTTLS:
-        server.socketType == Ci.nsMsgSocketType.trySTARTTLS ||
-        server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS,
+      alwaysSTARTTLS: server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS,
       requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
     };
 

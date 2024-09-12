@@ -101,11 +101,6 @@ function onInit(aPageId, aServerId) {
   // TLS Cert (External) only supported on IMAP.
   document.getElementById("authMethod-external").hidden = serverType != "imap";
 
-  // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
-  // allow users to choose it anymore. Hide the option unless the user already
-  // has it set.
-  hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
-
   // UI for account store type.
   const storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account

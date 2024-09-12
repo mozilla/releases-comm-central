@@ -1035,10 +1035,7 @@ export class ImapClient {
    */
   _actionChooseFirstAuthMethod = () => {
     if (
-      [
-        Ci.nsMsgSocketType.trySTARTTLS,
-        Ci.nsMsgSocketType.alwaysSTARTTLS,
-      ].includes(this._server.socketType) &&
+      [Ci.nsMsgSocketType.alwaysSTARTTLS].includes(this._server.socketType) &&
       !this._secureTransport
     ) {
       if (this._capabilities.includes("STARTTLS")) {

@@ -447,7 +447,6 @@ NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetShowAttachmentsInline, bool*)
 NS_SYNCRUNNABLEMETHOD3(ImapServerSink, CramMD5Hash, const char*, const char*,
                        char**)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetLoginUsername, nsACString&)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, UpdateTrySTARTTLSPref, bool)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetOriginalUsername, nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerKey, nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerPassword, nsAString&)

@@ -124,11 +124,6 @@ function initSmtpSettings(server) {
   // Hide deprecated/hidden auth options, unless selected
   hideUnlessSelected(document.getElementById("authMethod-anysecure"));
   hideUnlessSelected(document.getElementById("authMethod-any"));
-
-  // "STARTTLS, if available" is vulnerable to MITM attacks so we shouldn't
-  // allow users to choose it anymore. Hide the option unless the user already
-  // has it set.
-  hideUnlessSelected(document.getElementById("connectionSecurityType-1"));
 }
 
 function hideUnlessSelected(element) {
