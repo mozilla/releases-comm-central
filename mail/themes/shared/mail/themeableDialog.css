@@ -204,6 +204,10 @@ html|input[type="color"] {
   padding: 4px;
 }
 
+html|input[type="password"] {
+  -moz-appearance: textfield;
+}
+
 #resetColor {
   list-style-image: url("chrome://messenger/skin/icons/forget.svg");
   -moz-context-properties: fill;

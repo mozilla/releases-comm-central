@@ -127,3 +127,7 @@ tab[selected] {
   background-color: var(--in-content-button-background);
   border-bottom-color: var(--in-content-accent-color);
 }
+
+input[type="password"] {
+  -moz-appearance: textfield;
+}
