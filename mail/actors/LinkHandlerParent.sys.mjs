@@ -11,12 +11,12 @@ export class LinkHandlerParent extends JSWindowActorParent {
 
     switch (msg.name) {
       case "Link:SetIcon":
-        this.setIconFromLink(browser, msg.data.iconURL, msg.data.canUseForTab);
+        this.setIconFromLink(browser, msg.data.iconURL, msg.data.isRichIcon);
         break;
     }
   }
 
-  setIconFromLink(browser, iconURL, canUseForTab) {
+  setIconFromLink(browser, iconURL, isRichIcon) {
     const tabmail = browser.ownerDocument.getElementById("tabmail");
     if (!tabmail) {
       return;
@@ -46,7 +46,7 @@ export class LinkHandlerParent extends JSWindowActorParent {
       }
     }
 
-    if (canUseForTab) {
+    if (!isRichIcon) {
       tabmail.setTabFavIcon(
         tab,
         iconURL,
