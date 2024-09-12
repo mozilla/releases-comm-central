@@ -78,3 +78,7 @@ vendoring:
       cwd: "{yaml_dir}"
       command: python
       args: ["../../python/thirdroc/thirdroc/rnp_symbols.py", "include/rnp/rnp.h", "rnp.symbols"]
+    - action: run-command
+      cwd: "{yaml_dir}"
+      command: python
+      args: ["../../python/thirdroc/thirdroc/rnp.py"]

@@ -10,6 +10,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
+// MIN_RNP_VERSION is updated by mach vendor when updating librnp from upstream.
 const MIN_RNP_VERSION = [0, 17, 1];
 
 var systemOS = Services.appinfo.OS.toLowerCase();

@@ -10,7 +10,8 @@ the upstream pull request IDs.
 For licensing information, please refer to the included documentation.
 
 Updates to this copy are managed by "mach vendor". The configuration file
-is at rnp/moz.yaml.
+is at rnp/moz.yaml. MIN_RNP_VERSION in RNPLib.sys.mjs is automatically updated
+as well.
 
     > cd comm/third_party/rnp
 

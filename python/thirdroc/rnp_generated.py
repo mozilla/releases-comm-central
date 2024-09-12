@@ -1,7 +1,3 @@
-#  This Source Code Form is subject to the terms of the Mozilla Public
-#  License, v. 2.0. If a copy of the MPL was not distributed with this
-#  file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,41 +6,11 @@ import argparse
 import os
 import sys
 
-from packaging.version import parse
-
 from mozbuild.preprocessor import Preprocessor
 from mozbuild.util import FileAvoidWrite, ensureParentDir
 
 from thirdroc.cmake_define_files import define_type, process_cmake_define_file
-
-
-def rnp_version(version_file, thunderbird_version, crypto_backend):
-    """
-    Update RNP source files: generate version.h
-    :param string version_file:
-    """
-    with open(version_file) as fp:
-        version_str = fp.readline(512).strip()
-
-    version = parse(version_str)
-    version_major = version.major
-    version_minor = version.minor
-    version_patch = version.micro
-
-    version_full = f"{version_str}.MZLA.{thunderbird_version}.{crypto_backend}"
-
-    defines = dict(
-        RNP_VERSION_MAJOR=version_major,
-        RNP_VERSION_MINOR=version_minor,
-        RNP_VERSION_PATCH=version_patch,
-        RNP_VERSION=version_str,
-        RNP_VERSION_FULL=version_full,
-        # Follow upstream's example when commit info is unavailable
-        RNP_VERSION_COMMIT_TIMESTAMP="0",
-        PACKAGE_STRING=f'"rnp {version_full}"',
-    )
-
-    return defines
+from thirdroc.rnp import rnp_version_defines
 
 
 def rnp_preprocess(tmpl, dest, defines):
@@ -97,7 +63,7 @@ def main(output, *argv):
 
     args = parser.parse_args(argv)
 
-    defines = rnp_version(args.version_file, args.thunderbird_version, args.crypto_backend)
+    defines = rnp_version_defines(args.version_file, args.thunderbird_version, args.crypto_backend)
 
     # "output" is an open filedescriptor for version.h
     generate_version_h(output, args.version_h_in, defines)
