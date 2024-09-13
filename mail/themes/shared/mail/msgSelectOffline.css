@@ -39,6 +39,7 @@ treechildren::-moz-tree-image(syncCol) {
 }
 
 treechildren::-moz-tree-image(syncCol, synchronize-true) {
+  fill: currentColor !important;
   fill-opacity: 1;
 }
 

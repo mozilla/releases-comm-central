@@ -418,6 +418,16 @@ checkbox {
   margin-inline: 0;
 }
 
+treechildren::-moz-tree-row(selected) {
+  background-color: var(--in-content-item-selected) !important;
+  border-color: transparent;
+  outline-color: transparent;
+}
+
+treechildren::-moz-tree-cell-text(selected) {
+  color: var(--in-content-item-selected-text);
+}
+
 .align-no-label {
   margin-inline-start: 4px;
 }
@@ -697,6 +707,12 @@ checkbox {
   margin: unset;
   border: unset;
   border-radius: unset;
+}
+
+#synchronizeTree treechildren::-moz-tree-twisty(selected, focus),
+#synchronizeTree treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+  fill: color-mix(in srgb, currentColor 20%, transparent) !important;
+  stroke: currentColor !important;
 }
 
 /**
