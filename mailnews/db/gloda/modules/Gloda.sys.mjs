@@ -2073,9 +2073,7 @@ export var Gloda = {
             }
           }
           // anything still on oldValueMap was removed.
-          const valuesRemoved = Object.keys(oldValueMap).map(
-            key => oldValueMap[key]
-          );
+          const valuesRemoved = Object.values(oldValueMap);
           // convert the values to database-style attribute rows
           addDBAttribs.push.apply(
             addDBAttribs,

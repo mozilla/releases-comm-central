@@ -1143,7 +1143,7 @@ export function assert_folder_expanded(aFolder) {
 export function select_click_folder(aFolder) {
   const win = get_about_3pane();
   const folderTree = win.document.getElementById("folderTree");
-  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
   row.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
@@ -1190,7 +1190,7 @@ export async function right_click_on_folder(aFolder) {
     win.document.getElementById("folderPaneContext"),
     "popupshown"
   );
-  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { type: "contextmenu" },
@@ -1209,7 +1209,7 @@ export async function right_click_on_folder(aFolder) {
 export function middle_click_on_folder(aFolder, shiftPressed) {
   const win = get_about_3pane();
   const folderTree = win.document.getElementById("folderTree");
-  const row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { button: 1, shiftKey: shiftPressed },
@@ -1466,13 +1466,13 @@ export async function wait_for_message_display_completion(aWin, aLoadDemanded) {
 
   await TestUtils.waitForCondition(() => win.document.readyState == "complete");
 
-  const browser = win.getMessagePaneBrowser();
+  const messagePaneBrowser = win.getMessagePaneBrowser();
 
   await TestUtils.waitForCondition(
     () =>
-      !browser.docShell?.isLoadingDocument &&
-      (!aLoadDemanded || browser.currentURI?.spec != "about:blank"),
-    `Timeout waiting for a message. Current location: ${browser.currentURI?.spec}`
+      !messagePaneBrowser.docShell?.isLoadingDocument &&
+      (!aLoadDemanded || messagePaneBrowser.currentURI?.spec != "about:blank"),
+    `Timeout waiting for a message. Current location: ${messagePaneBrowser.currentURI?.spec}`
   );
   await TestUtils.waitForTick();
 }
@@ -1490,16 +1490,16 @@ export async function wait_for_blank_content_pane(win = mc) {
     () => aboutMessage.document.readyState == "complete"
   );
 
-  const browser = aboutMessage.getMessagePaneBrowser();
-  if (BrowserTestUtils.isHidden(browser)) {
+  const messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+  if (BrowserTestUtils.isHidden(messagePaneBrowser)) {
     return;
   }
 
   await TestUtils.waitForCondition(
     () =>
-      !browser.docShell?.isLoadingDocument &&
-      browser.currentURI?.spec == "about:blank",
-    `Timeout waiting for blank content pane. Current location: ${browser.currentURI?.spec}`
+      !messagePaneBrowser.docShell?.isLoadingDocument &&
+      messagePaneBrowser.currentURI?.spec == "about:blank",
+    `Timeout waiting for blank content pane. Current location: ${messagePaneBrowser.currentURI?.spec}`
   );
 
   // the above may return immediately, meaning the event queue might not get a

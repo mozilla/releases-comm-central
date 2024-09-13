@@ -247,12 +247,12 @@ export const OpenPGPTestUtils = {
   /**
    * Updates the acceptance value of the provided key(s) in the database.
    *
-   * @param {string|string[]} id - The id or list of ids to update.
+   * @param {string|string[]} idOrList - The id or list of ids to update.
    * @param {string} acceptance - The new acceptance level for the key id.
    * @returns {string[]} - A list of the key ids processed.
    */
-  async updateKeyIdAcceptance(id, acceptance) {
-    const ids = Array.isArray(id) ? id : [id];
+  async updateKeyIdAcceptance(idOrList, acceptance) {
+    const ids = Array.isArray(idOrList) ? idOrList : [idOrList];
     for (const id of ids) {
       const key = lazy.EnigmailKeyRing.getKeyById(id);
       const email = lazy.EnigmailFuncs.getEmailFromUserID(key.userId);
@@ -270,11 +270,11 @@ export const OpenPGPTestUtils = {
    * Removes a key by its id, clearing its acceptance and refreshing the
    * cache.
    *
-   * @param {string|string[]} id - The id or list of ids to remove.
+   * @param {string|string[]} idOrList - The id or list of ids to remove.
    * @param {boolean} [deleteSecret=false] - If true, secret keys will be removed too.
    */
-  async removeKeyById(id, deleteSecret = false) {
-    const ids = Array.isArray(id) ? id : [id];
+  async removeKeyById(idOrList, deleteSecret = false) {
+    const ids = Array.isArray(idOrList) ? idOrList : [idOrList];
     for (const id of ids) {
       const key = lazy.EnigmailKeyRing.getKeyById(id);
       await lazy.RNP.deleteKey(key.fpr, deleteSecret);

@@ -231,12 +231,12 @@ export class ImapChannel extends MailChannel {
    *
    * @param {nsIInputStream} cacheStream - The input stream to read.
    */
-  _readFromCacheStream(stream) {
+  _readFromCacheStream(cacheStream) {
     const pump = Cc["@mozilla.org/network/input-stream-pump;1"].createInstance(
       Ci.nsIInputStreamPump
     );
     this._contentType = "";
-    pump.init(stream, 0, 0, true);
+    pump.init(cacheStream, 0, 0, true);
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);

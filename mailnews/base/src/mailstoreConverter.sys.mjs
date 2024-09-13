@@ -106,7 +106,7 @@ export function convertMailStoreTo(
             "Conversion complete. Converted dir installed as: " + finalRoot
           );
           resolve(finalRoot);
-        } catch (e) {
+        } catch (exception) {
           bailout("installNewRoot() failed");
         }
       }

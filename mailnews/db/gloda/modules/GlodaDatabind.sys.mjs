@@ -88,17 +88,17 @@ export function GlodaDatabind(aNounDef, aDatastore) {
       coldef[3] = iColDef + 1;
     }
 
-    const insertColumns = [];
-    const insertValues = [];
-    const updateItems = [];
+    const fulltextInsertColumns = [];
+    const fulltextInsertValues = [];
+    const fulltextUpdateItems = [];
     for (var [iColDef, coldef] of this._tableDef.fulltextColumns.entries()) {
       const column = coldef[0];
       // +2 instead of +1 because docid is implied
       const placeholder = "?" + (iColDef + 2);
-      insertColumns.push(column);
-      insertValues.push(placeholder);
+      fulltextInsertColumns.push(column);
+      fulltextInsertValues.push(placeholder);
       if (column != "id") {
-        updateItems.push(column + " = " + placeholder);
+        fulltextUpdateItems.push(column + " = " + placeholder);
       }
     }
 
@@ -106,9 +106,9 @@ export function GlodaDatabind(aNounDef, aDatastore) {
       "INSERT INTO " +
       this._tableName +
       "Text (docid," +
-      insertColumns.join(", ") +
+      fulltextInsertColumns.join(", ") +
       ") VALUES (?1," +
-      insertValues.join(", ") +
+      fulltextInsertValues.join(", ") +
       ")";
 
     // For the update, we want the 'id' to be a constraint and not a value
@@ -117,7 +117,7 @@ export function GlodaDatabind(aNounDef, aDatastore) {
       "UPDATE " +
       this._tableName +
       "Text SET " +
-      updateItems.join(", ") +
+      fulltextUpdateItems.join(", ") +
       " WHERE docid = ?1";
 
     this._insertFulltextStmt =

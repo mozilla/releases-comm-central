@@ -1398,16 +1398,16 @@ export var GlodaDatastore = {
 
     // - Create the fulltext table if applicable
     if (aTableDef.fulltextColumns) {
-      const columnDefs = [];
+      const fulltextColumnDefs = [];
       for (const [column, type] of aTableDef.fulltextColumns) {
-        columnDefs.push(column + " " + type);
+        fulltextColumnDefs.push(column + " " + type);
       }
       const createFulltextSQL =
         "CREATE VIRTUAL TABLE " +
         aTableName +
         "Text" +
         " USING fts3(tokenize mozporter, " +
-        columnDefs.join(", ") +
+        fulltextColumnDefs.join(", ") +
         ")";
       this._log.info("Creating fulltext table: " + createFulltextSQL);
       aDBConnection.executeSimpleSQL(createFulltextSQL);

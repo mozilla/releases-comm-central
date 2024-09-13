@@ -268,12 +268,8 @@ async function check_display_name(index, columnName, expectedName) {
 
 // Generate a test for each message in |messages|.
 for (const [i, message] of messages.entries()) {
-  this["test_" + message.name] = async function (i, message) {
-    await check_display_name(
-      i,
-      message.expected.column,
-      message.expected.value
-    );
+  this["test_" + message.name] = async function (index, msg) {
+    await check_display_name(index, msg.expected.column, msg.expected.value);
   }.bind(this, i, message);
   add_task(this[`test_${message.name}`]);
 }

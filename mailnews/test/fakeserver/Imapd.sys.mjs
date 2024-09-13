@@ -469,7 +469,7 @@ export class ImapMessage {
   getPartBody(partNum) {
     var body = "";
     var emitter = {
-      deliverPartData(partNum, data) {
+      deliverPartData(partNumber, data) {
         body += data;
       },
     };
@@ -1477,7 +1477,7 @@ export class IMAP_RFC3501_handler {
       if (
         !items.includes("FLAGS") &&
         (flagsAfter.length != flagsBefore.length ||
-          flagsAfter.some((f, i) => f != flagsBefore[i]))
+          flagsAfter.some((f, index) => f != flagsBefore[index]))
       ) {
         // Flags changed, send them too, even though they weren't requested.
         parts.push(this._FETCH_FLAGS(messages[i], "FLAGS"));
@@ -2012,8 +2012,8 @@ export var IMAP_GMAIL_extension = {
           break;
         case "-X-GM-LABELS":
           if (message.xGmLabels) {
-            for (let i = 0; i < args[2].length; i++) {
-              const idx = message.xGmLabels.indexOf(args[2][i]);
+            for (let j = 0; j < args[2].length; j++) {
+              const idx = message.xGmLabels.indexOf(args[2][j]);
               if (idx != -1) {
                 message.xGmLabels.splice(idx, 1);
               }
@@ -2146,8 +2146,8 @@ export var IMAP_CUSTOM_extension = {
           break;
         case "-X-CUSTOM-LIST":
           if (message.xCustomList) {
-            for (let i = 0; i < args[2].length; i++) {
-              const idx = message.xCustomList.indexOf(args[2][i]);
+            for (let j = 0; j < args[2].length; j++) {
+              const idx = message.xCustomList.indexOf(args[2][j]);
               if (idx != -1) {
                 message.xCustomList.splice(idx, 1);
               }

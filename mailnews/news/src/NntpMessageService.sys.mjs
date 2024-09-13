@@ -143,8 +143,8 @@ class BaseMessageService {
       // NOTE: jsmimeemitter relies on this.
       const url = new URL(uri.spec);
       const params = new URLSearchParams(`?header=${additionalHeader}`);
-      for (const [key, value] of params.entries()) {
-        url.searchParams.set(key, value);
+      for (const [param, value] of params.entries()) {
+        url.searchParams.set(param, value);
       }
       uri = uri.mutate().setQuery(url.search).finalize();
     }

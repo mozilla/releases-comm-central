@@ -1199,8 +1199,8 @@ var FeedSubscriptions = {
     // We need to find the index of the new parent folder.
     let newParentIndex = this.mView.kRowIndexUndefined;
     for (let index = 0; index < this.mView.rowCount; index++) {
-      const item = this.mView.getItemAtIndex(index);
-      if (item && item.container && item.url == editFolderURI) {
+      const viewItem = this.mView.getItemAtIndex(index);
+      if (viewItem && viewItem.container && viewItem.url == editFolderURI) {
         newParentIndex = index;
         break;
       }
@@ -1482,8 +1482,8 @@ var FeedSubscriptions = {
 
     updateEnabled.parentNode
       .querySelectorAll("input,radio,label")
-      .forEach(item => {
-        item.disabled = !updateEnabled.checked;
+      .forEach(element => {
+        element.disabled = !updateEnabled.checked;
       });
 
     autotagUsePrefix.disabled = !autotagEnable.checked;
@@ -1507,8 +1507,8 @@ var FeedSubscriptions = {
       updateEnabled.disabled = disable;
       updateEnabled.parentNode
         .querySelectorAll("input,radio,label")
-        .forEach(item => {
-          item.disabled = disable;
+        .forEach(element => {
+          element.disabled = disable;
         });
 
       autotagEnable.disabled = disable;
@@ -3054,7 +3054,7 @@ var FeedSubscriptions = {
               feedFolder = aParentFolder
                 .QueryInterface(Ci.nsIMsgLocalMailFolder)
                 .createLocalSubfolder(folderName);
-            } catch (ex) {
+            } catch (exception) {
               // An error creating. Skip it.
               FeedUtils.log.info(
                 "importOPMLOutlines: skipping, error creating folder - '" +

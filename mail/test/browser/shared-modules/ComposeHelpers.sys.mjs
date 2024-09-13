@@ -1563,8 +1563,8 @@ export class FormatHelper {
   assertMessageBodyContent(content, assertMessage) {
     const cls = this.constructor;
 
-    function message(message, below, index) {
-      return `${message} (at index ${index} below ${below})`;
+    function message(messageText, below, index) {
+      return `${messageText} (at index ${index} below ${below})`;
     }
 
     function getDifference(node, expect, below, index) {

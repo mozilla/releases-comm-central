@@ -327,15 +327,20 @@ export function close_popup_sequence(aCloseStack) {
 async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
   const rootPopup = win.document.getElementById("appMenu-popup");
 
-  async function viewShownListener(navTargets, nonNavTarget, allDone, event) {
+  async function viewShownListener(
+    shownNavTargets,
+    shownNonNavTarget,
+    allDone,
+    event
+  ) {
     // Set up the next listener if there are more navigation targets.
-    if (navTargets.length > 0) {
+    if (shownNavTargets.length > 0) {
       rootPopup.addEventListener(
         "ViewShown",
         viewShownListener.bind(
           null,
-          navTargets.slice(1),
-          nonNavTarget,
+          shownNavTargets.slice(1),
+          shownNonNavTarget,
           allDone
         ),
         { once: true }
@@ -345,7 +350,7 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
     const subview = event.target.querySelector(".panel-subview-body");
 
     // Click a target if there is a target left to click.
-    const clickTarget = navTargets[0] || nonNavTarget;
+    const clickTarget = shownNavTargets[0] || shownNonNavTarget;
 
     if (clickTarget) {
       const kids = Array.from(subview.children);
@@ -373,7 +378,7 @@ async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
     }
 
     // We are all done when there are no more navigation targets.
-    if (navTargets.length == 0) {
+    if (shownNavTargets.length == 0) {
       allDone(subview);
     }
   }

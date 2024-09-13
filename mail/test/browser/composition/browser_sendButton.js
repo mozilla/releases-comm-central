@@ -341,13 +341,13 @@ add_task(async function test_update_pill_before_send() {
   // if the pill is updated we get an invalid recipient error. Otherwise the
   // error would be an imap error because the email would still be sent to
   // `recipient@fake.invalid`.
-  const dialogPromise = promise_modal_dialog("commonDialogWindow", cwc => {
-    const dialogTitle = cwc.document.getElementById("infoTitle").textContent;
+  const dialogPromise = promise_modal_dialog("commonDialogWindow", cdw => {
+    const dialogTitle = cdw.document.getElementById("infoTitle").textContent;
     Assert.ok(
       dialogTitle.includes("Invalid Recipient Address"),
       "The pill edit has been updated before sending the email"
     );
-    cwc.document.querySelector("dialog").getButton("accept").click();
+    cdw.document.querySelector("dialog").getButton("accept").click();
   });
   // Click the send button.
   EventUtils.synthesizeMouseAtCenter(

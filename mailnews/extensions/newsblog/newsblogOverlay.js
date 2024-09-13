@@ -358,7 +358,7 @@ function openComposeWindowForRSSArticle(
       MsgHdrToMimeMessage(
         msgHdr,
         null,
-        function (aMsgHdr, aMimeMsg) {
+        function (messageHeader, aMimeMsg) {
           if (
             aMimeMsg &&
             aMimeMsg.headers["content-base"] &&
@@ -374,7 +374,7 @@ function openComposeWindowForRSSArticle(
             // No content-base url, use the summary.
             MailServices.compose.OpenComposeWindow(
               aMsgComposeWindow,
-              aMsgHdr,
+              messageHeader,
               aMessageUri,
               aType,
               aFormat,

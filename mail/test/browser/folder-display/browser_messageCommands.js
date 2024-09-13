@@ -88,8 +88,8 @@ add_setup(async function () {
  * @param read true if the messages should be marked read, false otherwise
  */
 function check_read_status(messages, read) {
-  function read_str(read) {
-    return read ? "read" : "unread";
+  function read_str(isRead) {
+    return isRead ? "read" : "unread";
   }
 
   for (let i = 0; i < messages.length; i++) {

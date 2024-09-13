@@ -455,22 +455,22 @@ FeedParser.prototype = {
       // a relative URN.
       let itemURI = itemNode.getAttribute("about") || "";
       itemURI = this.removeUnprintableASCII(itemURI.trim());
-      const linkNode = this.childByTagNameNS(
+      const itemLinkNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "link"
       );
-      item.id = this.getNodeValue(linkNode) || itemURI;
+      item.id = this.getNodeValue(itemLinkNode) || itemURI;
       item.url = this.validLink(item.id);
 
-      const descNode = this.childByTagNameNS(
+      const itemDescNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "description"
       );
-      item.description = this.getNodeValueFormatted(descNode);
+      item.description = this.getNodeValueFormatted(itemDescNode);
 
-      const titleNode = this.childByTagNameNS(
+      const itemTitleNode = this.childByTagNameNS(
         itemNode,
         lazy.FeedUtils.RSS_NS,
         "title"
@@ -482,7 +482,7 @@ FeedParser.prototype = {
       );
 
       item.title =
-        this.getNodeValue(titleNode) || this.getNodeValue(subjectNode);
+        this.getNodeValue(itemTitleNode) || this.getNodeValue(subjectNode);
       if (!item.title && item.description) {
         item.title = this.stripTags(item.description).substr(0, 150);
       }

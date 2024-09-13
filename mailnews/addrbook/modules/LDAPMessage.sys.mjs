@@ -342,20 +342,20 @@ export class SearchRequest extends LDAPMessage {
           // An extensibleMatch filter is in the form of
           // <type>:dn:<rule>:=<value>. We need to further parse the field.
           const parts = field.split(":");
-          let value = [];
+          let matchValue = [];
           if (parts.length == 3) {
             // field is <type>:dn:<rule>.
             if (parts[2]) {
-              value.push(
+              matchValue.push(
                 this._contextStringBlock(this.MATCHING_RULE, parts[2])
               );
             }
             if (parts[0]) {
-              value.push(
+              matchValue.push(
                 this._contextStringBlock(this.MATCHING_TYPE, parts[0])
               );
             }
-            value.push(
+            matchValue.push(
               this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
             );
             if (parts[1] == "dn") {
@@ -364,34 +364,34 @@ export class SearchRequest extends LDAPMessage {
               });
               dn.idBlock.tagClass = LDAPMessage.TAG_CLASS_CONTEXT;
               dn.idBlock.tagNumber = this.MATCHING_DN;
-              value.push(dn);
+              matchValue.push(dn);
             }
           } else if (parts.length == 2) {
             // field is <type>:<rule>.
             if (parts[1]) {
-              value.push(
+              matchValue.push(
                 this._contextStringBlock(this.MATCHING_RULE, parts[1])
               );
             }
 
             if (parts[0]) {
-              value.push(
+              matchValue.push(
                 this._contextStringBlock(this.MATCHING_TYPE, parts[0])
               );
             }
-            value.push(
+            matchValue.push(
               this._contextStringBlock(this.MATCHING_VALUE, fieldValue)
             );
           } else {
             // field is <type>.
-            value = [
+            matchValue = [
               this._contextStringBlock(this.MATCHING_TYPE, field),
               this._contextStringBlock(this.MATCHING_VALUE, fieldValue),
             ];
           }
           block = new asn1js.Constructed({
             idBlock,
-            value,
+            value: matchValue,
           });
         } else if (tagNumber != this.FILTER_SUBSTRINGS) {
           // A filter that is not substrings filter.

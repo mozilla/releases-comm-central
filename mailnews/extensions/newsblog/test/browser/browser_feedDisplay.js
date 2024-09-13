@@ -61,9 +61,9 @@ function threadTreeClick(row, event = {}) {
  * @returns {Promise} when subscription is done.
  */
 async function subsribeToFeed(feedURL) {
-  const account = MailServices.accounts.getAccount("account1");
-  const rootFolder = account.incomingServer.rootFolder;
-  about3Pane.displayFolder(rootFolder.URI);
+  const account1 = MailServices.accounts.getAccount("account1");
+  const account1RootFolder = account1.incomingServer.rootFolder;
+  about3Pane.displayFolder(account1RootFolder.URI);
   const index = about3Pane.folderTree.selectedIndex;
   Assert.equal(index, 0, "index 0 (account1 root folder) should be selected");
 
@@ -97,13 +97,13 @@ async function subsribeToFeed(feedURL) {
         // There's no good way to know if we're ready to continue.
         await new Promise(r => dialogWindow.setTimeout(r, 250));
 
-        const hiddenPromise = BrowserTestUtils.waitForAttribute(
+        const feedButtonHiddenPRomise = BrowserTestUtils.waitForAttribute(
           "hidden",
           addFeedButton,
           "true"
         );
         EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
-        await hiddenPromise;
+        await feedButtonHiddenPRomise;
 
         EventUtils.synthesizeMouseAtCenter(
           dialogDocument.querySelector("dialog").getButton("accept"),

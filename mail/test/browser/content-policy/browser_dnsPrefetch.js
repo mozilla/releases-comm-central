@@ -88,11 +88,11 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-async function addMsgToFolder(folder) {
+async function addMsgToFolder(targetFolder) {
   const msgDbHdr = addToFolder(
     "exposed test message " + gMsgNo,
     msgBody,
-    folder
+    targetFolder
   );
 
   // select the newly created message

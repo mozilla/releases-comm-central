@@ -91,10 +91,10 @@ export class NewMailNotificationService {
     let unreadCount = 0;
 
     const allFolders = [folder, ...folder.descendants];
-    for (const folder of allFolders) {
-      if (this.confirmShouldCount(folder)) {
-        const count = folder.getNumUnread(false);
-        this.#log.debug(`${folder.URI} has ${count} unread`);
+    for (const candidateFolder of allFolders) {
+      if (this.confirmShouldCount(candidateFolder)) {
+        const count = candidateFolder.getNumUnread(false);
+        this.#log.debug(`${candidateFolder.URI} has ${count} unread`);
         if (count > 0) {
           unreadCount += count;
         }
@@ -186,10 +186,10 @@ export class NewMailNotificationService {
       this.#log.debug(`${folder.URI} notified; will check subfolders`);
       let newCount = 0;
 
-      for (const folder of allFolders) {
-        if (this.confirmShouldCount(folder)) {
-          const folderNew = folder.getNumNewMessages(false);
-          this.#log.debug(`${folder.URI}: ${folderNew} new`);
+      for (const candidateFolder of allFolders) {
+        if (this.confirmShouldCount(candidateFolder)) {
+          const folderNew = candidateFolder.getNumNewMessages(false);
+          this.#log.debug(`${candidateFolder.URI}: ${folderNew} new`);
           if (folderNew > 0) {
             newCount += folderNew;
           }

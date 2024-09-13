@@ -1203,7 +1203,7 @@ export class Pop3Client {
           this._newMessageTotal++;
           // Fetch the full message or only headers depending on server settings
           // and message size.
-          const status =
+          const fetchHeaderStatus =
             this._server.headersOnly ||
             this._messageSizeMap.get(messageNumber) > this._maxMessageSize
               ? UIDL_TOO_BIG
@@ -1211,7 +1211,7 @@ export class Pop3Client {
           this._messagesToHandle.push({
             messageNumber,
             uidl,
-            status,
+            status: fetchHeaderStatus,
           });
         }
         this._sendNoopIfInactive();

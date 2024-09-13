@@ -2682,19 +2682,19 @@ export var GlodaMsgIndexer = {
     folderDeleted(aFolder) {
       this.indexer._log.debug("folderDeleted notification");
       try {
-        const delFunc = function (aFolder, indexer) {
-          if (indexer._datastore._folderKnown(aFolder)) {
+        const delFunc = function (folder, indexer) {
+          if (indexer._datastore._folderKnown(folder)) {
             indexer._log.info(
-              "Processing deletion of folder " + aFolder.prettyName + "."
+              "Processing deletion of folder " + folder.prettyName + "."
             );
-            const glodaFolder = GlodaDatastore._mapFolder(aFolder);
+            const glodaFolder = GlodaDatastore._mapFolder(folder);
             indexer._datastore.markMessagesDeletedByFolderID(glodaFolder.id);
             indexer._datastore.deleteFolderByID(glodaFolder.id);
             GlodaDatastore._killGlodaFolderIntoTombstone(glodaFolder);
           } else {
             indexer._log.info(
               "Ignoring deletion of folder " +
-                aFolder.prettyName +
+                folder.prettyName +
                 " because it is unknown to gloda."
             );
           }

@@ -149,8 +149,8 @@ function filterEditorOnLoad() {
 
         // copy the actions
         for (let i = 0; i < copiedFilter.actionCount; i++) {
-          const filterAction = copiedFilter.getActionAt(i);
-          newFilter.appendAction(filterAction);
+          const copiedFilterAction = copiedFilter.getActionAt(i);
+          newFilter.appendAction(copiedFilterAction);
         }
 
         // copy the search terms

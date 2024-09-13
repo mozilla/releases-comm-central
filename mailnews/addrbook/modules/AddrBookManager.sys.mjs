@@ -118,10 +118,10 @@ function ensureInitialized() {
           `${prefName}.filename`,
           ""
         );
-        const uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
 
         switch (dirType) {
-          case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE:
+          case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE: {
+            const uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
             if (
               Cu.isInAutomation ||
               Services.env.exists("XPCSHELL_TEST_PROFILE_DIR")
@@ -147,6 +147,7 @@ function ensureInitialized() {
               }
             }
             break;
+          }
           case Ci.nsIAbManager.JS_DIRECTORY_TYPE:
             if (fileName) {
               const uri = `jsaddrbook://${fileName}`;

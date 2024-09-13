@@ -103,7 +103,7 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
       log.info(
         "creating delegate list for contractID " + aProperties.contractID
       );
-      const delegateList = delegator.methodsToDelegate;
+      const delegatedMethodsList = delegator.methodsToDelegate;
       Object.keys(delegator).forEach(name => {
         log.debug("delegator has key " + name);
       });
@@ -147,21 +147,21 @@ JSAccountUtils.jaFactory = function (aProperties, aJsDelegateConstructor) {
         const upperCaseName = name[0].toUpperCase() + name.substr(1);
         if ("value" in jsDescriptor) {
           log.info("delegating " + upperCaseName);
-          delegateList.add(upperCaseName);
+          delegatedMethodsList.add(upperCaseName);
         } else {
           if (jsDescriptor.set) {
             log.info("delegating Set" + upperCaseName);
-            delegateList.add("Set" + upperCaseName);
+            delegatedMethodsList.add("Set" + upperCaseName);
           }
           if (jsDescriptor.get) {
             log.info("delegating Get" + upperCaseName);
-            delegateList.add("Get" + upperCaseName);
+            delegatedMethodsList.add("Get" + upperCaseName);
           }
         }
       }
 
       // Save the delegate list for reuse, statically for all instances.
-      Object.getPrototypeOf(jsDelegate).delegateList = delegateList;
+      Object.getPrototypeOf(jsDelegate).delegateList = delegatedMethodsList;
     }
 
     for (const iface of aProperties.baseInterfaces) {

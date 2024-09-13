@@ -388,7 +388,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
    *     conflict status code.
    */
   async _sendCardToServer(card) {
-    const href = this._getCardHref(card);
+    const cardHref = this._getCardHref(card);
     const requestDetails = {
       method: "PUT",
       contentType: "text/vcard",
@@ -408,8 +408,8 @@ export class CardDAVDirectory extends SQLiteDirectory {
 
     let response;
     try {
-      log.debug(`Sending ${href} to server.`);
-      response = await this._makeRequest(href, requestDetails);
+      log.debug(`Sending ${cardHref} to server.`);
+      response = await this._makeRequest(cardHref, requestDetails);
     } catch (ex) {
       Services.obs.notifyObservers(this, "addrbook-directory-sync-failed");
       this._uidsToSync.add(card.UID);
@@ -428,7 +428,7 @@ export class CardDAVDirectory extends SQLiteDirectory {
     // telling us where it went (c'mon, really?). Fortunately a multiget
     // request at the original location works.
 
-    response = await this._multigetRequest([href]);
+    response = await this._multigetRequest([cardHref]);
 
     for (const { href, properties } of this._readResponse(response.dom)) {
       if (!properties) {
@@ -436,11 +436,11 @@ export class CardDAVDirectory extends SQLiteDirectory {
       }
 
       const etag = properties.querySelector("getetag")?.textContent;
-      const vCard = normalizeLineEndings(
+      const responseCard = normalizeLineEndings(
         properties.querySelector("address-data")?.textContent
       );
 
-      const abCard = lazy.VCardUtils.vCardToAbCard(vCard);
+      const abCard = lazy.VCardUtils.vCardToAbCard(responseCard);
       abCard.setProperty("_etag", etag);
       abCard.setProperty("_href", href);
 

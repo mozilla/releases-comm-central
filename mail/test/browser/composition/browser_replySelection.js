@@ -75,10 +75,10 @@ async function subtest(path) {
       );
     }
     if (range == range2) {
-      const text = pre.textContent;
-      const line = text.slice(
-        text.indexOf("line 7"),
-        text.lastIndexOf("line 7") + 6
+      const textContent = pre.textContent;
+      const line = textContent.slice(
+        textContent.indexOf("line 7"),
+        textContent.lastIndexOf("line 7") + 6
       );
       Assert.ok(
         !line.includes("\n"),

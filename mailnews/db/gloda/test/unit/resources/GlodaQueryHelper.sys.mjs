@@ -17,6 +17,7 @@ var log = console.createInstance({
 });
 
 var _defaultExpectationExtractors = {};
+/* eslint-disable func-names */
 _defaultExpectationExtractors[GlodaConstants.NOUN_MESSAGE] = [
   function expectExtract_message_gloda(aGlodaMessage) {
     return aGlodaMessage.headerMessageID;
@@ -41,6 +42,7 @@ _defaultExpectationExtractors[GlodaConstants.NOUN_IDENTITY] = [
     return aAddress;
   },
 ];
+/* eslint-enable func-names */
 
 function expectExtract_default_toString(aThing) {
   return aThing.toString();

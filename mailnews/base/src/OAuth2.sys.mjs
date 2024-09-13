@@ -211,14 +211,14 @@ OAuth2.prototype = {
             this._parent.onAuthorizationReceived(url);
           },
 
-          onStateChange(aWebProgress, aRequest, aStateFlags) {
+          onStateChange(webProgress, aRequest, aStateFlags) {
             const wpl = Ci.nsIWebProgressListener;
             if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
               const channel = aRequest.QueryInterface(Ci.nsIChannel);
               this._checkForRedirect(channel.URI.spec);
             }
           },
-          onLocationChange(aWebProgress, aRequest, aLocation) {
+          onLocationChange(webProgress, aRequest, aLocation) {
             this._checkForRedirect(aLocation.spec);
           },
           onProgressChange() {},

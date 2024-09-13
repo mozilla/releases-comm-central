@@ -92,7 +92,7 @@ class CsvFieldMap extends HTMLElement {
    */
   _enableSelect(select) {
     const selects = [...this._elTbody.querySelectorAll("select")];
-    const selectedFieldIndexes = selects.map(select => select.value);
+    const selectedFieldIndexes = selects.map(fieldSelect => fieldSelect.value);
     const availableFieldIndexes = this._allFieldIndexes.filter(
       index => !selectedFieldIndexes.includes(index)
     );

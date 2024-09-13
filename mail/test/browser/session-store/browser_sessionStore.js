@@ -483,7 +483,7 @@ add_task(async function test_message_pane_width_persistence() {
 
 add_task(async function test_multiple_3pane_periodic_session_persistence() {
   // open a few more 3pane windows
-  for (var i = 0; i < 3; ++i) {
+  for (let i = 0; i < 3; ++i) {
     await open3PaneWindow();
   }
 

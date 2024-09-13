@@ -82,10 +82,10 @@ add_task(async function testProfileImport() {
   });
 
   const tab = await new Promise(resolve => {
-    const tab = window.openTab("contentTab", {
+    const newTab = window.openTab("contentTab", {
       url: "about:import",
       onLoad() {
-        resolve(tab);
+        resolve(newTab);
       },
     });
   });
@@ -253,10 +253,10 @@ add_task(async function testImportLargeZIP() {
   });
 
   const tab = await new Promise(resolve => {
-    const tab = window.openTab("contentTab", {
+    const newTab = window.openTab("contentTab", {
       url: "about:import",
       onLoad() {
-        resolve(tab);
+        resolve(newTab);
       },
     });
   });

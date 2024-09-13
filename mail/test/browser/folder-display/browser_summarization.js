@@ -291,14 +291,14 @@ add_task(async function test_summary_when_multiple_identities() {
   // only one thread
   const folder1 = await create_folder("Search1");
   await be_in_folder(folder1);
-  let thread1 = create_thread(1);
-  await add_message_sets_to_folders([folder1], [thread1]);
+  let thread = create_thread(1);
+  await add_message_sets_to_folders([folder1], [thread]);
 
   const folder2 = await create_folder("Search2");
   await be_in_folder(folder2);
   await make_message_sets_in_folders(
     [folder2],
-    [{ count: 1, inReplyTo: thread1 }]
+    [{ count: 1, inReplyTo: thread }]
   );
 
   const folderVirtual = create_virtual_folder(
@@ -343,8 +343,8 @@ add_task(async function test_summary_when_multiple_identities() {
 
   // Second half of the test, makes sure MultiMessageSummary groups messages
   // according to their view thread id
-  thread1 = create_thread(1);
-  await add_message_sets_to_folders([folder1], [thread1]);
+  thread = create_thread(1);
+  await add_message_sets_to_folders([folder1], [thread]);
   await be_in_folder(folderVirtual);
   await select_shift_click_row(1);
 

@@ -26,10 +26,10 @@ add_task(async function testProfileExport() {
   });
 
   const tab = await new Promise(resolve => {
-    const tab = window.openTab("contentTab", {
+    const newTab = window.openTab("contentTab", {
       url: "about:import#export",
       onLoad() {
-        resolve(tab);
+        resolve(newTab);
       },
     });
   });

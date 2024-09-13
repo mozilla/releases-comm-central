@@ -379,19 +379,19 @@ export var CardDAVUtils = {
 
     let response;
     const triedURLs = new Set();
-    async function tryURL(url) {
-      if (triedURLs.has(url)) {
+    async function tryURL(urlCandidate) {
+      if (triedURLs.has(urlCandidate)) {
         return;
       }
-      triedURLs.add(url);
+      triedURLs.add(urlCandidate);
 
-      log.log(`Attempting to connect to ${url}`);
-      response = await CardDAVUtils.makeRequest(url, requestParams);
+      log.log(`Attempting to connect to ${urlCandidate}`);
+      response = await CardDAVUtils.makeRequest(urlCandidate, requestParams);
       if (response.status == 207 && response.dom) {
-        log.log(`${url} ... success`);
+        log.log(`${urlCandidate} ... success`);
       } else {
         log.log(
-          `${url} ... response was "${response.status} ${response.statusText}"`
+          `${urlCandidate} ... response was "${response.status} ${response.statusText}"`
         );
         response = null;
       }

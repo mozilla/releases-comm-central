@@ -944,16 +944,16 @@ export var FeedUtils = {
 
     /**
      * Try getting favicon from url.
-     * @param {string} url - The favicon url.
+     * @param {string} faviconUrl - The favicon url.
      * @returns {Blob} - Existing favicon.
      */
-    const fetchFavicon = async url => {
-      const response = await fetch(url);
+    const fetchFavicon = async faviconUrl => {
+      const response = await fetch(faviconUrl);
       if (!response.ok) {
-        throw new Error(`No favicon for url ${url}`);
+        throw new Error(`No favicon for url ${faviconUrl}`);
       }
       if (!/^image\//i.test(response.headers.get("Content-Type"))) {
-        throw new Error(`Non-image favicon for ${url}`);
+        throw new Error(`Non-image favicon for ${faviconUrl}`);
       }
       return response.blob();
     };
@@ -1363,27 +1363,32 @@ export var FeedUtils = {
    */
   Mixins: {
     meld(source, keep, replace) {
-      function meldin(source, target, keep, replace) {
-        for (const attribute in source) {
+      function meldin(meldSource, target, meldKeep, meldReplace) {
+        for (const attribute in meldSource) {
           // Recurse for objects.
           if (
-            typeof source[attribute] == "object" &&
+            typeof meldSource[attribute] == "object" &&
             typeof target[attribute] == "object"
           ) {
-            meldin(source[attribute], target[attribute], keep, replace);
+            meldin(
+              meldSource[attribute],
+              target[attribute],
+              meldKeep,
+              meldReplace
+            );
           } else {
             // Use attribute values from source for the target, unless
             // replace is false.
-            if (attribute in target && !replace) {
+            if (attribute in target && !meldReplace) {
               continue;
             }
             // Don't copy attribute from source to target if it is not in the
             // target, unless keep is true.
-            if (!(attribute in target) && !keep) {
+            if (!(attribute in target) && !meldKeep) {
               continue;
             }
 
-            target[attribute] = source[attribute];
+            target[attribute] = meldSource[attribute];
           }
         }
       }

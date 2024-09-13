@@ -257,12 +257,12 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-async function addMsgToFolderAndCheckContent(folder, test) {
+async function addMsgToFolderAndCheckContent(targetFolder, test) {
   info(`Checking msg in folder; test=${test.type}`);
   const msgDbHdr = addToFolder(
     test.type + " test message ",
     msgBodyStart + test.body + msgBodyEnd,
-    folder
+    targetFolder
   );
 
   // select the newly created message

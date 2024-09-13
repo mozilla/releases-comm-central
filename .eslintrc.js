@@ -20,9 +20,9 @@ function removeOverrides(config) {
   return config;
 }
 
-function readFile(path) {
+function readFile(filePath) {
   return fs
-    .readFileSync(path, { encoding: "utf-8" })
+    .readFileSync(filePath, { encoding: "utf-8" })
     .split("\n")
     .filter(p => p && !p.startsWith("#"))
     .map(p => p.replace(/^comm\//, ""));
@@ -122,11 +122,12 @@ module.exports = {
     },
     {
       ...removeOverrides(xpcshellTestConfig),
-      files: xpcshellTestPaths.map(path => `${path}**`),
+      files: xpcshellTestPaths.map(filePath => `${filePath}**`),
       rules: {
         ...xpcshellTestConfig.rules,
         "func-names": "off",
       },
+      excludedFiles: ["**/*.mjs", "**/*.sjs"],
     },
     {
       // If it is a test head file, we turn off global unused variable checks, as it
@@ -134,8 +135,8 @@ module.exports = {
       // This would be expensive and slow, and it isn't worth it for head files.
       // We could get developers to declare as exported, but that doesn't seem worth it.
       files: [
-        ...browserTestPaths.map(path => `${path}head*.js`),
-        ...xpcshellTestPaths.map(path => `${path}head*.js`),
+        ...browserTestPaths.map(filePath => `${filePath}head*.js`),
+        ...xpcshellTestPaths.map(filePath => `${filePath}head*.js`),
       ],
       rules: {
         "no-unused-vars": [
@@ -149,11 +150,12 @@ module.exports = {
     },
     {
       ...browserTestConfig,
-      files: browserTestPaths.map(path => `${path}**`),
+      files: browserTestPaths.map(filePath => `${filePath}**`),
       rules: {
         ...browserTestConfig.rules,
         "func-names": "off",
       },
+      excludedFiles: ["**/*.mjs", "**/*.sjs"],
     },
     {
       files: [

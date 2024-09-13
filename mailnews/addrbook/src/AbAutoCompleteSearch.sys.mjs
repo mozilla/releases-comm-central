@@ -461,7 +461,6 @@ AbAutoCompleteSearch.prototype = {
       // (see bug 558931 for explanations).
       // Use helper method to split up search query to multi-word search
       // query against multiple fields.
-      const searchWords = getSearchTokens(fullString);
       const searchQuery = generateQueryURI(result.modelQuery, searchWords);
 
       // Now do the searching

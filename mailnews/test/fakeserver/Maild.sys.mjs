@@ -507,8 +507,8 @@ class nsMailReader {
         dump("SEND: " + response.split(" ", 1)[0] + "\n");
       } else if (this._debug == nsMailServer.debugAll) {
         var responses = response.split("\n");
-        responses.forEach(function (line) {
-          dump("SEND: " + line + "\n");
+        responses.forEach(function (responseLine) {
+          dump("SEND: " + responseLine + "\n");
         });
       }
 

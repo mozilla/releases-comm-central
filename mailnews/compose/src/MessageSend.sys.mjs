@@ -483,18 +483,19 @@ export class MessageSend {
               "@mozilla.org/messenger/progress;1"
             ].createInstance(Ci.nsIMsgProgress);
 
-            const params = Cc[
+            const composeParams = Cc[
               "@mozilla.org/messengercompose/composeprogressparameters;1"
             ].createInstance(Ci.nsIMsgComposeProgressParams);
-            params.subject = this._parentWindow.gMsgCompose.compFields.subject;
-            params.deliveryMode = this._deliverMode;
+            composeParams.subject =
+              this._parentWindow.gMsgCompose.compFields.subject;
+            composeParams.deliveryMode = this._deliverMode;
 
             progress.openProgressDialog(
               this._parentWindow,
               this._sendProgress.msgWindow,
               "chrome://messenger/content/messengercompose/sendProgress.xhtml",
               false,
-              params
+              composeParams
             );
 
             progress.onStateChange(
@@ -983,8 +984,8 @@ export class MessageSend {
       ) {
         // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
         // and then has the account name appended, e.g., .../Sent-MyImapAccount.
-        const folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
-        folderUri += folder.name + "-";
+        const localFolder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
+        folderUri += localFolder.name + "-";
       }
       if (this._fcc) {
         // Get the account name where the "save to" failed.

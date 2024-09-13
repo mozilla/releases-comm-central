@@ -48,8 +48,8 @@ export function setupNNTPDaemon() {
 export function startupNNTPServer(daemon, port) {
   var handler = NNTP_RFC977_handler;
 
-  function createHandler(daemon) {
-    return new handler(daemon);
+  function createHandler(createdDaemon) {
+    return new handler(createdDaemon);
   }
 
   var server = new nsMailServer(createHandler, daemon);

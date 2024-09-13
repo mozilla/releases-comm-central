@@ -215,12 +215,12 @@ export function MsgHdrToMimeMessage(
   // Gloda), unless the client asked for encrypted data, we pass to the client
   // callback a stripped-down version of the MIME structure where encrypted
   // parts have been removed.
-  const wrapCallback = function (aCallback, aCallbackThis) {
+  const wrapCallback = function (callback, callbackThis) {
     if (aOptions && aOptions.examineEncryptedParts) {
-      return aCallback;
+      return callback;
     }
-    return (aMsgHdr, aMimeMsg) =>
-      aCallback.call(aCallbackThis, aMsgHdr, stripEncryptedParts(aMimeMsg));
+    return (msgHdr, aMimeMsg) =>
+      callback.call(callbackThis, msgHdr, stripEncryptedParts(aMimeMsg));
   };
 
   // Apparently there used to be an old syntax where the callback was the second

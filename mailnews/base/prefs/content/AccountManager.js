@@ -419,10 +419,10 @@ function checkDirectoryIsAllowed(aLocalPath) {
    *     - Linux  = Linux
    * @param {string} aDirToCheck.safeSubdirs - An array of directory names that
    *   are allowed to be used under the tested directory.
-   * @param {nsIFile} aLocalPath - An nsIFile of the directory to check,
+   * @param {nsIFile} localPath - An nsIFile of the directory to check,
    *   intended for message storage.
    */
-  function checkLocalDirectoryIsSafe(aDirToCheck, aLocalPath) {
+  function checkLocalDirectoryIsSafe(aDirToCheck, localPath) {
     if (aDirToCheck.OS) {
       if (!aDirToCheck.OS.split(",").includes(Services.appinfo.OS)) {
         return true;
@@ -458,11 +458,11 @@ function checkDirectoryIsAllowed(aLocalPath) {
 
     testDir.normalize();
 
-    if (testDir.equals(aLocalPath) || aLocalPath.contains(testDir)) {
+    if (testDir.equals(localPath) || localPath.contains(testDir)) {
       return false;
     }
 
-    if (testDir.contains(aLocalPath)) {
+    if (testDir.contains(localPath)) {
       if (!("safeSubdirs" in aDirToCheck)) {
         return false;
       }
@@ -473,7 +473,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
       for (const subDir of aDirToCheck.safeSubdirs) {
         const checkDir = testDir.clone();
         checkDir.append(subDir);
-        if (checkDir.contains(aLocalPath)) {
+        if (checkDir.contains(localPath)) {
           isInSubdir = true;
           break;
         }
@@ -1853,8 +1853,10 @@ var gAccountTree = {
                 "/locale/am-" +
                 svc.name +
                 ".properties";
-              const bundle = Services.strings.createBundle(bundleName);
-              const title = bundle.GetStringFromName("prefPanel-" + svc.name);
+              const panelBundle = Services.strings.createBundle(bundleName);
+              const title = panelBundle.GetStringFromName(
+                "prefPanel-" + svc.name
+              );
               panelsToKeep.push({
                 string: title,
                 src: "am-" + svc.name + ".xhtml",

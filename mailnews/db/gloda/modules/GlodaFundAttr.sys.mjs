@@ -556,18 +556,18 @@ export var GlodaFundAttr = {
         aGlodaMessage.attachmentTypes = Array.from(attachmentTypes);
       }
 
-      const aMsgHdr = aRawReps.header;
+      const msgHdr = aRawReps.header;
       const wasStreamed =
-        aMsgHdr &&
+        msgHdr &&
         !aGlodaMessage.isEncrypted &&
-        (aMsgHdr.flags & Ci.nsMsgMessageFlags.Offline ||
-          aMsgHdr.folder instanceof Ci.nsIMsgLocalMailFolder);
+        (msgHdr.flags & Ci.nsMsgMessageFlags.Offline ||
+          msgHdr.folder instanceof Ci.nsIMsgLocalMailFolder);
 
       // Clear the flag if it turns out there's no attachment after all and we
       // streamed completely the message (if we didn't, then we have no
       // knowledge of attachments, unless bug 673370 is fixed).
       if (wasStreamed && !aMimeMsg.allAttachments.length) {
-        aMsgHdr.markHasAttachments(false);
+        msgHdr.markHasAttachments(false);
       }
 
       // This is not the same kind of attachments as above. Now, we want to

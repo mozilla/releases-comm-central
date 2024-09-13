@@ -36,7 +36,7 @@ export class MsgProtocolInfo {
           relativeToKey: "ProfD",
         });
         return file;
-      } catch (e) {
+      } catch (exception) {
         return null;
       }
     }

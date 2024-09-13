@@ -793,7 +793,7 @@ export class MsgIncomingServer {
           relativeToKey: "ProfD",
         });
         return file;
-      } catch (e) {
+      } catch (exception) {
         return null;
       }
     }

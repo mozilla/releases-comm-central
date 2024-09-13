@@ -665,21 +665,21 @@ export class ImapClient {
         this._actionDone(Cr.NS_ERROR_FAILURE);
         return;
       }
-      this._nextAction = res => {
+      this._nextAction = response => {
         this._folderSink = dstFolder.QueryInterface(Ci.nsIImapMailFolderSink);
         if (
           // See rfc4315.
           this._capabilities.includes("UIDPLUS") &&
-          res.attributes.appenduid
+          response.attributes.appenduid
         ) {
           // The response is like `<tag> OK [APPENDUID <uidvalidity> <uid>]`.
           this._folderSink.setAppendMsgUid(
-            res.attributes.appenduid[1],
+            response.attributes.appenduid[1],
             this.runningUri
           );
         }
         this._actionDone();
-        if (res.exists) {
+        if (response.exists) {
           // FIXME: _actionNoopResponse should be enough here, but it breaks
           // test_imapAttachmentSaves.js.
           this.folder = null;
@@ -1194,9 +1194,9 @@ export class ImapClient {
         this._server.wrappedJSObject.capabilities = res.capabilities;
         this._actionId();
       } else {
-        this._nextAction = res => {
-          this._capabilities = res.capabilities;
-          this._server.wrappedJSObject.capabilities = res.capabilities;
+        this._nextAction = response => {
+          this._capabilities = response.capabilities;
+          this._server.wrappedJSObject.capabilities = response.capabilities;
           this._actionId();
         };
         this._sendTagged("CAPABILITY");
