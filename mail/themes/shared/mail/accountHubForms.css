@@ -5,6 +5,8 @@
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 form {
+  --hub-input-bg-color: light-dark(#feffff, #18181b);
+
   grid-row: header / footer;
 
   .hub-body {
@@ -43,18 +45,75 @@ form {
   }
 
   label {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1;
-    margin-block-end: 3px;
+    color: light-dark(#175fb6, #feffff);
+
+    &.animated {
+      position: absolute;
+      background-color: var(--hub-input-bg-color);
+      border-radius: 3px;
+      transform-origin: left center;
+      color: light-dark(#4c4d58, #d9d9de);
+      padding: 3px;
+      margin-inline-start: 7px;
+      font-weight: 200;
+      cursor: text;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: transform 200ms, color 200ms, font-weight 200ms, background-color 200ms;
+      }
+    }
   }
 
   .input-field {
     flex: 1;
+    font-size: 1.2rem;
     margin-inline: 0;
-    padding-block: 0;
+    padding-block: 12px;
     padding-inline: 9px 14px;
-    min-height: var(--hub-input-height);
-    border: 1px solid var(--hub-input-border-color);
+    border: 1px solid light-dark(#e4e4e7, #303a4a);
+    background-color: var(--hub-input-bg-color);
+    font-weight: 200;
+
+    &:user-invalid {
+      border-color: light-dark(#991b1b, #fca5a5);
+
+      &:focus {
+        border-color: light-dark(#991b1b, #fca5a5);
+      }
+
+      & ~ label {
+        color: light-dark(#991b1b, #fca5a5);
+      }
+    }
+
+    &::placeholder {
+      font-weight: 200;
+      color: light-dark(#4c4d58, #d9d9de);
+    }
+
+    &.animated {
+      &::placeholder {
+        color: transparent;
+      }
+    }
+
+    &:focus {
+      border-color: light-dark(#175fb6, #58c9ff);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+
+    &:focus + label.animated,
+    &:not(:placeholder-shown) + label.animated {
+      transform: translateY(-102%);
+      font-weight: normal;
+      cursor: default;
+      background-color: light-dark(#feffff, #1a202c);
+    }
   }
 
   .menulist {
@@ -104,7 +163,11 @@ div:has(legend) {
 .input-control {
   display: flex;
   align-items: center;
-  margin-block-end: 21px;
+  margin-block-end: 20px;
+
+  & + .input-control {
+    margin-block-start: 20px;
+  }
 }
 
 .input-control.vertical {
@@ -113,7 +176,6 @@ div:has(legend) {
 }
 
 .form-icon {
-  cursor: pointer;
   width: 16px;
   height: 16px;
   -moz-context-properties: fill, fill-opacity, stroke;
@@ -130,6 +192,14 @@ div:has(legend) {
     &.warning-icon {
       content: var(--icon-warning);
     }
+  }
+
+  input:user-invalid ~ & {
+    display: none;
+  }
+
+  input:valid ~ & {
+    display: none;
   }
 }
 
@@ -168,6 +238,10 @@ div:has(legend) {
   .notification-text {
     margin-block: 6px;
     font-size: 1rem;
+  }
+
+  .form-icon {
+    cursor: pointer;
   }
 }
 
@@ -214,17 +288,36 @@ div:has(legend) {
 
 .icon-warning {
   display: none;
-  color: var(--orange-50);
-  fill-opacity: 1;
+  -moz-context-properties: fill, stroke;
+  fill: light-dark(
+      color-mix(in srgb, #dc2626 20%, transparent),
+      color-mix(in srgb, #fee2e2 20%, transparent)
+  );
+  stroke: light-dark(#dc2626, #fcA5a5);
+
+  input:user-invalid ~ & {
+    display: inline-block;
+  }
 }
 
-input:user-invalid ~ .form-icon {
-  display: none;
+.icon-success {
+  -moz-context-properties: fill, stroke;
+  fill: light-dark(
+    color-mix(in srgb, #194e2c 20%, transparent),
+    color-mix(in srgb, #c0f2Cf 20%, transparent)
+  );
+  stroke: light-dark(#1d783b, #8ee7aa);
+
+
+  input:invalid ~ & {
+    display: none;
+  }
+
+  input:user-valid ~ & {
+    display: inline-block;
+  }
 }
 
-input:user-invalid ~ .icon-warning {
-  display: inline-block;
-}
 
 .remember-button-container {
   margin-block-start: -18px;

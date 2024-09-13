@@ -110,6 +110,9 @@ account-hub-auth-label = Authentication method
 
 account-hub-username-label = Username
 
+account-hub-name-label = Full name
+    .accesskey = n
+
 account-hub-adding-account-title = Adding Account
 
 account-hub-adding-account-subheader = Re-testing account configuration settings

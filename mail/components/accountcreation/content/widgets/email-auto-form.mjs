@@ -82,6 +82,7 @@ class EmailAutoForm extends AccountHubStep {
     const domain = isValidForm
       ? this.#email.value.split("@")[1].toLowerCase()
       : "";
+    // TODO: Check for domain extension when validating email address.
     const outgoingHostname = domain;
     const incomingHostname = domain;
     const incomingUsername = isValidForm ? this.#email.value : "";

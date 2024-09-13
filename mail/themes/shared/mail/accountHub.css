@@ -96,9 +96,12 @@ dialog {
   display: grid;
   grid-template: "header" min-content
     "body" minmax(auto, 1fr) "footer" min-content;
-  gap: 21px;
   text-align: center;
   z-index: 1;
+}
+
+.account-hub-form {
+  padding-block-start: 45px;
 }
 
 .account-hub-view:not([hidden]) {
