@@ -4,6 +4,13 @@
 
 "use strict";
 
+const { InAppNotifications } = ChromeUtils.importESModule(
+  "resource:///modules/InAppNotifications.sys.mjs"
+);
+const { NotificationManager } = ChromeUtils.importESModule(
+  "resource:///modules/NotificationManager.sys.mjs"
+);
+
 const tabmail = document.getElementById("tabmail");
 let browser, manager;
 
@@ -26,20 +33,35 @@ add_setup(async function () {
   });
 });
 
+/**
+ * Dispatch the event to show a new notification on the notification manager.
+ *
+ * @param {string} id
+ * @param {string} title
+ * @param {string} description
+ */
+function showNotification(id, title, description) {
+  InAppNotifications.notificationManager.dispatchEvent(
+    new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
+      detail: {
+        id,
+        title,
+        description,
+        CTA: "Click here",
+        URL: "https://example.com",
+        type: "donation",
+        severity: 4,
+      },
+    })
+  );
+}
+
 add_task(function test_initialManagerTree() {
   Assert.equal(manager.childElementCount, 0, "Should have no children");
 });
 
 add_task(function test_showAndHideNotification() {
-  manager.showNotification({
-    id: "test",
-    title: "Test",
-    description: "Test notification",
-    CTA: "Click here",
-    URL: "https://example.com",
-    type: "donation",
-    severity: 4,
-  });
+  showNotification("test", "Test", "Test notification");
 
   const notification = manager.querySelector("in-app-notification");
 
@@ -54,15 +76,7 @@ add_task(function test_showAndHideNotification() {
 
   Assert.equal(manager.childElementCount, 0, "Should have no more children");
 
-  manager.showNotification({
-    id: "test2",
-    title: "Another test",
-    description: "A new one already",
-    CTA: "Click here",
-    URL: "https://example.com",
-    type: "donation",
-    severity: 4,
-  });
+  showNotification("test2", "Another test", "A new one already");
 
   const newNotification = manager.querySelector("in-app-notification");
 
@@ -82,15 +96,7 @@ add_task(function test_showAndHideNotification() {
 });
 
 add_task(function test_showNotificationReplaces() {
-  manager.showNotification({
-    id: "test",
-    title: "Test",
-    description: "Test notification",
-    CTA: "Click here",
-    URL: "https://example.com",
-    type: "donation",
-    severity: 4,
-  });
+  showNotification("test", "Test", "Test notification");
 
   const notification = manager.querySelector("in-app-notification");
 
@@ -101,15 +107,7 @@ add_task(function test_showNotificationReplaces() {
   );
   Assert.ok(notification, "Should find a notification");
 
-  manager.showNotification({
-    id: "test2",
-    title: "Another test",
-    description: "A new one already",
-    CTA: "Click here",
-    URL: "https://example.com",
-    type: "donation",
-    severity: 4,
-  });
+  showNotification("test2", "Another test", "A new one already");
 
   Assert.equal(
     manager.childElementCount,
@@ -127,4 +125,32 @@ add_task(function test_showNotificationReplaces() {
   );
 
   manager.hideNotification();
+});
+
+add_task(function test_disconnected() {
+  manager.remove();
+
+  showNotification("test", "Test", "Test notification");
+
+  Assert.equal(
+    manager.childElementCount,
+    0,
+    "Should not show a notification when disconnected"
+  );
+
+  browser.contentWindow.document.body.append(manager);
+});
+
+add_task(function test_unload() {
+  browser.contentWindow.dispatchEvent(new Event("unload"));
+
+  showNotification("test", "Test", "Test notification");
+
+  Assert.equal(
+    manager.childElementCount,
+    0,
+    "Should not show a notification after the document said it is unloading"
+  );
+
+  manager.connectedCallback();
 });
