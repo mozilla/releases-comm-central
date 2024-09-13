@@ -56,6 +56,15 @@ function showNotification(id, title, description) {
   );
 }
 
+/**
+ * Dispatch the event to clear all notifications on the notification manager.
+ */
+function hideNotification() {
+  InAppNotifications.notificationManager.dispatchEvent(
+    new CustomEvent(NotificationManager.CLEAR_NOTIFICATION_EVENT)
+  );
+}
+
 add_task(function test_initialManagerTree() {
   Assert.equal(manager.childElementCount, 0, "Should have no children");
 });
@@ -72,7 +81,7 @@ add_task(function test_showAndHideNotification() {
   );
   Assert.ok(notification, "Should find a notification");
 
-  manager.hideNotification();
+  hideNotification();
 
   Assert.equal(manager.childElementCount, 0, "Should have no more children");
 
@@ -92,7 +101,7 @@ add_task(function test_showAndHideNotification() {
     "Should create a new notification"
   );
 
-  manager.hideNotification();
+  hideNotification();
 });
 
 add_task(function test_showNotificationReplaces() {
@@ -124,7 +133,7 @@ add_task(function test_showNotificationReplaces() {
     "Should replace notification"
   );
 
-  manager.hideNotification();
+  hideNotification();
 });
 
 add_task(function test_disconnected() {
@@ -139,6 +148,20 @@ add_task(function test_disconnected() {
   );
 
   browser.contentWindow.document.body.append(manager);
+
+  showNotification("test", "Test", "Test notification");
+  manager.remove();
+
+  hideNotification();
+
+  Assert.equal(
+    manager.childElementCount,
+    1,
+    "Should not hide notification when disconnected"
+  );
+
+  browser.contentWindow.document.body.append(manager);
+  hideNotification();
 });
 
 add_task(function test_unload() {
@@ -153,4 +176,18 @@ add_task(function test_unload() {
   );
 
   manager.connectedCallback();
+
+  showNotification("test", "Test", "Test notification");
+  browser.contentWindow.dispatchEvent(new Event("unload"));
+
+  hideNotification();
+
+  Assert.equal(
+    manager.childElementCount,
+    1,
+    "Should not hide notification after the document said it is unloading"
+  );
+
+  manager.connectedCallback();
+  hideNotification();
 });

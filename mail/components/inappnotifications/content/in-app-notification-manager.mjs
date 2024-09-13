@@ -26,6 +26,10 @@ class InAppNotificationManager extends HTMLElement {
       lazy.NotificationManager.NEW_NOTIFICATION_EVENT,
       this
     );
+    lazy.InAppNotifications.notificationManager.addEventListener(
+      lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT,
+      this
+    );
     window.addEventListener("unload", this, { once: true });
   }
 
@@ -40,7 +44,10 @@ class InAppNotificationManager extends HTMLElement {
         this.#removeManagerListeners();
         break;
       case lazy.NotificationManager.NEW_NOTIFICATION_EVENT:
-        this.showNotification(event.detail);
+        this.#showNotification(event.detail);
+        break;
+      case lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT:
+        this.#hideNotification();
         break;
     }
   }
@@ -54,16 +61,18 @@ class InAppNotificationManager extends HTMLElement {
       lazy.NotificationManager.NEW_NOTIFICATION_EVENT,
       this
     );
+    lazy.InAppNotifications.notificationManager.removeEventListener(
+      lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT,
+      this
+    );
   }
 
   /**
    * Display a new in-app notification. Replaces the existing notification.
    *
-   * TODO: consider making this and hideNotification private methods.
-   *
    * @param {object} notification  - Notification data from the back-end.
    */
-  showNotification(notification) {
+  #showNotification(notification) {
     const notificationElement = document.createElement("in-app-notification");
 
     //TODO Unconditionally expect this to be a method once in-app-notification
@@ -82,7 +91,7 @@ class InAppNotificationManager extends HTMLElement {
   /**
    * Remove any notification currently displayed.
    */
-  hideNotification() {
+  #hideNotification() {
     this.#activeNotification?.remove();
     this.#activeNotification = null;
   }
