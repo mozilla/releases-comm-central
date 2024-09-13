@@ -25,6 +25,18 @@ export const NotificationFilter = {
     ) {
       return false;
     }
+    // Must point to a https:// URL.
+    try {
+      if (
+        notification.URL &&
+        Services.io.extractScheme(notification.URL) !== "https"
+      ) {
+        return false;
+      }
+    } catch (error) {
+      console.error("Error parsing notification URL:", error);
+      return false;
+    }
     if (
       Object.hasOwn(notification.targeting, "percent_chance") &&
       notification.targeting.percent_chance !== 100 &&

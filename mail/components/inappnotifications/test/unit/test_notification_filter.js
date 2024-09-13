@@ -10,6 +10,9 @@ const { NotificationFilter } = ChromeUtils.importESModule(
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
+const { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -295,4 +298,65 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
     !NotificationFilter.checkProfile(mismatchingOperatingSystemProfile),
     "Profile doesn't match with mismatched operating system"
   );
+});
+
+add_task(async function test_isActiveNotification_url() {
+  const now = Date.now();
+  Assert.ok(
+    NotificationFilter.isActiveNotification(
+      {
+        end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+        start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+        targeting: {},
+        URL: "https://example.com",
+      },
+      0
+    ),
+    "Should allow https URL"
+  );
+
+  Assert.ok(
+    !NotificationFilter.isActiveNotification(
+      {
+        end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+        start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+        targeting: {},
+        URL: "http://example.com",
+      },
+      0
+    ),
+    "Should not allow http protocol"
+  );
+
+  Assert.ok(
+    !NotificationFilter.isActiveNotification(
+      {
+        end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+        start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+        targeting: {},
+        URL: "example://test/https://",
+      },
+      0
+    ),
+    "Should not allow non-https protocol"
+  );
+
+  const consoleErrorPromise = TestUtils.consoleMessageObserved(logMessage =>
+    logMessage.wrappedJSObject.arguments?.[0].endsWith?.(
+      "Error parsing notification URL:"
+    )
+  );
+  Assert.ok(
+    !NotificationFilter.isActiveNotification(
+      {
+        end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+        start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+        targeting: {},
+        URL: "foo~bar[:/baz]",
+      },
+      0
+    ),
+    "Should not allow invalid URL"
+  );
+  await consoleErrorPromise;
 });
