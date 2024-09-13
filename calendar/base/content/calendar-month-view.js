@@ -632,12 +632,8 @@
       this.rangeEndDate = endDate;
 
       const viewStart = cal.weekInfoService.getStartOfWeek(startDate.getInTimezone(this.mTimezone));
-
       const viewEnd = cal.weekInfoService.getEndOfWeek(endDate.getInTimezone(this.mTimezone));
-
-      viewStart.isDate = true;
       viewStart.makeImmutable();
-      viewEnd.isDate = true;
       viewEnd.makeImmutable();
 
       this.mStartDate = viewStart;
@@ -729,11 +725,6 @@
       switch (preference) {
         case "calendar.previousweeks.inview":
           this.updateDaysOffPrefs();
-          this.refreshView();
-          break;
-
-        case "calendar.week.start":
-          // Refresh the view so the settings take effect.
           this.refreshView();
           break;
 

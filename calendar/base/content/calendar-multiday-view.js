@@ -2675,7 +2675,11 @@
 
       if (this.mStartDate.timezone.tzid == date.timezone.tzid) {
         if (this.mStartDate && this.mEndDate) {
-          if (this.mStartDate.compare(targetDate) <= 0 && this.mEndDate.compare(targetDate) >= 0) {
+          if (
+            this.mStartDate.compare(targetDate) <= 0 &&
+            this.mEndDate.compare(targetDate) >= 0 &&
+            this.mStartDate.weekday == this.weekStartOffset
+          ) {
             return;
           }
         } else if (this.mDateList) {
@@ -2693,7 +2697,9 @@
       if (this.numVisibleDates == 1) {
         this.setDateRange(date, date);
       } else {
-        this.setDateRange(date.startOfWeek, date.endOfWeek);
+        const viewStart = cal.weekInfoService.getStartOfWeek(targetDate);
+        const viewEnd = cal.weekInfoService.getEndOfWeek(targetDate);
+        this.setDateRange(viewStart, viewEnd);
       }
 
       this.selectedDay = targetDate;

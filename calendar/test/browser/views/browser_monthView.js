@@ -84,3 +84,73 @@ add_task(async function testMonthView() {
 
   Assert.ok(true, "Test ran to completion");
 });
+
+add_task(async function testStartOfWeek() {
+  await CalendarTestUtils.setCalendarView(window, "month");
+
+  // Check the first day of the week is Thursday, set by the test manifest.
+  Assert.equal(Services.prefs.getIntPref("calendar.week.start"), 4);
+
+  // Check the view is displayed correctly.
+  let labels = document.querySelectorAll("#month-view calendar-day-label");
+  Assert.equal(labels.length, 7);
+  Assert.deepEqual(
+    Array.from(labels, label => label.weekDay),
+    [4, 5, 6, 0, 1, 2, 3],
+    "week day column days should be correct initially"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.firstElementChild.value),
+    ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+    "week day column labels should be correct initially"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.lastElementChild.value),
+    ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"],
+    "week day column labels should be correct initially"
+  );
+
+  // Change the first day of the week to Monday.
+  Services.prefs.setIntPref("calendar.week.start", 1);
+
+  // Check the view is updated correctly.
+  labels = document.querySelectorAll("#month-view calendar-day-label");
+  Assert.equal(labels.length, 7);
+  Assert.deepEqual(
+    Array.from(labels, label => label.weekDay),
+    [1, 2, 3, 4, 5, 6, 0],
+    "week day column days should have been rearranged"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.firstElementChild.value),
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "week day column labels should have been updated"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.lastElementChild.value),
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "week day column labels should have been updated"
+  );
+
+  // Reset the first day of the week to Thursday.
+  Services.prefs.setIntPref("calendar.week.start", 4);
+
+  // Check the view is updated correctly.
+  labels = document.querySelectorAll("#month-view calendar-day-label");
+  Assert.equal(labels.length, 7);
+  Assert.deepEqual(
+    Array.from(labels, label => label.weekDay),
+    [4, 5, 6, 0, 1, 2, 3],
+    "week day column days should have been rearranged"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.firstElementChild.value),
+    ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+    "week day column labels should have been updated"
+  );
+  Assert.deepEqual(
+    Array.from(labels, label => label.lastElementChild.value),
+    ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"],
+    "week day column labels should have been updated"
+  );
+});

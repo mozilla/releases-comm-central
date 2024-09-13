@@ -81,3 +81,71 @@ add_task(async function testWeekView() {
 
   Assert.ok(true, "Test ran to completion");
 });
+
+add_task(async function testStartOfWeek() {
+  await CalendarTestUtils.setCalendarView(window, "week");
+
+  // Check the first day of the week is Thursday, set by the test manifest.
+  Assert.equal(Services.prefs.getIntPref("calendar.week.start"), 4);
+
+  // Check the view is displayed correctly.
+  const weekView = document.getElementById("week-view");
+  Assert.equal(weekView.dayColumns.length, 7);
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.date.weekday),
+    [4, 5, 6, 0, 1, 2, 3],
+    "week day column days should be correct initially"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.longHeading.textContent.split(" ")[0]),
+    ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+    "week day column labels should be correct initially"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.shortHeading.textContent.split(" ")[0]),
+    ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"],
+    "week day column labels should be correct initially"
+  );
+
+  // Change the first day of the week to Monday.
+  Services.prefs.setIntPref("calendar.week.start", 1);
+
+  // Check the view is updated correctly.
+  Assert.equal(weekView.dayColumns.length, 7);
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.date.weekday),
+    [1, 2, 3, 4, 5, 6, 0],
+    "week day column days should have been rearranged"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.longHeading.textContent.split(" ")[0]),
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "week day column labels should have been updated"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.shortHeading.textContent.split(" ")[0]),
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "week day column labels should have been updated"
+  );
+
+  // Reset the first day of the week to Thursday.
+  Services.prefs.setIntPref("calendar.week.start", 4);
+
+  // Check the view is updated correctly.
+  Assert.equal(weekView.dayColumns.length, 7);
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.date.weekday),
+    [4, 5, 6, 0, 1, 2, 3],
+    "week day column days should have been rearranged"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.longHeading.textContent.split(" ")[0]),
+    ["Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday"],
+    "week day column labels should have been updated"
+  );
+  Assert.deepEqual(
+    Array.from(weekView.dayColumns, column => column.shortHeading.textContent.split(" ")[0]),
+    ["Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"],
+    "week day column labels should have been updated"
+  );
+});
