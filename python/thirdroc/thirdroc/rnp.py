@@ -51,7 +51,9 @@ def rnp_version_defines(version_file, thunderbird_version, crypto_backend):
 def main():
     HERE = os.path.dirname(__file__)
     TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))
-    RNPLIB = os.path.join(TOPSRCDIR, "comm/mail/extensions/openpgp/content/modules/RNPLib.sys.mjs")
+    RNPLIB = os.path.join(
+        TOPSRCDIR, "comm/mail/extensions/openpgp/content/modules/RNPLib.sys.mjs"
+    )
     RNPVERSION = os.path.join(TOPSRCDIR, "comm/third_party/rnp/version.txt")
 
     _, version = rnp_version(RNPVERSION)
