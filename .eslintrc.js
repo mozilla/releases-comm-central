@@ -74,6 +74,8 @@ module.exports = {
     // Enforce using `let` only when variables are reassigned.
     "prefer-const": ["error", { destructuring: "all" }],
     "mozilla/reject-chromeutils-import": "error",
+    "no-redeclare": "off",
+    "no-shadow": "off",
   },
 
   overrides: [
