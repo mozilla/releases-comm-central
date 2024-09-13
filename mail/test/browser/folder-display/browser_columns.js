@@ -77,7 +77,7 @@ add_setup(async function () {
     "subjectCol",
     "senderCol",
     "dateCol",
-    "tagsCol",
+    "tagKeysCol",
     "totalCol",
     "unreadCol",
   ];
@@ -95,7 +95,7 @@ add_setup(async function () {
     "subjectCol",
     "recipientCol",
     "dateCol",
-    "tagsCol",
+    "tagKeysCol",
     "totalCol",
     "unreadCol",
   ];

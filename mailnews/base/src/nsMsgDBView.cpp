@@ -839,6 +839,30 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
   return NS_OK;
 }
 
+nsresult nsMsgDBView::FetchTagKeys(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
+  NS_ENSURE_ARG_POINTER(aHdr);
+  nsresult rv = NS_OK;
+  if (!mTagService) {
+    mTagService = do_GetService("@mozilla.org/messenger/tagservice;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  nsString tags;
+  nsCString keywords;
+  aHdr->GetStringProperty("keywords", keywords);
+
+  nsTArray<nsCString> keywordsArray;
+  ParseString(keywords, ' ', keywordsArray);
+
+  for (uint32_t i = 0; i < keywordsArray.Length(); i++) {
+    if (!tags.IsEmpty()) tags.Append((char16_t)' ');
+    tags.Append(NS_ConvertUTF8toUTF16(keywordsArray[i]));
+  }
+
+  aTagString = tags;
+  return NS_OK;
+}
+
 /**
  * Lowercase the email and remove a possible plus addressing part.
  * E.g. John+test@example.com -> john@example.com.
@@ -1951,6 +1975,8 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         }
       } else if (aColumnName.EqualsLiteral("tagsCol")) {
         rv = FetchTags(msgHdr, aValue);
+      } else if (aColumnName.EqualsLiteral("tagKeysCol")) {
+        rv = FetchTagKeys(msgHdr, aValue);
       }
       break;
     case 'n':

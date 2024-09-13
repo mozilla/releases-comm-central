@@ -164,6 +164,7 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult FetchPriority(nsIMsgDBHdr* aHdr, nsAString& aPriorityString);
   nsresult FetchLabel(nsIMsgDBHdr* aHdr, nsAString& aLabelString);
   nsresult FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString);
+  nsresult FetchTagKeys(nsIMsgDBHdr* aHdr, nsAString& aTagString);
   nsresult FetchKeywords(nsIMsgDBHdr* aHdr, nsACString& keywordString);
   nsresult FetchRowKeywords(nsMsgViewIndex aRow, nsIMsgDBHdr* aHdr,
                             nsACString& keywordString);
