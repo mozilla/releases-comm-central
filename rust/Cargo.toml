@@ -197,12 +197,12 @@ icu_segmenter_data = { path = "../../intl/icu_segmenter_data" }
 libudev-sys = { path = "../../dom/webauthn/libudev-sys" }
 midir = { git = "https://github.com/mozilla/midir.git", rev = "85156e360a37d851734118104619f86bd18e94c6" }
 malloc_size_of_derive = { path = "../../xpcom/rust/malloc_size_of_derive" }
-interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-relevancy = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-sql-support = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-suggest = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-sync15 = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-tabs = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-viaduct = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
-webext-storage = { git = "https://github.com/mozilla/application-services", rev = "6651984e3b456d99fad0df1deb727b7c2f62ec16" }
+interrupt-support = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+relevancy = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+sql-support = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+suggest = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+sync15 = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+tabs = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+viaduct = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
+webext-storage = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
 gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
