@@ -206,6 +206,7 @@ module.exports = {
         "mail/test/browser/session-store/browser_sessionStore.js",
         "mail/test/browser/shared-modules/ComposeHelpers.sys.mjs",
         "mail/test/browser/shared-modules/ContentTabHelpers.sys.mjs",
+        "mail/test/browser/shared-modules/EventUtils.sys.mjs",
         "mail/test/browser/shared-modules/FolderDisplayHelpers.sys.mjs",
         "mail/test/browser/shared-modules/NNTPHelpers.sys.mjs",
         "mail/test/browser/shared-modules/OpenPGPTestUtils.sys.mjs",
@@ -246,6 +247,7 @@ module.exports = {
         "mailnews/test/fakeserver/Binaryd.sys.mjs",
         "mailnews/test/fakeserver/Imapd.sys.mjs",
         "mailnews/test/fakeserver/Maild.sys.mjs",
+        "mailnews/test/resources/MailTestUtils.sys.mjs",
       ],
       rules: {
         "no-redeclare": ["error", { builtinGlobals: true }],

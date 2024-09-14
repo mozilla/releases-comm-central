@@ -179,19 +179,19 @@ function synthesizeMouseAtPoint(left, top, aEvent, aWindow) {
     var pressure = "pressure" in aEvent ? aEvent.pressure : 0;
 
     // aWindow might be cross-origin from us.
-    var MouseEvent = aWindow.MouseEvent;
+    var WinMouseEvent = aWindow.MouseEvent;
 
     // Default source to mouse.
     var inputSource =
       "inputSource" in aEvent
         ? aEvent.inputSource
-        : MouseEvent.MOZ_SOURCE_MOUSE;
+        : WinMouseEvent.MOZ_SOURCE_MOUSE;
     // Compute a pointerId if needed.
     var id;
     if ("id" in aEvent) {
       id = aEvent.id;
     } else {
-      var isFromPen = inputSource === MouseEvent.MOZ_SOURCE_PEN;
+      var isFromPen = inputSource === WinMouseEvent.MOZ_SOURCE_PEN;
       id = isFromPen
         ? utils.DEFAULT_PEN_POINTER_ID
         : utils.DEFAULT_MOUSE_POINTER_ID;
@@ -372,10 +372,10 @@ export function synthesizeKey(aKey, aEvent, aWindow, aCallback) {
   if (!TIP) {
     return;
   }
-  var KeyboardEvent = _getKeyboardEvent(aWindow);
+  var WinKeyboardEvent = _getKeyboardEvent(aWindow);
   var modifiers = _emulateToActivateModifiers(TIP, aEvent, aWindow);
   var keyEventDict = _createKeyboardEventDictionary(aKey, aEvent, aWindow);
-  var keyEvent = new KeyboardEvent("", keyEventDict.dictionary);
+  var keyEvent = new WinKeyboardEvent("", keyEventDict.dictionary);
   var dispatchKeydown =
     !("type" in aEvent) || aEvent.type === "keydown" || !aEvent.type;
   var dispatchKeyup =
@@ -386,7 +386,10 @@ export function synthesizeKey(aKey, aEvent, aWindow, aCallback) {
       TIP.keydown(keyEvent, keyEventDict.flags);
       if ("repeat" in aEvent && aEvent.repeat > 1) {
         keyEventDict.dictionary.repeat = true;
-        var repeatedKeyEvent = new KeyboardEvent("", keyEventDict.dictionary);
+        var repeatedKeyEvent = new WinKeyboardEvent(
+          "",
+          keyEventDict.dictionary
+        );
         for (var i = 1; i < aEvent.repeat; i++) {
           TIP.keydown(repeatedKeyEvent, keyEventDict.flags);
         }
@@ -526,145 +529,145 @@ function _getKeyboardEvent(aWindow) {
 
 /* eslint-disable complexity */
 function _guessKeyNameFromKeyCode(aKeyCode, aWindow) {
-  var KeyboardEvent = _getKeyboardEvent(aWindow);
+  var WinKeyboardEvent = _getKeyboardEvent(aWindow);
   switch (aKeyCode) {
-    case KeyboardEvent.DOM_VK_CANCEL:
+    case WinKeyboardEvent.DOM_VK_CANCEL:
       return "Cancel";
-    case KeyboardEvent.DOM_VK_HELP:
+    case WinKeyboardEvent.DOM_VK_HELP:
       return "Help";
-    case KeyboardEvent.DOM_VK_BACK_SPACE:
+    case WinKeyboardEvent.DOM_VK_BACK_SPACE:
       return "Backspace";
-    case KeyboardEvent.DOM_VK_TAB:
+    case WinKeyboardEvent.DOM_VK_TAB:
       return "Tab";
-    case KeyboardEvent.DOM_VK_CLEAR:
+    case WinKeyboardEvent.DOM_VK_CLEAR:
       return "Clear";
-    case KeyboardEvent.DOM_VK_RETURN:
+    case WinKeyboardEvent.DOM_VK_RETURN:
       return "Enter";
-    case KeyboardEvent.DOM_VK_SHIFT:
+    case WinKeyboardEvent.DOM_VK_SHIFT:
       return "Shift";
-    case KeyboardEvent.DOM_VK_CONTROL:
+    case WinKeyboardEvent.DOM_VK_CONTROL:
       return "Control";
-    case KeyboardEvent.DOM_VK_ALT:
+    case WinKeyboardEvent.DOM_VK_ALT:
       return "Alt";
-    case KeyboardEvent.DOM_VK_PAUSE:
+    case WinKeyboardEvent.DOM_VK_PAUSE:
       return "Pause";
-    case KeyboardEvent.DOM_VK_EISU:
+    case WinKeyboardEvent.DOM_VK_EISU:
       return "Eisu";
-    case KeyboardEvent.DOM_VK_ESCAPE:
+    case WinKeyboardEvent.DOM_VK_ESCAPE:
       return "Escape";
-    case KeyboardEvent.DOM_VK_CONVERT:
+    case WinKeyboardEvent.DOM_VK_CONVERT:
       return "Convert";
-    case KeyboardEvent.DOM_VK_NONCONVERT:
+    case WinKeyboardEvent.DOM_VK_NONCONVERT:
       return "NonConvert";
-    case KeyboardEvent.DOM_VK_ACCEPT:
+    case WinKeyboardEvent.DOM_VK_ACCEPT:
       return "Accept";
-    case KeyboardEvent.DOM_VK_MODECHANGE:
+    case WinKeyboardEvent.DOM_VK_MODECHANGE:
       return "ModeChange";
-    case KeyboardEvent.DOM_VK_PAGE_UP:
+    case WinKeyboardEvent.DOM_VK_PAGE_UP:
       return "PageUp";
-    case KeyboardEvent.DOM_VK_PAGE_DOWN:
+    case WinKeyboardEvent.DOM_VK_PAGE_DOWN:
       return "PageDown";
-    case KeyboardEvent.DOM_VK_END:
+    case WinKeyboardEvent.DOM_VK_END:
       return "End";
-    case KeyboardEvent.DOM_VK_HOME:
+    case WinKeyboardEvent.DOM_VK_HOME:
       return "Home";
-    case KeyboardEvent.DOM_VK_LEFT:
+    case WinKeyboardEvent.DOM_VK_LEFT:
       return "ArrowLeft";
-    case KeyboardEvent.DOM_VK_UP:
+    case WinKeyboardEvent.DOM_VK_UP:
       return "ArrowUp";
-    case KeyboardEvent.DOM_VK_RIGHT:
+    case WinKeyboardEvent.DOM_VK_RIGHT:
       return "ArrowRight";
-    case KeyboardEvent.DOM_VK_DOWN:
+    case WinKeyboardEvent.DOM_VK_DOWN:
       return "ArrowDown";
-    case KeyboardEvent.DOM_VK_SELECT:
+    case WinKeyboardEvent.DOM_VK_SELECT:
       return "Select";
-    case KeyboardEvent.DOM_VK_PRINT:
+    case WinKeyboardEvent.DOM_VK_PRINT:
       return "Print";
-    case KeyboardEvent.DOM_VK_EXECUTE:
+    case WinKeyboardEvent.DOM_VK_EXECUTE:
       return "Execute";
-    case KeyboardEvent.DOM_VK_PRINTSCREEN:
+    case WinKeyboardEvent.DOM_VK_PRINTSCREEN:
       return "PrintScreen";
-    case KeyboardEvent.DOM_VK_INSERT:
+    case WinKeyboardEvent.DOM_VK_INSERT:
       return "Insert";
-    case KeyboardEvent.DOM_VK_DELETE:
+    case WinKeyboardEvent.DOM_VK_DELETE:
       return "Delete";
-    case KeyboardEvent.DOM_VK_WIN:
+    case WinKeyboardEvent.DOM_VK_WIN:
       return "OS";
-    case KeyboardEvent.DOM_VK_CONTEXT_MENU:
+    case WinKeyboardEvent.DOM_VK_CONTEXT_MENU:
       return "ContextMenu";
-    case KeyboardEvent.DOM_VK_SLEEP:
+    case WinKeyboardEvent.DOM_VK_SLEEP:
       return "Standby";
-    case KeyboardEvent.DOM_VK_F1:
+    case WinKeyboardEvent.DOM_VK_F1:
       return "F1";
-    case KeyboardEvent.DOM_VK_F2:
+    case WinKeyboardEvent.DOM_VK_F2:
       return "F2";
-    case KeyboardEvent.DOM_VK_F3:
+    case WinKeyboardEvent.DOM_VK_F3:
       return "F3";
-    case KeyboardEvent.DOM_VK_F4:
+    case WinKeyboardEvent.DOM_VK_F4:
       return "F4";
-    case KeyboardEvent.DOM_VK_F5:
+    case WinKeyboardEvent.DOM_VK_F5:
       return "F5";
-    case KeyboardEvent.DOM_VK_F6:
+    case WinKeyboardEvent.DOM_VK_F6:
       return "F6";
-    case KeyboardEvent.DOM_VK_F7:
+    case WinKeyboardEvent.DOM_VK_F7:
       return "F7";
-    case KeyboardEvent.DOM_VK_F8:
+    case WinKeyboardEvent.DOM_VK_F8:
       return "F8";
-    case KeyboardEvent.DOM_VK_F9:
+    case WinKeyboardEvent.DOM_VK_F9:
       return "F9";
-    case KeyboardEvent.DOM_VK_F10:
+    case WinKeyboardEvent.DOM_VK_F10:
       return "F10";
-    case KeyboardEvent.DOM_VK_F11:
+    case WinKeyboardEvent.DOM_VK_F11:
       return "F11";
-    case KeyboardEvent.DOM_VK_F12:
+    case WinKeyboardEvent.DOM_VK_F12:
       return "F12";
-    case KeyboardEvent.DOM_VK_F13:
+    case WinKeyboardEvent.DOM_VK_F13:
       return "F13";
-    case KeyboardEvent.DOM_VK_F14:
+    case WinKeyboardEvent.DOM_VK_F14:
       return "F14";
-    case KeyboardEvent.DOM_VK_F15:
+    case WinKeyboardEvent.DOM_VK_F15:
       return "F15";
-    case KeyboardEvent.DOM_VK_F16:
+    case WinKeyboardEvent.DOM_VK_F16:
       return "F16";
-    case KeyboardEvent.DOM_VK_F17:
+    case WinKeyboardEvent.DOM_VK_F17:
       return "F17";
-    case KeyboardEvent.DOM_VK_F18:
+    case WinKeyboardEvent.DOM_VK_F18:
       return "F18";
-    case KeyboardEvent.DOM_VK_F19:
+    case WinKeyboardEvent.DOM_VK_F19:
       return "F19";
-    case KeyboardEvent.DOM_VK_F20:
+    case WinKeyboardEvent.DOM_VK_F20:
       return "F20";
-    case KeyboardEvent.DOM_VK_F21:
+    case WinKeyboardEvent.DOM_VK_F21:
       return "F21";
-    case KeyboardEvent.DOM_VK_F22:
+    case WinKeyboardEvent.DOM_VK_F22:
       return "F22";
-    case KeyboardEvent.DOM_VK_F23:
+    case WinKeyboardEvent.DOM_VK_F23:
       return "F23";
-    case KeyboardEvent.DOM_VK_F24:
+    case WinKeyboardEvent.DOM_VK_F24:
       return "F24";
-    case KeyboardEvent.DOM_VK_NUM_LOCK:
+    case WinKeyboardEvent.DOM_VK_NUM_LOCK:
       return "NumLock";
-    case KeyboardEvent.DOM_VK_SCROLL_LOCK:
+    case WinKeyboardEvent.DOM_VK_SCROLL_LOCK:
       return "ScrollLock";
-    case KeyboardEvent.DOM_VK_VOLUME_MUTE:
+    case WinKeyboardEvent.DOM_VK_VOLUME_MUTE:
       return "AudioVolumeMute";
-    case KeyboardEvent.DOM_VK_VOLUME_DOWN:
+    case WinKeyboardEvent.DOM_VK_VOLUME_DOWN:
       return "AudioVolumeDown";
-    case KeyboardEvent.DOM_VK_VOLUME_UP:
+    case WinKeyboardEvent.DOM_VK_VOLUME_UP:
       return "AudioVolumeUp";
-    case KeyboardEvent.DOM_VK_META:
+    case WinKeyboardEvent.DOM_VK_META:
       return "Meta";
-    case KeyboardEvent.DOM_VK_ALTGR:
+    case WinKeyboardEvent.DOM_VK_ALTGR:
       return "AltGraph";
-    case KeyboardEvent.DOM_VK_ATTN:
+    case WinKeyboardEvent.DOM_VK_ATTN:
       return "Attn";
-    case KeyboardEvent.DOM_VK_CRSEL:
+    case WinKeyboardEvent.DOM_VK_CRSEL:
       return "CrSel";
-    case KeyboardEvent.DOM_VK_EXSEL:
+    case WinKeyboardEvent.DOM_VK_EXSEL:
       return "ExSel";
-    case KeyboardEvent.DOM_VK_EREOF:
+    case WinKeyboardEvent.DOM_VK_EREOF:
       return "EraseEof";
-    case KeyboardEvent.DOM_VK_PLAY:
+    case WinKeyboardEvent.DOM_VK_PLAY:
       return "Play";
     default:
       return "Unidentified";
@@ -718,7 +721,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
   if (!aKeyEvent) {
     return null;
   }
-  var KeyboardEvent = _getKeyboardEvent(aWindow);
+  var WinKeyboardEvent = _getKeyboardEvent(aWindow);
 
   var modifiers = {
     normal: [
@@ -751,7 +754,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
     if (aTIP.getModifierState(modifiers.normal[i].key)) {
       continue; // already activated.
     }
-    const event = new KeyboardEvent("", { key: modifiers.normal[i].key });
+    const event = new WinKeyboardEvent("", { key: modifiers.normal[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -765,7 +768,7 @@ function _emulateToActivateModifiers(aTIP, aKeyEvent, aWindow) {
     if (aTIP.getModifierState(modifiers.lockable[i].key)) {
       continue; // already activated.
     }
-    const event = new KeyboardEvent("", { key: modifiers.lockable[i].key });
+    const event = new WinKeyboardEvent("", { key: modifiers.lockable[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -783,12 +786,12 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
   if (!aModifiers) {
     return;
   }
-  var KeyboardEvent = _getKeyboardEvent(aWindow);
+  var WinKeyboardEvent = _getKeyboardEvent(aWindow);
   for (let i = 0; i < aModifiers.normal.length; i++) {
     if (!aModifiers.normal[i].activated) {
       continue;
     }
-    const event = new KeyboardEvent("", { key: aModifiers.normal[i].key });
+    const event = new WinKeyboardEvent("", { key: aModifiers.normal[i].key });
     aTIP.keyup(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -801,7 +804,7 @@ function _emulateToInactivateModifiers(aTIP, aModifiers, aWindow) {
     if (!aTIP.getModifierState(aModifiers.lockable[i].key)) {
       continue; // who already inactivated this?
     }
-    const event = new KeyboardEvent("", { key: aModifiers.lockable[i].key });
+    const event = new WinKeyboardEvent("", { key: aModifiers.lockable[i].key });
     aTIP.keydown(
       event,
       aTIP.KEY_NON_PRINTABLE_KEY | aTIP.KEY_DONT_DISPATCH_MODIFIER_KEY_EVENT
@@ -818,75 +821,75 @@ function _computeKeyCodeFromChar(aChar, aWindow) {
   if (aChar.length != 1) {
     return 0;
   }
-  var KeyEvent = _getKeyboardEvent(aWindow);
+  var WinKeyEvent = _getKeyboardEvent(aWindow);
   if (aChar >= "a" && aChar <= "z") {
-    return KeyEvent.DOM_VK_A + aChar.charCodeAt(0) - "a".charCodeAt(0);
+    return WinKeyEvent.DOM_VK_A + aChar.charCodeAt(0) - "a".charCodeAt(0);
   }
   if (aChar >= "A" && aChar <= "Z") {
-    return KeyEvent.DOM_VK_A + aChar.charCodeAt(0) - "A".charCodeAt(0);
+    return WinKeyEvent.DOM_VK_A + aChar.charCodeAt(0) - "A".charCodeAt(0);
   }
   if (aChar >= "0" && aChar <= "9") {
-    return KeyEvent.DOM_VK_0 + aChar.charCodeAt(0) - "0".charCodeAt(0);
+    return WinKeyEvent.DOM_VK_0 + aChar.charCodeAt(0) - "0".charCodeAt(0);
   }
   // returns US keyboard layout's keycode
   switch (aChar) {
     case "~":
     case "`":
-      return KeyEvent.DOM_VK_BACK_QUOTE;
+      return WinKeyEvent.DOM_VK_BACK_QUOTE;
     case "!":
-      return KeyEvent.DOM_VK_1;
+      return WinKeyEvent.DOM_VK_1;
     case "@":
-      return KeyEvent.DOM_VK_2;
+      return WinKeyEvent.DOM_VK_2;
     case "#":
-      return KeyEvent.DOM_VK_3;
+      return WinKeyEvent.DOM_VK_3;
     case "$":
-      return KeyEvent.DOM_VK_4;
+      return WinKeyEvent.DOM_VK_4;
     case "%":
-      return KeyEvent.DOM_VK_5;
+      return WinKeyEvent.DOM_VK_5;
     case "^":
-      return KeyEvent.DOM_VK_6;
+      return WinKeyEvent.DOM_VK_6;
     case "&":
-      return KeyEvent.DOM_VK_7;
+      return WinKeyEvent.DOM_VK_7;
     case "*":
-      return KeyEvent.DOM_VK_8;
+      return WinKeyEvent.DOM_VK_8;
     case "(":
-      return KeyEvent.DOM_VK_9;
+      return WinKeyEvent.DOM_VK_9;
     case ")":
-      return KeyEvent.DOM_VK_0;
+      return WinKeyEvent.DOM_VK_0;
     case "-":
     case "_":
-      return KeyEvent.DOM_VK_SUBTRACT;
+      return WinKeyEvent.DOM_VK_SUBTRACT;
     case "+":
     case "=":
-      return KeyEvent.DOM_VK_EQUALS;
+      return WinKeyEvent.DOM_VK_EQUALS;
     case "{":
     case "[":
-      return KeyEvent.DOM_VK_OPEN_BRACKET;
+      return WinKeyEvent.DOM_VK_OPEN_BRACKET;
     case "}":
     case "]":
-      return KeyEvent.DOM_VK_CLOSE_BRACKET;
+      return WinKeyEvent.DOM_VK_CLOSE_BRACKET;
     case "|":
     case "\\":
-      return KeyEvent.DOM_VK_BACK_SLASH;
+      return WinKeyEvent.DOM_VK_BACK_SLASH;
     case ":":
     case ";":
-      return KeyEvent.DOM_VK_SEMICOLON;
+      return WinKeyEvent.DOM_VK_SEMICOLON;
     case "'":
     case '"':
-      return KeyEvent.DOM_VK_QUOTE;
+      return WinKeyEvent.DOM_VK_QUOTE;
     case "<":
     case ",":
-      return KeyEvent.DOM_VK_COMMA;
+      return WinKeyEvent.DOM_VK_COMMA;
     case ">":
     case ".":
-      return KeyEvent.DOM_VK_PERIOD;
+      return WinKeyEvent.DOM_VK_PERIOD;
     case "?":
     case "/":
-      return KeyEvent.DOM_VK_SLASH;
+      return WinKeyEvent.DOM_VK_SLASH;
     case "\n":
-      return KeyEvent.DOM_VK_RETURN;
+      return WinKeyEvent.DOM_VK_RETURN;
     case " ":
-      return KeyEvent.DOM_VK_SPACE;
+      return WinKeyEvent.DOM_VK_SPACE;
     default:
       return 0;
   }
