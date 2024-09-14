@@ -362,9 +362,13 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
   // messages, hence this hoop-jumping.
   int32_t oldNotNewCount = 0;
   RefPtr<nsImapMoveCoalescer> oldCoalescer;
+  mozilla::UniquePtr<nsTHashMap<nsCStringHashKey, int32_t>>
+      oldFilterTargetFoldersMsgMovedCount;
   if (m_newMailParser) {
     oldNotNewCount = m_newMailParser->m_numNotNewMessages;
     oldCoalescer = m_newMailParser->m_moveCoalescer;
+    oldFilterTargetFoldersMsgMovedCount.swap(
+        m_newMailParser->m_filterTargetFoldersMsgMovedCount);
     m_newMailParser->m_moveCoalescer = nullptr;
     m_newMailParser = nullptr;
   }
@@ -375,6 +379,8 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, uint32_t flags) {
                              m_outFileStream);
   m_newMailParser->m_numNotNewMessages = oldNotNewCount;
   m_newMailParser->m_moveCoalescer = oldCoalescer;
+  m_newMailParser->m_filterTargetFoldersMsgMovedCount.swap(
+      oldFilterTargetFoldersMsgMovedCount);
 
   if (m_uidlDownload) m_newMailParser->DisableFilters();
 

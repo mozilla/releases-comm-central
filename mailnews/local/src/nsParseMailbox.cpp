@@ -1667,6 +1667,11 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
             // If we're moving to an imap folder, or this message has already
             // has a pending copy action, use the imap coalescer so that
             // we won't truncate the inbox before the copy fires.
+
+            // For pop3 and when mail moved to target folder by filter, if
+            // condition is false and else block is executed. So we don't have
+            // imap move coalescer, have to keep track of moved messages and
+            // target folders using m_filterTargetFoldersMsgMovedCount Map.
             if (m_msgCopiedByFilter ||
                 StringBeginsWith(actionTargetFolderUri, "imap:"_ns)) {
               if (!m_moveCoalescer)
@@ -1677,6 +1682,9 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               msgIsNew = false;
               if (NS_FAILED(rv)) break;
             } else {
+              uint32_t old_flags;
+              msgHdr->GetFlags(&old_flags);
+
               nsCOMPtr<nsIMsgPluggableStore> msgStore;
               rv = m_downloadFolder->GetMsgStore(getter_AddRefs(msgStore));
               if (NS_SUCCEEDED(rv))
@@ -1686,6 +1694,25 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
                 rv = MoveIncorporatedMessage(msgHdr, m_mailDB, destIFolder,
                                              filter, msgWindow);
               m_msgMovedByFilter = NS_SUCCEEDED(rv);
+
+              if (m_msgMovedByFilter &&
+                  !(old_flags & nsMsgMessageFlags::Read)) {
+                // Setting msgIsNew to false will execute the block at the end
+                // that decreases inbox's NumNewMessages.
+                msgIsNew = false;
+
+                if (!m_filterTargetFoldersMsgMovedCount) {
+                  m_filterTargetFoldersMsgMovedCount = mozilla::MakeUnique<
+                      nsTHashMap<nsCStringHashKey, int32_t>>();
+                }
+                int32_t targetFolderMsgMovedCount =
+                    m_filterTargetFoldersMsgMovedCount->Get(
+                        actionTargetFolderUri);
+                targetFolderMsgMovedCount++;
+                m_filterTargetFoldersMsgMovedCount->InsertOrUpdate(
+                    actionTargetFolderUri, targetFolderMsgMovedCount);
+              }
+
               if (!m_msgMovedByFilter /* == NS_FAILED(err) */) {
                 // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
                 if (loggingEnabled) {
@@ -2023,6 +2050,37 @@ nsresult nsParseNewMailState::EndMsgDownload() {
         }
       }
     }
+  }
+  // means there are filter moved mail that moveCoalescer didn't handle, we need
+  // to do it from m_filterTargetFoldersMsgMovedCount.
+  if (m_filterTargetFoldersMsgMovedCount) {
+    for (const auto& entry : *m_filterTargetFoldersMsgMovedCount) {
+      nsCOMPtr<nsIMsgFolder> targetIFolder;
+      rv = GetExistingFolder(entry.GetKey(), getter_AddRefs(targetIFolder));
+      if (NS_FAILED(rv)) {
+        continue;
+      }
+      uint32_t destFlags;
+      targetIFolder->GetFlags(&destFlags);
+      if (!(destFlags &
+            nsMsgFolderFlags::Junk))  // don't set has new on junk folder
+      {
+        int32_t filterFolderNumNewMessages;
+        int32_t filterFolderNumNewMovedMessages = entry.GetData();
+
+        targetIFolder->GetNumNewMessages(false, &filterFolderNumNewMessages);
+        filterFolderNumNewMessages += filterFolderNumNewMovedMessages;
+        targetIFolder->SetNumNewMessages(filterFolderNumNewMessages);
+
+        if (filterFolderNumNewMessages > 0) {
+          targetIFolder->SetHasNewMessages(true);
+          targetIFolder->SetBiffState(nsIMsgFolder::nsMsgBiffState_NewMail);
+        }
+      }
+    }
+
+    m_filterTargetFoldersMsgMovedCount->Clear();
+    m_filterTargetFoldersMsgMovedCount = nullptr;
   }
   m_filterTargetFolders.Clear();
   return rv;

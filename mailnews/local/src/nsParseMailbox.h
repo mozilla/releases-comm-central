@@ -23,6 +23,8 @@
 #include "nsIMsgFilter.h"
 #include "nsIMsgFilterHitNotify.h"
 #include "nsTArray.h"
+#include "nsTHashMap.h"
+#include "mozilla/UniquePtr.h"
 
 class nsOutputFileStream;
 class nsIMsgFolder;
@@ -211,7 +213,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
   virtual void OnNewMessage(nsIMsgWindow* msgWindow) override;
 
-  // These two vars are public because they need to be carried between
+  // These three vars are public because they need to be carried between
   // messages.
 
   // this keeps track of how many messages we downloaded that
@@ -219,6 +221,8 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   int32_t m_numNotNewMessages;
   // Filter-initiated moves are collected to run all at once.
   RefPtr<nsImapMoveCoalescer> m_moveCoalescer;
+  mozilla::UniquePtr<nsTHashMap<nsCStringHashKey, int32_t>>
+      m_filterTargetFoldersMsgMovedCount;
 
  protected:
   virtual ~nsParseNewMailState();
