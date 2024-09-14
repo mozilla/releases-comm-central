@@ -971,7 +971,7 @@ function updateButtons() {
  *  be defined (the root folder except for news) if the server can
  *  accept filters.
  *
- * @param   nsIMsgFolder aFolder - selected folder, from window args
+ * @param   nsIMsgFolder aFolder - selected folder, from window args.
  * @returns an nsIMsgFolder where the filter is defined
  */
 function getFilterFolderForSelection(aFolder) {
