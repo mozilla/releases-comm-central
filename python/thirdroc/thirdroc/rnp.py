@@ -51,9 +51,7 @@ def rnp_version_defines(version_file, thunderbird_version, crypto_backend):
 def main():
     HERE = os.path.dirname(__file__)
     TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))
-    RNPLIB = os.path.join(
-        TOPSRCDIR, "comm/mail/extensions/openpgp/content/modules/RNPLib.sys.mjs"
-    )
+    RNPLIB = os.path.join(TOPSRCDIR, "comm/mail/extensions/openpgp/content/modules/RNPLib.sys.mjs")
     RNPVERSION = os.path.join(TOPSRCDIR, "comm/third_party/rnp/version.txt")
 
     _, version = rnp_version(RNPVERSION)
@@ -61,7 +59,9 @@ def main():
     with fileinput.input(files=(RNPLIB,), inplace=True) as f:
         for line in f:
             if line.startswith("const MIN_RNP_VERSION ="):
-                line = f"const MIN_RNP_VERSION = [{version.major}, {version.minor}, {version.micro}];"
+                line = (
+                    f"const MIN_RNP_VERSION = [{version.major}, {version.minor}, {version.micro}];"
+                )
             print(line.rstrip())
 
 
