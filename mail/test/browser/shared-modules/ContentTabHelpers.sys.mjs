@@ -8,7 +8,7 @@ import * as wh from "resource://testing-common/mail/WindowHelpers.sys.mjs";
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
-import { EventUtils } from "resource://testing-common/EventUtils.sys.mjs";
+import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
 
 var FAST_TIMEOUT = 1000;
 var FAST_INTERVAL = 100;
