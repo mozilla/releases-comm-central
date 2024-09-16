@@ -16,8 +16,8 @@ harness = false
 [dependencies]
 mozilla-central-workspace-hack = { version = "0.1", features = ['gkrust'], optional = true }
 gkrust-shared = { version = "0.1.0", path = "../../../toolkit/library/rust/shared" }
-sys_tray = { version = "0.1.0", path = "../sys_tray" }
 ews_xpcom = { version = "0.1.0", path = "../ews_xpcom" }
+sys_tray = { version = "0.1.0", path = "../sys_tray" }
 aa-stroke = { git = "https://github.com/FirefoxGraphics/aa-stroke", rev = "d94278ed9c7020f50232689a26d1277eb0eb74d2" }
 app_services_logger = { path = "../../../services/common/app_services_logger" }
 audio_thread_priority = { version = "0.32" }
@@ -33,7 +33,7 @@ cert_storage = { path = "../../../security/manager/ssl/cert_storage" }
 chardetng_c = { version = "0.1.1" }
 cose-c = { version = "0.1.5" }
 crypto_hash = { path = "../../../security/manager/ssl/crypto_hash" }
-cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "f7e50c2166f4564cad6966b629f06c6f75391a6f", optional = true }
+cubeb-coreaudio = { git = "https://github.com/mozilla/cubeb-coreaudio-rs", rev = "2407441a2f67341a0e13b4ba6547555e387c671c", optional = true }
 cubeb-pulse = { git = "https://github.com/mozilla/cubeb-pulse-rs", rev = "8678dcab1c287de79c4c184ccc2e065bc62b70e2", optional = true, features = ['pulse-dlopen'] }
 cubeb-sys = { version = "0.13", optional = true, features = ['gecko-in-tree'] }
 dap_ffi = { path = "../../../toolkit/components/telemetry/dap/ffi" }
@@ -97,16 +97,6 @@ unic-langid = { version = "0.9", features = ['likelysubtags'] }
 unic-langid-ffi = { path = "../../../intl/locale/rust/unic-langid-ffi" }
 unicode-bidi = { version = "0.3.15" }
 unicode-bidi-ffi = { path = "../../../intl/bidi/rust/unicode-bidi-ffi" }
-uniffi = { workspace = true }
-uniffi-example-arithmetic = { path = "../../../toolkit/components/uniffi-fixtures/arithmetic", optional = true }
-uniffi-example-custom-types = { path = "../../../toolkit/components/uniffi-fixtures/custom-types", optional = true }
-uniffi-example-geometry = { path = "../../../toolkit/components/uniffi-fixtures/geometry", optional = true }
-uniffi-example-rondpoint = { path = "../../../toolkit/components/uniffi-fixtures/rondpoint", optional = true }
-uniffi-example-sprites = { path = "../../../toolkit/components/uniffi-fixtures/sprites", optional = true }
-uniffi-example-todolist = { path = "../../../toolkit/components/uniffi-fixtures/todolist", optional = true }
-uniffi-fixture-callbacks = { path = "../../../toolkit/components/uniffi-fixtures/callbacks", optional = true }
-uniffi-fixture-external-types = { path = "../../../toolkit/components/uniffi-fixtures/external-types", optional = true }
-uniffi-fixture-refcounts = { path = "../../../toolkit/components/uniffi-fixtures/refcounts", optional = true }
 url = { version = "2.5.0" }
 webrender_bindings = { path = "../../../gfx/webrender_bindings" }
 wgpu_bindings = { path = "../../../gfx/wgpu_bindings" }
