@@ -66,6 +66,24 @@ add_task(function test_headingValue() {
   subtestTextValue("heading");
 });
 
+add_task(function test_dataIdValue() {
+  const element = container.shadowRoot.querySelector("a");
+
+  Assert.equal(element.href, "", "url is null");
+
+  container.dataset.id = "notification-1";
+
+  Assert.equal(element.dataset.id, "notification-1", "id is set");
+
+  container.dataset.id = "notification-2";
+
+  Assert.equal(element.dataset.id, "notification-2", "id is updated");
+
+  delete container.dataset.id;
+
+  Assert.equal(element.dataset.id, "null", "id is cleared");
+});
+
 add_task(async function test_urlValue() {
   const element = container.shadowRoot.querySelector("a");
 

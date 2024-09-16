@@ -16,10 +16,23 @@ class InAppNotificationCloseButton extends HTMLButtonElement {
         .content.cloneNode(true);
 
       this.append(template);
+
+      this.addEventListener("click", this);
     }
 
     window.MozXULElement?.insertFTLIfNeeded("messenger/inAppNotifications.ftl");
     document.l10n.connectRoot(this);
+  }
+
+  handleEvent(event) {
+    const newEvent = new MouseEvent("notificationclose", event);
+    newEvent.notificationId = this.dataset.id;
+
+    switch (event.type) {
+      case "click":
+        this.dispatchEvent(newEvent);
+        break;
+    }
   }
 
   disconnectedCallback() {

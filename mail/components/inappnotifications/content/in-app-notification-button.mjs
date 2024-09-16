@@ -23,13 +23,16 @@ class InAppNotificationButton extends HTMLAnchorElement {
   }
 
   handleEvent(event) {
+    const newEvent = new MouseEvent("ctaclick", event);
+    newEvent.notificationId = this.dataset.id;
+
     switch (event.type) {
       case "click":
         // Prevent link being handled with link click handling.
         event.preventDefault();
         event.stopPropagation();
         // Because we had to suppress the original event, send our own.
-        this.dispatchEvent(new MouseEvent("ctaclick", event));
+        this.dispatchEvent(newEvent);
         break;
     }
   }

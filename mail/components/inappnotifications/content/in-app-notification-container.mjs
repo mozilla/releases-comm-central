@@ -5,7 +5,7 @@
 import "./in-app-notification-button.mjs"; //eslint-disable-line import/no-unassigned-import
 import "./in-app-notification-close-button.mjs"; //eslint-disable-line import/no-unassigned-import
 
-const attrs = ["cta", "description", "heading", "url"];
+const attrs = ["cta", "description", "heading", "url", "data-id"];
 
 /**
  * Container for in app notifications.
@@ -46,10 +46,21 @@ class InAppNotificationContainer extends HTMLElement {
             .removeAttribute("href");
         }
         break;
-      default:
+      case "cta":
+      case "description":
+      case "heading":
         this.shadowRoot.querySelector(
           `.in-app-notification-${property}`
         ).textContent = value;
+        break;
+      case "data-id":
+        this.shadowRoot.querySelector(
+          '[is="in-app-notification-button"]'
+        ).dataset.id = value;
+        this.shadowRoot.querySelector(
+          '[is="in-app-notification-close-button"]'
+        ).dataset.id = value;
+        break;
     }
   }
 }

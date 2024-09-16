@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//TODO Should be enabled once element is implemented.
-// import { InAppNotification } from "./in-app-notification.mjs";
+import "./in-app-notification.mjs"; //eslint-disable-line import/no-unassigned-import
 
 const lazy = {};
 
@@ -75,9 +74,7 @@ class InAppNotificationManager extends HTMLElement {
   #showNotification(notification) {
     const notificationElement = document.createElement("in-app-notification");
 
-    //TODO Unconditionally expect this to be a method once in-app-notification
-    // element is implemented. Not commented out so |notification| is used.
-    notificationElement.setNotificationData?.(notification);
+    notificationElement.setNotificationData(notification);
 
     if (this.#activeNotification) {
       this.#activeNotification.replaceWith(notificationElement);

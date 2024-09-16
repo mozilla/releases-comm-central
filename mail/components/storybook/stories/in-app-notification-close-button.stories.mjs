@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
+import { action } from "@storybook/addon-actions";
 import "mail/components/inappnotifications/content/in-app-notification-close-button.mjs"; //eslint-disable-line import/no-unassigned-import
 
 export default {
@@ -15,7 +16,10 @@ const template = () => html`
   <template id="inAppNotificationCloseButtonTemplate">
     <img src="" data-l10n-id="in-app-notification-close-image" />
   </template>
-  <button is="in-app-notification-close-button"></button>
+  <button
+    is="in-app-notification-close-button"
+    @notificationclose="${action("notificationclose")}"
+  ></button>
 `;
 
 export const InAppNotificationCloseButton = template.bind({});
