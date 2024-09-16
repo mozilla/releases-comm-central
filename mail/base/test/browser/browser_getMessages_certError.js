@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// It seems wrong to split this into separate files to avoid a timeout,
+// because the majority of this file is shared code that is called
+// multiple times for various scenarios.
+requestLongerTimeout(2);
+
 /**
  * Tests that fetching mail from a server with an invalid certificate shows a
  * notification, that clicking the notification opens the certificate error
