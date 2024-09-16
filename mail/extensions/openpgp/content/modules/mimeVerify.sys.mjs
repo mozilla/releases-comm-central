@@ -563,7 +563,6 @@ MimeVerify.prototype = {
           this.returnStatus.statusFlags |= EnigmailConstants.PARTIALLY_PGP;
         }
 
-        const mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
         this.displayStatus(mimeSvc.mailChannel?.openpgpSink);
       }
     }

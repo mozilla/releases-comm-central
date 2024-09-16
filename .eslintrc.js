@@ -248,6 +248,11 @@ module.exports = {
         "mailnews/test/fakeserver/Imapd.sys.mjs",
         "mailnews/test/fakeserver/Maild.sys.mjs",
         "mailnews/test/resources/MailTestUtils.sys.mjs",
+        "mail/extensions/am-e2e/am-e2e.js",
+        "mail/extensions/openpgp/content/modules/armor.sys.mjs",
+        "mail/extensions/openpgp/content/modules/filters.sys.mjs",
+        "mail/extensions/openpgp/content/modules/mimeVerify.sys.mjs",
+        "mail/extensions/openpgp/content/ui/keyDetailsDlg.js",
       ],
       rules: {
         "no-redeclare": ["error", { builtinGlobals: true }],

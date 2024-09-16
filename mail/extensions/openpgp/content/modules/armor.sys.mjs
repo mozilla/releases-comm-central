@@ -195,8 +195,8 @@ export var EnigmailArmor = {
   },
 
   extractSignaturePart(signatureBlock, part) {
-    return searchBlankLine(signatureBlock, function (offset) {
-      return indexOfNewline(signatureBlock, offset + 1, function (offset) {
+    return searchBlankLine(signatureBlock, function (offsetOuter) {
+      return indexOfNewline(signatureBlock, offsetOuter + 1, function (offset) {
         var beginIndex = signatureBlock.indexOf(
           "-----BEGIN PGP SIGNATURE-----",
           offset + 1
@@ -213,36 +213,43 @@ export var EnigmailArmor = {
             .replace(/\r- -/g, "\r-");
         }
 
-        return indexOfNewline(signatureBlock, beginIndex, function (offset) {
-          var endIndex = signatureBlock.indexOf(
-            "-----END PGP SIGNATURE-----",
-            offset
-          );
-          if (endIndex == -1) {
-            return "";
-          }
-
-          var signBlock = signatureBlock.substr(offset, endIndex - offset);
-
-          return searchBlankLine(signBlock, function (armorIndex) {
-            if (part == lazy.EnigmailConstants.SIGNATURE_HEADERS) {
-              return signBlock.substr(1, armorIndex);
+        return indexOfNewline(
+          signatureBlock,
+          beginIndex,
+          function (offsetInner) {
+            var endIndex = signatureBlock.indexOf(
+              "-----END PGP SIGNATURE-----",
+              offsetInner
+            );
+            if (endIndex == -1) {
+              return "";
             }
 
-            return indexOfNewline(
-              signBlock,
-              armorIndex + 1,
-              function (armorIndex) {
-                if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {
-                  return signBlock
-                    .substr(armorIndex, endIndex - armorIndex)
-                    .replace(/\s*/g, "");
-                }
-                return "";
-              }
+            var signBlock = signatureBlock.substr(
+              offsetInner,
+              endIndex - offsetInner
             );
-          });
-        });
+
+            return searchBlankLine(signBlock, function (armorIndexOuter) {
+              if (part == lazy.EnigmailConstants.SIGNATURE_HEADERS) {
+                return signBlock.substr(1, armorIndexOuter);
+              }
+
+              return indexOfNewline(
+                signBlock,
+                armorIndexOuter + 1,
+                function (armorIndex) {
+                  if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {
+                    return signBlock
+                      .substr(armorIndex, endIndex - armorIndex)
+                      .replace(/\s*/g, "");
+                  }
+                  return "";
+                }
+              );
+            });
+          }
+        );
       });
     });
   },

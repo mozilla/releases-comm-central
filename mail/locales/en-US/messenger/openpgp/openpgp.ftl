@@ -521,9 +521,6 @@ converter-decrypt-body-failed =
 ## Strings filters.sys.mjs
 
 filter-folder-required = You must select a target folder.
-filter-decrypt-move-warn-experimental =
-    Warning - the filter action “Decrypt permanently” may lead to destroyed messages.
-    We strongly recommend that you first try the “Create decrypted Copy” filter, test the result carefully, and only start using this filter once you are satisfied with the result.
 filter-term-pgpencrypted-label = OpenPGP Encrypted
 filter-key-required = You must select a recipient key.
 # Variables:

@@ -187,13 +187,10 @@ async function loadPassphraseProtection() {
     );
     subKey.setAllowPromptingUserForPassword(false);
     subKey.setAllowAutoUnlockWithCachedPasswords(false);
-    const isSecretForPrimaryAvailable = subKey.available();
-    let canUnlockSecretForPrimary = false;
-    if (isSecretForPrimaryAvailable) {
+    if (subKey.available()) {
       ++countSubkeysWithSecretAvailable;
       await subKey.unlock();
-      canUnlockSecretForPrimary = subKey.isUnlocked();
-      if (canUnlockSecretForPrimary) {
+      if (subKey.isUnlocked()) {
         countSubkeysCanAutoUnlock++;
       }
       gPrivateKeyTrackers.push(subKey);

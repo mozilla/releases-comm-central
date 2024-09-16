@@ -57,9 +57,12 @@ const filterActionMoveDecrypt = {
   },
 
   validateActionValue(value) {
-    l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
-      Services.prompt.alert(null, null, value);
-    });
+    // This code used to show the following warning text to the user:
+    //   Warning - the filter action “Decrypt permanently” may lead
+    //   to destroyed messages. We strongly recommend that you first try
+    //   the “Create decrypted Copy” filter, test the result carefully,
+    //   and only start using this filter once you are satisfied with
+    //   the result.
 
     if (value === "") {
       return l10n.formatValueSync("filter-folder-required");
@@ -187,8 +190,8 @@ const filterActionEncrypt = {
         .formatValue("filter-warn-key-not-secret", {
           desc: value,
         })
-        .then(value => {
-          Services.prompt.alert(null, null, value);
+        .then(value2 => {
+          Services.prompt.alert(null, null, value2);
         });
     }
     return null;
