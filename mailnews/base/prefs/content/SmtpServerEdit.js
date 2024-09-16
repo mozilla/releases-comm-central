@@ -136,6 +136,12 @@ function setLabelFromStringBundle(elementID, stringName) {
     .getString(stringName);
 }
 
+function onAuthMethodPopupShowing() {
+  // Hide/unhide OAuth2 option depending on if it's usable or not.
+  const details = OAuth2Providers.getHostnameDetails(gSmtpHostname.value);
+  document.getElementById("authMethod-oauth2").hidden = !details;
+}
+
 // Disables xul elements that have associated preferences locked.
 function onLockPreference() {
   try {

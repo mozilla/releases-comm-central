@@ -169,7 +169,10 @@
                   preftype="int"
                   prefstring="mail.smtpserver.%serverkey%.authMethod"
                 >
-                  <menupopup id="smtp.authMethodPopup">
+                  <menupopup
+                    id="smtp.authMethodPopup"
+                    onpopupshowing="onAuthMethodPopupShowing();"
+                  >
                     <menuitem id="authMethod-no" value="1" />
                     <menuitem id="authMethod-password-cleartext" value="3" />
                     <menuitem id="authMethod-password-encrypted" value="4" />
