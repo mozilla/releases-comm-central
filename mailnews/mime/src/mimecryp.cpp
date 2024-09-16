@@ -39,7 +39,7 @@ static int MimeEncrypted_parse_end(MimeObject*, bool);
 static int MimeEncrypted_add_child(MimeObject*, MimeObject*);
 
 static int MimeHandleDecryptedOutput(const char*, int32_t, void*);
-static int MimeHandleDecryptedOutputLine(char*, int32_t, MimeObject*);
+static int MimeHandleDecryptedOutputLine(const char*, int32_t, MimeObject*);
 static int MimeEncrypted_close_headers(MimeObject*);
 static int MimeEncrypted_emit_buffered_child(MimeObject*);
 
@@ -264,14 +264,11 @@ static int MimeHandleDecryptedOutput(const char* buf, int32_t buf_size,
 
   /* Is it truly safe to use ibuffer here?  I think so... */
   return mime_LineBuffer(buf, buf_size, &obj->ibuffer, &obj->ibuffer_size,
-                         &obj->ibuffer_fp, true,
-                         ((int (*)(char*, int32_t, void*))
-                          /* This cast is to turn void into MimeObject */
-                          MimeHandleDecryptedOutputLine),
+                         &obj->ibuffer_fp, true, MimeHandleDecryptedOutputLine,
                          obj);
 }
 
-static int MimeHandleDecryptedOutputLine(char* line, int32_t length,
+static int MimeHandleDecryptedOutputLine(const char* line, int32_t length,
                                          MimeObject* obj) {
   /* Largely the same as MimeMessage_parse_line (the other MIME container
    type which contains exactly one child.)

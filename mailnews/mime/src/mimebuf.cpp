@@ -19,6 +19,7 @@
 #include "prlog.h"
 #include "msgCore.h"
 #include "nsMimeStringResources.h"
+#include "mimeobj.h"
 
 extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
                                uint32_t quantum, char** buffer, int32_t* size) {
@@ -81,10 +82,12 @@ extern "C" int mime_ReBuffer(const char* net_buffer, int32_t net_buffer_size,
   return 0;
 }
 
-static int convert_and_send_buffer(
-    char* buf, int length, bool convert_newlines_p,
-    int32_t (*per_line_fn)(char* line, uint32_t line_length, void* closure),
-    void* closure) {
+static int convert_and_send_buffer(char* buf, int length,
+                                   bool convert_newlines_p,
+                                   int32_t (*per_line_fn)(const char* line,
+                                                          int32_t line_length,
+                                                          MimeObject* closure),
+                                   MimeObject* closure) {
   /* Convert the line terminator to the native form.
    */
   char* newline;
@@ -132,11 +135,13 @@ static int convert_and_send_buffer(
   return (*per_line_fn)(buf, length, closure);
 }
 
-extern "C" int mime_LineBuffer(
-    const char* net_buffer, int32_t net_buffer_size, char** bufferP,
-    int32_t* buffer_sizeP, uint32_t* buffer_fpP, bool convert_newlines_p,
-    int32_t (*per_line_fn)(char* line, uint32_t line_length, void* closure),
-    void* closure) {
+extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
+                               char** bufferP, int32_t* buffer_sizeP,
+                               uint32_t* buffer_fpP, bool convert_newlines_p,
+                               int32_t (*per_line_fn)(const char* line,
+                                                      int32_t line_length,
+                                                      MimeObject* closure),
+                               MimeObject* closure) {
   int status = 0;
   if (*buffer_fpP > 0 && *bufferP && (*buffer_fpP < (uint32_t)*buffer_sizeP) &&
       (*bufferP)[*buffer_fpP - 1] == '\r' && net_buffer_size > 0 &&

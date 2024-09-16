@@ -215,11 +215,7 @@ static int MimeObject_parse_buffer(const char* buffer, int32_t size,
   if (obj->closed_p) return -1;
 
   return mime_LineBuffer(buffer, size, &obj->ibuffer, &obj->ibuffer_size,
-                         &obj->ibuffer_fp, true,
-                         ((int (*)(char*, int32_t, void*))
-                          /* This cast is to turn void into MimeObject */
-                          obj->clazz->parse_line),
-                         obj);
+                         &obj->ibuffer_fp, true, obj->clazz->parse_line, obj);
 }
 
 static int MimeObject_parse_line(const char* line, int32_t length,

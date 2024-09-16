@@ -35,9 +35,10 @@ static int MimeInlineText_parse_eof(MimeObject* obj, bool abort_p);
 static int MimeInlineText_parse_end(MimeObject*, bool);
 static int MimeInlineText_parse_decoded_buffer(const char*, int32_t,
                                                MimeObject*);
-static int MimeInlineText_rotate_convert_and_parse_line(char*, int32_t,
+static int MimeInlineText_rotate_convert_and_parse_line(const char*, int32_t,
                                                         MimeObject*);
-static int MimeInlineText_open_dam(char* line, int32_t length, MimeObject* obj);
+static int MimeInlineText_open_dam(const char* line, int32_t length,
+                                   MimeObject* obj);
 static int MimeInlineText_initializeCharset(MimeObject* obj);
 
 static int MimeInlineTextClassInitialize(MimeObjectClass* oclass) {
@@ -267,10 +268,7 @@ static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
   // `parse_line` method instead of calling the `parse_line` method directly.
   return mime_LineBuffer(buf, size, &obj->ibuffer, &obj->ibuffer_size,
                          &obj->ibuffer_fp, true,
-                         ((int (*)(char*, int32_t, void*))
-                          /* This cast is to turn void into MimeObject */
-                          MimeInlineText_rotate_convert_and_parse_line),
-                         obj);
+                         MimeInlineText_rotate_convert_and_parse_line, obj);
 }
 
 #define MimeInlineText_grow_cbuffer(text, desired_size)                       \
@@ -279,7 +277,8 @@ static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
                          &(text)->cbuffer_size)                               \
        : 0)
 
-static int MimeInlineText_convert_and_parse_line(char* line, int32_t length,
+static int MimeInlineText_convert_and_parse_line(const char* line,
+                                                 int32_t length,
                                                  MimeObject* obj) {
   int status;
   nsAutoCString converted;
@@ -309,7 +308,7 @@ static int MimeInlineText_convert_and_parse_line(char* line, int32_t length,
       line, length, text->charset, converted, obj->options->stream_closure);
 
   if (status == 0) {
-    line = (char*)converted.get();
+    line = converted.get();
     length = converted.Length();
   }
 
@@ -323,7 +322,7 @@ static int MimeInlineText_convert_and_parse_line(char* line, int32_t length,
 // In this function call, all buffered lines in lineDam will be sent to charset
 // detector and a charset will be used to parse all those line and following
 // lines in this mime obj.
-static int MimeInlineText_open_dam(char* line, int32_t length,
+static int MimeInlineText_open_dam(const char* line, int32_t length,
                                    MimeObject* obj) {
   MimeInlineText* text = (MimeInlineText*)obj;
   nsAutoCString detectedCharset;
@@ -375,20 +374,35 @@ static int MimeInlineText_open_dam(char* line, int32_t length,
   return status;
 }
 
-static int MimeInlineText_rotate_convert_and_parse_line(char* line,
-                                                        int32_t length,
-                                                        MimeObject* obj) {
+static int MimeInlineText_rotate_convert_and_parse_line(
+    const char* original_line, int32_t length, MimeObject* obj) {
   int status = 0;
   MimeInlineTextClass* textc = (MimeInlineTextClass*)obj->clazz;
 
   PR_ASSERT(!obj->closed_p);
   if (obj->closed_p) return -1;
 
+  const char* line = nullptr;
+  char* rotated_line = nullptr;
+
   // Rotate the line, if desired (this happens on the raw data, before any
   // charset conversion).
   if (obj->options && obj->options->rot13_p) {
-    status = textc->rot13_line(obj, line, length);
-    if (status < 0) return status;
+    rotated_line = (char*)PR_Malloc(length);
+    if (!rotated_line) {
+      return -1;
+    }
+    memcpy(rotated_line, line, length);
+
+    status = textc->rot13_line(obj, rotated_line, length);
+    if (status < 0) {
+      PR_Free(rotated_line);
+      return status;
+    }
+
+    line = rotated_line;
+  } else {
+    line = original_line;
   }
 
   // Now convert to the canonical charset, if desired.
@@ -435,5 +449,6 @@ static int MimeInlineText_rotate_convert_and_parse_line(char* line,
   } else
     status = obj->clazz->parse_line(line, length, obj);
 
+  PR_FREEIF(rotated_line);
   return status;
 }
