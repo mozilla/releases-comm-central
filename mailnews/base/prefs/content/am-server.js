@@ -9,6 +9,10 @@ var { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
 
+var { OAuth2Providers } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Providers.sys.mjs"
+);
+
 var gServer;
 var gOriginalStoreType;
 
@@ -94,10 +98,11 @@ function onInit(aPageId, aServerId) {
   if (serverType == "imap") {
     setupImapDeleteUI(aServerId);
   }
-
-  // OAuth2 are only supported on IMAP and POP.
-  document.getElementById("authMethod-oauth2").hidden =
-    serverType != "imap" && serverType != "pop3";
+  // OAuth2 is only supported on certain servers.
+  const details = OAuth2Providers.getHostnameDetails(
+    document.getElementById("server.hostName").value
+  );
+  document.getElementById("authMethod-oauth2").hidden = !details;
   // TLS Cert (External) only supported on IMAP.
   document.getElementById("authMethod-external").hidden = serverType != "imap";
 
