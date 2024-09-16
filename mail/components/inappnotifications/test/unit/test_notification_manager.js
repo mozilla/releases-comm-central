@@ -45,6 +45,8 @@ function getMockNotifications() {
   ];
 }
 
+let didOpen = false;
+
 add_setup(async function () {
   // PlacesUtils when executing the CTA needs the profile.
   do_get_profile();
@@ -54,6 +56,7 @@ add_setup(async function () {
     externalProtocolHandlerExists() {},
     isExposedProtocol() {},
     loadURI(uri) {
+      didOpen = true;
       Assert.equal(
         uri.spec,
         "about:blank",
@@ -254,6 +257,7 @@ add_task(async function test_updatedNotifications_stillUpToDate() {
 });
 
 add_task(async function test_executeNotificationCTA() {
+  didOpen = false;
   const notificationManager = new NotificationManager();
   notificationManager.updatedNotifications(getMockNotifications());
   const { detail: notification } = await BrowserTestUtils.waitForEvent(
@@ -277,6 +281,7 @@ add_task(async function test_executeNotificationCTA() {
     notification.id,
     "Should have interacted with the notification"
   );
+  Assert.ok(didOpen, "Should open URL externally");
   await clearNotificationEvent;
   await BrowserTestUtils.waitForEvent(
     notificationManager,
@@ -349,6 +354,50 @@ add_task(function test_dismissNotification_noop() {
   notificationManager.updatedNotifications(getMockNotifications());
 
   notificationManager.dismissNotification("baz");
+
+  notificationManager.updatedNotifications([]);
+});
+
+add_task(async function test_showDonationsOldNotification() {
+  didOpen = false;
+  const now = Date.now();
+  const notifications = [
+    {
+      id: "olddonation",
+      type: "donations_old",
+      start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+      end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+      URL: "about:blank",
+      CTA: "Appeal",
+      severity: 5,
+    },
+  ];
+  const notificationManager = new NotificationManager();
+  notificationManager.addEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    () => {
+      Assert.ok(false, "Should not get any new notification event");
+    }
+  );
+
+  const notificationInteractionEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.NOTIFICATION_INTERACTION_EVENT
+  );
+  const clearNotificationEvent = BrowserTestUtils.waitForEvent(
+    notificationManager,
+    NotificationManager.CLEAR_NOTIFICATION_EVENT
+  );
+  notificationManager.updatedNotifications(notifications);
+
+  const { detail: notificationId } = await notificationInteractionEvent;
+  Assert.equal(
+    notificationId,
+    "olddonation",
+    "Should have interacted with the notification"
+  );
+  await clearNotificationEvent;
+  Assert.ok(didOpen, "Should open URL externally");
 
   notificationManager.updatedNotifications([]);
 });

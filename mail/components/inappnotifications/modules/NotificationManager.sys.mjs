@@ -44,6 +44,18 @@ export class NotificationManager extends EventTarget {
   static #MAX_MS_BETWEEN_NOTIFICATIONS = 1000 * 60;
 
   /**
+   * Check if a notification has UI that should be shown. The only notification
+   * type that doesn't have UI is the "donations_old" type, which imitates the
+   * appeal behavior, where we open a webseite in the user's browser.
+   *
+   * @param {object} notification
+   * @returns {boolean} If this notification should show a popup in the UI.
+   */
+  static #isNotificationWithUI(notification) {
+    return notification.type !== "donations_old";
+  }
+
+  /**
    * @type {?object}
    */
   #_currentNotification = null;
@@ -58,11 +70,15 @@ export class NotificationManager extends EventTarget {
     }
     this.#_currentNotification = notification;
     if (notification) {
-      this.dispatchEvent(
-        new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
-          detail: notification,
-        })
-      );
+      if (NotificationManager.#isNotificationWithUI(notification)) {
+        this.dispatchEvent(
+          new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
+            detail: notification,
+          })
+        );
+      } else if (notification.URL) {
+        this.executeNotificationCTA(notification.id);
+      }
     } else {
       this.dispatchEvent(
         new CustomEvent(NotificationManager.CLEAR_NOTIFICATION_EVENT)
@@ -203,7 +219,8 @@ export class NotificationManager extends EventTarget {
     // Re-emit the new notification event to the newly registered listener.
     if (
       eventName === NotificationManager.NEW_NOTIFICATION_EVENT &&
-      this.#currentNotification
+      this.#currentNotification &&
+      NotificationManager.#isNotificationWithUI(this.#currentNotification)
     ) {
       listener(
         new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
