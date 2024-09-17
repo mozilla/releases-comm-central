@@ -91,7 +91,7 @@ add_task(async function test_tabs_of_second_tabmail() {
       const testWindow = await browser.windows.create({ type: "normal" });
       browser.test.assertEq("normal", testWindow.type);
 
-      const tabs = await await browser.tabs.query({ windowId: testWindow.id });
+      const tabs = await browser.tabs.query({ windowId: testWindow.id });
       browser.test.assertEq(1, tabs.length);
       browser.test.assertEq("mail", tabs[0].type);
 
