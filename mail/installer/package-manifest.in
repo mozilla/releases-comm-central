@@ -74,12 +74,6 @@
 @BINPATH@/@MOZ_CLANG_RT_ASAN_LIB@
 #endif
 
-#ifdef MOZ_DMD
-; DMD
-@RESPATH@/dmd.py
-@RESPATH@/fix_stacks.py
-#endif
-
 #ifdef PKG_LOCALE_MANIFEST
 #include @PKG_LOCALE_MANIFEST@
 #endif
