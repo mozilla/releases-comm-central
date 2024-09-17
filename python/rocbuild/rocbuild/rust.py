@@ -250,7 +250,7 @@ def get_current_checksums(topsrcdir):
 def save_vendored_checksums(topsrcdir):
     current_checksums = get_current_checksums(topsrcdir)
     checksums_file = mozpath.join(topsrcdir, "comm", "rust", "checksums.json")
-    with open(checksums_file, "w") as fp:
+    with open(checksums_file, "w", newline="\n") as fp:
         json.dump(current_checksums, fp)
 
 
@@ -299,7 +299,7 @@ def run_tb_rust_vendor(command_context):
     proc = subprocess.run(
         cmd, cwd=command_context.topsrcdir, check=True, stdout=subprocess.PIPE, encoding="utf-8"
     )
-    with open(config, "w") as config_file:
+    with open(config, "w", newline="\n") as config_file:
         config_file.writelines([f"{x}\n" for x in proc.stdout.splitlines()[0:-2]])
         config_file.write(config_footer)
 
@@ -399,7 +399,7 @@ def regen_toml_files(command_context, workspace):
 
         dependencies += inline_encoded_toml(key, data) + "\n"
 
-    with open(comm_gkrust_toml, "w") as cargo:
+    with open(comm_gkrust_toml, "w", newline="\n") as cargo:
         cargo.write(gkrust_template.format(dependencies=dependencies.strip()))
 
     workspace_members = members
@@ -439,7 +439,7 @@ def regen_toml_files(command_context, workspace):
             workspace_patches += inline_encoded_toml(_id, patch) + "\n"
         workspace_patches += "\n"
 
-    with open(comm_workspace_toml, "w") as cargo:
+    with open(comm_workspace_toml, "w", newline="\n") as cargo:
         cargo_toml = (
             workspace_template.format(
                 dependencies="\n".join(workspace_dependencies),
