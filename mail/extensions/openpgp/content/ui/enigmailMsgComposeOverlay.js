@@ -1109,15 +1109,6 @@ Enigmail.msg = {
    * @param {nsIMsgCompDeliverMode} msgSendType
    */
   async prepareSendMsg(msgSendType) {
-    if (
-      !gMsgCompose.compFields.to &&
-      !gMsgCompose.compFields.cc &&
-      !gMsgCompose.compFields.bcc &&
-      !gMsgCompose.compFields.newsgroups
-    ) {
-      throw new Error("No recipients specified!");
-    }
-
     const senderKeyIsGnuPG =
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
       gCurrentIdentity.getBoolAttribute("is_gnupg_key_id");
@@ -1131,6 +1122,15 @@ Enigmail.msg = {
         // Saving drafts is simpler and works differently than the rest of
         // OpenPGP. All rules except account-settings are ignored.
         return this.saveDraftMessage(senderKeyIsGnuPG);
+    }
+
+    if (
+      !gMsgCompose.compFields.to &&
+      !gMsgCompose.compFields.cc &&
+      !gMsgCompose.compFields.bcc &&
+      !gMsgCompose.compFields.newsgroups
+    ) {
+      throw new Error("No recipients specified!");
     }
 
     this.unsetAdditionalHeader("x-enigmail-draft-status");

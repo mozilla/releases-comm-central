@@ -4,9 +4,10 @@
 
 "use strict";
 
-const { save_compose_message } = ChromeUtils.importESModule(
-  "resource://testing-common/mail/ComposeHelpers.sys.mjs"
-);
+const { open_compose_new_mail, save_compose_message } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/mail/ComposeHelpers.sys.mjs"
+  );
 const {
   open_message_from_file,
   be_in_folder,
@@ -39,6 +40,25 @@ function waitForComposeWindow() {
 let aliceAcct;
 let aliceIdentity;
 let initialKeyIdPref = "";
+
+/**
+ * Delete all messages in the given folder.
+ *
+ * @param {nsIMsgFolder} folder - The folder to empty.
+ */
+async function cleanUpFolder(folder) {
+  return new Promise(resolve => {
+    const msgs = [...folder.msgDatabase.enumerateMessages()];
+    folder.deleteMessages(
+      msgs,
+      null,
+      true,
+      false,
+      { onStopCopy: resolve },
+      false
+    );
+  });
+}
 
 /**
  * Setup a mail account with a private key and an imported public key for an
@@ -80,6 +100,48 @@ add_setup(async function () {
 });
 
 /**
+ * Test that drafts are encrypted.
+ */
+add_task(async function testDraftEncryption() {
+  const draftsFolder = await get_special_folder(
+    Ci.nsMsgFolderFlags.Drafts,
+    true,
+    aliceAcct.incomingServer.localFoldersServer
+  );
+
+  await be_in_folder(aliceAcct.incomingServer.rootFolder);
+  const composeWindow = await open_compose_new_mail();
+
+  composeWindow.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hush, little baby don't say a word", composeWindow);
+
+  // Without the delay, the saving attempt that follows sometimes
+  // fails. The code to save the encrypted draft fails, because
+  // it finds no recipients. Maybe after opening the window,
+  // some time is needed to correctly populate the compose window.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  await be_in_folder(draftsFolder);
+  await save_compose_message(composeWindow);
+
+  await TestUtils.waitForCondition(
+    () => draftsFolder.getTotalMessages(true) > 0,
+    "message saved to drafts folder"
+  );
+  composeWindow.close();
+
+  await select_click_row(0);
+  const aboutMessage = get_about_message();
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "draft should be encrypted"
+  );
+
+  await cleanUpFolder(draftsFolder);
+});
+
+/**
  * Test the "Re:" prefix remains in the compose window when opening a draft
  * reply for an encrypted message. See bug 1661510.
  */
@@ -91,23 +153,6 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
   );
 
   await be_in_folder(draftsFolder);
-
-  // Delete the messages we saved to drafts.
-  registerCleanupFunction(
-    async () =>
-      new Promise(resolve => {
-        const msgs = [...draftsFolder.msgDatabase.enumerateMessages()];
-
-        draftsFolder.deleteMessages(
-          msgs,
-          null,
-          true,
-          false,
-          { onStopCopy: resolve },
-          false
-        );
-      })
-  );
 
   // Test signed-encrypted and unsigned-encrypted messages.
   const msgFiles = [
@@ -156,6 +201,8 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
 
     draftWindow.close();
   }
+  // Delete the messages we saved to drafts.
+  await cleanUpFolder(draftsFolder);
 });
 
 registerCleanupFunction(function tearDown() {
