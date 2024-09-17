@@ -33,7 +33,7 @@ class nsIMsgFolder;
  */
 typedef struct message_header {
   const char* value; /* The contents of a header (after ": ") */
-  int32_t length;    /* The length of the data (it is not NULL-terminated.) */
+  size_t length;     /* The length of the data (it is not NULL-terminated.) */
 } message_header;
 
 // This object maintains the parse state for a single mail message.
