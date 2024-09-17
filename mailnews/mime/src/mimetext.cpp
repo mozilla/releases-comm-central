@@ -34,7 +34,7 @@ static int MimeInlineText_rot13_line(MimeObject*, char* line, int32_t length);
 static int MimeInlineText_parse_eof(MimeObject* obj, bool abort_p);
 static int MimeInlineText_parse_end(MimeObject*, bool);
 static int MimeInlineText_parse_decoded_buffer(const char*, int32_t,
-                                               MimeObject*);
+                                               MimeClosure);
 static int MimeInlineText_rotate_convert_and_parse_line(const char*, int32_t,
                                                         MimeObject*);
 static int MimeInlineText_open_dam(const char* line, int32_t length,
@@ -249,7 +249,13 @@ static int MimeInlineText_rot13_line(MimeObject* obj, char* line,
 }
 
 static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
-                                               MimeObject* obj) {
+                                               MimeClosure closure) {
+  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
+  if (closure.mType != MimeClosure::isMimeObject) {
+    return -1;
+  }
+  MimeObject* obj = (MimeObject*)closure.mClosure;
+
   PR_ASSERT(!obj->closed_p);
   if (obj->closed_p) return -1;
 

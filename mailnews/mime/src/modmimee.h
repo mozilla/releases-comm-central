@@ -12,9 +12,10 @@
 #define _MIMEENC_H_
 
 #include "nscore.h"  // for nullptr
+#include "mime_closure.h"
 
 typedef int (*MimeConverterOutputCallback)(const char* buf, int32_t size,
-                                           void* closure);
+                                           MimeClosure closure);
 
 /* This file defines interfaces to generic implementations of Base64,
    Quoted-Printable, and UU decoders; and of Base64 and Quoted-Printable
@@ -29,15 +30,16 @@ struct MimeObject;
 /* functions for creating that opaque data.
  */
 MimeDecoderData* MimeB64DecoderInit(MimeConverterOutputCallback output_fn,
-                                    void* closure);
+                                    MimeClosure closure);
 
 MimeDecoderData* MimeQPDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void* closure, MimeObject* object = nullptr);
+                                   MimeClosure closure,
+                                   MimeObject* object = nullptr);
 
 MimeDecoderData* MimeUUDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void* closure);
+                                   MimeClosure closure);
 MimeDecoderData* MimeYDecoderInit(MimeConverterOutputCallback output_fn,
-                                  void* closure);
+                                  MimeClosure closure);
 
 /* Push data through the encoder/decoder, causing the above-provided write_fn
    to be called with encoded/decoded data. */

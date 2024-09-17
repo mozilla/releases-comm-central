@@ -32,6 +32,6 @@ struct MimeMultipartSignedCMS {
 #define MimeMultipartSignedCMSClassInitializer(ITYPE, CSUPER) \
   {MimeMultipartSignedClassInitializer(ITYPE, CSUPER)}
 
-bool MimeMultCMSdata_isIgnored(void* crypto_closure);
+bool MimeMultCMSdata_isIgnored(MimeClosure crypto_closure);
 
 #endif /* _MIMEMPKC_H_ */

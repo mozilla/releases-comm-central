@@ -171,14 +171,17 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
 #endif /* MIME_DRAFTS */
 
     if (nl)
-      return kid->clazz->parse_buffer(line, length, kid);
+      return kid->clazz->parse_buffer(
+          line, length, MimeClosure(MimeClosure::isMimeObject, kid));
     else {
       /* Hack a newline onto the end. */
       char* s = (char*)PR_MALLOC(length + MSG_LINEBREAK_LEN + 1);
       if (!s) return MIME_OUT_OF_MEMORY;
       memcpy(s, line, length);
       PL_strncpyz(s + length, MSG_LINEBREAK, MSG_LINEBREAK_LEN + 1);
-      status = kid->clazz->parse_buffer(s, length + MSG_LINEBREAK_LEN, kid);
+      status =
+          kid->clazz->parse_buffer(s, length + MSG_LINEBREAK_LEN,
+                                   MimeClosure(MimeClosure::isMimeObject, kid));
       PR_Free(s);
       return status;
     }
@@ -505,8 +508,15 @@ static int MimeMessage_parse_eof(MimeObject* obj, bool abort_p) {
   if ((outer_p || obj->options->notify_nested_bodies) && obj->options &&
       obj->options->write_html_p) {
     if (obj->options->generate_footer_html_fn) {
-      mime_stream_data* msd = (mime_stream_data*)obj->options->stream_closure;
-      if (msd) {
+      if (obj->options->stream_closure) {
+        PR_ASSERT(obj->options->stream_closure.mType ==
+                  MimeClosure::isMimeStreamData);
+        if (obj->options->stream_closure.mType !=
+            MimeClosure::isMimeStreamData) {
+          return 0;
+        }
+        mime_stream_data* msd =
+            (mime_stream_data*)obj->options->stream_closure.mClosure;
         char* html = obj->options->generate_footer_html_fn(
             msd->orig_url_name, obj->options->html_closure, msg->hdrs);
         if (html) {

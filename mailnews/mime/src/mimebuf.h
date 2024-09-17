@@ -28,12 +28,4 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
                                                       MimeObject* closure),
                                MimeObject* closure);
 
-extern "C" int mime_ReBuffer(const char* net_buffer, int32_t net_buffer_size,
-                             uint32_t desired_buffer_size, char** bufferP,
-                             uint32_t* buffer_sizeP, uint32_t* buffer_fpP,
-                             int32_t (*per_buffer_fn)(char* buffer,
-                                                      uint32_t buffer_size,
-                                                      void* closure),
-                             void* closure);
-
 #endif /* _MIMEBUF_H_ */

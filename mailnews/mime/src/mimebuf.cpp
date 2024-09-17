@@ -41,47 +41,6 @@ extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
   return 0;
 }
 
-/* The opposite of mime_LineBuffer(): takes small buffers and packs them
-   up into bigger buffers before passing them along.
-
-   Pass in a desired_buffer_size 0 to tell it to flush (for example, in
-   in the very last call to this function.)
- */
-extern "C" int mime_ReBuffer(const char* net_buffer, int32_t net_buffer_size,
-                             uint32_t desired_buffer_size, char** bufferP,
-                             int32_t* buffer_sizeP, uint32_t* buffer_fpP,
-                             int32_t (*per_buffer_fn)(char* buffer,
-                                                      uint32_t buffer_size,
-                                                      void* closure),
-                             void* closure) {
-  int status = 0;
-
-  if (desired_buffer_size >= (uint32_t)(*buffer_sizeP)) {
-    status = mime_GrowBuffer(desired_buffer_size, sizeof(char), 1024, bufferP,
-                             buffer_sizeP);
-    if (status < 0) return status;
-  }
-
-  do {
-    int32_t size = *buffer_sizeP - *buffer_fpP;
-    if (size > net_buffer_size) size = net_buffer_size;
-    if (size > 0) {
-      memcpy((*bufferP) + (*buffer_fpP), net_buffer, size);
-      (*buffer_fpP) += size;
-      net_buffer += size;
-      net_buffer_size -= size;
-    }
-
-    if (*buffer_fpP > 0 && *buffer_fpP >= desired_buffer_size) {
-      status = (*per_buffer_fn)((*bufferP), (*buffer_fpP), closure);
-      *buffer_fpP = 0;
-      if (status < 0) return status;
-    }
-  } while (net_buffer_size > 0);
-
-  return 0;
-}
-
 static int convert_and_send_buffer(char* buf, int length,
                                    bool convert_newlines_p,
                                    int32_t (*per_line_fn)(const char* line,

@@ -306,8 +306,14 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
 
   if (!opts) return;
 
-  mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure);
-  if (!msd) return;
+  if (!opts->stream_closure) return;
+
+  PR_ASSERT(opts->stream_closure.mType == MimeClosure::isMimeStreamData ||
+            opts->stream_closure.mType == MimeClosure::isMimeDraftData);
+  if (opts->stream_closure.mType != MimeClosure::isMimeStreamData) {
+    return;
+  }
+  mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure.mClosure);
 
   nsCOMPtr<nsIChannel> channel =
       msd->channel;  // note the lack of ref counting...
@@ -417,11 +423,16 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         char* imip_method = MimeHeaders_get_parameter(
             full_content_type, "method", nullptr, nullptr);
 
-        mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure);
-        nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(msd->channel);
-        if (mailChannel) {
-          mailChannel->SetImipMethod(
-              nsDependentCString(imip_method ? imip_method : "nomethod"));
+        PR_ASSERT(opts->stream_closure.mType == MimeClosure::isMimeStreamData);
+        if (opts->stream_closure.mType == MimeClosure::isMimeStreamData) {
+          mime_stream_data* msd =
+              (mime_stream_data*)(opts->stream_closure.mClosure);
+          nsCOMPtr<nsIMailChannel> mailChannel =
+              do_QueryInterface(msd->channel);
+          if (mailChannel) {
+            mailChannel->SetImipMethod(
+                nsDependentCString(imip_method ? imip_method : "nomethod"));
+          }
         }
 
         // PR_Free checks for null
@@ -1516,11 +1527,11 @@ int mime_parse_url_options(const char* url, MimeDisplayOptions* options) {
 int MimeOptions_write(MimeHeaders* hdrs, MimeDisplayOptions* opt,
                       const char* data, int32_t length, bool user_visible_p) {
   int status = 0;
-  void* closure = 0;
+  MimeClosure closure;
   if (!opt || !opt->output_fn || !opt->state) return 0;
 
   closure = opt->output_closure;
-  if (!closure) closure = opt->stream_closure;
+  if (!closure.mClosure) closure = opt->stream_closure;
 
   //  PR_ASSERT(opt->state->first_data_written_p);
 

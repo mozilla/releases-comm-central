@@ -146,8 +146,8 @@ static int MimeUntypedText_parse_line(const char* line, int32_t length,
 
   /* Hand this line to the currently-open sub-part.
    */
-  status =
-      uty->open_subpart->clazz->parse_buffer(line, length, uty->open_subpart);
+  status = uty->open_subpart->clazz->parse_buffer(
+      line, length, MimeClosure(MimeClosure::isMimeObject, uty->open_subpart));
   if (status < 0) return status;
 
   /* Close this sub-part if this line demands it.

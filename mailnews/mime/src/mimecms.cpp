@@ -33,12 +33,13 @@ using namespace mozilla::mailnews;
 MimeDefClass(MimeEncryptedCMS, MimeEncryptedCMSClass, mimeEncryptedCMSClass,
              &MIME_SUPERCLASS);
 
-static void* MimeCMS_init(MimeObject*,
-                          int (*output_fn)(const char*, int32_t, void*), void*);
-static int MimeCMS_write(const char*, int32_t, void*);
-static int MimeCMS_eof(void*, bool);
-static char* MimeCMS_generate(void*);
-static void MimeCMS_free(void*);
+static MimeClosure MimeCMS_init(MimeObject*,
+                                int (*output_fn)(const char*, int32_t, void*),
+                                void*);
+static int MimeCMS_write(const char*, int32_t, MimeClosure);
+static int MimeCMS_eof(MimeClosure, bool);
+static char* MimeCMS_generate(MimeClosure);
+static void MimeCMS_free(MimeClosure);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
@@ -141,8 +142,15 @@ bool MimeEncryptedCMS_encrypted_p(MimeObject* obj) {
   if (!obj) return false;
   if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
-    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
-    if (!data || !data->content_info) return false;
+
+    if (!enc->crypto_closure) return false;
+
+    PR_ASSERT(enc->crypto_closure.mType == MimeClosure::isMimeCMSData);
+    if (enc->crypto_closure.mType != MimeClosure::isMimeCMSData) {
+      return false;
+    }
+    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure.mClosure;
+    if (!data->content_info) return false;
     data->content_info->GetContentIsEncrypted(&encrypted);
     return encrypted;
   }
@@ -161,8 +169,15 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
   }
   if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
     MimeEncrypted* enc = (MimeEncrypted*)obj;
-    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
-    if (!data || !data->content_info) return false;
+
+    if (!enc->crypto_closure) return false;
+
+    PR_ASSERT(enc->crypto_closure.mType == MimeClosure::isMimeCMSData);
+    if (enc->crypto_closure.mType != MimeClosure::isMimeCMSData) {
+      return false;
+    }
+    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure.mClosure;
+    if (!data->content_info) return false;
     data->content_info->GetContentIsSigned(&is_signed);
     return is_signed;
   }
@@ -501,17 +516,19 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject* obj) {
   return aCryptoPartNestLevel - aTopMessageNestLevel;
 }
 
-static void* MimeCMS_init(MimeObject* obj,
-                          int (*output_fn)(const char* buf, int32_t buf_size,
-                                           void* output_closure),
-                          void* output_closure) {
+static MimeClosure MimeCMS_init(MimeObject* obj,
+                                int (*output_fn)(const char* buf,
+                                                 int32_t buf_size,
+                                                 void* output_closure),
+                                void* output_closure) {
   MimeCMSdata* data;
   nsresult rv;
 
-  if (!(obj && obj->options && output_fn)) return 0;
+  if (!(obj && obj->options && output_fn))
+    return MimeClosure(MimeClosure::isUndefined, 0);
 
   data = new MimeCMSdata;
-  if (!data) return 0;
+  if (!data) return MimeClosure(MimeClosure::isUndefined, 0);
 
   data->self = obj;
   data->output_fn = output_fn;
@@ -537,58 +554,72 @@ static void* MimeCMS_init(MimeObject* obj,
     data->decoder_context = do_CreateInstance(NS_CMSDECODER_CONTRACTID, &rv);
     if (NS_FAILED(rv)) {
       delete data;
-      return 0;
+      return MimeClosure(MimeClosure::isUndefined, 0);
     }
 
     rv = data->decoder_context->Start(MimeCMS_content_callback, data);
     if (NS_FAILED(rv)) {
       delete data;
-      return 0;
+      return MimeClosure(MimeClosure::isUndefined, 0);
     }
   }
 
   data->any_parent_is_encrypted_p = MimeAnyParentCMSEncrypted(obj);
 
-  mime_stream_data* msd =
-      (mime_stream_data*)(data->self->options->stream_closure);
-  if (msd) {
-    nsIChannel* channel = msd->channel;  // note the lack of ref counting...
-    if (channel) {
-      nsCOMPtr<nsIURI> uri;
-      channel->GetURI(getter_AddRefs(uri));
-      if (uri) {
-        rv = uri->GetSpec(data->url);
+  if (data->self->options->stream_closure) {
+    PR_ASSERT(data->self->options->stream_closure.mType ==
+                  MimeClosure::isMimeStreamData ||
+              data->self->options->stream_closure.mType ==
+                  MimeClosure::isMimeDraftData);
+    if (data->self->options->stream_closure.mType ==
+        MimeClosure::isMimeStreamData) {
+      mime_stream_data* msd =
+          (mime_stream_data*)(data->self->options->stream_closure.mClosure);
+      nsIChannel* channel = msd->channel;  // note the lack of ref counting...
+      if (channel) {
+        nsCOMPtr<nsIURI> uri;
+        channel->GetURI(getter_AddRefs(uri));
+        if (uri) {
+          rv = uri->GetSpec(data->url);
 
-        // We only want to update the UI if the current mime transaction
-        // is intended for display.
-        // If the current transaction is intended for background processing,
-        // we can learn that by looking at the additional header=filter
-        // string contained in the URI.
-        //
-        // If we find something, we do not set smimeSink,
-        // which will prevent us from giving UI feedback.
-        //
-        // If we do not find header=filter, we assume the result of the
-        // processing will be shown in the UI.
+          // We only want to update the UI if the current mime transaction
+          // is intended for display.
+          // If the current transaction is intended for background processing,
+          // we can learn that by looking at the additional header=filter
+          // string contained in the URI.
+          //
+          // If we find something, we do not set smimeSink,
+          // which will prevent us from giving UI feedback.
+          //
+          // If we do not find header=filter, we assume the result of the
+          // processing will be shown in the UI.
 
-        if (!strstr(data->url.get(), "?header=filter") &&
-            !strstr(data->url.get(), "&header=filter") &&
-            !strstr(data->url.get(), "?header=attach") &&
-            !strstr(data->url.get(), "&header=attach")) {
-          nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
-          if (mailChannel) {
-            mailChannel->GetSmimeSink(getter_AddRefs(data->smimeSink));
+          if (!strstr(data->url.get(), "?header=filter") &&
+              !strstr(data->url.get(), "&header=filter") &&
+              !strstr(data->url.get(), "?header=attach") &&
+              !strstr(data->url.get(), "&header=attach")) {
+            nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(channel);
+            if (mailChannel) {
+              mailChannel->GetSmimeSink(getter_AddRefs(data->smimeSink));
+            }
           }
         }
-      }
-    }  // if channel
+      }  // if channel
+    }  // if isMimeStreamData
   }  // if msd
 
-  return data;
+  return MimeClosure(MimeClosure::isMimeCMSData, data);
 }
 
-static int MimeCMS_write(const char* buf, int32_t buf_size, void* closure) {
-  MimeCMSdata* data = (MimeCMSdata*)closure;
+static int MimeCMS_write(const char* buf, int32_t buf_size,
+                         MimeClosure closure) {
+  if (!closure) return -1;
+
+  PR_ASSERT(closure.mType == MimeClosure::isMimeCMSData);
+  if (closure.mType != MimeClosure::isMimeCMSData) {
+    return -1;
+  }
+  MimeCMSdata* data = (MimeCMSdata*)closure.mClosure;
   nsresult rv;
 
   if (!data || !data->output_fn || !data->decoder_context) return -1;
@@ -681,12 +712,20 @@ static const char* bufferContains2Newlines(const char* buf, size_t len) {
   return nullptr;
 }
 
-static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
-  MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
+static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
+  if (!crypto_closure) {
+    return -1;
+  }
+
+  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeCMSData);
+  if (crypto_closure.mType != MimeClosure::isMimeCMSData) {
+    return -1;
+  }
+  MimeCMSdata* data = (MimeCMSdata*)crypto_closure.mClosure;
   nsresult rv;
   int32_t status = nsICMSMessageErrors::SUCCESS;
 
-  if (!data || !data->output_fn) {
+  if (!data->output_fn) {
     return -1;
   }
 
@@ -830,9 +869,14 @@ static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
   return 0;
 }
 
-static void MimeCMS_free(void* crypto_closure) {
-  MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
-  if (!data) return;
+static void MimeCMS_free(MimeClosure crypto_closure) {
+  if (!crypto_closure) return;
+
+  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeCMSData);
+  if (crypto_closure.mType != MimeClosure::isMimeCMSData) {
+    return;
+  }
+  MimeCMSdata* data = (MimeCMSdata*)crypto_closure.mClosure;
 
   if (data->decoded_buffer) {
     PR_Free(data->decoded_buffer);
@@ -842,4 +886,4 @@ static void MimeCMS_free(void* crypto_closure) {
   delete data;
 }
 
-static char* MimeCMS_generate(void* crypto_closure) { return nullptr; }
+static char* MimeCMS_generate(MimeClosure crypto_closure) { return nullptr; }

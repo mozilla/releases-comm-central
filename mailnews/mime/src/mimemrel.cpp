@@ -686,7 +686,7 @@ static int MimeMultipartRelated_parse_child_line(MimeObject* obj,
 static int real_write(MimeMultipartRelated* relobj, const char* buf,
                       int32_t size) {
   MimeObject* obj = (MimeObject*)relobj;
-  void* closure = relobj->real_output_closure;
+  MimeClosure closure = relobj->real_output_closure;
 
 #ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
@@ -697,10 +697,17 @@ static int real_write(MimeMultipartRelated* relobj, const char* buf,
     // then restore it when we are done. Not sure if we shouldn't just turn it
     // off permanently though.
 
-    mime_draft_data* mdd = (mime_draft_data*)obj->options->stream_closure;
+    PR_ASSERT(obj->options->stream_closure.mType ==
+              MimeClosure::isMimeDraftData);
+    if (obj->options->stream_closure.mType != MimeClosure::isMimeDraftData) {
+      return -1;
+    }
+    mime_draft_data* mdd =
+        (mime_draft_data*)obj->options->stream_closure.mClosure;
     MimeDecoderData* old_decoder_data = mdd->decoder_data;
     mdd->decoder_data = nullptr;
-    int status = obj->options->decompose_file_output_fn(buf, size, (void*)mdd);
+    int status = obj->options->decompose_file_output_fn(
+        buf, size, MimeClosure(MimeClosure::isMimeDraftData, mdd));
     mdd->decoder_data = old_decoder_data;
     return status;
   } else
@@ -897,8 +904,12 @@ static int flush_tag(MimeMultipartRelated* relobj) {
 }
 
 static int mime_multipart_related_output_fn(const char* buf, int32_t size,
-                                            void* stream_closure) {
-  MimeMultipartRelated* relobj = (MimeMultipartRelated*)stream_closure;
+                                            MimeClosure stream_closure) {
+  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeMultipartRelated);
+  if (stream_closure.mType != MimeClosure::isMimeMultipartRelated) {
+    return -1;
+  }
+  MimeMultipartRelated* relobj = (MimeMultipartRelated*)stream_closure.mClosure;
   char* ptr;
   int32_t delta;
   int status;
@@ -963,7 +974,8 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
   relobj->real_output_closure = obj->options->output_closure;
 
   obj->options->output_fn = mime_multipart_related_output_fn;
-  obj->options->output_closure = obj;
+  obj->options->output_closure =
+      MimeClosure(MimeClosure::isMimeMultipartRelated, relobj);
 
   body = mime_create(((ct && *ct) ? ct : (dct ? dct : TEXT_HTML)),
                      relobj->buffered_hdrs, obj->options);
@@ -1022,8 +1034,9 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
     /* Read it out of memory. */
     PR_ASSERT(!relobj->file_buffer && !relobj->input_file_stream);
 
-    status = body->clazz->parse_buffer(relobj->head_buffer,
-                                       relobj->head_buffer_fp, body);
+    status =
+        body->clazz->parse_buffer(relobj->head_buffer, relobj->head_buffer_fp,
+                                  MimeClosure(MimeClosure::isMimeObject, body));
   } else if (relobj->file_buffer) {
     /* Read it off disk. */
     char* buf;
@@ -1064,7 +1077,8 @@ static int MimeMultipartRelated_parse_eof(MimeObject* obj, bool abort_p) {
            some user events and other input sources get processed.
            Oh well. */
 
-        status = body->clazz->parse_buffer(buf, bytesRead, body);
+        status = body->clazz->parse_buffer(
+            buf, bytesRead, MimeClosure(MimeClosure::isMimeObject, body));
         if (status < 0) break;
       }
     }

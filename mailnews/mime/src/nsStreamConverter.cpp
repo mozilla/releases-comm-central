@@ -142,12 +142,17 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
   return NS_OK;
 }
 
-static int mime_headers_callback(void* closure, MimeHeaders* headers) {
-  // We get away with this because this doesn't get called on draft operations.
-  mime_stream_data* msd = (mime_stream_data*)closure;
+static int mime_headers_callback(MimeClosure closure, MimeHeaders* headers) {
+  NS_ASSERTION(closure && headers, "null mime stream data or headers");
+  if (!closure || !headers) return 0;
 
-  NS_ASSERTION(msd && headers, "null mime stream data or headers");
-  if (!msd || !headers) return 0;
+  // We get away with this because this doesn't get called on draft operations.
+  PR_ASSERT(closure.mType == MimeClosure::isMimeStreamData);
+  if (closure.mType != MimeClosure::isMimeStreamData) {
+    return 0;
+  }
+
+  mime_stream_data* msd = (mime_stream_data*)closure.mClosure;
 
   NS_ASSERTION(!msd->headers, "non-null mime stream data headers");
   msd->headers = MimeHeaders_copy(headers);

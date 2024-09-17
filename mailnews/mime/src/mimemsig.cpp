@@ -85,7 +85,7 @@ static void MimeMultipartSigned_cleanup(MimeObject* obj, bool finalizing_p) {
        around for the lifetime of the MIME object, so that we can get at the
        security info of sub-parts of the currently-displayed message. */
     ((MimeMultipartSignedClass*)obj->clazz)->crypto_free(sig->crypto_closure);
-    sig->crypto_closure = 0;
+    sig->crypto_closure = MimeClosure::zero();
   }
 
   if (sig->sig_decoder_data) {
@@ -329,7 +329,7 @@ static int MimeMultipartSigned_parse_line(const char* line, int32_t length,
        (Similar logic is in MimeLeafClass->parse_begin.)
        */
       {
-        MimeDecoderData* (*fn)(MimeConverterOutputCallback, void*) = 0;
+        MimeDecoderData* (*fn)(MimeConverterOutputCallback, MimeClosure) = 0;
         nsCString encoding;
         encoding.Adopt(MimeHeaders_get(
             sig->sig_hdrs, HEADER_CONTENT_TRANSFER_ENCODING, true, false));
@@ -339,9 +339,7 @@ static int MimeMultipartSigned_parse_line(const char* line, int32_t length,
           fn = &MimeB64DecoderInit;
         else if (!PL_strcasecmp(encoding.get(), ENCODING_QUOTED_PRINTABLE)) {
           sig->sig_decoder_data = MimeQPDecoderInit(
-              ((MimeConverterOutputCallback)(((MimeMultipartSignedClass*)
-                                                  obj->clazz)
-                                                 ->crypto_signature_hash)),
+              (((MimeMultipartSignedClass*)obj->clazz)->crypto_signature_hash),
               sig->crypto_closure);
           if (!sig->sig_decoder_data) return MIME_OUT_OF_MEMORY;
         } else if (!PL_strcasecmp(encoding.get(), ENCODING_UUENCODE) ||
@@ -352,11 +350,9 @@ static int MimeMultipartSigned_parse_line(const char* line, int32_t length,
         else if (!PL_strcasecmp(encoding.get(), ENCODING_YENCODE))
           fn = &MimeYDecoderInit;
         if (fn) {
-          sig->sig_decoder_data =
-              fn(((MimeConverterOutputCallback)(((MimeMultipartSignedClass*)
-                                                     obj->clazz)
-                                                    ->crypto_signature_hash)),
-                 sig->crypto_closure);
+          sig->sig_decoder_data = fn(
+              (((MimeMultipartSignedClass*)obj->clazz)->crypto_signature_hash),
+              sig->crypto_closure);
           if (!sig->sig_decoder_data) return MIME_OUT_OF_MEMORY;
         }
       }
@@ -701,21 +697,15 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
     if (body->options->decompose_file_p &&
         !mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
         body->options->decompose_file_output_fn)
-      status =
-          MimePartBufferRead(sig->part_buffer,
-                             /* The (MimeConverterOutputCallback) cast is to
-                              turn the `void' argument into `MimeObject'. */
-                             ((MimeConverterOutputCallback)
-                                  body->options->decompose_file_output_fn),
-                             body->options->stream_closure);
+      status = MimePartBufferRead(sig->part_buffer,
+
+                                  body->options->decompose_file_output_fn,
+                                  body->options->stream_closure);
     else
 #endif /* MIME_DRAFTS */
 
-      status = MimePartBufferRead(
-          sig->part_buffer,
-          /* The (MimeConverterOutputCallback) cast is to turn the
-           `void' argument into `MimeObject'. */
-          ((MimeConverterOutputCallback)body->clazz->parse_buffer), body);
+      status = MimePartBufferRead(sig->part_buffer, body->clazz->parse_buffer,
+                                  MimeClosure(MimeClosure::isMimeObject, body));
     if (status < 0) return status;
   }
 

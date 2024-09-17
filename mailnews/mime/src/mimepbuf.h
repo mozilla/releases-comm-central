@@ -57,6 +57,6 @@ extern int MimePartBufferWrite(MimePartBufferData* data, const char* buf,
  */
 extern int MimePartBufferRead(MimePartBufferData* data,
                               MimeConverterOutputCallback read_fn,
-                              void* closure);
+                              MimeClosure closure);
 
 #endif /* _MIMEPBUF_H_ */

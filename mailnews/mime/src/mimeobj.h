@@ -110,7 +110,7 @@ struct MimeObjectClass {
   int (*initialize)(MimeObject* obj);
   void (*finalize)(MimeObject* obj);
   int (*parse_begin)(MimeObject* obj);
-  int (*parse_buffer)(const char* buf, int32_t size, MimeObject* obj);
+  int (*parse_buffer)(const char* buf, int32_t size, MimeClosure closure);
   int (*parse_line)(const char* line, int32_t length, MimeObject* obj);
   int (*parse_eof)(MimeObject* obj, bool abort_p);
   int (*parse_end)(MimeObject* obj, bool abort_p);

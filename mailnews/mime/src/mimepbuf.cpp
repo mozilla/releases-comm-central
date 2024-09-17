@@ -197,7 +197,8 @@ int MimePartBufferWrite(MimePartBufferData* data, const char* buf,
 }
 
 int MimePartBufferRead(MimePartBufferData* data,
-                       MimeConverterOutputCallback read_fn, void* closure) {
+                       MimeConverterOutputCallback read_fn,
+                       MimeClosure closure) {
   int status = 0;
   NS_ASSERTION(data, "no data");
   if (!data) return -1;

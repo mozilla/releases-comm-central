@@ -30,10 +30,10 @@ MimeDefClass(MimeEncrypted, MimeEncryptedClass, mimeEncryptedClass,
 static int MimeEncrypted_initialize(MimeObject*);
 static void MimeEncrypted_finalize(MimeObject*);
 static int MimeEncrypted_parse_begin(MimeObject*);
-static int MimeEncrypted_parse_buffer(const char*, int32_t, MimeObject*);
+static int MimeEncrypted_parse_buffer(const char*, int32_t, MimeClosure);
 static int MimeEncrypted_parse_line(const char*, int32_t, MimeObject*);
 static int MimeEncrypted_parse_decoded_buffer(const char*, int32_t,
-                                              MimeObject*);
+                                              MimeClosure);
 static int MimeEncrypted_parse_eof(MimeObject*, bool);
 static int MimeEncrypted_parse_end(MimeObject*, bool);
 static int MimeEncrypted_add_child(MimeObject*, MimeObject*);
@@ -70,7 +70,7 @@ static int MimeEncrypted_initialize(MimeObject* obj) {
 
 static int MimeEncrypted_parse_begin(MimeObject* obj) {
   MimeEncrypted* enc = (MimeEncrypted*)obj;
-  MimeDecoderData* (*fn)(MimeConverterOutputCallback, void*) = 0;
+  MimeDecoderData* (*fn)(MimeConverterOutputCallback, MimeClosure) = 0;
 
   if (enc->crypto_closure) return -1;
 
@@ -86,13 +86,9 @@ static int MimeEncrypted_parse_begin(MimeObject* obj) {
   else if (!PL_strcasecmp(obj->encoding, ENCODING_BASE64))
     fn = &MimeB64DecoderInit;
   else if (!PL_strcasecmp(obj->encoding, ENCODING_QUOTED_PRINTABLE)) {
-    enc->decoder_data =
-        MimeQPDecoderInit(/* The (MimeConverterOutputCallback) cast is to turn
-                             the `void' argument into `MimeObject'. */
-                          ((MimeConverterOutputCallback)((MimeEncryptedClass*)
-                                                             obj->clazz)
-                               ->parse_decoded_buffer),
-                          obj);
+    enc->decoder_data = MimeQPDecoderInit(
+        ((MimeEncryptedClass*)obj->clazz)->parse_decoded_buffer,
+        MimeClosure(MimeClosure::isMimeObject, obj));
 
     if (!enc->decoder_data) return MIME_OUT_OF_MEMORY;
   } else if (!PL_strcasecmp(obj->encoding, ENCODING_UUENCODE) ||
@@ -104,11 +100,8 @@ static int MimeEncrypted_parse_begin(MimeObject* obj) {
     fn = &MimeYDecoderInit;
   if (fn) {
     enc->decoder_data =
-        fn(/* The (MimeConverterOutputCallback) cast is to turn the `void'
-              argument into `MimeObject'. */
-           ((MimeConverterOutputCallback)((MimeEncryptedClass*)obj->clazz)
-                ->parse_decoded_buffer),
-           obj);
+        fn((((MimeEncryptedClass*)obj->clazz)->parse_decoded_buffer),
+           MimeClosure(MimeClosure::isMimeObject, obj));
 
     if (!enc->decoder_data) return MIME_OUT_OF_MEMORY;
   }
@@ -117,9 +110,14 @@ static int MimeEncrypted_parse_begin(MimeObject* obj) {
 }
 
 static int MimeEncrypted_parse_buffer(const char* buffer, int32_t size,
-                                      MimeObject* obj) {
+                                      MimeClosure closure) {
   /* (Duplicated from MimeLeaf, see comments in mimecryp.h.)
    */
+  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
+  if (closure.mType != MimeClosure::isMimeObject) {
+    return -1;
+  }
+  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   MimeEncrypted* enc = (MimeEncrypted*)obj;
 
@@ -133,7 +131,8 @@ static int MimeEncrypted_parse_buffer(const char* buffer, int32_t size,
     return MimeDecoderWrite(enc->decoder_data, buffer, size, nullptr);
   else
     return ((MimeEncryptedClass*)obj->clazz)
-        ->parse_decoded_buffer(buffer, size, obj);
+        ->parse_decoded_buffer(buffer, size,
+                               MimeClosure(MimeClosure::isMimeObject, obj));
 }
 
 static int MimeEncrypted_parse_line(const char* line, int32_t length,
@@ -143,8 +142,13 @@ static int MimeEncrypted_parse_line(const char* line, int32_t length,
 }
 
 static int MimeEncrypted_parse_decoded_buffer(const char* buffer, int32_t size,
-                                              MimeObject* obj) {
-  MimeEncrypted* enc = (MimeEncrypted*)obj;
+                                              MimeClosure closure) {
+  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
+  if (closure.mType != MimeClosure::isMimeObject) {
+    return -1;
+  }
+  MimeObject* obj = (MimeObject*)closure.mClosure;
+  MimeEncrypted* enc = (MimeEncrypted*)closure.mClosure;
   return ((MimeEncryptedClass*)obj->clazz)
       ->crypto_write(buffer, size, enc->crypto_closure);
 }
@@ -224,7 +228,7 @@ static void MimeEncrypted_cleanup(MimeObject* obj, bool finalizing_p) {
      around for the lifetime of the MIME object, so that we can get at the
      security info of sub-parts of the currently-displayed message. */
     ((MimeEncryptedClass*)obj->clazz)->crypto_free(enc->crypto_closure);
-    enc->crypto_closure = 0;
+    enc->crypto_closure = MimeClosure::zero();
   }
 
   /* (Duplicated from MimeLeaf, see comments in mimecryp.h.)
@@ -340,7 +344,7 @@ static int MimeEncrypted_add_child(MimeObject* parent, MimeObject* child) {
 }
 
 #ifdef MOZ_LOGGING
-static int DebugOut(const char* buf, int32_t size, void* closure) {
+static int DebugOut(const char* buf, int32_t size, MimeClosure closure) {
   MOZ_LOG(gMimeCryptLog, LogLevel::Debug,
           ("MimeEncrypted_emit_buffered_child: (partial) decrypted body\n%.*s",
            size, buf));
@@ -365,7 +369,8 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
   }
 
   if (enc->part_buffer) {
-    status = MimePartBufferRead(enc->part_buffer, DebugOut, 0);
+    status = MimePartBufferRead(enc->part_buffer, DebugOut,
+                                MimeClosure(MimeClosure::isUndefined, 0));
     if (status < 0) return status;
   }
 #endif
@@ -463,20 +468,14 @@ static int MimeEncrypted_emit_buffered_child(MimeObject* obj) {
   {
 #ifdef MIME_DRAFTS
     if (obj->options->decompose_file_p && !obj->options->is_multipart_msg) {
-      status = MimePartBufferRead(
-          enc->part_buffer,
-          /* The (MimeConverterOutputCallback) cast is to turn the `void'
-             argument into `MimeObject'. */
-          ((MimeConverterOutputCallback)obj->options->decompose_file_output_fn),
-          obj->options->stream_closure);
+      status = MimePartBufferRead(enc->part_buffer,
+                                  obj->options->decompose_file_output_fn,
+                                  obj->options->stream_closure);
     } else {
 #endif /* MIME_DRAFTS */
 
-      status = MimePartBufferRead(
-          enc->part_buffer,
-          /* The (MimeConverterOutputCallback) cast is to turn the `void'
-             argument into `MimeObject'. */
-          ((MimeConverterOutputCallback)body->clazz->parse_buffer), body);
+      status = MimePartBufferRead(enc->part_buffer, body->clazz->parse_buffer,
+                                  MimeClosure(MimeClosure::isMimeObject, body));
 #ifdef MIME_DRAFTS
     }
 #endif /* MIME_DRAFTS */

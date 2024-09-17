@@ -67,10 +67,11 @@ using namespace mozilla::mailnews;
 // Forward declarations...
 //
 extern "C" char* MIME_StripContinuations(char* original);
-int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers);
+int mime_decompose_file_init_fn(MimeClosure stream_closure,
+                                MimeHeaders* headers);
 int mime_decompose_file_output_fn(const char* buf, int32_t size,
-                                  void* stream_closure);
-int mime_decompose_file_close_fn(void* stream_closure);
+                                  MimeClosure stream_closure);
+int mime_decompose_file_close_fn(MimeClosure stream_closure);
 extern int MimeHeaders_build_heads_list(MimeHeaders* hdrs);
 
 #define NS_MSGCOMPOSESERVICE_CID                    \
@@ -404,12 +405,18 @@ nsresult CreateCompositionFields(
   return rv;
 }
 
-static int dummy_file_write(char* buf, int32_t size, void* fileHandle) {
-  if (!fileHandle) return -1;
+static int dummy_file_write(const char* buf, int32_t size,
+                            MimeClosure draftData) {
+  if (!draftData) return -1;
 
-  nsIOutputStream* tStream = (nsIOutputStream*)fileHandle;
+  PR_ASSERT(draftData.mType == MimeClosure::isMimeDraftData);
+  if (draftData.mType != MimeClosure::isMimeDraftData) {
+    return -1;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)draftData.mClosure;
+
   uint32_t bytesWritten;
-  tStream->Write(buf, size, &bytesWritten);
+  mdd->tmpFileStream->Write(buf, size, &bytesWritten);
   return (int)bytesWritten;
 }
 
@@ -420,7 +427,8 @@ static int mime_parse_stream_write(nsMIMESession* stream, const char* buf,
 
   if (!mdd || !mdd->obj) return -1;
 
-  return mdd->obj->clazz->parse_buffer((char*)buf, size, mdd->obj);
+  return mdd->obj->clazz->parse_buffer(
+      (char*)buf, size, MimeClosure(MimeClosure::isMimeObject, mdd->obj));
 }
 
 static void mime_free_attachments(nsTArray<nsMsgAttachedFile*>& attachments) {
@@ -1708,12 +1716,15 @@ static void mime_parse_stream_abort(nsMIMESession* stream, int status) {
   PR_Free(mdd);
 }
 
-static int make_mime_headers_copy(void* closure, MimeHeaders* headers) {
-  mime_draft_data* mdd = (mime_draft_data*)closure;
+static int make_mime_headers_copy(MimeClosure closure, MimeHeaders* headers) {
+  NS_ASSERTION(closure && headers, "null mime draft data and/or headers");
+  if (!closure || !headers) return 0;
 
-  NS_ASSERTION(mdd && headers, "null mime draft data and/or headers");
-
-  if (!mdd || !headers) return 0;
+  PR_ASSERT(closure.mType == MimeClosure::isMimeDraftData);
+  if (closure.mType != MimeClosure::isMimeDraftData) {
+    return 0;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)closure.mClosure;
 
   NS_ASSERTION(mdd->headers == NULL, "non null mime draft data headers");
 
@@ -1723,16 +1734,22 @@ static int make_mime_headers_copy(void* closure, MimeHeaders* headers) {
   return 0;
 }
 
-int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
+int mime_decompose_file_init_fn(MimeClosure stream_closure,
+                                MimeHeaders* headers) {
+  NS_ASSERTION(stream_closure && headers,
+               "null mime draft data and/or headers");
+  if (!stream_closure || !headers) return -1;
+
+  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
+  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+    return -1;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
   nsMsgAttachedFile* newAttachment = 0;
   int nAttachments = 0;
   // char *hdr_value = NULL;
   char* parm_value = NULL;
   bool creatingMsgBody = true;
-
-  NS_ASSERTION(mdd && headers, "null mime draft data and/or headers");
-  if (!mdd || !headers) return -1;
 
   if (mdd->options->decompose_init_count) {
     mdd->options->decompose_init_count++;
@@ -1896,7 +1913,7 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
   // For now, we are always going to decode all of the attachments
   // for the message. This way, we have native data
   if (creatingMsgBody) {
-    MimeDecoderData* (*fn)(MimeConverterOutputCallback, void*) = 0;
+    MimeDecoderData* (*fn)(MimeConverterOutputCallback, MimeClosure) = 0;
 
     //
     // Initialize a decoder if necessary.
@@ -1905,11 +1922,8 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
       fn = &MimeB64DecoderInit;
     else if (newAttachment->m_encoding.LowerCaseEqualsLiteral(
                  ENCODING_QUOTED_PRINTABLE)) {
-      mdd->decoder_data =
-          MimeQPDecoderInit(/* The (MimeConverterOutputCallback) cast is to turn
-                               the `void' argument into `MimeObject'. */
-                            ((MimeConverterOutputCallback)dummy_file_write),
-                            mdd->tmpFileStream);
+      mdd->decoder_data = MimeQPDecoderInit(
+          dummy_file_write, MimeClosure(MimeClosure::isMimeDraftData, mdd));
       if (!mdd->decoder_data) return MIME_OUT_OF_MEMORY;
     } else if (newAttachment->m_encoding.LowerCaseEqualsLiteral(
                    ENCODING_UUENCODE) ||
@@ -1924,10 +1938,8 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
       fn = &MimeYDecoderInit;
 
     if (fn) {
-      mdd->decoder_data = fn(/* The (MimeConverterOutputCallback) cast is to
-                                turn the `void' argument into `MimeObject'. */
-                             ((MimeConverterOutputCallback)dummy_file_write),
-                             mdd->tmpFileStream);
+      mdd->decoder_data =
+          fn(dummy_file_write, MimeClosure(MimeClosure::isMimeDraftData, mdd));
       if (!mdd->decoder_data) return MIME_OUT_OF_MEMORY;
     }
   }
@@ -1936,12 +1948,17 @@ int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
 }
 
 int mime_decompose_file_output_fn(const char* buf, int32_t size,
-                                  void* stream_closure) {
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
+                                  MimeClosure stream_closure) {
+  NS_ASSERTION(stream_closure && buf, "missing mime draft data and/or buf");
+  if (!stream_closure || !buf) return -1;
+
+  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
+  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+    return -1;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
   int ret = 0;
 
-  NS_ASSERTION(mdd && buf, "missing mime draft data and/or buf");
-  if (!mdd || !buf) return -1;
   if (!size) return 0;
 
   if (!mdd->tmpFileStream) return 0;
@@ -1971,10 +1988,14 @@ int mime_decompose_file_output_fn(const char* buf, int32_t size,
   return 0;
 }
 
-int mime_decompose_file_close_fn(void* stream_closure) {
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
+int mime_decompose_file_close_fn(MimeClosure stream_closure) {
+  if (!stream_closure) return -1;
 
-  if (!mdd) return -1;
+  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
+  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+    return -1;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
 
   if (--mdd->options->decompose_init_count > 0) return 0;
 
@@ -2050,7 +2071,7 @@ extern "C" void* mime_bridge_create_draft_stream(
   mdd->options->url = strdup(mdd->url_name);
   mdd->options->format_out = format_out;  // output format
   mdd->options->decompose_file_p = true;  /* new field in MimeDisplayOptions */
-  mdd->options->stream_closure = mdd;
+  mdd->options->stream_closure = MimeClosure(MimeClosure::isMimeDraftData, mdd);
   mdd->options->html_closure = mdd;
   mdd->options->decompose_headers_info_fn = make_mime_headers_copy;
   mdd->options->decompose_file_init_fn = mime_decompose_file_init_fn;

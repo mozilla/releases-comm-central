@@ -310,5 +310,6 @@ static int MimeSunAttachment_parse_child_line(MimeObject* obj, const char* line,
   PR_ASSERT(kid);
   if (!kid) return -1;
 
-  return kid->clazz->parse_buffer(line, length, kid);
+  return kid->clazz->parse_buffer(line, length,
+                                  MimeClosure(MimeClosure::isMimeObject, kid));
 }

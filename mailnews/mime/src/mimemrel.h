@@ -48,7 +48,7 @@ struct MimeMultipartRelated {
   PLHashTable* hash;
 
   MimeConverterOutputCallback real_output_fn;
-  void* real_output_closure;
+  MimeClosure real_output_closure;
 
   char* curtag;
   int32_t curtag_max;
@@ -56,6 +56,6 @@ struct MimeMultipartRelated {
 };
 
 #define MimeMultipartRelatedClassInitializer(ITYPE, CSUPER) \
-  { MimeMultipartClassInitializer(ITYPE, CSUPER) }
+  {MimeMultipartClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMEMREL_H_ */

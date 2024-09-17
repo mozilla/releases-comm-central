@@ -24,7 +24,7 @@ static int MimeInlineImage_parse_begin(MimeObject*);
 static int MimeInlineImage_parse_line(const char*, int32_t, MimeObject*);
 static int MimeInlineImage_parse_eof(MimeObject*, bool);
 static int MimeInlineImage_parse_decoded_buffer(const char*, int32_t,
-                                                MimeObject*);
+                                                MimeClosure);
 
 static int MimeInlineImageClassInitialize(MimeObjectClass* oclass) {
   MimeLeafClass* lclass = (MimeLeafClass*)oclass;
@@ -129,8 +129,14 @@ static int MimeInlineImage_parse_begin(MimeObject* obj) {
   // URI for the url being run...
   //
   if (obj->options && obj->options->stream_closure && obj->content_type) {
-    mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
-    if ((msd) && (msd->channel)) {
+    PR_ASSERT(obj->options->stream_closure.mType ==
+              MimeClosure::isMimeStreamData);
+    if (obj->options->stream_closure.mType != MimeClosure::isMimeStreamData) {
+      return -1;
+    }
+    mime_stream_data* msd =
+        (mime_stream_data*)(obj->options->stream_closure.mClosure);
+    if (msd->channel) {
       msd->channel->SetContentType(nsDependentCString(obj->content_type));
     }
   }
@@ -157,11 +163,17 @@ static int MimeInlineImage_parse_eof(MimeObject* obj, bool abort_p) {
 }
 
 static int MimeInlineImage_parse_decoded_buffer(const char* buf, int32_t size,
-                                                MimeObject* obj) {
+                                                MimeClosure closure) {
   /* This is called (by MimeLeafClass->parse_buffer) with blocks of data
    that have already been base64-decoded.  Pass this raw image data
    along to the backend-specific image display code.
    */
+  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
+  if (closure.mType != MimeClosure::isMimeObject) {
+    return -1;
+  }
+  MimeObject* obj = (MimeObject*)closure.mClosure;
+
   MimeInlineImage* img = (MimeInlineImage*)obj;
   int status;
 

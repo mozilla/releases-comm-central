@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    "mime_closure.h",
     "mimecont.h",
     "mimecryp.h",
     "mimecth.h",

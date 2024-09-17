@@ -35,7 +35,8 @@ typedef struct MimeLeaf MimeLeaf;
 struct MimeLeafClass {
   MimeObjectClass object;
   /* This is the callback that is handed to the decoder. */
-  int (*parse_decoded_buffer)(const char* buf, int32_t size, MimeObject* obj);
+  int (*parse_decoded_buffer)(const char* buf, int32_t size,
+                              MimeClosure closure);
   int (*close_decoder)(MimeObject* obj);
 };
 
@@ -55,6 +56,6 @@ struct MimeLeaf {
 };
 
 #define MimeLeafClassInitializer(ITYPE, CSUPER) \
-  { MimeObjectClassInitializer(ITYPE, CSUPER) }
+  {MimeObjectClassInitializer(ITYPE, CSUPER)}
 
 #endif /* _MIMELEAF_H_ */

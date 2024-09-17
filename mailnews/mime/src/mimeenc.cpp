@@ -38,7 +38,7 @@ struct MimeDecoderData {
   MimeObject* objectToDecode;  // might be null, only used for QP currently
   /* Where to write the decoded data */
   MimeConverterOutputCallback write_buffer;
-  void* closure;
+  MimeClosure closure;
 };
 
 static int mime_decode_qp_buffer(MimeDecoderData* data, const char* buffer,
@@ -697,7 +697,7 @@ int MimeDecoderDestroy(MimeDecoderData* data, bool abort_p) {
 
 static MimeDecoderData* mime_decoder_init(mime_encoding which,
                                           MimeConverterOutputCallback output_fn,
-                                          void* closure) {
+                                          MimeClosure closure) {
   MimeDecoderData* data = PR_NEW(MimeDecoderData);
   if (!data) return 0;
   memset(data, 0, sizeof(*data));
@@ -711,12 +711,12 @@ static MimeDecoderData* mime_decoder_init(mime_encoding which,
 }
 
 MimeDecoderData* MimeB64DecoderInit(MimeConverterOutputCallback output_fn,
-                                    void* closure) {
+                                    MimeClosure closure) {
   return mime_decoder_init(mime_Base64, output_fn, closure);
 }
 
 MimeDecoderData* MimeQPDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void* closure, MimeObject* object) {
+                                   MimeClosure closure, MimeObject* object) {
   MimeDecoderData* retData =
       mime_decoder_init(mime_QuotedPrintable, output_fn, closure);
   if (retData) retData->objectToDecode = object;
@@ -724,12 +724,12 @@ MimeDecoderData* MimeQPDecoderInit(MimeConverterOutputCallback output_fn,
 }
 
 MimeDecoderData* MimeUUDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void* closure) {
+                                   MimeClosure closure) {
   return mime_decoder_init(mime_uuencode, output_fn, closure);
 }
 
 MimeDecoderData* MimeYDecoderInit(MimeConverterOutputCallback output_fn,
-                                  void* closure) {
+                                  MimeClosure closure) {
   return mime_decoder_init(mime_yencode, output_fn, closure);
 }
 
