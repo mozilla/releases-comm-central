@@ -312,6 +312,7 @@ function ChangeImageSrc() {
 
   gTimerID = setTimeout(LoadPreviewImage, 800);
 
+  SetAttachCheckbox();
   doOverallEnabling();
 }
 
