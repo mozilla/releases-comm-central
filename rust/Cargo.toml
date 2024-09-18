@@ -205,4 +205,4 @@ sync15 = { git = "https://github.com/mozilla/application-services", rev = "5af28
 tabs = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "5af28e120fd636135d50894cf16a74e21dc63045" }
-gpu-descriptor = { git = "https://github.com/zakarumych/gpu-descriptor", rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d" }
+allocator-api2 = { path = "../../third_party/rust/allocator-api2" }

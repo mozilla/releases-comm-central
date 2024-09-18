@@ -106,11 +106,6 @@ git = "https://github.com/thunderbird/xml-struct-rs.git"
 rev = "87723b90425d474fd29095d8b710baefd7c9b13a"
 replace-with = "vendored-sources"
 
-[source."git+https://github.com/zakarumych/gpu-descriptor?rev=7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d"]
-git = "https://github.com/zakarumych/gpu-descriptor"
-rev = "7b71a4e47c81903ad75e2c53deb5ab1310f6ff4d"
-replace-with = "vendored-sources"
-
 
 # Take advantage of the fact that cargo will treat lines starting with #
 # as comments to add preprocessing directives. This file can thus by copied
