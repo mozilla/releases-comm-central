@@ -21,7 +21,7 @@ class InAppNotificationCloseButton extends HTMLButtonElement {
     }
 
     window.MozXULElement?.insertFTLIfNeeded("messenger/inAppNotifications.ftl");
-    document.l10n.connectRoot(this);
+    document.l10n.translateFragment(this);
   }
 
   handleEvent(event) {
@@ -33,10 +33,6 @@ class InAppNotificationCloseButton extends HTMLButtonElement {
         this.dispatchEvent(newEvent);
         break;
     }
-  }
-
-  disconnectedCallback() {
-    document.l10n.disconnectRoot(this);
   }
 }
 

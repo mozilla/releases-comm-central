@@ -15,7 +15,7 @@ add_setup(async function () {
   await BrowserTestUtils.browserLoaded(tab.browser, undefined, url =>
     url.endsWith("inAppNotificationCloseButton.xhtml")
   );
-  tab.browser.focus();
+  await SimpleTest.promiseFocus(tab.browser);
   browser = tab.browser;
   button = browser.contentWindow.document.querySelector(`button`);
 
