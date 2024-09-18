@@ -1,0 +1,12 @@
+[DEFAULT]
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.rights.override=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+subsuite = "thunderbird"
+
+["browser_inAppNotificationMessengerIntegrationDisabled.js"]

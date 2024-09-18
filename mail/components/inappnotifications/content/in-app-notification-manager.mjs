@@ -14,7 +14,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 /**
  * Manager element creating in-app notifications.
  */
-class InAppNotificationManager extends HTMLElement {
+export class InAppNotificationManager extends HTMLElement {
   /**
    * @type {?InAppNotification}
    */

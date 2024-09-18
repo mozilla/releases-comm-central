@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<template id="inAppNotificationCloseButtonTemplate">
+<html:template id="inAppNotificationCloseButtonTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <img src="" data-l10n-id="in-app-notification-close-image" />
-</template>
+</html:template>
 
-<template id="inAppNotificationContainerTemplate">
+<html:template id="inAppNotificationContainerTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <div class="in-app-notification-container in-app-notification-donation">
     <button is="in-app-notification-close-button"></button>
-    <img src="" alt="" class="icon">
+    <img src="" alt="" class="icon" />
     <div class="in-app-notification-content">
       <h1 class="in-app-notification-heading"></h1>
       <div class="in-app-notification-description-wrapper">
@@ -21,8 +21,8 @@
       </a>
     </div>
   </div>
-</template>
+</html:template>
 
-<template id="inAppNotificationTemplate">
+<html:template id="inAppNotificationTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <in-app-notification-container></in-app-notification-container>
-</template>
+</html:template>
