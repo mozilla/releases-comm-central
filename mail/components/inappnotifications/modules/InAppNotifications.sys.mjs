@@ -9,6 +9,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
   NotificationFilter: "resource:///modules/NotificationFilter.sys.mjs",
+  NotificationUpdater: "resource:///modules/NotificationUpdater.sys.mjs",
 });
 
 const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];
@@ -57,10 +58,13 @@ export const InAppNotifications = {
       this
     );
     Services.obs.addObserver(this, "intl:app-locales-changed");
-    //TODO set up refresh from network
-    //TODO possibly don't do this here and wait for the network refresh to have
-    // completed/failed instead.
-    this._updateNotificationManager();
+    lazy.NotificationUpdater.onUpdate = updatedNotifications => {
+      this.updateNotifications(updatedNotifications);
+    };
+    const shouldPopulateFromStorage = await lazy.NotificationUpdater.init();
+    if (shouldPopulateFromStorage) {
+      this._updateNotificationManager();
+    }
   },
 
   /**

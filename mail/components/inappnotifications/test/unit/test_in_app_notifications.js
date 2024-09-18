@@ -19,6 +19,12 @@ const { TestUtils } = ChromeUtils.importESModule(
 const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
+const { clearInterval } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
+const { NotificationUpdater } = ChromeUtils.importESModule(
+  "resource:///modules/NotificationUpdater.sys.mjs"
+);
 
 const SAFETY_MARGIN_MS = 100000;
 
@@ -49,6 +55,10 @@ function getMockNotifications() {
 add_setup(async () => {
   do_get_profile();
   await InAppNotifications.init();
+
+  registerCleanupFunction(() => {
+    clearInterval(NotificationUpdater._interval);
+  });
 });
 
 add_task(function test_initializedData() {
@@ -62,6 +72,12 @@ add_task(function test_initializedData() {
     InAppNotifications.notificationManager instanceof NotificationManager,
     "Should expose a NotificationManager instance"
   );
+  Assert.equal(
+    typeof NotificationUpdater.onUpdate,
+    "function",
+    "Should register update callback"
+  );
+  Assert.ok(NotificationUpdater._interval, "Should initialize updater");
 });
 
 add_task(async function test_noReinitialization() {

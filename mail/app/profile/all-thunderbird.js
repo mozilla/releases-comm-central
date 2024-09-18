@@ -1403,3 +1403,7 @@ pref("browser.theme.dark-private-windows", true);
 
 // In-app notifications are disabled while the feature is being implemented.
 pref("mail.inappnotifications.enabled", false);
+// Refresh interval for in-app notifications in ms (6 hours)
+pref("mail.inappnotifications.refreshInterval", 21600000);
+// In-app notification server endpoint
+pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/notifications.json");

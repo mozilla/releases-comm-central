@@ -1,0 +1,62 @@
+[
+  {
+    "id": "f103c749-9932-48bb-8f61-2e8ed2beacc3",
+    "start_at": "2012-03-29T10:05:45-06:00",
+    "end_at": "2024-05-03T15:49:20.331000Z",
+    "title": "hello user - this needs translation",
+    "description": "lorem ipsum user - this needs translation",
+    "URL": "https://thunderbird.net/",
+    "CTA": "lorem ipsum user - this needs translation",
+    "severity": 5,
+    "type": "donation",
+    "targeting": {
+      "percent_chance": 100.0,
+      "exclude": [
+        {
+          "locales": [],
+          "versions": [],
+          "channels": [],
+          "operating_systems": []
+        }
+      ],
+      "include": [
+        {
+          "locales": [],
+          "versions": [],
+          "channels": [],
+          "operating_systems": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "f103c749-9932-48bb-8f61-2e8ed2beacc3",
+    "start_at": "2024-05-03T15:49:20.331000Z",
+    "end_at": "2024-05-03T15:49:20.331000Z",
+    "title": "hello user - this needs translation",
+    "description": "lorem ipsum user - this needs translation",
+    "URL": "https://thunderbird.net/",
+    "CTA": "lorem ipsum user - this needs translation",
+    "severity": 5,
+    "type": "donation",
+    "targeting": {
+      "percent_chance": 10.0,
+      "exclude": [
+        {
+          "locales": [],
+          "versions": [],
+          "channels": [],
+          "operating_systems": []
+        }
+      ],
+      "include": [
+        {
+          "locales": [],
+          "versions": [],
+          "channels": [],
+          "operating_systems": []
+        }
+      ]
+    }
+  }
+]

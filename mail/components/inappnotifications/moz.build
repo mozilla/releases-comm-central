@@ -10,6 +10,7 @@ EXTRA_JS_MODULES += [
     "modules/InAppNotifications.sys.mjs",
     "modules/NotificationFilter.sys.mjs",
     "modules/NotificationManager.sys.mjs",
+    "modules/NotificationUpdater.sys.mjs",
 ]
 
 JAR_MANIFESTS += ["jar.mn"]
