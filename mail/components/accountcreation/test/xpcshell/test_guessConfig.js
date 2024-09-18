@@ -156,8 +156,13 @@ add_task(async function testSocketUtilIMAPExpiredCert1() {
     Ci.nsMsgSocketType.SSL,
     imapCommands
   );
-  const response = await promise;
-  Assert.equal(response, null);
+  await Assert.rejects(
+    promise,
+    ({ message }) =>
+      message.includes("Connection to expired.test.test:993 failed") &&
+      message.includes("Peer\u2019s Certificate has expired"),
+    "TLS connection error should cause an exception"
+  );
   Assert.ok(!sslErrors._gotCertError);
 
   Assert.ok(
@@ -248,8 +253,15 @@ add_task(async function testSocketUtilIMAPMistmatchedCert1() {
     Ci.nsMsgSocketType.SSL,
     imapCommands
   );
-  const response = await promise;
-  Assert.equal(response, null);
+  await Assert.rejects(
+    promise,
+    ({ message }) =>
+      message.includes("Connection to mitm.test.test:993 failed") &&
+      message.includes(
+        "domain name does not match the server\u2019s certificate"
+      ),
+    "TLS connection error should cause an exception"
+  );
   Assert.ok(!sslErrors._gotCertError);
 
   Assert.ok(

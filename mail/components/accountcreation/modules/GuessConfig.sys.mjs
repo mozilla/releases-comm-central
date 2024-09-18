@@ -3,12 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
+XPCOMUtils.defineLazyServiceGetter(
+  lazy,
+  "nssErrorsService",
+  "@mozilla.org/nss_errors_service;1",
+  Ci.nsINSSErrorsService
+);
 
 import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
@@ -1201,11 +1208,8 @@ function SocketUtil(
         // Did it fail because of a bad certificate?
         let isCertError = false;
         if (!Components.isSuccessCode(status)) {
-          const nssErrorsService = Cc[
-            "@mozilla.org/nss_errors_service;1"
-          ].getService(Ci.nsINSSErrorsService);
           try {
-            const errorType = nssErrorsService.getErrorClass(status);
+            const errorType = lazy.nssErrorsService.getErrorClass(status);
             if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
               isCertError = true;
             }
@@ -1223,6 +1227,12 @@ function SocketUtil(
           ) {
             gAccountSetupLogger.info(
               `Bad (overridable) certificate for ${hostname}:${port}. Set mailnews.auto_config.guess.requireGoodCert to false to allow detecting this as a valid SSL/TLS configuration`
+            );
+
+            // Report to the error callback.
+            const errorMessage = lazy.nssErrorsService.getErrorMessage(status);
+            throw new Error(
+              `Connection to ${hostname}:${port} failed: ${errorMessage}`
             );
           } else {
             const socketTransport = transport.QueryInterface(
