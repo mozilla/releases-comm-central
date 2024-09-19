@@ -365,22 +365,19 @@ toolbar[customizing="true"][collapsed="true"] {
   }
 
   & > .toolbarbutton-menubutton-dropmarker {
-    height: auto;
-    width: auto;
-    padding: 1px 5px;
-  }
-
-  & .toolbarbutton-menu-dropmarker,
-  & > .toolbarbutton-menubutton-dropmarker {
-    flex: 0;
-    content: var(--icon-nav-down-sm);
+    min-width: 24px;
+    background-image: var(--icon-nav-down-sm);
+    background-position: center;
+    background-repeat: no-repeat;
     -moz-context-properties: stroke;
     stroke: currentColor;
   }
 
-  & .toolbarbutton-menu-dropmarker::part(icon),
-  & > .toolbarbutton-menubutton-dropmarker::part(icon) {
-    width: 12px;
+  & .toolbarbutton-menu-dropmarker {
+    flex: 0;
+    content: var(--icon-nav-down-sm);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
   }
 
   & > .toolbarbutton-menubutton-button {
