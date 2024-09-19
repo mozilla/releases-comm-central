@@ -6,6 +6,12 @@ import { OAuth2 } from "resource:///modules/OAuth2.sys.mjs";
 
 import { OAuth2Providers } from "resource:///modules/OAuth2Providers.sys.mjs";
 
+const log = console.createInstance({
+  prefix: "mailnews.oauth",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mailnews.oauth.loglevel",
+});
+
 /**
  * A collection of `OAuth2` objects that have previously been created.
  * Only weak references are stored here, so if all the owners of an `OAuth2`
@@ -62,13 +68,23 @@ OAuth2Module.prototype = {
     this._prefRoot = root;
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
+    const prefScopes = scopeSet(scope);
 
     const details = OAuth2Providers.getHostnameDetails(aHostname);
     if (
       details &&
-      (details[0] != issuer ||
-        !scopeSet(details[1]).isSupersetOf(scopeSet(scope)))
+      (details[0] != issuer || !scopeSet(details[1]).isSupersetOf(prefScopes))
     ) {
+      if (details[0] != issuer) {
+        log.info(
+          `${root}oauth2.issuer "${issuer}" doesn't match "${details[0]}"`
+        );
+      }
+      if (!scopeSet(details[1]).isSupersetOf(prefScopes)) {
+        log.info(
+          `${root}oauth2.scope "${scope}" is not a superset of "${details[1]}"`
+        );
+      }
       // Found in the list of hardcoded providers. Use the hardcoded values.
       // But only if what we had wasn't a narrower scope of current
       // defaults. Updating scope would cause re-authorization.
@@ -116,11 +132,13 @@ OAuth2Module.prototype = {
         oauth.username == aUsername &&
         scopeSet(oauth.scope).isSupersetOf(wantedScopes)
       ) {
+        log.debug(`Found existing OAuth2 object for ${issuer}`);
         this._oauth = oauth;
         break;
       }
     }
     if (!this._oauth) {
+      log.debug(`Creating a new OAuth2 object for ${issuer}`);
       // Define the OAuth property and store it.
       this._oauth = new OAuth2(scope, issuerDetails);
       this._oauth.username = aUsername;
@@ -171,13 +189,18 @@ OAuth2Module.prototype = {
       }
 
       if (token) {
+        log.debug(`Found existing login for ${this._loginOrigin}...`);
         const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
           Ci.nsIWritablePropertyBag
         );
         if (token != login.password) {
+          log.debug("... changing password");
           propBag.setProperty("password", token);
         }
         if (scope != login.httpRealm) {
+          log.debug(
+            `... changing httpRealm from "${login.httpRealm}" to "${scope}"`
+          );
           propBag.setProperty("httpRealm", scope);
         }
         Services.logins.modifyLogin(login, propBag);
@@ -189,6 +212,9 @@ OAuth2Module.prototype = {
 
     // Unless the token is null, we need to create and fill in a new login
     if (token) {
+      log.debug(
+        `Creating new login for ${this._loginOrigin} with httpRealm "${scope}"`
+      );
       const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
       );
@@ -281,6 +307,7 @@ OAuth2Module.prototype = {
  * testing scenarios.
  */
 OAuth2Module._forgetObjects = function () {
+  log.debug("Clearing OAuth2 objects from cache");
   oAuth2Objects.clear();
 };
 
