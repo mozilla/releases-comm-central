@@ -344,8 +344,15 @@ PromiseTestUtils.PromiseSearchNotify.prototype = {
  * their storeTokens, and has a promise to pause until completion (or failure).
  */
 PromiseTestUtils.PromiseStoreScanListener = function () {
-  this.messages = []; // Full messages collect here.
-  this.tokens = []; // storeTokens collect here.
+  // Collect messages in these arrays. Might be more sensible to have a single
+  // array of objects, but that would complicate comparisons in tests. EnvDate
+  // in particular will be hard to control in test - it'll usually be a
+  // current timestamp.
+  // So keep as separate arrays for now.
+  this.messages = []; // Full raw message data collects here.
+  this.tokens = []; // storeToken collects here.
+  this.envAddrs = []; // envAddr collects here.
+  this.envDates = []; // envDate collects here.
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
     this._reject = reject;
@@ -371,9 +378,11 @@ PromiseTestUtils.PromiseStoreScanListener.prototype = {
 
   // nsIStoreScanListener callbacks
   onStartScan() {},
-  onStartMessage(tok) {
+  onStartMessage(tok, envAddr, envDate) {
     this.tokens.push(tok);
-    this.messages.push("");
+    this.envAddrs.push(envAddr);
+    this.envDates.push(envDate);
+    this.messages.push(""); // To be filled out in onDataAvailable().
   },
   onStopScan(status) {
     if (status == Cr.NS_OK) {

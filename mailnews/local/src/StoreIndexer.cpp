@@ -107,7 +107,9 @@ NS_IMETHODIMP StoreIndexer::OnStartScan() { return NS_OK; }
 
 // nsIStoreScanListener.onStartMessage()
 // Called when a new message is about to start.
-NS_IMETHODIMP StoreIndexer::OnStartMessage(nsACString const& token) {
+NS_IMETHODIMP StoreIndexer::OnStartMessage(nsACString const& token,
+                                           nsACString const& envAddr,
+                                           PRTime envDate) {
   MOZ_ASSERT(!mParser);  // Can't be mid-message!
 
   mStoreToken = token;

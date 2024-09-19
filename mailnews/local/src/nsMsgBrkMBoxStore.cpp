@@ -149,7 +149,8 @@ NS_IMETHODIMP MboxScanner::OnStartRequest(nsIRequest* req) {
 
   nsAutoCString token;
   token.AppendInt(msgOffset);
-  rv = mScanListener->OnStartMessage(token);
+  rv = mScanListener->OnStartMessage(token, mMboxStream->EnvAddr(),
+                                     mMboxStream->EnvDate());
   if (NS_FAILED(rv)) {
     return rv;
   }
@@ -352,7 +353,9 @@ NS_IMETHODIMP MboxCompactor::OnStartScan() {
 }
 
 // nsIStoreScanListener callback called at the start of each message.
-NS_IMETHODIMP MboxCompactor::OnStartMessage(nsACString const& storeToken) {
+NS_IMETHODIMP MboxCompactor::OnStartMessage(nsACString const& storeToken,
+                                            nsACString const& envAddr,
+                                            PRTime envDate) {
   MOZ_ASSERT(mCurToken.IsEmpty());  // We should _not_ be processing a msg yet!
 
   // Ask compactListener if we should keep this message.

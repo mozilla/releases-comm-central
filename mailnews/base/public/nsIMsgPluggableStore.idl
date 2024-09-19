@@ -424,12 +424,23 @@ interface nsIStoreScanListener : nsIStreamListener
   void onStartScan();
 
   /**
-   * Called just before onStartRequest, to communicate the store token of
+   * Called just before onStartRequest, to communicate details of
    * the message within the msgStore.
    * After this, the standard nsIStreamListener callbacks are called to
    * transfer this single message.
+   *
+   * The values passed out via this callback are:
+   * storeToken - The token used to refer to the message in the store.
+   * envAddr - The envelope sender, if known (else empty string).
+   * envDate - The envelope timestamp, if known (else 0).
+   *
+   * Traditionally, envAddr and envDate are stored in the "From " line of
+   * mbox files. Other store types may not supply this data.
+   * It's not critical but can be useful filler data in edge cases.
+   * For example, if a malformed message has no "Date:" header, using the
+   * date it was received/written into the mbox is better than nothing.
    */
-  void onStartMessage(in AUTF8String storeToken);
+  void onStartMessage(in AUTF8String storeToken, in AUTF8String envAddr, in PRTime envDate);
 
   /**
    * Called when the scan operation as a whole is complete.

@@ -113,10 +113,17 @@ void MaildirScanner::NextFile() {
     mStatus = mDirEnumerator->GetNextFile(getter_AddRefs(f));
   }
   if (NS_SUCCEEDED(mStatus) && f) {
+    // Try and provide the listener a sensible(ish) envDate.
+    PRTime mtime;
+    nsresult rv = f->GetLastModifiedTime(&mtime);
+    if (NS_FAILED(rv)) {
+      mtime = 0;
+    }
+
     // Start streaming the next message.
     nsAutoCString storeToken;
     f->GetNativeLeafName(storeToken);
-    mStatus = mScanListener->OnStartMessage(storeToken);
+    mStatus = mScanListener->OnStartMessage(storeToken, ""_ns, mtime);
 
     nsCOMPtr<nsIInputStream> stream;
     if (NS_SUCCEEDED(mStatus)) {
