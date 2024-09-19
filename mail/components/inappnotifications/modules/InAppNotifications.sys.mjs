@@ -61,7 +61,9 @@ export const InAppNotifications = {
     lazy.NotificationUpdater.onUpdate = updatedNotifications => {
       this.updateNotifications(updatedNotifications);
     };
-    const shouldPopulateFromStorage = await lazy.NotificationUpdater.init();
+    const shouldPopulateFromStorage = await lazy.NotificationUpdater.init(
+      this._jsonFile.data.lastUpdate || 0
+    );
     if (shouldPopulateFromStorage) {
       this._updateNotificationManager();
     }

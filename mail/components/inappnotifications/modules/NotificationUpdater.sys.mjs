@@ -59,10 +59,11 @@ export const NotificationUpdater = {
    * Initialize the updater, setting up a scheduled update as well as
    * immediately checking for the latest data from the server.
    *
+   * @param {number} lastUpdate - Timestamp (in ms) of the last cached update.
    * @returns {boolean} True if the caller should initialize its state from
    *   cache, since updating from the network did not yield any information.
    */
-  async init() {
+  async init(lastUpdate) {
     if (this._interval) {
       return false;
     }
@@ -73,6 +74,10 @@ export const NotificationUpdater = {
     this._interval = lazy.setInterval(() => {
       this._fetch();
     }, refreshInterval);
+    // Don't immediately update if the cache is new enough.
+    if (lastUpdate + refreshInterval > Date.now()) {
+      return true;
+    }
     const didFetch = await this._fetch();
     return !didFetch;
   },

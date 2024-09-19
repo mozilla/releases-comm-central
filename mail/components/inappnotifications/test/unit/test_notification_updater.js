@@ -209,7 +209,7 @@ add_task(async function test_init() {
   const { resolve, promise } = Promise.withResolvers();
 
   const initTs = Date.now();
-  const initResult = await NotificationUpdater.init();
+  const initResult = await NotificationUpdater.init(0);
 
   Assert.ok(!initResult, "Should report successful fetch on init");
   Assert.equal(updateSpy.callCount, 1, "Should call update callback in init");
@@ -218,7 +218,7 @@ add_task(async function test_init() {
     "Should pass notifications to update callback from init"
   );
 
-  const initAgainResult = await NotificationUpdater.init();
+  const initAgainResult = await NotificationUpdater.init(0);
 
   Assert.ok(
     !initAgainResult,
@@ -235,6 +235,7 @@ add_task(async function test_init() {
   const now = Date.now();
 
   clearInterval(NotificationUpdater._interval);
+  NotificationUpdater._interval = null;
 
   Assert.equal(
     NotificationUpdater.onUpdate.callCount,
@@ -253,4 +254,22 @@ add_task(async function test_init() {
 
   Services.prefs.clearUserPref("mail.inappnotifications.refreshInterval");
   NotificationUpdater.onUpdate = updateSpy;
+  updateSpy.resetHistory();
+});
+
+add_task(async function test_init_withRecentUpdate() {
+  const initTs = Date.now();
+  const initResult = await NotificationUpdater.init(initTs - 100);
+
+  clearInterval(NotificationUpdater._interval);
+  NotificationUpdater._interval = null;
+
+  Assert.ok(initResult, "Should not have fetched updates on init");
+  Assert.equal(
+    updateSpy.callCount,
+    0,
+    "Should not have called the update callback"
+  );
+
+  updateSpy.resetHistory();
 });
