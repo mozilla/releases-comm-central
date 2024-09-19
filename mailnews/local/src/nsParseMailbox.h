@@ -51,6 +51,14 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsresult FinalizeHeaders();
   nsresult InternSubject(struct message_header* header);
 
+  // A way to pass in 'out-of-band' envelope sender/timestamp data.
+  // Totally optional, but envDate is used to fill in on malformed messages
+  // without a "Date:" header.
+  void SetEnvDetails(nsACString const& envAddr, PRTime envDate) {
+    m_EnvAddr = envAddr;
+    m_EnvDate = envDate;
+  }
+
   // Helpers for dealing with multi-value headers.
   struct message_header* GetNextHeaderInAggregate(
       nsTArray<struct message_header*>& list);
@@ -62,6 +70,13 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsCOMPtr<nsIMsgDatabase> m_mailDB;
   nsCOMPtr<nsIMsgDatabase> m_backupMailDB;
 
+  // These two aren't part of the message, but may be provided 'out-of-band',
+  // via SetEnvDetails();
+  // Traditionally they are parsed from the "From " lines in
+  // mbox files.
+  nsAutoCString m_EnvAddr;  // "" if missing.
+  PRTime m_EnvDate;         // 0 if missing.
+
   nsMailboxParseState m_state;
   int64_t m_position;
   // The start of the "From " line (the line before the start of the message).
@@ -69,13 +84,6 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   // The start of the message headers (immediately follows "From " line).
   uint64_t m_headerstartpos;
   nsMsgKey m_new_key;  // DB key for the new header.
-
-  // The "From " line, if any.
-  ::nsByteArray m_envelope;
-
-  // These two point into the m_envelope buffer.
-  struct message_header m_envelope_from;
-  struct message_header m_envelope_date;
 
   // The raw header data.
   ::nsByteArray m_headers;

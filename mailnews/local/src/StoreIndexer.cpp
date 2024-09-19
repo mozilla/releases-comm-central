@@ -121,6 +121,8 @@ NS_IMETHODIMP StoreIndexer::OnStartMessage(nsACString const& token,
   rv = mParser->SetBackupMailDB(mBackupDB);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  mParser->SetEnvDetails(envAddr, envDate);
+
   mIsStupidlyLongLine = false;
   mCurrentMsgSize = 0;
   // Clear the buffer.
