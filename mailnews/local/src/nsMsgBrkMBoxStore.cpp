@@ -374,6 +374,8 @@ NS_IMETHODIMP MboxCompactor::OnStartMessage(nsACString const& storeToken,
     MOZ_ASSERT(mDestStream);
     MOZ_ASSERT(!mMsgOut);
     mMsgOut = new MboxMsgOutputStream(mDestStream, false);
+    // Preserve metadata on the "From " line.
+    mMsgOut->SetEnvelopeDetails(envAddr, envDate);
   }
 
   return NS_OK;
