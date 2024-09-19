@@ -15,6 +15,8 @@
 #include "Helpers.h"
 #include "MboxTestData.h"
 #include <algorithm>
+#include <regex>
+#include <string>
 
 // To run:
 // ./mach gtest "TestMsgMboxWrite.*"
@@ -44,8 +46,16 @@ static void testOutputStreamCase(testing::MboxCase const& t, size_t writeSize) {
     ASSERT_EQ(total, msg.Length());
   }
 
+  // Strip back the "From " lines before comparison to avoid problems
+  // with runtime-dependent timestamps.
+  // i.e. "From - Fri Sep 13 07:14:24 2024\r\n" => "From \r\n"
+  std::regex re(R"((^|\n)(From )(.*))");
+  std::string got =
+      std::regex_replace(std::string(mboxStream->Data()), re, "$1$2");
+  std::string expect = std::regex_replace(std::string(t.mbox), re, "$1$2");
+
   // Got the mbox we expected?
-  ASSERT_EQ(mboxStream->Data(), t.mbox);
+  ASSERT_EQ(got, expect);
 }
 
 // Run our basic test cases of well-formed messages. Tests quoting etc...

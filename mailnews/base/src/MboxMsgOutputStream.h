@@ -54,6 +54,10 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
   MboxMsgOutputStream() = delete;
   int64_t StartPos() { return mStartPos; }
 
+  // Set details to use in the "From " separator line.
+  // MUST be called before any writes are attempted!
+  void SetEnvelopeDetails(nsACString const& sender, PRTime received);
+
  private:
   virtual ~MboxMsgOutputStream();
 
@@ -85,6 +89,10 @@ class MboxMsgOutputStream : public nsIOutputStream, nsISafeOutputStream {
   // we can't yet decide whether escaping is needed, e.g. we have processed
   // ">>Fro" and are awaiting further data to see if it is "m ".
   nsAutoCStringN<16> mStartFragment;
+
+  // Values to write to separator line (i.e. "From <SENDER> <TIMESTAMP>").
+  nsAutoCString mEnvelopeSender;    // Empty = use a default.
+  PRTime mEnvelopeReceivedTime{0};  // 0 = Default to current time.
 
   nsresult Emit(nsACString const& data);
   nsresult Emit(const char* data, uint32_t numBytes);

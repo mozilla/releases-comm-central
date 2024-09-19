@@ -5,6 +5,7 @@
 
 #include "MboxMsgOutputStream.h"
 #include "nsMsgUtils.h"  // For CEscapeString().
+#include "nsPrintfCString.h"
 #include "nsString.h"
 #include "mozilla/Logging.h"
 #include <algorithm>
@@ -17,16 +18,16 @@ NS_IMPL_ISUPPORTS(MboxMsgOutputStream, nsIOutputStream, nsISafeOutputStream);
 MboxMsgOutputStream::MboxMsgOutputStream(nsIOutputStream* mboxStream,
                                          bool closeInnerWhenDone)
     : mInner(mboxStream), mCloseInnerWhenDone(closeInnerWhenDone) {
-  nsresult rv;
-
   // Record the starting position of the underlying mbox file.
   // If this fails, the stream will be kept in error state.
+  nsresult rv;
   mSeekable = do_QueryInterface(mInner, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    rv = mSeekable->Tell(&mStartPos);
-  }
-
   if (NS_FAILED(rv)) {
+    MOZ_CRASH("Using MboxMsgOutputStream on non-seekable mboxStream");
+  }
+  rv = mSeekable->Tell(&mStartPos);
+  if (NS_FAILED(rv)) {
+    NS_WARNING("MboxMsgOutputStream couldn't determine start.");
     mState = eError;
     mStatus = rv;
     mStartPos = -1;
@@ -37,6 +38,58 @@ MboxMsgOutputStream::MboxMsgOutputStream(nsIOutputStream* mboxStream,
 }
 
 MboxMsgOutputStream::~MboxMsgOutputStream() { Close(); }
+
+void MboxMsgOutputStream::SetEnvelopeDetails(nsACString const& sender,
+                                             PRTime received) {
+  // If MboxMsgOutputStream was badly constructed (with a non-seekable
+  // underlying mboxStream), just quietly bail out.
+  if (mState == eError) {
+    return;
+  }
+  // But trying to set details after we've started writing? Definitely not.
+  MOZ_ASSERT(mState == eInitial);
+
+  mEnvelopeSender = sender;
+  mEnvelopeReceivedTime = received;
+}
+
+// Helper to build up a From line. For example,
+// "From bob@example.com Sat Jan 03 01:05:34 1996\r\n"
+// If envSender is empty string, then "-" will be used as a placeholder
+// (as per earlier versions of TB).
+// If envReceived is 0, then the current time will be used.
+static nsCString buildFromLine(nsACString const& envSender,
+                               PRTime envReceived) {
+  nsAutoCString sender(envSender);
+  // From http://qmail.org./man/man5/mbox.html:
+  // "If the envelope sender is empty (i.e., if this is a bounce message),
+  // the program uses MAILER-DAEMON instead."
+  // But it's almost certainly not a bounce message. And we don't have
+  // an envelope sender from SMTP, say. But we need something.
+  // Earlier versions of TB used "-", so we'll go with that.
+  if (sender.IsEmpty()) {
+    sender = "-"_ns;
+  }
+
+  // "If the envelope sender contains spaces, tabs, or newlines, the program
+  // replaces them with hyphens."
+  sender.ReplaceChar(" \t\r\n"_ns, '-');
+
+  // If received time not explicitly set, we'll use current time.
+  if (envReceived == 0) {
+    envReceived = PR_Now();
+  }
+
+  // Format the time (no timezone - mbox assumes UTC).
+  // eg "Sat Jan 03 01:05:34 1996"
+  char dateBuf[64];
+  PRExplodedTime exploded;
+  PR_ExplodeTime(envReceived, PR_GMTParameters, &exploded);
+  PR_FormatTimeUSEnglish(dateBuf, sizeof(dateBuf), "%a %b %d %H:%M:%S %Y",
+                         &exploded);
+
+  return nsPrintfCString("From %s %s\r\n", sender.get(), dateBuf);
+}
 
 nsresult MboxMsgOutputStream::Emit(nsACString const& data) {
   return Emit(data.Data(), data.Length());
@@ -121,10 +174,7 @@ NS_IMETHODIMP MboxMsgOutputStream::Write(const char* buf, uint32_t count,
   // First write?
   if (mState == eInitial) {
     // As per RFC 4155, this _should_ be "From <SENDER> <TIMESTAMP>\r\n".
-    // But we don't really have that info here, so we'll just use "From \r\n".
-    // Other msgStore implementations won't store it either, so seems silly
-    // to jump through hoops for it.
-    rv = Emit("From \r\n"_ns);
+    rv = Emit(buildFromLine(mEnvelopeSender, mEnvelopeReceivedTime));
     NS_ENSURE_SUCCESS(rv, rv);
     mState = eStartOfLine;
   }
