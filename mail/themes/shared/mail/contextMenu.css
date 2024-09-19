@@ -78,7 +78,7 @@ menupopup {
     &[disabled="true"]:hover,
     &[checked="true"][disabled="true"],
     &[checked="true"][disabled="true"]:hover {
-      color: var(--panel-disabled-color);
+      color: var(--text-color-disabled);
       background-color: transparent;
     }
 

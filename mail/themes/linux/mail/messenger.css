@@ -249,7 +249,7 @@
 }
 
 menubar > menu[disabled="true"] {
-  color: var(--panel-disabled-color);
+  color: var(--text-color-disabled);
 }
 
 menulist {
