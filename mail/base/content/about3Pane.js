@@ -969,6 +969,8 @@ var folderPane = {
    */
   _hideLocalFolders: false,
 
+  _autoExpandedRows: [],
+
   _modes: {
     all: {
       name: "all",
@@ -1658,6 +1660,7 @@ var folderPane = {
     folderTree.addEventListener("dragover", this);
     folderTree.addEventListener("dragleave", this);
     folderTree.addEventListener("drop", this);
+    folderTree.addEventListener("dragend", this);
 
     document.getElementById("folderPaneHeaderBar").hidden =
       XULStoreUtils.isItemHidden("messenger", "folderPaneHeaderBar");
@@ -1747,10 +1750,13 @@ var folderPane = {
         this._onDragOver(event);
         break;
       case "dragleave":
-        this._clearDropTarget(event);
+        this._onDragLeave(event);
         break;
       case "drop":
         this._onDrop(event);
+        break;
+      case "dragend":
+        this._onDragEnd(event);
         break;
     }
   },
@@ -3030,6 +3036,7 @@ var folderPane = {
     if (!row) {
       return;
     }
+    this._clearCollapseTimer();
 
     const targetFolder = MailServices.folderLookup.getFolderForURL(row.uri);
     if (!targetFolder) {
@@ -3151,6 +3158,12 @@ var folderPane = {
     row.classList.add("drop-target");
   },
 
+  _onDragLeave(event) {
+    this._timedExpand();
+    this._setCollapseTimer();
+    this._clearDropTarget(event);
+  },
+
   /**
    * Set a timer to expand `row` in 1000ms. If called again before the timer
    * expires and with a different row, the timer is cleared and a new one
@@ -3172,24 +3185,51 @@ var folderPane = {
     }
     this._expandRow = row;
     this._expandTimer = setTimeout(() => {
-      this._autoExpandedRow = this._expandRow;
+      this._autoExpandedRows.push(this._expandRow);
       folderTree.expandRow(this._expandRow);
       delete this._expandRow;
       delete this._expandTimer;
     }, 1000);
   },
 
+  /**
+   * Set a timer to collapse all auto-expanded rows in 1000ms.
+   */
+  _setCollapseTimer() {
+    this._collapseTimer = setTimeout(() => {
+      this._collapseAutoExpandedRows();
+      delete this._collapseTimer;
+    }, 1000);
+  },
+
+  /**
+   * Clear the timer to collapse all auto-expanded rows..
+   */
+  _clearCollapseTimer() {
+    if (this._collapseTimer) {
+      clearTimeout(this._collapseTimer);
+      delete this._collapseTimer;
+    }
+  },
+
   _clearDropTarget() {
     folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
   },
 
+  _collapseAutoExpandedRows() {
+    while (this._autoExpandedRows.length) {
+      for (const row of this._autoExpandedRows) {
+        folderTree.collapseRow(row);
+      }
+      this._autoExpandedRows.length = 0;
+      this._clearCollapseTimer();
+    }
+  },
+
   _onDrop(event) {
     this._timedExpand();
-    if (this._autoExpandedRow) {
-      folderTree.collapseRow(this._autoExpandedRow);
-      delete this._autoExpandedRow;
-    }
     this._clearDropTarget();
+    this._autoExpandedRows.length = 0;
     if (event.dataTransfer.dropEffect == "none") {
       // Somehow this is possible. It should not be possible.
       return;
@@ -3314,6 +3354,14 @@ var folderPane = {
     }
 
     event.preventDefault();
+  },
+
+  _onDragEnd(event) {
+    if (event.dataTransfer.dropEffect != "none") {
+      return;
+    }
+    folderPane._timedExpand();
+    folderPane._collapseAutoExpandedRows();
   },
 
   /**
@@ -4302,6 +4350,7 @@ var threadPane = {
     threadTree.table.body.addEventListener("dragstart", this);
     threadTree.addEventListener("dragover", this);
     threadTree.addEventListener("drop", this);
+    threadTree.addEventListener("dragend", this);
     threadTree.addEventListener("expanded", this);
     threadTree.addEventListener("collapsed", this);
     threadTree.addEventListener("scroll", this);
@@ -4350,6 +4399,9 @@ var threadPane = {
         break;
       case "dragover":
         this._onDragOver(event);
+        break;
+      case "dragend":
+        this._onDragEnd(event);
         break;
       case "drop":
         this._onDrop(event);
@@ -4712,6 +4764,17 @@ var threadPane = {
         );
       }
     }
+  },
+
+  /**
+   * Handle threadPane drag end events.
+   */
+  _onDragEnd(event) {
+    if (event.dataTransfer.dropEffect != "none") {
+      return;
+    }
+    folderPane._timedExpand();
+    folderPane._collapseAutoExpandedRows();
   },
 
   _onContextMenu(event, retry = false) {
