@@ -4,6 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+
+const lazy = {};
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "bypassFiltering",
+  "mail.inappnotifications.bypass-filtering",
+  false
+);
 
 export const NotificationFilter = {
   /**
@@ -14,6 +23,9 @@ export const NotificationFilter = {
    * @returns {boolean} If this notification should be shown.
    */
   isActiveNotification(notification, seed) {
+    if (lazy.bypassFiltering) {
+      return true;
+    }
     const now = Date.now();
     const parsedEnd = Date.parse(notification.end_at);
     const parsedStart = Date.parse(notification.start_at);
@@ -67,6 +79,9 @@ export const NotificationFilter = {
    * @returns {boolean} If the given profile matches this application.
    */
   checkProfile(profile) {
+    if (lazy.bypassFiltering) {
+      return true;
+    }
     if (
       Array.isArray(profile.locales) &&
       !profile.locales.includes(Services.locale.appLocaleAsBCP47)

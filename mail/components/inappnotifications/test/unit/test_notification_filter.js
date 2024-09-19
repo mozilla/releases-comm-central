@@ -360,3 +360,52 @@ add_task(async function test_isActiveNotification_url() {
   );
   await consoleErrorPromise;
 });
+
+add_task(function test_isActiveNotification_bypassFiltering() {
+  const now = Date.now();
+  const notification = {
+    end_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
+    start_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
+    URL: "skip://me",
+    targeting: {
+      include: [],
+    },
+  };
+
+  Assert.ok(
+    !NotificationFilter.isActiveNotification(notification),
+    "Should exclude notification without bypass"
+  );
+
+  Services.prefs.setBoolPref("mail.inappnotifications.bypass-filtering", true);
+
+  Assert.ok(
+    NotificationFilter.isActiveNotification(notification),
+    "Should let notification pass with bypass enabled"
+  );
+
+  Services.prefs.clearUserPref("mail.inappnotifications.bypass-filtering");
+});
+
+add_task(function test_checkProfile_bypassFiltering() {
+  const profile = {
+    operating_systems: ["LCARS"],
+    channels: ["fictional testing channel"],
+    versions: ["0"],
+    locales: ["foo-BAR"],
+  };
+
+  Assert.ok(
+    !NotificationFilter.checkProfile(profile),
+    "Should not accept profile without bypass"
+  );
+
+  Services.prefs.setBoolPref("mail.inappnotifications.bypass-filtering", true);
+
+  Assert.ok(
+    NotificationFilter.checkProfile(profile),
+    "Should accept profile with active bypass"
+  );
+
+  Services.prefs.clearUserPref("mail.inappnotifications.bypass-filtering");
+});

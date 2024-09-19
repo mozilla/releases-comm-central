@@ -1407,3 +1407,5 @@ pref("mail.inappnotifications.enabled", false);
 pref("mail.inappnotifications.refreshInterval", 21600000);
 // In-app notification server endpoint
 pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/notifications.json");
+// Disables all filtering of in-app notifications, useful for testing.
+pref("mail.inappnotifications.bypass-filtering", false);
