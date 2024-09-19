@@ -174,7 +174,7 @@
 
 @media (prefers-contrast) {
   :root:not([lwtheme]) {
-    --button-color: ButtonText;
+    --button-text-color: ButtonText;
     --button-background-color: ButtonFace;
     --button-border-color: ButtonText;
     --button-hover-text-color: SelectedItemText;

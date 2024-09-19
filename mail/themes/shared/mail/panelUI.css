@@ -735,7 +735,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   padding-inline: 8px;
   padding-block: calc(var(--appmenu-button-padding) + 3px);
   border-radius: var(--arrowpanel-menuitem-border-radius);
-  color: var(--button-color);
+  color: var(--button-text-color);
   background-color: color-mix(in srgb, currentColor 7%, transparent);;
   margin-bottom: 4px;
   font-weight: 600;
@@ -1016,7 +1016,7 @@ menulist {
   height: var(--appmenu-fontsize-icon-size);
   -moz-context-properties: fill, stroke;
   fill: var(--button-background-color, ButtonFace);
-  stroke: var(--button-color);
+  stroke: var(--button-text-color);
   border-radius: 50%;
   margin-block-start: 1px;
   padding: 0;

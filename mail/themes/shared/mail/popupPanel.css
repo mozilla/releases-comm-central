@@ -156,7 +156,7 @@ html|input.editContactTextbox {
     appearance: none;
     border: 0;
     border-radius: 4px;
-    color: var(--button-color, inherit);
+    color: var(--button-text-color, inherit);
     background-color: var(--button-background-color, color-mix(in srgb, currentColor 13%, transparent));
     padding: 8px 16px;
     font-weight: 600;
