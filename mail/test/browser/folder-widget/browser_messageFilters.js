@@ -146,7 +146,7 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
   await be_in_folder(folderA);
 
   const filterc = await openFiltersDialogs();
-  wait_for_window_focused(filterc);
+  await SimpleTest.promiseFocus(filterc);
 
   // Get the newsgroups to pop up.
   const serverMenu = filterc.document.getElementById("serverMenu");
@@ -209,6 +209,7 @@ async function create_simple_filter() {
  */
 async function openFiltersDialogs() {
   const filterListPromise = promise_new_window("mailnews:filterlist");
+
   if (AppConstants.platform == "macosx") {
     // Can't click the menus on mac.
     window.MsgFilters();
