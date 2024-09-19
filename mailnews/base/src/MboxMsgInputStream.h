@@ -72,6 +72,18 @@ class MboxMsgInputStream : public nsIInputStream {
    */
   uint64_t MsgOffset() { return mMsgOffset; }
 
+  /**
+   * If the "From " line contained a sender, it can be accessed here.
+   * Otherwise an empty string will be returned.
+   */
+  nsCString EnvAddr();
+
+  /**
+   * If the "From " line contained a timestamp, it can be accessed here.
+   * Otherwise 0 will be returned.
+   */
+  PRTime EnvDate();
+
  protected:
   virtual ~MboxMsgInputStream();
 

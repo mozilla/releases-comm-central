@@ -75,13 +75,13 @@ class MboxParser {
    * MinChunk is the minimum amount of data callers should pass into Feed().
    * If less than MinChunk is passed in, Feed() knows that there will be no
    * more data to come (i.e. EOF).
-   * It is chosen to be a reasonable minimum for our end-of-message
-   * heuristic (A "From " line followed by a couple of likely-looking header
-   * lines).
+   * It is chosen to be a reasonable minimum for our end-of-message heuristic:
+   * A "From " line followed by a couple of likely-looking header lines.
+   *
    * Note: This is just a guideline minimum value for callers. In practice,
    * sensible callers would aim to feed in chunks much larger than this.
    */
-  static constexpr size_t MinChunk = 128;
+  static constexpr size_t MinChunk = 512;
 
   /**
    * Feed a chunk of data into the parser for processing.
@@ -165,9 +165,27 @@ class MboxParser {
   void Kick() {
     MOZ_ASSERT(IsFinished());
     if (mState == eMessageComplete) {
+      mEnvAddr.Truncate();
+      mEnvDate = 0;
       mState = eExpectFromLine;
     }
   }
+
+  /**
+   * If the "From " line contained a sender, it can be accessed here.
+   * Otherwise an empty string will be returned.
+   * NOTE: you can guarantee the "From " line parsing is complete by the
+   * time data becomes available via Available()/Drain().
+   */
+  nsCString EnvAddr() { return mEnvAddr; }
+
+  /**
+   * If the "From " line contained a timestamp, it can be accessed here.
+   * Otherwise 0 will be returned.
+   * NOTE: you can guarantee the "From " line parsing is complete by the
+   * time data becomes available via Available()/Drain().
+   */
+  PRTime EnvDate() { return mEnvDate; }
 
  private:
   // Processed data is stored here, ready to be read out by Drain().
@@ -176,6 +194,10 @@ class MboxParser {
   size_t mCursor{0};
   // Number of '>' characters at start of line, for eCountQuoting state.
   int mQuoteCnt{0};
+
+  // Values potentially extracted by parsing the "From " line.
+  nsAutoCString mEnvAddr;  // Empty = none.
+  PRTime mEnvDate{0};      // 0 = none.
 
   // Our states. In general, the Expect* states don't consume any data -
   // they just sniff data and move to a new state accordingly.
@@ -243,6 +265,58 @@ class MboxParser {
     }
   }
 
+  // Attempt to parse a "From " line to extract sender and timestamp.
+  // e.g. "From bob@example.com Tue Dec 09 15:30:45 2014"
+  // Will always set both envAddr AND envDate, or neither.
+  static void ParseFromLine(span line, nsACString& envAddr, PRTime& envDate) {
+    MOZ_ASSERT(IsFromLine(line));
+    auto p = line.begin();
+    auto end = line.end();
+    if (line.Length() < 5) {
+      return;
+    }
+    // Skip "From ".
+    p += 5;
+    // Skip extra spaces.
+    while (p != end && *p == ' ') ++p;
+
+    // Address is everything up to next space.
+    auto addrBegin = p;
+    p = std::find(p, end, ' ');
+    if (p == end) {
+      return;  // No space delimiter found.
+    }
+    span addrSpan(addrBegin, p);
+    if (addrSpan.Length() > 254) {
+      // Too big for an email address.
+      // (https://www.rfc-editor.org/errata_search.php?rfc=3696)
+      // Doesn't have to be an email address (eg "MAILER-DAEMON"), but using
+      // the email length limit seems reasonable.
+      return;
+    }
+
+    // Skip space.
+    while (p != end && *p == ' ') ++p;
+
+    // Assume everything else is date.
+    span dateSpan(p, end);
+
+    // Parse the timestamp, assuming GMT.
+    nsAutoCString tmp(dateSpan.Elements(), dateSpan.Length());
+    // Date _should_ be exactly 24 chars, but allow some wiggle-room.
+    if (dateSpan.Length() < 22 || dateSpan.Length() > 32) {
+      return;
+    }
+    PRTime tmpDate;
+    if (PR_ParseTimeString(tmp.get(), true, &tmpDate) != PR_SUCCESS) {
+      return;
+    }
+
+    // If we got this far we have valid sender and date to return - yay!
+    envAddr.Assign(addrSpan.Elements(), addrSpan.Length());
+    envDate = tmpDate;
+  }
+
   // We're expecting a new message to start, or an EOF.
   span handle_eExpectFromLine(span data) {
     if (data.Length() < 5) {  // Enough to check for "From "?
@@ -250,6 +324,19 @@ class MboxParser {
       return span();          // discard data
     }
     if (IsFromLine(data)) {
+      // The "From " line could have an email address (up to 254 bytes) and a
+      // date string (24 bytes). MinChunk is tuned to avoid spliting up long
+      // (but plausible) "From " lines.
+      auto eol = std::find(data.begin(), data.end(), '\n');
+      if (eol != data.end()) {
+        // We've got a whole line - try and extract sender/date info.
+        if (eol > data.begin() && *(eol - 1) == '\r') {
+          --eol;
+        }
+        MOZ_ASSERT(mEnvAddr.IsEmpty());
+        MOZ_ASSERT(mEnvDate == 0);
+        ParseFromLine(span(data.begin(), eol), mEnvAddr, mEnvDate);
+      }
       mState = eDiscardFromLine;
     } else {
       MOZ_LOG(gMboxLog, LogLevel::Warning,
@@ -612,7 +699,12 @@ MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream)
       mUnused(0),
       mTotalUsed(0),
       mMsgOffset(0),
-      mParser(new MboxParser()) {}
+      mParser(new MboxParser()) {
+  // Ensure the first chunk is read and parsed.
+  // This should include the "From " line, so EnvAddr()/EnvDate()
+  // can be used right away.
+  mStatus = PumpData();
+}
 
 MboxMsgInputStream::~MboxMsgInputStream() { Close(); }
 
@@ -653,6 +745,10 @@ nsresult MboxMsgInputStream::Continue(bool& more) {
   more = true;
   return NS_OK;
 }
+
+nsCString MboxMsgInputStream::EnvAddr() { return mParser->EnvAddr(); }
+
+PRTime MboxMsgInputStream::EnvDate() { return mParser->EnvDate(); }
 
 // Throw NS_BASE_STREAM_CLOSED if closed.
 // Return 0 if EOF but not closed.
