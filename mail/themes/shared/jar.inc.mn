@@ -128,6 +128,7 @@
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/imMenulist.css                       (../shared/mail/imMenulist.css)
   skin/classic/messenger/imRichlistbox.css                    (../shared/mail/imRichlistbox.css)
+  skin/classic/messenger/inAppNotificationContainer.css       (../shared/mail/inAppNotificationContainer.css)
   skin/classic/messenger/inContentDialog.css                  (../shared/mail/inContentDialog.css)
   skin/classic/messenger/infobar.css                          (../shared/mail/infobar.css)
   skin/classic/messenger/joinchat.css                         (../shared/mail/joinchat.css)
@@ -465,6 +466,9 @@
   skin/classic/messenger/illustrations/octopus-setup.svg      (../shared/mail/illustrations/octopus-setup.svg)
   skin/classic/messenger/illustrations/sloth.svg              (../shared/mail/illustrations/sloth.svg)
   skin/classic/messenger/illustrations/sync-devices.svg       (../shared/mail/illustrations/sync-devices.svg)
+  skin/classic/messenger/illustrations/in-app-notification-heart.svg                 (../shared/mail/illustrations/in-app-notification-heart.svg)
+  skin/classic/messenger/illustrations/in-app-notification-donation-default.svg      (../shared/mail/illustrations/in-app-notification-donation-default.svg)
+  skin/classic/messenger/illustrations/in-app-notification-donation-default-dark.svg (../shared/mail/illustrations/in-app-notification-donation-default-dark.svg)
 
 # New design system
   skin/classic/messenger/avatars.css                          (../shared/mail/avatars.css)
@@ -738,6 +742,7 @@
   skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
 
 # XS - 12x12px icons
+  skin/classic/messenger/icons/xs/close.svg                    (../shared/mail/icons/xs/close.svg)
   skin/classic/messenger/icons/xs/dot.svg                      (../shared/mail/icons/xs/dot.svg)
   skin/classic/messenger/icons/xs/sparkle-star.svg             (../shared/mail/icons/xs/sparkle-star.svg)
   skin/classic/messenger/icons/xs/replies.svg                  (../shared/mail/icons/xs/replies.svg)

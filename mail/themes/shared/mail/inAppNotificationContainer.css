@@ -1,0 +1,216 @@
+/* - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host {
+  color-scheme: light dark;
+  --container-background: linear-gradient(135deg, #0db7bd, #6b21a8);
+  --container-border: none;
+  --content-background: light-dark(#ffffff, #18181b);
+  --content-border: light-dark(#ffffff, #4f5683);
+  --title-text: light-dark(#6b21a8, #f5e8ff);
+  --text: light-dark(#18181b, #fafafa);
+  --button-background: linear-gradient(#6b21a8, #571c87);
+  --button-stroke: light-dark(#3a0764, #ddb4fe);
+  --button-text: light-dark(#fafafa, #18181b);
+  --button-text-active: var(--button-text);
+  --button-background-hover: linear-gradient(#6b21a8, #571c87);
+  --button-background-active: light-dark(#3a0764, #ddb4fe);
+  --button-focus-ring: light-dark(#3a0764, #ddb4fe);
+  --illustration-light: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default.svg");
+  --illustration-dark: url("chrome://messenger/skin/illustrations/in-app-notification-donation-default-dark.svg");
+  --illustration: var(--illustration-light);
+  --close-button-background: light-dark(#fafafa, #18181b);
+  --close-button-background-active: light-dark(#18181b, #fafafa);
+  --close-button-text: var(--text);
+  --close-button-text-active: light-dark(#fafafa, #18181b);
+  --close-button-border: transparent;
+  --close-button-border-hover: currentColor;
+  --close-button-border-active: light-dark(#18181b, #fafafa);
+  --close-button-outline: currentColor;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --button-background: linear-gradient(#f5e8ff, #ecd5ff);
+    --illustration: var(--illustration-dark);
+  }
+}
+
+@media (prefers-contrast) {
+  :host {
+    --background: Canvas;
+    --contianer-border: AccentColor;
+    --content-border: AccentColor;
+    --title-text: CanvasText;
+    --text: CanvasText;
+    --button-background: ButtonFace;
+    --button-stroke: ButtonBorder;
+    --button-text: ButtonText;
+    --button-text-active: SelectedItemText;
+    --button-background-hover: SelectedItem;
+    --button-background-active: SelectedItem;
+    --button-focus-ring: SelectedItem;
+    --illustration: none;
+    --close-button-background: ButtonFace;
+    --close-button-background-active: SelectedItem;
+    --close-button-text: ButtonText;
+    --close-button-text-active: SelectedItemText;
+    --close-button-border: transparent;
+    --close-button-border-hover: ButtonBorder;
+    --close-button-border-active: SelectedItem;
+    --close-button-outline: Highlight;
+  }
+}
+
+.in-app-notification-container.in-app-notification-donation {
+  position: relative;
+  width: 288px;
+  background: var(--container-background);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid var(--container-border);
+  border-radius: 6px;
+  padding: 1px;
+  box-shadow: 0 2px 6px -2px rgba(0,0,0,0.25);
+  overflow: clip;
+
+  & .in-app-notification-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid var(--content-border);
+    border-radius: 5px;
+    color: var(--text);
+    padding: 6px;
+    padding-inline: 48px 36px;
+    isolation: isolate;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: var(--content-background);
+      background-image: var(--illustration);
+      background-size: calc(100% + 2px); /* This accounts for the border */
+      background-position: bottom 0 left -1px;
+      background-repeat: no-repeat;
+      border-radius: 4px;
+      z-index: -1;
+    }
+
+    &:dir(rtl)::before {
+      transform: scaleX(-1);
+    }
+  }
+
+  & a[is="in-app-notification-button"] {
+    position: absolute;
+    inset-block-end: 6px;
+    inset-inline-end: 6px;
+    background: var(--button-background);
+    border: 1px solid var(--button-stroke);
+    border-radius: 3px;
+    color: var(--button-text);
+    font-weight: bold;
+    padding: 6px 20px;
+    text-decoration: none;
+    text-wrap: nowrap;
+    overflow: clip;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 52px);
+
+    &:hover,
+    &:active,
+    &:focus {
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--button-focus-ring);
+      outline-offset: 2px;
+    }
+
+    &:active {
+      background: var(--button-background-active);
+      color: var(--button-text-active);
+    }
+  }
+
+  & button[is="in-app-notification-close-button"] {
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-end: 6px;
+    background: var(--close-button-background);
+    border: 1px solid var(--close-button-border);
+    border-radius: 50%;
+    color: var(--close-button-text);
+    height: 20px;
+    width: 20px;
+    margin: 0;
+    padding: 0;
+    -moz-context-properties: fill, stroke;
+    fill: currentColor;
+    stroke: currentColor;
+    z-index: 10;
+
+    &:hover {
+      border-color: var(--close-button-border-hover);
+    }
+
+    &:focus-visible {
+      border-color: var(--close-button-border-hover);
+      outline: 2px solid var(--close-button-outline);
+      outline-offset: 1px;
+    }
+
+    &:active {
+      background: var(--close-button-background-active);
+      color: var(--close-button-text-active);
+      border-color: var(--close-button-border-active);
+    }
+
+    & img {
+      content: var(--icon-close-xs);
+      margin-block: 2px -1px;
+      box-sizing: border-box;
+    }
+  }
+
+  & .in-app-notification-heading {
+    color: var(--title-text);
+    font-size: 1.1rem;
+    margin: 0;
+    hyphens: auto;
+    text-wrap: balance;
+  }
+
+  & .in-app-notification-description {
+    color: var(--text);
+    font-size: 0.9rem;
+    min-height: 2lh;
+    margin: 0;
+    margin-block-end: 60px;
+    hyphens: auto;
+    max-height: 20lh;
+    overflow: auto;
+  }
+
+  & .icon {
+    position: absolute;
+    content: url("chrome://messenger/skin/illustrations/in-app-notification-heart.svg");
+    -moz-context-properties: fill, stroke;
+    fill: #fca5a5;
+    stroke: #dc2626;
+    inset-block-start: 3px;
+    inset-inline-start: 0;
+    z-index: 9;
+    pointer-events: none;
+
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+}

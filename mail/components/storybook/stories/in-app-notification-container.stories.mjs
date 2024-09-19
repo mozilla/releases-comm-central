@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
-import "mail/components/inappnotifications/content/in-app-notification-container.mjs"; //eslint-disable-line import/no-unassigned-import
+/* eslint-disable import/no-unassigned-import */
+import "mail/components/inappnotifications/content/in-app-notification-container.mjs";
+import "mail/themes/shared/mail/icons.css";
+/* eslint-enable import/no-unassigned-import */
 
 export default {
   title: "Widgets/In App Notifications/Container",

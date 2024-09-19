@@ -19,9 +19,12 @@ class InAppNotificationContainer extends HTMLElement {
       const template = document
         .getElementById("inAppNotificationContainerTemplate")
         .content.cloneNode(true);
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = "chrome://messenger/skin/inAppNotificationContainer.css";
       const shadowRoot = this.attachShadow({ mode: "open" });
 
-      shadowRoot.append(template);
+      shadowRoot.append(styles, template);
     }
 
     for (const attr of attrs) {
