@@ -606,9 +606,6 @@ struct message_header* nsParseMailMessageState::GetNextHeaderInAggregate(
 
   struct message_header* header =
       (struct message_header*)PR_Calloc(1, sizeof(struct message_header));
-  if (!header) {
-    return nullptr;
-  }
   list.AppendElement(header);
   return header;
 }
@@ -620,30 +617,33 @@ void nsParseMailMessageState::GetAggregateHeader(
   // the header. Here we combine all the lines together, as though they were
   // really all found on the same line
 
-  size_t length = 0;
+  struct message_header* header = nullptr;
+  int length = 0;
+  size_t i;
 
   // Count up the bytes required to allocate the aggregated header
-  for (size_t i = 0; i < list.Length(); i++) {
-    struct message_header* header = list.ElementAt(i);
+  for (i = 0; i < list.Length(); i++) {
+    header = list.ElementAt(i);
     length += (header->length + 1);  //+ for ","
   }
 
-  outHeader->length = 0;
-  outHeader->value = nullptr;
   if (length > 0) {
     char* value = (char*)PR_CALLOC(length + 1);  //+1 for null term
     if (value) {
       // Catenate all the To lines together, separated by commas
       value[0] = '\0';
       size_t size = list.Length();
-      for (size_t i = 0; i < size; i++) {
-        struct message_header* header = list.ElementAt(i);
+      for (i = 0; i < size; i++) {
+        header = list.ElementAt(i);
         PL_strncat(value, header->value, header->length);
         if (i + 1 < size) PL_strcat(value, ",");
       }
       outHeader->length = length;
       outHeader->value = value;
     }
+  } else {
+    outHeader->length = 0;
+    outHeader->value = nullptr;
   }
 }
 
@@ -750,6 +750,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
           header = &m_replyTo;
         else if (headerStr.EqualsLiteral("received")) {
           header = &receivedBy;
+          header->length = 0;
         }
         break;
       case 's':
@@ -841,11 +842,8 @@ nsresult nsParseMailMessageState::ParseHeaders() {
       while (value < bufWrite && (*value == ' ' || *value == '\t')) value++;
 
       header->value = value;
-      int32_t len = bufWrite - value;
-      if (len < 0) {
-        header->length = 0;
-        header->value = nullptr;
-      }
+      header->length = bufWrite - value;
+      if (header->length < 0) header->length = 0;
     }
     if (*buf == '\r' || *buf == '\n') {
       char* last = bufWrite;
