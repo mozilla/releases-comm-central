@@ -19,6 +19,7 @@ gkrust-shared = { path = "../../../toolkit/library/rust/shared" }
 gecko-fuzz-targets = { path = "../../../tools/fuzzing/rust", optional = true }
 fog-gtest = { path = "../../../toolkit/components/glean/tests/gtest" }
 dap_ffi-gtest = { path = "../../../toolkit/components/telemetry/dap/ffi-gtest" }
+kvstore-gtest = { path = "../../../toolkit/components/kvstore/test/gtest" }
 
 # Workarounds for https://github.com/rust-lang/rust/issues/58393
 mozglue-static = { path = "../../../mozglue/static/rust" }
