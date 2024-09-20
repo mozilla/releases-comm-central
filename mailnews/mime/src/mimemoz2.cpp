@@ -805,10 +805,17 @@ static int mime_output_fn(const char* buf, int32_t size,
 
 extern "C" int mime_display_stream_write(nsMIMESession* stream, const char* buf,
                                          int32_t size) {
-  mime_stream_data* msd =
-      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
+  if (!stream->data_object) {
+    return -1;
+  }
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeStreamData);
+  if (stream->data_object.mType != MimeClosure::isMimeStreamData) {
+    return -1;
+  }
 
-  MimeObject* obj = (msd ? msd->obj : 0);
+  mime_stream_data* msd = (mime_stream_data*)stream->data_object.mClosure;
+
+  MimeObject* obj = msd->obj;
   if (!obj) return -1;
 
   return obj->clazz->parse_buffer((char*)buf, size,
@@ -816,8 +823,12 @@ extern "C" int mime_display_stream_write(nsMIMESession* stream, const char* buf,
 }
 
 extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
-  mime_stream_data* msd =
-      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeStreamData);
+  if (stream->data_object.mType != MimeClosure::isMimeStreamData) {
+    return;
+  }
+
+  mime_stream_data* msd = (mime_stream_data*)stream->data_object.mClosure;
   MimeObject* obj = (msd ? msd->obj : 0);
   if (obj) {
     int status;
@@ -869,8 +880,12 @@ extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
 }
 
 extern "C" void mime_display_stream_abort(nsMIMESession* stream, int status) {
-  mime_stream_data* msd =
-      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeStreamData);
+  if (stream->data_object.mType != MimeClosure::isMimeStreamData) {
+    return;
+  }
+
+  mime_stream_data* msd = (mime_stream_data*)stream->data_object.mClosure;
 
   MimeObject* obj = (msd ? msd->obj : 0);
   if (obj) {
@@ -1443,7 +1458,7 @@ extern "C" void* mime_bridge_create_display_stream(
   stream->complete = mime_display_stream_complete;
   stream->abort = mime_display_stream_abort;
   stream->put_block = mime_display_stream_write;
-  stream->data_object = msd;
+  stream->data_object = MimeClosure(MimeClosure::isMimeStreamData, msd);
 
   status = obj->clazz->initialize(obj);
   if (status >= 0) status = obj->clazz->parse_begin(obj);
@@ -1704,7 +1719,12 @@ extern "C" nsresult mimeEmitterStartHeader(MimeDisplayOptions* opt,
 extern "C" nsresult mimeSetNewURL(nsMIMESession* stream, char* url) {
   if ((!stream) || (!url) || (!*url)) return NS_ERROR_FAILURE;
 
-  mime_stream_data* msd = (mime_stream_data*)stream->data_object;
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeStreamData);
+  if (stream->data_object.mType != MimeClosure::isMimeStreamData) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  mime_stream_data* msd = (mime_stream_data*)stream->data_object.mClosure;
   if (!msd) return NS_ERROR_FAILURE;
 
   char* tmpPtr = strdup(url);

@@ -62,8 +62,12 @@ void bridge_set_output_type(void* bridgeStream, nsMimeOutputType aType) {
   nsMIMESession* session = (nsMIMESession*)bridgeStream;
 
   if (session) {
-    // BAD ASSUMPTION!!!! NEED TO CHECK aType
-    mime_stream_data* msd = (mime_stream_data*)session->data_object;
+    PR_ASSERT(session->data_object.mType == MimeClosure::isMimeStreamData);
+    if (session->data_object.mType != MimeClosure::isMimeStreamData) {
+      return;
+    }
+
+    mime_stream_data* msd = (mime_stream_data*)session->data_object.mClosure;
     if (msd) msd->format_out = aType;  // output format type
   }
 }
@@ -81,20 +85,28 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
 
       if ((aOutputType == nsMimeOutput::nsMimeMessageDraftOrTemplate) ||
           (aOutputType == nsMimeOutput::nsMimeMessageEditorTemplate)) {
-        mime_draft_data* mdd = (mime_draft_data*)session->data_object;
-        if (mdd->options) {
-          default_charset = &(mdd->options->default_charset);
-          override_charset = &(mdd->options->override_charset);
-          url_name = &(mdd->url_name);
+        PR_ASSERT(session->data_object.mType == MimeClosure::isMimeDraftData);
+        if (session->data_object.mType == MimeClosure::isMimeDraftData) {
+          mime_draft_data* mdd =
+              (mime_draft_data*)session->data_object.mClosure;
+          if (mdd->options) {
+            default_charset = &(mdd->options->default_charset);
+            override_charset = &(mdd->options->override_charset);
+            url_name = &(mdd->url_name);
+          }
         }
       } else {
-        mime_stream_data* msd = (mime_stream_data*)session->data_object;
+        PR_ASSERT(session->data_object.mType == MimeClosure::isMimeStreamData);
+        if (session->data_object.mType == MimeClosure::isMimeStreamData) {
+          mime_stream_data* msd =
+              (mime_stream_data*)session->data_object.mClosure;
 
-        if (msd->options) {
-          default_charset = &(msd->options->default_charset);
-          override_charset = &(msd->options->override_charset);
-          url_name = &(msd->url_name);
-          fixup_pointer = &(msd->options->url);
+          if (msd->options) {
+            default_charset = &(msd->options->default_charset);
+            override_charset = &(msd->options->override_charset);
+            url_name = &(msd->url_name);
+            fixup_pointer = &(msd->options->url);
+          }
         }
       }
 
@@ -167,26 +179,32 @@ nsresult bridge_set_mime_stream_converter_listener(
   if ((session) && (session->data_object)) {
     if ((aOutputType == nsMimeOutput::nsMimeMessageDraftOrTemplate) ||
         (aOutputType == nsMimeOutput::nsMimeMessageEditorTemplate)) {
-      mime_draft_data* mdd = (mime_draft_data*)session->data_object;
-      if (mdd->options) {
-        if (listener) {
-          mdd->options->caller_need_root_headers = true;
-          mdd->options->decompose_headers_info_fn = mime_headers_callback;
-        } else {
-          mdd->options->caller_need_root_headers = false;
-          mdd->options->decompose_headers_info_fn = nullptr;
+      PR_ASSERT(session->data_object.mType == MimeClosure::isMimeDraftData);
+      if (session->data_object.mType == MimeClosure::isMimeDraftData) {
+        mime_draft_data* mdd = (mime_draft_data*)session->data_object.mClosure;
+        if (mdd->options) {
+          if (listener) {
+            mdd->options->caller_need_root_headers = true;
+            mdd->options->decompose_headers_info_fn = mime_headers_callback;
+          } else {
+            mdd->options->caller_need_root_headers = false;
+            mdd->options->decompose_headers_info_fn = nullptr;
+          }
         }
       }
     } else {
-      mime_stream_data* msd = (mime_stream_data*)session->data_object;
-
-      if (msd->options) {
-        if (listener) {
-          msd->options->caller_need_root_headers = true;
-          msd->options->decompose_headers_info_fn = mime_headers_callback;
-        } else {
-          msd->options->caller_need_root_headers = false;
-          msd->options->decompose_headers_info_fn = nullptr;
+      PR_ASSERT(session->data_object.mType == MimeClosure::isMimeStreamData);
+      if (session->data_object.mType == MimeClosure::isMimeStreamData) {
+        mime_stream_data* msd =
+            (mime_stream_data*)session->data_object.mClosure;
+        if (msd->options) {
+          if (listener) {
+            msd->options->caller_need_root_headers = true;
+            msd->options->decompose_headers_info_fn = mime_headers_callback;
+          } else {
+            msd->options->caller_need_root_headers = false;
+            msd->options->decompose_headers_info_fn = nullptr;
+          }
         }
       }
     }
@@ -816,11 +834,19 @@ nsresult nsStreamConverter::OnStopRequest(nsIRequest* request,
 
       if ((mOutputType == nsMimeOutput::nsMimeMessageDraftOrTemplate) ||
           (mOutputType == nsMimeOutput::nsMimeMessageEditorTemplate)) {
-        mime_draft_data* mdd = (mime_draft_data*)tSession->data_object;
-        if (mdd) workHeaders = &(mdd->headers);
+        PR_ASSERT(tSession->data_object.mType == MimeClosure::isMimeDraftData);
+        if (tSession->data_object.mType == MimeClosure::isMimeDraftData) {
+          mime_draft_data* mdd =
+              (mime_draft_data*)tSession->data_object.mClosure;
+          if (mdd) workHeaders = &(mdd->headers);
+        }
       } else {
-        mime_stream_data* msd = (mime_stream_data*)tSession->data_object;
-        if (msd) workHeaders = &(msd->headers);
+        PR_ASSERT(tSession->data_object.mType == MimeClosure::isMimeStreamData);
+        if (tSession->data_object.mType == MimeClosure::isMimeStreamData) {
+          mime_stream_data* msd =
+              (mime_stream_data*)tSession->data_object.mClosure;
+          if (msd) workHeaders = &(msd->headers);
+        }
       }
 
       if (workHeaders) {

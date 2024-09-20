@@ -48,16 +48,16 @@ struct _nsMIMESession {
 
   void* window_id; /* used for progress messages, etc. */
 
-  void* data_object; /* a pointer to whatever
-                      * structure you wish to have
-                      * passed to the routines below
-                      * during writes, etc...
-                      *
-                      * this data object should hold
-                      * the document, document
-                      * structure or a pointer to the
-                      * document.
-                      */
+  MimeClosure data_object; /* a pointer to whatever
+                            * structure you wish to have
+                            * passed to the routines below
+                            * during writes, etc...
+                            *
+                            * this data object should hold
+                            * the document, document
+                            * structure or a pointer to the
+                            * document.
+                            */
 
   MKSessionWriteReadyFunc is_write_ready; /* checks to see if the stream is
                                            * ready for writing.  Returns 0 if

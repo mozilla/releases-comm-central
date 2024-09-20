@@ -422,10 +422,19 @@ static int dummy_file_write(const char* buf, int32_t size,
 
 static int mime_parse_stream_write(nsMIMESession* stream, const char* buf,
                                    int32_t size) {
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
-  NS_ASSERTION(mdd, "null mime draft data!");
+  NS_ASSERTION(stream->data_object, "null mime data!");
+  if (!stream->data_object) {
+    return -1;
+  }
 
-  if (!mdd || !mdd->obj) return -1;
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
+  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+    return -1;
+  }
+
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
+
+  if (!mdd->obj) return -1;
 
   return mdd->obj->clazz->parse_buffer(
       (char*)buf, size, MimeClosure(MimeClosure::isMimeObject, mdd->obj));
@@ -1115,7 +1124,16 @@ static void convert_plaintext_body_to_html(char** body) {
 }
 
 static void mime_parse_stream_complete(nsMIMESession* stream) {
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
+  NS_ASSERTION(stream->data_object, "null mime data");
+  if (!stream->data_object) {
+    return;
+  }
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
+  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+    return;
+  }
+
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
   nsCOMPtr<nsIMsgCompFields> fields;
   int htmlAction = 0;
   int lineWidth = 0;
@@ -1146,10 +1164,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   bool forward_inline = false;
   bool bodyAsAttachment = false;
   bool charsetOverride = false;
-
-  NS_ASSERTION(mdd, "null mime draft data");
-
-  if (!mdd) return;
 
   if (mdd->obj) {
     int status;
@@ -1184,7 +1198,7 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
       mdd->options = 0;
     }
     if (mdd->stream) {
-      mdd->stream->complete((nsMIMESession*)mdd->stream->data_object);
+      mdd->stream->complete(mdd->stream);
       PR_Free(mdd->stream);
       mdd->stream = 0;
     }
@@ -1679,10 +1693,15 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 }
 
 static void mime_parse_stream_abort(nsMIMESession* stream, int status) {
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
-  NS_ASSERTION(mdd, "null mime draft data");
-
-  if (!mdd) return;
+  NS_ASSERTION(stream->data_object, "null mime data");
+  if (!stream->data_object) {
+    return;
+  }
+  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
+  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+    return;
+  }
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
 
   if (mdd->obj) {
     int status = 0;
@@ -1701,7 +1720,7 @@ static void mime_parse_stream_abort(nsMIMESession* stream, int status) {
     }
 
     if (mdd->stream) {
-      mdd->stream->abort((nsMIMESession*)mdd->stream->data_object, status);
+      mdd->stream->abort(mdd->stream, status);
       PR_Free(mdd->stream);
       mdd->stream = 0;
     }
@@ -2104,7 +2123,7 @@ extern "C" void* mime_bridge_create_draft_stream(
   stream->complete = mime_parse_stream_complete;
   stream->abort = mime_parse_stream_abort;
   stream->put_block = mime_parse_stream_write;
-  stream->data_object = mdd;
+  stream->data_object = MimeClosure(MimeClosure::isMimeDraftData, mdd);
 
   status = obj->clazz->initialize(obj);
   if (status >= 0) status = obj->clazz->parse_begin(obj);
