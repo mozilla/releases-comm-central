@@ -26,6 +26,7 @@ function getProfileFromAppValues() {
     versions: [AppConstants.MOZ_APP_VERSION, "0"],
     channels: [AppConstants.MOZ_UPDATE_CHANNEL, "fictional testing channel"],
     operating_systems: [platform, "LCARS"],
+    displayed_notifications: [],
   };
 }
 
@@ -36,7 +37,7 @@ add_task(function test_isActiveNotification_emptyTargeting() {
     start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
     targeting: {},
   };
-  Assert.ok(NotificationFilter.isActiveNotification(notification, 0));
+  Assert.ok(NotificationFilter.isActiveNotification(notification, 0, []));
 });
 
 add_task(function test_isActiveNotification_timeWindowExpiry() {
@@ -81,7 +82,7 @@ add_task(function test_isActiveNotification_timeWindowExpiry() {
 
   for (const notification of mockData) {
     Assert.ok(
-      !NotificationFilter.isActiveNotification(notification, 100),
+      !NotificationFilter.isActiveNotification(notification, 100, []),
       `Notification ${notification.id} is inactive`
     );
   }
@@ -99,17 +100,17 @@ add_task(function test_isActiveNotification_percentChance() {
 
   function subtest_seed(transitionAt, reasonChance, middleSeed = 42) {
     Assert.equal(
-      NotificationFilter.isActiveNotification(notification, 0),
+      NotificationFilter.isActiveNotification(notification, 0, []),
       transitionAt >= 0,
       `Chance of ${reasonChance} with seed 0`
     );
     Assert.equal(
-      NotificationFilter.isActiveNotification(notification, middleSeed),
+      NotificationFilter.isActiveNotification(notification, middleSeed, []),
       transitionAt >= middleSeed,
       `Chance of ${reasonChance} with seed ${middleSeed}`
     );
     Assert.equal(
-      NotificationFilter.isActiveNotification(notification, 100),
+      NotificationFilter.isActiveNotification(notification, 100, []),
       transitionAt === 100,
       `Chance of ${reasonChance} with seed 100`
     );
@@ -138,32 +139,32 @@ add_task(function test_isActiveNotification_exclude() {
   };
 
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "null exclude keeps the notification active"
   );
 
   notification.targeting.exclude = [];
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "Empty exclude filter keeps the notification active"
   );
 
   notification.targeting.exclude.push({ locales: [] });
   notification.targeting.exclude.push({ versions: [] });
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "Excluded pofile that doesn't match keeps the notification active"
   );
 
   notification.targeting.exclude.push(getProfileFromAppValues());
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification, 100),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Excluded profile matching application makes notification inactive"
   );
 
   notification.targeting.exclude.push({});
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification, 100),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Matching multiple excluded profiles keeps notification inactive"
   );
 });
@@ -179,32 +180,32 @@ add_task(function test_isActiveNotification_include() {
   };
 
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "null include keeps the notification active"
   );
 
   notification.targeting.include = [];
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification, 100),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Empty include filter makes the notification inactive"
   );
 
   notification.targeting.include.push({ locales: [] });
   notification.targeting.include.push({ versions: [] });
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification, 100),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Included pofile that doesn't match keeps the notification inactive"
   );
 
   notification.targeting.include.push(getProfileFromAppValues());
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "Included profile matching application makes notification active"
   );
 
   notification.targeting.include.push({});
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification, 100),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "Matching multiple included profiles keeps notification active"
   );
 });
@@ -222,21 +223,24 @@ add_task(function test_isActiveNotification_includedAndExcluded() {
   };
 
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification, 100),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Exclude wins over include condition"
   );
 });
 
 add_task(function test_checkProfile_emptyMatch() {
-  Assert.ok(NotificationFilter.checkProfile({}), "Empty object always matches");
+  Assert.ok(
+    NotificationFilter.checkProfile({}, []),
+    "Empty object always matches"
+  );
 
   function subtest_value(value, matches) {
     const properties = ["locales", "versions", "channels", "operating_systems"];
     for (const property of properties) {
       Assert.equal(
-        NotificationFilter.checkProfile({ [property]: value }),
+        NotificationFilter.checkProfile({ [property]: value }, []),
         matches,
-        `Profile with ${value} ${property} has expected match`
+        `Profile with ${JSON.stringify(value)} ${property} has expected match`
       );
     }
   }
@@ -245,19 +249,39 @@ add_task(function test_checkProfile_emptyMatch() {
   subtest_value([], false);
 });
 
+add_task(function test_checkProfile_displayedNotifications_emptyMatch() {
+  Assert.ok(
+    NotificationFilter.checkProfile({ displayed_notifications: null }, []),
+    "Should match profile with null displayed notifications"
+  );
+  Assert.ok(
+    NotificationFilter.checkProfile({ displayed_notifications: [] }, []),
+    "Should match profile with empty displayed notifications"
+  );
+});
+
 add_task(function test_checkProfile_match() {
   const profile = getProfileFromAppValues();
   Assert.ok(
-    NotificationFilter.checkProfile(profile),
+    NotificationFilter.checkProfile(profile, []),
     "Profile built from current application values matches"
   );
 
   for (const [key, value] of Object.entries(profile)) {
     Assert.ok(
-      NotificationFilter.checkProfile({ [key]: value }),
+      NotificationFilter.checkProfile({ [key]: value }, []),
       "Profile built with just a single current application value should match"
     );
   }
+});
+
+add_task(function test_checkProfile_displayedNotifications_match() {
+  Assert.ok(
+    NotificationFilter.checkProfile({ displayed_notifications: ["bar"] }, [
+      "foo",
+    ]),
+    "Should match profile without matching interacted notification ID"
+  );
 });
 
 add_task(function test_checkProfile_singlePropertyMismatch() {
@@ -268,7 +292,7 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
     locales: ["foo-BAR"],
   };
   Assert.ok(
-    !NotificationFilter.checkProfile(mismatchingLocaleProfile),
+    !NotificationFilter.checkProfile(mismatchingLocaleProfile, []),
     "Profile doesn't match with mismatched language"
   );
 
@@ -277,7 +301,7 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
     versions: ["0"],
   };
   Assert.ok(
-    !NotificationFilter.checkProfile(mismatchingVersionProfile),
+    !NotificationFilter.checkProfile(mismatchingVersionProfile, []),
     "Profile doesn't match with mismatched version"
   );
 
@@ -286,7 +310,7 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
     channels: ["fictional testing channel"],
   };
   Assert.ok(
-    !NotificationFilter.checkProfile(mismatchingChannelProfile),
+    !NotificationFilter.checkProfile(mismatchingChannelProfile, []),
     "Profile doesn't match with mismatched channel"
   );
 
@@ -295,8 +319,19 @@ add_task(function test_checkProfile_singlePropertyMismatch() {
     operating_systems: ["LCARS"],
   };
   Assert.ok(
-    !NotificationFilter.checkProfile(mismatchingOperatingSystemProfile),
+    !NotificationFilter.checkProfile(mismatchingOperatingSystemProfile, []),
     "Profile doesn't match with mismatched operating system"
+  );
+
+  const mismatchingDisplayedNotificationsProfile = {
+    ...profile,
+    displayed_notifications: ["foo"],
+  };
+  Assert.ok(
+    !NotificationFilter.checkProfile(mismatchingDisplayedNotificationsProfile, [
+      "foo",
+    ]),
+    "Shouldn't match profile with a notification ID that has been displayed"
   );
 });
 
@@ -310,7 +345,8 @@ add_task(async function test_isActiveNotification_url() {
         targeting: {},
         URL: "https://example.com",
       },
-      0
+      0,
+      []
     ),
     "Should allow https URL"
   );
@@ -323,7 +359,8 @@ add_task(async function test_isActiveNotification_url() {
         targeting: {},
         URL: "http://example.com",
       },
-      0
+      0,
+      []
     ),
     "Should not allow http protocol"
   );
@@ -336,7 +373,8 @@ add_task(async function test_isActiveNotification_url() {
         targeting: {},
         URL: "example://test/https://",
       },
-      0
+      0,
+      []
     ),
     "Should not allow non-https protocol"
   );
@@ -354,7 +392,8 @@ add_task(async function test_isActiveNotification_url() {
         targeting: {},
         URL: "foo~bar[:/baz]",
       },
-      0
+      0,
+      []
     ),
     "Should not allow invalid URL"
   );
@@ -373,14 +412,14 @@ add_task(function test_isActiveNotification_bypassFiltering() {
   };
 
   Assert.ok(
-    !NotificationFilter.isActiveNotification(notification),
+    !NotificationFilter.isActiveNotification(notification, 100, []),
     "Should exclude notification without bypass"
   );
 
   Services.prefs.setBoolPref("mail.inappnotifications.bypass-filtering", true);
 
   Assert.ok(
-    NotificationFilter.isActiveNotification(notification),
+    NotificationFilter.isActiveNotification(notification, 100, []),
     "Should let notification pass with bypass enabled"
   );
 
@@ -396,16 +435,29 @@ add_task(function test_checkProfile_bypassFiltering() {
   };
 
   Assert.ok(
-    !NotificationFilter.checkProfile(profile),
+    !NotificationFilter.checkProfile(profile, []),
     "Should not accept profile without bypass"
   );
 
   Services.prefs.setBoolPref("mail.inappnotifications.bypass-filtering", true);
 
   Assert.ok(
-    NotificationFilter.checkProfile(profile),
+    NotificationFilter.checkProfile(profile, []),
     "Should accept profile with active bypass"
   );
 
   Services.prefs.clearUserPref("mail.inappnotifications.bypass-filtering");
+});
+
+add_task(function test_isActiveNotification_idDisplayed() {
+  Assert.ok(
+    !NotificationFilter.isActiveNotification(
+      {
+        id: "foo",
+      },
+      100,
+      ["foo"]
+    ),
+    "Notification with an ID that was interacted with should not be active"
+  );
 });

@@ -20,11 +20,16 @@ export const NotificationFilter = {
    *
    * @param {object} notification - Notification to check.
    * @param {number} seed - The random seed for this notification.
+   * @param {string[]} interactedWithIds - Notification IDs the user has
+   *   interacted with.
    * @returns {boolean} If this notification should be shown.
    */
-  isActiveNotification(notification, seed) {
+  isActiveNotification(notification, seed, interactedWithIds) {
     if (lazy.bypassFiltering) {
       return true;
+    }
+    if (interactedWithIds.includes(notification.id)) {
+      return false;
     }
     const now = Date.now();
     const parsedEnd = Date.parse(notification.end_at);
@@ -58,14 +63,16 @@ export const NotificationFilter = {
     }
     if (
       Array.isArray(notification.targeting.exclude) &&
-      notification.targeting.exclude.some(profile => this.checkProfile(profile))
+      notification.targeting.exclude.some(profile =>
+        this.checkProfile(profile, interactedWithIds)
+      )
     ) {
       return false;
     }
     if (
       Array.isArray(notification.targeting.include) &&
       !notification.targeting.include.some(profile =>
-        this.checkProfile(profile)
+        this.checkProfile(profile, interactedWithIds)
       )
     ) {
       return false;
@@ -73,12 +80,15 @@ export const NotificationFilter = {
     return true;
   },
   /**
-   * Check a targeting profile against this application.
+   * Check a targeting profile against this application and the
+   * notifications already interacted with by the user.
    *
    * @param {object} profile - The target profile to check.
+   * @param {string[]} interactedWithIds - Notification IDs the user has
+   *   interacted with.
    * @returns {boolean} If the given profile matches this application.
    */
-  checkProfile(profile) {
+  checkProfile(profile, interactedWithIds) {
     if (lazy.bypassFiltering) {
       return true;
     }
@@ -106,6 +116,14 @@ export const NotificationFilter = {
         AppConstants.platform === "linux"
           ? AppConstants.unixstyle
           : AppConstants.platform
+      )
+    ) {
+      return false;
+    }
+    if (
+      Array.isArray(profile.displayed_notifications) &&
+      profile.displayed_notifications.some(notificationId =>
+        interactedWithIds.includes(notificationId)
       )
     ) {
       return false;

@@ -101,13 +101,12 @@ export const InAppNotifications = {
    * @returns {object[]} All available notifications.
    */
   getNotifications() {
-    return this._jsonFile.data.notifications.filter(
-      notification =>
-        !this._jsonFile.data.interactedWith.includes(notification.id) &&
-        lazy.NotificationFilter.isActiveNotification(
-          notification,
-          this._getSeed(notification.id)
-        )
+    return this._jsonFile.data.notifications.filter(notification =>
+      lazy.NotificationFilter.isActiveNotification(
+        notification,
+        this._getSeed(notification.id),
+        this._jsonFile.data.interactedWith
+      )
     );
   },
 
