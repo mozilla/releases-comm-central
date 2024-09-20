@@ -10,6 +10,8 @@
   --icon-dot-xs: url("chrome://messenger/skin/icons/xs/dot.svg");
   --icon-sparkle-star-xs: url("chrome://messenger/skin/icons/xs/sparkle-star.svg");
   --icon-replies-xs: url("chrome://messenger/skin/icons/xs/replies.svg");
+  --icon-nav-down-xs: url("chrome://messenger/skin/icons/new/nav-down-xs.svg");
+  --icon-nav-up-xs: url("chrome://messenger/skin/icons/new/nav-up-xs.svg");
 
   /* SM - 16x16px icons */
   --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");

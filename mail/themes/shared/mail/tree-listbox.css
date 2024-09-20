@@ -537,13 +537,13 @@ th[is="tree-view-table-header-cell"] {
   border: none;
   border-radius: 0;
   background-color: transparent;
-  background-position: right 6px center;
+  background-position: right 3px center;
   background-repeat: no-repeat;
   -moz-context-properties: stroke;
   stroke: currentColor;
 
   &:dir(rtl) {
-    background-position-x: left 6px;
+    background-position-x: left 3px;
   }
 
   &:hover {
@@ -565,18 +565,18 @@ th[is="tree-view-table-header-cell"] {
   }
 
   &.sorting {
-    background-image: var(--icon-nav-up-sm);
-    padding-inline-end: 18px;
+    background-image: var(--icon-nav-up-xs);
+    padding-inline-end: 9px;
 
     @media (-moz-platform: linux) {
-      background-image: var(--icon-nav-down-sm);
+      background-image: var(--icon-nav-down-xs);
     }
 
     &.descending {
-      background-image: var(--icon-nav-down-sm);
+      background-image: var(--icon-nav-down-xs);
 
       @media (-moz-platform: linux) {
-        background-image: var(--icon-nav-up-sm);
+        background-image: var(--icon-nav-up-xs);
       }
     }
   }
