@@ -328,21 +328,11 @@ impl XpComEwsClient {
                         // implement those changes.
                     }
 
-                    sync_folder_items::Change::Delete { item_id } => {
-                        log::error!(
-                            "Attempt to Delete message with ID {item_id.id} - not yet supported"
-                        );
-
-                        // TODO: Need to actually handle this rather than just logging error.
-                    }
-
-                    sync_folder_items::Change::ReadFlagChange { item_id, is_read } => {
-                        log::error!(
-                            "Attempt Read flag change for message with ID {item_id.id}: is_read = {is_read} - not yet supported"
-                        );
-
-                        // TODO: Need to actually handle this rather than just logging error.
-                    }
+                    sync_folder_items::Change::Delete { item_id: _item_id } => todo!(),
+                    sync_folder_items::Change::ReadFlagChange {
+                        item_id: _item_id,
+                        is_read: _is_read,
+                    } => todo!(),
                 }
             }
 
