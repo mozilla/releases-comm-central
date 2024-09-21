@@ -330,7 +330,8 @@ impl XpComEwsClient {
 
                     sync_folder_items::Change::Delete { item_id } => {
                         log::error!(
-                            "Attempt to Delete message with ID {id} - not yet supported", id=item_id.id
+                            "Attempt to Delete message with ID {id} - not yet supported",
+                            id = item_id.id
                         );
 
                         // TODO: Need to actually handle this rather than just logging error.
