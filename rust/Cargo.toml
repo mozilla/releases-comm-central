@@ -172,6 +172,7 @@ backtrace = { path = "../../build/rust/backtrace" }
 bindgen_0_63 = { package = "bindgen", path = "../../build/rust/bindgen-0.63" }
 bindgen = { path = "../../third_party/rust/bindgen" }
 nix = { path = "../../build/rust/nix" }
+cfg_aliases = { path = "../../build/rust/cfg_aliases" }
 indexmap = { path = "../../build/rust/indexmap" }
 derive_more = { path = "../../build/rust/derive_more" }
 autocfg = { path = "../../third_party/rust/autocfg" }
