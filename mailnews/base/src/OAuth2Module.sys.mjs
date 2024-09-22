@@ -60,14 +60,14 @@ OAuth2Module.prototype = {
 
   _initFromPrefs(root, aHostname, aUsername) {
     this._prefRoot = root;
-    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
-    let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
+    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
+    let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
 
     const details = OAuth2Providers.getHostnameDetails(aHostname);
     if (
       details &&
       (details[0] != issuer ||
-        !scope?.split(" ").every(s => details[1].split(" ").includes(s)))
+        !scopeSet(details[1]).isSupersetOf(scopeSet(scope)))
     ) {
       // Found in the list of hardcoded providers. Use the hardcoded values.
       // But only if what we had wasn't a narrower scope of current
@@ -104,6 +104,7 @@ OAuth2Module.prototype = {
 
     // Look for an existing `OAuth2` object with the same endpoint, username
     // and scope.
+    const wantedScopes = scopeSet(this._scope);
     for (const weakRef of oAuth2Objects) {
       const oauth = weakRef.deref();
       if (!oauth) {
@@ -113,7 +114,7 @@ OAuth2Module.prototype = {
       if (
         oauth.authorizationEndpoint == issuerDetails.authorizationEndpoint &&
         oauth.username == aUsername &&
-        oauth.scope == scope
+        scopeSet(oauth.scope).isSupersetOf(wantedScopes)
       ) {
         this._oauth = oauth;
         break;
@@ -133,7 +134,7 @@ OAuth2Module.prototype = {
         .createBundle("chrome://messenger/locale/messenger.properties")
         .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
 
-      // This stores the refresh token in the login manager.
+      // This gets the refresh token from the login manager.
       this._oauth.refreshToken = this.getRefreshToken();
     }
 
@@ -141,7 +142,7 @@ OAuth2Module.prototype = {
   },
 
   getRefreshToken() {
-    const scopes = this._scope.split(" ");
+    const wantedScopes = scopeSet(this._scope);
 
     for (const login of Services.logins.findLogins(
       this._loginOrigin,
@@ -152,14 +153,15 @@ OAuth2Module.prototype = {
         continue;
       }
 
-      const loginScopes = login.httpRealm.split(" ");
-      if (scopes.every(scope => loginScopes.includes(scope))) {
+      if (scopeSet(login.httpRealm).isSupersetOf(wantedScopes)) {
         return login.password;
       }
     }
     return "";
   },
   async setRefreshToken(token) {
+    const scope = this._oauth.scope ?? this._scope;
+
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
     const logins = Services.logins.findLogins(this._loginOrigin, null, "");
@@ -175,7 +177,6 @@ OAuth2Module.prototype = {
         if (token != login.password) {
           propBag.setProperty("password", token);
         }
-        const scope = this._oauth.scope ?? this._scope;
         if (scope != login.httpRealm) {
           propBag.setProperty("httpRealm", scope);
         }
@@ -191,15 +192,7 @@ OAuth2Module.prototype = {
       const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
       );
-      login.init(
-        this._loginOrigin,
-        null,
-        this._oauth.scope ?? this._scope,
-        this._username,
-        token,
-        "",
-        ""
-      );
+      login.init(this._loginOrigin, null, scope, this._username, token, "", "");
       await Services.logins.addLoginAsync(login);
     }
   },
@@ -290,3 +283,16 @@ OAuth2Module.prototype = {
 OAuth2Module._forgetObjects = function () {
   oAuth2Objects.clear();
 };
+
+/**
+ * Turns a space-delimited string of scopes into a Set containing the scopes.
+ *
+ * @param {string} scopeString
+ * @returns {Set}
+ */
+function scopeSet(scopeString) {
+  if (!scopeString) {
+    return new Set();
+  }
+  return new Set(scopeString.split(" "));
+}

@@ -139,6 +139,50 @@ add_task(async function testGetRefreshToken() {
 });
 
 /**
+ * Tests that `OAuth2` objects are correctly cached and reused. An object can
+ * be reused if:
+ * - it's for the same endpoint, and
+ * - it's for the same username, and
+ * - the scopes it was granted, or the scopes it's requesting if it hasn't
+ *   connected yet, are a superset of the scopes to be requested.
+ */
+add_task(async function testOAuth2ObjectsReuse() {
+  // Check that two instances use the same object.
+  const mod1 = new OAuth2Module();
+  mod1.initFromHostname("mochi.test", "user1@foo.invalid");
+
+  const mod2 = new OAuth2Module();
+  mod2.initFromHostname("mochi.test", "user1@foo.invalid");
+  Assert.equal(mod2._oauth, mod1._oauth, "the same object should be used");
+
+  // Add another scope to the object and check that creating another new
+  // instance with the same arguments still uses it.
+  mod1._oauth.scope = "test_other_scope test_scope";
+  const mod3 = new OAuth2Module();
+  mod3.initFromHostname("mochi.test", "user1@foo.invalid");
+  Assert.equal(mod3._oauth, mod1._oauth, "the same object should be used");
+
+  // Check that a different set of scopes requires a different object.
+  // This isn't really supported in practice as we only save one refresh token
+  // per endpoint/username combination, but check anyway.
+  const mod4 = new OAuth2Module();
+  mod4.initFromHostname("test.test", "user1@foo.invalid");
+  Assert.notEqual(mod4._oauth, mod1._oauth, "the same object must not be used");
+
+  // Check that a different username requires a different object.
+  const mod5 = new OAuth2Module();
+  mod5.initFromHostname("mochi.test", "user2@foo.invalid");
+  Assert.notEqual(mod5._oauth, mod1._oauth, "the same object must not be used");
+
+  // Check that a different endpoint requires a different object.
+  const mod6 = new OAuth2Module();
+  mod6.initFromHostname("imap.gmail.com", "user1@foo.invalid");
+  Assert.notEqual(mod6._oauth, mod1._oauth, "the same object must not be used");
+
+  OAuth2TestUtils.forgetObjects();
+});
+
+/**
  * Tests that saved tokens get updated when a new token is issued.
  */
 add_task(async function testSetRefreshToken() {
