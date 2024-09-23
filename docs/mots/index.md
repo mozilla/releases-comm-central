@@ -55,7 +55,6 @@ widths: 30 70
     * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
     * [Teal Dulcet (tdulcet)](https://people.mozilla.org/s?query=tdulcet)
     * [Kai Engert (KaiE)](https://people.mozilla.org/s?query=KaiE)
-    * [Bogomil Shopov (Bogomil)](https://people.mozilla.org/s?query=Bogomil)
 * - Includes
   -
     * README.md
@@ -80,12 +79,12 @@ widths: 30 70
   -
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
     * [Richard Marti (Paenglab)](https://people.mozilla.org/s?query=Paenglab)
+    * [Alessandro Castellani (aleca)](https://people.mozilla.org/s?query=aleca)
 * - Owner(s) Emeritus
   - Mark Banner, David Bienvenu, Scott MacGregor
 * - Peer(s) Emeritus
-  - Blake Winton, Mike Conley, Kent James, Jorg K
+  - Blake Winton, Mike Conley, Kent James, Jorg K, Aceman
 * - Includes
   -
     * mail/\*\*
@@ -137,9 +136,9 @@ widths: 30 70
     * [Rob Lemley (rjl)](https://people.mozilla.org/s?query=rjl)
 * - Peer(s)
   -
-    * [Philipp Kewisch (Fallen)](https://people.mozilla.org/s?query=Fallen)
+    * [Daniel Darnell (dandarnell)](https://people.mozilla.org/s?query=dandarnell)
 * - Peer(s) Emeritus
-  - Mark Banner, Siddharth Agarwal, Justin Wood, Joshua Cranmer, Tom Prince, aleth
+  - Mark Banner, Siddharth Agarwal, Justin Wood, Joshua Cranmer, Tom Prince, aleth, Philipp Kewisch
 * - Includes
   -
     * build/\*\*
@@ -198,6 +197,8 @@ widths: 30 70
   -
     * mail/extensions/openpgp/\*\*
     * mail/extensions/smime/\*\*
+* - Bugzilla Components
+  - MailNews Core::Security: OpenPGP, MailNews Core::Security: S/MIME
 ```
 
 
@@ -213,8 +214,6 @@ widths: 30 70
 * - Owner(s)
   -
     * [Richard Marti (Paenglab)](https://people.mozilla.org/s?query=Paenglab)
-* - Peer(s)
-  -
     * [Alessandro Castellani (aleca)](https://people.mozilla.org/s?query=aleca)
 * - Peer(s) Emeritus
   - Josiah Bruner (:JosiahOne), Blake Winton, Mike Conley
@@ -241,10 +240,9 @@ widths: 30 70
 * - Peer(s)
   -
     * [Richard Marti (Paenglab)](https://people.mozilla.org/s?query=Paenglab)
-    * [Henry Wilkes (henry-x)](https://people.mozilla.org/s?query=henry-x)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Peer(s) Emeritus
-  - Blake Winton
+  - Blake Winton, Henry Wilkes
 * - Includes
   -
     * mail/branding/\*\*
@@ -268,6 +266,7 @@ widths: 30 70
 * - Peer(s)
   -
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
+    * [Sean Burke (leftmostcat)](https://people.mozilla.org/s?query=leftmostcat)
 * - Owner(s) Emeritus
   - Daniel Bölzle, Michiel van Leeuwen
 * - Peer(s) Emeritus
@@ -312,15 +311,16 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
+    * [Thunderbird Council (thunderbird_council)](https://people.mozilla.org/s?query=thunderbird_council)
 * - Peer(s)
   -
     * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
     * [Neil Rashbrook (neil)](https://people.mozilla.org/s?query=neil)
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
+* - Owner(s) Emeritus
+  - Joshua Cranmer
 * - Peer(s) Emeritus
-  - Karsten Düsterloh (mnyromyr), Kai Engert, David Bienvenu (bienvenu), Mark Banner, Kent James
+  - Karsten Düsterloh (mnyromyr), Kai Engert, David Bienvenu (bienvenu), Mark Banner, Kent James, Aceman
 * - Includes
   -
     * mailnews/\*\*
@@ -346,15 +346,35 @@ widths: 30 70
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
 * - Peer(s)
   -
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Peer(s) Emeritus
-  - David Bienvenu (bienvenu), Mark Banner, Mike Conley
+  - David Bienvenu (bienvenu), Mark Banner, Mike Conley, Aceman
 * - Includes
   -
     * mailnews/addrbook/\*\*
 * - Bugzilla Components
   - MailNews Core::Address Book
+```
+
+
+#### Exchange
+
+Code responsible for sending/receiving messages over Exchange\.
+
+```{list-table}
+---
+stub-columns: 1
+widths: 30 70
+---
+* - Owner(s)
+  -
+    * [Sean Burke (leftmostcat)](https://people.mozilla.org/s?query=leftmostcat)
+* - Peer(s)
+  -
+    * [Brendan Abolivier (babolivier)](https://people.mozilla.org/s?query=babolivier)
+* - Includes
+  -
+    * rust/ews_xpcom/\*\*
 ```
 
 
@@ -371,8 +391,9 @@ widths: 30 70
     * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
 * - Peer(s)
   -
-    * [alta88 (alta88)](https://people.mozilla.org/s?query=alta88)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
+* - Peer(s) Emeritus
+  - alta88
 * - Includes
   -
     * mailnews/extensions/newsblog/\*\*
@@ -486,13 +507,11 @@ widths: 30 70
     * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
 * - Peer(s)
   -
-    * [Jim Porter (squib)](https://people.mozilla.org/s?query=squib)
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Owner(s) Emeritus
   - David Bienvenu (bienvenu)
 * - Peer(s) Emeritus
-  - Kai Engert, Jorg K
+  - Kai Engert, Jorg K, Jim Porter, Joshua Cranmer
 * - Includes
   -
     * mailnews/mime/\*\*
@@ -512,15 +531,11 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
-* - Peer(s)
-  -
-    * [Aceman (aceman)](https://people.mozilla.org/s?query=aceman)
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
+    * [Ben Campbell (benc)](https://people.mozilla.org/s?query=benc)
 * - Owner(s) Emeritus
   - David Bienvenu (bienvenu)
 * - Peer(s) Emeritus
-  - Kent James
+  - Kent James, Aceman, Joshua Cranmer
 * - Includes
   -
     * mailnews/db/\*\*
@@ -539,7 +554,9 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
+    * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
+* - Owner(s) Emeritus
+  - Joshua Cranmer
 * - Peer(s) Emeritus
   - David Bienvenu (bienvenu)
 * - Includes
@@ -547,26 +564,6 @@ widths: 30 70
     * mailnews/news/\*\*
 * - Bugzilla Components
   - MailNews Core::Networking: NNTP
-```
-
-
-#### S/MIME
-
-S/MIME backend
-
-```{list-table}
----
-stub-columns: 1
-widths: 30 70
----
-* - Owner(s)
-  -
-    * [Kai Engert (KaiE)](https://people.mozilla.org/s?query=KaiE)
-* - Includes
-  -
-    * mailnews/extensions/smime/\*\*
-* - Bugzilla Components
-  - MailNews Core::Security: S/MIME
 ```
 
 
@@ -581,7 +578,9 @@ widths: 30 70
 ---
 * - Owner(s)
   -
-    * [Ping Chen (rnons)](https://people.mozilla.org/s?query=rnons)
+    * [Nobody (nobody)](https://people.mozilla.org/s?query=nobody)
+* - Owner(s) Emeritus
+  - Ping Chen
 * - Includes
   -
     * mailnews/compose/\*\*
@@ -603,10 +602,11 @@ widths: 30 70
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
 * - Peer(s)
   -
-    * [Joshua Cranmer (jcranmer)](https://people.mozilla.org/s?query=jcranmer)
     * [Magnus Melin (mkmelin)](https://people.mozilla.org/s?query=mkmelin)
 * - Owner(s) Emeritus
   - Mark Banner
+* - Peer(s) Emeritus
+  - Joshua Cranmer
 * - Includes
   -
     * mailnews/test/\*\*

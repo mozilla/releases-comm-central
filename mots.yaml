@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2024-07-30T15:09:09.966636+00:00'
+updated_at: '2024-09-23T14:31:47.510296+00:00'
 hashes:
-  config: 710d40b72b0e2ff660f5a1494da8b7e494a1610a
-  export: bbe70f8cf03639acaafd9895a1157cca7505631e
+  config: c8215a9acb74565a2e75f159c0d048c92f5f6dcf
+  export: 180ded54c0915d5dd108fea5d5aad798aa2f0d48
 export:
   path: ./docs/mots/index.md
   format: md
@@ -50,10 +50,20 @@ people:
     bmo_id: 290185
     name: Andreas Nilsson
     nick: andreasn
+  - bmo_id: 653537
+    name: Berna Alp
+    nick: ba
+  - &babolivier
+    bmo_id: 728881
+    name: Brendan Abolivier
+    nick: babolivier
   - &bbrowning
     bmo_id: 230427
     name: Bruno Browning
     nick: bbrowning
+  - bmo_id: 22599
+    name: Ben Bucksch
+    nick: BenB
   - &benc
     bmo_id: 621918
     name: Ben Campbell
@@ -66,10 +76,6 @@ people:
     bmo_id: 273495
     name: Berend Cornelius
     nick: berend
-  - &Bogomil
-    bmo_id: 359734
-    name: Bogomil Shopov
-    nick: Bogomil
   - &bwinton
     bmo_id: 339434
     name: Blake Winton
@@ -94,6 +100,10 @@ people:
     bmo_id: 250777
     name: Clint Talbert
     nick: ctalbert
+  - &dandarnell
+    bmo_id: 709542
+    name: Daniel Darnell
+    nick: dandarnell
   - &darktrojan
     bmo_id: 158464
     name: Geoff Lankow
@@ -138,6 +148,10 @@ people:
     bmo_id: 36541
     name: Kai Engert
     nick: KaiE
+  - &leftmostcat
+    bmo_id: 305195
+    name: Sean Burke
+    nick: leftmostcat
   - &lilmatt
     bmo_id: 149682
     name: Matthew Willis
@@ -273,7 +287,7 @@ modules:
       Below you can find a list of all current council members along with their bugzilla.mozilla.org
       \\(BMO\\) handle.\nTo contact the council members, please email <council@thunderbird.net>."
     owners: [*sdk]
-    peers: [*TbSync, *clokep, *Fallen, *tdulcet, *KaiE, *Bogomil]
+    peers: [*TbSync, *clokep, *Fallen, *tdulcet, *KaiE]
     includes: [README.md]
     excludes:
       - suite/**
@@ -288,7 +302,7 @@ modules:
       - third_party/**
       - tools/**
     owners: [*thunderbirdcouncil]
-    peers: [*mkmelin, *darktrojan, *aceman, *Paenglab]
+    peers: [*mkmelin, *darktrojan, *Paenglab, *aleca]
     meta:
       owners_emeritus:
         - *standard8
@@ -299,6 +313,7 @@ modules:
         - *mconley
         - *rkent
         - Jorg K
+        - *aceman
       url: https://developer.thunderbird.net/
       components: [Thunderbird]
     submodules:
@@ -322,7 +337,7 @@ modules:
           - mail/config/**
           - taskcluster/**
         owners: [*rjl]
-        peers: [*Fallen]
+        peers: [*dandarnell]
         meta:
           peers_emeritus:
             - *standard8
@@ -331,6 +346,7 @@ modules:
             - *jcranmer
             - *tomprince
             - *aleth
+            - *Fallen
           components: [Thunderbird::Build Config]
 
       - name: Instant Messaging
@@ -358,14 +374,17 @@ modules:
           - mail/extensions/smime/**
         owners: [*KaiE]
         peers: [*patrick, *mkmelin]
+        meta:
+          components:
+            - 'MailNews Core::Security: OpenPGP'
+            - 'MailNews Core::Security: S/MIME'
 
       - name: Theme
         machine_name: theme
         description: The interface of Thunderbird related to the OS and custom themes
         includes:
           - mail/themes/**
-        owners: [*Paenglab]
-        peers: [*aleca]
+        owners: [*Paenglab, *aleca]
         meta:
           peers_emeritus:
             - Josiah Bruner (:JosiahOne)
@@ -380,10 +399,11 @@ modules:
         includes:
           - mail/branding/**
         owners: [*aleca]
-        peers: [*Paenglab, *henryx, *mkmelin]
+        peers: [*Paenglab, *mkmelin]
         meta:
           peers_emeritus:
             - *bwinton
+            - *henryx
           components:
             - Thunderbird::General
 
@@ -393,7 +413,7 @@ modules:
     includes:
       - calendar/**
     owners: [*Fallen]
-    peers: [*darktrojan]
+    peers: [*darktrojan, *leftmostcat]
     meta:
       owners_emeritus: [*dbo, *mvl]
       peers_emeritus: [*mschroeder, *dbo, *ctalbert, *dmose, *mvl, *pmorris, *Mark_Carson,
@@ -414,19 +434,23 @@ modules:
           components:
             - Calendar::Calendar Frontend
 
+  # In the future fold this into Thunderbird Desktop.
   - name: Mail and News Core
     machine_name: 03-mailnews_core
     includes:
       - mailnews/**
-    owners: [*jcranmer]
-    peers: [*benc, *neil, *aceman, *mkmelin]
+    owners: [*thunderbirdcouncil]
+    peers: [*benc, *neil, *mkmelin]
     meta:
+      owners_emeritus:
+        - *jcranmer
       peers_emeritus:
         - Karsten Düsterloh (mnyromyr)
         - *KaiE
         - David Bienvenu (bienvenu)
         - *standard8
         - *rkent
+        - *aceman
       components:
         - MailNews Core::Backend
         - Thunderbird::Account Manager
@@ -450,7 +474,7 @@ modules:
         includes:
           - mailnews/addrbook/**
         owners: [*darktrojan]
-        peers: [*aceman, *mkmelin]
+        peers: [*mkmelin]
         meta:
           components:
             - MailNews Core::Address Book
@@ -458,13 +482,26 @@ modules:
             - David Bienvenu (bienvenu)
             - *standard8
             - *mconley
+            - *aceman
+      - name: Exchange
+        machine_name: exchange_protocol
+        description: Code responsible for sending/receiving messages over Exchange.
+        includes:
+          - rust/ews_xpcom/**
+        owners: [*leftmostcat]
+        peers: [*babolivier]
+        meta:
+          # TODO No component for Exchange?
+          components: []
       - name: Feeds
         machine_name: feeds
         includes:
           - mailnews/extensions/newsblog/**
         owners: [*nobody]
-        peers: [*alta88, *mkmelin]
+        peers: [*mkmelin]
         meta:
+          peers_emeritus:
+            - *alta88
           components:
             - MailNews Core::Feed Reader
       - name: GloDa
@@ -520,63 +557,58 @@ modules:
         includes:
           - mailnews/mime/**
         owners: [*nobody]
-        peers: [*squib, *jcranmer, *mkmelin]
+        peers: [*mkmelin]
         meta:
           components:
             - MailNews Core::MIME
             - MailNews Core::Attachments
           owners_emeritus: [David Bienvenu (bienvenu)]
-          peers_emeritus: [*KaiE, Jorg K]
+          peers_emeritus: [*KaiE, Jorg K, *squib, *jcranmer]
       - name: Message Database
         machine_name: message_database
         description: MSF files
         includes:
           - mailnews/db/**
-        owners: [*nobody]
-        peers: [*aceman, *jcranmer]
+        owners: [*benc]
         meta:
           components:
             - MailNews Core::Database
           owners_emeritus: [David Bienvenu (bienvenu)]
-          peers_emeritus: [*rkent]
+          peers_emeritus: [*rkent, *aceman, *jcranmer]
       - name: News
         machine_name: news_protocol
         includes:
           - mailnews/news/**
-        owners: [*jcranmer]
+        owners: [*nobody]
         meta:
+          owners_emeritus: [*jcranmer]
           components:
             - 'MailNews Core::Networking: NNTP'
           peers_emeritus: [David Bienvenu (bienvenu)]
-      - name: S/MIME
-        machine_name: smime_encryption
-        description: S/MIME backend
-        includes:
-          - mailnews/extensions/smime/**
-        owners: [*KaiE]
-        meta:
-          components:
-            - 'MailNews Core::Security: S/MIME'
       - name: SMTP
         machine_name: smtp_protocol
         description: Code responsible for sending messages over SMTP.
         includes:
           - mailnews/compose/**
-        owners: [*rnons]
+        owners: [*nobody]
         meta:
+          owners_emeritus: [*rnons]
           components:
             - 'MailNews Core::Networking: SMTP'
+
+
       - name: Unit Testing Infrastructure
         machine_name: unittesting
         includes:
           - mailnews/test/**
           - mailnews/base/test/**
         owners: [*darktrojan]
-        peers: [*jcranmer, *mkmelin]
+        peers: [*mkmelin]
         meta:
           components:
             - MailNews Core::Testing Infrastructure
           owners_emeritus: [*standard8]
+          peers_emeritus: [*jcranmer]
 
   - name: mots config
     includes:
