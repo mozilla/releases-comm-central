@@ -11,7 +11,7 @@
 	height: 20em;
 }
 
-.platform-Mac #rightPanel {
+:root[platform=Mac] #rightPanel {
 	width: 18em;
 }
 

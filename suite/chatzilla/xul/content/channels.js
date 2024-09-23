@@ -79,7 +79,6 @@ function onLoad()
     window.ASSERT = client.mainWindow.ASSERT;
     window.toUnicode = client.mainWindow.toUnicode;
     window.getMsg = client.mainWindow.getMsg;
-    window.MSG_CHANNEL_OPENED = client.mainWindow.MSG_CHANNEL_OPENED;
     window.MSG_FMT_JSEXCEPTION = client.mainWindow.MSG_FMT_JSEXCEPTION;
     window.MT_INFO = client.mainWindow.MT_INFO;
 
@@ -93,32 +92,19 @@ function onLoad()
     // Cache all the XUL DOM elements.
     var elements = ["network", "networks", "channel", "includeTopic",
                     "lastUpdated", "join", "minUsers", "maxUsers", "refresh",
-                    "bottomPanel", "channels", "loadContainer", "loadLabel",
-                    "loadBarDeck", "loadBar"];
+                    "bottomPanel", "channels", "loadLabel", "loadBarDeck",
+                    "loadBar"];
     for (var i = 0; i < elements.length; i++)
         xul[elements[i]] = document.getElementById(elements[i]);
 
-    // Set the <dialog>'s class so we can do platform-specific CSS.
-    var dialog = document.getElementById("chatzilla-window");
-    dialog.className = "platform-" + client.platform;
+    // Set attribute on documentElement so we can do platform-specific CSS.
+    document.documentElement.setAttribute("platform", client.platform);
 
     // Set up the channel tree view.
     tree.view = new XULTreeView(tree.share);
     tree.view.onRowCommand = doJoin;
     tree.view.cycleHeader = changeSort;
     xul.channels.treeBoxObject.view = tree.view;
-
-    // If the new "search" binding is not working (i.e. doesn't exist)...
-    if (!("searchButton" in xul.channel))
-    {
-        // ...restore the text boxes to their former selves.
-        xul.channel.setAttribute("timeout", "500");
-        xul.channel.setAttribute("type", "timed");
-        xul.minUsers.setAttribute("timeout", "500");
-        xul.minUsers.setAttribute("type", "timed");
-        xul.maxUsers.setAttribute("timeout", "500");
-        xul.maxUsers.setAttribute("type", "timed");
-    }
 
     // Sort by user count, descending.
     changeSort("chanColUsers");

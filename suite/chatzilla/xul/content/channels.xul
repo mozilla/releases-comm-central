@@ -79,7 +79,7 @@
         </rows>
       </grid>
     </hbox>
-    <deck id="bottomPanel" flex="1" selectedindex="0">
+    <deck id="bottomPanel" flex="1" selectedIndex="0">
       <hbox pack="center" align="center">
         <label value="&network.hint.label;"/>
       </hbox>
