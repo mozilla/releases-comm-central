@@ -561,25 +561,23 @@ export var MailUtils = {
     // - worker function
     function* folderWorker() {
       for (const folder of allFolders) {
-        action(folder);
+        try {
+          action(folder);
+        } catch (ex) {
+          console.warn(`Folder action failed for ${folder.URI}`, ex);
+        }
         yield undefined;
       }
     }
     const worker = folderWorker();
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       // - driver logic
       const timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       function folderDriver() {
-        try {
-          if (worker.next().done) {
-            timer.cancel();
-            resolve();
-          }
-        } catch (ex) {
-          // Any type of exception kills the generator.
+        if (worker.next().done) {
           timer.cancel();
-          reject(ex);
+          resolve();
         }
       }
       // make sure there is at least 100 ms of not us between doing things.
