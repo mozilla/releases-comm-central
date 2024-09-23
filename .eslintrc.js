@@ -62,10 +62,14 @@ module.exports = {
 
   // We would like the same base rules as provided by
   // mozilla/tools/lint/eslint/eslint-plugin-mozilla/lib/configs/recommended.js
-  extends: ["plugin:mozilla/recommended"],
+  extends: [
+    "plugin:mozilla/recommended",
+    "plugin:json/recommended-with-comments",
+    "prettier",
+  ],
 
   // When adding items to this file please check for effects on sub-directories.
-  plugins: ["mozilla", "import"],
+  plugins: ["mozilla", "html", "import", "json"],
 
   rules: {
     complexity: ["error", 80],
