@@ -1,0 +1,91 @@
+Message-ID: <InlineMessageWithoutContentDispositionHeader.sample.eml@mime.sample>
+Date: Fri, 20 May 2000 00:29:55 -0400
+To: Heinz <mueller@example.com>
+Cc: Robin <damian@wayne-enterprises.com>
+From: Batman <bruce@wayne-enterprises.com>
+Subject: Attached message with attachments
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+  boundary="------------49CVLb1N6p6Spdka4qq7Naeg"
+
+This is a multi-part message in MIME format.
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p>This message has one normal attachment and one email attachment,
+      which itself has 3 attachments.<br>
+    </p>
+  </body>
+</html>
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: message/rfc822; charset=UTF-8;"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <sample-attached.eml@mime.sample>
+From: Superman <clark.kent@dailyplanet.com>
+To: Jimmy <jimmy.olsen@dailyplanet.com>
+Subject: Test message 1
+Date: Wed, 17 May 2000 19:32:47 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0002_01BFC036.AE309650"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Message with multiple attachments.
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png;
+	name="whitePixel.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="whitePixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnn
+AAAAAElFTkSuQmCC
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png;
+	name="greenPixel.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+C76AoAAhUBJel4xsMAAAAASUVO
+RK5CYII=
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="redPixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+hgkAYAAbcApOp/9LEAAAAASUVO
+RK5CYII=
+
+------=_NextPart_000_0002_01BFC036.AE309650--
+
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: image/png;
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+  filename="yellowPixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j/iQEABOUB8pypNlQA
+AAAASUVORK5CYII=
+
+--------------49CVLb1N6p6Spdka4qq7Naeg--
