@@ -77,6 +77,11 @@ var quickFilterBar = {
         document.getElementById(QuickFilterManager.textBoxDomId).focus();
       }
     });
+    commandController.registerCallback("cmd_resetQuickFilterBar", () => {
+      if (this.filterer.visible) {
+        this._resetFilterState();
+      }
+    });
     window.addEventListener("keypress", event => {
       if (event.keyCode != KeyEvent.DOM_VK_ESCAPE || !this.filterer.visible) {
         // The filter bar isn't visible, do nothing.
@@ -586,7 +591,11 @@ var quickFilterBar = {
     }
   },
 
-  _testHelperResetFilterState() {
+  /**
+   * Completely reset the state of the quick filter bar. This is necessary
+   * when applying a special view, as well as for testing purposes.
+   */
+  _resetFilterState() {
     if (!this._filterer) {
       return;
     }

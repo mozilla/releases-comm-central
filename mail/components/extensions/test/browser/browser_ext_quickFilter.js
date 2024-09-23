@@ -134,7 +134,7 @@ add_task(async () => {
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
-  about3Pane.quickFilterBar._testHelperResetFilterState();
+  about3Pane.quickFilterBar._resetFilterState();
 });
 
 add_task(async function test_setQuickFilter_UI() {
@@ -260,5 +260,5 @@ add_task(async function test_setQuickFilter_UI() {
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
-  about3Pane.quickFilterBar._testHelperResetFilterState();
+  about3Pane.quickFilterBar._resetFilterState();
 });

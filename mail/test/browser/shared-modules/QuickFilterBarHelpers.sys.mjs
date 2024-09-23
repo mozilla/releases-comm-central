@@ -362,5 +362,5 @@ export function assert_results_label_count(aCount) {
  * This is automatically called by the test teardown helper.
  */
 export function clear_constraints() {
-  about3Pane.quickFilterBar._testHelperResetFilterState();
+  about3Pane.quickFilterBar._resetFilterState();
 }

@@ -6750,6 +6750,11 @@ function SwitchView(command) {
       gViewWrapper.showIgnored = !gViewWrapper.showIgnored;
       break;
   }
+  if (gViewWrapper.specialView) {
+    // Switching to a special view resets all search terms, so we need to
+    // reflect this in the quick filter bar.
+    goDoCommand("cmd_resetQuickFilterBar");
+  }
 }
 
 commandController.registerCallback(
