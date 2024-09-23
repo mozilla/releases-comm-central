@@ -36,8 +36,10 @@ const defaultLogin = {
 const PATH = "comm/mail/components/addrbook/test/browser/data/";
 const URL = `http://mochi.test:8888/browser/${PATH}`;
 
+let oAuth2Server;
+
 add_setup(async function () {
-  await OAuth2TestUtils.startServer();
+  oAuth2Server = await OAuth2TestUtils.startServer();
 });
 
 /**
@@ -144,6 +146,7 @@ function checkAndClearLogins(expectedLogins) {
 
   Services.logins.removeAllLogins();
   OAuth2TestUtils.forgetObjects();
+  oAuth2Server.grantedScope = null;
 }
 
 // Test making a request when there is no matching token stored.

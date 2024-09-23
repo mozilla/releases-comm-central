@@ -31,31 +31,25 @@ export function OAuth2Module() {}
 OAuth2Module.prototype = {
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
-  initFromOutgoing(aServer) {
-    return this.initFromHostname(aServer.serverURI.host, aServer.username);
-  },
-
-  initFromMail(aServer) {
-    return this.initFromHostname(aServer.hostName, aServer.username);
-  },
-
-  initFromABDirectory(aDirectory, aHostname) {
-    this.initFromHostname(
-      aHostname,
-      aDirectory.getStringValue("carddav.username", "") || aDirectory.UID
+  initFromOutgoing(server) {
+    return this.initFromHostname(
+      server.serverURI.host,
+      server.username,
+      server.type
     );
   },
 
-  initFromHostname(aHostname, aUsername) {
-    const details = OAuth2Providers.getHostnameDetails(aHostname);
+  initFromMail(server) {
+    return this.initFromHostname(server.hostName, server.username, server.type);
+  },
+
+  initFromHostname(hostname, username, type) {
+    const details = OAuth2Providers.getHostnameDetails(hostname, type);
     if (!details) {
       return false;
     }
 
-    return this._init(details[0], details[1], aHostname, aUsername);
-  },
-
-  _init(issuer, scope, aHostname, aUsername) {
+    const [issuer, scope, requiredScope] = details;
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
@@ -65,15 +59,15 @@ OAuth2Module.prototype = {
     }
 
     // Username is needed to generate the XOAUTH2 string.
-    this._username = aUsername;
+    this._username = username;
     // loginOrigin is needed to save the refresh token in the password manager.
     this._loginOrigin = "oauth://" + issuer;
     // We use the scope to indicate realm when storing in the password manager.
     this._scope = scope;
+    this._requiredScopes = scopeSet(requiredScope);
 
     // Look for an existing `OAuth2` object with the same endpoint, username
     // and scope.
-    const wantedScopes = scopeSet(this._scope);
     for (const weakRef of oAuth2Objects) {
       const oauth = weakRef.deref();
       if (!oauth) {
@@ -82,8 +76,8 @@ OAuth2Module.prototype = {
       }
       if (
         oauth.authorizationEndpoint == issuerDetails.authorizationEndpoint &&
-        oauth.username == aUsername &&
-        scopeSet(oauth.scope).isSupersetOf(wantedScopes)
+        oauth.username == username &&
+        scopeSet(oauth.scope).isSupersetOf(this._requiredScopes)
       ) {
         log.debug(`Found existing OAuth2 object for ${issuer}`);
         this._oauth = oauth;
@@ -92,29 +86,31 @@ OAuth2Module.prototype = {
     }
     if (!this._oauth) {
       log.debug(`Creating a new OAuth2 object for ${issuer}`);
+      // This gets the refresh token from the login manager. It may change
+      // `this._scope` if a refresh token was found for the required scopes
+      // but not all of the wanted scopes.
+      const refreshToken = this.getRefreshToken();
+
       // Define the OAuth property and store it.
-      this._oauth = new OAuth2(scope, issuerDetails);
-      this._oauth.username = aUsername;
+      this._oauth = new OAuth2(this._scope, issuerDetails);
+      this._oauth.username = username;
       oAuth2Objects.add(new WeakRef(this._oauth));
 
       // Try hinting the username...
-      this._oauth.extraAuthParams = [["login_hint", aUsername]];
+      this._oauth.extraAuthParams = [["login_hint", username]];
 
       // Set the window title to something more useful than "Unnamed"
       this._oauth.requestWindowTitle = Services.strings
         .createBundle("chrome://messenger/locale/messenger.properties")
-        .formatStringFromName("oauth2WindowTitle", [aUsername, aHostname]);
+        .formatStringFromName("oauth2WindowTitle", [username, hostname]);
 
-      // This gets the refresh token from the login manager.
-      this._oauth.refreshToken = this.getRefreshToken();
+      this._oauth.refreshToken = refreshToken;
     }
 
     return true;
   },
 
   getRefreshToken() {
-    const wantedScopes = scopeSet(this._scope);
-
     for (const login of Services.logins.findLogins(
       this._loginOrigin,
       null,
@@ -124,7 +120,8 @@ OAuth2Module.prototype = {
         continue;
       }
 
-      if (scopeSet(login.httpRealm).isSupersetOf(wantedScopes)) {
+      if (scopeSet(login.httpRealm).isSupersetOf(this._requiredScopes)) {
+        this._scope = login.httpRealm;
         return login.password;
       }
     }
@@ -178,12 +175,12 @@ OAuth2Module.prototype = {
     }
   },
 
-  connect(aWithUI, aListener) {
-    this._fetchAccessToken(aListener, aWithUI, true);
+  connect(withUI, listener) {
+    this._fetchAccessToken(listener, withUI, true);
   },
 
-  getAccessToken(aListener) {
-    this._fetchAccessToken(aListener, true, false);
+  getAccessToken(listener) {
+    this._fetchAccessToken(listener, true, false);
   },
 
   /**

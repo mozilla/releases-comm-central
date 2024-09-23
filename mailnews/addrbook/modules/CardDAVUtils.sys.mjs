@@ -336,7 +336,10 @@ export var CardDAVUtils = {
         </propfind>`,
     };
 
-    const details = lazy.OAuth2Providers.getHostnameDetails(url.host);
+    const details = lazy.OAuth2Providers.getHostnameDetails(
+      url.host,
+      "carddav"
+    );
     if (details) {
       const [issuer, scope] = details;
       const issuerDetails = lazy.OAuth2Providers.getIssuerDetails(issuer);
@@ -365,7 +368,7 @@ export var CardDAVUtils = {
         oAuth.extraAuthParams = [["login_hint", username]];
       }
 
-      // Implement msgIOAuth2Module.connect, which CardDAVUtils.makeRequest expects.
+      // Implement msgIOAuth2Module.getAccessToken, which `makeRequest` expects.
       requestParams.oAuth = {
         QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
         getAccessToken(listener) {

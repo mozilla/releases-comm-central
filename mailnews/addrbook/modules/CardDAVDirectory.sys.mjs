@@ -10,7 +10,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   NotificationCallbacks: "resource:///modules/CardDAVUtils.sys.mjs",
   OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
-  OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
   VCardUtils: "resource:///modules/VCardUtils.sys.mjs",
   clearInterval: "resource://gre/modules/Timer.sys.mjs",
@@ -200,11 +199,17 @@ export class CardDAVDirectory extends SQLiteDirectory {
     const uri = serverURI.resolve(path);
 
     if (!("_oAuth" in this)) {
-      if (lazy.OAuth2Providers.getHostnameDetails(serverURI.host)) {
-        this._oAuth = new lazy.OAuth2Module();
-        this._oAuth.initFromABDirectory(this, serverURI.host);
+      const oAuth = new lazy.OAuth2Module();
+      if (
+        oAuth.initFromHostname(
+          serverURI.host,
+          this.getStringValue("carddav.username", "") || this.UID,
+          "carddav"
+        )
+      ) {
+        this._oAuth = oAuth;
       } else {
-        this._oAuth = null;
+        this._oAuth = null; // Prevents this block from running again.
       }
     }
     details.oAuth = this._oAuth;

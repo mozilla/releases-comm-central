@@ -12,13 +12,31 @@
 // independently of the mail set-up process. If a mail account already exists,
 // we already have a token, and if it doesn't the user is likely to be setting
 // up an address book/calendar without wanting mail.
-const GOOGLE_SCOPES =
-  "https://mail.google.com/ https://www.googleapis.com/auth/carddav https://www.googleapis.com/auth/calendar";
-const FASTMAIL_SCOPES =
-  "https://www.fastmail.com/dev/protocol-imap https://www.fastmail.com/dev/protocol-pop https://www.fastmail.com/dev/protocol-smtp https://www.fastmail.com/dev/protocol-carddav https://www.fastmail.com/dev/protocol-caldav";
+const GOOGLE_SCOPES = {
+  imap: "https://mail.google.com/",
+  pop3: "https://mail.google.com/",
+  smtp: "https://mail.google.com/",
+  carddav: "https://www.googleapis.com/auth/carddav",
+  caldav: "https://www.googleapis.com/auth/calendar",
+};
+const FASTMAIL_SCOPES = {
+  imap: "https://www.fastmail.com/dev/protocol-imap",
+  pop3: "https://www.fastmail.com/dev/protocol-pop",
+  smtp: "https://www.fastmail.com/dev/protocol-smtp",
+  carddav: "https://www.fastmail.com/dev/protocol-carddav",
+  caldav: "https://www.fastmail.com/dev/protocol-caldav",
+};
 const COMCAST_SCOPES = "https://email.comcast.net/ profile openid";
-const MICROSOFT_SCOPES =
-  "https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/POP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access";
+const MICROSOFT_SCOPES = {
+  imap: "https://outlook.office.com/IMAP.AccessAsUser.All",
+  pop3: "https://outlook.office.com/POP.AccessAsUser.All",
+  smtp: "https://outlook.office.com/SMTP.Send",
+  extra: "offline_access",
+};
+const EWS_SCOPES = {
+  ews: "https://outlook.office.com/EWS.AccessAsUser.All",
+  extra: "offline_access",
+};
 
 /**
  * Map of hostnames to [issuer, scope].
@@ -30,9 +48,10 @@ var kHostnames = new Map([
   ["imap.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
   ["smtp.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
   ["pop.gmail.com", ["accounts.google.com", GOOGLE_SCOPES]],
+  ["www.googleapis.com", ["accounts.google.com", GOOGLE_SCOPES.carddav]],
   [
-    "www.googleapis.com",
-    ["accounts.google.com", "https://www.googleapis.com/auth/carddav"],
+    "apidata.googleusercontent.com",
+    ["accounts.google.com", GOOGLE_SCOPES.caldav],
   ],
 
   ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
@@ -70,7 +89,19 @@ var kHostnames = new Map([
 
   // For testing purposes.
   ["mochi.test", ["test.test", "test_scope"]],
-  ["test.test", ["test.test", "test_mail test_addressbook test_calendar"]],
+  [
+    "test.test",
+    [
+      "test.test",
+      {
+        imap: "test_mail",
+        pop3: "test_mail",
+        smtp: "test_mail",
+        carddav: "test_addressbook",
+        caldav: "test_calendar",
+      },
+    ],
+  ],
 ]);
 
 /**
@@ -192,13 +223,48 @@ export var OAuth2Providers = {
    *
    * @param {string} hostname - The hostname of the server. For example
    *  "imap.googlemail.com".
-   *
-   * @returns {Array} An array containing [issuer, scope] for the hostname, or
-   *   undefined if not found.
+   * @param {string} [type] - The type of activity we need a token for,
+   *   e.g. "imap" or "caldav".
+   * @returns {Array} An array containing [issuer, allScopes, requiredScopes]
+   *   for the hostname and type, or undefined if not found.
    *   - issuer is a string representing the organization
-   *   - scope is an OAuth2 parameter describing the required access level
+   *   - allScopes is a space-separated list of all scopes for the hostname.
+   *   - requiredScopes is a space-separated list of all scopes required for
+   *       the given type, or the same as allScopes if no type was given.
    */
-  getHostnameDetails(hostname) {
+  getHostnameDetails(hostname, type) {
+    const details = this._getHostnameDetails(hostname);
+    if (!details) {
+      // No data, return.
+      return undefined;
+    }
+
+    let [issuer, scopes] = details;
+    if (issuer == "login.microsoftonline.com" && type == "ews") {
+      // Special case for EWS, to avoid asking for the scope when not needed.
+      scopes = EWS_SCOPES;
+    }
+    if (typeof scopes == "string") {
+      // Scopes not separated into types.
+      return [issuer, scopes, scopes];
+    }
+
+    const allScopes = combineScopes(Object.values(scopes));
+    if (!type) {
+      // Type not given, say all scopes are required.
+      return [issuer, allScopes, allScopes];
+    }
+
+    if (!scopes[type]) {
+      // No data for type.
+      return undefined;
+    }
+
+    const requiredScopes = combineScopes([scopes[type], scopes.extra]);
+    return [issuer, allScopes, requiredScopes];
+  },
+
+  _getHostnameDetails(hostname) {
     // During CardDAV SRV autodiscovery, rfc6764#section-6 says:
     //
     // *  The client will need to make authenticated HTTP requests to
@@ -245,3 +311,23 @@ export var OAuth2Providers = {
     return kIssuers.get(issuer);
   },
 };
+
+/**
+ * Turns zero or more space-delimited strings of scopes into a single string,
+ * avoiding duplicates.
+ *
+ * @param {string[]} scopeStrings
+ * @returns {string}
+ */
+function combineScopes(scopeStrings) {
+  const scopes = new Set();
+  for (const scopeString of scopeStrings) {
+    if (!scopeString) {
+      continue;
+    }
+    for (const scope of scopeString.split(" ")) {
+      scopes.add(scope);
+    }
+  }
+  return [...scopes].join(" ");
+}

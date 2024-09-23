@@ -53,6 +53,7 @@ add_task(async function testGetRefreshToken() {
   let mod = new OAuth2Module();
   mod.initFromHostname("mochi.test", "charlie@foo.invalid");
   Assert.equal(mod._scope, "test_scope");
+  Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@foo.invalid");
   Assert.equal(mod.getRefreshToken(), "charlie");
@@ -66,6 +67,7 @@ add_task(async function testGetRefreshToken() {
   mod = new OAuth2Module();
   mod.initFromHostname("mochi.test", "charlie@bar.invalid");
   Assert.equal(mod._scope, "test_scope");
+  Assert.deepEqual([...mod._requiredScopes], ["test_scope"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "");
@@ -79,6 +81,10 @@ add_task(async function testGetRefreshToken() {
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "charlie@foo.invalid");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual(
+    [...mod._requiredScopes],
+    ["test_mail", "test_addressbook", "test_calendar"]
+  );
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@foo.invalid");
   Assert.equal(mod.getRefreshToken(), "");
@@ -92,6 +98,10 @@ add_task(async function testGetRefreshToken() {
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "charlie@bar.invalid");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual(
+    [...mod._requiredScopes],
+    ["test_mail", "test_addressbook", "test_calendar"]
+  );
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "charlie@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "");
@@ -104,6 +114,44 @@ add_task(async function testGetRefreshToken() {
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "juliet@bar.invalid");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual(
+    [...mod._requiredScopes],
+    ["test_mail", "test_addressbook", "test_calendar"]
+  );
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "juliet@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "juliet");
+
+  OAuth2TestUtils.forgetObjects();
+
+  // New 3-arg initFromHostname:
+  info("juliet@bar.invalid: test.test, mail scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "juliet@bar.invalid", "imap");
+  Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "juliet@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "juliet");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("juliet@bar.invalid: test.test, address book scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "juliet@bar.invalid", "carddav");
+  Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "juliet@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "juliet");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("juliet@bar.invalid: test.test, calendar scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "juliet@bar.invalid", "caldav");
+  Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "juliet@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "juliet");
@@ -116,7 +164,45 @@ add_task(async function testGetRefreshToken() {
   info("mike@bar.invalid: test.test, all scopes");
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "mike@bar.invalid");
-  Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.equal(mod._scope, "test_calendar test_addressbook test_mail");
+  Assert.deepEqual(
+    [...mod._requiredScopes],
+    ["test_mail", "test_addressbook", "test_calendar"]
+  );
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "mike@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "mike");
+
+  OAuth2TestUtils.forgetObjects();
+
+  // New 3-arg initFromHostname:
+  info("mike@bar.invalid: test.test, mail scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "mike@bar.invalid", "imap");
+  Assert.equal(mod._scope, "test_calendar test_addressbook test_mail");
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "mike@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "mike");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("mike@bar.invalid: test.test, address book scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "mike@bar.invalid", "carddav");
+  Assert.equal(mod._scope, "test_calendar test_addressbook test_mail");
+  Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "mike@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "mike");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("mike@bar.invalid: test.test, calendar scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "mike@bar.invalid", "caldav");
+  Assert.equal(mod._scope, "test_calendar test_addressbook test_mail");
+  Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "mike@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "mike");
@@ -130,9 +216,47 @@ add_task(async function testGetRefreshToken() {
   mod = new OAuth2Module();
   mod.initFromHostname("test.test", "oscar@bar.invalid");
   Assert.equal(mod._scope, "test_mail test_addressbook test_calendar");
+  Assert.deepEqual(
+    [...mod._requiredScopes],
+    ["test_mail", "test_addressbook", "test_calendar"]
+  );
   Assert.equal(mod._loginOrigin, "oauth://test.test");
   Assert.equal(mod._username, "oscar@bar.invalid");
   Assert.equal(mod.getRefreshToken(), "");
+
+  OAuth2TestUtils.forgetObjects();
+
+  // New 3-arg initFromHostname:
+  info("oscar@bar.invalid: test.test, mail scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "oscar@bar.invalid", "imap");
+  Assert.equal(mod._scope, "test_mail");
+  Assert.deepEqual([...mod._requiredScopes], ["test_mail"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "oscar@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "oscar-mail");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("oscar@bar.invalid: test.test, address book scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "oscar@bar.invalid", "carddav");
+  Assert.equal(mod._scope, "test_addressbook");
+  Assert.deepEqual([...mod._requiredScopes], ["test_addressbook"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "oscar@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "oscar-addressbook");
+
+  OAuth2TestUtils.forgetObjects();
+
+  info("oscar@bar.invalid: test.test, calendar scope");
+  mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "oscar@bar.invalid", "caldav");
+  Assert.equal(mod._scope, "test_calendar");
+  Assert.deepEqual([...mod._requiredScopes], ["test_calendar"]);
+  Assert.equal(mod._loginOrigin, "oauth://test.test");
+  Assert.equal(mod._username, "oscar@bar.invalid");
+  Assert.equal(mod.getRefreshToken(), "oscar-calendar");
 
   OAuth2TestUtils.forgetObjects();
   Services.logins.removeAllLogins();

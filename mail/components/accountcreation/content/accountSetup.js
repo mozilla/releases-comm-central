@@ -20,12 +20,11 @@ ChromeUtils.defineESModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   CardDAVUtils: "resource:///modules/CardDAVUtils.sys.mjs",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
-
   CreateInBackend:
     "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
-
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  OAuth2Module: "resource:///modules/OAuth2Module.sys.mjs",
   OAuth2Providers: "resource:///modules/OAuth2Providers.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",
@@ -2552,14 +2551,16 @@ var gAccountSetup = {
   async fetchAddressBooks() {
     this.addressBooks = [];
 
-    // Bail out if Google OAuth was used and Contacts scope wasn't granted.
-    if (this._currentConfig.incoming.oauthSettings) {
-      const grantedScope = this._currentConfig.incoming.oauthSettings.scope;
+    // Bail out if the CardDAV scope wasn't granted.
+    if (this._currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      const mod = new OAuth2Module();
       if (
-        grantedScope.includes("google") &&
-        !grantedScope
-          .split(" ")
-          .includes("https://www.googleapis.com/auth/carddav")
+        !mod.initFromHostname(
+          this._currentConfig.incoming.hostname,
+          this._currentConfig.incoming.username,
+          "carddav"
+        ) ||
+        !mod.getRefreshToken()
       ) {
         return;
       }
@@ -2689,14 +2690,16 @@ var gAccountSetup = {
   async fetchCalendars() {
     this.calendars = {};
 
-    // Bail out if Google OAuth was used and Calendars scope wasn't granted.
-    if (this._currentConfig.incoming.oauthSettings) {
-      const grantedScope = this._currentConfig.incoming.oauthSettings.scope;
+    // Bail out if the CalDAV scope wasn't granted.
+    if (this._currentConfig.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      const mod = new OAuth2Module();
       if (
-        grantedScope.includes("google") &&
-        !grantedScope
-          .split(" ")
-          .includes("https://www.googleapis.com/auth/calendar")
+        !mod.initFromHostname(
+          this._currentConfig.incoming.hostname,
+          this._currentConfig.incoming.username,
+          "caldav"
+        ) ||
+        !mod.getRefreshToken()
       ) {
         return;
       }
