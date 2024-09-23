@@ -966,6 +966,16 @@ add_task(
           );
           browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
 
+          // getFull({decrypt: false}) should succeed without keys.
+          const fullEncrypted1 = await browser.messages.getFull(message.id, {
+            decrypt: false,
+          });
+          browser.test.assertEq(
+            "skipped",
+            fullEncrypted1.decryptionStatus,
+            "The decryptionStatus should be correct"
+          );
+
           // getRaw({decrypt: false}) should succeed without keys.
           const rawMessage = await browser.messages.getRaw(message.id, {
             decrypt: false,
@@ -1109,12 +1119,12 @@ add_task(
             part.body.trimRight()
           );
 
-          // Explicitly request the encrypted message.
-          const fullEncrypted = await browser.messages.getFull(message.id, {
+          // getFull({decrypt: false}) should succeed with loaded keys.
+          const fullEncrypted2 = await browser.messages.getFull(message.id, {
             decrypt: false,
           });
-          browser.test.assertEq("...", fullEncrypted.headers.subject[0]);
-          browser.test.assertEq("skipped", fullEncrypted.decryptionStatus);
+          browser.test.assertEq("...", fullEncrypted2.headers.subject[0]);
+          browser.test.assertEq("skipped", fullEncrypted2.decryptionStatus);
 
           // getRaw({decrypt: false}) should succeed.
           const rawMessage2 = await browser.messages.getRaw(message.id, {

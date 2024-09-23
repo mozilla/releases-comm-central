@@ -52,12 +52,15 @@ var log = console.createInstance({
  *   behavior of the consumer in getMimeTree(), which is heavily used in different
  *   areas of the crypto code.
  * @property {boolean} [checkForAttachments=false] - Determines for each part, if
- *   their "content-disposition" header includes "attachment", and sets the"name"
- *   property and the "isAttachment" property of the part.
+ *   it is an attachment and sets the"name" and the "isAttachment" property. The
+ *   default is to check if the "content-disposition" header includes "attachment",
+ *   but the condition can be adjusted by re-implementing the getAttachmentName()
+ *   class method. Will be forced to true, if one of checkForEncryption or
+ *   excludeAttachmentData is enabled.
  * @property {boolean} [checkForEncryption=false] - Check for encrypted parts,
  *   status can be retrieved via MimeTreeEmitter.hasEncryptedParts.
  * @property {boolean} [excludeAttachmentData=false] - Whether to exclude the
- *   bodies of parts whose "content-disposition" header includes "attachment".
+ *   content of parts which are considered to be attachments.
  */
 
 /**
@@ -75,6 +78,7 @@ export class MimeTreeEmitter {
   #checkForAttachments;
   #checkForEncryption;
   #excludeAttachmentData;
+  #currentlyProcessingEncryptedPartNum;
 
   /**
    * @param {MimeTreeEmitterOptions} [options]
@@ -90,6 +94,7 @@ export class MimeTreeEmitter {
     };
     this.currentPart = "";
     this.currPartNum = "";
+    this.#currentlyProcessingEncryptedPartNum = "";
 
     // Options and their sane defaults. Make sure that additional config flags are
     // ignored, if the filter mode is disabled. Even though it is already ensured
@@ -106,13 +111,13 @@ export class MimeTreeEmitter {
       this.#checkForEncryption = options?.checkForEncryption ?? false;
       this.#excludeAttachmentData = options?.excludeAttachmentData ?? false;
 
-      if (this.#enableFilterMode && this.#checkForEncryption) {
+      if (this.#checkForEncryption) {
         this.#checkForAttachments = true;
         this.#hasEncryptedParts = false;
         this.#decrypter = new MimeTreeDecrypter({ disablePrompts: false });
       }
 
-      if (this.#enableFilterMode && this.#excludeAttachmentData) {
+      if (this.#excludeAttachmentData) {
         this.#checkForAttachments = true;
       }
     }
@@ -192,26 +197,46 @@ export class MimeTreeEmitter {
     if (
       this.#enableFilterMode &&
       this.#checkForEncryption &&
-      !this.#hasEncryptedParts
+      !this.#hasEncryptedParts &&
+      !this.#currentlyProcessingEncryptedPartNum &&
+      (this.#decrypter.isSMIME(this.currentPart) ||
+        this.#decrypter.hasPgpMimeHeaders(this.currentPart))
     ) {
-      this.#hasEncryptedParts =
-        this.#decrypter.isSMIME(this.currentPart) ||
-        this.#decrypter.isPgpMime(this.currentPart);
+      this.#hasEncryptedParts = true;
+      this.#currentlyProcessingEncryptedPartNum = partNum;
     }
   }
 
   endPart() {
-    // Identify PGP encrypted parts, if this message has not yet been identified
-    // as having encrypted parts.
-    if (
-      this.#enableFilterMode &&
-      this.#checkForEncryption &&
-      !this.#hasEncryptedParts
-    ) {
-      this.#hasEncryptedParts =
-        (this.currentPart.isAttachment &&
-          this.#decrypter.isPgpEncryptedAttachment(this.currentPart)) ||
-        this.#decrypter.isEncryptedINLINE(this.currentPart);
+    if (this.#currentlyProcessingEncryptedPartNum == this.currPartNum) {
+      this.#currentlyProcessingEncryptedPartNum = "";
+    }
+
+    if (this.#enableFilterMode && this.#checkForEncryption) {
+      // If we haven't yet found any OpenPGP/MIME encrypted part, then check for
+      // on OpenPGP/INLINE encrypted part.
+      if (
+        !this.#hasEncryptedParts &&
+        this.currentPart.headers.contentType.mediatype == "text"
+      ) {
+        this.#hasEncryptedParts = this.#decrypter.isEncryptedINLINE(
+          this.currentPart
+        );
+      }
+
+      // If we still haven't found anything that's encrypted, then check for an
+      // OpenPGP encrypted attachment.
+      if (!this.#hasEncryptedParts && this.currentPart.isAttachment) {
+        this.#hasEncryptedParts = this.#decrypter.isPgpEncryptedAttachment(
+          this.currentPart
+        );
+      }
+
+      // Clean up partial attachment data, which had been added just to be able
+      // to check for encryption.
+      if (this.currentPart.isAttachment && this.#excludeAttachmentData) {
+        this.currentPart.body = "";
+      }
     }
 
     const partSize = this.currentPart.size;
@@ -223,10 +248,19 @@ export class MimeTreeEmitter {
   deliverPartData(partNum, data) {
     this.currentPart.size += data.length;
 
+    // We must keep enough data to be able to check for an encrypted body, if the
+    // encryption check is required. Otherwise ignore the data if it has not been
+    // requested.
+    const keepData =
+      this.#checkForEncryption &&
+      !this.#hasEncryptedParts &&
+      this.currentPart.body.length < 300;
+
     if (
       this.#enableFilterMode &&
       this.currentPart.isAttachment &&
-      this.#excludeAttachmentData
+      this.#excludeAttachmentData &&
+      !keepData
     ) {
       return;
     }
@@ -432,6 +466,12 @@ export class MimeTreeDecrypter {
   }
 
   isPgpMime(mimeTreePart) {
+    return (
+      this.hasPgpMimeHeaders(mimeTreePart) && mimeTreePart.subParts.length === 2
+    );
+  }
+
+  hasPgpMimeHeaders(mimeTreePart) {
     try {
       if (mimeTreePart.headers.has("content-type")) {
         if (
@@ -440,8 +480,7 @@ export class MimeTreeDecrypter {
           mimeTreePart.headers
             .get("content-type")
             .get("protocol")
-            .toLowerCase() === "application/pgp-encrypted" &&
-          mimeTreePart.subParts.length === 2
+            .toLowerCase() === "application/pgp-encrypted"
         ) {
           return true;
         }
@@ -655,6 +694,7 @@ export class MimeTreeDecrypter {
 
     if (data || statusFlagsObj.value & lazy.EnigmailConstants.DECRYPTION_OKAY) {
       // Decryption ok.
+      this.cryptoChanged = true;
     } else if (statusFlagsObj.value & lazy.EnigmailConstants.MISSING_MDC) {
       log.warn("Decryption failed. Missing MDC protection.");
       this.decryptFailure = true;
@@ -925,7 +965,7 @@ export class MimeTreeDecrypter {
 
       const origCharset = getCharset(mimeTreePart, "content-type");
       if (origCharset) {
-        mimeTreePart.headers_rawHeaders.set(
+        mimeTreePart.headers._rawHeaders.set(
           "content-type",
           getHeaderValue(mimeTreePart, "content-type").replace(
             origCharset,

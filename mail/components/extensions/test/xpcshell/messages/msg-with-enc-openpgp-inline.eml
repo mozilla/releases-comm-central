@@ -1,0 +1,18 @@
+Message-ID: <openpgp.enc.inline@mime.sample>
+Date: Thu, 13 Jun 2024 22:08:14 +0200
+MIME-Version: 1.0
+To: alice@openpgp.example
+From: bob@openpgp.example
+Subject: OpenPGP inline encrypted
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP MESSAGE-----
+
+hF4DR2b2udXyHrYSAQdAaeIg60NLGEEqeARW/qHmKltNyNJF6fht7lU+XLg5HBIw
+OjHOx+RjP0c2g3w0RLHdc4HQuUYH25mrPo+bNkSFRvVOY0M13cd2SMSndZ4ZuPsv
+0mEBP2PnGxmeRxPVdqzCQflVNfimzSpb4hj70ukHm7dTriIgtNAN5vYYcPyUbzm3
+xFNZvlTctxPavGe3uqbXvjUS6i4i7kSGe/AxKdXG7ixLhyk2Hb7yxEFyl8wimWeX
+DJBb
+=fpug
+-----END PGP MESSAGE-----

@@ -1,0 +1,30 @@
+Message-ID: <openpgp.enc.attachment@mime.sample>
+Content-Type: multipart/mixed; boundary="------------FGUqlZlVFriqCYaAUQpdbRZu"
+Date: Tue, 11 Jun 2024 10:15:42 +0200
+MIME-Version: 1.0
+From: bob@openpgp.example
+Content-Language: en-US
+To: alice@openpgp.example
+Subject: message with encrypted attachment
+
+This is a multi-part message in MIME format.
+--------------FGUqlZlVFriqCYaAUQpdbRZu
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello Alice, the encrypted file is attached.
+
+--------------FGUqlZlVFriqCYaAUQpdbRZu
+Content-Type: text/plain; charset=UTF-8; name="encrypted-attachment.txt.asc"
+Content-Disposition: attachment; filename="encrypted-attachment.txt.asc"
+Content-Transfer-Encoding: base64
+
+LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpoRjREUjJiMnVkWHlIcllTQVFkQU9BcUFX
+TlE0K1FHZW9OVWJ2REZSRlcvWEtqTHpFWnRIOTRFU0xuK2FiUTB3CitBWHMwcXR0WitzdnRj
+RHQ4RlpBdDI3SzJIMEdyUXdkU2thNTVvY3ppUWNPdUg5K3d6Y3p0OEtzOU9DTzgxYlcKMG1F
+Qkw3SlJhdXJWeUR1ZFJ1RjIrQ25XaE92MXBZUkdLYjZXL2Z0ZmovNHFEZGZnSVBReXpKOUhw
+eTd1QTA0LwpOVDdsaDhTaDlraUlGdFdseFJjVExNcGhsdjZ0RTZOVTFhRnh6QUxZbWlPQnJq
+dzMwQ2gySjliL0ZkT2dYWDRxCklySUIKPUJGaUEKLS0tLS1FTkQgUEdQIE1FU1NBR0UtLS0t
+LQo=
+
+--------------FGUqlZlVFriqCYaAUQpdbRZu--
