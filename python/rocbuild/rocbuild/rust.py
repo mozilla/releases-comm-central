@@ -13,8 +13,20 @@ import sys
 import tomlkit
 from tomlkit.toml_file import TOMLFile
 
-from mozbuild.vendor.vendor_rust import VendorRust
+from mozbuild.vendor.vendor_rust import (
+    PACKAGES_WE_ALWAYS_WANT_AN_OVERRIDE_OF as _upstream_overrides,
+)
+from mozbuild.vendor.vendor_rust import (
+    PACKAGES_WE_DONT_WANT as _upstream_unwanted,
+)
+from mozbuild.vendor.vendor_rust import (
+    VendorRust,
+)
 from mozpack import path as mozpath
+
+PACKAGES_WE_DONT_WANT = {**_upstream_unwanted, **{}}
+PACKAGES_WE_ALWAYS_WANT_AN_OVERRIDE_OF = _upstream_overrides + []
+
 
 config_footer = """
 # Take advantage of the fact that cargo will treat lines starting with #
@@ -302,6 +314,51 @@ def run_tb_rust_vendor(command_context):
     with open(config, "w", newline="\n") as config_file:
         config_file.writelines([f"{x}\n" for x in proc.stdout.splitlines()[0:-2]])
         config_file.write(config_footer)
+
+    check_unwanted_crates(command_context, workspace)
+
+
+def check_unwanted_crates(command_context, workspace):
+    """
+    Check Cargo.lock for undesirable vendored crates.
+    """
+    command_context.log(logging.INFO, "tb-rust", {}, "[INFO] Checking unwanted crates")
+    with open(os.path.join(workspace, "Cargo.lock")) as fh:
+        cargo_lock = tomlkit.load(fh)
+        failed = False
+        for package in cargo_lock["package"]:
+            if package["name"] in PACKAGES_WE_ALWAYS_WANT_AN_OVERRIDE_OF:
+                # When the in-tree version is used, there is `source` for
+                # it in Cargo.lock, which is what we expect.
+                if package.get("source"):
+                    command_context.log(
+                        logging.ERROR,
+                        "non_overridden",
+                        {
+                            "crate": package["name"],
+                            "version": package["version"],
+                            "source": package["source"],
+                        },
+                        "Crate {crate} v{version} must be overridden but isn't "
+                        "and comes from {source}.",
+                    )
+                    failed = True
+            elif package["name"] in PACKAGES_WE_DONT_WANT:
+                command_context.log(
+                    logging.ERROR,
+                    "undesirable",
+                    {
+                        "crate": package["name"],
+                        "version": package["version"],
+                        "reason": PACKAGES_WE_DONT_WANT[package["name"]],
+                    },
+                    "Crate {crate} is not desirable: {reason}",
+                )
+                failed = True
+
+        if failed:
+            print("Errors occurred; new rust crates were not vendored.")
+            sys.exit(1)
 
 
 def regen_toml_files(command_context, workspace):
