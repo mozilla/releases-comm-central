@@ -173,6 +173,11 @@ pref("extensions.overlayloader.loglevel", "warn");
 
 pref("extensions.abuseReport.enabled", false);
 
+// Delay opening of action popups until the browser is fully loaded.
+// This is needed on Wayland systems, but can be enabled for other
+// systems for debug purposes as well. See Bug 1905622.
+pref("extensions.openPopupDelayedFullyLoaded.enabled", false);
+
 // Strict compatibility makes add-ons incompatible by default.
 #ifndef RELEASE_OR_BETA
 pref("extensions.strictCompatibility", false);

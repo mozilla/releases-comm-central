@@ -493,6 +493,19 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
         const popup =
           lazy.ViewPopup.for(this.extension, window.top) ||
           this.getPopup(window.top, popupURL);
+
+        // Bug 1905622: We have to delay opening the panel, until after its browser
+        // has been loaded, otherwise the content will be blank.
+        if (
+          popup.viewNode.isWaylandPopup ||
+          Services.prefs.getBoolPref(
+            "extensions.openPopupDelayedFullyLoaded.enabled"
+          )
+        ) {
+          await popup.browserLoaded;
+          await popup.contentReadyAndResized.promise;
+        }
+
         popup.viewNode.openPopup(button, "bottomleft topleft", 0, 0);
       } else if (!options.requirePopupUrl) {
         if (!this.lastClickInfo) {

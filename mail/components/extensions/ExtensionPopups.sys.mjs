@@ -44,6 +44,7 @@ export class BasePopup {
     this.contentReady = new Promise(resolve => {
       this._resolveContentReady = resolve;
     });
+    this.contentReadyAndResized = Promise.withResolvers();
 
     this.window.addEventListener("unload", this);
     this.viewNode.addEventListener("popuphiding", this);
@@ -160,6 +161,10 @@ export class BasePopup {
 
       case "Extension:BrowserResized":
         this._resolveContentReady();
+        // The final resize is marked as delayed, which is the one we have to wait for.
+        if (data.detail == "delayed") {
+          this.contentReadyAndResized.resolve();
+        }
         if (this.ignoreResizes) {
           this.dimensions = data;
         } else {
