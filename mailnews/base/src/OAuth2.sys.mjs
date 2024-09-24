@@ -119,13 +119,6 @@ OAuth2.prototype = {
     // The scope is optional.
     if (this.scope) {
       params.append("scope", this.scope);
-      if (
-        this.authorizationEndpoint ==
-          "https://accounts.google.com/o/oauth2/auth" &&
-        Services.prefs.getBoolPref("mailnews.oauth.granular", false)
-      ) {
-        params.append("enable_granular_consent", "true");
-      }
     }
 
     // See rfc7636
