@@ -72,7 +72,7 @@ class nsMsgHdr : public nsIMsgDBHdr {
                                bool acceptNonDelimitedReferences);
 
   nsMsgKey m_threadId;
-  nsMsgKey m_messageKey;  // news: article number, local mail: key, imap: uid...
+  nsMsgKey m_messageKey;    // Unique id of message in msgDB.
   nsMsgKey m_threadParent;  // message this is a reply to, in thread.
   PRTime m_date;
   uint32_t m_messageSize;  // lines for news articles, bytes for mail messages

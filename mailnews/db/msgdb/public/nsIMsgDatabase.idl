@@ -258,6 +258,38 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   //Returns whether or not this database contains the given key
   boolean containsKey(in nsMsgKey key);
 
+
+  /**
+   * Search for messages by their .uidOnServer value.
+   * Returns an nsMsgKey for every UID in the input array.
+   * Any UIDs which are 0 or not found in the database will return
+   * nsMsgKey_None in the corresponding slot in the returned array.
+   */
+  Array<nsMsgKey> getMsgKeysForUIDs(in Array<unsigned long> uids);
+
+  /**
+   * Returns the .uidOnServer for every nsMsgKey in the input array:
+   * - If an input key is found, it's .uidOnServer will be returned (Remember
+   *   that an unset .uidOnServer has a value of 0!).
+   * - If an input key is nsMsgKey_None, 0 will be returned.
+   * - If an input key is not found in the database (other than
+   *   nsMsgKey_None), the whole function will fail and the returned data
+   *   is undefined.
+   */
+  Array<unsigned long> getMsgUIDsForKeys(in Array<nsMsgKey> keys);
+
+  /**
+   * Returns true if db contains a message with .uidOnServer equal to uid.
+   * Passing in a uid of 0 _always_ returns false.
+   */
+  boolean containsUID(in unsigned long uid);
+
+  /**
+   * Find a message by .uidOnServer value.
+   * If uid is 0, or not found in the database, this call will fail.
+   */
+  nsIMsgDBHdr getMsgHdrForUID(in unsigned long uid);
+
   /**
    * Create a new nsIMsgDBHdr, but don't add it to the database.
    * Must call AddNewHdrToDB to actually add it. The idea is that you create

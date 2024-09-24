@@ -1783,6 +1783,90 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
   return rv;
 }
 
+// private helper
+// Returns nsMsgKey_None if uid is 0 or not found in DB.
+nsMsgKey nsMsgDatabase::FindMsgKeyForUID(uint32_t uid) {
+  MOZ_ASSERT(m_mdbStore);
+
+  if (uid == 0) {
+    return nsMsgKey_None;
+  }
+
+  // What we're looking for.
+  struct mdbYarn yarn;
+  char yarnBuf[16];
+  yarn.mYarn_Buf = (void*)yarnBuf;
+  yarn.mYarn_Size = sizeof(yarnBuf);
+  yarn.mYarn_Fill = 0;
+  yarn.mYarn_Form = 0;
+  yarn.mYarn_Grow = nullptr;
+  UInt32ToYarn(&yarn, uid);
+
+  mdbOid oid;
+  nsresult rv =
+      m_mdbStore->FindRow(GetEnv(), m_hdrRowScopeToken,
+                          m_uidOnServerColumnToken, &yarn, &oid, nullptr);
+  if (NS_FAILED(rv)) {
+    return nsMsgKey_None;  // Not found.
+  }
+  return (nsMsgKey)oid.mOid_Id;
+}
+
+NS_IMETHODIMP nsMsgDatabase::GetMsgKeysForUIDs(nsTArray<uint32_t> const& uids,
+                                               nsTArray<nsMsgKey>& keys) {
+  size_t n = uids.Length();
+  keys.SetLength(n);
+  for (size_t i = 0; i < n; ++i) {
+    keys[i] = FindMsgKeyForUID(uids[i]);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDatabase::GetMsgUIDsForKeys(nsTArray<nsMsgKey> const& keys,
+                                               nsTArray<uint32_t>& uids) {
+  size_t n = keys.Length();
+  uids.SetLength(n);
+
+  for (size_t i = 0; i < n; ++i) {
+    if (keys[i] == nsMsgKey_None) {
+      uids[i] = 0;  // 0 is unset UID.
+      continue;
+    }
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    nsresult rv = GetMsgHdrForKey(keys[i], getter_AddRefs(hdr));
+    if (NS_FAILED(rv)) {
+      NS_WARNING(nsPrintfCString("Missing expected msgkey %" PRIu32 "", keys[i])
+                     .get());
+      return rv;
+    }
+
+    // NOTE: .uidOnServer can be 0 if unset.
+    uint32_t uid;
+    rv = hdr->GetUidOnServer(&uid);
+    NS_ENSURE_SUCCESS(rv, rv);
+    uids[i] = uid;
+  }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDatabase::ContainsUID(uint32_t uid, bool* found) {
+  NS_ENSURE_ARG_POINTER(found);
+  nsMsgKey key = FindMsgKeyForUID(uid);
+  *found = (key == nsMsgKey_None) ? false : true;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForUID(uint32_t uid, nsIMsgDBHdr** hdr) {
+  NS_ENSURE_ARG_POINTER(hdr);
+  *hdr = nullptr;
+  nsMsgKey key = FindMsgKeyForUID(uid);
+  if (key == nsMsgKey_None) {
+    return NS_ERROR_FAILURE;
+  }
+  return GetMsgHdrForKey(key, hdr);
+}
+
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
                                            nsIDBChangeListener* instigator,
                                            bool commit) {

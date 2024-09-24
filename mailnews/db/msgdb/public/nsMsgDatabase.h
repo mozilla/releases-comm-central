@@ -275,6 +275,8 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
                               bool applyToFlaggedMessages,
                               nsTArray<RefPtr<nsIMsgDBHdr>>& hdrsToDelete);
 
+  nsMsgKey FindMsgKeyForUID(uint32_t uid);
+
   // mdb bookkeeping stuff
   virtual nsresult InitExistingDB();
   virtual nsresult InitNewDB();
