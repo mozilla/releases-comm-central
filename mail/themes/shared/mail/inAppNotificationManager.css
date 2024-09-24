@@ -1,0 +1,30 @@
+/* - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/. */
+:root {
+  --in-app-notification-window-padding: 24px;
+  --spaces-toolbar-offset: var(--spaces-total-width);
+  --in-app-notification-offset-inline: calc(var(--spaces-toolbar-offset) + var(--in-app-notification-window-padding));
+  --in-app-notification-offset-block: var(--in-app-notification-window-padding);
+}
+
+:root:has(#spacesToolbar.spaces-toolbar[hidden]) {
+  --spaces-toolbar-offset: 0px;
+}
+
+in-app-notification-manager {
+  position: relative;
+  z-index: 9999;
+  pointer-events: none;
+
+  .customizingUnifiedToolbar & {
+    display: none;
+  }
+
+  & in-app-notification {
+    position: fixed;
+    inset-inline-start: var(--in-app-notification-offset-inline);
+    inset-block-end: var(--in-app-notification-offset-block);
+    pointer-events: auto;
+  }
+}

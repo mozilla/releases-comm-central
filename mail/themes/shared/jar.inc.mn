@@ -129,6 +129,7 @@
   skin/classic/messenger/imMenulist.css                       (../shared/mail/imMenulist.css)
   skin/classic/messenger/imRichlistbox.css                    (../shared/mail/imRichlistbox.css)
   skin/classic/messenger/inAppNotificationContainer.css       (../shared/mail/inAppNotificationContainer.css)
+  skin/classic/messenger/inAppNotificationManager.css         (../shared/mail/inAppNotificationManager.css)
   skin/classic/messenger/inContentDialog.css                  (../shared/mail/inContentDialog.css)
   skin/classic/messenger/infobar.css                          (../shared/mail/infobar.css)
   skin/classic/messenger/joinchat.css                         (../shared/mail/joinchat.css)
