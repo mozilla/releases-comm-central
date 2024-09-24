@@ -540,4 +540,4 @@ add_task(async function testCreateTabs_with_application_chooser() {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
-});
+}).skip(); // Disabled temporarily, waiting for feedback from upstream.
