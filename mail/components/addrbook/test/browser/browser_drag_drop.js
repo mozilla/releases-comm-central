@@ -84,6 +84,7 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
   );
 
   cardsList.selectedIndices = sourceIndices;
+  const transitionPromise = BrowserTestUtils.waitForTransition(composeDocument);
   const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     cardsList.getRowAtIndex(sourceIndices[0]),
     toAddrInput,
@@ -91,6 +92,13 @@ async function doDragToComposeWindow(sourceIndices, expectedPills) {
     null,
     abWindow,
     composeWindow
+  );
+  await transitionPromise;
+  // Test that dragged contacts are not incorrectly recognized as attachments.
+  Assert.ok(
+    !composeDocument
+      .getElementById("dropAttachmentOverlay")
+      .classList.contains("show")
   );
   EventUtils.synthesizeDropAfterDragOver(
     result,

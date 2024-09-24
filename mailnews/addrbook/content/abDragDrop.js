@@ -91,34 +91,3 @@ const abResultsPaneObserver = {
     event.stopPropagation();
   },
 };
-
-function DragAddressOverTargetControl() {
-  var dragSession = Cc["@mozilla.org/widget/dragservice;1"]
-    .getService(Ci.nsIDragService)
-    .getCurrentSession();
-
-  if (!dragSession.isDataFlavorSupported("text/x-moz-address")) {
-    return;
-  }
-
-  var trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
-    Ci.nsITransferable
-  );
-  trans.init(getLoadContext());
-  trans.addDataFlavor("text/x-moz-address");
-
-  var canDrop = true;
-
-  for (var i = 0; i < dragSession.numDropItems; ++i) {
-    dragSession.getData(trans, i);
-    var dataObj = {};
-    var bestFlavor = {};
-    try {
-      trans.getAnyTransferData(bestFlavor, dataObj);
-    } catch (ex) {
-      canDrop = false;
-      break;
-    }
-  }
-  dragSession.canDrop = canDrop;
-}
