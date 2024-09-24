@@ -78,5 +78,6 @@ tasks:
                         upstream: mozilla-esr128
                         tag: 'FIREFOX_{major_version}_{minor_version_plus1}(_\d+)?esr_BUILD\d'
                         base: '(FIREFOX_ESR_{major_version}_BASE|FIREFOX_{major_version}_{minor_version}(_\d+)?)esr_BUILD\d'
+                    default: null
         run-on-projects: []
         expiration-policy: long

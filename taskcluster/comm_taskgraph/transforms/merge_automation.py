@@ -92,6 +92,7 @@ def get_gecko_rev_yml(repo_base_url):
 
 
 def get_upstream_tag(tag_regex, base_regex, repo):
+    print(f"get_upstream_tag: Looking for {tag_regex} or {base_regex}")
     base_tag_matcher = re.compile(base_regex)
     release_tag_matcher = re.compile(tag_regex)
 
@@ -140,6 +141,8 @@ def pin_gecko_rev_yml(config, tasks):
         if "merge_config" not in config.params:
             break
 
+        behavior = config.params["merge_config"]["behavior"]
+
         resolve_keyed_by(
             task,
             "worker.gecko-rev",
@@ -147,7 +150,7 @@ def pin_gecko_rev_yml(config, tasks):
             **{
                 "project": config.params["project"],
                 "release-type": config.params["release_type"],
-                "behavior": config.params["merge_config"]["behavior"],
+                "behavior": behavior,
             },
         )
 
@@ -183,11 +186,16 @@ def pin_gecko_rev_yml(config, tasks):
                     "GECKO_HEAD_REF", gecko_rev_yml["GECKO_HEAD_REF"], tag_data["tag"]
                 )
             )
-            replacements.extend(
-                mk_gecko_rev_replacement(
-                    "GECKO_HEAD_REV", gecko_rev_yml["GECKO_HEAD_REV"], tag_data["node"]
+            if behavior == "comm-central-to-beta":
+                replacements.append(
+                    [".gecko_rev.yml", "######", f"GECKO_HEAD_REV: {tag_data['node']}"]
                 )
-            )
+            else:
+                replacements.extend(
+                    mk_gecko_rev_replacement(
+                        "GECKO_HEAD_REV", gecko_rev_yml["GECKO_HEAD_REV"], tag_data["node"]
+                    )
+                )
 
             merge_config["replacements"].extend(replacements)
 
