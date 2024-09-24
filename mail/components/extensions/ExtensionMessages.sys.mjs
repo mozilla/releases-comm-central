@@ -737,9 +737,9 @@ export class CachedMsgHeader {
 
     if (msgHdr) {
       // Cache all elements which are needed by MessageManager.convert().
-      this.author = msgHdr.mime2DecodedAuthor;
+      this.author = msgHdr.author;
       this.subject = msgHdr.mime2DecodedSubject;
-      this.recipients = msgHdr.mime2DecodedRecipients;
+      this.recipients = msgHdr.recipients;
       this.ccList = msgHdr.ccList;
       this.bccList = msgHdr.bccList;
       this.messageId = msgHdr.messageId;
@@ -792,14 +792,8 @@ export class CachedMsgHeader {
     this.mProperties[aProperty] = aVal.toString();
   }
   markHasAttachments() {}
-  get mime2DecodedAuthor() {
-    return this.author;
-  }
   get mime2DecodedSubject() {
     return this.subject;
-  }
-  get mime2DecodedRecipients() {
-    return this.recipients;
   }
 
   QueryInterface() {
@@ -1532,12 +1526,8 @@ export class MessageManager {
     const messageObject = {
       id: this._messageTracker.getId(cachedHdr),
       date: new Date(Math.round(cachedHdr.date / 1000)),
-      author:
-        parseEncodedAddrHeader(cachedHdr.mime2DecodedAuthor).shift() || "",
-      recipients: parseEncodedAddrHeader(
-        cachedHdr.mime2DecodedRecipients,
-        false
-      ),
+      author: parseEncodedAddrHeader(cachedHdr.author).shift() || "",
+      recipients: parseEncodedAddrHeader(cachedHdr.recipients, false),
       ccList: parseEncodedAddrHeader(cachedHdr.ccList, false),
       bccList: parseEncodedAddrHeader(cachedHdr.bccList, false),
       subject: cachedHdr.mime2DecodedSubject,
@@ -1929,7 +1919,7 @@ export class MessageQuery {
 
     // Check fromMe (case insensitive email address match).
     if (this.queryInfo.fromMe !== null) {
-      const authors = parseEncodedAddrHeader(msgHdr.mime2DecodedAuthor, true);
+      const authors = parseEncodedAddrHeader(msgHdr.author, true);
       if (
         this.queryInfo.fromMe !=
         authors.some(email =>
@@ -1944,7 +1934,7 @@ export class MessageQuery {
     if (
       this.queryInfo.author &&
       !isAddressMatch(this.queryInfo.author, [
-        { addr: msgHdr.mime2DecodedAuthor, doRfc2047: false },
+        { addr: msgHdr.author, doRfc2047: true },
       ])
     ) {
       return false;
@@ -1954,7 +1944,7 @@ export class MessageQuery {
     if (
       this.queryInfo.recipients &&
       !isAddressMatch(this.queryInfo.recipients, [
-        { addr: msgHdr.mime2DecodedRecipients, doRfc2047: false },
+        { addr: msgHdr.recipients, doRfc2047: true },
         { addr: msgHdr.ccList, doRfc2047: true },
         { addr: msgHdr.bccList, doRfc2047: true },
       ])
@@ -1968,9 +1958,9 @@ export class MessageQuery {
       const subjectMatches = msgHdr.mime2DecodedSubject.includes(
         this.queryInfo.fullText
       );
-      const authorMatches = msgHdr.mime2DecodedAuthor.includes(
-        this.queryInfo.fullText
-      );
+      const authorMatches = parseEncodedAddrHeader(msgHdr.author, false)
+        .shift()
+        .includes(this.queryInfo.fullText);
       fullTextBodySearchNeeded = !(subjectMatches || authorMatches);
     }
 

@@ -405,500 +405,561 @@ add_task(async function test_encoding() {
     _folder,
     do_get_file("messages/sample08.eml").path
   );
+  // A message with utf-8 encoded from and to header, which have an encoded comma
+  // and should be quoted after RFC2047 decoding.
+  await createMessageFromFile(
+    _folder,
+    do_get_file("messages/utf8MailboxStrings.eml").path
+  );
 
   const extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      const accounts = await browser.accounts.list();
-      browser.test.assertEq(1, accounts.length);
+    files: {
+      "background.js": async () => {
+        const accounts = await browser.accounts.list();
+        browser.test.assertEq(1, accounts.length);
+        const account = accounts[0];
 
-      const expectedData = {
-        "01.eml@mime.sample": {
-          msgHeaders: {
-            subject: "αλφάβητο",
-            author: "Bug Reporter <new@thunderbird.bug>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Bug Reporter <new@thunderbird.bug>"],
-              newsgroups: ["gmane.comp.mozilla.thundebird.user"],
-              subject: ["αλφάβητο"],
-              date: ["Thu, 27 May 2021 21:23:35 +0100"],
-              "message-id": ["<01.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
+        const expectedData = {
+          "01.eml@mime.sample": {
+            msgHeaders: {
+              subject: "αλφάβητο",
+              author: "Bug Reporter <new@thunderbird.bug>",
             },
-            parts: [
-              {
-                contentType: "text/plain",
-                partName: "1",
-                size: 0,
-                body: "Άλφα\n",
-                headers: {
-                  "content-type": ["text/plain; charset=utf-8;"],
-                  "content-transfer-encoding": ["base64"],
-                  "content-disposition": ["inline"],
-                },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Bug Reporter <new@thunderbird.bug>"],
+                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                subject: ["αλφάβητο"],
+                date: ["Thu, 27 May 2021 21:23:35 +0100"],
+                "message-id": ["<01.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
               },
-            ],
-          },
-        },
-        "02.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Test message from Microsoft Outlook 00",
-            author: "Doug Sauder <doug@example.com>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ['"Doug Sauder" <doug@example.com>'],
-              to: ["Heinz Müller <mueller@example.com>"],
-              subject: ["Test message from Microsoft Outlook 00"],
-              date: ["Wed, 17 May 2000 19:32:47 -0400"],
-              "message-id": ["<02.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
-              "x-priority": ["3 (Normal)"],
-              "x-msmail-priority": ["Normal"],
-              "x-mailer": [
-                "Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)",
+              parts: [
+                {
+                  contentType: "text/plain",
+                  partName: "1",
+                  size: 0,
+                  body: "Άλφα\n",
+                  headers: {
+                    "content-type": ["text/plain; charset=utf-8;"],
+                    "content-transfer-encoding": ["base64"],
+                    "content-disposition": ["inline"],
+                  },
+                },
               ],
-              importance: ["Normal"],
-              "x-mimeole": ["Produced By Microsoft MimeOLE V5.00.2314.1300"],
             },
-            parts: [
-              {
-                contentType: "multipart/mixed",
-                partName: "1",
-                size: 0,
-                headers: {
-                  "content-type": [
-                    'multipart/mixed; boundary="----=_NextPart_000_0002_01BFC036.AE309650"',
+          },
+          "02.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Test message from Microsoft Outlook 00",
+              author: "Doug Sauder <doug@example.com>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ['"Doug Sauder" <doug@example.com>'],
+                to: ["Heinz Müller <mueller@example.com>"],
+                subject: ["Test message from Microsoft Outlook 00"],
+                date: ["Wed, 17 May 2000 19:32:47 -0400"],
+                "message-id": ["<02.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+                "x-priority": ["3 (Normal)"],
+                "x-msmail-priority": ["Normal"],
+                "x-mailer": [
+                  "Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)",
+                ],
+                importance: ["Normal"],
+                "x-mimeole": ["Produced By Microsoft MimeOLE V5.00.2314.1300"],
+              },
+              parts: [
+                {
+                  contentType: "multipart/mixed",
+                  partName: "1",
+                  size: 0,
+                  headers: {
+                    "content-type": [
+                      'multipart/mixed; boundary="----=_NextPart_000_0002_01BFC036.AE309650"',
+                    ],
+                  },
+                  parts: [
+                    {
+                      contentType: "text/plain",
+                      partName: "1.1",
+                      size: 0,
+                      body: `\nDie Hasen und die Frösche \n \n`,
+                      headers: {
+                        "content-type": ['text/plain; charset="iso-8859-1"'],
+                        "content-transfer-encoding": ["quoted-printable"],
+                      },
+                    },
+                    {
+                      contentType: "image/png",
+                      partName: "1.2",
+                      size: 0,
+                      name: "blueball2.png",
+                      headers: {
+                        "content-type": ['image/png; name="blueball1.png"'],
+                        "content-transfer-encoding": ["base64"],
+                        "content-disposition": [
+                          'attachment; filename="blueball2.png"',
+                        ],
+                      },
+                    },
+                    {
+                      contentType: "image/png",
+                      partName: "1.3",
+                      size: 0,
+                      name: "greenball.png",
+                      headers: {
+                        "content-type": ['image/png; name="greenball.png"'],
+                        "content-transfer-encoding": ["base64"],
+                        "content-disposition": ["attachment"],
+                      },
+                    },
+                    {
+                      contentType: "image/png",
+                      partName: "1.4",
+                      size: 0,
+                      name: "redball.png",
+                      headers: {
+                        "content-type": ["image/png"],
+                        "content-transfer-encoding": ["base64"],
+                        "content-disposition": [
+                          'attachment; filename="redball.png"',
+                        ],
+                      },
+                    },
                   ],
                 },
-                parts: [
-                  {
-                    contentType: "text/plain",
-                    partName: "1.1",
-                    size: 0,
-                    body: `\nDie Hasen und die Frösche \n \n`,
-                    headers: {
-                      "content-type": ['text/plain; charset="iso-8859-1"'],
-                      "content-transfer-encoding": ["quoted-printable"],
-                    },
-                  },
-                  {
-                    contentType: "image/png",
-                    partName: "1.2",
-                    size: 0,
-                    name: "blueball2.png",
-                    headers: {
-                      "content-type": ['image/png; name="blueball1.png"'],
-                      "content-transfer-encoding": ["base64"],
-                      "content-disposition": [
-                        'attachment; filename="blueball2.png"',
-                      ],
-                    },
-                  },
-                  {
-                    contentType: "image/png",
-                    partName: "1.3",
-                    size: 0,
-                    name: "greenball.png",
-                    headers: {
-                      "content-type": ['image/png; name="greenball.png"'],
-                      "content-transfer-encoding": ["base64"],
-                      "content-disposition": ["attachment"],
-                    },
-                  },
-                  {
-                    contentType: "image/png",
-                    partName: "1.4",
-                    size: 0,
-                    name: "redball.png",
-                    headers: {
-                      "content-type": ["image/png"],
-                      "content-transfer-encoding": ["base64"],
-                      "content-disposition": [
-                        'attachment; filename="redball.png"',
-                      ],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        },
-        "03.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Test message from Microsoft Outlook 00",
-            author: "Heinz Müller <mueller@example.com>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Heinz Müller <mueller@example.com>"],
-              to: ['"Joe Blow" <jblow@example.com>'],
-              subject: ["Test message from Microsoft Outlook 00"],
-              date: ["Wed, 17 May 2000 19:35:05 -0400"],
-              "message-id": ["<03.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
-              "x-priority": ["3 (Normal)"],
-              "x-msmail-priority": ["Normal"],
-              "x-mailer": [
-                "Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)",
               ],
-              importance: ["Normal"],
-              "x-mimeole": ["Produced By Microsoft MimeOLE V5.00.2314.1300"],
             },
-            parts: [
-              {
-                contentType: "image/png",
-                name: "doubelspace  ball.png",
-                partName: "1",
-                size: 0,
-                headers: {
-                  "content-type": ['image/png; name="doubelspace  ball.png"'],
-                  "content-transfer-encoding": ["base64"],
-                  "content-disposition": [
-                    'attachment; filename="doubelspace  ball.png"',
-                  ],
-                },
-              },
-            ],
           },
-        },
-        "04.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Алфавит",
-            author: "Bug Reporter <new@thunderbird.bug>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Bug Reporter <new@thunderbird.bug>"],
-              newsgroups: ["gmane.comp.mozilla.thundebird.user"],
-              subject: ["Алфавит"],
-              date: ["Sun, 27 May 2001 21:23:35 +0100"],
-              "message-id": ["<04.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
+          "03.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Test message from Microsoft Outlook 00",
+              author: "Heinz Müller <mueller@example.com>",
             },
-            parts: [
-              {
-                contentType: "text/plain",
-                partName: "1",
-                size: 0,
-                body: "Вопрос\n",
-                headers: {
-                  "content-type": ["text/plain; charset=koi8-r;"],
-                  "content-transfer-encoding": ["base64"],
-                },
-              },
-            ],
-          },
-        },
-        "05.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Алфавит",
-            author: "Bug Reporter <new@thunderbird.bug>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Bug Reporter <new@thunderbird.bug>"],
-              newsgroups: ["gmane.comp.mozilla.thundebird.user"],
-              subject: ["Алфавит"],
-              date: ["Sun, 27 May 2001 21:23:35 +0100"],
-              "message-id": ["<05.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
-            },
-            parts: [
-              {
-                contentType: "text/plain",
-                partName: "1",
-                size: 0,
-                body: "Вопрос\n",
-                headers: {
-                  "content-type": ["text/plain; charset=windows-1251;"],
-                  "content-transfer-encoding": ["base64"],
-                },
-              },
-            ],
-          },
-        },
-        "06.eml@mime.sample": {
-          msgHeaders: {
-            subject: "I have no content type",
-            author: "Bug Reporter <new@thunderbird.bug>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Bug Reporter <new@thunderbird.bug>"],
-              newsgroups: ["gmane.comp.mozilla.thundebird.user"],
-              subject: ["I have no content type"],
-              date: ["Sun, 27 May 2001 21:23:35 +0100"],
-              "message-id": ["<06.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
-            },
-            parts: [
-              {
-                contentType: "text/plain",
-                partName: "1",
-                size: 0,
-                body: "No content type\n",
-                headers: {
-                  "content-type": ["text/plain"],
-                },
-              },
-            ],
-          },
-        },
-        "07.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Default content-types",
-            author: "Doug Sauder <dwsauder@example.com>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["Doug Sauder <dwsauder@example.com>"],
-              to: ["Heinz <mueller@example.com>"],
-              subject: ["Default content-types"],
-              date: ["Fri, 19 May 2000 00:29:55 -0400"],
-              "message-id": ["<07.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
-            },
-            parts: [
-              {
-                contentType: "multipart/alternative",
-                partName: "1",
-                size: 0,
-                headers: {
-                  "content-type": [
-                    'multipart/alternative; boundary="=====================_714967308==_.ALT"',
-                  ],
-                },
-                parts: [
-                  {
-                    contentType: "text/plain",
-                    partName: "1.1",
-                    size: 0,
-                    body: "Die Hasen\n",
-                    headers: {
-                      "content-type": ["text/plain"],
-                      "content-transfer-encoding": ["quoted-printable"],
-                    },
-                  },
-                  {
-                    contentType: "text/html",
-                    partName: "1.2",
-                    size: 0,
-                    body: "<html><body><b>Die Hasen</b></body></html>\n",
-                    headers: {
-                      "content-type": ["text/html"],
-                    },
-                  },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Heinz Müller <mueller@example.com>"],
+                to: ['"Joe Blow" <jblow@example.com>'],
+                subject: ["Test message from Microsoft Outlook 00"],
+                date: ["Wed, 17 May 2000 19:35:05 -0400"],
+                "message-id": ["<03.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+                "x-priority": ["3 (Normal)"],
+                "x-msmail-priority": ["Normal"],
+                "x-mailer": [
+                  "Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)",
                 ],
+                importance: ["Normal"],
+                "x-mimeole": ["Produced By Microsoft MimeOLE V5.00.2314.1300"],
               },
-            ],
-          },
-        },
-        "08.eml@mime.sample": {
-          msgHeaders: {
-            subject: "Embedded Image",
-            author: "John <john@example.com>",
-          },
-          msgParts: {
-            contentType: "message/rfc822",
-            partName: "",
-            size: 0,
-            decryptionStatus: "none",
-            headers: {
-              from: ["John <john@example.com>"],
-              to: ["user@invalid"],
-              subject: ["Embedded Image"],
-              date: ["Wed, 29 May 2024 15:26:47 +0200"],
-              "message-id": ["<08.eml@mime.sample>"],
-              "mime-version": ["1.0"],
-              "content-type": ["message/rfc822"],
+              parts: [
+                {
+                  contentType: "image/png",
+                  name: "doubelspace  ball.png",
+                  partName: "1",
+                  size: 0,
+                  headers: {
+                    "content-type": ['image/png; name="doubelspace  ball.png"'],
+                    "content-transfer-encoding": ["base64"],
+                    "content-disposition": [
+                      'attachment; filename="doubelspace  ball.png"',
+                    ],
+                  },
+                },
+              ],
             },
-            parts: [
-              {
-                contentType: "multipart/related",
-                headers: {
-                  "content-language": ["en-US"],
-                  "content-type": [
-                    `multipart/related; boundary="------------XDhTrqqN5B126r5Y7JBH0YyJ"`,
+          },
+          "04.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Алфавит",
+              author: "Bug Reporter <new@thunderbird.bug>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Bug Reporter <new@thunderbird.bug>"],
+                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                subject: ["Алфавит"],
+                date: ["Sun, 27 May 2001 21:23:35 +0100"],
+                "message-id": ["<04.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "text/plain",
+                  partName: "1",
+                  size: 0,
+                  body: "Вопрос\n",
+                  headers: {
+                    "content-type": ["text/plain; charset=koi8-r;"],
+                    "content-transfer-encoding": ["base64"],
+                  },
+                },
+              ],
+            },
+          },
+          "05.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Алфавит",
+              author: "Bug Reporter <new@thunderbird.bug>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Bug Reporter <new@thunderbird.bug>"],
+                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                subject: ["Алфавит"],
+                date: ["Sun, 27 May 2001 21:23:35 +0100"],
+                "message-id": ["<05.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "text/plain",
+                  partName: "1",
+                  size: 0,
+                  body: "Вопрос\n",
+                  headers: {
+                    "content-type": ["text/plain; charset=windows-1251;"],
+                    "content-transfer-encoding": ["base64"],
+                  },
+                },
+              ],
+            },
+          },
+          "06.eml@mime.sample": {
+            msgHeaders: {
+              subject: "I have no content type",
+              author: "Bug Reporter <new@thunderbird.bug>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Bug Reporter <new@thunderbird.bug>"],
+                newsgroups: ["gmane.comp.mozilla.thundebird.user"],
+                subject: ["I have no content type"],
+                date: ["Sun, 27 May 2001 21:23:35 +0100"],
+                "message-id": ["<06.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "text/plain",
+                  partName: "1",
+                  size: 0,
+                  body: "No content type\n",
+                  headers: {
+                    "content-type": ["text/plain"],
+                  },
+                },
+              ],
+            },
+          },
+          "07.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Default content-types",
+              author: "Doug Sauder <dwsauder@example.com>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["Doug Sauder <dwsauder@example.com>"],
+                to: ["Heinz <mueller@example.com>"],
+                subject: ["Default content-types"],
+                date: ["Fri, 19 May 2000 00:29:55 -0400"],
+                "message-id": ["<07.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "multipart/alternative",
+                  partName: "1",
+                  size: 0,
+                  headers: {
+                    "content-type": [
+                      'multipart/alternative; boundary="=====================_714967308==_.ALT"',
+                    ],
+                  },
+                  parts: [
+                    {
+                      contentType: "text/plain",
+                      partName: "1.1",
+                      size: 0,
+                      body: "Die Hasen\n",
+                      headers: {
+                        "content-type": ["text/plain"],
+                        "content-transfer-encoding": ["quoted-printable"],
+                      },
+                    },
+                    {
+                      contentType: "text/html",
+                      partName: "1.2",
+                      size: 0,
+                      body: "<html><body><b>Die Hasen</b></body></html>\n",
+                      headers: {
+                        "content-type": ["text/html"],
+                      },
+                    },
                   ],
                 },
-                size: 0,
-                partName: "1",
-                parts: [
-                  {
-                    contentType: "text/html",
-                    headers: {
-                      "content-type": ["text/html; charset=UTF-8"],
-                      "content-transfer-encoding": ["7bit"],
-                    },
-                    size: 0,
-                    partName: "1.1",
-                    body: `<!DOCTYPE html>\r\n<html>\r\n  <head>\r\n    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n  </head>\r\n  <body>\r\n    <p>Example body</p>\r\n    <img moz-do-not-send=\"false\"\r\n      src=\"cid:part1.FxEY2Ivx.xSFtCdX4@example.com\" alt=\"\" width=\"1\"\r\n      height=\"1\" class=\"\">\r\n    <p>with embedded image.<br>\r\n    </p>\r\n    <br>\r\n  </body>\r\n</html>`,
-                  },
-                  {
-                    contentType: "image/png",
-                    headers: {
-                      "content-type": [`image/png; name="blue_pixel_1x1.png"`],
-                      "content-disposition": [
-                        `inline; filename="blue_pixel_1x1.png"`,
-                      ],
-                      "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@example.com>"],
-                      "content-transfer-encoding": ["base64"],
-                    },
-                    size: 0,
-                    name: "blue_pixel_1x1.png",
-                    partName: "1.2",
-                  },
-                ],
-              },
-            ],
+              ],
+            },
           },
-        },
-      };
+          "08.eml@mime.sample": {
+            msgHeaders: {
+              subject: "Embedded Image",
+              author: "John <john@example.com>",
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: ["John <john@example.com>"],
+                to: ["user@invalid"],
+                subject: ["Embedded Image"],
+                date: ["Wed, 29 May 2024 15:26:47 +0200"],
+                "message-id": ["<08.eml@mime.sample>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "multipart/related",
+                  headers: {
+                    "content-language": ["en-US"],
+                    "content-type": [
+                      `multipart/related; boundary="------------XDhTrqqN5B126r5Y7JBH0YyJ"`,
+                    ],
+                  },
+                  size: 0,
+                  partName: "1",
+                  parts: [
+                    {
+                      contentType: "text/html",
+                      headers: {
+                        "content-type": ["text/html; charset=UTF-8"],
+                        "content-transfer-encoding": ["7bit"],
+                      },
+                      size: 0,
+                      partName: "1.1",
+                      body: `<!DOCTYPE html>\r\n<html>\r\n  <head>\r\n    <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n  </head>\r\n  <body>\r\n    <p>Example body</p>\r\n    <img moz-do-not-send=\"false\"\r\n      src=\"cid:part1.FxEY2Ivx.xSFtCdX4@example.com\" alt=\"\" width=\"1\"\r\n      height=\"1\" class=\"\">\r\n    <p>with embedded image.<br>\r\n    </p>\r\n    <br>\r\n  </body>\r\n</html>`,
+                    },
+                    {
+                      contentType: "image/png",
+                      headers: {
+                        "content-type": [
+                          `image/png; name="blue_pixel_1x1.png"`,
+                        ],
+                        "content-disposition": [
+                          `inline; filename="blue_pixel_1x1.png"`,
+                        ],
+                        "content-id": ["<part1.FxEY2Ivx.xSFtCdX4@example.com>"],
+                        "content-transfer-encoding": ["base64"],
+                      },
+                      size: 0,
+                      name: "blue_pixel_1x1.png",
+                      partName: "1.2",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          "1919244@thunderbird.bug": {
+            msgHeaders: {
+              subject: "Message for Bug 1919244",
+              author: `"Hörst, Kenny" <K.Hoerst@invalid>`,
+              recipients:
+                account.type == "nntp"
+                  ? []
+                  : [
+                      `"Hörst, Kenny" <K.Hoerst@invalid>`,
+                      "Bug Reporter <new@thunderbird.bug>",
+                    ],
+            },
+            msgParts: {
+              contentType: "message/rfc822",
+              partName: "",
+              size: 0,
+              decryptionStatus: "none",
+              headers: {
+                from: [`Hörst, Kenny <K.Hoerst@invalid>`],
+                to: [
+                  `Hörst, Kenny <K.Hoerst@invalid>, Bug Reporter <new@thunderbird.bug>`,
+                ],
+                subject: ["Message for Bug 1919244"],
+                date: ["Mon, 23 Sep 2024 16:16:47 +0200"],
+                "message-id": ["<1919244@thunderbird.bug>"],
+                "mime-version": ["1.0"],
+                "content-type": ["message/rfc822"],
+              },
+              parts: [
+                {
+                  contentType: "text/plain",
+                  partName: "1",
+                  size: 0,
+                  body: "Test\n",
+                  headers: {
+                    "content-type": [
+                      "text/plain; charset=UTF-8; format=flowed",
+                    ],
+                    "content-transfer-encoding": ["7bit"],
+                  },
+                },
+              ],
+            },
+          },
+        };
 
-      function checkMsgHeaders(expected, actual) {
-        // Check if all expected properties are there.
-        for (const property of Object.keys(expected)) {
-          browser.test.assertEq(
-            expected.hasOwnProperty(property),
-            actual.hasOwnProperty(property),
-            `expected property ${property} is present`
-          );
-          // Check property content.
-          browser.test.assertEq(
-            expected[property],
-            actual[property],
-            `property ${property} is correct`
-          );
-        }
-      }
-
-      function checkMsgParts(expected, actual) {
-        // Check if all expected properties are there.
-        for (const property of Object.keys(expected)) {
-          browser.test.assertEq(
-            expected.hasOwnProperty(property),
-            actual.hasOwnProperty(property),
-            `expected property ${property} is present`
-          );
-          if (
-            ["parts", "headers", "size"].includes(property) ||
-            (["body"].includes(property) && expected[property] == "")
-          ) {
-            continue;
-          }
-          // Check property content.
-          browser.test.assertEq(
-            JSON.stringify(expected[property].replaceAll("\r\n", "\n")),
-            JSON.stringify(actual[property].replaceAll("\r\n", "\n")),
-            `property ${property} is correct`
-          );
-        }
-
-        // Check for unexpected properties.
-        for (const property of Object.keys(actual)) {
-          browser.test.assertEq(
-            expected.hasOwnProperty(property),
-            actual.hasOwnProperty(property),
-            `property ${property} is expected`
-          );
-        }
-
-        // Check if all expected headers are there.
-        if (expected.headers) {
-          for (const header of Object.keys(expected.headers)) {
+        function checkMsgHeaders(expected, actual) {
+          // Check if all expected properties are there.
+          for (const property of Object.keys(expected)) {
             browser.test.assertEq(
-              expected.headers.hasOwnProperty(header),
-              actual.headers.hasOwnProperty(header),
-              `expected header ${header} is present`
+              expected.hasOwnProperty(property),
+              actual.hasOwnProperty(property),
+              `expected property ${property} is present`
             );
-            // Check header content.
-            // Note: jsmime does not eat TABs after a CLRF.
-            browser.test.assertEq(
-              expected.headers[header].toString().replaceAll("\t", " "),
-              actual.headers[header].toString().replaceAll("\t", " "),
-              `header ${header} is correct`
-            );
+            // Check property content.
+            if (Array.isArray(expected[property])) {
+              window.assertDeepEqual(
+                expected[property],
+                actual[property],
+                `property ${property} is correct (object)`
+              );
+            } else {
+              browser.test.assertEq(
+                expected[property],
+                actual[property],
+                `property ${property} is correct`
+              );
+            }
           }
-          // Check for unexpected headers.
-          // (But don't worry about new x-mozilla-* ones that get slipped in
-          // during writes to the offline store).
-          const x_moz_headers = [
-            "x-mozilla-status",
-            "x-mozilla-status2",
-            "x-mozilla-status-keys",
-          ];
-          for (const header of Object.keys(actual.headers)) {
-            if (x_moz_headers.includes(header)) {
+        }
+
+        function checkMsgParts(expected, actual) {
+          // Check if all expected properties are there.
+          for (const property of Object.keys(expected)) {
+            browser.test.assertEq(
+              expected.hasOwnProperty(property),
+              actual.hasOwnProperty(property),
+              `expected property ${property} is present`
+            );
+            if (
+              ["parts", "headers", "size"].includes(property) ||
+              (["body"].includes(property) && expected[property] == "")
+            ) {
               continue;
             }
-
+            // Check property content.
             browser.test.assertEq(
-              expected.headers.hasOwnProperty(header),
-              actual.headers.hasOwnProperty(header),
-              `header ${header} is expected`
+              JSON.stringify(expected[property].replaceAll("\r\n", "\n")),
+              JSON.stringify(actual[property].replaceAll("\r\n", "\n")),
+              `property ${property} is correct`
             );
           }
-        }
 
-        // Check sub-parts.
-        browser.test.assertEq(
-          Array.isArray(expected.parts),
-          Array.isArray(actual.parts),
-          `has sub-parts`
-        );
-        if (Array.isArray(expected.parts)) {
+          // Check for unexpected properties.
+          for (const property of Object.keys(actual)) {
+            browser.test.assertEq(
+              expected.hasOwnProperty(property),
+              actual.hasOwnProperty(property),
+              `property ${property} is expected`
+            );
+          }
+
+          // Check if all expected headers are there.
+          if (expected.headers) {
+            for (const header of Object.keys(expected.headers)) {
+              browser.test.assertEq(
+                expected.headers.hasOwnProperty(header),
+                actual.headers.hasOwnProperty(header),
+                `expected header ${header} is present`
+              );
+              // Check header content.
+              // Note: jsmime does not eat TABs after a CLRF.
+              browser.test.assertEq(
+                expected.headers[header].toString().replaceAll("\t", " "),
+                actual.headers[header].toString().replaceAll("\t", " "),
+                `header ${header} is correct`
+              );
+            }
+            // Check for unexpected headers.
+            // (But don't worry about new x-mozilla-* ones that get slipped in
+            // during writes to the offline store).
+            const x_moz_headers = [
+              "x-mozilla-status",
+              "x-mozilla-status2",
+              "x-mozilla-status-keys",
+            ];
+            for (const header of Object.keys(actual.headers)) {
+              if (x_moz_headers.includes(header)) {
+                continue;
+              }
+
+              browser.test.assertEq(
+                expected.headers.hasOwnProperty(header),
+                actual.headers.hasOwnProperty(header),
+                `header ${header} is expected`
+              );
+            }
+          }
+
+          // Check sub-parts.
           browser.test.assertEq(
-            expected.parts.length,
-            actual.parts.length,
-            "number of parts"
+            Array.isArray(expected.parts),
+            Array.isArray(actual.parts),
+            `has sub-parts`
           );
-          for (const i in expected.parts) {
-            checkMsgParts(expected.parts[i], actual.parts[i]);
+          if (Array.isArray(expected.parts)) {
+            browser.test.assertEq(
+              expected.parts.length,
+              actual.parts.length,
+              "number of parts"
+            );
+            for (const i in expected.parts) {
+              checkMsgParts(expected.parts[i], actual.parts[i]);
+            }
           }
         }
-      }
 
-      for (const account of accounts) {
         const folder = account.folders.find(f => f.name == "test1");
         const { messages } = await browser.messages.list(folder.id);
-        browser.test.assertEq(8, messages.length);
+        browser.test.assertEq(9, messages.length);
 
         for (const message of messages) {
           const fullMessage = await browser.messages.getFull(message.id);
@@ -907,12 +968,14 @@ add_task(async function test_encoding() {
           checkMsgHeaders(expected.msgHeaders, message);
           checkMsgParts(expected.msgParts, fullMessage);
         }
-      }
 
-      browser.test.notifyPass("finished");
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
     },
     manifest: {
       manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
   });
