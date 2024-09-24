@@ -181,39 +181,41 @@ OAuth2Module.prototype = {
   },
   async setRefreshToken(token) {
     const scope = this._oauth.scope ?? this._scope;
+    const grantedScopes = scopeSet(scope);
 
-    // Check if we already have a login with this username, and modify the
-    // password on that, if we do.
+    // Update any existing logins matching this origin, username, and scope.
     const logins = Services.logins.findLogins(this._loginOrigin, null, "");
+    let didChangePassword = false;
     for (const login of logins) {
       if (login.username != this._username) {
         continue;
       }
 
-      if (token) {
-        log.debug(`Found existing login for ${this._loginOrigin}...`);
-        const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-          Ci.nsIWritablePropertyBag
-        );
-        if (token != login.password) {
-          log.debug("... changing password");
-          propBag.setProperty("password", token);
-        }
-        if (scope != login.httpRealm) {
+      const loginScopes = scopeSet(login.httpRealm);
+      if (grantedScopes.isSupersetOf(loginScopes)) {
+        if (grantedScopes.size == loginScopes.size) {
+          // The scope matches, just update the token.
           log.debug(
-            `... changing httpRealm from "${login.httpRealm}" to "${scope}"`
+            `Updating existing token for ${this._loginOrigin} with scope "${scope}"`
           );
-          propBag.setProperty("httpRealm", scope);
+          const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+            Ci.nsIWritablePropertyBag
+          );
+          propBag.setProperty("password", token);
+          Services.logins.modifyLogin(login, propBag);
+          didChangePassword = true;
+        } else {
+          // We've got a new token for this scope, remove the existing one.
+          log.debug(
+            `Removing superceded token for ${this._loginOrigin} with scope "${login.httpRealm}"`
+          );
+          Services.logins.removeLogin(login);
         }
-        Services.logins.modifyLogin(login, propBag);
-      } else {
-        Services.logins.removeLogin(login);
       }
-      return;
     }
 
-    // Unless the token is null, we need to create and fill in a new login
-    if (token) {
+    // Unless the token is null, we need to create and fill in a new login.
+    if (!didChangePassword && token) {
       log.debug(
         `Creating new login for ${this._loginOrigin} with httpRealm "${scope}"`
       );
@@ -260,8 +262,11 @@ OAuth2Module.prototype = {
 
         this._oauth.connect(shouldPrompt, false).then(
           async () => {
-            if (this._oauth.refreshToken != oldRefreshToken) {
-              // Refresh token changed; save it.
+            if (
+              this._oauth.refreshToken != oldRefreshToken ||
+              this._oauth.scope != this._scope
+            ) {
+              // Refresh token and/or scope changed; save it.
               await this.setRefreshToken(this._oauth.refreshToken);
             }
             if (this._prefRoot) {

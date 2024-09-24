@@ -321,6 +321,90 @@ add_task(async function testSetRefreshTokenWithNewScope() {
   Services.logins.removeAllLogins();
   OAuth2TestUtils.forgetObjects();
   OAuth2TestUtils.stopServer();
+  delete oAuth2Server.grantedScope;
+});
+
+add_task(async function testSetRefreshTokenPreservesOthers() {
+  // Create a server that makes a new token every time we use the current token.
+  const oAuth2Server = await OAuth2TestUtils.startServer();
+
+  // Tell the server to grant us a new scope. We won't be asking for it, but
+  // servers are weird.
+  oAuth2Server.grantedScope = "test_mail test_calendar";
+
+  await storeLogins([
+    ["https://test.test", "unknown_scope", "oscar@bar.invalid", "WRONG"],
+    ["oauth://test.test", "test_mail", "oscar@bar.invalid", "oscar-mail"],
+    [
+      "oauth://test.test",
+      "test_addressbook",
+      "oscar@bar.invalid",
+      "oscar-addressbook",
+    ],
+    [
+      "oauth://test.test",
+      "test_calendar",
+      "oscar@bar.invalid",
+      "oscar-calendar",
+    ],
+  ]);
+
+  // Connect.
+  const mod = new OAuth2Module();
+  mod.initFromHostname("test.test", "oscar@bar.invalid");
+  Assert.equal(
+    mod._oauth.refreshToken,
+    "",
+    "there should be no refresh token in memory"
+  );
+  mod._oauth.refreshToken = "refresh_token";
+
+  const deferred = Promise.withResolvers();
+  mod.connect(false, {
+    onSuccess: deferred.resolve,
+    onFailure: deferred.reject,
+  });
+  await deferred.promise;
+
+  Assert.equal(
+    mod._oauth.refreshToken,
+    "refresh_token",
+    "refresh token in memory should have been updated"
+  );
+  Assert.equal(
+    mod._oauth.scope,
+    "test_mail test_calendar",
+    "scope in memory should have been updated"
+  );
+
+  // Check that the new token was added and tokens it replaces are removed.
+  // This assumes that `getAllLogins` returns the logins in the order they
+  // were added. If this changes the test will need updating.
+  const logins = await Services.logins.getAllLogins();
+  Assert.equal(logins.length, 3, "there should be 3 remaining logins");
+
+  // Login with different origin is unchanged.
+  Assert.equal(logins[0].hostname, "https://test.test");
+  Assert.equal(logins[0].httpRealm, "unknown_scope");
+  Assert.equal(logins[0].username, "oscar@bar.invalid");
+  Assert.equal(logins[0].password, "WRONG");
+
+  // Token with a scope not granted in this test is unchanged.
+  Assert.equal(logins[1].hostname, "oauth://test.test");
+  Assert.equal(logins[1].httpRealm, "test_addressbook");
+  Assert.equal(logins[1].username, "oscar@bar.invalid");
+  Assert.equal(logins[1].password, "oscar-addressbook");
+
+  // Token with the new scopes replaces the individual tokens for those scopes.
+  Assert.equal(logins[2].hostname, "oauth://test.test");
+  Assert.equal(logins[2].httpRealm, "test_mail test_calendar");
+  Assert.equal(logins[2].username, "oscar@bar.invalid");
+  Assert.equal(logins[2].password, "refresh_token");
+
+  Services.logins.removeAllLogins();
+  OAuth2TestUtils.forgetObjects();
+  OAuth2TestUtils.stopServer();
+  delete oAuth2Server.grantedScope;
 });
 
 async function storeLogins(logins) {
