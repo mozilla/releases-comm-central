@@ -73,7 +73,9 @@ OAuth2Module.prototype = {
     const details = OAuth2Providers.getHostnameDetails(aHostname);
     if (
       details &&
-      (details[0] != issuer || !scopeSet(details[1]).isSupersetOf(prefScopes))
+      (details[0] != issuer ||
+        !scope ||
+        !scopeSet(details[1]).isSupersetOf(prefScopes))
     ) {
       if (details[0] != issuer) {
         log.info(
@@ -82,7 +84,7 @@ OAuth2Module.prototype = {
       }
       if (!scopeSet(details[1]).isSupersetOf(prefScopes)) {
         log.info(
-          `${root}oauth2.scope "${scope}" is not a superset of "${details[1]}"`
+          `${root}oauth2.scope "${scope}" is not a subset of "${details[1]}"`
         );
       }
       // Found in the list of hardcoded providers. Use the hardcoded values.
