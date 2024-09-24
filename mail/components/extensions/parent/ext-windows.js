@@ -382,7 +382,6 @@ this.windows = class extends ExtensionAPIPersistent {
             );
           }
           const createWindowArgs = createData => {
-            const allowScriptsToClose = !!createData.allowScriptsToClose;
             const url = createData.url || "about:blank";
             const urls = Array.isArray(url) ? url : [url];
 
@@ -413,7 +412,7 @@ this.windows = class extends ExtensionAPIPersistent {
             );
             const actionData = {
               action: "open",
-              allowScriptsToClose,
+              allowScriptsToClose: createData.allowScriptsToClose,
               tabs: urls.map(url => ({
                 tabType: "contentTab",
                 tabParams: { url, userContextId },

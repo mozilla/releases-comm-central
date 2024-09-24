@@ -238,10 +238,15 @@ function loadRequestedUrl() {
   if (typeof window.arguments[0] == "string") {
     MailE10SUtils.loadURI(browser, window.arguments[0]);
   } else {
-    if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
+    const createData = window.arguments[1].wrappedJSObject;
+    const tabParams = createData.tabs[0].tabParams;
+    const url = new URL(tabParams.url);
+    // moz-extension://s urls default to allowScriptsToClose = true
+    const defaultScriptsToClose = url.protocol == "moz-extension:";
+
+    if (createData.allowScriptsToClose ?? defaultScriptsToClose) {
       browser.setAttribute("allowscriptstoclose", "true");
     }
-    const tabParams = window.arguments[1].wrappedJSObject.tabs[0].tabParams;
     if (tabParams.userContextId) {
       browser.setAttribute("usercontextid", tabParams.userContextId);
       // The usercontextid is only read on frame creation, so recreate it.

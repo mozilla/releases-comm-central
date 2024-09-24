@@ -308,7 +308,7 @@
               "allowScriptsToClose": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Allow scripts running inside the window to close the window by calling <code>window.close()</code>."
+                "description": "Allow scripts running inside the window to close the window by calling <code>window.close()</code>. Defaults to <var>true</var> when the given URL points to an extension page (a page included with this extension and loaded with the <var>moz-extension:</var> protocol), defaults to <var>false</var> otherwise."
               },
               "cookieStoreId": {
                 "type": "string",

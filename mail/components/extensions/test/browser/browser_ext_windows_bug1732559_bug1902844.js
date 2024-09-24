@@ -21,7 +21,7 @@ add_task(async function check_focus() {
         const openedWin = await browser.windows.create({
           url: "focus.html",
           type: "popup",
-          allowScriptsToClose: true,
+          // not requesting allowScriptsToClose: true here, to verify bug 1902844
         });
         const loadedWinId = await loadPromise;
 
