@@ -105,5 +105,13 @@ interface nsIMsgDBHdr : nsISupports
 
     /// Array of names of all database properties in the header.
     readonly attribute Array<AUTF8String> properties;
+
+    /**
+     * Server-assigned unique ID for message. 0 = unset.
+     * IMAP sequence number or UID, NNTP article number, etc...
+     * NOTE: Added in support of Bug 1806770, but not yet in use.
+     */
+    attribute unsigned long uidOnServer;
 };
+
 /* *******************************************************************************/

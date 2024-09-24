@@ -235,6 +235,16 @@ NS_IMETHODIMP nsMsgFileHdr::SetOfflineMessageSize(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgFileHdr::GetUidOnServer(uint32_t* result) {
+  *result = 0;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFileHdr::SetUidOnServer(uint32_t uid) {
+  // Message is not linked to an IMAP server, so we should never get here.
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsMsgFileHdr::GetDate(PRTime* aDate) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);

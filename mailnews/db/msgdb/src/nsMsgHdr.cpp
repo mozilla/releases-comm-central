@@ -939,3 +939,14 @@ NS_IMETHODIMP nsMsgHdr::GetProperties(nsTArray<nsCString>& headers) {
   }
   return NS_OK;
 }
+
+NS_IMETHODIMP nsMsgHdr::GetUidOnServer(uint32_t* result) {
+  uint32_t uid;
+  nsresult rv = GetUInt32Column(m_mdb->m_uidOnServerColumnToken, &uid);
+  *result = uid;
+  return rv;
+}
+
+NS_IMETHODIMP nsMsgHdr::SetUidOnServer(uint32_t uid) {
+  return SetUInt32Column(uid, m_mdb->m_uidOnServerColumnToken);
+}

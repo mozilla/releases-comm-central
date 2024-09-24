@@ -982,6 +982,7 @@ nsMsgDatabase::nsMsgDatabase()
       m_threadNewestMsgDateColumnToken(0),
       m_offlineMsgOffsetColumnToken(0),
       m_offlineMessageSizeColumnToken(0),
+      m_uidOnServerColumnToken(0),
       m_headersInUse(nullptr),
       m_cachedHeaders(nullptr),
       m_bCacheHeaders(true),
@@ -1479,6 +1480,7 @@ const char* kThreadRootColumnName = "threadRoot";
 const char* kThreadNewestMsgDateColumnName = "threadNewestMsgDate";
 const char* kOfflineMsgOffsetColumnName = "msgOffset";
 const char* kOfflineMsgSizeColumnName = "offlineMsgSize";
+const char* kUidOnServerColumnName = "uidOnServer";
 struct mdbOid gAllMsgHdrsTableOID;
 struct mdbOid gAllThreadsTableOID;
 const char* kFixedBadRefThreadingProp = "fixedBadRefThreading";
@@ -1707,6 +1709,8 @@ nsresult nsMsgDatabase::InitMDBInfo() {
                                       &m_offlineMsgOffsetColumnToken);
       err = GetStore()->StringToToken(GetEnv(), kOfflineMsgSizeColumnName,
                                       &m_offlineMessageSizeColumnToken);
+      err = GetStore()->StringToToken(GetEnv(), kUidOnServerColumnName,
+                                      &m_uidOnServerColumnToken);
 
       if (NS_SUCCEEDED(err)) {
         // The table of all message hdrs will have table id 1.

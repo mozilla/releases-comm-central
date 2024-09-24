@@ -329,6 +329,7 @@ class nsMsgDatabase : public nsIMsgOfflineOpsDatabase {
   mdb_token m_threadNewestMsgDateColumnToken;
   mdb_token m_offlineMsgOffsetColumnToken;
   mdb_token m_offlineMessageSizeColumnToken;
+  mdb_token m_uidOnServerColumnToken;
 
   // header caching stuff - MRU headers, keeps them around in memory
   nsresult AddHdrToCache(nsIMsgDBHdr* hdr, nsMsgKey key);
