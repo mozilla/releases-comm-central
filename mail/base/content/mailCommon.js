@@ -875,9 +875,7 @@ var commandController = {
       );
       addedRowsByViewNavigate = gViewWrapper.dbView.rowCount - countBefore;
       if (resultIndex.value == nsMsgViewIndex_None) {
-        if (CrossFolderNavigation(navigationType)) {
-          this._navigate(navigationType);
-        }
+        CrossFolderNavigation(navigationType, this._navigate);
         return;
       }
       if (resultKey.value == nsMsgKey_None) {
@@ -1089,6 +1087,9 @@ var dbViewWrapperListener = {
       window.threadTree.reset();
       if (!newMessageFound && !window.threadPane.scrollDetected) {
         window.threadPane.scrollToLatestRowIfNoSelection();
+      }
+      if (all) {
+        window.dispatchEvent(new CustomEvent("allMessagesLoaded"));
       }
     }
     // To be consistent with the behavior in saved searches, update the message
