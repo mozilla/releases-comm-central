@@ -47,7 +47,10 @@ export class NotificationManager extends EventTarget {
    * Check if a notification has UI that should be shown. The only notification
    * type that doesn't have UI is the "donations_old" type, which imitates the
    * appeal behavior, where we open a webseite in the user's browser.
+   * Setting name and private explicitly to work around jsdoc parsing issue.
    *
+   * @name NotificationManager.isNotificationWithUI
+   * @private
    * @param {object} notification
    * @returns {boolean} If this notification should show a popup in the UI.
    */

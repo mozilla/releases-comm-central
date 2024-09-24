@@ -92,7 +92,6 @@ module.exports = {
       "../mail/components/extensions/test/browser/browser_ext_menus_context_tools_main_menu.js",
       "../mail/components/extensions/test/browser/head.js",
       "../mail/components/im/test/TestProtocol.sys.mjs",
-      "../mail/components/inappnotifications/modules/NotificationManager.sys.mjs",
       "../mail/components/preferences/messengerLanguages.js",
       "../mail/components/storybook/node_modules",
       "../mail/components/unifiedtoolbar/content/items/mail-go-button.mjs",
