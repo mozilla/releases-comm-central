@@ -429,7 +429,11 @@ def regen_toml_files(command_context, workspace):
         "version": "0.1.0",
         "path": mozpath.join(command_context.topsrcdir, "toolkit", "library", "rust", "shared"),
     }
-    for i in local_deps.keys():
+
+    # Sort the local dependencies. We do this in the reverse alphabetical order,
+    # because we insert them in the global list in the reverse order (so they
+    # end up on top in the final file).
+    for i in sorted(local_deps.keys(), reverse=True):
         keys.insert(0, i)
 
     keys.insert(0, "gkrust-shared")
