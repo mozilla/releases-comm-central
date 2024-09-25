@@ -16,7 +16,6 @@
   --ab-card-min-height: 140px;
   --ab-card-line-height: 1.3em;
   --ab-card-table-row-height: 22px;
-  --ab-card-row-gap: 3px;
 
   --ab-contact-padding: 21px;
   --ab-contact-photo-size: 80px;
@@ -31,7 +30,6 @@
   &[uidensity="compact"] {
     --ab-card-line-height: 1em;
     --ab-card-table-row-height: 18px;
-    --ab-card-row-gap: 0;
 
     --ab-contact-padding: 12px;
     --ab-contact-photo-size: 60px;
@@ -42,7 +40,6 @@
   &[uidensity="touch"] {
     --ab-card-line-height: 1.4em;
     --ab-card-table-row-height: 32px;
-    --ab-card-row-gap: 6px;
 
     --ab-contact-padding: 24px;
     --ab-contact-photo-size: 100px;
@@ -393,7 +390,8 @@ tr[is="ab-card-row"] td > .card-container {
     flex-direction: column;
     justify-content: center;
     line-height: var(--ab-card-line-height);
-    gap: var(--ab-card-row-gap);
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1 1 auto;
   }
