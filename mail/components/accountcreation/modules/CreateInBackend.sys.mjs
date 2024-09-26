@@ -157,7 +157,10 @@ async function createAccountInBackend(config) {
   if (
     config.outgoing.addThisServer &&
     !outServer &&
-    !config.outgoing.useGlobalPreferredServer
+    !(
+      config.outgoing.useGlobalPreferredServer &&
+      MailServices.outgoingServer.defaultServer
+    )
   ) {
     // Create the server and define some protocol-specific settings.
     outServer = MailServices.outgoingServer.createServer(config.outgoing.type);
