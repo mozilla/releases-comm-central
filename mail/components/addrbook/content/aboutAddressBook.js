@@ -1183,8 +1183,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
    * @augments {TreeViewTableRow}
    */
   class AbCardRow extends customElements.get("tree-view-table-row") {
-    static ROW_HEIGHT = 52;
-
     connectedCallback() {
       if (this.hasConnected) {
         return;
@@ -1295,8 +1293,6 @@ customElements.whenDefined("tree-view-table-row").then(() => {
    * @augments {TreeViewTableRow}
    */
   class AbTableCardRow extends customElements.get("tree-view-table-row") {
-    static ROW_HEIGHT = 22;
-
     connectedCallback() {
       if (this.hasConnected) {
         return;
@@ -1431,20 +1427,35 @@ var cardsPane = {
   densityChange() {
     const rowClass = customElements.get("ab-card-row");
     const tableRowClass = customElements.get("ab-table-card-row");
+    let densitySpacing;
+    let cardMinHeight;
+    let rowMinHeight;
     switch (UIDensity.prefValue) {
       case UIDensity.MODE_COMPACT:
-        rowClass.ROW_HEIGHT = 40;
-        tableRowClass.ROW_HEIGHT = 18;
+        densitySpacing = 0;
+        cardMinHeight = 40;
+        rowMinHeight = 18;
         break;
       case UIDensity.MODE_TOUCH:
-        rowClass.ROW_HEIGHT = 68;
-        tableRowClass.ROW_HEIGHT = 32;
+        densitySpacing = 12;
+        cardMinHeight = 68;
+        rowMinHeight = 32;
         break;
       default:
-        rowClass.ROW_HEIGHT = 52;
-        tableRowClass.ROW_HEIGHT = 22;
+        densitySpacing = 6;
+        cardMinHeight = 52;
+        rowMinHeight = 22;
         break;
     }
+    const currentFontSize = UIFontSize.size;
+    // Font-size * line-height * 2 rows and padding + density.
+    const cardRowHeight = Math.ceil(
+      currentFontSize * 1.4 * 2.5 + densitySpacing
+    );
+    rowClass.ROW_HEIGHT = Math.max(cardRowHeight, cardMinHeight);
+    // Font-size * line-height.
+    const tableRowHeight = Math.ceil(currentFontSize * 1.2);
+    tableRowClass.ROW_HEIGHT = Math.max(tableRowHeight, rowMinHeight);
     this.cardsList.reset();
   },
 
@@ -1535,6 +1546,9 @@ var cardsPane = {
     this.cardContext.addEventListener("command", this);
 
     window.addEventListener("uidensitychange", () => cardsPane.densityChange());
+    window.addEventListener("uifontsizechange", () =>
+      cardsPane.densityChange()
+    );
     customElements
       .whenDefined("ab-table-card-row")
       .then(() => cardsPane.densityChange());
