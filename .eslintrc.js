@@ -10,16 +10,6 @@ const xpcshellTestConfig = require("eslint-plugin-mozilla/lib/configs/xpcshell-t
 const browserTestConfig = require("eslint-plugin-mozilla/lib/configs/browser-test.js");
 const fs = require("fs");
 
-/**
- * Some configurations have overrides, which can't be specified within overrides,
- * so we need to remove them.
- */
-function removeOverrides(config) {
-  config = { ...config };
-  delete config.overrides;
-  return config;
-}
-
 function readFile(filePath) {
   return fs
     .readFileSync(filePath, { encoding: "utf-8" })
@@ -64,7 +54,7 @@ module.exports = {
   // mozilla/tools/lint/eslint/eslint-plugin-mozilla/lib/configs/recommended.js
   extends: [
     "plugin:mozilla/recommended",
-    "plugin:json/recommended-with-comments",
+    "plugin:json/recommended-with-comments-legacy",
     "prettier",
   ],
 
@@ -125,7 +115,7 @@ module.exports = {
       },
     },
     {
-      ...removeOverrides(xpcshellTestConfig),
+      ...xpcshellTestConfig,
       files: xpcshellTestPaths.map(filePath => `${filePath}**`),
       rules: {
         ...xpcshellTestConfig.rules,

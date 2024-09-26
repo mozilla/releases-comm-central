@@ -54,6 +54,9 @@ eslint:
             ./mach commlint -v -l eslint -f treeherder -f json:/builds/worker/mozlint.json comm/
     optimization:
         skip-unless-mozlint: eslint.yml
+    fetches:
+        toolchain:
+            - linux64-node
 
 file-perm:
     description: Check for incorrect permissions on source files
@@ -227,6 +230,9 @@ stylelint:
             comm/*
     optimization:
         skip-unless-mozlint: stylelint.yml
+    fetches:
+        toolchain:
+            - linux64-node
 
 trojan-source:
     description: Trojan Source attack - CVE-2021-42572
