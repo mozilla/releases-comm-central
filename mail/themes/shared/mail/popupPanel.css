@@ -187,7 +187,7 @@ html|input.editContactTextbox {
     }
 
     &.primary:not([disabled]) {
-      color: var(--button-primary-color);
+      color: var(--button-primary-text-color);
       background-color: var(--button-primary-background-color);
 
       &:hover {
