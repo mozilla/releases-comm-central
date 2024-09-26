@@ -58,8 +58,14 @@ def _expand_support_files(root, config):
 
 def eslint_wrapper(paths, config, **lintargs):
     comm_root = Path(lintargs["root"]) / "comm"
+    pkg_json = comm_root / "package.json"
+    with open(pkg_json, "w") as fp:
+        fp.write("{}\n")
+
     with pushd(comm_root):
         rv = lint_wrapper(paths, config, **lintargs)
+
+    pkg_json.unlink(missing_ok=True)
 
     return rv
 
