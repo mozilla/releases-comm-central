@@ -356,6 +356,9 @@ pref("mail.threadpane.padding.bottom_percent", 10);
 // Use correspondents column instead of from/recipient columns.
 pref("mail.threadpane.use_correspondents", true);
 
+// Allow horizontal scroll and last column resize on the thread pane.
+pref("mail.threadpane.table.horizontal_scroll", false);
+
 // To allow images to be inserted into a composition with an auth prompt, we
 // need the following two.
 pref("network.auth.subresource-img-cross-origin-http-auth-allow", true);

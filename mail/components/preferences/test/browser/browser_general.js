@@ -149,6 +149,10 @@ add_task(async () => {
     {
       checkboxID: "showCondensedAddresses",
       pref: "mail.showCondensedAddresses",
+    },
+    {
+      checkboxID: "tableHorizontalScroll",
+      pref: "mail.threadpane.table.horizontal_scroll",
     }
   );
 });

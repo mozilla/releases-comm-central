@@ -1185,6 +1185,7 @@ function reportPreferences() {
     "mail.purge.ask",
     "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",
+    "mail.threadpane.table.horizontal_scroll",
     "mailnews.database.global.indexer.enabled",
     "mailnews.mark_message_read.auto",
     "mailnews.mark_message_read.delay",

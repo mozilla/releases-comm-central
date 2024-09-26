@@ -389,6 +389,10 @@ table[is="tree-view-table"] {
   line-height: 1;
   font-size: 1rem;
   color: var(--tree-view-color);
+
+  @media (-moz-bool-pref: "mail.threadpane.table.horizontal_scroll") {
+    flex-basis: auto;
+  }
 }
 
 thead[is="tree-view-table-header"] {

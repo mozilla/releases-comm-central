@@ -703,29 +703,46 @@
         </hbox>
       </vbox>
 
-      <hbox>
-        <html:legend data-l10n-id="address-display-legend"></html:legend>
-      </hbox>
-      <description flex="1" data-l10n-id="address-display-description"/>
-      <radiogroup id="changeAddressDisplayFormat"
-                  class="indent"
-                  preference="mail.addressDisplayFormat">
-        <radio id="displayFull"
-               value="0"
-               data-l10n-id="address-display-full"/>
-        <radio id="displayEmail"
-               value="1"
-               data-l10n-id="address-display-email"/>
-        <radio id="displayName"
-               value="2"
-               data-l10n-id="address-display-name"/>
-      </radiogroup>
-      <separator class="thin"/>
-      <hbox>
-        <checkbox id="showCondensedAddresses"
-                  data-l10n-id="condensed-addresses-label"
-                  preference="mail.showCondensedAddresses"/>
-      </hbox>
+      <separator/>
+
+      <vbox>
+        <hbox>
+          <html:legend data-l10n-id="address-display-legend"></html:legend>
+        </hbox>
+        <description flex="1" data-l10n-id="address-display-description"/>
+        <radiogroup id="changeAddressDisplayFormat"
+                    class="indent"
+                    preference="mail.addressDisplayFormat">
+          <radio id="displayFull"
+                 value="0"
+                 data-l10n-id="address-display-full"/>
+          <radio id="displayEmail"
+                 value="1"
+                 data-l10n-id="address-display-email"/>
+          <radio id="displayName"
+                 value="2"
+                 data-l10n-id="address-display-name"/>
+        </radiogroup>
+        <separator class="thin"/>
+        <hbox>
+          <checkbox id="showCondensedAddresses"
+                    data-l10n-id="condensed-addresses-label"
+                    preference="mail.showCondensedAddresses"/>
+        </hbox>
+      </vbox>
+
+      <separator/>
+
+      <vbox>
+        <hbox>
+          <html:legend data-l10n-id="table-layout-legend"></html:legend>
+        </hbox>
+        <hbox>
+          <checkbox id="tableHorizontalScroll"
+                    data-l10n-id="table-layout-horizontal-scroll-label"
+                    preference="mail.threadpane.table.horizontal_scroll"/>
+        </hbox>
+      </vbox>
 
       <separator class="thin"/>
 

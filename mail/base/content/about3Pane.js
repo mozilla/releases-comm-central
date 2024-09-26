@@ -4247,6 +4247,7 @@ var threadPane = {
 
     this.setUpTagStyles();
     Services.prefs.addObserver("mailnews.tags.", this);
+    Services.prefs.addObserver("mail.threadpane.table.horizontal_scroll", this);
 
     Services.obs.addObserver(this, "addrbook-displayname-changed");
     Services.obs.addObserver(this, "custom-column-added");
@@ -4256,6 +4257,11 @@ var threadPane = {
     threadTree = document.getElementById("threadTree");
     this.treeTable = threadTree.table;
     this.treeTable.editable = true;
+    this.treeTable.isHorizontalScroll = Services.prefs.getBoolPref(
+      "mail.threadpane.table.horizontal_scroll",
+      false
+    );
+
     this.treeTable.setPopupMenuTemplates([
       "threadPaneApplyColumnMenu",
       "threadPaneApplyViewMenu",
@@ -4359,6 +4365,10 @@ var threadPane = {
 
   uninit() {
     Services.prefs.removeObserver("mailnews.tags.", this);
+    Services.prefs.removeObserver(
+      "mail.threadpane.table.horizontal_scroll",
+      this
+    );
     Services.obs.removeObserver(this, "addrbook-displayname-changed");
     Services.obs.removeObserver(this, "custom-column-added");
     Services.obs.removeObserver(this, "custom-column-removed");
@@ -4433,7 +4443,20 @@ var threadPane = {
   observe(subject, topic, data) {
     switch (topic) {
       case "nsPref:changed":
-        this.setUpTagStyles();
+        if (data == "mail.threadpane.table.horizontal_scroll") {
+          this.treeTable.isHorizontalScroll = Services.prefs.getBoolPref(
+            "mail.threadpane.table.horizontal_scroll",
+            false
+          );
+          // Only call a columns refresh if a folder is selected. We can skip
+          // this since we already set the isHorizontalScroll variable and it
+          // will be used next time the user selects a folder.
+          if (gFolder) {
+            this.treeTable.updateColumns(this.columns);
+          }
+        } else if (data.startsWith("mailnews.tags.")) {
+          this.setUpTagStyles();
+        }
         break;
       case "addrbook-displayname-changed":
         // This runs the when mail.displayname.version preference observer is

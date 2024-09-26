@@ -1754,6 +1754,13 @@ class TreeViewTable extends HTMLTableElement {
    */
   popupMenuTemplates = [];
 
+  /**
+   * If the widget implementing the tree view table requires horizontal scroll.
+   *
+   * @type {boolean}
+   */
+  isHorizontalScroll = false;
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -1924,7 +1931,8 @@ class TreeViewTable extends HTMLTableElement {
         continue;
       }
 
-      headerCell.resizable = column != lastResizableColumn;
+      headerCell.resizable =
+        this.isHorizontalScroll || column != lastResizableColumn;
       if (column.width) {
         headerCell.style.setProperty(
           `--${column.id}Splitter-width`,
