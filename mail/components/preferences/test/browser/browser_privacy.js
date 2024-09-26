@@ -485,6 +485,29 @@ async function subtestPasswordManager(prefsDocument, primaryPassword = "") {
         filterInput,
         "filter input should have focus"
       );
+      EventUtils.sendString("shouldprovidenoresults", dialogWindow);
+      EventUtils.synthesizeKey("KEY_Enter", {}, dialogWindow);
+      Assert.equal(
+        tree.view.rowCount,
+        0,
+        "no logins should match the filter and be displayed"
+      );
+      Assert.ok(removeButton.disabled, "remove button should be disabled");
+      Assert.ok(
+        removeAllButton.disabled,
+        "remove all button should be disabled"
+      );
+      Assert.equal(
+        removeAllButton.dataset.l10nId,
+        "remove-all-shown",
+        "remove all button should have the right label"
+      );
+
+      Assert.equal(
+        dialogDocument.activeElement,
+        filterInput,
+        "filter input should have focus"
+      );
       EventUtils.synthesizeKey("KEY_Escape", {}, dialogWindow);
       await TestUtils.waitForCondition(
         () => removeAllButton.dataset.l10nId == "remove-all",
