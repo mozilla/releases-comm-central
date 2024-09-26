@@ -33,12 +33,12 @@ export var ExtensionSupport = {
    */
   registerWindowListener(aID, aExtensionHook) {
     if (!aID) {
-      console.error("No extension ID provided for the window listener");
+      console.warn("No extension ID provided for the window listener");
       return false;
     }
 
     if (extensionHooks.has(aID)) {
-      console.error(
+      console.warn(
         "Window listener for extension + '" + aID + "' already registered"
       );
       return false;
@@ -48,7 +48,7 @@ export var ExtensionSupport = {
       !("onLoadWindow" in aExtensionHook) &&
       !("onUnloadWindow" in aExtensionHook)
     ) {
-      console.error(
+      console.warn(
         "The extension + '" + aID + "' does not provide any callbacks"
       );
       return false;
@@ -94,13 +94,13 @@ export var ExtensionSupport = {
    */
   unregisterWindowListener(aID) {
     if (!aID) {
-      console.error("No extension ID provided for the window listener");
+      console.warn("No extension ID provided for the window listener");
       return false;
     }
 
     const windowListener = extensionHooks.get(aID);
     if (!windowListener) {
-      console.error(
+      console.warn(
         "Couldn't remove window listener for extension + '" + aID + "'"
       );
       return false;
