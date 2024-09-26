@@ -65,6 +65,7 @@ reference-tasks:
     - macosx64-sdk-toolchain
     - macosx64-x64-compiler-rt-18
     - mingw32-rust
+    - node-modules
     - nsis
     - sysroot-aarch64-linux-gnu
     - sysroot-i686-linux-gnu
