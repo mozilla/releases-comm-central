@@ -49,13 +49,12 @@ var kHostnames = new Map([
   ["pop.aol.com", ["login.aol.com", "mail-w"]],
   ["smtp.aol.com", ["login.aol.com", "mail-w"]],
 
-  ["outlook.office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
-  ["smtp.office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
-  [
-    "autodiscover-s.outlook.com",
-    ["login.microsoftonline.com", MICROSOFT_SCOPES],
-  ],
-  ["autodiscover.hotmail.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
+  // outlook.office365.com, smtp.office365.com
+  ["office365.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
+  // autodiscover-s.outlook.com, smtp-mail.outlook.com
+  ["outlook.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
+  // autodiscover.hotmail.com
+  ["hotmail.com", ["login.microsoftonline.com", MICROSOFT_SCOPES]],
 
   ["imap.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
   ["pop.fastmail.com", ["www.fastmail.com", FASTMAIL_SCOPES]],
