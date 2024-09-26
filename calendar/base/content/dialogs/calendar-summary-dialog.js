@@ -79,6 +79,10 @@ async function onLoad() {
       // (i.e REPLY on a mailing list)
       item.removeAttendee(attendee);
       item.addAttendee(window.attendee);
+      // Call the ensureNotDirty() function to set the Last-Modified timestamp
+      // so that the code that sends the update realizes that it is indeed
+      // an update and that a participant has been added.
+      item.wrappedJSObject.ensureNotDirty();
 
       window.responseMode = "USER";
     }
