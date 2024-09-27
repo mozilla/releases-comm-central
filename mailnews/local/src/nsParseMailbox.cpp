@@ -697,7 +697,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
           header = &m_bccList;
         break;
       case 'c':
-        if (headerStr.EqualsLiteral("cc")) { // XXX: RFC 5322 says it's 0 or 1.
+        if (headerStr.EqualsLiteral("cc")) {  // XXX: RFC 5322 says it's 0 or 1.
           header = GetNextHeaderInAggregate(m_ccList);
           if (!header) {
             return NS_ERROR_OUT_OF_MEMORY;
@@ -766,7 +766,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
           header = &m_status;
         break;
       case 't':
-        if (headerStr.EqualsLiteral("to")) { // XXX: RFC 5322 says it's 0 or 1.
+        if (headerStr.EqualsLiteral("to")) {  // XXX: RFC 5322 says it's 0 or 1.
           header = GetNextHeaderInAggregate(m_toList);
           if (!header) {
             return NS_ERROR_OUT_OF_MEMORY;
@@ -1342,9 +1342,11 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
   return rv;
 }
 
-nsParseNewMailState::nsParseNewMailState() : m_disableFilters(false) {
-  m_numNotNewMessages = 0;
-}
+nsParseNewMailState::nsParseNewMailState()
+    : m_numNotNewMessages(0),
+      m_msgMovedByFilter(false),
+      m_msgCopiedByFilter(false),
+      m_disableFilters(false) {}
 
 NS_IMPL_ISUPPORTS_INHERITED(nsParseNewMailState, nsMsgMailboxParser,
                             nsIMsgFilterHitNotify)
