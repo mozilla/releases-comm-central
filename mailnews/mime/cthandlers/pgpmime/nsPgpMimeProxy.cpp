@@ -120,7 +120,7 @@ class MimePgpeData : public nsISupports {
 
   nsCOMPtr<nsIPgpMimeProxy> mimeDecrypt;
 
-  MimePgpeData() : output_fn(nullptr), output_closure(nullptr) {}
+  MimePgpeData() : output_fn(nullptr), output_closure(nullptr), self(nullptr) {}
 
  private:
   virtual ~MimePgpeData() {}
