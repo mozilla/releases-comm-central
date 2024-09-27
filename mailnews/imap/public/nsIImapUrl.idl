@@ -16,17 +16,6 @@ typedef long nsImapState;
 
 typedef unsigned short imapMessageFlagsType;
 
-typedef long nsImapContentModifiedType;
-
-[scriptable, uuid(2e91901e-ff6c-11d3-b9fa-00108335942a)]
-interface nsImapContentModifiedTypes : nsISupports
-{
-  const long IMAP_CONTENT_NOT_MODIFIED = 0;
-  const long IMAP_CONTENT_MODIFIED_VIEW_INLINE = 1;
-  const long IMAP_CONTENT_MODIFIED_VIEW_AS_LINKS = 2;
-  const long IMAP_CONTENT_FORCE_CONTENT_NOT_MODIFIED = 3;
-} ;
-
 [scriptable, uuid(fe2a8f9e-2886-4146-9896-27fff660c69f)]
 interface nsIImapUrl : nsISupports
 {

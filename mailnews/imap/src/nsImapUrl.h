@@ -97,7 +97,6 @@ class nsImapUrl : public nsIImapUrl,
   bool m_rerunningUrl;  // first attempt running this failed with connection
                         // error; retrying
   bool m_moreHeadersToDownload;
-  nsImapContentModifiedType m_contentModified;
 
   int32_t m_extraStatus;
 
