@@ -5,7 +5,7 @@
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 form {
-  --hub-input-bg-color: light-dark(#feffff, #18181b);
+  --hub-input-bg-color: light-dark(var(--color-neutral-base), #18181b);
 
   grid-row: header / footer;
 
@@ -27,14 +27,14 @@ form {
   label {
     font-size: 1.2rem;
     line-height: 1;
-    color: light-dark(#175fb6, #feffff);
+    color: light-dark(var(--color-primary-hover), #feffff);
 
     &.animated {
       position: absolute;
       background-color: var(--hub-input-bg-color);
       border-radius: 3px;
       transform-origin: left center;
-      color: light-dark(#4c4d58, #d9d9de);
+      color: var(--color-text-secondary);
       padding: 3px;
       margin-inline-start: 7px;
       font-weight: 200;
@@ -52,25 +52,25 @@ form {
     margin-inline: 0;
     padding-block: 12px;
     padding-inline: 9px 14px;
-    border: 1px solid light-dark(#e4e4e7, #303a4a);
+    border: 1px solid var(--color-neutral-border);
     background-color: var(--hub-input-bg-color);
     font-weight: 200;
 
     &:user-invalid {
-      border-color: light-dark(#991b1b, #fca5a5);
+      border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
 
       &:focus {
-        border-color: light-dark(#991b1b, #fca5a5);
+        border-color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
       }
 
       & ~ label {
-        color: light-dark(#991b1b, #fca5a5);
+        color: light-dark(var(--color-danger-default), var(--color-danger-pressed));
       }
     }
 
     &::placeholder {
       font-weight: 200;
-      color: light-dark(#4c4d58, #d9d9de);
+      color: var(--color-text-secondary);
     }
 
     &.animated {
@@ -80,7 +80,7 @@ form {
     }
 
     &:focus {
-      border-color: light-dark(#175fb6, #58c9ff);
+      border-color: light-dark(var(--color-primary-hover), var(--color-primary-default));
     }
 
     &:focus-visible {
@@ -92,7 +92,7 @@ form {
       transform: translateY(-102%);
       font-weight: normal;
       cursor: default;
-      background-color: light-dark(#feffff, #1a202c);
+      background-color: var(--color-neutral-base);
     }
   }
 

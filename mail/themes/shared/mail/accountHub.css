@@ -16,36 +16,35 @@ dialog {
   --hub-account-button-background-hover: light-dark(var(--color-ink-10), var(--color-gray-80));
   --hub-account-button-background-hover-active: light-dark(var(--color-gray-10), var(--color-gray-90));
   --hub-account-button-border-color: light-dark(var(--color-gray-30), var(--color-gray-60));
-  --hub-account-primary-button-color: light-dark(#feffff, #1a202c);
-  --hub-account-primary-button-background: light-dark(#1373d9, #58c9ff);
-  --hub-account-primary-button-background-hover: light-dark(#175fb6, #32aeff);
-  --hub-account-primary-button-background-active: light-dark(#19518f, #1b90f5);
-  --hub-account-primary-button-background-focus: light-dark(#175FB6, #32aeff);
-  --hub-account-primary-button-border: light-dark(#175fb6, #32aeff);
-  --hub-account-primary-button-border-active: light-dark(#19518f, #1b90f5);
+  --hub-account-primary-button-color: var(--color-neutral-base);
+  --hub-account-primary-button-background: var(--color-primary-default);
+  --hub-account-primary-button-background-hover: var(--color-primary-hover);
+  --hub-account-primary-button-background-active: var(--color-primary-pressed);
+  --hub-account-primary-button-background-focus: var(--color-primary-hover);
+  --hub-account-primary-button-border: var(--color-primary-hover);
+  --hub-account-primary-button-border-active: var(--color-primary-pressed);
   --hub-account-secondary-button-color: light-dark(#18181b, #eeeef0);
-  --hub-account-secondary-button-background: light-dark(#f7f7f7, #262d3b);
-  --hub-account-secondary-button-background-hover: light-dark(#f7f7f7, #1a202c);
-  --hub-account-secondary-button-background-active: light-dark(#e4e4e7, #18181b);
-  --hub-account-secondary-button-background-focus: light-dark(#f7f7f7, #1a202c);
-  --hub-account-secondary-button-border: light-dark(#e4e4e7, #303a4a);
-  --hub-account-secondary-button-border-active: light-dark(#777580, #3d4d67);
-  --hub-account-button-outline-focus: light-dark(#1373d9, #58c9ff);
-  --hub-account-button-hover-active-color: #e4e4e7;
-  --hub-account-footer-link-color: light-dark(#1373d9, #58c9ff);
-  --hub-notification-background-color-warning: var(--color-yellow-30);
-  --hub-border-color: light-dark(#f0f8ff, #58c9ff);
-  --hub-divider-color: light-dark(#ffffff, #1a202c);
+  --hub-account-secondary-button-background: var(--color-neutral-subtle);
+  --hub-account-secondary-button-background-hover: light-dark(var(--color-neutral-subtle), var(--color-neutral-base));
+  --hub-account-secondary-button-background-active: light-dark(var(--color-neutral-border), var(--color-neutral-lower));
+  --hub-account-secondary-button-background-focus: light-dark(var(--color-neutral-subtle), var(--color-neutral-base));
+  --hub-account-secondary-button-border: var(--color-neutral-border);
+  --hub-account-secondary-button-border-active: var(--color-neutral-border-intense);
+  --hub-account-button-outline-focus: var(--color-primary-hover);
+  --hub-account-button-hover-active-color:  light-dark(var(--color-neutral-border), var(--color-neutral-lower));
+  --hub-account-footer-link-color: var(--color-primary-default);
+  --hub-border-color: light-dark(var(--color-primary-soft), var(--color-primary-default));
+  --hub-divider-color: var(--color-neutral-base);
 
   --hub-box-shadow: 0 2px 4px rgba(58, 57, 68, 0.3);
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
   --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
   --hub-close-button-color: light-dark(#18181b, #eeeef0);
-  --hub-close-button-hover-background: light-dark(#f7f7f7, #18181b);
-  --hub-close-button-active-background: light-dark(#bdbdbd, #262d3b);
-  --hub-close-button-focus-background: light-dark(#e4e4e7, #18181b);
-  --hub-close-button-focus-outline-color: light-dark(#4c4d58, #3d4d67);
+  --hub-close-button-hover-background: var(--color-neutral-subtle);
+  --hub-close-button-active-background:var(--color-text-muted);
+  --hub-close-button-focus-background: var(--color-neutral-subtle);
+  --hub-close-button-focus-outline-color: var(--color-neutral-border-intense);
   /* TODO: apply dark mode styling */
 }
 

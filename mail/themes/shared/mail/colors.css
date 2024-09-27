@@ -132,6 +132,7 @@
   --color-neutral-subtle: light-dark(#f7f7f7, #262d3b);
   --color-neutral-border: light-dark(#e4e4e7, #303a4a);
   --color-neutral-border-intense: light-dark(#777580, #3d4d67);
+  --color-neutral-lower: light-dark(#f7f7f7, #18181B);
   --color-primary-soft: light-dark(#f0f8ff, #262c40);
   --color-primary-default: light-dark(#1373d9, #58c9ff);
   --color-primary-hover: light-dark(#175fb6, #32aeff);
