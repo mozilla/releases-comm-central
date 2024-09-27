@@ -1333,6 +1333,11 @@ function reportPreferences() {
     booleanPrefs.push("browser.crashReports.unsubmittedCheck.autoSubmit2");
   }
 
+  // Nightly experimental prefs.
+  if (AppConstants.NIGHTLY_BUILD) {
+    booleanPrefs.push("mail.thread.conversation.enabled");
+  }
+
   // Fetch and report preference values
   for (const prefName of booleanPrefs) {
     const prefValue = Services.prefs.getBoolPref(prefName, false);

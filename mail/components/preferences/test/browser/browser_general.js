@@ -155,6 +155,14 @@ add_task(async () => {
       pref: "mail.threadpane.table.horizontal_scroll",
     }
   );
+
+  // Nightly experimental prefs.
+  if (AppConstants.NIGHTLY_BUILD) {
+    await testCheckboxes("paneGeneral", "readingAndDisplayCategory", {
+      checkboxID: "conversationView",
+      pref: "mail.thread.conversation.enabled",
+    });
+  }
 });
 
 add_task(async () => {

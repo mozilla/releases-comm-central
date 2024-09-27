@@ -1134,3 +1134,21 @@ calendar-notifications-setting {
     vertical-align: sub;
   }
 }
+
+/* Feature labels */
+
+.align-baseline {
+  align-items: baseline;
+}
+
+.label-experiment {
+  font-size: 0.85rem;
+  line-height: 1;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 3px;
+  background-color: var(--color-warning-default);
+  color: var(--color-text-warning);
+  border-radius: 3px;
+  margin-inline-start: 12px;
+}

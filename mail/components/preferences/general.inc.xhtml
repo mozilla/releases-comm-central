@@ -769,6 +769,22 @@
                     other-cases-text-label.value"/>
         </hbox>
       </hbox>
+#ifdef NIGHTLY_BUILD
+      <separator/>
+      <vbox>
+        <hbox class="align-baseline">
+          <html:legend data-l10n-id="conversation-view-legend"></html:legend>
+          <span class="label-experiment" data-l10n-id="label-experiment"></span>
+        </hbox>
+        <vbox>
+          <checkbox id="conversationView"
+                    data-l10n-id="conversation-view-checkbox-label"
+                    preference="mail.thread.conversation.enabled"/>
+          <description data-l10n-id="conversation-view-checkbox-description"
+                       class="tip-caption indent"/>
+        </vbox>
+      </vbox>
+#endif
     </html:fieldset>
     </html:div>
 

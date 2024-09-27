@@ -1417,3 +1417,8 @@ pref("mail.inappnotifications.refreshInterval", 21600000);
 pref("mail.inappnotifications.url", "https://notifications-stage.thunderbird.net/notifications.json");
 // Disables all filtering of in-app notifications, useful for testing.
 pref("mail.inappnotifications.bypass-filtering", false);
+
+#ifdef NIGHTLY_BUILD
+// Enable the new experimental conversation view based on Gloda.
+pref("mail.thread.conversation.enabled", false);
+#endif

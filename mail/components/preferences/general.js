@@ -133,6 +133,11 @@ if (AppConstants.MOZ_UPDATER) {
   }
 }
 
+// Nightly experimental prefs.
+if (AppConstants.NIGHTLY_BUILD) {
+  Preferences.add({ id: "mail.thread.conversation.enabled", type: "bool" });
+}
+
 var gGeneralPane = {
   // The set of types the app knows how to handle. A map of HandlerInfoWrapper
   // objects, indexed by type.
