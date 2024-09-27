@@ -21,7 +21,12 @@
 NS_IMPL_ISUPPORTS_INHERITED(nsLocalMoveCopyMsgTxn, nsMsgTxn, nsIFolderListener)
 
 nsLocalMoveCopyMsgTxn::nsLocalMoveCopyMsgTxn()
-    : m_srcIsImap4(false), m_canUndelete(false) {}
+    : m_isMove(false),
+      m_srcIsImap4(false),
+      m_canUndelete(false),
+      m_undoing(false),
+      m_numHdrsCopied(0),
+      mUndoFolderListener(nullptr) {}
 
 nsLocalMoveCopyMsgTxn::~nsLocalMoveCopyMsgTxn() {}
 
