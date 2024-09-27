@@ -54,6 +54,7 @@ static bool MIME_VariableWidthPlaintext;
 mime_stream_data::mime_stream_data()
     : url_name(nullptr),
       orig_url_name(nullptr),
+      format_out(0),
       pluginObj2(nullptr),
       istream(nullptr),
       obj(nullptr),
