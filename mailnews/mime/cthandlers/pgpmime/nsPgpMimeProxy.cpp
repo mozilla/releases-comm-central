@@ -283,6 +283,7 @@ nsPgpMimeProxy::nsPgpMimeProxy()
       mOutputClosure(nullptr),
       mLoadFlags(LOAD_NORMAL),
       mCancelStatus(NS_OK),
+      mStreamOffset(0),
       mAllowNestedDecrypt(false) {
 }
 
