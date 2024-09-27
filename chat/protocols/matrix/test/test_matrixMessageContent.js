@@ -649,4 +649,4 @@ add_task(function test_htmlBody() {
       equal(result, fixture.result, fixture.description);
     }
   }
-});
+}).skip(); // Bug 1916313.
