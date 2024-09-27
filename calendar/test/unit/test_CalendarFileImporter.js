@@ -9,7 +9,7 @@ var { CalendarFileImporter } = ChromeUtils.importESModule(
   "resource:///modules/CalendarFileImporter.sys.mjs"
 );
 
-add_setup(async function() {
+add_setup(async function () {
   do_get_profile();
   await new Promise(resolve => {
     do_calendar_startup(resolve);
@@ -40,8 +40,11 @@ add_task(async function test_importIcsFileUTF8() {
   equal(result.length, 4);
 
   // Check for title "Event Två".
-  Assert.ok(result.find(e => e.title == "Event Två"), "should find the event")
-})
+  Assert.ok(
+    result.find(e => e.title == "Event Två"),
+    "should find the event"
+  );
+});
 
 /**
  * Test CalendarFileImporter can import a ics file encoded in charset=iso-8859-1.
@@ -70,7 +73,8 @@ add_task(async function test_importIcsFileLatin1() {
   equal(result.length, 4);
 
   // Check for title "Event Två".
-  Assert.ok(result.find(e => e.title == "Event Två"), "should find the event");
+  Assert.ok(
+    result.find(e => e.title == "Event Två"),
+    "should find the event"
+  );
 });
-
-
