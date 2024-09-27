@@ -17,7 +17,6 @@
       <username>%EMAILADDRESS%</username>
       <password>Blä4</password>
       <authentication>plain</authentication>
-      <addThisServer>true</addThisServer>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>
     </outgoingServer>
   </emailProvider>

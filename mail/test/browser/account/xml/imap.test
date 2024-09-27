@@ -18,7 +18,6 @@
       <username>john.doe@imap.test</username>
       <password>abc12345</password>
       <authentication>plain</authentication>
-      <addThisServer>true</addThisServer>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>
     </outgoingServer>
   </emailProvider>

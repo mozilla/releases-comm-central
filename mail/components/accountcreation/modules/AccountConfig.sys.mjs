@@ -153,7 +153,7 @@ AccountConfig.prototype = {
       badCert: false, // see incoming
       auth: 0, // see incoming
       authAlternatives: null, // see incoming
-      addThisServer: true, // if we already have a server, add this
+      addThisServer: true, // If we already have a server, add this. Internal flag.
       // if we already have a server, use it.
       useGlobalPreferredServer: false,
       // we should reuse an already configured server.

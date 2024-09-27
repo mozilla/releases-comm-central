@@ -270,9 +270,6 @@ export function readFromXML(clientConfigXML, subSource) {
 
       try {
         // defaults are in accountConfig.js
-        if ("addThisServer" in oX) {
-          oO.addThisServer = lazy.Sanitizer.boolean(oX.addThisServer);
-        }
         if ("useGlobalPreferredServer" in oX) {
           oO.useGlobalPreferredServer = lazy.Sanitizer.boolean(
             oX.useGlobalPreferredServer
