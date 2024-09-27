@@ -15,6 +15,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
   clearXULToolbarState: "resource:///modules/ToolbarMigration.sys.mjs",
+  MailUtils: "resource:///modules/MailUtils.sys.mjs",
   migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
@@ -27,7 +28,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 44;
+    const UI_VERSION = 45;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -167,6 +168,45 @@ export var MailMigrator = {
             server.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
           }
         }
+      }
+
+      if (currentUIVersion < 45) {
+        // Fix bad hostName for feeds in anchient profiles.
+        // Newer profiles use a valid hostname which is Feeds, Feeds-2 etc.
+        // This migration is a bit of a hack and for proper functionality
+        // of these feeds, a restart will be required...
+        let i = 2;
+        const migrations = [];
+        for (const server of MailServices.accounts.accounts
+          .map(a => a.incomingServer)
+          .filter(s => s.type == "rss" && !s.hostName.startsWith("Feeds"))) {
+          server.QueryInterface(Ci.nsIRssIncomingServer);
+          const path = server.subscriptionsPath.path;
+          const migrateJSON = async () => {
+            const feeds = await IOUtils.readJSON(path);
+            let hostname = "Feeds"; // What the corrected hostname will be.
+            while (
+              MailServices.accounts.findServer("nobody", hostname, "rss")
+            ) {
+              // If "Feeds" exists, try "Feeds-2", then "Feeds-3", etc.
+              hostname = "Feeds-" + i++;
+            }
+            for (const feed of feeds) {
+              // Values are like "mailbox://nobody@RSS-News & Weblogs/comm-central%20Changelog"
+              feed.destFolder = feed.destFolder.replace(
+                /mailbox:\/\/([^@])+[^\/]+/,
+                `mailbox://nobody@${hostname}`
+              );
+            }
+            await IOUtils.writeJSON(path, feeds);
+            server.hostName = hostname;
+          };
+          migrations.push(migrateJSON());
+        }
+        // Restart after migrations, as the UI can't really handle this.
+        Promise.all(migrations).then(() => {
+          lazy.MailUtils.restartApplication();
+        });
       }
 
       // Migration tasks that may take a long time are not run immediately, but
