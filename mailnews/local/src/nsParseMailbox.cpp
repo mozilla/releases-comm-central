@@ -237,6 +237,7 @@ nsMsgMailboxParser::nsMsgMailboxParser() : nsMsgLineBuffer() { Init(); }
 nsMsgMailboxParser::nsMsgMailboxParser(nsIMsgFolder* aFolder)
     : nsMsgLineBuffer() {
   m_folder = do_GetWeakReference(aFolder);
+  Init();
 }
 
 nsMsgMailboxParser::~nsMsgMailboxParser() { ReleaseFolderLock(); }
