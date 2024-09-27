@@ -51,7 +51,7 @@ export class CalendarFileImporter {
         throw new Error("noItemsFound");
       }
     } catch (e) {
-      this._logger.error(e);
+      this._logger.error(`Import from ${file.path} FAILED!`, e);
       throw e;
     } finally {
       inputStream.close();

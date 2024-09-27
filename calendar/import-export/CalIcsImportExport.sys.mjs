@@ -23,12 +23,21 @@ export function CalIcsImporter() {
   this.wrappedJSObject = this;
 }
 
+/**
+ * @implements {calIImporter}
+ */
 CalIcsImporter.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIImporter"]),
   classID: Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}"),
 
+  /**
+   * @returns {calIFileType[]}
+   */
   getFileTypes: getIcsFileTypes,
 
+  /**
+   * @param {nsIInputStream} aStream
+   */
   importFromStream(aStream) {
     const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseFromStream(aStream);
@@ -45,6 +54,9 @@ CalIcsExporter.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIExporter"]),
   classID: Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}"),
 
+  /**
+   * @returns {calIFileType[]}
+   */
   getFileTypes: getIcsFileTypes,
 
   /**

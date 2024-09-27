@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalEvent: "resource:///modules/CalEvent.sys.mjs",
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
   CalTodo: "resource:///modules/CalTodo.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
 
@@ -155,15 +156,22 @@ CalIcsParser.prototype = {
     }
   },
 
-  parseFromStream(aStream, aAsyncParsing) {
-    // Read in the string. Note that it isn't a real string at this point,
-    // because likely, the file is utf8. The multibyte chars show up as multiple
-    // 'chars' in this string. So call it an array of octets for now.
+  /**
+   * Parse an input stream.
+   *
+   * @param {nsIInputStream} stream - The stream to parse.
+   * @param {?calIIcsParsingListener} asyncParsingListener - If non-null,
+   *   parsing will be performed on a worker thread, and the passed listener
+   *   is called whenit's done.
+   */
+  parseFromStream(stream, asyncParsingListener) {
+    const data = NetUtil.readInputStreamToString(stream, stream.available());
 
-    const stringData = NetUtil.readInputStreamToString(aStream, aStream.available(), {
-      charset: "utf-8",
-    });
-    this.parseString(stringData, aAsyncParsing);
+    // Try to detect the character set and decode. Only UTF-8 is
+    // valid but in practice, other charsets are possible.
+    const charset = lazy.MailStringUtils.detectCharset(data);
+    const stringData = lazy.MailStringUtils.byteStringToString(data, charset);
+    this.parseString(stringData, asyncParsingListener);
   },
 
   getItems() {
