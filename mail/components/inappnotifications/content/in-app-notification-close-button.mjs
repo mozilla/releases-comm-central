@@ -2,9 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { InAppNotificationEvent } from "./InAppNotificationEvent.mjs";
+
 /**
  * Close button for in app notifications.
  * Template ID: #inAppNotificationCloseButtonTemplate
+ *
+ * @fires notificationclose - Event when the button is clicked. Includes the
+ *   id of the notification that was clicked.
  */
 
 class InAppNotificationCloseButton extends HTMLButtonElement {
@@ -25,13 +30,16 @@ class InAppNotificationCloseButton extends HTMLButtonElement {
   }
 
   handleEvent(event) {
-    const newEvent = new MouseEvent("notificationclose", event);
-    newEvent.notificationId = this.dataset.id;
-
     switch (event.type) {
-      case "click":
+      case "click": {
+        const newEvent = new InAppNotificationEvent(
+          "notificationclose",
+          event,
+          this.dataset.id
+        );
         this.dispatchEvent(newEvent);
         break;
+      }
     }
   }
 }

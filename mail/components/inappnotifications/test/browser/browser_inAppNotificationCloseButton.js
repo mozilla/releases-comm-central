@@ -35,8 +35,15 @@ add_task(async function test_closeButtonEvent() {
   const recievedEvent = await eventPromise;
 
   Assert.equal(
-    "notification-1",
     recievedEvent.notificationId,
+    "notification-1",
     "has correct notification id"
+  );
+  // We can't check the instance, because this event is from within the tab and
+  // loading the module inside the tab to compare to the event is too complicated.
+  Assert.equal(
+    recievedEvent.constructor.name,
+    "InAppNotificationEvent",
+    "Should get an InAppNotificationEvent"
   );
 });

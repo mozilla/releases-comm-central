@@ -226,3 +226,29 @@ add_task(async function test_ctaClick() {
   spy.restore();
   hideNotification();
 }).skip(Cu.isInAutomation); //TODO Bug 1921222: Fix test timeout in automation.
+
+add_task(async function test_closeClick() {
+  const spy = sinon.spy(
+    InAppNotifications.notificationManager,
+    "dismissNotification"
+  );
+  await showNotification("closetest", "Test", "Test notification");
+
+  const closeButton =
+    manager.firstElementChild.shadowRoot.firstElementChild.shadowRoot.querySelector(
+      'button[is="in-app-notification-close-button"]'
+    );
+  const eventPromise = BrowserTestUtils.waitForEvent(
+    closeButton,
+    "notificationclose"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(closeButton, {}, browser.contentWindow);
+  await eventPromise;
+
+  Assert.equal(spy.callCount, 1, "Should call close callback on manager once");
+  Assert.ok(spy.calledWith("closetest"));
+
+  spy.restore();
+  hideNotification();
+}).skip(Cu.isInAutomation); //TODO Bug 1921222: Fix test timeout in automation.
