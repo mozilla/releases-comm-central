@@ -401,3 +401,33 @@ add_task(async function test_showDonationsOldNotification() {
 
   notificationManager.updatedNotifications([]);
 });
+
+add_task(async function test_newNotificationReemit_handleEvent() {
+  const notificationManager = new NotificationManager();
+  notificationManager.updatedNotifications(getMockNotifications());
+
+  const { promise, resolve } = Promise.withResolvers();
+  const eventHandler = {
+    handleEvent(event) {
+      Assert.strictEqual(this, eventHandler, "Should preserve this context");
+      resolve(event);
+    },
+  };
+  notificationManager.addEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    eventHandler
+  );
+
+  const { detail: notification } = await promise;
+  Assert.equal(
+    notification.id,
+    "bar",
+    "Should get the current notification immediately"
+  );
+
+  notificationManager.removeEventListener(
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    eventHandler
+  );
+  notificationManager.updatedNotifications([]);
+});

@@ -52,7 +52,15 @@ add_task(async function test_linkClickDoesntOpen() {
 
   EventUtils.synthesizeMouseAtCenter(button, {}, browser.contentWindow);
   const event = await eventPromise;
-  Assert.equal(event.button, 0, "Should get left click event");
+  Assert.strictEqual(event.button, 0, "Should get left click event");
+  Assert.ok(event.composed, "Should get a composed event");
+  // We can't check the instance, because this event is from within the tab and
+  // loading the module inside the tab to compare to the event is too complicated.
+  Assert.equal(
+    event.constructor.name,
+    "InAppNotificationEvent",
+    "Should get an InAppNotificationEvent"
+  );
 
   Assert.ok(!loadedUri, "Should prevent default of click event");
 });

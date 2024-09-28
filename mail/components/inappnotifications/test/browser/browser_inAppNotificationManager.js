@@ -10,6 +10,9 @@ const { InAppNotifications } = ChromeUtils.importESModule(
 const { NotificationManager } = ChromeUtils.importESModule(
   "resource:///modules/NotificationManager.sys.mjs"
 );
+const { sinon } = ChromeUtils.importESModule(
+  "resource://testing-common/Sinon.sys.mjs"
+);
 
 const tabmail = document.getElementById("tabmail");
 let browser, manager;
@@ -22,13 +25,14 @@ add_setup(async function () {
   await BrowserTestUtils.browserLoaded(tab.browser, undefined, url =>
     url.endsWith("inAppNotificationManager.xhtml")
   );
-  tab.browser.focus();
+  await SimpleTest.promiseFocus(tab.browser);
   browser = tab.browser;
   manager = browser.contentWindow.document.querySelector(
     `in-app-notification-manager`
   );
 
   registerCleanupFunction(() => {
+    hideNotification();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
 });
@@ -40,7 +44,13 @@ add_setup(async function () {
  * @param {string} title
  * @param {string} description
  */
-function showNotification(id, title, description) {
+async function showNotification(id, title, description) {
+  const eventPromise = BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT,
+    false,
+    event => event.detail.id === id
+  );
   InAppNotifications.notificationManager.dispatchEvent(
     new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
       detail: {
@@ -54,6 +64,7 @@ function showNotification(id, title, description) {
       },
     })
   );
+  await eventPromise;
 }
 
 /**
@@ -69,8 +80,8 @@ add_task(function test_initialManagerTree() {
   Assert.equal(manager.childElementCount, 0, "Should have no children");
 });
 
-add_task(function test_showAndHideNotification() {
-  showNotification("test", "Test", "Test notification");
+add_task(async function test_showAndHideNotification() {
+  await showNotification("test", "Test", "Test notification");
 
   const notification = manager.querySelector("in-app-notification");
 
@@ -85,7 +96,7 @@ add_task(function test_showAndHideNotification() {
 
   Assert.equal(manager.childElementCount, 0, "Should have no more children");
 
-  showNotification("test2", "Another test", "A new one already");
+  await showNotification("test2", "Another test", "A new one already");
 
   const newNotification = manager.querySelector("in-app-notification");
 
@@ -104,8 +115,8 @@ add_task(function test_showAndHideNotification() {
   hideNotification();
 });
 
-add_task(function test_showNotificationReplaces() {
-  showNotification("test", "Test", "Test notification");
+add_task(async function test_showNotificationReplaces() {
+  await showNotification("test", "Test", "Test notification");
 
   const notification = manager.querySelector("in-app-notification");
 
@@ -116,7 +127,7 @@ add_task(function test_showNotificationReplaces() {
   );
   Assert.ok(notification, "Should find a notification");
 
-  showNotification("test2", "Another test", "A new one already");
+  await showNotification("test2", "Another test", "A new one already");
 
   Assert.equal(
     manager.childElementCount,
@@ -136,10 +147,10 @@ add_task(function test_showNotificationReplaces() {
   hideNotification();
 });
 
-add_task(function test_disconnected() {
+add_task(async function test_disconnected() {
   manager.remove();
 
-  showNotification("test", "Test", "Test notification");
+  await showNotification("test", "Test", "Test notification");
 
   Assert.equal(
     manager.childElementCount,
@@ -149,7 +160,7 @@ add_task(function test_disconnected() {
 
   browser.contentWindow.document.body.append(manager);
 
-  showNotification("test", "Test", "Test notification");
+  await showNotification("test", "Test", "Test notification");
   manager.remove();
 
   hideNotification();
@@ -164,10 +175,10 @@ add_task(function test_disconnected() {
   hideNotification();
 });
 
-add_task(function test_unload() {
+add_task(async function test_unload() {
   browser.contentWindow.dispatchEvent(new Event("unload"));
 
-  showNotification("test", "Test", "Test notification");
+  await showNotification("test", "Test", "Test notification");
 
   Assert.equal(
     manager.childElementCount,
@@ -177,7 +188,7 @@ add_task(function test_unload() {
 
   manager.connectedCallback();
 
-  showNotification("test", "Test", "Test notification");
+  await showNotification("test", "Test", "Test notification");
   browser.contentWindow.dispatchEvent(new Event("unload"));
 
   hideNotification();
@@ -191,3 +202,27 @@ add_task(function test_unload() {
   manager.connectedCallback();
   hideNotification();
 });
+
+add_task(async function test_ctaClick() {
+  const spy = sinon.spy(
+    InAppNotifications.notificationManager,
+    "executeNotificationCTA"
+  );
+  await showNotification("ctatest", "Test", "Test notification");
+  await SimpleTest.promiseFocus(browser);
+
+  const ctaButton =
+    manager.firstElementChild.shadowRoot.firstElementChild.shadowRoot.querySelector(
+      'a[is="in-app-notification-button"]'
+    );
+  const eventPromise = BrowserTestUtils.waitForEvent(ctaButton, "ctaclick");
+
+  EventUtils.synthesizeMouseAtCenter(ctaButton, {}, browser.contentWindow);
+  await eventPromise;
+
+  Assert.equal(spy.callCount, 1, "Should call cta callback on manager once");
+  Assert.ok(spy.calledWith("ctatest"));
+
+  spy.restore();
+  hideNotification();
+}).skip(Cu.isInAutomation); //TODO Bug 1921222: Fix test timeout in automation.

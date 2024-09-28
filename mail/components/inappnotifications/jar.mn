@@ -8,3 +8,4 @@ messenger.jar:
   content/messenger/in-app-notification-close-button.mjs           (content/in-app-notification-close-button.mjs)
   content/messenger/in-app-notification-container.mjs              (content/in-app-notification-container.mjs)
   content/messenger/in-app-notification-manager.mjs                (content/in-app-notification-manager.mjs)
+  content/messenger/InAppNotificationEvent.mjs                     (content/InAppNotificationEvent.mjs)

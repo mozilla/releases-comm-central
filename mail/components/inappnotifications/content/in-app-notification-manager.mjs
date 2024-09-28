@@ -21,6 +21,10 @@ export class InAppNotificationManager extends HTMLElement {
   #activeNotification = null;
 
   connectedCallback() {
+    if (!this.hasConnected) {
+      this.addEventListener("ctaclick", this, { capture: true });
+      this.hasConnected = true;
+    }
     lazy.InAppNotifications.notificationManager.addEventListener(
       lazy.NotificationManager.NEW_NOTIFICATION_EVENT,
       this
@@ -47,6 +51,13 @@ export class InAppNotificationManager extends HTMLElement {
         break;
       case lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT:
         this.#hideNotification();
+        break;
+      case "ctaclick":
+        if (event.button === 0) {
+          lazy.InAppNotifications.notificationManager.executeNotificationCTA(
+            event.notificationId
+          );
+        }
         break;
     }
   }

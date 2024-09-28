@@ -28,21 +28,20 @@ class InAppNotificationContainer extends HTMLElement {
     }
 
     for (const attr of attrs) {
-      this.attributeChangedCallback(attr);
+      this.attributeChangedCallback(attr, "", this.getAttribute(attr));
     }
   }
 
-  attributeChangedCallback(property) {
+  attributeChangedCallback(property, oldValue, newValue) {
     if (!this.shadowRoot) {
       return;
     }
-    const value = this.getAttribute(property);
     switch (property) {
       case "url":
-        if (value) {
+        if (newValue) {
           this.shadowRoot.querySelector(
             '[is="in-app-notification-button"]'
-          ).href = value;
+          ).href = newValue;
         } else {
           this.shadowRoot
             .querySelector('[is="in-app-notification-button"]')
@@ -54,15 +53,15 @@ class InAppNotificationContainer extends HTMLElement {
       case "heading":
         this.shadowRoot.querySelector(
           `.in-app-notification-${property}`
-        ).textContent = value;
+        ).textContent = newValue;
         break;
       case "data-id":
         this.shadowRoot.querySelector(
           '[is="in-app-notification-button"]'
-        ).dataset.id = value;
+        ).dataset.id = newValue;
         this.shadowRoot.querySelector(
           '[is="in-app-notification-close-button"]'
-        ).dataset.id = value;
+        ).dataset.id = newValue;
         break;
     }
   }

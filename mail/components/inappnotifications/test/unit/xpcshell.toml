@@ -8,6 +8,7 @@ support-files = [
   "files/plaintext.txt",
 ]
 
+["test_in_app_notification_event.js"]
 ["test_in_app_notifications.js"]
 ["test_notification_filter.js"]
 ["test_notification_manager.js"]

@@ -225,11 +225,17 @@ export class NotificationManager extends EventTarget {
       this.#currentNotification &&
       NotificationManager.#isNotificationWithUI(this.#currentNotification)
     ) {
-      listener(
-        new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
+      const event = new CustomEvent(
+        NotificationManager.NEW_NOTIFICATION_EVENT,
+        {
           detail: this.#currentNotification,
-        })
+        }
       );
+      if (listener.handleEvent) {
+        listener.handleEvent(event);
+      } else {
+        listener(event);
+      }
     }
   }
 }
