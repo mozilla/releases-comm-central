@@ -413,3 +413,27 @@
     margin-inline-start: 6px;
   }
 }
+
+.icon-success {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--color-success-pressed) 20%, transparent);
+  stroke: var(--color-success-default);
+}
+
+.icon-danger {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--color-danger-pressed) 20%, transparent);
+  stroke: var(--color-danger-pressed);
+}
+
+.icon-warning {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--color-warning-pressed) 20%, transparent);
+  stroke: var(--color-warning-pressed);
+}
+
+.icon-info {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, var(--color-primary-pressed) 20%, transparent);
+  stroke: var(--color-primary-default);
+}

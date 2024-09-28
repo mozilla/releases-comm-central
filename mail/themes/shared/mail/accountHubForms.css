@@ -20,26 +20,6 @@ form {
     margin-inline: 0;
   }
 
-  details {
-    &[open=""] {
-      span:first-of-type {
-        display: none;
-      }
-
-      span:last-of-type {
-        display: flex
-      }
-    }
-
-    span:first-of-type {
-      display: flex;
-    }
-
-    span:last-of-type {
-      display: none;
-    }
-  }
-
   .hub-body.flex-direction-row {
     max-width: 700px;
   }
@@ -178,21 +158,7 @@ div:has(legend) {
 .form-icon {
   width: 16px;
   height: 16px;
-  -moz-context-properties: fill, fill-opacity, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  fill-opacity: 0.7;
   margin-inline: -26px 10px;
-
-  &.notification-icon {
-    margin-inline: 0 10px;
-    height: 16px;
-    width: 16px;
-
-    &.warning-icon {
-      content: var(--icon-warning);
-    }
-  }
 
   input:user-invalid ~ & {
     display: none;
@@ -204,16 +170,41 @@ div:has(legend) {
 }
 
 .notification-bar {
-  background-color: var(--hub-notification-background-color-warning);
-  padding: 6px 16px;
-  border-radius: 4px;
-  box-shadow: var(--hub-box-shadow);
-  text-align: start;
+  text-align: center;
+  padding: 4px 12px;
   margin: 16px 75px 5px;
-  color: var(--color-gray-90);
+  border-radius: 4px;
+  text-align: start;
+  border: 1px solid;
+  border-radius: 3px;
 
   &[aria-disabled="true"] {
     pointer-events: none;
+  }
+
+  &[open=""] #emailFormNotificationToggle {
+    span:first-of-type {
+      display: none;
+    }
+
+    span:last-of-type {
+      display: flex
+    }
+  }
+
+  #emailFormNotificationToggle {
+    span:first-of-type {
+      display: flex;
+    }
+
+    span:last-of-type {
+      display: none;
+    }
+  }
+
+  .notification-icon {
+    margin-inline: 0 10px;
+    display: none;
   }
 
   .notification-title-container {
@@ -232,7 +223,10 @@ div:has(legend) {
 
   .notification-title {
     font-size: 1.1rem;
+    font-weight: 700;
     margin-block: 4px;
+    width: 100%;
+    text-align: center;
   }
 
   .notification-text {
@@ -242,6 +236,46 @@ div:has(legend) {
 
   .form-icon {
     cursor: pointer;
+  }
+
+  &.error {
+    background-color: var(--color-danger-soft);
+    color: var(--color-danger-pressed);
+    border-color: var(--color-danger-default);
+
+    .icon-danger {
+      display: inline-block;
+    }
+  }
+
+  &.warning {
+    background-color: var(--color-warning-soft);
+    color: var(--color-text-warning);
+    border-color: var(--color-warning-default);
+
+    .icon-warning {
+      display: inline-block;
+    }
+  }
+
+  &.success {
+    background-color: var(--color-success-soft);
+    color: var(--color-success-pressed);
+    border-color: var(--color-success-default);
+
+    .icon-success {
+      display: inline-block;
+    }
+  }
+
+  &.info {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary-pressed);
+    border-color: var(--color-primary-default);
+
+    .icon-info {
+      display: inline-block;
+    }
   }
 }
 
@@ -286,29 +320,14 @@ div:has(legend) {
   stroke: currentColor;
 }
 
-.icon-warning {
+.input-warning {
   display: none;
-  -moz-context-properties: fill, stroke;
-  fill: light-dark(
-      color-mix(in srgb, #dc2626 20%, transparent),
-      color-mix(in srgb, #fee2e2 20%, transparent)
-  );
-  stroke: light-dark(#dc2626, #fcA5a5);
-
   input:user-invalid ~ & {
     display: inline-block;
   }
 }
 
-.icon-success {
-  -moz-context-properties: fill, stroke;
-  fill: light-dark(
-    color-mix(in srgb, #194e2c 20%, transparent),
-    color-mix(in srgb, #c0f2Cf 20%, transparent)
-  );
-  stroke: light-dark(#1d783b, #8ee7aa);
-
-
+.input-success {
   input:invalid ~ & {
     display: none;
   }

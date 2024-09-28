@@ -46,8 +46,10 @@ class AccountHubHeader extends HTMLElement {
    *   be attached to the title of the notification.
    * @param {string} textStringID - The ID of the fluent string that needs to
    *   be attached to the text area of the notification.
+   * @param {string} type - The type of notification (error, success, info,
+   *   warning).
    */
-  showErrorNotification(titleStringID, textStringID) {
+  showErrorNotification(titleStringID, textStringID, type) {
     console.warn("TODO: Implement custom error messages");
 
     gAccountSetupLogger.debug(
@@ -64,6 +66,7 @@ class AccountHubHeader extends HTMLElement {
     );
 
     this.shadowRoot.querySelector("#emailFormNotification").hidden = false;
+    this.shadowRoot.querySelector("#emailFormNotification").classList.add(type);
 
     if (textStringID) {
       this.shadowRoot.querySelector(
@@ -97,6 +100,10 @@ class AccountHubHeader extends HTMLElement {
     this.shadowRoot
       .querySelector("#emailFormNotification")
       .removeAttribute("aria-disabled");
+
+    this.shadowRoot
+      .querySelector("#emailFormNotification")
+      .classList.remove("error", "success", "info", "warning");
     this.shadowRoot.querySelector("#emailFormNotification").hidden = true;
     this.shadowRoot.querySelector("#emailFormNotificationToggle").hidden = true;
   }

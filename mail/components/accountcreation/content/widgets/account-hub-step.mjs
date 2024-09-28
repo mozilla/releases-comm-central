@@ -78,9 +78,10 @@ export class AccountHubStep extends HTMLElement {
    *
    * @param {String} errorTitleID - The fluent ID of the error title.
    * @param {String} errorTextID - The fluent ID of the error text.
+   * @param {String} type - The error type.
    */
-  showErrorNotification(errorTitleID, errorTextID = "") {
-    this.#header.showErrorNotification(errorTitleID, errorTextID);
+  showErrorNotification(errorTitleID, errorTextID = "", type) {
+    this.#header.showErrorNotification(errorTitleID, errorTextID, type);
   }
 
   /**
