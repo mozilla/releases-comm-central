@@ -15,7 +15,8 @@ namespace mailnews {
 class Folder : public nsIFolder {
  public:
   Folder() = delete;
-  Folder(uint64_t aId, nsCString aName) : mId(aId), mName(aName) {};
+  Folder(uint64_t aId, nsCString aName, uint64_t aFlags)
+      : mId(aId), mName(aName), mFlags(aFlags) {};
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIFOLDER
@@ -29,6 +30,7 @@ class Folder : public nsIFolder {
 
   uint64_t mId;
   nsAutoCString mName;
+  uint64_t mFlags;
   RefPtr<Folder> mParent;
   Maybe<uint64_t> mOrdinal;
   nsTArray<RefPtr<Folder>> mChildren;

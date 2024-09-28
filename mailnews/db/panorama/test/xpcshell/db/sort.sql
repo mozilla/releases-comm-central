@@ -2,7 +2,8 @@ CREATE TABLE folders (
   id INTEGER PRIMARY KEY,
   parent INTEGER REFERENCES folders(id),
   ordinal INTEGER DEFAULT NULL,
-  name TEXT
+  name TEXT,
+  flags INTEGER DEFAULT 0
 );
 
 -- These id values are deliberately out-of-order. It shouldn't matter.

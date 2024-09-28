@@ -39,6 +39,11 @@ interface nsIFolderDatabase : nsISupports {
   void moveFolderTo(in nsIFolder newParent, in nsIFolder child);
 
   /**
+   * Update a folder's flags to match `newFlags`.
+   */
+  void updateFlags(in nsIFolder folder, in unsigned long long newFlags);
+
+  /**
    * Access to the database for testing purposes only. If you are not a test,
    * you'll get NS_ERROR_NOT_AVAILABLE instead.
    */

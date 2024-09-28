@@ -117,14 +117,20 @@ FolderDatabase::LoadFolders() {
   nsCOMPtr<mozIStorageStatement> stmt;
   nsresult rv = GetStatement(
       "Folders"_ns,
-      "WITH RECURSIVE parents(id, parent, ordinal, name, level) AS ("
-      "  VALUES(0, NULL, NULL, NULL, 0)"
+      "WITH RECURSIVE parents(id, parent, ordinal, name, flags, level) AS ("
+      "  VALUES(0, NULL, NULL, NULL, NULL, 0)"
       "  UNION ALL "
-      "  SELECT f.id, f.parent, f.ordinal, f.name, p.level + 1 AS next_level"
-      "    FROM folders f JOIN parents p ON f.parent=p.id"
-      "    ORDER BY next_level DESC"
+      "  SELECT"
+      "    f.id,"
+      "    f.parent,"
+      "    f.ordinal,"
+      "    f.name,"
+      "    f.flags,"
+      "    p.level + 1 AS next_level"
+      "  FROM folders f JOIN parents p ON f.parent=p.id"
+      "  ORDER BY next_level DESC"
       ")"
-      "SELECT id, parent, ordinal, name FROM parents LIMIT -1 OFFSET 1"_ns,
+      "SELECT id, parent, ordinal, name, flags FROM parents LIMIT -1 OFFSET 1"_ns,
       getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -135,6 +141,7 @@ FolderDatabase::LoadFolders() {
   uint64_t ordinal;
   uint32_t len;
   nsAutoCString name;
+  uint64_t flags;
   Folder* parent = nullptr;
   while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
     id = stmt->AsInt64(0);
@@ -142,8 +149,9 @@ FolderDatabase::LoadFolders() {
     ordinalIsNull = stmt->IsNull(2);
     ordinal = stmt->AsInt64(2);
     name = stmt->AsSharedUTF8String(3, &len);
+    flags = stmt->AsInt64(4);
 
-    RefPtr<Folder> current = new Folder(id, name);
+    RefPtr<Folder> current = new Folder(id, name, flags);
     if (ordinalIsNull) {
       current->mOrdinal.reset();
     } else {
@@ -271,6 +279,28 @@ void FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
     stmt->Reset();
     ordinal++;
   }
+}
+
+NS_IMETHODIMP
+FolderDatabase::UpdateFlags(nsIFolder* aFolder, uint64_t aNewFlags) {
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  Folder* folder = (Folder*)(aFolder);
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = GetStatement(
+      "UpdateFlags"_ns, "UPDATE folders SET flags = :flags WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  stmt->BindInt64ByName("flags"_ns, aNewFlags);
+  stmt->BindInt64ByName("id"_ns, folder->mId);
+
+  rv = stmt->Execute();
+  if (NS_SUCCEEDED(rv)) {
+    folder->mFlags = aNewFlags;
+  }
+
+  stmt->Reset();
+  return rv;
 }
 
 NS_IMETHODIMP

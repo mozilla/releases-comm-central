@@ -36,6 +36,12 @@ Folder::GetPath(nsACString& aPath) {
 }
 
 NS_IMETHODIMP
+Folder::GetFlags(uint64_t* aFlags) {
+  *aFlags = mFlags;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 Folder::GetAncestors(nsTArray<RefPtr<nsIFolder>>& aAncestors) {
   aAncestors.Clear();
   RefPtr<Folder> ancestor = mParent;

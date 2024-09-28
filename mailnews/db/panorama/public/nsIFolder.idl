@@ -23,6 +23,11 @@ interface nsIFolder : nsISupports {
   readonly attribute AUTF8String path;
 
   /**
+   * The flags associated with this folder.
+   */
+  readonly attribute unsigned long long flags;
+
+  /**
    * An array of ancestors of this folder, starting with the folder's parent
    * and ending with the root folder. Or an empty array, if this is the root.
    */
