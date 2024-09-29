@@ -42,10 +42,10 @@ interface nsIMailChannel : nsISupports {
    * Do not call otherwise.
    */
   void handleAttachmentFromMIME(in AUTF8String contentType,
-                        in AUTF8String url,
-                        in AUTF8String displayName,
-                        in AUTF8String uri,
-                        in boolean aNotDownloaded);
+                                in AUTF8String url,
+                                in AUTF8String displayName,
+                                in AUTF8String uri,
+                                in boolean aNotDownloaded);
 
   /**
    * Called by MIME emitters to add attachment info to this mail channel.
