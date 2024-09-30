@@ -171,7 +171,10 @@ Enigmail.msg = {
       console.error(ex);
     }
 
-    if (EnigmailURIs.isEncryptedUri(msgUri)) {
+    if (
+      EnigmailURIs.isEncryptedUri(msgUri) ||
+      gEncryptedURIService.isEncrypted(msgUri)
+    ) {
       properties |= EnigmailConstants.DECRYPTION_OKAY;
     }
 
@@ -327,7 +330,8 @@ Enigmail.msg = {
         const globalSaysItsEncrypted =
           gEncryptedURIService &&
           gMsgCompose.originalMsgURI &&
-          gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI);
+          (gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI) ||
+            EnigmailURIs.isEncryptedUri(gMsgCompose.originalMsgURI));
 
         if (globalSaysItsEncrypted) {
           useEncryptionUnlessWeHaveDraftInfo = true;

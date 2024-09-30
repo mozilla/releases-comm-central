@@ -49,6 +49,7 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
@@ -3412,8 +3413,8 @@ function getEncryptionCompatibleRecipients() {
 const PRErrorCodeSuccess = 0;
 const certificateUsageEmailRecipient = 0x0020;
 
-var gEmailsWithMissingKeys = null;
-var gEmailsWithMissingCerts = null;
+var gEmailsWithMissingKeys = [];
+var gEmailsWithMissingCerts = [];
 
 /**
  * @returns {boolean} true if checking openpgp keys is necessary
@@ -4934,8 +4935,9 @@ async function ComposeStartup() {
   if (
     gComposeType != Ci.nsIMsgCompType.Draft &&
     gComposeType != Ci.nsIMsgCompType.Template &&
-    gEncryptedURIService &&
-    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+    (EnigmailURIs.isEncryptedUri(gMsgCompose.originalMsgURI) ||
+      (gEncryptedURIService &&
+        gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)))
   ) {
     gIsRelatedToEncryptedOriginal = true;
   }
@@ -6024,6 +6026,8 @@ function GetComposeDetails() {
   msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses);
   msgCompFields.subject = document.getElementById("msgSubject").value;
   Attachments2CompFields(msgCompFields);
+  msgCompFields.composeSecure.requireEncryptMessage = gSendEncrypted;
+  msgCompFields.composeSecure.signMessage = gSendSigned;
 
   return msgCompFields;
 }
