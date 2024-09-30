@@ -112,8 +112,9 @@ struct MimeEncryptedClass {
   MimeClosure (*crypto_init)(MimeObject* obj,
                              int (*output_fn)(const char* data,
                                               int32_t data_size,
+                                              int32_t output_closure_type,
                                               void* output_closure),
-                             void* output_closure);
+                             MimeClosure output_closure);
   int (*crypto_write)(const char* data, int32_t data_size,
                       MimeClosure crypto_closure);
   int (*crypto_eof)(MimeClosure crypto_closure, bool abort_p);

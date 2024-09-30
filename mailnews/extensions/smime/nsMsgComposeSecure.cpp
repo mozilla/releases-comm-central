@@ -48,9 +48,9 @@ static const char crypto_multipart_blurb[] =
 static void mime_crypto_write_base64(void* closure, const char* buf,
                                      unsigned long size);
 static nsresult mime_encoder_output_fn(const char* buf, int32_t size,
-                                       void* closure);
+                                       MimeClosure closure);
 static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
-                                              void* closure);
+                                              MimeClosure closure);
 static nsresult make_multipart_signed_header_string(bool outer_p,
                                                     char** header_return,
                                                     char** boundary_return,
@@ -548,8 +548,9 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
   }
 
   // Initialize the base64 encoder
-  mCryptoEncoder.reset(
-      MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this));
+  mCryptoEncoder.reset(MimeEncoder::GetBase64Encoder(
+      mime_encoder_output_fn,
+      MimeClosure(MimeClosure::isMsgComposeSecure, this)));
 
   /* Initialize the encrypter (and add the sender's cert.) */
   PR_ASSERT(mSelfEncryptionCert);
@@ -682,7 +683,8 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
   // Initialize the base64 encoder for the signature data.
   MOZ_ASSERT(!mSigEncoder, "Shouldn't already have a mSigEncoder");
   mSigEncoder.reset(MimeEncoder::GetBase64Encoder(
-      (aOuter ? mime_encoder_output_fn : mime_nested_encoder_output_fn), this));
+      (aOuter ? mime_encoder_output_fn : mime_nested_encoder_output_fn),
+      MimeClosure(MimeClosure::isMsgComposeSecure, this)));
 
   /* Write out the signature.
    */
@@ -1087,8 +1089,13 @@ static void mime_crypto_write_base64(void* closure, const char* buf,
    base64-encoded representation of the signature to the file.
  */
 // TODO: size should probably be converted to uint32_t
-nsresult mime_encoder_output_fn(const char* buf, int32_t size, void* closure) {
-  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure;
+nsresult mime_encoder_output_fn(const char* buf, int32_t size,
+                                MimeClosure closure) {
+  PR_ASSERT(closure.mType == MimeClosure::isMsgComposeSecure);
+  if (closure.mType != MimeClosure::isMsgComposeSecure) {
+    return NS_ERROR_UNEXPECTED;
+  }
+  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure.mClosure;
   nsCOMPtr<nsIOutputStream> stream;
   state->GetOutputStream(getter_AddRefs(stream));
   uint32_t n;
@@ -1105,8 +1112,12 @@ nsresult mime_encoder_output_fn(const char* buf, int32_t size, void* closure) {
    directly to the file.
  */
 static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
-                                              void* closure) {
-  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure;
+                                              MimeClosure closure) {
+  PR_ASSERT(closure.mType == MimeClosure::isMsgComposeSecure);
+  if (closure.mType != MimeClosure::isMsgComposeSecure) {
+    return NS_ERROR_FAILURE;
+  }
+  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure.mClosure;
 
   // Copy to new null-terminated string so JS glue doesn't crash when
   // MimeCryptoWriteBlock() is implemented in JS.

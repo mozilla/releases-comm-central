@@ -6,6 +6,7 @@
 #define _nsPgpmimeDecrypt_h_
 
 #include "mimecryp.h"
+#include "mime_closure.h"
 #include "nsIPgpMimeProxy.h"
 #include "nsCOMPtr.h"
 #include "nsIStreamListener.h"
@@ -52,7 +53,7 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
   PRBool mOutputWasRemoved;
 #endif
   MimeDecodeCallbackFun mOutputFun;
-  void* mOutputClosure;
+  MimeClosure mOutputClosure;
 
   nsCOMPtr<nsILoadGroup> mLoadGroup;
   nsLoadFlags mLoadFlags;

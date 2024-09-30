@@ -116,7 +116,8 @@ static int MimeInlineImage_parse_begin(MimeObject* obj) {
 
     if (!img->image_data) return MIME_OUT_OF_MEMORY;
 
-    html = obj->options->make_image_html(img->image_data);
+    html = obj->options->make_image_html(
+        MimeClosure(MimeClosure::isMimeImageStreamData, img->image_data));
     if (!html) return MIME_OUT_OF_MEMORY;
 
     status = MimeObject_write(obj, html, strlen(html), true);
@@ -154,8 +155,9 @@ static int MimeInlineImage_parse_eof(MimeObject* obj, bool abort_p) {
   if (status < 0) abort_p = true;
 
   if (img->image_data) {
-    obj->options->image_end(img->image_data,
-                            (status < 0 ? status : (abort_p ? -1 : 0)));
+    obj->options->image_end(
+        MimeClosure(MimeClosure::isMimeImageStreamData, img->image_data),
+        (status < 0 ? status : (abort_p ? -1 : 0)));
     img->image_data = 0;
   }
 
@@ -206,7 +208,9 @@ static int MimeInlineImage_parse_decoded_buffer(const char* buf, int32_t size,
 
   /* Hand this data off to the backend-specific image display stream.
    */
-  status = obj->options->image_write_buffer(buf, size, img->image_data);
+  status = obj->options->image_write_buffer(
+      buf, size,
+      MimeClosure(MimeClosure::isMimeImageStreamData, img->image_data));
 
   /* If the image display stream fails, then close the stream - but do not
    return the failure status, and do not give up on parsing this object.
@@ -215,7 +219,9 @@ static int MimeInlineImage_parse_decoded_buffer(const char* buf, int32_t size,
    this part, and letting our parent continue.
    */
   if (status < 0) {
-    obj->options->image_end(img->image_data, status);
+    obj->options->image_end(
+        MimeClosure(MimeClosure::isMimeImageStreamData, img->image_data),
+        status);
     img->image_data = 0;
     status = 0;
   }

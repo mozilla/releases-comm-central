@@ -38,7 +38,7 @@ static int MimeEncrypted_parse_eof(MimeObject*, bool);
 static int MimeEncrypted_parse_end(MimeObject*, bool);
 static int MimeEncrypted_add_child(MimeObject*, MimeObject*);
 
-static int MimeHandleDecryptedOutput(const char*, int32_t, void*);
+static int MimeHandleDecryptedOutput(const char*, int32_t, int32_t, void*);
 static int MimeHandleDecryptedOutputLine(const char*, int32_t, MimeObject*);
 static int MimeEncrypted_close_headers(MimeObject*);
 static int MimeEncrypted_emit_buffered_child(MimeObject*);
@@ -75,7 +75,8 @@ static int MimeEncrypted_parse_begin(MimeObject* obj) {
   if (enc->crypto_closure) return -1;
 
   enc->crypto_closure = (((MimeEncryptedClass*)obj->clazz)->crypto_init)(
-      obj, MimeHandleDecryptedOutput, obj);
+      obj, MimeHandleDecryptedOutput,
+      MimeClosure(MimeClosure::isMimeObject, obj));
   if (!enc->crypto_closure) return -1;
 
   /* (Mostly duplicated from MimeLeaf, see comments in mimecryp.h.)
@@ -250,6 +251,7 @@ static void MimeEncrypted_finalize(MimeObject* obj) {
 }
 
 static int MimeHandleDecryptedOutput(const char* buf, int32_t buf_size,
+                                     int32_t output_closure_type,
                                      void* output_closure) {
   /* This method is invoked by the underlying decryption module.
    The module is assumed to return a MIME object, and its associated
@@ -264,6 +266,11 @@ static int MimeHandleDecryptedOutput(const char* buf, int32_t buf_size,
    blank line, as usual) and will then handle the included data as
    appropriate.
    */
+
+  PR_ASSERT(output_closure_type == MimeClosure::isMimeObject);
+  if (output_closure_type != MimeClosure::isMimeObject) {
+    return -1;
+  }
   MimeObject* obj = (MimeObject*)output_closure;
 
   /* Is it truly safe to use ibuffer here?  I think so... */

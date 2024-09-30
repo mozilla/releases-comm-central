@@ -2091,7 +2091,7 @@ extern "C" void* mime_bridge_create_draft_stream(
   mdd->options->format_out = format_out;  // output format
   mdd->options->decompose_file_p = true;  /* new field in MimeDisplayOptions */
   mdd->options->stream_closure = MimeClosure(MimeClosure::isMimeDraftData, mdd);
-  mdd->options->html_closure = mdd;
+  mdd->options->html_closure = MimeClosure(MimeClosure::isMimeDraftData, mdd);
   mdd->options->decompose_headers_info_fn = make_mime_headers_copy;
   mdd->options->decompose_file_init_fn = mime_decompose_file_init_fn;
   mdd->options->decompose_file_output_fn = mime_decompose_file_output_fn;

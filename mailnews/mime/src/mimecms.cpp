@@ -34,8 +34,9 @@ MimeDefClass(MimeEncryptedCMS, MimeEncryptedCMSClass, mimeEncryptedCMSClass,
              &MIME_SUPERCLASS);
 
 static MimeClosure MimeCMS_init(MimeObject*,
-                                int (*output_fn)(const char*, int32_t, void*),
-                                void*);
+                                int (*output_fn)(const char*, int32_t, int32_t,
+                                                 void*),
+                                MimeClosure);
 static int MimeCMS_write(const char*, int32_t, MimeClosure);
 static int MimeCMS_eof(MimeClosure, bool);
 static char* MimeCMS_generate(MimeClosure);
@@ -60,8 +61,9 @@ static int MimeEncryptedCMSClassInitialize(MimeObjectClass* oclass) {
 }
 
 typedef struct MimeCMSdata {
-  int (*output_fn)(const char* buf, int32_t buf_size, void* output_closure);
-  void* output_closure;
+  int (*output_fn)(const char* buf, int32_t buf_size,
+                   int32_t output_closure_type, void* output_closure);
+  MimeClosure output_closure;
   nsCOMPtr<nsICMSDecoder> decoder_context;
   nsCOMPtr<nsICMSMessage> content_info;
   bool ci_is_encrypted;
@@ -79,7 +81,7 @@ typedef struct MimeCMSdata {
 
   MimeCMSdata()
       : output_fn(nullptr),
-        output_closure(nullptr),
+        output_closure(MimeClosure::zero()),
         ci_is_encrypted(false),
         sender_addr(nullptr),
         decoding_failed(false),
@@ -519,8 +521,9 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject* obj) {
 static MimeClosure MimeCMS_init(MimeObject* obj,
                                 int (*output_fn)(const char* buf,
                                                  int32_t buf_size,
+                                                 int32_t output_closure_type,
                                                  void* output_closure),
-                                void* output_closure) {
+                                MimeClosure output_closure) {
   MimeCMSdata* data;
   nsresult rv;
 
@@ -766,13 +769,16 @@ static int MimeCMS_eof(MimeClosure crypto_closure, bool abort_p) {
     if (bufferContains2Newlines(data->decoded_buffer, data->decoded_bytes) ==
         nullptr) {
       const char* header = "Content-Type: text/plain; charset=utf-8\r\n\r\n";
-      status = data->output_fn(header, strlen(header), data->output_closure);
+      status =
+          data->output_fn(header, strlen(header), data->output_closure.mType,
+                          data->output_closure.mClosure);
     }
   }
 
   if (status == nsICMSMessageErrors::SUCCESS) {
     status = data->output_fn(data->decoded_buffer, data->decoded_bytes,
-                             data->output_closure);
+                             data->output_closure.mType,
+                             data->output_closure.mClosure);
   }
   if (status < 0) {
     PR_SetError(status, 0);

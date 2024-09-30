@@ -755,7 +755,7 @@ int MimeDecoderWrite(MimeDecoderData* data, const char* buffer, int32_t size,
 namespace mozilla {
 namespace mailnews {
 
-MimeEncoder::MimeEncoder(OutputCallback callback, void* closure)
+MimeEncoder::MimeEncoder(OutputCallback callback, MimeClosure closure)
     : mCallback(callback), mClosure(closure), mCurrentColumn(0) {}
 
 class Base64Encoder : public MimeEncoder {
@@ -763,7 +763,7 @@ class Base64Encoder : public MimeEncoder {
   int32_t in_buffer_count;
 
  public:
-  Base64Encoder(OutputCallback callback, void* closure)
+  Base64Encoder(OutputCallback callback, MimeClosure closure)
       : MimeEncoder(callback, closure), in_buffer_count(0) {}
   virtual ~Base64Encoder() {}
 
@@ -886,7 +886,7 @@ void Base64Encoder::Base64EncodeBits(RangedPtr<char>& out, uint32_t bits) {
 
 class QPEncoder : public MimeEncoder {
  public:
-  QPEncoder(OutputCallback callback, void* closure)
+  QPEncoder(OutputCallback callback, MimeClosure closure)
       : MimeEncoder(callback, closure) {}
   virtual ~QPEncoder() {}
 
@@ -987,11 +987,12 @@ nsresult QPEncoder::Write(const char* buffer, int32_t size) {
 }
 
 MimeEncoder* MimeEncoder::GetBase64Encoder(OutputCallback callback,
-                                           void* closure) {
+                                           MimeClosure closure) {
   return new Base64Encoder(callback, closure);
 }
 
-MimeEncoder* MimeEncoder::GetQPEncoder(OutputCallback callback, void* closure) {
+MimeEncoder* MimeEncoder::GetQPEncoder(OutputCallback callback,
+                                       MimeClosure closure) {
   return new QPEncoder(callback, closure);
 }
 

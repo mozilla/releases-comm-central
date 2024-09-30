@@ -120,8 +120,11 @@ typedef enum {
 
 /* The signature for various callbacks in the MimeDisplayOptions structure.
  */
-typedef char* (*MimeHTMLGeneratorFunction)(const char* data, void* closure,
+typedef char* (*MimeHTMLGeneratorFunction)(const char* data,
+                                           MimeClosure closure,
                                            MimeHeaders* headers);
+
+class mime_image_stream_data;
 
 class MimeDisplayOptions {
  public:
@@ -251,7 +254,7 @@ class MimeDisplayOptions {
    Various callbacks; for all of these functions, the `closure' argument
    is what is found in `html_closure'.
    */
-  void* html_closure;
+  MimeClosure html_closure;
 
   /* For emitting some HTML before the start of the outermost message
    (this is called before any HTML is written to layout.) */
@@ -283,17 +286,19 @@ class MimeDisplayOptions {
 
   /* Begins processing an embedded image; the URL and content_type are of the
    image itself. */
-  void* (*image_begin)(const char* image_url, const char* content_type,
-                       MimeClosure stream_closure);
+  mime_image_stream_data* (*image_begin)(const char* image_url,
+                                         const char* content_type,
+                                         MimeClosure stream_closure);
 
   /* Stop processing an image. */
-  void (*image_end)(void* image_closure, int status);
+  void (*image_end)(MimeClosure image_closure, int status);
 
   /* Dump some raw image data down the stream. */
-  int (*image_write_buffer)(const char* buf, int32_t size, void* image_closure);
+  int (*image_write_buffer)(const char* buf, int32_t size,
+                            MimeClosure image_closure);
 
   /* What HTML should be dumped out for this image. */
-  char* (*make_image_html)(void* image_closure);
+  char* (*make_image_html)(MimeClosure image_closure);
 
   /* =======================================================================
    Other random opaque state.

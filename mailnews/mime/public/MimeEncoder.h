@@ -8,6 +8,7 @@
 #define MimeEncoder_h__
 
 #include "nscore.h"
+#include "mime_closure.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -19,7 +20,7 @@ class MimeEncoder {
 
   /// A callback for writing the encoded output
   typedef nsresult (*OutputCallback)(const char* buf, int32_t size,
-                                     void* closure);
+                                     MimeClosure closure);
 
   /// Encodes the string in the buffer and sends it to the callback
   virtual nsresult Write(const char* buffer, int32_t size) = 0;
@@ -27,14 +28,16 @@ class MimeEncoder {
   virtual nsresult Flush() { return NS_OK; }
 
   /// Get an encoder that outputs Base64-encoded data
-  static MimeEncoder* GetBase64Encoder(OutputCallback callback, void* closure);
+  static MimeEncoder* GetBase64Encoder(OutputCallback callback,
+                                       MimeClosure closure);
   /// Get an encoder that outputs quoted-printable data
-  static MimeEncoder* GetQPEncoder(OutputCallback callback, void* closure);
+  static MimeEncoder* GetQPEncoder(OutputCallback callback,
+                                   MimeClosure closure);
 
  protected:
-  MimeEncoder(OutputCallback callback, void* closure);
+  MimeEncoder(OutputCallback callback, MimeClosure closure);
   OutputCallback mCallback;
-  void* mClosure;
+  MimeClosure mClosure;
   uint32_t mCurrentColumn;
 };
 

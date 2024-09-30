@@ -16,6 +16,9 @@ class MimeClosure {
     isMimePgpeData,
     isMimeDraftData,
     isMimeMultipartRelated,
+    isMsgComposeSecure,
+    isMimeImageStreamData,
+    isMimeMessage,
   };
 
   MimeClosure() : mType(isUndefined), mClosure(nullptr) {}

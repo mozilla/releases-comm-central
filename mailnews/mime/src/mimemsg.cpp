@@ -35,7 +35,8 @@ static int MimeMessage_parse_line(const char*, int32_t, MimeObject*);
 static int MimeMessage_parse_eof(MimeObject*, bool);
 static int MimeMessage_close_headers(MimeObject* obj);
 static int MimeMessage_write_headers_html(MimeObject*);
-static char* MimeMessage_partial_message_html(const char* data, void* closure,
+static char* MimeMessage_partial_message_html(const char* data,
+                                              MimeClosure closure,
                                               MimeHeaders* headers);
 
 #ifdef XP_UNIX
@@ -468,7 +469,8 @@ static int MimeMessage_close_headers(MimeObject* obj) {
       char dummy = 0;
       if (sscanf(xmoz, " %x %c", &flags, &dummy) == 1 &&
           flags & nsMsgMessageFlags::Partial) {
-        obj->options->html_closure = obj;
+        obj->options->html_closure =
+            MimeClosure(MimeClosure::isMimeObject, obj);
         obj->options->generate_footer_html_fn =
             MimeMessage_partial_message_html;
       }
@@ -722,9 +724,15 @@ static int MimeMessage_write_headers_html(MimeObject* obj) {
   return 0;
 }
 
-static char* MimeMessage_partial_message_html(const char* data, void* closure,
+static char* MimeMessage_partial_message_html(const char* data,
+                                              MimeClosure closure,
                                               MimeHeaders* headers) {
-  MimeMessage* msg = (MimeMessage*)closure;
+  PR_ASSERT(closure.mType == MimeClosure::isMimeMessage);
+  if (closure.mType != MimeClosure::isMimeMessage) {
+    return nullptr;
+  }
+
+  MimeMessage* msg = (MimeMessage*)closure.mClosure;
   nsAutoCString orig_url(data);
   char* uidl = MimeHeaders_get(headers, HEADER_X_UIDL, false, false);
   char* msgId = MimeHeaders_get(headers, HEADER_MESSAGE_ID, false, false);

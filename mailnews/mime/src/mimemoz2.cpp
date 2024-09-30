@@ -928,12 +928,13 @@ static int mime_output_init_fn(const char* type, const char* charset,
     return 0;
 }
 
-static void* mime_image_begin(const char* image_url, const char* content_type,
-                              MimeClosure stream_closure);
-static void mime_image_end(void* image_closure, int status);
-static char* mime_image_make_image_html(void* image_data);
+static mime_image_stream_data* mime_image_begin(const char* image_url,
+                                                const char* content_type,
+                                                MimeClosure stream_closure);
+static void mime_image_end(MimeClosure image_closure, int status);
+static char* mime_image_make_image_html(MimeClosure image_data);
 static int mime_image_write_buffer(const char* buf, int32_t size,
-                                   void* image_closure);
+                                   MimeClosure image_closure);
 
 /* Interface between libmime and inline display of images: the abomination
    that is known as "internal-external-reconnect".
@@ -953,8 +954,9 @@ mime_image_stream_data::mime_image_stream_data() {
   msd = nullptr;
 }
 
-static void* mime_image_begin(const char* image_url, const char* content_type,
-                              MimeClosure stream_closure) {
+static mime_image_stream_data* mime_image_begin(const char* image_url,
+                                                const char* content_type,
+                                                MimeClosure stream_closure) {
   PR_ASSERT(stream_closure.mType == MimeClosure::isMimeStreamData);
   if (stream_closure.mType != MimeClosure::isMimeStreamData) {
     return nullptr;
@@ -977,21 +979,30 @@ static void* mime_image_begin(const char* image_url, const char* content_type,
   return mid;
 }
 
-static void mime_image_end(void* image_closure, int status) {
-  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
+static void mime_image_end(MimeClosure image_closure, int status) {
+  PR_ASSERT(image_closure);
+  if (!image_closure) return;
 
-  PR_ASSERT(mid);
-  if (!mid) return;
+  PR_ASSERT(image_closure.mType == MimeClosure::isMimeImageStreamData);
+  if (image_closure.mType != MimeClosure::isMimeImageStreamData) {
+    return;
+  }
 
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure.mClosure;
   PR_FREEIF(mid->url);
   delete mid;
 }
 
-static char* mime_image_make_image_html(void* image_closure) {
-  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
+static char* mime_image_make_image_html(MimeClosure image_closure) {
+  PR_ASSERT(image_closure);
+  if (!image_closure) return 0;
 
-  PR_ASSERT(mid);
-  if (!mid) return 0;
+  PR_ASSERT(image_closure.mType == MimeClosure::isMimeImageStreamData);
+  if (image_closure.mType != MimeClosure::isMimeImageStreamData) {
+    return nullptr;
+  }
+
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure.mClosure;
 
   /* Internal-external-reconnect only works when going to the screen. */
   if (!mid->istream)
@@ -1043,8 +1054,13 @@ static char* mime_image_make_image_html(void* image_closure) {
 }
 
 static int mime_image_write_buffer(const char* buf, int32_t size,
-                                   void* image_closure) {
-  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
+                                   MimeClosure image_closure) {
+  PR_ASSERT(image_closure.mType == MimeClosure::isMimeImageStreamData);
+  if (image_closure.mType != MimeClosure::isMimeImageStreamData) {
+    return -1;
+  }
+
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure.mClosure;
   mime_stream_data* msd = mid->msd;
 
   if (((!msd->output_emitter)) && ((!msd->pluginObj2))) return -1;
@@ -1193,7 +1209,7 @@ MimeDisplayOptions::MimeDisplayOptions() {
 
   passwd_prompt_fn = nullptr;
 
-  html_closure = nullptr;
+  html_closure = MimeClosure::zero();
 
   generate_header_html_fn = nullptr;
   generate_post_header_html_fn = nullptr;
