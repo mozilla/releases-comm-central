@@ -289,6 +289,16 @@
 !macroend
 !define ShowShortcuts "!insertmacro ShowShortcuts"
 
+!macro AddAssociationIfNoneExist FILE_TYPE KEY
+  ClearErrors
+  EnumRegKey $7 HKCR "${FILE_TYPE}" 0
+  ${If} ${Errors}
+    WriteRegStr SHCTX "SOFTWARE\Classes\${FILE_TYPE}"  "" ${KEY}
+  ${EndIf}
+  WriteRegStr SHCTX "SOFTWARE\Classes\${FILE_TYPE}\OpenWithProgids" ${KEY} ""
+!macroend
+!define AddAssociationIfNoneExist "!insertmacro AddAssociationIfNoneExist"
+
 !macro SetHandlersBrowser
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
 
@@ -337,11 +347,13 @@
     WriteRegStr SHCTX "$0\.xhtml" "" "SeaMonkeyHTML"
   ${EndIf}
 
-  ; Only add webm if it's not present
-  ${CheckIfRegistryKeyExists} "$0" ".webm" $7
-  ${If} $7 == "false"
-    WriteRegStr SHCTX "$0\.webm"  "" "SeaMonkeyHTML"
-  ${EndIf}
+  ${AddAssociationIfNoneExist} ".oga"  "SeaMonkeyHTML"
+  ${AddAssociationIfNoneExist} ".ogg"  "SeaMonkeyHTML"
+  ${AddAssociationIfNoneExist} ".ogv"  "SeaMonkeyHTML"
+  ${AddAssociationIfNoneExist} ".svg"  "SeaMonkeyHTML"
+  ${AddAssociationIfNoneExist} ".webm" "SeaMonkeyHTML"
+  ${AddAssociationIfNoneExist} ".webp" "SeaMonkeyHTML"
+
 !macroend
 !define SetHandlersBrowser "!insertmacro SetHandlersBrowser"
 
@@ -423,6 +435,9 @@
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".shtml" "SeaMonkeyHTML"
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".xht"   "SeaMonkeyHTML"
   WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".xhtml" "SeaMonkeyHTML"
+
+  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".svg"   "SeaMonkeyHTML"
+  WriteRegStr HKLM "$0\Capabilities\FileAssociations" ".webp"  "SeaMonkeyHTML"
 
   WriteRegStr HKLM "$0\Capabilities\StartMenu" "StartMenuInternet" "$R9"
 
