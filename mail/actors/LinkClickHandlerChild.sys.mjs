@@ -17,11 +17,9 @@ XPCOMUtils.defineLazyServiceGetter(
 /**
  * Extract the href from the link click event.
  * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
- * HTMLInputElement.form.action, and nested anchor tags.
- * If the clicked element was a HTMLInputElement or HTMLButtonElement
- * we return the form action.
+ * and nested anchor tags.
  *
- * @returns the url and the text for the link being clicked.
+ * @returns {string} the url for the link being clicked.
  */
 function hRefForClickEvent(aEvent) {
   const target = aEvent.target;
