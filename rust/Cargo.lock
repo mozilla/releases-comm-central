@@ -5143,6 +5143,7 @@ version = "0.1.0"
 dependencies = [
  "cstr",
  "fluent",
+ "fluent-ffi",
  "ksni",
  "log",
  "moz_task",

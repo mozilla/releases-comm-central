@@ -14,6 +14,7 @@ nsstring = { path = "../../../xpcom/rust/nsstring" }
 thin-vec = "0.2"
 unic-langid = "0.9"
 xpcom = { path = "../../../xpcom/rust/xpcom" }
+fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 
 [target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dependencies]
 ksni = "0.2.2"

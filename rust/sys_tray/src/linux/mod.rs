@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use fluent::FluentBundle;
+use fluent_ffi::{adapt_bundle_for_gecko, FluentBundleRc};
 use ksni::Handle;
 use nserror::{nsresult, NS_OK};
 use std::os::raw::c_void;
+use std::rc::Rc;
 use system_tray::{SystemTray, TrayItem, XdgIcon};
 use xpcom::{nsIID, xpcom_method, RefPtr};
 
@@ -41,9 +42,11 @@ impl LinuxSysTrayHandler {
     pub fn new() -> RefPtr<LinuxSysTrayHandler> {
         let locs = locales::app_locales().expect("Failed to retrieve application locales");
         let resource = locales::fl_resource().expect("Failed to parse fluent templates");
-        let mut bundle = FluentBundle::new(locs);
+        let mut bundle = FluentBundleRc::new(locs);
+        adapt_bundle_for_gecko(&mut bundle, None);
+
         bundle
-            .add_resource(resource)
+            .add_resource(Rc::new(resource))
             .expect("Failed to add resources to bundle");
 
         // Grab the quit message
