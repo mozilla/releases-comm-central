@@ -1091,11 +1091,11 @@ static void mime_crypto_write_base64(void* closure, const char* buf,
 // TODO: size should probably be converted to uint32_t
 nsresult mime_encoder_output_fn(const char* buf, int32_t size,
                                 MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMsgComposeSecure);
-  if (closure.mType != MimeClosure::isMsgComposeSecure) {
+  nsMsgComposeSecure* state = closure.AsMsgComposeSecure();
+  if (!state) {
     return NS_ERROR_UNEXPECTED;
   }
-  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure.mClosure;
+
   nsCOMPtr<nsIOutputStream> stream;
   state->GetOutputStream(getter_AddRefs(stream));
   uint32_t n;
@@ -1113,11 +1113,10 @@ nsresult mime_encoder_output_fn(const char* buf, int32_t size,
  */
 static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
                                               MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMsgComposeSecure);
-  if (closure.mType != MimeClosure::isMsgComposeSecure) {
+  nsMsgComposeSecure* state = closure.AsMsgComposeSecure();
+  if (!state) {
     return NS_ERROR_FAILURE;
   }
-  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure.mClosure;
 
   // Copy to new null-terminated string so JS glue doesn't crash when
   // MimeCryptoWriteBlock() is implemented in JS.

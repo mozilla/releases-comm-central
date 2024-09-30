@@ -462,15 +462,11 @@ static int MimeMultipart_create_child(MimeObject* obj) {
     /* if we are saving an apple double attachment, we need to set correctly the
      * content type of the channel */
     if (mime_typep(obj, (MimeObjectClass*)&mimeMultipartAppleDoubleClass)) {
-      PR_ASSERT(body->options->stream_closure.mType ==
-                MimeClosure::isMimeStreamData);
-      if (body->options->stream_closure.mType ==
-          MimeClosure::isMimeStreamData) {
-        mime_stream_data* msd =
-            (mime_stream_data*)body->options->stream_closure.mClosure;
+      mime_stream_data* msd = body->options->stream_closure.AsMimeStreamData();
+      if (msd) {
         if (!body->options->write_html_p && body->content_type &&
             !PL_strcasecmp(body->content_type, APPLICATION_APPLEFILE)) {
-          if (msd && msd->channel)
+          if (msd->channel)
             msd->channel->SetContentType(
                 nsLiteralCString(APPLICATION_APPLEFILE));
         }

@@ -114,11 +114,10 @@ static int MimeEncrypted_parse_buffer(const char* buffer, int32_t size,
                                       MimeClosure closure) {
   /* (Duplicated from MimeLeaf, see comments in mimecryp.h.)
    */
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   MimeEncrypted* enc = (MimeEncrypted*)obj;
 
@@ -144,11 +143,11 @@ static int MimeEncrypted_parse_line(const char* line, int32_t length,
 
 static int MimeEncrypted_parse_decoded_buffer(const char* buffer, int32_t size,
                                               MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
+
   MimeEncrypted* enc = (MimeEncrypted*)closure.mClosure;
   return ((MimeEncryptedClass*)obj->clazz)
       ->crypto_write(buffer, size, enc->crypto_closure);

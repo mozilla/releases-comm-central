@@ -308,12 +308,12 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
 
   if (!opts->stream_closure) return;
 
-  PR_ASSERT(opts->stream_closure.mType == MimeClosure::isMimeStreamData ||
-            opts->stream_closure.mType == MimeClosure::isMimeDraftData);
-  if (opts->stream_closure.mType != MimeClosure::isMimeStreamData) {
+  mime_stream_data* msd = opts->stream_closure.IsMimeDraftData()
+                              ? nullptr
+                              : opts->stream_closure.AsMimeStreamData();
+  if (!msd) {
     return;
   }
-  mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure.mClosure);
 
   nsCOMPtr<nsIChannel> channel =
       msd->channel;  // note the lack of ref counting...
@@ -423,10 +423,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         char* imip_method = MimeHeaders_get_parameter(
             full_content_type, "method", nullptr, nullptr);
 
-        PR_ASSERT(opts->stream_closure.mType == MimeClosure::isMimeStreamData);
-        if (opts->stream_closure.mType == MimeClosure::isMimeStreamData) {
-          mime_stream_data* msd =
-              (mime_stream_data*)(opts->stream_closure.mClosure);
+        mime_stream_data* msd = opts->stream_closure.AsMimeStreamData();
+        if (msd) {
           nsCOMPtr<nsIMailChannel> mailChannel =
               do_QueryInterface(msd->channel);
           if (mailChannel) {

@@ -149,11 +149,10 @@ static int MimeExternalObject_parse_begin(MimeObject* obj) {
 
 static int MimeExternalObject_parse_buffer(const char* buffer, int32_t size,
                                            MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   NS_ASSERTION(!obj->closed_p, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (obj->closed_p) return -1;
@@ -187,11 +186,10 @@ static int MimeExternalObject_parse_decoded_buffer(const char* buf,
    * reading them) and the JS emitter (which doesn't care about attachment data
    * at all). 0 means ok, the caller just checks for negative return value.
    */
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   if (obj->options &&
       (obj->options->metadata_only || obj->options->write_html_p))

@@ -250,11 +250,10 @@ static int MimeInlineText_rot13_line(MimeObject* obj, char* line,
 
 static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
                                                MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   PR_ASSERT(!obj->closed_p);
   if (obj->closed_p) return -1;

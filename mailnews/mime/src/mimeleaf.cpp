@@ -115,11 +115,11 @@ static int MimeLeaf_parse_begin(MimeObject* obj) {
 
 static int MimeLeaf_parse_buffer(const char* buffer, int32_t size,
                                  MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
+
   MimeLeaf* leaf = (MimeLeaf*)obj;
 
   NS_ASSERTION(!obj->closed_p, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");

@@ -211,11 +211,10 @@ static int MimeObject_parse_begin(MimeObject* obj) {
 
 static int MimeObject_parse_buffer(const char* buffer, int32_t size,
                                    MimeClosure closure) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeObject);
-  if (closure.mType != MimeClosure::isMimeObject) {
+  MimeObject* obj = closure.AsMimeObject();
+  if (!obj) {
     return -1;
   }
-  MimeObject* obj = (MimeObject*)closure.mClosure;
 
   NS_ASSERTION(!obj->closed_p, "object shouldn't be closed");
   if (obj->closed_p) return -1;

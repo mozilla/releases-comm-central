@@ -25,6 +25,7 @@ EXPORTS += [
 
 SOURCES += [
     "comi18n.cpp",
+    "mime_closure.cpp",
     "mimebuf.cpp",
     "mimecms.cpp",
     "mimecom.cpp",

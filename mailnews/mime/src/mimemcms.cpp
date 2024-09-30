@@ -131,14 +131,12 @@ static MimeClosure MimeMultCMS_init(MimeObject* obj) {
   data->self = obj;
 
   if (data->self->options->stream_closure) {
-    PR_ASSERT(data->self->options->stream_closure.mType ==
-              MimeClosure::isMimeStreamData);
-    if (data->self->options->stream_closure.mType !=
-        MimeClosure::isMimeStreamData) {
+    mime_stream_data* msd =
+        data->self->options->stream_closure.AsMimeStreamData();
+    if (!msd) {
       return MimeClosure::zero();
     }
-    mime_stream_data* msd =
-        (mime_stream_data*)(data->self->options->stream_closure.mClosure);
+
     nsIChannel* channel = msd->channel;  // note the lack of ref counting...
     if (channel) {
       nsCOMPtr<nsIURI> uri;
@@ -276,11 +274,10 @@ static int MimeMultCMS_data_hash(const char* buf, int32_t size,
     return -1;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   if (data->reject_signature) {
     return 0;
@@ -302,11 +299,10 @@ static int MimeMultCMS_data_eof(MimeClosure crypto_closure, bool abort_p) {
     return -1;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   if (data->reject_signature) {
     return 0;
@@ -339,11 +335,11 @@ static int MimeMultCMS_data_eof(MimeClosure crypto_closure, bool abort_p) {
 static int MimeMultCMS_sig_init(MimeClosure crypto_closure,
                                 MimeObject* multipart_object,
                                 MimeHeaders* signature_hdrs) {
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
+
   char* ct;
   int status = 0;
   nsresult rv;
@@ -383,11 +379,10 @@ static int MimeMultCMS_sig_ignore(MimeClosure crypto_closure) {
     return -1;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   data->ignoredLayer = true;
 
@@ -399,11 +394,10 @@ bool MimeMultCMSdata_isIgnored(MimeClosure crypto_closure) {
     return false;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return false;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   return data->ignoredLayer;
 }
@@ -414,11 +408,11 @@ static int MimeMultCMS_sig_hash(const char* buf, int32_t size,
     return -1;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
+
   nsresult rv;
 
   if (data->reject_signature) {
@@ -440,11 +434,10 @@ static int MimeMultCMS_sig_eof(MimeClosure crypto_closure, bool abort_p) {
     return -1;
   }
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return -1;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   if (data->reject_signature) {
     return 0;
@@ -469,11 +462,10 @@ static int MimeMultCMS_sig_eof(MimeClosure crypto_closure, bool abort_p) {
 static void MimeMultCMS_free(MimeClosure crypto_closure) {
   if (!crypto_closure) return;
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
 
   delete data;
 }
@@ -485,11 +477,11 @@ static void MimeMultCMS_suppressed_child(MimeClosure crypto_closure) {
 
   // I'm a multipart/signed. If one of my cryptographic child elements
   // was suppressed, then I want my signature to be shown as invalid.
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
+
   if (data->smimeSink) {
     if (data->reject_signature || data->ignoredLayer) {
       return;
@@ -506,11 +498,11 @@ static void MimeMultCMS_suppressed_child(MimeClosure crypto_closure) {
 static char* MimeMultCMS_generate(MimeClosure crypto_closure) {
   if (!crypto_closure) return 0;
 
-  PR_ASSERT(crypto_closure.mType == MimeClosure::isMimeMultCMSData);
-  if (crypto_closure.mType != MimeClosure::isMimeMultCMSData) {
+  MimeMultCMSdata* data = crypto_closure.AsMimeMultCMSData();
+  if (!data) {
     return nullptr;
   }
-  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure.mClosure;
+
   nsCOMPtr<nsIX509Cert> signerCert;
 
   int aRelativeNestLevel = MIMEGetRelativeCryptoNestLevel(data->self);

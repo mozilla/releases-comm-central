@@ -511,14 +511,11 @@ static int MimeMessage_parse_eof(MimeObject* obj, bool abort_p) {
       obj->options->write_html_p) {
     if (obj->options->generate_footer_html_fn) {
       if (obj->options->stream_closure) {
-        PR_ASSERT(obj->options->stream_closure.mType ==
-                  MimeClosure::isMimeStreamData);
-        if (obj->options->stream_closure.mType !=
-            MimeClosure::isMimeStreamData) {
+        mime_stream_data* msd = obj->options->stream_closure.AsMimeStreamData();
+        if (!msd) {
           return 0;
         }
-        mime_stream_data* msd =
-            (mime_stream_data*)obj->options->stream_closure.mClosure;
+
         char* html = obj->options->generate_footer_html_fn(
             msd->orig_url_name, obj->options->html_closure, msg->hdrs);
         if (html) {
@@ -727,12 +724,11 @@ static int MimeMessage_write_headers_html(MimeObject* obj) {
 static char* MimeMessage_partial_message_html(const char* data,
                                               MimeClosure closure,
                                               MimeHeaders* headers) {
-  PR_ASSERT(closure.mType == MimeClosure::isMimeMessage);
-  if (closure.mType != MimeClosure::isMimeMessage) {
+  MimeMessage* msg = closure.AsMimeMessage();
+  if (!msg) {
     return nullptr;
   }
 
-  MimeMessage* msg = (MimeMessage*)closure.mClosure;
   nsAutoCString orig_url(data);
   char* uidl = MimeHeaders_get(headers, HEADER_X_UIDL, false, false);
   char* msgId = MimeHeaders_get(headers, HEADER_MESSAGE_ID, false, false);

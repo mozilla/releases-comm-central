@@ -409,11 +409,10 @@ static int dummy_file_write(const char* buf, int32_t size,
                             MimeClosure draftData) {
   if (!draftData) return -1;
 
-  PR_ASSERT(draftData.mType == MimeClosure::isMimeDraftData);
-  if (draftData.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = draftData.AsMimeDraftData();
+  if (!mdd) {
     return -1;
   }
-  mime_draft_data* mdd = (mime_draft_data*)draftData.mClosure;
 
   uint32_t bytesWritten;
   mdd->tmpFileStream->Write(buf, size, &bytesWritten);
@@ -427,12 +426,10 @@ static int mime_parse_stream_write(nsMIMESession* stream, const char* buf,
     return -1;
   }
 
-  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
-  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = stream->data_object.AsMimeDraftData();
+  if (!mdd) {
     return -1;
   }
-
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
 
   if (!mdd->obj) return -1;
 
@@ -1128,12 +1125,12 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
   if (!stream->data_object) {
     return;
   }
-  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
-  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+
+  mime_draft_data* mdd = stream->data_object.AsMimeDraftData();
+  if (!mdd) {
     return;
   }
 
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
   nsCOMPtr<nsIMsgCompFields> fields;
   int htmlAction = 0;
   int lineWidth = 0;
@@ -1697,11 +1694,11 @@ static void mime_parse_stream_abort(nsMIMESession* stream, int status) {
   if (!stream->data_object) {
     return;
   }
-  PR_ASSERT(stream->data_object.mType == MimeClosure::isMimeDraftData);
-  if (stream->data_object.mType != MimeClosure::isMimeDraftData) {
+
+  mime_draft_data* mdd = stream->data_object.AsMimeDraftData();
+  if (!mdd) {
     return;
   }
-  mime_draft_data* mdd = (mime_draft_data*)stream->data_object.mClosure;
 
   if (mdd->obj) {
     int status = 0;
@@ -1739,11 +1736,10 @@ static int make_mime_headers_copy(MimeClosure closure, MimeHeaders* headers) {
   NS_ASSERTION(closure && headers, "null mime draft data and/or headers");
   if (!closure || !headers) return 0;
 
-  PR_ASSERT(closure.mType == MimeClosure::isMimeDraftData);
-  if (closure.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = closure.AsMimeDraftData();
+  if (!mdd) {
     return 0;
   }
-  mime_draft_data* mdd = (mime_draft_data*)closure.mClosure;
 
   NS_ASSERTION(mdd->headers == NULL, "non null mime draft data headers");
 
@@ -1759,11 +1755,11 @@ int mime_decompose_file_init_fn(MimeClosure stream_closure,
                "null mime draft data and/or headers");
   if (!stream_closure || !headers) return -1;
 
-  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
-  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = stream_closure.AsMimeDraftData();
+  if (!mdd) {
     return -1;
   }
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
+
   nsMsgAttachedFile* newAttachment = 0;
   int nAttachments = 0;
   // char *hdr_value = NULL;
@@ -1971,11 +1967,11 @@ int mime_decompose_file_output_fn(const char* buf, int32_t size,
   NS_ASSERTION(stream_closure && buf, "missing mime draft data and/or buf");
   if (!stream_closure || !buf) return -1;
 
-  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
-  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = stream_closure.AsMimeDraftData();
+  if (!mdd) {
     return -1;
   }
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
+
   int ret = 0;
 
   if (!size) return 0;
@@ -2010,11 +2006,10 @@ int mime_decompose_file_output_fn(const char* buf, int32_t size,
 int mime_decompose_file_close_fn(MimeClosure stream_closure) {
   if (!stream_closure) return -1;
 
-  PR_ASSERT(stream_closure.mType == MimeClosure::isMimeDraftData);
-  if (stream_closure.mType != MimeClosure::isMimeDraftData) {
+  mime_draft_data* mdd = stream_closure.AsMimeDraftData();
+  if (!mdd) {
     return -1;
   }
-  mime_draft_data* mdd = (mime_draft_data*)stream_closure.mClosure;
 
   if (--mdd->options->decompose_init_count > 0) return 0;
 

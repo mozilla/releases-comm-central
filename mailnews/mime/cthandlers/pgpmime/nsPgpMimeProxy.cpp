@@ -187,14 +187,11 @@ static MimeClosure MimePgpe_init(MimeObject* obj,
   nsCOMPtr<nsIURI> uri;
   nsCOMPtr<nsIMailChannel> mailChannel;
 
-  PR_ASSERT(data->self->options->stream_closure.mType ==
-                MimeClosure::isMimeStreamData ||
-            data->self->options->stream_closure.mType ==
-                MimeClosure::isMimeDraftData);
-  if (data->self->options->stream_closure.mType ==
-      MimeClosure::isMimeStreamData) {
-    mime_stream_data* msd =
-        (mime_stream_data*)(data->self->options->stream_closure.mClosure);
+  mime_stream_data* msd =
+      data->self->options->stream_closure.IsMimeDraftData()
+          ? nullptr
+          : data->self->options->stream_closure.AsMimeStreamData();
+  if (msd) {
     nsIChannel* channel = msd->channel;
     if (channel) {
       channel->GetURI(getter_AddRefs(uri));
@@ -224,11 +221,10 @@ static int MimePgpe_write(const char* buf, int32_t buf_size,
     return -1;
   }
 
-  PR_ASSERT(output_closure.mType == MimeClosure::isMimePgpeData);
-  if (output_closure.mType != MimeClosure::isMimePgpeData) {
+  MimePgpeData* data = output_closure.AsMimePgpeData();
+  if (!data) {
     return -1;
   }
-  MimePgpeData* data = (MimePgpeData*)output_closure.mClosure;
 
   if (!data->output_fn) return -1;
 
@@ -242,11 +238,10 @@ static int MimePgpe_eof(MimeClosure output_closure, bool abort_p) {
     return -1;
   }
 
-  PR_ASSERT(output_closure.mType == MimeClosure::isMimePgpeData);
-  if (output_closure.mType != MimeClosure::isMimePgpeData) {
+  MimePgpeData* data = output_closure.AsMimePgpeData();
+  if (!data) {
     return -1;
   }
-  MimePgpeData* data = (MimePgpeData*)output_closure.mClosure;
 
   if (!data->output_fn) return -1;
 
@@ -266,11 +261,11 @@ static char* MimePgpe_generate(MimeClosure output_closure) {
 }
 
 static void MimePgpe_free(MimeClosure output_closure) {
-  PR_ASSERT(output_closure.mType == MimeClosure::isMimePgpeData);
-  if (output_closure.mType != MimeClosure::isMimePgpeData) {
+  MimePgpeData* data = output_closure.AsMimePgpeData();
+  if (!data) {
     return;
   }
-  MimePgpeData* data = (MimePgpeData*)output_closure.mClosure;
+
   if (data->mimeDecrypt) {
     data->mimeDecrypt->RemoveMimeCallback();
     data->mimeDecrypt = nullptr;
