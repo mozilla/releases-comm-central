@@ -41,15 +41,7 @@ tasks:
                     thunderbird-beta-latest: installer
                     thunderbird-beta-msi-latest-ssl: msi
                     thunderbird-beta-msix-latest-ssl: msix
-                release.*: {}  # disable until monthly release launch
-                # thunderbird-latest-ssl: installer-ssl
-                # thunderbird-latest: installer
-                # thunderbird-msi-latest-ssl: msi
-                # thunderbird-msix-latest-ssl: msix
-                esr115:
-                    # esr115 is the last of the "esr" branches to use the
-                    # thunderbird-latest aliases that are moving to monthly
-                    # releases
+                release:
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer
                     thunderbird-msi-latest-ssl: msi
