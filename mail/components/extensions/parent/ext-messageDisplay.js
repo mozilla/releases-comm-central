@@ -11,6 +11,10 @@ var { MailUtils } = ChromeUtils.importESModule(
 var { getMsgStreamUrl } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
 );
+var { getActualSelectedMessages } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMailTabs.sys.mjs"
+);
+
 /**
  * Returns the currently displayed messages in the given tab.
  *
@@ -21,7 +25,7 @@ function getDisplayedMessages(tab) {
   const nativeTab = tab.nativeTab;
   if (tab instanceof TabmailTab) {
     if (nativeTab.mode.name == "mail3PaneTab") {
-      return nativeTab.chromeBrowser.contentWindow.gDBView.getSelectedMsgHdrs();
+      return getActualSelectedMessages(nativeTab.chromeBrowser.contentWindow);
     } else if (nativeTab.mode.name == "mailMessageTab") {
       return [nativeTab.chromeBrowser.contentWindow.gMessage];
     }

@@ -423,7 +423,7 @@
       {
         "name": "getSelectedFolders",
         "type": "function",
-        "description": "Lists the selected folders in the folder pane.",
+        "description": "Lists the selected folders in the folder pane. Does not include folders which are context-clicked, but not selected. The context-clicked folders are always returned by the $(ref:menus.onClicked) event of the menus API.",
         "permissions": ["accountsRead"],
         "async": "callback",
         "parameters": [
@@ -452,7 +452,7 @@
       {
         "name": "getSelectedMessages",
         "type": "function",
-        "description": "Lists the selected messages in the current folder.",
+        "description": "Lists the selected messages in the current folder. Includes messages in collapsed threads. Does not include messages which are context-clicked, but not selected. The context-clicked messages are always returned by the $(ref:menus.onClicked) event of the menus API.",
         "permissions": ["messagesRead"],
         "async": "callback",
         "parameters": [
@@ -478,7 +478,7 @@
       {
         "name": "setSelectedMessages",
         "type": "function",
-        "description": "Selects none, one or multiple messages.",
+        "description": "Selects none, one or multiple messages. Opens collapsed threads to show the selection, if required.",
         "permissions": ["messagesRead", "accountsRead"],
         "async": true,
         "parameters": [
