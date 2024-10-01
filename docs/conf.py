@@ -9,16 +9,15 @@ import sys
 
 # Set up Python environment to load build system packages.
 OUR_DIR = os.path.dirname(__file__)
-topsrcdir = os.path.normpath(os.path.join(OUR_DIR, ".."))
-
+topcommdir = os.path.normpath(os.path.join(OUR_DIR, ".."))
 
 project = "Thunderbird Source Docs"
 html_show_copyright = False
 author = "Thunderbird Developers"
 
-EXTRA_PATHS = ("docs/_addons",)
+EXTRA_PATHS = ("docs/_addons", "python/rocbuild")
 
-sys.path[:0] = [os.path.join(topsrcdir, p) for p in EXTRA_PATHS]
+sys.path[:0] = [os.path.join(topcommdir, p) for p in EXTRA_PATHS]
 
 sys.path.insert(0, OUR_DIR)
 
@@ -30,11 +29,16 @@ extensions = [
     "sphinx.ext.graphviz",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
+    "rocsphinx",
     "sphinx_js",
+    "sphinxcontrib.mermaid",
+    "sphinx_copybutton",
+    "sphinx_markdown_tables",
+    "sphinx_design",
     "bzlink",
 ]
 
-js_source_path = "../"
+root_for_relative_js_paths = topcommdir
 jsdoc_config_path = "jsdoc.conf.js"
 
 myst_enable_extensions = [

@@ -3,16 +3,26 @@
 # file, # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import fnmatch
-import multiprocessing
+import json
 import os
+import re
 import sys
 import tempfile
 import time
 from functools import partial
 
 import sentry_sdk
+import yaml
+from mozfile import load_source
 
+import mozpack.path as mozpath
 from mach.decorators import Command, CommandArgument
+from mozbuild.util import cpu_count, memoize
+
+here = os.path.abspath(os.path.dirname(__file__))
+topsrcdir = os.path.abspath(os.path.dirname(os.path.dirname(here)))
+topcommdir = os.path.join(topsrcdir, "comm")
+DOC_ROOT = os.path.join(topsrcdir, "docs")
 
 
 @Command(
@@ -20,6 +30,13 @@ from mach.decorators import Command, CommandArgument
     category="thunderbird",
     virtualenv_name="tb_docs",
     description="Generate and serve documentation from the tree.",
+)
+@CommandArgument(
+    "path",
+    default=None,
+    metavar="DIRECTORY",
+    nargs="?",
+    help="Path to documentation to build and display.",
 )
 @CommandArgument("--format", default="html", dest="fmt", help="Documentation format to write.")
 @CommandArgument("--outdir", default=None, metavar="DESTINATION", help="Where to write output.")
@@ -41,14 +58,33 @@ from mach.decorators import Command, CommandArgument
     "--http",
     default="localhost:5500",
     metavar="ADDRESS",
-    help="Serve documentation on the specified host and port, " 'default "localhost:5500".',
+    help="Serve documentation on the specified host and port, default 'localhost:5500'.",
 )
 @CommandArgument(
     "-j",
     "--jobs",
-    default=str(multiprocessing.cpu_count()),
+    default=str(cpu_count()),
     dest="jobs",
     help="Distribute the build over N processes in parallel.",
+)
+@CommandArgument("--linkcheck", action="store_true", help="Check if the links are still valid")
+@CommandArgument("--dump-trees", default=None, help="Dump the Sphinx trees to specified file.")
+@CommandArgument(
+    "--disable-fatal-errors",
+    dest="disable_fatal_errors",
+    action="store_true",
+    help="Disable fatal errors.",
+)
+@CommandArgument(
+    "--disable-fatal-warnings",
+    dest="disable_fatal_warnings",
+    action="store_true",
+    help="Disable fatal warnings.",
+)
+@CommandArgument(
+    "--check-num-warnings",
+    action="store_true",
+    help="Check that the upper bound on the number of warnings is respected.",
 )
 @CommandArgument("--verbose", action="store_true", help="Run Sphinx in verbose mode")
 @CommandArgument(
@@ -58,35 +94,105 @@ from mach.decorators import Command, CommandArgument
 )
 def build_docs(
     command_context,
+    path=None,
     fmt="html",
     outdir=None,
     auto_open=True,
     serve=True,
-    http=None,
+    http="",
     jobs=None,
-    verbose=None,
+    linkcheck=None,
+    dump_trees=None,
+    disable_fatal_errors=False,
+    disable_fatal_warnings=False,
+    check_num_warnings=False,
+    verbose=False,
     no_autodoc=False,
 ):
+    # TODO: Bug 1704891 - move the ESLint setup tools to a shared place.
+    # This really has nothing to do with ESLint - it's only here to get nodejs
+    # in the PATH.
+    import setup_helper
+
+    setup_helper.set_project_root(command_context.topsrcdir)
+
+    if not setup_helper.check_node_executables_valid():
+        return 1
+
+    setup_helper.eslint_maybe_setup()
+
+    # Set the path so that Sphinx can find jsdoc, unfortunately there isn't
+    # a way to pass this to Sphinx itself at the moment.
+    os.environ["PATH"] = os.pathsep.join(
+        [
+            str(mozpath.join(command_context.topsrcdir, "node_modules", ".bin")),
+            _node_path(),
+            os.environ["PATH"],
+        ]
+    )
+
     import webbrowser
 
     from livereload import Server
 
-    outdir = outdir or os.path.join(command_context.topobjdir, "docs")
+    outdir = outdir or os.path.join(command_context.topobjdir, "comm/docs")
     savedir = os.path.join(outdir, fmt)
 
-    docdir = os.path.normpath(os.path.join(command_context.topsrcdir, "comm/docs"))
+    if path is None:
+        path = topcommdir
+    path = os.path.normpath(os.path.abspath(path))
 
-    # if no_autodoc:
-    #    toggle_no_autodoc()
+    docdir = _find_doc_dir(path)
+    if not docdir:
+        print(_dump_sphinx_backtrace())
+        return die(
+            "failed to generate documentation:\n" "%s: could not find docs at this location" % path
+        )
+
+    if linkcheck:
+        # We want to verify if the links are valid or not
+        fmt = "linkcheck"
+    if no_autodoc:
+        if check_num_warnings:
+            return die("'--no-autodoc' flag may not be used with '--check-num-warnings'")
+        toggle_no_autodoc()
 
     status, warnings = _run_sphinx(docdir, savedir, fmt=fmt, jobs=jobs, verbose=verbose)
     if status != 0:
         print(_dump_sphinx_backtrace())
         return die(
-            "failed to generate documentation:\n" "%s: sphinx return code %d" % (docdir, status)
+            "failed to generate documentation:\n" "%s: sphinx return code %d" % (path, status)
         )
     else:
         print("\nGenerated documentation:\n%s" % savedir)
+    msg = ""
+
+    with open(os.path.join(DOC_ROOT, "config.yml"), "r") as fh:
+        docs_config = yaml.safe_load(fh)
+
+    if not disable_fatal_errors:
+        fatal_errors = _check_sphinx_errors(warnings, docs_config)
+        if fatal_errors:
+            msg += f"Error: Got fatal errors:\n{''.join(fatal_errors)}"
+    if not disable_fatal_warnings:
+        fatal_warnings = _check_sphinx_fatal_warnings(warnings, docs_config)
+        if fatal_warnings:
+            msg += f"Error: Got fatal warnings:\n{''.join(fatal_warnings)}"
+    if check_num_warnings:
+        [num_new, num_actual] = _check_sphinx_num_warnings(warnings, docs_config)
+        print("Logged %s warnings\n" % num_actual)
+        if num_new:
+            msg += f"Error: {num_new} new warnings have been introduced compared to the limit in docs/config.yml"
+
+    if msg:
+        return dieWithTestFailure(msg)
+
+    if dump_trees is not None:
+        parent = os.path.dirname(dump_trees)
+        if parent and not os.path.isdir(parent):
+            os.makedirs(parent)
+        with open(dump_trees, "w") as fh:
+            json.dump(manager().trees, fh)
 
     if not serve:
         index_path = os.path.join(savedir, "index.html")
@@ -103,10 +209,11 @@ def build_docs(
         return die("invalid address: %s" % http)
 
     server = Server()
-    for src in [docdir]:
+
+    sphinx_trees = manager().trees or {savedir: docdir}
+    for _, src in sphinx_trees.items():
         run_sphinx = partial(_run_sphinx, src, savedir, fmt=fmt, jobs=jobs, verbose=verbose)
         server.watch(src, run_sphinx)
-
     server.serve(
         host=host,
         port=port,
@@ -153,6 +260,7 @@ def _run_sphinx(docdir, savedir, config=None, fmt="html", jobs=None, verbose=Non
     os.close(warn_fd)
     try:
         args = [
+            "-a",
             "-T",
             "-b",
             fmt,
@@ -168,7 +276,7 @@ def _run_sphinx(docdir, savedir, config=None, fmt="html", jobs=None, verbose=Non
         if verbose:
             args.extend(["-v", "-v"])
         print("Run sphinx with:")
-        print(args)
+        print(" ".join(args))
         status = sphinx.cmd.build.build_main(args)
         with open(warn_path) as warn_file:
             warnings = warn_file.readlines()
@@ -180,15 +288,99 @@ def _run_sphinx(docdir, savedir, config=None, fmt="html", jobs=None, verbose=Non
             print(ex)
 
 
+def _check_sphinx_fatal_warnings(warnings, docs_config):
+    fatal_warnings_regex = [re.compile(item) for item in docs_config["fatal warnings"]]
+    fatal_warnings = []
+    for warning in warnings:
+        if any(item.search(warning) for item in fatal_warnings_regex):
+            fatal_warnings.append(warning)
+    return fatal_warnings
+
+
+def _check_sphinx_errors(warnings, docs_config):
+    allowed_errors_regex = [re.compile(item) for item in docs_config["allowed_errors"]]
+    errors = []
+    for warning in warnings:
+        if warning in ["ERROR", "CRITICAL"]:
+            if not (any(item.search(warning) for item in allowed_errors_regex)):
+                errors.append(warning)
+    return errors
+
+
+def _check_sphinx_num_warnings(warnings, docs_config):
+    # warnings file contains other strings as well
+    num_warnings = len([w for w in warnings if "WARNING" in w])
+    max_num = docs_config["max_num_warnings"]
+    if num_warnings > max_num:
+        return [num_warnings - max_num, num_warnings]
+    return [0, num_warnings]
+
+
 def manager():
-    from moztreedocs import _SphinxManager, build
+    from rocbuild.roctreedocs import manager
 
-    MAIN_DOC_PATH = os.path.normpath(os.path.join(build.topsrcdir, "comm/docs"))
+    return manager
 
-    return _SphinxManager(build.topsrcdir, MAIN_DOC_PATH)
+
+def toggle_no_autodoc():
+    from rocbuild import roctreedocs
+
+    roctreedocs.CCSphinxManager.NO_AUTODOC = True
+
+
+@memoize
+def _read_project_properties():
+    path = os.path.normpath(manager().conf_py_path)
+    conf = load_source("doc_conf", path)
+
+    # Prefer the Mozilla project name, falling back to Sphinx's
+    # default variable if it isn't defined.
+    _project = getattr(conf, "moz_project_name", None)
+    if not _project:
+        _project = conf.project.replace(" ", "_")
+
+    return {"project": _project, "version": getattr(conf, "version", None)}
+
+
+def project():
+    return _read_project_properties()["project"]
+
+
+def version():
+    return _read_project_properties()["version"]
+
+
+def _node_path():
+    from mozbuild.nodeutil import find_node_executable
+
+    node, _ = find_node_executable()
+
+    return os.path.dirname(str(node))
+
+
+def _find_doc_dir(path: str) -> str | None:
+    if os.path.isfile(path):
+        return
+
+    valid_doc_dirs = ("doc", "docs")
+    for d in valid_doc_dirs:
+        p = os.path.join(path, d)
+        if os.path.isdir(p):
+            path = p
+
+    for index_file in ["index.rst", "index.md"]:
+        if os.path.exists(os.path.join(path, index_file)):
+            return path
 
 
 def die(msg, exit_code=1):
     msg = "%s %s: %s" % (sys.argv[0], sys.argv[1], msg)
     print(msg, file=sys.stderr)
+    return exit_code
+
+
+def dieWithTestFailure(msg, exit_code=1):
+    for m in msg.split("\n"):
+        msg = "TEST-UNEXPECTED-FAILURE | %s %s | %s" % (sys.argv[0], sys.argv[1], m)
+        print(msg, file=sys.stderr)
     return exit_code

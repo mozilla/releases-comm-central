@@ -1,0 +1,47 @@
+---
+
+# The order of categories defined in index.rst
+
+categories:
+    overview_doc:
+        - build
+        - mots
+        - l10n
+        - storybook
+        - telemetry
+        - architecture
+        - frontend
+    rust_doc:
+        - rust
+
+# Note: doc_trees does not include the "comm/" prefix to paths
+# Note: In order for CI to pick up the need to rebuild docs, documentation
+#  paths must include a "docs/" directory.
+doc_trees:
+    architecture: docs/architecture
+    build: docs/build
+    frontend: docs/frontend
+    l10n: docs/l10n
+    mots: docs/mots
+    rust: rust/docs
+    storybook: docs/storybook
+    telemetry: docs/telemetry
+
+python_package_dirs: []
+
+redirects: {}
+
+
+fatal warnings:
+    - "WARNING: '([^']*)' reference target not found:((?!.rst).)*$"
+    - "WARNING: Include file '([^']*)' not found or reading it failed"
+    - "WARNING: Non-consecutive header level"
+    - "WARNING: Document headings start at"
+    - "WARNING: Parsing of expression failed"
+
+# A regexp of errors we currently allow so that we can fail on new errors,
+# but resolve these at a later date. Please do not add new items to this list
+# unless they are part of the existing known issues.
+allowed_errors: []
+
+max_num_warnings: 20
