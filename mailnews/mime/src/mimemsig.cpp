@@ -643,6 +643,7 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj) {
         }
       }
     }
+    PR_Free(disposition);
   }
 
   // The js emitter wants to know about the newly created child.  Because
