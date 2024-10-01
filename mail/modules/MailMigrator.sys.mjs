@@ -203,10 +203,12 @@ export var MailMigrator = {
           };
           migrations.push(migrateJSON());
         }
-        // Restart after migrations, as the UI can't really handle this.
-        Promise.all(migrations).then(() => {
-          lazy.MailUtils.restartApplication();
-        });
+        if (migrations.length) {
+          // Restart after migrations, as the UI can't really handle this.
+          Promise.all(migrations).then(() => {
+            lazy.MailUtils.restartApplication();
+          });
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but
