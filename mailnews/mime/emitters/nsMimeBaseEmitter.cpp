@@ -198,21 +198,18 @@ char* nsMimeBaseEmitter::MimeGetStringByName(const char* aHeaderName) {
 }
 
 char* nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
-  nsresult res = NS_OK;
-
   if (!m_stringBundle) {
     static const char propertyURL[] = MIME_URL;
 
     nsCOMPtr<nsIStringBundleService> sBundleService =
         mozilla::components::StringBundle::Service();
     if (sBundleService)
-      res = sBundleService->CreateBundle(propertyURL,
-                                         getter_AddRefs(m_stringBundle));
+      sBundleService->CreateBundle(propertyURL, getter_AddRefs(m_stringBundle));
   }
 
   if (m_stringBundle) {
     nsString val;
-    res = m_stringBundle->GetStringFromID(aID, val);
+    nsresult res = m_stringBundle->GetStringFromID(aID, val);
 
     if (NS_FAILED(res)) return nullptr;
 
