@@ -20,6 +20,11 @@ interface nsIFolderDatabase : nsISupports {
   nsIFolder getFolderById(in unsigned long long id);
 
   /**
+   * Get a folder identified by its path.
+   */
+  nsIFolder getFolderByPath(in AUTF8String path);
+
+  /**
    * Move a folder to a different position among its siblings. Yes, passing in
    * the parent folder is redundant here, but it makes reading the code easier.
    *

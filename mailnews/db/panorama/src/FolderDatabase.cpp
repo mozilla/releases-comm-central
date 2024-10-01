@@ -23,6 +23,7 @@ nsCOMPtr<mozIStorageConnection> FolderDatabase::sConnection;
 nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     FolderDatabase::sStatements;
 nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
+nsTHashMap<nsCString, RefPtr<Folder>> FolderDatabase::sFoldersByPath;
 FolderComparator FolderDatabase::sComparator;
 
 FolderDatabase::FolderDatabase() {
@@ -174,6 +175,10 @@ FolderDatabase::LoadFolders() {
     parent = current;
 
     sFoldersById.InsertOrUpdate(id, current);
+    // Could probably optimise this.
+    nsAutoCString path;
+    current->GetPath(path);
+    sFoldersByPath.InsertOrUpdate(path, current);
   }
   stmt->Reset();
 
@@ -187,6 +192,18 @@ NS_IMETHODIMP FolderDatabase::GetFolderById(const uint64_t aId,
   *aFolder = nullptr;
   RefPtr<Folder> folder;
   if (sFoldersById.Get(aId, &folder)) {
+    NS_IF_ADDREF(*aFolder = folder);
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& aPath,
+                                              nsIFolder** aFolder) {
+  NS_ENSURE_ARG_POINTER(aFolder);
+
+  *aFolder = nullptr;
+  RefPtr<Folder> folder;
+  if (sFoldersByPath.Get(aPath, &folder)) {
     NS_IF_ADDREF(*aFolder = folder);
   }
   return NS_OK;
@@ -269,10 +286,17 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   stmt->Execute();
   stmt->Reset();
 
+  nsAutoCString path;
+  child->GetPath(path);
+  sFoldersByPath.Remove(path);
+
   child->mParent->mChildren.RemoveElement(child);
   newParent->mChildren.InsertElementSorted(child, sComparator);
   child->mParent = newParent;
   child->mOrdinal.reset();
+
+  child->GetPath(path);
+  sFoldersByPath.InsertOrUpdate(path, child);
 
   return NS_OK;
 }

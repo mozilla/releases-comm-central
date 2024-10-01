@@ -33,6 +33,7 @@ class FolderDatabase : public nsIFolderDatabase, nsIObserver {
   static nsCOMPtr<mozIStorageConnection> sConnection;
   static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
   static nsTHashMap<uint64_t, RefPtr<Folder>> sFoldersById;
+  static nsTHashMap<nsCString, RefPtr<Folder>> sFoldersByPath;
   static FolderComparator sComparator;
 
   static nsresult EnsureConnection();

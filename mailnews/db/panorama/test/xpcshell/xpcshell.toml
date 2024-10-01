@@ -1,17 +1,20 @@
 [DEFAULT]
 head = "head.js"
 generated-files = [
+  "db/lookup.sqlite",
   "db/move.sqlite",
   "db/relations.sqlite",
   "db/sort.sqlite",
 ]
 support-files = [
+  "db/lookup.sqlite",
   "db/move.sqlite",
   "db/relations.sqlite",
   "db/sort.sqlite",
 ]
 
 ["test_flags.js"]
+["test_lookup.js"]
 ["test_move.js"]
 ["test_relations.js"]
 ["test_sort.js"]
