@@ -1,7 +1,13 @@
 pth:tools/lint/eslint/
-pypi:Sphinx==7.2.6
+pth:comm/python/rocbuild
+pypi:Sphinx==7.4.7
 pypi:sphinx_rtd_theme==2.0.0
 pypi:sphinx-js==3.2.2
 pypi:myst-parser[linkify]==2.0.0
 pypi:fluent.pygments==1.0
 pypi:livereload==2.6.3
+pypi:mots==0.11.1
+pypi:sphinxcontrib-mermaid==0.9.2
+pypi:sphinx-copybutton==0.5.2
+pypi:sphinx-markdown-tables==0.0.17
+pypi:sphinx-design==0.5.0

@@ -172,6 +172,8 @@ module.exports = {
 
       "../suite",
 
+      "../node_modules",
+
       ...ignorePatterns,
     ],
     includePattern: ".+\\.m?js(doc)?$",
