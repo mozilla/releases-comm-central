@@ -1417,7 +1417,11 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
 
           nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream),
                                                    mdd->messageBody->m_tmpFile);
-          if (NS_FAILED(rv)) return;
+          if (NS_FAILED(rv)) {
+            delete[] newAttachData;
+            PR_Free(body);
+            return;
+          }
 
           inputStream->Read(body, bodyLen, &bytesRead);
 
