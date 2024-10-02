@@ -42,6 +42,9 @@ reference-tasks:
     - ubuntu2204-raw
     - ubuntu2204-packages
     - ubuntu2204-base
+    - ubuntu2404-base
+    - ubuntu2404-raw
+    - ubuntu2404-packages
     - update-verify
 
 transforms:
