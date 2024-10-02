@@ -865,6 +865,46 @@ NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName,
   return imapService->CreateFolder(this, folderName, this, getter_AddRefs(url));
 }
 
+// Path coming in is the root path without the leaf name,
+// on the way out, it's the whole path.
+nsresult nsImapMailFolder::CreateFileForDB(const nsAString& userLeafName,
+                                           nsIFile* path, nsIFile** dbFile) {
+  NS_ENSURE_ARG_POINTER(dbFile);
+
+  nsAutoString proposedDBName(userLeafName);
+  NS_MsgHashIfNecessary(proposedDBName);
+
+  // (note, the caller of this will be using the dbFile to call db->Open()
+  // will turn the path into summary file path, and append the ".msf" extension)
+  //
+  // we want db->Open() to create a new summary file
+  // so we have to jump through some hoops to make sure the .msf it will
+  // create is unique.  now that we've got the "safe" proposedDBName,
+  // we append ".msf" to see if the file exists.  if so, we make the name
+  // unique and then string off the ".msf" so that we pass the right thing
+  // into Open().  this isn't ideal, since this is not atomic
+  // but it will make do.
+  nsresult rv;
+  nsCOMPtr<nsIFile> dbPath = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  dbPath->InitWithFile(path);
+  proposedDBName.AppendLiteral(SUMMARY_SUFFIX);
+  dbPath->Append(proposedDBName);
+  bool exists;
+  dbPath->Exists(&exists);
+  if (exists) {
+    rv = dbPath->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
+    NS_ENSURE_SUCCESS(rv, rv);
+    dbPath->GetLeafName(proposedDBName);
+  }
+  // now, take the ".msf" off
+  proposedDBName.SetLength(proposedDBName.Length() - SUMMARY_SUFFIX_LENGTH);
+  dbPath->SetLeafName(proposedDBName);
+
+  dbPath.forget(dbFile);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
     const nsACString& folderName, char hierarchyDelimiter, int32_t flags,
     bool suppressNotification) {

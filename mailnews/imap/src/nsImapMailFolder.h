@@ -371,7 +371,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
  protected:
   virtual ~nsImapMailFolder();
   // Helper methods
-
+  nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
+                           nsIFile** dbFile);
   nsresult ExpungeAndCompact(nsIUrlListener* aListener,
                              nsIMsgWindow* aMsgWindow);
   void FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,

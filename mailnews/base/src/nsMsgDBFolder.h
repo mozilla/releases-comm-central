@@ -148,8 +148,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult CheckWithNewMessagesStatus(bool messageAdded);
   void UpdateNewMessages();
   nsresult OnHdrAddedOrDeleted(nsIMsgDBHdr* hdrChanged, bool added);
-  nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
-                           nsIFile** dbFile);
 
   nsresult GetFolderCacheKey(nsIFile** aFile);
   nsresult GetFolderCacheElemFromFile(nsIFile* file,
