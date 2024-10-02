@@ -14,19 +14,24 @@ interface nsIDBChangeAnnouncer;
 interface nsIMsgThread : nsISupports {
   attribute nsMsgKey threadKey;
   attribute unsigned long flags;
-  attribute ACString subject;
+  attribute AUTF8String subject;
   attribute unsigned long newestMsgDate;
+
   readonly attribute unsigned long numChildren;
   readonly attribute unsigned long numUnreadChildren;
   readonly attribute unsigned long numNewChildren;
 
-  void addChild(in nsIMsgDBHdr child, in nsIMsgDBHdr inReplyTo, in boolean threadInThread, in nsIDBChangeAnnouncer announcer);
+  void addChild(in nsIMsgDBHdr child,
+                in nsIMsgDBHdr inReplyTo,
+                in boolean threadInThread,
+                in nsIDBChangeAnnouncer announcer);
   nsMsgKey getChildKeyAt(in unsigned long index);
   nsIMsgDBHdr getChild(in nsMsgKey msgKey);
   nsIMsgDBHdr getChildHdrAt(in unsigned long index);
   nsIMsgDBHdr getRootHdr();
   void removeChildAt(in unsigned long index);
-  void removeChildHdr(in nsIMsgDBHdr child, in nsIDBChangeAnnouncer announcer);
+  void removeChildHdr(in nsIMsgDBHdr child,
+                      in nsIDBChangeAnnouncer announcer);
 
   void markChildNew(in boolean bRead);
   void markChildRead(in boolean bRead);
