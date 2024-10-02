@@ -238,6 +238,7 @@ static int MimeMultipartAlternative_flush_children(MimeObject* obj,
                                                    do_display && display_part);
       MimeHeaders_free(malt->buffered_hdrs[i]);
       MimePartBufferDestroy(malt->part_buffers[i]);
+      PR_FREEIF(ct);
     }
     malt->pending_parts = 0;
   }
