@@ -57,6 +57,22 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fReceivedHeaderOrSizeForUID = nsMsgKey_None;
   fUtf8AcceptEnabled = false;
   fStdJunkNotJunkUseOk = false;
+  fUseModSeq = false;
+  fCurrentCommandFailed = false;
+  fUntaggedResponse = false;
+  fFetchingAllFlags = false;
+  fWaitingForMoreClientInput = false;
+  fCurrentCommandIsSingleMessageFetch = false;
+  fSavedFlagInfo = false;
+  fCurrentResponseUID = 0;
+  fHighestRecordedUID = 0;
+  fNumberOfTaggedResponsesExpected = 0;
+  fMsgID = 0;
+  fThreadID = 0;
+  fLabels = nullptr;
+  fFetchResponseIndex = 0;
+  numberOfCharsInThisChunk = 0;
+  charsReadSoFar = 0;
 }
 
 nsImapServerResponseParser::~nsImapServerResponseParser() {
