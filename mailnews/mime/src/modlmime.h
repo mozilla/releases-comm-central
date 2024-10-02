@@ -151,8 +151,6 @@ class MimeDisplayOptions {
   bool wrap_long_lines_p;          /* Whether to wrap long lines in text/plain
                                       messages. */
 
-  bool rot13_p;       /* Whether text/plain parts should be rotated
-                         Set by "?rot13=true" */
   char* part_to_load; /* The particular part of the multipart which
                          we are extracting.  Set by "?part=3.2.4" */
 

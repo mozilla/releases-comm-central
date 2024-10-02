@@ -1172,7 +1172,6 @@ MimeDisplayOptions::MimeDisplayOptions() {
 
   variable_width_plaintext_p = false;
   wrap_long_lines_p = false;
-  rot13_p = false;
   part_to_load = nullptr;
 
   no_output_p = false;

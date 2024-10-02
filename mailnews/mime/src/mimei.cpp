@@ -1406,9 +1406,6 @@ int mime_parse_url_options(const char* url, MimeDisplayOptions* options) {
         memcpy(options->part_to_load, value, end - value);
         options->part_to_load[end - value] = 0;
       }
-    } else if (!PL_strncasecmp("rot13", q, name_end - q)) {
-      options->rot13_p =
-          end <= value || !PL_strncasecmp("true", value, end - value);
     } else if (!PL_strncasecmp("emitter", q, name_end - q)) {
       if ((end > value) && !PL_strncasecmp("js", value, end - value)) {
         // the js emitter needs to hear about nested message bodies
