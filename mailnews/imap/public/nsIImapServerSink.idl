@@ -22,10 +22,10 @@ interface nsIRunnable;
 interface nsIImapServerSink : nsISupports {
   /**
    * Check if the given folder path is a possible IMAP mailbox.
-   * @param folderPath folder path to check
-   * @param hierarchyDelimiter IMAP hierarchy delimiter in canonical format,
-   *                           i.e., hierarchy delimiter has been replaced
-   *                           with '/'
+   *
+   * @param folderPath The IMAP mailbox path (e.g. "INBOX", "Trash", "foo/bar").
+   *                   This path always uses '/' as hierarchy delimiter.
+   * @param hierarchyDelimiter The hierarchy delimiter used on the IMAP server.
    * @param boxFlags IMAP folder flags (for subscription, namespaces etc.)
    * @return true if it's a new mailbox
    */
