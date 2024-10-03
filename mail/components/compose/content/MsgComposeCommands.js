@@ -9936,19 +9936,20 @@ var envelopeDragObserver = {
       switch (flavor) {
         // Process attachments.
         case "application/x-moz-file": {
-          if (data instanceof Ci.nsIFile) {
+          // Exclude directories.
+          if (data instanceof Ci.nsIFile && data.isFile()) {
             size = data.fileSize;
-          }
-          try {
-            data = Services.io
-              .getProtocolHandler("file")
-              .QueryInterface(Ci.nsIFileProtocolHandler)
-              .getURLSpecFromActualFile(data);
-            isValidAttachment = true;
-          } catch (e) {
-            console.error(
-              "Couldn't process the dragged file " + data.leafName + ":" + e
-            );
+            try {
+              data = Services.io
+                .getProtocolHandler("file")
+                .QueryInterface(Ci.nsIFileProtocolHandler)
+                .getURLSpecFromActualFile(data);
+              isValidAttachment = true;
+            } catch (e) {
+              console.error(
+                "Couldn't process the dragged file " + data.leafName + ":" + e
+              );
+            }
           }
           break;
         }
@@ -10324,6 +10325,8 @@ var envelopeDragObserver = {
                 this.isNotDraggingOnlyImages(event.dataTransfer) ||
                 !gMsgCompose.composeHTML)
           );
+      } else {
+        event.dataTransfer.dropEffect = "none";
       }
     }
 
