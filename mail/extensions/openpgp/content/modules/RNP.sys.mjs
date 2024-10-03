@@ -1758,19 +1758,6 @@ export var RNP = {
     }
   },
 
-  getCharCodeArray(pgpData) {
-    return pgpData.split("").map(e => e.charCodeAt());
-  },
-
-  is8Bit(charCodeArray) {
-    for (let i = 0; i < charCodeArray.length; i++) {
-      if (charCodeArray[i] > 255) {
-        return false;
-      }
-    }
-    return true;
-  },
-
   /**
    * Decrypts/Decodes an OpenPGP message, verify signatures, and
    * return associated meta data.
@@ -2046,7 +2033,7 @@ export var RNP = {
       default:
         useDecodedData = false;
         processSignature = false;
-        console.warn(
+        lazy.log.warn(
           "rnp_op_verify_execute returned unexpected: " + result.exitCode
         );
         break;
@@ -2467,7 +2454,7 @@ export var RNP = {
               acceptanceResult
             );
           } catch (ex) {
-            console.warn("Get acceptance FAILED!", ex);
+            lazy.log.warn("Get acceptance FAILED!", ex);
           }
 
           // unverified key acceptance means, we consider the signature OK,
@@ -2728,13 +2715,6 @@ export var RNP = {
       throw new Error("no keyBlockStr parameter in importToFFI");
     }
 
-    if (typeof keyBlockStr != "string") {
-      throw new Error(
-        "keyBlockStr of unepected type importToFFI: %o",
-        keyBlockStr
-      );
-    }
-
     // Input might be either plain text or binary data.
     // If the input is binary, do not modify it.
     // If the input contains characters with a multi-byte char code value,
@@ -2744,10 +2724,13 @@ export var RNP = {
     // filter out.
 
     // Remove comment lines.
-    const trimmed = keyBlockStr.replace(/^Comment:.*(\r?\n|\r)/gm, "").trim();
-    const arr = this.getCharCodeArray(trimmed);
-    if (!this.is8Bit(arr)) {
-      throw new Error(`Non-ascii key block: ${keyBlockStr}`);
+    const input = keyBlockStr.includes("-----BEGIN PGP ")
+      ? keyBlockStr.replace(/^Comment:.*(\r?\n|\r)/gm, "")
+      : keyBlockStr;
+    const arr = lazy.MailStringUtils.byteStringToUint8Array(input);
+    if (arr.some(c => c > 255)) {
+      // Not 8-bit data.
+      throw new Error(`Multi-byte string input: ${input}`);
     }
     const key_array = lazy.ctypes.uint8_t.array()(arr);
 
@@ -2783,7 +2766,7 @@ export var RNP = {
       jsonInfo.address()
     );
     if (rv) {
-      console.warn(`rnp_import_keys FAILED; rv=${rv}`);
+      lazy.log.warn(`rnp_import_keys FAILED; rv=${rv}`);
     }
 
     // TODO: parse jsonInfo and return a list of keys,
@@ -2922,7 +2905,7 @@ export var RNP = {
       jsonInfo.address()
     );
     if (rv) {
-      console.warn(`rnp_import_signatures FAILED; rv=${rv}`);
+      lazy.log.warn(`rnp_import_signatures FAILED; rv=${rv}`);
     }
 
     // TODO: parse jsonInfo
@@ -3073,7 +3056,7 @@ export var RNP = {
     for (const k of keys) {
       if (k.fpr.length > 40) {
         RNPLib.rnp_ffi_destroy(tempFFI);
-        console.warn(
+        lazy.log.warn(
           `Cannot import OpenPGP key with fingerprint ${k.fpr} because it is based on an unsupported specification.`
         );
         result.errorMsg = `Found unsupported key: ${k.fpr}`;
@@ -3667,7 +3650,7 @@ export var RNP = {
     for (const ak of aliasKeys) {
       const key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, "0x" + ak);
       if (!key || key.isNull()) {
-        console.warn(`Couldn't find key used by alias rule ${ak}`);
+        lazy.log.warn(`Couldn't find key used by alias rule ${ak}`);
         return false;
       }
       this.addSuitableEncryptKey(key, op);
@@ -4118,6 +4101,14 @@ export var RNP = {
     return this.isExpiredTime(expirationSeconds);
   },
 
+  /**
+   * Find key by email.
+   *
+   * @param {string} id - Email, surrounded by angle brackets.
+   * @param {boolean} [onlyIfAcceptableAsRecipientKey=false] - Require matching
+   *   key to be acceptable as recipient key.
+   * @returns {Promise<ctypes.voidptr_t>} key handle of matching key.
+   */
   async findKeyByEmail(id, onlyIfAcceptableAsRecipientKey = false) {
     if (!id.startsWith("<") || !id.endsWith(">") || id.includes(" ")) {
       throw new Error(`Invalid argument; id=${id}`);
@@ -4244,7 +4235,7 @@ export var RNP = {
                       acceptanceResult
                     );
                   } catch (ex) {
-                    console.warn("Get acceptance FAILED!", ex);
+                    lazy.log.warn("Get acceptance FAILED!", ex);
                   }
 
                   if (!acceptanceResult.emailDecided) {
@@ -4276,7 +4267,7 @@ export var RNP = {
           RNPLib.rnp_uid_handle_destroy(uid_handle);
         }
       } catch (ex) {
-        console.warn(`Finding key by email=${id} FAILED`, ex);
+        lazy.log.warn(`Finding key by email=${id} FAILED`, ex);
       } finally {
         if (have_handle) {
           RNPLib.rnp_key_handle_destroy(handle);
@@ -5091,7 +5082,7 @@ export var RNP = {
         0
       )
     ) {
-      console.warn("rnp_key_export_autocrypt FAILED");
+      lazy.log.warn("rnp_key_export_autocrypt FAILED");
     } else {
       const result_buf = new lazy.ctypes.uint8_t.ptr();
       const result_len = new lazy.ctypes.size_t();

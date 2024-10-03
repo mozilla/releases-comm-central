@@ -106,3 +106,35 @@ add_task(async function testImportApple() {
     "should find correct encryption subkey"
   );
 });
+
+/**
+ * Test importing binary key that ends with a whitespace.
+ */
+add_task(async function testImportBinaryPubSpace() {
+  // Note: This key artifact includes subpacket 39 (v6 preferred AEAD
+  // ciphersuites), which support is defined only in RFC 9580.
+
+  const ids = await OpenPGPTestUtils.importKey(
+    null,
+    do_get_file(
+      `${KEY_DIR}/DC1A523730F62AE8-pub-does_not_expire-ends_with_whitespace.pgp`
+    ),
+    true
+  );
+  Assert.equal(ids.length, 1, "should have imported the key");
+  Assert.equal(ids[0], "0xDC1A523730F62AE8", "should be the correct key");
+  await OpenPGPTestUtils.updateKeyIdAcceptance(
+    ids,
+    OpenPGPTestUtils.ACCEPTANCE_VERIFIED
+  );
+
+  const primaryKey = await RNP.findKeyByEmail("<test@example.com>", true);
+  Assert.ok(primaryKey, "should find primary key");
+  const encSubKey = RNP.getSuitableSubkey(primaryKey, "encrypt");
+  const keyId = RNP.getKeyIDFromHandle(encSubKey);
+  Assert.equal(
+    keyId,
+    "653B0BC4ADE0A239",
+    "should find correct encryption subkey"
+  );
+});
