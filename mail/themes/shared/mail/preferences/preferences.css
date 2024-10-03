@@ -1152,3 +1152,31 @@ calendar-notifications-setting {
   border-radius: 3px;
   margin-inline-start: 12px;
 }
+
+/* QR Export for Mobile */
+
+
+#qrExportPaneCategory {
+  h2 {
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+
+  h3 {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .qr-panel {
+    background: var(--color-neutral-subtle);
+    border: 1px solid var(--color-neutral-border);
+    border-radius: 6px;
+    padding-inline: 32px;
+    padding-block: 24px 15px;
+  }
+
+  .qr-small {
+    font-size: 0.85rem;
+    line-height: 1.5rem;
+  }
+}

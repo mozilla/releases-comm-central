@@ -169,6 +169,16 @@
             <label class="category-name" flex="1" data-l10n-id="pane-sync-title"/>
           </richlistitem>
 #endif
+          <richlistitem id="category-qrexport"
+                        class="category"
+                        value="paneQrExport"
+                        data-l10n-id="category-qr-export"
+                        align="center">
+            <html:img class="category-icon"
+                      src="chrome://messenger/skin/icons/lg/upload.svg"
+                      alt="" />
+            <label class="category-name" flex="1" data-l10n-id="pane-qr-export-title"/>
+          </richlistitem>
         </richlistbox>
 
         <spacer flex="1"/>
@@ -212,6 +222,7 @@
 #ifdef NIGHTLY_BUILD
 #include sync.inc.xhtml
 #endif
+#include qrExport.inc.xhtml
           </vbox>
         </vbox>
       </vbox>

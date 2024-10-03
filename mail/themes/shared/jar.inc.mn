@@ -755,4 +755,7 @@
   skin/classic/messenger/icons/sm/folder-compact.svg           (../shared/mail/icons/sm/folder-compact.svg)
   skin/classic/messenger/icons/sm/sparkle-star.svg             (../shared/mail/icons/sm/sparkle-star.svg)
 
+# LG - 24x24px icons
+  skin/classic/messenger/icons/lg/upload.svg                   (../shared/mail/icons/lg/upload.svg)
+
   skin/classic/messenger/icons/brand/nebula-logo.webp          (../shared/mail/icons/brand/nebula-logo.webp)

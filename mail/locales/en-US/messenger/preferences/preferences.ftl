@@ -34,6 +34,10 @@ pane-sync-title = Sync
 category-sync =
     .tooltiptext = Sync
 
+pane-qr-export-title = Export for Mobile
+category-qr-export =
+    .tooltiptext = Export for Mobile
+
 general-language-and-appearance-header = Language & Appearance
 
 general-incoming-mail-header = Incoming Mails
@@ -1062,3 +1066,31 @@ synced-acount-item-keys = OpenPGP - S/MIME
 sync-disconnected-text = Synchronize your email accounts, address books, calendars, and identities across all your devices.
 
 sync-disconnected-turn-on-sync = Turn on Syncing…
+
+## Mobile QR Export Pane
+
+qr-export-pane-header = Export accounts to { -brand-product-name } Mobile
+
+qr-export-description = Quickly transfer your account settings from desktop to mobile by generating a QR code. Select which accounts to include, decide if you want to transfer your password, and scan the code with your mobile device. Fast, secure, and simple.
+
+qr-export-get-app = Don’t have { -brand-product-name } on mobile yet? <a data-l10n-name="app-link">Get it on Google Play</a>
+
+qr-export-create = Create a QR code to export your accounts
+
+qr-export-select-accounts = Select which accounts to export:
+
+qr-export-no-accounts = Not seeing all your accounts? Some accounts may be disabled because they are not supported by { -brand-product-name } for Android. <a data-l10n-name="account-support-link">Support</a>
+
+qr-export-accounts-legend = Email accounts
+
+qr-export-select-all-accounts = Select all
+
+qr-export-security-legend = Security
+
+qr-export-include-passwords = Include all accounts passwords
+
+qr-export-security-hint = By scanning the following QR codes, your account settings—including your email and password—will be transferred securely. We do not collect, store, or share any of this data during the process. The transfer occurs directly between your devices.
+
+qr-export-security-warning = For your security, please ensure you are in a private setting and only scan QR codes from trusted sources.
+
+qr-export-start-export = Export

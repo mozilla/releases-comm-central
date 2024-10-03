@@ -15,6 +15,7 @@ messenger.jar:
 #ifdef NIGHTLY_BUILD
     content/messenger/preferences/sync.js
 #endif
+    content/messenger/preferences/qrExport.mjs
     content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js
     content/messenger/preferences/messengerLanguages.xhtml

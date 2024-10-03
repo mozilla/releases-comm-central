@@ -1,0 +1,38 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<html:template id="paneQrExport" xmlns="http://www.w3.org/1999/xhtml">
+  <div
+    id="qrExportPaneCategory"
+    class="subcategory"
+    data-category="paneQrExport"
+  >
+    <h1 data-l10n-id="qr-export-pane-header"></h1>
+    <section id="qrExportIntro">
+      <p data-l10n-id="qr-export-description"></p>
+      <p
+        class="qr-small"
+        data-l10n-id="qr-export-get-app"
+      >
+        <a
+          data-l10n-name="app-link"
+          href="https://play.google.com/store/apps/details?id=net.thunderbird.android.beta&amp;utm_source=thunderbird-desktop&amp;utm_campaign=cross-device-import"
+        ></a>
+      </p>
+      <h2 data-l10n-id="qr-export-create"></h2>
+      <form id="qrExportIntroForm" class="qr-panel" action="">
+        <h3 data-l10n-id="qr-export-select-accounts"></h3>
+        <p
+          id="qrExportNoAccounts"
+          data-l10n-id="qr-export-no-accounts"
+          class="qr-small"
+        >
+          <a
+            data-l10n-name="account-support-link"
+            href="https://support.thunderbird.net/kb/thunderbird-android-import"
+          ></a>
+        </p>
+      </form>
+    </section>
+  </div>
+</html:template>

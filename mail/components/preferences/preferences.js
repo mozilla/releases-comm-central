@@ -34,6 +34,14 @@ ChromeUtils.defineESModuleGetters(this, {
   UIFontSize: "resource:///modules/UIFontSize.sys.mjs",
 });
 
+ChromeUtils.defineESModuleGetters(
+  this,
+  {
+    qrExportPane: "chrome://messenger/content/preferences/qrExport.mjs",
+  },
+  { global: "current" }
+);
+
 ChromeUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
@@ -144,6 +152,7 @@ function init() {
     // the search results.
     document.getElementById("paneChat").remove();
   }
+  register_module("paneQrExport", qrExportPane);
 
   // If no calendar is currently enabled remove it from the DOM so it doesn't
   // get incorrectly included in the search results.
