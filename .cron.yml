@@ -81,16 +81,6 @@ jobs:
               comm-beta: [{hour: 9, minute: 00}]
               # No default
 
-    - name: l10n-cross-channel
-      job:
-          type: decision-task
-          treeherder-symbol: l10n-cross-channel
-          target-tasks-method: l10n-cross-channel
-      run-on-projects:
-          - comm-central
-      when: [{hour: 12, minute: 0}]
-      # when: []
-
     - name: tb-rust-vendor-check
       job:
           type: decision-task
