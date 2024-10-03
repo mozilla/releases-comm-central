@@ -22,17 +22,72 @@
       <h2 data-l10n-id="qr-export-create"></h2>
       <form id="qrExportIntroForm" class="qr-panel" action="">
         <h3 data-l10n-id="qr-export-select-accounts"></h3>
-        <p
-          id="qrExportNoAccounts"
-          data-l10n-id="qr-export-no-accounts"
-          class="qr-small"
-        >
-          <a
-            data-l10n-name="account-support-link"
-            href="https://support.thunderbird.net/kb/thunderbird-android-import"
-          ></a>
-        </p>
+        <section class="qr-subpanel">
+          <header class="inset">
+            <h4
+              id="qrExportAccountsLegend"
+              class="inset-icon"
+              data-l10n-id="qr-export-accounts-legend"
+            ></h4>
+            <button
+              id="qrExportSelectAll"
+              type="button"
+              disabled="disabled"
+              data-l10n-id="qr-export-select-all-accounts"
+            ></button>
+          </header>
+          <ul id="qrExportAccountsList" class="inset"></ul>
+          <p
+            id="qrExportNoAccounts"
+            data-l10n-id="qr-export-no-accounts"
+            class="qr-small inset"
+          >
+            <a
+              data-l10n-name="account-support-link"
+              href="https://support.thunderbird.net/kb/thunderbird-android-import"
+            ></a>
+          </p>
+        </section>
+        <section>
+          <h4
+            id="qrExportSecurityLegend"
+            class="inset inset-icon"
+            data-l10n-id="qr-export-security-legend"
+          ></h4>
+          <div class="inset">
+            <input
+              id="qrExportIncludePasswords"
+              type="checkbox"
+              checked="checked"
+            /><label
+              for="qrExportIncludePasswords"
+              data-l10n-id="qr-export-include-passwords"
+            ></label>
+          </div>
+          <p
+            id="qrExportSecurityHint"
+            class="inset inset-icon"
+            data-l10n-id="qr-export-security-hint"
+          ></p>
+          <p data-l10n-id="qr-export-security-warning" class="qr-warn inset"></p>
+        </section>
+        <div class="qr-nav">
+          <button
+            id="qrExportStart"
+            type="submit"
+            disabled="disabled"
+            data-l10n-id="qr-export-start-export"
+            class="end"
+          ></button>
+        </div>
       </form>
     </section>
   </div>
+</html:template>
+<html:template id="qrAccountItem" xmlns="http://www.w3.org/1999/xhtml">
+  <li>
+    <label>
+      <input type="checkbox" checked="checked" />
+    </label>
+  </li>
 </html:template>

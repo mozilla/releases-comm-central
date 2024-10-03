@@ -1157,6 +1157,10 @@ calendar-notifications-setting {
 
 
 #qrExportPaneCategory {
+  --qr-legend-icon-gap: 6px;
+  --qr-gap: 12px;
+  --qr-inset-margin: calc(16px + var(--qr-legend-icon-gap));
+
   h2 {
     font-weight: 500;
     font-size: 1.2rem;
@@ -1165,6 +1169,14 @@ calendar-notifications-setting {
   h3 {
     font-weight: 600;
     font-size: 1.2rem;
+    margin: 0;
+  }
+
+  h4 {
+    font-weight: normal;
+    font-size: 1.2rem;
+    margin: 0;
+    margin-bottom: var(--qr-gap);
   }
 
   .qr-panel {
@@ -1173,10 +1185,101 @@ calendar-notifications-setting {
     border-radius: 6px;
     padding-inline: 32px;
     padding-block: 24px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+
+    section {
+      padding-inline: var(--qr-gap);
+    }
   }
 
   .qr-small {
     font-size: 0.85rem;
     line-height: 1.5rem;
+  }
+
+  .qr-subpanel {
+    background: var(--color-neutral-base);
+    border-radius: 3px;
+    padding: var(--qr-gap);
+
+    header {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  .qr-warn {
+    font-weight: bold;
+  }
+
+  .qr-nav {
+    display: flex;
+    justify-content: space-between;
+
+    .end {
+      margin-inline-start: auto;
+    }
+  }
+
+  .inset {
+    margin-inline-start: var(--qr-inset-margin);
+  }
+
+  .inset-icon::before {
+    margin-inline-start: calc(-1 * var(--qr-inset-margin));
+    margin-inline-end: var(--qr-legend-icon-gap);
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+    vertical-align: middle;
+  }
+}
+
+#qrExportAccountsLegend::before {
+  content: var(--icon-mail);
+}
+
+#qrExportSecurityLegend::before {
+  content: var(--icon-lock);
+}
+
+#qrExportSecurityLegend::before {
+  content: var(--icon-lock);
+}
+
+#qrExportSecurityHint::before {
+  content: var(--icon-info);
+  margin-inline-end: var(--qr-legend-icon-gap);
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+  vertical-align: middle;
+  margin-inline-start: calc(-1 * (16px + var(--qr-legend-icon-gap)));
+}
+
+#qrExportAccountsList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  column-count: 2;
+  column-gap: var(--qr-gap);
+}
+
+#qrExportSelectAll {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  border-radius: 3px;
+  background: var(--color-primary-default);
+  color: var(--color-neutral-base);
+  padding: 4px 9px;
+  border: 1px solid var(--color-primary-hover);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+
+  &:hover {
+    background: var(--color-primary-hover);
   }
 }
