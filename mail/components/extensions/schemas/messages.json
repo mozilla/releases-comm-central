@@ -666,7 +666,7 @@
           {
             "name": "partName",
             "type": "string",
-            "pattern": "^\\d+(\\.\\d+)*$"
+            "pattern": "^\\d+(\\.\\d+\\$?)*$"
           },
           {
             "type": "function",

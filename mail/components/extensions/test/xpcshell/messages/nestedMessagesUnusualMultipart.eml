@@ -1,0 +1,146 @@
+Message-ID: <unusual.nested.sample.eml@mime.sample>
+Date: Fri, 20 May 2000 00:29:55 -0400
+To: Heinz <mueller@example.com>
+Cc: Robin <damian@wayne-enterprises.com>
+From: Batman <bruce@wayne-enterprises.com>
+Subject: Attached message with attachments and unusual multiparts
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+  boundary="------------iweziwrzwurzweireiwr"
+
+This is a multi-part message in MIME format.
+--------------iweziwrzwurzweireiwr
+Content-Type: multipart/mixed; 
+  boundary="------------sdfkhkjshf892hfskjhf238r23r"
+
+This is a multi-part message in MIME format.
+--------------sdfkhkjshf892hfskjhf238r23r
+Content-Type: multipart/mixed; 
+  boundary="------------49CVLb1N6p6Spdka4qq7Naeg"
+
+This is a multi-part message in MIME format.
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p>This message has one normal attachment and one email attachment,
+      which itself has 3 attachments.<br>
+    </p>
+  </body>
+</html>
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: message/rfc822; charset=UTF-8; name="message1.eml"
+Content-Disposition: attachment; filename="message1.eml"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <sample-attached.eml@mime.sample>
+From: Superman <clark.kent@dailyplanet.com>
+To: Jimmy <jimmy.olsen@dailyplanet.com>
+Subject: Test message 1
+Date: Wed, 17 May 2000 19:32:47 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+  boundary="------------ljladkakjhiqwdkadkadh"
+
+This is a multi-part message in MIME format.
+--------------ljladkakjhiqwdkadkadh
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0002_01BFC036.AE309650"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Message with multiple attachments.
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png;
+	name="whitePixel.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="whitePixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnn
+AAAAAElFTkSuQmCC
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png;
+	name="greenPixel.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+C76AoAAhUBJel4xsMAAAAASUVO
+RK5CYII=
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="redPixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+hgkAYAAbcApOp/9LEAAAAASUVO
+RK5CYII=
+
+------=_NextPart_000_0002_01BFC036.AE309650
+Content-Type: message/rfc822; charset=UTF-8; name="message2.eml"
+Content-Disposition: attachment; filename="message2.eml"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <sample-nested-attached.eml@mime.sample>
+From: Jimmy <jimmy.olsen@dailyplanet.com>
+To: Superman <clark.kent@dailyplanet.com>
+Subject: Test message 2
+Date: Wed, 16 May 2000 19:32:47 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_0003_01BFC036.AE309650"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0003_01BFC036.AE309650
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+This message has an attachment
+
+------=_NextPart_000_0003_01BFC036.AE309650
+Content-Type: image/png;
+  name="whitePixel.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+  filename="whitePixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnn
+AAAAAElFTkSuQmCC
+
+------=_NextPart_000_0003_01BFC036.AE309650--
+
+------=_NextPart_000_0002_01BFC036.AE309650--
+
+--------------ljladkakjhiqwdkadkadh--
+
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: image/png;
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+  filename="yellowPixel.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j/iQEABOUB8pypNlQA
+AAAASUVORK5CYII=
+
+--------------49CVLb1N6p6Spdka4qq7Naeg--
+--------------sdfkhkjshf892hfskjhf238r23r--
+--------------iweziwrzwurzweireiwr--

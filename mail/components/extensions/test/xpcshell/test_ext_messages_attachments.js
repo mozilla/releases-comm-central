@@ -474,13 +474,16 @@ add_task(
           });
 
           // Test getAttachmentFile().
-          // Note: X-Ray vision is an undocumented artefact. The parts of nested
-          //       messages are not returned by listAttachments() and one has to
-          //       guess the correct part name to be able to retrieve the part.
-          //       But it *is* possible to get any part inside the message, even
-          //       if the attachments belong to subMessages. Example: Requesting
-          //       part 1.2.1.3 from the main message returns the same part as
-          //       requesting part 1.3. from message1.eml (which is part 1.2).
+          // Note: X-ray vision is an undocumented feature, which is used internally
+          //       to retrieve attachments of attached messages. The parts of nested
+          //       messages are not returned by listAttachments(), but one could
+          //       guess the correct x-ray partName to be able to retrieve nested
+          //       parts. Example: Requesting part 1.2$.3 from the main message
+          //       returns the same part as requesting part 1.3. from message1.eml
+          //       (which is part 1.2).
+          //       The schema definition for getAttachmentFile() could prevent
+          //       x-ray vision by rejecting partNames which include a $, but this
+          //       would also not allow the following test to verify x-ray vision.
           const fileTests = [
             {
               partName: "1.2",
@@ -489,31 +492,31 @@ add_task(
               text: "Message-ID: <sample-attached.eml@mime.sample>",
             },
             {
-              partName: "1.2.1.2",
+              partName: "1.2$.2",
               name: "whitePixel.png",
               size: 69,
               data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
             },
             {
-              partName: "1.2.1.3",
+              partName: "1.2$.3",
               name: "greenPixel.png",
               size: 119,
               data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+C76AoAAhUBJel4xsMAAAAASUVORK5CYII=",
             },
             {
-              partName: "1.2.1.4",
+              partName: "1.2$.4",
               name: "redPixel.png",
               size: 119,
               data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY+hgkAYAAbcApOp/9LEAAAAASUVORK5CYII=",
             },
             {
-              partName: "1.2.1.5",
+              partName: "1.2$.5",
               name: "message2.eml",
               size: account.type == "none" ? 838 : 867,
               text: "Message-ID: <sample-nested-attached.eml@mime.sample>",
             },
             {
-              partName: "1.2.1.5.1.2",
+              partName: "1.2$.5$.2",
               name: "whitePixel.png",
               size: 69,
               data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC",
@@ -532,12 +535,12 @@ add_task(
             },
             {
               id: subMessage.id,
-              subPart: "1.2.",
+              subPart: "1.2$.",
               expectedFileCounts: 5,
             },
             {
               id: subSubMessage.id,
-              subPart: "1.2.1.5.",
+              subPart: "1.2$.5$.",
               expectedFileCounts: 1,
             },
           ];
@@ -552,7 +555,12 @@ add_task(
               }
 
               fileCounts++;
-              const partName = test.partName.slice(msg.subPart?.length ?? 0);
+              // 1.2$.4    from message1.eml (1.2$.)    should result in requesting 1.4
+              // 1.2$.5$.2 from message1.eml (1.2$.)    should result in requesting 1.5$2
+              // 1.2$.5$.2 from message2.eml (1.2$.5$.) should result in requesting 1.2
+              const partName = msg.subPart
+                ? `1.${test.partName.slice(msg.subPart.length)}`
+                : test.partName;
               const file = await browser.messages.getAttachmentFile(
                 msg.id,
                 partName

@@ -290,13 +290,11 @@ export class MsgHdrProcessor {
     const excludeAttachmentData =
       emitterOptions?.excludeAttachmentData ?? false;
     const decodeSubMessages = parserOptions?.decodeSubMessages ?? false;
-    // jsmime uses "$." as sub-message deliminator.
+    // The partNames of the messages API always start with "1." for the root part,
+    // jsmime however skips this root level. Adjust the provided pruneat value
+    // accordingly.
     const pruneat = parserOptions?.pruneat
-      ? parserOptions.pruneat
-          .split(".")
-          .slice(1)
-          .join(".")
-          .replaceAll(".1.", "$.")
+      ? parserOptions.pruneat.split(".").slice(1).join(".")
       : "";
 
     const emitter = new WebExtMimeTreeEmitter({
@@ -393,12 +391,29 @@ export class MsgHdrProcessor {
     const parentMsgInfo = getParentMsgInfo(this.#msgHdr);
     if (parentMsgInfo) {
       const msgHdrProcessor = new MsgHdrProcessor(parentMsgInfo.msgHdr);
-      const attachment = await msgHdrProcessor.getAttachmentPart(
-        parentMsgInfo.partName,
-        {
-          includeRaw: true,
+      let partName = parentMsgInfo.partName;
+
+      // The returned partName may need to be adjusted for jsmime x-ray vision,
+      // which needs nested messages to be identified by a $ in the partName.
+      if (partName.split(".").length > 2) {
+        const attachments = await msgHdrProcessor.getAttachmentParts({
+          includeNestedAttachments: true,
+        });
+        const adjustedPartNames = new Map(
+          attachments.map(attachment => [
+            attachment.partNum.replaceAll("$.", ".1."),
+            attachment.partNum,
+          ])
+        );
+        // Convert 1.2.1.3 to 1.2$.3, if 1.2$.3 exists.
+        if (adjustedPartNames.has(partName)) {
+          partName = adjustedPartNames.get(partName);
         }
-      );
+      }
+
+      const attachment = await msgHdrProcessor.getAttachmentPart(partName, {
+        includeRaw: true,
+      });
       this.#originalMessage = attachment.body;
       return this.#originalMessage;
     }
