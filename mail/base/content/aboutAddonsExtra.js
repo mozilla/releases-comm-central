@@ -72,7 +72,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
   // Add logic to detect add-ons using the unsupported legacy API.
   const getMozillaAddonMessageInfo = window.getAddonMessageInfo;
-  window.getAddonMessageInfo = async function (addon) {
+  window.getAddonMessageInfo = async function (
+    addon,
+    { isCardExpanded, isInDisabledSection }
+  ) {
     const { name } = addon;
     const { STATE_SOFTBLOCKED } = Ci.nsIBlocklistService;
 
@@ -95,7 +98,10 @@ XPCOMUtils.defineLazyPreferenceGetter(
         type: "warning",
       };
     }
-    return getMozillaAddonMessageInfo(addon);
+    return getMozillaAddonMessageInfo(addon, {
+      isCardExpanded,
+      isInDisabledSection,
+    });
   };
   document.querySelectorAll("addon-card").forEach(card => card.updateMessage());
 
