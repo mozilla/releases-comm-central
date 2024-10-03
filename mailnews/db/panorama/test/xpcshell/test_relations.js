@@ -19,6 +19,9 @@ add_task(function testRelations() {
 
   drawTree(grandparent);
 
+  Assert.equal(grandparent.rootFolder, grandparent);
+  Assert.ok(grandparent.isServer);
+
   Assert.deepEqual(grandparent.ancestors, []);
   Assert.equal(grandparent.parent, null);
   Assert.ok(!grandparent.isDescendantOf(parent));
@@ -38,6 +41,9 @@ add_task(function testRelations() {
     sibling,
   ]);
 
+  Assert.equal(parent.rootFolder, grandparent);
+  Assert.ok(!parent.isServer);
+
   Assert.deepEqual(parent.ancestors, [grandparent]);
   Assert.equal(parent.parent, grandparent);
   Assert.ok(parent.isDescendantOf(grandparent));
@@ -51,6 +57,9 @@ add_task(function testRelations() {
   Assert.ok(parent.isAncestorOf(sibling));
   Assert.deepEqual(parent.children, [child, sibling]);
   Assert.deepEqual(parent.descendants, [child, grandchild, sibling]);
+
+  Assert.equal(child.rootFolder, grandparent);
+  Assert.ok(!child.isServer);
 
   Assert.deepEqual(child.ancestors, [parent, grandparent]);
   Assert.equal(child.parent, parent);
@@ -66,6 +75,9 @@ add_task(function testRelations() {
   Assert.deepEqual(child.children, [grandchild]);
   Assert.deepEqual(child.descendants, [grandchild]);
 
+  Assert.equal(grandchild.rootFolder, grandparent);
+  Assert.ok(!grandchild.isServer);
+
   Assert.deepEqual(grandchild.ancestors, [child, parent, grandparent]);
   Assert.equal(grandchild.parent, child);
   Assert.ok(grandchild.isDescendantOf(grandparent));
@@ -80,6 +92,9 @@ add_task(function testRelations() {
   Assert.deepEqual(grandchild.children, []);
   Assert.deepEqual(grandchild.descendants, []);
 
+  Assert.equal(sibling.rootFolder, grandparent);
+  Assert.ok(!sibling.isServer);
+
   Assert.deepEqual(sibling.ancestors, [parent, grandparent]);
   Assert.equal(sibling.parent, parent);
   Assert.ok(sibling.isDescendantOf(grandparent));
@@ -93,4 +108,31 @@ add_task(function testRelations() {
   Assert.ok(!sibling.isAncestorOf(grandchild));
   Assert.deepEqual(sibling.children, []);
   Assert.deepEqual(sibling.descendants, []);
+});
+
+add_task(function testOtherRoot() {
+  const grandparent = database.getFolderById(3);
+  const otherRoot = database.getFolderById(5);
+  const otherChild = database.getFolderById(7);
+
+  drawTree(otherRoot);
+
+  Assert.equal(otherRoot.rootFolder, otherRoot);
+  Assert.ok(otherRoot.isServer);
+
+  Assert.deepEqual(otherRoot.ancestors, []);
+  Assert.equal(otherRoot.parent, null);
+  Assert.ok(!otherRoot.isDescendantOf(grandparent));
+
+  Assert.ok(otherRoot.isAncestorOf(otherChild));
+  Assert.deepEqual(otherRoot.children, [otherChild]);
+  Assert.deepEqual(otherRoot.descendants, [otherChild]);
+
+  Assert.equal(otherChild.rootFolder, otherRoot);
+  Assert.ok(!otherChild.isServer);
+
+  Assert.deepEqual(otherChild.ancestors, [otherRoot]);
+  Assert.equal(otherChild.parent, otherRoot);
+  Assert.ok(otherChild.isDescendantOf(otherRoot));
+  Assert.ok(!otherChild.isDescendantOf(grandparent));
 });

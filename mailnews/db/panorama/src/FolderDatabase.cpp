@@ -142,6 +142,7 @@ FolderDatabase::LoadFolders() {
   uint32_t len;
   nsAutoCString name;
   uint64_t flags;
+  Folder* root = nullptr;
   Folder* parent = nullptr;
   while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
     id = stmt->AsInt64(0);
@@ -161,7 +162,11 @@ FolderDatabase::LoadFolders() {
     while (parent && parentId != parent->mId) {
       parent = parent->mParent;
     }
+    if (!parent) {
+      root = current;
+    }
 
+    current->mRoot = root;
     current->mParent = parent;
     if (parent) {
       parent->mChildren.InsertElementSorted(current, sComparator);
@@ -190,8 +195,8 @@ NS_IMETHODIMP FolderDatabase::GetFolderById(const uint64_t aId,
 NS_IMETHODIMP
 FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
                                  nsIFolder* aBefore) {
-  NS_ENSURE_ARG_POINTER(aParent);
-  NS_ENSURE_ARG_POINTER(aChild);
+  MOZ_ASSERT(aParent);
+  MOZ_ASSERT(aChild);
 
   Folder* parent = (Folder*)(aParent);
   Folder* child = (Folder*)(aChild);
@@ -227,9 +232,13 @@ FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
 NS_IMETHODIMP
 FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   MOZ_ASSERT(aNewParent);
-  NS_ENSURE_ARG_POINTER(aChild);
+  MOZ_ASSERT(aChild);
 
   Folder* child = (Folder*)(aChild);
+  if (!child->mParent) {
+    NS_WARNING("cannot move a root folder");
+    return NS_ERROR_UNEXPECTED;
+  }
   if (child->mParent == aNewParent) {
     return NS_OK;
   }
@@ -245,6 +254,11 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   }
 
   Folder* newParent = (Folder*)(aNewParent);
+  if (child->mRoot != newParent->mRoot) {
+    NS_WARNING("moving to a different root");
+    return NS_ERROR_UNEXPECTED;
+  }
+
   nsCOMPtr<mozIStorageStatement> stmt;
   GetStatement(
       "Reparent"_ns,

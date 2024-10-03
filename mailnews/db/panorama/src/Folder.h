@@ -31,6 +31,7 @@ class Folder : public nsIFolder {
   uint64_t mId;
   nsAutoCString mName;
   uint64_t mFlags;
+  RefPtr<Folder> mRoot;
   RefPtr<Folder> mParent;
   Maybe<uint64_t> mOrdinal;
   nsTArray<RefPtr<Folder>> mChildren;

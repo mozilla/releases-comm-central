@@ -293,3 +293,59 @@ add_task(function testMoveToNewParent() {
     [right, grandparent.id, null],
   ]);
 });
+
+/**
+ * Tests moving folders between trees. This should not be allowed.
+ */
+add_task(function testMoveToNewRoot() {
+  const grandparent = database.getFolderById(1);
+  const parent = database.getFolderById(3);
+  const otherRoot = database.getFolderById(15);
+  const otherChild = database.getFolderById(16);
+
+  Assert.throws(
+    () => database.moveFolderTo(grandparent, otherRoot),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(parent, otherRoot),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(grandparent, otherChild),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(parent, otherChild),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(otherRoot, grandparent),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(otherChild, grandparent),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(otherRoot, parent),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(otherChild, parent),
+    /NS_ERROR_UNEXPECTED/,
+    "folder should be prevented from moving to another tree"
+  );
+  Assert.throws(
+    () => database.moveFolderTo(grandparent, otherRoot),
+    /NS_ERROR_UNEXPECTED/,
+    "root folders should be prevented from moving"
+  );
+});

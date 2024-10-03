@@ -28,6 +28,16 @@ interface nsIFolder : nsISupports {
   readonly attribute unsigned long long flags;
 
   /**
+   * The root folder of this folder's server.
+   */
+  readonly attribute nsIFolder rootFolder;
+
+  /**
+   * If this folder is the root folder.
+   */
+  readonly attribute boolean isServer;
+
+  /**
    * An array of ancestors of this folder, starting with the folder's parent
    * and ending with the root folder. Or an empty array, if this is the root.
    */

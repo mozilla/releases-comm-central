@@ -41,6 +41,16 @@ Folder::GetFlags(uint64_t* aFlags) {
   return NS_OK;
 }
 
+NS_IMETHODIMP Folder::GetRootFolder(nsIFolder** aRootFolder) {
+  NS_IF_ADDREF(*aRootFolder = mRoot);
+  return NS_OK;
+}
+
+NS_IMETHODIMP Folder::GetIsServer(bool* aIsServer) {
+  *aIsServer = this == mRoot;
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 Folder::GetAncestors(nsTArray<RefPtr<nsIFolder>>& aAncestors) {
   aAncestors.Clear();

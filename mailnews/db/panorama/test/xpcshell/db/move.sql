@@ -20,4 +20,6 @@ INSERT INTO folders (id, parent, name) VALUES
   (11, 10, 'd.1'),
   (12, 11, 'd.1.1'),
   (13, 12, 'd.1.1.1'),
-  (14, 1, 'right');
+  (14, 1, 'right'),
+  (15, 0, 'other root'),
+  (16, 15, 'other child');
