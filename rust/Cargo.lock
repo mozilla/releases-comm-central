@@ -2050,11 +2050,11 @@ name = "geckoservo"
 version = "0.0.1"
 dependencies = [
  "atomic_refcell",
- "bincode",
  "cssparser",
  "cstr",
  "dom",
  "gecko-profiler",
+ "ipdl_utils",
  "lazy_static",
  "libc",
  "log",
@@ -2135,6 +2135,7 @@ dependencies = [
  "gkrust_utils",
  "http_sfv",
  "idna_glue",
+ "ipdl_utils",
  "jog",
  "jsrust_shared",
  "kvstore",
@@ -2246,6 +2247,7 @@ dependencies = [
  "gkrust_utils",
  "http_sfv",
  "idna_glue",
+ "ipdl_utils",
  "jog",
  "jsrust_shared",
  "kvstore",
@@ -2810,6 +2812,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2b3ea6ff95e175473f8ffe6a7eb7c00d054240321b84c57051175fe3c1e075e"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "ipdl_utils"
+version = "0.1.0"
+dependencies = [
+ "bincode",
 ]
 
 [[package]]
