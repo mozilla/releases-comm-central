@@ -23,7 +23,7 @@ from mozpack.archive import create_tar_from_files
 from mozpack.copier import FileRegistry
 from mozpack.files import FileFinder
 
-from tb_l10n.l10n_merge import COMM_STRINGS_PATTERNS, GECKO_STRINGS_PATTERNS
+from tb_l10n.l10n_merge import COMM_ENUS_PATTERNS, COMM_STRINGS_PATTERNS, GECKO_STRINGS_PATTERNS
 
 
 class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
@@ -202,16 +202,34 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
 
         file_registry = FileRegistry()
 
-        def add_to_registry(base_path, patterns):
-            finder = FileFinder(base_path)
-            for pattern in patterns:
-                for _lang in self.locales:
-                    for _filepath, _fileobj in finder.find(pattern.format(lang=_lang)):
-                        _filepath = os.path.join("l10n-central", _filepath)
-                        file_registry.add(_filepath, _fileobj)
+        def transform_enus_path(path):
+            """Change a path from en-us source to a l10n repo path.
+            eg: mail/locales/en-US/messenger/about3Pane.ftl ==> en-US/mail/messenger/about3Pane.ftl
+            Strip out "locales/en-US/" and prepend "en-US/" to the result.
+            """
+            return os.path.join("en-US/", path.replace("locales/en-US/", ""))
 
-        add_to_registry(dirs["abs_l10n_central_dir"], GECKO_STRINGS_PATTERNS)
-        add_to_registry(dirs["abs_comm_l10n_dir"], COMM_STRINGS_PATTERNS)
+        def add_locales_to_registry(base_path, patterns):
+            finder = FileFinder(base_path)
+            for _lang in self.locales:
+                add_to_registry(base_path, patterns, _lang, finder=finder)
+
+        def add_to_registry(base_path, patterns, lang=None, finder=None, transform=lambda x: x):
+            if finder is None:
+                finder = FileFinder(base_path)
+            for pattern in patterns:
+                for _filepath, _fileobj in finder.find(pattern.format(lang=lang)):
+                    _filepath = transform(_filepath)
+                    _filepath = os.path.join("l10n-central", _filepath)
+                    file_registry.add(_filepath, _fileobj)
+
+        add_locales_to_registry(dirs["abs_l10n_central_dir"], GECKO_STRINGS_PATTERNS)
+        add_locales_to_registry(dirs["abs_comm_l10n_dir"], COMM_STRINGS_PATTERNS)
+        add_to_registry(
+            os.path.join(dirs["abs_src_dir"], "comm"),
+            COMM_ENUS_PATTERNS,
+            transform=transform_enus_path,
+        )
 
         self.file_registry = file_registry
 
@@ -227,16 +245,18 @@ class CommMultiLocale(LocalesMixin, AutomationMixin, VCSMixin, BaseScript):
     def gen_changesets(self):
         # self.l10n_revisions has the gecko string revs
         gecko_l10n_revisions = {}
+        repo = self.config["git_repository"] or self.config["hg_l10n_base"]
         for l in self.locales:
             gecko_l10n_revisions[l] = {
-                "repo": f"{self.config['hg_l10n_base']}/{l}",
+                "repo": f"{repo}/{l}",
                 "revision": self.l10n_revisions[l],
             }
 
+        repo = self.config["comm_git_repository"] or self.config["hg_comm_l10n_repo"]
         changeset_data = {
             "gecko_strings": gecko_l10n_revisions,
             "comm_strings": {
-                "repo": self.config["hg_comm_l10n_repo"],
+                "repo": repo,
                 "revision": self.comm_l10n_revision,
             },
         }

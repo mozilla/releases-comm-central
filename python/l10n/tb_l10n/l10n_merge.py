@@ -20,3 +20,11 @@ COMM_STRINGS_PATTERNS = (
     "{lang}/chat/**",
     "{lang}/mail/**",
 )
+
+COMM_ENUS_PATTERNS = (
+    "calendar/locales/en-US/**",
+    "chat/locales/en-US/**",
+    "mail/branding/tb_beta/locales/en-US/**",
+    "mail/branding/thunderbird/locales/en-US/**",
+    "mail/locales/en-US/**",
+)
