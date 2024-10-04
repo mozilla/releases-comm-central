@@ -5,6 +5,7 @@
 #ifndef Folder_h__
 #define Folder_h__
 
+#include "mozilla/Maybe.h"
 #include "nsIFolder.h"
 #include "nsTString.h"
 
@@ -23,11 +24,13 @@ class Folder : public nsIFolder {
   virtual ~Folder() {};
 
  private:
+  friend class FolderComparator;
   friend class FolderDatabase;
 
   uint64_t mId;
   nsAutoCString mName;
   RefPtr<Folder> mParent;
+  Maybe<uint64_t> mOrdinal;
   nsTArray<RefPtr<Folder>> mChildren;
 
   void _GetDescendants(nsTArray<RefPtr<nsIFolder>>& aDescendants);

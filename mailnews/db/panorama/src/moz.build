@@ -4,11 +4,13 @@
 
 EXPORTS += [
     "Folder.h",
+    "FolderComparator.h",
     "FolderDatabase.h",
 ]
 
 SOURCES += [
     "Folder.cpp",
+    "FolderComparator.cpp",
     "FolderDatabase.cpp",
 ]
 

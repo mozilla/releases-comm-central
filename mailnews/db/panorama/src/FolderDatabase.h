@@ -5,9 +5,11 @@
 #ifndef FolderDatabase_h__
 #define FolderDatabase_h__
 
-#include "nsIFolderDatabase.h"
+#include "FolderComparator.h"
+#include "mozilla/RefPtr.h"
 #include "mozIStorageConnection.h"
 #include "mozIStorageStatement.h"
+#include "nsIFolderDatabase.h"
 #include "nsIObserver.h"
 #include "nsTHashMap.h"
 
@@ -31,6 +33,7 @@ class FolderDatabase : public nsIFolderDatabase, nsIObserver {
   static nsCOMPtr<mozIStorageConnection> sConnection;
   static nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>> sStatements;
   static nsTHashMap<uint64_t, RefPtr<Folder>> sFoldersById;
+  static FolderComparator sComparator;
 
   static nsresult EnsureConnection();
   static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,

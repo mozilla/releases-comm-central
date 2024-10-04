@@ -23,6 +23,7 @@ nsCOMPtr<mozIStorageConnection> FolderDatabase::sConnection;
 nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     FolderDatabase::sStatements;
 nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
+FolderComparator FolderDatabase::sComparator;
 
 FolderDatabase::FolderDatabase() {
   MOZ_ASSERT(!sConnection, "creating a second FolderDatabase");
@@ -114,30 +115,40 @@ FolderDatabase::LoadFolders() {
   sFoldersById.Clear();
 
   nsCOMPtr<mozIStorageStatement> stmt;
-  nsresult rv =
-      GetStatement("Folders"_ns,
-                   "WITH RECURSIVE parents(id, parent, name, level) AS ("
-                   "  VALUES(0, NULL, NULL, 0)"
-                   "  UNION ALL "
-                   "  SELECT f.id, f.parent, f.name, p.level + 1 AS next_level"
-                   "    FROM folders f JOIN parents p ON f.parent=p.id"
-                   "    ORDER BY next_level DESC"
-                   ")"
-                   "SELECT id, parent, name FROM parents LIMIT -1 OFFSET 1"_ns,
-                   getter_AddRefs(stmt));
+  nsresult rv = GetStatement(
+      "Folders"_ns,
+      "WITH RECURSIVE parents(id, parent, ordinal, name, level) AS ("
+      "  VALUES(0, NULL, NULL, NULL, 0)"
+      "  UNION ALL "
+      "  SELECT f.id, f.parent, f.ordinal, f.name, p.level + 1 AS next_level"
+      "    FROM folders f JOIN parents p ON f.parent=p.id"
+      "    ORDER BY next_level DESC"
+      ")"
+      "SELECT id, parent, ordinal, name FROM parents LIMIT -1 OFFSET 1"_ns,
+      getter_AddRefs(stmt));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasResult;
   uint64_t id;
   uint64_t parentId;
+  bool ordinalIsNull;
+  uint64_t ordinal;
   uint32_t len;
   nsAutoCString name;
   Folder* parent = nullptr;
   while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
     id = stmt->AsInt64(0);
     parentId = stmt->AsInt64(1);
-    name = stmt->AsSharedUTF8String(2, &len);
+    ordinalIsNull = stmt->IsNull(2);
+    ordinal = stmt->AsInt64(2);
+    name = stmt->AsSharedUTF8String(3, &len);
+
     RefPtr<Folder> current = new Folder(id, name);
+    if (ordinalIsNull) {
+      current->mOrdinal.reset();
+    } else {
+      current->mOrdinal.emplace(ordinal);
+    }
 
     while (parent && parentId != parent->mId) {
       parent = parent->mParent;
@@ -145,7 +156,7 @@ FolderDatabase::LoadFolders() {
 
     current->mParent = parent;
     if (parent) {
-      parent->mChildren.AppendElement(current);
+      parent->mChildren.InsertElementSorted(current, sComparator);
     }
     parent = current;
 

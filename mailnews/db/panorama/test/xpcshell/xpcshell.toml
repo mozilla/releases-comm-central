@@ -2,9 +2,12 @@
 head = "head.js"
 generated-files = [
   "db/relations.sqlite",
+  "db/sort.sqlite",
 ]
 support-files = [
   "db/relations.sqlite",
+  "db/sort.sqlite",
 ]
 
 ["test_relations.js"]
+["test_sort.js"]
