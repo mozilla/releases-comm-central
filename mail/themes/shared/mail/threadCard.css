@@ -170,23 +170,24 @@
           }
         }
       }
-    }
 
-    &[data-properties~="hasNew"] {
+      /* hasNew shouldn't affect any style unless we also have hasUnread. */
+      &[data-properties~="hasNew"] {
 
-      & .replies-icon,
-      & .thread-replies {
-        color: var(--new-color);
-      }
+        & .replies-icon,
+        & .thread-replies {
+          color: var(--new-color);
+        }
 
-      & button.twisty::before {
-        content: var(--icon-sparkle-star-xs);
-        fill: var(--color-yellow-30);
-        stroke: var(--color-amber-50);
-      }
+        & button.twisty::before {
+          content: var(--icon-sparkle-star-xs);
+          fill: var(--color-yellow-30);
+          stroke: var(--color-amber-50);
+        }
 
-      & .thread-replies {
-        color: var(--new-color);
+        & .thread-replies {
+          color: var(--new-color);
+        }
       }
     }
 
