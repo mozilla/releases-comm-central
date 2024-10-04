@@ -70,3 +70,9 @@ source-docs
 -----------
 
 Build Thunderbird source documentation and upload to RTD.
+
+
+upload-symbols-dummy
+--------------------
+
+Upload-symbols-dummy ensures both x64 and macosx64 tasks run for nightlies and releases.
