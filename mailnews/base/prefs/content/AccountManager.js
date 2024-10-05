@@ -435,10 +435,10 @@ function checkDirectoryIsAllowed(aLocalPath) {
         testDir = Services.dirsvc.get(aDirToCheck.dirsvc, Ci.nsIFile);
       } catch (e) {
         console.error(
-          "The special folder " +
-            aDirToCheck.dirsvc +
-            " cannot be retrieved on this platform: " +
-            e
+          "The special folder",
+          aDirToCheck.dirsvc,
+          "cannot be retrieved on this platform:",
+          e
         );
       }
 
@@ -1522,7 +1522,7 @@ function getFormElementValue(formElement) {
     }
     return null;
   } catch (ex) {
-    console.error("getFormElementValue failed, ex=" + ex + "\n");
+    console.error("getFormElementValue failed", ex);
   }
   return null;
 }
@@ -1866,9 +1866,7 @@ var gAccountTree = {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
             const extName = data || "(unknown)";
-            console.error(
-              "Error accessing panel from extension '" + extName + "': " + e
-            );
+            console.error(`Error accessing panel from extension ${extName}`, e);
           }
         }
         amChrome = server.accountManagerChrome;
@@ -1876,7 +1874,7 @@ var gAccountTree = {
         // Show only a placeholder in the account list saying this account
         // is broken, with no child panels.
         const accountID = accountName || accountKey;
-        console.error("Error accessing account " + accountID + ": " + e);
+        console.error(`Error accessing account ${accountID}`, e);
         accountName = "Invalid account " + accountID;
         panelsToKeep.length = 0;
         validAccount = false;

@@ -134,7 +134,7 @@ function removeAccount() {
     document.getElementById("success").hidden = false;
   } catch (ex) {
     document.getElementById("failure").hidden = false;
-    console.error("Failure to remove account: " + ex);
+    console.error("Failure to remove account: ", ex);
     window.arguments[0].result = false;
   }
   document.getElementById("progress").hidden = true;

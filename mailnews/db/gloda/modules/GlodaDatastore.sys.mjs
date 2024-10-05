@@ -600,7 +600,7 @@ ExplainedStatementProcessor.prototype = {
     }
   },
   handleError(aError) {
-    console.error("Unexpected error in EXPLAIN handler: " + aError);
+    console.error("Unexpected error in EXPLAIN handler:", aError);
   },
   handleCompletion() {
     const obj = {

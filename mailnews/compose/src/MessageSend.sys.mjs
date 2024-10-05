@@ -1096,11 +1096,9 @@ export class MessageSend {
           this._sendListener.onStopCopy(0);
         }
       } catch (e) {
-        // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
+        // Ignore the return value of onStopCopy. Non-zero nsresult will throw
         // when going through XPConnect. In this case, we don't care about it.
-        console.warn(
-          `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
-        );
+        console.warn("onStopCopy failed", e);
       }
       this._cleanup();
     });

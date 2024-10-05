@@ -155,7 +155,7 @@ export class NntpIncomingServer extends MsgIncomingServer {
     } catch (e) {
       // Group names with double dot, like alt.binaries.sounds..mp3.zappa are
       // not working. Bug 1788572.
-      console.error(`Failed to add group ${name}. ${e}`);
+      console.error(`Failed to add group ${name}`, e);
     }
   }
 

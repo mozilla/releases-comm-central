@@ -72,7 +72,7 @@ function initLocaleShortDateFormat() {
       }
     }
   } catch (e) {
-    console.error("initLocaleShortDateFormat: caught an exception: " + e);
+    console.error("initLocaleShortDateFormat: caught an exception: ", e);
     gSearchDateFormat = 0;
   }
 }
@@ -112,7 +112,7 @@ function initializeSearchDateFormat() {
         ).data == "true";
     }
   } catch (e) {
-    console.error("initializeSearchDateFormat: caught an exception: " + e);
+    console.error("initializeSearchDateFormat: caught an exception: ", e);
     gSearchDateFormat = 0;
   }
 

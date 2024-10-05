@@ -229,7 +229,8 @@ export var MsgUtils = {
             ).messageURIToMsgHdr(originalMsgURI);
         } catch (e) {
           console.warn(
-            `messageServiceFromURI failed for ${originalMsgURI}\n${e.stack}`
+            `messageServiceFromURI failed for ${originalMsgURI}`,
+            e.stack
           );
         }
         if (msgHdr) {

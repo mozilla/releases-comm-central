@@ -165,7 +165,7 @@ export class MockEWSServer {
           // it does when any error is thrown is respond with a generic 500. To
           // makes writing tests with this server a bit easier, we want to log
           // the error before responding.
-          console.error(`Error when processing request: ${e}`);
+          console.error("Error when processing request:", e);
           throw e;
         }
       }

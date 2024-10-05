@@ -302,7 +302,7 @@ function finishAccount(account, accountData) {
       try {
         IID = destServer.protocolInfo.serverIID;
       } catch (ex) {
-        console.error("Could not get IID for " + srcServer.type + ": " + ex);
+        console.error(`Could not get IID for ${srcServer.type}`, ex);
       }
 
       if (IID) {
