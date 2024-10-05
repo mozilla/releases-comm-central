@@ -296,6 +296,13 @@ function refreshUnifinderFilterInterval() {
       endDate = today.clone();
       endDate.month += 12;
       break;
+    case "future":
+      // Use next 100 yrs instead of unbounded values, to avoid performance
+      // issues with recurring events.
+      startDate = today.clone();
+      endDate = today.clone();
+      endDate.year += 100;
+      break;
     case "thisCalendarMonth":
       startDate = today.startOfMonth;
       endDate = today.endOfMonth;

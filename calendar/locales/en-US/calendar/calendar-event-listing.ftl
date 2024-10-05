@@ -87,6 +87,9 @@ calendar-event-listing-interval-next-6-months =
 calendar-event-listing-interval-next-12-months =
   .label = Events in the Next 12 Months
 
+calendar-event-listing-interval-future =
+  .label = All Future Events
+
 calendar-event-listing-interval-all =
   .label = All Events
 
