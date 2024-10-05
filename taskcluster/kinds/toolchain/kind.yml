@@ -56,7 +56,7 @@ reference-tasks:
     - macosx64-aarch64-compiler-rt-18
     - macosx64-clang-18-profile
     - macosx64-clang-18-raw
-    - macosx64-clang-18-stage1
+    - macosx64-clang-18-stage2
     - macosx64-fix-stacks
     - macosx64-grcov
     - macosx64-minidump-stackwalk
@@ -81,7 +81,7 @@ reference-tasks:
     - win64-cbindgen
     - win64-clang-18-profile
     - win64-clang-18-raw
-    - win64-clang-18-stage1
+    - win64-clang-18-stage2
     - win64-cmake
     - win64-compiler-rt-18
     - win64-dump_syms
