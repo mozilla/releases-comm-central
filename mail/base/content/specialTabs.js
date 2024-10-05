@@ -21,8 +21,8 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 var { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
-var { PlacesUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/PlacesUtils.sys.mjs"
+var { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
 );
 
 function tabProgressListener(aTab, aStartsBlank) {
@@ -1290,16 +1290,10 @@ var specialTabs = {
    * @param aTab  The tab to set the icon for.
    * @param aIcon A string based URL of the icon to try and load.
    */
-  setFavIcon(aTab, aIcon) {
+  async setFavIcon(aTab, aIcon) {
     if (aIcon) {
-      PlacesUtils.favicons.setAndFetchFaviconForPage(
-        aTab.browser.currentURI,
-        Services.io.newURI(aIcon),
-        false,
-        PlacesUtils.favicons.FAVICON_LOAD_NON_PRIVATE,
-        null,
-        aTab.browser.contentPrincipal
-      );
+      const iconURI = Services.io.newURI(aIcon);
+      await MailUtils.setFaviconForPage(aTab.browser.currentURI, iconURI);
     }
     document
       .getElementById("tabmail")

@@ -8,6 +8,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
+  PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
@@ -1065,6 +1066,102 @@ export var MailUtils = {
       Services.prefs.setBoolPref(activePref, false);
     }
     return true;
+  },
+
+  /**
+   * Set the favicon for the currently visited page.
+   *
+   * @param {nsIURI} pageURI
+   * @param {nsIURI} iconURI
+   */
+  async setFaviconForPage(pageURI, iconURI) {
+    try {
+      // If the given faviconURI is data URL, set it as is.
+      if (iconURI.schemeIs("data")) {
+        lazy.PlacesUtils.favicons.setFaviconForPage(pageURI, iconURI, iconURI);
+        return;
+      }
+
+      // Try to find the favicon data from DB.
+      const faviconInfo = await this.getFaviconInfo(pageURI);
+      if (faviconInfo?.faviconSize) {
+        // As valid favicon data is already stored for the page,
+        // we don't have to update.
+        return;
+      }
+
+      // Otherwise, fetch from network.
+      const dataURL = this.getFaviconDataURLFromNetwork(iconURI);
+      lazy.PlacesUtils.favicons.setFaviconForPage(pageURI, iconURI, dataURL);
+    } catch (ex) {
+      console.error(`Failed to set favicon for page:${ex}`);
+    }
+  },
+
+  /**
+   * Get favicon info (uri and size) for a uri from Places.
+   *
+   * @param {nsIURI} uri - Page to check for favicon data.
+   * @returns {?Promise} A promise of an object containing the data if found.
+   */
+  getFaviconInfo(uri) {
+    return new Promise(resolve =>
+      lazy.PlacesUtils.favicons.getFaviconDataForPage(
+        uri,
+        // Package up the icon data in an object if we have it; otherwise null
+        (iconUri, faviconLength, favicon, mimeType, faviconSize) =>
+          resolve(iconUri ? { iconUri, faviconSize } : null),
+        96
+      )
+    );
+  },
+
+  /**
+   * Get favicon data for given URL from network.
+   * Copied from mozilla-central repo: FaviconFeed.sys.mjs
+   *
+   * @param {nsIURI} faviconURI - nsIURI for the favicon.
+   * @returns {nsIURI} data URL
+   */
+  async getFaviconDataURLFromNetwork(faviconURI) {
+    const channel = lazy.NetUtil.newChannel({
+      uri: faviconURI,
+      loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      securityFlags:
+        Ci.nsILoadInfo.SEC_REQUIRE_CORS_INHERITS_SEC_CONTEXT |
+        Ci.nsILoadInfo.SEC_ALLOW_CHROME |
+        Ci.nsILoadInfo.SEC_DISALLOW_SCRIPT,
+      contentPolicyType: Ci.nsIContentPolicy.TYPE_INTERNAL_IMAGE_FAVICON,
+    });
+
+    const resolver = Promise.withResolvers();
+
+    lazy.NetUtil.asyncFetch(channel, async (input, status, request) => {
+      if (!Components.isSuccessCode(status)) {
+        resolver.reject(`Fetching ${faviconURI.spec} FAILED!`);
+        return;
+      }
+
+      try {
+        const data = lazy.NetUtil.readInputStream(input, input.available());
+        const { contentType } = request.QueryInterface(Ci.nsIChannel);
+        input.close();
+
+        const buffer = new Uint8ClampedArray(data);
+        const blob = new Blob([buffer], { type: contentType });
+        const dataURL = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.addEventListener("load", () => resolve(reader.result));
+          reader.addEventListener("error", reject);
+          reader.readAsDataURL(blob);
+        });
+        resolver.resolve(Services.io.newURI(dataURL));
+      } catch (e) {
+        resolver.reject(e);
+      }
+    });
+
+    return resolver.promise;
   },
 };
 

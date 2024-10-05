@@ -1014,18 +1014,24 @@ export var FeedUtils = {
         },
       ],
     });
-    return new Promise(resolve => {
-      // All good. Now store iconURL for future usage.
-      lazy.PlacesUtils.favicons.setAndFetchFaviconForPage(
-        Services.io.newURI(feedURL),
-        Services.io.newURI(iconURL),
-        true,
-        lazy.PlacesUtils.favicons.FAVICON_LOAD_NON_PRIVATE,
-        faviconURI => {
-          resolve(faviconURI.spec);
-        },
-        Services.scriptSecurityManager.getSystemPrincipal()
+    // All good. Now store iconURL for future usage.
+    const pageURI = Services.io.newURI(feedURL);
+    const iconURI = Services.io.newURI(iconURL);
+    const dataURL = await lazy.MailUtils.getFaviconDataURLFromNetwork(iconURI);
+    await new Promise(resolve => {
+      lazy.PlacesUtils.favicons.setFaviconForPage(
+        pageURI,
+        iconURI,
+        dataURL,
+        null,
+        resolve
       );
+    });
+
+    return new Promise(resolve => {
+      lazy.PlacesUtils.favicons.getFaviconDataForPage(pageURI, faviconURI => {
+        resolve(faviconURI.spec);
+      });
     });
   },
 
