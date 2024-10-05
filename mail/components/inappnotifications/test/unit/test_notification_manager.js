@@ -364,7 +364,7 @@ add_task(async function test_showDonationsOldNotification() {
   const notifications = [
     {
       id: "olddonation",
-      type: "donations_old",
+      type: "donation_old",
       start_at: new Date(now - SAFETY_MARGIN_MS).toISOString(),
       end_at: new Date(now + SAFETY_MARGIN_MS).toISOString(),
       URL: "about:blank",
