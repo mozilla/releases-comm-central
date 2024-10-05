@@ -180,6 +180,10 @@ appmenu-tools-export =
   .label = Export
   .accesskey = E
 
+appmenu-export-for-mobile =
+  .label = Export for Mobile
+  .accesskey = P
+
 appmenu-tools-message-search =
   .label = Search Messages
   .accesskey = S

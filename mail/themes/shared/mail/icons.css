@@ -16,6 +16,7 @@
   /* SM - 16x16px icons */
   --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
+  --icon-upload-sm: url("chrome://messenger/skin/icons/sm/upload.svg");
 
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
   --icon-add: url("chrome://messenger/skin/icons/new/compact/add.svg");
@@ -196,7 +197,6 @@
   --icon-bell-ring: url("chrome://messenger/skin/icons/new/bell-ring.svg");
   --icon-recurrence: url("chrome://messenger/skin/icons/new/recurrence.svg");
   --icon-recurrence-exception: url("chrome://messenger/skin/icons/new/recurrence-exception.svg");
-
   --icon-forward-col: url("chrome://messenger/skin/icons/new/compact/forward-col.svg");
   --icon-reply-col: url("chrome://messenger/skin/icons/new/compact/reply-col.svg");
   --icon-redirect-col: url("chrome://messenger/skin/icons/new/compact/redirect-col.svg");
