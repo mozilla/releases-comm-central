@@ -16,6 +16,10 @@ menu-addons-and-themes =
     .label = Add-ons and Themes
     .accesskey = A
 
+menu-export-for-mobile =
+    .label = Export for Mobile…
+    .accesskey = p
+
 ## Help Menu
 
 menu-help-help-title =
