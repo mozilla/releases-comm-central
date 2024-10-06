@@ -734,7 +734,7 @@ var gAccountSetup = {
 
       call = priorityQueue.addCall();
       gAccountSetupLogger.debug(
-        "Looking up configuration: Thunderbird installation…"
+        "Looking up configuration: Mozilla ISP database…"
       );
       fetch = FetchConfig.fromDB(
         domain,
