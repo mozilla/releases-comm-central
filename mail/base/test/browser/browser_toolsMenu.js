@@ -26,6 +26,7 @@ const toolsMenuData = {
   deleteJunk: { disabled: true },
   menu_import: {},
   menu_export: {},
+  menu_exportmobile: {},
   manageKeysOpenPGP: {},
   devtoolsMenu: {},
   devtoolsToolbox: {},
