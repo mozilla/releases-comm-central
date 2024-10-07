@@ -781,7 +781,10 @@ function serv_decodetagdata(str)
     for (var i = 0; i < tags.length; i++)
     {
         var [key, val] = tags[i].split("=");
-        val = unescapeTagValue(val);
+        if (val)
+            val = unescapeTagValue(val);
+        else
+            val = "";
         obj[key] = val;
     }
 
