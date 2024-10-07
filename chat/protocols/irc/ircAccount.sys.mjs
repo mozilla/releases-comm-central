@@ -2182,8 +2182,8 @@ ircAccount.prototype = {
             "."
         );
         return true;
-      } catch (e) {
-        this.ERROR("Socket error:", e);
+      } catch (ex) {
+        this.ERROR("Socket error:", ex);
         this.gotDisconnected(
           Ci.prplIAccount.ERROR_NETWORK_ERROR,
           lazy.l10n.formatValueSync("connection-error-lost")

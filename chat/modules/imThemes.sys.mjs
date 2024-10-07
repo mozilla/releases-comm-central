@@ -1008,6 +1008,7 @@ SelectedMessage.prototype = {
     let spanNode = null;
     // If we could use NodeFilter.webidl, we wouldn't have to make up our own
     // object. FILTER_REJECT is not used here, but included for completeness.
+    // eslint-disable-next-line no-shadow
     const NodeFilter = {
       SHOW_ELEMENT: 0x1,
       FILTER_ACCEPT: 1,

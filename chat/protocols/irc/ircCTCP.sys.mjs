@@ -104,18 +104,18 @@ function ctcpHandleMessage(message, ircHandlers) {
   }
 
   // Loop over each raw CTCP message.
-  for (const message of ctcpMessages) {
-    if (!ircHandlers.handleCTCPMessage(this, message)) {
+  for (const ctcpMessage of ctcpMessages) {
+    if (!ircHandlers.handleCTCPMessage(this, ctcpMessage)) {
       this.WARN(
         "Unhandled CTCP message: " +
-          message.ctcp.rawMessage +
+          ctcpMessage.ctcp.rawMessage +
           "\nin IRC message: " +
-          message.rawMessage
+          ctcpMessage.rawMessage
       );
       // For unhandled CTCP message, respond with a NOTICE ERRMSG that echoes
       // back the original command.
-      this.sendCTCPMessage(message.origin, true, "ERRMSG", [
-        message.ctcp.rawMessage,
+      this.sendCTCPMessage(ctcpMessage.origin, true, "ERRMSG", [
+        ctcpMessage.ctcp.rawMessage,
         ":Unhandled CTCP command",
       ]);
     }

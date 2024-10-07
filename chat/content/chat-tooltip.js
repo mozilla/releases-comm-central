@@ -302,8 +302,8 @@
      */
     addRow(aLabel, aValue, l10nIds = { label: false, value: false }) {
       let description;
-      let row = [...this.table.querySelectorAll("tr")].find(row => {
-        const th = row.querySelector("th");
+      let row = [...this.table.querySelectorAll("tr")].find(tr => {
+        const th = tr.querySelector("th");
         if (l10nIds?.label) {
           return th.dataset.l10nId == aLabel;
         }

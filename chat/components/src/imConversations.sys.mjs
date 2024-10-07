@@ -936,11 +936,11 @@ class ConversationsService {
       }
     }
     // Ensure conv is not in the by contact ID map
-    for (const [contactId, uiConversation] of Object.entries(
+    for (const [cId, uiConversation] of Object.entries(
       this._uiConvByContactId
     )) {
       if (uiConversation === uiConv) {
-        delete this._uiConvByContactId[contactId];
+        delete this._uiConvByContactId[cId];
         break;
       }
     }

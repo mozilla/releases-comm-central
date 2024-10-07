@@ -238,7 +238,8 @@ class TagsService {
   }
 }
 
-export const tags = new TagsService();
+const tagsService = new TagsService();
+export { tagsService as tags };
 
 // TODO move into the tagsService
 var Tags = [];
@@ -316,7 +317,7 @@ var otherContactsTag = {
   showTag(aTag) {
     const id = aTag.id;
     delete this._hiddenTags[id];
-    const contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
+    const contacts = Object.keys(this._contacts).map(k => this._contacts[k]);
     for (const contact of contacts) {
       if (contact.getTags().some(t => t.id == id)) {
         this._removeContact(contact);

@@ -339,12 +339,11 @@ function saslName(aName) {
   // RFC 5802 (5.1): the client SHOULD prepare the username using the "SASLprep".
   // The characters ’,’ or ’=’ in usernames are sent as ’=2C’ and
   // ’=3D’ respectively.
-  const saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
-  if (!saslName) {
-    throw new Error("Name is not valid");
+  const saslname = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
+  if (!saslname) {
+    throw new Error(`Name is not valid: ${aName}`);
   }
-
-  return saslName;
+  return saslname;
 }
 
 // Converts aMessage to array of bytes then apply hashing.

@@ -102,9 +102,12 @@ export var InteractiveBrowser = {
 
           this._cleanUp();
         },
-        onStateChange(aWebProgress, request, stateFlags) {
-          const wpl = Ci.nsIWebProgressListener;
-          if (stateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
+        onStateChange(_webProgress, request, stateFlags) {
+          if (
+            stateFlags &
+            (Ci.nsIWebProgressListener.STATE_START |
+              Ci.nsIWebProgressListener.STATE_IS_NETWORK)
+          ) {
             try {
               this._checkForRedirect(request.name);
             } catch (error) {
@@ -115,7 +118,7 @@ export var InteractiveBrowser = {
             }
           }
         },
-        onLocationChange(webProgress, request, location) {
+        onLocationChange(_webProgress, _request, location) {
           this._checkForRedirect(location.spec);
         },
         onProgressChange() {},

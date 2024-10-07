@@ -1896,10 +1896,10 @@ export var XMPPAccountPrototype = {
         telephone: "tooltip-telephone",
       };
 
-      const tooltipInfo = [];
+      const stanzaTooltipInfo = [];
       for (const [field, stringKey] of Object.entries(kTooltipFields)) {
         if (vCardInfo.hasOwnProperty(field)) {
-          tooltipInfo.push(
+          stanzaTooltipInfo.push(
             new TooltipInfo(
               lazy.l10n.formatValueSync(stringKey),
               vCardInfo[field]
@@ -1915,12 +1915,12 @@ export var XMPPAccountPrototype = {
           participant.buddyIconFilename = dataURI;
         }
 
-        tooltipInfo.push(
+        stanzaTooltipInfo.push(
           new TooltipInfo(null, dataURI, Ci.prplITooltipInfo.icon)
         );
       }
       Services.obs.notifyObservers(
-        new nsSimpleEnumerator(tooltipInfo),
+        new nsSimpleEnumerator(stanzaTooltipInfo),
         "user-info-received",
         aJid
       );
@@ -2340,20 +2340,20 @@ export var XMPPAccountPrototype = {
         Stanza.node("query", Stanza.NS.disco_info)
       );
       this.sendStanza(iq, receivedStanza => {
-        const query = receivedStanza.getElement(["query"]);
+        const stanzaQuery = receivedStanza.getElement(["query"]);
         const from = receivedStanza.attributes.from;
         if (
           aStanza.attributes.type != "result" ||
-          !query ||
-          query.uri != Stanza.NS.disco_info
+          !stanzaQuery ||
+          stanzaQuery.uri != Stanza.NS.disco_info
         ) {
           this.LOG("Could not get features for this service: " + from);
           return true;
         }
-        const features = query
+        const features = stanzaQuery
           .getElements(["feature"])
           .map(elt => elt.attributes.var);
-        const identity = query.getElement(["identity"]);
+        const identity = stanzaQuery.getElement(["identity"]);
         if (
           identity &&
           identity.attributes.category == "conference" &&
@@ -2399,8 +2399,8 @@ export var XMPPAccountPrototype = {
           null,
           Stanza.node("enable", Stanza.NS.carbons)
         );
-        this.sendStanza(iqStanza, aStanza => {
-          const error = this.parseError(aStanza);
+        this.sendStanza(iqStanza, stanza => {
+          const error = this.parseError(stanza);
           if (error) {
             this.WARN(
               "Unable to enable message carbons due to " +
@@ -2410,7 +2410,7 @@ export var XMPPAccountPrototype = {
             return true;
           }
 
-          const type = aStanza.attributes.type;
+          const type = stanza.attributes.type;
           if (type != "result") {
             this.WARN(
               "Received unexpected stanza with " +
@@ -2680,12 +2680,12 @@ export var XMPPAccountPrototype = {
               { from: invitation.from },
               null
             );
-            const x = Stanza.node("x", Stanza.NS.muc_user, null, decline);
+            const x2 = Stanza.node("x", Stanza.NS.muc_user, null, decline);
             const s = Stanza.node(
               "message",
               null,
               { to: invitation.mucJid },
-              x
+              x2
             );
             this.sendStanza(s);
           }

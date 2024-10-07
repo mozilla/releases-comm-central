@@ -655,8 +655,7 @@ export var OTRUI = {
         label: _str("finger-verify"),
         accessKey: _str("finger-verify-access-key"),
         callback() {
-          const name = uiConv.target.normalizedName;
-          OTRUI.openAuth(window, name, "start", uiConv);
+          OTRUI.openAuth(window, uiConv.target.normalizedName, "start", uiConv);
           // prevent closing of notification bar when the button is hit
           return true;
         },
@@ -665,8 +664,7 @@ export var OTRUI = {
         label: _str("finger-ignore"),
         accessKey: _str("finger-ignore-access-key"),
         callback() {
-          const context = OTR.getContext(uiConv.target);
-          OTR.abortSMP(context);
+          OTR.abortSMP(OTR.getContext(uiConv.target));
         },
       },
     ];
@@ -732,8 +730,7 @@ export var OTRUI = {
           label: _str("auth-cancel"),
           accessKey: _str("auth-cancel-access-key"),
           callback() {
-            const context = OTR.getContext(cachedUiConv.target);
-            OTR.abortSMP(context);
+            OTR.abortSMP(OTR.getContext(cachedUiConv.target));
           },
         },
       ];
@@ -757,8 +754,7 @@ export var OTRUI = {
           label: _str("finger-ignore"),
           accessKey: _str("finger-ignore-access-key"),
           callback() {
-            const context = OTR.getContext(cachedUiConv.target);
-            OTR.abortSMP(context);
+            OTR.abortSMP(OTR.getContext(cachedUiConv.target));
           },
         },
       ];

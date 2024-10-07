@@ -271,20 +271,20 @@ export var OTR = {
     return worker
       .post("generateKey", [OTRLib.path, OTRLib.otrl_version, address])
       .then(function () {
-        const err = OTRLib.otrl_privkey_generate_finish(
+        const rv = OTRLib.otrl_privkey_generate_finish(
           OTR.userstate,
           newkey,
           OTR.privateKeyPath
         );
-        if (err) {
-          throw new Error("otrl_privkey_generate_calculate (" + err + ")");
+        if (rv) {
+          throw new Error("otrl_privkey_generate_calculate (" + rv + ")");
         }
       })
-      .catch(function (err) {
+      .catch(function (e) {
         if (!newkey.isNull()) {
           OTRLib.otrl_privkey_generate_cancelled(OTR.userstate, newkey);
         }
-        throw err;
+        throw e;
       });
   },
 

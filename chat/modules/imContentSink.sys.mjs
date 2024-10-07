@@ -405,33 +405,33 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       }
 
       // Cleanup the style attribute.
-      const style = node.style;
-      for (let j = 0; j < style.length; ++j) {
-        if (!(style[j] in aRules.styles)) {
-          style.removeProperty(style[j]);
+      const styles = node.style;
+      for (let j = 0; j < styles.length; ++j) {
+        if (!(styles[j] in aRules.styles)) {
+          styles.removeProperty(styles[j]);
           --j;
         }
       }
 
       // If the style attribute is now empty or if it contained unsupported or
       // unparsable CSS it should be dropped completely.
-      if (!style.length) {
+      if (!styles.length) {
         node.removeAttribute("style");
       }
 
       // Sort the style attributes for easier checking/comparing later.
       if (node.hasAttribute("style")) {
         let trailingSemi = false;
-        let attrs = node.getAttribute("style").trim();
-        if (attrs.endsWith(";")) {
-          attrs = attrs.slice(0, -1);
+        let styleAttrs = node.getAttribute("style").trim();
+        if (styleAttrs.endsWith(";")) {
+          styleAttrs = styleAttrs.slice(0, -1);
           trailingSemi = true;
         }
-        attrs = attrs.split(";").map(a => a.trim());
-        attrs.sort();
+        styleAttrs = styleAttrs.split(";").map(a => a.trim());
+        styleAttrs.sort();
         node.setAttribute(
           "style",
-          attrs.join("; ") + (trailingSemi ? ";" : "")
+          styleAttrs.join("; ") + (trailingSemi ? ";" : "")
         );
       }
     } else {
