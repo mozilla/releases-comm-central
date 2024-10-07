@@ -157,28 +157,26 @@
   margin-inline-start: 6px;
 }
 
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
-  border-color: var(--toolbarbutton-header-bordercolor);
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button {
   background-image: linear-gradient(var(--imip-button-background), var(--imip-button-background));
+  border-color: var(--toolbarbutton-header-bordercolor);
 }
 
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not(:active):hover,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:is(:hover,[open="true"]) >
-  .toolbarbutton-menubutton-button,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:hover >
-  .toolbarbutton-menubutton-dropmarker {
+#imip-view-toolbar >
+  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+#imip-view-toolbar >
+  .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
+  border-color: var(--toolbarbutton-header-bordercolor);
+}
+
+#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not(:active):hover {
   background-image: linear-gradient(var(--toolbarbutton-hover-background),
                                     var(--toolbarbutton-hover-background)),
                     linear-gradient(var(--imip-button-background), var(--imip-button-background));
 }
 
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"]):hover:active,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] >
-  .toolbarbutton-menubutton-button:hover:active,
-#imip-view-toolbar > .toolbarbutton-1.message-header-view-button[open="true"] >
-  .toolbarbutton-menubutton-dropmarker {
+#imip-view-toolbar >
+  .toolbarbutton-1.message-header-view-button:not([is="toolbarbutton-menu-button"]):hover:active {
   background-image: linear-gradient(var(--toolbarbutton-active-background),
                                     var(--toolbarbutton-active-background)),
                     linear-gradient(var(--imip-button-background), var(--imip-button-background));
