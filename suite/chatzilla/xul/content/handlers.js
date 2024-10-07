@@ -2736,9 +2736,10 @@ function my_away(e)
         var chan = e.server.channels[c];
         if (chan.active && (e.user.collectionKey in chan.users))
         {
-            let index = chan.users[e.user.collectionKey].chanListEntry.childIndex;
+            let user = chan.users[e.user.collectionKey];
+            let index = user.chanListEntry.childIndex;
             userlist.treeBoxObject.invalidateRow(index);
-            e.server.channels[c].updateUsers([e.user.collectionKey]);
+            e.server.channels[c].updateUsers([user]);
         }
     }
 }
