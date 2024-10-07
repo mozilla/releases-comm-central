@@ -696,16 +696,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-function arrayInsertAt (ary, i, o)
-{
-    ary.splice (i, 0, o);
-}
-
-function arrayRemoveAt (ary, i)
-{
-    ary.splice (i, 1);
-}
-
 function objectContains(o, p)
 {
     return Object.hasOwnProperty.call(o, p);

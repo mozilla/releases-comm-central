@@ -2827,7 +2827,7 @@ function cmdAlias(e)
         }
 
         // Command Manager is updated when the preference changes.
-        arrayRemoveAt(aliasDefs, ary[0]);
+        aliasDefs.splice(ary[0], 1);
         aliasDefs.update();
 
         feedback(e, getMsg(MSG_ALIAS_REMOVED, e.aliasName));
@@ -3054,7 +3054,7 @@ function cmdOpenAtStartup(e)
         // no, please don't open at startup
         if (index != -1)
         {
-            arrayRemoveAt(list, index);
+            list.splice(index, 1);
             list.update();
             display(getMsg(MSG_STARTUP_REMOVED, url));
         }
@@ -3373,7 +3373,7 @@ function cmdNotify(e)
             }
             else
             {
-                arrayRemoveAt (net.prefs["notifyList"], idx);
+                net.prefs["notifyList"].splice(idx, 1);
                 subs.push(nickname);
             }
         }

@@ -760,7 +760,7 @@ function xtvr_remchild(index)
     var delta = -orphan.visualFootprint;
     var changeStart = orphan.calculateVisualRow();
     delete orphan.parentRecord;
-    arrayRemoveAt(this.childData, index);
+    this.childData.splice(index, 1);
 
     if (!orphan.isHidden && "isContainerOpen" in this && this.isContainerOpen)
         this.onVisualFootprintChanged(changeStart, delta);

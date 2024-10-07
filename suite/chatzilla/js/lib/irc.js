@@ -1098,7 +1098,7 @@ function serv_senddata (msg)
     if (this.sendQueue.length == 0)
         this.parent.eventPump.addEvent (new CEvent ("server", "senddata",
                                                     this, "onSendData"));
-    arrayInsertAt (this.sendQueue, 0, new String(msg));
+    this.sendQueue.unshift(new String(msg));
 }
 
 // Utility method for splitting large lines prior to sending.
@@ -4090,10 +4090,10 @@ function CIRCChanUser(parent, unicodeName, encodedName, modes, userInChannel, na
                     var mode = modes[m][1];
                     if (modes[m][0] == "-")
                     {
-                        if (existingUser.modes.includes(mode))
+                        let idx = existingUser.modes.indexOf(mode);
+                        if (idx >= 0)
                         {
-                            var i = existingUser.modes.indexOf(mode);
-                            arrayRemoveAt(existingUser.modes, i);
+                            existingUser.modes.splice(idx, 1);
                         }
                     }
                     else

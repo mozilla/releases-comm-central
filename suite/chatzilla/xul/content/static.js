@@ -3421,7 +3421,7 @@ function getTabForObject(source, create)
         }
 
         var viewKey = Number(tb.getAttribute("viewKey"));
-        arrayRemoveAt(client.viewsArray, viewKey);
+        client.viewsArray.splice(viewKey, 1);
         for (i = viewKey; i < client.viewsArray.length; i++)
             client.viewsArray[i].tb.setAttribute("viewKey", i);
         client.tabs.removeChild(tb);
@@ -3500,7 +3500,7 @@ function getTabForObject(source, create)
     if (beforeTab)
     {
         var viewKey = beforeTab.getAttribute("viewKey");
-        arrayInsertAt(client.viewsArray, viewKey, {source: source, tb: tb});
+        client.viewsArray.splice(viewKey, 0, {source: source, tb: tb});
         for (i = viewKey; i < client.viewsArray.length; i++)
             client.viewsArray[i].tb.setAttribute("viewKey", i);
         client.tabs.insertBefore(tb, beforeTab);
@@ -3778,7 +3778,7 @@ function deleteTab(tb)
     // Re-index higher tabs.
     for (var i = key + 1; i < client.viewsArray.length; i++)
         client.viewsArray[i].tb.setAttribute("viewKey", i - 1);
-    arrayRemoveAt(client.viewsArray, key);
+    client.viewsArray.splice(key, 1);
     client.tabs.removeChild(tb);
     setTimeout(updateTabAttributes, 0);
 

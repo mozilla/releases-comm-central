@@ -98,13 +98,10 @@ function pm_addobserver(observer)
 PrefManager.prototype.removeObserver =
 function pm_removeobserver(observer)
 {
-    for (var i = 0; i < this.observers.length; i++)
+    let idx = this.observers.indexOf(observer);
+    if (idx >= 0)
     {
-        if (this.observers[i] == observer)
-        {
-            arrayRemoveAt(this.observers, i);
-            break;
-        }
+        this.observers.splice(idx, 1);
     }
 }
 

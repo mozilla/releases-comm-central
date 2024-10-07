@@ -185,7 +185,7 @@ function ep_remhookname(name, hooks)
     for (var h in hooks)
         if (hooks[h].name.toLowerCase() == name.toLowerCase())
         {
-            arrayRemoveAt (hooks, h);
+            hooks.splice(h, 1);
             return true;
         }
 
@@ -199,7 +199,7 @@ function ep_remhooki(idx, hooks)
     if (typeof hooks == "undefined")
         hooks = this.hooks;
 
-    return arrayRemoveAt (hooks, idx);
+    return hooks.splice(idx, 1);
 
 }
 

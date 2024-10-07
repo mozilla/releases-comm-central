@@ -1447,7 +1447,7 @@ function my_734(e)
     {
         var j = this.prefs["notifyList"].indexOf(nickList[i]);
         if (j >= 0)
-            arrayRemoveAt(this.prefs["notifyList"], j);
+            this.prefs["notifyList"].splice(j, 1);
     }
     this.prefs["notifyList"].update();
 
