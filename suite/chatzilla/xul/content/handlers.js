@@ -1012,7 +1012,7 @@ function my_unknown (e)
     var msg = getMsg("msg.irc." + e.code, null, "");
     if (msg)
     {
-        if (arrayIndexOf(e.server.channelTypes, e.params[0][0]) != -1)
+        if (e.server.channelTypes.includes(e.params[0][0]))
         {
             // Message about a channel (e.g. join failed).
             e.channel = new CIRCChannel(e.server, null, e.params[0]);
@@ -1727,7 +1727,7 @@ function my_401(e)
      */
     if (e.code == 402)
         server = e.decodeParam(2);
-    else if (arrayIndexOf(e.server.channelTypes, e.params[2][0]) != -1)
+    else if (e.server.channelTypes.includes(e.params[2][0]))
         channel = new CIRCChannel(e.server, null, e.params[2]);
     else
         user = new CIRCUser(e.server, null, e.params[2]);
@@ -2034,8 +2034,7 @@ function my_433 (e)
 
     if (this.state == NET_CONNECTING)
     {
-        // Force a number, thanks.
-        var nickIndex = 1 * arrayIndexOf(this.prefs["nicknameList"], nick);
+        var nickIndex = this.prefs["nicknameList"].indexOf(nick);
         var newnick = null;
 
         dd("433: failed with " + nick + " (" + nickIndex + ")");

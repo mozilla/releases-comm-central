@@ -132,26 +132,26 @@ function dcc_getmatches(nickname, filename, types, dirs, states)
     var n = nickname;
     var f = filename;
 
-    if (arrayIndexOf(types, "chat") >= 0)
+    if (types.includes("chat"))
     {
         for (k = 0; k < this.chats.length; k++)
         {
             if ((!nickname || matchNames(this.chats[k].user.unicodeName, n)) &&
-                (!dirs || arrayIndexOf(dirs, this.chats[k].state.dir) >= 0) &&
-                (!states || arrayIndexOf(states, this.chats[k].state.state) >= 0))
+                (!dirs || dirs.includes(this.chats[k].state.dir)) &&
+                (!states || states.includes(this.chats[k].state.state)))
             {
                 list.push(this.chats[k]);
             }
         }
     }
-    if (arrayIndexOf(types, "file") >= 0)
+    if (types.includes("file"))
     {
         for (k = 0; k < this.files.length; k++)
         {
             if ((!nickname || matchNames(this.files[k].user.unicodeName, n)) &&
                 (!filename || matchNames(this.files[k].filename, f)) &&
-                (!dirs || arrayIndexOf(dirs, this.files[k].state.dir) >= 0) &&
-                (!states || arrayIndexOf(states, this.files[k].state.state) >= 0))
+                (!dirs || dirs.includes(this.files[k].state.dir)) &&
+                (!states || states.includes(this.files[k].state.state)))
             {
                 list.push(this.files[k]);
             }

@@ -410,7 +410,7 @@ function net_doconnect(e)
                 });
                 if (matches.length > 0)
                 {
-                    host = arrayIndexOf(this.serverList, matches[0]);
+                    host = this.serverList.indexOf(matches[0]);
                 }
                 else
                 {
@@ -1045,7 +1045,7 @@ function serv_monitorlist(nicks, isAdd)
 CIRCServer.prototype.addTarget =
 function serv_addtarget(name)
 {
-    if (arrayIndexOf(this.channelTypes, name[0]) != -1) {
+    if (this.channelTypes.includes(name[0])) {
         return this.addChannel(name);
     } else {
         return this.addUser(name);
@@ -2692,7 +2692,7 @@ function serv_mode (e)
 {
     e.destObject = this;
     /* modes are not allowed in +channels -> no need to test that here.. */
-    if (arrayIndexOf(this.channelTypes, e.params[1][0]) != -1)
+    if (this.channelTypes.includes(e.params[1][0]))
     {
         e.channel = new CIRCChannel(this, null, e.params[1]);
         if ("user" in e && e.user)
@@ -3121,7 +3121,7 @@ function serv_notice_privmsg (e)
 
     /* setting replyTo provides a standard place to find the target for     */
     /* replies associated with this event.                                  */
-    if (arrayIndexOf(this.channelTypes, targetName[0]) != -1)
+    if (this.channelTypes && this.channelTypes.includes(targetName[0]))
     {
         e.channel = new CIRCChannel(this, null, targetName);
         if ("user" in e)
@@ -3558,7 +3558,7 @@ function chan_geturl()
     var flags = this.mode.key ? ["needkey"] : [];
 
     if ((target[0] == "#") && (target.length > 1) &&
-        arrayIndexOf(this.parent.channelTypes, target[1]) == -1)
+        !this.parent.channelTypes.includes(target[1]))
     {
         /* First character is "#" (which we're allowed to omit), and the
          * following character is NOT a valid prefix, so it's safe to remove.
@@ -4092,7 +4092,7 @@ function CIRCChanUser(parent, unicodeName, encodedName, modes, userInChannel, na
                     {
                         if (existingUser.modes.includes(mode))
                         {
-                            var i = arrayIndexOf(existingUser.modes, mode);
+                            var i = existingUser.modes.indexOf(mode);
                             arrayRemoveAt(existingUser.modes, i);
                         }
                     }

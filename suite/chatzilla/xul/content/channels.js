@@ -668,7 +668,7 @@ function processOpFilterStart(opData)
         filters.push("max-users");
 
     if (opData.channelText &&
-        (arrayIndexOf(["#", "&", "+", "!"], opData.channelText[0]) == -1))
+        !["#", "&", "+", "!"].includes(opData.channelText[0]))
     {
         opData.channelText = "#" + opData.channelText;
     }

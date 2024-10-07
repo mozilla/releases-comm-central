@@ -1082,8 +1082,8 @@ function getViewsContext(cx)
         var types = ["IRCClient", "IRCNetwork", "IRCDCCChat",
                      "IRCDCCFileTransfer"];
         var typesNetwork = ["IRCNetwork", "IRCChannel", "IRCUser"];
-        var group = String(arrayIndexOf(types, view.TYPE));
-        if (arrayIndexOf(typesNetwork, view.TYPE) != -1)
+        var group = String(types.indexOf(view.TYPE));
+        if (typesNetwork.includes(view.TYPE))
             group = "1-" + getObjectDetails(view).network.viewName;
 
         var sort = group + "-" + view.viewName;
@@ -1906,8 +1906,8 @@ function gotoIRCURL(url, e)
                  * NOTE: This is always a "#" so that URLs may be compared
                  * properly without involving the server (e.g. off-line).
                  */
-                if ((arrayIndexOf(["#", "&", "+", "!"], target[0]) == -1) &&
-                    (arrayIndexOf(serv.channelTypes, target[0]) == -1))
+                if (!["#", "&", "+", "!"].includes(target[0]) &&
+                    !serv.channelTypes.includes(target[0]))
                 {
                     target = "#" + target;
                 }
@@ -2631,7 +2631,7 @@ function advanceKeyboardFocus(amount)
     if (!elem || (elem.ownerDocument == contentDoc))
         elem = contentWin;
 
-    var newIndex = (arrayIndexOf(focusableElems, elem) * 1 + 3 + amount) % 3;
+    var newIndex = (focusableElems.indexOf(elem) + 3 + amount) % 3;
     focusableElems[newIndex].focus();
 
     // Make it obvious this element now has focus.

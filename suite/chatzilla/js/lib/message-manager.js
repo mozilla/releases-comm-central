@@ -106,7 +106,7 @@ function mm_importbundle(bundle, targetWindow, index)
         targetWindow = window;
 
     if (typeof index == "undefined")
-        index = arrayIndexOf(this.bundleList, bundle);
+        index = this.bundleList.indexOf(bundle);
     
     var pfx;
     if (index == 0)

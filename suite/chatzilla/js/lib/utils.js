@@ -696,15 +696,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-function arrayIndexOf (ary, elem)
-{
-    for (var i in ary)
-        if (ary[i] == elem)
-            return i;
-
-    return -1;
-}
-
 function arrayInsertAt (ary, i, o)
 {
     ary.splice (i, 0, o);

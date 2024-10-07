@@ -2436,8 +2436,8 @@ function cmdJoin(e)
             return chan;
         }
 
-        if ((arrayIndexOf(["#", "&", "+", "!"], e.channelName[0]) == -1) &&
-            (arrayIndexOf(e.server.channelTypes, e.channelName[0]) == -1))
+        if (!["#", "&", "+", "!"].includes(e.channelName[0]) &&
+            !e.server.channelTypes.includes(e.channelName[0]))
         {
             e.channelName = e.server.channelTypes[0] + e.channelName;
         }
@@ -2481,7 +2481,7 @@ function cmdLeave(e)
         // specified a non-existing channel and isn't in a channel either, we
         // will also return a falsy value
         var shouldContinue = true;
-        if (arrayIndexOf(e.server.channelTypes, channelName[0]) == -1)
+        if (!e.server.channelTypes.includes(channelName[0]))
         {
             // No valid prefix character. Check they really meant a channel...
             var valid = false;
@@ -3022,7 +3022,7 @@ function cmdOpenAtStartup(e)
     var url = makeCanonicalIRCURL(origURL);
     var list = client.prefs["initialURLs"];
     ensureCachedCanonicalURLs(list);
-    var index = arrayIndexOf(list.canonicalURLs, url);
+    var index = list.canonicalURLs.indexOf(url);
 
     if (e.toggle == null)
     {
@@ -3365,7 +3365,7 @@ function cmdNotify(e)
             var nickname = e.server.toLowerCase(e.nicknameList[i]);
             var list = net.prefs["notifyList"];
             list = e.server.toLowerCase(list.join(";")).split(";");
-            var idx = arrayIndexOf (list, nickname);
+            var idx = list.indexOf(nickname);
             if (idx == -1)
             {
                 net.prefs["notifyList"].push (nickname);
@@ -4361,8 +4361,7 @@ function cmdDCCAutoAcceptAdd(e)
         e.user = e.server.getUser(e.nickname);
 
     var mask = e.user ? "*!" + e.user.name + "@" + e.user.host : e.nickname;
-    var index = arrayIndexOf(list, mask);
-    if (index == -1)
+    if (!list.includes(mask))
     {
         list.push(mask);
         list.update();
