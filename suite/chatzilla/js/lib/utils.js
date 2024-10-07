@@ -623,17 +623,6 @@ function getContentDocument(frame)
     }
 }
 
-function keys (o)
-{
-    var rv = new Array();
-
-    for (var p in o)
-        rv.push(p);
-
-    return rv;
-
-}
-
 /* the offset should be in seconds, it will be rounded to 2 decimal places */
 function formatDateOffset (offset, format)
 {

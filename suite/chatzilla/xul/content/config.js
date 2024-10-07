@@ -369,8 +369,7 @@ function opdata_loadXUL(tabOrder)
     
     this.loadData();
     
-    var prefList = keys(this.prefs);
-    prefList.sort(sortByLabel);
+    var prefList = Object.keys(this.prefs).sort(sortByLabel);
     
     for (var i = 0; i < tabOrder.length; i++)
     {
@@ -1092,16 +1091,16 @@ function pwin_onLoad()
     /* We sort the keys (property names, i.e. network names). This means the UI
      * will show them in lexographical order, which is good.
      */
-    var sortedNets = keys(client.networks).sort();
+    var sortedNets = Object.keys(client.networks).sort();
     for (i = 0; i < sortedNets.length; i++) {
         net = client.networks[sortedNets[i]];
         this.prefObjects.addObject(net);
         
-        var sortedChans = keys(net.channels).sort();
+        var sortedChans = Object.keys(net.channels).sort();
         for (j = 0; j < sortedChans.length; j++)
             this.prefObjects.addObject(net.channels[sortedChans[j]]);
         
-        var sortedUsers = keys(net.users).sort();
+        var sortedUsers = Object.keys(net.users).sort();
         for (j = 0; j < sortedUsers.length; j++)
             this.prefObjects.addObject(net.users[sortedUsers[j]]);
     }

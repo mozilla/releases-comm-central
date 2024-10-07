@@ -1437,7 +1437,7 @@ function cmdNetworks(e)
 {
     var wrapper = newInlineText(MSG_NETWORKS_HEADA);
 
-    var netnames = keys(client.networks).sort();
+    var netnames = Object.keys(client.networks).sort();
 
     for (let i = 0; i < netnames.length; i++)
     {
@@ -3991,7 +3991,7 @@ function cmdIgnore(e)
                 display(getMsg(MSG_IGNORE_DELERR, e.mask));
         }
         // Update pref:
-        var ignoreList = keys(e.network.ignoreList);
+        var ignoreList = Object.keys(e.network.ignoreList);
         e.network.prefs["ignoreList"] = ignoreList;
         e.network.prefs["ignoreList"].update();
     }
