@@ -327,20 +327,6 @@ function Clone (obj)
 
 }
 
-function Copy(source, dest, overwrite)
-{
-    if (!dest)
-        dest = new Object();
-
-    for (var p in source)
-    {
-        if (overwrite || !(p in dest))
-            dest[p] = source[p];
-    }
-
-    return dest;
-}
-
 /*
  * matches a real object against one or more pattern objects.
  * if you pass an array of pattern objects, |negate| controls whether to check
@@ -484,11 +470,6 @@ function getCommonPfx (list, lcFn)
 
     return pfx;
 
-}
-
-function openTopWin (url)
-{
-    return openDialog (getBrowserURL(), "_blank", "chrome,all,dialog=no", url);
 }
 
 function getWindowByType (windowType)
@@ -642,34 +623,6 @@ function getContentDocument(frame)
     }
 }
 
-function getPriv (priv)
-{
-    var rv = true;
-
-    try
-    {
-        netscape.security.PrivilegeManager.enablePrivilege(priv);
-    }
-    catch (e)
-    {
-        dd ("getPriv: unable to get privlege '" + priv + "': " + e);
-        rv = false;
-    }
-
-    return rv;
-
-}
-
-function len(o)
-{
-    var l = 0;
-
-    for (var p in o)
-        ++l;
-
-    return l;
-}
-
 function keys (o)
 {
     var rv = new Array();
@@ -693,7 +646,8 @@ function stringTrim (s)
 /* the offset should be in seconds, it will be rounded to 2 decimal places */
 function formatDateOffset (offset, format)
 {
-    var seconds = roundTo(offset % 60, 2);
+    var seconds = offset % 60;
+    seconds = Math.round((seconds + Number.EPSILON) * 100) / 100;
     var minutes = Math.floor(offset / 60);
     var hours = Math.floor(minutes / 60);
     minutes = minutes % 60;
@@ -771,46 +725,10 @@ function objectContains(o, p)
     return Object.hasOwnProperty.call(o, p);
 }
 
-/* length should be an even number >= 6 */
-function abbreviateWord (str, length)
-{
-    if (str.length <= length || length < 6)
-        return str;
-
-    var left = str.substr (0, (length / 2) - 1);
-    var right = str.substr (str.length - (length / 2) + 1);
-
-    return left + "..." + right;
-}
-
 /*
- * Inserts the string |hyphen| into string |str| every |pos| characters.
  * If there are any wordbreaking characters in |str| within -/+5 characters of
- * of a |pos| then the hyphen is inserted there instead, in order to produce a
- * "cleaner" break.
- */
-function hyphenateWord (str, pos, hyphen)
-{
-    if (str.length <= pos)
-        return str;
-    if (typeof hyphen == "undefined")
-        hyphen = " ";
-
-    /* search for a nice place to break the word, fuzzfactor of +/-5, centered
-     * around |pos| */
-    var splitPos =
-        str.substring(pos - 5, pos + 5).search(/[^A-Za-z0-9]/);
-
-    splitPos = (splitPos != -1) ? pos - 4 + splitPos : pos;
-    var left = str.substr (0, splitPos);
-    var right = hyphenateWord(str.substr (splitPos), pos, hyphen);
-
-    return left + hyphen + right;
-}
-
-/*
- * Like hyphenateWord, except individual chunks of the word are returned as
- * elements of an array.
+ * of a |pos| then the word is broken up there. Individual chunks of the word
+ * are returned as elements of an array.
  */
 function splitLongWord (str, pos)
 {
@@ -837,33 +755,6 @@ function splitLongWord (str, pos)
     return ary;
 }
 
-function getRandomElement (ary)
-{
-
-    return ary[Math.floor(Math.random() * ary.length)];
-
-}
-
-function roundTo (num, prec)
-{
-
-    return Math.round(num * Math.pow (10, prec)) / Math.pow (10, prec);
-
-}
-
-function randomRange (min, max)
-{
-
-    if (typeof min == "undefined")
-        min = 0;
-
-    if (typeof max == "undefined")
-        max = 1;
-
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-
-}
-
 // Creates a random string of |len| characters from a-z, A-Z, 0-9.
 function randomString(len) {
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -888,66 +779,6 @@ function getStackTrace ()
     }
 
     return str;
-
-}
-
-function getInterfaces (cls)
-{
-    var rv = new Object();
-    var e;
-
-    for (var i in Components.interfaces)
-    {
-        try
-        {
-            var ifc = Components.interfaces[i];
-            cls.QueryInterface(ifc);
-            rv[i] = ifc;
-        }
-        catch (e)
-        {
-            /* nada */
-        }
-    }
-
-    return rv;
-
-}
-
-/**
- * Calls a named function for each element in an array, sending
- * the same parameter each call.
- *
- * @param ary           an array of objects
- * @param func_name     string name of function to call.
- * @param data          data object to pass to each object.
- */
-function mapObjFunc(ary, func_name, data)
-{
-    /*
-     * WARNING: Caller assumes resonsibility to verify ary
-     * and func_name
-     */
-
-    for (var i in ary)
-        ary[i][func_name](data);
-}
-
-/**
- * Passes each element of an array to a given function object.
- *
- * @param func  a function object.
- * @param ary   an array of values.
- */
-function map(func, ary) {
-
-    /*
-     * WARNING: Caller assumnes responsibility to verify
-     * func and ary.
-     */
-
-    for (var i in ary)
-        func(ary[i]);
 
 }
 
@@ -1239,13 +1070,6 @@ function isinstance(inst, base)
     return (inst && base &&
             ((inst instanceof base) ||
              (inst.constructor && (inst.constructor.name == base.name))));
-}
-
-function isDefaultPrevented(ev)
-{
-    if ("defaultPrevented" in ev)
-        return ev.defaultPrevented;
-    return ev.getPreventDefault();
 }
 
 function scaleNumberBy1024(number)
