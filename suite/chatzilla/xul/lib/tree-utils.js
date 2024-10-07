@@ -1029,42 +1029,6 @@ function xtvr_find (targetRow, myRow)
     return null;
 }   
 
-/**
- * Used to drop a label into an arbitrary place in an arbitrary tree.
- *
- * Normally, specializations of |XULTreeViewRecord| are tied to a specific
- * tree because of implementation details.  |XTLabelRecords| are specially
- * designed (err, hacked) to work around these details - this makes them
- * slower, but more generic.
- *
- * We set up a getter for |_share| that defers to the parent object. This lets
- * |XTLabelRecords| work in any tree.
- */
-function XTLabelRecord (columnName, label, blankCols)
-{
-    this.setColumnPropertyName (columnName, "label");
-    this.label = label;
-    this.property = null;
-    
-    if (typeof blankCols == "object")
-    {
-        for (var i in blankCols)
-            this._colValues[blankCols[i]] = "";
-    }
-}
-
-XTLabelRecord.prototype = new XULTreeViewRecord (null);
-
-XTLabelRecord.prototype.__defineGetter__("_share", tolr_getshare);
-function tolr_getshare()
-{
-    if ("parentRecord" in this)
-        return this.parentRecord._share;
-
-    ASSERT (0, "XTLabelRecord cannot be the root of a visible tree.");
-    return null;
-}
-
 // @internal
 function XTRootRecord (tree, share)
 {
