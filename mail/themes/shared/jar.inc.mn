@@ -753,10 +753,14 @@
 # SM - 16x16px icons
   skin/classic/messenger/icons/sm/dot.svg                      (../shared/mail/icons/sm/dot.svg)
   skin/classic/messenger/icons/sm/folder-compact.svg           (../shared/mail/icons/sm/folder-compact.svg)
+  skin/classic/messenger/icons/sm/mobile-export.svg            (../shared/mail/icons/sm/mobile-export.svg)
+  skin/classic/messenger/icons/sm/mobile-import.svg            (../shared/mail/icons/sm/mobile-import.svg)
   skin/classic/messenger/icons/sm/sparkle-star.svg             (../shared/mail/icons/sm/sparkle-star.svg)
   skin/classic/messenger/icons/sm/upload.svg                   (../shared/mail/icons/sm/upload.svg)
 
 # LG - 24x24px icons
   skin/classic/messenger/icons/lg/upload.svg                   (../shared/mail/icons/lg/upload.svg)
+  skin/classic/messenger/icons/lg/mobile-export.svg            (../shared/mail/icons/lg/mobile-export.svg)
+  skin/classic/messenger/icons/lg/mobile-import.svg            (../shared/mail/icons/lg/mobile-import.svg)
 
   skin/classic/messenger/icons/brand/nebula-logo.webp          (../shared/mail/icons/brand/nebula-logo.webp)

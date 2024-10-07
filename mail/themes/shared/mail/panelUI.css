@@ -1098,7 +1098,7 @@ menulist {
 }
 
 #appmenu_exportmobile {
-  list-style-image: var(--icon-upload-sm);
+  list-style-image: var(--icon-mobile-export-sm);
 }
 
 #appmenu_searchCmd {

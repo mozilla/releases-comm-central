@@ -17,6 +17,12 @@
   --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
   --icon-upload-sm: url("chrome://messenger/skin/icons/sm/upload.svg");
+  --icon-mobile-export-sm: url("chrome://messenger/skin/icons/sm/mobile-export.svg");
+  --icon-mobile-export-sm: url("chrome://messenger/skin/icons/sm/mobile-export.svg");
+
+  /* LG - 24x24px icons */
+  --icon-mobile-export-lg: url("chrome://messenger/skin/icons/lg/mobile-export.svg");
+  --icon-mobile-export-lg: url("chrome://messenger/skin/icons/lg/mobile-export.svg");
 
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
   --icon-add: url("chrome://messenger/skin/icons/new/compact/add.svg");
