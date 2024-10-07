@@ -94,6 +94,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(
       m_moveDestination.Truncate();
       break;
     case kMsgCopy:
+      NS_ENSURE_TRUE(m_copyDestinations.Length() > 0, NS_ERROR_UNEXPECTED);
       m_copyDestinations.RemoveElementAt(0);
       break;
   }
