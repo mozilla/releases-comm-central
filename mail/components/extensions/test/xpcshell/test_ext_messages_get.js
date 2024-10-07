@@ -155,11 +155,11 @@ add_task(async function test_plain_mv2() {
           fullMessage.headers.subject[0]
         );
         browser.test.assertEq(
-          '"Andy Anway" <andy@anway.invalid>',
+          "Andy Anway <andy@anway.invalid>",
           fullMessage.headers.from[0]
         );
         browser.test.assertEq(
-          '"Bob Bell" <bob@bell.invalid>',
+          "Bob Bell <bob@bell.invalid>",
           fullMessage.headers.to[0]
         );
 
@@ -317,11 +317,11 @@ add_task(async function test_plain_mv3() {
           fullMessage.headers.subject[0]
         );
         browser.test.assertEq(
-          '"Chris Clarke" <chris@clarke.invalid>',
+          "Chris Clarke <chris@clarke.invalid>",
           fullMessage.headers.from[0]
         );
         browser.test.assertEq(
-          '"David Davol" <david@davol.invalid>',
+          "David Davol <david@davol.invalid>",
           fullMessage.headers.to[0]
         );
 
@@ -465,7 +465,7 @@ add_task(async function test_encoding() {
               size: 0,
               decryptionStatus: "none",
               headers: {
-                from: ['"Doug Sauder" <doug@example.com>'],
+                from: ["Doug Sauder <doug@example.com>"],
                 to: ["Heinz Müller <mueller@example.com>"],
                 subject: ["Test message from Microsoft Outlook 00"],
                 date: ["Wed, 17 May 2000 19:32:47 -0400"],
@@ -555,7 +555,7 @@ add_task(async function test_encoding() {
               decryptionStatus: "none",
               headers: {
                 from: ["Heinz Müller <mueller@example.com>"],
-                to: ['"Joe Blow" <jblow@example.com>'],
+                to: ["Joe Blow <jblow@example.com>"],
                 subject: ["Test message from Microsoft Outlook 00"],
                 date: ["Wed, 17 May 2000 19:35:05 -0400"],
                 "message-id": ["<03.eml@mime.sample>"],
@@ -818,9 +818,9 @@ add_task(async function test_encoding() {
               size: 0,
               decryptionStatus: "none",
               headers: {
-                from: [`Hörst, Kenny <K.Hoerst@invalid>`],
+                from: [`"Hörst, Kenny" <K.Hoerst@invalid>`],
                 to: [
-                  `Hörst, Kenny <K.Hoerst@invalid>, Bug Reporter <new@thunderbird.bug>`,
+                  `"Hörst, Kenny" <K.Hoerst@invalid>, Bug Reporter <new@thunderbird.bug>`,
                 ],
                 subject: ["Message for Bug 1919244"],
                 date: ["Mon, 23 Sep 2024 16:16:47 +0200"],

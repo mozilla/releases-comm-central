@@ -14,6 +14,7 @@ ChromeUtils.defineESModuleGetters(this, {
 var {
   getMsgPartUrl,
   getMessagesInFolder,
+  parseEncodedAddrHeader,
   CachedMsgHeader,
   MessageQuery,
   MsgHdrProcessor,
@@ -45,19 +46,57 @@ var { DefaultMap } = ExtensionUtils;
  * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
  */
 function convertHeaders(mimeTreePart) {
+  // For convenience, the API has always decoded the returned headers. That turned
+  // out to make it impossible to parse certain headers. For example, the following
+  // TO header
+  //   To: =?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug
+  // was decoded to
+  //   To: Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug
+  // This issue seems to be specific to address headers. Similar to jsmime, which
+  // is using a dedicated parser for well known address headers, we will handle
+  // these address headers separately as well. It is obviously not a perfect fix,
+  // but the best we can do.
+  const addressHeaders = [
+    // Addressing headers from RFC 5322:
+    "bcc",
+    "cc",
+    "from",
+    "reply-to",
+    "resent-bcc",
+    "resent-cc",
+    "resent-from",
+    "resent-reply-to",
+    "resent-sender",
+    "resent-to",
+    "sender",
+    "to",
+    // From RFC 5536:
+    "approved",
+    // From RFC 3798:
+    "disposition-notification-to",
+    // Non-standard headers:
+    "delivered-to",
+    "return-receipt-to",
+    // http://cr.yp.to/proto/replyto.html
+    "mail-reply-to",
+    "mail-followup-to",
+  ];
+
   const partHeaders = {};
   for (const [headerName, headerValue] of mimeTreePart.headers._rawHeaders) {
     // Return an array, even for single values.
     const valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
-    // Return a binary string.
-    partHeaders[headerName] = valueArray.map(value => {
-      return MailServices.mimeConverter.decodeMimeHeader(
-        MailStringUtils.stringToByteString(value),
-        null,
-        false /* override_charset */,
-        true /* eatContinuations */
-      );
-    });
+
+    partHeaders[headerName] = addressHeaders.includes(headerName)
+      ? valueArray.map(value => parseEncodedAddrHeader(value).join(", "))
+      : valueArray.map(value => {
+          return MailServices.mimeConverter.decodeMimeHeader(
+            MailStringUtils.stringToByteString(value),
+            null,
+            false /* override_charset */,
+            true /* eatContinuations */
+          );
+        });
   }
   if (!partHeaders["content-type"]) {
     partHeaders["content-type"] = ["text/plain"];
