@@ -1896,10 +1896,10 @@ export var XMPPAccountPrototype = {
         telephone: "tooltip-telephone",
       };
 
-      const stanzaTooltipInfo = [];
+      const vCard = [];
       for (const [field, stringKey] of Object.entries(kTooltipFields)) {
         if (vCardInfo.hasOwnProperty(field)) {
-          stanzaTooltipInfo.push(
+          vCard.push(
             new TooltipInfo(
               lazy.l10n.formatValueSync(stringKey),
               vCardInfo[field]
@@ -1915,12 +1915,10 @@ export var XMPPAccountPrototype = {
           participant.buddyIconFilename = dataURI;
         }
 
-        stanzaTooltipInfo.push(
-          new TooltipInfo(null, dataURI, Ci.prplITooltipInfo.icon)
-        );
+        vCard.push(new TooltipInfo(null, dataURI, Ci.prplITooltipInfo.icon));
       }
       Services.obs.notifyObservers(
-        new nsSimpleEnumerator(stanzaTooltipInfo),
+        new nsSimpleEnumerator(vCard),
         "user-info-received",
         aJid
       );
