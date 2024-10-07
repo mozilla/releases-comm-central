@@ -1659,7 +1659,7 @@ FunctionEnd
   ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator" "$0" 0
   ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "DisplayName" "${BrandFullNameInternal}$1" 0
   ; Sadly, we can't use embedded resources like `firefox.exe,1`.
-  ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "IconUri" "$INSTDIR\browser\VisualElements\VisualElements_70.png" 0
+  ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "IconUri" "$INSTDIR\VisualElements\VisualElements_70.png" 0
   ${WriteRegStr2} ${RegKey} "Software\Classes\CLSID\$0" "AppID" "$0" 0
   ${WriteRegStr2} ${RegKey} "Software\Classes\CLSID\$0\InProcServer32" "" "$INSTDIR\notificationserver.dll" 0
 !macroend
