@@ -89,7 +89,7 @@ function http_poll (e)
                 c = this.data.search(/\<\/html\>/i);
                 if (c != -1)
                 {
-                    this.docType = stringTrim(this.docType);    
+                    this.docType = this.docType.trim();
                     this.state = "complete";
                     need_more = false;
                 }
@@ -114,7 +114,7 @@ function http_poll (e)
             var c = line.search (/\<html\>/i);
             if (c != -1)
             {
-                this.docType = stringTrim(this.docType);    
+                this.docType = this.docType.trim();
                 this.data = line.substr (c, line.length);
                 this.state = "receive-data";
                 line = line.substr (0, c);

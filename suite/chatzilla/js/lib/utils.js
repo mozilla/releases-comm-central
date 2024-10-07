@@ -634,15 +634,6 @@ function keys (o)
 
 }
 
-function stringTrim (s)
-{
-    if (!s)
-        return "";
-    s = s.replace (/^\s+/, "");
-    return s.replace (/\s+$/, "");
-
-}
-
 /* the offset should be in seconds, it will be rounded to 2 decimal places */
 function formatDateOffset (offset, format)
 {

@@ -1306,7 +1306,7 @@ function my_303 (e)
     // split() gives an array of one item ("") when splitting "", which we
     // don't want, so only do the split if there's something to split.
     if (e.params[2])
-        onList = stringTrim(e.server.toLowerCase(e.params[2])).split(/\s+/);
+        onList = e.server.toLowerCase(e.params[2]).trim().split(/\s+/);
     var offList = new Array();
     var newArrivals = new Array();
     var newDepartures = new Array();
@@ -1940,7 +1940,7 @@ function my_whoisreply (e)
             break;
 
         case 319:
-            var ary = stringTrim(e.decodeParam(3)).split(" ");
+            var ary = e.decodeParam(3).trim().split(" ");
             text = getMsg(MSG_WHOIS_CHANNELS, [nick, arraySpeak(ary)]);
             break;
 
@@ -2422,7 +2422,7 @@ CIRCNetwork.prototype.onCTCPReplyPing =
 function my_replyping (e)
 {
     // see bug 326523
-    if (stringTrim(e.CTCPData).length != 13)
+    if (e.CTCPData.trim().length != 13)
     {
         this.display(getMsg(MSG_PING_REPLY_INVALID, e.user.unicodeName),
                      "INFO", e.user, "ME!", e.tags);

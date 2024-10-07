@@ -480,7 +480,7 @@ function dispatch(text, e, isInteractive, flags)
 
     e.commandText = ary[1];
     if (ary[2])
-        e.inputData = stringTrim(ary[2]);
+        e.inputData = ary[2].trim();
 
     /* list matching commands */
     ary = client.commandManager.list(e.commandText, flags, true);
@@ -877,7 +877,7 @@ function dispatchCommand (command, e, flags)
             {
                 var newEvent = Clone(e);
                 delete newEvent.command;
-                commandList[i] = stringTrim(commandList[i]);
+                commandList[i] = commandList[i].trim();
                 dispatch(commandList[i], newEvent, flags);
             }
         }
