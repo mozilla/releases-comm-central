@@ -1229,7 +1229,7 @@ function isStartupURL(url)
     url = makeCanonicalIRCURL(url);
     var list = client.prefs["initialURLs"];
     ensureCachedCanonicalURLs(list);
-    return arrayContains(list.canonicalURLs, url);
+    return list.canonicalURLs.includes(url);
 }
 
 function cycleView(amount)

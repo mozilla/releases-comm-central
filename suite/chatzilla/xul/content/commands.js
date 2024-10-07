@@ -1123,7 +1123,7 @@ function cmdChanUserMode(e)
              * else in a no-op manner (e.g. voicing an already voiced user).
              */
             if ((user.encodedName != me.encodedName) &&
-                (arrayContains(user.modes, mode) ^ adding))
+                (user.modes.includes(mode) ^ adding))
             {
                 nickList.push(user.encodedName);
             }
@@ -1982,7 +1982,7 @@ function cmdMode(e)
     if (!e.modestr)
     {
         e.modestr = "";
-        if (!e.channel && arrayContains(e.server.channelTypes, chan[0]))
+        if (!e.channel && e.server.channelTypes.includes(chan[0]))
             e.channel = new CIRCChannel(e.server, null, chan);
         if (e.channel)
             e.channel.pendingModeReply = true;

@@ -1319,7 +1319,7 @@ function my_303 (e)
 
     for (i = 0; i < this.prefs["notifyList"].length; i++)
     {
-        if (!arrayContains(onList, lower(this.prefs["notifyList"][i])))
+        if (!onList.includes(lower(this.prefs["notifyList"][i])))
             /* user is not on */
             offList.push(lower(this.prefs["notifyList"][i]));
     }
@@ -1327,7 +1327,7 @@ function my_303 (e)
     if ("onList" in this)
     {
         for (i in onList)
-            if (!arrayContains(this.onList, onList[i]))
+            if (!this.onList.includes(onList[i]))
                 /* we didn't know this person was on */
                 newArrivals.push(onList[i]);
     }
@@ -1337,7 +1337,7 @@ function my_303 (e)
     if ("offList" in this)
     {
         for (i in offList)
-            if (!arrayContains(this.offList, offList[i]))
+            if (!this.offList.includes(offList[i]))
                 /* we didn't know this person was off */
                 newDepartures.push(offList[i]);
     }
@@ -2582,7 +2582,7 @@ function my_cap(e)
     else if (e.params[2] == "NEW")
     {
         // Handle a new STS policy
-        if (client.sts.ENABLED && (arrayContains(e.newcaps, "sts")))
+        if (client.sts.ENABLED && e.newcaps.includes("sts"))
         {
             var policy = client.sts.parseParameters(e.server.capvals["sts"]);
             if (!e.server.isSecure && policy.port)

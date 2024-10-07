@@ -63,7 +63,7 @@ function mmgr_initcx (document, id)
 
         if (!("uiElements" in this.menuSpecs[id]))
             this.menuSpecs[id].uiElements = [popup];
-        else if (!arrayContains(this.menuSpecs[id].uiElements, popup))
+        else if (!this.menuSpecs[id].uiElements.includes(popup))
             this.menuSpecs[id].uiElements.push(popup);
     }
 }
@@ -798,7 +798,7 @@ function mmgr_newmenu (parentNode, beforeNode, menuName, domId, attribs)
     // Keep track where we're adding popup nodes derived from some menuSpec
     if (!("uiElements" in this.menuSpecs[menuName]))
         this.menuSpecs[menuName].uiElements = [subMenu];
-    else if (!arrayContains(this.menuSpecs[menuName].uiElements, subMenu))
+    else if (!this.menuSpecs[menuName].uiElements.includes(subMenu))
         this.menuSpecs[menuName].uiElements.push(subMenu);
 
     this.createMenuItems (subMenu, null, menuSpec.items);

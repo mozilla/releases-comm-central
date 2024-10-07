@@ -696,11 +696,6 @@ function arrayHasElementAt(ary, i)
     return typeof ary[i] != "undefined";
 }
 
-function arrayContains (ary, elem)
-{
-    return (arrayIndexOf (ary, elem) != -1);
-}
-
 function arrayIndexOf (ary, elem)
 {
     for (var i in ary)
