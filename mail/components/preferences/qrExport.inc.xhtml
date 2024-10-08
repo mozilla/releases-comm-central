@@ -82,6 +82,31 @@
         </div>
       </form>
     </section>
+    <section id="qrExportCodes" hidden="hidden">
+      <p id="qrExportScanDescription"></p>
+      <ol class="qr-panel">
+        <li data-l10n-id="qr-export-scan-step1"></li>
+        <li data-l10n-id="qr-export-scan-step2"></li>
+        <li data-l10n-id="qr-export-scan-step3"></li>
+        <li data-l10n-id="qr-export-scan-step4"></li>
+      </ol>
+      <section class="qr-panel">
+        <qr-code-wizard id="qrCodeWizard"></qr-code-wizard>
+        <div class="qr-nav">
+          <button
+            id="qrExportCodesBack"
+            type="button"
+            data-l10n-id="qr-export-back"
+          ></button>
+          <button
+            id="qrExportCodesNext"
+            type="button"
+            class="primary"
+            data-l10n-id="qr-export-next"
+          ></button>
+        </div>
+      </section>
+    </section>
   </div>
 </html:template>
 <html:template id="qrAccountItem" xmlns="http://www.w3.org/1999/xhtml">

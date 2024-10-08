@@ -158,3 +158,17 @@ add_task(function test_getTotalSteps() {
 
   Assert.equal(wizard.getTotalSteps(), 0, "Should not have any steps");
 });
+
+add_task(function test_isLastStep() {
+  wizard.initializeQRCodes(accountKeys, false);
+
+  Assert.ok(!wizard.isLastStep(), "Should not be indicating last step");
+
+  wizard.next();
+
+  Assert.ok(wizard.isLastStep(), "Should indicate last step");
+
+  wizard.initializeQRCodes([], false);
+
+  Assert.ok(wizard.isLastStep(), "Empty wizard should always be on last step");
+});

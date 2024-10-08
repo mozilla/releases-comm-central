@@ -1102,3 +1102,21 @@ qr-export-scan-progress = { $count ->
     [one] { $step } of { $count } QR code
     *[other] { $step } of { $count } QR codes
 }
+
+# Variables:
+# $count (Number) - Total number of QR codes to step through.
+qr-export-scan-description = { $count ->
+    [one] Scan QR code with { -brand-product-name } on your mobile device
+    *[other] Scan QR codes with { -brand-product-name } on your mobile device
+}
+
+qr-export-scan-step1 = Open { -brand-product-name } on your mobile device
+qr-export-scan-step2 = Go to settings
+qr-export-scan-step3 = Select <strong>Import settings</strong>
+qr-export-scan-step4 = Tap <strong>Ready to scan</strong> and hold your phone over this code
+
+qr-export-back = Back
+
+qr-export-next = Next
+
+qr-export-done = Done

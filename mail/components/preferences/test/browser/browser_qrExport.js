@@ -11,19 +11,23 @@ const { MailServices } = ChromeUtils.importESModule(
 let prefsWindow, prefsDocument, tabmail;
 
 add_setup(async function () {
-  const imapServer = MailServices.accounts.createIncomingServer(
-    "imap@foo.invalid",
-    "foo.invalid",
-    "imap"
-  );
-  imapServer.password = "password";
-  const imapIdentity = MailServices.accounts.createIdentity();
-  imapIdentity.email = "imap@foo.invalid";
-  const imapAccount = MailServices.accounts.createAccount();
-  imapAccount.incomingServer = imapServer;
-  imapAccount.addIdentity(imapIdentity);
-  const imapOutgoing = MailServices.outgoingServer.createServer("smtp");
-  imapIdentity.smtpServerKey = imapOutgoing.key;
+  const imapAccounts = [];
+  for (let i = 0; i < 4; ++i) {
+    const imapServer = MailServices.accounts.createIncomingServer(
+      `imap${i}@foo.invalid`,
+      "foo.invalid",
+      "imap"
+    );
+    imapServer.password = "password";
+    const imapIdentity = MailServices.accounts.createIdentity();
+    imapIdentity.email = `imap${i}@foo.invalid`;
+    const imapAccount = MailServices.accounts.createAccount();
+    imapAccount.incomingServer = imapServer;
+    imapAccount.addIdentity(imapIdentity);
+    const imapOutgoing = MailServices.outgoingServer.createServer("smtp");
+    imapIdentity.smtpServerKey = imapOutgoing.key;
+    imapAccounts.push(imapAccount);
+  }
 
   const popServer = MailServices.accounts.createIncomingServer(
     "pop@foo.invalid",
@@ -43,7 +47,9 @@ add_setup(async function () {
   tabmail = document.getElementById("tabmail");
 
   registerCleanupFunction(() => {
-    MailServices.accounts.removeAccount(imapAccount, false);
+    for (const imapAccount of imapAccounts) {
+      MailServices.accounts.removeAccount(imapAccount, false);
+    }
     MailServices.accounts.removeAccount(popAccount, false);
   });
 });
@@ -52,6 +58,10 @@ add_task(async function test_init() {
   Assert.ok(
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
     "Intro screen should be visible by default"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportCodes")),
+    "QR codes screen should be hidden by default"
   );
 
   const exportButton = prefsDocument.getElementById("qrExportStart");
@@ -70,8 +80,8 @@ add_task(async function test_init() {
 
   Assert.equal(
     availableAccounts.length,
-    2,
-    "Should show two available accounts"
+    5,
+    "Should show all available accounts"
   );
   Assert.ok(
     prefsDocument.getElementById("qrExportSelectAll").disabled,
@@ -146,4 +156,109 @@ add_task(async function test_selectionUpdate() {
   await subtest_selectionState(0, false, true);
   await subtest_selectionState(1, false, false);
   await subtest_selectionState(Infinity, true, false);
+});
+
+/**
+ * Step the QR code wizard and verify the displayed code changes.
+ *
+ * @param {"Next"|"Back"} direction
+ */
+async function stepQRCode(direction) {
+  const img = prefsDocument.querySelector("#qrCodeWizard img");
+  const currentCode = img.src;
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById(`qrExportCodes${direction}`),
+    {},
+    prefsWindow
+  );
+
+  await BrowserTestUtils.waitForMutationCondition(
+    img,
+    {
+      attributes: true,
+      attributeFilter: ["src"],
+    },
+    () => img.src != currentCode
+  );
+}
+
+add_task(async function test_stepThroughQrCodes() {
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
+    "Intro screen should be visible"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportIntro")),
+    "Intro screen should no longer be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes")),
+    "QR codes screen should be shown now"
+  );
+
+  Assert.equal(
+    prefsDocument.getElementById("qrCodeWizard").getTotalSteps(),
+    2,
+    "Should expect two steps"
+  );
+
+  Assert.equal(
+    prefsDocument.getElementById("qrExportCodesNext").dataset.l10nId,
+    "qr-export-next",
+    "Should show next button initially"
+  );
+  const description = prefsDocument.getElementById("qrExportScanDescription");
+  Assert.equal(
+    description.dataset.l10nId,
+    "qr-export-scan-description",
+    "Should show scan description string"
+  );
+  Assert.deepEqual(
+    JSON.parse(description.dataset.l10nArgs),
+    { count: 2 },
+    "Should have correct step count as string argument"
+  );
+
+  await stepQRCode("Next");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes")),
+    "QR codes screen should still be shown"
+  );
+  Assert.equal(
+    prefsDocument.getElementById("qrExportCodesNext").dataset.l10nId,
+    "qr-export-done",
+    "Should show done button at end"
+  );
+
+  await stepQRCode("Back");
+
+  Assert.equal(
+    prefsDocument.getElementById("qrExportCodesNext").dataset.l10nId,
+    "qr-export-next",
+    "Should switch back to next label"
+  );
+
+  // Back to intro
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesBack"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
+    "Should be back to intro screen"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportCodes")),
+    "Should no longer show QR codes"
+  );
 });

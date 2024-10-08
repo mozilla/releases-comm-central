@@ -1283,3 +1283,23 @@ calendar-notifications-setting {
     background: var(--color-primary-hover);
   }
 }
+
+qr-code-wizard {
+  text-align: center;
+
+  figure {
+    margin: 0;
+  }
+
+  figcaption {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-block-end: var(--qr-gap);
+  }
+
+  img {
+    max-width: 420px;
+    /* QR code background for contrast. */
+    background: white;
+  }
+}

@@ -97,6 +97,13 @@ class QrCodeWizard extends HTMLElement {
   }
 
   /**
+   * @returns {boolean} If the current step is the last step.
+   */
+  isLastStep() {
+    return this.#step + 1 >= this.#codes.length;
+  }
+
+  /**
    * Show a specific QR code.
    *
    * @param {number} index - Index of the QR code to show.
