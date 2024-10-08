@@ -52,3 +52,4 @@ messenger.jar:
     content/messenger/preferences/syncDialog.js
     content/messenger/preferences/syncDialog.xhtml
 #endif
+    content/messenger/preferences/qr-code-wizard.mjs

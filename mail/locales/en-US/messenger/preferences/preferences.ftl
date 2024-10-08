@@ -1094,3 +1094,11 @@ qr-export-security-hint = By scanning the following QR codes, your account setti
 qr-export-security-warning = For your security, please ensure you are in a private setting and only scan QR codes from trusted sources.
 
 qr-export-start-export = Export
+
+# Variables:
+# $count (Number) - Total number of QR codes to step through.
+# $step (Number) - Current step number of the QR code displayed.
+qr-export-scan-progress = { $count ->
+    [one] { $step } of { $count } QR code
+    *[other] { $step } of { $count } QR codes
+}
