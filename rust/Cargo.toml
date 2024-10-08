@@ -16,7 +16,7 @@ members = ['xpcom_async', 'moz_http', 'gkrust', 'ews_xpcom', 'gtest', 'sys_tray'
 uniffi = { version = "0.28.1" }
 uniffi_bindgen = { version = "0.28.1" }
 rusqlite = { version = "0.31.0" }
-glean = { version = "=61.1.0" }
+glean = { version = "=61.2.0" }
 
 [target."cfg(windows)".dependencies.scopeguard]
 version = "1"
