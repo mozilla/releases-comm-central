@@ -1078,7 +1078,11 @@ export var MailUtils = {
     try {
       // If the given faviconURI is data URL, set it as is.
       if (iconURI.schemeIs("data")) {
-        lazy.PlacesUtils.favicons.setFaviconForPage(pageURI, iconURI, iconURI);
+        await lazy.PlacesUtils.favicons.setFaviconForPage(
+          pageURI,
+          iconURI,
+          iconURI
+        );
         return;
       }
 
@@ -1091,8 +1095,12 @@ export var MailUtils = {
       }
 
       // Otherwise, fetch from network.
-      const dataURL = this.getFaviconDataURLFromNetwork(iconURI);
-      lazy.PlacesUtils.favicons.setFaviconForPage(pageURI, iconURI, dataURL);
+      const dataURL = await this.getFaviconDataURLFromNetwork(iconURI);
+      await lazy.PlacesUtils.favicons.setFaviconForPage(
+        pageURI,
+        iconURI,
+        dataURL
+      );
     } catch (ex) {
       console.error(`Failed to set favicon for page:${ex}`);
     }
@@ -1138,7 +1146,7 @@ export var MailUtils = {
 
     lazy.NetUtil.asyncFetch(channel, async (input, status, request) => {
       if (!Components.isSuccessCode(status)) {
-        resolver.reject(`Fetching ${faviconURI.spec} FAILED!`);
+        resolver.reject(new Error(`Fetching ${faviconURI.spec} FAILED!`));
         return;
       }
 
