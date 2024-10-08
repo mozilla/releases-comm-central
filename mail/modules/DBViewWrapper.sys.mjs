@@ -1986,6 +1986,7 @@ DBViewWrapper.prototype = {
     this.beginViewUpdate();
     // all special views imply a threaded view
     this.showThreaded = true;
+    this.showUnreadOnly = false;
     this._specialView = aViewEnum;
     // We clear the search for paranoia/correctness reasons.  However, the UI
     //  layer is currently responsible for making sure these are already zeroed
