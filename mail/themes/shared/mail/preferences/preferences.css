@@ -1156,7 +1156,7 @@ calendar-notifications-setting {
 /* QR Export for Mobile */
 
 
-#qrExportPaneCategory {
+#qrExportContent {
   --qr-legend-icon-gap: 6px;
   --qr-gap: 12px;
   --qr-inset-margin: calc(16px + var(--qr-legend-icon-gap));

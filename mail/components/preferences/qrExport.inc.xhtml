@@ -2,12 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 <html:template id="paneQrExport" xmlns="http://www.w3.org/1999/xhtml">
-  <div
-    id="qrExportPaneCategory"
-    class="subcategory"
-    data-category="paneQrExport"
-  >
+  <div class="subcategory" data-category="paneQrExport">
     <h1 data-l10n-id="qr-export-pane-header"></h1>
+  </div>
+# groupbox and xul label for search functionality.
+  <xul:groupbox
+    id="qrExportContent"
+    data-category="paneQrExport"
+    data-hidden-from-search="true"
+  >
+    <xul:label class="search-header" hidden="true">
+      <h2 data-l10n-id="qr-export-pane-header"></h2>
+    </xul:label>
     <section id="qrExportIntro">
       <p data-l10n-id="qr-export-description"></p>
       <p
@@ -126,7 +132,7 @@
         type="button"
       ></button>
     </section>
-  </div>
+  </xul:groupbox>
 </html:template>
 <html:template id="qrAccountItem" xmlns="http://www.w3.org/1999/xhtml">
   <li>

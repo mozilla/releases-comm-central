@@ -19,6 +19,7 @@ export const qrExportPane = {
   init() {
     this.showIntro();
     this.addEventListeners();
+    delete document.getElementById("qrExportContent").dataset.hiddenFromSearch;
   },
 
   /**
