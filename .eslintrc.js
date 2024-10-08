@@ -185,6 +185,7 @@ module.exports = {
       // no-redeclare and no-shadow
       files: [
         ".eslintrc.js",
+        "calendar/",
         "chat/",
         "mail/test/browser/composition/browser_redirect.js",
         "mail/test/browser/composition/browser_replySelection.js",

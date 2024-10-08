@@ -877,9 +877,9 @@ CalDavCalendar.prototype = {
         // The item still exists. We need to ask the user if he
         // really wants to delete the item. Remember, we only
         // made this request since the actual delete gave 409/412
-        const item = await this.getItem(item.id);
-        return cal.provider.promptOverwrite(CALDAV_DELETE_ITEM, item)
-          ? this.doDeleteItem(item, true, false, null)
+        const existingItem = await this.getItem(item.id);
+        return cal.provider.promptOverwrite(CALDAV_DELETE_ITEM, existingItem)
+          ? this.doDeleteItem(existingItem, true, false, null)
           : null;
       }
     } else if (response.serverError) {
@@ -1020,7 +1020,14 @@ CalDavCalendar.prototype = {
       );
     } else {
       await this.mOfflineStorage.modifyItem(item, null).then(
-        item => aListener?.onOperationComplete(item.calendar, Cr.NS_OK, cIOL.MODIFY, item.id, item),
+        modItem =>
+          aListener?.onOperationComplete(
+            modItem.calendar,
+            Cr.NS_OK,
+            cIOL.MODIFY,
+            modItem.id,
+            modItem
+          ),
         e => aListener?.onOperationComplete(null, e.result, null, null, e)
       );
     }

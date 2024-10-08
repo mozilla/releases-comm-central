@@ -564,7 +564,7 @@
      * @returns {[T, number][]}
      */
     getChanges(_oldValue, _newValue) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+      throw new Error(`${this.constructor.name} does not implement getChanges().`);
     }
   }
 
@@ -604,7 +604,7 @@
      * @abstract
      */
     build(_value) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+      throw new Error(`${this.constructor.name} does not implement build().`);
     }
   }
 
@@ -618,7 +618,7 @@
     getChanges(oldValue, newValue) {
       const diff = [];
       for (const att of newValue) {
-        const oldAtt = oldValue.find(oldAtt => oldAtt.id == att.id);
+        const oldAtt = oldValue.find(v => v.id == att.id);
         if (!oldAtt) {
           diff.push([att, PROPERTY_ADDED]); // New attendee.
         } else if (oldAtt.participationStatus != att.participationStatus) {
@@ -677,9 +677,7 @@
         if (!attch.uri) {
           continue;
         }
-        const oldAttch = oldValue.find(
-          oldAttch => oldAttch.uri && oldAttch.uri.spec == attch.uri.spec
-        );
+        const oldAttch = oldValue.find(v => v.uri?.spec == attch.uri.spec);
 
         if (!oldAttch) {
           // New attachment.

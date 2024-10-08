@@ -72,10 +72,12 @@ const RecurrencePreview = {
   },
   /**
    * Updates preview of #recurrencePreview node.
+   *
+   * @param {calIRecurrenceInfo} recurrenceInfo
    */
   updatePreview(recurrenceInfo) {
-    const minimonth = this.node.querySelector("calendar-minimonth");
-    this.node.style.minHeight = minimonth.getBoundingClientRect().height + "px";
+    const calMinimonth = this.node.querySelector("calendar-minimonth");
+    this.node.style.minHeight = calMinimonth.getBoundingClientRect().height + "px";
 
     this.mRecurrenceInfo = recurrenceInfo;
     const start = this.dateTime.clone();

@@ -419,11 +419,11 @@ const monthGridView = {
     const mainMonth = startOfMonth.month;
 
     for (
-      let weekStart = startOfMonthView;
-      weekStart.compare(endOfMonthView) < 0;
-      weekStart.day += 7
+      let startOfWeek = startOfMonthView;
+      startOfWeek.compare(endOfMonthView) < 0;
+      startOfWeek.day += 7
     ) {
-      month.tBodies[0].appendChild(this.drawWeek(document, weekStart, mainMonth));
+      month.tBodies[0].appendChild(this.drawWeek(document, startOfWeek, mainMonth));
     }
 
     return month;

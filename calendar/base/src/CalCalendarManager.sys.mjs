@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// eslint-disable-next-line no-shadow
 import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
 import { Preferences } from "resource://gre/modules/Preferences.sys.mjs";
 import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
@@ -591,8 +592,7 @@ CalCalendarManager.prototype = {
           calendar.uri.prePath == "https://apidata.googleusercontent.com"
         ) {
           cal.LOG(`CalDAV: Resetting sync token of ${calendar.name} to perform a full resync`);
-          const calCachedCalendar = calendar.wrappedJSObject;
-          const calDavCalendar = calCachedCalendar.mUncachedCalendar.wrappedJSObject;
+          const calDavCalendar = calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject;
           calDavCalendar.mWebdavSyncToken = null;
           calDavCalendar.saveCalendarProperties();
         }

@@ -218,17 +218,27 @@ async function saveEventsToFile(calendarEventArray, calendarName) {
 }
 
 /**
+ * Save events from a given calendar to file.
+ *
+ * @param {calICalendar} calendar
+ */
+async function exportItemsFromCal(calendar) {
+  const items = await calendar.getItemsAsArray(
+    Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
+    0,
+    null,
+    null
+  );
+  await saveEventsToFile(items, calendar.name);
+}
+
+/**
  * Exports all the events and tasks in a calendar. If a calendar is not specified,
  * the user will be prompted with a list of calendars to choose which one to export.
  *
  * @param {?calICalendar} calendar - A specific calendar to export.
  */
 async function exportEntireCalendar(calendar) {
-  const exportItemsFromCal = async function (cal) {
-    const items = await cal.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
-    await saveEventsToFile(items, cal.name);
-  };
-
   if (calendar) {
     await exportItemsFromCal(calendar);
     return;

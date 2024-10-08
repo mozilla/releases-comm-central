@@ -146,9 +146,9 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       this._queue.push({
         action: "add",
         item: aItem,
-        listener: item => {
+        listener: adoptedItem => {
           this.endBatch();
-          resolve(item);
+          resolve(adoptedItem);
         },
       });
       this.#processQueue();
@@ -164,7 +164,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   // it returns.
   _cachedModifyItemCallback = null;
 
-  async modifyItem(aNewItem, aOldItem) {
+  async modifyItem(newItem, oldItem) {
     if (this.readOnly) {
       throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
     }
@@ -174,11 +174,11 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       this.startBatch();
       this._queue.push({
         action: "modify",
-        newItem: aNewItem,
-        oldItem: aOldItem,
-        listener: item => {
+        newItem,
+        oldItem,
+        listener: modifiedItem => {
           this.endBatch();
-          resolve(item);
+          resolve(modifiedItem);
         },
       });
       this.#processQueue();

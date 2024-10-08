@@ -38,11 +38,11 @@
         .join(",");
     }
 
-    set value(value) {
+    set value(v) {
       // An array of notifications times, each item is in the form of [5, "M",
       // "before-start"], i.e. a triple of time, unit and relation.
       const items = [];
-      const durations = value?.split(",") || [];
+      const durations = v?.split(",") || [];
       for (let dur of durations) {
         dur = dur.trim();
         if (!dur) {

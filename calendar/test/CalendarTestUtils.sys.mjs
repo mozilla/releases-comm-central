@@ -1024,10 +1024,10 @@ export const CalendarTestUtils = {
     await doScroll("year", activeYear - year, 10);
     await doScroll("month", activeMonth - (month - 1), 25);
 
-    function getMiniMonthDay(week, day) {
+    function getMiniMonthDay(week, weekDay) {
       return miniMonth.querySelector(
         `.minimonth-cal-box > tr.minimonth-row-body:nth-of-type(${week + 1}) > ` +
-          `td.minimonth-day:nth-of-type(${day})`
+          `td.minimonth-day:nth-of-type(${weekDay})`
       );
     }
 

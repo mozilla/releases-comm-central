@@ -7,7 +7,7 @@ import { data } from "resource:///modules/calendar/utils/calDataUtils.sys.mjs";
 import { dtz } from "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs";
 
 /**
- * Calendar item related functions
+ * Calendar item related functions.
  */
 
 // NOTE: This module should not be loaded directly, it is available when
@@ -28,14 +28,14 @@ export var item = {
     const addedItems = [];
     const modifiedItems = [];
 
-    const initialItems = new Map(oldItems.map(item => [item.hashId, item]));
-    for (const item of newItems) {
-      if (initialItems.has(item.hashId)) {
-        modifiedItems.push(item);
+    const initialItems = new Map(oldItems.map(old => [old.hashId, old]));
+    for (const newItem of newItems) {
+      if (initialItems.has(newItem.hashId)) {
+        modifiedItems.push(newItem);
       } else {
-        addedItems.push(item);
+        addedItems.push(newItem);
       }
-      initialItems.delete(item.hashId);
+      initialItems.delete(newItem.hashId);
     }
     const deletedItems = [...initialItems.values()];
     return { deletedItems, addedItems, modifiedItems };

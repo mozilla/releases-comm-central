@@ -347,7 +347,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
       // this expands to 0 items.
       expandedItems = item.recurrenceInfo.getOccurrences(rangeStart, rangeEnd, 0);
       if (filters.wantUnrespondedInvitations) {
-        expandedItems = expandedItems.filter(item => this.#checkUnrespondedInvitation(item));
+        expandedItems = expandedItems.filter(inv => this.#checkUnrespondedInvitation(inv));
       }
     } else if (
       (!filters.wantUnrespondedInvitations || this.#checkUnrespondedInvitation(item)) &&

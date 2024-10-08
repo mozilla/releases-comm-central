@@ -206,14 +206,14 @@ export class CalExtractParseNode {
    */
   getDescendant(name) {
     // It is important the direct descendants are checked first.
-    const node = this.descendants.find(node => node.symbol == name);
+    const node = this.descendants.find(n => n.symbol == name);
     if (node) {
       return node;
     }
 
     // Now try any optional descendants.
-    for (const node of this.descendants) {
-      const hit = node.isOptional() && node != this && node.getDescendant(name);
+    for (const descendant of this.descendants) {
+      const hit = descendant.isOptional() && descendant != this && descendant.getDescendant(name);
       if (hit) {
         return hit;
       }

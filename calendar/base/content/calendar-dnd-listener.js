@@ -796,8 +796,8 @@ var calendarTaskButtonDNDObserver;
       newItem.calendar = getSelectedCalendar();
       cal.dtz.setDefaultStartEndHour(newItem);
       cal.alarms.setDefaultValues(newItem);
-      for (const attendee of attendees) {
-        newItem.addAttendee(attendee);
+      for (const invited of attendees) {
+        newItem.addAttendee(invited);
       }
       createEventWithDialog(null, null, null, null, newItem);
     }

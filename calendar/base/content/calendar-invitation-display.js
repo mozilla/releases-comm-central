@@ -111,9 +111,7 @@
       this.display.replaceChildren();
 
       const [, rc, actionFunc, foundItems] = await new Promise(resolve =>
-        cal.itip.processItipItem(itipItem, (targetItipItem, rc, actionFunc, foundItems) =>
-          resolve([targetItipItem, rc, actionFunc, foundItems])
-        )
+        cal.itip.processItipItem(itipItem, (...args) => resolve([...args]))
       );
 
       if (this.currentItipItem != itipItem || !Components.isSuccessCode(rc)) {

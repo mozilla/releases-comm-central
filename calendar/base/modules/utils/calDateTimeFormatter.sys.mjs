@@ -596,16 +596,16 @@ function getFormatter(formatOptions) {
   // Use en-US when running in a test to make the result independent of the test
   // machine.
   const locale = Services.appinfo.name == "xpcshell" ? "en-US" : undefined;
-  let formatter;
+  let dateTimeFormat;
   if ("hourCycle" in formatOptions) {
     // FIXME: The hourCycle property is currently ignored by Services.intl, so
     // we use Intl instead. Once bug 1749459 is closed, we should only use
     // Services.intl again.
-    formatter = new Intl.DateTimeFormat(locale, formatOptions);
+    dateTimeFormat = new Intl.DateTimeFormat(locale, formatOptions);
   } else {
-    formatter = new Services.intl.DateTimeFormat(locale, formatOptions);
+    dateTimeFormat = new Services.intl.DateTimeFormat(locale, formatOptions);
   }
 
-  formatCache.set(cacheKey, formatter);
-  return formatter;
+  formatCache.set(cacheKey, dateTimeFormat);
+  return dateTimeFormat;
 }

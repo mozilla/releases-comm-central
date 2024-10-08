@@ -692,8 +692,8 @@ calCachedCalendar.prototype = {
     // Result is that we currently stick to firing onOperationComplete if the cached calendar
     // has performed the modification, see below:
 
-    const onSuccess = item =>
-      listener(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
+    const onSuccess = calItem =>
+      listener(calItem.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, calItem.id, calItem);
     const onError = e =>
       listener(
         item.calendar,

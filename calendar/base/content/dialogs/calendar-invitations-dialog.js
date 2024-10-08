@@ -220,7 +220,6 @@ async function onLoad() {
   const { invitationsManager } = window.arguments[0];
   const items = await cal.iterate.mapStream(invitationsManager.getInvitations(), chunk => {
     document.title = title + " (" + chunk.length + ")";
-    const updatingBox = document.getElementById("updating-box");
     updatingBox.setAttribute("hidden", "true");
     const richListBox = document.getElementById("invitations-listbox");
     for (const item of chunk) {

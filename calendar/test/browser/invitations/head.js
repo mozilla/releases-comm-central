@@ -478,8 +478,7 @@ async function doMajorUpdateTest(conf) {
   const win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
   const actions = isRecurring ? actionIds.recurring : actionIds.single;
   if (noReply) {
-    const { button, noReply } = actions;
-    await clickMenuAction(win, button[partStat], noReply[partStat]);
+    await clickMenuAction(win, actions.button[partStat], actions.noReply[partStat]);
   } else {
     await clickAction(win, actions.button[partStat]);
   }
@@ -697,8 +696,11 @@ async function doMajorExceptionTest(conf) {
     new FileUtils.File(getTestFilePath("data/exception-major.eml"))
   );
   if (noReply) {
-    const { button, noReply } = actionIds.single;
-    await clickMenuAction(win, button[partStat], noReply[partStat]);
+    await clickMenuAction(
+      win,
+      actionIds.single.button[partStat],
+      actionIds.single.noReply[partStat]
+    );
   } else {
     await clickAction(win, actionIds.single.button[partStat]);
   }

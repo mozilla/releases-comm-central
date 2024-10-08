@@ -680,10 +680,10 @@
         allEventBlocks.push(blockColumns);
       }
 
-      for (const blockColumns of allEventBlocks) {
-        const totalCols = blockColumns.length;
+      for (const column of allEventBlocks) {
+        const totalCols = column.length;
         for (let colIndex = 0; colIndex < totalCols; colIndex++) {
-          for (const eventInfo of blockColumns[colIndex]) {
+          for (const eventInfo of column[colIndex]) {
             if (eventInfo.processed) {
               // Already processed this Event in an earlier Column.
               continue;
@@ -701,7 +701,7 @@
               neighbourColIndex < totalCols;
               neighbourColIndex++
             ) {
-              const neighbourColumn = blockColumns[neighbourColIndex];
+              const neighbourColumn = column[neighbourColIndex];
               // Test if this Event overlaps any of the other Events in the
               // neighbouring Column.
               let overlapsCol = false;
