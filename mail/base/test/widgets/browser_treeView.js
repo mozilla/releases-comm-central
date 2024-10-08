@@ -174,15 +174,15 @@ async function subtestKeyboardAndMouse(variant) {
    * Check if the spacerTop TBODY of the TreeViewTable is properly allocating
    * the height of non existing rows.
    *
-   * @param {int} rows - The number of rows that the spacerTop should be
-   * simulating their height allocation.
+   * @param {int} nbrOfRows - The number of rows that the spacerTop should be
+   *   simulating their height allocation.
    */
-  function checkTopSpacerHeight(rows) {
+  function checkTopSpacerHeight(nbrOfRows) {
     const table = doc.querySelector(`[is="tree-view-table"]`);
     // -26 to account for the tolerance buffer.
     Assert.equal(
       table.spacerTop.clientHeight,
-      list.getRowAtIndex(rows).clientHeight * (rows - 26),
+      list.getRowAtIndex(nbrOfRows).clientHeight * (nbrOfRows - 26),
       "The top spacer has the correct height"
     );
   }

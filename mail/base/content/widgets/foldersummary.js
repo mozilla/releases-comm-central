@@ -98,7 +98,7 @@
         return false;
       }
 
-      const folderArray = [];
+      const folders = [];
       let msgDatabase;
       try {
         msgDatabase = folder.msgDatabase;
@@ -115,15 +115,16 @@
         for (const uri of folderUris) {
           const realFolder = this.MailUtils.getOrCreateFolder(uri);
           if (!realFolder.isServer) {
-            folderArray.push(realFolder);
+            folders.push(realFolder);
           }
         }
       } else {
-        folderArray.push(folder);
+        folders.push(folder);
       }
 
       let haveMsgsToShow = false;
-      for (const folder of folderArray) {
+      // eslint-disable-next-line no-shadow
+      for (const folder of folders) {
         // now get the database
         try {
           msgDatabase = folder.msgDatabase;

@@ -227,10 +227,10 @@ function displayMessage(uri, viewWrapper) {
     ensureRowIsVisible() {},
     invalidate() {},
     invalidateRange() {},
-    rowCountChanged(index, count) {
+    rowCountChanged(idx, count) {
       const wasSuppressed = gDBView.selection.selectEventsSuppressed;
       gDBView.selection.selectEventsSuppressed = true;
-      gDBView.selection.adjustSelection(index, count);
+      gDBView.selection.adjustSelection(idx, count);
       gDBView.selection.selectEventsSuppressed = wasSuppressed;
     },
     currentIndex: null,

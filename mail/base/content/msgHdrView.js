@@ -2188,8 +2188,8 @@ function HandleSelectedAttachments(action) {
 /**
  * Perform an action on multiple attachments (e.g. open or save)
  *
- * @param attachments  an array of AttachmentInfo objects to work with
- * @param action  one of "open", "save", "saveAs", "detach", or "delete"
+ * @param {AttachmentInfo[]} attachments - AttachmentInfo objects to work with.
+ * @param {"open"|"save"|"saveAs"|"detach"|"delete"} action - Action to take.
  */
 function HandleMultipleAttachments(attachments, action) {
   // Feed message link attachments save handling.
@@ -2286,11 +2286,9 @@ function HandleMultipleAttachments(attachments, action) {
       // Show one save dialog at a time, which allows to adjust the file name
       // and folder path for each attachment. For added convenience, we remember
       // the folder path of each file for the save dialog of the next one.
-      const saveAttachments = function (attachments) {
-        if (attachments.length > 0) {
-          attachments[0].save(top.messenger).then(function () {
-            saveAttachments(attachments.slice(1));
-          });
+      const saveAttachments = async infos => {
+        for (const info of infos) {
+          await info.save(top.messenger);
         }
       };
       saveAttachments(attachments);

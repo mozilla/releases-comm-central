@@ -197,10 +197,13 @@ add_task(async function testDragMessageSource() {
     dragService.getCurrentSession().endDragSession(true);
   }
 
-  function checkMove([isMove, , destFolder, destMessages], expectedMessageIDs) {
+  function checkMove(
+    [isMove, , destFolder2, destMessages],
+    expectedMessageIDs
+  ) {
     Assert.ok(isMove, "message(s) should be moved not copied");
     Assert.equal(
-      destFolder,
+      destFolder2,
       destFolder,
       "message(s) should be moved to the right folder"
     );

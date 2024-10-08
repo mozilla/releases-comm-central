@@ -111,7 +111,7 @@
         case "space-tasks":
         case "space-chat": {
           const space = window.gSpacesToolbar.spaces.find(
-            space => space.name == shortcut.id.replace("space-", "")
+            s => s.name == shortcut.id.replace("space-", "")
           );
           window.gSpacesToolbar.openSpace(tabmail, space);
           break;

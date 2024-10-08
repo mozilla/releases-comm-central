@@ -965,7 +965,7 @@ add_task(async function testSpacesToolbarExtension() {
     );
 
     const space = window.gSpacesToolbar.spaces.find(
-      space => space.name == `testButton${i}`
+      s => s.name == `testButton${i}`
     );
     Assert.ok(space);
     Assert.equal(
@@ -1011,7 +1011,7 @@ add_task(async function testSpacesToolbarExtension() {
     );
 
     const space = window.gSpacesToolbar.spaces.find(
-      space => space.name == `testButton${i}`
+      s => s.name == `testButton${i}`
     );
     Assert.ok(space);
     Assert.equal(
@@ -1060,7 +1060,7 @@ add_task(async function testSpacesToolbarExtension() {
   for (let i = 0; i < 6; i++) {
     await window.gSpacesToolbar.removeToolbarButton(`testButton${i}`);
     const space = window.gSpacesToolbar.spaces.find(
-      space => space.name == `testButton${i}`
+      s => s.name == `testButton${i}`
     );
     Assert.ok(!space);
 

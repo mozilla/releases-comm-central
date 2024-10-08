@@ -238,8 +238,8 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
       if ("_teardown" in popup) {
         popup._teardown();
       } else {
-        for (let i = popup.children.length - 1; i >= 0; i--) {
-          const child = popup.children[i];
+        for (let j = popup.children.length - 1; j >= 0; j--) {
+          const child = popup.children[j];
           if (child.getAttribute("generated") != "true") {
             continue;
           }

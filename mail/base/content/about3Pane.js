@@ -374,8 +374,10 @@ var folderPaneContextMenu = {
    * @returns {boolean}
    */
   getCommandState(command) {
-    const folder = this.activeFolder;
-    if (!folder || FolderUtils.isSmartTagsFolder(folder)) {
+    if (
+      !this.activeFolder ||
+      FolderUtils.isSmartTagsFolder(this.activeFolder)
+    ) {
       return false;
     }
 
@@ -457,15 +459,16 @@ var folderPaneContextMenu = {
           isServer,
           server,
           URI,
-        } = folder);
-        isCompactEnabled = folder.isCommandEnabled("cmd_compactFolder");
+        } = this.activeFolder);
+        isCompactEnabled =
+          this.activeFolder.isCommandEnabled("cmd_compactFolder");
         isNNTP = server.type == "nntp";
         isJunk = flags & Ci.nsMsgFolderFlags.Junk;
         isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
         isInbox = flags & Ci.nsMsgFolderFlags.Inbox;
         isSpecialUse = flags & Ci.nsMsgFolderFlags.SpecialUse;
         canRenameDeleteJunkMail = FolderUtils.canRenameDeleteJunkMail(URI);
-        isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
+        isSmartTagsFolder = FolderUtils.isSmartTagsFolder(this.activeFolder);
       }
 
       if (isNNTP && !isServer) {
@@ -2974,17 +2977,17 @@ var folderPane = {
   },
 
   _onDragStart(event) {
-    const row = event.target.closest(`li[is="folder-tree-row"]`);
-    if (!row) {
+    const draggedRow = event.target.closest(`li[is="folder-tree-row"]`);
+    if (!draggedRow) {
       event.preventDefault();
       return;
     }
 
     // If the currently dragged row is not part of the selection map, use it
     // instead of the current selection entries.
-    const rows = folderTree.selection.has(folderTree.rows.indexOf(row))
+    const rows = folderTree.selection.has(folderTree.rows.indexOf(draggedRow))
       ? folderTree.selection.values()
-      : [row];
+      : [draggedRow];
 
     const folders = [];
     let hasServer = false;
@@ -5419,8 +5422,8 @@ var threadPane = {
     );
 
     // Update the ordinal of the columns to reflect the new positions.
-    this.columns.forEach((column, index) => {
-      column.ordinal = index;
+    this.columns.forEach((col, index) => {
+      col.ordinal = index;
     });
 
     this.persistColumnStates();
@@ -6038,8 +6041,8 @@ var messagePane = {
       oneThread ? "thread" : "multipleselection",
       messages,
       gDBView,
-      function (messages) {
-        threadTree.selectedIndices = messages
+      function (msgs) {
+        threadTree.selectedIndices = msgs
           .map(m => gDBView.findIndexOfMsgHdr(m, true))
           .filter(i => i != nsMsgViewIndex_None);
       }

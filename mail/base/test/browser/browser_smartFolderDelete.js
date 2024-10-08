@@ -14,7 +14,6 @@ const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 
 let rootFolder;
-let inboxFolder;
 
 add_setup(async function () {
   const account = MailServices.accounts.createLocalMailAccount();

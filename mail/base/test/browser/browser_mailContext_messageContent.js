@@ -261,8 +261,8 @@ async function subtest(aboutMessage, mailContext) {
   pickerPromise = new Promise(resolve => {
     SpecialPowers.MockFilePicker.init(window.browsingContext);
     SpecialPowers.MockFilePicker.useAnyFile();
-    SpecialPowers.MockFilePicker.showCallback = picker => {
-      resolve(picker);
+    SpecialPowers.MockFilePicker.showCallback = fp => {
+      resolve(fp);
       return Ci.nsIFilePicker.returnOk;
     };
   });

@@ -22,8 +22,8 @@ if (AppConstants.MOZ_UPDATER) {
   window.addEventListener("unload", onUnload);
 }
 
-function onLoad(event) {
-  if (event.target !== document) {
+function onLoad(loadEvent) {
+  if (loadEvent.target !== document) {
     return;
   }
 

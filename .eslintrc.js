@@ -187,6 +187,7 @@ module.exports = {
         ".eslintrc.js",
         "calendar/",
         "chat/",
+        "mail/base/",
         "mail/test/browser/composition/browser_redirect.js",
         "mail/test/browser/composition/browser_replySelection.js",
         "mail/test/browser/composition/browser_sendButton.js",

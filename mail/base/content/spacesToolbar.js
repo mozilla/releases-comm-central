@@ -1117,11 +1117,11 @@ var gSpacesToolbar = {
       // Set click actions.
       const tabmail = document.getElementById("tabmail");
       this._addButtonClickListener(button, () => {
-        const space = gSpacesToolbar.spaces.find(space => space.name == id);
+        const space = gSpacesToolbar.spaces.find(s => s.name == id);
         this.openSpace(tabmail, space);
       });
       menuitem.addEventListener("command", () => {
-        const space = gSpacesToolbar.spaces.find(space => space.name == id);
+        const space = gSpacesToolbar.spaces.find(s => s.name == id);
         this.openSpace(tabmail, space);
       });
 
@@ -1187,7 +1187,7 @@ var gSpacesToolbar = {
       }
 
       // Update url.
-      const space = gSpacesToolbar.spaces.find(space => space.name == id);
+      const space = gSpacesToolbar.spaces.find(s => s.name == id);
       if (space.url != properties.url) {
         // TODO: Reload the space, when the url is changed (or close and re-open
         // the tab).
@@ -1245,7 +1245,7 @@ var gSpacesToolbar = {
       button?.remove();
       document.getElementById(`${id}-menuitem`)?.remove();
 
-      const space = gSpacesToolbar.spaces.find(space => space.name == id);
+      const space = gSpacesToolbar.spaces.find(s => s.name == id);
       const tabmail = document.getElementById("tabmail");
       const existing = tabmail.tabInfo.find(
         tabInfo => space.tabInSpace(tabInfo) == 1

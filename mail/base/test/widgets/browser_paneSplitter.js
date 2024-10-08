@@ -250,9 +250,9 @@ async function subtestDrag() {
   testRunner.assertElementSizes(0);
 
   // Drag in steps to the right-hand/bottom end.
-  for (let position = 0; position <= 500; position += 50) {
-    await testRunner.synthMouse(position);
-    testRunner.assertElementSizes(position);
+  for (let pos = 0; pos <= 500; pos += 50) {
+    await testRunner.synthMouse(pos);
+    testRunner.assertElementSizes(pos);
   }
 
   // Drag beyond the right-hand/bottom end.

@@ -268,7 +268,7 @@ add_task(async function testOpen() {
   async function promiseWindowOpenAndReady() {
     const win = await BrowserTestUtils.domWindowOpenedAndLoaded(
       undefined,
-      win => win.location.href == "chrome://messenger/content/messenger.xhtml"
+      wind => wind.location.href == "chrome://messenger/content/messenger.xhtml"
     );
     // Wait for about:3pane and the folder to load.
     await TestUtils.topicObserved("mail-idle-startup-tasks-finished");

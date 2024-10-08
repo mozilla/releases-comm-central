@@ -291,7 +291,6 @@ add_task(async function testCompactUnreadFolders() {
   const fooRootFolder = foo.incomingServer.rootFolder;
   const fooTrashFolder = fooRootFolder.getChildNamed("Trash");
 
-  const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .addMessage(generator.makeMessages({}).map(m => m.toMessageString()));
@@ -1168,7 +1167,6 @@ add_task(async function testAccountOrder() {
   const barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
   const barExtraFolders = [barRootFolder, barOutboxFolder];
 
-  const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .addMessage(generator.makeMessage({}).toMessageString());

@@ -1906,8 +1906,7 @@ function addAttachmentToPopup(
       // The text-link class must be added to the <label> and have a <menu>
       // hover rule. Adding to <menu> makes hover overflow the underline to
       // the popup items.
-      const label = item.children[1];
-      label.classList.add("text-link");
+      item.children[1].classList.add("text-link");
     }
   }
 
