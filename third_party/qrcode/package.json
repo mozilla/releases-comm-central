@@ -1,0 +1,26 @@
+{
+  "name": "qrcodejs",
+  "version": "0.0.0",
+  "description": "Javascript QR Code generator.",
+  "main": "qrcode.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node qrcli.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielgjackson/qrcodejs.git"
+  },
+  "keywords": [
+    "QR",
+    "Code",
+    "javascript"
+  ],
+  "author": "Dan Jackson",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/danielgjackson/qrcodejs/issues"
+  },
+  "homepage": "https://github.com/danielgjackson/qrcodejs#readme"
+}

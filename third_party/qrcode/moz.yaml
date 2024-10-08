@@ -1,0 +1,41 @@
+# All fields are mandatory unless otherwise noted
+
+schema: 1
+# Version of this schema
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories.
+  product: Thunderbird
+  component: Account Manager
+
+origin:
+  name: qrcodejs
+  description:  JavaScript QR Code Generator
+  url: https://danielgjackson.github.io/qrcodejs
+
+  release: 86770ec12f0f9abee8728fc9018ab7bd0949f4bc
+  # Human-readable identifier for this version/release
+  # Generally "version NNN", "tag SSS", "bookmark SSS"
+
+  revision: 86770ec12f0f9abee8728fc9018ab7bd0949f4bc
+  # Revision to pull in
+  # Must be a long or short commit SHA (long preferred)
+
+  license: BSD-2-Clause
+
+vendoring:
+  # Information needed to update the library automatically.
+
+  url: https://github.com/danielgjackson/qrcodejs
+  source-hosting: github
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  exclude:
+    - '.*'
+    - '.vscode/settings.json'
+    - qrcli.mjs
+    - index.html
