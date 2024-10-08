@@ -312,6 +312,8 @@ nsresult MboxCompactor::BeginCompaction() {
   nsresult rv = mFolder->GetFilePath(getter_AddRefs(mMboxPath));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("Begin compacting '%s'.", mMboxPath->HumanReadablePath().get()));
   bool exists;
   rv = mMboxPath->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -476,6 +478,9 @@ NS_IMETHODIMP MboxCompactor::OnStopRequest(nsIRequest* req, nsresult status) {
 NS_IMETHODIMP MboxCompactor::OnStopScan(nsresult status) {
   nsresult rv = status;
 
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("Finished compacting '%s' status=0x%x.",
+           mMboxPath->HumanReadablePath().get(), (uint32_t)status));
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(mDestStream, &rv);
     if (NS_SUCCEEDED(rv)) {
@@ -1207,10 +1212,17 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   nsCOMPtr<nsIMsgDatabase> db;
   aFolder->GetMsgDatabase(getter_AddRefs(db));
   if (!db && !*aNewMsgHdr) NS_WARNING("no db, and no message header");
-  bool exists = false;
 
+  MOZ_LOG(gMboxLog, LogLevel::Info,
+          ("Opening mbox file '%s' for writing.",
+           mboxFile->HumanReadablePath().get()));
+
+  bool exists = false;
   mboxFile->Exists(&exists);
   if (!exists) {
+    MOZ_LOG(gMboxLog, LogLevel::Info,
+            ("'%s' does not exist, so creating it now.",
+             mboxFile->HumanReadablePath().get()));
     rv = mboxFile->Create(nsIFile::NORMAL_FILE_TYPE, 0600);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -1297,10 +1309,13 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
           tmp->GetFileSize(&fileSize);
         }
       }
+      MOZ_LOG(
+          gMboxLog, LogLevel::Info,
+          ("DISCARD MSG stream=0x%p folder=%s mboxPath='%s' filesize=%" PRId64
+           "",
+           aOutputStream, folderURI.get(), mboxPath->HumanReadablePath().get(),
+           fileSize));
     }
-    MOZ_LOG(gMboxLog, LogLevel::Info,
-            ("DISCARD MSG stream=0x%p folder=%s filesize=%" PRId64 "",
-             aOutputStream, folderURI.get(), fileSize));
   }
 
   // Remove the folder from the OutstandingStreams set.

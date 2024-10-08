@@ -311,6 +311,8 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
     rv = hdr->GetStringProperty("storeToken", token);
     NS_ENSURE_SUCCESS(rv, rv);
     if (token.IsEmpty()) {
+      MOZ_LOG(gCompactLog, LogLevel::Verbose,
+              ("keepmap: ignore msgKey=%" PRIu32 " (no storeToken)", msgKey));
       continue;
     }
 
@@ -327,6 +329,9 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
       hdr->SetStringProperty("storeToken", EmptyCString());
       uint32_t resultFlags;
       hdr->AndFlags(~nsMsgMessageFlags::Offline, &resultFlags);
+      MOZ_LOG(gCompactLog, LogLevel::Verbose,
+              ("keepmap: ignore msgKey=%" PRIu32 " (pendingRemoval is set)",
+               msgKey));
       continue;
     }
 
@@ -335,7 +340,8 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
     NS_ENSURE_TRUE(keepMap.put(token, msgKey), NS_ERROR_OUT_OF_MEMORY);
 
     MOZ_LOG(gCompactLog, LogLevel::Verbose,
-            ("keepmap '%s' => %" PRIu32 "", token.get(), msgKey));
+            ("keepmap: storeToken '%s' => msgKey %" PRIu32 "", token.get(),
+             msgKey));
   }
   return NS_OK;
 }
