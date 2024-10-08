@@ -599,7 +599,7 @@ treechildren::-moz-tree-cell-text(selected) {
 
 #preferencesContainer richlistbox {
   appearance: none;
-  background-color: var(--in-content-box-background);
+  background-color: var(--background-color-box);
   color: var(--in-content-text-color);
 
   & richlistitem {

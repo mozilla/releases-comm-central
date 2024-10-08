@@ -338,7 +338,7 @@ vcard-special-date {
   & select:not([size], [multiple]),
   & input[type="number"] {
     margin-inline: 0;
-    background-color: var(--in-content-box-background);
+    background-color: var(--background-color-box);
     border-color: var(--toolbar-field-border-color);
   }
 

@@ -851,7 +851,7 @@ input[type="number"] {
   background-size: 80px;
   background-position: center;
   -moz-context-properties: stroke;
-  stroke: var(--in-content-box-background);
+  stroke: var(--background-color-box);
   background-repeat: no-repeat;
   display: flex;
   justify-content: center;

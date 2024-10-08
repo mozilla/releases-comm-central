@@ -391,7 +391,7 @@
     }
 
     & > option {
-      background-color: var(--in-content-box-background);
+      background-color: var(--background-color-box);
       color: var(--in-content-text-color);
     }
   }

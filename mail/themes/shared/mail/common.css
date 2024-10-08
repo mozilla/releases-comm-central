@@ -107,7 +107,7 @@ menulist > menupopup {
 
 menupopup {
   --panel-border-color: var(--in-content-box-border-color);
-  --panel-background: var(--in-content-box-background);
+  --panel-background: var(--background-color-box);
   --panel-color: var(--in-content-text-color);
 
   &::part(content) {

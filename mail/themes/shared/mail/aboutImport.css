@@ -143,7 +143,7 @@ dd {
 
 .tabPane {
   & > section {
-    background-color: var(--in-content-box-background);
+    background-color: var(--background-color-box);
     border-radius: var(--in-content-button-border-radius);
     padding: 2em calc(var(--main-title-size) + var(--title-icon-margin) + 1em);
   }
@@ -417,13 +417,13 @@ calendar-item-summary {
 
     &.current button {
       border: 3px solid var(--primary);
-      background: var(--in-content-box-background);
+      background: var(--background-color-box);
       color: var(--primary);
     }
 
     &.completed button {
       background: var(--primary);
-      color: var(--in-content-box-background);
+      color: var(--background-color-box);
     }
 
     &.completed:not(:first-child)::before,
