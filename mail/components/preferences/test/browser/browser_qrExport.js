@@ -8,7 +8,7 @@ const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-let prefsWindow, prefsDocument, tabmail;
+let prefsWindow, prefsDocument, tabmail, popAccount;
 
 add_setup(async function () {
   const imapAccounts = [];
@@ -37,7 +37,7 @@ add_setup(async function () {
   popServer.password = "password";
   const popIdentity = MailServices.accounts.createIdentity();
   popIdentity.email = "pop@foo.invalid";
-  const popAccount = MailServices.accounts.createAccount();
+  popAccount = MailServices.accounts.createAccount();
   popAccount.incomingServer = popServer;
   popAccount.addIdentity(popIdentity);
   const popOutgoing = MailServices.outgoingServer.createServer("smtp");
@@ -260,5 +260,147 @@ add_task(async function test_stepThroughQrCodes() {
   Assert.ok(
     BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportCodes")),
     "Should no longer show QR codes"
+  );
+});
+
+/**
+ * Set up export form to only have a single account checked and apply a
+ * requested value to the passwords checkbox.
+ *
+ * @param {boolean} includePasswords - If passwords should be included in the
+ *   export.
+ */
+async function selectSingleAccountAndSetIncludePasswords(includePasswords) {
+  for (const option of prefsDocument.querySelectorAll(
+    "#qrExportAccountsList input"
+  )) {
+    option.checked = option.value === popAccount.key;
+  }
+  prefsDocument.getElementById("qrExportIncludePasswords").checked =
+    includePasswords;
+}
+
+add_task(async function test_completeCycleWithSummary() {
+  selectSingleAccountAndSetIncludePasswords(false);
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes")),
+    "QR codes screen should be shown now"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesNext"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportCodes")),
+    "QR codes screen should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
+    "Should show summary"
+  );
+
+  const qrCodesItem = prefsDocument.getElementById("qrExportSummaryQrCodes");
+  Assert.equal(
+    qrCodesItem.dataset.l10nId,
+    "qr-export-summary-qr-count",
+    "QR code count item should use correct string"
+  );
+  Assert.deepEqual(
+    JSON.parse(qrCodesItem.dataset.l10nArgs),
+    { count: 1 },
+    "Should set correct QR code count"
+  );
+
+  const accountsItem = prefsDocument.getElementById("qrExportSummaryAccounts");
+  Assert.equal(
+    accountsItem.dataset.l10nId,
+    "qr-export-summary-accounts",
+    "Accounts item label should use correct string"
+  );
+  Assert.deepEqual(
+    JSON.parse(accountsItem.dataset.l10nArgs),
+    { count: 1 },
+    "Should set correct account count"
+  );
+
+  const accountsList = prefsDocument.getElementById(
+    "qrExportSummaryAccountList"
+  );
+  Assert.equal(
+    accountsList.childElementCount,
+    1,
+    "Should have one account item in list"
+  );
+  Assert.equal(
+    accountsList.children[0].textContent,
+    popAccount.incomingServer.prettyName,
+    "Should have pop account label in item"
+  );
+
+  const passwordsItem = prefsDocument.getElementById(
+    "qrExportSummaryPasswords"
+  );
+  Assert.equal(
+    passwordsItem.dataset.l10nId,
+    "qr-export-summary-passwords-excluded",
+    "Should show passwords excluded string"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportRestart"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
+    "Should be back on intro screen"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportSummary")),
+    "Should no longer show summary"
+  );
+});
+
+add_task(async function test_summaryWithPasswords() {
+  selectSingleAccountAndSetIncludePasswords(true);
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesNext"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
+    "Should show summary"
+  );
+
+  const passwordsItem = prefsDocument.getElementById(
+    "qrExportSummaryPasswords"
+  );
+  Assert.equal(
+    passwordsItem.dataset.l10nId,
+    "qr-export-summary-passwords-included",
+    "Should show passwords excluded string"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportRestart"),
+    {},
+    prefsWindow
   );
 });

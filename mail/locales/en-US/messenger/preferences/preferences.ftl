@@ -1120,3 +1120,27 @@ qr-export-back = Back
 qr-export-next = Next
 
 qr-export-done = Done
+
+qr-export-summary-description = Accounts exported. Continue on your mobile device.
+
+qr-export-summary-title = Export summary:
+
+# Variables:
+# $count (Number) - Total number of QR codes shown to the user.
+qr-export-summary-qr-count = { $count ->
+    [one] { $count } QR code generated
+    *[other] { $count } QR codes generated
+}
+
+# Variables:
+# $count (Number) - Number of accounts included in the export.
+qr-export-summary-accounts = { $count ->
+    [one] { $count } account exported:
+    *[other] { $count } accounts exported:
+}
+
+qr-export-summary-passwords-included = Passwords included
+
+qr-export-summary-passwords-excluded = Passwords excluded
+
+qr-export-more-accounts = Export more accounts

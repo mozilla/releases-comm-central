@@ -4,12 +4,16 @@
 
 import "chrome://messenger/content/preferences/qr-code-wizard.mjs"; // eslint-disable-line import/no-unassigned-import
 
+const { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   QRExport: "resource:///modules/QRExport.sys.mjs",
 });
 
-const STEPS = ["Intro", "Codes"];
+const STEPS = ["Intro", "Codes", "Summary"];
 
 export const qrExportPane = {
   init() {
@@ -40,6 +44,52 @@ export const qrExportPane = {
       })
     );
     this.updateIntroState();
+  },
+
+  /**
+   * Populate the data in the export summary.
+   *
+   * @param {string[]} accountKeys - Keys of accounts that were exported.
+   * @param {boolean} includePasswords - If passwords were included in the
+   *   export.
+   * @param {number} qrCodeCount - Amount of QR codes shown to the user for the
+   *   export.
+   */
+  populateSummary(accountKeys, includePasswords, qrCodeCount) {
+    const accounts = accountKeys.map(
+      key => MailServices.accounts.getAccount(key).incomingServer.prettyName
+    );
+
+    document.l10n.setAttributes(
+      document.getElementById("qrExportSummaryQrCodes"),
+      "qr-export-summary-qr-count",
+      {
+        count: qrCodeCount,
+      }
+    );
+
+    document.l10n.setAttributes(
+      document.getElementById("qrExportSummaryAccounts"),
+      "qr-export-summary-accounts",
+      {
+        count: accounts.length,
+      }
+    );
+    document.getElementById("qrExportSummaryAccountList").replaceChildren(
+      ...accounts.map(accountName => {
+        const item = document.createElement("li");
+        item.textContent = accountName;
+        return item;
+      })
+    );
+
+    const passwordsString = includePasswords
+      ? "qr-export-summary-passwords-included"
+      : "qr-export-summary-passwords-excluded";
+    document.l10n.setAttributes(
+      document.getElementById("qrExportSummaryPasswords"),
+      passwordsString
+    );
   },
 
   /**
@@ -90,11 +140,15 @@ export const qrExportPane = {
       .getElementById("qrExportCodesNext")
       .addEventListener("click", () => {
         if (!document.getElementById("qrCodeWizard").next()) {
-          //TODO advance.
+          this.showSummary();
           return;
         }
         this.updateCodesState();
       });
+    // Summary
+    document.getElementById("qrExportRestart").addEventListener("click", () => {
+      this.showIntro();
+    });
   },
 
   /**
@@ -137,7 +191,7 @@ export const qrExportPane = {
    * a specific step prefer the shop[Step Name] methods, which will handle
    * initializing that step.
    *
-   * @param {"Intro"|"Codes"} step - Name of the step to show.
+   * @param {"Intro"|"Codes"|"Summary"} step - Name of the step to show.
    */
   showStep(step) {
     for (const stepName of STEPS) {
@@ -178,5 +232,14 @@ export const qrExportPane = {
     );
     this.updateCodesState();
     this.showStep("Codes");
+    this.populateSummary(accountKeys, includePasswords, wizard.getTotalSteps());
+  },
+
+  /**
+   * Show the export summary. The summary was already populated when the QR
+   * codes were shown.
+   */
+  showSummary() {
+    this.showStep("Summary");
   },
 };
