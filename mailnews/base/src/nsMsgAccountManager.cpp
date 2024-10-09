@@ -2753,6 +2753,13 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   nsCOMPtr<nsIFile> file;
   GetVirtualFoldersFile(file);
   if (!file) return NS_ERROR_FAILURE;
+  bool exists;
+  nsresult rv = file->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!exists) {
+    m_virtualFoldersLoaded = true;
+    return NS_OK;
+  }
 
   if (m_virtualFoldersLoaded) return NS_OK;
 
@@ -2762,7 +2769,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   // Some may not have been created yet, which would break virtual folders
   // that depend on them.
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
-  nsresult rv = GetAllServers(allServers);
+  rv = GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
   for (auto server : allServers) {
     if (server) {
