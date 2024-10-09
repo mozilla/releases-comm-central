@@ -332,7 +332,6 @@ var _INTERESTING_MESSAGE_HEADER_PROPERTIES = {
   "gloda-dirty": 0,
   junkscore: "",
   junkscoreorigin: "",
-  msgOffset: 0,
   offlineMsgSize: 0,
 };
 

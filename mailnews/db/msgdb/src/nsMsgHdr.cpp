@@ -402,36 +402,6 @@ NS_IMETHODIMP nsMsgHdr::GetAccountKey(char** aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
-  NS_ENSURE_ARG(result);
-
-  (void)GetUInt64Column(m_mdb->m_offlineMsgOffsetColumnToken, result,
-                        std::numeric_limits<uint64_t>::max());
-  if (*result == std::numeric_limits<uint64_t>::max()) {
-    // It's unset. Unfortunately there's not much we can do here. There's
-    // a lot of code which relies on being able to read .messageOffset,
-    // even if it doesn't require it to return anything sensible.
-    // (For example - in js unit tests - Assert.equals() stringifies the
-    // attributes of it's expected/actual values to produce an error
-    // message even if the assert passes).
-#ifdef DEBUG
-    nsCString tok;
-    GetStringProperty("storeToken", tok);
-    nsPrintfCString err("Missing .messageOffset (key=%u, storeToken='%s')",
-                        m_messageKey, tok.get());
-    NS_WARNING(err.get());
-#endif
-    // Return something obviously broken.
-    *result = 12345678;
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgHdr::SetMessageOffset(uint64_t offset) {
-  SetUInt64Column(offset, m_mdb->m_offlineMsgOffsetColumnToken);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgHdr::GetStoreToken(nsACString& result) {
   GetStringProperty("storeToken", result);
   if (result.IsEmpty()) {

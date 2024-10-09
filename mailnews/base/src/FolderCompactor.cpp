@@ -427,12 +427,6 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
   rv = hdr->SetStoreToken(newToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Just until Bug 1720047 is out of the way...
-  // For mbox the storeToken is a file offset.
-  uint64_t offset = ParseUint64Str(PromiseFlatCString(newToken).get());
-  rv = hdr->SetMessageOffset(offset);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // For IMAP and news, .offlineMessageSize is the local size.
   // For local folders, .messageSize is the local size.
   if (newSize >= UINT32_MAX) {

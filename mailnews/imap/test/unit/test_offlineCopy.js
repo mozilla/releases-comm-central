@@ -132,17 +132,10 @@ var tests = [
           message.subject +
           "> storeToken: <" +
           message.storeToken +
-          "> offset: <" +
-          message.messageOffset +
           "> id: <" +
           message.messageId +
           ">\n"
       );
-      // This fails for file copies in bug 790912. Without  this, messages that
-      //  are copied are not visible in pre-pluggableStores versions of TB (pre TB 12)
-      if (IMAPPump.inbox.msgStore.storeType == "mbox") {
-        Assert.equal(message.messageOffset, parseInt(message.storeToken));
-      }
     }
     Assert.equal(count, 4);
   },
@@ -174,22 +167,6 @@ var tests = [
       true
     );
 
-    const msg4 = db.getMsgHdrForMessageID(gMsg4Id);
-    Assert.ok(msg4 instanceof Ci.nsIMsgDBHdr);
-
-    // because bug 790912 created messages with correct storeToken but messageOffset=0,
-    //  these messages may not copy correctly. Make sure that they do, as fixed in bug 790912
-    msg4.messageOffset = 0;
-    MailServices.copy.copyMessages(
-      IMAPPump.inbox,
-      [msg4],
-      gFolder1,
-      false,
-      null,
-      null,
-      true
-    );
-
     // test the db headers in folder1
     db = gFolder1.msgDatabase;
     let count = 0;
@@ -201,20 +178,15 @@ var tests = [
           message.subject +
           "> storeToken: <" +
           message.storeToken +
-          "> offset: <" +
-          message.messageOffset +
           "> id: <" +
           message.messageId +
           ">\n"
       );
-      if (gFolder1.msgStore.storeType == "mbox") {
-        Assert.equal(message.messageOffset, parseInt(message.storeToken));
-      }
     }
-    Assert.equal(count, 3);
+    Assert.equal(count, 2);
   },
   async function test_headers() {
-    const msgIds = [gMsgId1, gMsg3Id, gMsg4Id];
+    const msgIds = [gMsgId1, gMsg3Id];
     for (const msgId of msgIds) {
       const newMsgHdr = gFolder1.msgDatabase.getMsgHdrForMessageID(msgId);
       Assert.ok(newMsgHdr.flags & Ci.nsMsgMessageFlags.Offline);

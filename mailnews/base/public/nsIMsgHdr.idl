@@ -55,12 +55,6 @@ interface nsIMsgDBHdr : nsISupports
     attribute unsigned long messageSize;
     attribute unsigned long lineCount;
     /**
-     * The offset into the local folder/offline store of the message. This
-     * will be pluggable store-dependent, e.g., for mail dir it should
-     * always be 0.
-     */
-    attribute unsigned long long messageOffset;
-    /**
      * Store-dependent value for locating the message. For mbox this is the
      * offset in the mbox file, for maildir it is the filename. An empty
      * string means unset.

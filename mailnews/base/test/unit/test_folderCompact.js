@@ -110,19 +110,6 @@ function deleteMessages(srcFolder, items) {
   return listener.promise;
 }
 
-function verifyMsgOffsets(folder) {
-  const msgDB = folder.msgDatabase;
-  const enumerator = msgDB.enumerateMessages();
-  if (enumerator) {
-    for (const header of enumerator) {
-      if (header instanceof Ci.nsIMsgDBHdr) {
-        const storeToken = header.storeToken;
-        Assert.equal(storeToken, header.messageOffset);
-      }
-    }
-  }
-}
-
 /**
  * Calculate the expected size of a (compacted) mbox, based on
  * msgDB entries. For use later in verifyMboxSize().
@@ -166,7 +153,7 @@ function showMessages() {
   dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
   for (const hdr of folder.messages) {
     dump(
-      `  key: ${hdr.messageKey} storeToken: ${hdr.storeToken} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
+      `  key: ${hdr.messageKey} storeToken: ${hdr.storeToken} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
     );
   }
   */
@@ -251,7 +238,6 @@ var gTestArray = [
   },
   async function testDeleteMessages2() {
     await verifyMboxSize(gLocalFolder3, gExpectedFolderSize);
-    verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
     gMsgHdrs[0].hdr = folder2DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
 
@@ -301,9 +287,6 @@ var gTestArray = [
     await verifyMboxSize(localAccountUtils.inboxFolder, gExpectedInboxSize);
     await verifyMboxSize(gLocalFolder2, gExpectedFolder2Size);
     await verifyMboxSize(gLocalFolder3, gExpectedFolder3Size);
-    verifyMsgOffsets(gLocalFolder2);
-    verifyMsgOffsets(gLocalFolder3);
-    verifyMsgOffsets(localAccountUtils.inboxFolder);
   },
 ];
 

@@ -28,7 +28,6 @@ add_task(async function testStoreToken() {
   const emptyLinesLength = "\r\n\r\n".length;
 
   const [message1, message2] = [...testFolder.messages];
-  Assert.equal(message1.messageOffset, 0, "first message messageOffset");
   Assert.equal(message1.storeToken, "0", "first message storeToken");
   Assert.equal(
     message1.getStringProperty("storeToken"),
@@ -49,11 +48,6 @@ add_task(async function testStoreToken() {
   //   )
   // );
 
-  Assert.equal(
-    message2.messageOffset,
-    message1.messageSize + fromLineLength + emptyLinesLength,
-    "second message messageOffset"
-  );
   Assert.equal(
     message2.storeToken,
     String(message1.messageSize + fromLineLength + emptyLinesLength),
@@ -98,22 +92,21 @@ add_task(async function testStoreToken() {
   message2.setStringProperty("storeToken", "");
   Assert.equal(
     message2.storeToken,
-    String(message1.messageSize + fromLineLength + emptyLinesLength),
+    "",
+    "with no messageOffset value, the storeToken value should be empty"
+  );
+
+  // This is the old .messageOffset attribute. We want to make sure ancient DBs with
+  // .messageOffset but no .storeToken are migrated on the fly.
+  message2.setUint32Property("msgOffset", 101);
+  Assert.equal(
+    message2.storeToken,
+    "101",
     "with no string property value, the storeToken value should come from the messageOffset"
   );
   Assert.equal(
     message2.getStringProperty("storeToken"),
-    String(message1.messageSize + fromLineLength + emptyLinesLength),
+    "101",
     "string property value should have been set by accessing the attribute"
-  );
-
-  // Set the message offset to -1. We can't remove this property either, so
-  // this uses the same default value as the retrieval code.
-  message2.setStringProperty("storeToken", "");
-  message2.messageOffset = -1;
-  Assert.equal(
-    message2.storeToken,
-    "",
-    "with no messageOffset value, the storeToken value should be empty"
   );
 });

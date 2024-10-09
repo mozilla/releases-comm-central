@@ -691,8 +691,6 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
     rv = db->CreateNewHdr(nsMsgKey_None, aNewMsgHdr);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  // With maildir, messages have whole file to themselves.
-  (*aNewMsgHdr)->SetMessageOffset(0);
 
   // We're going to save the new message into the maildir 'tmp' folder.
   // When the message is completed, it can be moved to 'cur'.

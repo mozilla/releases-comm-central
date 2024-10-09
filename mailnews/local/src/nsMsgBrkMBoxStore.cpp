@@ -1265,7 +1265,6 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     NS_ENSURE_SUCCESS(rv, rv);
     nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
     (*aNewMsgHdr)->SetStoreToken(storeToken);
-    (*aNewMsgHdr)->SetMessageOffset(filePos);
   }
   // Up and running. Add the folder to the OutstandingStreams set.
   MOZ_ALWAYS_TRUE(m_OutstandingStreams.putNew(folderURI, *aResult));
@@ -1499,8 +1498,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
     }
 
     // Rewrite flags into X-Mozilla-Status headers.
-    uint64_t msgOffset;
-    rv = msgHdr->GetMessageOffset(&msgOffset);
+    nsAutoCString storeToken;
+    rv = msgHdr->GetStoreToken(storeToken);
+    NS_ENSURE_SUCCESS(rv, rv);
+    uint64_t msgOffset = storeToken.ToInteger64(&rv);
     NS_ENSURE_SUCCESS(rv, rv);
     seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgOffset);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1535,8 +1536,11 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto msgHdr : aHdrArray) {
-    uint64_t msgStart;
-    msgHdr->GetMessageOffset(&msgStart);
+    nsAutoCString storeToken;
+    rv = msgHdr->GetStoreToken(storeToken);
+    NS_ENSURE_SUCCESS(rv, rv);
+    uint64_t msgStart = storeToken.ToInteger64(&rv);
+    NS_ENSURE_SUCCESS(rv, rv);
     seekable->Seek(nsISeekableStream::NS_SEEK_SET, msgStart);
     NS_ENSURE_SUCCESS(rv, rv);
 

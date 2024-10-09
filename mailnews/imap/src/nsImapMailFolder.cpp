@@ -6957,10 +6957,6 @@ void nsImapMailFolder::SetPendingAttributes(
     if (messageSize) {
       mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "offlineMsgSize",
                                                 messageSize);
-      uint64_t messageOffset;
-      msgDBHdr->GetMessageOffset(&messageOffset);
-      mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
-                                                messageOffset);
       nsCString storeToken;
       msgDBHdr->GetStoreToken(storeToken);
       mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",

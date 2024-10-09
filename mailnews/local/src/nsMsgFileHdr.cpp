@@ -217,14 +217,6 @@ NS_IMETHODIMP nsMsgFileHdr::GetLineCount(uint32_t* aLineCount) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::SetLineCount(uint32_t aLineCount) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetMessageOffset(uint64_t* aMessageOffset) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgFileHdr::SetMessageOffset(uint64_t aMessageOffset) {
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgFileHdr::GetStoreToken(nsACString& result) {
   result.Truncate();
   return NS_OK;

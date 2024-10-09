@@ -235,26 +235,6 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
 
     MOZ_ASSERT(!mStoreToken.IsEmpty());
     hdr->SetStoreToken(mStoreToken);
-    // HACK ALERT!
-    // Nasty mbox-specific hack until we can ditch .messageOffset.
-    // See Bug 1720047.
-    // A lot of code relies on .messageOffset, even if it makes no sense for
-    // maildir. So we'll set it here.
-    {
-      nsCOMPtr<nsIMsgPluggableStore> msgStore;
-      nsresult rv = mFolder->GetMsgStore(getter_AddRefs(msgStore));
-      if (NS_SUCCEEDED(rv)) {
-        int64_t msgOffset = 0;
-        nsAutoCString storeType;
-        msgStore->GetStoreType(storeType);
-        if (storeType.EqualsLiteral("mbox")) {
-          msgOffset = mStoreToken.ToInteger64(&rv);
-        }
-        MOZ_ASSERT(msgOffset >= 0);
-        hdr->SetMessageOffset((uint64_t)msgOffset);
-      }
-    }
-    // END HACK ALERT
 
     // Add hdr but don't notify - shouldn't be requiring notifications
     // during summary file rebuilding.

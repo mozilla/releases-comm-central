@@ -668,9 +668,11 @@ char* MsgMapiListContext::ConvertBodyToMapiFormat(nsIMsgDBHdr* hdr) {
   if (!fileLineStream) return nullptr;
 
   // ### really want to skip past headers...
+  nsCString storeToken;
   uint64_t messageOffset;
   uint32_t lineCount;
-  hdr->GetMessageOffset(&messageOffset);
+  hdr->GetStoreToken(storeToken);
+  messageOffset = storeToken.ToInteger64(&rv);
   hdr->GetLineCount(&lineCount);
   nsCOMPtr<nsISeekableStream> seekableStream = do_QueryInterface(fileStream);
   seekableStream->Seek(PR_SEEK_SET, messageOffset);

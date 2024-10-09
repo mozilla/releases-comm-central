@@ -335,7 +335,6 @@ void nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
   if (m_newMsgHdr) {
     nsCString storeToken = nsPrintfCString("%" PRIu64, m_envelope_pos);
     m_newMsgHdr->SetStoreToken(storeToken);
-    m_newMsgHdr->SetMessageOffset(m_envelope_pos);
 
     uint32_t flags;
     (void)m_newMsgHdr->GetFlags(&flags);
