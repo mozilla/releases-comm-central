@@ -100,18 +100,18 @@ add_task(async function () {
 
           {
             // Tests for tab querying
-            const [tab] = await browser.tabs.query({
+            const [qtab] = await browser.tabs.query({
               windowId: this.defaultWindowId,
               cookieStoreId: data.cookieStoreId,
             });
 
-            browser.test.assertTrue(tab != undefined, "Tab found!");
-            testTab(data, tab);
+            browser.test.assertTrue(qtab != undefined, "Tab found!");
+            testTab(data, qtab);
           }
 
           const stores = await browser.cookies.getAllCookieStores();
 
-          const store = stores.find(store => store.id === tab.cookieStoreId);
+          const store = stores.find(s => s.id === tab.cookieStoreId);
           browser.test.assertTrue(!!store, "We have a store for this tab.");
           browser.test.assertTrue(
             store.tabIds.includes(tab.id),

@@ -2207,7 +2207,7 @@ async function retrieveMessageFromServer(mid, server) {
       tempFile,
       false,
       {
-        async OnStopRunningUrl(url, status) {
+        async OnStopRunningUrl(_url, status) {
           resolve(status);
         },
       },

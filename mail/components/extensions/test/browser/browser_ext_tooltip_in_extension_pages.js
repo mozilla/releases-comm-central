@@ -166,12 +166,12 @@ add_task(async function test_browserAction_in_message_window() {
       });
 
       // Open a message in a window.
-      const { messages } = await browser.messages.query({
+      const { messages: msgs } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
         location: "window",
-        messageId: messages[0].id,
+        messageId: msgs[0].id,
       });
     },
     "page.js": async function () {
@@ -410,12 +410,12 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       });
 
       // Open a message in a tab.
-      const { messages } = await browser.messages.query({
+      const { messages: msgs } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
         location: "tab",
-        messageId: messages[0].id,
+        messageId: msgs[0].id,
       });
     },
     "page.js": async function () {
@@ -499,12 +499,12 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       });
 
       // Open a message in a window.
-      const { messages } = await browser.messages.query({
+      const { messages: msgs } = await browser.messages.query({
         autoPaginationTimeout: 0,
       });
       browser.messageDisplay.open({
         location: "window",
-        messageId: messages[0].id,
+        messageId: msgs[0].id,
       });
     },
     "page.js": async function () {

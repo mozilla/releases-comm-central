@@ -119,7 +119,7 @@ add_task(async function valid_cookieStoreId() {
     },
   ];
 
-  async function background(testCases) {
+  async function background() {
     const readyTabs = new Map();
     const tabReadyCheckers = new Set();
     browser.webNavigation.onCompleted.addListener(({ url, tabId, frameId }) => {

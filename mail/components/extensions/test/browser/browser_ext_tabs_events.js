@@ -174,13 +174,15 @@ add_task(async () => {
         // a loading or completed event. Compare with whatever the local extension
         // is getting.
         const locContentTabUpdateInfoPromise = new Promise(resolve => {
-          const listener = (...args) => {
-            browser.tabs.onUpdated.removeListener(listener);
-            resolve(args);
-          };
-          browser.tabs.onUpdated.addListener(listener, {
-            properties: ["status"],
-          });
+          browser.tabs.onUpdated.addListener(
+            function updateListener(...args) {
+              browser.tabs.onUpdated.removeListener(updateListener);
+              resolve(args);
+            },
+            {
+              properties: ["status"],
+            }
+          );
         });
         const primedContentTabUpdateInfo = await capturePrimedEvent(
           "onUpdated",
@@ -501,20 +503,20 @@ add_task(async () => {
           // Whenever the extension starts or wakes up, hasFired is set to false. In
           // case of a wake-up, the first fired event is the one that woke up the background.
           let hasFired = false;
-          const eventName = browser.runtime.getManifest().description;
+          const description = browser.runtime.getManifest().description;
 
-          if (["onCreated", "onActivated", "onRemoved"].includes(eventName)) {
-            browser.tabs[eventName].addListener(async (...args) => {
+          if (["onCreated", "onActivated", "onRemoved"].includes(description)) {
+            browser.tabs[description].addListener(async (...args) => {
               // Only send the first event after background wake-up, this should
               // be the only one expected.
               if (!hasFired) {
                 hasFired = true;
-                browser.test.sendMessage(`${eventName} received`, args);
+                browser.test.sendMessage(`${description} received`, args);
               }
             });
           }
 
-          if (eventName == "onUpdated") {
+          if (description == "onUpdated") {
             browser.tabs.onUpdated.addListener(
               (...args) => {
                 // Only send the first event after background wake-up, this should

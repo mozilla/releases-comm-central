@@ -188,6 +188,7 @@ module.exports = {
         "calendar/",
         "chat/",
         "mail/base/",
+        "mail/components/extensions/",
         "mail/test/browser/composition/browser_redirect.js",
         "mail/test/browser/composition/browser_replySelection.js",
         "mail/test/browser/composition/browser_sendButton.js",

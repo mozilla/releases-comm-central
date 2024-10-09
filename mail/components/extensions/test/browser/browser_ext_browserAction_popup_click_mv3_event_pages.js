@@ -26,25 +26,27 @@ async function subtest_popup_open_with_click_MV3_event_pages(
   terminateBackground
 ) {
   info("3-pane tab");
-  const testConfig = {
-    actionType: "action",
-    manifest_version: 3,
-    terminateBackground,
-    testType: "open-with-mouse-click",
-    window,
-  };
+  {
+    const testConfig = {
+      actionType: "action",
+      manifest_version: 3,
+      terminateBackground,
+      testType: "open-with-mouse-click",
+      window,
+    };
 
-  await run_popup_test({
-    ...testConfig,
-  });
-  await run_popup_test({
-    ...testConfig,
-    disable_button: true,
-  });
-  await run_popup_test({
-    ...testConfig,
-    use_default_popup: true,
-  });
+    await run_popup_test({
+      ...testConfig,
+    });
+    await run_popup_test({
+      ...testConfig,
+      disable_button: true,
+    });
+    await run_popup_test({
+      ...testConfig,
+      use_default_popup: true,
+    });
+  }
 
   info("Message window");
   {

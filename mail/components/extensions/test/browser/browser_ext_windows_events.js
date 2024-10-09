@@ -240,11 +240,14 @@ add_task(async () => {
         browser.test.log("Change focused window.");
 
         const focusInfoPromise = new Promise(resolve => {
-          const listener = windowId => {
-            browser.windows.onFocusChanged.removeListener(listener);
-            resolve(windowId);
-          };
-          browser.windows.onFocusChanged.addListener(listener);
+          browser.windows.onFocusChanged.addListener(
+            function focusChangeListener(windowId) {
+              browser.windows.onFocusChanged.removeListener(
+                focusChangeListener
+              );
+              resolve(windowId);
+            }
+          );
         });
         const [primedFocusInfo] = await capturePrimedEvent(
           "onFocusChanged",
@@ -339,17 +342,16 @@ add_task(async () => {
           // Whenever the extension starts or wakes up, hasFired is set to false. In
           // case of a wake-up, the first fired event is the one that woke up the background.
           let hasFired = false;
-          const eventName = browser.runtime.getManifest().description;
-
+          const description = browser.runtime.getManifest().description;
           if (
-            ["onCreated", "onFocusChanged", "onRemoved"].includes(eventName)
+            ["onCreated", "onFocusChanged", "onRemoved"].includes(description)
           ) {
-            browser.windows[eventName].addListener(async (...args) => {
+            browser.windows[description].addListener(async (...args) => {
               // Only send the first event after background wake-up, this should
               // be the only one expected.
               if (!hasFired) {
                 hasFired = true;
-                browser.test.sendMessage(`${eventName} received`, args);
+                browser.test.sendMessage(`${description} received`, args);
               }
             });
           }

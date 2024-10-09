@@ -34,8 +34,8 @@ add_task(async function testBody() {
         "number of identities"
       );
       const [htmlIdentity, plainTextIdentity] = popAccount.identities;
-      const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder.id);
+      const testFolder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(testFolder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       const message0 = await browser.messages.getFull(messages[0].id);

@@ -6,19 +6,19 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-const account = createAccount("pop3");
+const gAccount = createAccount("pop3");
 createAccount("local");
-MailServices.accounts.defaultAccount = account;
+MailServices.accounts.defaultAccount = gAccount;
 
-const defaultIdentity = addIdentity(account);
-defaultIdentity.composeHtml = true;
-const nonDefaultIdentity = addIdentity(account);
-nonDefaultIdentity.composeHtml = false;
+const gDefaultIdentity = addIdentity(gAccount);
+gDefaultIdentity.composeHtml = true;
+const gNonDefaultIdentity = addIdentity(gAccount);
+gNonDefaultIdentity.composeHtml = false;
 
-const rootFolder = account.incomingServer.rootFolder;
-rootFolder.createSubfolder("test", null);
-const folder = rootFolder.getChildNamed("test");
-createMessages(folder, 4);
+const gRootFolder = gAccount.incomingServer.rootFolder;
+gRootFolder.createSubfolder("test", null);
+const gFolder = gRootFolder.getChildNamed("test");
+createMessages(gFolder, 4);
 
 add_task(async function testIdentity() {
   const files = {
@@ -90,7 +90,7 @@ add_task(async function testIdentity() {
 
     is(
       composeWindows[0].getCurrentIdentityKey(),
-      isDefault ? defaultIdentity.key : nonDefaultIdentity.key
+      isDefault ? gDefaultIdentity.key : gNonDefaultIdentity.key
     );
     composeWindows[0].close();
     extension.sendMessage();

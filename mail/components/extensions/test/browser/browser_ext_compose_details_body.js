@@ -563,6 +563,7 @@ add_task(async function testCJK() {
 
   const extension = ExtensionTestUtils.loadExtension({
     background: async () => {
+      // eslint-disable-next-line no-shadow
       const longCJKString = "안".repeat(400);
       const windows = await browser.windows.getAll({
         populate: true,

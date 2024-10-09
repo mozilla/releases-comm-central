@@ -1173,7 +1173,7 @@ class MsgOperationObserver {
  * @returns {Promise<MsgOperationReturnValue>} - Promise for information about
  *   the performed message operation, which is passed to the WebExtension.
  */
-async function goDoCommand(composeWindow, extension, mode) {
+async function goDoCommand(composeWindow, extension, sendMode) {
   const commands = new Map([
     ["draft", "cmd_saveAsDraft"],
     ["template", "cmd_saveAsTemplate"],
@@ -1181,11 +1181,13 @@ async function goDoCommand(composeWindow, extension, mode) {
     ["sendLater", "cmd_sendLater"],
   ]);
 
-  if (!commands.has(mode)) {
-    throw new ExtensionError(`Unsupported mode: ${mode}`);
+  if (!commands.has(sendMode)) {
+    throw new ExtensionError(`Unsupported mode: ${sendMode}`);
   }
 
-  if (!composeWindow.defaultController.isCommandEnabled(commands.get(mode))) {
+  if (
+    !composeWindow.defaultController.isCommandEnabled(commands.get(sendMode))
+  ) {
     throw new ExtensionError(
       `Message compose window not ready for the requested command`
     );
@@ -1209,14 +1211,14 @@ async function goDoCommand(composeWindow, extension, mode) {
           reject(exception);
         }
       },
-      modes: [mode],
+      modes: [sendMode],
       extension,
     };
     afterSaveSendEventTracker.addListener(listener);
   });
 
   // Initiate send.
-  switch (mode) {
+  switch (sendMode) {
     case "draft":
       composeWindow.SaveAsDraft();
       break;

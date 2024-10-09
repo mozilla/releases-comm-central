@@ -223,8 +223,8 @@ add_task(async function test_create_mv3() {
     }
 
     const [accountId] = await window.waitForMessage();
-    const { rootFolder } = await browser.accounts.get(accountId, true);
-    const displayedFolder = rootFolder.subFolders[0];
+    const { rootFolder: accRoot } = await browser.accounts.get(accountId, true);
+    const displayedFolder = accRoot.subFolders[0];
     delete displayedFolder.subFolders;
 
     const expected = {

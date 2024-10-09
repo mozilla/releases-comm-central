@@ -525,12 +525,12 @@ export class FolderManager {
       // direct children. Filter out nested folders based on their URI starting
       // with a value which is already known.
       const subFolders = [];
-      for (const folder of wrappedFolder.searchFolders) {
-        const URI = folder.URI;
+      for (const searchFolder of wrappedFolder.searchFolders) {
+        const URI = searchFolder.URI;
         if (subFolders.find(f => URI.startsWith(f.URI))) {
           continue;
         }
-        subFolders.push(folder);
+        subFolders.push(searchFolder);
       }
       return subFolders.sort((a, b) =>
         a.sortOrder == b.sortOrder
@@ -644,9 +644,11 @@ export class CachedFolder {
 function getFolderDetails({ accountId, folderId, path }) {
   const checkDetails = ({
     accountKey,
+    // eslint-disable-next-line no-shadow
     folderId,
     isTag,
     isUnified,
+    // eslint-disable-next-line no-shadow
     path,
     uri,
   }) => {

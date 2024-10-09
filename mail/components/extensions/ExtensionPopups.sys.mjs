@@ -284,6 +284,7 @@ export class BasePopup {
       browser.contentWindow; // eslint-disable-line no-unused-expressions
     }
 
+    // eslint-disable-next-line no-shadow
     const setupBrowser = browser => {
       const mm = browser.messageManager;
       mm.addMessageListener("Extension:BrowserBackgroundChanged", this);

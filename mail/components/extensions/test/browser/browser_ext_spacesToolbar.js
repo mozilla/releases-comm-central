@@ -192,7 +192,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
 
       //Check space and url.
       const space = window.gSpacesToolbar.spaces.find(
-        space => space.name == `spaces_toolbar_mochi_test-spacesButton-${id}`
+        s => s.name == `spaces_toolbar_mochi_test-spacesButton-${id}`
       );
       Assert.ok(space, "The space of this button should exists");
       Assert.equal(

@@ -585,9 +585,9 @@ add_task(async function test_compose_window_MV2() {
           // The listener won't return until onFileUploadAbort fires. When that happens,
           // we return an aborted message, which completes the abort cycle.
           await new Promise(resolveAbort => {
-            function abortListener(abortAccount, abortId, tab) {
+            function abortListener(abortAccount, abortId, uploadTab) {
               browser.cloudFile.onFileUploadAbort.removeListener(abortListener);
-              browser.test.assertEq(tab.id, composeTab.id);
+              browser.test.assertEq(uploadTab.id, composeTab.id);
               browser.test.assertEq(uploadAccount.id, abortAccount.id);
               browser.test.assertEq(id, abortId);
               resolveAbort();
@@ -1215,13 +1215,13 @@ add_task(async function test_incomplete_cloudFiles() {
   extension.onMessage(
     "uploadFile",
     (id, filename, expectedErrorStatus = Cr.NS_OK, expectedErrorMessage) => {
-      const cloudFileAccount = cloudFileAccounts.getAccount(id);
+      const account = cloudFileAccounts.getAccount(id);
 
       if (typeof expectedErrorStatus == "string") {
-        expectedErrorStatus = cloudFileAccounts.constants[expectedErrorStatus];
+        expectedErrorStatus = account.constants[expectedErrorStatus];
       }
 
-      cloudFileAccount.uploadFile(composeWindow, testFiles[filename]).then(
+      account.uploadFile(composeWindow, testFiles[filename]).then(
         upload => {
           Assert.equal(Cr.NS_OK, expectedErrorStatus);
           uploads[filename] = upload;

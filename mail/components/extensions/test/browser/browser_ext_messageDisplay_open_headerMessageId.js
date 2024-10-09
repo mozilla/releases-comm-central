@@ -13,7 +13,7 @@ add_setup(async () => {
   await createMessages(gRootFolder.getChildNamed("testFolder"), 5);
 });
 
-async function testOpenMessages(testConfig) {
+async function testOpenMessages(mainTestConfig) {
   const extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
@@ -39,8 +39,8 @@ async function testOpenMessages(testConfig) {
         // Get test properties.
         const [testConfig] = await window.sendMessage("getTestConfig");
 
-        async function open(message, testConfig) {
-          const properties = { ...testConfig };
+        async function open(message, config) {
+          const properties = { ...config };
           if (properties.headerMessageId) {
             properties.headerMessageId = message.headerMessageId;
           } else if (properties.messageId) {
@@ -149,7 +149,7 @@ async function testOpenMessages(testConfig) {
   about3Pane.displayFolder(gRootFolder.getChildNamed("otherFolder"));
 
   extension.onMessage("getTestConfig", async () => {
-    extension.sendMessage(testConfig);
+    extension.sendMessage(mainTestConfig);
   });
 
   await extension.startup();

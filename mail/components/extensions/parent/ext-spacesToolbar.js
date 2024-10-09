@@ -292,7 +292,7 @@ this.spacesToolbar = class extends ExtensionAPI {
 
           const window = await getNormalWindowReady(context, windowId);
           const space = window.gSpacesToolbar.spaces.find(
-            space => space.button.id == spaceData.spaceButtonId
+            s => s.button.id == spaceData.spaceButtonId
           );
 
           const tabmail = window.document.getElementById("tabmail");

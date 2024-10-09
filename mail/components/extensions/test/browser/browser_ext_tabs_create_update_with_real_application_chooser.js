@@ -48,8 +48,6 @@ add_setup(() => {
   gHandlerService.store(telHandlerInfo);
 
   registerCleanupFunction(() => {
-    const telHandlerInfo =
-      gExternalProtocolService.getProtocolHandlerInfo("tel");
     telHandlerInfo.alwaysAskBeforeHandling =
       originalTelHandlerInfo.alwaysAskBeforeHandling;
     telHandlerInfo.preferredApplicationHandler =

@@ -178,8 +178,11 @@ add_task(async function test_update() {
     }
 
     const [accountId] = await window.waitForMessage();
-    const { rootFolder } = await browser.accounts.get(accountId, true);
-    const folder = rootFolder.subFolders[0];
+    const { rootFolder: accRootFolder } = await browser.accounts.get(
+      accountId,
+      true
+    );
+    const folder = accRootFolder.subFolders[0];
 
     await browser.mailTabs.update({ displayedFolderId: folder.id });
     const expected = {
@@ -365,7 +368,10 @@ add_task(async function test_update() {
 add_task(async function test_setSelectedMessages() {
   async function background() {
     const [accountId] = await window.waitForMessage();
-    const { rootFolder } = await browser.accounts.get(accountId, true);
+    const { rootFolder: accRootFolder } = await browser.accounts.get(
+      accountId,
+      true
+    );
     const allTabs = await browser.tabs.query({});
     const queryTabs = await browser.tabs.query({ type: "mail" });
     const allMailTabs = await browser.mailTabs.query({});
@@ -387,8 +393,8 @@ add_task(async function test_setSelectedMessages() {
       return msgs;
     }
 
-    const folder1 = rootFolder.subFolders.find(f => f.path == "/test1");
-    const folder2 = rootFolder.subFolders.find(f => f.path == "/test2");
+    const folder1 = accRootFolder.subFolders.find(f => f.path == "/test1");
+    const folder2 = accRootFolder.subFolders.find(f => f.path == "/test2");
 
     const messages1 = await pullEntireList(browser.messages.list(folder1.id));
     browser.test.assertTrue(
@@ -742,8 +748,7 @@ add_task(async function test_getSelectedMessagesWithOpenContextMenu() {
 
   extension.onMessage("open mailContext menu", async () => {
     const win = Services.wm.getMostRecentWindow("mail:3pane");
-    const tabmail = win.document.getElementById("tabmail");
-    const about3Pane = tabmail.currentAbout3Pane;
+    const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
     const menu = about3Pane.document.getElementById("mailContext");
     const threadTree = about3Pane.document.getElementById("threadTree");
     // Open the context menu of the thread pane.
@@ -755,8 +760,7 @@ add_task(async function test_getSelectedMessagesWithOpenContextMenu() {
 
   extension.onMessage("close mailContext menu", async () => {
     const win = Services.wm.getMostRecentWindow("mail:3pane");
-    const tabmail = win.document.getElementById("tabmail");
-    const about3Pane = tabmail.currentAbout3Pane;
+    const about3Pane = win.document.getElementById("tabmail").currentAbout3Pane;
     const menu = about3Pane.document.getElementById("mailContext");
     await closeMenuPopup(menu);
     extension.sendMessage();

@@ -23,8 +23,8 @@ add_task(async function test_update_plaintext_before_send() {
       const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
-      const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder.id);
+      const testFolder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(testFolder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       // Setup onBeforeSend listener.

@@ -208,7 +208,7 @@ async function test_space(background, config = {}) {
 
       //Check space and url.
       const space = window.gSpacesToolbar.spaces.find(
-        space => space.name == `spaces_toolbar_mochi_test-spacesButton-${name}`
+        s => s.name == `spaces_toolbar_mochi_test-spacesButton-${name}`
       );
       Assert.ok(space, "The space of this button should exists");
       Assert.equal(
@@ -877,10 +877,9 @@ async function test_query({ permissions }) {
     ];
 
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
-    const [{ other_1, other_11, permissions }] = await window.sendMessage(
-      "getConfig"
-    );
-    const hasManagement = permissions && permissions.includes("management");
+    const [{ other_1, other_11, permissions: perms }] =
+      await window.sendMessage("getConfig");
+    const hasManagement = perms && perms.includes("management");
 
     // Verify space_1 from other extension.
     const expected_other_1 = {

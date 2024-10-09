@@ -66,8 +66,8 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
 
         // Remove the tab if required.
 
-        const [shouldRemove] = await window.sendMessage();
-        if (shouldRemove) {
+        const [remove] = await window.sendMessage();
+        if (remove) {
           await browser.tabs.remove(tabId);
         }
         browser.test.notifyPass();

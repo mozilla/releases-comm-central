@@ -211,18 +211,21 @@ class nsBrowserAccess {
 }
 
 function loadRequestedUrl() {
-  const browser = document.getElementById("requestFrame");
-  browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
-  browser.addEventListener(
+  const extBrowser = document.getElementById("requestFrame");
+  extBrowser.addProgressListener(
+    reporterListener,
+    Ci.nsIWebProgress.NOTIFY_ALL
+  );
+  extBrowser.addEventListener(
     "DOMWindowClose",
     () => {
-      if (browser.getAttribute("allowscriptstoclose") == "true") {
+      if (extBrowser.getAttribute("allowscriptstoclose") == "true") {
         window.close();
       }
     },
     true
   );
-  browser.addEventListener(
+  extBrowser.addEventListener(
     "pagetitlechanged",
     () => gBrowser.updateTitlebar(),
     true
@@ -236,7 +239,7 @@ function loadRequestedUrl() {
   // which is consistent with Firefox behaviour.
 
   if (typeof window.arguments[0] == "string") {
-    MailE10SUtils.loadURI(browser, window.arguments[0]);
+    MailE10SUtils.loadURI(extBrowser, window.arguments[0]);
   } else {
     const createData = window.arguments[1].wrappedJSObject;
     const tabParams = createData.tabs[0].tabParams;
@@ -245,15 +248,15 @@ function loadRequestedUrl() {
     const defaultScriptsToClose = url.protocol == "moz-extension:";
 
     if (createData.allowScriptsToClose ?? defaultScriptsToClose) {
-      browser.setAttribute("allowscriptstoclose", "true");
+      extBrowser.setAttribute("allowscriptstoclose", "true");
     }
     if (tabParams.userContextId) {
-      browser.setAttribute("usercontextid", tabParams.userContextId);
+      extBrowser.setAttribute("usercontextid", tabParams.userContextId);
       // The usercontextid is only read on frame creation, so recreate it.
-      browser.replaceWith(browser);
+      extBrowser.replaceWith(browser);
     }
-    ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
-    MailE10SUtils.loadURI(browser, tabParams.url);
+    ExtensionParent.apiManager.emit("extension-browser-inserted", extBrowser);
+    MailE10SUtils.loadURI(extBrowser, tabParams.url);
   }
 }
 
@@ -344,7 +347,7 @@ var gBrowserInit = {
       : Promise.resolve();
 
     contentProgress.addListener({
-      onStateChange(browser, webProgress, request, stateFlags, statusCode) {
+      onStateChange(_browser, webProgress, _request, stateFlags, statusCode) {
         if (!webProgress.isTopLevel) {
           return;
         }
@@ -470,6 +473,7 @@ var contentProgress = {
    *
    * @param {Browser} browser
    */
+  // eslint-disable-next-line no-shadow
   addProgressListenerToBrowser(browser) {
     if (browser?.webProgress && !browser._progressListener) {
       browser._progressListener = new contentProgress.ProgressListener(browser);
@@ -489,8 +493,11 @@ var contentProgress = {
       "nsISupportsWeakReference",
     ]);
 
-    constructor(browser) {
-      this.browser = browser;
+    /**
+     * @param {Browser} b
+     */
+    constructor(b) {
+      this.browser = b;
     }
 
     callListeners(method, args) {

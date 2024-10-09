@@ -6,9 +6,9 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
-const account = createAccount();
-const defaultIdentity = addIdentity(account);
-const nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
+const gAccount = createAccount();
+addIdentity(gAccount);
+addIdentity(gAccount, "nondefault@invalid");
 
 // A local outbox is needed so we can use "send later".
 const localAccount = createAccount("local");
@@ -76,8 +76,8 @@ add_task(async function testCancel() {
 
       // Add a non-cancelling listener. Sending should continue.
 
-      const listener1 = tab => {
-        listener1.tab = tab;
+      const listener1 = t => {
+        listener1.tab = t;
         return {};
       };
       browser.compose.onBeforeSend.addListener(listener1);
@@ -88,8 +88,8 @@ add_task(async function testCancel() {
 
       // Add a cancelling listener. Sending should not continue.
 
-      const listener2 = tab => {
-        listener2.tab = tab;
+      const listener2 = t => {
+        listener2.tab = t;
         return { cancel: true };
       };
       browser.compose.onBeforeSend.addListener(listener2);
@@ -102,8 +102,8 @@ add_task(async function testCancel() {
       // Add a listener returning a Promise. Resolve the Promise to unblock.
       // Sending should continue.
 
-      const listener3 = tab => {
-        listener3.tab = tab;
+      const listener3 = t => {
+        listener3.tab = t;
         return new Promise(resolve => {
           listener3.resolve = resolve;
         });
@@ -119,8 +119,8 @@ add_task(async function testCancel() {
       // Add a listener returning a Promise. Resolve the Promise to cancel.
       // Sending should not continue.
 
-      const listener4 = tab => {
-        listener4.tab = tab;
+      const listener4 = t => {
+        listener4.tab = t;
         return new Promise(resolve => {
           listener4.resolve = resolve;
         });
@@ -253,8 +253,8 @@ add_task(async function testChangeDetails() {
       const accounts = await browser.accounts.list();
       // If this test is run alone, the order of accounts is different compared
       // to running all tests. We need the account with the 2 added identities.
-      const account = accounts.find(a => a.identities.length == 2);
-      const [defaultIdentity, nonDefaultIdentity] = account.identities;
+      const account2 = accounts.find(a => a.identities.length == 2);
+      const [defaultIdentity, nonDefaultIdentity] = account2.identities;
 
       // Add a listener that changes the headers and body. Sending should
       // continue and the headers should change. This is largely the same code
@@ -278,8 +278,8 @@ add_task(async function testChangeDetails() {
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      const listener5 = (tab, details) => {
-        listener5.tab = tab;
+      const listener5 = (t, details) => {
+        listener5.tab = t;
         listener5.details = details;
         return {
           details: {
@@ -328,8 +328,8 @@ add_task(async function testChangeDetails() {
 
       [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      const listener6 = (tab, details) => {
-        listener6.tab = tab;
+      const listener6 = (t, details) => {
+        listener6.tab = t;
         listener6.details = details;
         return new Promise(resolve => {
           listener6.resolve = resolve;
@@ -482,8 +482,8 @@ add_task(async function testChangeAttachments() {
         ],
       });
 
-      const listener12 = async tab => {
-        let attachments = await browser.compose.listAttachments(tab.id);
+      const listener12 = async t => {
+        let attachments = await browser.compose.listAttachments(t.id);
         browser.test.assertEq("remove.txt", attachments[0].name);
         browser.test.assertEq("change.txt", attachments[1].name);
 
@@ -622,8 +622,8 @@ add_task(async function testListExpansion() {
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      const listener7 = (tab, details) => {
-        listener7.tab = tab;
+      const listener7 = (t, details) => {
+        listener7.tab = t;
         listener7.details = details;
         return {
           details: {
@@ -665,8 +665,8 @@ add_task(async function testListExpansion() {
 
       [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
-      const listener8 = (tab, details) => {
-        listener8.tab = tab;
+      const listener8 = (t, details) => {
+        listener8.tab = t;
         listener8.details = details;
       };
       browser.compose.onBeforeSend.addListener(listener8);
@@ -966,7 +966,7 @@ add_task(async function test_MV3_event_pages() {
     });
   }
 
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   await extension.startup();

@@ -29,8 +29,8 @@ add_task(async function testBR() {
       const accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
       const popAccount = accounts.find(a => a.type == "pop3");
-      const folder = popAccount.folders.find(f => f.name == "test");
-      const { messages } = await browser.messages.list(folder.id);
+      const testFolder = popAccount.folders.find(f => f.name == "test");
+      const { messages } = await browser.messages.list(testFolder.id);
       browser.test.assertEq(4, messages.length, "number of messages");
 
       const body = `<html><head>\r\n\r\n \r\n<meta http-equiv="content-type" content="text/html; charset=UTF-8">\r\n\r\n </head><body>\r\n \r\n<p><font face="monospace">This is some <br> HTML text</font><br>\r\n </p>\r\n\r\n \r\n\r\n\r\n</body></html>\r\n\r\n\r\n`;

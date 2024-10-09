@@ -113,7 +113,7 @@ add_task(async function test_compose_action_status_after_save() {
 
       // Add onAfterSave listener
       await new Promise(resolve => {
-        function listener(tab, info) {
+        function listener(_tab, info) {
           const [msg] = info.messages;
           browser.test.log(
             `draftFolder.id: ${draftFolder.id}, folder.id: ${msg.folder.id}`

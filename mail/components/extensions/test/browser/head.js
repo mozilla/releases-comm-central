@@ -879,6 +879,7 @@ async function getUtilsJS() {
 }
 
 async function checkContent(browser, expected) {
+  // eslint-disable-next-line no-shadow
   await SpecialPowers.spawn(browser, [expected], async expected => {
     let body = content.document.body;
     Assert.ok(body, "body");
@@ -1069,6 +1070,7 @@ async function run_popup_test(configData) {
 
   switch (configData.testType) {
     case "open-with-mouse-click":
+      // eslint-disable-next-line no-shadow
       backend_script = async function (extension, configData) {
         const win = configData.window;
 
@@ -1361,6 +1363,7 @@ async function run_popup_test(configData) {
 
     case "open-with-menu-command":
       extensionDetails.manifest.permissions = ["menus"];
+      // eslint-disable-next-line no-shadow
       backend_script = async function (extension, configData) {
         const win = configData.window;
         const buttonId = `${configData.actionType}_mochi_test-${configData.moduleName}-toolbarbutton`;
@@ -1560,14 +1563,14 @@ async function run_action_button_order_test(configs, window, actionType) {
     return `${name}_mochi_test-${apiName}-toolbarbutton`;
   }
 
-  function test_buttons(configs, window, toolbars) {
+  function test_buttons(confs, win, toolbars) {
     for (const toolbarId of toolbars) {
-      const expected = configs.filter(e => e.toolbar == toolbarId);
+      const expected = confs.filter(e => e.toolbar == toolbarId);
       const selector =
         toolbarId === "unified-toolbar"
           ? `#unifiedToolbarContent [extension$="@mochi.test"]`
           : `#${toolbarId} toolbarbutton[id$="${get_id("")}"]`;
-      const buttons = window.document.querySelectorAll(selector);
+      const buttons = win.document.querySelectorAll(selector);
       Assert.equal(
         expected.length,
         buttons.length,

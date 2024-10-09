@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const account = createAccount();
-const defaultIdentity = addIdentity(account);
-const nonDefaultIdentity = addIdentity(account);
-const gRootFolder = account.incomingServer.rootFolder;
+const gAccount = createAccount();
+const gDefaultIdentity = addIdentity(gAccount);
+const gNonDefaultIdentity = addIdentity(gAccount);
+const gRootFolder = gAccount.incomingServer.rootFolder;
 
 gRootFolder.createSubfolder("test", null);
 const gTestFolder = gRootFolder.getChildNamed("test");
@@ -526,7 +526,7 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
     }
   }
 
-  const composeWindow = await openComposeWindow(account);
+  const composeWindow = await openComposeWindow(gAccount);
   await focusWindow(composeWindow);
 
   await extension.startup();
@@ -536,13 +536,13 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
 
   // Trigger events without terminating the background first.
 
-  changeIdentity(nonDefaultIdentity.key);
+  changeIdentity(gNonDefaultIdentity.key);
   {
     const rv = await extension.awaitMessage("identity changed");
     Assert.deepEqual(
       {
         eventCount: 1,
-        identityId: nonDefaultIdentity.key,
+        identityId: gNonDefaultIdentity.key,
       },
       rv,
       "The non-primed onIdentityChanged event should return the correct values"
@@ -571,13 +571,13 @@ add_task(async function test_onIdentityChanged_MV3_event_pages() {
   // The listeners should be primed.
   checkPersistentListeners({ primed: true });
 
-  changeIdentity(defaultIdentity.key);
+  changeIdentity(gDefaultIdentity.key);
   {
     const rv = await extension.awaitMessage("identity changed");
     Assert.deepEqual(
       {
         eventCount: 1,
-        identityId: defaultIdentity.key,
+        identityId: gDefaultIdentity.key,
       },
       rv,
       "The primed onIdentityChanged event should return the correct values"

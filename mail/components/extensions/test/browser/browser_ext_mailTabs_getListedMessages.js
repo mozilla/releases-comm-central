@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let messages;
 const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
+let gMessages;
 add_setup(async () => {
   const account = createAccount();
   const rootFolder = account.incomingServer.rootFolder;
@@ -13,12 +13,12 @@ add_setup(async () => {
 
   // Modify the messages so the filters can be checked against them.
 
-  messages = [...subFolders[0].messages];
-  messages.at(-1).markRead(true);
-  messages.at(-3).markRead(true);
-  messages.at(-5).markRead(true);
-  messages.at(-7).markRead(true);
-  messages.at(-9).markRead(true);
+  gMessages = [...subFolders[0].messages];
+  gMessages.at(-1).markRead(true);
+  gMessages.at(-3).markRead(true);
+  gMessages.at(-5).markRead(true);
+  gMessages.at(-7).markRead(true);
+  gMessages.at(-9).markRead(true);
 
   about3Pane.displayFolder(subFolders[0]);
 });
@@ -109,7 +109,7 @@ add_task(async () => {
     const actual = [];
     const dbView = about3Pane.gDBView;
     for (let i = 0; i < dbView.rowCount; i++) {
-      actual.push(messages.indexOf(dbView.getMsgHdrAt(i)));
+      actual.push(gMessages.indexOf(dbView.getMsgHdrAt(i)));
     }
 
     Assert.deepEqual(actual, expected);

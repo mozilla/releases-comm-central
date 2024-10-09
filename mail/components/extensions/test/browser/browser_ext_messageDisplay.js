@@ -113,14 +113,12 @@ add_task(async function testGetDisplayedMessage() {
       }
 
       async function testGetDisplayedMessageFunctions(tabId, expected) {
-        const messages = await browser.messageDisplay.getDisplayedMessages(
-          tabId
-        );
+        const msgs = await browser.messageDisplay.getDisplayedMessages(tabId);
         if (expected) {
-          browser.test.assertEq(1, messages.length);
-          browser.test.assertEq(expected.subject, messages[0].subject);
+          browser.test.assertEq(1, msgs.length);
+          browser.test.assertEq(expected.subject, msgs[0].subject);
         } else {
-          browser.test.assertEq(0, messages.length);
+          browser.test.assertEq(0, msgs.length);
         }
 
         const message = await browser.messageDisplay.getDisplayedMessage(tabId);
@@ -270,14 +268,13 @@ add_task(async function testGetDisplayedMessages_MV3() {
       }
 
       async function testGetDisplayedMessagesFunctions(tabId, expected) {
-        const { messages } = await browser.messageDisplay.getDisplayedMessages(
-          tabId
-        );
+        const { messages: msgs } =
+          await browser.messageDisplay.getDisplayedMessages(tabId);
         if (expected) {
-          browser.test.assertEq(1, messages.length);
-          browser.test.assertEq(expected.subject, messages[0].subject);
+          browser.test.assertEq(1, msgs.length);
+          browser.test.assertEq(expected.subject, msgs[0].subject);
         } else {
-          browser.test.assertEq(0, messages.length);
+          browser.test.assertEq(0, msgs.length);
         }
       }
 
@@ -471,8 +468,10 @@ add_task(async function testOpenMessagesInTabs() {
             // be created, changing the expected first part of message urls.
             await window.waitForCondition(async () => {
               const tab = await browser.tabs.get(tabId);
-              const expected = this.expectedTabs.get(tabId);
-              return tab.status == "complete" && tab.url.endsWith(expected.url);
+              const expectedTab = this.expectedTabs.get(tabId);
+              return (
+                tab.status == "complete" && tab.url.endsWith(expectedTab.url)
+              );
             }, `Should have loaded the correct URL in tab ${tabId}`);
 
             // Check if all existing tabs match their expected values.

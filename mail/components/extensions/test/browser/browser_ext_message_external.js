@@ -17,10 +17,10 @@ add_task(async function testExternalMessage() {
   // Copy eml file into the profile folder, where we can delete it during the test.
   const profileDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   profileDir.initWithPath(PathUtils.profileDir);
-  const messageFile = new FileUtils.File(
+  const sampleFile = new FileUtils.File(
     getTestFilePath("messages/attachedMessageSample.eml")
   );
-  messageFile.copyTo(profileDir, "attachedMessageSample.eml");
+  sampleFile.copyTo(profileDir, "attachedMessageSample.eml");
 
   const files = {
     "background.js": async () => {

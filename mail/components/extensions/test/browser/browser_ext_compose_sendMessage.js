@@ -152,7 +152,7 @@ add_task(async function test_fail() {
 
       await window.sendMessage("checkWindow", details);
 
-      const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+      const [qtab] = await browser.tabs.query({ windowId: createdWindow.id });
 
       browser.compose.onBeforeSend.addListener(() => {
         return { cancel: true };
@@ -167,7 +167,7 @@ add_task(async function test_fail() {
 
       // Send now. It should fail due to the aborting onBeforeSend listener.
       await browser.test.assertRejects(
-        browser.compose.sendMessage(tab.id),
+        browser.compose.sendMessage(qtab.id),
         /Send aborted by an onBeforeSend event/,
         "browser.compose.sendMessage() should reject, if the message could not be send."
       );
@@ -181,7 +181,7 @@ add_task(async function test_fail() {
       );
       browser.test.assertEq(
         "Send aborted by an onBeforeSend event",
-        collectedEventsMap.get(tab.id).error,
+        collectedEventsMap.get(qtab.id).error,
         "Should have received the correct error"
       );
 
@@ -232,7 +232,7 @@ add_task(async function test_send() {
 
       await window.sendMessage("checkWindow", details);
 
-      const [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+      const [qtab] = await browser.tabs.query({ windowId: createdWindow.id });
 
       // Add onAfterSend listener
       const collectedEventsMap = new Map();
@@ -243,7 +243,7 @@ add_task(async function test_send() {
 
       // Send now.
       const removedWindowPromise = window.waitForEvent("windows.onRemoved");
-      const rv = await browser.compose.sendMessage(tab.id);
+      const rv = await browser.compose.sendMessage(qtab.id);
       const [sentMessages] = await window.sendMessage("getSentMessages");
 
       browser.test.assertEq(
@@ -278,22 +278,22 @@ add_task(async function test_send() {
         "Should have received the correct number of onAfterSend events"
       );
       browser.test.assertTrue(
-        collectedEventsMap.has(tab.id),
+        collectedEventsMap.has(qtab.id),
         "The received event should belong to the correct tab."
       );
       browser.test.assertEq(
         "sendNow",
-        collectedEventsMap.get(tab.id).mode,
+        collectedEventsMap.get(qtab.id).mode,
         "The received event should have the correct mode."
       );
       browser.test.assertEq(
         rv.headerMessageId,
-        collectedEventsMap.get(tab.id).headerMessageId,
+        collectedEventsMap.get(qtab.id).headerMessageId,
         "The received event should have the correct headerMessageId."
       );
       browser.test.assertEq(
         rv.headerMessageId,
-        collectedEventsMap.get(tab.id).messages[0].headerMessageId,
+        collectedEventsMap.get(qtab.id).messages[0].headerMessageId,
         "The message in the received event should have the correct headerMessageId."
       );
 

@@ -75,8 +75,9 @@ export function getIconData(icons, extension) {
     }
   }
 
-  const getIcon = (size, theme) => {
-    const { icon } = IconDetails.getPreferredIcon(icons, extension, size);
+  const getIcon = (iconSize, theme) => {
+    // eslint-disable-next-line no-shadow
+    const { icon } = IconDetails.getPreferredIcon(icons, extension, iconSize);
     if (typeof icon === "object") {
       if (icon[theme] == IconDetails.DEFAULT_ICON) {
         icon[theme] = DEFAULT_ICON;
@@ -90,14 +91,14 @@ export function getIconData(icons, extension) {
   };
 
   const style = [];
-  const getImageSet = (size, theme) => `image-set(
-    url("${getIcon(size, theme)}"),
-    url("${getIcon(size * 2, theme)}") 2x
+  const getImageSet = (imgSize, theme) => `image-set(
+    url("${getIcon(imgSize, theme)}"),
+    url("${getIcon(imgSize * 2, theme)}") 2x
   )`;
-  const getStyle = (name, size) => {
-    style.push([`--webextension-${name}`, getImageSet(size, "default")]);
-    style.push([`--webextension-${name}-light`, getImageSet(size, "light")]);
-    style.push([`--webextension-${name}-dark`, getImageSet(size, "dark")]);
+  const getStyle = (name, imgSize) => {
+    style.push([`--webextension-${name}`, getImageSet(imgSize, "default")]);
+    style.push([`--webextension-${name}-light`, getImageSet(imgSize, "light")]);
+    style.push([`--webextension-${name}-dark`, getImageSet(imgSize, "dark")]);
   };
 
   getStyle("menupanel-image", 32);
@@ -463,10 +464,6 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
       this.getTargetFromWindow(window)
     );
 
-    const isDisabled = button =>
-      button.hasAttribute("disabled") &&
-      button.getAttribute("disabled") !== "false";
-
     const focusWindow = win => {
       if (Services.focus.activeWindow == win.top) {
         return Promise.resolve();
@@ -485,7 +482,12 @@ export class ToolbarButtonAPI extends ExtensionAPIPersistent {
     };
 
     let success = false;
-    if (button && enabled && !isDisabled(button)) {
+    if (
+      button &&
+      enabled &&
+      (!button.hasAttribute("disabled") ||
+        button.getAttribute("disabled") === "false")
+    ) {
       await focusWindow(window);
 
       if (popupURL) {

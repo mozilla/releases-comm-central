@@ -48,7 +48,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
   }
 
   extensionOptions.background = () => {
-    browser.test.onMessage.addListener((message, withPopup) => {
+    browser.test.onMessage.addListener((_message, withPopup) => {
       browser.commands.onCommand.addListener(() => {
         browser.test.fail(
           "The onCommand listener should never fire for a valid _execute_* command."
@@ -70,8 +70,8 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
         }
       });
 
-      browser.runtime.onMessage.addListener(msg => {
-        if (msg == "from-message-display-action-popup") {
+      browser.runtime.onMessage.addListener(message => {
+        if (message == "from-message-display-action-popup") {
           browser.test.notifyPass(
             "execute-message-display-action-popup-opened"
           );

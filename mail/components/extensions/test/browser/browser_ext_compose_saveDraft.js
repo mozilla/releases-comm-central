@@ -90,7 +90,7 @@ add_setup(() => {
 });
 
 // Helper function to test saving messages.
-async function runTest(config) {
+async function runTest(testConfig) {
   const files = {
     "background.js": async () => {
       const [config] = await window.sendMessage("getConfig");
@@ -155,15 +155,15 @@ async function runTest(config) {
         );
 
         // Check expected FCC folders.
-        for (let i = 0; i < config.expected.fcc.length; i++) {
+        for (let j = 0; j < config.expected.fcc.length; j++) {
           // Read the actual messages in the fcc folder.
           const savedMessages = await window.sendMessage(
             "getMessagesInFolder",
-            `${config.expected.fcc[i]}`
+            `${config.expected.fcc[j]}`
           );
           // Find the currently processed message.
           const savedMessage = savedMessages.find(
-            m => m.messageId == rv.messages[i].headerMessageId
+            m => m.messageId == rv.messages[j].headerMessageId
           );
           // Compare saved message to original message.
           browser.test.assertEq(
@@ -175,17 +175,17 @@ async function runTest(config) {
           // Check returned details.
           browser.test.assertEq(
             details.subject,
-            rv.messages[i].subject,
+            rv.messages[j].subject,
             "The subject of the saved message should be correct."
           );
           browser.test.assertEq(
             details.to[0],
-            rv.messages[i].recipients[0],
+            rv.messages[j].recipients[0],
             "The recipients of the saved message should be correct."
           );
           browser.test.assertEq(
-            `/${config.expected.fcc[i]}`,
-            rv.messages[i].folder.path,
+            `/${config.expected.fcc[j]}`,
+            rv.messages[j].folder.path,
             "The saved message should be in the correct folder."
           );
         }
@@ -236,7 +236,7 @@ async function runTest(config) {
   });
 
   extension.onMessage("getConfig", async () => {
-    extension.sendMessage(config);
+    extension.sendMessage(testConfig);
   });
 
   extension.onMessage("getMessagesInFolder", async folderName => {

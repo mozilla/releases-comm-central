@@ -381,8 +381,8 @@ this.windows = class extends ExtensionAPIPersistent {
               createData.cookieStoreId
             );
           }
-          const createWindowArgs = createData => {
-            const url = createData.url || "about:blank";
+          const createWindowArgs = cdata => {
+            const url = cdata.url || "about:blank";
             const urls = Array.isArray(url) ? url : [url];
 
             for (const idx in urls) {
@@ -413,9 +413,9 @@ this.windows = class extends ExtensionAPIPersistent {
             const actionData = {
               action: "open",
               allowScriptsToClose: createData.allowScriptsToClose,
-              tabs: urls.map(url => ({
+              tabs: urls.map(u => ({
                 tabType: "contentTab",
-                tabParams: { url, userContextId },
+                tabParams: { url: u, userContextId },
               })),
             };
             actionData.wrappedJSObject = actionData;

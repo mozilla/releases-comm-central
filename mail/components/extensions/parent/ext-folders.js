@@ -1321,8 +1321,8 @@ this.folders = class extends ExtensionAPIPersistent {
             for (const searchFolder of virtualFolder.searchFolders) {
               folders.push(searchFolder);
             }
-            for (const folder of folders) {
-              folder.markAllMessagesRead(null);
+            for (const nativeFolder of folders) {
+              nativeFolder.markAllMessagesRead(null);
             }
           } else {
             folder.markAllMessagesRead(null);
