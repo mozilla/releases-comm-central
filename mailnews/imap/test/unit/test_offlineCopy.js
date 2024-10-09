@@ -131,7 +131,7 @@ var tests = [
         "message <" +
           message.subject +
           "> storeToken: <" +
-          message.getStringProperty("storeToken") +
+          message.storeToken +
           "> offset: <" +
           message.messageOffset +
           "> id: <" +
@@ -141,10 +141,7 @@ var tests = [
       // This fails for file copies in bug 790912. Without  this, messages that
       //  are copied are not visible in pre-pluggableStores versions of TB (pre TB 12)
       if (IMAPPump.inbox.msgStore.storeType == "mbox") {
-        Assert.equal(
-          message.messageOffset,
-          parseInt(message.getStringProperty("storeToken"))
-        );
+        Assert.equal(message.messageOffset, parseInt(message.storeToken));
       }
     }
     Assert.equal(count, 4);
@@ -203,7 +200,7 @@ var tests = [
         "message <" +
           message.subject +
           "> storeToken: <" +
-          message.getStringProperty("storeToken") +
+          message.storeToken +
           "> offset: <" +
           message.messageOffset +
           "> id: <" +
@@ -211,10 +208,7 @@ var tests = [
           ">\n"
       );
       if (gFolder1.msgStore.storeType == "mbox") {
-        Assert.equal(
-          message.messageOffset,
-          parseInt(message.getStringProperty("storeToken"))
-        );
+        Assert.equal(message.messageOffset, parseInt(message.storeToken));
       }
     }
     Assert.equal(count, 3);

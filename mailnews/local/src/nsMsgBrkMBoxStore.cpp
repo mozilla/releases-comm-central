@@ -1264,7 +1264,7 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
     rv = seekable->Tell(&filePos);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
-    (*aNewMsgHdr)->SetStringProperty("storeToken", storeToken);
+    (*aNewMsgHdr)->SetStoreToken(storeToken);
     (*aNewMsgHdr)->SetMessageOffset(filePos);
   }
   // Up and running. Add the folder to the OutstandingStreams set.

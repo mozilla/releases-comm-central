@@ -6962,7 +6962,7 @@ void nsImapMailFolder::SetPendingAttributes(
       mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
                                                 messageOffset);
       nsCString storeToken;
-      msgDBHdr->GetStringProperty("storeToken", storeToken);
+      msgDBHdr->GetStoreToken(storeToken);
       mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
                                           storeToken.get());
       // Not always setting "flags" attribute to nsMsgMessageFlags::Offline

@@ -747,7 +747,7 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
   nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString storeToken;
-  rv = aMsgHdr->GetStringProperty("storeToken", storeToken);
+  rv = aMsgHdr->GetStoreToken(storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Handle legacy DB which has mbox offset but no storeToken.
@@ -764,7 +764,7 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
     uint64_t offset;
     aMsgHdr->GetMessageOffset(&offset);
     storeToken = nsPrintfCString("%" PRIu64, offset);
-    rv = aMsgHdr->SetStringProperty("storeToken", storeToken);
+    rv = aMsgHdr->SetStoreToken(storeToken);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 

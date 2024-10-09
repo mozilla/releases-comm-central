@@ -29,9 +29,7 @@ function dumpFolder(f) {
   dump(`====FOLDER '${f.name} (${f.filePath.path}) on '${f.server.key}':\n`);
   for (const hdr of f.msgDatabase.enumerateMessages()) {
     dump(
-      `MSG: '${hdr.subject}' size=${
-        hdr.messageSize
-      } tok='${hdr.getStringProperty("storeToken")}'\n`
+      `MSG: '${hdr.subject}' size=${hdr.messageSize} tok='${hdr.storeToken}'\n`
     );
   }
   dump(`====\n`);

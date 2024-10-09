@@ -308,7 +308,7 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
 
     // No store token => No local copy of message.
     nsAutoCString token;
-    rv = hdr->GetStringProperty("storeToken", token);
+    rv = hdr->GetStoreToken(token);
     NS_ENSURE_SUCCESS(rv, rv);
     if (token.IsEmpty()) {
       MOZ_LOG(gCompactLog, LogLevel::Verbose,
@@ -326,7 +326,7 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
     if (!pendingRemoval.IsEmpty()) {
       // Clear the storeToken and Offline flag to make it clear message is no
       // longer stored locally.
-      hdr->SetStringProperty("storeToken", EmptyCString());
+      hdr->SetStoreToken(EmptyCString());
       uint32_t resultFlags;
       hdr->AndFlags(~nsMsgMessageFlags::Offline, &resultFlags);
       MOZ_LOG(gCompactLog, LogLevel::Verbose,
@@ -424,7 +424,7 @@ NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
   nsCOMPtr<nsIMsgDBHdr> hdr;
   nsresult rv = mDB->GetMsgHdrForKey(key, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = hdr->SetStringProperty("storeToken", newToken);
+  rv = hdr->SetStoreToken(newToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Just until Bug 1720047 is out of the way...

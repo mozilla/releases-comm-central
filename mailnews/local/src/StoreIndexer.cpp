@@ -234,7 +234,7 @@ NS_IMETHODIMP StoreIndexer::OnStopRequest(nsIRequest* req, nsresult status) {
     hdr->SetLineCount(mParser->m_body_lines);
 
     MOZ_ASSERT(!mStoreToken.IsEmpty());
-    hdr->SetStringProperty("storeToken", mStoreToken);
+    hdr->SetStoreToken(mStoreToken);
     // HACK ALERT!
     // Nasty mbox-specific hack until we can ditch .messageOffset.
     // See Bug 1720047.

@@ -116,7 +116,7 @@ function verifyMsgOffsets(folder) {
   if (enumerator) {
     for (const header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {
-        const storeToken = header.getStringProperty("storeToken");
+        const storeToken = header.storeToken;
         Assert.equal(storeToken, header.messageOffset);
       }
     }
@@ -165,9 +165,8 @@ function showMessages() {
   /*
   dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
   for (const hdr of folder.messages) {
-    const storeToken = hdr.getStringProperty("storeToken");
     dump(
-      `  key: ${hdr.messageKey} storeToken: ${storeToken} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
+      `  key: ${hdr.messageKey} storeToken: ${hdr.storeToken} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
     );
   }
   */

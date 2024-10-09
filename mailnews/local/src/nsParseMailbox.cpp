@@ -334,7 +334,7 @@ void nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
   FinishHeader();
   if (m_newMsgHdr) {
     nsCString storeToken = nsPrintfCString("%" PRIu64, m_envelope_pos);
-    m_newMsgHdr->SetStringProperty("storeToken", storeToken);
+    m_newMsgHdr->SetStoreToken(storeToken);
     m_newMsgHdr->SetMessageOffset(m_envelope_pos);
 
     uint32_t flags;
@@ -1550,7 +1550,7 @@ void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow) {
       char* headers = m_headers.GetBuffer();
       uint32_t headersSize = m_headers.GetBufferPos();
       nsAutoCString tok;
-      msgHdr->GetStringProperty("storeToken", tok);
+      msgHdr->GetStoreToken(tok);
       if (m_filterList) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("(Local) Running filters on 1 message (%s)", tok.get()));
