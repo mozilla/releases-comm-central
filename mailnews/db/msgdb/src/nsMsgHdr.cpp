@@ -406,8 +406,8 @@ NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
   NS_ENSURE_ARG(result);
 
   (void)GetUInt64Column(m_mdb->m_offlineMsgOffsetColumnToken, result,
-                        (unsigned)-1);
-  if (*result == (unsigned)-1) {
+                        std::numeric_limits<uint64_t>::max());
+  if (*result == std::numeric_limits<uint64_t>::max()) {
     // It's unset. Unfortunately there's not much we can do here. There's
     // a lot of code which relies on being able to read .messageOffset,
     // even if it doesn't require it to return anything sensible.
@@ -430,6 +430,29 @@ NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
 NS_IMETHODIMP nsMsgHdr::SetMessageOffset(uint64_t offset) {
   SetUInt64Column(offset, m_mdb->m_offlineMsgOffsetColumnToken);
   return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgHdr::GetStoreToken(nsACString& result) {
+  GetStringProperty("storeToken", result);
+  if (result.IsEmpty()) {
+    // If .storeToken is unset, it _might_ be a very old database with a
+    // .messageOffset value we can migrate from instead. Doing it here on the
+    // fly saves us a tricky upfront migration pass.
+    uint64_t offset;
+    GetUInt64Column(m_mdb->m_offlineMsgOffsetColumnToken, &offset,
+                    std::numeric_limits<uint64_t>::max());
+    if (offset != std::numeric_limits<uint64_t>::max()) {
+      result.Truncate();
+      result.AppendInt(offset);
+      // Save the value so we don't have to do this next time.
+      SetStoreToken(result);
+    }
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgHdr::SetStoreToken(const nsACString& token) {
+  return SetStringProperty("storeToken", token);
 }
 
 NS_IMETHODIMP nsMsgHdr::GetMessageSize(uint32_t* result) {

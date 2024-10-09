@@ -61,6 +61,12 @@ interface nsIMsgDBHdr : nsISupports
      */
     attribute unsigned long long messageOffset;
     /**
+     * Store-dependent value for locating the message. For mbox this is the
+     * offset in the mbox file, for maildir it is the filename. An empty
+     * string means unset.
+     */
+    attribute AUTF8String storeToken;
+    /**
      * For "Offline" supporting folders (IMAP, NNTP): .offlineMessageSize is
      * the exact size of the local copy of the message in the msgStore.
      * If the message is not flagged Offline, this will be zero or unset.
