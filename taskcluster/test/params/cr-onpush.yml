@@ -1173,7 +1173,6 @@ files_changed:
   - comm/python/l10n/tb_fluent_migrations/completed/bug_1889422_fluent_migration_chat_properties_files_12_.py
   - comm/python/l10n/tb_fluent_migrations/completed/bug_1889422_fluent_migration_chat_properties_files_13_.py
   - comm/python/l10n/tb_fluent_migrations/completed/bug_697706_archive_options.py
-  - comm/python/l10n/tbxchannel/l10n_merge.py
   - comm/python/thirdroc/rnp_generated.py
   - comm/rust/.cargo/config.toml.in
   - comm/rust/Cargo.lock

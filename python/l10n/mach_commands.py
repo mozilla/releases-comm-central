@@ -34,7 +34,7 @@ def tb_add_missing_ftls(command_context, merge, locale):
     repositories in favor of creating the files during l10m-repackaging.
     This code assumes that mach compare-locales --merge has already run.
     """
-    from missing_ftl import add_missing_ftls, get_lang_ftls, get_source_ftls
+    from tb_l10n.missing_ftl import add_missing_ftls, get_lang_ftls, get_source_ftls
 
     print("Checking for missing .ftl files in locale {}".format(locale))
     comm_src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -58,7 +58,11 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
         test_paths = []
     command_context.activate_virtualenv()
 
-    import tbxchannel.tb_migration_test as fmt
+    from tb_l10n.tb_migration_test import (
+        inspect_migration,
+        prepare_object_dir,
+        test_migration,
+    )
 
     rv = 0
     with_context = []
