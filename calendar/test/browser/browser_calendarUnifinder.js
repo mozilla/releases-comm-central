@@ -30,6 +30,8 @@ add_task(async function testOpenEvent() {
   const noRepeatEvent = new CalEvent();
   noRepeatEvent.id = "no repeat event";
   noRepeatEvent.title = "No Repeat Event";
+  // Amélie - needs normalize()
+  noRepeatEvent.descriptionText = "Dinner with \u0041\u006d\u0065\u0301\u006c\u0069\u0065";
   noRepeatEvent.startDate = now;
   noRepeatEvent.endDate = noRepeatEvent.startDate.clone();
   noRepeatEvent.endDate.hour++;
@@ -37,6 +39,7 @@ add_task(async function testOpenEvent() {
   const repeatEvent = new CalEvent();
   repeatEvent.id = "repeated event";
   repeatEvent.title = "Repeat Event";
+  repeatEvent.descriptionText = "Non-repeating Event";
   repeatEvent.startDate = now;
   repeatEvent.endDate = noRepeatEvent.startDate.clone();
   repeatEvent.endDate.hour++;
@@ -81,5 +84,31 @@ add_task(async function testOpenEvent() {
 
     await BrowserTestUtils.closeWindow(dialogWindow);
     await calendar.deleteItem(event);
+    dialogWindow.close();
   }
+
+  info("Now testing search in the unifinder");
+
+  const tree = document.querySelector("#unifinder-search-results-tree");
+  Assert.equal(tree.view.rowCount, 0, "should have cleared unifinder");
+
+  for (const event of [noRepeatEvent, repeatEvent]) {
+    await calendar.addItem(event);
+  }
+  Assert.equal(tree.view.rowCount, 8, "should have 8 events showing");
+
+  const searchBox = document.getElementById("unifinder-search-field");
+  searchBox.focus();
+  // Another version of Amélie. Found in description of one of the events.
+  EventUtils.sendString("\u0041\u006d\u00e9\u006c\u0069\u0065", window);
+  // Should filter out to showing only that one matching event.
+  await TestUtils.waitForCondition(
+    () => tree.view.rowCount == 1,
+    "Waiting for unifinder tree to filter itself; rowCount=" + tree.view.rowCount
+  );
+
+  for (const event of [noRepeatEvent, repeatEvent]) {
+    await calendar.deleteItem(event);
+  }
+  searchBox.value = "";
 });

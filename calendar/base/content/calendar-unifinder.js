@@ -235,15 +235,20 @@ function updateUnifinderFilterText() {
   const filteredView = getUnifinderView();
 
   const searchBox = document.getElementById("unifinder-search-field");
-  if (searchBox.value) {
-    const normalize = str => str.normalize().toLowerCase();
-    const normalValue = normalize(searchBox.value);
-    filteredView.setFilterFunction(
-      item => item.title && normalize(item.title).includes(normalValue)
-    );
-  } else {
-    filteredView.clearFilter();
+  if (!searchBox.value) {
+    filteredView.clearFiltering();
+    return;
   }
+
+  // @see calFilter.textFilter()
+
+  const normalize = str => str.normalize().toLowerCase();
+  const normalValue = normalize(searchBox.value);
+  filteredView.applyFiltering(item =>
+    ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]
+      .map(p => item.getProperty(p))
+      .some(v => v && normalize(v).includes(normalValue))
+  );
 }
 
 /**

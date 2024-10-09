@@ -377,30 +377,28 @@ calFilter.prototype = {
   /**
    * Checks if the item matches the current filter text.
    *
-   * @param {calIItemBase} aItem - The item to check.
+   * @param {calIItemBase} item - The item to check.
    * @returns {boolean} Returns true if the item matches the filter text or no
    *   filter text has been set, false otherwise.
    */
-  textFilter(aItem) {
+  textFilter(item) {
     if (!this.mFilterText) {
       return true;
     }
 
-    const searchText = this.mFilterText.toLowerCase();
+    const normalize = str => str.normalize().toLowerCase();
 
-    if (!searchText.length || searchText.match(/^\s*$/)) {
+    const normalValue = normalize(this.mFilterText);
+    if (!normalValue.trim()) {
       return true;
     }
 
-    // TODO: Support specifying which fields to search on
-    for (const field of ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]) {
-      const val = aItem.getProperty(field);
-      if (val && val.toLowerCase().includes(searchText)) {
-        return true;
-      }
-    }
-
-    return aItem.getCategories().some(cat => cat.toLowerCase().includes(searchText));
+    return (
+      ["SUMMARY", "DESCRIPTION", "LOCATION", "URL"]
+        .map(p => item.getProperty(p))
+        .some(v => v && normalize(v).includes(normalValue)) ||
+      item.getCategories().some(cat => normalize(cat).includes(normalValue))
+    );
   },
 
   /**

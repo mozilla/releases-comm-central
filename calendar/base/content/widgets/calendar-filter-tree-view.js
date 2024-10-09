@@ -26,10 +26,13 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
 
   /**
    * Set the function used to filter displayed rows and update the current view.
+   * This function operates purely on the rows and doesn't reach into the
+   * actual calendars to filter.
    *
-   * @param {filterFunction} filterFunction The function to use as a filter
+   * @param {filterFunction} filterFunction - The function to use as a filter.
+   * @see {calFilter.filterItems()} for the base filtering directly on calendar data.
    */
-  setFilterFunction(filterFunction) {
+  applyFiltering(filterFunction) {
     this.#filterFunction = filterFunction;
 
     this._tree?.beginUpdateBatch();
@@ -50,8 +53,8 @@ class CalendarFilteredTreeView extends CalendarFilteredViewMixin(PROTO_TREE_VIEW
   /**
    * Clear the filter on the current view.
    */
-  clearFilter() {
-    this.setFilterFunction(null);
+  clearFiltering() {
+    this.applyFiltering(null);
   }
 
   /**
