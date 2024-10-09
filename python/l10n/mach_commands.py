@@ -58,17 +58,13 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
         test_paths = []
     command_context.activate_virtualenv()
 
-    from tbxchannel.tb_migration_test import (
-        inspect_migration,
-        prepare_object_dir,
-        test_migration,
-    )
+    import tbxchannel.tb_migration_test as fmt
 
     rv = 0
     with_context = []
     for to_test in test_paths:
         try:
-            context = inspect_migration(to_test)
+            context = fmt.inspect_migration(to_test)
             for issue in context["issues"]:
                 command_context.log(
                     logging.ERROR,
@@ -95,7 +91,7 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
                 "ERROR in {file}: {error}",
             )
             rv |= 1
-    obj_dir = prepare_object_dir(command_context)
+    obj_dir, repo_dir = fmt.prepare_directories(command_context)
     for context in with_context:
-        rv |= test_migration(command_context, obj_dir, **context)
+        rv |= fmt.test_migration(command_context, obj_dir, repo_dir, **context)
     return rv

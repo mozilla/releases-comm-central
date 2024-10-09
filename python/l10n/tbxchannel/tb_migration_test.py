@@ -9,144 +9,154 @@ import logging
 import os
 import re
 import shutil
+from datetime import datetime, timedelta
+from subprocess import check_call
+from typing import Iterable
 
-import hglib
 from compare_locales.merge import merge_channels
 from compare_locales.paths.configparser import TOMLParser
 from compare_locales.paths.files import ProjectFiles
-from fluent.migratetb import validator
+from fluent.migrate.repo_client import RepoClient, git
 from test_fluent_migrations.fmt import diff_resources
+from test_fluent_migrations.fmt import inspect_migration as _inspect_migration
 
 import mozpack.path as mozpath
 from mach.util import get_state_dir
-from mozversioncontrol.repoupdate import update_mercurial_repo
 
-from .l10n_merge import COMM_L10N
+L10N_SOURCE_NAME = "tb-l10n-source"
+L10N_SOURCE_REPO = "https://github.com/thunderbird-l10n/thunderbird-l10n-source.git"
+
+PULL_AFTER = timedelta(days=2)
+
+BUILD_APP = "comm/mail"
 
 
-def inspect_migration(path):
-    """Validate recipe and extract some metadata."""
-    return validator.Validator.validate(path)
+def inspect_migration(arg):
+    return _inspect_migration(arg)
 
 
-def prepare_object_dir(cmd):
-    """Prepare object dir to have an up-to-date clone of comm-l10n.
+def prepare_directories(cmd):
+    """
+    Ensure object dir exists,
+    and that repo dir has a relatively up-to-date clone of tb-l10n-source or
+    thunderbird-l10n-source.
 
     We run this once per mach invocation, for all tested migrations.
     """
+
     obj_dir = mozpath.join(cmd.topobjdir, "comm", "python", "l10n")
     if not os.path.exists(obj_dir):
         os.makedirs(obj_dir)
-    state_dir = get_state_dir()
-    update_mercurial_repo(COMM_L10N, mozpath.join(state_dir, "comm-strings"))
-    return obj_dir
+
+    repo_dir = mozpath.join(get_state_dir(), L10N_SOURCE_NAME)
+    marker = mozpath.join(repo_dir, ".git", "l10n_pull_marker")
+
+    try:
+        last_pull = datetime.fromtimestamp(os.stat(marker).st_mtime)
+        skip_clone = datetime.now() < last_pull + PULL_AFTER
+    except OSError:
+        skip_clone = False
+    if not skip_clone:
+        if os.path.exists(repo_dir):
+            check_call(["git", "pull", L10N_SOURCE_REPO], cwd=repo_dir)
+        else:
+            check_call(["git", "clone", L10N_SOURCE_REPO, repo_dir])
+        with open(marker, "w") as fh:
+            fh.flush()
+
+    return obj_dir, repo_dir
 
 
-def test_migration(cmd, obj_dir, to_test, references):
+def test_migration(
+    cmd,
+    obj_dir: str,
+    repo_dir: str,
+    to_test: list[str],
+    references: Iterable[str],
+):
     """Test the given recipe.
 
-    This creates a workdir by merging comm-strings-quarantine and the c-c source,
-    to mimic comm-strings-quarantine after the patch to test landed.
-    It then runs the recipe with a comm-strings-quarantine clone as localization, both
-    dry and wet.
+    This creates a workdir by l10n-merging thunderbird-l10n-source and the c-c
+    source, to mimic thunderbird-l10n-source after the patch to test landed.
+    It then runs the recipe with a thunderbird-l10n-source clone as localization,
+    both dry and wet.
     It inspects the generated commits, and shows a diff between the merged
     reference and the generated content.
     The diff is intended to be visually inspected. Some changes might be
     expected, in particular when formatting of the en-US strings is different.
     """
     rv = 0
-    migration_name = os.path.splitext(os.path.split(to_test)[1])[0]
-    l10n_lib = os.path.abspath(os.path.dirname(os.path.dirname(to_test)))
+    paths = mozpath.split(to_test)
+    migration_name = os.path.splitext(paths[-1])[0]
     work_dir = mozpath.join(obj_dir, migration_name)
 
-    paths = os.path.normpath(to_test).split(os.sep)
     # Migration modules should be in a sub-folder of l10n.
     migration_module = ".".join(paths[paths.index("l10n") + 1 : -1]) + "." + migration_name
 
     if os.path.exists(work_dir):
         shutil.rmtree(work_dir)
     os.makedirs(mozpath.join(work_dir, "reference"))
-    l10n_toml = mozpath.join(cmd.topsrcdir, cmd.substs["MOZ_BUILD_APP"], "locales", "l10n.toml")
+    l10n_toml = mozpath.join(cmd.topsrcdir, BUILD_APP, "locales", "l10n.toml")
     pc = TOMLParser().parse(l10n_toml, env={"l10n_base": work_dir})
     pc.set_locales(["reference"])
     files = ProjectFiles("reference", [pc])
+    ref_root = mozpath.join(work_dir, "reference")
     for ref in references:
         if ref != mozpath.normpath(ref):
             cmd.log(
                 logging.ERROR,
                 "tb-fluent-migration-test",
-                {
-                    "file": to_test,
-                    "ref": ref,
-                },
+                {"file": to_test, "ref": ref},
                 'Reference path "{ref}" needs to be normalized for {file}',
             )
             rv = 1
             continue
-        full_ref = mozpath.join(work_dir, "reference", ref)
+        full_ref = mozpath.join(ref_root, ref)
         m = files.match(full_ref)
         if m is None:
-            raise ValueError(f"Bad reference path: {ref} - {full_ref}")
+            raise ValueError("Bad reference path: " + ref)
         m_c_path = m[1]
-        g_s_path = mozpath.join(work_dir, "comm-strings", ref)
+        g_s_path = mozpath.join(work_dir, L10N_SOURCE_NAME, ref)
         resources = [
             b"" if not os.path.exists(f) else open(f, "rb").read() for f in (g_s_path, m_c_path)
         ]
-        ref_dir = os.path.dirname(full_ref)
+        ref_dir = mozpath.dirname(full_ref)
         if not os.path.exists(ref_dir):
             os.makedirs(ref_dir)
         open(full_ref, "wb").write(merge_channels(ref, resources))
-    client = hglib.clone(
-        source=mozpath.join(get_state_dir(), "comm-strings"),
-        dest=mozpath.join(work_dir, "comm-strings"),
-    )
-    client.open()
-    old_tip = client.tip().node
+    l10n_root = mozpath.join(work_dir, "en-US")
+    git(work_dir, "clone", repo_dir, l10n_root)
+    client = RepoClient(l10n_root)
+    old_tip = client.head()
     run_migration = [
         cmd._virtualenv_manager.python_path,
         "-m",
         "fluent.migratetb.tool",
-        "--locale",
+        "--lang",
         "en-US",
         "--reference-dir",
-        mozpath.join(work_dir, "reference"),
+        ref_root,
         "--localization-dir",
-        mozpath.join(work_dir, "comm-strings"),
+        l10n_root,
         "--dry-run",
         migration_module,
     ]
-    append_env = {"PYTHONPATH": l10n_lib}
-    cmd.run_process(
-        run_migration,
-        append_env=append_env,
-        cwd=work_dir,
-        line_handler=print,
-    )
+    cmd.run_process(run_migration, cwd=work_dir, line_handler=print)
     # drop --dry-run
     run_migration.pop(-2)
-    cmd.run_process(
-        run_migration,
-        append_env=append_env,
-        cwd=work_dir,
-        line_handler=print,
-    )
-    tip = client.tip().node
+    cmd.run_process(run_migration, cwd=work_dir, line_handler=print)
+    tip = client.head()
     if old_tip == tip:
         cmd.log(
             logging.WARN,
             "tb-fluent-migration-test",
-            {
-                "file": to_test,
-            },
+            {"file": to_test},
             "No migration applied for {file}",
         )
         return rv
     for ref in references:
-        diff_resources(
-            mozpath.join(work_dir, "reference", ref),
-            mozpath.join(work_dir, "comm-strings", "en-US", ref),
-        )
-    messages = [l.desc.decode("utf-8") for l in client.log(b"::%s - ::%s" % (tip, old_tip))]
+        diff_resources(mozpath.join(ref_root, ref), mozpath.join(l10n_root, ref))
+    messages = client.log(old_tip, tip)
     bug = re.search("[0-9]{5,}", migration_name)
     # Just check first message for bug number, they're all following the same pattern
     if bug is None or bug.group() not in messages[0]:
@@ -154,19 +164,15 @@ def test_migration(cmd, obj_dir, to_test, references):
         cmd.log(
             logging.ERROR,
             "tb-fluent-migration-test",
-            {
-                "file": to_test,
-            },
+            {"file": to_test},
             "Missing or wrong bug number for {file}",
         )
-    if any("part {}".format(n + 1) not in msg for n, msg in enumerate(messages)):
+    if any("part {}".format(n + 1) not in msg for n, msg in enumerate(reversed(messages))):
         rv = 1
         cmd.log(
             logging.ERROR,
             "tb-fluent-migration-test",
-            {
-                "file": to_test,
-            },
+            {"file": to_test},
             'Commit messages should have "part {{index}}" for {file}',
         )
     return rv
