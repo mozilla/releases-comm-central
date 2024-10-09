@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: fluent.migratetb
-Version: 0.13.0.1
+Version: 0.13.1.2
 Summary: Toolchain to migrate legacy translation to Fluent. (Thunderbird fork)
 Home-page: https://github.com/jfx2006/tb-fluent-migrate/
 Author: Mozilla

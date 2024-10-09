@@ -464,7 +464,7 @@ class PLURALS(LegacySource):
         # variant.
         default_key = [key for key in reversed(self.DEFAULT_ORDER) if key in keys][0]
 
-        # Match keys to legacy forms in the order they are defined in Gecko's
+        # Match keys to legacy forms in the order they are defined in Comm's
         # PluralForm.sys.mjs. Filter out empty forms.
         pairs = [(key, var) for key, var in zip(keys, forms) if var.value]
 

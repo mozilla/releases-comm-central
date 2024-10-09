@@ -20,7 +20,9 @@ origin:
 
   # Revision to pull in
   # Must be a long or short commit SHA (long preferred)
-  revision: v0.13.0.1
+  revision: v0.13.1.2
+
+  release: v0.13.1.2 (2024-10-03T18:17:33-04:00).
 
   # The package's license, where possible using the mnemonic from
   # https://spdx.org/licenses/
@@ -47,7 +49,7 @@ vendoring:
   # Valid values are 'gitlab', 'github', googlesource
   source-hosting: github
   tracking: tag
-  release-artifact: "fluent.migratetb-{tag}.tar.gz"
+  release-artifact: "fluent_migratetb-{tag}.tar.gz"
 
   skip-vendoring-steps:
     - hg-add

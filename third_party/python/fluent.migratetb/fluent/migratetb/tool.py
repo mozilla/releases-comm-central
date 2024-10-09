@@ -30,8 +30,7 @@ class Migrator:
     ):
         self.locale = locale
         self.reference_dir = reference_dir
-        self.localization_repo = localization_dir
-        self.localization_dir = os.path.join(localization_dir, locale)
+        self.localization_dir = localization_dir
         self.dry_run = dry_run
         self._client = None
 
