@@ -4528,9 +4528,6 @@ nsImapMailFolder::ReleaseUrlCacheEntry(nsIMsgMailNewsUrl* aUrl) {
   return aUrl->SetMemCacheEntry(nullptr);
 }
 
-NS_IMETHODIMP
-nsImapMailFolder::BeginMessageUpload() { return NS_ERROR_FAILURE; }
-
 nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
                                              nsIMsgDBHdr* dbHdr,
                                              uint16_t userFlags,

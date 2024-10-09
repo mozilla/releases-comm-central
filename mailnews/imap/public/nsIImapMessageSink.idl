@@ -54,8 +54,6 @@ interface nsIImapMessageSink : nsISupports {
 
   void abortMsgWriteStream();
 
-  void beginMessageUpload();
-
   /**
    *  Notify the message sink that one or more flags have changed
    *  For Condstore servers, also update the highestMod Sequence
