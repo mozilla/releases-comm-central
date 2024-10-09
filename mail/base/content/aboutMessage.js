@@ -127,7 +127,8 @@ window.addEventListener("DOMContentLoaded", event => {
 
   // There might not be a msgWindow variable on the top window
   // if we're e.g. showing a message in a dedicated window.
-  if (top.msgWindow) {
+  // For a new profile, statusFeedback will be null at this point.
+  if (top.msgWindow?.statusFeedback) {
     // Necessary plumbing to communicate status updates back to
     // the user.
     browser.docShell
