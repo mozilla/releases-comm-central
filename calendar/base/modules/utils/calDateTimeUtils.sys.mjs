@@ -17,21 +17,27 @@ ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/cal
 
 export var dtz = {
   /**
-   * Shortcut to the timezone service's defaultTimezone
+   * Shortcut to the timezone service's defaultTimezone.
+   *
+   * @returns {calITimezoneService}
    */
   get defaultTimezone() {
     return lazy.cal.timezoneService.defaultTimezone;
   },
 
   /**
-   * Shorcut to the UTC timezone
+   * Shorcut to the UTC timezone.
+   *
+   * @returns {calITimezoneService}
    */
   get UTC() {
     return lazy.cal.timezoneService.UTC;
   },
 
   /**
-   * Shortcut to the floating (local) timezone
+   * Shortcut to the floating (local) timezone.
+   *
+   * @returns {calITimezoneService}
    */
   get floating() {
     return lazy.cal.timezoneService.floating;
@@ -40,7 +46,7 @@ export var dtz = {
   /**
    * Makes sure the given timezone id is part of the list of recent timezones.
    *
-   * @param aTzid     The timezone id to add
+   * @param {strimg} aTzid - The timezone id to add.
    */
   saveRecentTimezone(aTzid) {
     const recentTimezones = dtz.getRecentTimezones();
@@ -213,8 +219,8 @@ export var dtz = {
    * Convert a calIDateTime to a Javascript date object. This is the
    * replacement for the former .jsDate property.
    *
-   * @param cdt       The calIDateTime instance
-   * @returns The Javascript date equivalent.
+   * @param {calIDateTime} cdt - The calIDateTime instance
+   * @returns {Date} The JavaScript date equivalent.
    */
   dateTimeToJsDate(cdt) {
     if (cdt.isDate) {

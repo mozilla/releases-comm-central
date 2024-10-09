@@ -423,7 +423,7 @@ export var invitation = {
           ev.recurrenceInfo,
           startDate,
           endDate,
-          startDate.isDate
+          startDate ? startDate.isDate : false
         );
         if (repeatString) {
           return repeatString;
@@ -481,8 +481,8 @@ export var invitation = {
         // has changed.
         exc.QueryInterface(Ci.calIEvent);
         if (
-          exc.startDate.compare(exc.recurrenceId) != 0 ||
-          exc.duration.compare(ev.duration) != 0 ||
+          (exc.startDate && exc.startDate.compare(exc.recurrenceId)) != 0 ||
+          (exc.duration && exc.duration.compare(ev.duration)) != 0 ||
           excLocation != ev.getProperty("LOCATION")
         ) {
           cal.data.binaryInsert(modifiedOccurrences, exc, dateComptor, true);

@@ -26,8 +26,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
  * @param {string} stringName - Name of the string within the properties file.
  * @param {string[]} [params] - (optional) Parameters to format the string.
  * @returns {string | null} A string describing the recurrence
- *                                        pattern or null if the item has no
- *                                        recurrence info.
+ *   pattern or null if the item has no info.
  */
 export function recurrenceStringFromItem(item, bundleName, stringName, params) {
   // See the `parentItem` property of `calIItemBase`.
@@ -47,7 +46,7 @@ export function recurrenceStringFromItem(item, bundleName, stringName, params) {
   const endDate = rawEndDate ? rawEndDate.getInTimezone(kDefaultTimezone) : null;
 
   return (
-    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate) ||
+    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate?.isDate) ||
     cal.l10n.getString(bundleName, stringName, params)
   );
 }
@@ -85,6 +84,13 @@ export function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay
     // Checks if aByDay contains only values from 1 to 7 with any order.
     const mask = aByDay.reduce((value, item) => value | (1 << item), 1);
     return aByDay.length == 7 && mask == Math.pow(2, 8) - 1;
+  }
+
+  if (!startDate) {
+    // https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.1
+    // DTSTART is optional when METHOD is used.
+    // For such occasions, we're not able to display anything sensible.
+    return getRString("ruleTooComplexSummary");
   }
 
   // Retrieve a valid recurrence rule from the currently
