@@ -60,7 +60,7 @@ function threadTreeClick(row, event = {}) {
  * @param {string} feedURL - The feed URL to subscribe to.
  * @returns {Promise} when subscription is done.
  */
-async function subsribeToFeed(feedURL) {
+async function subscribeToFeed(feedURL) {
   const account1 = MailServices.accounts.getAccount("account1");
   const account1RootFolder = account1.incomingServer.rootFolder;
   about3Pane.displayFolder(account1RootFolder.URI);
@@ -71,11 +71,11 @@ async function subsribeToFeed(feedURL) {
   const menuItem = about3Pane.document.getElementById(
     "folderPaneContext-subscribe"
   );
-  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForPopupEvent(menu, "shown");
   folderTreeClick(index, { type: "contextmenu" });
   await shownPromise;
 
-  const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
   const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
@@ -96,14 +96,13 @@ async function subsribeToFeed(feedURL) {
 
         // There's no good way to know if we're ready to continue.
         await new Promise(r => dialogWindow.setTimeout(r, 250));
-
-        const feedButtonHiddenPRomise = BrowserTestUtils.waitForAttribute(
+        const feedButtonHiddenPromise = BrowserTestUtils.waitForAttribute(
           "hidden",
           addFeedButton,
           "true"
         );
         EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
-        await feedButtonHiddenPRomise;
+        await feedButtonHiddenPromise;
 
         EventUtils.synthesizeMouseAtCenter(
           dialogDocument.querySelector("dialog").getButton("accept"),
@@ -157,7 +156,7 @@ add_setup(async () => {
 });
 
 add_task(async function testRSS() {
-  await subsribeToFeed(
+  await subscribeToFeed(
     "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml"
   );
 
@@ -259,7 +258,7 @@ add_task(async function testRSS() {
 });
 
 add_task(async function testSubscribeSampleRss2() {
-  await subsribeToFeed(
+  await subscribeToFeed(
     "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/sample-rss-2.xml"
   );
 
@@ -278,7 +277,7 @@ add_task(async function testSubscribeSampleRss2() {
 });
 
 add_task(async function testSubscribeSampleRss092() {
-  await subsribeToFeed(
+  await subscribeToFeed(
     "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/sample-rss-092.xml"
   );
 
@@ -298,7 +297,7 @@ add_task(async function testSubscribeSampleRss092() {
 });
 
 add_task(async function testSubscribeRss2EmptyTitleDesc() {
-  await subsribeToFeed(
+  await subscribeToFeed(
     "https://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss2-empty-title-desc.xml"
   );
 
