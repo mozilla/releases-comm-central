@@ -1112,8 +1112,12 @@ qr-export-scan-description = { $count ->
 
 qr-export-scan-step1 = Open { -brand-product-name } on your mobile device
 qr-export-scan-step2 = Go to settings
+
+# The strong label should match https://hosted.weblate.org/translate/tb-android/settings-import/en/?checksum=bd1817a6fc9f758b&sort_by=-priority,position#translations
 qr-export-scan-step3 = Select <strong>Import settings</strong>
-qr-export-scan-step4 = Tap <strong>Ready to scan</strong> and hold your phone over this code
+
+# The strong label should match https://hosted.weblate.org/translate/tb-android/settings-import/en/?checksum=0db0b6c1d176a59b&sort_by=-priority,position#translations
+qr-export-scan-step4-revision = Tap <strong>Scan QR code</strong> and hold your phone over this code
 
 qr-export-back = Back
 
