@@ -4,10 +4,9 @@
 
 "use strict";
 
-var { assert_content_tab_has_favicon, open_content_tab_with_url } =
-  ChromeUtils.importESModule(
-    "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
-  );
+var { open_content_tab_with_url } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/ContentTabHelpers.sys.mjs"
+);
 var { assert_element_visible, assert_element_not_visible } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/DOMHelpers.sys.mjs"
@@ -34,7 +33,7 @@ add_task(async function test_content_tab_open() {
   assert_tab_has_title(tab, "What's New Content Test");
   // Check the location of the what's new image, this is via the link element
   // and therefore should be set and not favicon.png.
-  // assert_content_tab_has_favicon(tab, url + "whatsnew.png");
+  // Assert.equal(tab.favIconUrl, url + "whatsnew.png", "Checking tab favicon");
 
   // Check that window.content is set up correctly wrt content-primary and
   // content-targetable.
@@ -132,7 +131,10 @@ add_task(async function test_content_tab_default_favicon() {
   assert_tab_has_title(tab, "What's New Content Test 1");
   // Check the location of the favicon, this should be the site favicon in this
   // test.
-  assert_content_tab_has_favicon(tab, "http://mochi.test:8888/favicon.ico");
+  await TestUtils.waitForCondition(
+    () => tab.favIconUrl == "http://mochi.test:8888/favicon.ico",
+    `Checking tab favicon; tab.favIconUrl=${tab.favIconUrl}`
+  );
 });
 
 add_task(async function test_content_tab_onbeforeunload() {

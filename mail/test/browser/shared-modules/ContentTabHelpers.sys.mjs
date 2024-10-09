@@ -151,13 +151,6 @@ export function content_tab_e(aTab, aId) {
 }
 
 /**
- * Assert that the given content tab has the given URL loaded as a favicon.
- */
-export function assert_content_tab_has_favicon(aTab, aURL) {
-  Assert.equal(aTab.favIconUrl, aURL, "Checking tab favicon");
-}
-
-/**
  * Returns the current "display" style property of an element.
  */
 export function get_content_tab_element_display(aTab, aElem) {
