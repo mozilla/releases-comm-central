@@ -751,7 +751,13 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (storeToken.IsEmpty()) {
-    return NS_ERROR_FAILURE;  // DB is missing storeToken.
+    // DB is missing storeToken.
+    // We haven't got an offline copy (or we can't find it) so let's clear the
+    // offline flag. Hopefully the code calling this function will notice and
+    // download the message.
+    uint32_t flagsOut;
+    aMsgHdr->AndFlags(~nsMsgMessageFlags::Offline, &flagsOut);
+    return NS_ERROR_FAILURE;
   }
 
   rv = msgStore->GetMsgInputStream(this, storeToken, aInputStream);
