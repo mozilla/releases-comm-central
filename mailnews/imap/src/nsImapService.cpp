@@ -383,7 +383,7 @@ NS_IMETHODIMP nsImapService::LoadMessage(const nsACString& aMessageURI,
                      (dontMarkAsReadPos != kNotFound));
       }
 
-      if (!forcePeek) {
+      if (!forcePeek && aDisplayConsumer) {
         // If we're loading a message in an inactive docShell, don't let it
         auto* bc = aDisplayConsumer->GetBrowsingContext();
         forcePeek = !bc->IsActive();

@@ -8,10 +8,6 @@
  * folder compaction operations.
  */
 
-const { MessageGenerator } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-);
-
 const { MailMigrator } = ChromeUtils.importESModule(
   "resource:///modules/MailMigrator.sys.mjs"
 );

@@ -10,20 +10,22 @@ var { MailServices } = ChromeUtils.importESModule(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-var { mailTestUtils } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
+
+var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/IMAPpump.sys.mjs"
 );
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
-var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/IMAPpump.sys.mjs"
+var { mailTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailTestUtils.sys.mjs"
+);
+var { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
-
-var CC = Components.Constructor;
 
 // WebApps.sys.mjs called by ProxyAutoConfig (PAC) requires a valid nsIXULAppInfo.
 var { getAppInfo, newAppInfo, updateAppInfo } = ChromeUtils.importESModule(
@@ -33,6 +35,8 @@ updateAppInfo();
 
 // Ensure the profile directory is set up
 do_get_profile();
+
+const gMessageGenerator = new MessageGenerator();
 
 // Import fakeserver
 var { nsMailServer } = ChromeUtils.importESModule(
@@ -168,14 +172,13 @@ function do_check_transaction(fromServer, expected, withParams) {
  * add a simple message to the IMAP pump mailbox
  */
 function addImapMessage() {
-  let messages = [];
-  const messageGenerator = new MessageGenerator(); // eslint-disable-line no-undef
-  messages = messages.concat(messageGenerator.makeMessage());
+  const message = gMessageGenerator.makeMessage();
   const dataUri = Services.io.newURI(
-    "data:text/plain;base64," + btoa(messages[0].toMessageString())
+    "data:text/plain;base64," + btoa(message.toMessageString())
   );
   const imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
+  return message;
 }
 
 registerCleanupFunction(function () {

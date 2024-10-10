@@ -19,8 +19,6 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-var gMessageGenerator = new MessageGenerator();
-
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
 var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 var gMsgFile2 = do_get_file("../../../data/image-attach-test");
@@ -174,7 +172,6 @@ add_task(async function addNewMsgs() {
       "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n";
   }
 
-  gMessageGenerator = new MessageGenerator();
   messages = messages.concat(
     gMessageGenerator.makeMessage({
       body: { body: bodyString, contentType: "text/plain" },

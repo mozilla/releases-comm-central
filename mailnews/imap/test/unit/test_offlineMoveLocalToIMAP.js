@@ -9,10 +9,6 @@
 
 // NOTE: PromiseTestUtils and MailServices already imported
 
-const { MessageGenerator } = ChromeUtils.importESModule(
-  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
-);
-
 function setupTest() {
   // Turn off autosync_offline_stores because
   // fetching messages is invoked after copying the messages.
