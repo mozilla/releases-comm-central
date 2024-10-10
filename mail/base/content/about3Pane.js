@@ -43,6 +43,7 @@ ChromeUtils.defineESModuleGetters(this, {
   FolderPaneUtils: "resource:///modules/FolderPaneUtils.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
+  Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
   MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
@@ -59,6 +60,14 @@ const messengerBundle = Services.strings.createBundle(
 
 const { ThreadPaneColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/ThreadPaneColumns.mjs"
+);
+
+const lazy = {};
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "isConversationView",
+  "mail.thread.conversation.enabled",
+  false
 );
 
 // As defined in nsMsgDBView.h.
@@ -4582,40 +4591,38 @@ var threadPane = {
    * Handle threadPane select events.
    */
   _onSelect() {
-    if (!paneLayout.messagePaneVisible.isCollapsed) {
-      messagePane.clearWebPage();
-      const numSelected = gDBView ? gDBView.numSelected : 0;
-      switch (numSelected) {
-        case 0:
-          messagePane.clearMessage();
-          messagePane.clearMessages();
-          threadPaneHeader.selectedCount.hidden = true;
+    if (paneLayout.messagePaneVisible.isCollapsed) {
+      updateZoomCommands();
+      return;
+    }
+
+    const numSelected = gDBView?.numSelected || 0;
+    switch (numSelected) {
+      case 0:
+        messagePane.displayMessage();
+        break;
+      case 1: {
+        if (
+          gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
+        ) {
+          messagePane.displayMessage();
           break;
-        case 1:
-          if (
-            gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
-          ) {
-            messagePane.clearMessage();
-            messagePane.clearMessages();
-            threadPaneHeader.selectedCount.hidden = true;
-          } else {
-            const uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
-            messagePane.displayMessage(uri);
-            threadPaneHeader.updateSelectedCount();
-          }
-          break;
-        default:
-          if (gViewWrapper.showGroupedBySort) {
-            const savedIndex = threadTree.currentIndex;
-            threadTree.selectedIndices
-              .filter(i => gViewWrapper.isExpandedGroupedByHeaderAtIndex(i))
-              .forEach(i => threadTree.toggleSelectionAtIndex(i, false, false));
-            threadTree.currentIndex = savedIndex;
-          }
-          messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
-          threadPaneHeader.updateSelectedCount();
-          break;
+        }
+
+        const uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+        messagePane.displayMessage(uri);
+        break;
       }
+      default:
+        if (gViewWrapper.showGroupedBySort) {
+          const savedIndex = threadTree.currentIndex;
+          threadTree.selectedIndices
+            .filter(i => gViewWrapper.isExpandedGroupedByHeaderAtIndex(i))
+            .forEach(i => threadTree.toggleSelectionAtIndex(i, false, false));
+          threadTree.currentIndex = savedIndex;
+        }
+        messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
+        break;
     }
 
     updateZoomCommands();
@@ -5965,9 +5972,12 @@ var messagePane = {
    * Display a single message in the message browser. If `messageURI` is not
    * given, the message browser is cleared and hidden.
    *
-   * @param {string} messageURI
+   * @param {?string} messageURI - The URI representing the selected message, or
+   *   null if nothing is selected.
    */
   displayMessage(messageURI) {
+    threadPaneHeader.updateSelectedCount();
+
     // Hide the findbar of webview pane or multimessage pane if opened.
     const switchingMessages = !messageBrowser.hidden;
     if (!switchingMessages) {
@@ -5977,14 +5987,15 @@ var messagePane = {
     if (!paneLayout.messagePaneVisible) {
       return;
     }
+
     if (!messageURI) {
       this.clearMessage();
       return;
     }
 
     this._keepStartPageOpen = false;
-    messagePane.clearWebPage();
-    messagePane.clearMessages();
+    this.clearWebPage();
+    this.clearMessages();
 
     messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
     messageBrowser.hidden = false;
@@ -6003,9 +6014,12 @@ var messagePane = {
    * `displayMessage` instead. If `messages` is not given, or an empty array,
    * the multi-message browser is cleared and hidden.
    *
-   * @param {nsIMsgDBHdr[]} messages
+   * @param {nsIMsgDBHdr[]} messages - The array of selected message headers, if
+   *   available.
    */
   displayMessages(messages = []) {
+    threadPaneHeader.updateSelectedCount();
+
     // Hide the findbar of webview pane or message pane if opened.
     const switchingThreads = !multiMessageBrowser.hidden;
     if (!switchingThreads) {
@@ -6015,38 +6029,43 @@ var messagePane = {
     if (!paneLayout.messagePaneVisible) {
       return;
     }
+
     if (messages.length == 0) {
       this.clearMessages();
       return;
     }
 
     this._keepStartPageOpen = false;
-    messagePane.clearWebPage();
-    messagePane.clearMessage();
+    this.clearWebPage();
+    this.clearMessage();
 
-    const getThreadId = function (message) {
-      return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
-    };
+    // Show the new conversation view UI if the user requests it and if
+    // gDBView.selection.count is 1, which means that a thread has been
+    // selected and not multiple single messages.
+    if (lazy.isConversationView && gDBView?.selection.count == 1) {
+      Gloda.getMessageCollectionForHeader(
+        gDBView.hdrForFirstSelectedMessage,
+        conversationView
+      );
+    } else {
+      const getThreadId = message =>
+        gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
+      const firstThreadId = getThreadId(messages.at(0));
+      const isSingleThread = messages.every(
+        m => getThreadId(m) == firstThreadId
+      );
 
-    let oneThread = true;
-    const firstThreadId = getThreadId(messages[0]);
-    for (let i = 1; i < messages.length; i++) {
-      if (getThreadId(messages[i]) != firstThreadId) {
-        oneThread = false;
-        break;
-      }
+      multiMessageBrowser.contentWindow.gMessageSummary.summarize(
+        isSingleThread ? "thread" : "multipleselection",
+        messages,
+        gDBView,
+        messages => {
+          threadTree.selectedIndices = messages
+            .map(m => gDBView.findIndexOfMsgHdr(m, true))
+            .filter(i => i != nsMsgViewIndex_None);
+        }
+      );
     }
-
-    multiMessageBrowser.contentWindow.gMessageSummary.summarize(
-      oneThread ? "thread" : "multipleselection",
-      messages,
-      gDBView,
-      function (msgs) {
-        threadTree.selectedIndices = msgs
-          .map(m => gDBView.findIndexOfMsgHdr(m, true))
-          .filter(i => i != nsMsgViewIndex_None);
-      }
-    );
 
     multiMessageBrowser.hidden = false;
     window.dispatchEvent(new CustomEvent("MsgsLoaded", { bubbles: true }));
@@ -6091,7 +6110,7 @@ var messagePane = {
       Services.prefs.clearUserPref("mailnews.start_page.url");
       url = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
     }
-    messagePane.displayWebPage(url);
+    this.displayWebPage(url);
   },
 };
 
@@ -6354,6 +6373,35 @@ var folderListener = {
   },
 };
 
+/* Conversation View */
+const conversationView = {
+  onItemsAdded() {},
+  onItemsModified() {},
+  onItemsRemoved() {},
+  onQueryCompleted(collection) {
+    const conv = collection.items[0].conversation;
+    conv.getMessagesCollection({
+      onItemsAdded() {},
+      onItemsModified() {},
+      onItemsRemoved() {},
+      onQueryCompleted(collection) {
+        const items = collection.items;
+        multiMessageBrowser.contentWindow.gMessageSummary.summarize(
+          "thread",
+          items.map(i => i.folderMessage).filter(Boolean),
+          gDBView,
+          messages => {
+            threadTree.selectedIndices = messages
+              .map(m => gDBView.findIndexOfMsgHdr(m, true))
+              .filter(i => i != nsMsgViewIndex_None);
+          }
+        );
+      },
+    });
+  },
+};
+
+/* Commands Controller */
 commandController.registerCallback(
   "cmd_newFolder",
   (folder = gFolder) => folderPane.newFolder(folder),
