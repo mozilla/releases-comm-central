@@ -35,13 +35,14 @@ known-first-party = [
   "mozrelease",
   "mozterm",
   "mozversioncontrol",
+  "mozxchannel",
+  "tbxchannel",
   "gecko_taskgraph",
   "buildconfig",
 ]
 known-local-folder = [
   "rocboot",
   "rocbuild",
-  "tb_l10n",
   "thirdroc",
   "comm_taskgraph",
 ]
