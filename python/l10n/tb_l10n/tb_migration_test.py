@@ -24,7 +24,7 @@ import mozpack.path as mozpath
 from mach.util import get_state_dir
 
 L10N_SOURCE_NAME = "tb-l10n-source"
-L10N_SOURCE_REPO = "https://github.com/thunderbird-l10n/thunderbird-l10n-source.git"
+L10N_SOURCE_REPO = "https://github.com/thunderbird/thunderbird-l10n-source.git"
 
 PULL_AFTER = timedelta(days=2)
 

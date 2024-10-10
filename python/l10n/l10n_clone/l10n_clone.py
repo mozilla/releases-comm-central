@@ -25,7 +25,7 @@ GECKO_PATH = COMM_PATH.parent
 COMM_PYTHON_L10N = os.path.join(COMM_PATH, "python/l10n")
 sys.path.insert(1, COMM_PYTHON_L10N)
 
-from tbxchannel.l10n_merge import (
+from tb_l10n.l10n_merge import (
     COMM_STRINGS_PATTERNS,
     FIREFOX_L10N,
     GECKO_STRINGS_PATTERNS,
