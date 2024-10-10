@@ -82,7 +82,10 @@
 <!ENTITY col.dateadded.label     "Added">
 <!ENTITY col.lastmodified.label  "Last Modified">
 
-<!ENTITY search.placeholder  "Search">
+<!-- LOCALIZATION NOTE (searchBookmarks.placeholder): Should match searchBookmarks in places.properties" -->
+<!ENTITY searchBookmarks.placeholder  "Search bookmarks">
+<!-- LOCALIZATION NOTE (searchHistory.placeholder): Should match searchHistory in places.properties" -->
+<!ENTITY searchHistory.placeholder  "Search history">
 
 <!ENTITY cmd.find.key  "f">
 
