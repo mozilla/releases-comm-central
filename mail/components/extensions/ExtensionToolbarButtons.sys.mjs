@@ -76,18 +76,21 @@ export function getIconData(icons, extension) {
   }
 
   const getIcon = (iconSize, theme) => {
-    // eslint-disable-next-line no-shadow
-    const { icon } = IconDetails.getPreferredIcon(icons, extension, iconSize);
-    if (typeof icon === "object") {
-      if (icon[theme] == IconDetails.DEFAULT_ICON) {
-        icon[theme] = DEFAULT_ICON;
+    const { icon: preferredIcon } = IconDetails.getPreferredIcon(
+      icons,
+      extension,
+      iconSize
+    );
+    if (typeof preferredIcon === "object") {
+      if (preferredIcon[theme] == IconDetails.DEFAULT_ICON) {
+        preferredIcon[theme] = DEFAULT_ICON;
       }
-      return IconDetails.escapeUrl(icon[theme]);
+      return IconDetails.escapeUrl(preferredIcon[theme]);
     }
-    if (icon == IconDetails.DEFAULT_ICON) {
+    if (preferredIcon == IconDetails.DEFAULT_ICON) {
       return DEFAULT_ICON;
     }
-    return IconDetails.escapeUrl(icon);
+    return IconDetails.escapeUrl(preferredIcon);
   };
 
   const style = [];

@@ -96,7 +96,7 @@ add_task(async function valid_cookieStoreId() {
     set: [["privacy.userContext.enabled", true]],
   });
 
-  const testCases = [
+  const TEST_CASES = [
     {
       description: "one URL",
       createParams: {
@@ -119,7 +119,7 @@ add_task(async function valid_cookieStoreId() {
     },
   ];
 
-  async function background() {
+  async function background(testCases) {
     const readyTabs = new Map();
     const tabReadyCheckers = new Set();
     browser.webNavigation.onCompleted.addListener(({ url, tabId, frameId }) => {
@@ -214,7 +214,7 @@ add_task(async function valid_cookieStoreId() {
       host_permissions: ["*://*/*"], // allows script in top-level about:blank.
       permissions: ["cookies", "webNavigation"],
     },
-    background: `(${background})(${JSON.stringify(testCases)})`,
+    background: `(${background})(${JSON.stringify(TEST_CASES)})`,
   });
 
   await extension.startup();
