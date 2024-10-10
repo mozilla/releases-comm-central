@@ -3715,8 +3715,14 @@ void nsImapProtocol::PostLineDownLoadEvent(const char* line,
 
     m_bytesToChannel += byteCount;
     if (m_imapMessageSink && line && echoLineToMessageSink &&
-        !GetPseudoInterrupted())
-      m_imapMessageSink->ParseAdoptedMsgLine(line, uidOfMessage, m_runningUrl);
+        !GetPseudoInterrupted()) {
+      nsresult rv = m_imapMessageSink->ParseAdoptedMsgLine(line, uidOfMessage,
+                                                           m_runningUrl);
+      if (NS_FAILED(rv)) {
+        // If the folder failed to accept the message, stop piping it across!
+        PseudoInterrupt(true);
+      }
+    }
   }
   // ***** We need to handle the pseudo interrupt here *****
 }

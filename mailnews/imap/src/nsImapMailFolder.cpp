@@ -4328,6 +4328,23 @@ nsImapMailFolder::ParseAdoptedMsgLine(const char* adoptedMessageLine,
   uint32_t count = 0;
   nsresult rv;
   if (!m_offlineHeader) {
+    // If the folder is locked by anything other than itself,
+    // we want to fail immediately.
+    // Examples:
+    // During compaction, FolderCompactor holds the lock.
+    // During DownloadAllForOffline(), the folder locks itself.
+    bool isLocked;
+    GetLocked(&isLocked);
+    if (isLocked) {
+      // It's OK if we, the folder, have the semaphore.
+      bool hasSemaphore = false;
+      TestSemaphore(static_cast<nsIMsgFolder*>(this), &hasSemaphore);
+      if (!hasSemaphore) {
+        NS_WARNING("ParseAdoptedMsgLine: folder is locked.");
+        return NS_MSG_FOLDER_BUSY;
+      }
+    }
+
     // Starting a new message.
     if (m_curMsgUid) {
       NS_WARNING("ParseAdoptedMsgLine: already processing a message");
