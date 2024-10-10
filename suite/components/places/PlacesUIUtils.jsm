@@ -1156,7 +1156,7 @@ var PlacesUIUtils = {
       info.hiddenRows.push("keyword");
 
     return this.showBookmarkDialog(info,
-                                   focusManager.activeWindow ||
+                                   Services.focus.activeWindow ||
                                    Services.wm.getMostRecentWindow(null));
   },
 
@@ -1378,10 +1378,6 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ellipsis", function() {
   return Services.prefs.getComplexValue("intl.ellipsis",
                                         Ci.nsIPrefLocalizedString).data;
 });
-
-XPCOMUtils.defineLazyServiceGetter(this, "focusManager",
-                                   "@mozilla.org/focus-manager;1",
-                                   "nsIFocusManager");
 
 /**
  * Determines if an unwrapped node can be moved.
