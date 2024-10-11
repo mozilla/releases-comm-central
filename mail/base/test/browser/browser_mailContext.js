@@ -119,14 +119,6 @@ const notSynthetic = [
 ];
 
 const mailContextData = {
-  "mailContext-navigation": true,
-  "navContext-markRead": true,
-  "navContext-markUnread": true,
-  "navContext-reply": noCollapsedThreads,
-  "navContext-archive": notExternal,
-  "navContext-markAsJunk": true,
-  "navContext-markAsNotJunk": [],
-  "navContext-delete": notExternal,
   "mailContext-openInBrowser": [],
   "mailContext-openLinkInBrowser": [],
   "mailContext-copylink": [],
@@ -252,10 +244,7 @@ async function checkMenuitems(menu, mode) {
 
   const actualItems = [];
   for (const item of menu.children) {
-    if (
-      ["menu", "menuitem", "menugroup"].includes(item.localName) &&
-      !item.hidden
-    ) {
+    if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
       actualItems.push(item.id);
 
       if (item.localName == "menu" && !item.disabled) {
@@ -272,15 +261,6 @@ async function checkMenuitems(menu, mode) {
         }
         item.menupopup.hidePopup();
         await BrowserTestUtils.waitForPopupEvent(item.menupopup, "hidden");
-      } else if (item.localName == "menugroup") {
-        actualItems.push(
-          ...Array.from(item.children)
-            .filter(
-              subItem =>
-                subItem.localName == "menuitem" && subItem.id && !subItem.hidden
-            )
-            .map(subItem => subItem.id)
-        );
       }
     }
   }

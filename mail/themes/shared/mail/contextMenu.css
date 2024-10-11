@@ -246,13 +246,8 @@ menu > .menu-right {
   list-style-image: var(--icon-archive);
 }
 
-#navContext-markAsJunk,
-#navContext-markAsNotJunk {
+#navContext-markAsJunk {
   list-style-image: var(--icon-spam);
-
-  &[disabled="true"] {
-    display: none;
-  }
 }
 
 #navContext-delete {

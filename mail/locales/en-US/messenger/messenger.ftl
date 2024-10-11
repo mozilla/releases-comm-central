@@ -232,10 +232,6 @@ context-menu-mark-junk =
     .aria-label = Mark as Junk
     .tooltiptext = Mark as Junk
 
-context-menu-mark-not-junk =
-    .aria-label = Mark as not Junk
-    .tooltiptext = Mark as not Junk
-
 mail-context-menu-open =
     .label = Open
     .accesskey = O
