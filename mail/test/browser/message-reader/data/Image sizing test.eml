@@ -34,6 +34,12 @@ Content-Transfer-Encoding: 7bit
     <p>A stretched image:</p>
     <img src="cid:part2.vmSs2Orn.F295w1yW@example.com" alt=""
       width="5000" height="16" id="stretched">
+
+    <p>Image inside a link:</p>
+    <a href="https://example.com">
+      <img src="cid:part1.4u939f0L.9JKhIMXF@example.com" width="14"
+        height="14" alt="">
+    </a>
   </body>
 </html>
 --------------2wxAK7EB6xhF55w8q3jayJAH

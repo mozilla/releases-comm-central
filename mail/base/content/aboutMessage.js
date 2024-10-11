@@ -56,7 +56,7 @@ function messagePaneOnResize() {
   for (const img of doc.querySelectorAll(
     "img:is([shrinktofit],[overflowing])"
   )) {
-    if (!img.complete) {
+    if (!img.complete || img.closest("[href]")) {
       continue;
     }
     if (img.hasAttribute("shrinktofit")) {

@@ -4237,6 +4237,10 @@ function OnMsgParsed(aUrl) {
   // Scale any overflowing images, exclude http content.
   const imgs = doc && !doc.URL.startsWith("http") ? doc.images : [];
   for (const img of imgs) {
+    // No zooming for children of clickable links.
+    if (img.closest("[href]")) {
+      continue;
+    }
     applyOverflowingToImg(img);
   }
 }

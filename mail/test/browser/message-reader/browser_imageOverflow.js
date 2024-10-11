@@ -23,6 +23,7 @@ add_setup(async () => {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
     msgc.resizeTo(Math.min(window.screen.availWidth, 550), msgc.outerHeight);
     await resizePromise;
+    await TestUtils.waitForTick();
   }
 
   aboutMessage = get_about_message(msgc);
@@ -53,18 +54,20 @@ add_task(async function test_imageOverflow() {
   const imageIds = [];
 
   for (const image of msgDoc.querySelectorAll("img")) {
-    imageIds.push(image.src);
-    const imageId = imageIds.indexOf(image.src);
+    imageIds.push(image);
+    const imageId = imageIds.indexOf(image);
     Assert.lessOrEqual(
       image.clientWidth,
       messageDisplayWidth,
       `Image ${imageId} should be resized to fit into the message display`
     );
-    Assert.ok(
+    const isInLink = image.closest("[href]");
+    Assert.equal(
       image.hasAttribute("shrinktofit"),
-      `Image ${imageId} should have shrinktofit attribute`
+      !isInLink,
+      `Image ${imageId} should have correct shrinktofit attribute state`
     );
-    if (image.naturalWidth > messageDisplayWidth) {
+    if (image.naturalWidth > messageDisplayWidth && !isInLink) {
       Assert.ok(
         image.hasAttribute("overflowing"),
         `Image ${imageId} should be marked as overflowing`
@@ -90,7 +93,7 @@ add_task(async function test_imageOverflow() {
   );
 
   for (const image of overflowingImages) {
-    info(`Overflow behavior test for image ${imageIds.indexOf(image.src)}`);
+    info(`Overflow behavior test for image ${imageIds.indexOf(image)}`);
     EventUtils.synthesizeMouse(image, 1, 1, {}, msgDoc.defaultView);
     await BrowserTestUtils.waitForMutationCondition(
       image,
@@ -166,6 +169,7 @@ add_task(async function test_imageUnderflow() {
     const resizePromise = BrowserTestUtils.waitForEvent(msgc, "resize");
     msgc.resizeTo(350, msgc.outerHeight);
     await resizePromise;
+    await TestUtils.waitForTick();
   }
 
   const messageDisplayWidth = msgDoc.body.clientWidth;
