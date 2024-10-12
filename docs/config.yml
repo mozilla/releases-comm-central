@@ -4,12 +4,16 @@
 
 categories:
     overview_doc:
-        - build
         - mots
-        - l10n
-        - storybook
-        - telemetry
         - architecture
+    build_doc:
+        - build
+    loc_doc:
+        - l10n
+    data_doc:
+        - telemetry
+    ui_doc:
+        - storybook
         - frontend
     rust_doc:
         - rust

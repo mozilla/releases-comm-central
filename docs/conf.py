@@ -40,6 +40,7 @@ extensions = [
 
 root_for_relative_js_paths = topcommdir
 jsdoc_config_path = "jsdoc.conf.js"
+html_favicon = os.path.join(topcommdir, "mail/branding/nightly/messengerWindow.ico")
 
 myst_enable_extensions = [
     "deflist",

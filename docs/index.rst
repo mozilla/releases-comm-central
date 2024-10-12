@@ -13,7 +13,31 @@ Thunderbird Source Tree Documentation
    {overview_doc}
 
 .. toctree::
-   :caption: Rust
+   :caption: Building Thunderbird
+   :maxdepth: 2
+
+   {build_doc}
+
+.. toctree::
+   :caption: Localization
+   :maxdepth: 2
+
+   {loc_doc}
+
+.. toctree::
+   :caption: Telemetry
+   :maxdepth: 2
+
+   {data_doc}
+
+.. toctree::
+   :caption: Front End
+   :maxdepth: 2
+
+   {ui_doc}
+
+.. toctree::
+   :caption: Rust in Thunderbird
    :maxdepth: 2
 
    {rust_doc}
