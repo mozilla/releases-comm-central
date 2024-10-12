@@ -5140,17 +5140,27 @@ function cli_promptToSaveLogin(url, type, username, password)
     var checkState = { value: true };
     var rv = confirmEx(getMsg(MSG_LOGIN_CONFIRM, name), buttons, 0,
                        MSG_LOGIN_PROMPT, checkState);
-    if (rv == 0)
-    {
-        client.prefs["login.promptToSave"] = checkState.value;
+    if (rv != 0)
+        return;
 
-        var updated = addOrUpdateLogin(url, type, username, password);
-        if (updated) {
-            display(getMsg(MSG_LOGIN_UPDATED, name), MT_INFO);
-        } else {
-            display(getMsg(MSG_LOGIN_ADDED, name), MT_INFO);
-        }
+    client.prefs["login.promptToSave"] = checkState.value;
+
+    username = username.toLowerCase();
+    var newinfo = Cc["@mozilla.org/login-manager/loginInfo;1"]
+                    .createInstance(Ci.nsILoginInfo);
+    newinfo.init(url, null, type, username, password, "", "");
+    var oldinfo = getLogin(url, type, username);
+
+    if (oldinfo) {
+        // Update login.
+        Services.logins.modifyLogin(oldinfo, newinfo);
+        display(getMsg(MSG_LOGIN_UPDATED, name), MT_INFO);
+        return;
     }
+
+    // Add login.
+    Services.logins.addLogin(newinfo);
+    display(getMsg(MSG_LOGIN_ADDED, name), MT_INFO);
 }
 
 client.tryToGetLogin =
@@ -5159,7 +5169,7 @@ function cli_tryToGetLogin(url, type, username, existing, needpass,
 {
     // Password is optional. If it is not given, we look for a saved password
     // first. If there isn't one, we potentially use a safe prompt.
-    var info = getLogin(url, type, username);
+    var info = getLogin(url, type, username.toLowerCase());
     var stored = (info && info.password) ? info.password : "";
     var promptToSave = false;
     if (!existing && stored) {
@@ -5270,6 +5280,12 @@ function cli_stoplog(view, showMessage)
         view.logFile.close();
         view.logFile = null;
     }
+}
+
+function getLogin(url, realm, username)
+{
+    let logins = Services.logins.findLogins({}, url, null, realm);
+    return logins.find((login) => login.username === username);
 }
 
 function checkLogFiles()
