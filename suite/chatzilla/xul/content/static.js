@@ -1595,28 +1595,6 @@ function doCommand(command)
     }
 }
 
-function doCommandWithParams(command, params)
-{
-    try {
-        var dispatcher = document.commandDispatcher;
-        var controller = dispatcher.getControllerForCommand(command);
-        controller.QueryInterface(Components.interfaces.nsICommandController);
-
-        if (!controller || !controller.isCommandEnabled(command))
-            return;
-
-        var cmdparams = newObject("@mozilla.org/embedcomp/command-params;1",
-                                  "nsICommandParams");
-        for (var i in params)
-            cmdparams.setISupportsValue(i, params[i]);
-
-        controller.doCommandWithParams(command, cmdparams);
-    }
-    catch (e)
-    {
-    }
-}
-
 var testURLs = [
     "irc:",
     "irc://",

@@ -83,9 +83,34 @@ function initHandlers()
 
     client.inputPopup = null;
 
-    // Should fail silently pre-moz1.4
-    doCommandWithParams("cmd_clipboardDragDropHook",
-                        {addhook: CopyPasteHandler});
+    var singleInput = document.getElementById("input");
+    singleInput.addEventListener("paste", onPaste);
+}
+
+function onPaste(event)
+{
+    let startPos = client.input.selectionStart;
+    if (startPos == undefined)
+        return;
+    let endPos = client.input.selectionEnd;
+    let clipboard = event.clipboardData.getData("text/plain");
+    clipboard = clipboard.replace(/(^\s*[\r\n]+|[\r\n]+\s*$)/g, "");
+
+    if (clipboard.indexOf("\n") == -1)
+    {
+        // If, after stripping leading/trailing empty lines, the string is a
+        // single line, return.
+        return;
+    }
+
+    var str = client.input.value.substr(0, startPos) +
+              clipboard + client.input.value.substr(endPos);
+    client.prefs["multiline"] = true;
+    // We want to auto-collapse after send, so the user is not thrown off by the
+    // "strange" input box if they didn't specifically ask for it:
+    client.multiLineForPaste = true;
+    client.input.value = str;
+    return;
 }
 
 function onClose()
@@ -3832,74 +3857,6 @@ function my_dccfiledisconnect(e)
     client.munger.getRule(".inline-buttons").enabled = true;
     this.display(msg, "DCC-FILE");
     client.munger.getRule(".inline-buttons").enabled = false;
-}
-
-var CopyPasteHandler = new Object();
-
-CopyPasteHandler.allowDrop =
-CopyPasteHandler.allowStartDrag =
-CopyPasteHandler.onCopyOrDrag =
-function phand_bogus()
-{
-    return true;
-}
-
-CopyPasteHandler.onPasteOrDrop =
-function phand_onpaste(e, data)
-{
-    // XXXbug 329487: The effect of onPasteOrDrop's return value is actually the
-    //                exact opposite of the definition in the IDL.
-
-    // Don't mess with the multiline box at all.
-    if (client.prefs["multiline"])
-        return true;
-
-    var str = new Object();
-    var strlen = new Object();
-    data.getTransferData("text/unicode", str, strlen);
-    str.value.QueryInterface(Components.interfaces.nsISupportsString);
-    str.value.data = str.value.data.replace(/(^\s*[\r\n]+|[\r\n]+\s*$)/g, "");
-
-    // XXX part of what follows is a very ugly hack to make links (with a title)
-    // not open the multiline box. We 'should' be able to ask the transferable
-    // what flavours it supports, but testing showed that by the time we can ask
-    // for that info, it's forgotten about everything apart from text/unicode.
-    var lines = str.value.data.split("\n");
-    var m = lines[0].match(client.linkRE);
-
-    if ((str.value.data.indexOf("\n") == -1) ||
-        (m && (m[0] == lines[0]) && (lines.length == 2)))
-    {
-        // If, after stripping leading/trailing empty lines, the string is a
-        // single line, or it's a link with a title, put it back in
-        // the transferable and return.
-        data.setTransferData("text/unicode", str.value,
-                             str.value.data.length * 2);
-        return true;
-    }
-
-    // If it's a drop, move the text cursor to the mouse position.
-    if (e && ("rangeOffset" in e))
-        client.input.setSelectionRange(e.rangeOffset, e.rangeOffset);
-
-    str = client.input.value.substr(0, client.input.selectionStart) +
-          str.value.data + client.input.value.substr(client.input.selectionEnd);
-    client.prefs["multiline"] = true;
-    // We want to auto-collapse after send, so the user is not thrown off by the
-    // "strange" input box if they didn't specifically ask for it:
-    client.multiLineForPaste = true;
-    client.input.value = str;
-    return false;
-}
-
-CopyPasteHandler.QueryInterface =
-function phand_qi(iid)
-{
-    if (iid.equals(Components.interfaces.nsISupports) ||
-        iid.equals(Components.interfaces.nsIClipboardDragDropHooks))
-        return this;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
 }
 
 function UserEntry(userObj, channelListShare)
