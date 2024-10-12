@@ -109,6 +109,7 @@ var mailContextMenu = {
     "mailContext-markAllRead": "cmd_markAllRead",
     "navContext-markAsJunk": "cmd_markAsJunk",
     "mailContext-markAsJunk": "cmd_markAsJunk",
+    "navContext-markAsNotJunk": "cmd_markAsNotJunk",
     "mailContext-markAsNotJunk": "cmd_markAsNotJunk",
     "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
   },
@@ -366,6 +367,19 @@ var mailContextMenu = {
     const canMove =
       numSelectedMessages >= 1 && !isNewsgroup && folder?.canDeleteMessages;
     const canCopy = numSelectedMessages >= 1;
+
+    const isJunk =
+      message.getStringProperty("junkscore") ==
+      Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
+
+    if (numSelectedMessages == 1) {
+      // Hide junk button that isn't opposite of current state.
+      showItem("navContext-markAsJunk", !isJunk);
+      showItem("navContext-markAsNotJunk", isJunk);
+    } else {
+      showItem("navContext-markAsJunk", true);
+      showItem("navContext-markAsNotJunk", false);
+    }
 
     setSingleSelection("mailContext-openNewTab", inThreadTree);
     setSingleSelection("mailContext-openNewWindow", inThreadTree);
