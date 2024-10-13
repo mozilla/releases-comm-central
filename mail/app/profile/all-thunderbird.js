@@ -171,7 +171,6 @@ pref("javascript.options.showInConsole", true);
 
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
-pref("extensions.overlayloader.loglevel", "warn");
 
 pref("extensions.abuseReport.enabled", false);
 
