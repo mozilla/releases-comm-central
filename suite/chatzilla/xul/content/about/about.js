@@ -93,14 +93,15 @@ function onUnload()
 
 function copyVersion()
 {
-    const cbID = Components.interfaces.nsIClipboard.kGlobalClipboard;
-    var cb = getService("@mozilla.org/widget/clipboard;1", "nsIClipboard");
-    var tr = newObject("@mozilla.org/widget/transferable;1", "nsITransferable");
-    var str = newObject("@mozilla.org/supports-string;1", "nsISupportsString");
+    var tr = Cc["@mozilla.org/widget/transferable;1"]
+               .createInstance(Ci.nsITransferable);
+    var str = Cc["@mozilla.org/supports-string;1"]
+                .createInstance(Ci.nsISupportsString);
 
+    tr.addDataFlavor("text/unicode");
     str.data = client.userAgent;
     tr.setTransferData("text/unicode", str, str.data.length * 2);
-    cb.setData(tr, null, cbID);
+    Services.clipboard.setData(tr, null, Services.clipboard.kGlobalClipboard);
 }
 
 function openHomepage()

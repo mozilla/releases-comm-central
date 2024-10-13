@@ -3560,13 +3560,13 @@ function cmdSave(e)
             var requestSpec;
             try
             {
-              var channel = aRequest.QueryInterface(nsIChannel);
+              var channel = aRequest.QueryInterface(Ci.nsIChannel);
               requestSpec = channel.URI.spec;
             }
             catch (ex) { }
 
             // Detect end of file saving of any file:
-            if (aStateFlags & nsIWebProgressListener.STATE_STOP)
+            if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP)
             {
                 if (aStatus == kErrorBindingAborted)
                     aStatus = 0;
@@ -3582,7 +3582,7 @@ function cmdSave(e)
                     return;
                 }
 
-                if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK
+                if (aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK
                     && wbp.currentState == nsIWBP.PERSIST_STATE_FINISHED)
                 {
                     // Let the user know:
@@ -3612,9 +3612,9 @@ function cmdSave(e)
 
         QueryInterface: function(aIID)
         {
-            if (aIID.equals(Components.interfaces.nsIWebProgressListener)
-                || aIID.equals(Components.interfaces.nsISupports)
-                || aIID.equals(Components.interfaces.nsISupportsWeakReference))
+            if (aIID.equals(Ci.nsIWebProgressListener)
+                || aIID.equals(Ci.nsISupports)
+                || aIID.equals(Ci.nsISupportsWeakReference))
             {
                 return this;
             }
@@ -3626,12 +3626,10 @@ function cmdSave(e)
     const kFileNotFound = 2152857618;
     const kErrorBindingAborted = 2152398850;
 
-    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-    const nsIChannel = Components.interfaces.nsIChannel;
+    const nsIWBP = Ci.nsIWebBrowserPersist;
 
-    var wbp = newObject("@mozilla.org/embedding/browser/nsWebBrowserPersist;1",
-                        nsIWBP);
+    var wbp = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                .createInstance(nsIWBP);
     wbp.progressListener = OutputProgressListener;
 
     var file, saveType, saveFolder, docToBeSaved, title;

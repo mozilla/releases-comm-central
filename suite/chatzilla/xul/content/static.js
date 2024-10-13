@@ -2014,10 +2014,6 @@ function updateAlertIcon(aToggle) {
 
 function initOfflineIcon()
 {
-    const PRBool_CID = "@mozilla.org/supports-PRBool;1";
-    const OS_CID = "@mozilla.org/observer-service;1";
-    const nsISupportsPRBool = Components.interfaces.nsISupportsPRBool;
-
     client.offlineObserver = {
         _element: document.getElementById("offline-status"),
         state: function offline_state()
@@ -2033,7 +2029,7 @@ function initOfflineIcon()
                 var rv = confirmEx(MSG_GOING_OFFLINE, buttonAry);
                 if (rv == 1) // Don't go offline, please!
                 {
-                    subject.QueryInterface(nsISupportsPRBool);
+                    subject.QueryInterface(Ci.nsISupportsPRBool);
                     subject.data = true;
                 }
             }
@@ -2064,7 +2060,8 @@ function initOfflineIcon()
         {
             try
             {
-                var canGoOffline = newObject(PRBool_CID, "nsISupportsPRBool");
+                var canGoOffline = Cc["@mozilla.org/supports-PRBool;1"]
+                                     .createInstance(Ci.nsISupportsPRBool);
                 Services.obs.notifyObservers(canGoOffline, "offline-requested");
                 // Someone called for a halt
                 if (canGoOffline.data)
