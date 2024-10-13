@@ -168,10 +168,10 @@ async function simulateDragAndDrop(win, dragData, type) {
   if (type == "inline") {
     const editor = win.GetCurrentEditor();
 
-    await BrowserTestUtils.waitForCondition(() => {
-      editor.selectAll();
-      return editor.getSelectedElement("img");
-    }, "Confirm the image was added to the message body");
+    await BrowserTestUtils.waitForCondition(
+      () => editor.document.body.querySelector("img"),
+      "Confirm the image was added to the message body"
+    );
 
     Assert.equal(
       win.document.getElementById("attachmentBucket").itemCount,
