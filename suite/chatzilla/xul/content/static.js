@@ -3012,23 +3012,9 @@ function cli_installPlugin(name, source)
             throw CZ_PI_ABORT;
         }
     };
-    function getZipEntry(reader, entryEnum)
-    {
-        // nsIZipReader was rewritten...
-        var itemName = entryEnum.getNext();
-        if (typeof itemName != "string")
-            name = itemName.QueryInterface(nsIZipEntry).name;
-        return itemName;
-    };
-    function checkZipMore(items)
-    {
-        return (("hasMoreElements" in items) && items.hasMoreElements()) ||
-               (("hasMore" in items) && items.hasMore());
-    };
 
     const DIRECTORY_TYPE = Components.interfaces.nsIFile.DIRECTORY_TYPE;
     const CZ_PI_ABORT = "CZ_PI_ABORT";
-    const nsIZipEntry = Components.interfaces.nsIZipEntry;
 
     var dest;
     // Find a suitable location if there was none specified.
@@ -3081,8 +3067,8 @@ function cli_installPlugin(name, source)
     {
         try
         {
-            var zipReader = newObject("@mozilla.org/libjar/zip-reader;1",
-                                      "nsIZipReader");
+            var zipReader = Cc["@mozilla.org/libjar/zip-reader;1"]
+                              .createInstance(Ci.nsIZipReader);
             zipReader.open(source);
 
             // This is set to the base path found on ALL items in the zip file.
@@ -3093,9 +3079,9 @@ function cli_installPlugin(name, source)
 
             // Look for init.js within a directory...
             var items = zipReader.findEntries("*/init.js");
-            while (checkZipMore(items))
+            while (items.hasMore())
             {
-                var itemName = getZipEntry(zipReader, items);
+                var itemName = items.getNext();
                 // Do we already have one?
                 if (zipPathBase)
                 {
@@ -3113,9 +3099,9 @@ function cli_installPlugin(name, source)
                 // instead (which will probably cause it to not work because the
                 // init.js isn't in the right place).
                 items = zipReader.findEntries("*");
-                while (checkZipMore(items))
+                while (items.hasMore())
                 {
-                    itemName = getZipEntry(zipReader, items);
+                    itemName = items.getNext();
                     if (itemName.substr(0, zipPathBase.length) != zipPathBase)
                     {
                         display(MSG_INSTALL_PLUGIN_ERR_MIXED_BASE, MT_WARN);
@@ -3152,9 +3138,9 @@ function cli_installPlugin(name, source)
             // Actually extract files...
             var destInit;
             items = zipReader.findEntries("*");
-            while (checkZipMore(items))
+            while (items.hasMore())
             {
-                itemName = getZipEntry(zipReader, items);
+                itemName = items.getNext();
                 if (!itemName.match(/\/$/))
                 {
                     var dirs = itemName;
