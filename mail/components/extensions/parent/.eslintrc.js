@@ -4,6 +4,7 @@ module.exports = {
   globals: {
     // These are defined in the WebExtension script scopes by ExtensionCommon.sys.mjs.
     // From toolkit/components/extensions/.eslintrc.js.
+    AppConstants: true,
     ExtensionAPI: true,
     ExtensionAPIPersistent: true,
     ExtensionCommon: true,
@@ -11,6 +12,7 @@ module.exports = {
     extensions: true,
     global: true,
     Services: true,
+    XPCOMUtils: true,
 
     // From toolkit/components/extensions/parent/.eslintrc.js.
     CONTAINER_STORE: true,
@@ -43,7 +45,7 @@ module.exports = {
     MESSAGE_PROTOCOLS: true,
     NOTIFICATION_COLLAPSE_TIME: true,
     ExtensionError: true,
-    FolderManager: true,
+    ExtensionSupport: true,
     Tab: true,
     TabmailTab: true,
     Window: true,
@@ -60,6 +62,12 @@ module.exports = {
     tabTracker: true,
     waitForMailTabReady: true,
     windowTracker: true,
+
+    AccountManager: true,
+    FolderManager: true,
+    MessageListTracker: true,
+    MessageManager: true,
+    MessageTracker: true,
 
     // ext-browserAction.js
     browserActionFor: true,

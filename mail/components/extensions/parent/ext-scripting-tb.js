@@ -6,13 +6,6 @@
 
 "use strict";
 
-var { ExtensionSupport } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionSupport.sys.mjs"
-);
-var { ExtensionUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionUtils.sys.mjs"
-);
-
 // Map of scripts registered for each extension. The used scriptId is constructed
 // via `${type}_${id}`, with type being one of "compose" or "messageDisplay".
 //

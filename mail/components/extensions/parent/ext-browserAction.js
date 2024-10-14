@@ -17,10 +17,6 @@ ChromeUtils.defineESModuleGetters(this, {
   setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
 });
 
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
-
 var { makeWidgetId } = ExtensionCommon;
 
 const browserActionMap = new WeakMap();

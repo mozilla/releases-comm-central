@@ -4,17 +4,8 @@
 
 "use strict";
 
-var { ExtensionSupport } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionSupport.sys.mjs"
-);
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {

@@ -2,36 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
-var { ExtensionError } = ExtensionUtils;
-var { defineLazyGetter, makeWidgetId } = ExtensionCommon;
-
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
+var { AccountManager, FolderManager } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+var { MessageListTracker, MessageTracker, MessageManager } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
 });
-
-var { AccountManager, FolderManager } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionAccounts.sys.mjs"
-);
-
-var { MessageListTracker, MessageTracker, MessageManager } =
-  ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
 
 XPCOMUtils.defineLazyGlobalGetters(this, [
   "IOUtils",
   "PathUtils",
   "FileReader",
 ]);
+
+var { ExtensionError } = ExtensionUtils;
 
 const MAIN_WINDOW_URI = "chrome://messenger/content/messenger.xhtml";
 const POPUP_WINDOW_URI = "chrome://messenger/content/extensionPopup.xhtml";
@@ -505,7 +495,7 @@ class SpaceTracker {
    *   this space
    */
   _getSpaceButtonId(name, extension) {
-    return `${makeWidgetId(extension.id)}-spacesButton-${name}`;
+    return `${ExtensionCommon.makeWidgetId(extension.id)}-spacesButton-${name}`;
   }
 
   /**
@@ -1911,12 +1901,12 @@ Object.assign(global, {
 extensions.on("startup", (type, extension) => {
   // eslint-disable-line mozilla/balanced-listeners
   if (extension.hasPermission("accountsRead")) {
-    defineLazyGetter(
+    ExtensionCommon.defineLazyGetter(
       extension,
       "folderManager",
       () => new FolderManager(extension)
     );
-    defineLazyGetter(
+    ExtensionCommon.defineLazyGetter(
       extension,
       "accountManager",
       () => new AccountManager(extension)
@@ -1924,7 +1914,7 @@ extensions.on("startup", (type, extension) => {
   }
 
   if (extension.hasPermission("addressBooks")) {
-    defineLazyGetter(extension, "addressBookManager", () => {
+    ExtensionCommon.defineLazyGetter(extension, "addressBookManager", () => {
       if (!("addressBookCache" in this)) {
         extensions.loadModule("addressBook");
       }
@@ -1944,14 +1934,18 @@ extensions.on("startup", (type, extension) => {
     });
   }
   if (extension.hasPermission("messagesRead")) {
-    defineLazyGetter(
+    ExtensionCommon.defineLazyGetter(
       extension,
       "messageManager",
       () => new MessageManager(extension, messageTracker, messageListTracker)
     );
   }
-  defineLazyGetter(extension, "tabManager", () => new TabManager(extension));
-  defineLazyGetter(
+  ExtensionCommon.defineLazyGetter(
+    extension,
+    "tabManager",
+    () => new TabManager(extension)
+  );
+  ExtensionCommon.defineLazyGetter(
     extension,
     "windowManager",
     () => new WindowManager(extension)

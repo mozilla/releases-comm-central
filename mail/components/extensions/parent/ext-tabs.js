@@ -6,8 +6,6 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
 });
 
-var { ExtensionError } = ExtensionUtils;
-
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );

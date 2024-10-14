@@ -6,13 +6,6 @@
 
 "use strict";
 
-var { ExtensionSupport } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionSupport.sys.mjs"
-);
-var { ExtensionUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionUtils.sys.mjs"
-);
-
 var { getUniqueId } = ExtensionUtils;
 
 const scripts = new Set();

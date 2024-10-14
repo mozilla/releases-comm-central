@@ -28,9 +28,6 @@ var { MailStringUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailStringUtils.sys.mjs"
 );
 
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 XPCOMUtils.defineLazyGlobalGetters(this, ["File"]);
 
 var { DefaultMap } = ExtensionUtils;

@@ -12,9 +12,6 @@ ChromeUtils.defineESModuleGetters(this, {
 
 const composeActionMap = new WeakMap();
 
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
 var { makeWidgetId } = ExtensionCommon;
 
 this.composeAction = class extends ToolbarButtonAPI {

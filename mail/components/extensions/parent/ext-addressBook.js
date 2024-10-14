@@ -9,9 +9,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AddrBookDirectory } = ChromeUtils.importESModule(
   "resource:///modules/AddrBookDirectory.sys.mjs"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "File", "FileReader"]);
 

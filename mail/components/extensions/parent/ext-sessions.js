@@ -4,12 +4,6 @@
 
 "use strict";
 
-var { ExtensionSupport } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionSupport.sys.mjs"
-);
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
 var { makeWidgetId } = ExtensionCommon;
 
 function getSessionData(tabId, extension) {

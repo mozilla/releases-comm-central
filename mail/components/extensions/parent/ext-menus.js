@@ -9,22 +9,11 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
-
-var { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
-
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
 var { SelectionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/SelectionUtils.sys.mjs"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -34,7 +23,7 @@ ChromeUtils.defineESModuleGetters(this, {
 XPCOMUtils.defineLazyGlobalGetters(this, ["fetch", "FileReader"]);
 
 var { makeWidgetId } = ExtensionCommon;
-var { DefaultMap, ExtensionError } = ExtensionUtils;
+var { DefaultMap } = ExtensionUtils;
 var { IconDetails } = ExtensionParent;
 
 const ACTION_MENU_TOP_LEVEL_LIMIT = 6;
