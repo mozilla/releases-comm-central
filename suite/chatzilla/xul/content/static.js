@@ -2422,7 +2422,9 @@ function displayCertificateInfo()
         return;
     }
 
-    viewCert(o.server.connection.getCertificate());
+    let cd = Cc["@mozilla.org/nsCertificateDialogs;1"]
+               .getService(Ci.nsICertificateDialogs);
+    cd.viewCert(window, o.server.connection.getCertificate());
 }
 
 function onLoggingIcon() {
