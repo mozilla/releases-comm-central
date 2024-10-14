@@ -6,6 +6,7 @@
 
 #include "Folder.h"
 #include "mozilla/dom/Promise.h"
+#include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/Services.h"
@@ -16,12 +17,16 @@
 #include "nsIObserverService.h"
 #include "xpcpublic.h"
 
+using mozilla::LazyLogModule;
+using mozilla::LogLevel;
 using mozilla::MarkerOptions;
 using mozilla::MarkerTiming;
 using mozilla::dom::Promise;
 
 namespace mozilla {
 namespace mailnews {
+
+LazyLogModule gPanoramaLog("panorama");
 
 NS_IMPL_ISUPPORTS(FolderDatabase, nsIFolderDatabase, nsIObserver)
 
@@ -32,6 +37,10 @@ MOZ_RUNINIT nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
 MOZ_RUNINIT nsTHashMap<nsCString, RefPtr<Folder>>
     FolderDatabase::sFoldersByPath;
 MOZ_CONSTINIT FolderComparator FolderDatabase::sComparator;
+
+/**
+ * Database functions.
+ */
 
 FolderDatabase::FolderDatabase() {
   MOZ_ASSERT(!sConnection, "creating a second FolderDatabase");
@@ -46,6 +55,8 @@ FolderDatabase::Observe(nsISupports* aSubject, const char* aTopic,
   if (strcmp(aTopic, "profile-before-change")) {
     return NS_OK;
   }
+
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("shutting down"));
 
   for (auto iter = sStatements.Iter(); !iter.Done(); iter.Next()) {
     iter.UserData()->Finalize();
@@ -71,6 +82,8 @@ FolderDatabase::Observe(nsISupports* aSubject, const char* aTopic,
   nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
   obs->RemoveObserver(this, "profile-before-change");
 
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("shutdown complete"));
+
   return NS_OK;
 }
 
@@ -94,6 +107,10 @@ nsresult FolderDatabase::EnsureConnection() {
   rv = databaseFile->Append(u"panorama.sqlite"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  bool exists;
+  rv = databaseFile->Exists(&exists);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<mozIStorageService> storage =
       do_GetService("@mozilla.org/storage/service;1");
   NS_ENSURE_STATE(storage);
@@ -102,6 +119,20 @@ nsresult FolderDatabase::EnsureConnection() {
                                      mozIStorageService::CONNECTION_DEFAULT,
                                      getter_AddRefs(sConnection));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  if (!exists) {
+    MOZ_LOG(gPanoramaLog, LogLevel::Warning,
+            ("database file does not exist, creating"));
+    sConnection->ExecuteSimpleSQL(
+        "CREATE TABLE folders ( \
+          id INTEGER PRIMARY KEY, \
+          parent INTEGER REFERENCES folders(id), \
+          ordinal INTEGER DEFAULT NULL, \
+          name TEXT, \
+          flags INTEGER DEFAULT 0, \
+          UNIQUE(parent, name) \
+        );"_ns);
+  }
 
   return NS_OK;
 }
@@ -131,6 +162,13 @@ nsresult FolderDatabase::GetStatement(const nsCString& aName,
   return NS_OK;
 }
 
+/**
+ * Initialization functions. Initialization occurs mostly off the main thread
+ * and the Promise returned by `LoadFolders` resolves when it is complete.
+ * Code MUST NOT attempt to access folders before then. Folder notifications
+ * are not emitted during initialization.
+ */
+
 NS_IMETHODIMP
 FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
   ErrorResult result;
@@ -140,6 +178,7 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
   nsresult rv = EnsureConnection();
   NS_ENSURE_SUCCESS(rv, rv);
 
+  MOZ_LOG(gPanoramaLog, LogLevel::Info, ("starting up"));
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
@@ -154,6 +193,7 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
               PROFILER_MARKER_UNTYPED(
                   "FolderDatabase::LoadFolders", OTHER,
                   MarkerOptions(MarkerTiming::IntervalEnd()));
+              MOZ_LOG(gPanoramaLog, LogLevel::Info, ("startup complete"));
 
               promiseHolder.get()->MaybeResolveWithUndefined();
             }));
@@ -162,6 +202,9 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
   return NS_OK;
 }
 
+/**
+ * Reads from the database into `Folder` objects, and creates the hierarchy.
+ */
 nsresult FolderDatabase::InternalLoadFolders() {
   MOZ_ASSERT(!NS_IsMainThread(),
              "loading folders must happen off the main thread");
@@ -235,6 +278,10 @@ nsresult FolderDatabase::InternalLoadFolders() {
 
   return NS_OK;
 }
+
+/**
+ * Lookup functions.
+ */
 
 NS_IMETHODIMP FolderDatabase::GetFolderById(const uint64_t aId,
                                             nsIFolder** aFolder) {

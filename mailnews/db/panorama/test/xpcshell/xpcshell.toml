@@ -1,5 +1,8 @@
 [DEFAULT]
 head = "head.js"
+prefs = [
+  "logging.config.modules=panorama:4",
+]
 generated-files = [
   "db/lookup.sqlite",
   "db/move.sqlite",
