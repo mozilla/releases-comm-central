@@ -2291,10 +2291,19 @@ function my_netdisconnect (e)
                 break;
 
             default:
-                var errClass = getNSSErrorClass(e.disconnectStatus);
+                
+                let nssErrSvc = Cc["@mozilla.org/nss_errors_service;1"]
+                                  .getService(Ci.nsINSSErrorsService);
+                let errClass = 0;
+                // Check if e.disconnectStatus is within the valid range for
+                // NSS Errors.
+                if (e.disconnectStatus >= 8192 && e.disconnectStatus < 20480)
+                {
+                    errClass = nssErrSvc.getErrorClass(e.disconnectStatus);
+                }
                 // Check here if it's a cert error.
                 // The exception adding dialog will explain the reasons.
-                if (errClass == ERROR_CLASS_BAD_CERT)
+                if (errClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT)
                 {
                     var cmd = "ssl-exception";
                     cmd += " " + e.server.hostname + " " + e.server.port;
@@ -2306,10 +2315,8 @@ function my_netdisconnect (e)
 
                 // If it's a protocol error, we can still display a useful message.
                 var statusMsg = e.disconnectStatus;
-                if (errClass == ERROR_CLASS_SSL_PROTOCOL)
+                if (errClass == Ci.nsINSSErrorsService.ERROR_CLASS_SSL_PROTOCOL)
                 {
-                    var nssErrSvc = getService("@mozilla.org/nss_errors_service;1",
-                                               "nsINSSErrorsService");
                     var errMsg = nssErrSvc.getErrorMessage(e.disconnectStatus);
                     errMsg = errMsg.replace(/\.$/, "");
                     statusMsg += " (" + errMsg + ")";

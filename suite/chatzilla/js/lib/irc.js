@@ -1281,13 +1281,21 @@ function serv_disconnect(e)
     if (!this.isConnected)
         return;
 
+    let errorClass = 0;
+    // Check if e.disconnectStatus is within the valid range for NSS Errors.
+    if (e.disconnectStatus >= 8192 && e.disconnectStatus < 20480)
+    {
+        errorClass = Cc["@mozilla.org/nss_errors_service;1"]
+                       .getService(Ci.nsINSSErrorsService)
+                       .getErrorClass(e.disconnectStatus);
+    }
     // Don't reconnect from a certificate error.
-    var certError = (getNSSErrorClass(e.disconnectStatus) == ERROR_CLASS_BAD_CERT);
+    let badCert = (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT);
 
     // Don't reconnect if our connection was aborted.
-    var wasAborted = (e.disconnectStatus == NS_ERROR_ABORT);
-    var dontReconnect = certError || wasAborted;
+    let wasAborted = (e.disconnectStatus == NS_ERROR_ABORT);
 
+    let dontReconnect = badCert || wasAborted;
     if (((this.parent.state == NET_CONNECTING) && !dontReconnect) ||
         /* fell off while connecting, try again */
         (this.parent.primServ == this) && (this.parent.state == NET_ONLINE) &&
