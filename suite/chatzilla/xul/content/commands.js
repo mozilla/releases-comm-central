@@ -4697,8 +4697,8 @@ function cmdFind(e)
 
     // Used from the inputbox, set the search string and find the first
     // occurrence using find-again.
-    const FINDSVC_ID = "@mozilla.org/find/find_service;1";
-    var findService = getService(FINDSVC_ID, "nsIFindService");
+    let findService = Cc["@mozilla.org/find/find_service;1"]
+                        .getService(Ci.nsIFindService);
     // Make sure it searches the entire document, but don't lose the old setting
     var oldWrap = findService.wrapFind;
     findService.wrapFind = true;

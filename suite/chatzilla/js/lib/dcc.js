@@ -32,22 +32,15 @@ function CIRCDCC(parent)
     this._lastPort = null;
 
     try {
-        var dnsComp = Components.classes["@mozilla.org/network/dns-service;1"];
-        this._dnsSvc = dnsComp.getService(Components.interfaces.nsIDNSService);
+        this._dnsSvc = Cc["@mozilla.org/network/dns-service;1"]
+                         .getService(Ci.nsIDNSService);
 
         // Get local hostname.
-        if ("myHostName" in this._dnsSvc) {
-            // Using newer (1.7a+) version with DNS re-write.
-            this.addHost(this._dnsSvc.myHostName);
-        }
-        if ("myIPAddress" in this._dnsSvc) {
-            // Older Mozilla, have to use this method.
-            this.addIP(this._dnsSvc.myIPAddress);
-        }
+        this.addHost(this._dnsSvc.myHostName);
         this.addHost("localhost");
     } catch(ex) {
         // what to do?
-        dd("Error getting local IPs: " + ex);
+        dd("Error getting local hostnames: " + ex);
     }
 
     this._lastID = Math.round(Math.random() * DCC_ID_MAX);
@@ -96,7 +89,7 @@ function dcc_addhost(host, auth)
     };
 
     try {
-        var th = getService("@mozilla.org/thread-manager;1").currentThread;
+        var th = Services.tm.currentThread;
         var dnsRecord = this._dnsSvc.asyncResolve(host, false, listener, th);
     } catch (ex) {
         dd("Error resolving host to IP: " + ex);

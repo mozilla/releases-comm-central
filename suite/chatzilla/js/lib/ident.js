@@ -12,7 +12,8 @@ function IdentServer(parent)
 {
     this.responses = new Array();
     this.listening = false;
-    this.dns = getService("@mozilla.org/network/dns-service;1","nsIDNSService");
+    this.dns = Cc["@mozilla.org/network/dns-service;1"]
+                 .getService(Ci.nsIDNSService);
 
     this.parent = parent;
     this.eventPump = parent.eventPump;

@@ -494,8 +494,8 @@ function getFindData(e)
         function init()
         {
             this._init();
-            const FINDSVC_ID = "@mozilla.org/find/find_service;1";
-            var findService = getService(FINDSVC_ID, "nsIFindService");
+            let findService = Cc["@mozilla.org/find/find_service;1"]
+                                .getService(Ci.nsIFindService);
             this.webBrowserFind.wrapFind = findService.wrapFind;
         };
 
@@ -2121,22 +2121,9 @@ function initIdleAutoAway(timeout)
     if (!timeout)
         return;
 
-    var is = getService("@mozilla.org/widget/idleservice;1", "nsIIdleService");
-    if (!is)
-    {
-        display(MSG_ERR_NO_IDLESERVICE, MT_WARN);
-        client.prefs["autoIdleTime"] = 0;
-        return;
-    }
-
-    try
-    {
-        is.addIdleObserver(client.idleObserver, timeout * 60);
-    }
-    catch (ex)
-    {
-        display(formatException(ex), MT_ERROR);
-    }
+    let idleService = Cc["@mozilla.org/widget/idleservice;1"]
+                        .getService(Ci.nsIIdleService);
+    idleService.addIdleObserver(client.idleObserver, timeout * 60);
 }
 
 function uninitIdleAutoAway(timeout)
@@ -2145,18 +2132,9 @@ function uninitIdleAutoAway(timeout)
     if (!timeout)
         return;
 
-    var is = getService("@mozilla.org/widget/idleservice;1", "nsIIdleService");
-    if (!is)
-        return;
-
-    try
-    {
-        is.removeIdleObserver(client.idleObserver, timeout * 60);
-    }
-    catch (ex)
-    {
-        display(formatException(ex), MT_ERROR);
-    }
+    let idleService = Cc["@mozilla.org/widget/idleservice;1"]
+                        .getService(Ci.nsIIdleService);
+    idleService.removeIdleObserver(client.idleObserver, timeout * 60);
 }
 
 function updateAppMotif(motifURL)
