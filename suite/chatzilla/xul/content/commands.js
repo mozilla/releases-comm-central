@@ -2345,7 +2345,7 @@ function cmdGotoURL(e)
         return;
     }
 
-    var browserWin = getWindowByType("navigator:browser");
+    var browserWin = Services.wm.getMostRecentWindow("navigator:browser");
     var location = browserWin ? browserWin.gBrowser.currentURI.spec : null;
     var action = e.command.name;
     let where = "current";
@@ -3867,7 +3867,7 @@ function cmdDoCommand(e)
     }
     else if (e.cmdName == "cmd_chatzillaPrefs")
     {
-        var prefWin = getWindowByType("irc:chatzilla:config");
+        var prefWin = Services.wm.getMostRecentWindow("irc:chatzilla:config");
         if (!prefWin)
         {
             window.openDialog('chrome://chatzilla/content/config.xul', '',

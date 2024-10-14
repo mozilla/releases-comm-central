@@ -472,21 +472,9 @@ function getCommonPfx (list, lcFn)
 
 }
 
-function getWindowByType (windowType)
-{
-    const MEDIATOR_CONTRACTID =
-        "@mozilla.org/appshell/window-mediator;1";
-    const nsIWindowMediator  = Components.interfaces.nsIWindowMediator;
-
-    var windowManager =
-        Components.classes[MEDIATOR_CONTRACTID].getService(nsIWindowMediator);
-
-    return windowManager.getMostRecentWindow(windowType);
-}
-
 function toOpenWindowByType(inType, url, features)
 {
-    var topWindow = getWindowByType(inType);
+    var topWindow = Services.wm.getMostRecentWindow(inType);
 
     if (typeof features == "undefined")
         features = "chrome,extrachrome,menubar,resizable," +
