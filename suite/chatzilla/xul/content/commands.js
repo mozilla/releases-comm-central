@@ -4174,9 +4174,6 @@ function cmdDCCSend(e)
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
-    const DIRSVC_CID = "@mozilla.org/file/directory_service;1";
-    const nsIProperties = Components.interfaces.nsIProperties;
-
     if (!e.nickname && !e.user)
         return display(MSG_DCC_ERR_NOUSER);
 
@@ -4200,8 +4197,7 @@ function cmdDCCSend(e)
         catch(ex)
         {
             // Ok, try user's home directory.
-            var fl = Components.classes[DIRSVC_CID].getService(nsIProperties);
-            file = fl.get("Home", Components.interfaces.nsIFile);
+            file = Services.dirsvc.get("Home", Ci.nsIFile);
 
             // Another freaking try/catch wrapper.
             try

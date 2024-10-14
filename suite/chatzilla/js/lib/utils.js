@@ -7,8 +7,6 @@
 // Namespaces we happen to need:
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 
-var utils = new Object();
-
 var DEBUG = true;
 var dd, warn, TEST, ASSERT;
 
@@ -693,20 +691,6 @@ function getStackTrace ()
 
     return str;
 
-}
-
-function getSpecialDirectory(name)
-{
-    if (!("directoryService" in utils))
-    {
-        const DS_CTR = "@mozilla.org/file/directory_service;1";
-        const nsIProperties = Components.interfaces.nsIProperties;
-
-        utils.directoryService =
-            Components.classes[DS_CTR].getService(nsIProperties);
-    }
-
-    return utils.directoryService.get(name, Components.interfaces.nsIFile);
 }
 
 function getFileFromURLSpec(url)

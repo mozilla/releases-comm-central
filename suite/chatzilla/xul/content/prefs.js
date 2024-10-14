@@ -19,7 +19,7 @@ function initPrefs()
 
     client.prefs = client.prefManager.prefs;
 
-    var profilePath = getSpecialDirectory("ProfD");
+    let profilePath = Services.dirsvc.get("ProfD", Ci.nsIFile);
     profilePath.append("chatzilla");
 
     client.prefManager.addPref("profilePath", profilePath.path, null, null,
