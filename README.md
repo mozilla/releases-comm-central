@@ -11,7 +11,7 @@ In order to be able to build Thunderbird - you will need the mozilla-central rep
 
 ### mozilla-central vs. comm-central
 
-The mozilla-central repostitory contains the Firefox codebase and all of the platform code. The comm-central repository is added as a subdirectory "comm/" under mozilla-central. This contains the code for Thunderbird.
+The mozilla-central repository contains the Firefox codebase and all of the platform code. The comm-central repository is added as a subdirectory "comm/" under mozilla-central. This contains the code for Thunderbird.
 
 ## Building Thunderbird
 
@@ -94,7 +94,7 @@ or to do it via one command:
 hg pull -u && cd comm && hg pull -u
 ```
 
-The just run the `./mach build` command detailed in the [Building](./#building)instructions above. This will only recompile files that changed, but it may still take a long time.
+The just run the `./mach build` command detailed in the [Building](./#building) instructions above. This will only recompile files that changed, but it may still take a long time.
 
 ## Rebuilding
 
