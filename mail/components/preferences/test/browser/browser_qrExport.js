@@ -8,7 +8,7 @@ const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-let prefsWindow, prefsDocument, tabmail, popAccount;
+let prefsWindow, prefsDocument, tabmail, popAccount, oauthAccount;
 
 add_setup(async function () {
   const imapAccounts = [];
@@ -43,6 +43,21 @@ add_setup(async function () {
   const popOutgoing = MailServices.outgoingServer.createServer("smtp");
   popIdentity.smtpServerKey = popOutgoing.key;
 
+  const oauthServer = MailServices.accounts.createIncomingServer(
+    "oauth@foo.invalid",
+    "foo.invalid",
+    "imap"
+  );
+  oauthServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  const oauthIdentity = MailServices.accounts.createIdentity();
+  oauthIdentity.email = "oauth@foo.invalid";
+  oauthAccount = MailServices.accounts.createAccount();
+  oauthAccount.incomingServer = oauthServer;
+  oauthAccount.addIdentity(oauthIdentity);
+  const oauthOutgoing = MailServices.outgoingServer.createServer("smtp");
+  oauthOutgoing.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  oauthIdentity.smtpServerKey = oauthOutgoing.key;
+
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
   tabmail = document.getElementById("tabmail");
 
@@ -51,6 +66,7 @@ add_setup(async function () {
       MailServices.accounts.removeAccount(imapAccount, false);
     }
     MailServices.accounts.removeAccount(popAccount, false);
+    MailServices.accounts.removeAccount(oauthAccount, false);
   });
 });
 
@@ -80,12 +96,17 @@ add_task(async function test_init() {
 
   Assert.equal(
     availableAccounts.length,
-    5,
+    6,
     "Should show all available accounts"
   );
   Assert.ok(
     prefsDocument.getElementById("qrExportSelectAll").disabled,
     "Select all should initialize to disabled"
+  );
+
+  Assert.ok(
+    prefsDocument.getElementById("qrExportIncludePasswords").checked,
+    "Include passwords should be checked by default"
   );
 
   const labels = new Set();
@@ -156,6 +177,126 @@ add_task(async function test_selectionUpdate() {
   await subtest_selectionState(0, false, true);
   await subtest_selectionState(1, false, false);
   await subtest_selectionState(Infinity, true, false);
+});
+
+add_task(async function test_selectAll() {
+  await subtest_selectionState(0, false, true);
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportSelectAll"),
+    {},
+    prefsWindow
+  );
+
+  const selectedAccounts = prefsDocument.querySelectorAll(
+    "#qrExportAccountsList input:checked"
+  );
+
+  Assert.greater(selectedAccounts.length, 0, "Should have selected accounts");
+
+  const unselectedAccounts = prefsDocument.querySelectorAll(
+    "#qrExportAccountsList input:not(:checked)"
+  );
+  Assert.equal(
+    unselectedAccounts.length,
+    0,
+    "Should have no unselected accounts"
+  );
+
+  Assert.ok(
+    !prefsDocument.getElementById("qrExportStart").disabled,
+    "Should be able to export selected accounts"
+  );
+  Assert.ok(
+    prefsDocument.getElementById("qrExportSelectAll").disabled,
+    "Should not be able to select all accounts"
+  );
+});
+
+add_task(async function test_oauthWarning() {
+  const passwordsSection = prefsDocument.getElementById(
+    "qrExportPasswordsSection"
+  );
+  const passwordInput = prefsDocument.getElementById(
+    "qrExportIncludePasswords"
+  );
+  const passwordOauthHint = prefsDocument.getElementById(
+    "qrExportOauthWarning"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordsSection),
+    "With all accounts selected passwords section should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordOauthHint),
+    "With all accounts selected the oauth hint should be visible"
+  );
+  Assert.ok(
+    passwordInput.checked,
+    "With all accounts selected passwords input should be checked"
+  );
+  Assert.ok(
+    !passwordInput.disabled,
+    "With all accounts selected passwords input should be enabled"
+  );
+
+  await subtest_selectionState(0, false, true);
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordsSection),
+    "With no accounts selected passwords section should be visible"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(passwordOauthHint),
+    "With no accounts selected the oauth hint should be hidden"
+  );
+  Assert.ok(
+    passwordInput.checked,
+    "With no accounts selected passwords input should be checked"
+  );
+  Assert.ok(
+    !passwordInput.disabled,
+    "With no accounts selected passwords input should be enabled"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.querySelector(`input[value="${oauthAccount.key}"]`),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(passwordsSection),
+    "With only an oauth account selected passwords section should be hidden"
+  );
+  Assert.ok(
+    !passwordInput.checked,
+    "With only an oauth account selected passwords input should be unchecked"
+  );
+  Assert.ok(
+    passwordInput.disabled,
+    "With only an oauth account selected passwords input should be disabled"
+  );
+
+  await subtest_selectionState(Infinity, true, false);
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordsSection),
+    "With all accounts selected passwords section should be visible again"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(passwordOauthHint),
+    "With all accounts selected the oauth hint should be visible again"
+  );
+  Assert.ok(
+    passwordInput.checked,
+    "With all accounts selected passwords input should be checked again"
+  );
+  Assert.ok(
+    !passwordInput.disabled,
+    "With all accounts selected passwords input should be enabled again"
+  );
 });
 
 /**

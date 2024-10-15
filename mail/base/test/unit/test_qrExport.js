@@ -285,3 +285,57 @@ add_task(async function test_getQRCode_multipleChunks() {
     MailServices.accounts.removeAccount(account, false);
   }
 });
+
+add_task(async function test_getAccountOAuthUsage() {
+  const passwordAccount = await createMailAccount(
+    "password",
+    "password",
+    "imap"
+  );
+  const incomingOAuthAccount = await createMailAccount(
+    "incomingOauth",
+    "incomingOauth",
+    "imap"
+  );
+  const outgoingOAuthAccount = await createMailAccount(
+    "outgoingOauth",
+    "outgoingOauth",
+    "imap"
+  );
+  const oauthAccount = await createMailAccount("oauth", "oauth", "imap");
+
+  incomingOAuthAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  MailServices.outgoingServer.getServerByKey(
+    outgoingOAuthAccount.defaultIdentity.smtpServerKey
+  ).authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  oauthAccount.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+  MailServices.outgoingServer.getServerByKey(
+    oauthAccount.defaultIdentity.smtpServerKey
+  ).authMethod = Ci.nsMsgAuthMethod.OAuth2;
+
+  Assert.deepEqual(
+    QRExport.getAccountOAuthUsage(passwordAccount),
+    { incoming: false, outgoing: false },
+    "Should not report any OAuth usage for password authenticated account"
+  );
+  Assert.deepEqual(
+    QRExport.getAccountOAuthUsage(incomingOAuthAccount),
+    { incoming: true, outgoing: false },
+    "Should report incoming server to use OAuth"
+  );
+  Assert.deepEqual(
+    QRExport.getAccountOAuthUsage(outgoingOAuthAccount),
+    { incoming: false, outgoing: true },
+    "Should report outgoing server to use OAuth"
+  );
+  Assert.deepEqual(
+    QRExport.getAccountOAuthUsage(oauthAccount),
+    { incoming: true, outgoing: true },
+    "Should report all servers using OAuth"
+  );
+
+  MailServices.accounts.removeAccount(passwordAccount, false);
+  MailServices.accounts.removeAccount(incomingOAuthAccount, false);
+  MailServices.accounts.removeAccount(outgoingOAuthAccount, false);
+  MailServices.accounts.removeAccount(oauthAccount, false);
+});

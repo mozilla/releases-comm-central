@@ -1246,8 +1246,8 @@ calendar-notifications-setting {
   content: var(--icon-lock);
 }
 
-#qrExportSecurityLegend::before {
-  content: var(--icon-lock);
+#qrExportOauthWarning::before {
+  content: var(--icon-warning);
 }
 
 #qrExportSecurityHint::before {

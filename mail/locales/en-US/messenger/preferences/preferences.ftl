@@ -1089,6 +1089,8 @@ qr-export-security-legend = Security
 
 qr-export-include-passwords = Include all accounts passwords
 
+qr-export-oauth-warning = Some of your accounts use an authentication method that may require re-authentication on your mobile device. You may need to enter your passwords again during this process.
+
 qr-export-security-hint = By scanning the following QR codes, your account settings—including your email and password—will be transferred securely. We do not collect, store, or share any of this data during the process. The transfer occurs directly between your devices.
 
 qr-export-security-warning = For your security, please ensure you are in a private setting and only scan QR codes from trusted sources.

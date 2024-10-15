@@ -213,4 +213,21 @@ export const QRExport = {
     const matrix = lazy.default.generate(data, qrOptions);
     return lazy.default.render("svg-uri", matrix);
   },
+
+  /**
+   * Check if an account's exported servers would authenticate with OAuth.
+   *
+   * @param {nsIMsgAccount} account
+   * @returns {{incoming: boolean, outgoing: boolean}} If the incoming or
+   *   outgoing servers use OAuth as authentication method.
+   */
+  getAccountOAuthUsage(account) {
+    return {
+      incoming: account.incomingServer.authMethod === Ci.nsMsgAuthMethod.OAuth2,
+      outgoing:
+        MailServices.outgoingServer.getServerByKey(
+          account.defaultIdentity.smtpServerKey
+        ).authMethod === Ci.nsMsgAuthMethod.OAuth2,
+    };
+  },
 };

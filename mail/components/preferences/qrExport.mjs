@@ -36,6 +36,9 @@ export const qrExportPane = {
         checkbox.value = account.key;
         const incomingServer = account.incomingServer;
         checkbox.insertAdjacentText("afterend", incomingServer.prettyName);
+        const oAuthUsage = lazy.QRExport.getAccountOAuthUsage(account);
+        checkbox.dataset.hasOauth = oAuthUsage.incoming || oAuthUsage.outgoing;
+        checkbox.dataset.oauthOnly = oAuthUsage.incoming && oAuthUsage.outgoing;
         item.querySelector(
           "li"
         ).title = `${incomingServer.type.toUpperCase()}: ${
@@ -153,7 +156,9 @@ export const qrExportPane = {
   },
 
   /**
-   * Update the state of the buttons in the intro form.
+   * Update the state of the buttons in the intro form and adjust the include
+   * passwords section contents to match with the usage of OAuth by the selected
+   * accounts.
    */
   updateIntroState() {
     const selectedAccounts = this.getSelectedAccounts();
@@ -162,6 +167,33 @@ export const qrExportPane = {
     document.getElementById("qrExportSelectAll").disabled =
       document.querySelectorAll("#qrExportAccountsList input:not(:checked)")
         .length === 0;
+
+    const checkedAccountInputs = Array.from(
+      document.querySelectorAll("#qrExportAccountsList input:checked")
+    );
+    const hasOauth = checkedAccountInputs.some(
+      input => input.dataset.hasOauth === "true"
+    );
+    const oauthOnly =
+      checkedAccountInputs.length > 0 &&
+      checkedAccountInputs.every(input => input.dataset.oauthOnly === "true");
+    // Adjust visibility of export passwords section elements according to OAuth
+    // accounts.
+    document.getElementById("qrExportOauthWarning").hidden = !hasOauth;
+    document.getElementById("qrExportPasswordsSection").hidden = oauthOnly;
+    const includePasswordsCheckbox = document.getElementById(
+      "qrExportIncludePasswords"
+    );
+    if (oauthOnly) {
+      includePasswordsCheckbox.dataset.wasChecked ||=
+        includePasswordsCheckbox.checked;
+      includePasswordsCheckbox.checked = false;
+    } else if (includePasswordsCheckbox.dataset.wasChecked) {
+      includePasswordsCheckbox.checked =
+        includePasswordsCheckbox.dataset.wasChecked === "true";
+      delete includePasswordsCheckbox.dataset.wasChecked;
+    }
+    includePasswordsCheckbox.disabled = oauthOnly;
   },
 
   /**
