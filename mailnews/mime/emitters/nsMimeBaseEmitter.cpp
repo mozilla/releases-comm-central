@@ -411,8 +411,9 @@ nsresult nsMimeBaseEmitter::WriteHelper(const nsACString& buf,
     uint64_t avail;
     rv = mInputStream->Available(&avail);
     if (NS_SUCCEEDED(rv) && avail) {
-      mOutListener->OnDataAvailable(mChannel, mInputStream, 0,
-                                    std::min(avail, uint64_t(PR_UINT32_MAX)));
+      rv = mOutListener->OnDataAvailable(
+          mChannel, mInputStream, 0, std::min(avail, uint64_t(PR_UINT32_MAX)));
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // try writing again...
       rv = mOutStream->Write(buf.BeginReading(), buf.Length(), countWritten);
@@ -936,13 +937,13 @@ nsMimeBaseEmitter::Complete() {
     mozilla::DebugOnly<nsresult> rv2 = mInputStream->Available(&bytesInStream);
     NS_ASSERTION(NS_SUCCEEDED(rv2), "Available failed");
     if (bytesInStream) {
-      mOutListener->OnDataAvailable(
+      rv = mOutListener->OnDataAvailable(
           mChannel, mInputStream, 0,
           std::min(bytesInStream, uint64_t(PR_UINT32_MAX)));
     }
   }
 
-  return NS_OK;
+  return rv;
 }
 
 //

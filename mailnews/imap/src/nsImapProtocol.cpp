@@ -3704,8 +3704,9 @@ void nsImapProtocol::PostLineDownLoadEvent(const char* line,
         NS_ASSERTION(count == byteCount,
                      "IMAP channel pipe couldn't buffer entire write");
         if (NS_SUCCEEDED(rv)) {
-          m_channelListener->OnDataAvailable(m_mockChannel,
-                                             m_channelInputStream, 0, count);
+          rv = m_channelListener->OnDataAvailable(
+              m_mockChannel, m_channelInputStream, 0, count);
+          NS_ENSURE_SUCCESS_VOID(rv);
         }
         // else some sort of explosion?
       }
