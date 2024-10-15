@@ -296,6 +296,9 @@ add_task(async function test_sideloading() {
   info("Test telemetry events collected for addon1");
 
   const baseEventAddon1 = createBaseEventAddon(1);
+
+  const blocklist_state = `${Ci.nsIBlocklistService.STATE_NOT_BLOCKED}`;
+
   const collectedEventsAddon1 = getEventsForAddonId(
     amEvents,
     baseEventAddon1.value
@@ -304,9 +307,13 @@ add_task(async function test_sideloading() {
     {
       ...baseEventAddon1,
       method: "sideload_prompt",
-      extra: { ...expectedExtra, num_strings: "2" },
+      extra: { ...expectedExtra, num_strings: "2", blocklist_state },
     },
-    { ...baseEventAddon1, method: "uninstall" },
+    {
+      ...baseEventAddon1,
+      method: "uninstall",
+      extra: { ...expectedExtra, blocklist_state },
+    },
   ];
 
   let i = 0;
@@ -333,10 +340,18 @@ add_task(async function test_sideloading() {
     {
       ...baseEventAddon2,
       method: "sideload_prompt",
-      extra: { ...expectedExtra, num_strings: "1" },
+      extra: { ...expectedExtra, num_strings: "1", blocklist_state },
     },
-    { ...baseEventAddon2, method: "enable" },
-    { ...baseEventAddon2, method: "uninstall" },
+    {
+      ...baseEventAddon2,
+      method: "enable",
+      extra: { ...expectedExtra, blocklist_state },
+    },
+    {
+      ...baseEventAddon2,
+      method: "uninstall",
+      extra: { ...expectedExtra, blocklist_state },
+    },
   ];
 
   i = 0;
