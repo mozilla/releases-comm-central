@@ -6,6 +6,7 @@
 #include "FolderCompactor.h"
 
 #include "nsCOMPtr.h"
+#include "nsIAppStartup.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIFile.h"
 #include "nsIMsgDatabase.h"
@@ -16,6 +17,8 @@
 #include "nsIMsgPluggableStore.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsIMsgWindow.h"
+#include "nsIObserver.h"
+#include "nsIObserverService.h"
 #include "nsIStringBundle.h"
 #include "nsIUrlListener.h"
 #include "nsMsgMessageFlags.h"
@@ -26,6 +29,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefCounted.h"
+#include "mozilla/Services.h"
 #include "mozilla/ScopeExit.h"
 
 mozilla::LazyLogModule gCompactLog("compact");
@@ -69,6 +73,19 @@ class FolderCompactor : public nsIStoreCompactListener {
   nsresult BeginCompacting(std::function<void(int)> progressFn,
                            std::function<void(nsresult, int64_t)> completionFn);
 
+  class ShutdownObserver final : public nsIObserver {
+   public:
+    ShutdownObserver();
+    NS_DECL_ISUPPORTS
+    NS_DECL_NSIOBSERVER
+    static bool IsShuttingDown();
+
+   protected:
+    ~ShutdownObserver() {}
+    static RefPtr<FolderCompactor::ShutdownObserver> sInstance;
+    bool mIsShuttingDown;
+  };
+
  private:
   virtual ~FolderCompactor();
 
@@ -95,7 +112,7 @@ class FolderCompactor : public nsIStoreCompactListener {
   uint32_t mNumKept{0};
 };
 
-NS_IMPL_ISUPPORTS(FolderCompactor, nsIStoreCompactListener);
+NS_IMPL_ISUPPORTS(FolderCompactor, nsIStoreCompactListener)
 
 FolderCompactor::FolderCompactor(nsIMsgFolder* folder) : mFolder(folder) {}
 
@@ -350,6 +367,10 @@ static nsresult BuildKeepMap(nsIMsgDatabase* db,
 
 // nsIStoreCompactListener callback invoked when the compaction starts.
 NS_IMETHODIMP FolderCompactor::OnCompactionBegin() {
+  if (ShutdownObserver::IsShuttingDown()) {
+    return NS_ERROR_ABORT;
+  }
+
   MOZ_LOG(gCompactLog, LogLevel::Verbose, ("OnCompactionBegin()"));
   return NS_OK;
 }
@@ -361,6 +382,10 @@ NS_IMETHODIMP FolderCompactor::OnRetentionQuery(nsACString const& storeToken,
                                                 uint32_t* msgFlags,
                                                 nsACString& msgKeywords,
                                                 bool* keep) {
+  if (ShutdownObserver::IsShuttingDown()) {
+    return NS_ERROR_ABORT;
+  }
+
   MOZ_ASSERT(msgFlags);
   MOZ_ASSERT(keep);
   auto got = mMsgsToKeep.lookup(PromiseFlatCString(storeToken));
@@ -408,6 +433,10 @@ NS_IMETHODIMP FolderCompactor::OnRetentionQuery(nsACString const& storeToken,
 NS_IMETHODIMP FolderCompactor::OnMessageRetained(nsACString const& oldToken,
                                                  nsACString const& newToken,
                                                  int64_t newSize) {
+  if (ShutdownObserver::IsShuttingDown()) {
+    return NS_ERROR_ABORT;
+  }
+
   MOZ_LOG(gCompactLog, LogLevel::Debug,
           ("OnMessageRetained(oldToken='%s' newToken='%s' newSize=%" PRId64 ")",
            PromiseFlatCString(oldToken).get(),
@@ -524,6 +553,45 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
   return NS_OK;
 }
 
+NS_IMPL_ISUPPORTS(FolderCompactor::ShutdownObserver, nsIObserver)
+
+RefPtr<FolderCompactor::ShutdownObserver>
+    FolderCompactor::ShutdownObserver::sInstance;
+
+FolderCompactor::ShutdownObserver::ShutdownObserver() {
+  nsCOMPtr<nsIAppStartup> appStartup(
+      mozilla::components::AppStartup::Service());
+  appStartup->GetShuttingDown(&mIsShuttingDown);
+
+  if (!mIsShuttingDown) {
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    obs->AddObserver(this, "profile-before-change", false);
+    obs->AddObserver(this, "test-profile-before-change", false);
+  }
+}
+
+NS_IMETHODIMP
+FolderCompactor::ShutdownObserver::Observe(nsISupports* aSubject,
+                                           const char* aTopic,
+                                           const char16_t* aData) {
+  if (!strcmp(aTopic, "profile-before-change") ||
+      !strcmp(aTopic, "test-profile-before-change")) {
+    mIsShuttingDown = true;
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    obs->RemoveObserver(this, "profile-before-change");
+    obs->RemoveObserver(this, "test-profile-before-change");
+  }
+  return NS_OK;
+}
+
+// static
+bool FolderCompactor::ShutdownObserver::IsShuttingDown() {
+  if (!sInstance) {
+    sInstance = new FolderCompactor::ShutdownObserver();
+  }
+  return sInstance->mIsShuttingDown;
+}
+
 /**
  * BatchCompactor - manages compacting a bunch of folders in sequence.
  *
@@ -628,12 +696,14 @@ void BatchCompactor::OnDone(nsresult status, int64_t bytesRecovered) {
     MOZ_LOG(gCompactLog, LogLevel::Error,
             ("Failed to compact folder='%s', status=0x%" PRIx32 "",
              folder->URI().get(), (uint32_t)status));
-    if (status == NS_ERROR_FILE_NO_DEVICE_SPACE) {
-      folder->ThrowAlertMsg("compactFolderInsufficientSpace", mWindow);
-    } else if (status == NS_MSG_FOLDER_BUSY) {
-      folder->ThrowAlertMsg("compactFolderDeniedLock", mWindow);
-    } else {
-      folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+    if (!FolderCompactor::ShutdownObserver::IsShuttingDown()) {
+      if (status == NS_ERROR_FILE_NO_DEVICE_SPACE) {
+        folder->ThrowAlertMsg("compactFolderInsufficientSpace", mWindow);
+      } else if (status == NS_MSG_FOLDER_BUSY) {
+        folder->ThrowAlertMsg("compactFolderDeniedLock", mWindow);
+      } else {
+        folder->ThrowAlertMsg("compactFolderWriteFailed", mWindow);
+      }
     }
   }
 

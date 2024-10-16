@@ -195,3 +195,31 @@ add_task(async function testCompactAllFolders() {
   await verifyMboxSize(gFolder2, expectedFolder2Size);
   await verifyMboxSize(gFolder3, expectedFolder3Size);
 });
+
+add_task(async function testAbortCompactingFolder() {
+  showMessages(gFolder2, "before deleting 1 message");
+
+  // Remember the size of the mbox before compact.
+  const unchangedFolderSize = calculateExpectedMboxSize(gFolder2);
+
+  // Delete a message.
+  const messageToDelete = gFolder2.messages.getNext();
+  await deleteMessages(gFolder2, [messageToDelete]);
+  showMessages(gFolder2, "after deleting 1 message");
+
+  Assert.greater(gFolder2.expungedBytes, 0, "folder2 should need compaction");
+
+  const listener = new PromiseTestUtils.PromiseUrlListener();
+  gFolder2.compact(listener, null);
+
+  // Shut down (or pretend to)! This can happen after starting compact because
+  // compact is event driven and we haven't released the event loop yet.
+  Services.obs.notifyObservers(null, "test-profile-before-change");
+  await Assert.rejects(
+    listener.promise,
+    /2147500036/,
+    "compact should exit with NS_ERROR_ABORT"
+  );
+
+  await verifyMboxSize(gFolder2, unchangedFolderSize);
+});
