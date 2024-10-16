@@ -6,7 +6,7 @@
 
 // This is loaded into chrome windows with the subscript loader. Wrap in
 // a block to prevent accidentally leaking globals onto `window`.
-(() => {
+{
   // If toolkit customElements weren't already loaded, do it now.
   if (!window.MozXULElement) {
     Services.scriptloader.loadSubScript(
@@ -18,18 +18,29 @@
   const isDummyDocument =
     document.documentURI == "chrome://extensions/content/dummy.xhtml";
   if (!isDummyDocument) {
-    for (const script of [
-      "chrome://chat/content/conversation-browser.js",
-      "chrome://messenger/content/gloda-autocomplete-input.js",
-      "chrome://chat/content/chat-tooltip.js",
-      "chrome://messenger/content/mailWidgets.js",
-      "chrome://messenger/content/statuspanel.js",
-      "chrome://messenger/content/foldersummary.js",
-      "chrome://messenger/content/addressbook/menulist-addrbooks.js",
-      "chrome://messenger/content/folder-menupopup.js",
-      "chrome://messenger/content/toolbarbutton-menu-button.js",
+    for (const [tag, script] of [
+      ["", "chrome://chat/content/conversation-browser.js"],
+      ["", "chrome://messenger/content/gloda-autocomplete-input.js"],
+      ["", "chrome://chat/content/chat-tooltip.js"],
+      ["", "chrome://messenger/content/mailWidgets.js"],
+      ["", "chrome://messenger/content/statuspanel.js"],
+      ["folder-summary", "chrome://messenger/content/foldersummary.js"],
+      [
+        "menulist-addrbooks",
+        "chrome://messenger/content/addressbook/menulist-addrbooks.js",
+      ],
+      ["", "chrome://messenger/content/folder-menupopup.js"],
+      ["", "chrome://messenger/content/toolbarbutton-menu-button.js"],
     ]) {
-      Services.scriptloader.loadSubScript(script, window);
+      // Immediately load scripts that either define multiple custom elements or
+      // are always used in most doucments this is loaded in.
+      if (!tag) {
+        Services.scriptloader.loadSubScript(script, window);
+        continue;
+      }
+      customElements.setElementCreationCallback(tag, () => {
+        Services.scriptloader.loadSubScript(script, window);
+      });
     }
   }
-})();
+}
