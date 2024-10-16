@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.21.3"
 cstr = "0.2"
-ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "1dbda0fa9662170519e43ef217639c6fe100b6a6", version = "0.1.0" }
+ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "c080aad0b37b6f4f0ba74165f4605e70f5740641", version = "0.1.0" }
 fxhash = "0.2.1"
 log = "0.4.21"
 moz_http = { version = "0.1.0", path = "../moz_http" }

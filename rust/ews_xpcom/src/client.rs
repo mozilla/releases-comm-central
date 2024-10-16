@@ -862,7 +862,7 @@ impl XpComEwsClient {
             // they've been sent, because the internal MessageSend module
             // already takes care of it, and will include additional headers we
             // don't send to EWS (such as Bcc).
-            message_disposition: Some(MessageDisposition::SendOnly),
+            message_disposition: MessageDisposition::SendOnly,
             saved_item_folder_id: None,
         };
 

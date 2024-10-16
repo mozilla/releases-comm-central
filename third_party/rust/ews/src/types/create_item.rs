@@ -6,8 +6,8 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, ArrayOfRecipients, BaseFolderId, Items, MimeContent,
-    Operation, OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    types::sealed::EnvelopeBodyContents, ArrayOfRecipients, BaseFolderId, ExtendedFieldURI, Items,
+    MimeContent, Operation, OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
 /// The action an Exchange server will take upon creating a `Message` item.
@@ -35,7 +35,7 @@ pub struct CreateItem {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem#messagedisposition-attribute>
     #[xml_struct(attribute)]
-    pub message_disposition: Option<MessageDisposition>,
+    pub message_disposition: MessageDisposition,
 
     /// The folder in which to store an item once it has been created.
     ///
@@ -84,16 +84,36 @@ pub struct Message {
     /// The MIME content of the item.
     #[xml_struct(ns_prefix = "t")]
     pub mime_content: Option<MimeContent>,
+
     // Whether to request a delivery receipt.
     #[xml_struct(ns_prefix = "t")]
     pub is_delivery_receipt_requested: Option<bool>,
+
     // The message ID for the message, semantically identical to the Message-ID
     // header.
     #[xml_struct(ns_prefix = "t")]
     pub internet_message_id: Option<String>,
+
     // Recipients to include as Bcc, who won't be included in the MIME content.
     #[xml_struct(ns_prefix = "t")]
     pub bcc_recipients: Option<ArrayOfRecipients>,
+
+    // Extended MAPI properties to set on the message.
+    #[xml_struct(ns_prefix = "t")]
+    pub extended_property: Option<Vec<ExtendedProperty>>,
+}
+
+/// An extended MAPI property to set on the message.
+///
+/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedproperty>
+#[allow(non_snake_case)]
+#[derive(Debug, XmlSerialize)]
+pub struct ExtendedProperty {
+    #[xml_struct(ns_prefix = "t")]
+    pub extended_field_URI: ExtendedFieldURI,
+
+    #[xml_struct(ns_prefix = "t")]
+    pub value: String,
 }
 
 impl Operation for CreateItem {
