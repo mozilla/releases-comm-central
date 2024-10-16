@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CustomElementUtils test</title>
+    <script type="module" src="existing-element.mjs"></script>
+    <script type="application/javascript">
+      const { defineLazyCustomElement } = ChromeUtils.importESModule(
+        "chrome://messenger/content/CustomElementUtils.mjs",
+        { global: "current" }
+      );
+
+      /**
+       * Call defineLazyCustomElement in the scope of this page.
+       *
+       * @param {string} tag - Name of the tag of the custom element.
+       * @param {string} uri - URI of the module that defines the custom element.
+       * @returns {Promise} Return value from defineLazyCustomElement.
+       */
+      window.callDefineElement = (tag, uri) => {
+        return defineLazyCustomElement(tag, uri);
+      };
+    </script>
+  </head>
+  <body></body>
+</html>
