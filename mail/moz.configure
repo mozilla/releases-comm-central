@@ -78,6 +78,7 @@ set_config(
         "comm/mail/components/addrbook/metrics.yaml",
         "comm/mail/components/cloudfile/metrics.yaml",
         "comm/mail/components/compose/metrics.yaml",
+        "comm/mail/components/inappnotifications/metrics.yaml",
         "comm/calendar/metrics.yaml",
     ],
 )

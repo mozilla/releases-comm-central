@@ -63,6 +63,13 @@ export class NotificationManager extends EventTarget {
    */
   #_currentNotification = null;
 
+  /**
+   * Timestamp when the current notification was selected.
+   *
+   * @type {number}
+   */
+  #notificationSelectedTimestamp = 0;
+
   get #currentNotification() {
     return this.#_currentNotification;
   }
@@ -73,12 +80,16 @@ export class NotificationManager extends EventTarget {
     }
     this.#_currentNotification = notification;
     if (notification) {
+      this.#notificationSelectedTimestamp = Date.now();
       if (NotificationManager.#isNotificationWithUI(notification)) {
         this.dispatchEvent(
           new CustomEvent(NotificationManager.NEW_NOTIFICATION_EVENT, {
             detail: notification,
           })
         );
+        Glean.inappnotifications.shown.record({
+          notification_id: notification.id,
+        });
       } else if (notification.URL) {
         this.executeNotificationCTA(notification.id);
       }
@@ -100,6 +111,16 @@ export class NotificationManager extends EventTarget {
   #idleCallback;
 
   /**
+   * @returns {number} Amount of seconds the notification was selected this
+   *   session.
+   */
+  #getActiveNotificationDuration() {
+    return Math.floor(
+      (Date.now() - this.#notificationSelectedTimestamp) / 1000
+    );
+  }
+
+  /**
    * Called when the user clicks on the call to action of a notification.
    *
    * @param {string} notificationId - ID of the notification.
@@ -117,6 +138,10 @@ export class NotificationManager extends EventTarget {
       })
     );
     lazy.openLinkExternally(this.#currentNotification.URL);
+    Glean.inappnotifications.interaction.record({
+      notification_id: notificationId,
+      active_this_session: this.#getActiveNotificationDuration(),
+    });
     this.#currentNotification = null;
     this.#pickSoon();
   }
@@ -138,6 +163,10 @@ export class NotificationManager extends EventTarget {
         detail: notificationId,
       })
     );
+    Glean.inappnotifications.closed.record({
+      notification_id: notificationId,
+      active_this_session: this.#getActiveNotificationDuration(),
+    });
     this.#currentNotification = null;
     this.#pickSoon();
   }
@@ -179,6 +208,12 @@ export class NotificationManager extends EventTarget {
       this.#timer = null;
     }
     if (!firstCandidate) {
+      if (this.#currentNotification) {
+        Glean.inappnotifications.dismissed.record({
+          notification_id: this.#currentNotification.id,
+          active_this_session: this.#getActiveNotificationDuration(),
+        });
+      }
       this.#currentNotification = null;
       return;
     }
@@ -194,6 +229,10 @@ export class NotificationManager extends EventTarget {
    * Callback when the current notification expired.
    */
   #notificationExpired = () => {
+    Glean.inappnotifications.dismissed.record({
+      notification_id: this.#currentNotification.id,
+      active_this_session: this.#getActiveNotificationDuration(),
+    });
     this.#timer = null;
     this.#currentNotification = null;
     this.dispatchEvent(

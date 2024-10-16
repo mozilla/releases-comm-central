@@ -12,4 +12,5 @@ support-files = [
 ["test_in_app_notifications.js"]
 ["test_notification_filter.js"]
 ["test_notification_manager.js"]
+["test_notification_manager_telemetry.js"]
 ["test_notification_updater.js"]

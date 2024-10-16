@@ -1,0 +1,90 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Adding a new metric? We have docs for that!
+# https://firefox-source-docs.mozilla.org/toolkit/components/glean/user/new_definitions_file.html
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+$tags:
+  - 'Thunderbird :: General'
+
+inappnotifications:
+  shown:
+    type: event
+    description: >
+      Notification is selected to be shown.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      notification_id:
+        description: ID of the notification
+        type: string
+  interaction:
+    type: event
+    description: >
+      Main interaction button of a notification is clicked.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      notification_id:
+        description: ID of the notification
+        type: string
+      active_this_session:
+        description: Amount of seconds this notification was active in this session.
+        type: quantity
+  closed:
+    type: event
+    description: >
+      Close button of a notification is clicked.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+    data_sensitivity:
+      - interaction
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      notification_id:
+        description: ID of the notification
+        type: string
+      active_this_session:
+        description: Amount of seconds this notification was active in this session.
+        type: quantity
+  dismissed:
+    type: event
+    description: >
+      Notification is no longer shown without any user interaction.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    extra_keys:
+      notification_id:
+        description: ID of the notification
+        type: string
+      active_this_session:
+        description: Amount of seconds this notification was active in this session.
+        type: quantity
