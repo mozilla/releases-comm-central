@@ -18,7 +18,7 @@ inappnotifications:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c4
     data_sensitivity:
       - technical
     notification_emails:
@@ -35,7 +35,7 @@ inappnotifications:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c4
     data_sensitivity:
       - interaction
     notification_emails:
@@ -55,7 +55,7 @@ inappnotifications:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c4
     data_sensitivity:
       - interaction
     notification_emails:
@@ -75,7 +75,7 @@ inappnotifications:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1919278#c4
     data_sensitivity:
       - technical
     notification_emails:
