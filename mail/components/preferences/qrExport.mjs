@@ -2,10 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import "chrome://messenger/content/preferences/qr-code-wizard.mjs"; // eslint-disable-line import/no-unassigned-import
+import { defineLazyCustomElement } from "chrome://messenger/content/CustomElementUtils.mjs";
 
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+
+defineLazyCustomElement(
+  "qr-code-wizard",
+  "chrome://messenger/content/preferences/qr-code-wizard.mjs"
 );
 
 const lazy = {};
