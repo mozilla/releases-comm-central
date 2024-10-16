@@ -13,6 +13,14 @@
   margin-bottom: 1px;
 }
 
+tree > treechildren::-moz-tree-cell-text(selected) {
+  color: inherit;
+}
+
+tree > treechildren::-moz-tree-cell-text(selected, focus) {
+  color: var(--selected-item-text-color);
+}
+
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress) {
   color: green !important;
 }

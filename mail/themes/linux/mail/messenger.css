@@ -8,18 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
-/* Special rules for dark system theme and default TB theme */
-
-:root[lwt-tree-brighttext]:not([lwt-tree]) {
-  --sidebar-background-color: var(--color-gray-80);
-  --sidebar-text-color: var(--color-gray-10);
-
-  & treechildren::-moz-tree-row(current, focus) {
-    --sidebar-highlight-background-color: var(--selected-item-color);
-    --sidebar-highlight-text-color: var(--selected-item-text-color);
-  }
-}
-
 /* Override toolkit */
 :root[lwtheme] {
   toolbar {
@@ -332,9 +320,6 @@ button[is="toolbarbutton-menu-button"] > .button-box > button {
 /* message column icons */
 
 .treecol-sortdirection {
-  appearance: none;
-  -moz-context-properties: fill;
-  fill: currentColor;
 
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
@@ -349,14 +334,6 @@ button[is="toolbarbutton-menu-button"] > .button-box > button {
   & treecol:not([hideheader="true"]),
   & .tree-columnpicker-button:not([hideheader="true"]) {
     padding-inline: 7px 6px;
-  }
-
-  & treechildren::-moz-tree-row(odd) {
-    background-color: transparent;
-  }
-
-  & treechildren::-moz-tree-row(hover) {
-    background-color: hsla(0, 0%, 50%, 0.15);
   }
 }
 

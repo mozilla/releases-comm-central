@@ -258,9 +258,6 @@ treechildren::-moz-tree-line(selected, focus) {
 }
 
 .treecol-sortdirection {
-  appearance: none;
-  -moz-context-properties: fill;
-  fill: currentColor;
 
   treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
@@ -268,16 +265,6 @@ treechildren::-moz-tree-line(selected, focus) {
 
   treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
     list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-  }
-}
-
-:root[lwt-tree] {
-  & treechildren::-moz-tree-row(odd) {
-    background-color: transparent;
-  }
-
-  & treechildren::-moz-tree-row(odd, hover) {
-    background-color: hsla(0, 0%, 50%, 0.15);
   }
 }
 

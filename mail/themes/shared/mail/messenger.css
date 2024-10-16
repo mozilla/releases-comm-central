@@ -120,7 +120,7 @@ hr {
   stroke: currentColor;
 }
 
-treechildren::-moz-tree-row(selected, current, focus) {
+treechildren::-moz-tree-row(current, focus) {
   outline: 1px solid color-mix(in srgb, var(--selected-item-color), black 10%);
   outline-offset: -1px;
 }
@@ -131,7 +131,11 @@ tree {
   }
 
   & > treechildren::-moz-tree-row(selected) {
-    background-color: -moz-cellhighlight;
+    background-color: hsla(0, 0%, 50%, 0.3);
+  }
+
+  & > treechildren::-moz-tree-image(selected) {
+    color: inherit;
   }
 
   & > treechildren::-moz-tree-row(selected, focus) {
@@ -164,16 +168,8 @@ treechildren::-moz-tree-twisty(selected, focus) {
     color: var(--sidebar-text-color);
   }
 
-  & #threadTree treechildren::-moz-tree-row(untagged, selected),
-  &:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
-  & tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
-    border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
-    background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
-    outline: none;
-  }
-
   & treechildren::-moz-tree-row(current, focus) {
-    border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
+    border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, 0.6));
   }
 
   & #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
@@ -217,25 +213,13 @@ treechildren::-moz-tree-twisty(selected, focus) {
 /* Dark theme adaptions */
 
 :root[lwt-tree-brighttext] {
-  & #threadTree treechildren::-moz-tree-row(untagged, selected),
-  &:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
-  & tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
-    border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-    background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-  }
-
   & treechildren::-moz-tree-row(current, focus) {
-    border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
+    border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, 0.3));
   }
 
   & treechildren::-moz-tree-twisty {
     color: #d4d4d4;
   }
-}
-
-:root[lwtheme] tree:not(:focus)
-  treechildren::-moz-tree-row(selected) {
-  --sidebar-highlight-background-color: hsla(0, 0%, 50%, 0.2);
 }
 
 tree > treechildren::-moz-tree-row(dropOn) {
@@ -290,11 +274,6 @@ tree > treechildren::-moz-tree-image(primary, dropOn) {
       background-color: rgba(249, 249, 250, 0.2);
     }
   }
-}
-
-.treecol-sortdirection {
-  -moz-context-properties: stroke;
-  stroke: currentColor;
 }
 
 /* toolbar */

@@ -80,6 +80,14 @@ radio[value="and"] {
   min-height: 50px;
 }
 
+#threadTree:not(:focus) > treechildren::-moz-tree-cell-text(untagged, selected) {
+  color: inherit;
+}
+
+#threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus) {
+  color: var(--selected-item-text-color);
+}
+
 /* ::::: thread decoration ::::: */
 
 treechildren::-moz-tree-cell-text(read) {

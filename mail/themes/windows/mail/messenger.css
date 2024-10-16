@@ -99,6 +99,17 @@ menulist.folderMenuItem menu:not(.folderMenuItem) {
   padding-bottom: 2px;
 }
 
+.treecol-sortdirection {
+
+  treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  }
+
+  treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  }
+}
+
 treechildren::-moz-tree-row(multicol, odd) {
   background-color: transparent;
 }
@@ -107,106 +118,66 @@ treechildren::-moz-tree-cell-text {
   padding-inline: 2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  /* Override the toolkit color. */
-  :root[lwtheme] {
-    & tree > treechildren::-moz-tree-row(selected) {
-      background-color:  rgba(249, 249, 250, .1);
-    }
-
-    & tree > treechildren::-moz-tree-row(selected, focus) {
-      background-color: var(--dark-lwt-highlight-color);
-    }
-
-    & treechildren::-moz-tree-twisty(selected),
-    & tree:not(:focus) treechildren::-moz-tree-image(selected),
-    & #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
-    & tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
-      color: FieldText;
-    }
-
-    & tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
-    & #threadTree treechildren::-moz-tree-image(untagged, selected, focus) {
-      color: FieldText;
-      fill: color-mix(in srgb, currentColor 20%, transparent);
-      stroke: currentColor;
-    }
-
-    & #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
-    & tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
-      color: FieldText;
-      fill: currentColor;
-      stroke: currentColor;
-    }
-
-    & tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
-    & #threadTree treechildren::-moz-tree-twisty(untagged, selected) {
-      fill: FieldText !important;
-    }
-
-    & treechildren::-moz-tree-image(folderNameCol, selected, focus) {
-      fill: color-mix(in srgb, currentColor 20%, transparent) !important;
-      stroke: currentColor;
-    }
-  }
-}
-
 @media (prefers-contrast) {
-  #threadTree > treechildren::-moz-tree-row(tagged, selected),
-  #threadTree > treechildren::-moz-tree-row(untagged, selected),
-  tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
-    border-color: SelectedItem;
-    background-color: transparent;
-  }
+  :root:not([lwtheme]) {
+    #threadTree > treechildren::-moz-tree-row(tagged, selected),
+    #threadTree > treechildren::-moz-tree-row(untagged, selected),
+    tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
+      border-color: SelectedItem;
+      background-color: transparent;
+    }
 
-  tree > treechildren::-moz-tree-row(hover) {
-    border-color: SelectedItemText !important;
-    border-style: solid;
-    background-color: transparent;
-  }
+    tree > treechildren::-moz-tree-row(hover) {
+      border-color: SelectedItemText !important;
+      border-style: solid;
+      background-color: transparent;
+    }
 
-  #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
-  tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
-    color: WindowText;
-  }
+    #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
+    tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
+      color: WindowText;
+    }
 
-  #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),
-  tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus) {
-    border-color: SelectedItemText;
-    background-color: SelectedItem;
-  }
+    #threadTree > treechildren::-moz-tree-row(untagged, selected, focus),
+    tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus) {
+      background-color: SelectedItem;
+    }
 
-  tree > treechildren::-moz-tree-twisty {
-    color: WindowText;
-  }
+    treechildren::-moz-tree-row(current, focus) {
+      outline-width: 2px;
+      outline-offset: -2px;
+    }
 
-  #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
-  tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
-  #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
-  tree:not(#threadTree) > treechildren::-moz-tree-image(selected, focus),
-  #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
-  tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
-    color: SelectedItemText;
-    fill: currentColor;
-  }
+    treechildren::-moz-tree-row(selected, current, focus) {
+      outline-color: SelectedItemText;
+    }
 
-  treechildren::-moz-tree-cell-text {
-    padding-inline-start: 4px !important;
-  }
+    tree > treechildren::-moz-tree-twisty {
+      color: WindowText;
+    }
 
-  .autocomplete-richlistitem:hover {
-    color: SelectedItemText;
+    #threadTree > treechildren::-moz-tree-twisty(untagged, selected, focus),
+    tree:not(#threadTree) > treechildren::-moz-tree-twisty(selected, focus),
+    #threadTree > treechildren::-moz-tree-image(untagged, selected, focus),
+    tree:not(#threadTree) > treechildren::-moz-tree-image(selected, focus),
+    #threadTree > treechildren::-moz-tree-cell-text(untagged, selected, focus),
+    tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected, focus) {
+      color: SelectedItemText;
+      fill: currentColor;
+    }
+
+    treechildren::-moz-tree-cell-text {
+      padding-inline-start: 4px !important;
+    }
+
+    .autocomplete-richlistitem:hover {
+      color: SelectedItemText;
+    }
   }
 }
 
 treechildren::-moz-tree-indentation {
   width: 12px;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-row(hover) {
-  background-color: hsla(0,0%,50%,.15);
-  border-color: transparent;
-  background-image: none;
 }
 
 menulist {
