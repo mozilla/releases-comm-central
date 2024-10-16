@@ -168,6 +168,8 @@ nsresult FolderCompactor::BeginCompacting(
   // We don't really have a proper transaction system in the DB, so
   // for now let's just take a copy of the DB file before we start
   // so we can restore it if anything goes wrong.
+  rv = mDB->Commit(nsMsgDBCommitType::kLargeCommit);
+  NS_ENSURE_SUCCESS(rv, rv);
   rv = mFolder->GetSummaryFile(getter_AddRefs(mDBFile));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = BackupFile(mDBFile, getter_AddRefs(mBackupDBFile));
