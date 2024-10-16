@@ -144,3 +144,64 @@ customElements.define("my-element", MyElement);
   <button class="button" data-l10n-id="my-element-button"></button>
 </template>
 ```
+
+## Loading Custom Elements
+
+If the template of a custom element relies on another custom element, we will
+generally directly import that other custom element at the top of the module
+with a synchronous import statement:
+
+```js
+import "chrome://messenger/content/other-element.mjs"; // eslint-disable-line import/no-unassigned-import
+```
+
+If we're dynamically instantiating a custom element, if we can control it only
+happening once consider either using an `import()` call, `ChromeUtils.importESModule` or
+`ChromeUtils.defineESModuleGetters()` to only load the module when used:
+
+```js
+async function createElementWithImport() {
+  if (hasElement) {
+    return;
+  }
+  await import("chrome://messenger/content/other-element.mjs");
+  document.createElement("other-element");
+}
+
+function createElementSynchronously() {
+  if (hasElement) {
+    return;
+  }
+  ChromeUtils.importESModule(
+    "chrome://messenger/content/other-element.mjs",
+    { global: "current" }
+  );
+  document.createElement("other-element");
+}
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(
+  lazy,
+  { OtherElement: "chrome://messenger/content/other-element.mjs" },
+  { global: "current" }
+);
+
+function createLazyConstructedElement() {
+  new lazy.OtherElement();
+}
+```
+
+Yet another option is to use `defineLazyCustomElement` from
+`chrome://messenger/content/CustomElementUtils.mjs`. It is useful in situations
+where the previous options are hard to use.
+
+```js
+defineLazyCustomElement(
+  "other-element",
+  "chrome://messenger/content/other-element.mjs"
+);
+
+function createLazyElement() {
+  document.createElement("other-element");
+}
+```
