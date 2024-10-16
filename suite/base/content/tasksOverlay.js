@@ -42,9 +42,12 @@ function toDataManager(aView)
     return;
   }
 
-  switchToTabHavingURI("about:data", true, function(browser) {
-    if (aView)
-      browser.contentWindow.wrappedJSObject.gDataman.loadView(aView);
+  switchToTabHavingURI("about:data", true, {
+    browserCallback: function(browser) {
+      if (aView) {
+        browser.contentWindow.wrappedJSObject.gDataman.loadView(aView);
+      }
+    }
   });
 }
 
@@ -61,10 +64,15 @@ function toEM(aView)
     return;
   }
 
-  switchToTabHavingURI("about:addons", true, function(browser) {
-    if (aView)
-      browser.contentWindow.wrappedJSObject.loadView(aView);
+  switchToTabHavingURI("about:addons", true, {
+    triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+    browserCallback: function(browser) {
+      if (aView) {
+        browser.contentWindow.wrappedJSObject.loadView(aView);
+      }
+    }
   });
+
 }
 
 function toBookmarksManager()

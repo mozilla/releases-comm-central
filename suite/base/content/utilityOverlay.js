@@ -1387,7 +1387,7 @@ function whereToOpenLink(e, ignoreButton, ignoreSave, ignoreBackground = false)
   var alt = e.altKey && !ignoreSave;
 
   // ignoreButton allows "middle-click paste" to use function without always opening in a new window.
-  var middle = !ignoreButton && e.button == 1;
+  var middle = !ignoreButton && e.button && e.button == 1;
 
   // Don't do anything special with right-mouse clicks.  They're probably clicks on context menu items.
 
@@ -1682,7 +1682,7 @@ function openUILinkArrayIn(urlArray, where, allowThirdPartyFixup)
                              null, null, null, allowThirdPartyFixup);
   }
 
-  var loadInBackground = 
+  var loadInBackground =
     Services.prefs.getBoolPref("browser.tabs.loadInBackground");
 
   var browser = w.getBrowser();
@@ -1709,22 +1709,54 @@ function openUILinkArrayIn(urlArray, where, allowThirdPartyFixup)
 }
 
 /**
- * Switch to a tab that has a given URI, and focusses its browser window.
- * If a matching tab is in this window, it will be switched to. Otherwise, other
- * windows will be searched.
+ * Switch to a tab that has a given URI, and focuses its browser window.
+ * If a matching tab is in this window, it will be switched to. Otherwise,
+ * other windows will be searched.
  *
  * @param aURI
  *        URI to search for
  * @param aOpenNew
- *        True to open a new tab and switch to it, if no existing tab is found
- * @param A callback to call when the tab is open, the tab's browser will be
- *        passed as an argument
- * @return True if a tab was switched to (or opened), false otherwise
+ *        True to open a new tab and switch to it, if no existing tab is found.
+ *        If no suitable window is found, a new one will be opened.
+ * @param aOpenParams
+ *        If switching to this URI results in us opening a tab, aOpenParams
+ *        will be the parameter object that gets passed to openUILinkIn. Please
+ *        see the documentation for openUILinkIn to see what parameters can be
+ *        passed via this object.
+ *        This object also allows:
+ *        - 'browserCallback' a callback to call when the tab is open, the
+ *        tab's browser will be passed as an argument
+
+ * @return True if an existing tab was found, false otherwise
  */
-function switchToTabHavingURI(aURI, aOpenNew, aCallback) {
+function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
+  // Certain URLs can be switched to irrespective of the source or destination
+  // window being in private browsing mode:
+  const kPrivateBrowsingWhitelist = new Set([
+    "about:addons",
+  ]);
+
+  let browserCallback = aOpenParams.browserCallback;
+
+  // These properties are only used by switchToTabHavingURI and should
+  // not be used as a parameter for the new load.
+  delete aOpenParams.browserCallback;
+
+  // This will switch to the tab in aWindow having aURI, if present.
   function switchIfURIInWindow(aWindow) {
-    if (!aWindow.gBrowser)
+    if (!aWindow.gBrowser) {
       return false;
+    }
+
+    // Only switch to the tab if neither the source nor the destination window
+    // are private and they are not in permanent private browsing mode
+    if (!kPrivateBrowsingWhitelist.has(aURI.spec) &&
+        (PrivateBrowsingUtils.isWindowPrivate(window) ||
+         PrivateBrowsingUtils.isWindowPrivate(aWindow)) &&
+        !PrivateBrowsingUtils.permanentPrivateBrowsing) {
+      return false;
+    }
+
     let browsers = aWindow.gBrowser.browsers;
     for (let i = 0; i < browsers.length; i++) {
       let browser = browsers[i];
@@ -1732,8 +1764,10 @@ function switchToTabHavingURI(aURI, aOpenNew, aCallback) {
         // Focus the matching window & tab
         aWindow.focus();
         aWindow.gBrowser.tabContainer.selectedIndex = i;
-        if (aCallback)
-          aCallback(browser);
+        if (browserCallback) {
+          browserCallback(browser);
+        }
+
         return true;
       }
     }
@@ -1741,34 +1775,49 @@ function switchToTabHavingURI(aURI, aOpenNew, aCallback) {
   }
 
   // This can be passed either nsIURI or a string.
-  if (!(aURI instanceof Ci.nsIURI))
+  if (!(aURI instanceof Ci.nsIURI)) {
     aURI = Services.io.newURI(aURI);
+  }
+
+  let isBrowserWindow = !!window.gBrowser;
 
   // Prioritise this window.
-  if (switchIfURIInWindow(window))
+  if (isBrowserWindow && switchIfURIInWindow(window)) {
     return true;
+  }
 
   let winEnum = Services.wm.getEnumerator("navigator:browser");
   while (winEnum.hasMoreElements()) {
     let browserWin = winEnum.getNext();
     // Skip closed (but not yet destroyed) windows,
     // and the current window (which was checked earlier).
-    if (browserWin.closed || browserWin == window)
+    if (browserWin.closed || browserWin == window) {
       continue;
-    if (switchIfURIInWindow(browserWin))
+    }
+    if (switchIfURIInWindow(browserWin)) {
       return true;
+    }
   }
 
   // No opened tab has that url.
   if (aOpenNew) {
-    let browserWin = openUILinkIn(aURI.spec, "tabfocused");
-    if (aCallback) {
-      browserWin.addEventListener("pageshow", function browserWinPageShow(event) {
-        if (event.target.location.href != aURI.spec)
-          return;
-        browserWin.removeEventListener("pageshow", browserWinPageShow, true);
-        aCallback(browserWin.getBrowser().selectedBrowser);
-      }, true);
+    let browserWinNew;
+    if (isBrowserWindow && isTabEmpty(gBrowser.selectedTab)) {
+      browserWinNew = openUILinkIn(aURI.spec, "current", aOpenParams);
+    } else {
+      browserWinNew = openUILinkIn(aURI.spec, "tab", aOpenParams);
+    }
+    if (browserCallback) {
+      browserWinNew.addEventListener("pageshow",
+        function browserWinPageShow(event) {
+          if (event.target.location.href != aURI.spec) {
+            return;
+          }
+          browserWinNew.removeEventListener("pageshow", browserWinPageShow,
+                                            true);
+          browserCallback(browserWinNew.getBrowser().selectedBrowser);
+        },
+      true);
     }
     return true;
   }

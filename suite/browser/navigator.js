@@ -1751,8 +1751,9 @@ function BrowserOpenTab()
 
 function BrowserOpenSyncTabs()
 {
-  switchToTabHavingURI("about:sync-tabs", true);
+  switchToTabHavingURI("about:sync-tabs", true, aOpenParams = {});
 }
+
 // Class for saving the last directory and filter Index in the prefs.
 // Used for open file and upload file.
 class RememberLastDir {

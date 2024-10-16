@@ -15,9 +15,11 @@ function test() {
 
   gBrowser.selectedTab = gBrowser.addTab();
   is(isTabEmpty(gBrowser.selectedTab), true, "Added tab is empty");
-  switchToTabHavingURI("about:", true, function(aBrowser) {
-    gWindowObject = aBrowser.contentWindow.wrappedJSObject;
-    end_test();
+  switchToTabHavingURI("about:", true, {
+    browserCallback: function(aBrowser) {
+      gWindowObject = aBrowser.contentWindow.wrappedJSObject;
+      end_test();
+    }
   });
 }
 
