@@ -281,7 +281,9 @@ MimeAddressParser.prototype = {
     aHeader = aHeader || "";
     const value = MimeParser.parseHeaderField(
       aHeader,
-      MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N,
+      MimeParser.HEADER_ADDRESS |
+        MimeParser.HEADER_OPTION_ALLOW_RAW |
+        MimeParser.HEADER_OPTION_DECODE_2047,
       aCharset
     );
     return fixArray(value, aPreserveGroups);
@@ -290,9 +292,7 @@ MimeAddressParser.prototype = {
     aHeader = aHeader || "";
     const value = MimeParser.parseHeaderField(
       aHeader,
-      MimeParser.HEADER_ADDRESS |
-        MimeParser.HEADER_OPTION_DECODE_2231 |
-        MimeParser.HEADER_OPTION_DECODE_2047,
+      MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_DECODE_2047,
       undefined
     );
     return fixArray(value, false);
@@ -528,7 +528,9 @@ MimeConverter.prototype = {
   decodeMimeHeader(aHeader, aDefaultCharset, aOverride, aUnfold) {
     let value = MimeParser.parseHeaderField(
       aHeader,
-      MimeParser.HEADER_UNSTRUCTURED | MimeParser.HEADER_OPTION_ALL_I18N,
+      MimeParser.HEADER_UNSTRUCTURED |
+        MimeParser.HEADER_OPTION_ALLOW_RAW |
+        MimeParser.HEADER_OPTION_DECODE_2047,
       aDefaultCharset
     );
     if (aUnfold) {
