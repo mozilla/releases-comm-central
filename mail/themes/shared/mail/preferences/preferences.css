@@ -1189,7 +1189,6 @@ calendar-notifications-setting {
     flex-direction: column;
     gap: 18px;
 
-
     section {
       padding-inline: var(--qr-gap);
     }
@@ -1264,8 +1263,15 @@ calendar-notifications-setting {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  column-count: 2;
+  display: grid;
+  grid: auto-flow / repeat(2, 1fr);
   column-gap: var(--qr-gap);
+
+  & li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block ruby;
+  }
 }
 
 #qrExportSelectAll {
@@ -1312,6 +1318,12 @@ qr-code-wizard {
 
   & > li > ul {
     list-style-type: disc;
+    display: grid;
+
+    & li {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 

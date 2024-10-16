@@ -88,6 +88,7 @@ export const qrExportPane = {
       ...accounts.map(accountName => {
         const item = document.createElement("li");
         item.textContent = accountName;
+        item.title = accountName;
         return item;
       })
     );

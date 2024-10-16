@@ -485,6 +485,11 @@ add_task(async function test_completeCycleWithSummary() {
     popAccount.incomingServer.prettyName,
     "Should have pop account label in item"
   );
+  Assert.equal(
+    accountsList.children[0].title,
+    popAccount.incomingServer.prettyName,
+    "Should have pop account tooltip in item"
+  );
 
   const passwordsItem = prefsDocument.getElementById(
     "qrExportSummaryPasswords"
