@@ -20,6 +20,11 @@ export class InAppNotificationManager extends HTMLElement {
    */
   #activeNotification = null;
 
+  /**
+   * @type {?HTMLElement}
+   */
+  #focusElement = null;
+
   connectedCallback() {
     if (!this.hasConnected) {
       this.addEventListener("ctaclick", this, { capture: true });
@@ -40,6 +45,7 @@ export class InAppNotificationManager extends HTMLElement {
   disconnectedCallback() {
     this.#removeManagerListeners();
     window.removeEventListener("unload", this);
+    window.removeEventListener("focusout", this);
   }
 
   handleEvent(event) {
@@ -53,8 +59,12 @@ export class InAppNotificationManager extends HTMLElement {
       case lazy.NotificationManager.CLEAR_NOTIFICATION_EVENT:
         this.#hideNotification();
         break;
+      case "focusout":
+        this.#saveFocus(event);
+        break;
       case "ctaclick":
         if (event.button === 0) {
+          this.#focusElement?.focus();
           lazy.InAppNotifications.notificationManager.executeNotificationCTA(
             event.notificationId
           );
@@ -68,6 +78,13 @@ export class InAppNotificationManager extends HTMLElement {
         }
         break;
     }
+  }
+
+  #saveFocus(event) {
+    if (this.contains(event.target)) {
+      return;
+    }
+    this.#focusElement = event.target;
   }
 
   /**
@@ -101,6 +118,7 @@ export class InAppNotificationManager extends HTMLElement {
       this.append(notificationElement);
     }
 
+    window.addEventListener("focusout", this);
     this.#activeNotification = notificationElement;
   }
 
@@ -108,8 +126,10 @@ export class InAppNotificationManager extends HTMLElement {
    * Remove any notification currently displayed.
    */
   #hideNotification() {
+    window.removeEventListener("focusout", this);
     this.#activeNotification?.remove();
     this.#activeNotification = null;
+    this.#focusElement?.focus();
   }
 }
 
