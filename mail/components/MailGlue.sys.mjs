@@ -637,27 +637,24 @@ MailGlue.prototype = {
     // updates.
     const currentVersion = Services.appinfo.version;
     if (this.previousVersion != "0" && this.previousVersion != currentVersion) {
-      const { AddonManager } = ChromeUtils.importESModule(
-        "resource://gre/modules/AddonManager.sys.mjs"
-      );
       const { XPIDatabase } = ChromeUtils.importESModule(
         "resource://gre/modules/addons/XPIDatabase.sys.mjs"
       );
       const addons = XPIDatabase.getAddons();
-      for (const addon of addons) {
-        if (addon.permissions() & AddonManager.PERM_CAN_UPGRADE) {
-          AddonManager.getAddonByID(addon.id).then(addon => {
-            if (!AddonManager.shouldAutoUpdate(addon)) {
+      for (const dbAddon of addons) {
+        if (dbAddon.permissions() & AddonManager.PERM_CAN_UPGRADE) {
+          lazy.AddonManager.getAddonByID(dbAddon.id).then(addon => {
+            if (!lazy.AddonManager.shouldAutoUpdate(addon)) {
               return;
             }
             addon.findUpdates(
               {
                 onUpdateFinished() {},
-                onUpdateAvailable(addon, install) {
+                onUpdateAvailable(_addon, install) {
                   install.install();
                 },
               },
-              AddonManager.UPDATE_WHEN_NEW_APP_INSTALLED
+              lazy.AddonManager.UPDATE_WHEN_NEW_APP_INSTALLED
             );
           });
         }

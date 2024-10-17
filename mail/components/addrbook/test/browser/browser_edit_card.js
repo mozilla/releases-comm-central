@@ -568,7 +568,7 @@ async function setVCardInputValues(changes) {
         case "adr":
           typeField = field.vCardType.selectEl;
 
-          for (const [index, input] of [
+          for (const [idx, input] of [
             field.streetEl,
             field.localityEl,
             field.regionEl,
@@ -579,9 +579,9 @@ async function setVCardInputValues(changes) {
             if (
               changeEntry &&
               Array.isArray(changeEntry.value) &&
-              changeEntry.value[index]
+              changeEntry.value[idx]
             ) {
-              EventUtils.sendString(changeEntry.value[index]);
+              EventUtils.sendString(changeEntry.value[idx]);
             } else {
               EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
             }
@@ -598,14 +598,14 @@ async function setVCardInputValues(changes) {
           valueField = field.titleEl;
           break;
         case "org":
-          for (const [index, input] of [field.orgEl, field.unitEl].entries()) {
+          for (const [idx, input] of [field.orgEl, field.unitEl].entries()) {
             input.select();
             if (
               changeEntry &&
               Array.isArray(changeEntry.value) &&
-              changeEntry.value[index]
+              changeEntry.value[idx]
             ) {
-              EventUtils.sendString(changeEntry.value[index]);
+              EventUtils.sendString(changeEntry.value[idx]);
             } else {
               EventUtils.synthesizeKey("VK_BACK_SPACE", {}, abWindow);
             }

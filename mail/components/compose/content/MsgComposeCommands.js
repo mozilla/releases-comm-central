@@ -3042,14 +3042,14 @@ function MessageComposeOfflineStateChanged(goingOffline) {
 }
 
 function DoCommandPrint() {
-  const browser = GetCurrentEditorElement();
-  browser.onFirstPrintDialogOpened = () => ToggleWindowLock(true);
-  browser.onLastPrintDialogClosed = () => ToggleWindowLock(false);
+  const editorBrowser = GetCurrentEditorElement();
+  editorBrowser.onFirstPrintDialogOpened = () => ToggleWindowLock(true);
+  editorBrowser.onLastPrintDialogClosed = () => ToggleWindowLock(false);
 
-  browser.contentDocument.title =
+  editorBrowser.contentDocument.title =
     document.getElementById("msgSubject").value.trim() ||
     getComposeBundle().getString("defaultSubject");
-  PrintUtils.startPrintWindow(browser.browsingContext, {});
+  PrintUtils.startPrintWindow(editorBrowser.browsingContext, {});
 }
 
 /**
@@ -3382,10 +3382,10 @@ function manageAttachmentNotification(force = false) {
       },
       [addButton]
     )
-    .then(notification => {
-      notification.setAttribute("id", "attachmentNotificationBox");
-      notification.messageText.appendChild(msg);
-      notification.buttonContainer.appendChild(remindButton);
+    .then(notification2 => {
+      notification2.setAttribute("id", "attachmentNotificationBox");
+      notification2.messageText.appendChild(msg);
+      notification2.buttonContainer.appendChild(remindButton);
     }, console.warn);
 }
 
@@ -4251,15 +4251,15 @@ function EditorClick(event) {
       addLinkPreview(url, true);
       settings.hidden = true;
     };
-    settings.querySelector(".preview-autoadd").onclick = event => {
+    settings.querySelector(".preview-autoadd").onclick = clickEvent => {
       Services.prefs.setBoolPref(
         "mail.compose.add_link_preview",
-        event.target.checked
+        clickEvent.target.checked
       );
     };
     settings.querySelector(".preview-replace").focus();
-    settings.onkeydown = event => {
-      if (event.key == "Escape") {
+    settings.onkeydown = keyEvent => {
+      if (keyEvent.key == "Escape") {
         settings.hidden = true;
       }
     };
@@ -4900,12 +4900,12 @@ async function ComposeStartup() {
       gComposeType == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
       gComposeType == Ci.nsIMsgCompType.ReplyToList)
   ) {
-    const from = MailServices.headerParser
+    const authors = MailServices.headerParser
       .parseEncodedHeader(params.composeFields.from, null)
       .join(", ");
-    if (from != identityList.value) {
+    if (authors != identityList.value) {
       MakeFromFieldEditable(true);
-      identityList.value = from;
+      identityList.value = authors;
     }
   }
   LoadIdentity(true);
@@ -6858,10 +6858,10 @@ function checkPublicRecipientsLimit() {
       },
       [bccButton, ignoreButton]
     )
-    .then(notification => {
+    .then(notification2 => {
       if (publicAddressPillsCount > 1) {
         document.l10n.setAttributes(
-          notification.messageText,
+          notification2.messageText,
           "public-recipients-notice-multi",
           {
             count: publicAddressPillsCount,
@@ -6869,7 +6869,7 @@ function checkPublicRecipientsLimit() {
         );
       } else {
         document.l10n.setAttributes(
-          notification.messageText,
+          notification2.messageText,
           "public-recipients-notice-single"
         );
       }

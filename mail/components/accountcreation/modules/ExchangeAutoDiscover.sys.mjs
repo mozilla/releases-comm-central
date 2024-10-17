@@ -52,14 +52,14 @@ function startFetchWithAuth(call, url, username, password, callArgs) {
   // Creates a new FetchHTTP object with the given arguments, registers it with
   // the abortable call, and initiates the fetch.
   function setUpAndStart(args) {
-    const fetch = new lazy.FetchHTTP(
+    const fetchHttp = new lazy.FetchHTTP(
       url,
       args,
       call.successCallback(),
       call.errorCallback()
     );
-    call.setAbortable(fetch);
-    fetch.start();
+    call.setAbortable(fetchHttp);
+    fetchHttp.start();
   }
 
   // Start a fetch with Basic auth using the credentials provided by the
@@ -186,8 +186,6 @@ export function fetchConfigFromExchange(
     },
     allowAuthPrompt: false,
   };
-  let call;
-
   const successive = new SuccessiveAbortable();
   const priority = new PriorityOrderAbortable(function (xml, call) {
     // success
@@ -208,22 +206,22 @@ export function fetchConfigFromExchange(
 
   const authUsername = username || emailAddress;
 
-  call = priority.addCall();
-  call.foundMsg = "url1";
-  startFetchWithAuth(call, url1, authUsername, password, callArgs);
+  const call1 = priority.addCall();
+  call1.foundMsg = "url1";
+  startFetchWithAuth(call1, url1, authUsername, password, callArgs);
 
-  call = priority.addCall();
-  call.foundMsg = "url2";
-  startFetchWithAuth(call, url2, authUsername, password, callArgs);
+  const call2 = priority.addCall();
+  call2.foundMsg = "url2";
+  startFetchWithAuth(call2, url2, authUsername, password, callArgs);
 
-  call = priority.addCall();
-  call.foundMsg = "url3";
-  const call3ErrorCallback = call.errorCallback();
+  const call3 = priority.addCall();
+  call3.foundMsg = "url3";
+  const call3ErrorCallback = call3.errorCallback();
   // url3 is HTTP (not HTTPS), so don't authenticate. Even MS spec demands so.
   const fetch3 = new lazy.FetchHTTP(
     url3,
     callArgs,
-    call.successCallback(),
+    call3.successCallback(),
     ex => {
       gAccountSetupLogger.debug("HTTP request failed with: " + ex);
       // url3 is an HTTP URL that will redirect to the real one, usually a
@@ -281,9 +279,9 @@ export function fetchConfigFromExchange(
                 // Remove the dialog from the call stack.
                 dialogCall.errorCallback()(new Exception("Proceed to fetch"));
               },
-              ex => {
+              e => {
                 // User rejected, or action cancelled otherwise.
-                dialogCall.errorCallback()(ex);
+                dialogCall.errorCallback()(e);
               }
             );
             // Account for a slow server response.
@@ -298,7 +296,7 @@ export function fetchConfigFromExchange(
     }
   );
   fetch3.start();
-  call.setAbortable(fetch3);
+  call3.setAbortable(fetch3);
 
   successive.current = priority;
   return successive;
@@ -556,7 +554,7 @@ export function getAddonsList(config, successCallback, errorCallback) {
     errorCallback(new Exception("no URL for addons list configured"));
     return new Abortable();
   }
-  const fetch = new lazy.FetchHTTP(
+  const fetchHttp = new lazy.FetchHTTP(
     url,
     { allowCache: true, timeout: 10000 },
     function (json) {
@@ -586,8 +584,8 @@ export function getAddonsList(config, successCallback, errorCallback) {
     },
     errorCallback
   );
-  fetch.start();
-  return fetch;
+  fetchHttp.start();
+  return fetchHttp;
 }
 
 /**

@@ -11,7 +11,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
 import {
   clearInterval,
   clearTimeout,
@@ -480,9 +479,9 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
     if (!this._successfulCall) {
       // all failed
       const allErrors = this._calls.map(call => call.e);
-      const e =
+      const err =
         allErrors.find(e => e instanceof CancelledException) || allErrors[0];
-      errorCallback(e, allErrors); // see docs above
+      errorCallback(err, allErrors); // see docs above
     }
   });
 }

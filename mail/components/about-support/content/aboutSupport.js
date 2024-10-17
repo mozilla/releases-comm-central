@@ -907,10 +907,10 @@ var snapshotFormatters = {
 
   media(data) {
     function insertBasicInfo(key, value) {
-      function createRow(key, value) {
+      function createRow(rowKey, rowValue) {
         const th = $.new("th", null, "column");
-        document.l10n.setAttributes(th, key);
-        const td = $.new("td", value);
+        document.l10n.setAttributes(th, rowKey);
+        const td = $.new("td", rowValue);
         td.style["white-space"] = "pre-wrap";
         td.colSpan = 8;
         return $.new("tr", [th, td]);

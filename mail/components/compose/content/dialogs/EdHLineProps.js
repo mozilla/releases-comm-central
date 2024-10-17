@@ -65,7 +65,7 @@ function Startup() {
 function InitDialog() {
   // Just to be confusing, "size" is used instead of height because it does
   // not accept % values, only pixels
-  var height = GetHTMLOrCSSStyleValue(globalElement, "size", "height");
+  height = GetHTMLOrCSSStyleValue(globalElement, "size", "height");
   if (height.includes("px")) {
     height = height.substr(0, height.indexOf("px"));
   }

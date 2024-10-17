@@ -721,7 +721,7 @@ function OutputFileWithPersistAPI(
     try {
       var tmp = aDestinationLocation.QueryInterface(Ci.nsIURI);
       isLocalFile = tmp.schemeIs("file");
-    } catch (e) {}
+    } catch (ex) {}
   }
 
   try {

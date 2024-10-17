@@ -394,10 +394,12 @@ var accountWizard = {
       }
     }
 
-    for (let i = 0; i < this.prefs.length; ++i) {
-      const opt = this.prefs[i];
-      const label = bundle.getFormattedString("accountColon", [opt.opt.label]);
-      this.createSummaryRow(label, opt.value, rows);
+    for (const pref of this.prefs) {
+      this.createSummaryRow(
+        bundle.getFormattedString("accountColon", [pref.opt.label]),
+        pref.value,
+        rows
+      );
     }
   },
 

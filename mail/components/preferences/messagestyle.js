@@ -205,10 +205,10 @@ var previewObserver = {
     variants.sort().forEach(function (aVariantName) {
       const displayName = aVariantName.replace(/_/g, " ");
       if (displayName != defaultVariant) {
-        const menuitem = document.createXULElement("menuitem");
-        menuitem.setAttribute("label", displayName);
-        menuitem.setAttribute("value", aVariantName);
-        popup.appendChild(menuitem);
+        const variantMenuitem = document.createXULElement("menuitem");
+        variantMenuitem.setAttribute("label", displayName);
+        variantMenuitem.setAttribute("value", aVariantName);
+        popup.appendChild(variantMenuitem);
       }
     });
     this._ignoreVariantChange = true;

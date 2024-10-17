@@ -14,7 +14,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 /* Main Composer window UI control */
 
 var gComposerWindowControllerID = 0;
-var prefAuthorString = "";
 
 var kDisplayModeNormal = 0;
 var kDisplayModeAllTags = 1;
@@ -1749,7 +1748,7 @@ function EditorSetDefaultPrefsAndDoctype() {
 
     // let's start by assuming we have an author in case we don't have the pref
 
-    var prefAuthorString = null;
+    let prefAuthorString = null;
     const authorFound = domdoc.querySelector('meta[name="author"]');
     try {
       prefAuthorString = Services.prefs.getStringPref("editor.author");
@@ -2192,8 +2191,8 @@ function GetNumberOfContiguousSelectedRows() {
   var editor = GetCurrentTableEditor();
   var rowObj = { value: 0 };
   var colObj = { value: 0 };
-  var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
-  if (!cell) {
+  const firstSelectedCell = editor.getFirstSelectedCellInTable(rowObj, colObj);
+  if (!firstSelectedCell) {
     return 0;
   }
 
@@ -2223,8 +2222,8 @@ function GetNumberOfContiguousSelectedColumns() {
   var editor = GetCurrentTableEditor();
   var colObj = { value: 0 };
   var rowObj = { value: 0 };
-  var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
-  if (!cell) {
+  const firstSelectedCell = editor.getFirstSelectedCellInTable(rowObj, colObj);
+  if (!firstSelectedCell) {
     return 0;
   }
 

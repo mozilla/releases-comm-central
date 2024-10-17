@@ -755,11 +755,11 @@ var gGeneralPane = {
       url = await this.lookupOpenSearch(url);
       engine = await Services.search.addOpenSearchEngine(url, null);
     } catch (reason) {
-      const [title, text] = await document.l10n.formatValues([
+      const [failTitle, failText] = await document.l10n.formatValues([
         { id: "adding-opensearch-provider-failed-title" },
         { id: "adding-opensearch-provider-failed-text", args: { url } },
       ]);
-      Services.prompt.alert(window, title, text);
+      Services.prompt.alert(window, failTitle, failText);
       return;
     }
     // Wait a bit, so the engine iconURI has time to be fetched.
@@ -2285,8 +2285,7 @@ class HandlerRow {
 
     // Add a separator to distinguish these items from the helper app items
     // that follow them.
-    let menuItem = document.createXULElement("menuseparator");
-    menuPopup.appendChild(menuItem);
+    menuPopup.appendChild(document.createXULElement("menuseparator"));
 
     // Create a menu item for the OS default application, if any.
     let defaultMenuItem;
@@ -2320,8 +2319,8 @@ class HandlerRow {
         continue;
       }
 
-      const menuItem = document.createXULElement("menuitem");
-      menuItem.setAttribute("action", Ci.nsIHandlerInfo.useHelperApp);
+      const appMenuItem = document.createXULElement("menuitem");
+      appMenuItem.setAttribute("action", Ci.nsIHandlerInfo.useHelperApp);
       let label;
       if (possibleApp instanceof Ci.nsILocalHandlerApp) {
         label = getDisplayNameForFile(possibleApp.executable);
@@ -2329,19 +2328,19 @@ class HandlerRow {
         label = possibleApp.name;
       }
       label = gGeneralPane._prefsBundle.getFormattedString("useApp", [label]);
-      menuItem.setAttribute("label", label);
-      menuItem.setAttribute("tooltiptext", label);
-      menuItem.setAttribute(
+      appMenuItem.setAttribute("label", label);
+      appMenuItem.setAttribute("tooltiptext", label);
+      appMenuItem.setAttribute(
         "image",
         gGeneralPane._getIconURLForHandlerApp(possibleApp)
       );
 
       // Attach the handler app object to the menu item so we can use it
       // to make changes to the datastore when the user selects the item.
-      menuItem.handlerApp = possibleApp;
+      appMenuItem.handlerApp = possibleApp;
 
-      menuPopup.appendChild(menuItem);
-      possibleAppMenuItems.push(menuItem);
+      menuPopup.appendChild(appMenuItem);
+      possibleAppMenuItems.push(appMenuItem);
     }
 
     // Create a menu item for selecting a local application.
@@ -2379,15 +2378,14 @@ class HandlerRow {
       menuPopup.appendChild(menuItem);
     }
 
-    menuItem = document.createXULElement("menuseparator");
-    menuPopup.appendChild(menuItem);
-    menuItem = document.createXULElement("menuitem");
-    menuItem.addEventListener("command", this.confirmDelete.bind(this));
-    menuItem.setAttribute(
+    menuPopup.appendChild(document.createXULElement("menuseparator"));
+    const delMenuItem = document.createXULElement("menuitem");
+    delMenuItem.addEventListener("command", this.confirmDelete.bind(this));
+    delMenuItem.setAttribute(
       "label",
       gGeneralPane._prefsBundle.getString("delete")
     );
-    menuPopup.appendChild(menuItem);
+    menuPopup.appendChild(delMenuItem);
 
     // Select the item corresponding to the preferred action.  If the always
     // ask flag is set, it overrides the preferred action.  Otherwise we pick

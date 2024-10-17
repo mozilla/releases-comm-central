@@ -772,7 +772,7 @@ var gAccountSetup = {
           const errorCallback = autodiscoverCall.errorCallback();
           if (e instanceof CancelledException) {
             errorCallback(e);
-          } else if (allErrors && allErrors.some(e => e.code == 401)) {
+          } else if (allErrors && allErrors.some(err => err.code == 401)) {
             // Auth failed.
             // Ask user for username.
             this.onStartOver();
@@ -1290,8 +1290,10 @@ var gAccountSetup = {
         addonsInstallRows.lastChild.remove();
       }
 
-      const container = document.getElementById("resultExchangeHostname");
-      _makeHostDisplayString(config.incoming, container);
+      _makeHostDisplayString(
+        config.incoming,
+        document.getElementById("resultExchangeHostname")
+      );
       document
         .getElementById("incomingTitle-exchange")
         .appendChild(_socketTypeSpan(config.incoming.socketType));

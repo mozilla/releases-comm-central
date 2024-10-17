@@ -6059,8 +6059,8 @@ var messagePane = {
         isSingleThread ? "thread" : "multipleselection",
         messages,
         gDBView,
-        messages => {
-          threadTree.selectedIndices = messages
+        msgs => {
+          threadTree.selectedIndices = msgs
             .map(m => gDBView.findIndexOfMsgHdr(m, true))
             .filter(i => i != nsMsgViewIndex_None);
         }
@@ -6384,11 +6384,10 @@ const conversationView = {
       onItemsAdded() {},
       onItemsModified() {},
       onItemsRemoved() {},
-      onQueryCompleted(collection) {
-        const items = collection.items;
+      onQueryCompleted(completedCollection) {
         multiMessageBrowser.contentWindow.gMessageSummary.summarize(
           "thread",
-          items.map(i => i.folderMessage).filter(Boolean),
+          completedCollection.items.map(i => i.folderMessage).filter(Boolean),
           gDBView,
           messages => {
             threadTree.selectedIndices = messages

@@ -175,9 +175,9 @@ function guessConfig(
       } catch (e) {
         try {
           errorCallback(e);
-        } catch (e) {
-          console.error(e);
-          alertPrompt("Error in errorCallback for guessConfig()", e);
+        } catch (ex) {
+          console.error(ex);
+          alertPrompt("Error in errorCallback for guessConfig()", ex);
         }
       }
     }

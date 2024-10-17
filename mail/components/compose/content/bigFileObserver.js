@@ -327,8 +327,8 @@ var gBigFileObserver = {
         },
         [showUploadButton]
       )
-      .then(notification => {
-        notification.timeout = Date.now() + kThreshold;
+      .then(notification2 => {
+        notification2.timeout = Date.now() + kThreshold;
       }, console.warn);
   },
 

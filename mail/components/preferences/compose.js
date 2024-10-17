@@ -240,7 +240,7 @@ var gComposePane = {
             .split(",")
             .filter(Boolean);
           if (!event.target.checked) {
-            dicts = dicts.filter(item => item != language);
+            dicts = dicts.filter(dict => dict != language);
           } else {
             dicts.push(language);
           }

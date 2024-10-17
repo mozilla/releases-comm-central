@@ -42,7 +42,7 @@ var gChatPane = {
         Preferences.get("messenger.status.timeBeforeIdle")
           .valueFromPreferences / 60
     );
-    Preferences.addSyncToPrefListener(element, element => element.value * 60);
+    Preferences.addSyncToPrefListener(element, e => e.value * 60);
     Preferences.addSyncFromPrefListener(
       document.getElementById("chatSoundUrlLocation"),
       () => this.readSoundLocation()

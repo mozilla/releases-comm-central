@@ -25,9 +25,6 @@ var { calendarDeactivator } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calCalendarDeactivator.sys.mjs"
 );
 
-var paneDeck = document.getElementById("paneDeck");
-var defaultPane = "paneGeneral";
-
 ChromeUtils.defineESModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   UIDensity: "resource:///modules/UIDensity.sys.mjs",

@@ -176,8 +176,6 @@ function _fetchConfigFromIsp(
   ) {
     delete callArgs.urlArgs.emailaddress;
   }
-  let call;
-  let fetch;
 
   const priority = new PriorityOrderAbortable(
     (xml, call) =>
@@ -185,16 +183,16 @@ function _fetchConfigFromIsp(
     errorCallback
   );
   for (const url of urls) {
-    call = priority.addCall();
+    const call = priority.addCall();
     call.foundMsg = url.startsWith("https") ? "https" : "http";
-    fetch = lazy.FetchHTTP.create(
+    const fetchHttp = lazy.FetchHTTP.create(
       url,
       callArgs,
       call.successCallback(),
       call.errorCallback()
     );
-    call.setAbortable(fetch);
-    fetch.start();
+    call.setAbortable(fetchHttp);
+    fetchHttp.start();
   }
 
   return priority;
@@ -220,7 +218,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url = url.replace("{{domain}}", domain);
   }
 
-  const fetch = lazy.FetchHTTP.create(
+  const fetchHttp = lazy.FetchHTTP.create(
     url,
     { timeout: 10000 }, // 10 seconds
     function (result) {
@@ -228,8 +226,8 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     },
     errorCallback
   );
-  fetch.start();
-  return fetch;
+  fetchHttp.start();
+  return fetchHttp;
 }
 
 /**

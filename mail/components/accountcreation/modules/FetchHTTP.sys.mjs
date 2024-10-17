@@ -360,10 +360,10 @@ FetchHTTP.prototype = {
   _error(e) {
     try {
       this._errorCallback(e);
-    } catch (e) {
+    } catch (ex) {
       // error in errorCallback, too!
-      console.error(e);
-      alertPrompt("Error in errorCallback for fetchhttp", e);
+      console.error(ex);
+      alertPrompt("Error in errorCallback for fetchhttp", ex);
     }
   },
   /**

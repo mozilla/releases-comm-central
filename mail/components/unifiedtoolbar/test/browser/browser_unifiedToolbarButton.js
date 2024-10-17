@@ -314,8 +314,8 @@ add_task(async function test_clickCommandHandler() {
       "Only expecting to check state of test-command"
     );
     return {
-      doCommand(command, event) {
-        Assert.equal(command, "test-command", "Only executing test-command");
+      doCommand(cmd, event) {
+        Assert.equal(cmd, "test-command", "Only executing test-command");
         ++commandExecutionCount;
         commandEvent = event;
       },

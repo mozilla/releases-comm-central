@@ -71,7 +71,7 @@ add_task(async function test_open_customization() {
   );
   const tabsWithSpaces = new Set();
   for (const space of window.gSpacesToolbar.spaces) {
-    const tab = tabs.find(tab => tab.id.endsWith(space.name));
+    const tab = tabs.find(t => t.id.endsWith(space.name));
     Assert.ok(tab, `There is a tab for space ${space.name}`);
     Assert.ok(
       customization.querySelector(

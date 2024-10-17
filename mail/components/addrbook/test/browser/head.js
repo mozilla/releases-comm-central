@@ -209,7 +209,7 @@ async function createMailingListWithUI(mlParent, mlName) {
   abListDocument.getElementById("ListName").value = mlName;
   abListDocument.querySelector("dialog").getButton("accept").click();
 
-  const list = mlParent.childNodes.find(list => list.dirName == mlName);
+  const list = mlParent.childNodes.find(child => child.dirName == mlName);
 
   Assert.ok(list, "a new list was created");
 

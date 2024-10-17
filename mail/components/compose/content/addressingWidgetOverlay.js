@@ -1060,7 +1060,7 @@ function onPillPopupShowing(event) {
 
   // Hide the `Expand List` menuitem and the preceding menuseparator if not all
   // selected pills are mailing lists.
-  const isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
+  const isNotMailingList = [...allSelectedPills].some(p => !p.isMailList);
   menu.querySelector("#expandList").hidden = isNotMailingList;
   menu.querySelector("#pillContextBeforeExpandListSeparator").hidden =
     isNotMailingList;

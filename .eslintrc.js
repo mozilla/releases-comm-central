@@ -68,8 +68,6 @@ module.exports = {
     // Enforce using `let` only when variables are reassigned.
     "prefer-const": ["error", { destructuring: "all" }],
     "mozilla/reject-chromeutils-import": "error",
-    "no-redeclare": "off",
-    "no-shadow": "off",
   },
 
   overrides: [
@@ -173,35 +171,9 @@ module.exports = {
         "chat/modules/imContentSink.sys.mjs",
 
         "mail/components/inappnotifications/**",
-
-        "mail/modules/QuickFilterManager.sys.mjs",
       ],
       excludedFiles: [".eslintrc.js"],
       extends: ["plugin:mozilla/valid-jsdoc"],
-    },
-
-    {
-      // Files that have been fixed to work with rules
-      // no-redeclare and no-shadow
-      files: [
-        ".eslintrc.js",
-        "calendar/",
-        "chat/",
-        "mail/base/",
-        "mail/modules/",
-        "mail/components/extensions/",
-        "mail/test/",
-        "mailnews/",
-        "mail/extensions/am-e2e/am-e2e.js",
-        "mail/extensions/openpgp/content/modules/armor.sys.mjs",
-        "mail/extensions/openpgp/content/modules/filters.sys.mjs",
-        "mail/extensions/openpgp/content/modules/mimeVerify.sys.mjs",
-        "mail/extensions/openpgp/content/ui/keyDetailsDlg.js",
-      ],
-      rules: {
-        "no-redeclare": ["error", { builtinGlobals: true }],
-        "no-shadow": "error",
-      },
     },
   ],
 };

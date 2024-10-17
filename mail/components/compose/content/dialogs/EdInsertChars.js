@@ -104,7 +104,7 @@ function StartupLatin() {
   CategoryGroup = document.getElementById("CatGrp");
 
   // Initialize which radio button is set from persistent attribute...
-  var category = CategoryGroup.getAttribute("category");
+  category = CategoryGroup.getAttribute("category");
 
   // ...as well as indexes into the letter and character lists
   var index = Number(CategoryGroup.getAttribute("letter_index"));

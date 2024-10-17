@@ -21,8 +21,8 @@ class SpotlightStreamListener extends StreamListenerBase {
   /**
    * Encodes reserved XML characters
    */
-  #xmlEscapeString(s) {
-    return s.replace(/[<>&]/g, function (s) {
+  #xmlEscapeString(str) {
+    return str.replace(/[<>&]/g, function (s) {
       switch (s) {
         case "<":
           return "&lt;";
@@ -31,7 +31,7 @@ class SpotlightStreamListener extends StreamListenerBase {
         case "&":
           return "&amp;";
         default:
-          throw new Error("Unexpected match");
+          throw new Error(`Unexpected match: ${s}`);
       }
     });
   }

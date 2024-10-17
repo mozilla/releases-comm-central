@@ -4302,15 +4302,12 @@ var printHandler = {
   printDirectory(directory) {
     const title = directory ? directory.dirName : document.title;
 
-    let cards;
-    if (directory) {
-      cards = directory.childCards;
-    } else {
-      cards = [];
-      for (const directory of MailServices.ab.directories) {
-        cards = cards.concat(directory.childCards);
-      }
-    }
+    const cards = directory
+      ? directory.childCards
+      : MailServices.ab.directories.reduce(
+          (t, d) => t.concat(d.childCards),
+          []
+        );
 
     this._printCards(title, cards);
   },

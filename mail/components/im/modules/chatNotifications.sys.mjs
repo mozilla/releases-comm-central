@@ -124,10 +124,10 @@ export var Notifications = {
         }
 
         if (!messageText) {
-          const bundle = Services.strings.createBundle(
+          const chatBundle = Services.strings.createBundle(
             "chrome://messenger/locale/chat.properties"
           );
-          messageText = bundle.GetStringFromName("messagePreview");
+          messageText = chatBundle.GetStringFromName("messagePreview");
         }
       }
     }
