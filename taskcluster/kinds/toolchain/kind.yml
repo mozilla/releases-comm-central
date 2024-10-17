@@ -10,12 +10,12 @@ kind-dependencies:
     - packages
 
 reference-tasks:
-    - linux64-aarch64-compiler-rt-18
+    - linux64-aarch64-compiler-rt-19
     - linux64-cargo-vet
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang-18-profile
-    - linux64-clang-18-raw
+    - linux64-clang-19-profile
+    - linux64-clang-19-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
@@ -50,20 +50,20 @@ reference-tasks:
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
-    - linux64-x64-compiler-rt-18
-    - linux64-x86-compiler-rt-18
+    - linux64-x64-compiler-rt-19
+    - linux64-x86-compiler-rt-19
     - linux64-xar
-    - macosx64-aarch64-compiler-rt-18
-    - macosx64-clang-18-profile
-    - macosx64-clang-18-raw
-    - macosx64-clang-18-stage2
+    - macosx64-aarch64-compiler-rt-19
+    - macosx64-clang-19-profile
+    - macosx64-clang-19-raw
+    - macosx64-clang-19-stage2
     - macosx64-fix-stacks
     - macosx64-grcov
     - macosx64-minidump-stackwalk
     - macosx64-node
     - macosx64-sdk
     - macosx64-sdk-toolchain
-    - macosx64-x64-compiler-rt-18
+    - macosx64-x64-compiler-rt-19
     - mingw32-rust
     - node-modules
     - nsis
@@ -72,18 +72,18 @@ reference-tasks:
     - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
     - vs
-    - wasm32-wasi-compiler-rt-18
-    - win32-compiler-rt-18
+    - wasm32-wasi-compiler-rt-19
+    - win32-compiler-rt-19
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
-    - win64-aarch64-compiler-rt-18
+    - win64-aarch64-compiler-rt-19
     - win64-cbindgen
-    - win64-clang-18-profile
-    - win64-clang-18-raw
-    - win64-clang-18-stage2
+    - win64-clang-19-profile
+    - win64-clang-19-raw
+    - win64-clang-19-stage2
     - win64-cmake
-    - win64-compiler-rt-18
+    - win64-compiler-rt-19
     - win64-dump_syms
     - win64-grcov
     - win64-libxml2
