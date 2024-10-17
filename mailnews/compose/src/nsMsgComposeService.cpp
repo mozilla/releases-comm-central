@@ -107,14 +107,18 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
 
   nsresult rv;
 
-  NS_ENSURE_ARG_POINTER(params);
-
   // Use default identity if no identity has been specified
   nsCOMPtr<nsIMsgIdentity> identity;
   params->GetIdentity(getter_AddRefs(identity));
   if (!identity) {
     GetDefaultIdentity(getter_AddRefs(identity));
     params->SetIdentity(identity);
+  }
+  if (!identity) {
+    // Failed to get even a default identity.
+    // Can't compose without identity (need to set up account first).
+    // If we don't have an account, the 3pane will already be showing setup.
+    return GetTo3PaneWindow();
   }
 
   // Create a new window.
@@ -270,6 +274,23 @@ nsMsgComposeService::GetOrigWindowSelection(mozilla::dom::Selection* selection,
   return rv;
 }
 
+nsresult nsMsgComposeService::GetTo3PaneWindow() {
+  nsresult rv;
+  nsCOMPtr<nsIWindowMediator> windowMediator =
+      do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  rv = windowMediator->GetMostRecentBrowserWindow(getter_AddRefs(domWindow));
+  NS_ENSURE_SUCCESS(rv, NS_ERROR_ABORT);
+  nsCOMPtr<nsPIDOMWindowOuter> outerWin = nsPIDOMWindowOuter::From(domWindow);
+  if (outerWin) {
+    outerWin->Focus(mozilla::dom::CallerType::System);
+    return NS_OK;
+  }
+  return NS_ERROR_ABORT;
+}
+
 MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
 nsMsgComposeService::OpenComposeWindow(
     const nsACString& msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
@@ -281,6 +302,12 @@ nsMsgComposeService::OpenComposeWindow(
 
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
   if (!identity) GetDefaultIdentity(getter_AddRefs(identity));
+  if (!identity) {
+    // Failed to get even a default identity.
+    // Can't compose without identity (need to set up account first).
+    // If we don't have an account, the 3pane will already be showing setup.
+    return GetTo3PaneWindow();
+  }
 
   /* Actually, the only way to implement forward inline is to simulate a
      template message. Maybe one day when we will have more time we can change
@@ -1271,6 +1298,13 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
     }
   }
   if (composeShouldHandle) {
+    nsCOMPtr<nsIMsgIdentity> identity;
+    GetDefaultIdentity(getter_AddRefs(identity));
+    if (!identity) {
+      // No account yet; can't compose.
+      return NS_OK;
+    }
+
     aCmdLine->RemoveArguments(found, end);
 
     nsCOMPtr<nsIWindowWatcher> wwatch(
