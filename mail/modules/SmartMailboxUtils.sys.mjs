@@ -107,15 +107,18 @@ class SmartMailbox {
       try {
         const searchFolders = [];
 
-        function recurse(folder) {
+        const recurse = function (mainFolder) {
           let subFolders;
           try {
-            subFolders = folder.subFolders;
+            subFolders = mainFolder.subFolders;
           } catch (ex) {
             console.error(
-              new Error(`Unable to access the subfolders of ${folder.URI}`, {
-                cause: ex,
-              })
+              new Error(
+                `Unable to access the subfolders of ${mainFolder.URI}`,
+                {
+                  cause: ex,
+                }
+              )
             );
           }
           if (!subFolders?.length) {
@@ -130,7 +133,7 @@ class SmartMailbox {
               recurse(sf);
             }
           }
-        }
+        };
 
         for (const server of lazy.MailServices.accounts.allServers) {
           for (const f of server.rootFolder.getFoldersWithFlags(

@@ -21,8 +21,8 @@ export const OAuth2TestUtils = {
   /**
    * Start an OAuth2 server and add it to the proxy at oauth.test.test:443.
    */
-  async startServer(options) {
-    this._oAuth2Server = new OAuth2Server(options);
+  async startServer(serverOptions) {
+    this._oAuth2Server = new OAuth2Server(serverOptions);
     this._proxy = await HttpsProxy.create(
       this._oAuth2Server.httpServer.identity.primaryPort,
       "oauth",

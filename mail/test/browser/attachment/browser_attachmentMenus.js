@@ -508,7 +508,6 @@ async function help_test_attachment_menus(index) {
   await select_click_row(index);
   const expectedStates = messages[index].menuStates;
 
-  const aboutMessage = get_about_message();
   aboutMessage.toggleAttachmentList(true);
 
   for (const attachment of aboutMessage.currentAttachments) {

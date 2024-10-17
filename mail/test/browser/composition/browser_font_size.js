@@ -137,8 +137,8 @@ add_task(async function test_font_size_increment() {
     "Decrease button should be enabled with focus"
   );
 
-  async function assertShownAndDisabled(formatHelper, size, message) {
-    await formatHelper.assertShownSize(size, message);
+  async function assertShownAndDisabled(helper, size, message) {
+    await helper.assertShownSize(size, message);
     switch (size) {
       case MAX_SIZE:
         Assert.ok(
@@ -149,8 +149,8 @@ add_task(async function test_font_size_increment() {
           !decreaseButton.disabled,
           `${message}: Decrease button should be enabled at max size ${size}`
         );
-        await formatHelper.assertWithFormatSubMenu(
-          formatHelper.sizeMenu,
+        await helper.assertWithFormatSubMenu(
+          helper.sizeMenu,
           () => increaseItem.disabled && !decreaseItem.disabled,
           `Only the increase menu item should be disabled at max size ${size}`
         );
@@ -164,8 +164,8 @@ add_task(async function test_font_size_increment() {
           decreaseButton.disabled,
           `${message}: Decrease button should be disabled at min size ${size}`
         );
-        await formatHelper.assertWithFormatSubMenu(
-          formatHelper.sizeMenu,
+        await helper.assertWithFormatSubMenu(
+          helper.sizeMenu,
           () => !increaseItem.disabled && decreaseItem.disabled,
           `Only the decrease menu item should be disabled at min size ${size}`
         );
@@ -179,8 +179,8 @@ add_task(async function test_font_size_increment() {
           !decreaseButton.disabled,
           `${message}: Decrease button should be enabled at size ${size}`
         );
-        await formatHelper.assertWithFormatSubMenu(
-          formatHelper.sizeMenu,
+        await helper.assertWithFormatSubMenu(
+          helper.sizeMenu,
           () => !increaseItem.disabled && !decreaseItem.disabled,
           `No menu items should be disabled at size ${size}`
         );
@@ -188,25 +188,18 @@ add_task(async function test_font_size_increment() {
     }
   }
 
-  async function assertAndType(formatHelper, size, text, content, message) {
-    await assertShownAndDisabled(
-      formatHelper,
-      size,
-      `${message}: At size ${size}`
-    );
+  async function assertAndType(helper, size, text, content, message) {
+    await assertShownAndDisabled(helper, size, `${message}: At size ${size}`);
 
-    await formatHelper.typeInMessage(text);
+    await helper.typeInMessage(text);
     await assertShownAndDisabled(
-      formatHelper,
+      helper,
       size,
       `${message}: At size ${size} and typing`
     );
 
     content.push({ text, size });
-    formatHelper.assertMessageParagraph(
-      content,
-      `${message}: Added size ${size}`
-    );
+    helper.assertMessageParagraph(content, `${message}: Added size ${size}`);
   }
 
   const content = [];

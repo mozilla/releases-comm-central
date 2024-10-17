@@ -202,6 +202,7 @@ var MimeCategoryMapping = {
  * Instances of this class should only be retrieved via |MimeTypeNoun|; no one
  *  should ever create an instance directly.
  */
+// eslint-disable-next-line no-shadow
 export function MimeType(aID, aType, aSubType, aFullType, aCategory) {
   this._id = aID;
   this._type = aType;

@@ -1115,14 +1115,14 @@ async function subtest_adding_filelinks_to_forward(aText) {
   if (aText.length) {
     // If there was text typed in, it should be separated from the root by two
     // br's
-    const br = assert_previous_nodes("br", root, 2);
-    assert_previous_text(br.previousSibling, aText);
+    const br2 = assert_previous_nodes("br", root, 2);
+    assert_previous_text(br2.previousSibling, aText);
   } else {
     // Otherwise, there's only 1 br, and that br should be the first element
     // of the message body.
-    const br = assert_previous_nodes("br", root, 1);
+    const br2 = assert_previous_nodes("br", root, 1);
     const mailBody = get_compose_body(cw);
-    Assert.equal(br, mailBody.firstChild);
+    Assert.equal(br2, mailBody.firstChild);
   }
 
   await close_compose_window(cw);

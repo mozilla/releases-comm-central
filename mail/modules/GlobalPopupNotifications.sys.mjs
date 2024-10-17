@@ -44,6 +44,7 @@ function getNotificationFromElement(aElement) {
  *
  * @see PopupNotifications.show()
  */
+// eslint-disable-next-line no-shadow
 function Notification(
   id,
   message,

@@ -178,8 +178,8 @@ export class AttachmentInfo {
           if (!tabmail) {
             // If no tabmail available in this window, try and find it in
             // another.
-            const win = Services.wm.getMostRecentWindow("mail:3pane");
-            tabmail = win?.document.getElementById("tabmail");
+            const win2 = Services.wm.getMostRecentWindow("mail:3pane");
+            tabmail = win2?.document.getElementById("tabmail");
           }
           if (tabmail) {
             tabmail.openTab("contentTab", {
@@ -295,7 +295,7 @@ export class AttachmentInfo {
 
       name = lazy.DownloadPaths.sanitize(name);
 
-      const createTemporaryFileAndOpen = async mimeInfo => {
+      const createTemporaryFileAndOpen = async fileMimeInfo => {
         const tmpPath = PathUtils.join(
           Services.dirsvc.get("TmpD", Ci.nsIFile).path,
           "pid-" + Services.appinfo.processID
@@ -318,17 +318,17 @@ export class AttachmentInfo {
         // Before opening from the temp dir, make the file read-only so that
         // users don't edit and lose their edits...
         await IOUtils.setPermissions(tempFile.path, 0o400); // Set read-only
-        this._openFile(mimeInfo, tempFile);
+        this._openFile(fileMimeInfo, tempFile);
       };
 
-      const openLocalFile = mimeInfo => {
+      const openLocalFile = fileMimeInfo => {
         const fileHandler = Services.io
           .getProtocolHandler("file")
           .QueryInterface(Ci.nsIFileProtocolHandler);
 
         try {
           const externalFile = fileHandler.getFileFromURLSpec(this.displayUrl);
-          this._openFile(mimeInfo, externalFile);
+          this._openFile(fileMimeInfo, externalFile);
         } catch (ex) {
           console.error(
             "AttachmentInfo.open: file - " + this.displayUrl + ", " + ex

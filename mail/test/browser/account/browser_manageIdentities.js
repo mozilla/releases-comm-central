@@ -54,7 +54,7 @@ async function identityDialogLoaded(identityIdx) {
     gIdentitiesWin.document.getElementById("identitiesList");
 
   // Let's dbl click to open the identity.
-  const identityDialogLoaded = promiseLoadSubDialog(
+  const identityEditDialogLoaded = promiseLoadSubDialog(
     "chrome://messenger/content/am-identity-edit.xhtml"
   );
   EventUtils.synthesizeMouseAtCenter(
@@ -62,7 +62,7 @@ async function identityDialogLoaded(identityIdx) {
     { clickCount: 2 },
     gIdentitiesWin
   );
-  return identityDialogLoaded;
+  return identityEditDialogLoaded;
 }
 
 /** Close the open dialog. */
@@ -163,12 +163,12 @@ add_task(async function test_add_identity() {
   );
 
   // Open the dialog to add a new identity.
-  const identityDialogLoaded = promiseLoadSubDialog(
+  const identityEditDialogLoaded = promiseLoadSubDialog(
     "chrome://messenger/content/am-identity-edit.xhtml"
   );
   const addButton = gIdentitiesWin.document.getElementById("addButton");
   EventUtils.synthesizeMouseAtCenter(addButton, {}, gIdentitiesWin);
-  const identityWin = await identityDialogLoaded;
+  const identityWin = await identityEditDialogLoaded;
 
   // Fill in some values, and close. The new identity should now be listed.
   identityWin.document.getElementById("identity.fullName").focus();

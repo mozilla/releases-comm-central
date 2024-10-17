@@ -551,13 +551,13 @@ export var MailUtils = {
    * in severe danger of extreme memory bloat unless you force garbage
    * collections after every time you close a database.
    *
-   * @param {nsIMsgFolder} folder - The parent folder; we take action on it and all
+   * @param {nsIMsgFolder} parentFolder - The parent folder; we take action on it and all
    *     of its descendents.
    * @param {Function} action - the function to call on each folder.
    */
-  async takeActionOnFolderAndDescendents(folder, action) {
+  async takeActionOnFolderAndDescendents(parentFolder, action) {
     // We need to add the base folder as it is not included by .descendants.
-    const allFolders = [folder, ...folder.descendants];
+    const allFolders = [parentFolder, ...parentFolder.descendants];
 
     // - worker function
     function* folderWorker() {
@@ -963,9 +963,9 @@ export var MailUtils = {
       "@mozilla.org/messenger/messageservice;1?type=news"
     ].getService(Ci.nsIMsgMessageService);
     const urlListener = {
-      OnStopRunningUrl(url, aExitCode) {
-        if (!Components.isSuccessCode(aExitCode) || tempFile.fileSize <= 0) {
-          console.warn(`Could not open URI ${url.asciiSpec}`);
+      OnStopRunningUrl(emlUrl, exitCode) {
+        if (!Components.isSuccessCode(exitCode) || tempFile.fileSize <= 0) {
+          console.warn(`Could not open URI ${emlUrl.asciiSpec}`);
           return;
         }
         MailUtils.openEMLFile(win, tempFile, Services.io.newFileURI(tempFile));

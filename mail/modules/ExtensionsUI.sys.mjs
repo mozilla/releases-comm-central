@@ -1051,22 +1051,24 @@ export var ExtensionsUI = {
       // unknown APIs" policy, as add-ons using the Legacy API from TB68 will
       // not do anything, confusing the user.
       if (data.manifest.legacy) {
-        const subject = {
-          wrappedJSObject: {
-            browser,
-            originatingURI: null,
-            installs: [
-              {
-                addon: info.addon,
-                name: info.addon.name,
-                error: 0,
-              },
-            ],
-            install: null,
-            cancel: null,
+        Services.obs.notifyObservers(
+          {
+            wrappedJSObject: {
+              browser,
+              originatingURI: null,
+              installs: [
+                {
+                  addon: info.addon,
+                  name: info.addon.name,
+                  error: 0,
+                },
+              ],
+              install: null,
+              cancel: null,
+            },
           },
-        };
-        Services.obs.notifyObservers(subject, "addon-install-failed");
+          "addon-install-failed"
+        );
         info.reject();
         return;
       }

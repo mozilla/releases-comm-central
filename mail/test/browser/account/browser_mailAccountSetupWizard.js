@@ -19,7 +19,7 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var user = {
+var testUser = {
   name: "Yamato Nadeshiko",
   email: "yamato.nadeshiko@example.com",
   password: "abc12345",
@@ -198,11 +198,11 @@ add_task(async function test_mail_account_setup() {
     // If any realname is already filled, clear it out, we have our own.
     delete_all_existing(window, tabDocument.getElementById("realname"));
   }
-  input_value(window, user.name);
+  input_value(window, testUser.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(window, user.email);
+  input_value(window, testUser.email);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(window, user.password);
+  input_value(window, testUser.password);
 
   const notificationBox =
     tab.browser.contentWindow.gAccountSetup.notificationBox;
@@ -283,7 +283,7 @@ add_task(async function test_mail_account_setup() {
   // Settings tab to open before running other sub tests.
   await tabChanged;
 
-  await subtest_verify_account(tabmail.selectedTab, user);
+  await subtest_verify_account(tabmail.selectedTab, testUser);
 
   // FIXME: the test doesn't get a successful config, so we do not yet test
   // this probe. Should add something like:
@@ -390,11 +390,11 @@ add_task(async function test_bad_password_uses_old_settings() {
     // If any realname is already filled, clear it out, we have our own.
     delete_all_existing(window, tabDocument.getElementById("realname"));
   }
-  input_value(window, user.name);
+  input_value(window, testUser.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(window, user.email);
+  input_value(window, testUser.email);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(window, user.password);
+  input_value(window, testUser.password);
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
@@ -510,12 +510,12 @@ add_task(async function test_bad_password_uses_old_settings() {
   // Make sure all the values are the same as in the user object.
   Assert.equal(
     tabDocument.getElementById("outgoingHostname").value,
-    user.outgoingHost,
+    testUser.outgoingHost,
     "Outgoing server changed!"
   );
   Assert.equal(
     tabDocument.getElementById("incomingHostname").value,
-    user.incomingHost,
+    testUser.incomingHost,
     "incoming server changed!"
   );
 

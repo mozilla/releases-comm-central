@@ -45,6 +45,7 @@ const serverDebugLevel = 0;
 async function createServer({
   type,
   baseOptions = {},
+  // eslint-disable-next-line no-shadow
   options = {},
   hostname,
   port,
