@@ -9,7 +9,8 @@ set -xe
 test "$VERSION"
 test "$BUILD_NUMBER"
 test "$CANDIDATES_DIR"
-test "$RAW_FILE_URL"
+test "$PKG_LOCALES"
+test "$DESKTOP_LOCALES"
 
 # Optional environment variables
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"
@@ -35,13 +36,9 @@ $CURL -o "${WORKSPACE}/${PRODUCT}.tar.bz2" \
     "${CANDIDATES_DIR}/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/en-US/${PRODUCT}-${VERSION}.tar.bz2"
 tar -C "$SOURCE_DEST" -xf "${WORKSPACE}/${PRODUCT}.tar.bz2" --strip-components=1
 
-# Download locale information and extract locales to be included in snap
-$CURL -o "${WORKSPACE}/onchange-locales" "${RAW_FILE_URL}/mail/locales/onchange-locales"
-$CURL -o "${WORKSPACE}/l10n-changesets.json" "${RAW_FILE_URL}/mail/locales/l10n-changesets.json"
-locales=$(< "${WORKSPACE}/onchange-locales" sed "s/ja-JP-mac//")
-
 # Download L10N XPIs (excluding ja-JP-mac)
-for locale in $locales; do
+readarray -t locales < <(echo "$PKG_LOCALES" | jq -r '.[]')
+for locale in "${locales[@]}"; do
     $CURL -o "$SOURCE_DEST/distribution/extensions/langpack-${locale}@${PRODUCT}.mozilla.org.xpi" \
         "$CANDIDATES_DIR/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/xpi/${locale}.xpi"
 done
@@ -49,11 +46,15 @@ done
 # Download artifacts from dependencies and build the .desktop file.
 (
 source "${SCRIPT_DIR}/venv/bin/activate"
-python3 "${SCRIPT_DIR}/build_desktop_file.py" -o "${WORKSPACE}/org.mozilla.thunderbird.desktop" \
+
+python3 /scripts/fetch-content task-artifacts --dest "${WORKSPACE}"
+
+python3 "${SCRIPT_DIR}/build_desktop_file.py"               \
+  -o "${WORKSPACE}/org.mozilla.thunderbird.desktop"         \
   -t "${SCRIPT_DIR}/org.mozilla.thunderbird.desktop.jinja2" \
-  -l "${WORKSPACE}/l10n-central" \
-  -L "${WORKSPACE}/l10n-changesets.json" \
-  -f "mail/branding/thunderbird/brand.ftl" \
+  -l "${WORKSPACE}/l10n-central"                            \
+  -L "$DESKTOP_LOCALES"                                     \
+  -f "mail/branding/thunderbird/brand.ftl"                  \
   -f "mail/messenger/flatpak.ftl"
 )
 cp -v "$WORKSPACE/org.mozilla.thunderbird.desktop" "$DISTRIBUTION_DIR"

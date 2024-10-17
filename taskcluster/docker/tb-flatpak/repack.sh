@@ -8,10 +8,10 @@ set -xe
 test "$VERSION"
 test "$BUILD_NUMBER"
 test "$CANDIDATES_DIR"
-test "$L10N_CHANGESETS"
 test "$FLATPAK_BRANCH"
 test "$RELEASE_NOTES_URL"
-test "$RAW_FILE_URL"
+test "$PKG_LOCALES"
+test "$DESKTOP_LOCALES"
 
 # Optional environment variables
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"
@@ -50,31 +50,30 @@ rm -rf ~/.local/share/flatpak/
 $CURL -o "${WORKSPACE}/thunderbird.tar.bz2" \
     "${CANDIDATES_DIR}/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/en-US/thunderbird-${VERSION}.tar.bz2"
 
-# Download locale information and extract locales to be included in snap
-$CURL -o "${WORKSPACE}/onchange-locales" "${RAW_FILE_URL}/mail/locales/onchange-locales"
-$CURL -o "${WORKSPACE}/l10n-changesets.json" "${RAW_FILE_URL}/mail/locales/l10n-changesets.json"
-locales=$(< "${WORKSPACE}/onchange-locales" sed "s/ja-JP-mac//")
-
 # Fetch langpack extension for each locale
 mkdir -p "$DISTRIBUTION_DIR"
 mkdir -p "$DISTRIBUTION_DIR/extensions"
-for locale in $locales; do
+readarray -t locales < <(echo "$PKG_LOCALES" | jq -r '.[]')
+for locale in "${locales[@]}"; do
     $CURL -o "$DISTRIBUTION_DIR/extensions/langpack-${locale}@thunderbird.mozilla.org.xpi" \
         "$CANDIDATES_DIR/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/xpi/${locale}.xpi"
 done
 
 # Download artifacts from dependencies and build the .desktop file.
 (
-[[ "$FLATPAK_BRANCH" = "stable" ]] && VERSION_FLAG="--esr" || VERSION_FLAG="--beta"
 source "${SCRIPT_DIR}/venv/bin/activate"
+
+python3 /scripts/fetch-content task-artifacts --dest "${WORKSPACE}"
+
+[[ "$FLATPAK_BRANCH" = "stable" ]] && VERSION_FLAG="--esr" || VERSION_FLAG="--beta"
 python3 "${SCRIPT_DIR}/build_desktop_file.py"               \
   -o "${WORKSPACE}/org.mozilla.Thunderbird.desktop"         \
   -t "${SCRIPT_DIR}/org.mozilla.thunderbird.desktop.jinja2" \
   -l "${WORKSPACE}/l10n-central"                            \
-  -L "${WORKSPACE}/l10n-changesets.json"                    \
+  -L "$DESKTOP_LOCALES"                                     \
   -f "mail/branding/thunderbird/brand.ftl"                  \
   -f "mail/messenger/flatpak.ftl"                           \
-  "$VERSION_FLAG"
+  "${VERSION_FLAG}"
 )
 
 # Generate AppData XML from template, add various 
@@ -144,7 +143,7 @@ appstream-util mirror-screenshots "${appdir}"/share/app-info/xmls/org.mozilla.Th
 # of locales configured on the user's system are downloaded, instead of
 # all locales.
 mkdir -p "${appdir}/lib/thunderbird/distribution/extensions"
-for locale in $locales; do
+for locale in "${locales[@]}"; do
     install -D -m644 -t "${appdir}/share/runtime/langpack/${locale%%-*}/" "${DISTRIBUTION_DIR}/extensions/langpack-${locale}@thunderbird.mozilla.org.xpi"
     ln -sf "/app/share/runtime/langpack/${locale%%-*}/langpack-${locale}@thunderbird.mozilla.org.xpi" "${appdir}/lib/thunderbird/distribution/extensions/langpack-${locale}@thunderbird.mozilla.org.xpi"
 done

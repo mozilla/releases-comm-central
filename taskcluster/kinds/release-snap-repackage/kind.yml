@@ -8,10 +8,12 @@ transforms:
     - gecko_taskgraph.transforms.release:run_on_releases
     - gecko_taskgraph.transforms.release_deps:transforms
     - gecko_taskgraph.transforms.release_snap_repackage:transforms
+    - comm_taskgraph.transforms.packaging_l10n:transforms
     - gecko_taskgraph.transforms.task:transforms
 
 kind-dependencies:
     - post-beetmover-dummy
+    - shippable-l10n-pre
 
 task-defaults:
     description: Generates snap by repackaging the existing .tar.bz2
@@ -19,6 +21,13 @@ task-defaults:
     run-on-releases: [beta, esr128]
     shipping-phase: promote
     scopes: []
+    package-locales-file: comm/mail/locales/onchange-locales
+    desktop-locales-file: comm/mail/locales/shipped-locales
+    dependencies:
+        shippable-l10n-pre: shippable-l10n-pre-shippable-l10n-pre/opt
+    fetches:
+        shippable-l10n-pre:
+            - strings_all.tar.zst
     treeherder:
         platform: linux64-shippable/opt
         kind: build
@@ -48,7 +57,6 @@ task-defaults:
                         https://archive.mozilla.org/pub/{task[shipping-product]}/candidates
             LC_ALL: C.UTF-8
             LANG: C.UTF-8
-            RAW_FILE_URL: "{config_params[comm_head_repository]}/raw-file/{config_params[comm_head_rev]}"
         chain-of-trust: true
 
 tasks:

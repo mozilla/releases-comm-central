@@ -17,9 +17,6 @@ python3 /scripts/build_desktop_file.py -o "$WORKSPACE/org.mozilla.Thunderbird.de
 
 import argparse
 import json
-import os
-import urllib.request
-import zipfile
 from pathlib import Path
 from typing import List, Union
 
@@ -73,60 +70,29 @@ def build_template(
     output: Path,
     template: Path,
     l10n_base: Path,
-    locales_file: Path,
-    fluent_files: List[str],
+    locales: List[str],
+    fluent_resources: List[str],
     is_beta: bool,
     is_esr: bool,
 ):
-    with open(locales_file) as fp:
-        locale_data = json.load(fp)
-        locales = [l for l in locale_data.keys() if l != "ja-JP-mac"]
-        # Bug 1912126 - hard code this until this script is updated for Github proper
-        comm_l10n_rev = "4d226985e366c377cf397e4e42aa95e9e2ed3336"
-
-    get_strings(l10n_base, comm_l10n_rev, fluent_files)
-
     wmclass = "thunderbird"
     if is_beta:
         wmclass = wmclass + "-beta"
     elif is_esr:
         wmclass = wmclass + "-esr"
     locales_plus = locales + ["en-US"]
-    l10n_strings = FluentTranslator(l10n_base.resolve(), locales_plus, fluent_files)
+    l10n_strings = FluentTranslator(l10n_base.resolve(), locales_plus, fluent_resources)
 
     with open(template) as fp:
         jinja_template = jinja2.Template(fp.read())
 
     translate_multi = get_multi_translate(l10n_strings)
-
     result = jinja_template.render(
         strings=l10n_strings, translate=translate_multi, wmclass=wmclass
     )
 
     with open(output, "w") as fp:
         fp.write(result)
-
-
-def get_extract_members(
-    zip_file: zipfile.ZipFile, file_pats: List[str], prefix: str
-) -> List[zipfile.ZipInfo]:
-    for m in zip_file.infolist():
-        for pat in file_pats:
-            if m.filename.endswith(pat):
-                m.filename = os.path.relpath(m.filename, prefix)
-                print(f"Found {m.filename} in strings repo.")
-                yield m
-
-
-def get_strings(l10n_base, rev, fluent_files):
-    url = COMM_L10N_ZIP.format(rev=rev)
-    temp_file, headers = urllib.request.urlretrieve(url)
-    with zipfile.ZipFile(temp_file, "r") as strings_zip:
-        to_extract = get_extract_members(
-            strings_zip, fluent_files, COMM_L10N_ZIP_PREFIX.format(rev=rev)
-        )
-
-        strings_zip.extractall(path=l10n_base, members=to_extract)
 
 
 def main():
@@ -140,7 +106,11 @@ def main():
         "-l", dest="l10n_base", type=Path, required=True, help="l10n-central root path"
     )
     parser.add_argument(
-        "-L", dest="locales_file", type=Path, required=True, help="List of supported locales"
+        "-L",
+        dest="locales",
+        type=str,
+        required=True,
+        help="JSON encoded list of supported locales",
     )
     parser.add_argument(
         "-f", dest="fluent_files", type=str, required=True, action="extend", nargs="+"
@@ -162,11 +132,13 @@ def main():
 
     args = parser.parse_args()
 
+    locales = json.loads(args.locales)
+
     build_template(
         args.output,
         args.template,
         args.l10n_base,
-        args.locales_file,
+        locales,
         args.fluent_files,
         args.is_beta,
         args.is_esr,
