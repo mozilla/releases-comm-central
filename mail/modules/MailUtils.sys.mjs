@@ -757,9 +757,10 @@ export var MailUtils = {
    *
    * @param {string} msgId - The message id to find.
    * @param {nsIMsgFolder} folder - The folder to check.
+   * @param {boolean} [recursively=true] - Whether to search the folder recursively.
    * @returns {nsIMsgDBHdr}
    */
-  findMsgIdInFolder(msgId, folder) {
+  findMsgIdInFolder(msgId, folder, recursively = true) {
     let msgHdr;
 
     // Search in folder.
@@ -775,13 +776,16 @@ export var MailUtils = {
       }
     }
 
-    // Search subfolders recursively.
-    for (const currentFolder of folder.subFolders) {
-      msgHdr = this.findMsgIdInFolder(msgId, currentFolder);
-      if (msgHdr) {
-        return msgHdr;
+    if (recursively) {
+      // Search subfolders recursively.
+      for (const currentFolder of folder.subFolders) {
+        msgHdr = this.findMsgIdInFolder(msgId, currentFolder, recursively);
+        if (msgHdr) {
+          return msgHdr;
+        }
       }
     }
+
     return null;
   },
 

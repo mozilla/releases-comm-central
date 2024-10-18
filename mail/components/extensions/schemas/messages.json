@@ -1078,7 +1078,7 @@
         "name": "import",
         "type": "function",
         "max_manifest_version": 2,
-        "description": "Imports a message into a local Thunderbird folder. To import a message into an IMAP folder, add it to a local folder first and then move it to the IMAP folder.",
+        "description": "Imports a message into a folder. Supports local folders, POP and IMAP folders. Throws, if the destination folder already contains a message with the Message-ID of the message being imported.",
         "async": "callback",
         "permissions": ["accountsRead", "messagesImport"],
         "parameters": [
@@ -1122,7 +1122,7 @@
         "name": "import",
         "type": "function",
         "min_manifest_version": 3,
-        "description": "Imports a message into a local Thunderbird folder. To import a message into an IMAP folder, add it to a local folder first and then move it to the IMAP folder.",
+        "description": "Imports a message into a folder. Supports local folders, POP and IMAP folders. Throws, if the destination folder already contains a message with the Message-ID of the message being imported.",
         "async": "callback",
         "permissions": ["accountsRead", "messagesImport"],
         "parameters": [
