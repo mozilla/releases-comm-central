@@ -374,6 +374,7 @@ widths: 30 70
     * [Brendan Abolivier (babolivier)](https://people.mozilla.org/s?query=babolivier)
 * - Includes
   -
+    * mailnews/protocols/ews/\*\*
     * rust/ews_xpcom/\*\*
 ```
 
