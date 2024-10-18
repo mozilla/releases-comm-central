@@ -698,3 +698,206 @@ add_task(
     await AddonTestUtils.promiseShutdownManager();
   }
 );
+
+add_task(
+  {
+    skip_if: () => !IS_IMAP,
+  },
+  async function test_move_copy_delete_accross_accounts() {
+    await AddonTestUtils.promiseStartupManager();
+
+    const imapAccount = createAccount("imap");
+    const pop3Account = createAccount("pop3");
+
+    const popRootFolder = pop3Account.incomingServer.rootFolder;
+    const popTestFolder = await createSubfolder(popRootFolder, "popTest");
+    await createMessages(popTestFolder, 5);
+
+    const imapRootFolder = imapAccount.incomingServer.rootFolder;
+    const imapCopyTestFolder = await createSubfolder(
+      imapRootFolder,
+      "imapCopyTest"
+    );
+    const imapMoveTestFolder = await createSubfolder(
+      imapRootFolder,
+      "imapMoveTest"
+    );
+    await createMessages(imapCopyTestFolder, 1);
+    await createMessages(imapMoveTestFolder, 2);
+
+    const files = {
+      "background.js": async () => {
+        function newMovePromise() {
+          return new Promise(resolve => {
+            const listener = (srcMsgs, dstMsgs) => {
+              browser.messages.onMoved.removeListener(listener);
+              resolve({ srcMsgs, dstMsgs });
+            };
+            browser.messages.onMoved.addListener(listener);
+          });
+        }
+        function newCopyPromise() {
+          return new Promise(resolve => {
+            const listener = (srcMsgs, dstMsgs) => {
+              browser.messages.onCopied.removeListener(listener);
+              resolve({ srcMsgs, dstMsgs });
+            };
+            browser.messages.onCopied.addListener(listener);
+          });
+        }
+
+        const [popTestFolder] = await browser.folders.query({
+          name: "popTest",
+        });
+        const [imapCopyTestFolder] = await browser.folders.query({
+          name: "imapCopyTest",
+        });
+        const [imapMoveTestFolder] = await browser.folders.query({
+          name: "imapMoveTest",
+        });
+
+        browser.test.log(" --> Check initial condition.");
+        const { messages: popMessages } = await browser.messages.list(
+          popTestFolder.id
+        );
+        browser.test.assertEq(
+          5,
+          popMessages.length,
+          "Should have the correct number of messages in the pop folder"
+        );
+        const { messages: imapCopyTestFolderMessages } =
+          await browser.messages.list(imapCopyTestFolder.id);
+        browser.test.assertEq(
+          1,
+          imapCopyTestFolderMessages.length,
+          "Should have the correct number of messages in the imapCopyTestFolder folder"
+        );
+        const { messages: imapMoveTestFolderMessages } =
+          await browser.messages.list(imapMoveTestFolder.id);
+        browser.test.assertEq(
+          2,
+          imapMoveTestFolderMessages.length,
+          "Should have the correct number of messages in the imapMoveTestFolder folder"
+        );
+
+        browser.test.log(" --> Copy multiple messages from pop to imap.");
+        const copyPromise = newCopyPromise();
+        browser.messages.copy(
+          popMessages.map(m => m.id),
+          imapCopyTestFolder.id
+        );
+        const copyInfo = await copyPromise;
+
+        browser.test.log(" --> Check condition after copy.");
+        const { messages: popMessagesAfterCopy } = await browser.messages.list(
+          popTestFolder.id
+        );
+        browser.test.assertEq(
+          5,
+          popMessagesAfterCopy.length,
+          "Should have the correct number of messages in the pop folder"
+        );
+        const { messages: imapMessagesAfterCopy } = await browser.messages.list(
+          imapCopyTestFolder.id
+        );
+        browser.test.assertEq(
+          6,
+          imapMessagesAfterCopy.length,
+          "Should have the correct number of messages in the imap folder"
+        );
+
+        window.assertDeepEqual(
+          popMessages.map(m => ({ id: m.id, subject: m.subject })),
+          copyInfo.srcMsgs.messages.map(m => ({
+            id: m.id,
+            subject: m.subject,
+          })),
+          "The src messages of the copy operation should be as expected",
+          { strict: true }
+        );
+
+        window.assertDeepEqual(
+          popMessages.map(m => ({
+            folderId: imapCopyTestFolder.id,
+            subject: m.subject,
+          })),
+          copyInfo.dstMsgs.messages.map(m => ({
+            folderId: m.folder.id,
+            subject: m.subject,
+          })),
+          "The dst messages of the copy operation should be as expected",
+          { strict: true }
+        );
+
+        browser.test.log(" --> Move multiple messages from pop to imap.");
+        const movePromise = newMovePromise();
+        browser.messages.move(
+          popMessages.map(m => m.id),
+          imapMoveTestFolder.id
+        );
+        const moveInfo = await movePromise;
+
+        browser.test.log(" --> Check condition after move.");
+        const { messages: popMessagesAfterMove } = await browser.messages.list(
+          popTestFolder.id
+        );
+        browser.test.assertEq(
+          0,
+          popMessagesAfterMove.length,
+          "Should have the correct number of messages in the pop folder"
+        );
+        const { messages: imapMessagesAfterMove } = await browser.messages.list(
+          imapMoveTestFolder.id
+        );
+        browser.test.assertEq(
+          7,
+          imapMessagesAfterMove.length,
+          "Should have the correct number of messages in the imap folder"
+        );
+
+        window.assertDeepEqual(
+          popMessages.map(m => ({ id: m.id, subject: m.subject })),
+          moveInfo.srcMsgs.messages.map(m => ({
+            id: m.id,
+            subject: m.subject,
+          })),
+          "The src messages of the move operation should be as expected",
+          { strict: true }
+        );
+
+        window.assertDeepEqual(
+          popMessages.map(m => ({
+            folderId: imapMoveTestFolder.id,
+            subject: m.subject,
+          })),
+          moveInfo.dstMsgs.messages.map(m => ({
+            folderId: m.folder.id,
+            subject: m.subject,
+          })),
+          "The dst messages of the move operation should be as expected",
+          { strict: true }
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    const extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+        browser_specific_settings: {
+          gecko: { id: "messages.move@mochi.test" },
+        },
+      },
+    });
+
+    await extension.startup();
+    await extension.awaitFinish("finished");
+    await extension.unload();
+
+    cleanUpAccount(imapAccount);
+    await AddonTestUtils.promiseShutdownManager();
+  }
+);

@@ -726,8 +726,19 @@ export function getMessagesInFolder(folder) {
 }
 
 /**
- * Class for cached message headers to reduce XPCOM requests and to cache msgHdr
- * of file and attachment messages.
+ * Map() that automatically removes added entries after 60s.
+ */
+export class TemporaryCacheMap extends Map {
+  set(key, value) {
+    super.set(key, value);
+    // Remove the value from the cache after 60s.
+    setTimeout(() => this.delete(key), 1000 * 60);
+  }
+}
+
+/**
+ * Class for cached message headers to reduce XPCOM requests and to cache a real
+ * or dummy msgHdr (file or attachment message).
  */
 export class CachedMsgHeader {
   #id;
@@ -735,8 +746,14 @@ export class CachedMsgHeader {
   /**
    * @param {MessageTracker} messageTracker - reference to global MessageTracker
    * @param {nsIMsgDBHdr} [msgHdr] - a msgHdr to cache
+   * @param {object} [options]
+   * @param {boolean} [options.addToMessageTracker=true] - Whether to automatically
+   *    add the cached msgHdr to the messageTracker and generate a WebExtension
+   *    message ID. Ignored if no msgHdr was provided. An untracked cached msgHdr
+   *    will forcefully be added to the messageTracker if its ID is requested.
    */
-  constructor(messageTracker, msgHdr) {
+  constructor(messageTracker, msgHdr, options) {
+    const addToMessageTracker = options?.addToMessageTracker ?? true;
     this.mProperties = {};
     this.messageTracker = messageTracker;
 
@@ -787,7 +804,9 @@ export class CachedMsgHeader {
         );
       }
 
-      this.addToMessageTracker();
+      if (addToMessageTracker) {
+        this.addToMessageTracker();
+      }
     }
   }
 
@@ -877,6 +896,8 @@ export class MessageTracker extends EventEmitter {
     this._pendingKeyChanges = new Map();
     this._dummyMessageHeaders = new Map();
     this._windowTracker = windowTracker;
+    this._headerPromises = new Map();
+    this._msgHdrCache = new TemporaryCacheMap();
 
     // nsIObserver
     Services.obs.addObserver(this, "quit-application-granted");
@@ -885,12 +906,14 @@ export class MessageTracker extends EventEmitter {
     MailServices.mailSession.AddFolderListener(
       this,
       Ci.nsIFolderListener.propertyFlagChanged |
-        Ci.nsIFolderListener.intPropertyChanged
+        Ci.nsIFolderListener.intPropertyChanged |
+        Ci.nsIFolderListener.removed
     );
     // nsIMsgFolderListener
     MailServices.mfn.addListener(
       this,
       MailServices.mfn.msgsJunkStatusChanged |
+        MailServices.mfn.msgAdded |
         MailServices.mfn.msgsDeleted |
         MailServices.mfn.msgsMoveCopyCompleted |
         MailServices.mfn.msgKeyChanged
@@ -1118,8 +1141,45 @@ export class MessageTracker extends EventEmitter {
     return null;
   }
 
-  // nsIFolderListener
+  /**
+   * Finds all folders with new messages in the specified changedFolder and
+   * emits a "messages-received" event for them.
+   *
+   * @param {nsIMsgFolder} changedFolder
+   *
+   * @see MailNotificationManager._getFirstRealFolderWithNewMail()
+   */
+  findNewMessages(changedFolder) {
+    const folders = changedFolder.descendants;
+    folders.unshift(changedFolder);
+    for (const folder of folders) {
+      const numNewMessages = folder.getNumNewMessages(false);
+      if (!numNewMessages) {
+        continue;
+      }
+      const msgDb = folder.msgDatabase;
+      const newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
+      if (newMsgKeys.length == 0) {
+        continue;
+      }
+      this.emit(
+        "messages-received",
+        folder,
+        newMsgKeys.map(key => msgDb.getMsgHdrForKey(key))
+      );
+    }
+  }
 
+  // Implements nsIFolderListener.
+
+  /**
+   * Implements nsIFolderListener.onFolderPropertyFlagChanged().
+   *
+   * @param {nsIMsgDBHdr} item
+   * @param {string} property
+   * @param {integer} oldFlag
+   * @param {integer} newFlag
+   */
   onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
     const changes = {};
     switch (property) {
@@ -1147,6 +1207,14 @@ export class MessageTracker extends EventEmitter {
     }
   }
 
+  /**
+   * Implements nsIFolderListener.onFolderIntPropertyChanged().
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {string} property
+   * @param {integer} oldValue
+   * @param {integer*} newValue
+   */
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
       case "BiffState":
@@ -1163,34 +1231,35 @@ export class MessageTracker extends EventEmitter {
   }
 
   /**
-   * Finds all folders with new messages in the specified changedFolder and
-   * returns those.
+   * Implements nsIFolderListener.onMessageRemoved().
    *
-   * @see MailNotificationManager._getFirstRealFolderWithNewMail()
+   * @param {nsIMsgFolder} folder
+   * @param {nsIMsgDBHdr} msgHdr
    */
-  findNewMessages(changedFolder) {
-    const folders = changedFolder.descendants;
-    folders.unshift(changedFolder);
-    for (const folder of folders) {
-      const numNewMessages = folder.getNumNewMessages(false);
-      if (!numNewMessages) {
-        continue;
-      }
-      const msgDb = folder.msgDatabase;
-      const newMsgKeys = msgDb.getNewList().slice(-numNewMessages);
-      if (newMsgKeys.length == 0) {
-        continue;
-      }
-      this.emit(
-        "messages-received",
-        folder,
-        newMsgKeys.map(key => msgDb.getMsgHdrForKey(key))
-      );
-    }
+  onMessageRemoved(folder, msgHdr) {
+    // An IMAP move operation may not get this information in time, cache it.
+    const hash = `folderURI: ${folder.URI}, messageKey: ${msgHdr.messageKey}`;
+    // Do not add the cached header of the deleted message unnecessarily to the
+    // message tracker. It will be added once it is actually used.
+    const cachedHdr = new CachedMsgHeader(this, msgHdr, {
+      addToMessageTracker: false,
+    });
+    // Since this message is removed, it will have certain flags set which will
+    // prevent it from being returned to the caller. For the purpose of this cache,
+    // this needs to be ignored.
+    cachedHdr.flags &= ~(
+      Ci.nsMsgMessageFlags.IMAPDeleted | Ci.nsMsgMessageFlags.Expunged
+    );
+    this._msgHdrCache.set(hash, cachedHdr);
   }
 
-  // nsIMsgFolderListener
+  // Implements nsIMsgFolderListener.
 
+  /**
+   * Implements nsIMsgFolderListener.msgsJunkStatusChanged().
+   *
+   * @param {nsIMsgDBHdr[]} messages
+   */
   msgsJunkStatusChanged(messages) {
     for (const msgHdr of messages) {
       const junkScore =
@@ -1201,6 +1270,11 @@ export class MessageTracker extends EventEmitter {
     }
   }
 
+  /**
+   * Implements nsIMsgFolderListener.msgsDeleted().
+   *
+   * @param {nsIMsgDBHdr[]} deletedMsgs
+   */
   msgsDeleted(deletedMsgs) {
     if (deletedMsgs.length > 0) {
       const cachedDeletedMsgs = deletedMsgs.map(
@@ -1213,28 +1287,85 @@ export class MessageTracker extends EventEmitter {
     }
   }
 
-  msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
-    if (srcMsgs.length > 0 && dstMsgs.length > 0) {
-      const emitMsg = move ? "messages-moved" : "messages-copied";
+  /**
+   * Implements nsIMsgFolderListener.msgAdded().
+   *
+   * @param {nsIMsgDBHdr} msgHdr
+   */
+  msgAdded(msgHdr) {
+    // An IMAP copy/move operation may be waiting for a newly added header.
+    const hash = `folderURI: ${msgHdr.folder.URI}, headerMessageId: ${msgHdr.messageId}`;
+    if (this._headerPromises.has(hash)) {
+      this._headerPromises.get(hash).resolve(new CachedMsgHeader(this, msgHdr));
+      this._headerPromises.delete(hash);
+    }
+  }
 
-      const cachedSrcMsgs = srcMsgs.map(
-        msgHdr => new CachedMsgHeader(this, msgHdr)
-      );
+  /**
+   * Implements nsIMsgFolderListener.msgsMoveCopyCompleted().
+   *
+   * @param {boolean} move - whether this is a move or a copy operation
+   * @param {nsIMsgDBHdr[]} srcMsgs
+   * @param {nsIMsgFolder} dstFolder
+   * @param {nsIMsgDBHdr[]} dstMsgs
+   */
+  async msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
+    if (srcMsgs.length == 0) {
+      return;
+    }
+
+    const emitMsg = move ? "messages-moved" : "messages-copied";
+    const cachedSrcMsgs = srcMsgs.map(msgHdr => {
+      // Some move operations will have an invalid src msgHdr (message is already
+      // gone), extract the header from _msgHdrCache.
+      if (!msgHdr.messageId) {
+        const hash = `folderURI: ${msgHdr.folder.URI}, messageKey: ${msgHdr.messageKey}`;
+        if (this._msgHdrCache.has(hash)) {
+          const cachedHdr = this._msgHdrCache.get(hash);
+          // Manually add the cached header to the tracker, which was skipped
+          // during its creation to prevent needlessly tracked headers. If the
+          // message is already known, the existing ID is re-used. This must be
+          // done before the information of the deleted message is purged from
+          // the tracker, otherwise a new message ID will be assigned.
+          cachedHdr.addToMessageTracker();
+          return cachedHdr;
+        }
+      }
+      return new CachedMsgHeader(this, msgHdr);
+    });
+    if (move) {
+      cachedSrcMsgs
+        .map(msgHdr => this.getIdentifier(msgHdr))
+        .forEach(msgIdentifier => this._remove(msgIdentifier));
+    }
+
+    // If messages are moved or copied to IMAP servers, the dstMsgs array can be
+    // empty. In these cases we trigger an update of the destination folder and
+    // wait for the msgAdded event.
+    if (cachedSrcMsgs.length > 0 && dstMsgs.length == 0) {
+      // Create Promises for new messages to appear in the destination folder
+      // with the expected headerMessageId.
+      const dstMsgsPromises = cachedSrcMsgs.map(msgHdr => {
+        const hash = `folderURI: ${dstFolder.URI}, headerMessageId: ${msgHdr.messageId}`;
+        const deferred = Promise.withResolvers();
+        this._headerPromises.set(hash, deferred);
+        return deferred.promise;
+      });
+
+      dstFolder.updateFolder(null);
+      const deferredDstMsgs = await Promise.all(dstMsgsPromises);
+      this.emit(emitMsg, cachedSrcMsgs, deferredDstMsgs);
+    } else {
       const cachedDstMsgs = dstMsgs.map(
         msgHdr => new CachedMsgHeader(this, msgHdr)
       );
-
-      if (move) {
-        cachedSrcMsgs
-          .map(msgHdr => this.getIdentifier(msgHdr))
-          .forEach(msgIdentifier => this._remove(msgIdentifier));
-      }
-
       this.emit(emitMsg, cachedSrcMsgs, cachedDstMsgs);
     }
   }
 
   /**
+   * Implements nsIMsgFolderListener.msgKeyChanged().
+   *
    * Updates the mapping of message keys to WebExtension message IDs in the message
    * tracker: For IMAP messages there is a delayed update of database keys and if
    * those keys change, the messageTracker needs to update its maps, otherwise
@@ -1302,7 +1433,7 @@ export class MessageTracker extends EventEmitter {
     }
   }
 
-  // nsIObserver
+  // Implements nsIObserver.
 
   /**
    * Observer to update message tracker if a message has received a new key due
