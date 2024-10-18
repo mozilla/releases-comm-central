@@ -244,7 +244,7 @@ class WebExtMimeTreeEmitter extends MimeTreeEmitter {
  */
 
 /**
- * @typedef MimeTreeParserOptions
+ * @typedef {object} MimeTreeParserOptions
  *
  * @param {string} [pruneat=""] - Treat the message as starting at the given part
  *   number, so that no parts above the specified parts are returned.
@@ -817,6 +817,17 @@ export class CachedMsgHeader {
 }
 
 /**
+ * @typedef {object} MsgIdentifier - An object with information needed to identify
+ *    a specific message.
+ * @property {boolean} [folderURI] - folder URI of the real message
+ * @property {integer} [messageKey] - messageKey of the real message
+ * @property {string}  [dummyMsgUrl] - dummyMsgUrl of the dummy message (mostly
+ *    a file:// URL)
+ * @property {integer} [dummyMsgLastModifiedTime] - the time the dummy message
+ *    was last modified, to distinguish different revisions of the same message
+ */
+
+/**
  * A map of numeric identifiers to messages for easy reference.
  *
  * @implements {nsIFolderListener}
@@ -866,7 +877,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Generates a hash for the given msgIdentifier.
    *
-   * @param {object} msgIdentifier
+   * @param {MsgIdentifier} msgIdentifier
    * @returns {string}
    */
   getHash(msgIdentifier) {
@@ -880,7 +891,7 @@ export class MessageTracker extends EventEmitter {
    * Maps the provided message identifier to the given messageTracker id.
    *
    * @param {integer} id - messageTracker id of the message
-   * @param {object} msgIdentifier - msgIdentifier of the message
+   * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
    * @param {nsIMsgDBHdr} [msgHdr] - optional msgHdr of the message, will be
    *   added to the cache if it is a non-file dummy msgHdr, which cannot be
    *   retrieved later (for example an attached message)
@@ -906,7 +917,7 @@ export class MessageTracker extends EventEmitter {
    * Lookup the messageTracker id for the given message identifier, return null
    * if not known.
    *
-   * @param {object} msgIdentifier - msgIdentifier of the message
+   * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
    * @returns {integer} The messageTracker id of the message.
    */
   _get(msgIdentifier) {
@@ -920,12 +931,24 @@ export class MessageTracker extends EventEmitter {
   /**
    * Removes the provided message identifier from the messageTracker.
    *
-   * @param {object} msgIdentifier - msgIdentifier of the message
+   * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
    */
   _remove(msgIdentifier) {
     const hash = this.getHash(msgIdentifier);
     const id = this._get(msgIdentifier);
     this._messages.delete(id);
+    this._messageIds.delete(hash);
+    this._dummyMessageHeaders.delete(msgIdentifier.dummyMsgUrl);
+  }
+
+  /**
+   * Decouple the provided message identifier from the ID it is currently
+   * associated with and remove its tracker entries.
+   *
+   * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
+   */
+  _decouple(msgIdentifier) {
+    const hash = this.getHash(msgIdentifier);
     this._messageIds.delete(hash);
     this._dummyMessageHeaders.delete(msgIdentifier.dummyMsgUrl);
   }
@@ -976,7 +999,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Check if the provided msgIdentifier belongs to a modified file message.
    *
-   * @param {object} msgIdentifier - msgIdentifier object of the message
+   * @param {MsgIdentifier} msgIdentifier - msgIdentifier object of the message
    * @returns {boolean}
    */
   isModifiedFileMsg(msgIdentifier) {
@@ -1148,40 +1171,71 @@ export class MessageTracker extends EventEmitter {
     }
   }
 
+  /**
+   * Updates the mapping of message keys to WebExtension message IDs in the message
+   * tracker: For IMAP messages there is a delayed update of database keys and if
+   * those keys change, the messageTracker needs to update its maps, otherwise
+   * wrong messages will be returned.
+   *
+   * @param {nsMsgKey} oldKey - The previous message key of the updated message.
+   * @param {nsIMsgDBHdr} newMsgHdr - The updated message metadata.
+   */
   msgKeyChanged(oldKey, newMsgHdr) {
-    // For IMAP messages there is a delayed update of database keys and if those
-    // keys change, the messageTracker needs to update its maps, otherwise wrong
-    // messages will be returned. Key changes are replayed in multi-step swaps.
     const newKey = newMsgHdr.messageKey;
 
-    // Replay pending swaps.
-    while (this._pendingKeyChanges.has(oldKey)) {
+    // In some cases, the new key is already used by another message, and the keys
+    // have to be swapped in the message tracker. When this occurs, we immediately
+    // update both associated tracker entries. However, IMAP will send this event
+    // for both updates and we need to catch the second call and avoid reverting
+    // the mapping. Note: In some cases the swap sequence may involve multiple
+    // steps:
+    //                                                                                     A: 6  B: 5  C: 4  D: 3  E: 2  F: 1  G:34  H:33  I:32  J:31  K:30  L:29
+    // keyChange: 33 -> [ 1]                                          add pending  1->33   A: 6  B: 5  C: 4  D: 3  E: 2  F:33  G:34  H: 1  I:32  J:31  K:30  L:29
+    // keyChange: 32 -> [ 2]                                          add pending  2->32   A: 6  B: 5  C: 4  D: 3  E:32  F:33  G:34  H: 1  I: 2  J:31  K:30  L:29
+    // keyChange: 31 -> [ 3]                                          add pending  3->31   A: 6  B: 5  C: 4  D:31  E:32  F:33  G:34  H: 1  I: 2  J: 3  K:30  L:29
+    // keyChange: 30 -> [ 4]                                          add pending  4->30   A: 6  B: 5  C:30  D:31  E:32  F:33  G:34  H: 1  I: 2  J: 3  K: 4  L:29
+    // keyChange: 29 -> [ 5]                                          add pending  5->29   A: 6  B:29  C:30  D:31  E:32  F:33  G:34  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange: 34 -> [ 6]                                          add pending  6->34   A:34  B:29  C:30  D:31  E:32  F:33  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  6 -> [29]  replayed as  6->34 & 34->[29]           add pending 29->34   A:29  B:34  C:30  D:31  E:32  F:33  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  5 -> [30]  replayed as  5->29 & 29->34 & 34->[30]  add pending 30->34   A:29  B:30  C:34  D:31  E:32  F:33  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  4 -> [31]  replayed as  4->30 & 30->34 & 34->[31]  add pending 31->34   A:29  B:30  C:31  D:34  E:32  F:33  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  3 -> [32]  replayed as  3->31 & 31->34 & 34->[32]  add pending 32->34   A:29  B:30  C:31  D:32  E:34  F:33  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  2 -> [33]  replayed as  2->32 & 32->34 & 34->[33]  add pending 33->34   A:29  B:30  C:31  D:32  E:33  F:34  G: 6  H: 1  I: 2  J: 3  K: 4  L: 5
+    // keyChange:  1 -> [34]  replayed as  1->33 & 33->34 & 34->[34]  NO-OP
+    while (oldKey != newKey && this._pendingKeyChanges.has(oldKey)) {
       const next = this._pendingKeyChanges.get(oldKey);
       this._pendingKeyChanges.delete(oldKey);
       oldKey = next;
-
-      // Check if we are left with a no-op swap and exit early.
-      if (oldKey == newKey) {
-        this._pendingKeyChanges.delete(oldKey);
-        return;
-      }
     }
 
-    if (oldKey != newKey) {
-      // New key swap, log the mirror swap as pending.
-      this._pendingKeyChanges.set(newKey, oldKey);
+    // Check if we are left with a no-op swap and exit early.
+    if (oldKey == newKey) {
+      this._pendingKeyChanges.delete(oldKey);
+      return;
+    }
 
-      // Swap tracker entries.
-      const oldId = this._get({
-        folderURI: newMsgHdr.folder.URI,
-        messageKey: oldKey,
-      });
-      const newId = this._get({
-        folderURI: newMsgHdr.folder.URI,
-        messageKey: newKey,
-      });
-      this._set(oldId, { folderURI: newMsgHdr.folder.URI, messageKey: newKey });
-      this._set(newId, { folderURI: newMsgHdr.folder.URI, messageKey: oldKey });
+    const createIdentifier = messageKey => ({
+      folderURI: newMsgHdr.folder.URI,
+      messageKey,
+    });
+
+    const idAssociatedWithOldKey = this._get(createIdentifier(oldKey));
+    const idAssociatedWithNewKey = this._get(createIdentifier(newKey));
+
+    // Update the tracker entries for the ID associated with the old key and make
+    // it point to the new key.
+    this._set(idAssociatedWithOldKey, createIdentifier(newKey));
+
+    if (idAssociatedWithNewKey) {
+      // If the new key was already in use, make its associated ID point to the
+      // old key (swapping the keys).
+      this._set(idAssociatedWithNewKey, createIdentifier(oldKey));
+      // Log the executed mirror swap as pending.
+      this._pendingKeyChanges.set(newKey, oldKey);
+    } else {
+      // Decouple the obsolete message identifier for the old key from the ID it
+      // was associated with and remove it from the tracker.
+      this._decouple(createIdentifier(oldKey));
     }
   }
 
@@ -1194,18 +1248,19 @@ export class MessageTracker extends EventEmitter {
   observe(subject, topic, data) {
     if (topic == "attachment-delete-msgkey-changed") {
       data = JSON.parse(data);
-
       if (data && data.folderURI && data.oldMessageKey && data.newMessageKey) {
-        const id = this._get({
+        const createIdentifier = messageKey => ({
           folderURI: data.folderURI,
-          messageKey: data.oldMessageKey,
+          messageKey,
         });
+
+        const id = this._get(createIdentifier(data.oldMessageKey));
         if (id) {
-          // Replace tracker entries.
-          this._set(id, {
-            folderURI: data.folderURI,
-            messageKey: data.newMessageKey,
-          });
+          // Update the tracker entry for ID to point to the new key.
+          this._set(id, createIdentifier(data.newMessageKey));
+          // Decouple the obsolete message identifier from the ID it was associated
+          // with and remove it from the tracker.
+          this._decouple(createIdentifier(data.oldMessageKey));
         }
       }
     } else if (topic == "quit-application-granted") {
@@ -1495,7 +1550,7 @@ export class MessageListTracker {
 }
 
 /**
- * @typedef MessageConvertOptions
+ * @typedef {object} MessageConvertOptions
  * @property {boolean} [skipFolder] - do not include the converted folder
  */
 
