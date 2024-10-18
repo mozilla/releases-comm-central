@@ -213,7 +213,7 @@ async function convertAttachment(msgHdr, mimeTreePart, extension) {
     // A message/rfc822 MimeTreePart has its headers in the first child.
     const headers = convertHeaders(mimeTreePart.subParts[0]);
 
-    const attachedMsgHdr = new CachedMsgHeader();
+    const attachedMsgHdr = new CachedMsgHeader(messageTracker);
     const attachedMsgUrl = getMsgPartUrl(msgHdr, mimeTreePart.partNum);
     attachedMsgHdr.setStringProperty("dummyMsgUrl", attachedMsgUrl);
     attachedMsgHdr.recipients = headers.to;

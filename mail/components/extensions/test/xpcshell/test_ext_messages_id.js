@@ -84,6 +84,27 @@ add_task(
           browser.test.assertEq(subjects[3], messages[1].subject);
           browser.test.assertEq(subjects[4], messages[2].subject);
 
+          // It should not be possible to update the moved message.
+          await browser.test.assertRejects(
+            browser.messages.update(3, { flagged: true }),
+            /Message not found: 3/,
+            "Should not be able to update a no longer existing message"
+          );
+
+          // It should not be possible to get the moved message.
+          await browser.test.assertRejects(
+            browser.messages.get(1),
+            /Message not found: 1/,
+            "Should not be able to get a no longer existing message"
+          );
+
+          // It should not be possible to get the moved message.
+          await browser.test.assertRejects(
+            browser.messages.get(3),
+            /Message not found: 3/,
+            "Should not be able to get a no longer existing message"
+          );
+
           ({ messages } = await browser.messages.list(testFolder2.id));
           browser.test.assertEq(
             2,
@@ -145,13 +166,32 @@ add_task(
             "same message as another in this folder"
           );
 
+          // It should not be possible to update the moved message.
+          await browser.test.assertRejects(
+            browser.messages.update(8, { flagged: true }),
+            /Message not found: 8/,
+            "Should not be able to update a no longer existing message"
+          );
+
+          // It should not be possible to get the moved message.
+          await browser.test.assertRejects(
+            browser.messages.get(8),
+            /Message not found: 8/,
+            "Should not be able to get a no longer existing message"
+          );
+
           browser.test.notifyPass("finished");
         },
         "utils.js": await getUtilsJS(),
       },
       manifest: {
         background: { scripts: ["utils.js", "background.js"] },
-        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+        permissions: [
+          "accountsRead",
+          "messagesMove",
+          "messagesRead",
+          "messagesUpdate",
+        ],
       },
     });
 

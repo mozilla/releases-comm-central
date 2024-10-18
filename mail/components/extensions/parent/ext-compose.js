@@ -1105,7 +1105,7 @@ class MsgOperationObserver {
   msgsClassified(msgs) {
     // Collect all msgHdrs added to folders during the current message operation.
     for (const msgHdr of msgs) {
-      const cachedMsgHdr = new CachedMsgHeader(msgHdr);
+      const cachedMsgHdr = new CachedMsgHeader(messageTracker, msgHdr);
       const key = JSON.stringify({
         headerMessageId: cachedMsgHdr.messageId,
         folderURI: cachedMsgHdr.folder.URI,

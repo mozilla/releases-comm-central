@@ -730,8 +730,15 @@ export function getMessagesInFolder(folder) {
  * of file and attachment messages.
  */
 export class CachedMsgHeader {
-  constructor(msgHdr) {
+  #id;
+
+  /**
+   * @param {MessageTracker} messageTracker - reference to global MessageTracker
+   * @param {nsIMsgDBHdr} [msgHdr] - a msgHdr to cache
+   */
+  constructor(messageTracker, msgHdr) {
     this.mProperties = {};
+    this.messageTracker = messageTracker;
 
     // Properties needed by MessageManager.convert().
     this.author = null;
@@ -765,6 +772,9 @@ export class CachedMsgHeader {
       this.messageSize = msgHdr.messageSize;
       this.folder = msgHdr.folder;
 
+      // Also cache the additional elements.
+      this.accountKey = msgHdr.accountKey;
+
       this.mProperties.junkscore = msgHdr.getStringProperty("junkscore");
       this.mProperties.keywords = msgHdr.getStringProperty("keywords");
 
@@ -777,9 +787,32 @@ export class CachedMsgHeader {
         );
       }
 
-      // Also cache the additional elements.
-      this.accountKey = msgHdr.accountKey;
+      this.addToMessageTracker();
     }
+  }
+
+  get hasId() {
+    return !!this.#id;
+  }
+
+  get id() {
+    if (!this.#id) {
+      this.addToMessageTracker();
+    }
+    if (!this.#id) {
+      throw new Error("Failed to add cached header to the MessageTracker.");
+    }
+    return this.#id;
+  }
+
+  addToMessageTracker() {
+    if (this.#id) {
+      return;
+    }
+    if (!this.messageTracker) {
+      throw new Error("Missing MessageTracker.");
+    }
+    this.#id = this.messageTracker.getId(this);
   }
 
   getProperty(aProperty) {
@@ -888,7 +921,7 @@ export class MessageTracker extends EventEmitter {
   }
 
   /**
-   * Maps the provided message identifier to the given messageTracker id.
+   * Maps the provided internal message identifier to the given messageTracker id.
    *
    * @param {integer} id - messageTracker id of the message
    * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
@@ -908,14 +941,16 @@ export class MessageTracker extends EventEmitter {
     ) {
       this._dummyMessageHeaders.set(
         msgIdentifier.dummyMsgUrl,
-        msgHdr instanceof Ci.nsIMsgDBHdr ? new CachedMsgHeader(msgHdr) : msgHdr
+        msgHdr instanceof CachedMsgHeader
+          ? msgHdr
+          : new CachedMsgHeader(this, msgHdr)
       );
     }
   }
 
   /**
-   * Lookup the messageTracker id for the given message identifier, return null
-   * if not known.
+   * Lookup the messageTracker id for the given internal message identifier,
+   * return null if not known.
    *
    * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
    * @returns {integer} The messageTracker id of the message.
@@ -929,7 +964,7 @@ export class MessageTracker extends EventEmitter {
   }
 
   /**
-   * Removes the provided message identifier from the messageTracker.
+   * Removes the provided internal message identifier from the messageTracker.
    *
    * @param {MsgIdentifier} msgIdentifier - msgIdentifier of the message
    */
@@ -954,38 +989,53 @@ export class MessageTracker extends EventEmitter {
   }
 
   /**
+   * Returns the internal message identifier for the given message.
+   *
+   * @param {nsIMsgDBHdr} - msgHdr of the requested message
+   * @returns {object} The msgIdentifier of the message.
+   */
+  getIdentifier(msgHdr) {
+    if (msgHdr instanceof CachedMsgHeader && msgHdr.hasId) {
+      return this._messages.get(msgHdr.id);
+    }
+
+    if (msgHdr.folder) {
+      return {
+        folderURI: msgHdr.folder.URI,
+        messageKey: msgHdr.messageKey,
+      };
+    }
+    // Normalize the dummyMsgUrl by sorting its parameters and striping them
+    // to a minimum.
+    const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+    const parameters = Array.from(url.searchParams, p => p[0]).filter(
+      p => !["group", "number", "key", "part"].includes(p)
+    );
+    for (const parameter of parameters) {
+      url.searchParams.delete(parameter);
+    }
+    url.searchParams.sort();
+
+    return {
+      dummyMsgUrl: url.href,
+      dummyMsgLastModifiedTime: msgHdr.getUint32Property(
+        "dummyMsgLastModifiedTime"
+      ),
+    };
+  }
+
+  /**
    * Finds a message in the messageTracker or adds it.
    *
    * @param {nsIMsgDBHdr} - msgHdr of the requested message
    * @returns {integer} The messageTracker id of the message.
    */
   getId(msgHdr) {
-    let msgIdentifier;
-    if (msgHdr.folder) {
-      msgIdentifier = {
-        folderURI: msgHdr.folder.URI,
-        messageKey: msgHdr.messageKey,
-      };
-    } else {
-      // Normalize the dummyMsgUrl by sorting its parameters and striping them
-      // to a minimum.
-      const url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
-      const parameters = Array.from(url.searchParams, p => p[0]).filter(
-        p => !["group", "number", "key", "part"].includes(p)
-      );
-      for (const parameter of parameters) {
-        url.searchParams.delete(parameter);
-      }
-      url.searchParams.sort();
-
-      msgIdentifier = {
-        dummyMsgUrl: url.href,
-        dummyMsgLastModifiedTime: msgHdr.getUint32Property(
-          "dummyMsgLastModifiedTime"
-        ),
-      };
+    if (msgHdr instanceof CachedMsgHeader && msgHdr.hasId) {
+      return msgHdr.id;
     }
 
+    const msgIdentifier = this.getIdentifier(msgHdr);
     let id = this._get(msgIdentifier);
     if (id) {
       return id;
@@ -1145,7 +1195,7 @@ export class MessageTracker extends EventEmitter {
     for (const msgHdr of messages) {
       const junkScore =
         parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
-      this.emit("message-updated", new CachedMsgHeader(msgHdr), {
+      this.emit("message-updated", new CachedMsgHeader(this, msgHdr), {
         junk: junkScore >= lazy.gJunkThreshold,
       });
     }
@@ -1153,21 +1203,34 @@ export class MessageTracker extends EventEmitter {
 
   msgsDeleted(deletedMsgs) {
     if (deletedMsgs.length > 0) {
-      this.emit(
-        "messages-deleted",
-        deletedMsgs.map(msgHdr => new CachedMsgHeader(msgHdr))
+      const cachedDeletedMsgs = deletedMsgs.map(
+        msgHdr => new CachedMsgHeader(this, msgHdr)
       );
+      cachedDeletedMsgs
+        .map(msgHdr => this.getIdentifier(msgHdr))
+        .forEach(msgIdentifier => this._remove(msgIdentifier));
+      this.emit("messages-deleted", cachedDeletedMsgs);
     }
   }
 
   msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
     if (srcMsgs.length > 0 && dstMsgs.length > 0) {
       const emitMsg = move ? "messages-moved" : "messages-copied";
-      this.emit(
-        emitMsg,
-        srcMsgs.map(msgHdr => new CachedMsgHeader(msgHdr)),
-        dstMsgs.map(msgHdr => new CachedMsgHeader(msgHdr))
+
+      const cachedSrcMsgs = srcMsgs.map(
+        msgHdr => new CachedMsgHeader(this, msgHdr)
       );
+      const cachedDstMsgs = dstMsgs.map(
+        msgHdr => new CachedMsgHeader(this, msgHdr)
+      );
+
+      if (move) {
+        cachedSrcMsgs
+          .map(msgHdr => this.getIdentifier(msgHdr))
+          .forEach(msgIdentifier => this._remove(msgIdentifier));
+      }
+
+      this.emit(emitMsg, cachedSrcMsgs, cachedDstMsgs);
     }
   }
 
@@ -1469,7 +1532,7 @@ export class MessageListTracker {
     }
     while (messages.hasMoreElements()) {
       const next = messages.getNext();
-      await messageList.addMessage(next.QueryInterface(Ci.nsIMsgDBHdr));
+      await messageList.addMessage(next);
     }
     messageList.done();
   }
@@ -1577,7 +1640,10 @@ export class MessageManager {
     }
 
     // Cache msgHdr to reduce XPCOM requests.
-    const cachedHdr = new CachedMsgHeader(msgHdr);
+    const cachedHdr =
+      msgHdr instanceof CachedMsgHeader
+        ? msgHdr
+        : new CachedMsgHeader(this._messageTracker, msgHdr);
 
     // Skip messages, which are actually deleted.
     if (
@@ -1594,7 +1660,7 @@ export class MessageManager {
       .filter(MailServices.tags.isValidKey);
 
     const messageObject = {
-      id: this._messageTracker.getId(cachedHdr),
+      id: cachedHdr.id,
       date: new Date(Math.round(cachedHdr.date / 1000)),
       author: parseEncodedAddrHeader(cachedHdr.author).shift() || "",
       recipients: parseEncodedAddrHeader(cachedHdr.recipients, false),
