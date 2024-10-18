@@ -188,6 +188,51 @@
             ]
           }
         ]
+      },
+      {
+        "name": "encodeMimeHeader",
+        "type": "function",
+        "description": "Encode the provided header according to RFC 2047.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "headerName",
+            "type": "string"
+          },
+          {
+            "name": "headerValue",
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          {
+            "name": "isMailBoxHeader",
+            "type": "boolean",
+            "optional": true,
+            "description": "Headers containing multiple mailbox strings need special handling. This option overrides the default behavior of treating the headers defined in $(ref:messengerUtilities.MailboxHeaders) as mailbox headers."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   }

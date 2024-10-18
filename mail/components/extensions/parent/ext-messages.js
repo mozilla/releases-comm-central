@@ -18,6 +18,7 @@ ChromeUtils.defineESModuleGetters(this, {
 var {
   getMsgPartUrl,
   getMessagesInFolder,
+  messagePartToRaw,
   parseEncodedAddrHeader,
   CachedMsgHeader,
   MAILBOX_HEADERS,
@@ -694,10 +695,46 @@ this.messages = class extends ExtensionAPIPersistent {
             decodeContent
           );
         },
-        async getRaw(messageId, options) {
+        async getRaw(source, options) {
           // Default for decrypt is false (backward compatibility).
           const decrypt = options?.decrypt ?? false;
+          // Default for data_format in MV3 is File.
+          let data_format = options?.data_format;
+          if (!["File", "BinaryString"].includes(data_format)) {
+            data_format =
+              extension.manifestVersion < 3 ? "BinaryString" : "File";
+          }
 
+          const createFileFromBinaryString = (raw, filename) => {
+            // Convert binary string to Uint8Array and return a File.
+            const bytes = new Uint8Array(raw.length);
+            for (let i = 0; i < raw.length; i++) {
+              bytes[i] = raw.charCodeAt(i) & 0xff;
+            }
+            return new File([bytes], filename, {
+              type: "message/rfc822",
+            });
+          };
+
+          // Check if the source is a MessagePart.
+          if (
+            !Number.isInteger(source) &&
+            source?.contentType == "message/rfc822"
+          ) {
+            const raw = messagePartToRaw(source);
+            // TODO: Pipe raw through decryptor if requested.
+            if (decrypt) {
+              console.warn(
+                "Decrypting a generated message is not yet supported"
+              );
+            }
+            if (data_format == "BinaryString") {
+              return raw;
+            }
+            return createFileFromBinaryString(raw, "generated.eml");
+          }
+
+          const messageId = source;
           const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
@@ -723,22 +760,10 @@ this.messages = class extends ExtensionAPIPersistent {
             }
           }
 
-          let data_format = options?.data_format;
-          if (!["File", "BinaryString"].includes(data_format)) {
-            data_format =
-              extension.manifestVersion < 3 ? "BinaryString" : "File";
-          }
           if (data_format == "BinaryString") {
             return raw;
           }
-          // Convert binary string to Uint8Array and return a File.
-          const bytes = new Uint8Array(raw.length);
-          for (let i = 0; i < raw.length; i++) {
-            bytes[i] = raw.charCodeAt(i) & 0xff;
-          }
-          return new File([bytes], `message-${messageId}.eml`, {
-            type: "message/rfc822",
-          });
+          return createFileFromBinaryString(raw, `message-${messageId}.eml`);
         },
         async listInlineTextParts(messageId) {
           const msgHdr = messageManager.get(messageId);

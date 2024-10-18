@@ -75,6 +75,23 @@ this.messengerUtilities = class extends ExtensionAPIPersistent {
             )
           );
         },
+        async encodeMimeHeader(headerName, headerValue, isMailBoxHeader) {
+          // MAILBOX_HEADERS is all lowercase.
+          headerName = headerName.toLowerCase();
+          // Return an array, even for single values.
+          if (!Array.isArray(headerValue)) {
+            headerValue = [headerValue];
+          }
+
+          return headerValue.map(value =>
+            MailServices.mimeConverter.encodeMimePartIIStr_UTF8(
+              value,
+              isMailBoxHeader ?? MAILBOX_HEADERS.includes(headerName),
+              headerName.length + 2,
+              Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
+            )
+          );
+        },
       },
     };
   }

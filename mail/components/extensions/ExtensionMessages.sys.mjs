@@ -4,9 +4,9 @@
 
 const lazy = {};
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import {
@@ -75,6 +75,88 @@ export const MAILBOX_HEADERS = [
   "mail-reply-to",
   "mail-followup-to",
 ];
+
+/**
+ * Creates a raw message string from a WebExtension MessagePart. Fails if the
+ * MessagePart does not contain raw header or raw content data.
+ *
+ * @param {MessagePart} messagePart
+ * @returns {string} The raw message reconstructed from the provided MessagePart.
+ */
+export function messagePartToRaw(messagePart) {
+  if (messagePart.rawHeaders == undefined) {
+    throw new ExtensionError(
+      "Failed to create message from MessagePart due to missing raw headers."
+    );
+  }
+
+  // Skip the outer RFC822 MessagePart envelope and merge its headers into the
+  // first real part. This envelope is a historic speciality of our MessagePart
+  // and removing it here simplifies the following process.
+  if (
+    messagePart.contentType == "message/rfc822" &&
+    messagePart.partName == ""
+  ) {
+    messagePart.parts[0].rawHeaders = {
+      ...messagePart.rawHeaders,
+      ...messagePart.parts[0].rawHeaders,
+    };
+    messagePart = messagePart.parts[0];
+    // Follow convention to include multi-part message text description.
+    if (
+      messagePart.contentType.startsWith("multipart/") &&
+      !messagePart.rawBody
+    ) {
+      messagePart.rawBody = "This is a multi-part message in MIME format.\r\n";
+    }
+  }
+
+  if (messagePart.body) {
+    throw new ExtensionError(
+      "Failed to create message from MessagePart due to missing raw part content."
+    );
+  }
+
+  let msg = "";
+  const rawHeaders = Object.entries(messagePart.rawHeaders);
+  if (rawHeaders.length > 0) {
+    for (const [name, value] of rawHeaders) {
+      const formattedName = name.replace(/^.|(-.)/g, function (match) {
+        return match.toUpperCase();
+      });
+
+      // Note: value is an array holding multiple entries for the same header.
+      const headers = value.map(v => `${formattedName}: ${v}`).join("\r\n");
+      msg += headers;
+      if (!msg.endsWith("\r\n")) {
+        msg += "\r\n";
+      }
+    }
+    msg += "\r\n";
+  }
+
+  if (messagePart.rawBody) {
+    msg += messagePart.rawBody;
+  }
+
+  if (messagePart.parts && messagePart.parts.length > 0) {
+    const contentTypeHeader = messagePart.rawHeaders["content-type"].join("");
+    const boundary = lazy.MimeParser.getParameter(
+      contentTypeHeader,
+      "boundary"
+    );
+    for (const part of messagePart.parts) {
+      msg += `--${boundary}\r\n`;
+      msg += messagePartToRaw(part);
+      if (msg.search(/[\r\n]$/) < 0) {
+        msg += "\r\n";
+      }
+      msg += "\r\n";
+    }
+    msg += `--${boundary}--\r\n`;
+  }
+  return msg;
+}
 
 /**
  * Parse an address header containing one or more email addresses, and return an

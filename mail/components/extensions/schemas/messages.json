@@ -572,12 +572,20 @@
       {
         "name": "getRaw",
         "type": "function",
-        "description": "Returns the unmodified source of a message. Throws if the message could not be read, for example due to network issues.",
+        "description": "Returns the raw content of a message. Throws if the message could not be read, for example due to network issues.",
         "async": "callback",
         "parameters": [
           {
-            "name": "messageId",
-            "$ref": "messages.MessageId"
+            "name": "message",
+            "description": "Either a $(ref:messages.MessageId) of an existing message, or a $(ref:messages.MessagePart) with raw header and raw content data representing a full RFC 822 message (the provided data will be used as-is without applying any further encoding). See the <var>decodeHeaders</var> and <var>decodeContent</var> options of $(ref:messages.getFull) for further details on how to retrieve a $(ref:messages.MessagePart) with raw values. You can use $(ref:messengerUtilities.decodeMimeHeader) and $(ref:messengerUtilities.encodeMimeHeader) to manipulate a raw MessagePart.",
+            "choices": [
+              {
+                "$ref": "messages.MessageId"
+              },
+              {
+                "$ref": "messages.MessagePart"
+              }
+            ]
           },
           {
             "name": "options",

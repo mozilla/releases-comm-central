@@ -253,7 +253,7 @@
           "type": {
             "type": "string",
             "enum": ["STORAGE", "MESSAGE"],
-            "description": "The type of the quota as defined by RFC2087. A <var>STORAGE</var> quota is constraining the available storage in bytes, a <var>MESSAGE</var> quota is constraining the number of storable messages."
+            "description": "The type of the quota as defined by RFC 2087. A <var>STORAGE</var> quota is constraining the available storage in bytes, a <var>MESSAGE</var> quota is constraining the number of storable messages."
           },
           "limit": {
             "type": "integer",

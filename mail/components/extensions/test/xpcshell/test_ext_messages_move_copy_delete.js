@@ -710,20 +710,20 @@ add_task(
     const pop3Account = createAccount("pop3");
 
     const popRootFolder = pop3Account.incomingServer.rootFolder;
-    const popTestFolder = await createSubfolder(popRootFolder, "popTest");
-    await createMessages(popTestFolder, 5);
+    const nativePopTestFolder = await createSubfolder(popRootFolder, "popTest");
+    await createMessages(nativePopTestFolder, 5);
 
-    const imapRootFolder = imapAccount.incomingServer.rootFolder;
-    const imapCopyTestFolder = await createSubfolder(
-      imapRootFolder,
+    const nativeImapRootFolder = imapAccount.incomingServer.rootFolder;
+    const nativeImapCopyTestFolder = await createSubfolder(
+      nativeImapRootFolder,
       "imapCopyTest"
     );
-    const imapMoveTestFolder = await createSubfolder(
-      imapRootFolder,
+    const nativeImapMoveTestFolder = await createSubfolder(
+      nativeImapRootFolder,
       "imapMoveTest"
     );
-    await createMessages(imapCopyTestFolder, 1);
-    await createMessages(imapMoveTestFolder, 2);
+    await createMessages(nativeImapCopyTestFolder, 1);
+    await createMessages(nativeImapMoveTestFolder, 2);
 
     const files = {
       "background.js": async () => {
