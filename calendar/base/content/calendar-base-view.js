@@ -87,7 +87,6 @@
       });
 
       this.mSelectedItems = [];
-      this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start");
     }
 
     ensureInitialized() {
@@ -96,6 +95,7 @@
       }
       this.#isInitialized = true;
 
+      this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start");
       this.calICalendarView = this.getCustomInterfaceCallback(Ci.calICalendarView);
 
       this.addEventListener("move", event => {
