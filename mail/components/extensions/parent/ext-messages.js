@@ -20,6 +20,7 @@ var {
   getMessagesInFolder,
   parseEncodedAddrHeader,
   CachedMsgHeader,
+  MAILBOX_HEADERS,
   MessageQuery,
   MsgHdrProcessor,
 } = ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
@@ -37,8 +38,29 @@ XPCOMUtils.defineLazyGlobalGetters(this, ["File"]);
 var { DefaultMap } = ExtensionUtils;
 
 /**
- * Takes a MimeTreePart and returns the processed headers, to be used in the
+ * Takes a MimeTreePart and returns the raw headers, to be used in the
  * WebExtension MessagePart.
+ *
+ * @param {MimeTreePart} mimeTreePart
+ * @returns {Object<string, string[]>} The headers of the part. Each key is the
+ *   name of a header and its value is an array of the header values.
+ *
+ * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
+ */
+function convertRawHeaders(mimeTreePart) {
+  const partHeaders = {};
+  for (const [headerName, headerValue] of mimeTreePart.headers._rawHeaders) {
+    // Return an array, even for single values.
+    const valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
+    partHeaders[headerName] = valueArray;
+  }
+
+  return partHeaders;
+}
+
+/**
+ * Takes a MimeTreePart and returns the processed headers, to be used in the
+ * WebExtension MessagePart. Adds a content-type header if missing.
  *
  * @param {MimeTreePart} mimeTreePart
  * @returns {Object<string, string[]>} The headers of the part. Each key is the
@@ -50,45 +72,21 @@ function convertHeaders(mimeTreePart) {
   // For convenience, the API has always decoded the returned headers. That turned
   // out to make it impossible to parse certain headers. For example, the following
   // TO header
-  //   To: =?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug
+  //   =?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug
   // was decoded to
-  //   To: Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug
+  //   Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug
   // This issue seems to be specific to address headers. Similar to jsmime, which
   // is using a dedicated parser for well known address headers, we will handle
-  // these address headers separately as well. It is obviously not a perfect fix,
-  // but the best we can do.
-  const addressHeaders = [
-    // Addressing headers from RFC 5322:
-    "bcc",
-    "cc",
-    "from",
-    "reply-to",
-    "resent-bcc",
-    "resent-cc",
-    "resent-from",
-    "resent-reply-to",
-    "resent-sender",
-    "resent-to",
-    "sender",
-    "to",
-    // From RFC 5536:
-    "approved",
-    // From RFC 3798:
-    "disposition-notification-to",
-    // Non-standard headers:
-    "delivered-to",
-    "return-receipt-to",
-    // http://cr.yp.to/proto/replyto.html
-    "mail-reply-to",
-    "mail-followup-to",
-  ];
+  // these address headers separately as well. Add-on developers may request raw
+  // headers and manually decode them using messengerUtilities.decodeMimeHeader(),
+  // which allows to specify whether the header is a mailbox header or not.
 
   const partHeaders = {};
   for (const [headerName, headerValue] of mimeTreePart.headers._rawHeaders) {
     // Return an array, even for single values.
     const valueArray = Array.isArray(headerValue) ? headerValue : [headerValue];
 
-    partHeaders[headerName] = addressHeaders.includes(headerName)
+    partHeaders[headerName] = MAILBOX_HEADERS.includes(headerName)
       ? valueArray.map(value => parseEncodedAddrHeader(value).join(", "))
       : valueArray.map(value => {
           return MailServices.mimeConverter.decodeMimeHeader(
@@ -110,19 +108,26 @@ function convertHeaders(mimeTreePart) {
  *
  * The WebExtension type "MessagePart", as defined in messages.json.
  *
- * @property {string} [body] - The content of the part.
+ * @property {string} [body] - The quoted-printable or base64 decoded content of
+ *    the part. Only present for parts with a content type of <var>text/*</var>
+ *    and only if requested.
  * @property {string} [contentType] - The contentType of the part.
  * @property {string} [decryptionStatus] - The decryptionStatus of the part, one
- *   of "none", "skipped", "success" or "fail".
- * @property {Object<string, string[]>} [headers] - The headers of the part. Each
- *   key is the name of a header and its value is an array of the header values.
+ *    of "none", "skipped", "success" or "fail".
+ * @property {Object<string, string[]>} [headers] - The RFC2047 decoded headers
+ *    of the part. Each key is the name of a header and its value is an array of
+ *    header values (if header is specified more than once).
  * @property {string} [name] - Name of the part, if it is an attachment/file.
  * @property {string} [partName] - The identifier of this part in the message
- *   (for example "1.2").
+ *    (for example "1.2").
  * @property {MessagePart[]} [parts] - Any sub-parts of this part.
+ * @property {string} [rawBody] - The raw content of the part.
+ * @property {Object<string, string[]>} [rawHeaders] - The raw headers of the part.
+ *    Each key is the name of a header and its value is an array of the header
+ *    values (if header is specified more than once).
  * @property {integer} [size] - The size of this part. The size of message/* parts
- *   is not the actual message size (on disc), but the total size of its decoded
- *   body parts, excluding headers.
+ *    is not the actual message size (on disc), but the total size of its decoded
+ *    body parts, excluding headers.
  *
  * @see mail/components/extensions/schemas/messages.json
  */
@@ -132,25 +137,50 @@ function convertHeaders(mimeTreePart) {
  * extensions and converts it to a WebExtension MessagePart.
  *
  * @param {MimeTreePart} mimeTreePart
- * @param {boolean} isRoot - if this is the root part, while working through the
- *   tree recursivly
+ * @param {boolean} isRoot - If this is the root part, while working through the
+ *   tree recursivly.
+ * @param {boolean} decodeHeaders - If decoded or raw headers should be returned.
+ * @param {boolean} decodeContent - If decoded or raw content should be returned,
+ *   this determines if a "body" member only for text/* parts, or if a "rawBody"
+ *   member for all parts is to be returned. The actual decoding is done elsewhere
+ *   and the option should match the content data in the provided mimeTreePart.
+ *
  * @returns {MessagePart}
  *
  * @see mail/extensions/openpgp/content/modules/MimeTree.sys.mjs
  */
-function convertMessagePart(mimeTreePart, isRoot = true) {
+function convertMessagePart(
+  mimeTreePart,
+  isRoot,
+  decodeHeaders,
+  decodeContent
+) {
   const partObject = {
     contentType: mimeTreePart.headers.contentType.type || "text/plain",
-    headers: convertHeaders(mimeTreePart),
     size: mimeTreePart.size,
     partName: mimeTreePart.partNum,
   };
 
-  // Supress content of attachments or other binary parts.
-  const mediatype = mimeTreePart.headers.contentType.mediatype || "text";
-  if (mimeTreePart.body && !mimeTreePart.isAttachment && mediatype == "text") {
-    partObject.body = mimeTreePart.body;
+  if (decodeContent) {
+    // Supress content of attachments or other binary parts.
+    const mediatype = mimeTreePart.headers.contentType.mediatype || "text";
+    if (
+      mimeTreePart.body &&
+      !mimeTreePart.isAttachment &&
+      mediatype == "text"
+    ) {
+      partObject.body = mimeTreePart.body;
+    }
+  } else {
+    partObject.rawBody = mimeTreePart.body;
   }
+
+  if (decodeHeaders) {
+    partObject.headers = convertHeaders(mimeTreePart);
+  } else {
+    partObject.rawHeaders = convertRawHeaders(mimeTreePart);
+  }
+
   if (mimeTreePart.isAttachment) {
     partObject.name = mimeTreePart.name || "";
   }
@@ -162,7 +192,7 @@ function convertMessagePart(mimeTreePart, isRoot = true) {
     mimeTreePart.subParts.length > 0
   ) {
     partObject.parts = mimeTreePart.subParts.map(part =>
-      convertMessagePart(part, false)
+      convertMessagePart(part, false, decodeHeaders, decodeContent)
     );
   }
 
@@ -170,25 +200,40 @@ function convertMessagePart(mimeTreePart, isRoot = true) {
   // multipart/* or a text/plain part). WebExtensions should get an outer
   // message/rfc822 part. Most headers are also moved to the outer message part.
   if (isRoot) {
-    const rootHeaders = Object.fromEntries(
-      Object.entries(partObject.headers).filter(
-        h => !h[0].startsWith("content-")
-      )
-    );
-    rootHeaders["content-type"] = ["message/rfc822"];
-    partObject.headers = Object.fromEntries(
-      Object.entries(partObject.headers).filter(h =>
-        h[0].startsWith("content-")
-      )
-    );
-    return {
+    const rv = {
       contentType: "message/rfc822",
       partName: "",
       size: mimeTreePart.size,
       decryptionStatus: mimeTreePart.decryptionStatus,
-      headers: rootHeaders,
-      parts: mimeTreePart.decryptionStatus != "fail" ? [partObject] : [],
     };
+
+    if (decodeHeaders) {
+      rv.headers = Object.fromEntries(
+        Object.entries(partObject.headers).filter(
+          h => !h[0].startsWith("content-")
+        )
+      );
+      rv.headers["content-type"] = ["message/rfc822"];
+      partObject.headers = Object.fromEntries(
+        Object.entries(partObject.headers).filter(h =>
+          h[0].startsWith("content-")
+        )
+      );
+    } else {
+      rv.rawHeaders = Object.fromEntries(
+        Object.entries(partObject.rawHeaders).filter(
+          h => !h[0].startsWith("content-")
+        )
+      );
+      partObject.rawHeaders = Object.fromEntries(
+        Object.entries(partObject.rawHeaders).filter(h =>
+          h[0].startsWith("content-")
+        )
+      );
+    }
+
+    rv.parts = mimeTreePart.decryptionStatus != "fail" ? [partObject] : [];
+    return rv;
   }
   return partObject;
 }
@@ -609,15 +654,23 @@ this.messages = class extends ExtensionAPIPersistent {
           return messageHeader;
         },
         async getFull(messageId, options) {
-          // Default for decrypt is true (backward compatibility).
+          // Default for decrypt and decode is true (backward compatibility).
           const decrypt = options?.decrypt ?? true;
+
+          const decodeHeaders = options?.decodeHeaders ?? true;
+          const decodeContent = options?.decodeContent ?? true;
+          const parserOptions = {
+            strFormat: decodeContent ? "unicode" : "binarystring",
+            bodyFormat: decodeContent ? "decode" : "nodecode",
+            stripContinuations: decodeHeaders,
+          };
 
           const msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
 
-          const msgHdrProcessor = new MsgHdrProcessor(msgHdr);
+          const msgHdrProcessor = new MsgHdrProcessor(msgHdr, parserOptions);
           let mimeTree;
           try {
             if (decrypt) {
@@ -634,7 +687,12 @@ this.messages = class extends ExtensionAPIPersistent {
             // Do not include fake body parts.
             mimeTree.subParts = [];
           }
-          return convertMessagePart(mimeTree);
+          return convertMessagePart(
+            mimeTree,
+            true,
+            decodeHeaders,
+            decodeContent
+          );
         },
         async getRaw(messageId, options) {
           // Default for decrypt is false (backward compatibility).

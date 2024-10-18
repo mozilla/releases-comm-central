@@ -176,7 +176,7 @@
         "properties": {
           "body": {
             "type": "string",
-            "description": "The content of the part.",
+            "description": "The quoted-printable or base64 decoded content of the part. Only present for parts with a content type of <var>text/*</var> and only if requested, see the <var>decodeContent</var> option of $(ref:messages.getFull). Use $(ref:messages.getAttachmentFile) to retrieve the content of parts which have a content type other than <var>text/*</var>.",
             "optional": true
           },
           "contentType": {
@@ -191,7 +191,7 @@
           },
           "headers": {
             "type": "object",
-            "description": "A <em>dictionary object</em> of part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>.",
+            "description": "A <em>dictionary object</em> of RFC 2047 decoded part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>. Only present if requested, see the <var>decodeHeaders</var> option of $(ref:messages.getFull).",
             "optional": true,
             "additionalProperties": {
               "type": "array",
@@ -217,6 +217,22 @@
             },
             "description": "Any sub-parts of this part.",
             "optional": true
+          },
+          "rawBody": {
+            "type": "string",
+            "description": "The raw content of the part. Only present if requested, see the <var>decodeContent</var> option of $(ref:messages.getFull).",
+            "optional": true
+          },
+          "rawHeaders": {
+            "type": "object",
+            "description": "A <em>dictionary object</em> of raw part headers as <em>key-value</em> pairs, with the header name as <em>key</em>, and an array of headers as <em>value</em>. Only present if requested, see the <var>decodeHeaders</var> option of $(ref:messages.getFull).",
+            "optional": true,
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
           "size": {
             "type": "integer",
@@ -525,7 +541,17 @@
             "properties": {
               "decrypt": {
                 "type": "boolean",
-                "description": "Whether the message should be decrypted. If the message could not be decrypted, its parts are omitted. Defaults to true.",
+                "description": "Whether the message should be decrypted. If the message could not be decrypted, its parts are omitted. Defaults to <var>true</var>.",
+                "optional": true
+              },
+              "decodeHeaders": {
+                "type": "boolean",
+                "description": "Whether to decode RFC 2047 encoded headers of message parts. Defaults to <var>true</var>. **Note:** Automatic decoding of headers containing a list of comma separated mailbox strings can have unwanted side effects. Example: <literalinclude>includes/messages/badHeader.js<lang>JavaScript</lang></literalinclude>",
+                "optional": true
+              },
+              "decodeContent": {
+                "type": "boolean",
+                "description": "Whether to decode quoted-printable or base64 encoded content of message parts. Defaults to <var>true</var>.",
                 "optional": true
               }
             },

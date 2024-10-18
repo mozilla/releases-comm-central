@@ -43,6 +43,39 @@ XPCOMUtils.defineLazyPreferenceGetter(
   100
 );
 
+// Headers holding multiple mailbox strings needs special handling during encoding
+// and decoding. For example, the following TO header
+//   =?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug
+// will be wrongly decoded to
+//   Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug
+// The data in the header is no longer usable, because the structure of the first
+// mailbox string has been corrupted.
+export const MAILBOX_HEADERS = [
+  // Addressing headers from RFC 5322:
+  "bcc",
+  "cc",
+  "from",
+  "reply-to",
+  "resent-bcc",
+  "resent-cc",
+  "resent-from",
+  "resent-reply-to",
+  "resent-sender",
+  "resent-to",
+  "sender",
+  "to",
+  // From RFC 5536:
+  "approved",
+  // From RFC 3798:
+  "disposition-notification-to",
+  // Non-standard headers:
+  "delivered-to",
+  "return-receipt-to",
+  // http://cr.yp.to/proto/replyto.html
+  "mail-reply-to",
+  "mail-followup-to",
+];
+
 /**
  * Parse an address header containing one or more email addresses, and return an
  * array of RFC 5322 compliant mailbox strings.
@@ -264,16 +297,31 @@ export class MsgHdrProcessor {
   #originalTree;
   #decryptedTree;
 
+  // Options for parser.
+  #strFormat;
+  #bodyFormat;
+  #stripContinuations;
+
   // Keep track of encryption status, to skip encryption if known to be not
   // needed.
   #hasEncryptedParts;
 
   /**
    * @param {nsIMsgDBHdr} msgHdr
+   * @param {object} parserOptions
+   * @param {string} parserOptions.strFormat - Either binarystring, unicode or
+   *    typedarray. See jsmime.mjs for more details.
+   * @param {string} parserOptions.bodyFormat - Either none, raw, nodecode or
+   *    decode. See jsmime.mjs for more details.
+   * @param {boolean} parserOptions.stripContinuations - Whether to remove line
+   *    breaks in headers.
    */
-  constructor(msgHdr) {
+  constructor(msgHdr, parserOptions) {
     this.#msgHdr = msgHdr;
     this.#msgUri = getMsgStreamUrl(msgHdr);
+    this.#bodyFormat = parserOptions?.bodyFormat ?? "decode";
+    this.#strFormat = parserOptions?.strFormat ?? "unicode";
+    this.#stripContinuations = parserOptions?.stripContinuations ?? true;
   }
 
   /**
@@ -304,10 +352,10 @@ export class MsgHdrProcessor {
       excludeAttachmentData,
     });
     lazy.MimeParser.parseSync(rawMessage, emitter, {
-      strformat: "unicode",
-      bodyformat: "decode",
+      strformat: this.#strFormat,
+      bodyformat: this.#bodyFormat,
       decodeSubMessages,
-      stripcontinuations: true,
+      stripcontinuations: this.#stripContinuations,
       pruneat,
     });
     const mimeTree = emitter.mimeTree.subParts[0];

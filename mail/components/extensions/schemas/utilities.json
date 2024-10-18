@@ -26,6 +26,31 @@
             "description": "The members of the group, if available."
           }
         }
+      },
+      {
+        "id": "MailboxHeaders",
+        "type": "string",
+        "description": "MIME headers, which by default are treated as containing one or more mailbox strings.",
+        "enum": [
+          "bcc",
+          "cc",
+          "from",
+          "reply-to",
+          "resent-bcc",
+          "resent-cc",
+          "resent-from",
+          "resent-reply-to",
+          "resent-sender",
+          "resent-to",
+          "sender",
+          "to",
+          "approved",
+          "disposition-notification-to",
+          "delivered-to",
+          "return-receipt-to",
+          "mail-reply-to",
+          "mail-followup-to"
+        ]
       }
     ],
     "functions": [
@@ -113,6 +138,51 @@
                 "type": "array",
                 "items": {
                   "$ref": "messengerUtilities.ParsedMailbox"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "decodeMimeHeader",
+        "type": "function",
+        "description": "Decode the provided header into a readable format according to RFC 2047.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "headerName",
+            "type": "string"
+          },
+          {
+            "name": "headerValue",
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          {
+            "name": "isMailBoxHeader",
+            "type": "boolean",
+            "optional": true,
+            "description": "Headers containing multiple mailbox strings need special handling. For example the header <var>=?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug</var> will be wrongly decoded to <var>Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug</var>, corrupting the structure of the first mailbox string. This option overrides the default behavior of treating the headers defined in $(ref:messengerUtilities.MailboxHeaders) as mailbox headers."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               }
             ]

@@ -243,3 +243,61 @@ ipsum dolor sit amet.`,
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function test_decodeMimeHeader() {
+  const extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const value =
+          "=?UTF-8?Q?H=C3=B6rst=2C_Kenny?= <K.Hoerst@invalid>, new@thunderbird.bug";
+
+        // Test default.
+        window.assertDeepEqual(
+          [`"Hörst, Kenny" <K.Hoerst@invalid>, new@thunderbird.bug`],
+          await browser.messengerUtilities.decodeMimeHeader("TO", value),
+          `The mailbox header should be decoded correctly.`
+        );
+
+        // Test enforced mailbox handling.
+        window.assertDeepEqual(
+          [`"Hörst, Kenny" <K.Hoerst@invalid>, new@thunderbird.bug`],
+          await browser.messengerUtilities.decodeMimeHeader("TO", value, true),
+          `The mailbox header should be decoded correctly.`
+        );
+
+        // Test enforced non-mailbox handling.
+        window.assertDeepEqual(
+          [`Hörst, Kenny <K.Hoerst@invalid>, new@thunderbird.bug`],
+          await browser.messengerUtilities.decodeMimeHeader("TO", value, false),
+          `The mailbox header should be decoded as expected (wrongly).`
+        );
+
+        // Test multi-line subject header provided as string and not as array.
+        const encoded_subject = `=?UTF-8?B?c2RzYWQgw7bDpMO8IGFzZGEgZCAiw7zDtsOkInNkZsOkIGRzaiBhbGRq?=
+ =?UTF-8?B?IGFzamQgaiBkaiDDtsO8IMO8w7bDpCBkaiBrYWRqcyDDtsO8w6Qgc2tsamQgYXNs?=
+ =?UTF-8?B?ZGtqIGFscyBkasO2w7zDpCBzamRsYXNqZCBsYXNkaiBsYXPDvMO2w6RsIGFkaiBs?=
+ =?UTF-8?B?YWTDvMO2w6TDvCBsYXNkaiBsYXMgZGrDvMO2w6Q=?=`;
+        const decoded_subject = `sdsad öäü asda d "üöä"sdfä dsj aldj asjd j dj öü üöä dj kadjs öüä skljd asldkj als djöüä sjdlasjd lasdj lasüöäl adj ladüöäü lasdj las djüöä`;
+        window.assertDeepEqual(
+          [decoded_subject],
+          await browser.messengerUtilities.decodeMimeHeader(
+            "Subject",
+            encoded_subject
+          ),
+          `The subject header should be decoded correctly.`
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

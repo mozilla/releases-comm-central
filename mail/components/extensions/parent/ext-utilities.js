@@ -6,6 +6,14 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
+var { MailStringUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailStringUtils.sys.mjs"
+);
+
+var { MAILBOX_HEADERS, parseEncodedAddrHeader } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
+);
+
 var parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
@@ -43,6 +51,29 @@ this.messengerUtilities = class extends ExtensionAPIPersistent {
           }
 
           return parserUtils.convertToPlainText(body, flags, wrapWidth).trim();
+        },
+        async decodeMimeHeader(headerName, headerValue, isMailBoxHeader) {
+          // MAILBOX_HEADERS is all lowercase.
+          headerName = headerName.toLowerCase();
+          // Return an array, even for single values.
+          if (!Array.isArray(headerValue)) {
+            headerValue = [headerValue];
+          }
+
+          if (isMailBoxHeader ?? MAILBOX_HEADERS.includes(headerName)) {
+            return headerValue.map(value =>
+              parseEncodedAddrHeader(value).join(", ")
+            );
+          }
+
+          return headerValue.map(value =>
+            MailServices.mimeConverter.decodeMimeHeader(
+              MailStringUtils.stringToByteString(value),
+              null,
+              false /* override_charset */,
+              true /* eatContinuations */
+            )
+          );
         },
       },
     };
