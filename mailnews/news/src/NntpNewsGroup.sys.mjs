@@ -19,7 +19,6 @@ export class NntpNewsGroup {
     this._folder = folder;
     this._db = this._folder.msgDatabase;
     this._msgHdrs = [];
-    this._commitReadKeySet = false;
   }
 
   /**
@@ -56,9 +55,6 @@ export class NntpNewsGroup {
       )
         .split(" ")
         .filter(Boolean)
-    );
-    this._readKeySet = new MsgKeySet(
-      this._folder.newsrcLine.split(":")[1].trim()
     );
 
     const groupInfo = this._db.dBFolderInfo;
@@ -120,8 +116,10 @@ export class NntpNewsGroup {
         }
         start = args.downloadAll ? start : end - this._server.maxArticles + 1;
         if (this._server.markOldRead) {
+          this._readKeySet = new MsgKeySet(
+            this._folder.newsrcLine.split(":")[1].trim()
+          );
           this._readKeySet.addRange(firstPossible, start - 1);
-          this._commitReadKeySet = true;
         }
       }
       return [start, end];
@@ -326,9 +324,6 @@ export class NntpNewsGroup {
         );
       }
       if (this._addHdrToDB && !this._db.containsKey(msgHdr.messageKey)) {
-        if (this._readKeySet.has(msgHdr.messageKey)) {
-          msgHdr.flags |= Ci.nsMsgMessageFlags.Read;
-        }
         this._db.addNewHdrToDB(msgHdr, true);
         MailServices.mfn.notifyMsgAdded(msgHdr);
         this._folder.orProcessingFlags(
@@ -412,7 +407,7 @@ export class NntpNewsGroup {
    * Commit changes to msg db.
    */
   cleanUp() {
-    if (this._commitReadKeySet) {
+    if (this._readKeySet) {
       this._folder.setReadSetFromStr(this._readKeySet);
     }
     this._folder.notifyFinishedDownloadinghdrs();

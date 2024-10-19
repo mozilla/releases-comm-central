@@ -119,7 +119,7 @@ export class MsgKeySet {
         newRanges.push([cursorStart, cursorEnd]);
         cursorStart = start;
         cursorEnd = end;
-      } else if (end > cursorEnd) {
+      } else {
         // Overlapped, merge them.
         cursorEnd = end;
       }
