@@ -83,6 +83,10 @@ add_task(async function test_forward_from_folder() {
       { label: folder.name },
     ]
   );
+  await TestUtils.waitForCondition(
+    () => folder.getTotalMessages(false) == 1,
+    "waiting for copy to folder to complete"
+  );
   await BrowserTestUtils.closeWindow(msgc);
 
   const msg = await select_click_row(0);
