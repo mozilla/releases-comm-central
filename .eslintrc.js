@@ -47,7 +47,9 @@ module.exports = {
   },
   // Ignore eslint configurations in parent directories.
   root: true,
-
+  env: {
+    es2024: true,
+  },
   ignorePatterns,
 
   // We would like the same base rules as provided by
@@ -71,6 +73,27 @@ module.exports = {
   },
 
   overrides: [
+    {
+      files: ["*.*"],
+      // The browser environment is not available for system modules, sjs, workers
+      // or any of the xpcshell-test files.
+      excludedFiles: [
+        "*.sys.mjs",
+        "*.sjs",
+        "**/?(*.)worker.?(m)js",
+        ...xpcshellTestPaths.map(filePath => `${filePath}**`),
+      ],
+      env: {
+        browser: true,
+      },
+    },
+    {
+      files: ["*.*"],
+      env: {
+        "mozilla/privileged": true,
+        "mozilla/specific": true,
+      },
+    },
     {
       files: [".eslintrc.js"],
       env: {
