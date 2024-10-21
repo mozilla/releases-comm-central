@@ -23,7 +23,6 @@ NS_IMPL_ISUPPORTS_INHERITED(nsLocalMoveCopyMsgTxn, nsMsgTxn, nsIFolderListener)
 nsLocalMoveCopyMsgTxn::nsLocalMoveCopyMsgTxn()
     : m_isMove(false),
       m_srcIsImap4(false),
-      m_canUndelete(false),
       m_undoing(false),
       m_numHdrsCopied(0),
       mUndoFolderListener(nullptr) {}
@@ -190,43 +189,6 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
       CheckForToggleDelete(srcFolder, m_srcKeyArray[0],
                            &deleteFlag);  // there could have been a toggle.
       rv = UndoImapDeleteFlag(srcFolder, m_srcKeyArray, deleteFlag);
-    } else if (m_canUndelete) {
-      nsTArray<RefPtr<nsIMsgDBHdr>> srcMessages(count);
-      nsTArray<RefPtr<nsIMsgDBHdr>> destMessages(count);
-
-      for (i = 0; i < count; i++) {
-        nsCOMPtr<nsIMsgDBHdr> oldHdr;
-        rv = dstDB->GetMsgHdrForKey(m_dstKeyArray[i], getter_AddRefs(oldHdr));
-        NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
-        if (NS_SUCCEEDED(rv) && oldHdr) {
-          nsCOMPtr<nsIMsgDBHdr> newHdr;
-          rv = srcDB->CopyHdrFromExistingHdr(m_srcKeyArray[i], oldHdr, true,
-                                             getter_AddRefs(newHdr));
-          NS_ASSERTION(newHdr, "fatal ... cannot create new msg header");
-          if (NS_SUCCEEDED(rv) && newHdr) {
-            srcDB->UndoDelete(newHdr);
-            srcMessages.AppendElement(newHdr);
-            // (we want to keep these two lists in sync)
-            destMessages.AppendElement(oldHdr);
-          }
-        }
-      }
-
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-          do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
-      if (notifier) {
-        // Remember that we're actually moving things back from the destination
-        //  to the source!
-        notifier->NotifyMsgsMoveCopyCompleted(true, destMessages, srcFolder,
-                                              srcMessages);
-      }
-
-      nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
-          do_QueryInterface(srcFolder);
-      if (localFolder) {
-        localFolder->MarkMsgsOnPop3Server(srcMessages,
-                                          POP3_NONE /*deleteMsgs*/);
-      }
     } else  // undoing a move means moving the messages back.
     {
       nsTArray<RefPtr<nsIMsgDBHdr>> dstMessages(m_dstKeyArray.Length());
@@ -284,75 +246,24 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
   rv = dstFolder->GetMsgDatabase(getter_AddRefs(dstDB));
   if (NS_FAILED(rv)) return rv;
 
-  uint32_t count = m_srcKeyArray.Length();
-  uint32_t i;
-  nsCOMPtr<nsIMsgDBHdr> oldHdr;
-  nsCOMPtr<nsIMsgDBHdr> newHdr;
-
   nsTArray<RefPtr<nsIMsgDBHdr>> srcMessages(m_srcKeyArray.Length());
-  for (i = 0; i < count; i++) {
-    rv = srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(oldHdr));
-    NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
-
-    if (NS_SUCCEEDED(rv) && oldHdr) {
-      srcMessages.AppendElement(oldHdr);
-
-      if (m_canUndelete) {
-        rv = dstDB->CopyHdrFromExistingHdr(m_dstKeyArray[i], oldHdr, true,
-                                           getter_AddRefs(newHdr));
-        NS_ASSERTION(newHdr, "fatal ... cannot get new msg header");
-        if (NS_SUCCEEDED(rv) && newHdr) {
-          if (i < m_dstSizeArray.Length())
-            rv = newHdr->SetMessageSize(m_dstSizeArray[i]);
-          dstDB->UndoDelete(newHdr);
-        }
-      }
+  nsCOMPtr<nsIMsgDBHdr> srcHdr;
+  m_numHdrsCopied = 0;
+  m_dstKeyArray.Clear();
+  for (nsMsgKey srcKey : m_srcKeyArray) {
+    rv = srcDB->GetMsgHdrForKey(srcKey, getter_AddRefs(srcHdr));
+    NS_ASSERTION(srcHdr, "fatal ... cannot get old msg header");
+    if (NS_SUCCEEDED(rv) && srcHdr) {
+      srcMessages.AppendElement(srcHdr);
+      nsCString messageId;
+      srcHdr->GetMessageId(messageId);
+      m_copiedMsgIds.AppendElement(messageId);
     }
   }
-  dstDB->SetSummaryValid(true);
-
-  if (m_isMove) {
-    if (m_srcIsImap4) {
-      // protect against a bogus undo txn without any source keys
-      // see bug #179856 for details
-      NS_ASSERTION(!m_srcKeyArray.IsEmpty(), "no source keys");
-      if (m_srcKeyArray.IsEmpty()) return NS_ERROR_UNEXPECTED;
-
-      bool deleteFlag = false;  // message is un-deleted- we are trying to redo
-      CheckForToggleDelete(srcFolder, m_srcKeyArray[0],
-                           &deleteFlag);  // there could have been a toggle
-      rv = UndoImapDeleteFlag(srcFolder, m_srcKeyArray, deleteFlag);
-    } else if (m_canUndelete) {
-      nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
-          do_QueryInterface(srcFolder);
-      if (localFolder) {
-        localFolder->MarkMsgsOnPop3Server(srcMessages,
-                                          POP3_DELETE /*deleteMsgs*/);
-      }
-
-      rv = srcDB->DeleteMessages(m_srcKeyArray, nullptr);
-      srcDB->SetSummaryValid(true);
-    } else {
-      nsCOMPtr<nsIMsgDBHdr> srcHdr;
-      m_numHdrsCopied = 0;
-      m_dstKeyArray.Clear();
-      for (i = 0; i < count; i++) {
-        srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(srcHdr));
-        NS_ASSERTION(srcHdr, "fatal ... cannot get old msg header");
-        if (srcHdr) {
-          nsCString messageId;
-          srcHdr->GetMessageId(messageId);
-          m_copiedMsgIds.AppendElement(messageId);
-        }
-      }
-      dstFolder->AddFolderListener(this);
-      m_undoing = false;
-      return dstFolder->CopyMessages(srcFolder, srcMessages, true, nullptr,
-                                     nullptr, false, false);
-    }
-  }
-
-  return rv;
+  dstFolder->AddFolderListener(this);
+  m_undoing = false;
+  return dstFolder->CopyMessages(srcFolder, srcMessages, m_isMove, nullptr,
+                                 nullptr, false, false);
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnFolderAdded(nsIMsgFolder* parent,
