@@ -40,6 +40,16 @@ add_task(function testAddRange() {
   ok(keySet.has(22));
   ok(keySet.has(199));
   equal(keySet.toString(), "2-29,102,199");
+
+  // Add overlapping ranges.
+  keySet.addRange(20, 40);
+  equal(keySet.toString(), "2-40,102,199");
+  keySet.addRange(10, 30);
+  equal(keySet.toString(), "2-40,102,199");
+  keySet.addRange(1, 20);
+  equal(keySet.toString(), "1-40,102,199");
+  keySet.addRange(1, 150);
+  equal(keySet.toString(), "1-150,199");
 });
 
 /**

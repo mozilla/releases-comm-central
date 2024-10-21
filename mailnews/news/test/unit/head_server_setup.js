@@ -200,6 +200,7 @@ function resetFolder(folder) {
   for (var header of headers) {
     db.deleteHeader(header, null, true, false);
   }
+  folder.QueryInterface(Ci.nsIMsgNewsFolder).setReadSetFromStr("");
   dump("resetting folder\n");
   folder.msgDatabase = null;
 }
