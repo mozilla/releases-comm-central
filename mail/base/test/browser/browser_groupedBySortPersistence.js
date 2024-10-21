@@ -102,11 +102,21 @@ const subTest = async folder => {
     "The tree view should still be grouped by sort"
   );
 
+  // Select a group header to test for bug 1924728.
+  about3Pane.threadTree.selectedIndex = 0;
+
   // Disable grouped by sort.
   about3Pane.sortController.sortThreadPane("dateCol");
   await BrowserTestUtils.waitForCondition(
     () => threadTree.dataset.showGroupedBySort == "false",
     "The tree view should not be grouped by sort anymore"
+  );
+
+  // Selections for group headers should not be persisted.
+  Assert.equal(
+    about3Pane.threadTree.selectedIndex,
+    -1,
+    "No row should be selected anymore."
   );
 
   // Switch to another folder and back again. Grouped by sort should remain

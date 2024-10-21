@@ -2114,16 +2114,14 @@ DBViewWrapper.prototype = {
   },
 
   /**
-   * @returns {boolean} true if the row at the given index is a grouped view dummy header
-   *   row, false if anything else.
+   * Check if the row at the given index is the header (dummy row) of a group.
+   *
+   * @param {integer} aViewIndex - The index of a selected row.
+   * @returns {boolean} true if the row at the given index is a grouped view
+   *   dummy header row, false if anything else.
    */
   isGroupedByHeaderAtIndex(aViewIndex) {
-    if (
-      !this.dbView ||
-      aViewIndex < 0 ||
-      aViewIndex >= this.dbView.rowCount ||
-      !this.showGroupedBySort
-    ) {
+    if (!this.dbView || aViewIndex < 0 || aViewIndex >= this.dbView.rowCount) {
       return false;
     }
     return Boolean(this.dbView.getFlagsAt(aViewIndex) & MSG_VIEW_FLAG_DUMMY);
