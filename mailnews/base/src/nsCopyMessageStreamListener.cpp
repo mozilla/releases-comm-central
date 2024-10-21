@@ -19,8 +19,9 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener() {
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(
-    nsICopyMessageListener* destination) {
+    nsICopyMessageListener* destination, bool isMove) {
   mDestination = destination;
+  mIsMove = isMove;
   return NS_OK;
 }
 
@@ -45,38 +46,16 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIURI> uri;
-
-  // We know the request is an nsIChannel we can get a URI from, but this is
-  // probably bad form. See Bug 1528662.
-  nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
-                       "error QI nsIRequest to nsIChannel failed");
-  if (NS_SUCCEEDED(rv)) rv = channel->GetURI(getter_AddRefs(uri));
-  if (NS_SUCCEEDED(rv)) rv = mDestination->BeginCopy();
-
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
+  return mDestination->BeginCopy();
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsIURI* uri,
-                                                   nsresult status) {
-  nsresult rv;
+NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsresult status) {
   bool copySucceeded = (status == NS_BINDING_SUCCEEDED);
-  rv = mDestination->EndCopy(copySucceeded);
+  nsresult rv = mDestination->EndCopy(copySucceeded);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   // If this is a move and we finished the copy, delete the old message.
-  bool moveMessage = false;
-
-  nsCOMPtr<nsIMsgMailNewsUrl> mailURL(do_QueryInterface(uri));
-  if (mailURL) rv = mailURL->IsUrlType(nsIMsgMailNewsUrl::eMove, &moveMessage);
-
-  if (NS_FAILED(rv)) moveMessage = false;
-
-  // OK, this is wrong if we're moving to an imap folder, for example. This
-  // really says that we were able to pull the message from the source, NOT that
-  // we were able to put it in the destination!
-  if (moveMessage) {
+  if (mIsMove) {
     // don't do this if we're moving to an imap folder - that's handled
     // elsewhere.
     nsCOMPtr<nsIMsgImapMailFolder> destImap = do_QueryInterface(mDestination);
@@ -92,15 +71,5 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsIURI* uri,
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request,
                                                          nsresult aStatus) {
-  nsresult rv;
-  // We know the request is an nsIChannel we can get a URI from, but this is
-  // probably bad form. See Bug 1528662.
-  nsCOMPtr<nsIChannel> channel = do_QueryInterface(request, &rv);
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
-                       "error QI nsIRequest to nsIChannel failed");
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIURI> uri;
-  rv = channel->GetURI(getter_AddRefs(uri));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return EndCopy(uri, aStatus);
+  return EndCopy(aStatus);
 }

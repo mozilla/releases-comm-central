@@ -24,6 +24,7 @@ class nsCopyMessageStreamListener : public nsIStreamListener,
  protected:
   virtual ~nsCopyMessageStreamListener();
   nsCOMPtr<nsICopyMessageListener> mDestination;
+  bool mIsMove;
 };
 
 #endif

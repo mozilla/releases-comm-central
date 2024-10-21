@@ -2606,7 +2606,7 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
       do_QueryInterface(mCopyState->m_srcSupport, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
 
-  rv = copyStreamListener->Init(this);
+  rv = copyStreamListener->Init(this, isMove);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!mCopyState->m_messageService) {
@@ -2663,7 +2663,7 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
       "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = copyStreamListener->Init(this);
+  rv = copyStreamListener->Init(this, isMove);
   if (NS_FAILED(rv)) return rv;
 
   if (!mCopyState->m_messageService)
