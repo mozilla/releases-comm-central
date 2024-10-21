@@ -9,8 +9,16 @@ const { mailTestUtils } = ChromeUtils.importESModule(
 const cards = {};
 
 add_setup(async function () {
-  const account = MailServices.accounts.createLocalMailAccount();
-  account.addIdentity(MailServices.accounts.createIdentity());
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
 
   for (const name of ["daniel", "jonathan", "nathan"]) {
     cards[name] = personalBook.addCard(createContact(name, "test"));

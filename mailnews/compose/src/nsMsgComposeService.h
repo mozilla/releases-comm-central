@@ -30,6 +30,8 @@ class nsMsgComposeService : public nsIMsgComposeService,
  private:
   virtual ~nsMsgComposeService();
 
+  nsresult GetTo3PaneWindow();
+
   nsresult LoadDraftOrTemplate(
       const nsACString& aMsgURI, nsMimeOutputType aOutType,
       nsIMsgIdentity* aIdentity, const nsACString& aOriginalMsgURI,

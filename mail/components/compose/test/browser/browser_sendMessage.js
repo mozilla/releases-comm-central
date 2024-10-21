@@ -9,7 +9,13 @@ add_setup(async function () {
     ServerTestUtils.serverDefs.smtp.plain
   );
 
-  const account = MailServices.accounts.createLocalMailAccount();
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
   const rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("sendMessage", null);
 

@@ -12,8 +12,9 @@ let gAccount, gFolders, gMessage;
 add_setup(async () => {
   await Services.search.init();
 
-  gAccount = createAccount();
+  gAccount = createAccount("pop3");
   addIdentity(gAccount);
+  MailServices.accounts.defaultAccount = gAccount;
   gFolders = gAccount.incomingServer.rootFolder.subFolders;
   createMessages(gFolders[0], {
     count: 1,

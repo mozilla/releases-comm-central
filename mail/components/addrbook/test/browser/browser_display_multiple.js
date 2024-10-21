@@ -27,8 +27,17 @@ add_setup(async function () {
   const list2 = personalBook.addMailList(createMailingList("list 2"));
   list2.addCard(card3);
 
-  const account = MailServices.accounts.createLocalMailAccount();
-  account.addIdentity(MailServices.accounts.createIdentity());
+  // We'll try composing, so need an account.
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
 
   const calendar = CalendarTestUtils.createCalendar();
 

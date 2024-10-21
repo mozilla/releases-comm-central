@@ -6,6 +6,10 @@
  * Tests ExtensionSupport.sys.mjs functions.
  */
 
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+
 var { close_compose_window, open_compose_new_mail } =
   ChromeUtils.importESModule(
     "resource://testing-common/mail/ComposeHelpers.sys.mjs"
@@ -17,6 +21,22 @@ var { promise_new_window } = ChromeUtils.importESModule(
 var { ExtensionSupport } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionSupport.sys.mjs"
 );
+
+add_setup(async () => {
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+});
 
 /**
  * Bug 1450288

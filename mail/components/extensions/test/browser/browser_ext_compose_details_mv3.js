@@ -21,7 +21,8 @@ var gRootFolder, gTestFolder, gDraftsFolder, gDrafts;
 add_setup(async () => {
   await OpenPGPTestUtils.initOpenPGP();
 
-  const account = createAccount();
+  const account = createAccount("pop3");
+  MailServices.accounts.defaultAccount = account;
   const defaultIdentity = addIdentity(account);
   const nonDefaultIdentity = addIdentity(account);
   const identitySmimeAndOpenPGP = addIdentity(account, "full_enc@invalid");
@@ -965,7 +966,7 @@ add_task(async function testSimpleDetails() {
 
       const accounts = await browser.accounts.list();
       browser.test.assertEq(1, accounts.length, "number of accounts");
-      const localAccount = accounts.find(a => a.type == "local");
+      const localAccount = accounts.find(a => a.type == "pop3");
       browser.test.assertEq(
         5,
         localAccount.identities.length,

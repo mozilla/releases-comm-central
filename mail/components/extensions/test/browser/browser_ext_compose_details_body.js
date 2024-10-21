@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const account = createAccount();
+const account = createAccount("pop3");
 const defaultIdentity = addIdentity(account);
+MailServices.accounts.defaultAccount = account;
 const nonDefaultIdentity = addIdentity(account);
 const gRootFolder = account.incomingServer.rootFolder;
 

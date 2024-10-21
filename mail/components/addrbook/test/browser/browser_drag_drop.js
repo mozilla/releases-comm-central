@@ -140,6 +140,22 @@ function checkCardsInDirectory(directory, expectedCards = [], copiedCard) {
   }
 }
 
+add_setup(async () => {
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+});
+
 add_task(async function test_drag() {
   const sourceBook = createAddressBook("Source Book");
 

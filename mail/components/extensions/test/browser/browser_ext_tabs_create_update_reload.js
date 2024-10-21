@@ -7,8 +7,9 @@ var gMessages;
 var gFolder;
 
 add_setup(() => {
-  gAccount = createAccount();
+  gAccount = createAccount("pop3");
   addIdentity(gAccount);
+  MailServices.accounts.defaultAccount = gAccount;
   const rootFolder = gAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("test0", null);
 

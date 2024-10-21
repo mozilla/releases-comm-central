@@ -14,8 +14,16 @@ const about3Pane = tabmail.currentAbout3Pane;
 add_setup(async function () {
   const generator = new MessageGenerator();
 
-  const account = MailServices.accounts.createLocalMailAccount();
-  account.addIdentity(MailServices.accounts.createIdentity());
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
   const rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
   );

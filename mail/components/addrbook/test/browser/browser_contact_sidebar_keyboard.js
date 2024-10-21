@@ -12,8 +12,16 @@ add_setup(async function () {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messengercompose/messengercompose.xhtml"
   );
-  const account = MailServices.accounts.createLocalMailAccount();
-  account.addIdentity(MailServices.accounts.createIdentity());
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
 
   book1 = createAddressBook("Book 1");
   book1.addCard(createContact("daniel", "test"));

@@ -310,15 +310,18 @@ export class MessengerContentHandler {
                 );
                 args.appendElement(argstring);
                 args.appendElement(cmdLine);
-                getOrOpen3PaneWindow().then(win =>
+                getOrOpen3PaneWindow().then(win => {
+                  if (!MailServices.accounts.defaultAccount) {
+                    return; // No account yet; can't compose.
+                  }
                   Services.ww.openWindow(
                     win,
                     "chrome://messenger/content/messengercompose/messengercompose.xhtml",
                     "_blank",
                     "chrome,dialog=no,all",
                     args
-                  )
-                );
+                  );
+                });
                 break;
               }
               default:
