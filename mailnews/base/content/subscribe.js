@@ -265,10 +265,6 @@ function StateChanged(name, state) {
   }
 }
 
-function InSearchMode() {
-  return !document.getElementById("searchView").hidden;
-}
-
 function SearchOnClick(event) {
   // We only care about button 0 (left click) events.
   if (event.button != 0 || event.target.localName != "treechildren") {
@@ -312,40 +308,6 @@ function SetStateFromRow(row, state) {
   var col = gSearchTree.columns.nameColumn2;
   var name = gSearchView.getCellValue(row, col);
   SetState(name, state);
-}
-
-function SetSubscribeState(state) {
-  try {
-    // We need to iterate over the tree selection, and set the state for
-    // all rows in the selection.
-    var inSearchMode = InSearchMode();
-    var view = inSearchMode ? gSearchView : gSubscribeTree.view;
-    var colId = inSearchMode ? "nameColumn2" : "nameColumn";
-
-    var sel = view.selection;
-    for (var i = 0; i < sel.getRangeCount(); ++i) {
-      var start = {},
-        end = {};
-      sel.getRangeAt(i, start, end);
-      for (var k = start.value; k <= end.value; ++k) {
-        if (inSearchMode) {
-          SetStateFromRow(k, state);
-        } else {
-          const name = view.getCellValue(k, gSubscribeTree.columns[colId]);
-          SetState(name, state, k);
-        }
-      }
-    }
-
-    if (inSearchMode) {
-      // Force a repaint.
-      InvalidateSearchTree();
-    } else {
-      gSubscribeTree.invalidate();
-    }
-  } catch (ex) {
-    dump("SetSubscribedState failed:  " + ex + "\n");
-  }
 }
 
 function ReverseStateFromNode(row) {

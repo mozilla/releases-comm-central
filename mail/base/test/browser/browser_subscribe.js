@@ -99,13 +99,15 @@ add_task(async function testIMAPSubscribe() {
         const subscribeTree = doc.getElementById("subscribeTree");
         const view = subscribeTree.view;
         const newGroupsTab = doc.getElementById("newGroupsTab");
-        const subscribeButton = doc.getElementById("subscribe");
-        const unsubscribeButton = doc.getElementById("unsubscribe");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
+        );
+        await TestUtils.waitForCondition(
+          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
+          "waiting for tree view to be resized"
         );
 
         Assert.equal(serverMenu.value, imapRootFolder.URI);
@@ -143,12 +145,9 @@ add_task(async function testIMAPSubscribe() {
           subscribed: true,
         });
 
-        view.selection.select(1);
-        EventUtils.synthesizeMouseAtCenter(unsubscribeButton, {}, win);
-        view.selection.select(2);
-        EventUtils.synthesizeMouseAtCenter(subscribeButton, {}, win);
-        view.selection.select(3);
-        EventUtils.synthesizeMouseAtCenter(subscribeButton, {}, win);
+        clickTreeRow(subscribeTree, 1);
+        clickTreeRow(subscribeTree, 2);
+        clickTreeRow(subscribeTree, 3);
 
         checkTreeRow(subscribeTree, 1, {
           subscribable: true,
@@ -212,12 +211,15 @@ add_task(async function testNNTPSubscribe() {
         const subscribeTree = doc.getElementById("subscribeTree");
         const view = subscribeTree.view;
         const newGroupsTab = doc.getElementById("newGroupsTab");
-        const subscribeButton = doc.getElementById("subscribe");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
+        );
+        await TestUtils.waitForCondition(
+          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
+          "waiting for tree view to be resized"
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -255,12 +257,9 @@ add_task(async function testNNTPSubscribe() {
           subscribed: false,
         });
 
-        view.selection.select(1);
-        EventUtils.synthesizeMouseAtCenter(subscribeButton, {}, win);
-        view.selection.select(2);
-        EventUtils.synthesizeMouseAtCenter(subscribeButton, {}, win);
-        view.selection.select(3);
-        EventUtils.synthesizeMouseAtCenter(subscribeButton, {}, win);
+        clickTreeRow(subscribeTree, 1);
+        clickTreeRow(subscribeTree, 2);
+        clickTreeRow(subscribeTree, 3);
 
         checkTreeRow(subscribeTree, 1, {
           subscribable: true,
@@ -314,12 +313,15 @@ add_task(async function testNNTPSubscribe() {
         const view = subscribeTree.view;
         const searchTree = doc.getElementById("searchTree");
         const newGroupsTab = doc.getElementById("newGroupsTab");
-        const unsubscribeButton = doc.getElementById("unsubscribe");
         const acceptButton = doc.querySelector("dialog").getButton("accept");
 
         await TestUtils.waitForCondition(
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
+        );
+        await TestUtils.waitForCondition(
+          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
+          "waiting for tree view to be resized"
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -389,8 +391,7 @@ add_task(async function testNNTPSubscribe() {
         Assert.ok(BrowserTestUtils.isVisible(subscribeTree));
         Assert.ok(BrowserTestUtils.isHidden(searchTree));
 
-        view.selection.select(1);
-        EventUtils.synthesizeMouseAtCenter(unsubscribeButton, {}, win);
+        clickTreeRow(subscribeTree, 1);
 
         checkTreeRow(subscribeTree, 1, {
           subscribable: true,
@@ -493,4 +494,26 @@ function checkTreeRow(tree, index, expected) {
     Assert.ok(!properties.includes("subscribed-true"));
     // Properties usually has "subscribed-false", but sometimes it doesn't.
   }
+}
+
+/**
+ * Toggle the subscribed state of the given row.
+ *
+ * @param {XULTreeElement} tree
+ * @param {integer} index
+ */
+function clickTreeRow(tree, index) {
+  const treeChildren = tree.lastElementChild;
+  const coords = tree.getCoordsForCellItem(
+    index,
+    tree.columns.subscribedColumn,
+    "cell"
+  );
+  EventUtils.synthesizeMouse(
+    treeChildren,
+    coords.x + coords.width / 2,
+    coords.y + coords.height / 2,
+    {},
+    tree.ownerGlobal
+  );
 }
