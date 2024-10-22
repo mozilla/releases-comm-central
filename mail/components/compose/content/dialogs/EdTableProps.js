@@ -772,9 +772,9 @@ function MoveSelection(forward) {
   try {
     var selectionController = gActiveEditor.selectionController;
     selectionController.scrollSelectionIntoView(
-      selectionController.SELECTION_NORMAL,
-      selectionController.SELECTION_ANCHOR_REGION,
-      true
+      Ci.nsISelectionController.SELECTION_NORMAL,
+      Ci.nsISelectionController.SELECTION_ANCHOR_REGION,
+      Ci.nsISelectionController.SCROLL_SYNCHRONOUS
     );
   } catch (e) {}
 

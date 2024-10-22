@@ -773,7 +773,8 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
   if (selCon)
     selCon->ScrollSelectionIntoView(
         nsISelectionController::SELECTION_NORMAL,
-        nsISelectionController::SELECTION_ANCHOR_REGION, true);
+        nsISelectionController::SELECTION_ANCHOR_REGION,
+        nsISelectionController::SCROLL_SYNCHRONOUS);
 
   htmlEditor->EnableUndo(true);
   SetBodyModified(false);
@@ -2706,7 +2707,8 @@ nsresult QuotingOutputStreamListener::InsertToCompose(nsIEditor* aEditor,
     // flushed and PresShell/PresContext/Frames may be dead. See bug 418470.
     selCon->ScrollSelectionIntoView(
         nsISelectionController::SELECTION_NORMAL,
-        nsISelectionController::SELECTION_ANCHOR_REGION, true);
+        nsISelectionController::SELECTION_ANCHOR_REGION,
+        nsISelectionController::SCROLL_SYNCHRONOUS);
 
   return NS_OK;
 }

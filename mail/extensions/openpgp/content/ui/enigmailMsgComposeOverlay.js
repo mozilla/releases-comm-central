@@ -1979,7 +1979,7 @@ Enigmail.msg = {
       this.editor.selectionController.scrollSelectionIntoView(
         Ci.nsISelectionController.SELECTION_NORMAL,
         Ci.nsISelectionController.SELECTION_ANCHOR_REGION,
-        true
+        Ci.nsISelectionController.SCROLL_SYNCHRONOUS
       );
     }
   },
