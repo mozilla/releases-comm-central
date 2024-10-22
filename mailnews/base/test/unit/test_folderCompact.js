@@ -103,6 +103,8 @@ function showMessages(folder, text) {
 }
 
 let gInbox, gFolder2, gFolder3;
+let gInboxSizeBefore;
+const fromLineLength = "\r\nFrom - Tue Oct 08 23:23:39 2024\r\n".length;
 
 add_setup(async function () {
   localAccountUtils.loadLocalMailAccount();
@@ -114,6 +116,7 @@ add_setup(async function () {
   await copyFileMessage(do_get_file("../../../data/draft1"), gInbox, true);
   showMessages(gInbox, "after initial 3 messages copy to inbox");
 
+  gInboxSizeBefore = calculateExpectedMboxSize(gInbox);
   const inboxMessages = [...gInbox.messages];
 
   // Create another folder and copy all the messages to it.
@@ -129,6 +132,8 @@ add_setup(async function () {
 });
 
 add_task(async function testCompactFolder() {
+  Services.fog.testResetFOG();
+
   showMessages(gFolder3, "before deleting 1 message");
 
   // Store message keys before deletion and compaction.
@@ -140,7 +145,8 @@ add_task(async function testCompactFolder() {
   showMessages(gFolder3, "after deleting 1 message");
 
   const expectedFolderSize = calculateExpectedMboxSize(gFolder3);
-  Assert.greater(gFolder3.expungedBytes, 0, "folder3 should need compaction");
+  const expungedBytes = gFolder3.expungedBytes;
+  Assert.greater(expungedBytes, 0, "folder3 should need compaction");
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
   gFolder3.compact(listener, null);
@@ -156,9 +162,28 @@ add_task(async function testCompactFolder() {
   );
 
   await verifyMboxSize(gFolder3, expectedFolderSize);
+  Assert.equal(gFolder3.expungedBytes, 0, "folder3 should not need compaction");
+
+  Assert.equal(
+    Glean.mail.compactResult[Cr.NS_OK.toString(16)].testGetValue(),
+    1,
+    "success result should be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactDuration.testGetValue().count,
+    1,
+    "duration should be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactBytesRecovered.testGetValue().sum,
+    expungedBytes + fromLineLength,
+    "bytes saved should be recorded in Glean"
+  );
 });
 
 add_task(async function testCompactAllFolders() {
+  Services.fog.testResetFOG();
+
   showMessages(gFolder2, "before deleting 1 message");
 
   // Store message keys before deletion and compaction.
@@ -178,6 +203,7 @@ add_task(async function testCompactAllFolders() {
   // Folder 3 doesn't need compacting.
   const expectedFolder3Size = calculateExpectedMboxSize(gFolder3);
   Assert.equal(gFolder3.expungedBytes, 0, "folder3 should not need compaction");
+  const expungedBytes = gInbox.expungedBytes + gFolder2.expungedBytes;
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
   gInbox.compactAll(listener, null);
@@ -192,11 +218,32 @@ add_task(async function testCompactAllFolders() {
   );
 
   await verifyMboxSize(gInbox, expectedInboxSize);
+  Assert.equal(gInbox.expungedBytes, 0, "inbox should not need compaction");
   await verifyMboxSize(gFolder2, expectedFolder2Size);
+  Assert.equal(gFolder2.expungedBytes, 0, "folder2 should not need compaction");
   await verifyMboxSize(gFolder3, expectedFolder3Size);
+  Assert.equal(gFolder3.expungedBytes, 0, "folder3 should not need compaction");
+
+  Assert.equal(
+    Glean.mail.compactResult[Cr.NS_OK.toString(16)].testGetValue(),
+    2,
+    "success results shold be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactDuration.testGetValue().count,
+    2,
+    "duration should be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactBytesRecovered.testGetValue().sum,
+    expungedBytes + fromLineLength * 3,
+    "bytes saved should be recorded in Glean"
+  );
 });
 
 add_task(async function testAbortCompactingFolder() {
+  Services.fog.testResetFOG();
+
   showMessages(gFolder2, "before deleting 1 message");
 
   // Remember the size of the mbox before compact.
@@ -222,4 +269,26 @@ add_task(async function testAbortCompactingFolder() {
   );
 
   await verifyMboxSize(gFolder2, unchangedFolderSize);
+  Assert.greater(gFolder2.expungedBytes, 0, "folder2 should need compaction");
+
+  Assert.equal(
+    Glean.mail.compactResult[Cr.NS_OK.toString(16)].testGetValue(),
+    null,
+    "success result should not be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactResult[Cr.NS_ERROR_ABORT.toString(16)].testGetValue(),
+    1,
+    "abort result should be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactDuration.testGetValue(),
+    null,
+    "duration should not be recorded in Glean"
+  );
+  Assert.equal(
+    Glean.mail.compactBytesRecovered.testGetValue(),
+    null,
+    "bytes saved should not be recorded in Glean"
+  );
 });

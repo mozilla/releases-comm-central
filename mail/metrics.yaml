@@ -320,3 +320,45 @@ mail:
       - Virtual
       - Other
       - Total
+
+  compact_result:
+    type: labeled_counter
+    description: >
+      Counts the number of folder compactions that happen and how they ended.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
+  compact_duration:
+    type: timing_distribution
+    time_unit: millisecond
+    description: >
+      Counts how long each folder compaction takes.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+
+  compact_bytes_recovered:
+    type: custom_distribution
+    description: >
+      Number of bytes recovered by compaction.
+    range_min: 1
+    range_max: 1073741824 # 1GiB
+    bucket_count: 50
+    histogram_type: exponential
+    unit: bytes
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never

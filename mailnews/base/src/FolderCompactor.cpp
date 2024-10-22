@@ -31,6 +31,7 @@
 #include "mozilla/RefCounted.h"
 #include "mozilla/Services.h"
 #include "mozilla/ScopeExit.h"
+#include "mozilla/glean/GleanMetrics.h"
 
 mozilla::LazyLogModule gCompactLog("compact");
 using mozilla::LogLevel;
@@ -110,6 +111,9 @@ class FolderCompactor : public nsIStoreCompactListener {
 
   // Running total of kept messages (for progress feedback).
   uint32_t mNumKept{0};
+
+  // Glean timer.
+  uint64_t mTimerId{0};
 };
 
 NS_IMPL_ISUPPORTS(FolderCompactor, nsIStoreCompactListener)
@@ -372,6 +376,7 @@ NS_IMETHODIMP FolderCompactor::OnCompactionBegin() {
   }
 
   MOZ_LOG(gCompactLog, LogLevel::Verbose, ("OnCompactionBegin()"));
+  mTimerId = mozilla::glean::mail::compact_duration.Start();
   return NS_OK;
 }
 
@@ -494,6 +499,13 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
            " newSize=%" PRId64 ")",
            (uint32_t)status, oldSize, newSize));
 
+  nsPrintfCString statusStr("%x", (uint32_t)status);
+  mozilla::glean::mail::compact_result.Get(statusStr).Add(1);
+  if (mTimerId) {
+    mozilla::glean::mail::compact_duration.StopAndAccumulate(
+        std::move(mTimerId));
+  }
+
   if (NS_SUCCEEDED(status)) {
     // Commit all the changes.
     nsresult rv = mDB->Commit(nsMsgDBCommitType::kCompressCommit);
@@ -509,6 +521,8 @@ NS_IMETHODIMP FolderCompactor::OnCompactionComplete(nsresult status,
         dbFolderInfo->SetExpungedBytes(0);
       }
       mDB->SetSummaryValid(true);
+      mozilla::glean::mail::compact_bytes_recovered.AccumulateSingleSample(
+          oldSize - newSize);
     } else {
       NS_ERROR("Failed to commit changes to DB!");
       status = rv;  // Make sure our completion fn hears about the failure.
