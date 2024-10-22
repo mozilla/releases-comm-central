@@ -25,16 +25,7 @@ const { Sanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/Sanitizer.sys.mjs"
 );
 
-const { FindConfig } = ChromeUtils.importESModule(
-  "resource:///modules/accountcreation/FindConfig.sys.mjs"
-);
-
-const {
-  CancelledException,
-  gAccountSetupLogger,
-  SuccessiveAbortable,
-  UserCancelledException,
-} = AccountCreationUtils;
+const { CancelledException, gAccountSetupLogger } = AccountCreationUtils;
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -104,7 +95,8 @@ class AccountHubEmail extends HTMLElement {
    *
    * @type {Abortable}
    */
-  abortable;
+  // eslint-disable-next-line no-unused-private-class-members
+  #abortable;
 
   /**
    * The current Account Config object based on the users form inputs.
@@ -126,15 +118,6 @@ class AccountHubEmail extends HTMLElement {
    * @type {String}
    */
   #currentState;
-
-  /**
-   * Boolean determining if the user has cancelled before the next step has
-   * been completed. This is required in case the back button has been pressed
-   * after abortable is able to cancel any network requests.
-   *
-   * @type {String}
-   */
-  #hasCancelled;
 
   /**
    * States of the email setup flow, based on the ID's of the steps in the
@@ -247,9 +230,6 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom", this);
 
-    this.abortable = null;
-    this.#hasCancelled = false;
-
     await this.#initUI("autoConfigSubview");
   }
 
@@ -317,32 +297,22 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.canCustom(stateDetails.customActionFluentID);
   }
 
-  async handleEvent(event) {
+  handleEvent(event) {
     const stateDetails = this.#states[this.#currentState];
     switch (event.type) {
       case "back":
         try {
           this.#handleBackAction(this.#currentState);
-          this.#initUI(
-            this.#hasCancelled ? this.#currentState : stateDetails.previousStep
-          );
+          this.#initUI(stateDetails.previousStep);
         } catch (error) {
-          stateDetails.subview.showErrorNotification(
-            error.cause.code,
-            error.cause.text
-          );
+          stateDetails.subview.showErrorNotification(error.title, error.text);
         }
         break;
       case "forward":
         try {
-          this.#hasCancelled = false;
           const stateData = stateDetails.subview.captureState();
-          await this.#handleForwardAction(this.#currentState, stateData);
-          if (!this.#hasCancelled) {
-            this.#initUI(stateDetails.nextStep);
-          } else {
-            this.#hasCancelled = false;
-          }
+          this.#handleForwardAction(this.#currentState, stateData);
+          this.#initUI(stateDetails.nextStep);
         } catch (error) {
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
@@ -367,17 +337,11 @@ class AccountHubEmail extends HTMLElement {
    */
   #handleBackAction(currentState) {
     switch (currentState) {
-      case "autoConfigSubview":
-        this.#hasCancelled = true;
-        this.#handleAbortable();
-        break;
       case "incomingConfigSubview":
         break;
       case "outgoingConfigSubview":
         break;
       case "emailPasswordSubview":
-        break;
-      default:
         break;
     }
   }
@@ -389,16 +353,10 @@ class AccountHubEmail extends HTMLElement {
    * @param {String} currentState - The current state of the email flow.
    * @param {String} stateData - The current state data of the email flow.
    */
-  async #handleForwardAction(currentState, stateData) {
+  #handleForwardAction(currentState, stateData) {
     switch (currentState) {
       case "autoConfigSubview":
-        try {
-          this.#emailFooter.canBack(true);
-          await this.#findConfig(stateData);
-        } catch (error) {
-          this.#emailFooter.canBack(false);
-          throw error;
-        }
+        this.#findConfig(stateData);
         break;
       case "incomingConfigSubview":
         break;
@@ -435,56 +393,20 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Handles aborting the current action that is loading.
-   */
-  #handleAbortable() {
-    if (this.abortable) {
-      this.abortable.cancel(new UserCancelledException());
-    }
-  }
-
-  /**
    * Finds an account configuration from the provided data if available.
    *
    * @param {String} configData - The form config data from initial email form.
    */
-  async #findConfig(configData) {
-    if (this.abortable) {
-      this.#handleAbortable();
-    }
-
+  #findConfig(configData) {
     const accountConfig = new AccountConfig();
     const emailSplit = configData.email.split("@");
     const emailLocal = Sanitizer.nonemptystring(emailSplit[0]);
     accountConfig.incoming.username = emailLocal;
     accountConfig.outgoing.username = emailLocal;
-    const domain = emailSplit[1];
+    // eslint-disable-next-line no-unused-vars
+    const domain = configData.incomingHostName;
 
-    gAccountSetupLogger.debug("findConfig()");
-    this.abortable = new SuccessiveAbortable();
-    let config = null;
-
-    try {
-      config = await FindConfig.parallelAutoDiscovery(
-        this.abortable,
-        domain,
-        configData.email
-      );
-    } catch (error) {
-      // Error would be thrown if autoDiscovery caused a 401 error.
-      throw new Error(error, {
-        cause: {
-          code: "401 Error",
-        },
-      });
-    }
-
-    this.abortable = null;
-
-    if (config === null) {
-      // TODO: Run guessConfig on user input, which prompt return error
-      // error notification if nothing found.
-    }
+    //TODO: Complete the findConfig/guessConfig logic.
   }
 
   /**
@@ -495,7 +417,7 @@ class AccountHubEmail extends HTMLElement {
     // Clear error notifications.
     this.#clearNotifications();
 
-    this.abortable = GuessConfig.guessConfig(
+    this.#abortable = GuessConfig.guessConfig(
       this.#currentConfig.domain,
       (type, hostname, port) => {
         gAccountSetupLogger.debug(
@@ -506,12 +428,12 @@ class AccountHubEmail extends HTMLElement {
       config => {
         // This will validate and fill all of the form fields, as well as
         // enable the continue button.
-        this.abortable = null;
+        this.#abortable = null;
         // TODO: Update form fields for both incoming and outgoing here with
         // the config object.
       },
       error => {
-        this.abortable = null;
+        this.#abortable = null;
 
         // guessConfig failed.
         if (error instanceof CancelledException) {
