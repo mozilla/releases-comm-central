@@ -1,0 +1,17 @@
+[default]
+environment = [
+  "LC_ALL=en_NZ.UTF-8",
+  "TZ=Pacific/Auckland",
+]
+head = "head.js"
+prefs = [
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+run-if = ["os == 'linux'"]
+subsuite = "thunderbird"
+
+["browser_en_NZ.js"]

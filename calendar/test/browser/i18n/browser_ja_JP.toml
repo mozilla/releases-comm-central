@@ -1,0 +1,18 @@
+[default]
+environment = [
+  "LC_ALL=ja_JP.UTF-8",
+  "TZ=Asia/Tokyo",
+]
+head = "head.js"
+prefs = [
+  "intl.regional_prefs.use_os_locales=true",
+  "mail.provider.suppress_dialog_on_startup=true",
+  "mail.spotlight.firstRunDone=true",
+  "mail.winsearch.firstRunDone=true",
+  "mailnews.start_page.override_url=about:blank",
+  "mailnews.start_page.url=about:blank",
+]
+run-if = ["os == 'linux'"]
+subsuite = "thunderbird"
+
+["browser_ja_JP.js"]
