@@ -28,8 +28,6 @@ chatzilla.jar:
 	content/chatzilla/lib/js/sts.js              (js/lib/sts.js)
 	content/chatzilla/lib/js/text-serializer.js  (js/lib/text-serializer.js)
 	content/chatzilla/lib/js/text-logger.js      (js/lib/text-logger.js)
-	content/chatzilla/lib/js/chatzilla-protocol-script.js (js/lib/chatzilla-protocol-script.js)
-	content/chatzilla/lib/js/protocol-handlers.jsm (js/lib/protocol-handlers.jsm)
 	content/chatzilla/lib/xul/munger.js          (xul/lib/munger.js) 
 	content/chatzilla/lib/xul/tree-utils.js      (xul/lib/tree-utils.js) 
 	content/chatzilla/chatzilla.xul              (xul/content/chatzilla.xul) 
