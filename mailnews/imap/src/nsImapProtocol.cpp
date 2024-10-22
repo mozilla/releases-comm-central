@@ -5675,14 +5675,24 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
                                    const nsString& aPassword,
                                    eIMAPCapabilityFlag flag) {
   nsresult rv;
-  // If we're shutting down, bail out.
+  // If we're shutting down, bail out (usually).
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
       do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   bool shuttingDown = false;
   (void)accountMgr->GetShutdownInProgress(&shuttingDown);
   if (shuttingDown) {
-    return NS_ERROR_ABORT;
+    MOZ_LOG(IMAP, LogLevel::Debug, ("AuthLogin() while shutdown in progress"));
+    nsImapAction imapAction;
+    rv = m_runningUrl->GetImapAction(&imapAction);
+    // If we're shutting down, and not running the kinds of urls we run at
+    // shutdown, then this should fail because running urls during
+    // shutdown will very likely fail and potentially hang.
+    if (NS_FAILED(rv) || (imapAction != nsIImapUrl::nsImapExpungeFolder &&
+                          imapAction != nsIImapUrl::nsImapDeleteAllMsgs &&
+                          imapAction != nsIImapUrl::nsImapDeleteFolder)) {
+      return NS_ERROR_ABORT;
+    }
   }
 
   ProgressEventFunctionUsingName("imapStatusSendingAuthLogin");
