@@ -33,10 +33,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
-                                     public nsIURIWithSpecialOrigin,
-                                     public nsISerializable,
-                                     public nsIClassInfo {
+class nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
+                         public nsIURIWithSpecialOrigin,
+                         public nsISerializable,
+                         public nsIClassInfo {
  public:
   nsMsgMailNewsUrl();
 

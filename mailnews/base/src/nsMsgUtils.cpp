@@ -79,9 +79,8 @@
 // Log an error string to the error console
 // (adapted from nsContentUtils::LogSimpleConsoleError).
 // Flag can indicate error, warning or info.
-NS_MSG_BASE void MsgLogToConsole4(const nsAString& aErrorText,
-                                  const nsCString& aFilename,
-                                  uint32_t aLinenumber, uint32_t aFlag) {
+void MsgLogToConsole4(const nsAString& aErrorText, const nsCString& aFilename,
+                      uint32_t aLinenumber, uint32_t aFlag) {
   nsCOMPtr<nsIScriptError> scriptError =
       do_CreateInstance(NS_SCRIPTERROR_CONTRACTID);
   if (NS_WARN_IF(!scriptError)) return;
@@ -1023,11 +1022,9 @@ nsresult MSGApopMD5(const char* text, int32_t text_len, const char* password,
   return rv;
 }
 
-NS_MSG_BASE nsresult NS_GetPersistentFile(const char* relPrefName,
-                                          const char* absPrefName,
-                                          const char* dirServiceProp,
-                                          bool& gotRelPref, nsIFile** aFile,
-                                          nsIPrefBranch* prefBranch) {
+nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
+                              const char* dirServiceProp, bool& gotRelPref,
+                              nsIFile** aFile, nsIPrefBranch* prefBranch) {
   NS_ENSURE_ARG_POINTER(aFile);
   *aFile = nullptr;
   NS_ENSURE_ARG(relPrefName);
@@ -1081,10 +1078,8 @@ NS_MSG_BASE nsresult NS_GetPersistentFile(const char* relPrefName,
   return NS_ERROR_FAILURE;
 }
 
-NS_MSG_BASE nsresult NS_SetPersistentFile(const char* relPrefName,
-                                          const char* absPrefName,
-                                          nsIFile* aFile,
-                                          nsIPrefBranch* prefBranch) {
+nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
+                              nsIFile* aFile, nsIPrefBranch* prefBranch) {
   NS_ENSURE_ARG(relPrefName);
   NS_ENSURE_ARG(absPrefName);
   NS_ENSURE_ARG(aFile);
@@ -1118,7 +1113,7 @@ NS_MSG_BASE nsresult NS_SetPersistentFile(const char* relPrefName,
   return rv;
 }
 
-NS_MSG_BASE nsresult NS_GetUnicharPreferenceWithDefault(
+nsresult NS_GetUnicharPreferenceWithDefault(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, const nsAString& defValue, nsAString& prefValue) {
   NS_ENSURE_ARG(prefName);
@@ -1139,7 +1134,7 @@ NS_MSG_BASE nsresult NS_GetUnicharPreferenceWithDefault(
   return NS_OK;
 }
 
-NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
+nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, const nsAString& defValue, nsAString& prefValue) {
   NS_ENSURE_ARG(prefName);
@@ -1162,7 +1157,7 @@ NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
   return NS_OK;
 }
 
-NS_MSG_BASE nsresult NS_GetLocalizedUnicharPreference(
+nsresult NS_GetLocalizedUnicharPreference(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, nsAString& prefValue) {
   NS_ENSURE_ARG_POINTER(prefName);
@@ -1376,7 +1371,7 @@ nsresult MsgGetLocalFileFromURI(const nsACString& aUTF8Path, nsIFile** aFile) {
   return NS_OK;
 }
 
-NS_MSG_BASE void MsgStripQuotedPrintable(nsCString& aSrc) {
+void MsgStripQuotedPrintable(nsCString& aSrc) {
   // decode quoted printable text in place
 
   if (aSrc.IsEmpty()) return;
@@ -1418,8 +1413,8 @@ NS_MSG_BASE void MsgStripQuotedPrintable(nsCString& aSrc) {
   aSrc.SetLength(destIdx);
 }
 
-NS_MSG_BASE nsresult MsgEscapeString(const nsACString& aStr, uint32_t aType,
-                                     nsACString& aResult) {
+nsresult MsgEscapeString(const nsACString& aStr, uint32_t aType,
+                         nsACString& aResult) {
   nsresult rv;
   nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1427,8 +1422,8 @@ NS_MSG_BASE nsresult MsgEscapeString(const nsACString& aStr, uint32_t aType,
   return nu->EscapeString(aStr, aType, aResult);
 }
 
-NS_MSG_BASE nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
-                                       nsACString& aResult) {
+nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
+                           nsACString& aResult) {
   nsresult rv;
   nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1436,8 +1431,8 @@ NS_MSG_BASE nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
   return nu->UnescapeString(aStr, aFlags, aResult);
 }
 
-NS_MSG_BASE nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
-                                  nsACString& aResult) {
+nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
+                      nsACString& aResult) {
   nsresult rv;
   nsCOMPtr<nsINetUtil> nu = do_GetService(NS_NETUTIL_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1445,9 +1440,9 @@ NS_MSG_BASE nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
   return nu->EscapeURL(aStr, aFlags, aResult);
 }
 
-NS_MSG_BASE nsresult
-MsgGetHeadersFromKeys(nsIMsgDatabase* aDB, const nsTArray<nsMsgKey>& aMsgKeys,
-                      nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders) {
+nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
+                               const nsTArray<nsMsgKey>& aMsgKeys,
+                               nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders) {
   NS_ENSURE_ARG_POINTER(aDB);
   aHeaders.Clear();
   aHeaders.SetCapacity(aMsgKeys.Length());
@@ -1483,9 +1478,9 @@ bool MsgAdvanceToNextLine(const char* buffer, uint32_t& bufferOffset,
   return result;
 }
 
-NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel* channel,
-                                             nsIProtocolProxyCallback* listener,
-                                             nsICancelable** result) {
+nsresult MsgExamineForProxyAsync(nsIChannel* channel,
+                                 nsIProtocolProxyCallback* listener,
+                                 nsICancelable** result) {
   nsresult rv;
 
 #ifdef DEBUG
@@ -1502,11 +1497,10 @@ NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel* channel,
   return pps->AsyncResolve(channel, 0, listener, nullptr, result);
 }
 
-NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
-                                          const nsACString& aHostname,
-                                          const nsACString& aUsername,
-                                          const nsAString& aAccountname,
-                                          int32_t* aResult) {
+nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
+                              const nsACString& aHostname,
+                              const nsACString& aUsername,
+                              const nsAString& aAccountname, int32_t* aResult) {
   nsCOMPtr<mozIDOMWindowProxy> domWindow;
   if (aMsgWindow) {
     aMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
@@ -1564,15 +1558,15 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
       button0.get(), nullptr, button2.get(), nullptr, &dummyValue, aResult);
 }
 
-NS_MSG_BASE PRTime MsgConvertAgeInDaysToCutoffDate(int32_t ageInDays) {
+PRTime MsgConvertAgeInDaysToCutoffDate(int32_t ageInDays) {
   PRTime now = PR_Now();
 
   return now - PR_USEC_PER_DAY * ageInDays;
 }
 
-NS_MSG_BASE nsresult
-MsgTermListToString(nsTArray<RefPtr<nsIMsgSearchTerm>> const& aTermList,
-                    nsCString& aOutString) {
+nsresult MsgTermListToString(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& aTermList,
+    nsCString& aOutString) {
   nsresult rv = NS_OK;
   for (nsIMsgSearchTerm* term : aTermList) {
     nsAutoCString stream;
@@ -1600,7 +1594,7 @@ MsgTermListToString(nsTArray<RefPtr<nsIMsgSearchTerm>> const& aTermList,
   return rv;
 }
 
-NS_MSG_BASE uint64_t ParseUint64Str(const char* str) {
+uint64_t ParseUint64Str(const char* str) {
 #ifdef XP_WIN
   {
     char* endPtr;
@@ -1611,7 +1605,7 @@ NS_MSG_BASE uint64_t ParseUint64Str(const char* str) {
 #endif
 }
 
-NS_MSG_BASE uint64_t MsgUnhex(const char* aHexString, size_t aNumChars) {
+uint64_t MsgUnhex(const char* aHexString, size_t aNumChars) {
   // Large numbers will not fit into uint64_t.
   NS_ASSERTION(aNumChars <= 16, "Hex literal too long to convert!");
 
@@ -1634,15 +1628,15 @@ NS_MSG_BASE uint64_t MsgUnhex(const char* aHexString, size_t aNumChars) {
   return result;
 }
 
-NS_MSG_BASE bool MsgIsHex(const char* aHexString, size_t aNumChars) {
+bool MsgIsHex(const char* aHexString, size_t aNumChars) {
   for (size_t i = 0; i < aNumChars; i++) {
     if (!isxdigit(aHexString[i])) return false;
   }
   return true;
 }
 
-NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
-                                         nsIStreamListener* aConsumer) {
+nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
+                             nsIStreamListener* aConsumer) {
   mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   nsresult rv;
@@ -1674,8 +1668,7 @@ NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
   return pump->AsyncRead(aConsumer);
 }
 
-NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile* aFile,
-                                              nsACString& aCharset) {
+nsresult MsgDetectCharsetFromFile(nsIFile* aFile, nsACString& aCharset) {
   // We do the detection in this order:
   // Check BOM.
   // If no BOM, run localized detection (Russian, Ukrainian or Japanese).
@@ -1735,9 +1728,8 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile* aFile,
  * need that as an argument to the function. If charset is
  * unknown or deemed of no importance NULL could be passed.
  */
-NS_MSG_BASE nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
-                                           bool formatOutput,
-                                           bool disallowBreaks) {
+nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
+                               bool formatOutput, bool disallowBreaks) {
   if (aConBuf.IsEmpty()) return NS_OK;
 
   int32_t wrapWidth = 72;
@@ -1762,14 +1754,14 @@ NS_MSG_BASE nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
   return utils->ConvertToPlainText(aConBuf, converterFlags, wrapWidth, aConBuf);
 }
 
-NS_MSG_BASE nsMsgKey msgKeyFromInt(uint32_t aValue) { return aValue; }
+nsMsgKey msgKeyFromInt(uint32_t aValue) { return aValue; }
 
-NS_MSG_BASE nsMsgKey msgKeyFromInt(uint64_t aValue) {
+nsMsgKey msgKeyFromInt(uint64_t aValue) {
   NS_ASSERTION(aValue <= PR_UINT32_MAX, "Msg key value too big!");
   return aValue;
 }
 
-NS_MSG_BASE uint32_t msgKeyToInt(nsMsgKey aMsgKey) { return (uint32_t)aMsgKey; }
+uint32_t msgKeyToInt(nsMsgKey aMsgKey) { return (uint32_t)aMsgKey; }
 
 // Helper function to extract a query qualifier.
 nsCString MsgExtractQueryPart(const nsACString& spec,
