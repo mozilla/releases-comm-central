@@ -12,7 +12,11 @@ ChromeUtils.defineESModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.sys.mjs",
 });
 var lazy = {};
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["calendar/calendar.ftl", "calendar/calendar-recurrence-dialog.ftl"], true)
+);
 var gIsReadOnly = false;
 var gStartTime = null;
 var gEndTime = null;
@@ -352,11 +356,7 @@ const DaypickerMonthday = {
         child.calendar = mainbox;
       }
     }
-    const labelLastDay = cal.l10n.getString(
-      "calendar-event-dialog",
-      "eventRecurrenceMonthlyLastDayLabel"
-    );
-    child.setAttribute("label", labelLastDay);
+    document.l10n.setAttributes(child, "event-recurrence-monthly-last-day-label");
   },
   /**
    * Setter for days property.
@@ -1215,64 +1215,56 @@ function updateRecurrencePattern() {
  * This is needed for some locales that expect a different wording order.
  *
  * @param {string} aPropKey - The locale property key to get the order from
- * @param {string[]} aPropParams - An array of ids to be passed to the locale
+ * @param {object} aPropParams - An object of parameters to be passed to the locale
  *   property. These should be the ids of the elements to change the order for.
  */
 function changeOrderForElements(aPropKey, aPropParams) {
-  let localeOrder;
   const parents = {};
-
+  const aPropParamsLength = Object.keys(aPropParams).length;
   for (const key in aPropParams) {
     // Save original parents so that the nodes to reorder get appended to
     // the correct parent nodes.
-    parents[key] = document.getElementById(aPropParams[key]).parentNode;
+    parents[aPropParams[key]] = document.getElementById(aPropParams[key]).parentNode;
   }
+  const localeOrder = lazy.l10n.formatValueSync(aPropKey, aPropParams).split(" ");
 
-  try {
-    localeOrder = cal.l10n.getString("calendar-event-dialog", aPropKey, aPropParams).split(" ");
-  } catch (ex) {
-    const msg =
-      "The key " +
-      aPropKey +
-      " in calendar-event-dialog.prop" +
-      "erties has incorrect number of params. Expected " +
-      aPropParams.length +
-      " params.";
-    console.error(msg + " " + ex);
+  if (!localeOrder || aPropParamsLength != localeOrder.length) {
+    console.error(
+      `The key ${aPropKey} in calendar-recurrence-dialog.ftl has incorrect number of params. Expected ${aPropParamsLength} params.`
+    );
     return;
   }
 
-  // Add elements in the right order, removing them from their old parent
-  for (let i = 0; i < aPropParams.length; i++) {
-    const newEl = document.getElementById(localeOrder[i]);
-    if (newEl) {
-      parents[i].appendChild(newEl);
-    } else {
+  // Add elements in the right order, removing them from their old parent.
+  for (const id of localeOrder) {
+    const element = document.getElementById(id);
+    if (!element) {
       cal.ERROR(
-        "Localization error, could not find node '" +
-          localeOrder[i] +
-          "'. Please have your localizer check the string '" +
-          aPropKey +
-          "'"
+        `Localization error, could not find node "${id}". Please have your localizer check the string "${aPropKey}"`
       );
+      continue;
     }
+    parents[id].appendChild(element);
   }
 }
 
 /**
- * Change locale-specific widget order for Edit Recurrence window
+ * Change locale-specific widget order for Edit Recurrence window.
  */
 function changeWidgetsOrder() {
-  changeOrderForElements("monthlyOrder", ["monthly-ordinal", "monthly-weekday"]);
-  changeOrderForElements("yearlyOrder", [
-    "yearly-days",
-    "yearly-period-of-month-label",
-    "yearly-month-ordinal",
-  ]);
-  changeOrderForElements("yearlyOrder2", [
-    "yearly-ordinal",
-    "yearly-weekday",
-    "yearly-period-of-label",
-    "yearly-month-rule",
-  ]);
+  changeOrderForElements("monthly-order", {
+    day: "monthly-weekday",
+    ordinal: "monthly-ordinal",
+  });
+  changeOrderForElements("yearly-order-day", {
+    day: "yearly-days",
+    article: "yearly-period-of-month-label",
+    month: "yearly-month-ordinal",
+  });
+  changeOrderForElements("yearly-order-ordinal", {
+    ordinal: "yearly-ordinal",
+    day: "yearly-weekday",
+    article: "yearly-period-of-label",
+    month: "yearly-month-rule",
+  });
 }

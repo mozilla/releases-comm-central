@@ -16,14 +16,15 @@ ChromeUtils.defineESModuleGetters(lazy, {
   CalRecurrenceRule: "resource:///modules/CalRecurrenceRule.sys.mjs",
 });
 
-ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true)); // The calendar console instance
-var gCalendarConsole = console.createInstance({
+ChromeUtils.defineLazyGetter(lazy, "l10n", () => new Localization(["calendar/calendar.ftl"], true));
+
+const gCalendarConsole = console.createInstance({
   prefix: "Calendar",
   consoleID: "calendar",
   maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "All" : "Warn",
 });
 
-export var cal = {
+export const cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
   createDateTime(value) {

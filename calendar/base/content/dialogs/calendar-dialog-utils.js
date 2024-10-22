@@ -635,13 +635,12 @@ function adaptScheduleAgent(aItem) {
  * @param {calIEvent | calITodo} item - The calendar item.
  */
 function sendMailToOrganizer(item) {
-  const organizer = item.organizer;
-  const email = cal.email.getAttendeeEmail(organizer, true);
-  const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
-    item.title,
-  ]);
-  const identity = item.calendar.getProperty("imip.identity");
-  cal.email.sendTo(email, emailSubject, null, identity);
+  cal.email.sendTo(
+    cal.email.getAttendeeEmail(item.organizer, true),
+    `Re: ${item.title}`,
+    null,
+    item.calendar.getProperty("imip.identity")
+  );
 }
 
 /**

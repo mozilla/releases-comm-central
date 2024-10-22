@@ -3951,16 +3951,16 @@ function sendMailToUndecidedAttendees(aAttendees) {
 /**
  * Send Email to all given attendees.
  *
- * @param aAttendees    The attendees to send mail to.
+ * @param {calIAttendee[]} attendees - The attendees to send mail to.
  */
-function sendMailToAttendees(aAttendees) {
-  const toList = cal.email.createRecipientList(aAttendees);
+function sendMailToAttendees(attendees) {
   const item = saveItem();
-  const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
-    item.title,
-  ]);
-  const identity = window.calendarItem.calendar.getProperty("imip.identity");
-  cal.email.sendTo(toList, emailSubject, null, identity);
+  cal.email.sendTo(
+    attendees,
+    `Re: ${item.title}`,
+    null,
+    window.calendarItem.calendar.getProperty("imip.identity")
+  );
 }
 
 /**

@@ -16,7 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
-export var email = {
+export const email = {
   /**
    * Convenience function to open the compose window pre-filled with the information from the
    * parameters. These parameters are mostly raw header fields, see #createRecipientList function

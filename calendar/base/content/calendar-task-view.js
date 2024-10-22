@@ -411,21 +411,17 @@ function taskViewUpdate(filter) {
 /**
  * Prepares a dialog to send an email to the organizer of the currently selected
  * task in the task view.
- *
- * XXX We already have a function with this name in the event dialog. Either
- * consolidate or make name more clear.
  */
 function sendMailToOrganizer() {
   const item = document.getElementById("calendar-task-tree").currentTask;
-  if (item != null) {
-    const organizer = item.organizer;
-    const email = cal.email.getAttendeeEmail(organizer, true);
-    const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
-      item.title,
-    ]);
-    const identity = item.calendar.getProperty("imip.identity");
-    cal.email.sendTo(email, emailSubject, null, identity);
-  }
+  // We don't do a null check on purpose here so we get proper console error in
+  // case something fails.
+  cal.email.sendTo(
+    cal.email.getAttendeeEmail(item.organizer, true),
+    `Re: ${item.title}`,
+    null,
+    item.calendar.getProperty("imip.identity")
+  );
 }
 
 // Install event listeners for the display deck change and connect task tree to filter field

@@ -385,10 +385,10 @@ async function copyLabelToClipboard(event) {
  */
 function sendMailToAttendees() {
   const item = window.arguments[0].calendarEvent;
-  const toList = cal.email.createRecipientList(item.getAttendees());
-  const emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [
-    item.title,
-  ]);
-  const identity = item.calendar.getProperty("imip.identity");
-  cal.email.sendTo(toList, emailSubject, null, identity);
+  cal.email.sendTo(
+    cal.email.createRecipientList(item.getAttendees()),
+    `Re: ${item.title}`,
+    null,
+    item.calendar.getProperty("imip.identity")
+  );
 }
