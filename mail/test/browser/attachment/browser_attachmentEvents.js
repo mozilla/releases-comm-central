@@ -20,10 +20,29 @@ var { add_attachments, close_compose_window, open_compose_new_mail } =
 var { gMockPromptService } = ChromeUtils.importESModule(
   "resource://testing-common/mail/PromptHelpers.sys.mjs"
 );
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";
 var kAttachmentRenamed = "attachment-renamed";
+
+add_setup(async function () {
+  const account = MailServices.accounts.createAccount();
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "mochitest@localhost";
+  account.addIdentity(identity);
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    "user",
+    "test",
+    "pop3"
+  );
+  MailServices.accounts.defaultAccount = account;
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+});
 
 /**
  * Test that the attachments-added event is fired when we add a single
