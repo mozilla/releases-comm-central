@@ -263,7 +263,17 @@ async function subtestKeyboardAndMouse(variant) {
 
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
-    EventUtils.synthesizeMouse(list, x, y, modifiers, content);
+
+    let row = list.ownerDocument.elementFromPoint(x, y);
+    if (!row) {
+      // Happens for some cases with --headless at least.
+      info(`Found no row ${index} at ${x},${y}`);
+      row = list.querySelectorAll(`tr[is="test-row"]`)[index];
+      row.click();
+    } else {
+      EventUtils.synthesizeMouse(list, x, y, modifiers, content);
+    }
+
     await TestUtils.waitForCondition(
       () => !!selectHandler.seenEvent == expectEvent,
       `'select' event should ${expectEvent ? "" : "not "}get fired`
