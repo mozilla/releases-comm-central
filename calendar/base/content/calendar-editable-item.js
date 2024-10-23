@@ -114,8 +114,9 @@
           target = target.parentNode;
         }
         if (!target.closest(`[draggable="true"]`)) {
-          // Day/week view items are not draggable, because the day view does
-          // dragging with mouse event handlers instead of drag event handlers.
+          // Day/week view items (except all-day items) do not have the
+          // draggable attribute, because the day view does dragging with
+          // mouse event handlers instead of drag event handlers.
           return;
         }
         const item = this.occurrence;
