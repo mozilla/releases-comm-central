@@ -4,6 +4,7 @@
 
 #include "EwsService.h"
 
+#include "EwsMessageChannel.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgMailNewsUrl.h"
@@ -27,8 +28,16 @@ NS_IMETHODIMP EwsService::CopyMessage(const nsACString& aSrcURI,
                                       bool aMoveMessage,
                                       nsIUrlListener* aUrlListener,
                                       nsIMsgWindow* aMsgWindow) {
-  NS_WARNING("CopyMessage");
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NS_ENSURE_ARG_POINTER(aCopyListener);
+
+  // The message service interface gives us URIs as strings, but we want
+  // structured, queryable/transformable data.
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NewURIForChannel(aSrcURI, getter_AddRefs(uri));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  RefPtr<EwsMessageChannel> channel = new EwsMessageChannel(uri, false);
+  return channel->AsyncOpen(aCopyListener);
 }
 
 NS_IMETHODIMP EwsService::CopyMessages(
