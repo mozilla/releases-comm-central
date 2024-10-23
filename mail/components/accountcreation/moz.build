@@ -16,6 +16,7 @@ EXTRA_JS_MODULES.accountcreation += [
     "modules/ExchangeAutoDiscover.sys.mjs",
     "modules/FetchConfig.sys.mjs",
     "modules/FetchHTTP.sys.mjs",
+    "modules/FindConfig.sys.mjs",
     "modules/GuessConfig.sys.mjs",
     "modules/readFromXML.sys.mjs",
     "modules/Sanitizer.sys.mjs",
