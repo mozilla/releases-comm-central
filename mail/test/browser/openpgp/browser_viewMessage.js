@@ -265,6 +265,12 @@ add_task(async function testOpenForwardedEncrypted() {
   await BrowserTestUtils.closeWindow(msgc);
 });
 
+// TODO: the above tests that an encrypted .eml can be opnened from an unencrypted message.
+// We should also test/handle:
+//  - other attachment (like .doc) in an encrypted message
+//  - unencrypted .eml attachment in encrypted message (currently broken - bug 1926607)
+//  - encrypted .eml in an encrypted message (currently broken - bug 1926608)
+
 /**
  * Test that opening a message that is signed by a verified key shows as such.
  */
