@@ -188,6 +188,32 @@ add_task(async function test_getAccountData() {
   MailServices.accounts.removeAccount(account, false);
 });
 
+add_task(async function test_getAccountData_nonASCII() {
+  const account = await createMailAccount("ascii", "ascii", "imap");
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = `Ŧé⅞↑@foo.invalid`;
+  identity.fullName = "test with various characters";
+  account.addIdentity(identity);
+
+  const dataWithoutPasswords = QRExport.getAccountData(account.key, false);
+
+  Assert.deepEqual(
+    dataWithoutPasswords,
+    [
+      [0, "foo.invalid", 143, 0, 1, "ascii", "Mail for ascii@foo.invalid", ""],
+      [
+        [
+          [0, "foo.invalid", 587, 0, 1, "ascii", ""],
+          ["ascii@foo.invalid", "ascii"],
+        ],
+      ],
+    ],
+    "Should not contain the extra identity"
+  );
+
+  MailServices.accounts.removeAccount(account, false);
+});
+
 add_task(function test_getQRData() {
   const chunk = QRExport.getQRData(["foo", "bar"], 3, 9);
 

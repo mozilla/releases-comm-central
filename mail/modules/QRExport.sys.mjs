@@ -163,8 +163,9 @@ export const QRExport = {
     outgoingServer.QueryInterface(Ci.nsISmtpServer);
     const identites = account.identities.filter(
       identity =>
-        !identity.smtpServerKey ||
-        identity.smtpServerKey == defaultSmtpServerKey
+        (!identity.smtpServerKey ||
+          identity.smtpServerKey == defaultSmtpServerKey) &&
+        /^[\x00-\x7F]+$/.test(identity.email) // eslint-disable-line no-control-regex
     );
     return [
       [
