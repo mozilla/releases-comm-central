@@ -19,6 +19,7 @@ class EwsService : public nsIMsgMessageService {
 
  private:
   nsresult MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval);
+  nsresult NewURIForChannel(const nsACString& spec, nsIURI** channelUri);
 };
 
 #endif

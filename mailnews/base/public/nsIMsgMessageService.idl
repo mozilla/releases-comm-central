@@ -41,10 +41,13 @@ interface nsIMsgMessageService : nsISupports {
   /**
    * Pass in the URI for the message you want to have copied.
    *
-   * @param aSrcURI
+   * @param aSrcURI       The URI of the message to copy. This URI usually uses
+   *                      the protocol-specific message scheme (e.g.
+   *                      `ews-message` or `mailbox-message`), and follows the
+   *                      form: scheme://user@server/path/to/folder#messageKey
    * @param aCopyListener already knows about the destination folder.
-   * @param aMoveMessage TRUE if you want the message to be moved.
-   *                     FALSE leaves it as just a copy.
+   * @param aMoveMessage  TRUE if you want the message to be moved.
+   *                      FALSE leaves it as just a copy.
    * @param aUrlListener
    * @param aMsgWindow
    */

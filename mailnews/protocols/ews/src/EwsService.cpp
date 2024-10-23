@@ -46,37 +46,11 @@ NS_IMETHODIMP EwsService::LoadMessage(const nsACString& aMessageURI,
                                       bool aAutodetectCharset) {
   // The message service interface gives us URIs as strings, but we want
   // structured, queryable/transformable data.
-  RefPtr<nsIURI> hdrUri;
-  nsresult rv = NS_NewURI(getter_AddRefs(hdrUri), aMessageURI);
+  nsCOMPtr<nsIURI> uri;
+  nsresult rv = NewURIForChannel(aMessageURI, getter_AddRefs(uri));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<nsIMsgDBHdr> hdr;
-  rv = MsgHdrFromUri(hdrUri, getter_AddRefs(hdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCString ewsId;
-  rv = hdr->GetStringProperty(ID_PROPERTY, ewsId);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (ewsId.IsEmpty()) {
-    NS_ERROR(nsPrintfCString("message %s in EWS folder has no EWS ID",
-                             nsPromiseFlatCString(aMessageURI).get())
-                 .get());
-    return NS_ERROR_UNEXPECTED;
-  }
-
-  // We want to provide the docshell with a URI containing sufficient
-  // information to identify the associated incoming mail account in addition to
-  // the message ID. We expect that the URI passed to this method is an
-  // `ews-message://` URI with username, hostname, and any distinguishing port,
-  // so we retain that data in producing a loadable URI.
-  nsCOMPtr<nsIURI> messageUri;
-  rv = NS_MutateURI(hdrUri)
-           .SetScheme("x-moz-ews"_ns)
-           .SetPathQueryRef(ewsId)
-           .Finalize(messageUri);
-
-  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(messageUri);
+  RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(uri);
   loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
   loadState->SetFirstParty(false);
   loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
@@ -173,4 +147,40 @@ nsresult EwsService::MsgHdrFromUri(nsIURI* uri, nsIMsgDBHdr** _retval) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   return folder->GetMessageHeader(key, _retval);
+}
+
+// Creates a URI that can be used to retrieve a message via an
+// `EwsMessageChannel` from the provided spec string.
+//
+// The URI spec is assumed to always use the `ews-message` scheme.
+nsresult EwsService::NewURIForChannel(const nsACString& spec,
+                                      nsIURI** channelUri) {
+  nsCOMPtr<nsIURI> hdrUri;
+  nsresult rv = NS_NewURI(getter_AddRefs(hdrUri), spec);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  rv = MsgHdrFromUri(hdrUri, getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString ewsId;
+  rv = hdr->GetStringProperty(ID_PROPERTY, ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (ewsId.IsEmpty()) {
+    NS_ERROR(nsPrintfCString("message %s in EWS folder has no EWS ID",
+                             nsPromiseFlatCString(spec).get())
+                 .get());
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  // We want to provide the channel with a URI containing sufficient information
+  // to identify the associated incoming mail account in addition to the message
+  // ID. We expect that the URI passed to this method is an `ews-message://` URI
+  // with username, hostname, and any distinguishing port, so we retain that
+  // data in producing a loadable URI.
+  return NS_MutateURI(hdrUri)
+      .SetScheme("x-moz-ews"_ns)
+      .SetPathQueryRef(ewsId)
+      .Finalize(channelUri);
 }
