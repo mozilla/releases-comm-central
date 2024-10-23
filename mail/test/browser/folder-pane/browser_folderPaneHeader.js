@@ -23,7 +23,9 @@ let tabmail,
   moreContext,
   fetchContext,
   folderModesContextMenu,
-  folderModesContextMenuPopup;
+  folderModesContextMenuPopup,
+  rootFolder,
+  inbox;
 
 add_setup(async function () {
   tabmail = document.getElementById("tabmail");
@@ -42,12 +44,39 @@ add_setup(async function () {
   folderModesContextMenuPopup = about3Pane.document.getElementById(
     "folderModesContextMenuPopup"
   );
+  rootFolder = MailServices.accounts.accounts[0].incomingServer.rootFolder;
+  inbox = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+
   registerCleanupFunction(() => {
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"
     );
   });
 });
+
+async function assertColumns(
+  row,
+  unreadCount,
+  totalCount = null,
+  folderSize = null
+) {
+  const checkLabel = (label, content) => {
+    Assert.equal(label.hidden, content == null, `${label} should be visible`);
+    if (!content) {
+      return;
+    }
+
+    Assert.equal(
+      label.textContent,
+      content,
+      "${label} should display the correct content"
+    );
+  };
+
+  checkLabel(row.unreadCountLabel, unreadCount);
+  checkLabel(row.totalCountLabel, totalCount);
+  checkLabel(row.folderSizeLabel, folderSize);
+}
 
 async function assertAriaLabel(row, expectedLabel) {
   await BrowserTestUtils.waitForCondition(
@@ -514,19 +543,18 @@ add_task(async function testTotalCountDefaultState() {
     "The customization data was saved"
   );
 
-  const rootFolder =
-    MailServices.accounts.accounts[0].incomingServer.rootFolder;
-  const inbox = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   await add_message_sets_to_folders([inbox], [create_thread(10)]);
   await be_in_folder(inbox);
 
   about3Pane.folderTree.selectedIndex = 1;
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 10 unread messages");
+  await assertColumns(row, 10);
 
   about3Pane.threadTree.selectedIndex = 0;
   about3Pane.threadTree.expandRowAtIndex(0);
   await assertAriaLabel(row, "Inbox, 9 unread messages");
+  await assertColumns(row, 9);
 });
 
 add_task(async function testTotalCountVisible() {
@@ -565,6 +593,7 @@ add_task(async function testTotalCountVisible() {
 
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages, 10 total messages");
+  await assertColumns(row, 9, 10);
 });
 
 add_task(async function testFolderSizeDefaultState() {
@@ -624,6 +653,7 @@ add_task(async function testFolderSizeVisible() {
     row,
     `Inbox, 9 unread messages, 10 total messages, ${row.folderSize}`
   );
+  await assertColumns(row, 9, 10, row.folderSize);
 });
 
 add_task(async function testFolderSizeHidden() {
@@ -702,6 +732,7 @@ add_task(async function testTotalCountHidden() {
 
   const row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages");
+  await assertColumns(row, 9);
 });
 
 add_task(async function testHideLocalFoldersXULStore() {
@@ -802,8 +833,6 @@ add_task(async function testBadgesPersistentState() {
 
   // Create a folder and add messages to that folder to ensure the badges are
   // visible and they update properly.
-  const rootFolder =
-    MailServices.accounts.accounts[0].incomingServer.rootFolder;
   rootFolder.createSubfolder("NewlyCreatedTestFolder", null);
   const folder = rootFolder.getChildNamed("NewlyCreatedTestFolder");
   await be_in_folder(folder);
@@ -849,6 +878,61 @@ add_task(async function testBadgesPersistentState() {
       row.querySelector(".folder-size").textContent
     } | The folder size should have changed after adding messages`
   );
+});
+
+/**
+ * Tests that a folder that has just been set as a favorite is displayed
+ * with the correct columns under "Favorite Folders" right away.
+ */
+add_task(async function testAddFolderToFavorites() {
+  // Enable "Favorite Folders" mode.
+  const shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+  const shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
+    folderModesContextMenuPopup,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(folderModesContextMenu, {}, about3Pane);
+  await shownFolderModesSubMenuPromise;
+  const mode = {
+    menuID: "#folderPaneMoreContextFavoriteFolders",
+    modeID: "favorite",
+  };
+  const checkedPromise = TestUtils.waitForCondition(
+    () => moreContext.querySelector(mode.menuID).hasAttribute("checked"),
+    `"${mode.modeID}" option has been checked`
+  );
+  moreContext.activateItem(moreContext.querySelector(mode.menuID));
+  await checkedPromise;
+  const folderViewHiddenPromise = BrowserTestUtils.waitForEvent(
+    folderModesContextMenuPopup,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await folderViewHiddenPromise;
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  // Set inbox as favorite and let the folder tree update itself.
+  inbox.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  await new Promise(resolve => setTimeout(resolve));
+
+  // Expand the server row that has just been added to favorites.
+  about3Pane.folderTree.selectedIndex = 4;
+  about3Pane.folderTree.expandRowAtIndex(4);
+
+  // Check the inbox row.
+  const row = about3Pane.folderTree.getRowAtIndex(5);
+  await assertAriaLabel(
+    row,
+    `Inbox, 9 unread messages, 10 total messages, ${row.folderSize}`
+  );
+  await assertColumns(row, 9, 10, row.folderSize);
 });
 
 add_task(async function testActionButtonsState() {

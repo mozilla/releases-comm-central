@@ -159,6 +159,10 @@ class FolderTreeRow extends HTMLLIElement {
   set totalCount(value) {
     this.classList.toggle("total", value > 0);
     this.totalCountLabel.textContent = value;
+    this.totalCountLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
+      "messenger",
+      "totalMsgCount"
+    );
     this.#updateAriaLabel();
   }
 
@@ -173,6 +177,10 @@ class FolderTreeRow extends HTMLLIElement {
 
   set folderSize(value) {
     this.folderSizeLabel.textContent = value;
+    this.folderSizeLabel.hidden = !lazy.XULStoreUtils.isItemVisible(
+      "messenger",
+      "folderPaneFolderSize"
+    );
     this.#updateAriaLabel();
   }
 
