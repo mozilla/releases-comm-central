@@ -282,6 +282,7 @@ async function _middle_click_on_collapsed_thread_root_helper(shiftPressed) {
   const folderTab = document.getElementById("tabmail").currentTabInfo;
 
   const tree = get_about_3pane().threadTree;
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
   // Note the first visible row
   const preFirstRow = tree.getFirstVisibleIndex();
 
