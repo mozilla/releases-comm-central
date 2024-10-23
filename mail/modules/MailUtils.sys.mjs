@@ -1073,12 +1073,16 @@ export var MailUtils = {
   },
 
   /**
-   * Set the favicon for the currently visited page.
+   * Set the favicon for the currently visited http(s) page in the favicons db.
    *
    * @param {nsIURI} pageURI
    * @param {nsIURI} iconURI
    */
   async setFaviconForPage(pageURI, iconURI) {
+    if (!pageURI.schemeIs("http") && !pageURI.schemeIs("https")) {
+      // Don't try to store favion if this isn't a http(s) page.
+      return;
+    }
     try {
       // If the given faviconURI is data URL, set it as is.
       if (iconURI.schemeIs("data")) {
@@ -1106,7 +1110,7 @@ export var MailUtils = {
         dataURL
       );
     } catch (ex) {
-      console.error(`Failed to set favicon for page:${ex}`);
+      console.error(`Set favicon for page ${pageURI.spec} FAILED`, ex);
     }
   },
 

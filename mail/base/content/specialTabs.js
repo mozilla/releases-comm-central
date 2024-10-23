@@ -1287,11 +1287,11 @@ var specialTabs = {
    * page shown in the browser. It is assumed that the preferences have already
    * been checked before calling this function appropriately.
    *
-   * @param aTab  The tab to set the icon for.
-   * @param aIcon A string based URL of the icon to try and load.
+   * @param {object} aTab - The tab (tabInfo) to set the icon for.
+   * @param {string} aIcon - A string based URL of the icon to try and load.
    */
   async setFavIcon(aTab, aIcon) {
-    if (aIcon) {
+    if (aIcon && aTab.browser.currentURI.spec.startsWith("http")) {
       const iconURI = Services.io.newURI(aIcon);
       await MailUtils.setFaviconForPage(aTab.browser.currentURI, iconURI);
     }
