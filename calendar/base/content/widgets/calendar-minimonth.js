@@ -176,7 +176,6 @@
       });
 
       this.dayBoxes = new Map();
-      this.mValue = null;
       this.mEditorDate = null;
       this.mExtraDate = null;
       this.mPixelScrollDelta = 0;
@@ -185,6 +184,7 @@
       this.mSelected = null;
       this.mExtra = null;
       this.mValue = new Date(); // Default to "today".
+      this.mShowsToday = true;
       this.mFocused = null;
 
       const width = Math.max(...cal.dtz.formatter.monthNames.map(n => n.length));
@@ -500,6 +500,7 @@
     refreshDisplay() {
       if (!this.mValue) {
         this.mValue = new Date();
+        this.mShowsToday = true;
       }
       this.setHeader();
       this.showMonth(this.mValue);
@@ -825,6 +826,11 @@
           this.mValue.getDate() != aValue.getDate());
 
       this.mValue = aValue;
+      const today = new Date();
+      this.mShowsToday =
+        this.mValue.getFullYear() == today.getFullYear() &&
+        this.mValue.getMonth() == today.getMonth() &&
+        this.mValue.getDate() == today.getDate();
       if (changed) {
         this.fireEvent("change");
       }
@@ -888,6 +894,11 @@
       if (!sameMonth && !sameDate) {
         // Change month and select day.
         this.mValue = aDate;
+        const today = new Date();
+        this.mShowsToday =
+          this.mValue.getFullYear() == today.getFullYear() &&
+          this.mValue.getMonth() == today.getMonth() &&
+          this.mValue.getDate() == today.getDate();
         this.showMonth(aMainDate);
       } else if (!sameMonth) {
         // Change month only.
@@ -901,6 +912,11 @@
         this.mSelected = day;
         day.setAttribute("selected", "true");
         this.mValue = aDate;
+        const today = new Date();
+        this.mShowsToday =
+          this.mValue.getFullYear() == today.getFullYear() &&
+          this.mValue.getMonth() == today.getMonth() &&
+          this.mValue.getDate() == today.getDate();
         this.setFocusedDate(aDate);
       }
     }
@@ -976,6 +992,14 @@
       this.moveDateByOffset(years, months, days);
       event.stopPropagation();
       event.preventDefault();
+    }
+
+    /**
+     * If last selected date was the current date at the time. This will remain
+     * true (or false) until a different date is selected, even after midnight.
+     */
+    get showsToday() {
+      return this.mShowsToday;
     }
 
     disconnectedCallback() {

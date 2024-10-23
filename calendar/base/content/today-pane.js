@@ -12,6 +12,7 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  * Namespace object to hold functions related to the today pane.
  */
 var TodayPane = {
+  _showsToday: false,
   isLoaded: false,
   paneViews: null,
   start: null,
@@ -401,12 +402,12 @@ var TodayPane = {
       // If we update the mini-month, this function gets called again.
       return;
     }
-    if (!document.getElementById("agenda-panel").isVisible()) {
-      // If the agenda panel isn't visible, there's no need to set the day.
-      return;
-    }
     this.setDay.alreadySettingDay = true;
     this.start = aNewDate.clone();
+
+    const today = cal.dtz.now();
+    this._showsToday =
+      aNewDate.year == today.year && aNewDate.month == today.month && aNewDate.day == today.day;
 
     const daylabel = document.getElementById("datevalue-label");
     // Only the number of the date is used here. `formatDateOnly` is avoided as
@@ -453,10 +454,11 @@ var TodayPane = {
   },
 
   /**
-   * Checks if the today pane is showing today's date.
+   * If last selected date was the current date at the time. This will remain
+   * true (or false) until a different date is selected, even after midnight.
    */
-  showsToday() {
-    return cal.dtz.sameDay(cal.dtz.now(), this.start);
+  get showsToday() {
+    return this._showsToday;
   },
 
   /**

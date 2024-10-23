@@ -291,33 +291,39 @@ function setLocaleDefaultPreferences() {
  * Called at midnight to tell us to redraw date-specific widgets.
  */
 function doMidnightUpdate() {
-  try {
-    getMinimonth().refreshDisplay();
-
-    // Refresh the current view and just allow the refresh for the others
-    // views when will be displayed.
-    const currView = currentView();
-    currView.goToDay();
-    const views = ["day-view", "week-view", "multiweek-view", "month-view"];
-    for (const view of views) {
-      if (view != currView.id) {
-        document.getElementById(view).mToggleStatus = -1;
-      }
-    }
-
-    if (!TodayPane.showsToday()) {
-      TodayPane.setDay(cal.dtz.now());
-    }
-
-    // The unifinder filter may be set relative to the current day, so we need
-    // to ensure that it is up-to-date.
-    refreshUnifinderFilterInterval();
-
-    // Update today's date on todaypane button.
-    updateTodayPaneButtonDate();
-  } catch (exc) {
-    cal.ASSERT(false, exc);
+  if (TodayPane.showsToday) {
+    // Select today.
+    TodayPane.setDay(cal.dtz.now());
+  } else {
+    // Just update the day displayed as today.
+    const todayMinimonth = document.getElementById("today-minimonth");
+    todayMinimonth.showMonth(todayMinimonth.value);
   }
+
+  for (const view of getViewBox().children) {
+    // Mark each view as invalid to ensure it gets redrawn next time it is shown.
+    view.mToggleStatus = -1;
+  }
+
+  const minimonth = getMinimonth();
+  if (minimonth.showsToday) {
+    // Select today.
+    minimonth.value = new Date();
+  } else {
+    // Just update the day displayed as today.
+    minimonth.showMonth(minimonth.mEditorDate);
+    const view = currentView();
+    if (view.isInitialized) {
+      view.goToDay();
+    }
+  }
+
+  // The unifinder filter may be set relative to the current day, so we need
+  // to ensure that it is up-to-date.
+  refreshUnifinderFilterInterval();
+
+  // Update today's date on todaypane button.
+  updateTodayPaneButtonDate();
 }
 
 /**
