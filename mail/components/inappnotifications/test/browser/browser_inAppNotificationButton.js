@@ -20,6 +20,9 @@ add_setup(async function () {
     url.endsWith("inAppNotificationButton.xhtml")
   );
   await SimpleTest.promiseFocus(tab.browser);
+  // This test misbehaves if started immediately.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
   browser = tab.browser;
   button = browser.contentWindow.document.querySelector(
     `[is="in-app-notification-button"]`
