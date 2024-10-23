@@ -41,7 +41,18 @@ var gMockAlertsService = {
 
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
+  promiseShown() {
+    this._shownDeferred = Promise.withResolvers();
+    return this._shownDeferred.promise;
+  },
+
+  promiseClosed() {
+    this._closedDeferred = Promise.withResolvers();
+    return this._closedDeferred.promise;
+  },
+
   showAlert(alertInfo, alertListener) {
+    info(`showAlert: ${alertInfo.name}`);
     const { imageURL, title, text, textClickable, cookie, name } = alertInfo;
     // Setting the _doFail flag allows us to revert to the newmailalert.xhtml
     // notification
@@ -58,6 +69,9 @@ var gMockAlertsService = {
     this._alertListener = alertListener;
     this._name = name;
 
+    this._alertListener.observe(null, "alertshow", alert.cookie);
+    this._shownDeferred?.resolve();
+    this._shownDeferred = null;
     if (this._doClick) {
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
       setTimeout(
@@ -65,8 +79,15 @@ var gMockAlertsService = {
           this._alertListener.observe(null, "alertclickcallback", this._cookie),
         100
       );
-    } else {
+    }
+  },
+
+  closeAlert(name) {
+    info(`closeAlert: ${name}`);
+    if (name == this._name) {
       this._alertListener.observe(null, "alertfinished", this._cookie);
+      this._closedDeferred?.resolve();
+      this._closedDeferred = null;
     }
   },
 
@@ -690,6 +711,27 @@ add_task(async function test_click_on_notification() {
 
   Services.prefs.clearUserPref("mail.openMessageBehavior");
   about3Pane.paneLayout.messagePaneVisible = true;
+});
+
+/**
+ * Test what happens when loading a message when there's a notification about
+ * it. The notification should be removed.
+ */
+add_task(async function test_load_message_closes_notification() {
+  gMockAlertsService._reset();
+
+  const shownPromise = gMockAlertsService.promiseShown();
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  await shownPromise;
+
+  const closedPromise = gMockAlertsService.promiseClosed();
+
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.restoreState({ folderURI: gFolder.URI, messagePaneVisible: true });
+  about3Pane.threadTree.selectedIndex = 0;
+
+  await closedPromise;
 });
 
 /**

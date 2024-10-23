@@ -237,7 +237,8 @@ function displayMessage(uri, viewWrapper) {
     currentIndex: null,
   });
 
-  if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
+  const flags = gMessage.flags;
+  if (flags & Ci.nsMsgMessageFlags.HasRe) {
     document.title = `Re: ${gMessage.mime2DecodedSubject || ""}`;
   } else {
     document.title = gMessage.mime2DecodedSubject;
@@ -268,7 +269,7 @@ function displayMessage(uri, viewWrapper) {
       );
   }
 
-  if (gMessage.flags & Ci.nsMsgMessageFlags.Partial) {
+  if (flags & Ci.nsMsgMessageFlags.Partial) {
     document.body.classList.add("partial-message");
   } else if (document.body.classList.contains("partial-message")) {
     document.body.classList.remove("partial-message");
@@ -287,6 +288,12 @@ function displayMessage(uri, viewWrapper) {
         // Show error page if needed.
         HideMessageHeaderPane();
         MailE10SUtils.loadURI(getMessagePaneBrowser(), url.seeOtherURI);
+      }
+      if (flags & Ci.nsMsgMessageFlags.New) {
+        // Close any notification we might have about this message.
+        Cc["@mozilla.org/system-alerts-service;1"]
+          .getService(Ci.nsIAlertsService)
+          .closeAlert(uri);
       }
     },
   };
