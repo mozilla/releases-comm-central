@@ -200,7 +200,7 @@ nsSuiteProfileMigratorBase::SetFile(PrefTransform* aTransform,
     if (NS_FAILED(rv)) {
       // Okay it wasn't a URL spec so assume it is a localfile,
       // if this fails then just don't set anything.
-      rv = NS_NewNativeLocalFile(fileURL, false, getter_AddRefs(file));
+      rv = NS_NewNativeLocalFile(fileURL, getter_AddRefs(file));
       if (NS_FAILED(rv))
         return NS_OK;
     }
@@ -306,7 +306,7 @@ nsSuiteProfileMigratorBase::GetProfileDataFromProfilesIni(nsIFile* aDataDir,
     }
 
     nsCOMPtr<nsIFile> rootDir;
-    rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(rootDir));
+    rv = NS_NewNativeLocalFile(EmptyCString(), getter_AddRefs(rootDir));
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (isRelative)
@@ -532,7 +532,7 @@ nsSuiteProfileMigratorBase::GetFileValue(nsIPrefBranch* aPrefBranch,
     if (!StringBeginsWith(prefValue, "[ProfD]"_ns))
       return NS_ERROR_FILE_NOT_FOUND;
 
-    rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(theFile));
+    rv = NS_NewNativeLocalFile(EmptyCString(), getter_AddRefs(theFile));
     if (NS_FAILED(rv))
       return rv;
 
