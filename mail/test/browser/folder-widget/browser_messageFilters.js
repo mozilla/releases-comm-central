@@ -116,20 +116,28 @@ add_task(async function key_navigation_test() {
           "Correct btn is focused after opening and closing new filter editor"
         );
       } else if (button.id == "newButtondropmarker") {
+        await new Promise(resolve => filterc.requestAnimationFrame(resolve));
+
         EventUtils.synthesizeKey("KEY_Enter", {}, filterc);
         await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "shown");
+        Assert.ok(true, `Enter opened #${menupopupNewFilter.id}`);
         EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
         await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "hidden");
+        Assert.ok(true, `Esc closed #${menupopupNewFilter.id}`);
+
+        await new Promise(resolve => filterc.requestAnimationFrame(resolve));
 
         // Simulate Space keypress.
         EventUtils.synthesizeKey(" ", {}, filterc);
         await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "shown");
+        Assert.ok(true, `Space opened #${menupopupNewFilter.id}`);
         EventUtils.synthesizeKey("KEY_Escape", {}, filterc);
         await BrowserTestUtils.waitForPopupEvent(menupopupNewFilter, "hidden");
+        Assert.ok(true, `Esc closed #${menupopupNewFilter.id}`);
         Assert.equal(
           filterWinDoc.activeElement.id,
           button.id,
-          "The correct btn is focused after opening and closing the menupopup"
+          "The correct btn should be focused after closing the menupopup"
         );
       }
     }
