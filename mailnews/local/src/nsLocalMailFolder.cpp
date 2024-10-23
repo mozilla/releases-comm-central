@@ -1010,6 +1010,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetSizeOnDisk(int64_t* aSize) {
   // If this is the rootFolder, return 0 as a safe value.
   if (NS_FAILED(rv) || isServer) mFolderSize = 0;
 
+  // Ignore virtual folders, for maildir there's not even a file to test.
+  uint32_t folderFlags = 0;
+  GetFlags(&folderFlags);
+  if (folderFlags & nsMsgFolderFlags::Virtual) mFolderSize = 0;
+
   if (mFolderSize == kSizeUnknown) {
     nsCOMPtr<nsIFile> file;
     rv = GetFilePath(getter_AddRefs(file));
