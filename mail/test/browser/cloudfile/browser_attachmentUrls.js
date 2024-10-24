@@ -1544,7 +1544,8 @@ async function subtest_insertion_restores_caret_point() {
   type_in_composer(cw, [kTypedIn]);
 
   // That text should be inserted just above the root attachment URL node.
-  assert_previous_text(root.previousSibling, [kTypedIn]);
+  const br = assert_previous_nodes("br", root, 1);
+  assert_previous_text(br.previousSibling, [kTypedIn]);
 
   await close_compose_window(cw);
 }
