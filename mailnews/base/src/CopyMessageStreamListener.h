@@ -3,26 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef NSCOPYMESSAGESTREAMLISTENER_H
-#define NSCOPYMESSAGESTREAMLISTENER_H
+#ifndef COPYMESSAGESTREAMLISTENER_H
+#define COPYMESSAGESTREAMLISTENER_H
 
-#include "nsICopyMessageStreamListener.h"
 #include "nsIStreamListener.h"
 #include "nsICopyMessageListener.h"
 #include "nsCOMPtr.h"
 
-class nsCopyMessageStreamListener : public nsIStreamListener,
-                                    public nsICopyMessageStreamListener {
+class CopyMessageStreamListener : public nsIStreamListener,
+                                  public nsICopyMessageListener {
  public:
-  nsCopyMessageStreamListener();
+  CopyMessageStreamListener(nsICopyMessageListener* destination, bool isMove);
 
   NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_NSICOPYMESSAGESTREAMLISTENER
+  NS_DECL_NSICOPYMESSAGELISTENER
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
  protected:
-  virtual ~nsCopyMessageStreamListener();
+  virtual ~CopyMessageStreamListener();
+
+ private:
   nsCOMPtr<nsICopyMessageListener> mDestination;
   bool mIsMove;
 };

@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    "CopyMessageStreamListener.h",
     "FolderCompactor.h",
     "HeaderReader.h",
     "LineReader.h",
@@ -33,13 +34,13 @@ EXPORTS += [
 ]
 
 SOURCES += [
+    "CopyMessageStreamListener.cpp",
     "FolderCompactor.cpp",
     "MailNewsDLF.cpp",
     "MailnewsLoadContextInfo.cpp",
     "MboxMsgInputStream.cpp",
     "MboxMsgOutputStream.cpp",
     "nsCidProtocolHandler.cpp",
-    "nsCopyMessageStreamListener.cpp",
     "nsImapMoveCoalescer.cpp",
     "nsMailAuthModule.cpp",
     "nsMailChannel.cpp",

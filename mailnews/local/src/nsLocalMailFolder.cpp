@@ -8,6 +8,7 @@
 #include "nsISeekableStream.h"
 #include "prlog.h"
 
+#include "CopyMessageStreamListener.h"
 #include "FolderCompactor.h"
 #include "HeaderReader.h"
 #include "LineReader.h"
@@ -31,7 +32,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
-#include "nsICopyMessageStreamListener.h"
 #include "nsIMsgCopyService.h"
 #include "nsIMessenger.h"
 #include "nsIDocShell.h"
@@ -2599,20 +2599,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
 nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
                                               nsIMsgWindow* aMsgWindow,
                                               bool isMove) {
-  if (!mCopyState) return NS_ERROR_OUT_OF_MEMORY;
+  if (!mCopyState) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
 
   nsresult rv;
-
-  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(
-      "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIMsgFolder> srcFolder(
       do_QueryInterface(mCopyState->m_srcSupport, &rv));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-
-  rv = copyStreamListener->Init(this, isMove);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   if (!mCopyState->m_messageService) {
     nsCString uri;
@@ -2622,10 +2616,6 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
   }
 
   if (NS_SUCCEEDED(rv) && mCopyState->m_messageService) {
-    nsCOMPtr<nsIStreamListener> streamListener(
-        do_QueryInterface(copyStreamListener, &rv));
-    NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-
     mCopyState->m_curCopyIndex = 0;
     // we need to kick off the first message - subsequent messages
     // are kicked off by nsMailboxProtocol when it finishes a message
@@ -2639,18 +2629,25 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
     if (srcLocalFolder) {
       StartMessage();
     }
+
+    RefPtr<CopyMessageStreamListener> streamListener =
+        new CopyMessageStreamListener(this, isMove);
+
     nsCOMPtr<nsIURI> dummyNull;
     rv = mCopyState->m_messageService->CopyMessages(
         keyArray, srcFolder, streamListener, isMove, nullptr, aMsgWindow,
         getter_AddRefs(dummyNull));
   }
+
   return rv;
 }
 
 nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
                                              nsIMsgWindow* aMsgWindow,
                                              bool isMove) {
-  if (!mCopyState) return NS_ERROR_OUT_OF_MEMORY;
+  if (!mCopyState) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
 
   nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr(do_QueryInterface(message, &rv));
@@ -2664,24 +2661,19 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
   nsCString uri;
   srcFolder->GetUriForMsg(msgHdr, uri);
 
-  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(
-      "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = copyStreamListener->Init(this, isMove);
-  if (NS_FAILED(rv)) return rv;
-
-  if (!mCopyState->m_messageService)
+  if (!mCopyState->m_messageService) {
     rv = GetMessageServiceFromURI(uri,
                                   getter_AddRefs(mCopyState->m_messageService));
+  }
 
   if (NS_SUCCEEDED(rv) && mCopyState->m_messageService) {
-    nsCOMPtr<nsIStreamListener> streamListener(
-        do_QueryInterface(copyStreamListener, &rv));
-    NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
+    RefPtr<CopyMessageStreamListener> streamListener =
+        new CopyMessageStreamListener(this, isMove);
+
     rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, isMove,
                                                    nullptr, aMsgWindow);
   }
+
   return rv;
 }
 

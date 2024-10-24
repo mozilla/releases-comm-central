@@ -560,7 +560,7 @@ NS_IMETHODIMP nsImapService::CopyMessages(
   nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));
   if (NS_SUCCEEDED(rv)) {
     // we generate the uri for the first message so that way on down the line,
-    // GetMessage in nsCopyMessageStreamListener will get an unescaped
+    // GetMessage in CopyMessageStreamListener will get an unescaped
     // username and be able to find the msg hdr. See bug 259656 for details
     nsCString uri;
     srcFolder->GenerateMessageURI(aKeys[0], uri);

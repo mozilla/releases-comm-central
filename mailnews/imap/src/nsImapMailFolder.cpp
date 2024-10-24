@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "msgCore.h"
+#include "CopyMessageStreamListener.h"
 #include "nsIAutoSyncManager.h"
 #include "nsIStringStream.h"
 #include "prmem.h"
@@ -24,7 +25,6 @@
 #include "nsImapUndoTxn.h"
 #include "../public/nsIImapHostSessionList.h"
 #include "nsIMsgCopyService.h"
-#include "nsICopyMessageStreamListener.h"
 #include "nsImapStringBundle.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsTextFormatter.h"
@@ -5398,9 +5398,10 @@ nsImapMailFolder::StartMessage(nsIMsgMailNewsUrl* aUrl) {
 
   imapUrl->GetCopyState(getter_AddRefs(copyState));
   if (copyState) {
-    nsCOMPtr<nsICopyMessageStreamListener> listener =
-        do_QueryInterface(copyState);
-    if (listener) listener->StartMessage();
+    nsCOMPtr<nsICopyMessageListener> listener = do_QueryInterface(copyState);
+    if (listener) {
+      listener->StartMessage();
+    }
   }
   return NS_OK;
 }
@@ -5410,11 +5411,13 @@ nsImapMailFolder::EndMessage(nsIMsgMailNewsUrl* aUrl, nsMsgKey uidOfMessage) {
   nsCOMPtr<nsIImapUrl> imapUrl(do_QueryInterface(aUrl));
   nsCOMPtr<nsISupports> copyState;
   NS_ENSURE_TRUE(imapUrl, NS_ERROR_FAILURE);
+
   imapUrl->GetCopyState(getter_AddRefs(copyState));
   if (copyState) {
-    nsCOMPtr<nsICopyMessageStreamListener> listener =
-        do_QueryInterface(copyState);
-    if (listener) listener->EndMessage(uidOfMessage);
+    nsCOMPtr<nsICopyMessageListener> listener = do_QueryInterface(copyState);
+    if (listener) {
+      listener->EndMessage(uidOfMessage);
+    }
   }
   return NS_OK;
 }
@@ -7529,43 +7532,35 @@ nsresult nsImapMailFolder::CopyStreamMessage(
     nsIMsgFolder* dstFolder,  // should be this
     nsIMsgWindow* aMsgWindow, bool isMove) {
   NS_ENSURE_ARG_POINTER(message);
-  if (!m_copyState)
+
+  if (!m_copyState) {
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("CopyStreamMessage failed with null m_copyState"));
+  }
   NS_ENSURE_TRUE(m_copyState, NS_ERROR_NULL_POINTER);
-  nsresult rv;
-  nsCOMPtr<nsICopyMessageStreamListener> copyStreamListener = do_CreateInstance(
-      "@mozilla.org/messenger/copymessagestreamlistener;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
 
+  nsresult rv;
   nsCOMPtr<nsICopyMessageListener> copyListener(
       do_QueryInterface(dstFolder, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> srcFolder(
       do_QueryInterface(m_copyState->m_srcSupport, &rv));
-  if (NS_FAILED(rv))
+  if (NS_FAILED(rv)) {
     MOZ_LOG(IMAP, mozilla::LogLevel::Info,
             ("CopyStreaMessage failed with null m_copyState->m_srcSupport"));
-  if (NS_FAILED(rv)) return rv;
-  rv = copyStreamListener->Init(copyListener, isMove);
-  if (NS_FAILED(rv))
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-            ("CopyStreaMessage failed in copyStreamListener->Init"));
-  if (NS_FAILED(rv)) return rv;
+  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString uri;
   srcFolder->GetUriForMsg(message, uri);
 
-  if (!m_copyState->m_msgService)
+  if (!m_copyState->m_msgService) {
     rv = GetMessageServiceFromURI(uri,
                                   getter_AddRefs(m_copyState->m_msgService));
+  }
 
   if (NS_SUCCEEDED(rv) && m_copyState->m_msgService) {
-    nsCOMPtr<nsIStreamListener> streamListener(
-        do_QueryInterface(copyStreamListener, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
     // put up status message here, if copying more than one message.
     if (m_copyState->m_messages.Length() > 1) {
       nsString dstFolderName, progressText;
@@ -7595,12 +7590,17 @@ nsresult nsImapMailFolder::CopyStreamMessage(
         statusFeedback->ShowProgress(percent);
       }
     }
+
+    RefPtr<CopyMessageStreamListener> streamListener =
+        new CopyMessageStreamListener(copyListener, isMove);
+
     rv = m_copyState->m_msgService->CopyMessage(
         uri, streamListener, isMove && !m_copyState->m_isCrossServerOp, nullptr,
         aMsgWindow);
-    if (NS_FAILED(rv))
+    if (NS_FAILED(rv)) {
       MOZ_LOG(IMAP, mozilla::LogLevel::Info,
               ("CopyMessage failed: uri %s", uri.get()));
+    }
   }
   return rv;
 }

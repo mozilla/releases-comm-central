@@ -12,7 +12,7 @@
 #include "nsMsgLineBuffer.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgFolder.h"
-#include "nsICopyMessageStreamListener.h"
+#include "nsICopyMessageListener.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
 #include "prerror.h"
@@ -165,10 +165,11 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
         m_runningUrl->GetCurMoveCopyMsgIndex(&curMoveCopyMsgIndex);
         if (++curMoveCopyMsgIndex < numMoveCopyMsgs) {
           if (!mSuppressListenerNotifications && m_channelListener) {
-            nsCOMPtr<nsICopyMessageStreamListener> listener =
+            nsCOMPtr<nsICopyMessageListener> listener =
                 do_QueryInterface(m_channelListener, &rv);
             if (listener) {
-              listener->EndCopy(aStatus);
+              bool copySucceeded = NS_SUCCEEDED(aStatus);
+              listener->EndCopy(copySucceeded);
               listener->StartMessage();  // start next message.
             }
           }
