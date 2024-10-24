@@ -8,7 +8,7 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
-#subscribeWindow {
+#subscribeWindow, dialog {
   min-width: 40em;
   min-height: 30em;
 }
