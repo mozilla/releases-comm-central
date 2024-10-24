@@ -17,6 +17,7 @@
 #include "nsCOMPtr.h"
 #include "mimeobj.h"   /*  MimeObject (abstract) */
 #include "mimecont.h"  /*   |--- MimeContainer (abstract) */
+/*                          |     |--- MimeMultipart (abstract) */
 #include "mimemmix.h"  /*   |     |     |--- MimeMultipartMixed */
 #include "mimemdig.h"  /*   |     |     |--- MimeMultipartDigest */
 #include "mimempar.h"  /*   |     |     |--- MimeMultipartParallel */
@@ -24,15 +25,18 @@
 #include "mimemrel.h"  /*   |     |     |--- MimeMultipartRelated */
 #include "mimemapl.h"  /*   |     |     |--- MimeMultipartAppleDouble */
 #include "mimesun.h"   /*   |     |     |--- MimeSunAttachment */
+/*                          |     |     |--- MimeMultipartSigned (abstract)*/
 #include "nsMailHeaders.h"
 #ifdef ENABLE_SMIME
 #include "mimemcms.h"  /*   |     |           |---MimeMultipartSignedCMS */
 #endif
+/*                          |     |--- MimeEncrypted (abstract) */
 #ifdef ENABLE_SMIME
 #include "mimecms.h"   /*   |     |     |--- MimeEncryptedPKCS7 */
 #endif
 #include "mimemsg.h"   /*   |     |--- MimeMessage */
 #include "mimeunty.h"  /*   |     |--- MimeUntypedText */
+/*                          |--- MimeLeaf (abstract) */
 #include "mimetext.h"  /*   |     |--- MimeInlineText (abstract) */
 #include "mimetpla.h"  /*   |     |     |--- MimeInlineTextPlain */
 #include "mimethpl.h"  /*   |     |     |     |--- M.I.TextHTMLAsPlaintext */
