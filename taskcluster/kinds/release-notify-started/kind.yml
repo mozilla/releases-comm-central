@@ -21,9 +21,16 @@ task-defaults:
         max-run-time: 600
     emails:
         by-project:
-            comm-(beta|esr.*): ["thunderbird-drivers@mozilla.org"]
+            comm-(beta|release|esr.*): ["thunderbird-drivers@mozilla.org"]
             try-comm-central: ["{config[params][owner]}"]
             default: []
+    prefix-message:
+        by-project:
+            comm-release: |
+                **This is a preview release of Thunderbird's monthly releases.**
+
+                Thunderbird monthly releases are not considered stable for general use.
+            default: null
 
 tasks:
     thunderbird:

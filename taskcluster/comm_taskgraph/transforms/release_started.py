@@ -5,6 +5,7 @@
 Add notifications via taskcluster-notify for release tasks
 """
 
+import base64
 from pipes import quote as shell_quote
 
 from taskgraph.transforms.base import TransformSequence
@@ -21,9 +22,14 @@ def add_notifications(config, jobs):
         resolve_keyed_by(job, "emails", label, project=config.params["project"])
         emails = [email.format(config=config.__dict__) for email in job.pop("emails")]
 
+        resolve_keyed_by(job, "prefix-message", label, project=config.params["project"])
+        prefix_message = ""
+        if msg := job.pop("prefix-message"):
+            prefix_message = base64.b64encode(bytes(msg.encode("utf-8"))).decode()
+
         command = [
-            "release",
-            "send-buglist-email",
+            "tb-release",
+            "send-buglist-email-thunderbird",
             "--version",
             config.params["version"],
             "--product",
@@ -34,6 +40,8 @@ def add_notifications(config, jobs):
             str(config.params["build_number"]),
             "--repo",
             config.params["comm_head_repository"],
+            "--prefix-message",
+            prefix_message,
         ]
         for address in emails:
             command += ["--address", address]
@@ -46,6 +54,7 @@ def add_notifications(config, jobs):
         job["scopes"] = ["notify:email:{}".format(address) for address in emails]
         job["run"] = {
             "using": "mach",
+            "comm-checkout": True,
             "sparse-profile": "mach",
             "mach": {"task-reference": " ".join(map(shell_quote, command))},
         }

@@ -7,6 +7,10 @@ vendored:comm/third_party/python/fluent.migratetb
 vendored:third_party/python/compare_locales
 vendored:third_party/python/fluent.migrate
 vendored:third_party/python/fluent.syntax
+vendored:third_party/python/mohawk
 vendored:third_party/python/packaging
+vendored:third_party/python/slugid
+vendored:third_party/python/taskcluster
+vendored:third_party/python/taskcluster_urls
 vendored:third_party/python/toml
 vendored:third_party/python/typing_extensions
