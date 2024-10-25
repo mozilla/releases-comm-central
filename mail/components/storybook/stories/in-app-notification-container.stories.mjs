@@ -15,11 +15,21 @@ export default {
 };
 
 const template = ({ cta, description, heading, url }) => html`
-  <template id="inAppNotificationCloseButtonTemplate">
+  <template
+    id="inAppNotificationCloseButtonTemplate"
+    xmlns="http://www.w3.org/1999/xhtml"
+  >
     <img src="" data-l10n-id="in-app-notification-close-image" />
   </template>
-  <template id="inAppNotificationContainerTemplate">
-    <div class="in-app-notification-container in-app-notification-donation">
+
+  <template
+    id="inAppNotificationContainerTemplate"
+    xmlns="http://www.w3.org/1999/xhtml"
+  >
+    <div
+      class="in-app-notification-container in-app-notification-donation"
+      tabindex="0"
+    >
       <button is="in-app-notification-close-button"></button>
       <img src="" alt="" class="icon" />
       <div class="in-app-notification-content">
@@ -32,6 +42,10 @@ const template = ({ cta, description, heading, url }) => html`
         </a>
       </div>
     </div>
+    <span
+      class="in-app-notification-instructions"
+      data-l10n-id="in-app-notification-instructions"
+    ></span>
   </template>
   <in-app-notification-container
     cta="${cta}"

@@ -51,6 +51,7 @@ export class InAppNotificationManager extends HTMLElement {
     this.#removeManagerListeners();
     window.removeEventListener("unload", this);
     window.removeEventListener("focusout", this);
+    window.removeEventListener("keydown", this);
   }
 
   handleEvent(event) {
@@ -67,6 +68,9 @@ export class InAppNotificationManager extends HTMLElement {
       case "focusout":
         this.#saveFocus(event);
         break;
+      case "keydown":
+        this.#handleKeydown(event);
+        break;
       case "ctaclick":
         if (event.button === 0) {
           this.#focusElement?.focus();
@@ -82,6 +86,22 @@ export class InAppNotificationManager extends HTMLElement {
           );
         }
         break;
+    }
+  }
+
+  /**
+   * Handles keydown events while notifications are shown to allow for a
+   * keyboard shortcut to the notification.
+   *
+   * @param {KeyboardEvent} event
+   */
+  #handleKeydown(event) {
+    if (
+      event.code === "KeyJ" &&
+      event.getModifierState("Alt") &&
+      event.getModifierState("Shift")
+    ) {
+      document.querySelector("in-app-notification").focus();
     }
   }
 
@@ -124,6 +144,7 @@ export class InAppNotificationManager extends HTMLElement {
     }
 
     window.addEventListener("focusout", this);
+    document.addEventListener("keydown", this);
     this.#activeNotification = notificationElement;
   }
 
@@ -132,6 +153,7 @@ export class InAppNotificationManager extends HTMLElement {
    */
   #hideNotification() {
     window.removeEventListener("focusout", this);
+    document.removeEventListener("keydown", this);
     this.#activeNotification?.remove();
     this.#activeNotification = null;
     this.#focusElement?.focus();

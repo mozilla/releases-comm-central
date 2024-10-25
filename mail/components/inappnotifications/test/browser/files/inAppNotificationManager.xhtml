@@ -6,14 +6,17 @@
     <script src="chrome://messenger/content/in-app-notification-manager.mjs" type="module"></script>
   </head>
   <body>
-    <template id="inAppNotificationCloseButtonTemplate">
+    <template id="inAppNotificationCloseButtonTemplate" xmlns="http://www.w3.org/1999/xhtml">
       <img src="" data-l10n-id="in-app-notification-close-image" />
     </template>
 
-    <template id="inAppNotificationContainerTemplate">
-      <div class="in-app-notification-container in-app-notification-donation">
+    <template id="inAppNotificationContainerTemplate" xmlns="http://www.w3.org/1999/xhtml">
+      <div
+        class="in-app-notification-container in-app-notification-donation"
+        tabindex="0"
+      >
         <button is="in-app-notification-close-button"></button>
-        <img src="" alt="" class="icon"/>
+        <img src="" alt="" class="icon" />
         <div class="in-app-notification-content">
           <h1 class="in-app-notification-heading"></h1>
           <div class="in-app-notification-description-wrapper">
@@ -25,9 +28,10 @@
           </a>
         </div>
       </div>
+      <span class="in-app-notification-instructions" data-l10n-id="in-app-notification-instructions"></span>
     </template>
 
-    <template id="inAppNotificationTemplate">
+    <template id="inAppNotificationTemplate" xmlns="http://www.w3.org/1999/xhtml">
       <in-app-notification-container></in-app-notification-container>
     </template>
 

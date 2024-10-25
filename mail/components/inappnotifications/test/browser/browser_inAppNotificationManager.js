@@ -252,3 +252,21 @@ add_task(async function test_closeClick() {
   spy.restore();
   hideNotification();
 }).skip(Cu.isInAutomation); //TODO Bug 1921222: Fix test timeout in automation.
+
+add_task(async function test_keyboardShortcut() {
+  await showNotification("test", "Test", "Test notification");
+
+  EventUtils.synthesizeKey("J", { altKey: true, shiftKey: true, code: "KeyJ" });
+
+  const notification = manager.firstElementChild;
+
+  // The in-app-notification is reported as having focus because the container
+  // that really has focus is in the shadow root.
+  Assert.equal(
+    browser.contentWindow.document.activeElement,
+    notification,
+    "The notification has focus"
+  );
+
+  hideNotification();
+});

@@ -15,21 +15,40 @@ class InAppNotificationContainer extends HTMLElement {
   static observedAttributes = attrs;
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      const template = document
+    const detached = !this.shadowRoot;
+    let template;
+    let styles;
+    let shadowRoot;
+    if (detached) {
+      template = document
         .getElementById("inAppNotificationContainerTemplate")
         .content.cloneNode(true);
-      const styles = document.createElement("link");
+      styles = document.createElement("link");
       styles.rel = "stylesheet";
       styles.href = "chrome://messenger/skin/inAppNotificationContainer.css";
-      const shadowRoot = this.attachShadow({ mode: "open" });
+      shadowRoot = this.attachShadow({ mode: "open" });
 
+      window.MozXULElement?.insertFTLIfNeeded(
+        "messenger/inAppNotifications.ftl"
+      );
+    }
+
+    // While this component can be gracefully disconnected and reconnected,
+    // if this actually happens any changes that would affect translations
+    // will not be reflected when the component is re-connected.
+    document.l10n.connectRoot(this.shadowRoot);
+
+    if (detached) {
       shadowRoot.append(styles, template);
     }
 
     for (const attr of attrs) {
       this.attributeChangedCallback(attr, "", this.getAttribute(attr));
     }
+  }
+
+  disconnectedCallback() {
+    document.l10n.disconnectRoot(this.shadowRoot);
   }
 
   attributeChangedCallback(property, oldValue, newValue) {
@@ -64,6 +83,14 @@ class InAppNotificationContainer extends HTMLElement {
         ).dataset.id = newValue;
         break;
     }
+  }
+
+  /**
+   * handles setting focus on the correct element when the notification is
+   * focused
+   */
+  focus() {
+    this.shadowRoot.querySelector(".in-app-notification-container").focus();
   }
 }
 

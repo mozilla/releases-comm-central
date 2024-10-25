@@ -16,30 +16,35 @@ export const InAppNotification = {
     container.insertAdjacentHTML(
       "beforeend",
       `
-  <template id="inAppNotificationCloseButtonTemplate">
-    <img src="" data-l10n-id="in-app-notification-close-image" />
-  </template>
-  <template id="inAppNotificationContainerTemplate">
-    <div class="in-app-notification-container in-app-notification-donation">
-      <button is="in-app-notification-close-button"></button>
-      <img src="" alt="" class="icon" />
-      <div class="in-app-notification-content">
-        <h1 class="in-app-notification-heading"></h1>
-        <div class="in-app-notification-description-wrapper">
-          <p class="in-app-notification-description"></p>
-        </div>
-        <a is="in-app-notification-button">
-          <span class="in-app-notification-cta"></span>
-        </a>
-      </div>
-    </div>
-  </template>
+<template id="inAppNotificationCloseButtonTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <img src="" data-l10n-id="in-app-notification-close-image" />
+</template>
 
-  <template id="inAppNotificationTemplate">
-    <in-app-notification-container></in-app-notification-container>
-  </template>
-  <in-app-notification></in-app-notification>
-  `
+<template id="inAppNotificationContainerTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <div
+    class="in-app-notification-container in-app-notification-donation"
+    tabindex="0"
+  >
+    <button is="in-app-notification-close-button"></button>
+    <img src="" alt="" class="icon" />
+    <div class="in-app-notification-content">
+      <h1 class="in-app-notification-heading"></h1>
+      <div class="in-app-notification-description-wrapper">
+        <p class="in-app-notification-description">
+        </p>
+      </div>
+      <a is="in-app-notification-button">
+        <span class="in-app-notification-cta"></span>
+      </a>
+    </div>
+  </div>
+  <span class="in-app-notification-instructions" data-l10n-id="in-app-notification-instructions"></span>
+</template>
+
+<template id="inAppNotificationTemplate" xmlns="http://www.w3.org/1999/xhtml">
+  <in-app-notification-container></in-app-notification-container>
+</template>
+`
     );
     if (setData) {
       const component = container.querySelector("in-app-notification");

@@ -35,6 +35,14 @@ class InAppNotification extends HTMLElement {
       }
     }
   }
+
+  /**
+   * Handles setting focus down through the shadow root.
+   */
+  focus() {
+    this.#container.focus();
+  }
+
   /**
    * Takes in a notification object and translates that to attributes on the
    * notification container.
