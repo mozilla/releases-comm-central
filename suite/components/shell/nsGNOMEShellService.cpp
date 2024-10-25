@@ -193,7 +193,7 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
   nsAutoCString handler;
   nsCOMPtr<nsIGIOMimeApp> gioApp;
 
-  for (unsigned int i = 0; i < ArrayLength(gProtocols); i++) {
+  for (unsigned int i = 0; i < std::size(gProtocols); i++) {
     if (aApps & gProtocols[i].app) {
       if (!gProtocols[i].essential) continue;
 
@@ -240,7 +240,7 @@ nsGNOMEShellService::SetDefaultClient(bool aForAllUsers,
     }
 
     // set handler for the protocols
-    for (unsigned int i = 0; i < ArrayLength(gProtocols); ++i) {
+    for (unsigned int i = 0; i < std::size(gProtocols); ++i) {
       if (aApps & gProtocols[i].app) {
         if (appInfo && (gProtocols[i].essential || aClaimAllTypes)) {
           nsDependentCString protocol(gProtocols[i].protocol);
@@ -250,7 +250,7 @@ nsGNOMEShellService::SetDefaultClient(bool aForAllUsers,
     }
 
     if (aClaimAllTypes) {
-      for (unsigned int i = 0; i < ArrayLength(gMimeTypes); i++) {
+      for (unsigned int i = 0; i < std::size(gMimeTypes); i++) {
         if (aApps & gMimeTypes[i].app) {
           nsDependentCString type(gMimeTypes[i].mimeType);
           appInfo->SetAsDefaultForMimeType(type);

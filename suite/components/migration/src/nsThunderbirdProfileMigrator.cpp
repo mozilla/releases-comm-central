@@ -481,9 +481,9 @@ nsThunderbirdProfileMigrator::TransformPreferences(
     "wallet."
   };
 
-  PBStructArray branches[MOZ_ARRAY_LENGTH(branchNames)];
+  PBStructArray branches[std::size(branchNames)];
   uint32_t i;
-  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); ++i)
+  for (i = 0; i < std::size(branchNames); ++i)
     ReadBranch(branchNames[i], psvc, branches[i]);
 
   // the signature file prefs may be paths to files in the thunderbird profile
@@ -514,7 +514,7 @@ nsThunderbirdProfileMigrator::TransformPreferences(
   for (transform = gTransforms; transform < end; ++transform)
     transform->prefSetterFunc(transform, branch);
 
-  for (i = 0; i < MOZ_ARRAY_LENGTH(branchNames); ++i)
+  for (i = 0; i < std::size(branchNames); ++i)
     WriteBranch(branchNames[i], psvc, branches[i]);
 
   psvc->SavePrefFile(targetPrefsFile);

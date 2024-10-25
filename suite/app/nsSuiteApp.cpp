@@ -86,7 +86,7 @@ __attribute__((constructor)) static void SSE2Check() {
   // values, since there isn't much we could do on failure and there is no
   // point in trying to recover from errors.
   MOZ_UNUSED(
-      write(STDERR_FILENO, sSSE2Message, MOZ_ARRAY_LENGTH(sSSE2Message) - 1));
+      write(STDERR_FILENO, sSSE2Message, std::size(sSSE2Message) - 1));
   // _exit() instead of exit() to avoid running the usual "at exit" code.
   _exit(255);
 }
