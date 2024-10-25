@@ -170,7 +170,12 @@ export var formatter = {
       return "";
     }
 
-    return getFormatter({ timeStyle: "short" }).formatRange(
+    // We want floating datetimes and dates to be formatted without regard to
+    // timezone; everything else has been adjusted so that "UTC" will produce the
+    // correct result because we cannot guarantee that the datetime's timezone is
+    // supported by Gecko.
+    const timeZone = isDateTimeRelativeToUser(aStartDate) ? undefined : "UTC";
+    return getFormatter({ timeStyle: "short", timeZone }).formatRange(
       getDateTimeAsAdjustedJsDate(aStartDate),
       getDateTimeAsAdjustedJsDate(aEndDate)
     );
@@ -204,9 +209,15 @@ export var formatter = {
       });
     }
 
+    // We want floating datetimes and dates to be formatted without regard to
+    // timezone; everything else has been adjusted so that "UTC" will produce the
+    // correct result because we cannot guarantee that the datetime's timezone is
+    // supported by Gecko.
+    const timeZone = isDateTimeRelativeToUser(startDate) ? undefined : "UTC";
     const options = {
       dateStyle: startDate.isDate ? "long" : "full",
       timeStyle: startDate.isDate ? undefined : "short",
+      timeZone,
     };
     return getFormatter(options).formatRange(
       getDateTimeAsAdjustedJsDate(startDate),
