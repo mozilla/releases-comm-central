@@ -20,7 +20,6 @@
 #include "nsIInputStream.h"
 #include "nsNativeCharsetUtils.h"
 #include "prmem.h"
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/Logging.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
@@ -431,7 +430,7 @@ static FilterFileAttribEntry FilterFileAttribTable[] = {
 };
 
 static const unsigned int sNumFilterFileAttribTable =
-    MOZ_ARRAY_LENGTH(FilterFileAttribTable);
+    std::size(FilterFileAttribTable);
 
 // If we want to buffer file IO, wrap it in here.
 int nsMsgFilterList::ReadChar(nsIInputStream* aStream) {

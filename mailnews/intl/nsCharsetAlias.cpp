@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/Encoding.h"
 
 #include "nsCharsetAlias.h"
@@ -30,7 +29,7 @@ nsresult nsCharsetAlias::GetPreferredInternal(const nsACString& aAlias,
   ToLowerCase(key);
 
   nsresult rv = nsUConvPropertySearch::SearchPropertyValue(
-      kAliases, ArrayLength(kAliases), key, oResult);
+      kAliases, std::size(kAliases), key, oResult);
   if (NS_SUCCEEDED(rv)) {
     return NS_OK;
   }

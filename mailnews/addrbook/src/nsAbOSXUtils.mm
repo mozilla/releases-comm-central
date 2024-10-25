@@ -7,14 +7,15 @@
 #include "nsString.h"
 #include "nsAbOSXCard.h"
 #include "nsMemory.h"
-#include "mozilla/ArrayUtils.h"
 using namespace mozilla;
 
 #include <AddressBook/AddressBook.h>
-#define kABDepartmentProperty (kABDepartmentProperty ? kABDepartmentProperty : @"ABDepartment")
+#define kABDepartmentProperty \
+  (kABDepartmentProperty ? kABDepartmentProperty : @"ABDepartment")
 
 NSString* WrapString(const nsString& aString) {
-  unichar* chars = reinterpret_cast<unichar*>(const_cast<char16_t*>(aString.get()));
+  unichar* chars =
+      reinterpret_cast<unichar*>(const_cast<char16_t*>(aString.get()));
 
   return [NSString stringWithCharacters:chars length:aString.Length()];
 }
@@ -104,4 +105,5 @@ const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
 };
 // clang-format on
 
-const uint32_t nsAbOSXUtils::kPropertyMapSize = ArrayLength(nsAbOSXUtils::kPropertyMap);
+const uint32_t nsAbOSXUtils::kPropertyMapSize =
+    std::size(nsAbOSXUtils::kPropertyMap);
