@@ -171,8 +171,6 @@ var snapshotFormatters = {
     } catch (e) {}
 
     const STATUS_STRINGS = {
-      experimentControl: "fission-status-experiment-control",
-      experimentTreatment: "fission-status-experiment-treatment",
       disabledByE10sEnv: "fission-status-disabled-by-e10s-env",
       enabledByEnv: "fission-status-enabled-by-env",
       enabledByDefault: "fission-status-enabled-by-default",
