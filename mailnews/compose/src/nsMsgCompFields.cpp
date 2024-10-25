@@ -10,7 +10,6 @@
 #include "prmem.h"
 #include "nsIMsgAttachment.h"
 #include "nsIMsgMdnGenerator.h"
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 using namespace mozilla::mailnews;
@@ -50,7 +49,7 @@ static HeaderInfo kHeaders[] = {
 };
 
 static_assert(
-    MOZ_ARRAY_LENGTH(kHeaders) == nsMsgCompFields::MSG_MAX_HEADERS,
+    std::size(kHeaders) == nsMsgCompFields::MSG_MAX_HEADERS,
     "These two arrays need to be kept in sync or bad things will happen!");
 
 NS_IMPL_ISUPPORTS(nsMsgCompFields, nsIMsgCompFields, msgIStructuredHeaders,

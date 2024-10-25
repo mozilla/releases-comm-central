@@ -2,7 +2,6 @@
 #include "nsString.h"
 #include "HeaderReader.h"
 #include "nsTArray.h"
-#include "mozilla/ArrayUtils.h"
 
 // Invocation:
 // $ ./mach gtest "TestHeaderReader.*"
@@ -117,7 +116,7 @@ TEST(TestHeaderReader, Basic)
           ""_ns,
       }};
 
-  for (size_t i = 0; i < mozilla::ArrayLength(testMsgs); ++i) {
+  for (size_t i = 0; i < std::size(testMsgs); ++i) {
     auto const& t = testMsgs[i];
     // Collect all the headers.
     nsTArray<HeaderReader::Hdr> gotHeaders;
@@ -183,7 +182,7 @@ TEST(TestHeaderReader, Stop)
        7, 3},
   };
 
-  for (size_t i = 0; i < mozilla::ArrayLength(testMsgs); ++i) {
+  for (size_t i = 0; i < std::size(testMsgs); ++i) {
     auto const& t = testMsgs[i];
     HeaderReader rdr;
     int gotCount = 0;

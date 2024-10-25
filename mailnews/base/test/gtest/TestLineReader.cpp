@@ -6,7 +6,6 @@
 #include "gtest/gtest.h"
 #include "nsString.h"
 #include "LineReader.h"
-#include "mozilla/ArrayUtils.h"
 #include "mozilla/Span.h"
 
 // Invocation:
@@ -71,7 +70,7 @@ TEST(TestLineReader, Basic)
       },
   };
 
-  for (size_t i = 0; i < mozilla::ArrayLength(testCases); ++i) {
+  for (size_t i = 0; i < std::size(testCases); ++i) {
     auto const& t = testCases[i];
 
     // Join chunks into one string - we expect the output to be
@@ -135,7 +134,7 @@ TEST(TestLineReader, Stop)
       },
   };
 
-  for (size_t i = 0; i < mozilla::ArrayLength(testCases); ++i) {
+  for (size_t i = 0; i < std::size(testCases); ++i) {
     auto const& t = testCases[i];
 
     // Callback to collect the lines and count them, stopping when
