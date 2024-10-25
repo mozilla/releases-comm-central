@@ -7,7 +7,7 @@ XPCSHELL_TESTS_MANIFESTS += [
 ]
 
 output_dir = OBJDIR_FILES._tests.xpcshell.comm.mailnews.db.panorama.test.xpcshell.db
-for db in ["relations", "sort"]:
+for db in ["move", "relations", "sort"]:
     GeneratedFile(
         "xpcshell/db/%s.sqlite" % db,
         script="/comm/mail/components/addrbook/test/create_sqlite.py",

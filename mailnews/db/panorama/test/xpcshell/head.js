@@ -25,3 +25,20 @@ function drawTree(root, level = 0) {
     drawTree(child, level + 1);
   }
 }
+
+function checkOrdinals(expected) {
+  const stmt = database.connection.createStatement(
+    "SELECT parent, ordinal FROM folders WHERE id=:id"
+  );
+  for (const [folder, parent, ordinal] of expected) {
+    stmt.params.id = folder.id;
+    stmt.executeStep();
+    Assert.deepEqual(
+      [stmt.row.parent, stmt.row.ordinal],
+      [parent, ordinal],
+      `parent and ordinal of ${folder.name}`
+    );
+    stmt.reset();
+  }
+  stmt.finalize();
+}

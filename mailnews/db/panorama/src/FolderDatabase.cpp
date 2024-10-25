@@ -180,6 +180,100 @@ NS_IMETHODIMP FolderDatabase::GetFolderById(const uint64_t aId,
 }
 
 NS_IMETHODIMP
+FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
+                                 nsIFolder* aBefore) {
+  NS_ENSURE_ARG_POINTER(aParent);
+  NS_ENSURE_ARG_POINTER(aChild);
+
+  Folder* parent = (Folder*)(aParent);
+  Folder* child = (Folder*)(aChild);
+  if (!parent->mChildren.Contains(child)) {
+    NS_WARNING("aChild is not a child of aParent");
+    return NS_ERROR_UNEXPECTED;
+  }
+  if (aChild == aBefore) {
+    NS_WARNING("aChild is the same folder as aBefore");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  if (!aBefore) {
+    parent->mChildren.RemoveElement(child);
+    parent->mChildren.AppendElement(child);
+    SaveOrdinals(parent->mChildren);
+    return NS_OK;
+  }
+
+  Folder* before = (Folder*)(aBefore);
+  if (!parent->mChildren.Contains(before)) {
+    NS_WARNING("aBefore is not a child of aParent");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  parent->mChildren.RemoveElement(child);
+  parent->mChildren.InsertElementAt(parent->mChildren.IndexOf(before), child);
+  SaveOrdinals(parent->mChildren);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
+  MOZ_ASSERT(aNewParent);
+  NS_ENSURE_ARG_POINTER(aChild);
+
+  Folder* child = (Folder*)(aChild);
+  if (child->mParent == aNewParent) {
+    return NS_OK;
+  }
+  if (child == aNewParent) {
+    NS_WARNING("aChild cannot be made a child of itself");
+    return NS_ERROR_UNEXPECTED;
+  }
+  bool isDescendant;
+  aNewParent->IsDescendantOf(child, &isDescendant);
+  if (isDescendant) {
+    NS_WARNING("aChild cannot be made a descendant of itself");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  Folder* newParent = (Folder*)(aNewParent);
+  nsCOMPtr<mozIStorageStatement> stmt;
+  GetStatement(
+      "Reparent"_ns,
+      "UPDATE folders SET parent = :parent, ordinal = NULL WHERE id = :id"_ns,
+      getter_AddRefs(stmt));
+  stmt->BindInt64ByName("parent"_ns, newParent->mId);
+  stmt->BindInt64ByName("id"_ns, child->mId);
+  stmt->Execute();
+  stmt->Reset();
+
+  child->mParent->mChildren.RemoveElement(child);
+  newParent->mChildren.InsertElementSorted(child, sComparator);
+  child->mParent = newParent;
+  child->mOrdinal.reset();
+
+  return NS_OK;
+}
+
+void FolderDatabase::SaveOrdinals(nsTArray<RefPtr<Folder>>& folders) {
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv =
+      GetStatement("UpdateOrdinals"_ns,
+                   "UPDATE folders SET ordinal = :ordinal WHERE id = :id"_ns,
+                   getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS_VOID(rv);
+
+  uint64_t ordinal = 1;
+  for (auto f : folders) {
+    stmt->BindInt64ByName("ordinal"_ns, ordinal);
+    stmt->BindInt64ByName("id"_ns, f->mId);
+    stmt->Execute();
+    stmt->Reset();
+    ordinal++;
+  }
+}
+
+NS_IMETHODIMP
 FolderDatabase::GetConnection(mozIStorageConnection** aConnection) {
   if (!xpc::IsInAutomation()) {
     return NS_ERROR_NOT_AVAILABLE;

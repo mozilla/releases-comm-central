@@ -20,6 +20,25 @@ interface nsIFolderDatabase : nsISupports {
   nsIFolder getFolderById(in unsigned long long id);
 
   /**
+   * Move a folder to a different position among its siblings. Yes, passing in
+   * the parent folder is redundant here, but it makes reading the code easier.
+   *
+   * This function should be called by the UI, nothing else is affected.
+   */
+  void moveFolderWithin(in nsIFolder parent,
+                        in nsIFolder child,
+                        [optional] in nsIFolder before);
+
+  /**
+   * Move a folder from one parent to another. Folders cannot be moved from
+   * one folder to another, or be made descendants of themselves.
+   *
+   * This function should be called by the protocol code after the folder is
+   * moved on the server.
+   */
+  void moveFolderTo(in nsIFolder newParent, in nsIFolder child);
+
+  /**
    * Access to the database for testing purposes only. If you are not a test,
    * you'll get NS_ERROR_NOT_AVAILABLE instead.
    */
