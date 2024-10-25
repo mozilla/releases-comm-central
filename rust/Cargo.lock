@@ -1605,7 +1605,7 @@ dependencies = [
 [[package]]
 name = "ews"
 version = "0.1.0"
-source = "git+https://github.com/thunderbird/ews-rs.git?rev=c080aad0b37b6f4f0ba74165f4605e70f5740641#c080aad0b37b6f4f0ba74165f4605e70f5740641"
+source = "git+https://github.com/thunderbird/ews-rs.git?rev=9a54b74bb655f91c9f629437b253c448595ce8d2#9a54b74bb655f91c9f629437b253c448595ce8d2"
 dependencies = [
  "log",
  "quick-xml",
@@ -1626,6 +1626,7 @@ dependencies = [
  "fxhash",
  "log",
  "mail-builder",
+ "mail-parser",
  "moz_http",
  "moz_task",
  "nserror",
@@ -3173,6 +3174,15 @@ name = "mail-builder"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25f5871d5270ed80f2ee750b95600c8d69b05f8653ad3be913b2ad2e924fefcb"
+
+[[package]]
+name = "mail-parser"
+version = "0.9.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93c3b9e5d8b17faf573330bbc43b37d6e918c0a3bf8a88e7d0a220ebc84af9fc"
+dependencies = [
+ "encoding_rs",
+]
 
 [[package]]
 name = "malloc_buf"

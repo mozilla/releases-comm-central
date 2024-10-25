@@ -4,7 +4,7 @@
 
 use std::cell::{OnceCell, RefCell};
 use std::ffi::CString;
-use std::os::raw::{c_char, c_void};
+use std::os::raw::c_void;
 use std::ptr;
 
 use ews::{Mailbox, Recipient};
@@ -18,16 +18,16 @@ use url::Url;
 use xpcom::{create_instance, get_service, getter_addrefs, nsIID};
 use xpcom::{
     interfaces::{
-        msgIAddressObject, msgIOAuth2Module, nsIFile, nsIFileInputStream, nsIIOService,
-        nsIMsgIdentity, nsIMsgStatusFeedback, nsIMsgWindow, nsIPrefBranch, nsIPrefService,
-        nsIRequestObserver, nsIURI, nsIUrlListener, nsMsgAuthMethodValue, nsMsgSocketType,
-        nsMsgSocketTypeValue,
+        msgIAddressObject, msgIOAuth2Module, nsIFile, nsIIOService, nsIMsgIdentity,
+        nsIMsgStatusFeedback, nsIMsgWindow, nsIPrefBranch, nsIPrefService, nsIRequestObserver,
+        nsIURI, nsIUrlListener, nsMsgAuthMethodValue, nsMsgSocketType, nsMsgSocketTypeValue,
     },
     xpcom_method, RefPtr,
 };
 
 use crate::authentication::credentials::AuthenticationProvider;
 use crate::client::XpComEwsClient;
+use crate::xpcom_io;
 
 /// Whether a field is required to have a value (either in memory or in a pref)
 /// upon access.
@@ -544,7 +544,7 @@ impl EwsOutgoingServer {
         message_id: &nsACString,
         observer: &nsIRequestObserver,
     ) -> Result<(), nsresult> {
-        let message_content = read_file(file_path)?;
+        let message_content = xpcom_io::read_file(file_path)?;
         let message_content =
             String::from_utf8(message_content).or(Err(nserror::NS_ERROR_FAILURE))?;
 
@@ -684,48 +684,4 @@ impl AuthenticationProvider for &EwsOutgoingServer {
 
         Ok(oauth2_supported.then_some(oauth2_module))
     }
-}
-
-/// Open the file provided and read its content into a vector of bytes.
-fn read_file(file: &nsIFile) -> Result<Vec<u8>, nsresult> {
-    let file_stream =
-        create_instance::<nsIFileInputStream>(cstr!("@mozilla.org/network/file-input-stream;1"))
-            .ok_or(nserror::NS_ERROR_FAILURE)?;
-
-    // Open a stream from the file, and figure out how many bytes can be read
-    // from it.
-    let mut bytes_available = 0;
-    unsafe {
-        file_stream
-            .Init(file, -1, -1, nsIFileInputStream::CLOSE_ON_EOF)
-            .to_result()?;
-
-        file_stream.Available(&mut bytes_available)
-    }
-    .to_result()?;
-
-    // `nsIInputStream::Available` reads into a u64, but `nsIInputStream::Read`
-    // takes a u32.
-    let bytes_available = <u32>::try_from(bytes_available).or(Err(nserror::NS_ERROR_FAILURE))?;
-
-    let mut read_sink: Vec<u8> =
-        vec![0; <usize>::try_from(bytes_available).or(Err(nserror::NS_ERROR_FAILURE))?];
-
-    // The amount of bytes actually read from the stream.
-    let mut bytes_read: u32 = 0;
-
-    // SAFETY: The call contract from `nsIInputStream::Read` guarantees that the
-    // bytes written into the provided buffer is of type c_char (char* in
-    // C-land) and is contiguous for the length it writes in `bytes_read`; and
-    // that `bytes_read` is not greater than `bytes_available`.
-    unsafe {
-        let read_ptr = read_sink.as_mut_ptr();
-
-        file_stream
-            .Read(read_ptr as *mut c_char, bytes_available, &mut bytes_read)
-            .to_result()?;
-    };
-
-    let bytes_read = <usize>::try_from(bytes_read).or(Err(nserror::NS_ERROR_FAILURE))?;
-    Ok(Vec::from(&read_sink[..bytes_read]))
 }

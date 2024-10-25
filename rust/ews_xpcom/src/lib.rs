@@ -6,25 +6,29 @@ extern crate xpcom;
 
 use std::{cell::OnceCell, ffi::c_void};
 
-use authentication::credentials::{AuthenticationProvider, Credentials};
-use client::XpComEwsClient;
+use url::Url;
+
 use nserror::{
     nsresult, NS_ERROR_ALREADY_INITIALIZED, NS_ERROR_INVALID_ARG, NS_ERROR_NOT_INITIALIZED, NS_OK,
 };
 use nsstring::nsACString;
-use url::Url;
 use xpcom::{
     interfaces::{
-        nsIMsgIncomingServer, nsIRequest, nsIStreamListener, IEwsFolderCallbacks,
-        IEwsMessageCallbacks,
+        nsIInputStream, nsIMsgCopyServiceListener, nsIMsgIncomingServer, nsIRequest,
+        nsIStreamListener, IEwsFolderCallbacks, IEwsMessageCallbacks,
     },
     nsIID, xpcom_method, RefPtr,
 };
 
+use authentication::credentials::{AuthenticationProvider, Credentials};
+use client::XpComEwsClient;
+
 mod authentication;
 mod cancellable_request;
 mod client;
+mod headers;
 mod outgoing;
+mod xpcom_io;
 
 /// Creates a new instance of the XPCOM/EWS bridge interface [`XpcomEwsBridge`].
 #[allow(non_snake_case)]
@@ -147,6 +151,36 @@ impl XpcomEwsBridge {
                 id.to_utf8().into(),
                 RefPtr::new(request),
                 RefPtr::new(listener),
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
+
+    xpcom_method!(save_message => SaveMessage(folder_id: *const nsACString, isDraft: bool, messageStream: *const nsIInputStream, copyListener: *const nsIMsgCopyServiceListener, messageCallbaks: *const IEwsMessageCallbacks));
+    fn save_message(
+        &self,
+        folder_id: &nsACString,
+        is_draft: bool,
+        message_stream: &nsIInputStream,
+        copy_listener: &nsIMsgCopyServiceListener,
+        message_callbacks: &IEwsMessageCallbacks,
+    ) -> Result<(), nsresult> {
+        let content = crate::xpcom_io::read_stream(message_stream)?;
+
+        let client = self.try_new_client()?;
+
+        // The client operation is async and we want it to survive the end of
+        // this scope, so spawn it as a detached `moz_task`.
+        moz_task::spawn_local(
+            "save_message",
+            client.save_message(
+                folder_id.to_utf8().into(),
+                is_draft,
+                content,
+                RefPtr::new(copy_listener),
+                RefPtr::new(message_callbacks),
             ),
         )
         .detach();

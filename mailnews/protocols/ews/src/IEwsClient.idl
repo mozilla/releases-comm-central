@@ -8,6 +8,8 @@ interface nsIMsgDBHdr;
 interface nsIRequest;
 interface nsIStreamListener;
 interface nsIMsgIncomingServer;
+interface nsIInputStream;
+interface nsIMsgCopyServiceListener;
 
 interface IEwsFolderCallbacks;
 interface IEwsMessageCallbacks;
@@ -25,6 +27,25 @@ interface IEwsClient : nsISupports
   void syncFolderHierarchy(in IEwsFolderCallbacks callbacks, in AUTF8String syncStateToken);
   void syncMessagesForFolder(in IEwsMessageCallbacks callbacks, in AUTF8String folderId, in AUTF8String syncStateToken);
   void getMessage(in AUTF8String id, in nsIRequest request, in nsIStreamListener listener);
+
+  /**
+   * Create a new message on the server using the data read from the stream.
+   *
+   * @param folderId          The EWS ID of the folder.
+   * @param isDraft           Whether the message being created is an unsent
+   *                          draft.
+   * @param messageStream     The input stream to read the message from.
+   * @param copyListener      A listener to provide updates on copying of
+   *                          the message from the stream.
+   * @param messageCallbacks  Callbacks to use to communicate between the EWS
+   *                          client and the EWS folder (e.g. to access its
+   *                          database).
+   */
+  void saveMessage(in AUTF8String folderId,
+                     in boolean isDraft,
+                     in nsIInputStream messageStream,
+                     in nsIMsgCopyServiceListener copyListener,
+                     in IEwsMessageCallbacks messageCallbacks);
 };
 
 [uuid(5dacc994-30e0-42f7-94c8-52756638add5)]

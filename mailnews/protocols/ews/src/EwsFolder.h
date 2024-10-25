@@ -5,7 +5,9 @@
 #ifndef __COMM_MAILNEWS_PROTOCOLS_EWS_FOLDER_H
 #define __COMM_MAILNEWS_PROTOCOLS_EWS_FOLDER_H
 
+#include "IEwsClient.h"
 #include "nsMsgDBFolder.h"
+#include "nscore.h"
 
 class EwsFolder : public nsMsgDBFolder {
  public:
@@ -22,6 +24,11 @@ class EwsFolder : public nsMsgDBFolder {
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD CreateSubfolder(const nsAString& folderName,
                              nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
+                             bool isDraftOrTemplate, uint32_t newMsgFlags,
+                             const nsACString& aNewMsgKeywords,
+                             nsIMsgWindow* msgWindow,
+                             nsIMsgCopyServiceListener* listener) override;
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** _retval) override;
 
@@ -37,6 +44,13 @@ class EwsFolder : public nsMsgDBFolder {
 
  private:
   bool mHasLoadedSubfolders;
+
+  // Generate or retrieve an EWS API client capable of interacting with the EWS
+  // server this folder depends from.
+  nsresult GetEwsClient(IEwsClient** ewsClient);
+
+  // Locally look up the EWS ID for the current folder.
+  nsresult GetEwsId(nsACString& ewsId);
 };
 
 #endif

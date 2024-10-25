@@ -35,7 +35,7 @@ pub struct CreateItem {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem#messagedisposition-attribute>
     #[xml_struct(attribute)]
-    pub message_disposition: MessageDisposition,
+    pub message_disposition: Option<MessageDisposition>,
 
     /// The folder in which to store an item once it has been created.
     ///

@@ -9,17 +9,20 @@ use std::{
 
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
-    create_item::{self, CreateItem, MessageDisposition},
+    create_item::{
+        self, CreateItem, CreateItemResponseMessage, ExtendedProperty, MessageDisposition,
+    },
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
-    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, Folder, FolderShape, Importance,
-    ItemShape, Message, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
+    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, Folder, FolderShape,
+    ItemShape, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
     ResponseCode,
 };
 use fxhash::FxHashMap;
+use mail_parser::MessageParser;
 use moz_http::StatusCode;
 use nserror::nsresult;
 use nsstring::{nsCString, nsString};
@@ -29,14 +32,29 @@ use uuid::Uuid;
 use xpcom::{
     getter_addrefs,
     interfaces::{
-        nsIMsgDBHdr, nsIRequest, nsIRequestObserver, nsIStreamListener, nsIStringInputStream,
-        nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgMessageFlags, nsMsgPriority, IEwsClient,
-        IEwsFolderCallbacks, IEwsMessageCallbacks,
+        nsIMsgCopyServiceListener, nsIMsgDBHdr, nsIRequest, nsIRequestObserver, nsIStreamListener,
+        nsIStringInputStream, nsMsgFolderFlagType, nsMsgFolderFlags, nsMsgKey, nsMsgMessageFlags,
+        IEwsClient, IEwsFolderCallbacks, IEwsMessageCallbacks,
     },
     RefPtr,
 };
 
+use crate::headers::MessageHeaders;
 use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
+
+// Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
+//
+// See
+// <https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagmessageflags-canonical-property>,
+// although the specific values are set in `Mapidefs.h` from the Windows SDK:
+// <https://github.com/microsoft/MAPIStubLibrary/blob/1d30c31ebf05ef444371520cd4268d6e1fda8a3b/include/MAPIDefS.h#L2143-L2154>
+//
+// Message flags are of type `PT_LONG`, which corresponds to i32 (signed 32-bit
+// integers) according to
+// https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/property-types
+const MSGFLAG_READ: i32 = 0x00000001;
+const MSGFLAG_UNMODIFIED: i32 = 0x00000002;
+const MSGFLAG_UNSENT: i32 = 0x00000008;
 
 pub(crate) struct XpComEwsClient {
     pub endpoint: Url,
@@ -300,7 +318,7 @@ impl XpComEwsClient {
                         }
 
                         let header = result?;
-                        populate_message_header_from_item(&header, &msg)?;
+                        populate_message_header_from_item(&header, msg)?;
 
                         unsafe { callbacks.CommitHeader(&*header) }.to_result()?;
                     }
@@ -757,9 +775,9 @@ impl XpComEwsClient {
             for response_message in response.response_messages.get_item_response_message {
                 process_response_message_class(
                     "GetItem",
-                    response_message.response_class,
-                    response_message.response_code,
-                    response_message.message_text,
+                    &response_message.response_class,
+                    &response_message.response_code,
+                    &response_message.message_text,
                 )?;
 
                 // The expected shape of the list of response messages is
@@ -817,7 +835,7 @@ impl XpComEwsClient {
             Err(err) => {
                 log::error!("an error occurred while attempting to send the message: {err:?}");
 
-                nsresult::from(err)
+                err.into()
             }
         };
 
@@ -830,7 +848,7 @@ impl XpComEwsClient {
     }
 
     async fn send_message_inner(
-        &self,
+        self,
         mime_content: String,
         message_id: String,
         should_request_dsn: bool,
@@ -847,7 +865,7 @@ impl XpComEwsClient {
         let message = create_item::Message {
             mime_content: Some(MimeContent {
                 character_set: None,
-                content: BASE64_STANDARD.encode(mime_content),
+                content: BASE64_STANDARD.encode(&mime_content),
             }),
             is_delivery_receipt_requested: Some(should_request_dsn),
             internet_message_id: Some(message_id),
@@ -860,12 +878,143 @@ impl XpComEwsClient {
 
             // We don't need EWS to copy messages to the Sent folder after
             // they've been sent, because the internal MessageSend module
-            // already takes care of it, and will include additional headers we
+            // already takes care of it and will include additional headers we
             // don't send to EWS (such as Bcc).
-            message_disposition: MessageDisposition::SendOnly,
+            message_disposition: Some(MessageDisposition::SendOnly),
             saved_item_folder_id: None,
         };
 
+        self.make_create_item_request(create_item).await?;
+
+        Ok(())
+    }
+
+    /// Create a message on the server by performing a [`CreateItem`] operation
+    /// via EWS.
+    ///
+    /// All headers are expected to be included in the provided MIME content.
+    ///
+    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
+    pub async fn save_message(
+        self,
+        folder_id: String,
+        is_draft: bool,
+        content: Vec<u8>,
+        copy_listener: RefPtr<nsIMsgCopyServiceListener>,
+        message_callbacks: RefPtr<IEwsMessageCallbacks>,
+    ) {
+        if let Err(status) = unsafe { copy_listener.OnStartCopy().to_result() } {
+            log::error!("aborting copy: an error occurred while starting the listener: {status}");
+            return;
+        }
+
+        // Send the request, using an inner method to more easily handle errors.
+        // Use the return value to determine which status we should use when
+        // notifying the end of the request.
+        let status = match self
+            .save_message_inner(
+                folder_id,
+                is_draft,
+                content,
+                copy_listener.clone(),
+                message_callbacks,
+            )
+            .await
+        {
+            Ok(_) => nserror::NS_OK,
+            Err(err) => {
+                log::error!("an error occurred while attempting to copy the message: {err:?}");
+
+                err.into()
+            }
+        };
+
+        if let Err(err) = unsafe { copy_listener.OnStopCopy(status) }.to_result() {
+            log::error!("aborting copy: an error occurred while stopping the listener: {err}")
+        }
+    }
+
+    async fn save_message_inner(
+        &self,
+        folder_id: String,
+        is_draft: bool,
+        content: Vec<u8>,
+        copy_listener: RefPtr<nsIMsgCopyServiceListener>,
+        message_callbacks: RefPtr<IEwsMessageCallbacks>,
+    ) -> Result<(), XpComEwsError> {
+        // Create a new message from the binary content we got.
+        let mut message = create_item::Message {
+            mime_content: Some(MimeContent {
+                character_set: None,
+                content: BASE64_STANDARD.encode(&content),
+            }),
+            ..Default::default()
+        };
+
+        // Set the `PR_MESSAGE_FLAGS` MAPI property. If not set, the EWS server
+        // uses `MSGFLAG_UNSENT` | `MSGFLAG_UNMODIFIED` as the default value,
+        // which is not what we want.
+        //
+        // See
+        // https://learn.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagmessageflags-canonical-property
+        let mut mapi_flags = MSGFLAG_READ;
+        if is_draft {
+            mapi_flags |= MSGFLAG_UNSENT;
+        } else {
+            mapi_flags |= MSGFLAG_UNMODIFIED;
+        }
+
+        message.extended_property = Some(vec![ExtendedProperty {
+            extended_field_URI: ExtendedFieldURI {
+                distinguished_property_set_id: None,
+                property_set_id: None,
+                property_name: None,
+                property_id: None,
+
+                // 3591 (0x0E07) is the `PR_MESSAGE_FLAGS` MAPI property.
+                property_tag: Some("3591".into()),
+                property_type: ews::PropertyType::Integer,
+            },
+            value: mapi_flags.to_string(),
+        }]);
+
+        let create_item = CreateItem {
+            items: vec![create_item::Item::Message(message)],
+            message_disposition: Some(MessageDisposition::SaveOnly),
+            saved_item_folder_id: Some(BaseFolderId::FolderId {
+                id: folder_id,
+                change_key: None,
+            }),
+        };
+
+        let response_message = self.make_create_item_request(create_item).await?;
+
+        let hdr = create_and_populate_header_from_save_response(
+            response_message,
+            &content,
+            message_callbacks,
+        )?;
+
+        if is_draft {
+            // If we're dealing with a draft message, copy the message key to
+            // the listener so that the draft can be replaced if a newer draft
+            // of the message is saved.
+            let mut key: nsMsgKey = 0;
+
+            unsafe { hdr.GetMessageKey(&mut key) }.to_result()?;
+            unsafe { copy_listener.SetMessageKey(key) }.to_result()?;
+        }
+
+        Ok(())
+    }
+
+    /// Performs a [`CreateItem`] operation and processes its response.
+    ///
+    /// [`CreateItem`] https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem-operation-email-message
+    async fn make_create_item_request(
+        &self,
+        create_item: CreateItem,
+    ) -> Result<CreateItemResponseMessage, XpComEwsError> {
         let response = self.make_operation_request(create_item).await?;
 
         // We have only sent one message, therefore the response should only
@@ -882,10 +1031,12 @@ impl XpComEwsClient {
         let response_message = response_messages.into_iter().next().unwrap();
         process_response_message_class(
             "CreateItem",
-            response_message.response_class,
-            response_message.response_code,
-            response_message.message_text,
-        )
+            &response_message.response_class,
+            &response_message.response_code,
+            &response_message.message_text,
+        )?;
+
+        Ok(response_message)
     }
 
     /// Makes a request to the EWS endpoint to perform an operation.
@@ -954,9 +1105,9 @@ impl XpComEwsClient {
 /// Sets the fields of a database message header object from an EWS `Message`.
 fn populate_message_header_from_item(
     header: &nsIMsgDBHdr,
-    msg: &Message,
+    msg: impl MessageHeaders,
 ) -> Result<(), XpComEwsError> {
-    let internet_message_id = if let Some(internet_message_id) = msg.internet_message_id.as_ref() {
+    let internet_message_id = if let Some(internet_message_id) = msg.internet_message_id() {
         nsCString::from(internet_message_id)
     } else {
         // Lots of code assumes Message-ID is set and unique, so we need to
@@ -976,14 +1127,14 @@ fn populate_message_header_from_item(
     let mut header_flags = 0;
     unsafe { header.GetFlags(&mut header_flags) }.to_result()?;
 
-    if let Some(is_read) = msg.is_read {
+    if let Some(is_read) = msg.is_read() {
         if is_read {
             should_write_flags = true;
             header_flags |= nsMsgMessageFlags::Read;
         }
     }
 
-    if let Some(has_attachments) = msg.has_attachments {
+    if let Some(has_attachments) = msg.has_attachments() {
         if has_attachments {
             should_write_flags = true;
             header_flags |= nsMsgMessageFlags::Attachment;
@@ -994,64 +1145,42 @@ fn populate_message_header_from_item(
         unsafe { header.SetFlags(header_flags) }.to_result()?;
     }
 
-    let sent_time_in_micros = msg.date_time_sent.as_ref().and_then(|date_time| {
-        // `time` gives Unix timestamps in seconds. `PRTime` is an `i64`
-        // representing Unix timestamps in microseconds. `PRTime` won't overflow
-        // for over 500,000 years, but we use `checked_mul()` to guard against
-        // receiving nonsensical values.
-        let time_in_micros = date_time.0.unix_timestamp().checked_mul(1_000 * 1_000);
-        if time_in_micros.is_none() {
-            log::warn!(
-                "message with ID {item_id} sent date {date_time:?} too big for `i64`, ignoring",
-                item_id = msg.item_id.id
-            );
-        }
-
-        time_in_micros
-    });
-
-    if let Some(sent) = sent_time_in_micros {
+    if let Some(sent) = msg.sent_timestamp_ms() {
         unsafe { header.SetDate(sent) }.to_result()?;
     }
 
-    if let Some(author) = msg.from.as_ref().or(msg.sender.as_ref()) {
-        let author = nsCString::from(make_header_string_for_mailbox(&author.mailbox));
+    if let Some(author) = msg.author() {
+        let author = nsCString::from(make_header_string_for_mailbox(&author));
         unsafe { header.SetAuthor(&*author) }.to_result()?;
     }
 
-    if let Some(reply_to) = msg.reply_to.as_ref() {
-        let reply_to = nsCString::from(make_header_string_for_mailbox(&reply_to.mailbox));
+    if let Some(reply_to) = msg.reply_to_recipient() {
+        let reply_to = nsCString::from(make_header_string_for_mailbox(&reply_to));
         unsafe { header.SetStringProperty(cstr::cstr!("replyTo").as_ptr(), &*reply_to) }
             .to_result()?;
     }
 
-    if let Some(to) = msg.to_recipients.as_ref() {
+    if let Some(to) = msg.to_recipients() {
         let to = nsCString::from(make_header_string_for_mailbox_list(to));
         unsafe { header.SetRecipients(&*to) }.to_result()?;
     }
 
-    if let Some(cc) = msg.cc_recipients.as_ref() {
+    if let Some(cc) = msg.cc_recipients() {
         let cc = nsCString::from(make_header_string_for_mailbox_list(cc));
         unsafe { header.SetCcList(&*cc) }.to_result()?;
     }
 
-    if let Some(bcc) = msg.bcc_recipients.as_ref() {
+    if let Some(bcc) = msg.bcc_recipients() {
         let bcc = nsCString::from(make_header_string_for_mailbox_list(bcc));
         unsafe { header.SetBccList(&*bcc) }.to_result()?;
     }
 
-    if let Some(subject) = msg.subject.as_ref() {
+    if let Some(subject) = msg.message_subject() {
         let subject = nsCString::from(subject);
         unsafe { header.SetSubject(&*subject) }.to_result()?;
     }
 
-    if let Some(importance) = msg.importance {
-        let priority = match importance {
-            Importance::Low => nsMsgPriority::low,
-            Importance::Normal => nsMsgPriority::normal,
-            Importance::High => nsMsgPriority::high,
-        };
-
+    if let Some(priority) = msg.priority() {
         unsafe { header.SetPriority(priority) }.to_result()?;
     }
 
@@ -1084,10 +1213,12 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
 
 /// Creates a string representation of a list of mailboxes, suitable for use as
 /// the value of an Internet Message Format header.
-fn make_header_string_for_mailbox_list(mailboxes: &ArrayOfRecipients) -> String {
+fn make_header_string_for_mailbox_list(
+    mailboxes: impl IntoIterator<Item = ews::Mailbox>,
+) -> String {
     let strings: Vec<_> = mailboxes
-        .iter()
-        .map(|item| make_header_string_for_mailbox(&item.mailbox))
+        .into_iter()
+        .map(|mailbox| make_header_string_for_mailbox(&mailbox))
         .collect();
 
     strings.join(", ")
@@ -1203,9 +1334,9 @@ where
 /// return an error accordingly.
 fn process_response_message_class(
     op_name: &str,
-    response_class: ResponseClass,
-    response_code: Option<ResponseCode>,
-    message_text: Option<String>,
+    response_class: &ResponseClass,
+    response_code: &Option<ResponseCode>,
+    message_text: &Option<String>,
 ) -> Result<(), XpComEwsError> {
     match response_class {
         ResponseClass::Success => Ok(()),
@@ -1244,4 +1375,45 @@ fn process_response_message_class(
             Err(XpComEwsError::Processing { message })
         }
     }
+}
+
+/// Uses the provided `CreateItemResponseMessage` to create, populate and commit
+/// an `nsIMsgDBHdr` for a newly created message.
+fn create_and_populate_header_from_save_response(
+    response_message: CreateItemResponseMessage,
+    content: &[u8],
+    message_callbacks: RefPtr<IEwsMessageCallbacks>,
+) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
+    // If we're saving the message (rather than sending it), we must create a
+    // new database entry for it and associate it with the message's EWS ID.
+    let items = &response_message.items.inner;
+    if items.len() != 1 {
+        return Err(XpComEwsError::Processing {
+            message: String::from("expected only one item in CreateItem response"),
+        });
+    }
+
+    let message = match &items[0] {
+        RealItem::Message(message) => message,
+    };
+    let ews_id = nsCString::from(message.item_id.id.clone());
+
+    let hdr =
+        getter_addrefs(|hdr| unsafe { message_callbacks.CreateNewHeaderForItem(&*ews_id, hdr) })?;
+
+    // Parse the message and use its headers to populate the `nsIMsgDBHdr`
+    // before committing it to the database. We parse the original content
+    // rather than use the `Message` from the `CreateItemResponse` because the
+    // latter only contains the item's ID, and so is missing the required
+    // fields.
+    let message = MessageParser::default()
+        .parse(content)
+        .ok_or(XpComEwsError::Processing {
+            message: String::from("failed to parse message"),
+        })?;
+
+    populate_message_header_from_item(&hdr, &message)?;
+    unsafe { message_callbacks.CommitHeader(&*hdr) }.to_result()?;
+
+    Ok(hdr)
 }

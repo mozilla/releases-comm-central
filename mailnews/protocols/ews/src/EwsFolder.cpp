@@ -4,11 +4,15 @@
 
 #include "EwsFolder.h"
 
+#include "ErrorList.h"
 #include "IEwsClient.h"
 #include "IEwsIncomingServer.h"
 #include "MailNewsTypes.h"
+#include "nsIInputStream.h"
 #include "nsIMsgWindow.h"
+#include "nsNetUtil.h"
 #include "nsPrintfCString.h"
+#include "nscore.h"
 
 #define kEWSRootURI "ews:/"
 #define kEWSMessageRootURI "ews-message:/"
@@ -16,25 +20,25 @@
 #define ID_PROPERTY "ewsId"
 #define SYNC_STATE_PROPERTY "ewsSyncStateToken"
 
-class MessageSyncListener : public IEwsMessageCallbacks {
+class MessageOperationCallbacks : public IEwsMessageCallbacks {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_IEWSMESSAGECALLBACKS
 
-  MessageSyncListener(EwsFolder* folder, nsIMsgWindow* window)
+  MessageOperationCallbacks(EwsFolder* folder, nsIMsgWindow* window)
       : mFolder(folder), mWindow(window) {}
 
  protected:
-  virtual ~MessageSyncListener() = default;
+  virtual ~MessageOperationCallbacks() = default;
 
  private:
   RefPtr<EwsFolder> mFolder;
   RefPtr<nsIMsgWindow> mWindow;
 };
 
-NS_IMPL_ISUPPORTS(MessageSyncListener, IEwsMessageCallbacks)
+NS_IMPL_ISUPPORTS(MessageOperationCallbacks, IEwsMessageCallbacks)
 
-NS_IMETHODIMP MessageSyncListener::CommitHeader(nsIMsgDBHdr* hdr) {
+NS_IMETHODIMP MessageOperationCallbacks::CommitHeader(nsIMsgDBHdr* hdr) {
   RefPtr<nsIMsgDatabase> db;
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -42,7 +46,7 @@ NS_IMETHODIMP MessageSyncListener::CommitHeader(nsIMsgDBHdr* hdr) {
   return db->AddNewHdrToDB(hdr, true);
 }
 
-NS_IMETHODIMP MessageSyncListener::CreateNewHeaderForItem(
+NS_IMETHODIMP MessageOperationCallbacks::CreateNewHeaderForItem(
     const nsACString& ewsId, nsIMsgDBHdr** _retval) {
   RefPtr<nsIMsgDatabase> db;
   nsresult rv = mFolder->GetMsgDatabase(getter_AddRefs(db));
@@ -69,13 +73,13 @@ NS_IMETHODIMP MessageSyncListener::CreateNewHeaderForItem(
   return NS_OK;
 }
 
-NS_IMETHODIMP MessageSyncListener::UpdateSyncState(
+NS_IMETHODIMP MessageOperationCallbacks::UpdateSyncState(
     const nsACString& syncStateToken) {
   return mFolder->SetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
 }
 
-NS_IMETHODIMP MessageSyncListener::OnError(IEwsClient::Error err,
-                                           const nsACString& desc) {
+NS_IMETHODIMP MessageOperationCallbacks::OnError(IEwsClient::Error err,
+                                                 const nsACString& desc) {
   NS_ERROR("Error occurred while syncing EWS messages");
 
   return NS_OK;
@@ -218,18 +222,49 @@ NS_IMETHODIMP EwsFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
 }
 
 NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
-
   nsCOMPtr<IEwsClient> client;
-  rv = ewsServer->GetEwsClient(getter_AddRefs(client));
+  nsresult rv = GetEwsClient(getter_AddRefs(client));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString ewsId;
-  rv = GetStringProperty(ID_PROPERTY, ewsId);
+  rv = GetEwsId(ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // EWS provides us an opaque value which specifies the last version of
+  // upstream messages we received. Provide that to simplify sync.
+  nsCString syncStateToken;
+  rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
+  if (NS_FAILED(rv)) {
+    syncStateToken = EmptyCString();
+  }
+
+  auto listener = RefPtr(new MessageOperationCallbacks(this, aWindow));
+  return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
+}
+
+NS_IMETHODIMP EwsFolder::CopyFileMessage(
+    nsIFile* aFile, nsIMsgDBHdr* msgToReplace, bool isDraftOrTemplate,
+    uint32_t newMsgFlags, const nsACString& aNewMsgKeywords,
+    nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* copyListener) {
+  nsCString ewsId;
+  nsresult rv = GetEwsId(ewsId);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIInputStream> inputStream;
+  rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), aFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsClient> client;
+  rv = GetEwsClient(getter_AddRefs(client));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  auto ewsMsgListener = RefPtr(new MessageOperationCallbacks(this, msgWindow));
+  return client->SaveMessage(ewsId, isDraftOrTemplate, inputStream,
+                               copyListener, ewsMsgListener);
+}
+
+nsresult EwsFolder::GetEwsId(nsACString& ewsId) {
+  nsresult rv = GetStringProperty(ID_PROPERTY, ewsId);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (ewsId.IsEmpty()) {
@@ -240,14 +275,15 @@ NS_IMETHODIMP EwsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
     return NS_ERROR_UNEXPECTED;
   }
 
-  // EWS provides us an opaque value which specifies the last version of
-  // upstream messages we received. Provide that to simplify sync.
-  nsCString syncStateToken;
-  rv = GetStringProperty(SYNC_STATE_PROPERTY, syncStateToken);
-  if (NS_FAILED(rv)) {
-    syncStateToken = EmptyCString();
-  }
+  return NS_OK;
+}
 
-  auto listener = RefPtr(new MessageSyncListener(this, aWindow));
-  return client->SyncMessagesForFolder(listener, ewsId, syncStateToken);
+nsresult EwsFolder::GetEwsClient(IEwsClient** ewsClient) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<IEwsIncomingServer> ewsServer(do_QueryInterface(server));
+
+  return ewsServer->GetEwsClient(ewsClient);
 }
