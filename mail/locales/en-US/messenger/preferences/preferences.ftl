@@ -553,6 +553,13 @@ conversation-view-checkbox-description = Experimental feature based on Gloda, us
 
 label-experiment = Experimental
 
+dark-reader-legend = Reader colors
+
+dark-reader-checkbox-label =
+    .label = Adapt to dark theme
+    .accesskey = d
+dark-reader-checkbox-description = Experimental feature to make the message pane follow dark themes
+
 ## Compose Tab
 
 forward-label =

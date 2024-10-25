@@ -5,7 +5,8 @@
 /* ===== messageBody.css =================================================
   == Styles for the body of a mail message.
   ======================================================================= */
-@import url(chrome://messenger/skin/messageQuotes.css);
+@import url("chrome://messenger/skin/messageQuotes.css");
+@import url("chrome://messenger/skin/colors.css");
 
 @namespace url("http://www.w3.org/1999/xhtml");
 
@@ -30,6 +31,17 @@ mailattachcount {
 .moz-header-part2,
 .moz-header-part3 {
   background-color: #DEDEDE;
+}
+
+@media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {
+  .moz-header-part1 {
+    background-color: var(--color-gray-70);
+  }
+
+  .moz-header-part2,
+  .moz-header-part3 {
+    background-color: var(--color-gray-80);
+  }
 }
 
 .moz-header-display-name {
@@ -81,6 +93,13 @@ mailattachcount {
 .moz-txt-formfeed {
   display: block;
   height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) and (-moz-bool-pref: "mail.dark-reader.enabled") {
+  html {
+    background-color: var(--color-gray-90);
+    color: var(--color-white);
+  }
 }
 
 /* Ignore named pages when printing. */

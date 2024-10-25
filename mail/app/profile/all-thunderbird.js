@@ -1423,3 +1423,9 @@ pref("mail.inappnotifications.bypass-filtering", false);
 // Enable the new experimental conversation view based on Gloda.
 pref("mail.thread.conversation.enabled", false);
 #endif
+
+#ifdef NIGHTLY_BUILD
+pref("mail.dark-reader.enabled", true);
+#else
+pref("mail.dark-reader.enabled", false);
+#endif

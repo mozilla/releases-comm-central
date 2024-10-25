@@ -96,10 +96,11 @@ messenger.jar:
 *   content/messenger/viewSource.xhtml              (content/viewSource.xhtml)
     content/messenger/viewZoomOverlay.js            (content/viewZoomOverlay.js)
 
+    content/messenger/CustomElementUtils.mjs        (content/modules/CustomElementUtils.mjs)
+    content/messenger/DarkReader.mjs                (content/modules/DarkReader.mjs)
     content/messenger/ThreadPaneColumns.mjs         (content/modules/ThreadPaneColumns.mjs)
     content/messenger/TreeDataAdapter.mjs           (content/modules/TreeDataAdapter.mjs)
     content/messenger/TreeSelection.mjs             (content/modules/TreeSelection.mjs)
-    content/messenger/CustomElementUtils.mjs        (content/modules/CustomElementUtils.mjs)
 
     content/messenger/auto-tree-view.mjs            (content/widgets/auto-tree-view.mjs)
     content/messenger/browserPopups.js              (content/widgets/browserPopups.js)
