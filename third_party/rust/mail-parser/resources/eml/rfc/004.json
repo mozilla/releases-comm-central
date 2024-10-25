@@ -1,0 +1,307 @@
+{
+  "html_body": [
+    1
+  ],
+  "text_body": [
+    1
+  ],
+  "attachments": [
+    3,
+    4
+  ],
+  "parts": [
+    {
+      "headers": [
+        {
+          "name": "from",
+          "value": {
+            "Address": {
+              "List": [
+                {
+                  "name": "Moderator-Address",
+                  "address": null
+                }
+              ]
+            }
+          },
+          "offset_field": 0,
+          "offset_start": 5,
+          "offset_end": 24
+        },
+        {
+          "name": "to",
+          "value": {
+            "Address": {
+              "List": [
+                {
+                  "name": "Recipient-List",
+                  "address": null
+                }
+              ]
+            }
+          },
+          "offset_field": 24,
+          "offset_start": 27,
+          "offset_end": 43
+        },
+        {
+          "name": "date",
+          "value": {
+            "DateTime": {
+              "year": 1994,
+              "month": 3,
+              "day": 22,
+              "hour": 13,
+              "minute": 34,
+              "second": 51,
+              "tz_before_gmt": false,
+              "tz_hour": 0,
+              "tz_minute": 0
+            }
+          },
+          "offset_field": 43,
+          "offset_start": 48,
+          "offset_end": 81
+        },
+        {
+          "name": "subject",
+          "value": {
+            "Text": "Internet Digest, volume 42"
+          },
+          "offset_field": 81,
+          "offset_start": 89,
+          "offset_end": 117
+        },
+        {
+          "name": "mime_version",
+          "value": {
+            "Text": "1.0"
+          },
+          "offset_field": 117,
+          "offset_start": 130,
+          "offset_end": 135
+        },
+        {
+          "name": "content_type",
+          "value": {
+            "ContentType": {
+              "c_type": "multipart",
+              "c_subtype": "mixed",
+              "attributes": [
+                [
+                  "boundary",
+                  "---- main boundary ----"
+                ]
+              ]
+            }
+          },
+          "offset_field": 135,
+          "offset_start": 148,
+          "offset_end": 213
+        }
+      ],
+      "is_encoding_problem": false,
+      "body": {
+        "Multipart": [
+          1,
+          2
+        ]
+      },
+      "offset_header": 0,
+      "offset_body": 214,
+      "offset_end": 727
+    },
+    {
+      "headers": [],
+      "is_encoding_problem": false,
+      "body": {
+        "Text": "...Introductory text or table of contents...\n"
+      },
+      "offset_header": 240,
+      "offset_body": 241,
+      "offset_end": 286
+    },
+    {
+      "headers": [
+        {
+          "name": "content_type",
+          "value": {
+            "ContentType": {
+              "c_type": "multipart",
+              "c_subtype": "digest",
+              "attributes": [
+                [
+                  "boundary",
+                  "---- next message ----"
+                ]
+              ]
+            }
+          },
+          "offset_field": 313,
+          "offset_start": 326,
+          "offset_end": 391
+        }
+      ],
+      "is_encoding_problem": false,
+      "body": {
+        "Multipart": [
+          3,
+          4
+        ]
+      },
+      "offset_header": 313,
+      "offset_body": 392,
+      "offset_end": 698
+    },
+    {
+      "headers": [],
+      "is_encoding_problem": false,
+      "body": {
+        "Message": {
+          "html_body": [
+            0
+          ],
+          "text_body": [
+            0
+          ],
+          "attachments": [],
+          "parts": [
+            {
+              "headers": [
+                {
+                  "name": "from",
+                  "value": {
+                    "Address": {
+                      "List": [
+                        {
+                          "name": "someone-else",
+                          "address": null
+                        }
+                      ]
+                    }
+                  },
+                  "offset_field": 418,
+                  "offset_start": 423,
+                  "offset_end": 437
+                },
+                {
+                  "name": "date",
+                  "value": {
+                    "DateTime": {
+                      "year": 1993,
+                      "month": 3,
+                      "day": 26,
+                      "hour": 11,
+                      "minute": 13,
+                      "second": 32,
+                      "tz_before_gmt": false,
+                      "tz_hour": 2,
+                      "tz_minute": 0
+                    }
+                  },
+                  "offset_field": 437,
+                  "offset_start": 442,
+                  "offset_end": 475
+                },
+                {
+                  "name": "subject",
+                  "value": {
+                    "Text": "my opinion"
+                  },
+                  "offset_field": 475,
+                  "offset_start": 483,
+                  "offset_end": 495
+                }
+              ],
+              "is_encoding_problem": false,
+              "body": {
+                "Text": "...body goes here ...\n"
+              },
+              "offset_header": 418,
+              "offset_body": 496,
+              "offset_end": 518
+            }
+          ]
+        }
+      },
+      "offset_header": 417,
+      "offset_body": 418,
+      "offset_end": 518
+    },
+    {
+      "headers": [],
+      "is_encoding_problem": false,
+      "body": {
+        "Message": {
+          "html_body": [
+            0
+          ],
+          "text_body": [
+            0
+          ],
+          "attachments": [],
+          "parts": [
+            {
+              "headers": [
+                {
+                  "name": "from",
+                  "value": {
+                    "Address": {
+                      "List": [
+                        {
+                          "name": "someone-else-again",
+                          "address": null
+                        }
+                      ]
+                    }
+                  },
+                  "offset_field": 545,
+                  "offset_start": 550,
+                  "offset_end": 570
+                },
+                {
+                  "name": "date",
+                  "value": {
+                    "DateTime": {
+                      "year": 1993,
+                      "month": 3,
+                      "day": 26,
+                      "hour": 10,
+                      "minute": 7,
+                      "second": 13,
+                      "tz_before_gmt": true,
+                      "tz_hour": 5,
+                      "tz_minute": 0
+                    }
+                  },
+                  "offset_field": 570,
+                  "offset_start": 575,
+                  "offset_end": 608
+                },
+                {
+                  "name": "subject",
+                  "value": {
+                    "Text": "my different opinion"
+                  },
+                  "offset_field": 608,
+                  "offset_start": 616,
+                  "offset_end": 638
+                }
+              ],
+              "is_encoding_problem": false,
+              "body": {
+                "Text": "... another body goes here ...\n"
+              },
+              "offset_header": 545,
+              "offset_body": 639,
+              "offset_end": 670
+            }
+          ]
+        }
+      },
+      "offset_header": 544,
+      "offset_body": 545,
+      "offset_end": 670
+    }
+  ]
+}

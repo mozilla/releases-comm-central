@@ -1,0 +1,160 @@
+{
+  "html_body": [
+    0
+  ],
+  "text_body": [
+    0
+  ],
+  "attachments": [],
+  "parts": [
+    {
+      "headers": [
+        {
+          "name": "message_id",
+          "value": {
+            "Text": "392363E1.2AC47AB3@example.com"
+          },
+          "offset_field": 0,
+          "offset_start": 11,
+          "offset_end": 45
+        },
+        {
+          "name": "date",
+          "value": {
+            "DateTime": {
+              "year": 2000,
+              "month": 5,
+              "day": 17,
+              "hour": 23,
+              "minute": 30,
+              "second": 41,
+              "tz_before_gmt": true,
+              "tz_hour": 4,
+              "tz_minute": 0
+            }
+          },
+          "offset_field": 45,
+          "offset_start": 50,
+          "offset_end": 84
+        },
+        {
+          "name": "from",
+          "value": {
+            "Address": {
+              "List": [
+                {
+                  "name": "Doug Sauder",
+                  "address": "dwsauder@example.com"
+                }
+              ]
+            }
+          },
+          "offset_field": 84,
+          "offset_start": 89,
+          "offset_end": 126
+        },
+        {
+          "name": {
+            "other": "X-Mailer"
+          },
+          "value": {
+            "Text": "Mozilla 4.7 [en] (WinNT; I)"
+          },
+          "offset_field": 126,
+          "offset_start": 135,
+          "offset_end": 165
+        },
+        {
+          "name": {
+            "other": "X-Accept-Language"
+          },
+          "value": {
+            "Text": "en"
+          },
+          "offset_field": 165,
+          "offset_start": 183,
+          "offset_end": 188
+        },
+        {
+          "name": "mime_version",
+          "value": {
+            "Text": "1.0"
+          },
+          "offset_field": 188,
+          "offset_start": 201,
+          "offset_end": 207
+        },
+        {
+          "name": "to",
+          "value": {
+            "Address": {
+              "List": [
+                {
+                  "name": "Joe Blow",
+                  "address": "blow@example.com"
+                }
+              ]
+            }
+          },
+          "offset_field": 207,
+          "offset_start": 210,
+          "offset_end": 240
+        },
+        {
+          "name": "subject",
+          "value": {
+            "Text": "Test message from Netscape Communicator 4.7"
+          },
+          "offset_field": 240,
+          "offset_start": 248,
+          "offset_end": 294
+        },
+        {
+          "name": {
+            "other": "X-Priority"
+          },
+          "value": {
+            "Text": "5 (Lowest)"
+          },
+          "offset_field": 294,
+          "offset_start": 305,
+          "offset_end": 318
+        },
+        {
+          "name": "content_type",
+          "value": {
+            "ContentType": {
+              "c_type": "text",
+              "c_subtype": "plain",
+              "attributes": [
+                [
+                  "charset",
+                  "UTF-8"
+                ]
+              ]
+            }
+          },
+          "offset_field": 318,
+          "offset_start": 331,
+          "offset_end": 359
+        },
+        {
+          "name": "content_transfer_encoding",
+          "value": {
+            "Text": "quoted-printable"
+          },
+          "offset_field": 359,
+          "offset_start": 385,
+          "offset_end": 404
+        }
+      ],
+      "is_encoding_problem": false,
+      "body": {
+        "Text": "Die Hasen und die Fr�sche\r\n\r\nDie Hasen klagten einst �ber ihre mi�liche Lage; \"wir leben\", sprach ein\r\nRedner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde,\r\nder Adler, ja fast aller Raubtiere! Unsere stete Angst ist �rger als der\r\nTod selbst. Auf, la�t uns ein f�r allemal sterben.\" \r\n\r\nIn einem nahen Teich wollten sie sich nun ers�ufen; sie eilten ihm zu;\r\nallein das au�erordentliche Get�se und ihre wunderbare Gestalt\r\nerschreckte eine Menge Fr�sche, die am Ufer sa�en, so sehr, da� sie aufs\r\nschnellste untertauchten. \r\n\r\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ers�ufen noch ein\r\nwenig aufschieben, denn auch uns f�rchten, wie ihr seht, einige Tiere,\r\nwelche also wohl noch ungl�cklicher sein m�ssen als wir.\"\r\n"
+      },
+      "offset_header": 0,
+      "offset_body": 406,
+      "offset_end": 1208
+    }
+  ]
+}
