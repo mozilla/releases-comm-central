@@ -23,13 +23,6 @@ var { MailServices } = ChromeUtils.importESModule(
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-ChromeUtils.defineESModuleGetters(
-  this,
-  {
-    adaptMessageForDarkMode: "chrome://messenger/content/DarkReader.mjs",
-  },
-  { global: "current" }
-);
 
 ChromeUtils.defineESModuleGetters(this, {
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
@@ -40,8 +33,6 @@ ChromeUtils.defineESModuleGetters(this, {
 const messengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
-
-const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
 var gMessage, gMessageURI;
 var autodetectCharset;
@@ -151,9 +142,6 @@ window.addEventListener("DOMContentLoaded", event => {
   window.dispatchEvent(
     new CustomEvent("aboutMessageLoaded", { bubbles: true })
   );
-
-  window.addEventListener("MsgLoaded", msgObserver);
-  prefersDarkQuery.addEventListener("change", msgObserver);
 });
 
 window.addEventListener("unload", () => {
@@ -162,8 +150,6 @@ window.addEventListener("unload", () => {
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
   Services.obs.removeObserver(msgObserver, "message-content-updated");
-  window.removeEventListener("MsgLoaded", msgObserver);
-  prefersDarkQuery.removeEventListener("change", msgObserver);
   gViewWrapper?.close();
 });
 
@@ -363,8 +349,6 @@ var folderListener = {
 var msgObserver = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
-  _reloadTimeout: null,
-
   observe(subject, topic, data) {
     if (
       topic == "message-content-updated" &&
@@ -376,27 +360,6 @@ var msgObserver = {
       displayMessage(data, gViewWrapper);
     }
   },
-
-  handleEvent(event) {
-    switch (event.type) {
-      case "MsgLoaded":
-        if (prefersDarkQuery.matches) {
-          adaptMessageForDarkMode(getMessagePaneBrowser());
-        }
-        break;
-      case "change":
-        if (!this._reloadTimeout) {
-          // Clear the event queue before reloading the message and use a
-          // a timeout as other operations might be happening before we can
-          // reload the message.
-          this._reloadTimeout = setTimeout(() => {
-            this._reloadTimeout = null;
-            ReloadMessage();
-          });
-        }
-        break;
-    }
-  },
 };
 
 var preferenceObserver = {
@@ -406,7 +369,6 @@ var preferenceObserver = {
     "mail.inline_attachments",
     "mail.show_headers",
     "mail.addressDisplayFormat",
-    "mail.dark-reader.enabled",
     "mail.showCondensedAddresses",
     "mailnews.display.disallow_mime_handlers",
     "mailnews.display.html_as",

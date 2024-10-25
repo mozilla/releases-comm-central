@@ -153,10 +153,6 @@ add_task(async () => {
     {
       checkboxID: "tableHorizontalScroll",
       pref: "mail.threadpane.table.horizontal_scroll",
-    },
-    {
-      checkboxID: "darkReader",
-      pref: "mail.dark-reader.enabled",
     }
   );
 

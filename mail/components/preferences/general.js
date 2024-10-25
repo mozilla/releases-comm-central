@@ -85,7 +85,6 @@ Preferences.addAll([
   { id: "mail.addressDisplayFormat", type: "int" },
   { id: "mail.showCondensedAddresses", type: "bool" },
   { id: "mail.threadpane.table.horizontal_scroll", type: "bool" },
-  { id: "mail.dark-reader.enabled", type: "bool" },
   { id: "mailnews.mark_message_read.auto", type: "bool" },
   { id: "mailnews.mark_message_read.delay", type: "bool" },
   { id: "mailnews.mark_message_read.delay.interval", type: "int" },

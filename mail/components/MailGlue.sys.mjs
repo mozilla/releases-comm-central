@@ -1183,7 +1183,6 @@ function reportPreferences() {
     "mail.addressDisplayFormat",
     "mail.showCondensedAddresses",
     "mail.threadpane.table.horizontal_scroll",
-    "mail.dark-reader.enabled",
     "mailnews.database.global.indexer.enabled",
     "mailnews.mark_message_read.auto",
     "mailnews.mark_message_read.delay",

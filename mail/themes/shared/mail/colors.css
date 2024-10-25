@@ -157,7 +157,7 @@
   --color-text-secondary: light-dark(#4c4d58, #d9d9de);
   --color-text-muted: light-dark(#737584, #7f94ac);
   --color-text-highlight: light-dark(#1373d9, #58c9ff);
-  --color-text-warning: #713f12;
+  --color-text-warning: light-dark(#713f12, #fee78a);
   --color-text-critical: light-dark(#dc2626, #ef4444);
   --color-text-success: light-dark(#1d783b, #55d37e);
   --color-accent-teal: light-dark(#25a6a0, #a3ece3);
