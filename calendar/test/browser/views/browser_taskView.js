@@ -56,6 +56,7 @@ add_task(async function () {
   EventUtils.synthesizeMouse(treeChildren, 50, 0, { clickCount: 2 }, window);
 
   await eventWindowPromise;
+  const l10nDone = BrowserTestUtils.waitForEvent(document, "L10nMutationsFinished");
   await execEventDialogCallback(async (taskWindow, iframeWindow) => {
     // Verify calendar.
     Assert.equal(iframeWindow.document.getElementById("item-calendar").value, "Test");
@@ -68,6 +69,7 @@ add_task(async function () {
 
     await saveAndCloseItemDialog(taskWindow);
   });
+  await l10nDone; // Make sure "calendar-task-details-status" is updated.
 
   Assert.less(taskTreeNode.mTaskArray.length, 2, "Should not have added task");
   Assert.greater(taskTreeNode.mTaskArray.length, 0, "Should not have removed task");
