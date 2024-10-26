@@ -34,45 +34,20 @@ const STATE_IS_BROKEN = 1;
 const STATE_IS_SECURE = 2;
 const STATE_IS_INSECURE = 3;
 
-const nsIScriptableInputStream = Components.interfaces.nsIScriptableInputStream;
-
-const nsIBinaryInputStream = Components.interfaces.nsIBinaryInputStream;
-const nsIBinaryOutputStream = Components.interfaces.nsIBinaryOutputStream;
-
-function toSInputStream(stream, binary)
+function toSInputStream(stream)
 {
-    var sstream;
-
-    if (binary)
-    {
-        sstream = Components.classes["@mozilla.org/binaryinputstream;1"];
-        sstream = sstream.createInstance(nsIBinaryInputStream);
-        sstream.setInputStream(stream);
-    }
-    else
-    {
-        sstream = Components.classes["@mozilla.org/scriptableinputstream;1"];
-        sstream = sstream.createInstance(nsIScriptableInputStream);
-        sstream.init(stream);
-    }
+    let sstream = Cc["@mozilla.org/binaryinputstream;1"]
+                    .createInstance(Ci.nsIBinaryInputStream);
+    sstream.setInputStream(stream);
 
     return sstream;
 }
 
-function toSOutputStream(stream, binary)
+function toSOutputStream(stream)
 {
-    var sstream;
-
-    if (binary)
-    {
-        sstream = Components.classes["@mozilla.org/binaryoutputstream;1"];
-        sstream = sstream.createInstance(Components.interfaces.nsIBinaryOutputStream);
-        sstream.setOutputStream(stream);
-    }
-    else
-    {
-        sstream = stream;
-    }
+    let sstream = Cc["@mozilla.org/binaryoutputstream;1"]
+                    .createInstance(Ci.nsIBinaryOutputStream);
+    sstream.setOutputStream(stream);
 
     return sstream;
 }
@@ -115,91 +90,16 @@ function badcert_notifyCertProblem(socketInfo, sslStatus, targetHost)
 
 /**
  * Wraps up various mechanics of sockets for easy consumption by other code.
- *
- * @param binary Provide |true| or |false| here to override the automatic
- *               selection of binary or text streams. This should only ever be
- *               specified as |true| or omitted, otherwise you will be shooting
- *               yourself in the foot on some versions - let the code handle
- *               the choice unless you know you need binary.
  */
-function CBSConnection (binary)
+function CBSConnection ()
 {
-    /* Since 2003-01-17 18:14, Mozilla has had this contract ID for the STS.
-     * Prior to that it didn't have one, so we also include the CID for the
-     * STS back then - DO NOT UPDATE THE ID if it changes in Mozilla.
-     */
-    const sockClassByName =
-        Components.classes["@mozilla.org/network/socket-transport-service;1"];
-    const sockClassByID =
-        Components.classesByID["{c07e81e0-ef12-11d2-92b6-00105a1b0d64}"];
-
-    var sockServiceClass = (sockClassByName || sockClassByID);
-
-    if (!sockServiceClass)
-        throw ("Couldn't get socket service class.");
-
-    var sockService = sockServiceClass.getService();
-    if (!sockService)
+    this._sockService = Cc["@mozilla.org/network/socket-transport-service;1"]
+                          .getService(Ci.nsISocketTransportService);
+    if (!this._sockService)
         throw ("Couldn't get socket service.");
 
-    this._sockService = sockService.QueryInterface
-        (Components.interfaces.nsISocketTransportService);
-
-    /* Note: as part of the mess from bug 315288 and bug 316178, ChatZilla now
-     *       uses the *binary* stream interfaces for all network
-     *       communications.
-     *
-     *       However, these interfaces do not exist prior to 1999-11-05. To
-     *       make matters worse, an incompatible change to the "readBytes"
-     *       method of this interface was made on 2003-03-13; luckly, this
-     *       change also added a "readByteArray" method, which we will check
-     *       for below, to determine if we can use the binary streams.
-     */
-
-    // We want to check for working binary streams only the first time.
-    if (CBSConnection.prototype.workingBinaryStreams == -1)
-    {
-        CBSConnection.prototype.workingBinaryStreams = false;
-
-        if (typeof nsIBinaryInputStream != "undefined")
-        {
-            var isCls = Components.classes["@mozilla.org/binaryinputstream;1"];
-            var inputStream = isCls.createInstance(nsIBinaryInputStream);
-            if ("readByteArray" in inputStream)
-                CBSConnection.prototype.workingBinaryStreams = true;
-        }
-    }
-
-    /*
-     * As part of the changes in Gecko 1.9, invalid SSL certificates now
-     * produce a horrible error message. We must look up the toolkit version
-     * to see if we need to catch these errors cleanly - see bug 454966.
-     */
-    if (!("strictSSL" in CBSConnection.prototype))
-    {
-        CBSConnection.prototype.strictSSL = false;
-        var app = getService("@mozilla.org/xre/app-info;1", "nsIXULAppInfo");
-        if (app && ("platformVersion" in app) &&
-            compareVersions("1.9", app.platformVersion) >= 0)
-        {
-            CBSConnection.prototype.strictSSL = true;
-        }
-    }
-
     this.wrappedJSObject = this;
-    if (typeof binary != "undefined")
-        this.binaryMode = binary;
-    else
-        this.binaryMode = this.workingBinaryStreams;
-
-    if (!ASSERT(!this.binaryMode || this.workingBinaryStreams,
-                "Unable to use binary streams in this build."))
-    {
-        throw ("Unable to use binary streams in this build.");
-    }
 }
-
-CBSConnection.prototype.workingBinaryStreams = -1;
 
 CBSConnection.prototype.connect =
 function bc_connect(host, port, config, observer)
@@ -217,9 +117,9 @@ function bc_connect(host, port, config, observer)
 
     if (!("proxyInfo" in config))
     {
-    // Lets get a transportInfo for this
-    var pps = getService("@mozilla.org/network/protocol-proxy-service;1",
-                         "nsIProtocolProxyService");
+        // Lets get a transportInfo for this.
+        let pps = Cc["@mozilla.org/network/protocol-proxy-service;1"]
+                    .getService(Ci.nsIProtocolProxyService);
 
         /* Force Necko to supply the HTTP proxy info if desired. For none,
          * force no proxy. Other values will get default treatment.
@@ -254,7 +154,7 @@ function bc_connect(host, port, config, observer)
         if (uri)
         {
             uri = Services.io.newURI(uri);
-            if ("asyncResolve" in pps)
+            try
             {
                 pps.asyncResolve(uri, 0, {
                     onProxyAvailable: function(request, uri, proxyInfo, status) {
@@ -262,15 +162,7 @@ function bc_connect(host, port, config, observer)
                     }
                 });
             }
-            else if ("resolve" in pps)
-            {
-                continueWithProxy(pps.resolve(uri, 0));
-            }
-            else if ("examineForProxy" in pps)
-            {
-                continueWithProxy(pps.examineForProxy(uri));
-            }
-            else
+            catch (ex)
             {
                 throw "Unable to find method to resolve proxies";
             }
@@ -302,9 +194,7 @@ function bc_connect(host, port, config, observer)
             this._transport = this._sockService.
                               createTransport(["ssl"], 1, host, port,
                                               proxyInfo);
-
-            if (this.strictSSL)
-                this._transport.securityCallbacks = new BadCertHandler();
+            this._transport.securityCallbacks = new BadCertHandler();
         }
         else
         {
@@ -321,14 +211,12 @@ function bc_connect(host, port, config, observer)
             this._transport.openOutputStream(openFlags, 4096, -1);
         if (!this._outputStream)
             throw "Error getting output stream.";
-        this._sOutputStream = toSOutputStream(this._outputStream,
-                                              this.binaryMode);
+        this._sOutputStream = toSOutputStream(this._outputStream);
 
         this._inputStream = this._transport.openInputStream(openFlags, 0, 0);
         if (!this._inputStream)
             throw "Error getting input stream.";
-        this._sInputStream = toSInputStream(this._inputStream,
-                                            this.binaryMode);
+        this._sInputStream = toSInputStream(this._inputStream);
 
     this.connectDate = new Date();
     this.isConnected = true;
@@ -355,18 +243,8 @@ function bc_starttls()
 CBSConnection.prototype.listen =
 function bc_listen(port, observer)
 {
-    var serverSockClass =
-        Components.classes["@mozilla.org/network/server-socket;1"];
-
-    if (!serverSockClass)
-        throw ("Couldn't get server socket class.");
-
-    var serverSock = serverSockClass.createInstance();
-    if (!serverSock)
-        throw ("Couldn't get server socket.");
-
-    this._serverSock = serverSock.QueryInterface
-        (Components.interfaces.nsIServerSocket);
+    this._serverSock = Cc["@mozilla.org/network/server-socket;1"]
+                         .createInstance(Ci.nsIServerSocket);
 
     this._serverSock.init(port, false, -1);
 
@@ -393,14 +271,12 @@ function bc_accept(transport, observer)
             this._transport.openOutputStream(openFlags, 4096, -1);
         if (!this._outputStream)
             throw "Error getting output stream.";
-        this._sOutputStream = toSOutputStream(this._outputStream,
-                                              this.binaryMode);
+        this._sOutputStream = toSOutputStream(this._outputStream);
 
         this._inputStream = this._transport.openInputStream(openFlags, 0, 0);
         if (!this._inputStream)
             throw "Error getting input stream.";
-        this._sInputStream = toSInputStream(this._inputStream,
-                                            this.binaryMode);
+        this._sInputStream = toSInputStream(this._inputStream);
 
     this.connectDate = new Date();
     this.isConnected = true;
@@ -460,10 +336,7 @@ function bc_readdata(timeout, count)
         // XPCshell h4x
         if (typeof count == "undefined")
             count = this._sInputStream.available();
-        if (this.binaryMode)
-            rv = this._sInputStream.readBytes(count);
-        else
-            rv = this._sInputStream.read(count);
+        rv = this._sInputStream.readBytes(count);
     }
     catch (ex)
     {
@@ -478,17 +351,9 @@ function bc_readdata(timeout, count)
 CBSConnection.prototype.startAsyncRead =
 function bc_saread (observer)
 {
-        var cls = Components.classes["@mozilla.org/network/input-stream-pump;1"];
-        var pump = cls.createInstance(Components.interfaces.nsIInputStreamPump);
-        // Account for Bug 1402888 which removed the startOffset and readLimit
-        // parameters from init.
-        if (pump.init.length > 5)
-        {
-            pump.init(this._inputStream, -1, -1, 0, 0, false);
-        } else
-        {
-            pump.init(this._inputStream, 0, 0, false);
-        }
+        let pump = Cc["@mozilla.org/network/input-stream-pump;1"]
+                     .createInstance(Ci.nsIInputStreamPump);
+        pump.init(this._inputStream, 0, 0, false);
         pump.asyncRead(new StreamListener(observer), this);
 }
 
@@ -516,10 +381,7 @@ function bc_senddatanow(str)
 
     try
     {
-        if (this.binaryMode)
-            this._sOutputStream.writeBytes(str, str.length);
-        else
-            this._sOutputStream.write(str, str.length);
+        this._sOutputStream.writeBytes(str, str.length);
         rv = true;
     }
     catch (ex)
@@ -616,12 +478,6 @@ function sp_datawrite (request, ctxt, ostream, offset, count)
     if (!this.pendingData)
     {
         this.isBlocked = true;
-
-        /* this is here to support pre-XPCDOM builds (0.9.0 era), which
-         * don't have this result code mapped. */
-        if (!Components.results.NS_BASE_STREAM_WOULD_BLOCK)
-            throw 2152136711;
-
         throw Components.results.NS_BASE_STREAM_WOULD_BLOCK;
     }
 
@@ -677,7 +533,7 @@ function sl_dataavail (request, ctxt, inStr, sourceOffset, count)
     }
 
     if (!("_sInputStream" in ctxt))
-        ctxt._sInputStream = toSInputStream(inStr, false);
+        ctxt._sInputStream = toSInputStream(inStr);
 
     if (this._observer)
         this._observer.onStreamDataAvailable(request, inStr, sourceOffset,
