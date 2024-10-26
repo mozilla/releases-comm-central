@@ -1,0 +1,35 @@
+{
+  "permissions": {},
+  "data": [
+    {
+      "displayFields": [
+        "siteHost"
+      ],
+      "id": "bounce-tracking-protection-exceptions",
+      "last_modified": 1729846879356,
+      "schema": {
+        "properties": {
+          "siteHost": {
+            "description": "Host of the site to exempt from BTP.",
+            "title": "Site Host",
+            "type": "string"
+          }
+        },
+        "required": [
+          "siteHost"
+        ],
+        "type": "object"
+      },
+      "signature": {
+        "mode": "p384ecdsa",
+        "public_key": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEFWSDB8Jn2oMZDm8vSJrJFJCw5ZaAM5lUMC7JBS42Hkt4w9bXz4E3FDU/Z0Zht/UhrG65q9gPn2x3Tzx/HmreEn/NwapIFA1nC1Kb4kKymmmJikclI5Ts/TssLR6P4NRs",
+        "ref": "qekuj5xus6501xrg7wleo0gjv",
+        "signature": "H_9ungcDPfZDDFoDkcroOHw0kZu0zHJamfd2KRG28-nLEHT2U73EZJcddM2-0eCr_2_yuAd-LC3EQnR7S9CI7z4wjY4b-uGP_h4eQJjMAUCsAEciX-TuA-eBk42jml6x",
+        "signer_id": "remote-settings",
+        "type": "contentsignaturepki",
+        "x5u": "https://content-signature-2.cdn.mozilla.net/chains/remote-settings.content-signature.mozilla.org-2024-12-07-16-25-46.chain"
+      }
+    }
+  ],
+  "timestamp": 1729846879356
+}
