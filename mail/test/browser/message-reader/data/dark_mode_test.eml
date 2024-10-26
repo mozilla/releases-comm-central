@@ -1,0 +1,62 @@
+Message-ID: <94fd483e-e65e-4dbb-9d75-063906300436@example.com>
+Date: Thu, 4 Jul 2024 19:28:23 +0200
+MIME-Version: 1.0
+User-Agent: Thunderbird Daily
+Content-Language: en-US
+To: test@example.com
+From: Dark Mode <darkmodetest@example.com>
+Subject: Dark mode test
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Dark mode test</title>
+  </head>
+  <body bgcolor="#FFFFFF" color="#000">
+    <style>.dark-text{color:black;}.yellow-block{background:#4a4a00;color:white;padding:10px;}.white-block{background-color:#adadad;color:black;}.table-block {color: #dddedf;}</style>
+    <div id="div" style="background-color: red; color: blue; padding: 10px; display: inline-block">
+      Red background on blue text
+    </div>
+
+    <p>Simple text</p>
+
+    <p id="paragraph" style="background-color: white;">White background</p>
+
+    <p id="headStyle" class="dark-text">Paragraph styled by a class</p>
+
+    <p id="headStyle2" class="yellow-block">Paragraph styled by a class that shouldn't be edited</p>
+
+    <p id="headStyle3" class="white-block">Paragraph styled by a class that shouldn't be edited</p>
+
+    <span id="span" style="color: black;">Black color</span>
+
+    <table id="table" bgcolor="yellow" color="#678367">
+      <tr>
+        <td>Table row</td>
+      </tr>
+    </table>
+
+    <table id="table2">
+      <tr>
+        <td class="table-block" style="background-color:#ffffff;">Table row with white background</td>
+      </tr>
+    </table>
+
+    <a id="link" href="https://example.com" style="display: block; padding:10px; background: blue; color: white; margin: 10px;">
+      Link
+    </a>
+
+    <button id="button" style="padding:10px; background: blue; color: white; margin: 10px;">
+      Button
+    </button>
+
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.=org/1999/xlink" version="1.1">
+      <a xlink:href="https://www.mozilla.org/" xlink:show="new">
+         <text x="0" y="12" font-family="Verdana" font-size="12" fill="black">link 1</text>
+      </a>
+    </svg>
+  </body>
+</html>
