@@ -417,7 +417,7 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
 
   // Convert to next unit if it needs 4 digits (after rounding), but only if
   // we know the name of the next unit
-  while ((unitSize >= 999.5) && (unitIndex < std::size(sizeAbbrNames) - 1)) {
+  while ((unitSize >= 999.5) && (unitIndex < ArrayLength(sizeAbbrNames) - 1)) {
     unitSize /= 1024;
     unitIndex++;
   }

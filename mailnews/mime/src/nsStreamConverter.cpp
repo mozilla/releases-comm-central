@@ -25,6 +25,7 @@
 #include "nsINntpUrl.h"
 #include "nsICategoryManager.h"
 #include "nsMsgUtils.h"
+#include "mozilla/ArrayUtils.h"
 
 #define PREF_MAIL_DISPLAY_GLYPH "mail.display_glyph"
 #define PREF_MAIL_DISPLAY_STRUCT "mail.display_struct"
@@ -334,7 +335,7 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char* aUrl,
     // prefix by checking that the following character is either null or the
     // next query element
     const char* remainder;
-    for (uint32_t n = 0; n < std::size(rgTypes); ++n) {
+    for (uint32_t n = 0; n < MOZ_ARRAY_LENGTH(rgTypes); ++n) {
       remainder = SkipPrefix(header, rgTypes[n].headerType);
       if (remainder && (*remainder == '\0' || *remainder == '&')) {
         mOutputFormat = rgTypes[n].outputFormat;

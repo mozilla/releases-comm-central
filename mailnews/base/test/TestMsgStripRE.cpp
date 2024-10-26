@@ -4,10 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "gtest/gtest.h"
+#include "mozilla/ArrayUtils.h"
 #include "nsCOMPtr.h"
 #include "nsMsgUtils.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "nsISupportsPrimitives.h"
 #include "nsString.h"
 
 #define STRING_SIZE 255
@@ -71,7 +73,7 @@ TEST(TestMsgStripRE, TestMsgStripREMain)
 
   bool allTestsPassed = true;
   int result;
-  for (unsigned int i = 0; i < std::size(testInfoStructs); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(testInfoStructs); i++) {
     result = testStripRe(testInfoStructs[i].encodedInput,
                          testInfoStructs[i].expectedOutput,
                          testInfoStructs[i].expectedDidModify);

@@ -7,6 +7,7 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsString.h"
 #include "nsIDirectoryEnumerator.h"
+#include "mozilla/ArrayUtils.h"
 
 #ifdef _WIN32_WINNT
 #  undef _WIN32_WINNT
@@ -71,7 +72,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult) {
   if (FAILED(hr)) return NS_ERROR_FAILURE;
 
   // We need to create appropriate URLs to check with the crawl scope manager.
-  for (uint32_t i = 0; i < std::size(sFoldersToIndex); i++) {
+  for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(sFoldersToIndex); i++) {
     nsCOMPtr<nsIFile> subdir;
     rv = mProfD->Clone(getter_AddRefs(subdir));
     NS_ENSURE_SUCCESS(rv, rv);

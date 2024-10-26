@@ -12,6 +12,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/ArrayUtils.h"
 
 NS_IMPL_ISUPPORTS(nsImapMoveCoalescer, nsIUrlListener)
 
@@ -130,9 +131,9 @@ nsImapMoveCoalescer::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 }
 
 nsTArray<nsMsgKey>* nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex) {
-  NS_ASSERTION(keyArrayIndex < std::size(m_keyBuckets), "invalid index");
+  NS_ASSERTION(keyArrayIndex < MOZ_ARRAY_LENGTH(m_keyBuckets), "invalid index");
 
-  return keyArrayIndex < std::size(m_keyBuckets)
+  return keyArrayIndex < mozilla::ArrayLength(m_keyBuckets)
              ? &(m_keyBuckets[keyArrayIndex])
              : nullptr;
 }

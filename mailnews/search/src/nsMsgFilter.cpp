@@ -22,6 +22,7 @@
 #include "nsIMsgFilterService.h"
 #include "nsIMsgNewsFolder.h"
 #include "prmem.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Components.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
 
@@ -816,7 +817,7 @@ static struct RuleActionsTableEntry ruleActionsTable[] = {
     {nsMsgFilterAction::Custom, "Custom"},
 };
 
-static const unsigned int sNumActions = std::size(ruleActionsTable);
+static const unsigned int sNumActions = MOZ_ARRAY_LENGTH(ruleActionsTable);
 
 const char* nsMsgFilter::GetActionStr(nsMsgRuleActionType action) {
   for (unsigned int i = 0; i < sNumActions; i++) {

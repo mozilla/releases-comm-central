@@ -13,11 +13,14 @@
 #include "nsIPrefBranch.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
+#include "mozilla/ArrayUtils.h"
 #include "mozilla/Components.h"
 
 #include <glib.h>
 #include <limits.h>
 #include <stdlib.h>
+
+using mozilla::ArrayLength;
 
 static const char* const sMailProtocols[] = {"mailto", "mid"};
 
@@ -51,17 +54,17 @@ static bool IsRunningAsASnap() {
 
 static const AppTypeAssociation sAppTypes[] = {
     {
-        nsIShellService::MAIL, sMailProtocols, std::size(sMailProtocols),
+        nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
         "message/rfc822",
         nullptr  // don't associate .eml extension, as that breaks printing
                  // those
     },
-    {nsIShellService::NEWS, sNewsProtocols, std::size(sNewsProtocols), nullptr,
-     nullptr},
-    {nsIShellService::RSS, sFeedProtocols, std::size(sFeedProtocols),
+    {nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
+     nullptr, nullptr},
+    {nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
      "application/rss+xml", "rss"},
     {nsIShellService::CALENDAR, sCalendarProtocols,
-     std::size(sCalendarProtocols), "text/calendar", "ics"}};
+     ArrayLength(sCalendarProtocols), "text/calendar", "ics"}};
 
 nsGNOMEShellService::nsGNOMEShellService()
     : mUseLocaleFilenames(false),
@@ -125,7 +128,7 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
                                      bool* aIsDefaultClient) {
   *aIsDefaultClient = true;
 
-  for (unsigned int i = 0; i < std::size(sAppTypes); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type)
       *aIsDefaultClient &=
           checkDefault(sAppTypes[i].protocols, sAppTypes[i].protocolsLength);
@@ -141,7 +144,7 @@ nsGNOMEShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
 NS_IMETHODIMP
 nsGNOMEShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
   nsresult rv = NS_OK;
-  for (unsigned int i = 0; i < std::size(sAppTypes); i++) {
+  for (unsigned int i = 0; i < MOZ_ARRAY_LENGTH(sAppTypes); i++) {
     if (aApps & sAppTypes[i].type) {
       nsresult tmp =
           MakeDefault(sAppTypes[i].protocols, sAppTypes[i].protocolsLength,
