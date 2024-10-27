@@ -15,7 +15,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 const LUMINANCE_THRESHOLD = 200;
-const CONTRAST_THRESHOLD = 3.5;
+export const CONTRAST_THRESHOLD = 3.5;
 
 /**
  * Convert a color string into an RGB array and returns the luminance value.
@@ -23,7 +23,7 @@ const CONTRAST_THRESHOLD = 3.5;
  * @param {string} color - The color string that needs to be turned into RGB.
  * @returns {number}
  */
-const luminance = color => {
+export const luminance = color => {
   if (!InspectorUtils.isValidCSSColor(color)) {
     return 0;
   }
@@ -45,7 +45,7 @@ const luminance = color => {
  * @param {string} foreground - The foreground color.
  * @returns {number}
  */
-const contrast = (background, foreground) => {
+export const contrast = (background, foreground) => {
   var bgLuminance = luminance(background);
   var fgLuminance = luminance(foreground);
   var brightest = Math.max(bgLuminance, fgLuminance);
@@ -59,7 +59,7 @@ const contrast = (background, foreground) => {
  * @param {string} color - The color to evaluate for transparency.
  * @returns {boolean}
  */
-const isTransparent = color => {
+export const isTransparent = color => {
   const rgba = InspectorUtils.colorToRGBA(color);
   if (!rgba) {
     return true;

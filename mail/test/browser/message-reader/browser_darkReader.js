@@ -42,8 +42,9 @@ async function toggle_theme(theme, enable) {
 }
 
 async function toggle_dark_reader(enable) {
+  const msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   Services.prefs.setBoolPref("mail.dark-reader.enabled", enable);
-  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await msgLoaded;
 }
 
 add_task(async function test_dark_light_reader_mode() {
@@ -61,8 +62,9 @@ add_task(async function test_dark_light_reader_mode() {
   await assert_light_style();
 
   info("Enable dark theme.");
+  const msgLoaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
   await toggle_theme(darkTheme, true);
-  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await msgLoaded;
   // Check that we're adapting the style for dark theme.
   await assert_dark_style();
 
