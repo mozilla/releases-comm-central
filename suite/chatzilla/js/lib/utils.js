@@ -927,37 +927,22 @@ function getSISpeed(speed)
 // Zero-pad Numbers (or pad with something else if you wish)
 function padNumber(num, digits, pad)
 {
-    pad = pad || "0";
-    var rv = num.toString();
-    while (rv.length < digits)
-        rv = pad + rv;
-    return rv;
+    return num.toString().padStart(digits, pad || "0");
 }
 
 const timestr = {
-    A: { method: "getDay" },
-    a: { method: "getDay" },
-    B: { method: "getMonth" },
-    b: { method: "getMonth" },
     c: { replace: null },
     D: { replace: "%m/%d/%y" },
-    d: { method: "getDate", pad: 2 },
-    e: { method: "getDate", pad: 2, padwith: " " },
     F: { replace: "%Y-%m-%d" },
-    h: { replace: "%b" },
     H: { method: "getHours", pad: 2 },
     k: { method: "getHours", pad: 2, padwith: " " },
     M: { method: "getMinutes", pad: 2 },
-    p: { AM: null, PM: null },
-    P: { AM: null, PM: null },
-    r: { replace: null },
     R: { replace: "%H:%M" },
     S: { method: "getSeconds", pad: 2 },
     T: { replace: "%H:%M:%S" },
     w: { method: "getDay" },
     x: { replace: null },
     X: { replace: null },
-    Y: { method: "getFullYear" },
     initialized: false
 }
 
@@ -967,34 +952,19 @@ function strftime(format, time)
 
     if (!timestr.initialized)
     {
-        timestr.A.values = getMsg("datetime.day.long").split("^");
-        timestr.a.values = getMsg("datetime.day.short").split("^");
-        timestr.B.values = getMsg("datetime.month.long").split("^");
-        timestr.b.values = getMsg("datetime.month.short").split("^");
-        // Just make sure the locale isn't playing silly with us.
-        ASSERT(timestr.A.values.length == 7, "datetime.day.long bad!");
-        ASSERT(timestr.a.values.length == 7, "datetime.day.short bad!");
-        ASSERT(timestr.B.values.length == 12, "datetime.month.long bad!");
-        ASSERT(timestr.b.values.length == 12, "datetime.month.short bad!");
-
-        timestr.p.AM = getMsg("datetime.uam");
-        timestr.p.PM = getMsg("datetime.upm");
-        timestr.P.AM = getMsg("datetime.lam");
-        timestr.P.PM = getMsg("datetime.lpm");
-
-        timestr.c.replace = getMsg("datetime.presets.lc");
-        timestr.r.replace = getMsg("datetime.presets.lr");
-        timestr.x.replace = getMsg("datetime.presets.lx");
-        timestr.X.replace = getMsg("datetime.presets.ux");
+        timestr.c.replace = getMsg("datetime.patterns.lc");
+        timestr.x.replace = getMsg("datetime.patterns.lx");
+        timestr.X.replace = getMsg("datetime.patterns.ux");
 
         timestr.initialized = true;
     }
 
-
-    function getDayOfYear(dateobj)
+    function getDayOfYear(date)
     {
-       var yearobj = new Date(dateobj.getFullYear(), 0, 1, 0, 0, 0, 0);
-       return Math.floor((dateobj - yearobj) / 86400000) + 1;
+       var utc_date = new Date.UTC(date.getFullYear(), date.getMonth(),
+                                   date.getDate());
+       var utc_year = new Date.UTC(date.getFullYear(), 0, 0);
+       return (utc_date - utc_year) / (24 * 60 * 60 * 1000);
     };
 
     time = time || new Date();
@@ -1002,50 +972,86 @@ function strftime(format, time)
         throw "Expected date object";
 
     var ary;
-    while ((ary = format.match(/(^|[^%])%(\w)/)))
+    while ((ary = format.match(/(^|[^%])%(-?\w)/)))
     {
         var start = ary[1] ? (ary.index + 1) : ary.index;
         var rpl = "";
         if (ary[2] in timestr)
         {
             var tbranch = timestr[ary[2]];
-            if (("method" in tbranch) && ("values" in tbranch))
-               rpl = tbranch.values[time[tbranch.method]()];
-            else if ("method" in tbranch)
+            if ("method" in tbranch)
                 rpl = time[tbranch.method]().toString();
             else if ("replace" in tbranch)
                 rpl = tbranch.replace;
 
             if ("pad" in tbranch)
             {
-                var padwith = ("padwith" in tbranch) ? tbranch.padwith : "0";
+                let padwith = ("padwith" in tbranch) ? tbranch.padwith : "0";
                 rpl = padNumber(rpl, tbranch.pad, padwith);
             }
         }
         if (!rpl)
         {
+            let option;
+            let padwith;
             switch (ary[2])
             {
+                case "A":
+                    option = { weekday: "long" };
+                    break;
+                case "a":
+                    option = { weekday: "short" };
+                    break;
+                case "B":
+                    option = { month: "long" };
+                    break;
+                case "b":
+                case "h":
+                    option = { month: "short" };
+                    break;
                 case "C":
-                    var century = Math.floor(time.getFullYear() / 100);
-                    rpl = padNumber(century, 2);
+                    rpl = Math.floor(time.getFullYear() / 100);
+                    padwith = "0";
+                    break;
+                case "d":
+                    option = { day: "2-digit" };
+                    break;
+                case "e":
+                    padwith = " ";
+                case "-d":
+                case "-e":
+                    option = { day: "numeric" };
                     break;
                 case "I":
                 case "l":
-                    var hour = (time.getHours() + 11) % 12 + 1;
-                    var padwith = (ary[2] == "I") ? "0" : " ";
-                    rpl = padNumber(hour, 2, padwith);
+                    rpl = (time.getHours() + 11) % 12 + 1;
+                    padwith = (ary[2] == "I") ? "0" : " ";
                     break;
                 case "j":
                     rpl = padNumber(getDayOfYear(time), 3);
                     break;
                 case "m":
-                    rpl = padNumber(time.getMonth() + 1, 2);
+                    option = { month: "2-digit" };
+                    break;
+                case "-m":
+                    option = { month: "numeric" };
                     break;
                 case "p":
                 case "P":
-                    var bit = (time.getHours() < 12) ? "AM" : "PM";
-                    rpl = timestr[ary[2]][bit];
+                    rpl = new Intl.DateTimeFormat(undefined,
+                                                  { hour: "numeric",
+                                                    hour12: true })
+                                  .formatToParts(time)
+                                  .find(part => part.type == "dayPeriod")
+                                  .value;
+                    if (ary[2] == "P")
+                    {
+                        rpl = rpl.toLowerCase();
+                    }
+                    break;
+                case "r":
+                    option = { hour: "2-digit", minute: "2-digit",
+                               second: "2-digit", hour12: true };
                     break;
                 case "s":
                     rpl = Math.round(time.getTime() / 1000);
@@ -1053,8 +1059,18 @@ function strftime(format, time)
                 case "u":
                     rpl = (time.getDay() + 6) % 7 + 1;
                     break;
+                case "Y":
+                    option = { year: "numeric" };
+                    break;
                 case "y":
-                    rpl = time.getFullYear().toString().substr(2);
+                    option = { year: "2-digit" };
+                    break;
+                case "Z":
+                    rpl = new Intl.DateTimeFormat(undefined,
+                                                  { timeZoneName: "short" })
+                                  .formatToParts(time)
+                                  .find(part => part.type == "timeZoneName")
+                                  .value;
                     break;
                 case "z":
                     var mins = time.getTimezoneOffset();
@@ -1063,6 +1079,14 @@ function strftime(format, time)
                     var hours = Math.floor(mins / 60);
                     rpl += padNumber(hours, 2) + padNumber(mins - (hours * 60), 2);
                     break;
+            }
+            if (option)
+            {
+                rpl = new Intl.DateTimeFormat(undefined, option).format(time);
+            }
+            if (padwith)
+            {
+                rpl = padNumber(rpl, 2, padwith);
             }
         }
         if (!rpl)
