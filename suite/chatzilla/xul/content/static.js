@@ -4,6 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
 ChromeUtils.defineModuleGetter(this, "AppConstants",
                                "resource://gre/modules/AppConstants.jsm");
 ChromeUtils.defineModuleGetter(this, "PlacesUtils",
@@ -205,9 +209,7 @@ function initStatic()
 
     try
     {
-        const nsISound = Components.interfaces.nsISound;
-        client.sound =
-            Components.classes["@mozilla.org/sound;1"].createInstance(nsISound);
+        client.sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
         client.soundList = new Object();
     }
@@ -218,10 +220,9 @@ function initStatic()
 
     try
     {
-        const nsIAlertsService = Components.interfaces.nsIAlertsService;
         client.alert = new Object();
-        client.alert.service =
-          Components.classes["@mozilla.org/alerts-service;1"].getService(nsIAlertsService);
+        client.alert.service = Cc["@mozilla.org/alerts-service;1"]
+                                 .getService(Ci.nsIAlertsService);
         client.alert.alertList = new Object();
         client.alert.floodProtector = new FloodProtector(
             client.prefs['alert.floodDensity'],
@@ -596,7 +597,7 @@ function loadPluginDirectory(localPath, recurse)
     while (enumer.hasMoreElements())
     {
         var entry = enumer.getNext();
-        entry = entry.QueryInterface(Components.interfaces.nsIFile);
+        entry = entry.QueryInterface(Ci.nsIFile);
         if (entry.isDirectory())
             loadPluginDirectory(entry, recurse - 1);
     }
@@ -2078,15 +2079,8 @@ function uninitOfflineIcon()
 }
 
 client.idleObserver = {
-    QueryInterface: function io_qi(iid)
-    {
-        if (!iid || (!iid.equals(Components.interfaces.nsIObserver) &&
-                     !iid.equals(Components.interfaces.nsISupports)))
-        {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        }
-        return this;
-    },
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver]),
+
     observe: function io_observe(subject, topic, data)
     {
         if ((topic == "idle") && !client.prefs["away"])
@@ -2854,12 +2848,11 @@ function qi(iid)
 client.progressListener.onStateChange =
 function client_statechange (webProgress, request, stateFlags, status)
 {
-    const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-    const START = nsIWebProgressListener.STATE_START;
-    const STOP = nsIWebProgressListener.STATE_STOP;
-    const IS_NETWORK = nsIWebProgressListener.STATE_IS_NETWORK;
-    const IS_DOCUMENT = nsIWebProgressListener.STATE_IS_DOCUMENT;
-    const IS_REQUEST = nsIWebProgressListener.STATE_IS_REQUEST;
+    const START = Ci.nsIWebProgressListener.STATE_START;
+    const STOP = Ci.nsIWebProgressListener.STATE_STOP;
+    const IS_NETWORK = Ci.nsIWebProgressListener.STATE_IS_NETWORK;
+    const IS_DOCUMENT = Ci.nsIWebProgressListener.STATE_IS_DOCUMENT;
+    const IS_REQUEST = Ci.nsIWebProgressListener.STATE_IS_REQUEST;
 
     var frame;
     //dd("progressListener.onStateChange(" + stateFlags.toString(16) + ")");
@@ -2979,7 +2972,6 @@ function cli_installPlugin(name, source)
         }
     };
 
-    const DIRECTORY_TYPE = Components.interfaces.nsIFile.DIRECTORY_TYPE;
     const CZ_PI_ABORT = "CZ_PI_ABORT";
 
     var dest;
@@ -3099,7 +3091,7 @@ function cli_installPlugin(name, source)
             dest.append(name);
             checkPluginInstalled(name, dest);
 
-            dest.create(DIRECTORY_TYPE, 0o700);
+            dest.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
 
             // Actually extract files...
             var destInit;
@@ -3121,7 +3113,7 @@ function cli_installPlugin(name, source)
                     {
                         zipFile.append(dirs[i]);
                         if (!zipFile.exists())
-                            zipFile.create(DIRECTORY_TYPE, 0o700);
+                            zipFile.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
                     }
                     zipFile.append(dirs[dirs.length - 1]);
 
@@ -3180,7 +3172,7 @@ function cli_installPlugin(name, source)
             dest.append(name);
             checkPluginInstalled(name, dest);
 
-            dest.create(DIRECTORY_TYPE, 0o700);
+            dest.create(Ci.nsIFile.DIRECTORY_TYPE, 0o700);
 
             dest.append("init.js");
 
@@ -3232,10 +3224,7 @@ function cli_uninstallPlugin(plugin)
 
 function syncOutputFrame(obj, nesting)
 {
-    const nsIWebProgress = Components.interfaces.nsIWebProgress;
-    const WINDOW = nsIWebProgress.NOTIFY_STATE_WINDOW;
-    const NETWORK = nsIWebProgress.NOTIFY_STATE_NETWORK;
-    const ALL = nsIWebProgress.NOTIFY_ALL;
+    const ALL = Ci.nsIWebProgress.NOTIFY_ALL;
 
     var iframe = obj.frame;
 
@@ -3717,8 +3706,7 @@ function deleteTab(tb)
 
 function deleteFrame(view)
 {
-    const nsIWebProgress = Components.interfaces.nsIWebProgress;
-    const ALL = nsIWebProgress.NOTIFY_ALL;
+    const ALL = Ci.nsIWebProgress.NOTIFY_ALL;
 
     // We leave the progress listener attached so try to remove it.
     try
@@ -5172,15 +5160,14 @@ function cli_startlog(view, showMessage)
         return Infinity;
     };
 
-    const NORMAL_FILE_TYPE = Components.interfaces.nsIFile.NORMAL_FILE_TYPE;
-
     try
     {
         var file = new LocalFile(view.prefs["logFileName"]);
         if (!file.localFile.exists())
         {
             // futils.umask may be 0022. Result is 0644.
-            file.localFile.create(NORMAL_FILE_TYPE, 0o666 & ~futils.umask);
+            file.localFile.create(Ci.nsIFile.NORMAL_FILE_TYPE,
+                                  0o666 & ~futils.umask);
         }
         view.logFile = fopen(file.localFile, ">>");
         // If we're here, it's safe to say when we should re-open:
