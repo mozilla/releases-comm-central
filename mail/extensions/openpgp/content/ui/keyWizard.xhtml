@@ -22,6 +22,7 @@
     />
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
     <link
       rel="stylesheet"
@@ -218,8 +219,11 @@
                     oninput="onProtectionChange();"
                   />
                 </hbox>
-                <hbox class="indent">
-                  <label data-l10n-id="openpgp-passphrase-repeat" />
+                <hbox align="center" class="indent">
+                  <label
+                    control="passwordConfirm"
+                    data-l10n-id="openpgp-passphrase-repeat"
+                  />
                   <html:input
                     id="passwordConfirm"
                     type="password"

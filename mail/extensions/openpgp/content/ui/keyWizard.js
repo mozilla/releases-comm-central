@@ -94,7 +94,10 @@ async function initKeyWiz() {
     if (gSubDialog) {
       gSubDialog._topDialog._removeDialogEventListeners();
       gSubDialog._topDialog._closeButton.remove();
-      resizeDialog();
+      for (const section of document.querySelectorAll(".wizard-section")) {
+        section.classList.add("in-subdialog");
+      }
+      resizeWindow();
     }
   }, 150);
 
@@ -261,7 +264,7 @@ function switchSection(isKeyManager = false) {
   if (!isKeyManager) {
     kDialog.getButton("extra1").hidden = false;
   }
-  resizeDialog();
+  resizeWindow();
 }
 
 /**
@@ -475,14 +478,13 @@ async function wizardExternalKey() {
  */
 function revealSection(id) {
   const section = document.getElementById(id);
+  section.addEventListener("transitionend", resizeWindow, { once: true });
   section.removeAttribute("hidden");
 
   // Timeout to animate after the hidden attribute has been removed.
   setTimeout(() => {
     section.classList.remove("hide", "hide-reverse");
   });
-
-  resizeDialog();
 }
 
 /**
@@ -550,7 +552,7 @@ async function validateExpiration() {
       "openpgp-keygen-long-expiry"
     );
     kDialog.getButton("accept").setAttribute("disabled", true);
-    resizeDialog();
+    resizeWindow();
     return;
   }
 
@@ -562,7 +564,7 @@ async function validateExpiration() {
       "openpgp-keygen-short-expiry"
     );
     kDialog.getButton("accept").setAttribute("disabled", true);
-    resizeDialog();
+    resizeWindow();
     return;
   }
 
@@ -575,7 +577,7 @@ async function validateExpiration() {
 /**
  * Resize the dialog to account for the newly visible sections.
  */
-function resizeDialog() {
+function resizeWindow() {
   // Check if the attribute is not null. This can be removed after the full
   // conversion of the Key Manager into a SubDialog in Bug 1652537.
   if (gSubDialog?._topDialog) {
@@ -583,9 +585,11 @@ function resizeDialog() {
     return;
   }
 
+  // Add an arbitrary 100px height to account for the dialog buttons in the
+  // shadow DOM.
   window.resizeTo(
     window.outerWidth,
-    document.body.scrollHeight + window.outerHeight - window.innerHeight + 6
+    document.querySelector(`.wizard-section:not([hidden])`).clientHeight + 100
   );
 }
 
@@ -790,7 +794,7 @@ function closeOverlay() {
  */
 function hideOverlay(event) {
   event.target.setAttribute("hidden", true);
-  resizeDialog();
+  resizeWindow();
 }
 
 async function importSecretKey() {
@@ -883,7 +887,7 @@ async function importSecretKey() {
     kDialog.getButton("accept").classList.add("primary");
   }
 
-  resizeDialog();
+  resizeWindow();
 }
 
 /**
@@ -1017,7 +1021,7 @@ async function openPgpImportStart() {
   overlay.addEventListener("transitionend", hideOverlay, { once: true });
   overlay.classList.add("hide");
 
-  resizeDialog();
+  resizeWindow();
   kGenerating = false;
 }
 
