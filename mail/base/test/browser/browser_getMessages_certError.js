@@ -192,12 +192,12 @@ async function subsubtest(
 ) {
   info(`getting messages for ${inbox.server.type} inbox`);
 
-  await testCallback();
-
   const dialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
     "extra1",
     "chrome://pippki/content/exceptionDialog.xhtml"
   );
+
+  await testCallback();
 
   const alert = await TestUtils.waitForCondition(
     () => MockAlertsService._alert,
@@ -221,6 +221,24 @@ async function subsubtest(
   await promiseServerIdle(inbox.server);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
+
+  let updatePromise;
+  if (expectedCert) {
+    updatePromise = new Promise(resolve => {
+      const folderListener = {
+        onFolderEvent(aEventFolder, aEvent) {
+          if (aEvent == "FolderLoaded" && inbox.URI == aEventFolder.URI) {
+            MailServices.mailSession.RemoveFolderListener(folderListener);
+            resolve();
+          }
+        },
+      };
+      MailServices.mailSession.AddFolderListener(
+        folderListener,
+        Ci.nsIFolderListener.event
+      );
+    });
+  }
 
   MockAlertsService._listener.observe(null, "alertclickcallback", alert.cookie);
   MockAlertsService._listener.observe(null, "alertfinished", alert.cookie);
@@ -246,8 +264,10 @@ async function subsubtest(
     // The checkbox in the dialog was checked, so this exception is permanent.
     Assert.ok(!isTemporary.value, "certificate exception should be permanent");
 
-    // This should be unnecessary.
-    await testCallback();
+    // Force update of inbox.
+    inbox.updateFolder(null);
+    inbox.getNewMessages(null, null);
+    await updatePromise;
 
     await TestUtils.waitForCondition(
       () => inbox.getNumUnread(false) - inbox.numPendingUnread == 10,
