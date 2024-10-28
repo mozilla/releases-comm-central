@@ -74,18 +74,6 @@ function pm_destroy()
     }
 }
 
-PrefManager.prototype.getBranch =
-function pm_getbranch(suffix)
-{
-    return this.prefService.getBranch(this.prefBranch.root + suffix);
-}
-
-PrefManager.prototype.getBranchManager =
-function pm_getbranchmgr(suffix)
-{
-    return new PrefManager(this.prefBranch.root + suffix);
-}
-
 PrefManager.prototype.addObserver =
 function pm_addobserver(observer)
 {
@@ -173,38 +161,6 @@ function pm_listprefs (prefix)
     }
 
     return list;
-}
-
-PrefManager.prototype.readPrefs =
-function pm_readprefs ()
-{
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
-
-    var list = this.prefBranch.getChildList("", {});
-    for (var i = 0; i < list.length; ++i)
-    {
-        if (!(list[i] in this))
-        {
-            var type = this.prefBranch.getPrefType (list[i]);
-            var defaultValue;
-
-            switch (type)
-            {
-                case nsIPrefBranch.PREF_INT:
-                    defaultValue = 0;
-                    break;
-
-                case nsIPrefBranch.PREF_BOOL:
-                    defaultValue = false;
-                    break;
-
-                default:
-                    defaultValue = "";
-            }
-
-            this.addPref(list[i], defaultValue);
-        }
-    }
 }
 
 PrefManager.prototype.isKnownPref =
