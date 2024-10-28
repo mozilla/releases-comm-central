@@ -249,11 +249,30 @@ async function verifyAndFetchSavedAttachment(parentPath = savePath, leafName) {
   );
   Assert.ok(expectedFile.exists(), `${expectedFile.path} exists`);
 
-  // Wait a moment in case the file is still locked for writing.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 250));
-
   return expectedFile;
+}
+
+/** @param {nsIFile} file - File to delete. */
+async function deleteAttachmentFile(file) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      // Wait a moment in case the file is still locked for writing.
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+    try {
+      await IOUtils.remove(file.path, { retryReadonly: true });
+      info(`File '${file.path}' removed`);
+      return;
+    } catch (e) {
+      if (attempt < 2) {
+        info(`Removing file attempt ${attempt} FAILED: ${e}`);
+      } else {
+        info(`All attempts to remove file attempt ${attempt} FAILED: ${e}`);
+        throw e;
+      }
+    }
+  }
 }
 
 function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
@@ -307,7 +326,7 @@ add_task(async function noHandler() {
     "accept"
   );
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
   checkHandler("test/foo", Ci.nsIHandlerInfo.saveToDisk, false);
 });
 
@@ -322,7 +341,7 @@ add_task(async function noHandlerNoSave() {
     "accept"
   );
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
   checkHandler("test/bar", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
@@ -337,7 +356,7 @@ add_task(async function applicationOctetStream() {
     "accept"
   );
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 // Now we'll test the various states that handler info objects might be in.
@@ -359,7 +378,7 @@ add_task(async function saveToDiskAlwaysAsk() {
     "accept"
   );
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
   checkHandler("test/saveToDisk-true", Ci.nsIHandlerInfo.saveToDisk, true);
 });
 
@@ -391,7 +410,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
     "accept"
   );
   const file = await verifyAndFetchSavedAttachment(tmpD);
-  file.remove(false);
+  await deleteAttachmentFile(file);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
@@ -455,7 +474,7 @@ add_task(async function detachedUseHelperAppAlwaysAsk() {
     "opened file should match attachment path"
   );
 
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 /**
@@ -486,7 +505,7 @@ add_task(async function saveToDisk() {
   await createAndLoadMessage("test/saveToDisk-false");
   await singleClickAttachment();
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 /**
@@ -514,7 +533,7 @@ add_task(async function saveToDiskPromptLocation() {
 
   await singleClickAttachment();
   const file = await verifyAndFetchSavedAttachment(tmpD);
-  file.remove(false);
+  await deleteAttachmentFile(file);
   Assert.ok(MockFilePicker.shown, "file picker was shown");
 
   MockFilePicker.reset();
@@ -534,7 +553,7 @@ add_task(async function alwaysAskRemember() {
   await createAndLoadMessage("test/alwaysAsk-false");
   await singleClickAttachmentAndWaitForDialog(undefined, "accept");
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, false);
 }).skip(!IMPROVEMENTS_PREF_SET);
 
@@ -552,7 +571,7 @@ add_task(async function alwaysAskForget() {
   await createAndLoadMessage("test/alwaysAsk-false");
   await singleClickAttachmentAndWaitForDialog({ remember: false }, "accept");
   const file = await verifyAndFetchSavedAttachment();
-  file.remove(false);
+  await deleteAttachmentFile(file);
   checkHandler("test/alwaysAsk-false", Ci.nsIHandlerInfo.saveToDisk, true);
 }).skip(!IMPROVEMENTS_PREF_SET);
 
@@ -584,7 +603,7 @@ add_task(async function useHelperApp() {
     );
   }
   attachmentFile.permissions = 0o755;
-  attachmentFile.remove(false);
+  await deleteAttachmentFile(attachmentFile);
 });
 
 /*
@@ -612,7 +631,7 @@ add_task(async function detachedUseHelperApp() {
     "opened file should match attachment path"
   );
 
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 /**
@@ -642,7 +661,7 @@ add_task(async function useSystemDefault() {
     );
   }
   attachmentFile.permissions = 0o755;
-  attachmentFile.remove(false);
+  await deleteAttachmentFile(attachmentFile);
 });
 
 /*
@@ -671,7 +690,7 @@ add_task(async function detachedUseSystemDefault() {
     "opened file should match attachment path"
   );
 
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 /**
@@ -686,13 +705,13 @@ add_task(async function filenameSanitisedSave() {
   await createAndLoadMessage("test/bar", { filename: "f:i\\\\le/123.bar" });
   await singleClickAttachment();
   let file = await verifyAndFetchSavedAttachment(undefined, "f_i_le_123.bar");
-  file.remove(false);
+  await deleteAttachmentFile(file);
 
   // Asterisk, question mark, pipe and angle brackets are escaped on Windows.
   await createAndLoadMessage("test/bar", { filename: "f*i?|le<123>.bar" });
   await singleClickAttachment();
   file = await verifyAndFetchSavedAttachment(undefined, "f_i__le_123_.bar");
-  file.remove(false);
+  await deleteAttachmentFile(file);
 });
 
 /**
@@ -724,7 +743,7 @@ add_task(async function filenameSanitisedOpen() {
     );
   }
   attachmentFile.permissions = 0o755;
-  attachmentFile.remove(false);
+  await deleteAttachmentFile(attachmentFile);
 
   openedPromise = promiseFileOpened();
 
@@ -738,5 +757,5 @@ add_task(async function filenameSanitisedOpen() {
   );
   Assert.equal(file.leafName, "f_i__le_123_.bar");
   attachmentFile.permissions = 0o755;
-  attachmentFile.remove(false);
+  await deleteAttachmentFile(attachmentFile);
 });
