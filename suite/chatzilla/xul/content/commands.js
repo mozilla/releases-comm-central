@@ -2655,8 +2655,10 @@ function cmdLoad(e)
 
     try
     {
+        let opts = {target: e.scope, ignoreCache: true};
         var rvStr;
-        var rv = rvStr = client.load(e.url, e.scope);
+        var rv = rvStr = Services.scriptloader
+                                 .loadSubScriptWithOptions(e.url, opts);
         let oldPlugin = getPluginByURL(e.url);
         if (oldPlugin && !disablePlugin(oldPlugin, true))
         {

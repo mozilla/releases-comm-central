@@ -3942,29 +3942,6 @@ function cli_geturl ()
     return "irc://";
 }
 
-client.load =
-function cli_load(url, scope)
-{
-    if (!("_loader" in client))
-    {
-        const LOADER_CTRID = "@mozilla.org/moz/jssubscript-loader;1";
-        const mozIJSSubScriptLoader =
-            Components.interfaces.mozIJSSubScriptLoader;
-
-        var cls;
-        if ((cls = Components.classes[LOADER_CTRID]))
-            client._loader = cls.getService(mozIJSSubScriptLoader);
-    }
-
-    if (client._loader.loadSubScriptWithOptions)
-    {
-        var opts = {target: scope, ignoreCache: true};
-        return client._loader.loadSubScriptWithOptions(url, opts);
-    }
-
-    return client._loader.loadSubScript(url, scope);
-}
-
 client.sayToCurrentTarget =
 function cli_say(msg, isInteractive)
 {
