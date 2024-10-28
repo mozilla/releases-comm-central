@@ -30,13 +30,7 @@ function PrefManager (branchName, defaultBundle)
         prefManager.onPrefChanged(prefName);
     };
 
-    const PREF_CTRID = "@mozilla.org/preferences-service;1";
-    const nsIPrefService = Components.interfaces.nsIPrefService;
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
-
-    this.prefService =
-        Components.classes[PREF_CTRID].getService(nsIPrefService);
-    this.prefBranch = this.prefService.getBranch(branchName);
+    this.prefBranch = Services.prefs.getBranch(branchName);
     this.prefSaveTime = 0;
     this.prefSaveTimer = 0;
     this.branchName = branchName;
@@ -48,7 +42,7 @@ function PrefManager (branchName, defaultBundle)
     this.observers = new Array();
 
     this.nsIPrefBranch =
-        this.prefBranch.QueryInterface(nsIPrefBranch);
+        this.prefBranch.QueryInterface(Ci.nsIPrefBranch);
     this.nsIPrefBranch.addObserver("", this.observer, false);
 
     this.defaultBundle = defaultBundle;
@@ -122,7 +116,7 @@ function pm_forcesave()
     this.prefSaveTime = 0;
     this.prefSaveTimer = 0;
     try {
-        this.prefService.savePrefFile(null);
+        Services.prefs.savePrefFile(null);
     } catch(ex) {
         dd("Exception saving preferences: " + formatException(ex));
     }

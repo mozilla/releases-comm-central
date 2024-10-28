@@ -915,20 +915,9 @@ function updateStalkExpression(network)
 
 function getDefaultFontSize()
 {
-    const PREF_CTRID = "@mozilla.org/preferences-service;1";
-    const nsIPrefService = Components.interfaces.nsIPrefService;
-    const nsIPrefBranch = Components.interfaces.nsIPrefBranch;
-
-    var prefSvc = Components.classes[PREF_CTRID].getService(nsIPrefService);
-    var prefBranch = prefSvc.getBranch(null);
-
     // PX size pref: font.size.variable.x-western
-    var pxSize = 16;
-    try
-    {
-        pxSize = prefBranch.getIntPref("font.size.variable.x-western");
-    }
-    catch(ex) { }
+    var pxSize = Services.prefs.getBranch(null)
+                               .getIntPref("font.size.variable.x-western", 16);
 
     var dpi = 96;
     try

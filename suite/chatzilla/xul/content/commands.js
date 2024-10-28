@@ -2287,12 +2287,7 @@ function cmdEval(e)
 
 function cmdFocusInput(e)
 {
-    const WWATCHER_CTRID = "@mozilla.org/embedcomp/window-watcher;1";
-    const nsIWindowWatcher = Components.interfaces.nsIWindowWatcher;
-
-    var watcher =
-        Components.classes[WWATCHER_CTRID].getService(nsIWindowWatcher);
-    if (watcher.activeWindow == window)
+    if (Services.ww.activeWindow == window)
         client.input.focus();
     else
         document.commandDispatcher.focusedElement = client.input;

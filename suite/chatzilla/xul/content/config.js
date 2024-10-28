@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const MEDIATOR_CONTRACTID   = "@mozilla.org/appshell/window-mediator;1";
-
-const nsIWindowMediator     = Components.interfaces.nsIWindowMediator;
-
 const CONFIG_WINDOWTYPE     = "irc:chatzilla:config";
 
 /* Now we create and set up some required items from other Chatzilla JS files 
@@ -945,9 +941,7 @@ function pwin_onLoad()
     client.prettyName = client.viewName;
     
     // Use the window mediator service to prevent mutliple instances.
-    var windowMediator = Components.classes[MEDIATOR_CONTRACTID];
-    var windowManager = windowMediator.getService(nsIWindowMediator);
-    var enumerator = windowManager.getEnumerator(CONFIG_WINDOWTYPE);
+    var enumerator = Services.wm.getEnumerator(CONFIG_WINDOWTYPE);
     
     // We only want one open at a time because don't (currently) cope with
     // pref-change notifications. In fact, it's not easy to cope with.
