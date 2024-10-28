@@ -19,7 +19,7 @@ const { TestUtils } = ChromeUtils.importESModule(
 const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
-const { clearInterval } = ChromeUtils.importESModule(
+const { clearInterval, clearTimeout } = ChromeUtils.importESModule(
   "resource://gre/modules/Timer.sys.mjs"
 );
 const { NotificationUpdater } = ChromeUtils.importESModule(
@@ -58,6 +58,7 @@ add_setup(async () => {
 
   registerCleanupFunction(() => {
     clearInterval(NotificationUpdater._interval);
+    clearTimeout(InAppNotifications._showNotificationTimer);
   });
 });
 
@@ -482,4 +483,47 @@ add_task(async function test_updateNotificationManager_localeChange() {
 
   Services.locale.availableLocales = availableLocales;
   Services.locale.requestedLocales = currentLocales;
+  InAppNotifications.updateNotifications([]);
+});
+
+add_task(async function test_scheduledNotification() {
+  const now = Date.now();
+  const delay = 500;
+  const mockData = [
+    {
+      id: "future bar",
+      title: "dolor sit amet",
+      start_at: new Date(now + delay).toISOString(),
+      end_at: new Date(now + delay + 2 * SAFETY_MARGIN_MS).toISOString(),
+      targeting: {},
+      severity: 1,
+    },
+  ];
+
+  const newNotificationEvent = BrowserTestUtils.waitForEvent(
+    InAppNotifications.notificationManager,
+    NotificationManager.NEW_NOTIFICATION_EVENT
+  );
+  InAppNotifications.updateNotifications(mockData);
+  Assert.ok(
+    InAppNotifications._showNotificationTimer,
+    "Should have scheduled a timer for when the notification starts"
+  );
+  const { detail: notification } = await newNotificationEvent;
+  Assert.deepEqual(
+    notification,
+    mockData[0],
+    "Should have sent future notification"
+  );
+  Assert.greaterOrEqual(
+    Date.now() - now,
+    delay,
+    "Should have waited until the notification became valid to send the event"
+  );
+  Assert.ok(
+    !InAppNotifications._showNotificationTimer,
+    "Should have no timer for any future notifications"
+  );
+
+  InAppNotifications.updateNotifications([]);
 });

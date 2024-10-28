@@ -10,6 +10,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
   NotificationFilter: "resource:///modules/NotificationFilter.sys.mjs",
   NotificationUpdater: "resource:///modules/NotificationUpdater.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 const PROFILE_LOCATION = ["scheduled-notifications", "notifications.json"];
@@ -191,6 +193,39 @@ export const InAppNotifications = {
    * notification with.
    */
   _updateNotificationManager() {
+    this._scheduleNotification();
     this.notificationManager.updatedNotifications(this.getNotifications());
+  },
+
+  /**
+   * @type {number}
+   */
+  _showNotificationTimer: null,
+
+  /**
+   * Schedule a timer to make sure we check for new candidate notifications
+   * when the next possible notification becomes available.
+   */
+  _scheduleNotification() {
+    lazy.clearTimeout(this._showNotificationTimer);
+    this._showNotificationTimer = null;
+
+    if (!this._jsonFile.data.notifications.length) {
+      return;
+    }
+
+    const now = Date.now();
+    const [nextNotification] = this._jsonFile.data.notifications
+      .map(n => Date.parse(n.start_at))
+      .filter(n => n > now)
+      .sort((a, b) => a - b);
+    if (!nextNotification) {
+      return;
+    }
+
+    this._showNotificationTimer = lazy.setTimeout(() => {
+      this._showNotificationTimer = null;
+      this._updateNotificationManager();
+    }, nextNotification - Date.now());
   },
 };
