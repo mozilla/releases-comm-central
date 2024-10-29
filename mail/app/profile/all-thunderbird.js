@@ -1354,12 +1354,9 @@ pref("identity.fxaccounts.oauth.enabled", false);
 pref("identity.fxaccounts.remote.profile.uri", "https://profile.stage.mozaws.net/v1");
 // The remote URL of the FxA OAuth Server
 pref("identity.fxaccounts.remote.oauth.uri", "https://oauth.stage.mozaws.net/v1");
-#endif
 // Token server used by the FxA Sync identity.
-// This pref exists on all channels to keep a test working.
 pref("identity.sync.tokenserver.uri", "https://token.stage.mozaws.net/1.0/sync/1.5");
 
-#ifdef NIGHTLY_BUILD
 // Adds Firefox/10x.0 to the User-Agent string, because we need it.
 // TODO: Fix this.
 pref("general.useragent.compatMode.firefox", true);
