@@ -28,7 +28,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 45;
+    const UI_VERSION = 46;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -208,6 +208,13 @@ export var MailMigrator = {
           Promise.all(migrations).then(() => {
             lazy.MailUtils.restartApplication();
           });
+        }
+      }
+
+      if (currentUIVersion < 46) {
+        // Clean out an old default value that got stuck in a lot of profiles.
+        if (Services.prefs.getIntPref("mail.purge_threshhold_mb") == 20) {
+          Services.prefs.clearUserPref("mail.purge_threshhold_mb");
         }
       }
 

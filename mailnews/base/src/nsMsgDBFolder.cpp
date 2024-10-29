@@ -78,7 +78,6 @@ static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
                                       // purge threshold
 
 #define PREF_MAIL_PROMPT_PURGE_THRESHOLD "mail.prompt_purge_threshhold"
-#define PREF_MAIL_PURGE_THRESHOLD "mail.purge_threshhold"
 #define PREF_MAIL_PURGE_THRESHOLD_MB "mail.purge_threshhold_mb"
 #define PREF_MAIL_PURGE_ASK "mail.purge.ask"
 #define PREF_MAIL_WARN_FILTER_CHANGED "mail.warn_filter_changed"
@@ -1768,7 +1767,7 @@ nsresult nsMsgDBFolder::GetPurgeThreshold(int32_t* aThreshold) {
   nsCOMPtr<nsIPrefBranch> prefBranch =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv) && prefBranch) {
-    int32_t thresholdMB = 200;
+    int32_t thresholdMB = 500;
     prefBranch->GetIntPref(PREF_MAIL_PURGE_THRESHOLD_MB, &thresholdMB);
     *aThreshold = thresholdMB * 1024;
   }
