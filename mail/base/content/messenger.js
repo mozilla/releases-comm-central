@@ -379,10 +379,28 @@ var gMailInit = {
    */
   showEOYDonationAppeal() {
     const url = Services.prefs.getStringPref("app.donation.eoy.url");
-    const protocolSvc = Cc[
-      "@mozilla.org/uriloader/external-protocol-service;1"
-    ].getService(Ci.nsIExternalProtocolService);
-    protocolSvc.loadURI(Services.io.newURI(url));
+    let tabmail = document.getElementById("tabmail");
+
+    if (!tabmail) {
+      tabmail = Services.wm
+        .getMostRecentWindow("mail:3pane")
+        ?.document.getElementById("tabmail");
+    }
+
+    // Fall back to opening a browser window if we don't have a tabmail.
+    if (!tabmail) {
+      const protocolSvc = Cc[
+        "@mozilla.org/uriloader/external-protocol-service;1"
+      ].getService(Ci.nsIExternalProtocolService);
+      protocolSvc.loadURI(Services.io.newURI(url));
+    } else {
+      tabmail.openTab("contentTab", {
+        url,
+        background: false,
+        linkHandler: "single-page",
+      });
+      tabmail.ownerGlobal.focus();
+    }
 
     const currentEOY = Services.prefs.getIntPref("app.donation.eoy.version", 1);
     Services.prefs.setIntPref("app.donation.eoy.version.viewed", currentEOY);
