@@ -111,24 +111,25 @@ add_task(async function test_context_click_in_threadpane() {
       browser.mailTabs.onSelectedMessagesChanged.addListener(selectListener);
 
       // Context-Click on row #1.
-      await new Promise(resolve => {
-        const listener = info => {
-          window.assertDeepEqual(
-            {
-              selectedMessages: {
-                id: null,
-                messages: row1_single_message,
-              },
+      const onShownRow1 = Promise.withResolvers();
+      const onShownListenerRow1 = info => {
+        window.assertDeepEqual(
+          {
+            selectedMessages: {
+              id: null,
+              messages: row1_single_message,
             },
-            info,
-            "The rv of the menus.onShown event should be correct"
-          );
-          browser.menus.onShown.removeListener(listener);
-          resolve();
-        };
-        browser.menus.onShown.addListener(listener);
-        browser.test.sendMessage("context-click on message", "1");
-      });
+          },
+          info,
+          "The rv of the menus.onShown event should be correct"
+        );
+        browser.menus.onShown.removeListener(onShownListenerRow1);
+        onShownRow1.resolve();
+      };
+      browser.menus.onShown.addListener(onShownListenerRow1);
+
+      await window.sendMessage("context-click on message", "1");
+      await onShownRow1.promise;
 
       // The selected messages should still be the collapsed thread from row #0.
       window.assertDeepEqual(
@@ -212,24 +213,25 @@ add_task(async function test_context_click_in_threadpane() {
       browser.mailTabs.onSelectedMessagesChanged.addListener(selectListener);
 
       // Context-Click on row #0.
-      await new Promise(resolve => {
-        const listener = info => {
-          window.assertDeepEqual(
-            {
-              selectedMessages: {
-                id: null,
-                messages: row0_thread_of_three,
-              },
+      const onShownRow0 = Promise.withResolvers();
+      const onShownListenerRow0 = info => {
+        window.assertDeepEqual(
+          {
+            selectedMessages: {
+              id: null,
+              messages: row0_thread_of_three,
             },
-            info,
-            "The rv of the menus.onShown event should be correct"
-          );
-          browser.menus.onShown.removeListener(listener);
-          resolve();
-        };
-        browser.menus.onShown.addListener(listener);
-        browser.test.sendMessage("context-click on message", "0");
-      });
+          },
+          info,
+          "The rv of the menus.onShown event should be correct"
+        );
+        browser.menus.onShown.removeListener(onShownListenerRow0);
+        onShownRow0.resolve();
+      };
+      browser.menus.onShown.addListener(onShownListenerRow0);
+
+      await window.sendMessage("context-click on message", "0");
+      await onShownRow0.promise;
 
       // The selected messages should still be the single message from row #1.
       window.assertDeepEqual(
@@ -313,7 +315,15 @@ add_task(async function test_context_click_in_threadpane() {
     EventUtils.synthesizeMouseAtCenter(row, {}, gAbout3Pane);
   });
 
-  extension.onMessage("context-click on message", rowNr => {
+  extension.onMessage("context-click on message", async rowNr => {
+    const menu = gAbout3Pane.document.getElementById("mailContext");
+    Assert.ok(!!menu, `Should find menu "mailContext"`);
+    Assert.equal(
+      "closed",
+      menu.state,
+      `The menu "mailContext" should still be closed`
+    );
+
     const row = gAbout3Pane.document.getElementById(`threadTree-row${rowNr}`);
     Assert.ok(!!row, `Should find row${rowNr}`);
     EventUtils.synthesizeMouseAtCenter(
@@ -321,6 +331,10 @@ add_task(async function test_context_click_in_threadpane() {
       { type: "contextmenu" },
       gAbout3Pane
     );
+    await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+    Assert.equal("open", menu.state, `The menu "mailContext" should be open`);
+
+    extension.sendMessage();
   });
 
   extension.onMessage("close-context-menu", () => {
