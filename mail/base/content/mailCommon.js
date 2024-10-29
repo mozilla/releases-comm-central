@@ -25,7 +25,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.sys.mjs",
 
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   TreeSelection: "chrome://messenger/content/TreeSelection.mjs",
@@ -587,9 +586,7 @@ var commandController = {
         if (numSelectedMessages == 1 && !isDummyMessage) {
           const msgURI = gDBView.URIForFirstSelectedMessage;
           if (msgURI) {
-            showDecrypt =
-              EnigmailURIs.isEncryptedUri(msgURI) ||
-              gEncryptedURIService.isEncrypted(msgURI);
+            showDecrypt = gEncryptedURIService.isEncrypted(msgURI);
           }
         }
         return showDecrypt;

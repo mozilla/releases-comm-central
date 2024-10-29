@@ -4,37 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-const encryptedUris = new Set();
-
 export var EnigmailURIs = {
-  /**
-   * Remember the fact a URI is encrypted.
-   *
-   * @param {string} uri
-   */
-  rememberEncryptedUri(uri) {
-    encryptedUris.add(uri);
-  },
-
-  /**
-   * Unremember/forget the fact a URI is encrypted.
-   *
-   * @param {string} uri
-   */
-  forgetEncryptedUri(uri) {
-    encryptedUris.delete(uri);
-  },
-
-  /**
-   * Determine if a URI was remembered as encrypted.
-   *
-   * @param {string} uri
-   * @returns {boolean} true if yes, false otherwise.
-   */
-  isEncryptedUri(uri) {
-    return encryptedUris.has(uri);
-  },
-
   /**
    * Determine message number and folder from mailnews URI.
    *

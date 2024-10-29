@@ -46,7 +46,6 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.sys.mjs",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.sys.mjs",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
   getMimeTreeFromUrl: "chrome://openpgp/content/modules/MimeTree.sys.mjs",

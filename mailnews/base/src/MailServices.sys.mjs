@@ -29,6 +29,18 @@ export var MailServices = {
       `@mozilla.org/messenger/messageservice;1?type=${protocol}`
     ].getService(Ci.nsIMsgMessageService);
   },
+
+  /**
+   * Get the necko URL for the given message URI.
+   *
+   * @param {string} messageURI - The URI of a message.
+   * @returns {string}
+   */
+  neckoURLForMessageURI(messageURI) {
+    const msgSvc = this.messageServiceFromURI(messageURI);
+    const neckoURI = msgSvc.getUrlForUri(messageURI);
+    return neckoURI.spec;
+  },
 };
 
 XPCOMUtils.defineLazyServiceGetter(

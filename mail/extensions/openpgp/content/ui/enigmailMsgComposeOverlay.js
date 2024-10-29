@@ -26,9 +26,6 @@ var { EnigmailArmor } = ChromeUtils.importESModule(
 var { EnigmailKeyRing } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/keyRing.sys.mjs"
 );
-var { EnigmailURIs } = ChromeUtils.importESModule(
-  "chrome://openpgp/content/modules/uris.sys.mjs"
-);
 var { EnigmailConstants } = ChromeUtils.importESModule(
   "chrome://openpgp/content/modules/constants.sys.mjs"
 );
@@ -171,10 +168,7 @@ Enigmail.msg = {
       console.error(ex);
     }
 
-    if (
-      EnigmailURIs.isEncryptedUri(msgUri) ||
-      gEncryptedURIService.isEncrypted(msgUri)
-    ) {
+    if (gEncryptedURIService.isEncrypted(msgUri)) {
       properties |= EnigmailConstants.DECRYPTION_OKAY;
     }
 
@@ -330,8 +324,7 @@ Enigmail.msg = {
         const globalSaysItsEncrypted =
           gEncryptedURIService &&
           gMsgCompose.originalMsgURI &&
-          (gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI) ||
-            EnigmailURIs.isEncryptedUri(gMsgCompose.originalMsgURI));
+          gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI);
 
         if (globalSaysItsEncrypted) {
           useEncryptionUnlessWeHaveDraftInfo = true;

@@ -8,6 +8,9 @@
 /* import-globals-from ../../../../base/content/msgHdrView.js */
 /* import-globals-from ../../../smime/content/msgHdrViewSMIMEOverlay.js */
 
+// mailCommon.js
+/* globals gEncryptedURIService */
+
 /* eslint-enable valid-jsdoc */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
@@ -24,13 +27,11 @@ ChromeUtils.defineESModuleGetters(this, {
   EnigmailMime: "chrome://openpgp/content/modules/mime.sys.mjs",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.sys.mjs",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.sys.mjs",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.sys.mjs",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.sys.mjs",
 });
 
 Enigmail.hdrView = {
-  lastEncryptedMsgKey: null,
   lastEncryptedUri: null,
   flexbuttonAction: null,
 
@@ -109,7 +110,7 @@ Enigmail.hdrView = {
     }
 
     if (gMessageURI) {
-      this.lastEncryptedMsgKey = gMessageURI;
+      this.lastEncryptedUri = gMessageURI;
     }
 
     if (exitCode == EnigmailConstants.POSSIBLE_PGPMIME) {
@@ -233,7 +234,10 @@ Enigmail.hdrView = {
 
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
-      EnigmailURIs.rememberEncryptedUri(this.lastEncryptedMsgKey);
+      gEncryptedURIService.rememberEncrypted(this.lastEncryptedUri);
+      gEncryptedURIService.rememberEncrypted(
+        MailServices.neckoURLForMessageURI(this.lastEncryptedUri)
+      );
       encrypted = "ok";
       this.msgEncryptionState = EnigmailConstants.MSG_ENC_OK;
     }
@@ -409,13 +413,11 @@ Enigmail.hdrView = {
   },
 
   forgetEncryptedMsgKey() {
-    if (Enigmail.hdrView.lastEncryptedMsgKey) {
-      EnigmailURIs.forgetEncryptedUri(Enigmail.hdrView.lastEncryptedMsgKey);
-      Enigmail.hdrView.lastEncryptedMsgKey = null;
-    }
-
-    if (Enigmail.hdrView.lastEncryptedUri && gEncryptedURIService) {
+    if (Enigmail.hdrView.lastEncryptedUri) {
       gEncryptedURIService.forgetEncrypted(Enigmail.hdrView.lastEncryptedUri);
+      gEncryptedURIService.forgetEncrypted(
+        MailServices.neckoURLForMessageURI(Enigmail.hdrView.lastEncryptedUri)
+      );
       Enigmail.hdrView.lastEncryptedUri = null;
     }
   },

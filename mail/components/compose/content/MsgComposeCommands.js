@@ -49,7 +49,6 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 ChromeUtils.defineESModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.sys.mjs",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.sys.mjs",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.sys.mjs",
   FolderTreeProperties: "resource:///modules/FolderTreeProperties.sys.mjs",
   FolderUtils: "resource:///modules/FolderUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
@@ -4935,9 +4934,7 @@ async function ComposeStartup() {
   if (
     gComposeType != Ci.nsIMsgCompType.Draft &&
     gComposeType != Ci.nsIMsgCompType.Template &&
-    (EnigmailURIs.isEncryptedUri(gMsgCompose.originalMsgURI) ||
-      (gEncryptedURIService &&
-        gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)))
+    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
   ) {
     gIsRelatedToEncryptedOriginal = true;
   }
