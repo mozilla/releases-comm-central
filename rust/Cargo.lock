@@ -5957,6 +5957,7 @@ name = "wgpu_bindings"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
+ "ash",
  "bincode",
  "log",
  "nsstring",
