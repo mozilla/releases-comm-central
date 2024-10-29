@@ -8,6 +8,9 @@ const { OAuth2Module } = ChromeUtils.importESModule(
 const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );
+const { setTimeout } = ChromeUtils.importESModule(
+  "resource://gre/modules/Timer.sys.mjs"
+);
 
 /**
  * Tests that refresh tokens are correctly retrieved from the login manager.
@@ -320,6 +323,9 @@ add_task(async function testSetRefreshToken() {
   await storeLogins([
     ["oauth://test.test", "test_scope", "romeo@foo.invalid", "romeo"],
   ]);
+  let logins = await Services.logins.getAllLogins();
+  const timeBefore = logins[0].timePasswordChanged;
+  await new Promise(resolve => setTimeout(resolve, 50));
 
   // Connect.
   const mod = new OAuth2Module();
@@ -340,13 +346,18 @@ add_task(async function testSetRefreshToken() {
   Assert.equal(mod._oauth.scope, "test_scope");
 
   // Check that the saved token was updated.
-  const logins = await Services.logins.getAllLogins();
+  logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 1, "another login should not have been added");
 
   Assert.equal(logins[0].hostname, "oauth://test.test");
   Assert.equal(logins[0].httpRealm, "test_scope");
   Assert.equal(logins[0].username, "romeo@foo.invalid");
   Assert.equal(logins[0].password, "romeo_1", "token should have been updated");
+  Assert.greater(
+    logins[0].timePasswordChanged,
+    timeBefore,
+    "token last-update time should have been updated"
+  );
 
   Services.logins.removeAllLogins();
   OAuth2TestUtils.forgetObjects();
@@ -372,6 +383,9 @@ add_task(async function testSetRefreshTokenWithNewScope() {
   await storeLogins([
     ["oauth://test.test", "test_scope", "victor@foo.invalid", "victor"],
   ]);
+  let logins = await Services.logins.getAllLogins();
+  let timeBefore = logins[0].timePasswordChanged;
+  await new Promise(resolve => setTimeout(resolve, 50));
 
   // Connect.
   const mod = new OAuth2Module();
@@ -396,7 +410,7 @@ add_task(async function testSetRefreshTokenWithNewScope() {
   );
 
   // Check that the saved token was updated.
-  let logins = await Services.logins.getAllLogins();
+  logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 1, "another login should not have been added");
 
   Assert.equal(logins[0].hostname, "oauth://test.test");
@@ -411,6 +425,13 @@ add_task(async function testSetRefreshTokenWithNewScope() {
     "victor_1",
     "token should have been updated"
   );
+  Assert.greater(
+    logins[0].timePasswordChanged,
+    timeBefore,
+    "token last-update time should have been updated"
+  );
+  timeBefore = logins[0].timePasswordChanged;
+  await new Promise(resolve => setTimeout(resolve, 50));
 
   // Pretend the access token has expired, and connect again.
   mod._oauth.tokenExpires = 0;
@@ -440,6 +461,11 @@ add_task(async function testSetRefreshTokenWithNewScope() {
     logins[0].password,
     "victor_2",
     "token should have been updated"
+  );
+  Assert.greater(
+    logins[0].timePasswordChanged,
+    timeBefore,
+    "token last-update time should have been updated"
   );
 
   Services.logins.removeAllLogins();

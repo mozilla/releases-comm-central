@@ -142,15 +142,19 @@ OAuth2Module.prototype = {
       const loginScopes = scopeSet(login.httpRealm);
       if (grantedScopes.isSupersetOf(loginScopes)) {
         if (grantedScopes.size == loginScopes.size) {
-          // The scope matches, just update the token.
-          log.debug(
-            `Updating existing token for ${this._loginOrigin} with scope "${scope}"`
-          );
-          const propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-            Ci.nsIWritablePropertyBag
-          );
-          propBag.setProperty("password", token);
-          Services.logins.modifyLogin(login, propBag);
+          // The scope matches, just update the token...
+          if (login.password != token) {
+            // ... but only if it actually changed.
+            log.debug(
+              `Updating existing token for ${this._loginOrigin} with scope "${scope}"`
+            );
+            const propBag = Cc[
+              "@mozilla.org/hash-property-bag;1"
+            ].createInstance(Ci.nsIWritablePropertyBag);
+            propBag.setProperty("password", token);
+            propBag.setProperty("timePasswordChanged", Date.now());
+            Services.logins.modifyLogin(login, propBag);
+          }
           didChangePassword = true;
         } else {
           // We've got a new token for this scope, remove the existing one.
@@ -214,8 +218,9 @@ OAuth2Module.prototype = {
               this._oauth.refreshToken != oldRefreshToken ||
               this._oauth.scope != this._scope
             ) {
-              // Refresh token and/or scope changed; save it.
+              // Refresh token and/or scope changed; save them.
               await this.setRefreshToken(this._oauth.refreshToken);
+              this._scope = this._oauth.scope;
             }
 
             let retval = this._oauth.accessToken;
