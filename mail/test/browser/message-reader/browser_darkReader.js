@@ -16,6 +16,9 @@ const { open_message_from_file, get_about_message } =
 let aboutMessage, msgc, lightTheme, darkTheme;
 
 add_setup(async function () {
+  // Disable dark reader before setting up anything else.
+  Services.prefs.setBoolPref("mail.dark-reader.enabled", false);
+
   const file = new FileUtils.File(getTestFilePath("data/dark_mode_test.eml"));
   msgc = await open_message_from_file(file);
   aboutMessage = get_about_message(msgc);
@@ -50,9 +53,6 @@ async function toggle_dark_reader(enable) {
 add_task(async function test_dark_light_reader_mode() {
   info("Enable light theme.");
   await toggle_theme(lightTheme, true);
-
-  info("Disable dark reader.");
-  await toggle_dark_reader(false);
   // Check that the default style is correct.
   await assert_light_style();
 
