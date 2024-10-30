@@ -195,9 +195,13 @@ interface nsIMsgPluggableStore : nsISupports {
    *                  and must be set as a string property "storeToken" on the
    *                  message hdr by the store when the message is added
    *                  to the store.
+   * @param aMaxAllowedSize An optional maximum number of bytes that
+   *                        will be returned by the stream.
+   *                        If parameter is zero, stream all available data.
    */
   nsIInputStream getMsgInputStream(in nsIMsgFolder aFolder,
-                                   in ACString aMsgToken);
+                                   in ACString aMsgToken,
+                                   in unsigned long aMaxAllowedSize);
 
   /**
    * Delete the passed in messages. These message should all be in the

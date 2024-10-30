@@ -750,6 +750,14 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
   rv = aMsgHdr->GetStoreToken(storeToken);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  uint32_t msgSize;
+  rv = aMsgHdr->GetMessageSize(&msgSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  uint32_t offlineMessageSize;
+  rv = aMsgHdr->GetOfflineMessageSize(&offlineMessageSize);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (storeToken.IsEmpty()) {
     // DB is missing storeToken.
     // We haven't got an offline copy (or we can't find it) so let's clear the
@@ -760,7 +768,14 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
     return NS_ERROR_FAILURE;
   }
 
-  rv = msgStore->GetMsgInputStream(this, storeToken, aInputStream);
+  // Provide the recorded message size as a sanity check,
+  // with a 10% margin, and at least 512 bytes.
+  uint32_t failsafeSize = std::max(msgSize, offlineMessageSize);
+  failsafeSize += failsafeSize / 10;
+  failsafeSize = std::max((uint32_t)512, failsafeSize);
+
+  rv = msgStore->GetMsgInputStream(this, storeToken, failsafeSize, aInputStream);
+
   if (NS_FAILED(rv)) {
     NS_WARNING(nsPrintfCString(
                    "(debug) nsMsgDBFolder::GetMsgInputStream: msgStore->"

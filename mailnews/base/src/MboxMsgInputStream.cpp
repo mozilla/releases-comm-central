@@ -691,7 +691,7 @@ class MboxParser {
 
 NS_IMPL_ISUPPORTS(MboxMsgInputStream, nsIInputStream);
 
-MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream)
+MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream, uint32_t maxAllowedSize)
     : mRawStream(mboxStream),
       mStatus(NS_OK),
       mBuf(8192),
@@ -699,6 +699,9 @@ MboxMsgInputStream::MboxMsgInputStream(nsIInputStream* mboxStream)
       mUnused(0),
       mTotalUsed(0),
       mMsgOffset(0),
+      mLimitOutputBytes(maxAllowedSize),
+      mOutputBytes(0),
+      mOverflow(false),
       mParser(new MboxParser()) {
   // Ensure the first chunk is read and parsed.
   // This should include the "From " line, so EnvAddr()/EnvDate()
@@ -765,11 +768,14 @@ NS_IMETHODIMP MboxMsgInputStream::Available(uint64_t* result) {
 
 NS_IMETHODIMP MboxMsgInputStream::StreamStatus() { return mStatus; }
 
-// Returns a count of 0 if EOF or closed.
+// Returns a count, or 0 if EOF or closed.
 // Never throws NS_BASE_STREAM_CLOSED
 NS_IMETHODIMP MboxMsgInputStream::Read(char* buf, uint32_t count,
                                        uint32_t* result) {
   *result = 0;
+  if (mOverflow) {
+    return NS_MSG_ERROR_UNEXPECTED_SIZE;
+  }
   if (mStatus == NS_BASE_STREAM_CLOSED) {
     return NS_OK;
   }
@@ -778,7 +784,7 @@ NS_IMETHODIMP MboxMsgInputStream::Read(char* buf, uint32_t count,
   }
 
   // We just keep feeding data into the parser and copying out its output.
-  while (count > 0) {
+  while (count > 0 && !mOverflow) {
     mStatus = PumpData();
     if (NS_FAILED(mStatus)) {
       return mStatus;
@@ -788,9 +794,21 @@ NS_IMETHODIMP MboxMsgInputStream::Read(char* buf, uint32_t count,
       break;  // Nothing more in this message. Return EOF.
     }
     MOZ_ASSERT(n <= UINT32_MAX);
-    buf += n;
-    count -= (uint32_t)n;
-    *result += n;
+
+    const size_t use = !mLimitOutputBytes ? n : std::min(n, (size_t)(mLimitOutputBytes - mOutputBytes));
+
+    if (use < n) {
+      // We want the current read to return success (because we're
+      // returning up to the requested amount of bytes),
+      // but future calls to Read() should return failure.
+      mOverflow = true;
+    }
+
+    mOutputBytes += use;
+
+    buf += use;
+    count -= (uint32_t)use;
+    *result += use;
   }
   return NS_OK;
 }

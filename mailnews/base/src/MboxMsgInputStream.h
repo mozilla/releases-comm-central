@@ -39,8 +39,14 @@ class MboxMsgInputStream : public nsIInputStream {
    * "From " line.
    * MboxMsgInputStream assumes ownership of mboxStream, and will close it
    * when done.
+   * When a non-zero maxAllowedSize is given, read at most this amount of
+   * bytes from the stream.
+   * The maxAllowedSize parameter allows the caller to specify a safety limit,
+   * if it knows that the number of expected bytes is smaller than the
+   * given number. This is useful if the mbox stream doesn't contain the
+   * expected sepatarors.
    */
-  explicit MboxMsgInputStream(nsIInputStream* mboxStream);
+  explicit MboxMsgInputStream(nsIInputStream* mboxStream, uint32_t maxAllowedSize);
 
   MboxMsgInputStream() = delete;
 
@@ -104,6 +110,10 @@ class MboxMsgInputStream : public nsIInputStream {
   uint64_t mTotalUsed;
   // The offset at which the current message began.
   uint64_t mMsgOffset;
+
+  uint32_t mLimitOutputBytes;
+  uint32_t mOutputBytes;
+  bool mOverflow;
 
   // Hide gory parsing details with pIMPL.
   mozilla::UniquePtr<MboxParser> mParser;

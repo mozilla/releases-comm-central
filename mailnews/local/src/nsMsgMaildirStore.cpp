@@ -1002,9 +1002,12 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aHdr,
   return rv;
 }
 
+// aMaxAllowedSize is currently ignored, we always return the full
+// amount of data that we have available in the file.
 NS_IMETHODIMP
 nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
+                                     uint32_t aMaxAllowedSize,
                                      nsIInputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   NS_ENSURE_ARG_POINTER(aResult);

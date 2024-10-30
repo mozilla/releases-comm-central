@@ -22,7 +22,7 @@ void ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
 
   msgs.Clear();
   // Wrap with MboxMsgInputStream and read single message.
-  RefPtr<MboxMsgInputStream> rdr = new MboxMsgInputStream(raw);
+  RefPtr<MboxMsgInputStream> rdr = new MboxMsgInputStream(raw, 0);
 
   while (true) {
     nsAutoCString got;

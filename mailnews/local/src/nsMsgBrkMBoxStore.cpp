@@ -96,7 +96,7 @@ nsresult MboxScanner::BeginScan(nsIFile* mboxFile,
   // Note: The pump doesn't close the stream when complete.
   // This is important because we want to use Continue() to move on to
   // the next message.
-  RefPtr<MboxMsgInputStream> mboxStream = new MboxMsgInputStream(raw);
+  RefPtr<MboxMsgInputStream> mboxStream = new MboxMsgInputStream(raw, 0);
   mMboxStream = mboxStream;
   nsCOMPtr<nsIInputStreamPump> pump;
   rv = NS_NewInputStreamPump(getter_AddRefs(pump), mboxStream.forget());
@@ -1398,6 +1398,7 @@ nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aNewHdr,
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
                                      const nsACString& aMsgToken,
+                                     uint32_t aMaxAllowedSize,
                                      nsIInputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   NS_ENSURE_ARG_POINTER(aResult);
@@ -1414,7 +1415,8 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
   rv = seekable->Seek(PR_SEEK_SET, offset);
   NS_ENSURE_SUCCESS(rv, rv);
   // Stream to return a single message, hiding all "From "-separator guff.
-  RefPtr<MboxMsgInputStream> msgStream = new MboxMsgInputStream(rawMboxStream);
+  RefPtr<MboxMsgInputStream> msgStream =
+    new MboxMsgInputStream(rawMboxStream, aMaxAllowedSize);
   msgStream.forget(aResult);
   return NS_OK;
 }
