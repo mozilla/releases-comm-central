@@ -31,22 +31,28 @@
 
 /* ===== ===== ===== ===== morkUsage ===== ===== ===== ===== */
 
-static morkUsage morkUsage_gHeap;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gHeap;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kHeap = morkUsage_gHeap;
 
-static morkUsage morkUsage_gStack;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gStack;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kStack = morkUsage_gStack;
 
-static morkUsage morkUsage_gMember;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gMember;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kMember = morkUsage_gMember;
 
-static morkUsage morkUsage_gGlobal;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gGlobal;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kGlobal = morkUsage_gGlobal;
 
-static morkUsage morkUsage_gPool;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gPool;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kPool = morkUsage_gPool;
 
-static morkUsage morkUsage_gNone;  // ensure EnsureReadyStaticUsage()
+MOZ_RUNINIT static morkUsage
+    morkUsage_gNone;  // ensure EnsureReadyStaticUsage()
 const morkUsage& morkUsage::kNone = morkUsage_gNone;
 
 // This must be structured to allow for non-zero values in global variables

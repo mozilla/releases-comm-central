@@ -44,32 +44,32 @@
 
 using namespace mozilla::mailnews;
 
-nsString nsMsgDBView::kHighestPriorityString;
-nsString nsMsgDBView::kHighPriorityString;
-nsString nsMsgDBView::kLowestPriorityString;
-nsString nsMsgDBView::kLowPriorityString;
-nsString nsMsgDBView::kNormalPriorityString;
+MOZ_RUNINIT nsString nsMsgDBView::kHighestPriorityString;
+MOZ_RUNINIT nsString nsMsgDBView::kHighPriorityString;
+MOZ_RUNINIT nsString nsMsgDBView::kLowestPriorityString;
+MOZ_RUNINIT nsString nsMsgDBView::kLowPriorityString;
+MOZ_RUNINIT nsString nsMsgDBView::kNormalPriorityString;
 
-nsString nsMsgDBView::kReadString;
-nsString nsMsgDBView::kRepliedString;
-nsString nsMsgDBView::kForwardedString;
-nsString nsMsgDBView::kRedirectedString;
-nsString nsMsgDBView::kNewString;
+MOZ_RUNINIT nsString nsMsgDBView::kReadString;
+MOZ_RUNINIT nsString nsMsgDBView::kRepliedString;
+MOZ_RUNINIT nsString nsMsgDBView::kForwardedString;
+MOZ_RUNINIT nsString nsMsgDBView::kRedirectedString;
+MOZ_RUNINIT nsString nsMsgDBView::kNewString;
 
-nsString nsMsgDBView::kTodayString;
-nsString nsMsgDBView::kYesterdayString;
-nsString nsMsgDBView::kLastWeekString;
-nsString nsMsgDBView::kTwoWeeksAgoString;
-nsString nsMsgDBView::kOldMailString;
-nsString nsMsgDBView::kFutureDateString;
+MOZ_RUNINIT nsString nsMsgDBView::kTodayString;
+MOZ_RUNINIT nsString nsMsgDBView::kYesterdayString;
+MOZ_RUNINIT nsString nsMsgDBView::kLastWeekString;
+MOZ_RUNINIT nsString nsMsgDBView::kTwoWeeksAgoString;
+MOZ_RUNINIT nsString nsMsgDBView::kOldMailString;
+MOZ_RUNINIT nsString nsMsgDBView::kFutureDateString;
 
 bool nsMsgDBView::m_dateFormatsInitialized = false;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatDefault = kDateFormatShort;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatThisWeek = kDateFormatShort;
 nsDateFormatSelectorComm nsMsgDBView::m_dateFormatToday = kDateFormatNone;
 
-nsString nsMsgDBView::m_connectorPattern;
-nsCOMPtr<nsIStringBundle> nsMsgDBView::mMessengerStringBundle;
+MOZ_RUNINIT nsString nsMsgDBView::m_connectorPattern;
+MOZ_RUNINIT nsCOMPtr<nsIStringBundle> nsMsgDBView::mMessengerStringBundle;
 
 static const uint32_t kMaxNumSortColumns = 2;
 

@@ -155,19 +155,19 @@ NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
   return NS_OK;
 }
 
-mozilla::UniquePtr<mozilla::intl::Collator>
+MOZ_RUNINIT mozilla::UniquePtr<mozilla::intl::Collator>
     nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
-nsString nsMsgDBFolder::kLocalizedInboxName;
-nsString nsMsgDBFolder::kLocalizedTrashName;
-nsString nsMsgDBFolder::kLocalizedSentName;
-nsString nsMsgDBFolder::kLocalizedDraftsName;
-nsString nsMsgDBFolder::kLocalizedTemplatesName;
-nsString nsMsgDBFolder::kLocalizedUnsentName;
-nsString nsMsgDBFolder::kLocalizedJunkName;
-nsString nsMsgDBFolder::kLocalizedArchivesName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedInboxName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTrashName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedSentName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedDraftsName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedTemplatesName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedUnsentName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedJunkName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedArchivesName;
 
-nsString nsMsgDBFolder::kLocalizedBrandShortName;
+MOZ_RUNINIT nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount = 0;
 bool nsMsgDBFolder::gInitializeStringsDone = false;
@@ -774,7 +774,8 @@ nsMsgDBFolder::GetMsgInputStream(nsIMsgDBHdr* aMsgHdr,
   failsafeSize += failsafeSize / 10;
   failsafeSize = std::max((uint32_t)512, failsafeSize);
 
-  rv = msgStore->GetMsgInputStream(this, storeToken, failsafeSize, aInputStream);
+  rv =
+      msgStore->GetMsgInputStream(this, storeToken, failsafeSize, aInputStream);
 
   if (NS_FAILED(rv)) {
     NS_WARNING(nsPrintfCString(

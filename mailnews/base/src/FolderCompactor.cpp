@@ -84,7 +84,7 @@ class FolderCompactor : public nsIStoreCompactListener {
 
    protected:
     ~ShutdownObserver() {}
-    static RefPtr<FolderCompactor::ShutdownObserver> sInstance;
+    MOZ_RUNINIT static RefPtr<FolderCompactor::ShutdownObserver> sInstance;
     bool mIsShuttingDown;
   };
 

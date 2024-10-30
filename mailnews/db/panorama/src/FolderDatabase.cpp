@@ -19,12 +19,13 @@ namespace mailnews {
 
 NS_IMPL_ISUPPORTS(FolderDatabase, nsIFolderDatabase, nsIObserver)
 
-nsCOMPtr<mozIStorageConnection> FolderDatabase::sConnection;
-nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
+MOZ_RUNINIT nsCOMPtr<mozIStorageConnection> FolderDatabase::sConnection;
+MOZ_RUNINIT nsTHashMap<nsCString, nsCOMPtr<mozIStorageStatement>>
     FolderDatabase::sStatements;
-nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
-nsTHashMap<nsCString, RefPtr<Folder>> FolderDatabase::sFoldersByPath;
-FolderComparator FolderDatabase::sComparator;
+MOZ_RUNINIT nsTHashMap<uint64_t, RefPtr<Folder>> FolderDatabase::sFoldersById;
+MOZ_RUNINIT nsTHashMap<nsCString, RefPtr<Folder>>
+    FolderDatabase::sFoldersByPath;
+MOZ_CONSTINIT FolderComparator FolderDatabase::sComparator;
 
 FolderDatabase::FolderDatabase() {
   MOZ_ASSERT(!sConnection, "creating a second FolderDatabase");

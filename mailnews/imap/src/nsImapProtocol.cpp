@@ -99,7 +99,8 @@ LazyLogModule IMAPCache("IMAPCache");
   "Priority X-Priority References Newsgroups In-Reply-To Content-Type " \
   "Reply-To"
 #define IMAP_ENV_AND_DB_HEADERS IMAP_ENV_HEADERS IMAP_DB_HEADERS
-static const PRIntervalTime kImapSleepTime = PR_MillisecondsToInterval(60000);
+MOZ_RUNINIT static const PRIntervalTime kImapSleepTime =
+    PR_MillisecondsToInterval(60000);
 static int32_t gPromoteNoopToCheckCount = 0;
 static const uint32_t kFlagChangesBeforeCheck = 10;
 static const int32_t kMaxSecondsBeforeCheck = 600;
@@ -276,7 +277,7 @@ static int32_t gTooFastTime = 2;
 static int32_t gIdealTime = 4;
 static int32_t gChunkAddSize = 16384;
 static int32_t gChunkSize = 250000;
-static int32_t gChunkThreshold = gChunkSize + gChunkSize / 2;
+MOZ_RUNINIT static int32_t gChunkThreshold = gChunkSize + gChunkSize / 2;
 static bool gChunkSizeDirty = false;
 static bool gFetchByChunks = true;
 static bool gInitialized = false;
@@ -287,10 +288,10 @@ static bool gUseLiteralPlus = true;
 static bool gExpungeAfterDelete = false;
 static bool gCheckDeletedBeforeExpunge = false;  // bug 235004
 static int32_t gResponseTimeout = 100;
-static int32_t gAppendTimeout = gResponseTimeout / 5;
+MOZ_RUNINIT static int32_t gAppendTimeout = gResponseTimeout / 5;
 static nsImapProtocol::TCPKeepalive gTCPKeepalive;
 static bool gUseDiskCache2 = true;  // Use disk cache instead of memory cache
-static nsCOMPtr<nsICacheStorage> gCache2Storage;
+MOZ_RUNINIT static nsCOMPtr<nsICacheStorage> gCache2Storage;
 
 // let delete model control expunging, i.e., don't ever expunge when the
 // user chooses the imap delete model, otherwise, expunge when over the
