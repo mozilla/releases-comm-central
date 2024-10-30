@@ -11,11 +11,14 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-var gAnyValidIdentity = false; // If there are no valid identities for any account
-// returns the first account with an invalid server or identity
-
 var gNewAccountToLoad = null; // used to load new messages if we come from the mail3pane
 
+/**
+ * Filters out all fully valid accounts.
+ *
+ * @param {nsIMsgAccount[]} accounts
+ * @returns {nsIMsgAccount[]}
+ */
 function getInvalidAccounts(accounts) {
   const invalidAccounts = [];
   for (const account of accounts) {
@@ -31,9 +34,7 @@ function getInvalidAccounts(accounts) {
     }
 
     for (const identity of account.identities) {
-      if (identity.valid) {
-        gAnyValidIdentity = true;
-      } else {
+      if (!identity.valid) {
         invalidAccounts.push(account);
       }
     }
@@ -206,9 +207,24 @@ function loadInboxForNewAccount() {
 
 /**
  * Open the Account Setup Tab or focus it if it's already open.
+ *
+ * @param {boolean} [isInitialSetup] - If this call is for the initial account
+ *   setup.
  */
-function openAccountSetupTab() {
+function openAccountSetup(isInitialSetup = false) {
   const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+
+  // Only show the Account Hub if this is not the initial setup and there is at
+  // least one account set up already.
+  if (
+    !isInitialSetup &&
+    MailServices.accounts.accounts.length &&
+    Services.prefs.getBoolPref("mail.accounthub.enabled", false)
+  ) {
+    mail3Pane.openAccountHub();
+    return;
+  }
+
   const tabmail = mail3Pane.document.getElementById("tabmail");
 
   // Switch to the account setup tab if it's already open.

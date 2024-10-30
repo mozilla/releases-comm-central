@@ -100,7 +100,7 @@ function verifyOpenAccountHubTab() {
     return;
   }
 
-  openAccountSetupTab();
+  openAccountSetup(true);
 }
 
 let _resolveDelayedStartup;
@@ -241,10 +241,6 @@ var gMailInit = {
         if (!gSpacesToolbar.isLoaded) {
           loadPostAccountWizard();
         }
-        break;
-
-      case "open-account-setup-tab":
-        openAccountSetupTab();
         break;
       default:
         break;
