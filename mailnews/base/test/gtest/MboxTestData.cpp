@@ -11,7 +11,7 @@ namespace testing {
 // Our mbox input and output code perform perfectly reversable transformations
 // on these. So tests for both MboxMsgInputStream and MboxMsgOutputStream use
 // these test cases.
-nsTArray<MboxCase> mboxValidCases({
+MOZ_RUNINIT nsTArray<MboxCase> mboxValidCases({
 
     // A couple of simple messages.
     {"From \r\n"
@@ -359,14 +359,14 @@ nsTArray<MboxCase> mboxValidCases({
 // we want to see out of them. For testing MboxMsgInputStream only, because
 // MboxMsgOutputStream should be fixing some of these oddities on the fly -
 // it'll do proper quoting, and message separation.
-nsTArray<MboxCase> mboxOddCases({
-  // Empty mbox (no messages).
-  {""_ns, {}},
-      // Single empty message.
-      {"From "_ns,
-       {
-           ""_ns,
-       }},
+MOZ_RUNINIT nsTArray<MboxCase> mboxOddCases({
+    // Empty mbox (no messages).
+    {""_ns, {}},
+    // Single empty message.
+    {"From "_ns,
+     {
+         ""_ns,
+     }},
 #if 0
     // TODO: Multiple empty messages.
     {
@@ -379,80 +379,80 @@ nsTArray<MboxCase> mboxOddCases({
          ""_ns,
      }},
 #endif
-      // Truncated Header block.
-      {"From \r\nTo: bob@invalid\r\nFrom: alice@inv..."_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@inv..."_ns,
-       }},
-      // Header block then nothing.
-      {"From \r\nTo: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"_ns,
-       }},
-      // Header block + blank line, but no body.
-      {"From \r\nTo: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n\r\n"_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n\r\n"_ns,
-       }},
-      // Header block, blank, body, but no trailing blank line.
-      {"From \r\n"
-       "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-       "\r\n"
-       "Here's a message body with no EOL"_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-           "\r\n"
-           "Here's a message body with no EOL"_ns,
-       }},
-      // Header block, blank, body, end in mid-quoting.
-      {"From \r\n"
-       "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-       "\r\n"
-       "Line one\r\n"
-       ">>>>>>>>>>>>>>>>"_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-           "\r\n"
-           "Line one\r\n"
-           ">>>>>>>>>>>>>>>>"_ns,
-       }},
-      // Header block, blank, body, end on a quoted "From ".
-      {"From \r\n"
-       "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-       "\r\n"
-       "Line one\r\n"
-       ">>>>From "_ns,
-       {
-           "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
-           "\r\n"
-           "Line one\r\n"
-           ">>>From "_ns,
-       }},
-      // Second message truncated after a folded (multi-line) header (Bug
-      // 1868504)
-      {"From \r\n"
-       "To: bob@invalid\r\n"
-       "From: alice@invalid\r\n"
-       "\r\n"
-       "Hi bob!\r\n"
-       "\r\n"
-       "From \r\n"
-       "X-Blah: multi-line\r\n"
-       "        headers\r\n"
-       "\tcan use tabs\r\n"
-       "   or spaces\r\n"_ns,
-       {
-           // 1st
-           "To: bob@invalid\r\n"
-           "From: alice@invalid\r\n"
-           "\r\n"
-           "Hi bob!\r\n"_ns,
-           // 2nd
-           "X-Blah: multi-line\r\n"
-           "        headers\r\n"
-           "\tcan use tabs\r\n"
-           "   or spaces\r\n"_ns,
-       }},
+    // Truncated Header block.
+    {"From \r\nTo: bob@invalid\r\nFrom: alice@inv..."_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@inv..."_ns,
+     }},
+    // Header block then nothing.
+    {"From \r\nTo: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"_ns,
+     }},
+    // Header block + blank line, but no body.
+    {"From \r\nTo: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n\r\n"_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n\r\n"_ns,
+     }},
+    // Header block, blank, body, but no trailing blank line.
+    {"From \r\n"
+     "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+     "\r\n"
+     "Here's a message body with no EOL"_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+         "\r\n"
+         "Here's a message body with no EOL"_ns,
+     }},
+    // Header block, blank, body, end in mid-quoting.
+    {"From \r\n"
+     "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+     "\r\n"
+     "Line one\r\n"
+     ">>>>>>>>>>>>>>>>"_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+         "\r\n"
+         "Line one\r\n"
+         ">>>>>>>>>>>>>>>>"_ns,
+     }},
+    // Header block, blank, body, end on a quoted "From ".
+    {"From \r\n"
+     "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+     "\r\n"
+     "Line one\r\n"
+     ">>>>From "_ns,
+     {
+         "To: bob@invalid\r\nFrom: alice@invalid\r\nSubject: Hi\r\n"
+         "\r\n"
+         "Line one\r\n"
+         ">>>From "_ns,
+     }},
+    // Second message truncated after a folded (multi-line) header (Bug
+    // 1868504)
+    {"From \r\n"
+     "To: bob@invalid\r\n"
+     "From: alice@invalid\r\n"
+     "\r\n"
+     "Hi bob!\r\n"
+     "\r\n"
+     "From \r\n"
+     "X-Blah: multi-line\r\n"
+     "        headers\r\n"
+     "\tcan use tabs\r\n"
+     "   or spaces\r\n"_ns,
+     {
+         // 1st
+         "To: bob@invalid\r\n"
+         "From: alice@invalid\r\n"
+         "\r\n"
+         "Hi bob!\r\n"_ns,
+         // 2nd
+         "X-Blah: multi-line\r\n"
+         "        headers\r\n"
+         "\tcan use tabs\r\n"
+         "   or spaces\r\n"_ns,
+     }},
 });
 
 // Handle "From " separators with no blank line preceeding them, as per
@@ -469,7 +469,7 @@ nsTArray<MboxCase> mboxOddCases({
 // NOTE: these mbox tests have unquoted "From " lines, and so are not
 // reversable. We aim to be tolerant in reading, but strict in writing. We'd
 // _never_ write out unquoted "From " lines.
-nsTArray<MboxCase> mboxAmbiguities({
+MOZ_RUNINIT nsTArray<MboxCase> mboxAmbiguities({
     // "From " separator with no preceeding blank line.
     {"From \r\n"
      "To: bob@invalid\r\n"
