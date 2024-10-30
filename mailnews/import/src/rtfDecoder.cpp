@@ -318,10 +318,10 @@ class Lexem {
   }
 };
 
-Lexem Lexem::eof(ltEOF);
-Lexem Lexem::groupBegin(ltGroupBegin);
-Lexem Lexem::groupEnd(ltGroupEnd);
-Lexem Lexem::error(ltError);
+MOZ_RUNINIT Lexem Lexem::eof(ltEOF);
+MOZ_RUNINIT Lexem Lexem::groupBegin(ltGroupBegin);
+MOZ_RUNINIT Lexem Lexem::groupEnd(ltGroupEnd);
+MOZ_RUNINIT Lexem Lexem::error(ltError);
 
 // This function moves pos. When calling the function, pos must be next to the
 // backslash; pos must be in the same sequence and before end!
@@ -371,8 +371,7 @@ void GetLexem(std::istream& stream, Lexem& result) {
   // - if it's 0x09 -> it's the keyword \tab
   // - else it's a PCDATA
   char ch;
-  while (!stream.get(ch).eof() && ((ch == '\n') || (ch == '\r')))
-    ;  // Skip crlf
+  while (!stream.get(ch).eof() && ((ch == '\n') || (ch == '\r')));  // Skip crlf
   if (stream.eof())
     result = Lexem::eof;
   else {

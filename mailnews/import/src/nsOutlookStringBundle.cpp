@@ -13,7 +13,8 @@
 #define OUTLOOK_MSGS_URL \
   "chrome://messenger/locale/outlookImportMsgs.properties"
 
-nsCOMPtr<nsIStringBundle> nsOutlookStringBundle::m_pBundle = nullptr;
+MOZ_RUNINIT nsCOMPtr<nsIStringBundle> nsOutlookStringBundle::m_pBundle =
+    nullptr;
 
 void nsOutlookStringBundle::GetStringBundle(void) {
   if (m_pBundle) return;

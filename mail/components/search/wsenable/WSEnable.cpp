@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/Attributes.h"
 #include <SearchAPI.h>
 #include <shellapi.h>
 #include <objbase.h>
@@ -32,7 +33,7 @@ struct RegKey {
       : mRoot(aRoot), mSubKey(aSubKey), mName(aName), mValue(aValue) {}
 };
 
-static const RegKey* const sRegKeys[] = {
+MOZ_RUNINIT static const RegKey* const sRegKeys[] = {
     new RegKey(HKEY_LOCAL_MACHINE,
                L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\"
                L"PropertyHandlers\\.wdseml",

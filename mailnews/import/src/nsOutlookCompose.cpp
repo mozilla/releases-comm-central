@@ -190,7 +190,7 @@ nsOutlookCompose::~nsOutlookCompose() {
   delete[] m_optimizationBuffer;
 }
 
-nsCOMPtr<nsIMsgIdentity> nsOutlookCompose::m_pIdentity = nullptr;
+MOZ_RUNINIT nsCOMPtr<nsIMsgIdentity> nsOutlookCompose::m_pIdentity = nullptr;
 
 nsresult nsOutlookCompose::CreateIdentity(void) {
   if (m_pIdentity) return NS_OK;

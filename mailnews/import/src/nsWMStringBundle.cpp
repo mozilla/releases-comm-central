@@ -12,7 +12,7 @@
 
 #define WM_MSGS_URL "chrome://messenger/locale/wmImportMsgs.properties"
 
-nsCOMPtr<nsIStringBundle> nsWMStringBundle::m_pBundle = nullptr;
+MOZ_RUNINIT nsCOMPtr<nsIStringBundle> nsWMStringBundle::m_pBundle = nullptr;
 
 void nsWMStringBundle::GetStringBundle(void) {
   if (m_pBundle) return;

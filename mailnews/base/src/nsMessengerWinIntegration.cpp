@@ -101,7 +101,7 @@ NOTIFYICONDATAW sMailIconData = {
     /* szInfoTitle */ L"",
     /* dwInfoFlags */ NIIF_USER | NIIF_NOSOUND};
 
-static nsCOMArray<nsIBaseWindow> sHiddenWindows;
+MOZ_RUNINIT static nsCOMArray<nsIBaseWindow> sHiddenWindows;
 static HWND sIconWindow;
 static uint32_t sUnreadCount;
 /* static */

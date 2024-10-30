@@ -52,7 +52,7 @@ void AppendToCString(const NSString* aString, nsCString& aResult) {
   {osx_property, osx_label, osx_key, #moz_name},
 
 // clang-format off
-const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
+MOZ_RUNINIT const nsAbOSXPropertyMap nsAbOSXUtils::kPropertyMap[] = {
     DEFINE_PROPERTY(FirstName, kABFirstNameProperty, nil, nil)
     DEFINE_PROPERTY(LastName, kABLastNameProperty, nil, nil)
     DONT_MAP("DisplayName", nil, nil, nil)
