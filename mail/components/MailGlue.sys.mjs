@@ -642,7 +642,7 @@ MailGlue.prototype = {
       );
       const addons = XPIDatabase.getAddons();
       for (const dbAddon of addons) {
-        if (dbAddon.permissions() & AddonManager.PERM_CAN_UPGRADE) {
+        if (dbAddon.permissions() & lazy.AddonManager.PERM_CAN_UPGRADE) {
           lazy.AddonManager.getAddonByID(dbAddon.id).then(addon => {
             if (!lazy.AddonManager.shouldAutoUpdate(addon)) {
               return;

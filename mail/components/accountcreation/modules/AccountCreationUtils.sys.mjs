@@ -8,6 +8,7 @@
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
@@ -570,7 +571,7 @@ AddonInstaller.prototype.isInstalled = async function () {
   if (!this._id) {
     return false;
   }
-  var addon = await AddonManager.getAddonByID(this._id);
+  const addon = await lazy.AddonManager.getAddonByID(this._id);
   return addon && this.matches(addon) && addon.isActive;
 };
 
@@ -583,7 +584,7 @@ AddonInstaller.prototype.isDisabled = async function () {
   if (!this._id) {
     return false;
   }
-  const addon = await AddonManager.getAddonByID(this._id);
+  const addon = await lazy.AddonManager.getAddonByID(this._id);
   return addon && !addon.isActive;
 };
 
@@ -592,14 +593,14 @@ AddonInstaller.prototype.isDisabled = async function () {
  * The downloaded XPI will be checked using prompt().
  */
 AddonInstaller.prototype._installDirect = async function () {
-  var installer = (this._installer = await AddonManager.getInstallForURL(
+  const installer = (this._installer = await lazy.AddonManager.getInstallForURL(
     this._url,
     { name: this._name }
   ));
   installer.promptHandler = makeCallback(this, this.prompt);
   await installer.install(); // throws, if failed
 
-  var addon = await AddonManager.getAddonByID(this._id);
+  const addon = await lazy.AddonManager.getAddonByID(this._id);
   await addon.enable();
 
   // Wait for addon startup code to finish
