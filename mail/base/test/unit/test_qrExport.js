@@ -365,3 +365,19 @@ add_task(async function test_getAccountOAuthUsage() {
   MailServices.accounts.removeAccount(outgoingOAuthAccount, false);
   MailServices.accounts.removeAccount(oauthAccount, false);
 });
+
+add_task(async function test_encodesMultiByteCharactersToQR() {
+  const testData = "⅝⅜⅝⅞™⅛";
+  const qrData = QRExport.renderQR(testData);
+
+  // In case the snapshot needs to be updated, uncomment this line for a test
+  // run.
+  // await IOUtils.writeUTF8(do_get_file("resources/qrdata_utfbytes.txt").path, qrData);
+  const qrCodeSnapshot = await IOUtils.readUTF8(
+    do_get_file("resources/qrdata_utfbytes.txt").path
+  );
+  Assert.ok(
+    qrData === qrCodeSnapshot,
+    "Snapshot should match generated QR data"
+  );
+});
