@@ -470,7 +470,7 @@ static int MimeMessage_close_headers(MimeObject* obj) {
       if (sscanf(xmoz, " %x %c", &flags, &dummy) == 1 &&
           flags & nsMsgMessageFlags::Partial) {
         obj->options->html_closure =
-            MimeClosure(MimeClosure::isMimeObject, obj);
+            MimeClosure(MimeClosure::isMimeMessage, obj);
         obj->options->generate_footer_html_fn =
             MimeMessage_partial_message_html;
       }
