@@ -4,6 +4,8 @@
 
 /* exported launchBrowser */
 
+var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
+
 /**
  * Launch the given url (string) in the external browser. If an event is passed,
  * then this is only done on left click and the event propagation is stopped.
@@ -34,9 +36,7 @@ function launchBrowser(url, event) {
     return;
   }
 
-  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Ci.nsIExternalProtocolService)
-    .loadURI(Services.io.newURI(url));
+  openLinkExternally(url, { addToHistory: false });
 
   // Make sure that any default click handlers don't do anything, we have taken
   // care of all processing

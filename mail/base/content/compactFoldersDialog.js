@@ -4,6 +4,10 @@
 
 var propBag, args;
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
+
 document.addEventListener("DOMContentLoaded", compactDialogOnDOMContentLoaded);
 // Bug 1720540: Call sizeToContent only after the entire window has been loaded,
 // including the shadow DOM and the updated fluent strings.
@@ -41,9 +45,7 @@ function compactDialogOnDOMContentLoaded() {
     const uri = Services.io.newURI(
       "https://support.mozilla.org/kb/compacting-folders"
     );
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(uri);
+    openLinkExternally(uri, { addToHistory: false });
   });
 }
 

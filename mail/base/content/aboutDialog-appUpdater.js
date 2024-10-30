@@ -7,6 +7,9 @@
 
 /* import-globals-from aboutDialog.js */
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
@@ -308,13 +311,10 @@ appUpdater.prototype = {
 };
 
 window.addEventListener("load", () => {
-  const protocolSvc = Cc[
-    "@mozilla.org/uriloader/external-protocol-service;1"
-  ].getService(Ci.nsIExternalProtocolService);
   for (const link of document.querySelectorAll(".download-link")) {
     link.addEventListener("click", event => {
       event.preventDefault();
-      protocolSvc.loadURI(Services.io.newURI(event.target.href));
+      openLinkExternally(event.target.href, { addToHistory: false });
     });
   }
 });

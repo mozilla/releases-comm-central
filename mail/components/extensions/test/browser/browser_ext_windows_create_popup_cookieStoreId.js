@@ -105,7 +105,7 @@ add_task(async function valid_cookieStoreId() {
         cookieStoreId: "firefox-container-1",
       },
       expectedCookieStoreIds: ["firefox-container-1"],
-      expectedExecuteScriptResult: ["about:blank - null"],
+      expectedExecuteScriptResult: ["about:blank"],
     },
     {
       description: "one URL in an array",
@@ -115,13 +115,15 @@ add_task(async function valid_cookieStoreId() {
         cookieStoreId: "firefox-container-1",
       },
       expectedCookieStoreIds: ["firefox-container-1"],
-      expectedExecuteScriptResult: ["about:blank - null"],
+      expectedExecuteScriptResult: ["about:blank"],
     },
   ];
 
   async function background(testCases) {
     const readyTabs = new Map();
     const tabReadyCheckers = new Set();
+    const baseURL = await browser.runtime.getURL("");
+
     browser.webNavigation.onCompleted.addListener(({ url, tabId, frameId }) => {
       if (frameId === 0) {
         readyTabs.set(tabId, url);
@@ -156,7 +158,7 @@ add_task(async function valid_cookieStoreId() {
         return (
           await browser.tabs.executeScript(tabId, {
             matchAboutBlank: true,
-            code: "`${document.URL} - ${origin}`",
+            code: "`${document.URL} - ${origin}/`",
           })
         )[0];
       } catch (e) {
@@ -199,7 +201,7 @@ add_task(async function valid_cookieStoreId() {
 
         const result = await executeScriptAndGetResult(win.tabs[i].id);
         browser.test.assertEq(
-          expectedResult,
+          `${expectedResult} - ${baseURL}`,
           result,
           `expected executeScript result for tab ${i} (${description})`
         );

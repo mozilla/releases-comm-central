@@ -6,6 +6,10 @@
 /* globals gatherTextUnder, goUpdateGlobalEditMenuItems, makeURLAbsolute, Services */
 /* import-globals-from ../../../base/content/widgets/browserPopups.js */
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
+
 var gChatContextMenu = null;
 
 function imContextMenu(aXulMenu) {
@@ -143,9 +147,10 @@ imContextMenu.prototype = {
 
   // Open linked-to URL in a new window.
   openLink(aURI) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(aURI || this.linkURI, nsContextMenu.contentData.principal);
+    openLinkExternally(aURI || this.linkURI, {
+      addToHistory: false,
+      principal: nsContextMenu.contentData.principal,
+    });
   },
 
   // Generate email address and put it on clipboard.

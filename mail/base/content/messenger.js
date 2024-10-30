@@ -25,6 +25,9 @@
 ChromeUtils.importESModule(
   "resource:///modules/activity/activityModules.sys.mjs"
 );
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -385,10 +388,7 @@ var gMailInit = {
 
     // Fall back to opening a browser window if we don't have a tabmail.
     if (!tabmail) {
-      const protocolSvc = Cc[
-        "@mozilla.org/uriloader/external-protocol-service;1"
-      ].getService(Ci.nsIExternalProtocolService);
-      protocolSvc.loadURI(Services.io.newURI(url));
+      openLinkExternally(url, { addToHistory: false });
     } else {
       tabmail.openTab("contentTab", {
         url,

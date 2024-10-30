@@ -5,6 +5,9 @@
 // chat/content/imAccountOptionsHelper.js
 /* globals accountOptionsHelper */
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
@@ -516,9 +519,7 @@ var accountWizard = {
   },
 
   openURL(aURL) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(aURL));
+    openLinkExternally(aURL, { addToHistory: false });
   },
 };
 

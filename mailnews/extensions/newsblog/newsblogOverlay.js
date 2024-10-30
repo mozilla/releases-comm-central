@@ -18,6 +18,9 @@ var { FeedUtils } = ChromeUtils.importESModule(
 var { MailE10SUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailE10SUtils.sys.mjs"
 );
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 
 ChromeUtils.defineESModuleGetters(this, {
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs",
@@ -198,9 +201,7 @@ var FeedMessageHandler = {
         }
         //TODO browser currently only used from SearchDialog for kOpenLoadInBrowser
         if (aWhere.browser) {
-          Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-            .getService(Ci.nsIExternalProtocolService)
-            .loadURI(uri);
+          openLinkExternally(uri, { addToHistory: false });
         } else if (aWhere.messagepane) {
           const browser = getMessagePaneBrowser();
           // Load about:blank in the browser before (potentially) switching

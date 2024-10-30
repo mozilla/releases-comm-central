@@ -5,6 +5,8 @@
 // The ext-* files are imported into the same scopes.
 /* import-globals-from ext-mail.js */
 
+var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
+  ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );
@@ -384,6 +386,7 @@ this.windows = class extends ExtensionAPIPersistent {
           const createWindowArgs = cdata => {
             const url = cdata.url || "about:blank";
             const urls = Array.isArray(url) ? url : [url];
+            const uri = Services.io.newURI(urls[0]);
 
             for (const idx in urls) {
               try {
@@ -413,6 +416,11 @@ this.windows = class extends ExtensionAPIPersistent {
             const actionData = {
               action: "open",
               allowScriptsToClose: createData.allowScriptsToClose,
+              triggeringPrincipal: getClonedPrincipalWithProtocolPermission(
+                context.principal,
+                uri,
+                { userContextId }
+              ),
               tabs: urls.map(u => ({
                 tabType: "contentTab",
                 tabParams: { url: u, userContextId },
@@ -647,9 +655,7 @@ this.windows = class extends ExtensionAPIPersistent {
               `Url scheme "${uri.scheme}" is not supported.`
             );
           }
-          Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-            .getService(Ci.nsIExternalProtocolService)
-            .loadURI(uri);
+          openLinkExternally(uri, { addToHistory: false });
         },
       },
     };

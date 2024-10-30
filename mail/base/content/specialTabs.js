@@ -711,12 +711,6 @@ class SecurityIcon {
 
 var specialTabs = {
   _kAboutRightsVersion: 1,
-  get _protocolSvc() {
-    delete this._protocolSvc;
-    return (this._protocolSvc = Cc[
-      "@mozilla.org/uriloader/external-protocol-service;1"
-    ].getService(Ci.nsIExternalProtocolService));
-  },
 
   get msgNotificationBar() {
     if (!this._notificationBox) {

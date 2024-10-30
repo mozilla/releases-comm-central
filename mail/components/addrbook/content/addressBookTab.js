@@ -20,9 +20,6 @@ var addressBookTabType = {
   bundle: Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   ),
-  protoSvc: Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
-    Ci.nsIExternalProtocolService
-  ),
 
   get loadingTabString() {
     delete this.loadingTabString;

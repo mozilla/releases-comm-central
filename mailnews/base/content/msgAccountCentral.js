@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -237,7 +240,5 @@ function subscribe() {
  */
 function openLink(event) {
   event.preventDefault();
-  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Ci.nsIExternalProtocolService)
-    .loadURI(Services.io.newURI(event.target.href));
+  openLinkExternally(event.target.href, { addToHistory: false });
 }

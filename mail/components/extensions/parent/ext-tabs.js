@@ -6,6 +6,8 @@ ChromeUtils.defineESModuleGetters(this, {
   MailE10SUtils: "resource:///modules/MailE10SUtils.sys.mjs",
 });
 
+var { getClonedPrincipalWithProtocolPermission, openLinkExternally } =
+  ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { openURI } = ChromeUtils.importESModule(
   "resource:///modules/MessengerContentHandler.sys.mjs"
 );
@@ -524,6 +526,15 @@ this.tabs = class extends ExtensionAPIPersistent {
               createProperties.cookieStoreId
             );
           }
+          const triggeringPrincipal =
+            url &&
+            getClonedPrincipalWithProtocolPermission(
+              context.principal,
+              Services.io.newURI(url),
+              {
+                userContextId,
+              }
+            );
 
           const currentTab = tabmail.selectedTab;
           const active = createProperties.active ?? true;
@@ -535,7 +546,7 @@ this.tabs = class extends ExtensionAPIPersistent {
             background: !active,
             initialBrowsingContextGroupId:
               context.extension.policy.browsingContextGroupId,
-            principal: context.extension.principal,
+            triggeringPrincipal,
             duplicate: true,
             userContextId,
           });
@@ -613,7 +624,10 @@ this.tabs = class extends ExtensionAPIPersistent {
                 flags: updateProperties.loadReplace
                   ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
                   : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
-                triggeringPrincipal: context.principal,
+                triggeringPrincipal: getClonedPrincipalWithProtocolPermission(
+                  context.principal,
+                  uri
+                ),
               };
 
               if (tab.type == "mail") {
@@ -634,9 +648,7 @@ this.tabs = class extends ExtensionAPIPersistent {
             } else {
               // Send unknown URLs schema to the external protocol handler.
               // This does not change the current tab.
-              Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-                .getService(Ci.nsIExternalProtocolService)
-                .loadURI(uri);
+              openLinkExternally(uri, { addToHistory: false });
             }
           }
 

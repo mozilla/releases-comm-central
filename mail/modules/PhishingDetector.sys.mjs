@@ -9,6 +9,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   isLegalIPAddress: "resource:///modules/hostnameUtils.sys.mjs",
   isLegalLocalIPAddress: "resource:///modules/hostnameUtils.sys.mjs",
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
 });
 
 export const PhishingDetector = new (class PhishingDetector {
@@ -156,12 +157,7 @@ export const PhishingDetector = new (class PhishingDetector {
       "browser.safebrowsing.reportPhishURL"
     );
     reportUrl += "&url=" + encodeURIComponent(aPhishingURL);
-
-    const uri = Services.io.newURI(reportUrl);
-    const protocolSvc = Cc[
-      "@mozilla.org/uriloader/external-protocol-service;1"
-    ].getService(Ci.nsIExternalProtocolService);
-    protocolSvc.loadURI(uri);
+    lazy.openLinkExternally(reportUrl, { addToHistory: false });
   }
 
   /**

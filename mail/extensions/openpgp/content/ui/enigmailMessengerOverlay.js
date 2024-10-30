@@ -13,6 +13,9 @@
 // TODO: check if this is safe
 /* eslint-disable no-unsanitized/property */
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -2092,9 +2095,7 @@ Enigmail.msg = {
   },
 
   loadExternalURL(url) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(url));
+    openLinkExternally(url, { addToHistory: false });
   },
 
   /**

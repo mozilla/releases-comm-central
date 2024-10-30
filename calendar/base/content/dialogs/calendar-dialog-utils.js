@@ -13,6 +13,7 @@
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -658,8 +659,6 @@ function openAttachmentFromItemSummary(aAttachmentId, item) {
     .filter(aAttachment => aAttachment.hashId == aAttachmentId);
 
   if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(attachments[0].uri);
+    openLinkExternally(attachments[0].uri, { addToHistory: false });
   }
 }

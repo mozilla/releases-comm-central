@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { getContentPrincipalWithProtocolPermission } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -239,13 +242,18 @@ function loadRequestedUrl() {
   // which is consistent with Firefox behaviour.
 
   if (typeof window.arguments[0] == "string") {
-    MailE10SUtils.loadURI(extBrowser, window.arguments[0]);
+    const url = window.arguments[0];
+    const uri = Services.io.newURI(url);
+    MailE10SUtils.loadURI(extBrowser, url, {
+      triggeringPrincipal: getContentPrincipalWithProtocolPermission(uri),
+    });
   } else {
     const createData = window.arguments[1].wrappedJSObject;
     const tabParams = createData.tabs[0].tabParams;
-    const url = new URL(tabParams.url);
-    // moz-extension://s urls default to allowScriptsToClose = true
-    const defaultScriptsToClose = url.protocol == "moz-extension:";
+    const uri = Services.io.newURI(tabParams.url);
+
+    // moz-extension:// urls default to allowScriptsToClose = true
+    const defaultScriptsToClose = uri.scheme == "moz-extension";
 
     if (createData.allowScriptsToClose ?? defaultScriptsToClose) {
       extBrowser.setAttribute("allowscriptstoclose", "true");
@@ -256,7 +264,9 @@ function loadRequestedUrl() {
       extBrowser.replaceWith(browser);
     }
     ExtensionParent.apiManager.emit("extension-browser-inserted", extBrowser);
-    MailE10SUtils.loadURI(extBrowser, tabParams.url);
+    MailE10SUtils.loadURI(extBrowser, tabParams.url, {
+      triggeringPrincipal: createData.triggeringPrincipal,
+    });
   }
 }
 

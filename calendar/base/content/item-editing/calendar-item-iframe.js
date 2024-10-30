@@ -23,6 +23,7 @@
 /* globals gTimezonesEnabled */ // Set by calendar-item-panel.js.
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+var { openLinkExternally } = ChromeUtils.importESModule("resource:///modules/LinkHelper.sys.mjs");
 var {
   recurrenceRule2String,
   splitRecurrenceRules,
@@ -2431,19 +2432,14 @@ function deleteAllAttachments() {
 
 /**
  * Opens the selected attachment using the external protocol service.
- *
- * @see nsIExternalProtocolService
  */
 function openAttachment() {
   // Only one file has to be selected and we don't handle base64 files at all
   const documentLink = document.getElementById("attachment-link");
   if (documentLink.selectedItem) {
     const attURI = documentLink.selectedItem.attachment.uri;
-    const externalLoader = Cc["@mozilla.org/uriloader/external-protocol-service;1"].getService(
-      Ci.nsIExternalProtocolService
-    );
-    // TODO There should be a nicer dialog
-    externalLoader.loadURI(attURI);
+    // TODO: There should be a nicer dialog.
+    openLinkExternally(attURI, { addToHistory: false });
   }
 }
 

@@ -8,6 +8,7 @@ import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   FeedUtils: "resource:///modules/FeedUtils.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
@@ -743,9 +744,7 @@ export class MessengerContentHandler {
   }
 
   openInExternal(uri) {
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(uri);
+    lazy.openLinkExternally(uri, { addToHistory: false });
   }
 
   /** @see {nsIContentHandler} */

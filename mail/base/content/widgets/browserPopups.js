@@ -7,6 +7,9 @@
 /* globals saveURL */ // From contentAreaUtils.js
 /* globals goUpdateCommand */ // From globalOverlay.js
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -939,35 +942,11 @@ class nsContextMenu {
     if (!url) {
       return;
     }
-    PlacesUtils.history
-      .insert({
-        url,
-        visits: [
-          {
-            date: new Date(),
-          },
-        ],
-      })
-      .catch(console.error);
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(url));
+    openLinkExternally(url);
   }
 
   openLinkInBrowser() {
-    PlacesUtils.history
-      .insert({
-        url: this.linkURL,
-        visits: [
-          {
-            date: new Date(),
-          },
-        ],
-      })
-      .catch(console.error);
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(this.linkURI);
+    openLinkExternally(this.linkURI);
   }
 
   mediaCommand(command) {

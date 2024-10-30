@@ -6,6 +6,9 @@
 
 "use strict";
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -127,7 +130,7 @@ function onLoad(loadEvent) {
   for (const link of document.getElementsByClassName("browser-link")) {
     link.onclick = event => {
       event.preventDefault();
-      openLink(event.target.href);
+      openLinkExternally(event.target.href, { addToHistory: false });
     };
   }
   // Open internal (about:) links open in Thunderbird tab
@@ -163,10 +166,4 @@ function openAboutTab(url) {
       tabParams: { url },
     }
   );
-}
-
-function openLink(url) {
-  Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-    .getService(Ci.nsIExternalProtocolService)
-    .loadURI(Services.io.newURI(url));
 }

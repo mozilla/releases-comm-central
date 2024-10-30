@@ -19,6 +19,9 @@
 /* globals gChatTab */ // From globals chat-messenger.js
 /* globals currentAttachments */ // From msgHdrView.js
 
+var { openLinkExternally } = ChromeUtils.importESModule(
+  "resource:///modules/LinkHelper.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -732,13 +735,7 @@ function openSupportURL() {
  */
 function openFormattedURL(aPrefName) {
   var urlToOpen = Services.urlFormatter.formatURLPref(aPrefName);
-
-  var uri = Services.io.newURI(urlToOpen);
-
-  var protocolSvc = Cc[
-    "@mozilla.org/uriloader/external-protocol-service;1"
-  ].getService(Ci.nsIExternalProtocolService);
-  protocolSvc.loadURI(uri);
+  openLinkExternally(urlToOpen, { addToHistory: false });
 }
 
 /**

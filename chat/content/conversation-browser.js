@@ -19,6 +19,7 @@
     insertHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
     isNextMessage: "resource:///modules/imThemes.sys.mjs",
     wasNextMessage: "resource:///modules/imThemes.sys.mjs",
+    openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
     replaceHTMLForMessage: "resource:///modules/imThemes.sys.mjs",
     removeMessage: "resource:///modules/imThemes.sys.mjs",
     serializeSelection: "resource:///modules/imThemes.sys.mjs",
@@ -82,10 +83,8 @@
         event.preventDefault();
         event.stopPropagation();
 
-        // loadURI can throw if the default browser is misconfigured.
-        Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-          .getService(Ci.nsIExternalProtocolService)
-          .loadURI(uri);
+        // openLinkExternally can throw if the default browser is misconfigured.
+        LazyModules.openLinkExternally(uri, { addToHistory: false });
       });
 
       this.addEventListener("keypress", event => {

@@ -4,6 +4,7 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
@@ -868,9 +869,7 @@ export var MailUtils = {
       "mailnews.messageid_browser.url"
     );
     browserURL = browserURL.replace(/%mid/, encodeURIComponent(messageId));
-    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-      .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(browserURL));
+    lazy.openLinkExternally(browserURL, { addToHistory: false });
   },
 
   /**
