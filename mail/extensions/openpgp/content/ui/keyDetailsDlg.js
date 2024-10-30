@@ -413,9 +413,6 @@ async function reloadData(firstLoad) {
 
   gModePersonal = keyObj.secretAvailable;
 
-  document.getElementById("passphraseTab").hidden = !gModePersonal;
-  document.getElementById("passphrasePanel").hidden = !gModePersonal;
-
   if (gModePersonal) {
     gPersonalRadio.removeAttribute("hidden");
     gAcceptanceRadio.setAttribute("hidden", "true");
