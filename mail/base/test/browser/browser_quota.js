@@ -174,11 +174,19 @@ function checkStatus(percent, usage, limit, className) {
     "meter should have the correct value"
   );
   Assert.equal(quotaMeter.max, 100, "meter should have the correct maximum");
+  // The numbers in the UI are formatted per local regional settings,
+  // so e.g. 10.2 may be 10,2.
+  // We'll just ignore that for comparisons. The expected values in the test
+  // use dot.
+  const quotaLabelAttrs = document.l10n.getAttributes(quotaLabel);
+  console.dir(quotaLabelAttrs);
+  quotaLabelAttrs.args.limit = quotaLabelAttrs.args.limit.replace(",", ".");
+  quotaLabelAttrs.args.usage = quotaLabelAttrs.args.usage.replace(",", ".");
   Assert.deepEqual(
-    document.l10n.getAttributes(quotaLabel),
+    quotaLabelAttrs,
     {
+      args: { limit, percent, usage },
       id: "quota-panel-percent-used",
-      args: { percent, usage, limit },
     },
     "label should have the correct text"
   );
