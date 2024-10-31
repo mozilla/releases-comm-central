@@ -11,8 +11,10 @@ interface mozIStorageConnection;
 interface nsIFolderDatabase : nsISupports {
   /**
    * Open a connection to the database and load in the folders from it.
+   * Returns a promise that resolves (with no value) when loading is complete.
    */
-  void loadFolders();
+  [implicit_jscontext]
+  Promise loadFolders();
 
   /**
    * Get a folder identified by its database row ID.

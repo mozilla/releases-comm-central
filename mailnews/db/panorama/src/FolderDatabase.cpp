@@ -5,6 +5,8 @@
 #include "FolderDatabase.h"
 
 #include "Folder.h"
+#include "mozilla/dom/Promise.h"
+#include "mozilla/ProfilerMarkers.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/Services.h"
 #include "mozIStorageService.h"
@@ -13,6 +15,10 @@
 #include "nsIFile.h"
 #include "nsIObserverService.h"
 #include "xpcpublic.h"
+
+using mozilla::MarkerOptions;
+using mozilla::MarkerTiming;
+using mozilla::dom::Promise;
 
 namespace mozilla {
 namespace mailnews {
@@ -66,6 +72,9 @@ nsresult FolderDatabase::EnsureConnection() {
     return NS_OK;
   }
 
+  MOZ_ASSERT(NS_IsMainThread(),
+             "connection must be established on the main thread");
+
   nsCOMPtr<nsIFile> databaseFile;
   nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
                                        getter_AddRefs(databaseFile));
@@ -113,7 +122,40 @@ nsresult FolderDatabase::GetStatement(const nsCString& aName,
 }
 
 NS_IMETHODIMP
-FolderDatabase::LoadFolders() {
+FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
+  ErrorResult result;
+  RefPtr<Promise> promise =
+      Promise::Create(xpc::CurrentNativeGlobal(aCx), result);
+
+  nsresult rv = EnsureConnection();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
+                          MarkerOptions(MarkerTiming::IntervalStart()));
+
+  nsMainThreadPtrHandle<dom::Promise> promiseHolder(
+      new nsMainThreadPtrHolder<Promise>("LoadFolders Promise", promise));
+  NS_DispatchBackgroundTask(NS_NewRunnableFunction(
+      __func__, [promiseHolder = std::move(promiseHolder)]() {
+        InternalLoadFolders();
+
+        NS_DispatchToMainThread(NS_NewRunnableFunction(
+            __func__, [promiseHolder = std::move(promiseHolder)]() {
+              PROFILER_MARKER_UNTYPED(
+                  "FolderDatabase::LoadFolders", OTHER,
+                  MarkerOptions(MarkerTiming::IntervalEnd()));
+
+              promiseHolder.get()->MaybeResolveWithUndefined();
+            }));
+      }));
+  promise.forget(aPromise);
+  return NS_OK;
+}
+
+nsresult FolderDatabase::InternalLoadFolders() {
+  MOZ_ASSERT(!NS_IsMainThread(),
+             "loading folders must happen off the main thread");
+
   sFoldersById.Clear();
 
   nsCOMPtr<mozIStorageStatement> stmt;

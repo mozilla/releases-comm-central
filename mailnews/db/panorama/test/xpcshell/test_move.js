@@ -8,8 +8,8 @@
  * check both are updated after each move.
  */
 
-add_setup(function () {
-  installDB("move.sqlite");
+add_setup(async function () {
+  await installDB("move.sqlite");
 });
 
 /**

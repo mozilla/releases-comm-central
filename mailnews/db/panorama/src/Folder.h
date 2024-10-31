@@ -18,7 +18,7 @@ class Folder : public nsIFolder {
   Folder(uint64_t aId, nsCString aName, uint64_t aFlags)
       : mId(aId), mName(aName), mFlags(aFlags) {};
 
-  NS_DECL_ISUPPORTS
+  NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFOLDER
 
   // C++ shortcuts.

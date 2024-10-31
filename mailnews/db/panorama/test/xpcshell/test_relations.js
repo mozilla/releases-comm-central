@@ -6,8 +6,8 @@
  * Tests the hierarchical attributes and functions of folders.
  */
 
-add_setup(function () {
-  installDB("relations.sqlite");
+add_setup(async function () {
+  await installDB("relations.sqlite");
 });
 
 add_task(function testRelations() {

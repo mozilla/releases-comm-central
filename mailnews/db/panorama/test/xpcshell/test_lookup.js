@@ -6,8 +6,8 @@
  * Tests looking up folders by path.
  */
 
-add_setup(function () {
-  installDB("lookup.sqlite");
+add_setup(async function () {
+  await installDB("lookup.sqlite");
 });
 
 add_task(function testLookup() {

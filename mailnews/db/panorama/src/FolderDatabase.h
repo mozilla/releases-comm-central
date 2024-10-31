@@ -39,6 +39,7 @@ class FolderDatabase : public nsIFolderDatabase, nsIObserver {
   static nsresult EnsureConnection();
   static nsresult GetStatement(const nsCString& aName, const nsCString& aSQL,
                                mozIStorageStatement** aStmt);
+  static nsresult InternalLoadFolders();
 
   static void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
 };

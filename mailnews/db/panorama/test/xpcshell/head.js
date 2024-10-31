@@ -4,7 +4,7 @@
 
 let database;
 
-function installDB(dbName) {
+async function installDB(dbName) {
   const profileDir = do_get_profile();
   const dbFile = do_get_file(`db/${dbName}`);
   dbFile.copyTo(profileDir, "panorama.sqlite");
@@ -12,7 +12,7 @@ function installDB(dbName) {
   database = Cc["@mozilla.org/mailnews/folder-database;1"].getService(
     Ci.nsIFolderDatabase
   );
-  database.loadFolders();
+  await database.loadFolders();
 }
 
 registerCleanupFunction(function () {
