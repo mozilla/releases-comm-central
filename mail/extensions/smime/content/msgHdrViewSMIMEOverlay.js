@@ -378,6 +378,9 @@ var smimeSink = {
               `<html>
               <head>
                 <title>${title}</title>
+                <link rel="stylesheet"
+                      href="chrome://messenger/skin/error-pages.css"
+                      type="text/css">
               </head>
               <body>
                 <h1>${title}</h1>

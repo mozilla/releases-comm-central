@@ -124,6 +124,7 @@
   skin/classic/messenger/cloudfileSelectDialog.css            (../shared/mail/cloudfileSelectDialog.css)
   skin/classic/messenger/compactFoldersDialog.css             (../shared/mail/compactFoldersDialog.css)
   skin/classic/messenger/containers.css                       (../shared/mail/containers.css)
+  skin/classic/messenger/error-pages.css                      (../shared/mail/error-pages.css)
   skin/classic/messenger/extensionPopup.css                   (../shared/mail/extensionPopup.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/imMenulist.css                       (../shared/mail/imMenulist.css)
