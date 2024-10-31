@@ -28,6 +28,9 @@ var gBrowser = {
   get webNavigation() {
     return this.selectedBrowser.webNavigation;
   },
+  getTabForBrowser() {
+    return null;
+  },
 };
 
 function getBrowser() {
