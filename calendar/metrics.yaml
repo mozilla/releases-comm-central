@@ -42,3 +42,30 @@ calendar:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  google_token_type:
+    type: labeled_string
+    description:
+      How Google calendar OAuth tokens are stored. There is a variety of old formats we would like
+      to remove, but migration is difficult and may not be worth attempting for some formats.
+      See MailGlue.sys.mjs for a description of each label.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1927971
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1927971
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: 135
+    labels:
+      - username_usernameToken
+      - username_idToken
+      - username_idOrigin
+      - username_noToken
+      - session_sessionToken
+      - session_sessionOrigin
+      - session_noToken
+      - id_idToken
+      - id_idOrigin
+      - id_noToken

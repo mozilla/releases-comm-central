@@ -1129,6 +1129,59 @@ function reportAddressBookTypes() {
 async function reportCalendars() {
   const telemetryReport = {};
   const home = lazy.l10n.formatValueSync("home-calendar-name");
+  const googleTokenTypes = {
+    // With a username in prefs:
+    username_usernameToken: 0,
+    // Token username is calendar id.
+    username_idToken: 0,
+    // Old client id, token origin and username are calendar id.
+    username_idOrigin: 0,
+    // Has a username but no token.
+    username_noToken: 0,
+
+    // With a session id in prefs:
+    // Token username is session id.
+    session_sessionToken: 0,
+    // Old client id, token origin and username are session id.
+    session_sessionOrigin: 0,
+    // Has a session id but no token.
+    session_noToken: 0,
+
+    // With neither:
+    // Token username is calendar id.
+    id_idToken: 0,
+    // Old client id, token origin and username are calendar id.
+    id_idOrigin: 0,
+    // Has no token.
+    id_noToken: 0,
+  };
+
+  function hasPassword(origin, username) {
+    for (const login of Services.logins.findLogins(origin, null, "")) {
+      if (login.username != username) {
+        continue;
+      }
+      if (
+        origin == "oauth://accounts.google.com" &&
+        login.httpRealm.includes("https://www.googleapis.com/auth/calendar")
+      ) {
+        return true;
+      }
+      if (
+        origin == "oauth://test.test" &&
+        login.httpRealm.includes("test_scope")
+      ) {
+        return true;
+      }
+      if (
+        origin.startsWith("oauth:") &&
+        login.httpRealm == "Google CalDAV v2"
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   for (const calendar of lazy.cal.manager.getCalendars()) {
     if (calendar.name == home && calendar.type == "storage") {
@@ -1154,6 +1207,46 @@ async function reportCalendars() {
     if (calendar.readOnly) {
       telemetryReport[calendar.type].readOnlyCount++;
     }
+
+    // Collect data on the storage of OAuth tokens for Google calendars.
+    if (calendar.type != "caldav") {
+      continue;
+    }
+    let loginOrigin;
+    if (calendar.uri.host == "apidata.googleusercontent.com") {
+      loginOrigin = "oauth://accounts.google.com";
+    } else if (calendar.uri.host == "mochi.test") {
+      loginOrigin = "oauth://test.test";
+    } else {
+      continue;
+    }
+
+    let label;
+    const username = calendar.getProperty("username");
+    const session = calendar.getProperty("sessionId");
+    if (username) {
+      label = "username";
+    } else if (session) {
+      label = "session";
+    } else {
+      label = "id";
+    }
+
+    if (username && hasPassword(loginOrigin, username)) {
+      label += "_usernameToken";
+    } else if (session && hasPassword(loginOrigin, session)) {
+      label += "_sessionToken";
+    } else if (hasPassword(loginOrigin, calendar.id)) {
+      label += "_idToken";
+    } else if (hasPassword(`oauth:${session}`, session)) {
+      label += "_sessionOrigin";
+    } else if (hasPassword(`oauth:${calendar.id}`, calendar.id)) {
+      label += "_idOrigin";
+    } else {
+      label += "_noToken";
+    }
+
+    googleTokenTypes[label]++;
   }
 
   for (const [type, { count, readOnlyCount }] of Object.entries(
@@ -1161,6 +1254,10 @@ async function reportCalendars() {
   )) {
     Glean.calendar.calendarCount[type.toLowerCase()].set(count);
     Glean.calendar.readOnlyCalendarCount[type.toLowerCase()].set(readOnlyCount);
+  }
+
+  for (const [label, count] of Object.entries(googleTokenTypes)) {
+    Glean.calendar.googleTokenType[label].set(count);
   }
 }
 
