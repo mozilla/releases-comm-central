@@ -71,8 +71,8 @@ add_task(function testMinimonth() {
 add_task(async function testIntervalDescription() {
   await subtestIntervalDescription(
     "السبت، ١٩ أكتوبر ٢٠٢٤",
-    "١٩–٢٥ أكتوبر، ٢٠٢٤",
-    "١٩ أكتوبر – ١٥ نوفمبر، ٢٠٢٤",
+    "١٩–٢٥ أكتوبر ٢٠٢٤",
+    "١٩ أكتوبر – ١٥ نوفمبر ٢٠٢٤",
     "أكتوبر ٢٠٢٤"
   );
 });
