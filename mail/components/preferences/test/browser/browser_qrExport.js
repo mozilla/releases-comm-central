@@ -7,8 +7,14 @@
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { OSKeyStore } = ChromeUtils.importESModule(
+  "resource://gre/modules/OSKeyStore.sys.mjs"
+);
+const { OSKeyStoreTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/OSKeyStoreTestUtils.sys.mjs"
+);
 
-let prefsWindow, prefsDocument, tabmail, popAccount, oauthAccount;
+let prefsWindow, prefsDocument, tabmail, popAccount, oauthAccount, token;
 
 add_setup(async function () {
   const imapAccounts = [];
@@ -61,12 +67,18 @@ add_setup(async function () {
   ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
   tabmail = document.getElementById("tabmail");
 
+  const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
+    Ci.nsIPK11TokenDB
+  );
+  token = tokendb.getInternalKeyToken();
+
   registerCleanupFunction(() => {
     for (const imapAccount of imapAccounts) {
       MailServices.accounts.removeAccount(imapAccount, false);
     }
     MailServices.accounts.removeAccount(popAccount, false);
     MailServices.accounts.removeAccount(oauthAccount, false);
+    Assert.ok(!token.hasPassword, "there should be no primary password");
   });
 });
 
@@ -299,6 +311,39 @@ add_task(async function test_oauthWarning() {
   );
 });
 
+add_task(async function test_passwordDisplayDisabled() {
+  Services.prefs.setBoolPref(
+    "pref.privacy.disable_button.view_passwords",
+    true
+  );
+  // Re-open preferences tab to load new pref value "the intended way".
+  tabmail.closeOtherTabs(0);
+  ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
+
+  const passwordInput = prefsDocument.getElementById(
+    "qrExportIncludePasswords"
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(
+      prefsDocument.getElementById("qrExportPasswordsSection")
+    ),
+    "With view passwords disabled the passwords section should be hidden"
+  );
+  Assert.ok(
+    !passwordInput.checked,
+    "With view passwords disabled the passwords input should be unchecked"
+  );
+  Assert.ok(
+    passwordInput.disabled,
+    "With view passwords disabled the passwords input should be disabled"
+  );
+
+  Services.prefs.clearUserPref("pref.privacy.disable_button.view_passwords");
+  tabmail.closeOtherTabs(0);
+  ({ prefsWindow, prefsDocument } = await openNewPrefsTab("paneQrExport"));
+});
+
 /**
  * Step the QR code wizard and verify the displayed code changes.
  *
@@ -329,19 +374,25 @@ add_task(async function test_stepThroughQrCodes() {
     BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportIntro")),
     "Intro screen should be visible"
   );
+  // Avoid needing the keystore.
+  prefsDocument.getElementById("qrExportIncludePasswords").checked = false;
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportStart"),
     {},
     prefsWindow
   );
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
+  );
 
   Assert.ok(
     BrowserTestUtils.isHidden(prefsDocument.getElementById("qrExportIntro")),
     "Intro screen should no longer be visible"
-  );
-  Assert.ok(
-    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes")),
-    "QR codes screen should be shown now"
   );
 
   Assert.equal(
@@ -429,10 +480,19 @@ add_task(async function test_completeCycleWithSummary() {
     {},
     prefsWindow
   );
-  Assert.ok(
-    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes")),
-    "QR codes screen should be shown now"
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
   );
+
+  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportCodesNext"),
     {},
@@ -519,11 +579,26 @@ add_task(async function test_completeCycleWithSummary() {
 add_task(async function test_summaryWithPasswords() {
   selectSingleAccountAndSetIncludePasswords(true);
 
+  const promptPromise = expectPasswordPrompt("", "accept");
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportStart"),
     {},
     prefsWindow
   );
+  await promptPromise;
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
+  );
+
+  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
   EventUtils.synthesizeMouseAtCenter(
     prefsDocument.getElementById("qrExportCodesNext"),
     {},
@@ -541,6 +616,108 @@ add_task(async function test_summaryWithPasswords() {
   Assert.equal(
     passwordsItem.dataset.l10nId,
     "qr-export-summary-passwords-included",
+    "Should show passwords included string"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportRestart"),
+    {},
+    prefsWindow
+  );
+}).skip(!OSKeyStoreTestUtils.canTestOSKeyStoreLogin());
+
+add_task(async function test_withPrimaryPassword() {
+  selectSingleAccountAndSetIncludePasswords(true);
+  setPrimaryPassword("", "qrtest");
+
+  const promptPromise = expectPasswordPrompt("qrtest", "accept");
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+  await promptPromise;
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
+  );
+  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesNext"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
+    "Should show summary"
+  );
+
+  const passwordsItem = prefsDocument.getElementById(
+    "qrExportSummaryPasswords"
+  );
+  Assert.equal(
+    passwordsItem.dataset.l10nId,
+    "qr-export-summary-passwords-included",
+    "Should show passwords included string"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportRestart"),
+    {},
+    prefsWindow
+  );
+
+  setPrimaryPassword("qrtest", "");
+});
+
+add_task(async function test_primaryPasswordRefused() {
+  selectSingleAccountAndSetIncludePasswords(true);
+  setPrimaryPassword("", "qrtest");
+
+  const promptPromise = expectPasswordPrompt("qrtest", "cancel");
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+  await promptPromise;
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
+  );
+  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesNext"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
+    "Should show summary"
+  );
+
+  const passwordsItem = prefsDocument.getElementById(
+    "qrExportSummaryPasswords"
+  );
+  Assert.equal(
+    passwordsItem.dataset.l10nId,
+    "qr-export-summary-passwords-excluded",
     "Should show passwords excluded string"
   );
 
@@ -549,4 +726,130 @@ add_task(async function test_summaryWithPasswords() {
     {},
     prefsWindow
   );
+  setPrimaryPassword("qrtest", "");
 });
+
+add_task(async function test_osAuthRefused() {
+  selectSingleAccountAndSetIncludePasswords(true);
+
+  const promptPromise = expectPasswordPrompt("", "cancel");
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportStart"),
+    {},
+    prefsWindow
+  );
+  await promptPromise;
+  await BrowserTestUtils.waitForMutationCondition(
+    prefsDocument.getElementById("qrExportCodes"),
+    {
+      attributeFilter: ["hidden"],
+    },
+    () =>
+      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
+  );
+  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
+    behavior: "instant",
+    block: "nearest",
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportCodesNext"),
+    {},
+    prefsWindow
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
+    "Should show summary"
+  );
+
+  const passwordsItem = prefsDocument.getElementById(
+    "qrExportSummaryPasswords"
+  );
+  Assert.equal(
+    passwordsItem.dataset.l10nId,
+    "qr-export-summary-passwords-excluded",
+    "Should show passwords excluded string"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("qrExportRestart"),
+    {},
+    prefsWindow
+  );
+}).skip(
+  !OSKeyStoreTestUtils.canTestOSKeyStoreLogin() || !OSKeyStore.canReauth()
+);
+
+/**
+ * Handle the prompt to include passwords in the QR code.
+ *
+ * @param {string} primaryPassword - Primary password if enabled.
+ * @param {"accept"|"cancel"} action - Action to take in the password prompt.
+ */
+async function expectPasswordPrompt(primaryPassword, action) {
+  if (OSKeyStore.canReauth() && !primaryPassword) {
+    return OSKeyStoreTestUtils.waitForOSKeyStoreLogin(action === "accept");
+  }
+  // Not showing a confirmation prompt unless we are asking for a primary
+  // password or OS auth.
+  if (!primaryPassword) {
+    return Promise.resolve();
+  }
+  // If there's a primary password set, we should be asked for it.
+  return BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(win) {
+      const doc = win.document;
+      const passwordInput = doc.getElementById("password1Textbox");
+      Assert.ok(
+        BrowserTestUtils.isVisible(passwordInput),
+        "password input should be visible"
+      );
+      Assert.equal(
+        doc.activeElement,
+        passwordInput,
+        "password input should have focus"
+      );
+      if (action === "accept") {
+        EventUtils.sendString(primaryPassword, win);
+      }
+      doc.querySelector("dialog").getButton(action).click();
+    },
+  });
+}
+
+/**
+ * Change the primary password.
+ *
+ * @param {string} oldPassword - Old password, empty string if not set.
+ * @param {string} newPassword - New password, empty string to remove password.
+ */
+async function setPrimaryPassword(oldPassword = "", newPassword = "") {
+  Assert.equal(
+    Boolean(oldPassword),
+    token.hasPassword,
+    "Should provide old password if there is already a password"
+  );
+  if (oldPassword) {
+    Assert.ok(
+      token.checkPassword(oldPassword),
+      "Old password should be correct"
+    );
+  }
+  if (!oldPassword) {
+    token.initPassword(newPassword);
+  } else {
+    token.changePassword(oldPassword, newPassword);
+  }
+
+  Assert.equal(
+    token.hasPassword,
+    Boolean(newPassword),
+    "Should set password if one was provided"
+  );
+  if (newPassword) {
+    Assert.ok(
+      token.checkPassword(newPassword),
+      "Password should be set to new password"
+    );
+  }
+}

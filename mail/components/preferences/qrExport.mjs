@@ -7,6 +7,9 @@ import { defineLazyCustomElement } from "chrome://messenger/content/CustomElemen
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 
 defineLazyCustomElement(
   "qr-code-wizard",
@@ -16,6 +19,8 @@ defineLazyCustomElement(
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   QRExport: "resource:///modules/QRExport.sys.mjs",
+  LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
+  OSKeyStore: "resource://gre/modules/OSKeyStore.sys.mjs",
 });
 
 const STEPS = ["Intro", "Codes", "Summary"];
@@ -174,32 +179,42 @@ export const qrExportPane = {
       document.querySelectorAll("#qrExportAccountsList input:not(:checked)")
         .length === 0;
 
-    const checkedAccountInputs = Array.from(
-      document.querySelectorAll("#qrExportAccountsList input:checked")
+    let hidePasswordsSection = Services.prefs.getBoolPref(
+      "pref.privacy.disable_button.view_passwords",
+      false
     );
-    const hasOauth = checkedAccountInputs.some(
-      input => input.dataset.hasOauth === "true"
-    );
-    const oauthOnly =
-      checkedAccountInputs.length > 0 &&
-      checkedAccountInputs.every(input => input.dataset.oauthOnly === "true");
-    // Adjust visibility of export passwords section elements according to OAuth
-    // accounts.
-    document.getElementById("qrExportOauthWarning").hidden = !hasOauth;
-    document.getElementById("qrExportPasswordsSection").hidden = oauthOnly;
     const includePasswordsCheckbox = document.getElementById(
       "qrExportIncludePasswords"
     );
-    if (oauthOnly) {
-      includePasswordsCheckbox.dataset.wasChecked ||=
-        includePasswordsCheckbox.checked;
-      includePasswordsCheckbox.checked = false;
-    } else if (includePasswordsCheckbox.dataset.wasChecked) {
-      includePasswordsCheckbox.checked =
-        includePasswordsCheckbox.dataset.wasChecked === "true";
-      delete includePasswordsCheckbox.dataset.wasChecked;
+    if (!hidePasswordsSection) {
+      const checkedAccountInputs = Array.from(
+        document.querySelectorAll("#qrExportAccountsList input:checked")
+      );
+      const hasOauth = checkedAccountInputs.some(
+        input => input.dataset.hasOauth === "true"
+      );
+      hidePasswordsSection =
+        checkedAccountInputs.length > 0 &&
+        checkedAccountInputs.every(input => input.dataset.oauthOnly === "true");
+      // Adjust visibility of export passwords section elements according to OAuth
+      // accounts.
+      document.getElementById("qrExportOauthWarning").hidden = !hasOauth;
+
+      if (hidePasswordsSection) {
+        includePasswordsCheckbox.dataset.wasChecked ||=
+          includePasswordsCheckbox.checked;
+      } else if (includePasswordsCheckbox.dataset.wasChecked) {
+        includePasswordsCheckbox.checked =
+          includePasswordsCheckbox.dataset.wasChecked === "true";
+        delete includePasswordsCheckbox.dataset.wasChecked;
+      }
     }
-    includePasswordsCheckbox.disabled = oauthOnly;
+    document.getElementById("qrExportPasswordsSection").hidden =
+      hidePasswordsSection;
+    if (hidePasswordsSection) {
+      includePasswordsCheckbox.checked = false;
+    }
+    includePasswordsCheckbox.disabled = hidePasswordsSection;
   },
 
   /**
@@ -255,7 +270,10 @@ export const qrExportPane = {
    * @param {boolean} includePasswords - If passwords should be included in the
    *   QR code.
    */
-  showCodes(accountKeys, includePasswords) {
+  async showCodes(accountKeys, includePasswords) {
+    if (includePasswords) {
+      includePasswords = await this.requestAuthorizationToIncludePasswords();
+    }
     const wizard = document.getElementById("qrCodeWizard");
     wizard.initializeQRCodes(accountKeys, includePasswords);
     if (wizard.getTotalSteps() === 0) {
@@ -280,5 +298,66 @@ export const qrExportPane = {
    */
   showSummary() {
     this.showStep("Summary");
+  },
+
+  /**
+   * Make sure we are allowed to include raw passwords. Mostly copied from
+   * passwordManager.js masterPasswordLogin
+   *
+   * @returns {boolean} If we can include passwords.
+   */
+  async requestAuthorizationToIncludePasswords() {
+    // This doesn't harm if passwords are not encrypted
+    const tokendb = Cc["@mozilla.org/security/pk11tokendb;1"].createInstance(
+      Ci.nsIPK11TokenDB
+    );
+    const token = tokendb.getInternalKeyToken();
+
+    const isOSAuthEnabled = lazy.LoginHelper.getOSAuthEnabled(
+      lazy.LoginHelper.OS_AUTH_FOR_PASSWORDS_PREF
+    );
+
+    // If there is no primary password, still give the user a chance to opt-out of displaying passwords
+    if (token.checkPassword("")) {
+      if (!isOSAuthEnabled) {
+        return true;
+      }
+      // Require OS authentication before the user can export the passwords.
+      // Is password-os-auth-dialog-message-macosx on mac OS.
+      let messageId = "password-os-auth-dialog-message";
+      if (AppConstants.platform == "macosx") {
+        // MacOS requires a special format of this dialog string.
+        // See preferences.ftl for more information.
+        messageId += "-macosx";
+      }
+      const [messageText, captionText] = await document.l10n.formatMessages([
+        {
+          id: messageId,
+        },
+        {
+          id: "password-os-auth-dialog-caption",
+        },
+      ]);
+      const win = Services.wm.getMostRecentWindow("");
+      const loggedIn = await lazy.OSKeyStore.ensureLoggedIn(
+        messageText.value,
+        captionText.value,
+        win,
+        false
+      );
+      return loggedIn.authenticated;
+    }
+
+    // So there's a primary password. But since checkPassword didn't succeed, we're logged out (per nsIPK11Token.idl).
+    try {
+      // Relogin and ask for the primary password.
+      token.login(true); // 'true' means always prompt for token password. User will be prompted until
+      // clicking 'Cancel' or entering the correct password.
+    } catch (e) {
+      // An exception will be thrown if the user cancels the login prompt dialog.
+      // User is also logged out of Software Security Device.
+    }
+
+    return token.isLoggedIn();
   },
 };
