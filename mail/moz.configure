@@ -13,9 +13,11 @@ set_config("MOZ_APPUPDATE_HOST", "aus.thunderbird.net")
 imply_option("--enable-default-browser-agent", False)
 imply_option("MOZ_REQUIRE_SIGNING", False)
 
+
 @depends(milestone)
 def enable_sync(milestone):
     return milestone.is_nightly
+
 
 imply_option("MOZ_SERVICES_SYNC", True, when=enable_sync)
 
