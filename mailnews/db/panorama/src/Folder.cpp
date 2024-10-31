@@ -23,16 +23,28 @@ Folder::GetName(nsACString& aName) {
   return NS_OK;
 }
 
+nsCString Folder::GetName() {
+  nsAutoCString name;
+  DebugOnly<nsresult> rv = GetName(name);
+  MOZ_ASSERT(NS_SUCCEEDED(rv));
+  return name;
+}
+
 NS_IMETHODIMP
 Folder::GetPath(nsACString& aPath) {
   aPath.Truncate();
   if (mParent) {
-    nsAutoCString ancestorNames;
-    mParent->GetPath(ancestorNames);
-    aPath = ancestorNames + "/"_ns;
+    aPath = mParent->GetPath() + "/"_ns;
   }
   aPath.Append(mName);
   return NS_OK;
+}
+
+nsCString Folder::GetPath() {
+  nsAutoCString path;
+  DebugOnly<nsresult> rv = GetPath(path);
+  MOZ_ASSERT(NS_SUCCEEDED(rv));
+  return path;
 }
 
 NS_IMETHODIMP
@@ -100,14 +112,13 @@ NS_IMETHODIMP
 Folder::IsAncestorOf(nsIFolder* aOther, bool* aIsAncestor) {
   *aIsAncestor = false;
 
-  nsCOMPtr<nsIFolder> other;
-  aOther->GetParent(getter_AddRefs(other));
+  nsCOMPtr<nsIFolder> other = aOther->GetParent();
   while (other) {
     if (other == this) {
       *aIsAncestor = true;
       break;
     }
-    other->GetParent(getter_AddRefs(other));
+    other = other->GetParent();
   };
   return NS_OK;
 }

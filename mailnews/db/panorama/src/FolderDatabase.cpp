@@ -177,9 +177,7 @@ FolderDatabase::LoadFolders() {
 
     sFoldersById.InsertOrUpdate(id, current);
     // Could probably optimise this.
-    nsAutoCString path;
-    current->GetPath(path);
-    sFoldersByPath.InsertOrUpdate(path, current);
+    sFoldersByPath.InsertOrUpdate(current->GetPath(), current);
   }
   stmt->Reset();
 
@@ -287,17 +285,14 @@ FolderDatabase::MoveFolderTo(nsIFolder* aNewParent, nsIFolder* aChild) {
   stmt->Execute();
   stmt->Reset();
 
-  nsAutoCString path;
-  child->GetPath(path);
-  sFoldersByPath.Remove(path);
+  sFoldersByPath.Remove(child->GetPath());
 
   child->mParent->mChildren.RemoveElement(child);
   newParent->mChildren.InsertElementSorted(child, sComparator);
   child->mParent = newParent;
   child->mOrdinal.reset();
 
-  child->GetPath(path);
-  sFoldersByPath.InsertOrUpdate(path, child);
+  sFoldersByPath.InsertOrUpdate(child->GetPath(), child);
 
   return NS_OK;
 }

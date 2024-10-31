@@ -21,6 +21,10 @@ class Folder : public nsIFolder {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIFOLDER
 
+  // C++ shortcuts.
+  nsCString GetName();
+  nsCString GetPath();
+
  protected:
   virtual ~Folder() {};
 

@@ -4,12 +4,12 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(c8d71b1d-f03b-40d9-a986-0e1f53ab6c23)]
+[scriptable, builtinclass, uuid(c8d71b1d-f03b-40d9-a986-0e1f53ab6c23)]
 interface nsIFolder : nsISupports {
   /**
    * Database identifier for this folder.
    */
-  readonly attribute unsigned long long id;
+  [infallible] readonly attribute unsigned long long id;
 
   /**
    * Name of this folder. For root folders, this is the server key.
@@ -25,17 +25,17 @@ interface nsIFolder : nsISupports {
   /**
    * The flags associated with this folder.
    */
-  readonly attribute unsigned long long flags;
+  [infallible] readonly attribute unsigned long long flags;
 
   /**
    * The root folder of this folder's server.
    */
-  readonly attribute nsIFolder rootFolder;
+  [infallible] readonly attribute nsIFolder rootFolder;
 
   /**
    * If this folder is the root folder.
    */
-  readonly attribute boolean isServer;
+  [infallible] readonly attribute boolean isServer;
 
   /**
    * An array of ancestors of this folder, starting with the folder's parent
@@ -46,7 +46,7 @@ interface nsIFolder : nsISupports {
   /**
    * The parent folder of this folder, or null if there is no parent.
    */
-  readonly attribute nsIFolder parent;
+  [infallible] readonly attribute nsIFolder parent;
 
   /**
    * The child folders of this folder, in display order. Display order is
@@ -73,4 +73,10 @@ interface nsIFolder : nsISupports {
    * Helper function for making test output readable.
    */
   AUTF8String toJSON();
+
+%{C++
+  nsCString GetName();
+  nsCString GetPath();
+%}
+
 };
