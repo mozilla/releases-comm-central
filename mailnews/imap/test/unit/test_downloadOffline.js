@@ -7,26 +7,20 @@
  * and returns success.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
 
-var gFileName = "bug460636";
-var gMsgFile = do_get_file("../../../data/" + gFileName);
-
-var tests = [setup, downloadAllForOffline, verifyDownloaded, teardownIMAPPump];
-
-async function setup() {
+add_task(async function setup() {
   setupIMAPPump();
+  const msgFile = do_get_file("../../../data/bug460636");
 
   /*
    * Ok, prelude done. Read the original message from disk
    * (through a file URI), and add it to the Inbox.
    */
   const msgfileuri = Services.io
-    .newFileURI(gMsgFile)
+    .newFileURI(msgFile)
     .QueryInterface(Ci.nsIFileURL);
 
   IMAPPump.mailbox.addMessage(
@@ -42,35 +36,26 @@ async function setup() {
   const imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   imapMsg.setSize(5000);
   IMAPPump.mailbox.addMessage(imapMsg);
+});
 
-  // ...and download for offline use.
+add_task(async function downloadAllForOffline() {
   const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
   await promiseUrlListener.promise;
-}
+});
 
-async function downloadAllForOffline() {
-  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  IMAPPump.inbox.downloadAllForOffline(promiseUrlListener, null);
-  await promiseUrlListener.promise;
-}
-
-function verifyDownloaded() {
-  // verify that the message headers have the offline flag set.
-  for (const header of IMAPPump.inbox.msgDatabase.enumerateMessages()) {
-    // Verify that each message has been downloaded and looks OK.
-    if (
-      header instanceof Ci.nsIMsgDBHdr &&
-      header.flags & Ci.nsMsgMessageFlags.Offline
-    ) {
-      IMAPPump.inbox.getLocalMsgStream(header).close();
-    } else {
-      do_throw("Message not downloaded for offline use");
-    }
+add_task(async function verifyDownloaded() {
+  const inbox = IMAPPump.inbox;
+  for (const msg of inbox.messages) {
+    Assert.ok(
+      msg.flags & Ci.nsMsgMessageFlags.Offline,
+      "Message should have Offline flag"
+    );
+    // Make sure we can successfully read the whole message.
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    const uri = inbox.getUriForMsg(msg);
+    const service = MailServices.messageServiceFromURI(uri);
+    service.streamMessage(uri, streamListener, null, null, false, "", true);
+    await streamListener.promise;
   }
-}
-
-function run_test() {
-  tests.forEach(x => add_task(x));
-  run_next_test();
-}
+});
