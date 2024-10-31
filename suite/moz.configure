@@ -153,6 +153,16 @@ with only_when(target_has_linux_kernel & compile_environment):
 
 check_prog("ZIP", ("zip",))
 
+set_config(
+    "MOZ_GLEAN_EXTRA_METRICS_FILES",
+    [
+        "comm/mail/metrics.yaml",
+        "comm/calendar/metrics.yaml",
+    ],
+)
+# set_config("MOZ_GLEAN_EXTRA_PINGS_FILES", ["comm/mail/pings.yaml"])
+set_config("MOZ_GLEAN_EXTRA_TAGS_FILES", ["comm/mail/tags.yaml"])
+
 include("../build/moz.configure/gecko_source.configure")
 
 include("../mailnews/moz.configure")
