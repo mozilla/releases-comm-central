@@ -328,7 +328,7 @@ mail:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#c7
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
@@ -341,7 +341,7 @@ mail:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#c7
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
@@ -358,7 +358,7 @@ mail:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152
     data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#cX
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926152#c7
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
