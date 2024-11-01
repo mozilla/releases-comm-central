@@ -96,6 +96,7 @@ add_task(async function testIMAPSubscribe() {
         const doc = win.document;
         const serverMenu = doc.getElementById("serverMenu");
         const tabs = doc.getElementById("subscribeTabs");
+        const nameContainer = doc.getElementById("nameContainer");
         const subscribeTree = doc.getElementById("subscribeTree");
         const view = subscribeTree.view;
         const newGroupsTab = doc.getElementById("newGroupsTab");
@@ -105,12 +106,20 @@ add_task(async function testIMAPSubscribe() {
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
         );
+
         await TestUtils.waitForCondition(
           () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
-          "waiting for tree view to be resized"
+          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
+            subscribeTree.clientHeight +
+            ", subscribeTree.rowHeight=" +
+            subscribeTree.rowHeight
         );
 
         Assert.equal(serverMenu.value, imapRootFolder.URI);
+        Assert.ok(
+          BrowserTestUtils.isHidden(nameContainer),
+          "search row should be hidden for IMAP"
+        );
         Assert.equal(tabs.selectedIndex, 0);
         Assert.ok(newGroupsTab.collapsed);
 
@@ -220,9 +229,13 @@ add_task(async function testNNTPSubscribe() {
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
         );
+
         await TestUtils.waitForCondition(
-          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
-          "waiting for tree view to be resized"
+          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
+          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
+            subscribeTree.clientHeight +
+            ", subscribeTree.rowHeight=" +
+            subscribeTree.rowHeight
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -322,9 +335,13 @@ add_task(async function testNNTPSubscribe() {
           () => view.rowCount == 5,
           "waiting for tree view to be populated"
         );
+
         await TestUtils.waitForCondition(
-          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
-          "waiting for tree view to be resized"
+          () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
+          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
+            subscribeTree.clientHeight +
+            ", subscribeTree.rowHeight=" +
+            subscribeTree.rowHeight
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -478,23 +495,49 @@ function checkTreeRow(tree, index, expected) {
     .getCellProperties(index, subscribedColumn)
     .split(" ");
   if (expected.level !== undefined) {
-    Assert.equal(tree.view.getLevel(index), expected.level);
+    Assert.equal(tree.view.getLevel(index), expected.level, "Expected levels");
   }
   if (expected.name !== undefined) {
-    Assert.equal(tree.view.getCellText(index, nameColumn), expected.name);
+    Assert.equal(
+      tree.view.getCellText(index, nameColumn),
+      expected.name,
+      "Expected Name"
+    );
   }
   if (expected.subscribable) {
     // Properties usually has "subscribable-true", but sometimes it doesn't.
-    Assert.ok(!properties.includes("subscribable-false"));
+    Assert.ok(
+      !properties.includes("subscribable-false"),
+      "expected subscribable for " + tree.view.getCellText(index, nameColumn)
+    );
   } else {
-    Assert.ok(!properties.includes("subscribable-true"));
-    Assert.ok(properties.includes("subscribable-false"));
+    Assert.ok(
+      !properties.includes("subscribable-true"),
+      "doesn't include subscribable-true for " +
+        tree.view.getCellText(index, nameColumn)
+    );
+    Assert.ok(
+      properties.includes("subscribable-false"),
+      "includes subscribable-false for " +
+        tree.view.getCellText(index, nameColumn)
+    );
   }
   if (expected.subscribed) {
-    Assert.ok(properties.includes("subscribed-true"));
-    Assert.ok(!properties.includes("subscribed-false"));
+    Assert.ok(
+      properties.includes("subscribed-true"),
+      "includes subscribed-true for " + tree.view.getCellText(index, nameColumn)
+    );
+    Assert.ok(
+      !properties.includes("subscribed-false"),
+      "doesn't include subscribed-false for " +
+        tree.view.getCellText(index, nameColumn)
+    );
   } else {
-    Assert.ok(!properties.includes("subscribed-true"));
+    Assert.ok(
+      !properties.includes("subscribed-true"),
+      "doesn't include subscribed-true for " +
+        tree.view.getCellText(index, nameColumn)
+    );
     // Properties usually has "subscribed-false", but sometimes it doesn't.
   }
 }
@@ -506,12 +549,15 @@ function checkTreeRow(tree, index, expected) {
  * @param {integer} index
  */
 function clickTreeRow(tree, index) {
+  tree.scrollToRow(index);
+
   const treeChildren = tree.lastElementChild;
   const coords = tree.getCoordsForCellItem(
     index,
     tree.columns.subscribedColumn,
     "cell"
   );
+
   EventUtils.synthesizeMouse(
     treeChildren,
     coords.x + coords.width / 2,

@@ -58,25 +58,15 @@
       />
 
       <vbox flex="1">
-        <hbox>
-          <vbox>
-            <hbox pack="end" align="center" flex="1">
-              <label
-                value="&server.label;"
-                accesskey="&server.accesskey;"
-                control="serverMenu"
-              />
-            </hbox>
-            <hbox flex="1" align="center">
-              <label
-                id="namefieldlabel"
-                accesskey="&namefield.accesskey;"
-                value="&namefield.label;"
-                control="namefield"
-              />
-            </hbox>
-          </vbox>
-          <vbox flex="1">
+        <vbox>
+          <!-- Server Label and Input Container -->
+          <vbox id="serverContainer" flex="1">
+            <label
+              id="serverlabel"
+              value="&server.label;"
+              accesskey="&server.accesskey;"
+              control="serverMenu"
+            />
             <menulist id="serverMenu" flex="1" class="folderMenuItem">
               <menupopup
                 is="folder-menupopup"
@@ -85,6 +75,16 @@
                 oncommand="onServerClick(event.target._folder);"
               />
             </menulist>
+          </vbox>
+
+          <!-- Name Field Label and Input Container -->
+          <vbox id="nameContainer" flex="1">
+            <label
+              id="namefieldlabel"
+              accesskey="&namefield.accesskey;"
+              value="&namefield.label;"
+              control="namefield"
+            />
             <search-textbox
               id="namefield"
               class="themeableSearchBox"
@@ -94,7 +94,8 @@
               oncommand="Search();"
             />
           </vbox>
-        </hbox>
+        </vbox>
+
         <spacer />
         <separator class="thin" />
         <spacer />
