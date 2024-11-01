@@ -94,7 +94,7 @@ Enigmail.msg = {
 
   async composeStartup() {
     if (!gMsgCompose || !gMsgCompose.compFields) {
-      return;
+      throw new Error("OpenPGP initialization failed");
     }
 
     gMsgCompose.RegisterStateListener(Enigmail.composeStateListener);
@@ -2227,10 +2227,7 @@ Enigmail.msg = {
  */
 Enigmail.composeStateListener = {
   NotifyComposeFieldsReady() {
-    try {
-      Enigmail.msg.editor = gMsgCompose.editor.QueryInterface(Ci.nsIEditor);
-    } catch (ex) {}
-
+    Enigmail.msg.editor = gMsgCompose.editor.QueryInterface(Ci.nsIEditor);
     if (!Enigmail.msg.editor) {
       return;
     }
@@ -2276,7 +2273,7 @@ Enigmail.composeStateListener = {
 };
 
 window.addEventListener(
-  "load",
+  "compose-startup-done",
   Enigmail.msg.composeStartup.bind(Enigmail.msg),
   {
     capture: false,

@@ -5211,6 +5211,8 @@ async function ComposeStartup() {
   }
 
   gAutoSaveKickedIn = false;
+
+  window.dispatchEvent(new CustomEvent("compose-startup-done"));
 }
 /* eslint-enable complexity */
 
