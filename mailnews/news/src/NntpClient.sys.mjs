@@ -32,6 +32,13 @@ const NNTP_ERROR_MESSAGE = -304;
  *   status line.
  */
 
+const lazy = {};
+ChromeUtils.defineLazyGetter(
+  lazy,
+  "l10n",
+  () => new Localization(["netwerk/necko.ftl"], true)
+);
+
 /**
  * A class to interact with NNTP server.
  */
@@ -910,10 +917,50 @@ export class NntpClient {
    * @param {number} status - See NS_NET_STATUS_* in nsISocketTransport.idl.
    */
   _showNetworkStatus(status) {
-    const statusMessage = Services.strings.formatStatusMessage(
-      status,
-      this._server.hostName
-    );
+    const NS_NET_STATUS_RESOLVING_HOST = 0x4b0003;
+    const NS_NET_STATUS_RESOLVED_HOST = 0x4b000b;
+    const NS_NET_STATUS_CONNECTING_TO = 0x4b0007;
+    const NS_NET_STATUS_CONNECTED_TO = 0x4b0004;
+    const NS_NET_STATUS_TLS_HANDSHAKE_STARTING = 0x4b000c;
+    const NS_NET_STATUS_TLS_HANDSHAKE_ENDED = 0x4b000d;
+    const NS_NET_STATUS_SENDING_TO = 0x4b0005;
+    const NS_NET_STATUS_WAITING_FOR = 0x4b000a;
+    const NS_NET_STATUS_RECEIVING_FROM = 0x4b0006;
+    const NS_NET_STATUS_READING = 0x4b0008;
+    const NS_NET_STATUS_WRITING = 0x4b0009;
+
+    const statusToId = netStatus => {
+      switch (netStatus) {
+        case NS_NET_STATUS_WRITING:
+          return "network-connection-status-wrote";
+        case NS_NET_STATUS_READING:
+          return "network-connection-status-read";
+        case NS_NET_STATUS_RESOLVING_HOST:
+          return "network-connection-status-looking-up";
+        case NS_NET_STATUS_RESOLVED_HOST:
+          return "network-connection-status-looked-up";
+        case NS_NET_STATUS_CONNECTING_TO:
+          return "network-connection-status-connecting";
+        case NS_NET_STATUS_CONNECTED_TO:
+          return "network-connection-status-connected";
+        case NS_NET_STATUS_TLS_HANDSHAKE_STARTING:
+          return "network-connection-status-tls-handshake";
+        case NS_NET_STATUS_TLS_HANDSHAKE_ENDED:
+          return "network-connection-status-tls-handshake-finished";
+        case NS_NET_STATUS_SENDING_TO:
+          return "network-connection-status-sending-request";
+        case NS_NET_STATUS_WAITING_FOR:
+          return "network-connection-status-waiting";
+        case NS_NET_STATUS_RECEIVING_FROM:
+          return "network-connection-status-transferring-data";
+        default:
+          throw new Error(`Unexpected net status: ${netStatus}`);
+      }
+    };
+    const l10nId = statusToId(status);
+    const statusMessage = lazy.l10n.formatValueSync(l10nId, {
+      host: this._server.hostName,
+    });
     this._msgWindow?.statusFeedback?.showStatusString(statusMessage);
   }
 

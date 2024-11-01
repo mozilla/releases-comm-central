@@ -71,6 +71,7 @@
 #include "mozilla/Buffer.h"
 #include "nsIPromptService.h"
 #include "nsEmbedCID.h"
+#include "mozilla/intl/Localization.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -95,6 +96,7 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsCString& aFilename,
 }
 
 using namespace mozilla;
+using namespace mozilla::intl;
 using namespace mozilla::net;
 
 #define ILLEGAL_FOLDER_CHARS ";#"
@@ -778,6 +780,71 @@ nsresult IsRFC822HeaderFieldName(const char* aHdr, bool* aResult) {
     }
   }
   *aResult = true;
+  return NS_OK;
+}
+
+/* NOTE: ~copied from uriloader/base/nsDocLoader.cpp */
+/* static */
+mozilla::Maybe<nsLiteralCString> StatusCodeToL10nId(nsresult aStatus) {
+  switch (aStatus) {
+    case NS_NET_STATUS_WRITING:
+      return mozilla::Some("network-connection-status-wrote"_ns);
+    case NS_NET_STATUS_READING:
+      return mozilla::Some("network-connection-status-read"_ns);
+    case NS_NET_STATUS_RESOLVING_HOST:
+      return mozilla::Some("network-connection-status-looking-up"_ns);
+    case NS_NET_STATUS_RESOLVED_HOST:
+      return mozilla::Some("network-connection-status-looked-up"_ns);
+    case NS_NET_STATUS_CONNECTING_TO:
+      return mozilla::Some("network-connection-status-connecting"_ns);
+    case NS_NET_STATUS_CONNECTED_TO:
+      return mozilla::Some("network-connection-status-connected"_ns);
+    case NS_NET_STATUS_TLS_HANDSHAKE_STARTING:
+      return mozilla::Some("network-connection-status-tls-handshake"_ns);
+    case NS_NET_STATUS_TLS_HANDSHAKE_ENDED:
+      return mozilla::Some(
+          "network-connection-status-tls-handshake-finished"_ns);
+    case NS_NET_STATUS_SENDING_TO:
+      return mozilla::Some("network-connection-status-sending-request"_ns);
+    case NS_NET_STATUS_WAITING_FOR:
+      return mozilla::Some("network-connection-status-waiting"_ns);
+    case NS_NET_STATUS_RECEIVING_FROM:
+      return mozilla::Some("network-connection-status-transferring-data"_ns);
+    default:
+      return mozilla::Nothing();
+  }
+}
+
+/* NOTE: ~copied from uriloader/base/nsDocLoader.cpp */
+nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
+                             nsAString& aRetVal) {
+  auto l10nId = StatusCodeToL10nId(aStatus);
+  if (!l10nId) {
+    return NS_ERROR_FAILURE;
+  }
+
+  nsAutoCString RetVal;
+  ErrorResult rv;
+  auto l10nArgs = dom::Optional<intl::L10nArgs>();
+  l10nArgs.Construct();
+
+  auto dirArg = l10nArgs.Value().Entries().AppendElement();
+  dirArg->mKey = "host";
+  dirArg->mValue.SetValue().SetAsUTF8String().Assign(
+      NS_ConvertUTF16toUTF8(aHost));
+
+  nsTArray<nsCString> resIds = {
+      "netwerk/necko.ftl"_ns,
+  };
+  RefPtr<mozilla::intl::Localization> l10n =
+      mozilla::intl::Localization::Create(resIds, true);
+  MOZ_RELEASE_ASSERT(l10n);
+
+  l10n->FormatValueSync(*l10nId, l10nArgs, RetVal, rv);
+  aRetVal = NS_ConvertUTF8toUTF16(RetVal);
+  if (rv.Failed()) {
+    return rv.StealNSResult();
+  }
   return NS_OK;
 }
 

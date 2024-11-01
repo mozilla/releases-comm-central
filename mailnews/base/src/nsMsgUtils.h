@@ -146,6 +146,10 @@ nsresult NS_GetLocalizedUnicharPreference(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, nsAString& prefValue);
 
+mozilla::Maybe<nsLiteralCString> StatusCodeToL10nId(nsresult aStatus);
+nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
+                             nsAString& aRetVal);
+
 /**
  * this needs a listener, because we might have to create the folder
  * on the server, and that is asynchronous

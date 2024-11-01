@@ -238,12 +238,11 @@ NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest* request, int64_t aProgress,
 
 NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest* request, nsresult aStatus,
                                       const char16_t* aStatusArg) {
-  nsresult rv;
-  nsCOMPtr<nsIStringBundleService> sbs =
-      mozilla::components::StringBundle::Service();
-  NS_ENSURE_TRUE(sbs, NS_ERROR_UNEXPECTED);
-  nsString str;
-  rv = sbs->FormatStatusMessage(aStatus, aStatusArg, str);
+  nsString msg;
+  nsAutoString host;
+  host.Append(aStatusArg);
+  nsresult rv = FormatStatusMessage(aStatus, host, msg);
   NS_ENSURE_SUCCESS(rv, rv);
-  return ShowStatusString(str);
+
+  return ShowStatusString(msg);
 }
