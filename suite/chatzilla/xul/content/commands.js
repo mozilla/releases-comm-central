@@ -2950,10 +2950,14 @@ function cmdAway(e)
             var awayNick = e.network.prefs["awayNick"];
             if (e.network.state == NET_ONLINE)
             {
+                e.server.me.isAway = true;
                 // Postulate that if normal nick and away nick are the same,
                 // user doesn't want to change nicks:
                 if (awayNick && (normalNick != awayNick))
                     e.server.changeNick(awayNick);
+                else
+                    if (client.currentObject.TYPE == "IRCChannel")
+                        updateUserList();
                 e.server.sendData("AWAY :" + fromUnicode(e.reason, e.network) +
                                   "\n");
             }
@@ -2989,10 +2993,14 @@ function cmdAway(e)
         {
             if (e.network.state == NET_ONLINE)
             {
+                e.server.me.isAway = false;
                 var curNick = e.server.me.unicodeName;
                 var awayNick = e.network.prefs["awayNick"];
                 if (awayNick && (curNick == awayNick))
                     e.server.changeNick(e.network.prefs["nickname"]);
+                else
+                    if (client.currentObject.TYPE == "IRCChannel")
+                        updateUserList();
                 e.server.sendData("AWAY\n");
             }
             // Go back to old nick, even if not connected:
