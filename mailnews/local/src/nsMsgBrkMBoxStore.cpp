@@ -485,7 +485,12 @@ NS_IMETHODIMP MboxCompactor::OnStopScan(nsresult status) {
     nsCOMPtr<nsISafeOutputStream> safe = do_QueryInterface(mDestStream, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = safe->Finish();
+    } else {
+      // How did we get here? This should never happen.
+      rv = mDestStream->Close();
     }
+  } else if (mDestStream) {
+    mDestStream->Close();  // Clean up temporary file.
   }
 
   int64_t finalSize = 0;
@@ -1416,7 +1421,7 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   // Stream to return a single message, hiding all "From "-separator guff.
   RefPtr<MboxMsgInputStream> msgStream =
-    new MboxMsgInputStream(rawMboxStream, aMaxAllowedSize);
+      new MboxMsgInputStream(rawMboxStream, aMaxAllowedSize);
   msgStream.forget(aResult);
   return NS_OK;
 }

@@ -246,6 +246,10 @@ add_task(async function testAbortCompactingFolder() {
 
   showMessages(gFolder2, "before deleting 1 message");
 
+  const filesBefore = new Set(
+    Array.from(gFolder2.filePath.parent.directoryEntries, f => f.leafName)
+  );
+
   // Remember the size of the mbox before compact.
   const unchangedFolderSize = calculateExpectedMboxSize(gFolder2);
 
@@ -270,6 +274,20 @@ add_task(async function testAbortCompactingFolder() {
 
   await verifyMboxSize(gFolder2, unchangedFolderSize);
   Assert.greater(gFolder2.expungedBytes, 0, "folder2 should need compaction");
+
+  const filesAfter = new Set(
+    Array.from(gFolder2.filePath.parent.directoryEntries, f => f.leafName)
+  );
+  Assert.deepEqual(
+    [...filesBefore.difference(filesAfter)],
+    [],
+    "there should be no files removed after compaction aborted"
+  );
+  Assert.deepEqual(
+    [...filesAfter.difference(filesBefore)],
+    [],
+    "there should be no new files after compaction aborted"
+  );
 
   Assert.equal(
     Glean.mail.compactResult[Cr.NS_OK.toString(16)].testGetValue(),
