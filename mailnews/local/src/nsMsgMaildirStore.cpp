@@ -32,7 +32,6 @@
 #include "nsIMessenger.h"
 #include "nsThreadUtils.h"
 #include "mozilla/Logging.h"
-#include "mozilla/SlicedInputStream.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
 

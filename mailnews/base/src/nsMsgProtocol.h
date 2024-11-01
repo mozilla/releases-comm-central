@@ -75,9 +75,8 @@ class nsMsgProtocol : public nsIStreamListener,
 
   // helper routine
   nsresult GetFileFromURL(nsIURI* aURL, nsIFile** aResult);
-  virtual nsresult OpenFileSocket(
-      nsIURI* aURL, uint64_t aStartPosition,
-      int64_t aReadCount);  // used to open a file socket connection
+  // Used to open a file socket connection.
+  virtual nsresult OpenFileSocket(nsIURI* aURL);
 
   virtual const char* GetType() { return nullptr; }
   nsresult GetQoSBits(uint8_t* aQoSBits);
@@ -119,8 +118,6 @@ class nsMsgProtocol : public nsIStreamListener,
                         // the socket the first time a URL is loaded into the
                         // connection
   uint32_t m_flags;     // used to store flag information
-  // uint32_t  m_startPosition;
-  int64_t m_readCount;
 
   nsCOMPtr<nsIFile>
       m_tempMsgFile;  // we currently have a hack where displaying a msg

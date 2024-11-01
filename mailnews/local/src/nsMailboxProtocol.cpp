@@ -93,9 +93,6 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
             nsCOMPtr<nsIStreamTransportService> sts =
                 do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
             if (NS_FAILED(rv)) return rv;
-            m_readCount = -1;  // We'll be reading the entire stream.
-            // Always close the sliced stream when done, we still have the
-            // original.
             rv = sts->CreateInputTransport(stream, true,
                                            getter_AddRefs(m_transport));
 
@@ -103,7 +100,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
           }
         }
         if (!folder) {  // must be a .eml file
-          rv = OpenFileSocket(aURL, 0, -1);
+          rv = OpenFileSocket(aURL);
         }
       }
       NS_ASSERTION(NS_SUCCEEDED(rv), "oops....i messed something up");
@@ -203,7 +200,6 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                                                   getter_AddRefs(stream));
 
                 if (NS_SUCCEEDED(rv)) {
-                  m_readCount = -1;  // Stream until EOF.
                   // create input stream transport
                   nsCOMPtr<nsIStreamTransportService> sts =
                       do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);

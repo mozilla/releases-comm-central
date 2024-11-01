@@ -55,7 +55,6 @@ static char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
 
 nsMsgProtocol::nsMsgProtocol(nsIURI* aURL) {
   m_flags = 0;
-  m_readCount = 0;
   mLoadFlags = 0;
   m_socketIsOpen = false;
   mContentLength = -1;
@@ -132,13 +131,11 @@ nsresult nsMsgProtocol::GetFileFromURL(nsIURI* aURL, nsIFile** aResult) {
   // dougt
 }
 
-nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL, uint64_t aStartPosition,
-                                       int64_t aReadCount) {
+nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL) {
   // mscott - file needs to be encoded directly into aURL. I should be able to
   // get rid of this method completely.
 
   nsresult rv = NS_OK;
-  m_readCount = aReadCount;
   nsCOMPtr<nsIFile> file;
 
   rv = GetFileFromURL(aURL, getter_AddRefs(file));
@@ -152,14 +149,7 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL, uint64_t aStartPosition,
   nsCOMPtr<nsIStreamTransportService> sts =
       do_GetService(NS_STREAMTRANSPORTSERVICE_CONTRACTID, &rv);
   if (NS_FAILED(rv)) return rv;
-
-  // This can be called with aReadCount == -1 which means "read as much as we
-  // can". We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
-  RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-      stream.forget(), aStartPosition,
-      aReadCount == -1 ? UINT64_MAX : uint64_t(aReadCount));
-  rv = sts->CreateInputTransport(slicedStream, true,
-                                 getter_AddRefs(m_transport));
+  rv = sts->CreateInputTransport(stream, true, getter_AddRefs(m_transport));
 
   m_socketIsOpen = false;
   return rv;
@@ -370,15 +360,8 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
         rv = m_transport->OpenInputStream(0, 0, 0, getter_AddRefs(stream));
         if (NS_FAILED(rv)) return rv;
 
-        // m_readCount can be -1 which means "read as much as we can".
-        // We pass this on as UINT64_MAX, which is in fact uint64_t(-1).
-        // We don't clone m_inputStream here, we simply give up ownership
-        // since otherwise the original would never be closed.
-        RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-            stream.forget(), 0,
-            m_readCount == -1 ? UINT64_MAX : uint64_t(m_readCount));
         nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
+        rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
         if (NS_FAILED(rv)) return rv;
 
         m_request = pump;  // keep a reference to the pump so we can cancel it
