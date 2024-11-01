@@ -1306,8 +1306,7 @@ qr-code-wizard {
 
   img {
     max-width: 420px;
-    /* QR code background for contrast. */
-    background: white;
+    image-rendering: pixelated;
   }
 }
 

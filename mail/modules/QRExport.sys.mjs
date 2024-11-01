@@ -206,7 +206,7 @@ export const QRExport = {
    * Renders the given data into a QR code with L error correction.
    *
    * @param {string} data - Data to encode in the QR code.
-   * @returns {string} QR code rendered as SVG URI.
+   * @returns {string} QR code rendered as BMP URI.
    */
   renderQR(data) {
     const qrOptions = {
@@ -216,7 +216,7 @@ export const QRExport = {
       lazy.MailStringUtils.stringToByteString(data),
       qrOptions
     );
-    return lazy.default.render("svg-uri", matrix);
+    return lazy.default.render("bmp-uri", matrix);
   },
 
   /**

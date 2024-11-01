@@ -11,6 +11,8 @@ const { FeedUtils } = ChromeUtils.importESModule(
   "resource:///modules/FeedUtils.sys.mjs"
 );
 
+const DATA_URI_REGEXP = /^data:image\/bmp;base64,[a-zA-Z0-9%-.\/]+=*$/;
+
 /**
  * Create a mail account with an incoming server, an outgoing server, and an
  * identity.
@@ -231,8 +233,8 @@ add_task(function test_renderQR() {
   // every assertion.
 
   Assert.ok(
-    /^data:image\/svg\+xml,[a-zA-Z0-9%-.]+$/.test(loremQR),
-    "Result should be a data URI for an SVG"
+    DATA_URI_REGEXP.test(loremQR),
+    "Result should be a data URI for an BMP"
   );
   Assert.ok(
     QRExport.renderQR("foo bar") != loremQR,
@@ -256,8 +258,8 @@ add_task(async function test_getQRCode_single() {
     "Should only get a single chunk for one account"
   );
   Assert.ok(
-    /^data:image\/svg\+xml,[a-zA-Z0-9%-.]+$/.test(qrCodes[0]),
-    "QR code should be a data URI for an SVG"
+    DATA_URI_REGEXP.test(qrCodes[0]),
+    "QR code should be a data URI for an BMP"
   );
 
   MailServices.accounts.removeAccount(account, false);
@@ -283,12 +285,12 @@ add_task(async function test_getQRCode_multipleChunks() {
   Assert.ok(Array.isArray(qrCodes), "Should get an array");
   Assert.equal(qrCodes.length, 2, "Should get two QR codes for four accounts");
   Assert.ok(
-    /^data:image\/svg\+xml,[a-zA-Z0-9%-.]+$/.test(qrCodes[0]),
-    "QR code 1 should be a data URI for an SVG"
+    DATA_URI_REGEXP.test(qrCodes[0]),
+    "QR code 1 should be a data URI for a BMP"
   );
   Assert.ok(
-    /^data:image\/svg\+xml,[a-zA-Z0-9%-.]+$/.test(qrCodes[1]),
-    "QR code 2 should be a data URI for an SVG"
+    DATA_URI_REGEXP.test(qrCodes[1]),
+    "QR code 2 should be a data URI for a BMP"
   );
 
   // Snapshot test to ensure the data format encoded in the QR code is
