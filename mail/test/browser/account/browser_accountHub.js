@@ -412,6 +412,27 @@ add_task(async function test_account_email_config_found() {
   // The config details should show the IMAP details.
   testConfigResults(configFoundTemplate, "imap");
 
+  // Edit configuration button should lead to incoming config template.
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {},
+    window
+  );
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template is in view."
+  );
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(configFoundTemplate),
+    "The config found template is hidden."
+  );
+
   EventUtils.synthesizeMouseAtCenter(
     hub.shadowRoot.querySelector("#closeButton"),
     {},

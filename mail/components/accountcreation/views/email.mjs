@@ -264,6 +264,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
+    this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
 
     this.abortable = null;
     this.#hasCancelled = false;
@@ -373,9 +374,17 @@ class AccountHubEmail extends HTMLElement {
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
         break;
+      case "edit-configuration":
+        this.#currentConfig = stateDetails.subview.captureState();
+        // The edit configuration button was pressed.
+        await this.#initUI("incomingConfigSubview");
+        // Apply the current state data to the new state.
+        this.#states[this.#currentState].subview.setState(this.#currentConfig);
+        break;
       case "custom":
         try {
-          this.#handleCustomAction(this.#currentState);
+          this.#currentConfig = stateDetails.subview.captureState();
+          await this.#handleCustomAction(this.#currentState);
         } catch (error) {
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
@@ -475,7 +484,7 @@ class AccountHubEmail extends HTMLElement {
    *
    * @param {String} currentState - The current state of the email flow.
    */
-  #handleCustomAction(currentState) {
+  async #handleCustomAction(currentState) {
     switch (currentState) {
       case "outgoingConfigSubview":
         break;

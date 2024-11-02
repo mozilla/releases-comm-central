@@ -72,6 +72,10 @@ export const LinkButton = () => html`
   <button class="button link-button">Link</button>
 `;
 
+export const LinkButtonSmall = () => html`
+  <button class="button link-button link-button-sm">Link</button>
+`;
+
 export const CheckButton = () => html`
   <button class="button check-button">Check button</button>
   <button class="button check-button" aria-pressed="true">Check button</button>

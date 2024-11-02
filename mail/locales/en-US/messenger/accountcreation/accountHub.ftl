@@ -163,3 +163,5 @@ account-hub-result-ews-description = Use Microsoft Exchange Web Services to sync
 account-hub-result-ews-text = Server
 
 account-hub-result-recommended-label = Recommended
+
+account-hub-edit-configuration = Edit configuration

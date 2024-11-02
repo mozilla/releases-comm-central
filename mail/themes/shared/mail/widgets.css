@@ -216,6 +216,15 @@
         border-color: transparent;
       }
     }
+
+    &.link-button-sm {
+      text-decoration: underline;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+    }
   }
 
   /* Check Button Styles */

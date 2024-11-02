@@ -28,6 +28,13 @@ class EmailConfigFound extends AccountHubStep {
    */
   #protocolForm;
 
+  /**
+   * The Account Config object with the selected incoming set.
+   *
+   * @type {AccountConfig}
+   */
+  #selectedConfig;
+
   connectedCallback() {
     if (this.hasConnected) {
       super.connectedCallback();
@@ -55,6 +62,14 @@ class EmailConfigFound extends AccountHubStep {
       this.#selectConfig(event.target.value);
     });
 
+    this.querySelector("#editConfiguration").addEventListener("click", () => {
+      this.dispatchEvent(
+        new CustomEvent("edit-configuration", {
+          bubbles: true,
+        })
+      );
+    });
+
     this.#currentConfig = {};
   }
 
@@ -62,7 +77,7 @@ class EmailConfigFound extends AccountHubStep {
    * Return the current state of the email setup form.
    */
   captureState() {
-    return this.#currentConfig;
+    return this.#selectedConfig;
   }
 
   /**
@@ -145,6 +160,20 @@ class EmailConfigFound extends AccountHubStep {
       this.querySelector("#incomingAuth"),
       `account-setup-result-${incomingSSL}`
     );
+
+    // Set the selectedConfig to have the selected as incoming if it is
+    // different than the default incoming config, and move the default to
+    // the alternatives.
+    this.#selectedConfig = this.#currentConfig;
+    if (incoming.type != configType) {
+      this.#selectConfig.incomingAlternatives.unshift(
+        this.#currentConfig.incoming
+      );
+      this.#selectedConfig.incoming = incoming;
+      this.#selectedConfig.incomingAlternatives = this.#currentConfig.filter(
+        alternative => alternative != incoming
+      );
+    }
 
     // Hide outgoing config details if unavailable.
     if (!outgoing || incoming.type === "exchange") {

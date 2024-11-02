@@ -73,7 +73,7 @@ class EmailIncomingForm extends AccountHubStep {
    *
    * @type {Object}
    */
-  currentConfig;
+  #currentConfig;
 
   connectedCallback() {
     if (this.hasConnected) {
@@ -99,7 +99,7 @@ class EmailIncomingForm extends AccountHubStep {
       "#incomingAuthMethod"
     );
     this.#incomingUsername = this.querySelector("#incomingUsername");
-    this.currentConfig = {};
+    this.#currentConfig = {};
   }
 
   /**
@@ -120,6 +120,15 @@ class EmailIncomingForm extends AccountHubStep {
     this.#incomingProtocol.addEventListener("command", () => {
       this.#adjustPortToSSLAndProtocol(true);
     });
+  }
+
+  /**
+   * Sets the state of the incoming email config state.
+   *
+   * @param {AccountConfig} configData - Applies the config data to this state.
+   */
+  setState(configData) {
+    this.#currentConfig = configData;
   }
 
   /**
@@ -242,7 +251,7 @@ class EmailIncomingForm extends AccountHubStep {
    * @returns {AccountConfig}
    */
   getIncomingUserConfig() {
-    const config = new AccountConfig();
+    const config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
     // Incoming server.

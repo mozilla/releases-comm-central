@@ -170,10 +170,8 @@ div:has(legend) {
 }
 
 .notification-bar {
-  text-align: center;
   padding: 4px 12px;
   margin: 16px 75px 5px;
-  border-radius: 4px;
   text-align: start;
   border: 1px solid;
   border-radius: 3px;
@@ -344,7 +342,7 @@ div:has(legend) {
 
   & .selection-grid {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: auto;
     gap: 12px;
     padding-inline: 12px;
@@ -548,6 +546,11 @@ div:has(legend) {
           }
         }
       }
+    }
+
+    .edit-configuration-container {
+      grid-column: 1 / -1;
+      text-align: end;
     }
   }
 }
