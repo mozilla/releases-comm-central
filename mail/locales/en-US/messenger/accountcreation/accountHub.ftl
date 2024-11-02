@@ -69,13 +69,19 @@ account-hub-email-continue-button = Continue
 
 account-hub-email-confirm-button = Confirm
 
-account-hub-incoming-server-legend = Incoming server
+account-hub-result-incoming-server-legend = Incoming server
+    .title = Incoming server
 
-account-hub-outgoing-server-legend = Outgoing server
+account-hub-result-outgoing-server-legend = Outgoing server
+    .title = Outgoing server
 
 account-hub-protocol-label = Protocol
 
-account-hub-hostname-label = Hostname
+account-hub-result-hostname-label = Hostname
+    .title = Hostname
+
+account-hub-result-authentication-label = Authentication
+    .title = Authentication
 
 account-hub-port-label = Port
     .title = Set the port number to 0 for autodetection
@@ -108,7 +114,8 @@ account-hub-auth-no-authentication-option =
 
 account-hub-auth-label = Authentication method
 
-account-hub-username-label = Username
+account-hub-result-username-label = Username
+    .title = Username
 
 account-hub-name-label = Full name
     .accesskey = n
@@ -144,3 +151,15 @@ account-hub-email-sync-accounts = Sync your calendars and address books
 account-hub-test-configuration = Test
 
 account-hub-add-new-email = Add another email
+
+account-hub-result-imap-description = Keep your folders and emails synced on your server
+
+account-hub-result-pop-description = Keep your folders and emails on your computer
+
+account-hub-result-ews-shortname = Exchange
+
+account-hub-result-ews-description = Use Microsoft Exchange Web Services to sync your folders and emails
+
+account-hub-result-ews-text = Server
+
+account-hub-result-recommended-label = Recommended

@@ -72,6 +72,11 @@ class EmailAutoForm extends AccountHubStep {
     });
   }
 
+  resetState() {
+    this.querySelector("#autoConfigEmailForm").reset();
+    this.#currentConfig = {};
+  }
+
   /**
    * Check whether the user entered the minimum amount of information needed to
    * update the hostname and domain for the complete form.
@@ -79,6 +84,14 @@ class EmailAutoForm extends AccountHubStep {
   #checkValidEmailForm() {
     const isValidForm =
       this.#email.checkValidity() && this.#realName.checkValidity();
+
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: { completed: isValidForm },
+      })
+    );
+
     const domain = isValidForm
       ? this.#email.value.split("@")[1].toLowerCase()
       : "";

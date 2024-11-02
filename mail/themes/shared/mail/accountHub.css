@@ -263,12 +263,12 @@ header {
   margin-inline: 30px;
   max-height: 40vh;
 
-  div:last-child {
-    border-inline-end: none;
-  }
-
   &.flex-direction-row {
     flex-direction: row;
+  }
+
+  &.auto-config-body {
+    max-width: 650px;
   }
 }
 

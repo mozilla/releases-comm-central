@@ -29,12 +29,8 @@ const { FindConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/FindConfig.sys.mjs"
 );
 
-const {
-  CancelledException,
-  gAccountSetupLogger,
-  SuccessiveAbortable,
-  UserCancelledException,
-} = AccountCreationUtils;
+const { gAccountSetupLogger, SuccessiveAbortable, UserCancelledException } =
+  AccountCreationUtils;
 
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
@@ -137,6 +133,20 @@ class AccountHubEmail extends HTMLElement {
   #hasCancelled;
 
   /**
+   * The email for the current user.
+   *
+   * @type {String}
+   */
+  #email;
+
+  /**
+   * The real name for the current user.
+   *
+   * @type {String}
+   */
+  #realName;
+
+  /**
    * States of the email setup flow, based on the ID's of the steps in the
    * flow.
    *
@@ -147,6 +157,7 @@ class AccountHubEmail extends HTMLElement {
       id: "emailAutoConfigSubview",
       nextStep: "emailConfigFoundSubview",
       previousStep: "",
+      forwardEnabled: false,
       customActionFluentID: "",
       subview: {},
       templateId: "email-auto-form",
@@ -155,6 +166,7 @@ class AccountHubEmail extends HTMLElement {
       id: "emailConfigFoundSubview",
       nextStep: "emailPasswordSubview",
       previousStep: "autoConfigSubview",
+      forwardEnabled: true,
       customActionFluentID: "",
       subview: {},
       templateId: "email-config-found",
@@ -163,6 +175,7 @@ class AccountHubEmail extends HTMLElement {
       id: "emailPasswordSubview",
       nextStep: "emailSyncAccountsSubview",
       previousStep: "emailConfigFoundSubview",
+      forwardEnabled: false,
       customActionFluentID: "",
       subview: {},
       templateId: "",
@@ -171,6 +184,7 @@ class AccountHubEmail extends HTMLElement {
       id: "emailSyncAccountsSubview",
       nextStep: "emailAddedSubview",
       previousStep: "",
+      forwardEnabled: true,
       customActionFluentID: "",
       subview: {},
       templateId: "",
@@ -179,14 +193,16 @@ class AccountHubEmail extends HTMLElement {
       id: "emailIncomingConfigSubview",
       nextStep: "emailOutgoingConfigSubview",
       previousStep: "",
+      forwardEnabled: true,
       customActionFluentID: "",
       subview: {},
-      templateId: "account-hub-email-manual-incoming-form",
+      templateId: "email-manual-incoming-form",
     },
     outgoingConfigSubview: {
       id: "emailOutgoingConfigSubview",
       nextStep: "emailAddedSubview",
       previousStep: "emailIncomingConfigSubview",
+      forwardEnabled: true,
       customActionFluentID: "account-hub-test-configuration",
       subview: {},
       templateId: "email-manual-outgoing-form",
@@ -195,6 +211,7 @@ class AccountHubEmail extends HTMLElement {
       id: "emailAddedSubview",
       nextStep: "",
       previousStep: "",
+      forwardEnabled: true,
       customActionFluentID: "account-hub-add-new-email",
       subview: {},
       templateId: "",
@@ -246,9 +263,13 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("back", this);
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom", this);
+    this.#emailAutoConfigSubview.addEventListener("config-updated", this);
 
     this.abortable = null;
     this.#hasCancelled = false;
+    this.#currentConfig = {};
+    this.#email = "";
+    this.#realName = "";
 
     await this.#initUI("autoConfigSubview");
   }
@@ -315,6 +336,11 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.canBack(stateDetails.previousStep);
     this.#emailFooter.canForward(stateDetails.nextStep);
     this.#emailFooter.canCustom(stateDetails.customActionFluentID);
+
+    // The footer forward button is disabled by default.
+    if (stateDetails.forwardEnabled) {
+      this.#emailFooter.toggleForwardDisabled(false);
+    }
   }
 
   async handleEvent(event) {
@@ -338,12 +364,12 @@ class AccountHubEmail extends HTMLElement {
           this.#hasCancelled = false;
           const stateData = stateDetails.subview.captureState();
           await this.#handleForwardAction(this.#currentState, stateData);
-          if (!this.#hasCancelled) {
-            this.#initUI(stateDetails.nextStep);
-          } else {
-            this.#hasCancelled = false;
-          }
+          // Apply the new state data to the new state.
+          this.#states[this.#currentState].subview.setState(
+            this.#currentConfig
+          );
         } catch (error) {
+          this.#handleAbortable();
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
         break;
@@ -353,6 +379,9 @@ class AccountHubEmail extends HTMLElement {
         } catch (error) {
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
+        break;
+      case "config-updated":
+        this.#emailFooter.toggleForwardDisabled(!event.detail.completed);
         break;
       default:
         break;
@@ -387,17 +416,40 @@ class AccountHubEmail extends HTMLElement {
    * button is pressed.
    *
    * @param {String} currentState - The current state of the email flow.
-   * @param {String} stateData - The current state data of the email flow.
+   * @param {Object} stateData - The current state data of the email flow.
    */
   async #handleForwardAction(currentState, stateData) {
     switch (currentState) {
       case "autoConfigSubview":
         try {
           this.#emailFooter.canBack(true);
-          await this.#findConfig(stateData);
+          this.#email = stateData.email;
+          this.#realName = stateData.realName;
+          const config = await this.#findConfig();
+          // The config is null if guessConfig couldn't find anything, or is
+          // cancelled. At this point we determine if the user actually
+          // cancelled, move to the manual config form to get them to fill in
+          // details, or move forward to the next step.
+          if (!config) {
+            if (!this.#hasCancelled) {
+              this.#currentConfig = this.#fillAccountConfig(
+                new AccountConfig()
+              );
+              await this.#initUI("incomingConfigSubview");
+            } else {
+              this.#hasCancelled = false;
+              break;
+            }
+          } else {
+            this.#currentConfig = this.#fillAccountConfig(config);
+            await this.#initUI(this.#states[this.#currentState].nextStep);
+          }
         } catch (error) {
           this.#emailFooter.canBack(false);
-          throw error;
+          if (!(error instanceof UserCancelledException)) {
+            // TODO: Throw proper error here;
+            throw error;
+          }
         }
         break;
       case "incomingConfigSubview":
@@ -440,35 +492,35 @@ class AccountHubEmail extends HTMLElement {
   #handleAbortable() {
     if (this.abortable) {
       this.abortable.cancel(new UserCancelledException());
+      this.abortable = null;
     }
   }
 
   /**
    * Finds an account configuration from the provided data if available.
    *
-   * @param {String} configData - The form config data from initial email form.
    */
-  async #findConfig(configData) {
+  async #findConfig() {
     if (this.abortable) {
       this.#handleAbortable();
     }
 
-    const accountConfig = new AccountConfig();
-    const emailSplit = configData.email.split("@");
-    const emailLocal = Sanitizer.nonemptystring(emailSplit[0]);
-    accountConfig.incoming.username = emailLocal;
-    accountConfig.outgoing.username = emailLocal;
+    const emailSplit = this.#email.split("@");
     const domain = emailSplit[1];
+    const initialConfig = new AccountConfig();
+    const emailLocal = Sanitizer.nonemptystring(emailSplit[0]);
+    initialConfig.incoming.username = emailLocal;
+    initialConfig.outgoing.username = emailLocal;
 
     gAccountSetupLogger.debug("findConfig()");
     this.abortable = new SuccessiveAbortable();
-    let config = null;
+    let config = {};
 
     try {
       config = await FindConfig.parallelAutoDiscovery(
         this.abortable,
         domain,
-        configData.email
+        this.#email
       );
     } catch (error) {
       // Error would be thrown if autoDiscovery caused a 401 error.
@@ -481,10 +533,18 @@ class AccountHubEmail extends HTMLElement {
 
     this.abortable = null;
 
-    if (config === null) {
-      // TODO: Run guessConfig on user input, which prompt return error
-      // error notification if nothing found.
+    if (!config) {
+      try {
+        config = await this.#guessConfig(domain, initialConfig);
+      } catch (error) {
+        // We are returning the initial null config here, as guessConfig does
+        // not discern errors and always moves to manual config if nothing is
+        // found.
+        return config;
+      }
     }
+
+    return config;
   }
 
   /**
@@ -495,35 +555,64 @@ class AccountHubEmail extends HTMLElement {
     // Clear error notifications.
     this.#clearNotifications();
 
+    // TODO: Do guess config on manual config data.
+  }
+
+  /**
+   * Guess an account configuration with the provided domain.
+   *
+   * @param {String} domain - The domain from the email address.
+   * @param {AccountConifg} initialConifg - Account Config object.
+   */
+  #guessConfig(domain, initialConfig) {
+    let configType = "both";
+
+    if (initialConfig.outgoing?.existingServerKey) {
+      configType = "incoming";
+    }
+
+    const { promise, resolve, reject } = Promise.withResolvers();
     this.abortable = GuessConfig.guessConfig(
-      this.#currentConfig.domain,
-      (type, hostname, port) => {
+      domain,
+      (type, hostname, port, socketType) => {
+        // The guessConfig search progress is ongoing.
         gAccountSetupLogger.debug(
-          `progress callback host: ${hostname}, port: ${port}, type: ${type}`
+          `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
         );
       },
-      // eslint-disable-next-line no-unused-vars
       config => {
-        // This will validate and fill all of the form fields, as well as
-        // enable the continue button.
+        // The guessConifg was successful.
         this.abortable = null;
-        // TODO: Update form fields for both incoming and outgoing here with
-        // the config object.
+        resolve(config);
       },
-      error => {
+      e => {
+        gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
+        reject(e);
         this.abortable = null;
-
-        // guessConfig failed.
-        if (error instanceof CancelledException) {
-          return;
-        }
-        gAccountSetupLogger.warn(`guessConfig failed: ${error}`);
-        // Load the manual config view again and show an error notification.
-        this.showErrorNotification("account-hub-find-settings-failed", "");
       },
-      this.#currentConfig,
-      this.#currentConfig.outgoing.existingServerKey ? "incoming" : "both"
+      initialConfig,
+      configType
     );
+
+    return promise;
+  }
+
+  /**
+   * Adds name and email address to AccountConfig object.
+   *
+   * @param {AccountConfig} accountConfig - AccountConfig from findConfig().
+   * @param {String} password - The password for the account.
+   * @returns {AccountConfig} - The concrete AccountConfig object.
+   */
+  #fillAccountConfig(configData, password = "") {
+    AccountConfig.replaceVariables(
+      configData,
+      this.#realName,
+      this.#email,
+      password
+    );
+
+    return configData;
   }
 
   /**
@@ -658,7 +747,19 @@ class AccountHubEmail extends HTMLElement {
    * @returns {boolean} - If the account hub can remove this view.
    */
   reset() {
-    // Reset saved for when additional accounts can be added in Account Hub.
+    if (this.abortable) {
+      return false;
+    }
+
+    this.#currentState = "autoConfigSubview";
+    this.#currentConfig = {};
+    this.#hideSubviews();
+    this.#clearNotifications();
+    this.#states[this.#currentState].subview.hidden = false;
+    this.#setFooterButtons();
+    this.#states[this.#currentState].subview.resetState();
+    this.#emailFooter.toggleForwardDisabled(true);
+    return true;
   }
 }
 
