@@ -33,10 +33,15 @@ async function checkABrowser(browser) {
 
   // Date picker
 
-  // Open the popup.
+  // Open the popup. Sometimes the click to open the date picker is ignored and
+  // the test runs into a timeout. Adding a small delay here helps to prevent that.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
+  info("Preparing to open the date picker.");
   const pickerPromise = BrowserTestUtils.waitForDateTimePickerPanelShown(
     win.top
   );
+
   await SpecialPowers.spawn(browser, [], function () {
     const input = content.document.querySelector(`input[type="date"]`);
     if (content.location.protocol == "mailbox:") {
@@ -52,6 +57,7 @@ async function checkABrowser(browser) {
     }
   });
   const picker = await pickerPromise;
+  Assert.ok(!!picker, "Date picker was successfully opened");
 
   // Click in the middle of the picker. This should always land on a date and
   // close the picker.
