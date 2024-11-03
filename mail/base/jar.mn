@@ -114,6 +114,7 @@ messenger.jar:
     content/messenger/tree-listbox-mixin.mjs        (content/widgets/listbox/tree-listbox-mixin.mjs)
     content/messenger/tree-listbox.mjs              (content/widgets/listbox/tree-listbox.mjs)
     content/messenger/mailWidgets.js                (content/widgets/mailWidgets.js)
+    content/messenger/pane-layout.mjs               (content/widgets/pane-layout.mjs)
     content/messenger/pane-splitter.js              (content/widgets/pane-splitter.js)
     content/messenger/search-bar.mjs                (content/widgets/search-bar.mjs)
     content/messenger/statuspanel.js                (content/widgets/statuspanel.js)

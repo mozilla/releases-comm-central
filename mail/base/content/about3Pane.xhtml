@@ -51,11 +51,12 @@
   <script type="module" src="chrome://messenger/content/thread-row.mjs"></script>
   <script type="module" src="chrome://messenger/content/folder-tree-row.mjs"></script>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
+  <script type="module" src="chrome://messenger/content/pane-layout.mjs"></script>
   <script defer="defer" src="chrome://messenger/content/mailContext.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCommon.js"></script>
   <script defer="defer" src="chrome://messenger/content/about3Pane.js"></script>
 </head>
-<body class="layout-classic">
+<body id="paneLayout" is="pane-layout" class="layout-classic">
   <div id="folderPane" class="collapsed-by-splitter" tabindex="-1">
     <div id="folderPaneHeaderBar" class="sidebar-panel-header" hidden="hidden">
 # Force a reverse tabindex to work alongside the `flex-direction: row-reverse`

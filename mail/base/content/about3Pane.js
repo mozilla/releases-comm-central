@@ -102,6 +102,11 @@ var multiMessageBrowser;
 var accountCentralBrowser;
 
 /**
+ * HTML body element handling the general layout of the about3pane.
+ */
+var paneLayout;
+
+/**
  * This is called at midnight to have messages grouped by their relative date
  * (such as today, yesterday, etc.) correctly categorized.
  */
@@ -133,6 +138,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   }
 
   // Ensure all the necessary custom elements have been defined.
+  await customElements.whenDefined("pane-layout");
   await customElements.whenDefined("tree-view-table-row");
   await customElements.whenDefined("folder-tree-row");
   await customElements.whenDefined("thread-row");
@@ -141,15 +147,23 @@ window.addEventListener("DOMContentLoaded", async event => {
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
 
+  paneLayout = document.getElementById("paneLayout");
+  paneLayout.addEventListener("request-message-clear", messagePane);
+  paneLayout.addEventListener("request-message-selection", threadPane);
+
   folderTree = document.getElementById("folderTree");
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
 
-  paneLayout.init();
   folderPaneContextMenu.init();
   await folderPane.init();
   await threadPane.init();
   threadPaneHeader.init();
   await messagePane.init();
+
+  // Attach the progress listener for the webBrowser. For the messageBrowser this
+  // happens in the "aboutMessageLoaded" event from aboutMessage.js.
+  // For the webBrowser, we can do it here directly.
+  top.contentProgress.addProgressListenerToBrowser(webBrowser);
 
   // Set up the initial state using information which may have been provided
   // by mailTabs.js, or the saved state from the XUL store, or the defaults.
@@ -168,11 +182,6 @@ window.addEventListener("DOMContentLoaded", async event => {
   folderTree.addEventListener("select", folderPane);
   folderTree.dispatchEvent(new CustomEvent("select"));
 
-  // Attach the progress listener for the webBrowser. For the messageBrowser this
-  // happens in the "aboutMessageLoaded" event from aboutMessage.js.
-  // For the webBrowser, we can do it here directly.
-  top.contentProgress.addProgressListenerToBrowser(webBrowser);
-
   mailContextMenu.init();
 
   CalMetronome.on("day", refreshGroupedBySortView);
@@ -188,96 +197,6 @@ window.addEventListener("unload", () => {
   threadPane.uninit();
   threadPaneHeader.uninit();
 });
-
-var paneLayout = {
-  init() {
-    this.folderPaneSplitter = document.getElementById("folderPaneSplitter");
-    this.messagePaneSplitter = document.getElementById("messagePaneSplitter");
-
-    for (const [splitter, properties, storeID] of [
-      [this.folderPaneSplitter, ["width"], "folderPaneBox"],
-      [this.messagePaneSplitter, ["height", "width"], "messagepaneboxwrapper"],
-    ]) {
-      for (const property of properties) {
-        const value = XULStoreUtils.getValue("messenger", storeID, property);
-        if (value) {
-          splitter[property] = value;
-        }
-      }
-
-      splitter.storeAttr = function (attrName, attrValue) {
-        XULStoreUtils.setValue("messenger", storeID, attrName, attrValue);
-      };
-
-      splitter.addEventListener("splitter-resized", () => {
-        if (splitter.resizeDirection == "vertical") {
-          splitter.storeAttr("height", splitter.height);
-        } else {
-          splitter.storeAttr("width", splitter.width);
-        }
-      });
-    }
-
-    this.messagePaneSplitter.addEventListener("splitter-collapsed", () => {
-      // Clear any loaded page or messages.
-      messagePane.clearAll();
-      this.messagePaneSplitter.storeAttr("collapsed", true);
-    });
-
-    this.messagePaneSplitter.addEventListener("splitter-expanded", () => {
-      // Load the selected messages.
-      threadTree.dispatchEvent(new CustomEvent("select"));
-      this.messagePaneSplitter.storeAttr("collapsed", false);
-    });
-
-    XPCOMUtils.defineLazyPreferenceGetter(
-      this,
-      "layoutPreference",
-      "mail.pane_config.dynamic",
-      null,
-      (name, oldValue, newValue) => this.setLayout(newValue)
-    );
-    this.setLayout(this.layoutPreference);
-  },
-
-  setLayout(preference) {
-    document.body.classList.remove(
-      "layout-classic",
-      "layout-vertical",
-      "layout-wide"
-    );
-    switch (preference) {
-      case 1:
-        document.body.classList.add("layout-wide");
-        this.messagePaneSplitter.resizeDirection = "vertical";
-        break;
-      case 2:
-        document.body.classList.add("layout-vertical");
-        this.messagePaneSplitter.resizeDirection = "horizontal";
-        break;
-      default:
-        document.body.classList.add("layout-classic");
-        this.messagePaneSplitter.resizeDirection = "vertical";
-        break;
-    }
-  },
-
-  get accountCentralVisible() {
-    return document.body.classList.contains("account-central");
-  },
-  get folderPaneVisible() {
-    return !this.folderPaneSplitter.isCollapsed;
-  },
-  set folderPaneVisible(visible) {
-    this.folderPaneSplitter.isCollapsed = !visible;
-  },
-  get messagePaneVisible() {
-    return !this.messagePaneSplitter?.isCollapsed;
-  },
-  set messagePaneVisible(visible) {
-    this.messagePaneSplitter.isCollapsed = !visible;
-  },
-};
 
 var folderPaneContextMenu = {
   /**
@@ -4390,6 +4309,9 @@ var threadPane = {
   handleEvent(event) {
     const notOnEmptySpace = event.target !== threadTree;
     switch (event.type) {
+      case "request-message-selection":
+        threadTree.dispatchEvent(new CustomEvent("select"));
+        break;
       case "click":
         if (notOnEmptySpace && event.target.closest(".tree-button-more")) {
           this._onContextMenu(event);
@@ -5886,10 +5808,6 @@ var threadPane = {
 var messagePane = {
   async init() {
     webBrowser = document.getElementById("webBrowser");
-    // Attach the progress listener for the webBrowser. For the messageBrowser this
-    // happens in the "aboutMessageLoaded" event from aboutMessage.js.
-    top.contentProgress.addProgressListenerToBrowser(webBrowser);
-
     messageBrowser = document.getElementById("messageBrowser");
     messageBrowser.docShell.allowDNSPrefetch = false;
 
@@ -5912,6 +5830,12 @@ var messagePane = {
           once: true,
         });
       });
+    }
+  },
+
+  handleEvent(event) {
+    if (event.type == "request-message-clear") {
+      this.clearAll();
     }
   },
 
