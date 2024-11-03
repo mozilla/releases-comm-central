@@ -50,14 +50,6 @@ PlacesTreeView.prototype = {
     return this;
   },
 
-  __xulStore: null,
-  get _xulStore() {
-    if (!this.__xulStore) {
-      this.__xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
-    }
-    return this.__xulStore;
-  },
-
   QueryInterface: XPCOMUtils.generateQI(PTV_interfaces),
 
   // Bug 761494:
@@ -364,7 +356,7 @@ PlacesTreeView.prototype = {
         let isopen = false;
 
         if (uri) {
-          let val = this._xulStore.getValue(document.documentURI, uri, "open");
+          let val = Services.xulStore.getValue(document.documentURI, uri, "open");
           isopen = (val == "true");
         }
 
@@ -1628,9 +1620,9 @@ PlacesTreeView.prototype = {
         let docURI = document.documentURI;
 
         if (node.containerOpen) {
-          this._xulStore.removeValue(docURI, uri, "open");
+          Services.xulStore.removeValue(docURI, uri, "open");
         } else {
-          this._xulStore.setValue(docURI, uri, "open", "true");
+          Services.xulStore.setValue(docURI, uri, "open", "true");
         }
       }
     }
