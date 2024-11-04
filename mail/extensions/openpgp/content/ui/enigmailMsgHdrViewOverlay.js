@@ -825,8 +825,3 @@ var openpgpSink = {
     return false;
   },
 };
-
-window.addEventListener(
-  "load-enigmail",
-  Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView)
-);

@@ -171,7 +171,11 @@ Enigmail.msg = {
     ReloadMessage();
   },
 
-  messageCleanup() {
+  /**
+   * Handle messagePane "unload" event.
+   */
+  messageFrameUnload() {
+    Enigmail.msg.savedHeaders = null;
     for (const value of [
       "decryptInlinePGReminder",
       "decryptInlinePG",
@@ -218,11 +222,6 @@ Enigmail.msg = {
     Enigmail.msg.unhideMissingSigKeyBoxIsTODO = false;
     Enigmail.msg.missingSigKey = null;
     Enigmail.msg.buggyMailType = null;
-  },
-
-  messageFrameUnload() {
-    Enigmail.msg.savedHeaders = null;
-    Enigmail.msg.messageCleanup();
   },
 
   getCurrentMsgUriSpec() {
@@ -2151,41 +2150,6 @@ Enigmail.msg = {
     );
   },
 
-  onUnloadEnigmail() {
-    window.removeEventListener(
-      "unload-enigmail",
-      Enigmail.msg.onUnloadEnigmail
-    );
-    window.removeEventListener("load-enigmail", Enigmail.msg.messengerStartup);
-
-    this.messageCleanup();
-
-    if (this.messagePane) {
-      this.messagePane.removeEventListener(
-        "unload",
-        Enigmail.msg.messageFrameUnload,
-        true
-      );
-    }
-
-    for (const c of this.changedAttributes) {
-      const elem = document.getElementById(c.id);
-      if (elem) {
-        elem.setAttribute(c.attrib, c.value);
-      }
-    }
-
-    if (Enigmail.columnHandler) {
-      Enigmail.columnHandler.onUnloadEnigmail();
-    }
-    if (Enigmail.hdrView) {
-      Enigmail.hdrView.onUnloadEnigmail();
-    }
-
-    // eslint-disable-next-line no-global-assign
-    Enigmail = undefined;
-  },
-
   /**
    * Process key data from a message.
    *
@@ -2996,12 +2960,3 @@ Enigmail.msg = {
       !showExtraKeysList;
   },
 };
-
-window.addEventListener(
-  "load-enigmail",
-  Enigmail.msg.messengerStartup.bind(Enigmail.msg)
-);
-window.addEventListener(
-  "unload-enigmail",
-  Enigmail.msg.onUnloadEnigmail.bind(Enigmail.msg)
-);
