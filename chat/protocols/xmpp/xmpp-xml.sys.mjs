@@ -383,6 +383,12 @@ export function XMPPParser(aListener) {
     }
     this.characters(t);
   };
+  this._parser.oncdata = t => {
+    if (this._parser.error) {
+      return;
+    }
+    this.characters(t);
+  };
   this._parser.onerror = this.error;
 }
 
@@ -448,6 +454,11 @@ XMPPParser.prototype = {
     this._node = node;
   },
 
+  /**
+   * Add text to the current node (or create a new text node).
+   *
+   * @param {string} aCharacters
+   */
   characters(aCharacters) {
     if (!this._node) {
       // Ignore whitespace received on the stream to keep the connection alive.

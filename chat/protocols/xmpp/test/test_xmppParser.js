@@ -38,6 +38,20 @@ bescreen"d in night, so stumblest on my counsel?</body>\
   },
   {
     input:
+      '<message xmlns="jabber:client" from="juliet@capulet.example/balcony" \
+to="romeo@montague.example/garden" type="chat">\
+<body><![CDATA[Testing <b>No HTML here</b>]]></body>\
+</message>',
+    output:
+      '<message xmlns="jabber:client" \
+from="juliet@capulet.example/balcony" to="romeo@montague.example/garden" \
+type="chat"><body xmlns="jabber:client">Testing &lt;b&gt;No HTML here&lt;/b&gt;</body>\
+</message>',
+    isError: false,
+    description: "Message stanza with body element containing CDATA",
+  },
+  {
+    input:
       '<message xmlns="jabber:client" from="romeo@montague.example" \
 to="romeo@montague.example/home" type="chat">\
 <received xmlns="urn:xmpp:carbons:2">\
