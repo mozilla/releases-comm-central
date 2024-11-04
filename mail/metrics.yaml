@@ -362,3 +362,15 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+
+  mbox_read_errors:
+    type: labeled_counter
+    description: >
+      Counts mbox read failures by type.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926810
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1926810#c14
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
