@@ -49,9 +49,11 @@ PER_PROJECT_PARAMETERS = {
     },
     "try-comm-central": {
         "enable_always_target": True,
-        "target_tasks_method": lambda parameters: "try_cc_tasks"
-        if (method := parameters.get("target_tasks_method")) == "default"
-        else method,
+        "target_tasks_method": lambda parameters: (
+            "try_cc_tasks"
+            if (method := parameters.get("target_tasks_method")) == "default"
+            else method
+        ),
     },
     "comm-central": {
         "target_tasks_method": "comm_central_tasks",
