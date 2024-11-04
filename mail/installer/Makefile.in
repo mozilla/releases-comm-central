@@ -183,6 +183,10 @@ ifdef TB_LIBOTR_PREBUILT
 DEFINES += -DTB_LIBOTR_PREBUILT
 endif
 
+ifdef MOZ_SERVICES_SYNC
+DEFINES += -DMOZ_SERVICES_SYNC
+endif
+
 libs::
 	$(MAKE) -C $(DEPTH)/comm/mail/locales langpack
 
