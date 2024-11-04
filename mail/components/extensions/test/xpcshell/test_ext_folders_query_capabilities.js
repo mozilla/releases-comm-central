@@ -265,8 +265,8 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
         ["OtherTest"]
       );
       await queryCheck({ folderId: rootFolder.id, recent: true }, [
-        "InfoTest",
         "OtherTest",
+        "InfoTest",
       ]);
       await queryCheck(
         { folderId: rootFolder.id, recent: false },

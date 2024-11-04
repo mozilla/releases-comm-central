@@ -152,7 +152,8 @@ function allAccountsSorted(aExcludeIMAccounts) {
 }
 
 /**
- * Returns the most recently used/modified folders from the passed in list.
+ * Returns the most recently used/modified folders from the passed in list,
+ * sorted by recentness.
  *
  * @param {nsIMsgFolder[]} aFolderList - The array of folders to search
  *   for recent folders.
@@ -173,23 +174,13 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
    *
    * @param {nsIMsgFolders} aFolder - The folder to check for recency.
    */
-  let oldestTime = 0;
   function addIfRecent(aFolder) {
     let time = 0;
     try {
       time = Number(aFolder.getStringProperty(aTimeProperty)) || 0;
     } catch (e) {}
-    if (time <= oldestTime || time < monthOld) {
+    if (time < monthOld) {
       return;
-    }
-
-    if (recentFolders.length == aMaxHits) {
-      recentFolders.sort((a, b) => a.time < b.time);
-      recentFolders.pop();
-      oldestTime =
-        recentFolders.length > 0
-          ? recentFolders[recentFolders.length - 1].time
-          : 0;
     }
     recentFolders.push({ folder: aFolder, time });
   }
@@ -198,7 +189,8 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     addIfRecent(folder);
   }
 
-  return recentFolders.map(f => f.folder);
+  recentFolders.sort((a, b) => a.time < b.time);
+  return recentFolders.slice(0, aMaxHits).map(f => f.folder);
 }
 
 /**
