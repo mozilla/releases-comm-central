@@ -687,6 +687,18 @@ add_task(async function test_FolderInfo_FolderCapabilities_and_query() {
   );
   await createMessages(OtherTestFolder, 1);
 
+  // Enforce different MRUTime values for folders used for recent tests. The
+  // "OtherTest" folder was created after the "InfoTest" folder and should be more
+  // recent.
+  InfoTestFolder.setStringProperty(
+    "MRUTime",
+    Math.floor(startTime.getTime() / 1000) + 1
+  );
+  OtherTestFolder.setStringProperty(
+    "MRUTime",
+    Math.floor(startTime.getTime() / 1000) + 2
+  );
+
   extension.onMessage("markSomeAsUnread", count => {
     const messages = InfoTestFolder.messages;
     while (messages.hasMoreElements() && count > 0) {
