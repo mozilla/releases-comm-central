@@ -24,8 +24,8 @@ namespace testing {
  * produce bad results at different read sizes, so this can be used to
  * shake it out by asking for, say, a single byte at a time.
  */
-void ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
-                     size_t readSize = 4096);
+nsresult ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
+                         size_t readSize = 4096);
 
 /**
  * Slurp just reads the src stream until EOF, returning the data in

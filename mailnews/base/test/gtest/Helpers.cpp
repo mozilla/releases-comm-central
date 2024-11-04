@@ -12,13 +12,16 @@
 
 namespace testing {
 
-void ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
-                     size_t readSize) {
+// Parses all the messages in mbox returning them as an array.
+nsresult ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
+                         size_t readSize) {
   // Open stream for raw mbox.
   nsCOMPtr<nsIInputStream> raw;
   nsresult rv = NS_NewByteInputStream(getter_AddRefs(raw), mozilla::Span(mbox),
                                       NS_ASSIGNMENT_COPY);
-  ASSERT_TRUE(NS_SUCCEEDED(rv));
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
 
   msgs.Clear();
   // Wrap with MboxMsgInputStream and read single message.
@@ -27,7 +30,9 @@ void ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
   while (true) {
     nsAutoCString got;
     rv = Slurp(rdr, readSize, got);
-    ASSERT_TRUE(NS_SUCCEEDED(rv));
+    if (NS_FAILED(rv)) {
+      return rv;
+    }
     // Corner case: suppress dud message for empty mbox file.
     if (!rdr->IsNullMessage()) {
       msgs.AppendElement(got);
@@ -35,11 +40,14 @@ void ExtractFromMbox(nsACString const& mbox, nsTArray<nsCString>& msgs,
     // Try and reuse the MboxMsgInputStream for the next message.
     bool more;
     rv = rdr->Continue(more);
-    ASSERT_TRUE(NS_SUCCEEDED(rv));
+    if (NS_FAILED(rv)) {
+      return rv;
+    }
     if (!more) {
       break;
     }
   }
+  return NS_OK;
 }
 
 // Read all the data out of a stream into a string, reading readSize
@@ -50,7 +58,9 @@ nsresult Slurp(nsIInputStream* src, size_t readSize, nsACString& out) {
   while (true) {
     uint32_t n;
     nsresult rv = src->Read(readbuf.Elements(), readbuf.Length(), &n);
-    NS_ENSURE_SUCCESS(rv, rv);
+    if (NS_FAILED(rv)) {
+      return rv;
+    }
     if (n == 0) {
       break;  // EOF.
     }

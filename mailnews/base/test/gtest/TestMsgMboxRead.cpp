@@ -41,7 +41,8 @@ static void dumpCase(testing::MboxCase const& t,
 // readSize lets the caller set the size of the stream Read() calls.
 static void runInputStreamCase(testing::MboxCase const& t, size_t readSize) {
   nsTArray<nsCString> msgs;
-  testing::ExtractFromMbox(t.mbox, msgs, readSize);
+  nsresult rv = testing::ExtractFromMbox(t.mbox, msgs, readSize);
+  ASSERT_TRUE(NS_SUCCEEDED(rv));
 
   // Display test data + results before asserting to make troubleshooting
   // simpler.
@@ -152,5 +153,19 @@ TEST(TestMsgMboxRead, Ambiguities)
     for (auto const& t : testing::mboxAmbiguities) {
       testing::runInputStreamCase(t, s);
     }
+  }
+}
+
+// Test to handle missing From line.
+// Not too exhaustive (more in xpcshell tests).
+// Just make sure that a missing "From " line causes an error.
+TEST(TestMsgMboxRead, MissingFromLine)
+{
+  nsAutoCString borkedMbox("blah blah blah");
+
+  for (size_t s : {1, 3, 4096}) {
+    nsTArray<nsCString> msgs;
+    nsresult rv = testing::ExtractFromMbox(borkedMbox, msgs, s);
+    ASSERT_EQ(rv, NS_MSG_ERROR_MBOX_MALFORMED);
   }
 }

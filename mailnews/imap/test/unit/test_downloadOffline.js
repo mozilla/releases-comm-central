@@ -59,3 +59,41 @@ add_task(async function verifyDownloaded() {
     await streamListener.promise;
   }
 });
+
+/**
+ * For mbox, make sure that offline messages fail if the storeTokens
+ * don't point to the beginning of a message.
+ */
+add_task(
+  {
+    skip_if: () => IMAPPump.inbox.msgStore.storeType != "mbox",
+  },
+  async function checkBadStoreTokens() {
+    const inbox = IMAPPump.inbox;
+
+    // Corrupt the storeTokens by adding 3.
+    for (const msg of inbox.messages) {
+      const offset = Number(msg.storeToken) + 3;
+      msg.storeToken = offset.toString();
+    }
+
+    // Make sure message reading fails.
+    const NS_MSG_ERROR_MBOX_MALFORMED = 0x80550024;
+    for (const msg of inbox.messages) {
+      const streamListener = new PromiseTestUtils.PromiseStreamListener();
+      const uri = inbox.getUriForMsg(msg);
+      const service = MailServices.messageServiceFromURI(uri);
+      try {
+        service.streamMessage(uri, streamListener, null, null, false, "", true);
+        await streamListener.promise;
+        Assert.ok(false, "Bad storeToken should cause error.");
+      } catch (e) {
+        Assert.equal(
+          e,
+          NS_MSG_ERROR_MBOX_MALFORMED,
+          "Bad storeToken causes NS_MSG_ERROR_MBOX_MALFORMED for mbox"
+        );
+      }
+    }
+  }
+);

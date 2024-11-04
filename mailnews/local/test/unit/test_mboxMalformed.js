@@ -10,6 +10,9 @@
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+const { MessageGenerator } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
+);
 
 // Force mbox mailstore.
 Services.prefs.setCharPref(
@@ -56,6 +59,48 @@ add_task(async function test_unescapedMbox() {
 
   // NOTE: asyncScan doesn't guarantee ordering.
   Assert.deepEqual(listener.messages.toSorted(), messages.toSorted());
+
+  // Clear up.
+  localAccountUtils.clearAll();
+});
+
+/**
+ * Test that reading from bad offset fails.
+ */
+add_task(async function test_badStoreTokens() {
+  localAccountUtils.loadLocalMailAccount();
+  const inbox = localAccountUtils.inboxFolder;
+
+  // Add some messages to inbox.
+  const generator = new MessageGenerator();
+  inbox.addMessageBatch(
+    generator.makeMessages({ count: 10 }).map(m => m.toMessageString())
+  );
+
+  // Corrupt the storeTokens by adding 3
+  for (const msg of inbox.messages) {
+    const offset = Number(msg.storeToken) + 3;
+    msg.storeToken = offset.toString();
+  }
+
+  // Check that message reads fail.
+  const NS_MSG_ERROR_MBOX_MALFORMED = 0x80550024;
+  for (const msg of inbox.messages) {
+    const streamListener = new PromiseTestUtils.PromiseStreamListener();
+    const uri = inbox.getUriForMsg(msg);
+    const service = MailServices.messageServiceFromURI(uri);
+
+    try {
+      service.streamMessage(uri, streamListener, null, null, false, "", true);
+      await streamListener.promise;
+    } catch (e) {
+      Assert.equal(
+        e,
+        NS_MSG_ERROR_MBOX_MALFORMED,
+        "Bad read causes NS_MSG_ERROR_MBOX_MALFORMED"
+      );
+    }
+  }
 
   // Clear up.
   localAccountUtils.clearAll();

@@ -62,8 +62,15 @@ class MboxParser {
    * via Drain().
    */
   bool IsFinished() const {
-    return Available() == 0 && (mState == eEOF || mState == eMessageComplete);
+    return Available() == 0 && (mState == eEOF || mState == eMessageComplete ||
+                                mState == eMalformed);
   }
+
+  /**
+   * Returns true if the parser has decided the mbox is malformed and refuses
+   * to proceed (e.g. Missing a "From " line at the beginning).
+   */
+  bool IsMalformed() const { return mState == eMalformed; }
 
   /**
    * Returns true when the end of the mbox has been reached (and the last
@@ -113,7 +120,8 @@ class MboxParser {
     while (true) {
       // If a message is complete (or the mbox is finished), then
       // we stall.
-      if (mState == eMessageComplete || mState == eEOF) {
+      if (mState == eMessageComplete || mState == eEOF ||
+          mState == eMalformed) {
         break;
       }
 
@@ -212,6 +220,7 @@ class MboxParser {
     eEmitQuoting,
     eEmitBodyLine,
     eMessageComplete,  // Message is complete (or ended prematurely).
+    eMalformed,        // Error. No initial "From " line was found.
     eEOF,              // End of mbox.
   } mState{eExpectFromLine};
 
@@ -221,17 +230,11 @@ class MboxParser {
   // the mbox file has been reached.
   span handle(span data) {
     {
-      const char* stateName[] = {"eExpectFromLine",
-                                 "eDiscardFromLine",
-                                 "eExpectHeaderLine",
-                                 "eEmitHeaderLine",
-                                 "eEmitSeparator",
-                                 "eExpectBodyLine",
-                                 "eCountQuoting",
-                                 "eEmitQuoting",
-                                 "eEmitBodyLine",
-                                 "eMessageComplete",
-                                 "eEOF"};
+      const char* stateName[] = {
+          "eExpectFromLine",  "eDiscardFromLine", "eExpectHeaderLine",
+          "eEmitHeaderLine",  "eEmitSeparator",   "eExpectBodyLine",
+          "eCountQuoting",    "eEmitQuoting",     "eEmitBodyLine",
+          "eMessageComplete", "eMalformed",       "eEOF"};
       MOZ_LOG(gMboxLog, LogLevel::Verbose,
               ("MboxParser - handle %s (%zu bytes: '%s')", stateName[mState],
                data.Length(),
@@ -258,6 +261,8 @@ class MboxParser {
         return handle_eEmitBodyLine(data);
       case eMessageComplete:
         return handle_eMessageComplete(data);
+      case eMalformed:
+        return handle_eMalformed(data);
       case eEOF:
         return handle_eEOF(data);
       default:
@@ -339,10 +344,9 @@ class MboxParser {
       }
       mState = eDiscardFromLine;
     } else {
-      MOZ_LOG(gMboxLog, LogLevel::Warning,
+      MOZ_LOG(gMboxLog, LogLevel::Error,
               ("MboxParser - Missing 'From ' separator"));
-      // Just jump straight to header phase.
-      mState = eExpectHeaderLine;
+      mState = eMalformed;
     }
     return data;
   }
@@ -520,6 +524,9 @@ class MboxParser {
     }
     return data;
   }
+
+  // Halt parsing, So this is a no-op.
+  span handle_eMalformed(span data) { return data; }
 
   // All done, so this is a no-op.
   span handle_eEOF(span data) {
@@ -869,6 +876,10 @@ nsresult MboxMsgInputStream::PumpData() {
     mTotalUsed += consumed;
     mUsed += consumed;
     mUnused -= consumed;
+  }
+
+  if (mParser->IsMalformed()) {
+    return NS_MSG_ERROR_MBOX_MALFORMED;
   }
 
   return NS_OK;
