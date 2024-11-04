@@ -325,9 +325,7 @@
 
 # Files added to components directory via `FINAL_TARGET_FILES.components`.
 
-#ifdef MOZ_SERVICES_SYNC
 @RESPATH@/components/SyncComponents.manifest
-#endif
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/servicesSettings.manifest
 @RESPATH@/components/cryptoComponents.manifest
