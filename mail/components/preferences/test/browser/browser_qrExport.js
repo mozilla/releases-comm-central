@@ -689,42 +689,10 @@ add_task(async function test_primaryPasswordRefused() {
     prefsWindow
   );
   await promptPromise;
-  await BrowserTestUtils.waitForMutationCondition(
-    prefsDocument.getElementById("qrExportCodes"),
-    {
-      attributeFilter: ["hidden"],
-    },
-    () =>
-      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
-  );
-  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
-    behavior: "instant",
-    block: "nearest",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesNext"),
-    {},
-    prefsWindow
-  );
 
   Assert.ok(
-    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
-    "Should show summary"
-  );
-
-  const passwordsItem = prefsDocument.getElementById(
-    "qrExportSummaryPasswords"
-  );
-  Assert.equal(
-    passwordsItem.dataset.l10nId,
-    "qr-export-summary-passwords-excluded",
-    "Should show passwords excluded string"
-  );
-
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportRestart"),
-    {},
-    prefsWindow
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportStart")),
+    "Should remain at start"
   );
   setPrimaryPassword("qrtest", "");
 });
@@ -739,42 +707,10 @@ add_task(async function test_osAuthRefused() {
     prefsWindow
   );
   await promptPromise;
-  await BrowserTestUtils.waitForMutationCondition(
-    prefsDocument.getElementById("qrExportCodes"),
-    {
-      attributeFilter: ["hidden"],
-    },
-    () =>
-      BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportCodes"))
-  );
-  prefsDocument.getElementById("qrExportCodesNext").scrollIntoView({
-    behavior: "instant",
-    block: "nearest",
-  });
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportCodesNext"),
-    {},
-    prefsWindow
-  );
 
   Assert.ok(
-    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportSummary")),
-    "Should show summary"
-  );
-
-  const passwordsItem = prefsDocument.getElementById(
-    "qrExportSummaryPasswords"
-  );
-  Assert.equal(
-    passwordsItem.dataset.l10nId,
-    "qr-export-summary-passwords-excluded",
-    "Should show passwords excluded string"
-  );
-
-  EventUtils.synthesizeMouseAtCenter(
-    prefsDocument.getElementById("qrExportRestart"),
-    {},
-    prefsWindow
+    BrowserTestUtils.isVisible(prefsDocument.getElementById("qrExportStart")),
+    "Should remain at start"
   );
 }).skip(
   !OSKeyStoreTestUtils.canTestOSKeyStoreLogin() || !OSKeyStore.canReauth()
