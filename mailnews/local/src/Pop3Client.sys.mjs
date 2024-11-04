@@ -853,7 +853,7 @@ export class Pop3Client {
     }
 
     if (
-      ["USERPASS", "PLAIN", "LOGIN", "CRAM-MD5"].includes(
+      ["USERPASS", "PLAIN", "LOGIN", "CRAM-MD5", "APOP"].includes(
         this._currentAuthMethod
       )
     ) {
