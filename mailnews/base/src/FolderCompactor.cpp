@@ -589,8 +589,8 @@ FolderCompactor::ShutdownObserver::ShutdownObserver() {
 
   if (!mIsShuttingDown) {
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-    obs->AddObserver(this, "profile-before-change", false);
-    obs->AddObserver(this, "test-profile-before-change", false);
+    obs->AddObserver(this, "quit-application", false);
+    obs->AddObserver(this, "test-quit-application", false);
   }
 }
 
@@ -598,12 +598,12 @@ NS_IMETHODIMP
 FolderCompactor::ShutdownObserver::Observe(nsISupports* aSubject,
                                            const char* aTopic,
                                            const char16_t* aData) {
-  if (!strcmp(aTopic, "profile-before-change") ||
-      !strcmp(aTopic, "test-profile-before-change")) {
+  if (!strcmp(aTopic, "quit-application") ||
+      !strcmp(aTopic, "test-quit-application")) {
     mIsShuttingDown = true;
     nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
-    obs->RemoveObserver(this, "profile-before-change");
-    obs->RemoveObserver(this, "test-profile-before-change");
+    obs->RemoveObserver(this, "quit-application");
+    obs->RemoveObserver(this, "test-quit-application");
   }
   return NS_OK;
 }

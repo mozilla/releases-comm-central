@@ -194,7 +194,6 @@ interface nsIMsgAccountManager : nsISupports {
   void closeCachedConnections();
   void shutdownServers();
 
-  void cleanupOnExit();
   void setFolderDoingEmptyTrash(in nsIMsgFolder folder);
   boolean getEmptyTrashInProgress();
 

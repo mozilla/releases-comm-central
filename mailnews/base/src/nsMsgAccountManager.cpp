@@ -102,7 +102,8 @@ bool nsMsgAccountManager::m_haveShutdown = false;
 bool nsMsgAccountManager::m_shutdownInProgress = false;
 
 NS_IMPL_ISUPPORTS(nsMsgAccountManager, nsIMsgAccountManager, nsIObserver,
-                  nsISupportsWeakReference, nsIFolderListener)
+                  nsISupportsWeakReference, nsIFolderListener,
+                  nsIAsyncShutdownBlocker)
 
 nsMsgAccountManager::nsMsgAccountManager()
     : m_accountsLoaded(false),
@@ -116,7 +117,6 @@ nsMsgAccountManager::nsMsgAccountManager()
 
 nsMsgAccountManager::~nsMsgAccountManager() {
   if (!m_haveShutdown) {
-    Shutdown();
     // Don't remove from Observer service in Shutdown because Shutdown also gets
     // called from xpcom shutdown observer.  And we don't want to remove from
     // the service in that case.
@@ -124,12 +124,36 @@ nsMsgAccountManager::~nsMsgAccountManager() {
         mozilla::services::GetObserverService();
     if (observerService) {
       observerService->RemoveObserver(this, "search-folders-changed");
-      observerService->RemoveObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID);
-      observerService->RemoveObserver(this, "quit-application-granted");
       observerService->RemoveObserver(this, ABOUT_TO_GO_OFFLINE_TOPIC);
       observerService->RemoveObserver(this, "sleep_notification");
     }
   }
+}
+
+static nsCOMPtr<nsIAsyncShutdownService> GetShutdownService() {
+  MOZ_ASSERT(NS_IsMainThread());
+  nsCOMPtr<nsIAsyncShutdownService> service =
+      mozilla::services::GetAsyncShutdownService();
+  MOZ_RELEASE_ASSERT(service);
+  return service;
+}
+
+static nsCOMPtr<nsIAsyncShutdownClient> GetQuitApplicationGranted() {
+  nsCOMPtr<nsIAsyncShutdownClient> barrier;
+  nsresult rv =
+      GetShutdownService()->GetQuitApplicationGranted(getter_AddRefs(barrier));
+  MOZ_RELEASE_ASSERT(NS_SUCCEEDED(rv));
+  MOZ_RELEASE_ASSERT(barrier);
+  return barrier;
+}
+
+static nsCOMPtr<nsIAsyncShutdownClient> GetProfileBeforeChange() {
+  nsCOMPtr<nsIAsyncShutdownClient> barrier;
+  nsresult rv =
+      GetShutdownService()->GetProfileBeforeChange(getter_AddRefs(barrier));
+  MOZ_RELEASE_ASSERT(NS_SUCCEEDED(rv));
+  MOZ_RELEASE_ASSERT(barrier);
+  return barrier;
 }
 
 nsresult nsMsgAccountManager::Init() {
@@ -146,12 +170,16 @@ nsresult nsMsgAccountManager::Init() {
       mozilla::services::GetObserverService();
   if (observerService) {
     observerService->AddObserver(this, "search-folders-changed", true);
-    observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, true);
-    observerService->AddObserver(this, "quit-application-granted", true);
     observerService->AddObserver(this, ABOUT_TO_GO_OFFLINE_TOPIC, true);
-    observerService->AddObserver(this, "profile-before-change", true);
     observerService->AddObserver(this, "sleep_notification", true);
   }
+
+  GetQuitApplicationGranted()->AddBlocker(
+      this, NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
+      u"nsMsgAccountManager cleanup on exit"_ns);
+  GetProfileBeforeChange()->AddBlocker(
+      this, NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
+      u"nsMsgAccountManager shutdown"_ns);
 
   // Make sure PSM gets initialized before any accounts use certificates.
   net_EnsurePSMInit();
@@ -204,6 +232,7 @@ nsresult nsMsgAccountManager::Shutdown() {
   }
 
   m_haveShutdown = true;
+  GetProfileBeforeChange()->RemoveBlocker(this);
   return NS_OK;
 }
 
@@ -243,15 +272,6 @@ NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
     AddVFListenersForVF(virtualFolder, srchFolderUris);
     return NS_OK;
   }
-  if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
-    Shutdown();
-    return NS_OK;
-  }
-  if (!strcmp(aTopic, "quit-application-granted")) {
-    // CleanupOnExit will set m_shutdownInProgress to true.
-    CleanupOnExit();
-    return NS_OK;
-  }
   if (!strcmp(aTopic, ABOUT_TO_GO_OFFLINE_TOPIC)) {
     nsAutoString dataString(u"offline"_ns);
     if (someData) {
@@ -261,11 +281,6 @@ NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
     return NS_OK;
   }
   if (!strcmp(aTopic, "sleep_notification")) return CloseCachedConnections();
-
-  if (!strcmp(aTopic, "profile-before-change")) {
-    Shutdown();
-    return NS_OK;
-  }
 
   return NS_OK;
 }
@@ -1492,8 +1507,7 @@ nsMsgAccountManager::CloseCachedConnections() {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgAccountManager::CleanupOnExit() {
+nsresult nsMsgAccountManager::CleanupOnExit() {
   // This can get called multiple times, and potentially re-entrantly.
   // So add some protection against that.
   if (m_shutdownInProgress) return NS_OK;
@@ -1526,126 +1540,154 @@ nsMsgAccountManager::CleanupOnExit() {
       imapserver->GetCleanupInboxOnExit(&cleanupInboxOnExit);
       imapserver->SetShuttingDown(true);
     }
-    if (emptyTrashOnExit || cleanupInboxOnExit) {
-      nsCOMPtr<nsIMsgFolder> root;
-      server->GetRootFolder(getter_AddRefs(root));
-      nsCString type;
-      server->GetType(type);
-      if (root) {
-        nsString passwd;
-        int32_t authMethod = 0;
-        bool serverRequiresPasswordForAuthentication = true;
-        bool isImap = type.EqualsLiteral("imap");
-        if (isImap) {
-          server->GetServerRequiresPasswordForBiff(
-              &serverRequiresPasswordForAuthentication);
-          server->GetPassword(passwd);
-          server->GetAuthMethod(&authMethod);
-        }
-        if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication ||
-                                   !passwd.IsEmpty() ||
-                                   authMethod == nsMsgAuthMethod::OAuth2))) {
-          nsCOMPtr<nsIMsgAccountManager> accountManager =
-              do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
-          if (NS_FAILED(rv)) continue;
+    if (!emptyTrashOnExit && !cleanupInboxOnExit) {
+      continue;
+    }
 
-          if (isImap && cleanupInboxOnExit) {
-            // Find the inbox.
-            nsTArray<RefPtr<nsIMsgFolder>> subFolders;
-            rv = root->GetSubFolders(subFolders);
-            if (NS_SUCCEEDED(rv)) {
-              for (nsIMsgFolder* folder : subFolders) {
-                uint32_t flags;
-                folder->GetFlags(&flags);
-                if (flags & nsMsgFolderFlags::Inbox) {
-                  // This is inbox, so Compact() it. There's an implied
-                  // Expunge too, because this is IMAP.
-                  RefPtr<UrlListener> cleanupListener = new UrlListener();
-                  RefPtr<nsMsgAccountManager> self = this;
-                  // This runs when the compaction (+expunge) is complete.
-                  cleanupListener->mStopFn =
-                      [self](nsIURI* url, nsresult status) -> nsresult {
-                    if (self->m_folderDoingCleanupInbox) {
-                      PR_CEnterMonitor(self->m_folderDoingCleanupInbox);
-                      PR_CNotifyAll(self->m_folderDoingCleanupInbox);
-                      self->m_cleanupInboxInProgress = false;
-                      PR_CExitMonitor(self->m_folderDoingCleanupInbox);
-                      self->m_folderDoingCleanupInbox = nullptr;
-                    }
-                    return NS_OK;
-                  };
+    nsCOMPtr<nsIMsgFolder> root;
+    server->GetRootFolder(getter_AddRefs(root));
+    nsCString type;
+    server->GetType(type);
+    if (!root) {
+      continue;
+    }
 
-                  rv = folder->Compact(cleanupListener, nullptr);
-                  if (NS_SUCCEEDED(rv))
-                    accountManager->SetFolderDoingCleanupInbox(folder);
-                  break;
+    nsString passwd;
+    int32_t authMethod = 0;
+    bool serverRequiresPasswordForAuthentication = true;
+    bool isImap = type.EqualsLiteral("imap");
+    if (isImap) {
+      server->GetServerRequiresPasswordForBiff(
+          &serverRequiresPasswordForAuthentication);
+      server->GetPassword(passwd);
+      server->GetAuthMethod(&authMethod);
+    }
+    if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication ||
+                               !passwd.IsEmpty() ||
+                               authMethod == nsMsgAuthMethod::OAuth2))) {
+      nsCOMPtr<nsIMsgAccountManager> accountManager =
+          do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+      if (NS_FAILED(rv)) continue;
+
+      if (isImap && cleanupInboxOnExit) {
+        // Find the inbox.
+        nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+        rv = root->GetSubFolders(subFolders);
+        if (NS_SUCCEEDED(rv)) {
+          for (nsIMsgFolder* folder : subFolders) {
+            uint32_t flags;
+            folder->GetFlags(&flags);
+            if (flags & nsMsgFolderFlags::Inbox) {
+              // This is inbox, so Compact() it. There's an implied
+              // Expunge too, because this is IMAP.
+              RefPtr<UrlListener> cleanupListener = new UrlListener();
+              RefPtr<nsMsgAccountManager> self = this;
+              // This runs when the compaction (+expunge) is complete.
+              cleanupListener->mStopFn = [self](nsIURI* url,
+                                                nsresult status) -> nsresult {
+                if (self->m_folderDoingCleanupInbox) {
+                  PR_CEnterMonitor(self->m_folderDoingCleanupInbox);
+                  PR_CNotifyAll(self->m_folderDoingCleanupInbox);
+                  self->m_cleanupInboxInProgress = false;
+                  PR_CExitMonitor(self->m_folderDoingCleanupInbox);
+                  self->m_folderDoingCleanupInbox = nullptr;
                 }
-              }
+                return NS_OK;
+              };
+
+              rv = folder->Compact(cleanupListener, nullptr);
+              if (NS_SUCCEEDED(rv))
+                accountManager->SetFolderDoingCleanupInbox(folder);
+              break;
             }
           }
+        }
+      }
 
-          if (emptyTrashOnExit) {
-            RefPtr<UrlListener> emptyTrashListener = new UrlListener();
-            RefPtr<nsMsgAccountManager> self = this;
-            // This runs when the trash-emptying is complete.
-            // (It'll be a nsIImapUrl::nsImapDeleteAllMsgs url).
-            emptyTrashListener->mStopFn = [self](nsIURI* url,
-                                                 nsresult status) -> nsresult {
-              if (self->m_folderDoingEmptyTrash) {
-                PR_CEnterMonitor(self->m_folderDoingEmptyTrash);
-                PR_CNotifyAll(self->m_folderDoingEmptyTrash);
-                self->m_emptyTrashInProgress = false;
-                PR_CExitMonitor(self->m_folderDoingEmptyTrash);
-                self->m_folderDoingEmptyTrash = nullptr;
-              }
-              return NS_OK;
-            };
-
-            rv = root->EmptyTrash(emptyTrashListener);
-            if (isImap && NS_SUCCEEDED(rv))
-              accountManager->SetFolderDoingEmptyTrash(root);
+      if (emptyTrashOnExit) {
+        RefPtr<UrlListener> emptyTrashListener = new UrlListener();
+        RefPtr<nsMsgAccountManager> self = this;
+        // This runs when the trash-emptying is complete.
+        // (It'll be a nsIImapUrl::nsImapDeleteAllMsgs url).
+        emptyTrashListener->mStopFn = [self](nsIURI* url,
+                                             nsresult status) -> nsresult {
+          if (self->m_folderDoingEmptyTrash) {
+            PR_CEnterMonitor(self->m_folderDoingEmptyTrash);
+            PR_CNotifyAll(self->m_folderDoingEmptyTrash);
+            self->m_emptyTrashInProgress = false;
+            PR_CExitMonitor(self->m_folderDoingEmptyTrash);
+            self->m_folderDoingEmptyTrash = nullptr;
           }
+          return NS_OK;
+        };
 
-          if (isImap) {
-            nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+        rv = root->EmptyTrash(emptyTrashListener);
+        if (isImap && NS_SUCCEEDED(rv))
+          accountManager->SetFolderDoingEmptyTrash(root);
+      }
 
-            // Pause until any possible inbox-compaction and trash-emptying
-            // are complete (or time out).
-            bool inProgress = false;
-            if (cleanupInboxOnExit) {
-              int32_t loopCount = 0;  // used to break out after 5 seconds
-              accountManager->GetCleanupInboxInProgress(&inProgress);
-              while (inProgress && loopCount++ < 5000) {
-                accountManager->GetCleanupInboxInProgress(&inProgress);
-                PR_CEnterMonitor(root);
-                PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
-                PR_CExitMonitor(root);
-                NS_ProcessPendingEvents(thread,
-                                        PR_MicrosecondsToInterval(1000UL));
-              }
-            }
-            if (emptyTrashOnExit) {
-              accountManager->GetEmptyTrashInProgress(&inProgress);
-              int32_t loopCount = 0;
-              while (inProgress && loopCount++ < 5000) {
-                accountManager->GetEmptyTrashInProgress(&inProgress);
-                PR_CEnterMonitor(root);
-                PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
-                PR_CExitMonitor(root);
-                NS_ProcessPendingEvents(thread,
-                                        PR_MicrosecondsToInterval(1000UL));
-              }
-            }
-          }
+      if (!isImap) {
+        continue;
+      }
+
+      nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
+
+      // Pause until any possible inbox-compaction and trash-emptying
+      // are complete (or time out).
+      bool inProgress = false;
+      if (cleanupInboxOnExit) {
+        int32_t loopCount = 0;  // used to break out after 5 seconds
+        accountManager->GetCleanupInboxInProgress(&inProgress);
+        while (inProgress && loopCount++ < 5000) {
+          accountManager->GetCleanupInboxInProgress(&inProgress);
+          PR_CEnterMonitor(root);
+          PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
+          PR_CExitMonitor(root);
+          NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
+        }
+      }
+      if (emptyTrashOnExit) {
+        accountManager->GetEmptyTrashInProgress(&inProgress);
+        int32_t loopCount = 0;
+        while (inProgress && loopCount++ < 5000) {
+          accountManager->GetEmptyTrashInProgress(&inProgress);
+          PR_CEnterMonitor(root);
+          PR_CWait(root, PR_MicrosecondsToInterval(1000UL));
+          PR_CExitMonitor(root);
+          NS_ProcessPendingEvents(thread, PR_MicrosecondsToInterval(1000UL));
         }
       }
     }
   }
 
+  GetQuitApplicationGranted()->RemoveBlocker(this);
+
   // Try to do this early on in the shutdown process before
   // necko shuts itself down.
   CloseCachedConnections();
   return NS_OK;
+}
+
+// nsIAsyncShutdownBlocker implementation
+NS_IMETHODIMP
+nsMsgAccountManager::GetName(nsAString& aName) {
+  aName = u"nsMsgAccountManager: shutdown"_ns;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgAccountManager::GetState(nsIPropertyBag** aState) { return NS_OK; }
+
+NS_IMETHODIMP
+nsMsgAccountManager::BlockShutdown(nsIAsyncShutdownClient* aClient) {
+  nsAutoString name;
+  aClient->GetName(name);
+  if (name.Equals(u"quit-application-granted"_ns)) {
+    return CleanupOnExit();
+  } else {
+    // profile-before-change
+    return Shutdown();
+  }
 }
 
 NS_IMETHODIMP

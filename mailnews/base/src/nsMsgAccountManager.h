@@ -27,6 +27,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIDBChangeListener.h"
 #include "nsTObserverArray.h"
+#include "nsIAsyncShutdown.h"
 
 class VirtualFolderChangeListener final : public nsIDBChangeListener {
  public:
@@ -62,7 +63,8 @@ class VirtualFolderChangeListener final : public nsIDBChangeListener {
 class nsMsgAccountManager : public nsIMsgAccountManager,
                             public nsIObserver,
                             public nsSupportsWeakReference,
-                            public nsIFolderListener {
+                            public nsIFolderListener,
+                            public nsIAsyncShutdownBlocker {
  public:
   nsMsgAccountManager();
 
@@ -73,9 +75,9 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   NS_DECL_NSIMSGACCOUNTMANAGER
   NS_DECL_NSIOBSERVER
   NS_DECL_NSIFOLDERLISTENER
+  NS_DECL_NSIASYNCSHUTDOWNBLOCKER
 
   nsresult Init();
-  nsresult Shutdown();
   void LogoutOfServer(nsIMsgIncomingServer* aServer);
 
  private:
@@ -114,6 +116,9 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsCString m_lastFindServerUserName;
   int32_t m_lastFindServerPort;
   nsCString m_lastFindServerType;
+
+  nsresult Shutdown();
+  nsresult CleanupOnExit();
 
   void SetLastServerFound(nsIMsgIncomingServer* server,
                           const nsACString& hostname,

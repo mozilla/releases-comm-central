@@ -265,7 +265,7 @@ add_task(async function testAbortCompactingFolder() {
 
   // Shut down (or pretend to)! This can happen after starting compact because
   // compact is event driven and we haven't released the event loop yet.
-  Services.obs.notifyObservers(null, "test-profile-before-change");
+  Services.obs.notifyObservers(null, "test-quit-application");
   await Assert.rejects(
     listener.promise,
     /2147500036/,
