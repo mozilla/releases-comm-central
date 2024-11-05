@@ -1152,27 +1152,6 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
   return rv;
 }
 
-nsresult NS_GetUnicharPreferenceWithDefault(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, const nsAString& defValue, nsAString& prefValue) {
-  NS_ENSURE_ARG(prefName);
-
-  nsCOMPtr<nsIPrefBranch> pbr;
-  if (!prefBranch) {
-    pbr = do_GetService(NS_PREFSERVICE_CONTRACTID);
-    prefBranch = pbr;
-  }
-
-  nsCString valueUtf8;
-  nsresult rv =
-      prefBranch->GetStringPref(prefName, EmptyCString(), 0, valueUtf8);
-  if (NS_SUCCEEDED(rv))
-    CopyUTF8toUTF16(valueUtf8, prefValue);
-  else
-    prefValue = defValue;
-  return NS_OK;
-}
-
 nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, const nsAString& defValue, nsAString& prefValue) {

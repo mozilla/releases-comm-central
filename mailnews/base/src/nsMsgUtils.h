@@ -134,10 +134,6 @@ nsresult NS_SetPersistentFile(const char* relPrefName, const char* absPrefName,
 
 nsresult IsRFC822HeaderFieldName(const char* aHdr, bool* aResult);
 
-nsresult NS_GetUnicharPreferenceWithDefault(
-    nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
-    const char* prefName, const nsAString& defValue, nsAString& prefValue);
-
 nsresult NS_GetLocalizedUnicharPreferenceWithDefault(
     nsIPrefBranch* prefBranch,  // can be null, if so uses the root branch
     const char* prefName, const nsAString& defValue, nsAString& prefValue);
