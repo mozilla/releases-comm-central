@@ -1465,21 +1465,6 @@ nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
   return NS_OK;
 }
 
-bool MsgAdvanceToNextLine(const char* buffer, uint32_t& bufferOffset,
-                          uint32_t maxBufferOffset) {
-  bool result = false;
-  for (; bufferOffset < maxBufferOffset; bufferOffset++) {
-    if (buffer[bufferOffset] == '\r' || buffer[bufferOffset] == '\n') {
-      bufferOffset++;
-      if (buffer[bufferOffset - 1] == '\r' && buffer[bufferOffset] == '\n')
-        bufferOffset++;
-      result = true;
-      break;
-    }
-  }
-  return result;
-}
-
 nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                  nsIProtocolProxyCallback* listener,
                                  nsICancelable** result) {

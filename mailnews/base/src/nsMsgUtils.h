@@ -236,12 +236,6 @@ int32_t MsgFindCharInSet(const nsCString& aString, const char* aChars,
 int32_t MsgFindCharInSet(const nsString& aString, const char16_t* aChars,
                          uint32_t aOffset = 0);
 
-// advances bufferOffset to the beginning of the next line, if we don't
-// get to maxBufferOffset first. Returns false if we didn't get to the
-// next line.
-bool MsgAdvanceToNextLine(const char* buffer, uint32_t& bufferOffset,
-                          uint32_t maxBufferOffset);
-
 /**
  * Alerts the user that the login to the server failed. Asks whether the
  * connection should: retry, cancel, or request a new password.
