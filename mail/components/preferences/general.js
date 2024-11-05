@@ -2507,7 +2507,7 @@ class HandlerRow {
 
       gSubDialog.open(
         "chrome://global/content/appPicker.xhtml",
-        { features: "resizable=no", closingCallback: onAppSelected },
+        { closingCallback: onAppSelected },
         params
       );
     } else {
