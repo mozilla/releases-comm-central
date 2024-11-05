@@ -36,13 +36,19 @@
         <img class="form-icon notification-icon icon-danger"
               src="chrome://messenger/skin/icons/new/compact/warning.svg"
               alt="" />
-        <p id="emailFormNotificationTitle" class="notification-title"></p>
+        <p id="emailFormNotificationTitle" class="notification-title">
+          <span class="localized-title"></span>
+          <span class="raw-title"></span>
+        </p>
         <div id="emailFormNotificationToggle">
           <span data-l10n-id="account-hub-notification-show-more"></span>
           <span data-l10n-id="account-hub-notification-show-less"></span>
         </div>
       </summary>
-      <p id="emailFormNotificationText" class="notification-text"></p>
+      <p id="emailFormNotificationText" class="notification-text">
+        <span class="localized-description"></span>
+        <span class="raw-description"></span>
+      </p>
     </details>
   </header>
 </html:template>

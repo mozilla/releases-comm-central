@@ -354,10 +354,12 @@ class AccountHubEmail extends HTMLElement {
             this.#hasCancelled ? this.#currentState : stateDetails.previousStep
           );
         } catch (error) {
-          stateDetails.subview.showErrorNotification(
-            error.cause.code,
-            error.cause.text
-          );
+          stateDetails.subview.showNotification({
+            title: error.cause.code,
+            description: error.cause.text,
+            error,
+            type: "error",
+          });
         }
         break;
       case "forward":
@@ -386,11 +388,25 @@ class AccountHubEmail extends HTMLElement {
           this.#currentConfig = stateDetails.subview.captureState();
           await this.#handleCustomAction(this.#currentState);
         } catch (error) {
-          stateDetails.subview.showErrorNotification(error.title, error.text);
+          stateDetails.subview.showNotification({
+            title: error.title,
+            description: error.text,
+            error,
+            type: "error",
+          });
         }
         break;
       case "config-updated":
-        this.#emailFooter.toggleForwardDisabled(!event.detail.completed);
+        try {
+          this.#emailFooter.toggleForwardDisabled(!event.detail.completed);
+        } catch (error) {
+          stateDetails.subview.showNotification({
+            title: error.title,
+            description: error.text,
+            error,
+            type: "error",
+          });
+        }
         break;
       default:
         break;
@@ -597,6 +613,12 @@ class AccountHubEmail extends HTMLElement {
       e => {
         gAccountSetupLogger.warn(`guessConfig failed: ${e}`);
         reject(e);
+
+        this.showNotification({
+          title: "account-hub-find-settings-failed",
+          e,
+          type: "error",
+        });
         this.abortable = null;
       },
       initialConfig,

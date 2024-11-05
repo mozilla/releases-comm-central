@@ -42,45 +42,82 @@ class AccountHubHeader extends HTMLElement {
   /**
    * Show an error notification in-case something went wrong.
    *
-   * @param {string} titleStringID - The ID of the fluent string that needs to
-   *   be attached to the title of the notification.
-   * @param {string} textStringID - The ID of the fluent string that needs to
-   *   be attached to the text area of the notification.
-   * @param {string} type - The type of notification (error, success, info,
+   * @param {Object} options - An options object for displaying notification.
+   * @param {string} options.description - A raw string to show in the title.
+   * @param {Error} options.error - An error object.
+   * @param {string} options.fluentTitleId - A string representing a fluent id
+   *   to localize for the title.
+   * @param {string} options.fluentDescriptionId - A string representing a
+   *   fluent id to localize for the description.
+   * @param {string} options.title - A raw string to displayin the description.
+   * @param {string} options.type - The type of notification (error, success, info,
    *   warning).
    */
-  showErrorNotification(titleStringID, textStringID, type) {
-    console.warn("TODO: Implement custom error messages");
-
-    gAccountSetupLogger.debug(
-      `Status error: ${titleStringID}. ${textStringID}`
-    );
+  showNotification({
+    description,
+    error,
+    fluentTitleId,
+    fluentDescriptionId,
+    title,
+    type,
+  }) {
+    if (type === "error") {
+      gAccountSetupLogger.debug(
+        `Status error: ${error?.cause?.title}. ${error?.cause?.text}`
+      );
+    }
 
     // Hide the notification bar.
     this.clearNotifications();
 
-    // Fetch the fluent string.
-    document.l10n.setAttributes(
-      this.shadowRoot.querySelector("#emailFormNotificationTitle"),
-      titleStringID
+    const titleElement = this.shadowRoot.querySelector(
+      "#emailFormNotificationTitle"
     );
+
+    if (fluentTitleId) {
+      document.l10n.setAttributes(
+        titleElement.querySelector(".localized-title"),
+        fluentTitleId
+      );
+    }
+
+    if (title) {
+      titleElement.querySelector(".raw-title").textContent = title;
+    }
 
     this.shadowRoot.querySelector("#emailFormNotification").hidden = false;
     this.shadowRoot.querySelector("#emailFormNotification").classList.add(type);
 
-    if (textStringID) {
+    const descriptionElement = this.shadowRoot.querySelector(
+      "#emailFormNotificationText"
+    );
+
+    if (description || fluentDescriptionId || error?.message) {
       this.shadowRoot.querySelector(
         "#emailFormNotificationToggle"
       ).hidden = false;
-
-      document.l10n.setAttributes(
-        this.shadowRoot.querySelector("#emailFormNotificationText"),
-        textStringID
-      );
     } else {
       this.shadowRoot
         .querySelector("#emailFormNotification")
         .setAttribute("aria-disabled", true);
+    }
+
+    if (fluentDescriptionId) {
+      document.l10n.setAttributes(
+        titleElement.querySelector(".localized-description"),
+        fluentDescriptionId
+      );
+    }
+
+    if (description || (type === "error" && error?.message)) {
+      let descriptionText = `${description || ""}`;
+
+      if (type === "error" && error.message) {
+        descriptionText += `${descriptionText ? " - " : ""}${error.message}`;
+      }
+
+      descriptionElement.querySelector(".raw-description").textContent =
+        descriptionText;
     }
   }
 
@@ -94,8 +131,12 @@ class AccountHubHeader extends HTMLElement {
     const notificationText = this.shadowRoot.querySelector(
       "#emailFormNotificationText"
     );
-    delete notificationText.dataset.l10nId;
-    delete notificationTitle.dataset.l10nId;
+
+    delete notificationTitle.querySelector(".localized-title").dataset.l10nId;
+    delete notificationText.querySelector(".localized-description").dataset
+      .l10nId;
+    notificationTitle.querySelector(".raw-title").textContent = "";
+    notificationText.querySelector(".raw-description").textContent = "";
 
     this.shadowRoot
       .querySelector("#emailFormNotification")
