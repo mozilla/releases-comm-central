@@ -1373,22 +1373,6 @@ bool MsgHostDomainIsTrusted(nsCString& host, nsCString& trustedMailDomains) {
   return domainIsTrusted;
 }
 
-nsresult MsgGetLocalFileFromURI(const nsACString& aUTF8Path, nsIFile** aFile) {
-  nsresult rv;
-  nsCOMPtr<nsIURI> argURI;
-  rv = NS_NewURI(getter_AddRefs(argURI), aUTF8Path);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIFileURL> argFileURL(do_QueryInterface(argURI, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> argFile;
-  rv = argFileURL->GetFile(getter_AddRefs(argFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  argFile.forget(aFile);
-  return NS_OK;
-}
-
 void MsgStripQuotedPrintable(nsCString& aSrc) {
   // decode quoted printable text in place
 

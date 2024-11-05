@@ -206,9 +206,6 @@ bool MsgFindKeyword(const nsCString& keyword, nsCString& keywords,
 
 bool MsgHostDomainIsTrusted(nsCString& host, nsCString& trustedMailDomains);
 
-// gets an nsIFile from a UTF-8 file:// path
-nsresult MsgGetLocalFileFromURI(const nsACString& aUTF8Path, nsIFile** aFile);
-
 void MsgStripQuotedPrintable(nsCString& aSrc);
 
 /*
