@@ -165,8 +165,6 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle);
 
 nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
                     int32_t key_len, unsigned char* digest);
-nsresult MSGApopMD5(const char* text, int32_t text_len, const char* password,
-                    int32_t password_len, unsigned char* digest);
 
 // helper functions to convert a 64bits PRTime into a 32bits value (compatible
 // time_t) and vice versa.

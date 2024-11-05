@@ -1061,34 +1061,6 @@ nsresult MSGCramMD5(const char* text, int32_t text_len, const char* key,
   return rv;
 }
 
-// digest needs to be a pointer to a DIGEST_LENGTH (16) byte buffer
-nsresult MSGApopMD5(const char* text, int32_t text_len, const char* password,
-                    int32_t password_len, unsigned char* digest) {
-  nsresult rv;
-  nsAutoCString result;
-
-  nsCOMPtr<nsICryptoHash> hasher =
-      do_CreateInstance("@mozilla.org/security/hash;1", &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hasher->Init(nsICryptoHash::MD5);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hasher->Update((const uint8_t*)text, text_len);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hasher->Update((const uint8_t*)password, password_len);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = hasher->Finish(false, result);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (result.Length() != DIGEST_LENGTH) return NS_ERROR_UNEXPECTED;
-
-  memcpy(digest, result.get(), DIGEST_LENGTH);
-  return rv;
-}
-
 nsresult NS_GetPersistentFile(const char* relPrefName, const char* absPrefName,
                               const char* dirServiceProp, bool& gotRelPref,
                               nsIFile** aFile, nsIPrefBranch* prefBranch) {
