@@ -41,6 +41,11 @@ class FolderDatabase : public nsIFolderDatabase, nsIObserver {
                                mozIStorageStatement** aStmt);
   static nsresult InternalLoadFolders();
 
+  static nsresult InternalInsertFolder(nsIFolder* aParent,
+                                       const nsACString& aName,
+                                       nsIFolder** aChild);
+  static nsresult InternalDeleteFolder(nsIFolder* aFolder);
+
   static void SaveOrdinals(nsTArray<RefPtr<Folder>>& aFolders);
 };
 

@@ -307,6 +307,158 @@ NS_IMETHODIMP FolderDatabase::GetFolderByPath(const nsACString& aPath,
   return NS_OK;
 }
 
+/**
+ * Modification functions.
+ */
+
+NS_IMETHODIMP FolderDatabase::InsertRoot(const nsACString& aServerKey,
+                                         nsIFolder** aRoot) {
+  NS_ENSURE_ARG_POINTER(aRoot);
+
+  GetFolderByPath(aServerKey, aRoot);
+  if (*aRoot) {
+    MOZ_LOG(gPanoramaLog, LogLevel::Info,
+            ("InsertRoot found existing root '%s'\n",
+             nsAutoCString(aServerKey).get()));
+    return NS_OK;
+  }
+
+  return InternalInsertFolder(nullptr, aServerKey, aRoot);
+}
+
+NS_IMETHODIMP FolderDatabase::InsertFolder(nsIFolder* aParent,
+                                           const nsACString& aName,
+                                           nsIFolder** aChild) {
+  NS_ENSURE_ARG(aParent);
+  NS_ENSURE_ARG_POINTER(aChild);
+
+  Folder* parent = (Folder*)(aParent);
+  for (auto child : parent->mChildren) {
+    if (child->mName.Equals(aName)) {
+      NS_IF_ADDREF(*aChild = child);
+      MOZ_LOG(gPanoramaLog, LogLevel::Info,
+              ("InsertFolder found existing folder '%s'\n",
+               child->GetPath().get()));
+      return NS_OK;
+    }
+  }
+
+  return InternalInsertFolder(aParent, aName, aChild);
+}
+
+/**
+ * Common function for inserting a folder row and creating a Folder object
+ * for it. This will fail if a folder with the given parent and name already
+ * exists, so the calling function needs to check.
+ */
+nsresult FolderDatabase::InternalInsertFolder(nsIFolder* aParent,
+                                              const nsACString& aName,
+                                              nsIFolder** aChild) {
+  NS_ENSURE_ARG_POINTER(aChild);
+
+  Folder* parent = (Folder*)(aParent);
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  GetStatement(
+      "InsertFolder"_ns,
+      "INSERT INTO folders (parent, name) VALUES (:parent, :name) RETURNING id, flags"_ns,
+      getter_AddRefs(stmt));
+
+  stmt->BindInt64ByName("parent"_ns, parent ? parent->mId : 0);
+  stmt->BindStringByName("name"_ns, NS_ConvertUTF8toUTF16(aName));
+  bool hasResult;
+  nsresult rv = stmt->ExecuteStep(&hasResult);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!hasResult) {
+    stmt->Reset();
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  uint64_t id = stmt->AsInt64(0);
+  uint64_t flags = stmt->AsInt64(1);
+  stmt->Reset();
+
+  RefPtr<Folder> child = new Folder(id, nsCString(aName), flags);
+  child->mParent = parent;
+
+  if (parent) {
+    child->mRoot = parent->mRoot;
+    parent->mChildren.InsertElementSorted(child, sComparator);
+  } else {
+    child->mRoot = child;
+  }
+
+  sFoldersById.InsertOrUpdate(id, child);
+  sFoldersByPath.InsertOrUpdate(child->GetPath(), child);
+
+  NS_IF_ADDREF(*aChild = child);
+  MOZ_LOG(gPanoramaLog, LogLevel::Info,
+          ("InternalInsertFolder created new folder '%s' (id=%" PRIu64 ")\n",
+           child->GetPath().get(), id));
+  return NS_OK;
+}
+
+NS_IMETHODIMP FolderDatabase::DeleteFolder(nsIFolder* aFolder) {
+  if (aFolder->GetIsServer()) {
+    NS_WARNING("using DeleteFolder on a root folder is forbidden");
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  InternalDeleteFolder(aFolder);
+
+  return NS_OK;
+}
+
+nsresult FolderDatabase::InternalDeleteFolder(nsIFolder* aFolder) {
+  Folder* folder = (Folder*)(aFolder);
+  for (auto child : folder->mChildren.Clone()) {
+    InternalDeleteFolder(child);
+  }
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  GetStatement("DeleteFolder"_ns, "DELETE FROM folders WHERE id = :id"_ns,
+               getter_AddRefs(stmt));
+
+  stmt->BindInt64ByName("id"_ns, aFolder->GetId());
+  stmt->Execute();
+
+  nsCString path = folder->GetPath();
+  sFoldersById.Remove(folder->mId);
+  sFoldersByPath.Remove(path);
+
+  if (folder->mParent) {
+    folder->mParent->mChildren.RemoveElement(folder);
+  }
+  folder->mRoot = nullptr;
+  folder->mParent = nullptr;
+
+  MOZ_LOG(gPanoramaLog, LogLevel::Info,
+          ("DeleteFolder removed folder '%s' (id=%" PRIu64 ")", path.get(),
+           folder->mId));
+  return NS_OK;
+}
+
+NS_IMETHODIMP FolderDatabase::Reconcile(
+    nsIFolder* aParent, const nsTArray<nsCString>& aChildNames) {
+  NS_ENSURE_ARG(aParent);
+
+  Folder* parent = (Folder*)(aParent);
+  nsTArray<nsCString> childNames = aChildNames.Clone();
+
+  for (auto child : parent->mChildren.Clone()) {
+    if (!childNames.RemoveElement(child->mName)) {
+      DeleteFolder(child);
+    }
+  }
+
+  for (auto childName : childNames) {
+    nsCOMPtr<nsIFolder> unused;
+    InsertFolder(parent, childName, getter_AddRefs(unused));
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 FolderDatabase::MoveFolderWithin(nsIFolder* aParent, nsIFolder* aChild,
                                  nsIFolder* aBefore) {

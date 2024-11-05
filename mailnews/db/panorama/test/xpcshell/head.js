@@ -26,6 +26,31 @@ function drawTree(root, level = 0) {
   }
 }
 
+function checkRow(id, expected) {
+  const stmt = database.connection.createStatement(
+    "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
+  );
+  stmt.params.id = id;
+  stmt.executeStep();
+  Assert.equal(stmt.row.id, expected.id, "row id");
+  Assert.equal(stmt.row.parent, expected.parent, "row parent");
+  Assert.equal(stmt.row.ordinal, expected.ordinal, "row ordinal");
+  Assert.equal(stmt.row.name, expected.name, "row name");
+  Assert.equal(stmt.row.flags, expected.flags, "row flags");
+  stmt.reset();
+  stmt.finalize();
+}
+
+function checkNoRow(id) {
+  const stmt = database.connection.createStatement(
+    "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
+  );
+  stmt.params.id = id;
+  Assert.ok(!stmt.executeStep(), `row ${id} should not exist`);
+  stmt.reset();
+  stmt.finalize();
+}
+
 function checkOrdinals(expected) {
   const stmt = database.connection.createStatement(
     "SELECT parent, ordinal FROM folders WHERE id=:id"

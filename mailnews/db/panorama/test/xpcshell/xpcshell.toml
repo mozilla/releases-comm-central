@@ -16,8 +16,11 @@ support-files = [
   "db/sort.sqlite",
 ]
 
+["test_delete.js"]
 ["test_flags.js"]
+["test_insert.js"]
 ["test_lookup.js"]
 ["test_move.js"]
+["test_reconcile.js"]
 ["test_relations.js"]
 ["test_sort.js"]

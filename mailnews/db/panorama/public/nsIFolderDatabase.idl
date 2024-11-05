@@ -27,6 +27,44 @@ interface nsIFolderDatabase : nsISupports {
   nsIFolder getFolderByPath(in AUTF8String path);
 
   /**
+   * Add and return a new root folder representing a server to the database.
+   * If the folder already exists, it will be returned, no new folder will be
+   * added.
+   *
+   * This function will be called on initial database creation and when a new
+   * incoming server is created.
+   */
+  nsIFolder insertRoot(in AUTF8String aServerKey);
+
+  /**
+   * Add a folder named `name` to the database as a child of `parent`.
+   *
+   * This function should be called by the protocol code after the folder is
+   * created on the server. The parent folder is not optional.
+   */
+  nsIFolder insertFolder(in nsIFolder parent, in AUTF8String name);
+
+  /**
+   * Delete `folder` and all of its descendants from the database.
+   *
+   * This function should be called by the protocol code after the folder is
+   * deleted on the server. Deleting a root folder with this function is not
+   * permitted.
+   */
+  void deleteFolder(in nsIFolder folder);
+
+  /**
+   * Update the children of `parent` to match the child names expected. If a
+   * name is in `childNames` but no child exists, it will be created. If a
+   * child exists but its name is not in `childNames`, it and all of its
+   * descendants are removed from the database.
+   *
+   * This function should be called by the protocol code after collecting the
+   * child names from the server.
+   */
+  void reconcile(in nsIFolder parent, in Array<AUTF8String> childNames);
+
+  /**
    * Move a folder to a different position among its siblings. Yes, passing in
    * the parent folder is redundant here, but it makes reading the code easier.
    *
