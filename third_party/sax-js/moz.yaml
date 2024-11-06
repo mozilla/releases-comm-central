@@ -1,0 +1,58 @@
+# All fields are mandatory unless otherwise noted
+
+schema: 1
+# Version of this schema
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories.
+  product: Chat Core
+  component: XMPP
+
+origin:
+  name: sax-js
+  description: A sax style parser for JS
+  url: https://github.com/isaacs/sax-js
+
+  release: v1.2.4 (2017-06-22T10:46:33-07:00).
+  revision: v1.2.4
+
+  license: ISC
+
+vendoring:
+  url: https://github.com/isaacs/sax-js
+  source-hosting: github
+  tracking: tag
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  keep:
+    - sax.sys.mjs
+
+  exclude:
+    - .travis.yml
+    - AUTHORS
+    - '*.md'
+    - examples/
+    - test/
+    - '*.json'
+
+  include:
+    - README.md
+    - LICENSE
+    - package.json
+
+  update-actions:
+    - action: move-file
+      from: 'lib/sax.js'
+      to: 'sax.js'
+
+    - action: delete-path
+      path: 'lib'
+
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.sax-js'
+      pattern: '\[tag v[1-9\.]+\]'
+      with: '[tag {revision}]'

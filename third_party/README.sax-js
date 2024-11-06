@@ -1,0 +1,18 @@
+Directory ./sax-js contains a bundled version of sax-js, which has been obtained from:
+https://github.com/isaacs/sax-js
+
+For licensing information, please refer to the included documentation.
+
+[tag v1.2.4]
+
+Updating:
+- cd $topsrcdir/comm
+- ../mach vendor -r <tag_name> third_party/sax-js/moz.yaml
+- Review the changes
+- Commit the changes
+- Run ./mach test chat/protocols/xmpp
+
+
+The tag information in this file is automatically updated. The moz.yaml file
+is automatically updated. If upstream changes require updating moz.build, that
+must be done with a manual step.

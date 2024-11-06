@@ -5,6 +5,7 @@
 
 DIRS += [
     "asn1js",
+    "sax-js",
 ]
 
 EXTRA_JS_MODULES += [
