@@ -90,10 +90,15 @@ interface nsIMsgComposeService : nsISupports {
   [noscript] boolean determineComposeHTML(in nsIMsgIdentity aIdentity, in MSG_ComposeFormat aFormat);
 
   /**
-   * given a mailto url, parse the attributes and turn them into a nsIMsgComposeParams object
-   * @return nsIMsgComposeParams which corresponds to the passed in mailto url
+   * Given a mailto url and an optional identity, parse the attributes and turn
+   * them into a nsIMsgComposeParams object.
+   *
+   * @param aURI                 The mailto url to parse.
+   * @param aIdentity            An optional identity to send the message from.
+
+   * @return nsIMsgComposeParams which corresponds to the passed in data.
    */
-  nsIMsgComposeParams getParamsForMailto(in nsIURI aURI);
+  nsIMsgComposeParams getParamsForMailto(in nsIURI aURI, [optional] in nsIMsgIdentity aIdentity);
 
   /**
    * @{

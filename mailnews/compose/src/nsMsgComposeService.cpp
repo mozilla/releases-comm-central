@@ -425,7 +425,7 @@ nsMsgComposeService::OpenComposeWindow(
 }
 
 NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
-    nsIURI* aURI, nsIMsgComposeParams** aParams) {
+    nsIURI* aURI, nsIMsgIdentity* aIdentity, nsIMsgComposeParams** aParams) {
   nsresult rv = NS_OK;
   if (aURI) {
     nsCString spec;
@@ -454,7 +454,8 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
       nsAutoString sanitizedBody;
 
       bool composeHTMLFormat;
-      DetermineComposeHTML(NULL, requestedComposeFormat, &composeHTMLFormat);
+      DetermineComposeHTML(aIdentity, requestedComposeFormat,
+                           &composeHTMLFormat);
 
       // If there was an 'html-body' param, finding it will have requested
       // HTML format in GetMessageContents, so we try to use it first. If it's
@@ -493,6 +494,9 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
         pMsgComposeParams->SetFormat(composeHTMLFormat
                                          ? nsIMsgCompFormat::HTML
                                          : nsIMsgCompFormat::PlainText);
+        if (aIdentity) {
+          pMsgComposeParams->SetIdentity(aIdentity);
+        }
 
         nsCOMPtr<nsIMsgCompFields> pMsgCompFields(do_CreateInstance(
             "@mozilla.org/messengercompose/composefields;1", &rv));
@@ -522,12 +526,10 @@ NS_IMETHODIMP nsMsgComposeService::GetParamsForMailto(
 NS_IMETHODIMP nsMsgComposeService::OpenComposeWindowWithURI(
     const char* aMsgComposeWindowURL, nsIURI* aURI, nsIMsgIdentity* identity) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
-  nsresult rv = GetParamsForMailto(aURI, getter_AddRefs(pMsgComposeParams));
-  if (NS_SUCCEEDED(rv)) {
-    pMsgComposeParams->SetIdentity(identity);
-    rv = OpenComposeWindowWithParams(aMsgComposeWindowURL, pMsgComposeParams);
-  }
-  return rv;
+  nsresult rv =
+      GetParamsForMailto(aURI, identity, getter_AddRefs(pMsgComposeParams));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return OpenComposeWindowWithParams(aMsgComposeWindowURL, pMsgComposeParams);
 }
 
 NS_IMETHODIMP nsMsgComposeService::InitCompose(nsIMsgComposeParams* aParams,

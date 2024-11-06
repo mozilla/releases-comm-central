@@ -2036,10 +2036,9 @@ function getEmail(url) {
  *   default identity is used.
  */
 function composeEmailTo(linkURL, identity) {
-  const uri = Services.io.newURI(linkURL);
-  const params = MailServices.compose.getParamsForMailto(uri);
-  if (identity) {
-    params.identity = identity;
-  }
-  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  MailServices.compose.OpenComposeWindowWithURI(
+    null,
+    Services.io.newURI(linkURL),
+    identity
+  );
 }

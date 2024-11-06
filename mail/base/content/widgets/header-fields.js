@@ -848,10 +848,8 @@
       ) {
         event.preventDefault();
         if (event.target.href.startsWith("mailto:")) {
-          top.composeEmailTo(
-            event.target.href,
-            lazy.MailUtils.getIdentityForHeader(gMessage)
-          );
+          const [identity] = lazy.MailUtils.getIdentityForHeader(gMessage);
+          top.composeEmailTo(event.target.href, identity);
           return;
         }
         openUILink(event.target.href, event);
