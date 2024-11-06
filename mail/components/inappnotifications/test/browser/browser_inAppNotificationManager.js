@@ -255,8 +255,15 @@ add_task(async function test_closeClick() {
 
 add_task(async function test_keyboardShortcut() {
   await showNotification("test", "Test", "Test notification");
-
-  EventUtils.synthesizeKey("J", { altKey: true, shiftKey: true, code: "KeyJ" });
+  manager.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      altKey: true,
+      shiftKey: true,
+      code: "KeyJ",
+      bubbles: true,
+      composed: true,
+    })
+  );
 
   const notification = manager.firstElementChild;
 
