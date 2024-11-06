@@ -29,10 +29,6 @@ class nsMsgKeySet {
   // newsrc file.
   static nsMsgKeySet* Create(const char* str /* , MSG_NewsHost* host = NULL*/);
 
-  // FirstNonMember() returns the lowest non-member of the set that is
-  // greater than 0.
-  int32_t FirstNonMember();
-
   // Output() converts to a string representation suitable for writing to a
   // .newsrc file.
   nsresult Output(char** outputStr);
@@ -54,18 +50,7 @@ class nsMsgKeySet {
   // the number of articles in that range which are not in the set.
   int32_t CountMissingInRange(int32_t start, int32_t end);
 
-  // FirstMissingRange() takes an inclusive range and finds the first range
-  // of articles that are not in the set.  If none, return zeros.
-  int FirstMissingRange(int32_t min, int32_t max, int32_t* first,
-                        int32_t* last);
-
-  // LastMissingRange() takes an inclusive range and finds the last range
-  // of articles that are not in the set.  If none, return zeros.
-  int LastMissingRange(int32_t min, int32_t max, int32_t* first, int32_t* last);
-
-  int32_t GetLastMember();
   int32_t GetFirstMember();
-  void SetLastMember(int32_t highWaterMark);
   // For debugging only...
   int32_t getLength() { return m_length; }
 
