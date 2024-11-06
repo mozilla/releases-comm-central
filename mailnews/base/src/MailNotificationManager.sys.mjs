@@ -31,8 +31,9 @@ export class MailNotificationManager {
     this._systemAlertAvailable = true;
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
-    // @type {Map<nsIMsgFolder, number>} - A map of folder and its last biff time.
-    this._folderBiffTime = new Map();
+    // @type {Map<string, number>} - A map of folder URIs and the date of the
+    //   newest message a notification has been shown for.
+    this._folderNewestNotifiedTime = new Map();
     // @type {Set<nsIMsgFolder>} - A set of folders to show alert for.
     this._pendingFolders = new Set();
 
@@ -205,6 +206,7 @@ export class MailNotificationManager {
       return;
     }
     this._showAlert(firstNewMsgHdr, title, body);
+    this._saveNotificationTime(folder, newMsgKeys);
     this._animateDockIcon();
   }
 
@@ -230,7 +232,7 @@ export class MailNotificationManager {
         continue;
       }
 
-      if (folder.getNumNewMessages(false) > 0) {
+      if (this._getNewMsgKeysNotNotified(folder).length > 0) {
         return folder;
       }
     }
@@ -402,25 +404,47 @@ export class MailNotificationManager {
       args
     );
     this._customizedAlertShown = true;
-    this._folderBiffTime.set(folder, Date.now());
+    this._saveNotificationTime(folder, newMsgKeys);
   }
 
   /**
-   * Get all NEW messages from a folder that we received after last biff time.
+   * Get all NEW messages from a folder that are newer than the newest message
+   * in the folder we had a notification about.
    *
    * @param {nsIMsgFolder} folder - The message folder to check.
-   * @returns {number[]} An array of message keys.
+   * @returns {nsMsgKey[]} An array of message keys.
    */
   _getNewMsgKeysNotNotified(folder) {
+    if (folder.getNumNewMessages(false) == 0) {
+      return [];
+    }
+
     const msgDb = folder.msgDatabase;
-    const lastBiffTime = this._folderBiffTime.get(folder) || 0;
+    const newestNotifiedTime =
+      this._folderNewestNotifiedTime.get(folder.URI) || 0;
     return msgDb
       .getNewList()
       .slice(-folder.getNumNewMessages(false))
       .filter(key => {
         const msgHdr = msgDb.getMsgHdrForKey(key);
-        return msgHdr.dateInSeconds * 1000 > lastBiffTime;
+        return msgHdr.dateInSeconds > newestNotifiedTime;
       });
+  }
+
+  /**
+   * Record the time of the newest new message in the folder, so that we never
+   * notify about it again.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {nsMsgKey[]} newMsgKeys - As returned by _getNewMsgKeysNotNotified.
+   */
+  _saveNotificationTime(folder, newMsgKeys) {
+    let newestNotifiedTime = 0;
+    for (const msgKey of newMsgKeys) {
+      const msgHdr = folder.msgDatabase.getMsgHdrForKey(msgKey);
+      newestNotifiedTime = Math.max(newestNotifiedTime, msgHdr.dateInSeconds);
+    }
+    this._folderNewestNotifiedTime.set(folder.URI, newestNotifiedTime);
   }
 
   async _updateUnreadCount() {
