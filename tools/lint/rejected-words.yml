@@ -5,6 +5,7 @@ avoid-blacklist-and-whitelist:
     include: ['comm/']
     exclude:
         - comm/tools/lint/rejected-words.yml
+        - comm/mail/test/browser/account/browser_abWhitelist.js
     type: external
     wrappedType: regex
     payload: commlint:lint_wrapper

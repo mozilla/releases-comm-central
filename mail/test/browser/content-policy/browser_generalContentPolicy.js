@@ -641,10 +641,10 @@ add_task(async function test_generalContentPolicy() {
       await checkComposeWindow(TESTS[i], false, false);
 
       if (TESTS[i].checkRemoteImg) {
-        // Now check that image is visible after site is whitelisted.
+        // Now check that image is visible after site is allowed.
         // Only want to do this for the test case which has the remote image.
 
-        // Add the site to the whitelist.
+        // Add the site to the allow list.
         const messageDocument =
           get_about_message().getMessagePaneBrowser().contentDocument;
         const src = messageDocument.getElementById("testelement").src;

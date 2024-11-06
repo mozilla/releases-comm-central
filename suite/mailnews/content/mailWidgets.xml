@@ -1207,7 +1207,7 @@
                         class="search-value-menuitem"/>
           <xul:menuitem value="filter" stringTag="junkScoreOriginFilter"
                         class="search-value-menuitem"/>
-          <xul:menuitem value="whitelist" stringTag="junkScoreOriginWhitelist"
+          <xul:menuitem value="allowlist" stringTag="junkScoreOriginAllowlist"
                         class="search-value-menuitem"/>
           <xul:menuitem value="imapflag" stringTag="junkScoreOriginImapFlag"
                         class="search-value-menuitem"/>

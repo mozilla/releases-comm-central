@@ -836,7 +836,7 @@
               { stringId: "junkScoreOriginPlugin", value: "plugin" },
               { stringId: "junkScoreOriginUser", value: "user" },
               { stringId: "junkScoreOriginFilter", value: "filter" },
-              { stringId: "junkScoreOriginWhitelist", value: "whitelist" },
+              { stringId: "junkScoreOriginAllowlist", value: "allowlist" },
               { stringId: "junkScoreOriginImapFlag", value: "imapflag" },
             ]);
             break;

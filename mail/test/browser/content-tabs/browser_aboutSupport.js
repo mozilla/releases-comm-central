@@ -257,10 +257,10 @@ add_task(async function test_accounts_in_order() {
 var UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
 
 /**
- * Test that a modified preference on the whitelist but not on the blacklist
+ * Test that a modified preference on the allowlist but not on the disallowlist
  * shows up.
  */
-add_task(async function test_modified_pref_on_whitelist() {
+add_task(async function test_modified_pref_on_allowlist() {
   const PREFIX = "accessibility.";
   const prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
@@ -272,9 +272,9 @@ add_task(async function test_modified_pref_on_whitelist() {
 });
 
 /**
- * Test that a modified preference not on the whitelist doesn't show up.
+ * Test that a modified preference not on the allowlist doesn't show up.
  */
-add_task(async function test_modified_pref_not_on_whitelist() {
+add_task(async function test_modified_pref_not_on_allowlist() {
   Services.prefs.setBoolPref(UNIQUE_ID, true);
   const tab = await open_about_support();
   assert_content_tab_text_absent(tab, UNIQUE_ID);
@@ -283,9 +283,9 @@ add_task(async function test_modified_pref_not_on_whitelist() {
 });
 
 /**
- * Test that a modified preference on the blacklist doesn't show up.
+ * Test that a modified preference on the disallowlist doesn't show up.
  */
-add_task(async function test_modified_pref_on_blacklist() {
+add_task(async function test_modified_pref_on_disallowlist() {
   const PREFIX = "network.proxy.";
   const prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);

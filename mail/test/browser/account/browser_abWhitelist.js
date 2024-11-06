@@ -26,6 +26,7 @@ add_setup(function () {
     "pop3"
   );
   gAccount = MailServices.accounts.findAccountForServer(server);
+
   gKeyString = "mail.server." + server.key + ".whiteListAbURI";
   registerCleanupFunction(function () {
     Services.prefs.clearUserPref(gKeyString);
@@ -34,12 +35,12 @@ add_setup(function () {
 
 /**
  * First, test that when we initially load the account manager, that
- * we're not whitelisting any address books.  Then, we'll check all
+ * we're not allowing any address books.  Then, we'll check all
  * address books and save.
  *
  * @param {object} tab - The account manager tab.
  */
-async function subtest_check_whitelist_init_and_save(tab) {
+async function subtest_check_allowlist_init_and_save(tab) {
   // Ok, the advanced settings window is open.  Let's choose
   // the junkmail settings.
   const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
@@ -73,12 +74,12 @@ async function subtest_check_whitelist_init_and_save(tab) {
 
 /**
  * Next, we'll make sure that the address books we checked in
- * subtest_check_whitelist_init_and_save were properly saved.
+ * subtest_check_allowlist_init_and_save were properly saved.
  * Then, we'll clear the address books and save.
  *
  * @param {object} tab - The account manager tab.
  */
-async function subtest_check_whitelist_load_and_clear(tab) {
+async function subtest_check_allowlist_load_and_clear(tab) {
   const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
@@ -86,14 +87,15 @@ async function subtest_check_whitelist_load_and_clear(tab) {
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
+
   const list = doc.getElementById("whiteListAbURI");
-  const whiteListURIs = Services.prefs
+  const allowListURIs = Services.prefs
     .getCharPref(gKeyString, "")
     .split(" ")
     .filter(Boolean);
 
   Assert.greater(
-    whiteListURIs.length,
+    allowListURIs.length,
     0,
     `${gKeyString} pref should have uris`
   );
@@ -107,7 +109,7 @@ async function subtest_check_whitelist_load_and_clear(tab) {
     );
     // Also ensure that the address book URI was properly saved in the
     // prefs
-    Assert.ok(whiteListURIs.includes(abNode.getAttribute("value")));
+    Assert.ok(allowListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
     EventUtils.synthesizeMouseAtCenter(
       abNode.firstElementChild,
@@ -124,7 +126,7 @@ async function subtest_check_whitelist_load_and_clear(tab) {
  *
  * @param {object} tab - The account manager tab.
  */
-async function subtest_check_whitelist_load_cleared(tab) {
+async function subtest_check_allowlist_load_cleared(tab) {
   const accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   await click_account_tree_row(tab, accountRow);
 
@@ -132,15 +134,16 @@ async function subtest_check_whitelist_load_cleared(tab) {
     tab.browser.contentWindow.document.getElementById(
       "contentFrame"
     ).contentDocument;
+
   const list = doc.getElementById("whiteListAbURI");
-  let whiteListURIs = "";
+  let allowListURIs = "";
 
   try {
-    whiteListURIs = Services.prefs.getCharPref(gKeyString);
+    allowListURIs = Services.prefs.getCharPref(gKeyString);
     // We should have failed here, because the pref should have been cleared
     // out.
     throw Error(
-      "The whitelist preference for this server wasn't properly cleared."
+      "The allowlist preference for this server wasn't properly cleared."
     );
   } catch (e) {}
 
@@ -153,12 +156,12 @@ async function subtest_check_whitelist_load_cleared(tab) {
     );
     // Also ensure that the address book URI was properly cleared in the
     // prefs
-    Assert.ok(!whiteListURIs.includes(abNode.getAttribute("value")));
+    Assert.ok(!allowListURIs.includes(abNode.getAttribute("value")));
   }
 }
 
-add_task(async function test_address_book_whitelist() {
-  await open_advanced_settings(subtest_check_whitelist_init_and_save);
-  await open_advanced_settings(subtest_check_whitelist_load_and_clear);
-  await open_advanced_settings(subtest_check_whitelist_load_cleared);
+add_task(async function test_address_book_allowlist() {
+  await open_advanced_settings(subtest_check_allowlist_init_and_save);
+  await open_advanced_settings(subtest_check_allowlist_load_and_clear);
+  await open_advanced_settings(subtest_check_allowlist_load_cleared);
 });

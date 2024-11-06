@@ -347,7 +347,7 @@ var DOMLinkHandler = {
 var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
-  inContentWhitelist: [
+  inContentAllowList: [
     "about:addons",
     "about:addressbook",
     "about:blank",
@@ -357,7 +357,7 @@ var contentTabBaseType = {
 
   // Code to run if a particular document is loaded in a tab.
   // The array members (functions) are for the respective document URLs
-  // as specified in inContentWhitelist.
+  // as specified in inContentAllowList.
   inContentOverlays: [
     // about:addons
     function (aDocument) {
@@ -480,10 +480,10 @@ var contentTabBaseType = {
       const url = doc.defaultView.location.href;
 
       // If this document has an overlay defined, run it now.
-      let ind = self.inContentWhitelist.indexOf(url);
+      let ind = self.inContentAllowList.indexOf(url);
       if (ind < 0) {
         // Try a wildcard.
-        ind = self.inContentWhitelist.indexOf(url.replace(/:.*/, ":*"));
+        ind = self.inContentAllowList.indexOf(url.replace(/:.*/, ":*"));
       }
       if (ind >= 0) {
         const overlayFunction = self.inContentOverlays[ind];
