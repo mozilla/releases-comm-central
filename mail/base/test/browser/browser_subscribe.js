@@ -109,10 +109,9 @@ add_task(async function testIMAPSubscribe() {
 
         await TestUtils.waitForCondition(
           () => subscribeTree.clientHeight / subscribeTree.rowHeight > 5,
-          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
-            subscribeTree.clientHeight +
-            ", subscribeTree.rowHeight=" +
-            subscribeTree.rowHeight
+          `waiting for tree view to be resized, ` +
+            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
+            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
         );
 
         Assert.equal(serverMenu.value, imapRootFolder.URI);
@@ -232,10 +231,9 @@ add_task(async function testNNTPSubscribe() {
 
         await TestUtils.waitForCondition(
           () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
-          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
-            subscribeTree.clientHeight +
-            ", subscribeTree.rowHeight=" +
-            subscribeTree.rowHeight
+          `waiting for tree view to be resized, ` +
+            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
+            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -338,10 +336,9 @@ add_task(async function testNNTPSubscribe() {
 
         await TestUtils.waitForCondition(
           () => subscribeTree.clientHeight / subscribeTree.rowHeight > 3,
-          "waiting for tree view to be resized, subscribeTree.clientHeight=" +
-            subscribeTree.clientHeight +
-            ", subscribeTree.rowHeight=" +
-            subscribeTree.rowHeight
+          `waiting for tree view to be resized, ` +
+            `subscribeTree.clientHeight=${subscribeTree.clientHeight}, ` +
+            `subscribeTree.rowHeight=${subscribeTree.rowHeight}`
         );
 
         Assert.equal(serverMenu.value, nntpRootFolder.URI);
@@ -389,7 +386,7 @@ add_task(async function testNNTPSubscribe() {
 
         await TestUtils.waitForCondition(
           () => searchTree.view.rowCount == 1,
-          "waiting for search tree view to be populated with search"
+          "waiting for tree view to be populated with search"
         );
         Assert.ok(BrowserTestUtils.isHidden(subscribeTree));
         Assert.ok(BrowserTestUtils.isVisible(searchTree));
@@ -490,6 +487,7 @@ async function rightClickAndActivate(folder, idToActivate, activateOptions) {
  */
 function checkTreeRow(tree, index, expected) {
   const nameColumn = tree.columns.getFirstColumn();
+  const nameCellText = tree.view.getCellText(index, nameColumn);
   const subscribedColumn = tree.columns.getLastColumn();
   const properties = tree.view
     .getCellProperties(index, subscribedColumn)
@@ -508,35 +506,31 @@ function checkTreeRow(tree, index, expected) {
     // Properties usually has "subscribable-true", but sometimes it doesn't.
     Assert.ok(
       !properties.includes("subscribable-false"),
-      "expected subscribable for " + tree.view.getCellText(index, nameColumn)
+      `should not include subscribable-false for ${nameCellText}`
     );
   } else {
     Assert.ok(
       !properties.includes("subscribable-true"),
-      "doesn't include subscribable-true for " +
-        tree.view.getCellText(index, nameColumn)
+      `should not include subscribable-true for ${nameCellText}`
     );
     Assert.ok(
       properties.includes("subscribable-false"),
-      "includes subscribable-false for " +
-        tree.view.getCellText(index, nameColumn)
+      `should include subscribable-false for ${nameCellText}`
     );
   }
   if (expected.subscribed) {
     Assert.ok(
       properties.includes("subscribed-true"),
-      "includes subscribed-true for " + tree.view.getCellText(index, nameColumn)
+      `should include subscribed-true for ${nameCellText}`
     );
     Assert.ok(
       !properties.includes("subscribed-false"),
-      "doesn't include subscribed-false for " +
-        tree.view.getCellText(index, nameColumn)
+      `should not include subscribed-false for ${nameCellText}`
     );
   } else {
     Assert.ok(
       !properties.includes("subscribed-true"),
-      "doesn't include subscribed-true for " +
-        tree.view.getCellText(index, nameColumn)
+      `should not include subscribed-true for ${nameCellText}`
     );
     // Properties usually has "subscribed-false", but sometimes it doesn't.
   }
