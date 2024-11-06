@@ -22,7 +22,7 @@ class FolderDatabase : public nsIFolderDatabase, nsIObserver {
  public:
   FolderDatabase();
 
-  NS_DECL_ISUPPORTS
+  NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFOLDERDATABASE
   NS_DECL_NSIOBSERVER
 

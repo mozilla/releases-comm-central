@@ -9,6 +9,10 @@ async function installDB(dbName) {
   const dbFile = do_get_file(`db/${dbName}`);
   dbFile.copyTo(profileDir, "panorama.sqlite");
 
+  await loadExistingDB();
+}
+
+async function loadExistingDB() {
   database = Cc["@mozilla.org/mailnews/folder-database;1"].getService(
     Ci.nsIFolderDatabase
   );

@@ -10,6 +10,7 @@ EXPORTS += [
 
 SOURCES += [
     "Folder.cpp",
+    "FolderCollector.cpp",
     "FolderComparator.cpp",
     "FolderDatabase.cpp",
 ]

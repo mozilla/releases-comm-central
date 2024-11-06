@@ -5,6 +5,7 @@
 #include "FolderDatabase.h"
 
 #include "Folder.h"
+#include "FolderCollector.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Logging.h"
 #include "mozilla/ProfilerMarkers.h"
@@ -14,6 +15,9 @@
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsCOMPtr.h"
 #include "nsIFile.h"
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgFolderCache.h"
+#include "nsIMsgIncomingServer.h"
 #include "nsIObserverService.h"
 #include "xpcpublic.h"
 
@@ -171,6 +175,8 @@ nsresult FolderDatabase::GetStatement(const nsCString& aName,
 
 NS_IMETHODIMP
 FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
+  MOZ_ASSERT(NS_IsMainThread(), "loadfolders must happen on the main thread");
+
   ErrorResult result;
   RefPtr<Promise> promise =
       Promise::Create(xpc::CurrentNativeGlobal(aCx), result);
@@ -182,11 +188,45 @@ FolderDatabase::LoadFolders(JSContext* aCx, Promise** aPromise) {
   PROFILER_MARKER_UNTYPED("FolderDatabase::LoadFolders", OTHER,
                           MarkerOptions(MarkerTiming::IntervalStart()));
 
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Ensure the folder cache has been loaded for the first time.
+  // This needs to happen on the main thread.
+  nsCOMPtr<nsIMsgFolderCache> folderCache;
+  rv = accountManager->GetFolderCache(getter_AddRefs(folderCache));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTHashMap<nsCString, nsCOMPtr<nsIFile>> serverRoots;
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  rv = accountManager->GetAllServers(allServers);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (auto server : allServers) {
+    nsAutoCString serverKey;
+    server->GetKey(serverKey);
+    nsCOMPtr<nsIFile> rootFile;
+    server->GetLocalPath(getter_AddRefs(rootFile));
+    serverRoots.InsertOrUpdate(serverKey, rootFile);
+  }
+
   nsMainThreadPtrHandle<dom::Promise> promiseHolder(
       new nsMainThreadPtrHolder<Promise>("LoadFolders Promise", promise));
   NS_DispatchBackgroundTask(NS_NewRunnableFunction(
-      __func__, [promiseHolder = std::move(promiseHolder)]() {
+      __func__, [&, promiseHolder = std::move(promiseHolder),
+                 serverRoots = std::move(serverRoots)]() {
         InternalLoadFolders();
+
+        for (auto iter = serverRoots.ConstIter(); !iter.Done(); iter.Next()) {
+          // Ask each of the servers to find their folders on disk. For now
+          // we'll use a temporary class to do this, eventually we'll move
+          // the functionality to each message store.
+          nsCOMPtr<nsIFolder> root;
+          InsertRoot(iter.Key(), getter_AddRefs(root));
+          nsCOMPtr<nsIFile> file = iter.UserData();
+          FolderCollector collector;
+          collector.FindChildren(root, file);
+        }
 
         NS_DispatchToMainThread(NS_NewRunnableFunction(
             __func__, [promiseHolder = std::move(promiseHolder)]() {

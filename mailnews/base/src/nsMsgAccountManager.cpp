@@ -881,6 +881,9 @@ NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
     return NS_OK;
   }
 
+  MOZ_ASSERT(NS_IsMainThread(),
+             "first call to GetFolderCache must happen on the main thread");
+
   // Create the foldercache.
   nsCOMPtr<nsIFile> cacheFile;
   nsresult rv = NS_GetSpecialDirectory(NS_APP_MESSENGER_FOLDER_CACHE_50_FILE,
