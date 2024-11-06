@@ -24,4 +24,5 @@ tasks:
         update-no-wnp:
             by-release-type:
                 nightly.*: false
+                release: false
                 default: true
