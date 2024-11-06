@@ -444,6 +444,7 @@ class AccountHubEmail extends HTMLElement {
    * @param {Object} stateData - The current state data of the email flow.
    */
   async #handleForwardAction(currentState, stateData) {
+    const notificationBox = this.#states[currentState].subview;
     switch (currentState) {
       case "autoConfigSubview":
         try {
@@ -482,12 +483,28 @@ class AccountHubEmail extends HTMLElement {
       case "outgoingConfigSubview":
         break;
       case "emailConfigFoundSubview":
+        notificationBox.showNotification({
+          fluentTitleId: "account-hub-config-success",
+          type: "success",
+        });
         break;
       case "emailPasswordSubview":
+        notificationBox.showNotification({
+          fluentTitleId: "account-hub-password-info",
+          type: "info",
+        });
         break;
       case "emailSyncAccountsSubview":
+        notificationBox.showNotification({
+          fluentTitleId: "account-hub-sync-success",
+          type: "success",
+        });
         break;
       case "emailAddedSubview":
+        notificationBox.showNotification({
+          fluentTitleId: "account-hub-email-added-success",
+          type: "success",
+        });
         break;
       default:
         break;
