@@ -14,7 +14,6 @@ const OUTGOING_FOLDER_FLAGS =
 
 export var FolderUtils = {
   allAccountsSorted,
-  compareAccounts,
   folderNameCompare,
   getFolderIcon,
   getFolderProperties,
@@ -129,35 +128,6 @@ function getFolderProperties(aFolder, aOpen) {
   properties.push("imapShared-" + aFolder.imapShared);
 
   return properties.join(" ");
-}
-
-/**
- * Returns the sort order value based on the server type to be used for sorting.
- * The servers (accounts) go in the following order:
- * (0) default account, (1) other mail accounts, (2) Local Folders,
- * (3) IM accounts, (4) RSS, (5) News, (9) others (no server)
- * This ordering is encoded in the .sortOrder property of each server type.
- *
- * @param {nsIMsgIncomingServer} aServer -The server to get sort order for.
- */
-function getServerSortOrder(aServer) {
-  // If there is no server sort this object to the end.
-  if (!aServer) {
-    return 999999999;
-  }
-
-  // Otherwise get the server sort order from the Account manager.
-  return MailServices.accounts.getSortOrder(aServer);
-}
-
-/**
- * Compares the passed in accounts according to their precedence.
- */
-function compareAccounts(aAccount1, aAccount2) {
-  return (
-    getServerSortOrder(aAccount1.incomingServer) -
-    getServerSortOrder(aAccount2.incomingServer)
-  );
 }
 
 /**

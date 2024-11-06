@@ -219,9 +219,6 @@ interface nsIMsgAccountManager : nsISupports {
   /// Enumerate all incoming servers and their folders and return in an array.
   readonly attribute Array<nsIMsgFolder> allFolders;
 
-  // Used to sort servers (accounts) for e.g. the folder pane
-  long getSortOrder(in nsIMsgIncomingServer server);
-
   /**
    * Sets new order of accounts.
    *
