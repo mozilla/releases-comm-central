@@ -1,6 +1,5 @@
 comm/calendar/base/modules/Ical.sys.mjs
 comm/chat/protocols/matrix/lib
-comm/chat/protocols/xmpp/lib
 comm/mail/base/content/protovis-r2.6-modded.js
 comm/mail/components/compose/texzilla/TeXZilla.js
 comm/mail/components/storybook/storybook-static
@@ -17,4 +16,5 @@ comm/third_party/python
 comm/third_party/qrcode
 comm/third_party/rnp
 comm/third_party/rust
+comm/third_party/sax-js
 comm/third_party/zlib

@@ -112,7 +112,6 @@ docs/_build/**
 
 calendar/base/modules/Ical.sys.mjs
 chat/protocols/matrix/lib/**
-chat/protocols/xmpp/lib/**
 mail/base/content/protovis-r2.6-modded.js
 mail/components/compose/texzilla/TeXZilla.js
 mail/components/storybook/storybook-static/**
