@@ -14,7 +14,7 @@ use crate::{
 /// server-side.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitems>
-#[derive(Debug, XmlSerialize)]
+#[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
 pub struct SyncFolderItems {
     /// A description of the information to be included in the response for each
@@ -60,7 +60,7 @@ impl EnvelopeBodyContents for SyncFolderItems {
 /// A response to a [`SyncFolderItems`] request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderitemsresponse>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderItemsResponse {
     pub response_messages: ResponseMessages,
@@ -77,13 +77,13 @@ impl EnvelopeBodyContents for SyncFolderItemsResponse {
 /// A collection of responses for individual entities within a request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
     pub sync_folder_items_response_message: Vec<SyncFolderItemsResponseMessage>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderItemsResponseMessage {
     /// The status of the corresponding request, i.e. whether it succeeded or
@@ -105,7 +105,7 @@ pub struct SyncFolderItemsResponseMessage {
 }
 
 /// An ordered collection of identifiers for Exchange items.
-#[derive(Debug, XmlSerialize)]
+#[derive(Clone, Debug, XmlSerialize)]
 pub struct ArrayOfBaseItemIds {
     item_id: Vec<BaseItemId>,
 }
@@ -116,7 +116,7 @@ pub enum SyncScope {
     NormalAndAssociatedItems,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Changes {
     #[serde(default, rename = "$value")]
     pub inner: Vec<Change>,
@@ -125,7 +125,7 @@ pub struct Changes {
 /// A server-side change to an item.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-items>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub enum Change {
     /// A creation of an item.
     ///

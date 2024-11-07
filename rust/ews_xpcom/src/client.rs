@@ -9,17 +9,15 @@ use std::{
 
 use base64::prelude::{Engine, BASE64_STANDARD};
 use ews::{
-    create_item::{
-        self, CreateItem, CreateItemResponseMessage, ExtendedProperty, MessageDisposition,
-    },
+    create_item::{CreateItem, CreateItemResponseMessage},
     get_folder::GetFolder,
     get_item::GetItem,
     soap,
     sync_folder_hierarchy::{self, SyncFolderHierarchy},
     sync_folder_items::{self, SyncFolderItems},
-    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, Folder, FolderShape,
-    ItemShape, MimeContent, Operation, PathToElement, RealItem, Recipient, ResponseClass,
-    ResponseCode,
+    ArrayOfRecipients, BaseFolderId, BaseItemId, BaseShape, ExtendedFieldURI, ExtendedProperty,
+    Folder, FolderShape, ItemShape, Message, MessageDisposition, MimeContent, Operation,
+    PathToElement, RealItem, Recipient, ResponseClass, ResponseCode,
 };
 use fxhash::FxHashMap;
 use mail_parser::MessageParser;
@@ -230,21 +228,34 @@ impl XpComEwsClient {
                 .changes
                 .inner
                 .iter()
-                .filter_map(|change| match change {
-                    sync_folder_items::Change::Create {
-                        item: RealItem::Message(message),
-                    } => Some(message.item_id.id.clone()),
-                    sync_folder_items::Change::Update {
-                        item: RealItem::Message(message),
-                    } => Some(message.item_id.id.clone()),
+                .filter_map(|change| {
+                    let message = match change {
+                        sync_folder_items::Change::Create {
+                            item: RealItem::Message(message),
+                        } => message,
+                        sync_folder_items::Change::Update {
+                            item: RealItem::Message(message),
+                        } => message,
 
-                    // We don't fetch items for anything other than messages,
-                    // since we don't have support for other items, and we don't
-                    // need to fetch for other types of changes since the ID is
-                    // sufficient to do the necessary work.
-                    _ => None,
+                        // We don't fetch items for anything other than messages,
+                        // since we don't have support for other items, and we don't
+                        // need to fetch for other types of changes since the ID is
+                        // sufficient to do the necessary work.
+                        _ => return None,
+                    };
+
+                    let result = message
+                        .item_id
+                        .as_ref()
+                        .map(|item_id| item_id.id.clone())
+                        // If there is no item ID in a response from Exchange,
+                        // something has gone badly wrong. We'll end processing
+                        // here.
+                        .ok_or(XpComEwsError::MissingResponseItemId);
+
+                    Some(result)
                 })
-                .collect();
+                .collect::<Result<_, _>>()?;
 
             let messages_by_id: HashMap<_, _> = self
                 .get_items(
@@ -268,20 +279,26 @@ impl XpComEwsClient {
                 .await?
                 .into_iter()
                 .map(|item| match item {
-                    RealItem::Message(message) => (message.item_id.id.to_owned(), message),
-
-                    // We should have filtered above for only Message-related
-                    // changes.
+                    RealItem::Message(message) => message
+                        .item_id
+                        .clone()
+                        .ok_or_else(|| XpComEwsError::MissingResponseItemId)
+                        .map(|item_id| (item_id.id.to_owned(), message)),
                     #[allow(unreachable_patterns)]
-                    _ => panic!("Encountered non-Message item in response"),
+                    _ => panic!("Encountered unexpected non-Message item; this indicates a bug in this function."),
                 })
-                .collect();
+                .collect::<Result<_, _>>()?;
 
             for change in message.changes.inner {
                 match change {
                     sync_folder_items::Change::Create { item } => {
                         let item_id = match item {
-                            RealItem::Message(message) => message.item_id.id,
+                            RealItem::Message(message) => {
+                                message
+                                    .item_id
+                                    .ok_or_else(|| XpComEwsError::MissingResponseItemId)?
+                                    .id
+                            }
 
                             // We don't currently handle anything other than
                             // messages, so skip this change.
@@ -325,7 +342,12 @@ impl XpComEwsClient {
 
                     sync_folder_items::Change::Update { item } => {
                         let item_id = match item {
-                            RealItem::Message(message) => message.item_id.id,
+                            RealItem::Message(message) => {
+                                message
+                                    .item_id
+                                    .ok_or_else(|| XpComEwsError::MissingResponseItemId)?
+                                    .id
+                            }
 
                             // We don't currently handle anything other than
                             // messages, so skip this change.
@@ -862,7 +884,7 @@ impl XpComEwsClient {
 
         // Create a new message using the default values, and set the ones we
         // need.
-        let message = create_item::Message {
+        let message = Message {
             mime_content: Some(MimeContent {
                 character_set: None,
                 content: BASE64_STANDARD.encode(&mime_content),
@@ -874,7 +896,7 @@ impl XpComEwsClient {
         };
 
         let create_item = CreateItem {
-            items: vec![create_item::Item::Message(message)],
+            items: vec![RealItem::Message(message)],
 
             // We don't need EWS to copy messages to the Sent folder after
             // they've been sent, because the internal MessageSend module
@@ -943,7 +965,7 @@ impl XpComEwsClient {
         message_callbacks: RefPtr<IEwsMessageCallbacks>,
     ) -> Result<(), XpComEwsError> {
         // Create a new message from the binary content we got.
-        let mut message = create_item::Message {
+        let mut message = Message {
             mime_content: Some(MimeContent {
                 character_set: None,
                 content: BASE64_STANDARD.encode(&content),
@@ -979,7 +1001,7 @@ impl XpComEwsClient {
         }]);
 
         let create_item = CreateItem {
-            items: vec![create_item::Item::Message(message)],
+            items: vec![RealItem::Message(message)],
             message_disposition: Some(MessageDisposition::SaveOnly),
             saved_item_folder_id: Some(BaseFolderId::FolderId {
                 id: folder_id,
@@ -1275,6 +1297,9 @@ pub(crate) enum XpComEwsError {
 
     #[error("error in processing response")]
     Processing { message: String },
+
+    #[error("missing item ID in response from Exchange")]
+    MissingResponseItemId,
 }
 
 impl From<XpComEwsError> for nsresult {
@@ -1396,7 +1421,14 @@ fn create_and_populate_header_from_save_response(
     let message = match &items[0] {
         RealItem::Message(message) => message,
     };
-    let ews_id = nsCString::from(message.item_id.id.clone());
+    let ews_id = nsCString::from(
+        message
+            .item_id
+            .as_ref()
+            .ok_or(XpComEwsError::MissingResponseItemId)?
+            .id
+            .as_str(),
+    );
 
     let hdr =
         getter_addrefs(|hdr| unsafe { message_callbacks.CreateNewHeaderForItem(&*ews_id, hdr) })?;

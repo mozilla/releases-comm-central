@@ -15,7 +15,7 @@ use xml_struct::XmlSerialize;
 /// See [`Envelope`] for details.
 ///
 /// [`Envelope`]: crate::soap::Envelope
-pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents {
+pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents + std::fmt::Debug {
     /// The structure returned by EWS in response to requests containing this
     /// operation.
     type Response: OperationResponse;
@@ -31,7 +31,10 @@ pub trait Operation: XmlSerialize + sealed::EnvelopeBodyContents {
 /// See [`Envelope`] for details.
 ///
 /// [`Envelope`]: crate::soap::Envelope
-pub trait OperationResponse: for<'de> Deserialize<'de> + sealed::EnvelopeBodyContents {}
+pub trait OperationResponse:
+    for<'de> Deserialize<'de> + sealed::EnvelopeBodyContents + std::fmt::Debug
+{
+}
 
 pub(super) mod sealed {
     /// A trait for structures which may appear in the body of a SOAP envelope.

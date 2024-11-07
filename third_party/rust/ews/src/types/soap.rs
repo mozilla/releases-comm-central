@@ -17,7 +17,7 @@ use self::de::DeserializeEnvelope;
 /// A SOAP envelope containing the body of an EWS operation or response.
 ///
 /// See <https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383494>
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Envelope<B> {
     pub body: B,
 }
@@ -338,7 +338,7 @@ impl<'content> ScopedReader<'content> {
 /// request.
 ///
 /// See <https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507>
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Fault {
     /// An error code indicating the fault in the original request.
     // While `faultcode` is defined in the SOAP spec as a `QName`, we avoid
@@ -362,7 +362,7 @@ pub struct Fault {
 /// EWS-specific details regarding a SOAP fault.
 ///
 /// This element is not documented in the EWS reference.
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 #[non_exhaustive]
 pub struct FaultDetail {
     /// An error code indicating the nature of the issue.
@@ -400,7 +400,7 @@ mod tests {
 
     #[test]
     fn deserialize_envelope_with_content() {
-        #[derive(Deserialize)]
+        #[derive(Clone, Debug, Deserialize)]
         struct SomeStruct {
             text: String,
 
@@ -432,7 +432,7 @@ mod tests {
 
     #[test]
     fn deserialize_envelope_with_schema_fault() {
-        #[derive(Debug, Deserialize)]
+        #[derive(Clone, Debug, Deserialize)]
         struct Foo;
 
         impl OperationResponse for Foo {}
@@ -485,7 +485,7 @@ mod tests {
 
     #[test]
     fn deserialize_envelope_with_server_busy_fault() {
-        #[derive(Debug, Deserialize)]
+        #[derive(Clone, Debug, Deserialize)]
         struct Foo;
 
         impl OperationResponse for Foo {}

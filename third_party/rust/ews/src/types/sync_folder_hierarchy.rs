@@ -14,7 +14,7 @@ use crate::{
 /// server-side.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchy>
-#[derive(Debug, XmlSerialize)]
+#[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
 pub struct SyncFolderHierarchy {
     /// A description of the information to be included in the response for each
@@ -46,7 +46,7 @@ impl EnvelopeBodyContents for SyncFolderHierarchy {
 /// A response to a [`SyncFolderHierarchy`] request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchyresponse>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderHierarchyResponse {
     pub response_messages: ResponseMessages,
@@ -63,7 +63,7 @@ impl EnvelopeBodyContents for SyncFolderHierarchyResponse {
 /// A collection of responses for individual entities within a request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/responsemessages>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
     pub sync_folder_hierarchy_response_message: Vec<SyncFolderHierarchyResponseMessage>,
@@ -72,7 +72,7 @@ pub struct ResponseMessages {
 /// A response to a request for an individual folder within a [`SyncFolderHierarchy`] operation.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/syncfolderhierarchyresponsemessage>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct SyncFolderHierarchyResponseMessage {
     /// The status of the corresponding request, i.e. whether it succeeded or
@@ -97,7 +97,7 @@ pub struct SyncFolderHierarchyResponseMessage {
 /// deletions.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-hierarchy>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Changes {
     #[serde(default, rename = "$value")]
     pub inner: Vec<Change>,
@@ -106,7 +106,7 @@ pub struct Changes {
 /// A server-side change to a folder.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/changes-hierarchy>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub enum Change {
     /// A creation of a folder.
     ///

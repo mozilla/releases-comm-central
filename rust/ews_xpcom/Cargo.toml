@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.21.3"
 cstr = "0.2"
-ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "9a54b74bb655f91c9f629437b253c448595ce8d2", version = "0.1.0" }
+ews = { git = "https://github.com/thunderbird/ews-rs.git", rev = "ac08a7b5b24a01457551c4e38f6f158c4d3401d9", version = "0.1.0" }
 fxhash = "0.2.1"
 log = "0.4.21"
 mail-parser = "0.9.3"

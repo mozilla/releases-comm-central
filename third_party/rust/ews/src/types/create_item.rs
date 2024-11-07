@@ -6,25 +6,14 @@ use serde::Deserialize;
 use xml_struct::XmlSerialize;
 
 use crate::{
-    types::sealed::EnvelopeBodyContents, ArrayOfRecipients, BaseFolderId, ExtendedFieldURI, Items,
-    MimeContent, Operation, OperationResponse, ResponseClass, ResponseCode, MESSAGES_NS_URI,
+    types::sealed::EnvelopeBodyContents, BaseFolderId, Items, MessageDisposition, Operation,
+    OperationResponse, RealItem, ResponseClass, ResponseCode, MESSAGES_NS_URI,
 };
 
-/// The action an Exchange server will take upon creating a `Message` item.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem#messagedisposition-attribute>
-#[derive(Debug, XmlSerialize)]
-#[xml_struct(text)]
-pub enum MessageDisposition {
-    SaveOnly,
-    SendOnly,
-    SendAndSaveCopy,
-}
-
-/// A request to create (and optionally send) one or more Exchange item(s).
+/// A request to create (and optionally send) one or more Exchange items.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitem>
-#[derive(Debug, XmlSerialize)]
+#[derive(Clone, Debug, XmlSerialize)]
 #[xml_struct(default_ns = MESSAGES_NS_URI)]
 pub struct CreateItem {
     /// The action the Exchange server will take upon creating this item.
@@ -43,77 +32,11 @@ pub struct CreateItem {
     ///
     /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/saveditemfolderid>
     ///
-    /// [`SendOnly`]: [`MessageDisposition::SendOnly`]
+    /// [`SendOnly`]: `MessageDisposition::SendOnly`
     pub saved_item_folder_id: Option<BaseFolderId>,
 
     /// The item or items to create.
-    pub items: Vec<Item>,
-}
-
-/// A new item that appears in a CreateItem request.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/items>
-// N.B.: Commented-out variants are not yet implemented.
-#[non_exhaustive]
-#[derive(Debug, XmlSerialize)]
-#[xml_struct(variant_ns_prefix = "t")]
-pub enum Item {
-    // Item(Item),
-    Message(Message),
-    // CalendarItem(CalendarItem),
-    // Contact(Contact),
-    // Task(Task),
-    // MeetingMessage(MeetingMessage),
-    // MeetingRequest(MeetingRequest),
-    // MeetingResponse(MeetingResponse),
-    // MeetingCancellation(MeetingCancellation),
-}
-
-/// An email message to create.
-///
-/// This struct follows the same specification to [`common::Message`], but has a
-/// few differences that allow the creation of new messages without forcing any
-/// tradeoff on strictness when deserializing; for example not making the item
-/// ID a required field.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/message-ex15websvcsotherref>
-///
-/// [`common::message`]: crate::Message
-#[derive(Debug, Default, XmlSerialize)]
-pub struct Message {
-    /// The MIME content of the item.
-    #[xml_struct(ns_prefix = "t")]
-    pub mime_content: Option<MimeContent>,
-
-    // Whether to request a delivery receipt.
-    #[xml_struct(ns_prefix = "t")]
-    pub is_delivery_receipt_requested: Option<bool>,
-
-    // The message ID for the message, semantically identical to the Message-ID
-    // header.
-    #[xml_struct(ns_prefix = "t")]
-    pub internet_message_id: Option<String>,
-
-    // Recipients to include as Bcc, who won't be included in the MIME content.
-    #[xml_struct(ns_prefix = "t")]
-    pub bcc_recipients: Option<ArrayOfRecipients>,
-
-    // Extended MAPI properties to set on the message.
-    #[xml_struct(ns_prefix = "t")]
-    pub extended_property: Option<Vec<ExtendedProperty>>,
-}
-
-/// An extended MAPI property to set on the message.
-///
-/// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/extendedproperty>
-#[allow(non_snake_case)]
-#[derive(Debug, XmlSerialize)]
-pub struct ExtendedProperty {
-    #[xml_struct(ns_prefix = "t")]
-    pub extended_field_URI: ExtendedFieldURI,
-
-    #[xml_struct(ns_prefix = "t")]
-    pub value: String,
+    pub items: Vec<RealItem>,
 }
 
 impl Operation for CreateItem {
@@ -129,7 +52,7 @@ impl EnvelopeBodyContents for CreateItem {
 /// A response to a [`CreateItem`] request.
 ///
 /// See <https://learn.microsoft.com/en-us/exchange/client-developer/web-service-reference/createitemresponse>
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CreateItemResponse {
     pub response_messages: ResponseMessages,
@@ -143,13 +66,13 @@ impl EnvelopeBodyContents for CreateItemResponse {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct ResponseMessages {
     pub create_item_response_message: Vec<CreateItemResponseMessage>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CreateItemResponseMessage {
     /// The status of the corresponding request, i.e. whether it succeeded or

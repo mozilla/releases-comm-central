@@ -66,9 +66,20 @@ impl MessageHeaders for &ews::Message {
             // receiving nonsensical values.
             let time_in_micros = date_time.0.unix_timestamp().checked_mul(1_000 * 1_000);
             if time_in_micros.is_none() {
+                let item_id = self.item_id.as_ref().map_or_else(
+                    || {
+                        // We should never receive a `Message` from Exchange without
+                        // an ID. We don't want to fail here in case it's not
+                        // needed, but we should make sure we log it.
+                        log::error!("received message from Exchange server without an item ID");
+
+                        "unknown"
+                    },
+                    |item_id| item_id.id.as_str(),
+                );
+
                 log::warn!(
                     "message with ID {item_id} sent date {date_time:?} too big for `i64`, ignoring",
-                    item_id = self.item_id.id
                 );
             }
 
