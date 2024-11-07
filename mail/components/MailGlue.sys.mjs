@@ -1254,6 +1254,12 @@ async function reportCalendars() {
   }
 }
 
+/**
+ * Telemetry probes to record boolean and integer preference values.
+ *
+ * Note: These probes can handle up to 100 labels each. If you add a preference
+ * to these lists, you MUST also update the relevant metrics.yaml.
+ */
 function reportPreferences() {
   const booleanPrefs = [
     // General
@@ -1350,6 +1356,11 @@ function reportPreferences() {
     "purple.logging.log_ims",
     "purple.logging.log_system",
 
+    // Unlisted
+    "mail.operate_on_msgs_in_collapsed_threads",
+  ];
+
+  const calendarBooleanPrefs = [
     // Calendar views
     "calendar.view.showLocation",
     "calendar.view-minimonth.showWeekNumber",
@@ -1370,9 +1381,6 @@ function reportPreferences() {
     "calendar.alarms.playsound",
     "calendar.alarms.show",
     "calendar.alarms.showmissed",
-
-    // Unlisted
-    "mail.operate_on_msgs_in_collapsed_threads",
   ];
 
   const integerPrefs = [
@@ -1430,6 +1438,11 @@ function reportPreferences() {
   for (const prefName of booleanPrefs) {
     const prefValue = Services.prefs.getBoolPref(prefName, false);
     Glean.mail.preferencesBoolean[prefName].set(prefValue);
+  }
+
+  for (const prefName of calendarBooleanPrefs) {
+    const prefValue = Services.prefs.getBoolPref(prefName, false);
+    Glean.calendar.preferencesBoolean[prefName].set(prefValue);
   }
 
   for (const prefName of integerPrefs) {

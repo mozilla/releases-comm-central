@@ -69,3 +69,33 @@ calendar:
       - id_idToken
       - id_idOrigin
       - id_noToken
+
+  preferences_boolean:
+    type: labeled_boolean
+    description: Values of boolean preferences.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1899602
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1757993#c6
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    labels:
+      - calendar.alarms.playsound
+      - calendar.alarms.show
+      - calendar.alarms.showmissed
+      - calendar.item.editInTab
+      - calendar.item.promptDelete
+      - calendar.timezone.useSystemTimezone
+      - calendar.view-minimonth.showWeekNumber
+      - calendar.view.showLocation
+      - calendar.week.d0sundaysoff
+      - calendar.week.d1mondaysoff
+      - calendar.week.d2tuesdaysoff
+      - calendar.week.d3wednesdaysoff
+      - calendar.week.d4thursdaysoff
+      - calendar.week.d5fridaysoff
+      - calendar.week.d6saturdaysoff

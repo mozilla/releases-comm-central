@@ -171,6 +171,95 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+    labels:
+      - app.update.service.enabled
+      - browser.cache.disk.smart_size.enabled
+      - browser.crashReports.unsubmittedCheck.autoSubmit2
+      - browser.display.use_system_colors
+      - browser.safebrowsing.enabled
+      - datareporting.healthreport.uploadEnabled
+      - general.autoScroll
+      - general.smoothScroll
+      - intl.regional_prefs.use_os_locales
+      - layers.acceleration.disabled
+      - layout.css.always_underline_links
+      - ldap_2.autoComplete.useDirectory
+      - mail.addressDisplayFormat
+      - mail.biff.alert.show_preview
+      - mail.biff.alert.show_sender
+      - mail.biff.alert.show_subjec
+      - mail.biff.play_sound
+      - mail.biff.show_alert
+      - mail.biff.show_tray_icon
+      - mail.biff.use_system_alert
+      - mail.chat.enabled
+      - mail.chat.play_sound
+      - mail.chat.show_desktop_notifications
+      - mail.close_message_window.on_delete
+      - mail.collect_email_address_outgoing
+      - mail.compose.attachment_reminder
+      - mail.compose.autosave
+      - mail.compose.big_attachments.notify
+      - mail.compose.default_to_paragraph
+      - mail.dark-reader.enabled
+      - mail.delete_matches_sort_order
+      - mail.display_glyph
+      - mail.e2ee.auto_disable
+      - mail.e2ee.auto_enable
+      - mail.e2ee.notify_on_auto_disable
+      - mail.enable_autocomplete
+      - mail.fixed_width_messages
+      - mail.forward_add_extension
+      - mail.mailnews.scroll_to_new_message
+      - mail.mdn.report.enabled
+      - mail.minimizeToTray
+      - mail.operate_on_msgs_in_collapsed_threads
+      - mail.phishing.detection.enabled
+      - mail.prompt_purge_threshhold
+      - mail.purge.ask
+      - mail.receipt.request_return_receipt_on
+      - mail.shell.checkDefaultClient
+      - mail.showCondensedAddresses
+      - mail.spam.logging.enabled
+      - mail.spam.manualMark
+      - mail.spam.markAsReadOnSpam
+      - mail.spellcheck.inline
+      - mail.SpellCheckBeforeSend
+      - mail.thread.conversation.enabled
+      - mail.threadpane.table.horizontal_scroll
+      - mail.warn_on_send_accel_key
+      - mailnews.database.global.indexer.enabled
+      - mailnews.downloadToTempFile
+      - mailnews.mark_message_read.auto
+      - mailnews.mark_message_read.delay
+      - mailnews.message_display.disable_remote_image
+      - mailnews.sendformat.auto_downgrade
+      - mailnews.start_page.enabled
+      - messenger.options.getAttentionOnNewMessages
+      - messenger.status.awayWhenIdle
+      - messenger.status.reportIdle
+      - msgcompose.default_colors
+      - network.cookie.blockFutureCookies
+      - network.proxy.share_proxy_settings
+      - network.proxy.socks_remote_dns
+      - offline.autoDetect
+      - places.history.enabled
+      - pref.advanced.proxies.disable_button.reload
+      - pref.ldap.disable_button.edit_directories
+      - pref.privacy.disable_button.cookie_exceptions
+      - pref.privacy.disable_button.view_cookies
+      - pref.privacy.disable_button.view_passwords
+      - privacy.clearOnShutdown.cache
+      - privacy.donottrackheader.enabled
+      - purple.conversations.im.send_typing
+      - purple.logging.log_chats
+      - purple.logging.log_ims
+      - purple.logging.log_system
+      - searchintegration.enable
+      - security.disable_button.openCertManager
+      - security.disable_button.openDeviceManager
+      - signon.autologin.proxy
+      - widget.gtk.overlay-scrollbars.enabled
 
   preferences_integer:
     type: labeled_string
@@ -185,6 +274,11 @@ mail:
     notification_emails:
       - telemetry-client-dev@thunderbird.net
     expires: never
+    labels:
+      - mail.pane_config.dynamic
+      - mail.ui.display.dateformat.default
+      - mail.ui.display.dateformat.thisweek
+      - mail.ui.display.dateformat.today
 
   mails_read:
     type: counter
