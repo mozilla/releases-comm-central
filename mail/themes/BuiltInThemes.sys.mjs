@@ -11,7 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 // List of themes built in to the browser. The themes are represented by objects
 // containing their id, current version, and path relative to
 // resource://builtin-themes/.
-const STANDARD_THEMES = new Map([
+const STANDARD_THEMES_DATA = [
   [
     "thunderbird-compact-light@mozilla.org",
     {
@@ -26,7 +26,9 @@ const STANDARD_THEMES = new Map([
       path: "dark/",
     },
   ],
-]);
+];
+
+const STANDARD_THEMES = new Map(STANDARD_THEMES_DATA);
 
 class _BuiltInThemes {
   constructor() {}
@@ -103,6 +105,11 @@ class _BuiltInThemes {
     }
 
     await Promise.all(installPromises);
+  }
+
+  getBuiltInThemesDataMap() {
+    // Expose a clone of the internal data.
+    return new Map(STANDARD_THEMES_DATA);
   }
 }
 

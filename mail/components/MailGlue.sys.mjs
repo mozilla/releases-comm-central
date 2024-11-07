@@ -32,6 +32,7 @@ if (AppConstants.NIGHTLY_BUILD) {
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  BuiltInThemes: "resource:///modules/BuiltInThemes.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
@@ -562,16 +563,8 @@ MailGlue.prototype = {
       );
     }
 
-    lazy.AddonManager.maybeInstallBuiltinAddon(
-      "thunderbird-compact-light@mozilla.org",
-      "1.2",
-      "resource://builtin-themes/light/"
-    );
-    lazy.AddonManager.maybeInstallBuiltinAddon(
-      "thunderbird-compact-dark@mozilla.org",
-      "1.2",
-      "resource://builtin-themes/dark/"
-    );
+    // This returns a Promise, but we cannot await it here.
+    lazy.BuiltInThemes.ensureBuiltInThemes();
 
     if (AppConstants.MOZ_UPDATER) {
       listeners.init();
