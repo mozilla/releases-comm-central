@@ -40,11 +40,10 @@ def register(graph_config):
     the process.
     """
     extend_sys_path(GECKO)
-    from comm_taskgraph.util import taskgraph_attributes  # noqa: patch gecko_taskgraph
-
     from gecko_taskgraph.util import dependencies  # noqa: trigger group_by registration
 
     from comm_taskgraph.parameters import register_parameters
+    from comm_taskgraph.util import taskgraph_attributes  # noqa: patch gecko_taskgraph
 
     logger.info("{} path registered".format(__name__))
     register_parameters()
