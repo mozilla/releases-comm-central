@@ -118,7 +118,6 @@ add_task(async function () {
     "interaction1_mochi_test-composeAction-toolbarbutton"
   );
   await BrowserTestUtils.closeWindow(composeWindow);
-  await SimpleTest.promiseFocus(window);
 
   // Check all of the things we clicked on have been recorded.
   let events = await Glean.mail.uiInteraction.testGetValue();
