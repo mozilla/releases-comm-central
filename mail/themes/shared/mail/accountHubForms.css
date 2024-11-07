@@ -6,6 +6,7 @@
 
 form {
   --hub-input-bg-color: light-dark(var(--color-neutral-base), #18181b);
+  --hub-select-color: light-dark(var(--color-text-base), currentColor);
 
   grid-row: header / footer;
 
@@ -49,10 +50,10 @@ form {
       padding-block: 13px;
       padding-inline: 10px;
       background: var(--color-neutral-subtle);
-      border: 1px solid light-dark(var(--color-neutral-border-intense), #464E62);
+      border: 1px solid var(--color-neutral-border);
       margin-block-start: 5px;
       border-radius: 2px;
-      color: light-dark(var(--color-text-base), currentColor);
+      color: var(--hub-select-color);
     }
   }
 
@@ -103,6 +104,41 @@ form {
       font-weight: normal;
       cursor: default;
       background-color: var(--color-neutral-base);
+    }
+
+    &.number-input {
+      padding-inline-end: 0;
+      border-radius: 4px;
+      border-width: 1px;
+
+      &::-moz-number-spin-box {
+        height: 100%;
+        width: 22px;
+        border-inline-start: 1px solid var(--color-neutral-border);
+        border-inline-end: 0;
+        background: var(--color-neutral-subtle);
+        align-items: center;
+        cursor: pointer;
+      }
+
+      &::-moz-number-spin-up,
+      &::-moz-number-spin-down {
+        height: 8px;
+        appearance: none;
+        padding: 5px 2px;
+        -moz-context-properties: stroke;
+        stroke: currentColor;
+        cursor: pointer;
+      }
+
+      &::-moz-number-spin-up {
+        border-block-end: 1px solid var(--color-neutral-border);
+        content: var(--icon-nav-up-sm);
+      }
+
+      &::-moz-number-spin-down {
+        content: var(--icon-nav-down-sm);
+      }
     }
   }
 
