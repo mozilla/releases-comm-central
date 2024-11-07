@@ -13,7 +13,7 @@ form {
     align-items: stretch;
     justify-content: flex-start;
     place-self: center;
-    gap: 0;
+    gap: 40px;
     width: 100%;
     max-width: 400px;
     text-align: start;
@@ -43,6 +43,16 @@ form {
       @media (prefers-reduced-motion: no-preference) {
         transition: transform 200ms, color 200ms, font-weight 200ms, background-color 200ms;
       }
+    }
+
+    .selected-option {
+      padding-block: 13px;
+      padding-inline: 10px;
+      background: var(--color-neutral-subtle);
+      border: 1px solid light-dark(var(--color-neutral-border-intense), #464E62);
+      margin-block-start: 5px;
+      border-radius: 2px;
+      color: light-dark(var(--color-text-base), currentColor);
     }
   }
 
@@ -97,10 +107,10 @@ form {
   }
 
   .menulist {
-    margin: 4px 0;
+    margin: 5px 0 0;
     padding-inline-start: 6px;
-    padding-block: 0;
-    line-height: 2;
+    padding-block: 10px;
+    line-height: 1.6;
     border: 1px solid var(--hub-input-border-color);
     border-radius: var(--hub-input-border-radius);
 
@@ -143,11 +153,6 @@ div:has(legend) {
 .input-control {
   display: flex;
   align-items: center;
-  margin-block-end: 20px;
-
-  & + .input-control {
-    margin-block-start: 20px;
-  }
 }
 
 .input-control.vertical {

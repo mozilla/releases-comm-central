@@ -4,75 +4,93 @@
 
 <html:template id="accountHubIncomingEmailFormTemplate" xmlns="http://www.w3.org/1999/xhtml">
   <form id="incomngEmailForm" class="account-hub-form" slot="content">
-    <label for="incomingProtocol" data-l10n-id="account-hub-protocol-label" data-l10n-attrs="accesskey">
-    </label>
-    <div class="input-control">
-      <xul:menulist id="incomingProtocol" class="menulist" label="IMAP" value="1" flex="1">
-        <xul:menupopup id="incomingProtocolMenupopup" class="menupopup">
-          <xul:menuitem id="incomingProtocolIMAP" label="IMAP" value="1" />
-          <xul:menuitem id="incomingProtocolPOP3" label="POP3" value="2" />
-          <xul:menuitem id="incomingProtocolExchange" label="Exchange" value="3" hidden="hidden" />
-        </xul:menupopup>
-      </xul:menulist>
-    </div>
+    <div class="hub-body manual-form-body">
+      <div class="form-row">
+        <div>
+          <label for="incomingProtocol" data-l10n-id="account-hub-protocol-label" data-l10n-attrs="accesskey">
+          </label>
+          <div class="input-control">
+            <xul:menulist id="incomingProtocol" class="menulist" label="IMAP" value="1" flex="1">
+              <xul:menupopup id="incomingProtocolMenupopup" class="menupopup">
+                <xul:menuitem id="incomingProtocolIMAP" label="IMAP" value="1" />
+                <xul:menuitem id="incomingProtocolPOP3" label="POP3" value="2" />
+                <xul:menuitem id="incomingProtocolExchange" label="Exchange" value="3" hidden="hidden" />
+              </xul:menupopup>
+            </xul:menulist>
+          </div>
+        </div>
 
-    <label for="incomingHostname" data-l10n-id="account-hub-hostname-label" class="option-label">
-    </label>
-    <div class="input-control">
-      <input id="incomingHostname" type="text" placeholder="mail.example.com" required="required"
-        class="input-field" />
-    </div>
+        <div class="expanded">
+          <label for="incomingHostname" data-l10n-id="account-hub-result-hostname-label" class="option-label">
+          </label>
+          <div class="input-control">
+            <input id="incomingHostname" type="text" placeholder="mail.example.com" required="required"
+              class="input-field" />
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label for="incomingPort" data-l10n-id="account-hub-port-label" class="option-label">
+          </label>
+          <div class="input-control">
+            <input id="incomingPort" type="number" min="1" max="65535" placeholder="993" required="required"
+              class="input-field" />
+          </div>
+        </div>
 
-    <label for="incomingPort" data-l10n-id="account-hub-port-label" class="option-label">
-    </label>
-    <div class="input-control">
-      <input id="incomingPort" type="number" min="1" max="65535" placeholder="993" required="required"
-        class="input-field" />
-    </div>
+        <div class="expanded ">
+          <label for="incomingConnectionSecurity" data-l10n-id="account-hub-ssl-label" class="option-label">
+          </label>
+          <div class="input-control">
+            <xul:menulist id="incomingConnectionSecurity" class="menulist" value="0" flex="1">
+              <xul:menupopup id="incomingConnectionSecurityMenupopup" class="menupopup">
+                <xul:menuitem id="incomingConnectionSecurityAutodetect" data-l10n-id="account-hub-ssl-autodetect-option"
+                  value="-1" />
+                <xul:menuitem id="incomingConnectionSecurityNonEncryption"
+                  data-l10n-id="account-hub-ssl-noencryption-option" value="0" />
+                <xul:menuitem id="incomingConnectionSecurityStartTtls" label="STARTTLS" value="2" />
+                <xul:menuitem id="incomingConnectionSecuritySslTls" label="SSL/TLS" value="3" />
+              </xul:menupopup>
+            </xul:menulist>
+          </div>
+        </div>
+      </div>
+      <div class="form-row responsive-row">
+        <div>
+          <label for="incomingAuthMethod" data-l10n-id="account-hub-auth-label" class="option-label">
+          </label>
+          <div class="input-control">
+            <xul:menulist id="incomingAuthMethod" class="menulist" required="required" value="0" flex="1">
+              <xul:menupopup id="incomingAuthMenupopup" class="menupopup">
+                <xul:menuitem id="incomingAuthMethodAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="0">
+                </xul:menuitem>
+                <xul:menuitem id="incomingAuthMethodCleartext" data-l10n-id="account-hub-ssl-cleartext-password-option"
+                  value="3">
+                </xul:menuitem>
+                <xul:menuitem id="incomingAuthMethodEncrypted" data-l10n-id="account-hub-ssl-encrypted-password-option"
+                  value="4">
+                </xul:menuitem>
+                <xul:menuitem id="incomingAuthMethodKerbos" label="Kerberos / GSSAPI" value="5">
+                </xul:menuitem>
+                <xul:menuitem id="incomingAuthMethodNtlm" label="NTLM" value="6">
+                </xul:menuitem>
+                <xul:menuitem id="incomingAuthMethodOAuth2" value="10" hidden="hidden" label="OAuth2">
+                </xul:menuitem>
+              </xul:menupopup>
+            </xul:menulist>
+          </div>
+        </div>
 
-    <label for="incomingConnectionSecurity" data-l10n-id="account-hub-ssl-label" class="option-label">
-    </label>
-    <div class="input-control">
-      <xul:menulist id="incomingConnectionSecurity" class="menulist" value="0" flex="1">
-        <xul:menupopup id="incomingConnectionSecurityMenupopup" class="menupopup">
-          <xul:menuitem id="incomingConnectionSecurityAutodetect" data-l10n-id="account-hub-ssl-autodetect-option"
-            value="-1" />
-          <xul:menuitem id="incomingConnectionSecurityNonEncryption"
-            data-l10n-id="account-hub-ssl-noencryption-option" value="0" />
-          <xul:menuitem id="incomingConnectionSecurityStartTtls" label="STARTTLS" value="2" />
-          <xul:menuitem id="incomingConnectionSecuritySslTls" label="SSL/TLS" value="3" />
-        </xul:menupopup>
-      </xul:menulist>
-    </div>
-
-    <label for="incomingAuthMethod" data-l10n-id="account-hub-auth-label" class="option-label">
-    </label>
-    <div class="input-control">
-      <xul:menulist id="incomingAuthMethod" class="menulist" required="required" value="0" flex="1">
-        <xul:menupopup id="incomingAuthMenupopup" class="menupopup">
-          <xul:menuitem id="incomingAuthMethodAutodetect" data-l10n-id="account-hub-ssl-autodetect-option" value="0">
-          </xul:menuitem>
-          <xul:menuitem id="incomingAuthMethodCleartext" data-l10n-id="account-hub-ssl-cleartext-password-option"
-            value="3">
-          </xul:menuitem>
-          <xul:menuitem id="incomingAuthMethodEncrypted" data-l10n-id="account-hub-ssl-encrypted-password-option"
-            value="4">
-          </xul:menuitem>
-          <xul:menuitem id="incomingAuthMethodKerbos" label="Kerberos / GSSAPI" value="5">
-          </xul:menuitem>
-          <xul:menuitem id="incomingAuthMethodNtlm" label="NTLM" value="6">
-          </xul:menuitem>
-          <xul:menuitem id="incomingAuthMethodOAuth2" value="10" hidden="hidden" label="OAuth2">
-          </xul:menuitem>
-        </xul:menupopup>
-      </xul:menulist>
-    </div>
-
-    <label for="incomingUsername" data-l10n-id="account-hub-username-label" class="option-label">
-    </label>
-    <div class="input-control">
-      <input id="incomingUsername" type="text" data-l10n-id="account-setup-email-input" required="required"
-        class="username input-field" />
+        <div class="expanded">
+          <label for="incomingUsername" data-l10n-id="account-hub-result-username-label" class="option-label">
+          </label>
+          <div class="input-control">
+            <input id="incomingUsername" type="text" data-l10n-id="account-setup-email-input" required="required"
+              class="username input-field" />
+          </div>
+        </div>
+      </div>
     </div>
   </form>
 </html:template>

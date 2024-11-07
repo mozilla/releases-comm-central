@@ -270,6 +270,25 @@ header {
   &.auto-config-body {
     max-width: 650px;
   }
+
+  &.manual-form-body {
+    max-width: 500px;
+    gap: 10px;
+
+    & .form-row {
+      display: grid;
+      grid-template-columns: 115px 1fr;
+      gap: 10px;
+
+      &.responsive-row {
+        grid-template-columns: auto 1fr;
+      }
+
+      & .expanded {
+        flex: 1;
+      }
+    }
+  }
 }
 
 .hub-body-column {

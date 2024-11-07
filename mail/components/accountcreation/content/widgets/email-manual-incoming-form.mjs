@@ -71,7 +71,7 @@ class EmailIncomingForm extends AccountHubStep {
   /**
    * The current email incoming config form inputs.
    *
-   * @type {Object}
+   * @type {AccountConfig}
    */
   #currentConfig;
 
@@ -99,6 +99,7 @@ class EmailIncomingForm extends AccountHubStep {
       "#incomingAuthMethod"
     );
     this.#incomingUsername = this.querySelector("#incomingUsername");
+    this.setupEventListeners();
     this.#currentConfig = {};
   }
 
@@ -111,15 +112,25 @@ class EmailIncomingForm extends AccountHubStep {
     });
 
     this.#incomingConnectionSecurity.addEventListener("command", () => {
-      this.#adjustPortToSSLAndProtocol(true);
+      this.#adjustPortToSSLAndProtocol();
     });
     this.#incomingPort.addEventListener("change", () => {
-      this.#adjustSSLToPort(true);
+      this.#adjustSSLToPort();
     });
 
-    this.#incomingProtocol.addEventListener("command", () => {
-      this.#adjustPortToSSLAndProtocol(true);
+    this.#incomingProtocol.addEventListener("change", () => {
+      this.#adjustPortToSSLAndProtocol();
     });
+  }
+
+  /**
+   * Return the current state of the email setup form, with the updated
+   * incoming fields.
+   *
+   * @return {AccountConfig}
+   */
+  captureState() {
+    return this.#currentConfig;
   }
 
   /**
@@ -129,6 +140,7 @@ class EmailIncomingForm extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
+    this.updateFields(this.#currentConfig);
   }
 
   /**
@@ -157,7 +169,7 @@ class EmailIncomingForm extends AccountHubStep {
       ] = incomingDetails;
     }
 
-    this.currentConfig = config;
+    this.#currentConfig = config;
   }
 
   /**
@@ -191,7 +203,7 @@ class EmailIncomingForm extends AccountHubStep {
     }
 
     config.incoming.port = this.#incomingPort.value;
-    this.currentConifg = config;
+    this.#currentConfig = config;
   }
 
   /**
@@ -241,7 +253,7 @@ class EmailIncomingForm extends AccountHubStep {
 
     config.incoming.socketType = this.#incomingConnectionSecurity.value;
 
-    this.currentConfig = config;
+    this.#currentConfig = config;
   }
 
   /**
@@ -325,17 +337,10 @@ class EmailIncomingForm extends AccountHubStep {
     if (config.incoming.port) {
       this.#incomingPort.value = config.incoming.port;
     } else {
-      this.#adjustPortToSSLAndProtocol(true, config);
+      this.#adjustPortToSSLAndProtocol(config);
     }
 
     this.#adjustOAuth2Visibility(config);
-  }
-
-  /**
-   * Return the current state of the email setup form.
-   */
-  captureState() {
-    return this.currentConfig;
   }
 }
 

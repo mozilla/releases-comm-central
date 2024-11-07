@@ -191,8 +191,8 @@ class AccountHubEmail extends HTMLElement {
     },
     incomingConfigSubview: {
       id: "emailIncomingConfigSubview",
-      nextStep: "emailOutgoingConfigSubview",
-      previousStep: "",
+      nextStep: "outgoingConfigSubview",
+      previousStep: "emailConfigFoundSubview",
       forwardEnabled: true,
       customActionFluentID: "",
       subview: {},
@@ -201,7 +201,7 @@ class AccountHubEmail extends HTMLElement {
     outgoingConfigSubview: {
       id: "emailOutgoingConfigSubview",
       nextStep: "emailAddedSubview",
-      previousStep: "emailIncomingConfigSubview",
+      previousStep: "incomingConfigSubview",
       forwardEnabled: true,
       customActionFluentID: "account-hub-test-configuration",
       subview: {},
@@ -367,17 +367,20 @@ class AccountHubEmail extends HTMLElement {
           this.#hasCancelled = false;
           const stateData = stateDetails.subview.captureState();
           await this.#handleForwardAction(this.#currentState, stateData);
-          // Apply the new state data to the new state.
-          this.#states[this.#currentState].subview.setState(
-            this.#currentConfig
-          );
+          // Apply the new state data to the new state by passing a deep copy.
+          // We pass a deep copy because this controller's #currentConfig should
+          // only be updated when appropriate.
+          const config = this.#currentConfig.copy();
+          this.#states[this.#currentState].subview.setState(config);
         } catch (error) {
           this.#handleAbortable();
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
         break;
       case "edit-configuration":
-        this.#currentConfig = stateDetails.subview.captureState();
+        this.#currentConfig = this.#fillAccountConfig(
+          stateDetails.subview.captureState()
+        );
         // The edit configuration button was pressed.
         await this.#initUI("incomingConfigSubview");
         // Apply the current state data to the new state.
@@ -385,7 +388,6 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "custom":
         try {
-          this.#currentConfig = stateDetails.subview.captureState();
           await this.#handleCustomAction(this.#currentState);
         } catch (error) {
           stateDetails.subview.showNotification({
@@ -444,7 +446,6 @@ class AccountHubEmail extends HTMLElement {
    * @param {Object} stateData - The current state data of the email flow.
    */
   async #handleForwardAction(currentState, stateData) {
-    const notificationBox = this.#states[currentState].subview;
     switch (currentState) {
       case "autoConfigSubview":
         try {
@@ -459,9 +460,11 @@ class AccountHubEmail extends HTMLElement {
           if (!config) {
             if (!this.#hasCancelled) {
               this.#currentConfig = this.#fillAccountConfig(
-                new AccountConfig()
+                this.#getEmptyAccountConfig()
               );
               await this.#initUI("incomingConfigSubview");
+              this.#states[this.#currentState].previousStep =
+                "autoConfigSubview";
             } else {
               this.#hasCancelled = false;
               break;
@@ -469,6 +472,12 @@ class AccountHubEmail extends HTMLElement {
           } else {
             this.#currentConfig = this.#fillAccountConfig(config);
             await this.#initUI(this.#states[this.#currentState].nextStep);
+            this.#states.incomingConfigSubview.previousStep =
+              "emailConfigFoundSubview";
+            this.#states[this.#currentState].subview.showNotification({
+              fluentTitleId: "account-hub-config-success",
+              type: "success",
+            });
           }
         } catch (error) {
           this.#emailFooter.canBack(false);
@@ -479,32 +488,31 @@ class AccountHubEmail extends HTMLElement {
         }
         break;
       case "incomingConfigSubview":
+        await this.#initUI(this.#states[this.#currentState].nextStep);
+        // TODO: Validate incoming config details.
         break;
       case "outgoingConfigSubview":
+        // TODO: Validate outgoing config details.
         break;
       case "emailConfigFoundSubview":
-        notificationBox.showNotification({
-          fluentTitleId: "account-hub-config-success",
-          type: "success",
-        });
-        break;
-      case "emailPasswordSubview":
-        notificationBox.showNotification({
+        this.#states[currentState].subview.showNotification({
           fluentTitleId: "account-hub-password-info",
           type: "info",
         });
         break;
-      case "emailSyncAccountsSubview":
-        notificationBox.showNotification({
+      case "emailPasswordSubview":
+        this.#states[currentState].subview.showNotification({
           fluentTitleId: "account-hub-sync-success",
           type: "success",
         });
         break;
-      case "emailAddedSubview":
-        notificationBox.showNotification({
+      case "emailSyncAccountsSubview":
+        this.#states[currentState].subview.showNotification({
           fluentTitleId: "account-hub-email-added-success",
           type: "success",
         });
+        break;
+      case "emailAddedSubview":
         break;
       default:
         break;
@@ -556,7 +564,7 @@ class AccountHubEmail extends HTMLElement {
 
     gAccountSetupLogger.debug("findConfig()");
     this.abortable = new SuccessiveAbortable();
-    let config = {};
+    let config = null;
 
     try {
       config = await FindConfig.parallelAutoDiscovery(
@@ -661,6 +669,21 @@ class AccountHubEmail extends HTMLElement {
     );
 
     return configData;
+  }
+
+  /**
+   * Called when guessConfig fails and we need to provide manual config a
+   * default AccountConfig.
+   */
+  #getEmptyAccountConfig() {
+    const config = new AccountConfig();
+    config.incoming.type = "imap";
+    config.incoming.username = "%EMAILADDRESS%";
+    config.outgoing.username = "%EMAILADDRESS%";
+    config.incoming.hostname = ".%EMAILDOMAIN%";
+    config.outgoing.hostname = ".%EMAILDOMAIN%";
+
+    return config;
   }
 
   /**

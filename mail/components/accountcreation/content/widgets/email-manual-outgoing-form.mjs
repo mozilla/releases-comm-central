@@ -29,9 +29,9 @@ class EmailOutgoingForm extends AccountHubStep {
   /**
    * The current email outgoing config form inputs.
    *
-   * @type {Object}
+   * @type {AccountConfig}
    */
-  currentConfig;
+  #currentConfig;
 
   /**
    * The outgoing server username.
@@ -90,7 +90,8 @@ class EmailOutgoingForm extends AccountHubStep {
     this.#outgoingAuthenticationMethod = this.querySelector(
       "#outgoingAuthMethod"
     );
-    this.currentConfig = {};
+    this.setupEventListeners();
+    this.#currentConfig = {};
   }
 
   /**
@@ -101,10 +102,10 @@ class EmailOutgoingForm extends AccountHubStep {
       this.#adjustOAuth2Visibility();
     });
     this.#outgoingPort.addEventListener("change", () => {
-      this.#adjustSSLToPort(false);
+      this.#adjustSSLToPort();
     });
     this.#outgoingConnectionSecurity.addEventListener("command", () => {
-      this.#adjustPortToSSLAndProtocol(false);
+      this.#adjustPortToSSLAndProtocol();
     });
 
     this.#outgoingAuthenticationMethod.addEventListener("command", event => {
@@ -115,6 +116,26 @@ class EmailOutgoingForm extends AccountHubStep {
   }
 
   /**
+   * Return the current state of the email setup form, with the updated
+   * outgoing fields.
+   *
+   * @return {AccountConfig}
+   */
+  captureState() {
+    return this.#currentConfig;
+  }
+
+  /**
+   * Sets the state of the outgoing email config state.
+   *
+   * @param {AccountConfig} configData - Applies the config data to this state.
+   */
+  setState(configData) {
+    this.#currentConfig = configData;
+    this.updateFields(this.#currentConfig);
+  }
+
+  /**
    * Make OAuth2 visible as an authentication method when a hostname that
    * OAuth2 can be used with is entered.
    *
@@ -122,7 +143,7 @@ class EmailOutgoingForm extends AccountHubStep {
    */
   #adjustOAuth2Visibility(accountConfig) {
     // Get current config.
-    const config = accountConfig || this.getIncomingUserConfig();
+    const config = accountConfig || this.getOutgoingUserConfig();
     config.outgoing.oauthSettings = {};
 
     // If the smtp hostname supports OAuth2, enable it.
@@ -149,7 +170,7 @@ class EmailOutgoingForm extends AccountHubStep {
    */
   #adjustPortToSSLAndProtocol(accountConfig) {
     // Get current config.
-    const config = accountConfig || this.getIncomingUserConfig();
+    const config = accountConfig || this.getOutgoingUserConfig();
 
     if (config.outgoing.port && !standardPorts.includes(config.outgoing.port)) {
       return;
@@ -198,7 +219,7 @@ class EmailOutgoingForm extends AccountHubStep {
     }
 
     config.outgoing.socketType = this.#outgoingConnectionSecurity.value;
-    this.currentConfig = config;
+    this.#currentConfig = config;
   }
 
   /**
@@ -208,7 +229,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * @returns {AccountConfig}
    */
   getOutgoingUserConfig() {
-    const config = new AccountConfig();
+    const config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
     // The user specified a custom SMTP server.
@@ -276,13 +297,6 @@ class EmailOutgoingForm extends AccountHubStep {
     }
 
     this.#adjustOAuth2Visibility(config);
-  }
-
-  /**
-   * Return the current state of the email setup form.
-   */
-  captureState() {
-    return this.currentConfig;
   }
 }
 

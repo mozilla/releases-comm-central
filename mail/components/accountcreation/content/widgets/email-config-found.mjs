@@ -164,15 +164,17 @@ class EmailConfigFound extends AccountHubStep {
     // Set the selectedConfig to have the selected as incoming if it is
     // different than the default incoming config, and move the default to
     // the alternatives.
-    this.#selectedConfig = this.#currentConfig;
-    if (incoming.type != configType) {
-      this.#selectConfig.incomingAlternatives.unshift(
+    this.#selectedConfig = this.#currentConfig.copy();
+
+    if (incoming.type != this.#selectedConfig.incoming?.type) {
+      this.#selectedConfig.incomingAlternatives.unshift(
         this.#currentConfig.incoming
       );
       this.#selectedConfig.incoming = incoming;
-      this.#selectedConfig.incomingAlternatives = this.#currentConfig.filter(
-        alternative => alternative != incoming
-      );
+      this.#selectedConfig.incomingAlternatives =
+        this.#currentConfig.incomingAlternatives.filter(
+          alternative => alternative != incoming
+        );
     }
 
     // Hide outgoing config details if unavailable.
