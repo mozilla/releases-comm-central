@@ -842,6 +842,9 @@ export class Pop3Client {
 
     if (this._nextAuthMethod) {
       // Try the next auth method.
+      this._logger.debug(
+        `AUTH ${this._currentAuthMethod} failed. Trying AUTH ${this._nextAuthMethod} next`
+      );
       this._actionAuth();
       return;
     }
@@ -909,36 +912,90 @@ export class Pop3Client {
   };
 
   /**
-   * The second step of PLAIN auth, send the auth token to the server.
+   * This is the second step of PLAIN auth. Handle response to AUTH PLAIN
+   * command.
    */
   _actionAuthPlain = async res => {
     if (!res.success) {
-      this._actionError("pop3UsernameFailure", [], res.statusText);
+      // Command "AUTH PLAIN" failed. If there is another auth mechanism, just
+      // log the failure and try the next mechanism.
+      if (this._nextAuthMethod) {
+        this._logger.debug(
+          `AUTH PLAIN failed. Trying AUTH ${this._nextAuthMethod} next`
+        );
+        this._actionAuth();
+      } else {
+        // There are no more auth mechanisms, produce a notification to the user
+        // that we are unable to authenticate (which also gets logged).
+        // FIXME: Need a new error string here indicating AUTH PLAIN command
+        // failed. Currently this says sending username failed but username was
+        // never sent.
+        this._actionError("pop3UsernameFailure", [], res.statusText);
+      }
       return;
     }
+    // AUTH PLAIN command succeeded. Obtain and send the plain auth token to the
+    // server.
     this._nextAction = this._actionAuthResponse;
     await this._send(await this._authenticator.getPlainToken(), true);
   };
 
   /**
-   * The second step of LOGIN auth, send the username to the server.
+   * This is the second step of LOGIN auth. Handle response to AUTH LOGIN
+   * command.
    */
-  _actionAuthLoginUser = async () => {
+  _actionAuthLoginUser = async res => {
+    if (!res.success) {
+      // Command "AUTH LOGIN" failed. If there is another auth mechanism, just
+      // log the failure and try the next mechanism.
+      if (this._nextAuthMethod) {
+        this._logger.debug(
+          `AUTH LOGIN failed, Trying AUTH ${this._nextAuthMethod} next`
+        );
+        this._actionAuth();
+      } else {
+        // There are no more auth mechanisms, produce a notification to the user
+        // that we are unable to authenticate (which also gets logged).
+        // FIXME: Need new error string here indicating AUTH LOGIN command
+        // failed. Currently this says sending username failed but username was
+        // never sent.
+        this._actionError("pop3UsernameFailure", [], res.statusText);
+      }
+      return;
+    }
+    // AUTH LOGIN command succeeded. Send the base64 username to the server.
+    // Note: The res.statusText here will be base64 "Username:" and is not
+    // verified.
     this._nextAction = this._actionAuthLoginPass;
-    this._logger.debug("AUTH LOGIN USER");
+    this._logger.debug("Sending username for AUTH LOGIN");
     await this._send(btoa(this._authenticator.username), true);
   };
 
   /**
-   * The third step of LOGIN auth, send the password to the server.
+   * This is the third step of LOGIN auth. Handle the response to send of
+   * username for LOGIN.
    */
   _actionAuthLoginPass = async res => {
     if (!res.success) {
-      this._actionError("pop3UsernameFailure", [], res.statusText);
+      // AUTH LOGIN username failed. If there is another auth mechanism, just
+      // log the failure and try the next mechanism.
+      if (this._nextAuthMethod) {
+        this._logger.debug(
+          `AUTH LOGIN username failed. Trying AUTH ${this._nextAuthMethod} next`
+        );
+        this._actionAuth();
+      } else {
+        // There are no more auth mechanisms, produce a notification to the user
+        // that we are unable to authenticate (which also gets logged).
+        this._actionError("pop3UsernameFailure", [], res.statusText);
+      }
       return;
     }
+    // Send of username for AUTH LOGIN succeeded. Send the base64 password to
+    // the server. Note: The res.statusText here will be base64 "Password:"
+    // and is not verified.
     this._nextAction = this._actionAuthResponse;
-    this._logger.debug("AUTH LOGIN PASS");
+    this._logger.debug("Sending password for AUTH LOGIN");
     let password = await this._authenticator.getPassword();
     if (
       !Services.prefs.getBoolPref(
@@ -947,9 +1004,9 @@ export class Pop3Client {
       ) ||
       !/^[\x00-\xFF]+$/.test(password) // eslint-disable-line no-control-regex
     ) {
-      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
-      // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
-      // base64 encoding directly. Otherwise, we convert it to UTF-8
+      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized.
+      // When `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we
+      // apply base64 encoding directly. Otherwise, we convert it to UTF-8
       // BinaryString first, to make it work with btoa().
       password = MailStringUtils.stringToByteString(password);
     }
