@@ -244,6 +244,16 @@ AccountConfig.prototype = {
     );
   },
 
+  isIncomingComplete() {
+    return (
+      !!this.incoming.hostname &&
+      !!this.incoming.port &&
+      this.incoming.socketType != -1 &&
+      !!this.incoming.auth &&
+      !!this.incoming.username
+    );
+  },
+
   toString() {
     function sslToString(socketType) {
       switch (socketType) {

@@ -75,6 +75,13 @@ class EmailIncomingForm extends AccountHubStep {
    */
   #currentConfig;
 
+  /**
+   * Indicates if the form has been updated by the user.
+   *
+   * @type {Boolean}
+   */
+  #edited;
+
   connectedCallback() {
     if (this.hasConnected) {
       super.connectedCallback();
@@ -101,24 +108,37 @@ class EmailIncomingForm extends AccountHubStep {
     this.#incomingUsername = this.querySelector("#incomingUsername");
     this.setupEventListeners();
     this.#currentConfig = {};
+    this.#edited = false;
   }
 
   /**
    * Set up the event listeners for this workflow.
    */
   setupEventListeners() {
-    this.#incomingHostname.addEventListener("change", () => {
+    this.#incomingHostname.addEventListener("input", () => {
+      this.#configChanged();
       this.#adjustOAuth2Visibility();
     });
 
+    this.#incomingUsername.addEventListener("input", () => {
+      this.#configChanged();
+    });
+
+    this.#incomingAuthenticationMethod.addEventListener("command", () => {
+      this.#configChanged();
+    });
+
     this.#incomingConnectionSecurity.addEventListener("command", () => {
+      this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
     });
-    this.#incomingPort.addEventListener("change", () => {
+    this.#incomingPort.addEventListener("input", () => {
+      this.#configChanged();
       this.#adjustSSLToPort();
     });
 
-    this.#incomingProtocol.addEventListener("change", () => {
+    this.#incomingProtocol.addEventListener("command", () => {
+      this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
     });
 
@@ -143,13 +163,22 @@ class EmailIncomingForm extends AccountHubStep {
   }
 
   /**
+   * @typedef {object} ConfigFormState
+   * @property {AccountConfig} config - The updated AccountConfig.
+   * @property {Boolean} edited - If form has been edited.
+   */
+
+  /**
    * Return the current state of the email setup form, with the updated
-   * incoming fields.
+   * incoming fields, and a property that tells if the form has been edited.
    *
-   * @return {AccountConfig}
+   * @returns {ConfigFormState} State details.
    */
   captureState() {
-    return this.getIncomingUserConfig();
+    return {
+      config: this.getIncomingUserConfig(),
+      edited: this.#edited,
+    };
   }
 
   /**
@@ -159,7 +188,33 @@ class EmailIncomingForm extends AccountHubStep {
    */
   setState(configData) {
     this.#currentConfig = configData;
+    this.#edited = false;
     this.updateFields(this.#currentConfig);
+  }
+
+  /**
+   * Dispatches an event to the email controller whenever there is a change in
+   * configuration with the detail of the incoming config being complete.
+   */
+  #configChanged() {
+    let completed = false;
+    this.#edited = true;
+    try {
+      const completeConfig = this.getIncomingUserConfig().isIncomingComplete();
+      const validForm =
+        this.querySelector("#incomingEmailForm").checkValidity();
+      completed = completeConfig && validForm;
+    } catch (error) {
+      // We're just trying to get the config values here, so if it fails
+      // we can silently fail.
+    }
+
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: { completed },
+      })
+    );
   }
 
   /**
@@ -285,13 +340,14 @@ class EmailIncomingForm extends AccountHubStep {
     const config = this.#currentConfig;
     config.source = AccountConfig.kSourceUser;
 
-    // Incoming server.
     try {
       const inHostnameValue = this.#incomingHostname.value;
       config.incoming.hostname = Sanitizer.hostname(inHostnameValue);
       this.#incomingHostname.value = config.incoming.hostname;
+      this.#incomingHostname.setCustomValidity("");
     } catch (error) {
       gAccountSetupLogger.warn(error);
+      this.#incomingHostname.setCustomValidity(error._message);
     }
 
     try {
@@ -300,9 +356,11 @@ class EmailIncomingForm extends AccountHubStep {
         1,
         65535
       );
+      this.#incomingPort.setCustomValidity("");
     } catch (error) {
       // Include default "Auto".
       config.incoming.port = undefined;
+      this.#incomingPort.setCustomValidity(error._message);
     }
 
     config.incoming.type = Sanitizer.translate(this.#incomingProtocol.value, {

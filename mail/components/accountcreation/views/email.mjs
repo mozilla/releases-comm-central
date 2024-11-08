@@ -266,6 +266,7 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter.addEventListener("forward", this);
     this.#emailFooter.addEventListener("custom-footer-action", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
+    this.#emailIncomingConfigSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
     this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
     this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
@@ -430,10 +431,11 @@ class AccountHubEmail extends HTMLElement {
       case "advanced-config":
         try {
           let stateData =
-            this.#states[this.#currentState].subview.captureState();
+            this.#states[this.#currentState].subview.captureState().config;
           if (this.#currentState === "outgoingConfigSubview") {
+            stateData = this.#states[this.#currentState].subview.captureState();
             stateData.incoming =
-              this.#states.incomingConfigSubview.subview.captureState().incoming;
+              this.#states.incomingConfigSubview.subview.captureState().config.incoming;
           }
           stateData = this.#fillAccountConfig(stateData);
           await this.#advancedSetup(stateData);
@@ -525,9 +527,16 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "incomingConfigSubview":
         await this.#initUI(this.#states[this.#currentState].nextStep);
+        // We disable the continue button as the user needs click test to
+        // ensure that the config is correct and complete, unless they don't
+        // edit the previous config.
+        this.#emailFooter.toggleForwardDisabled(stateData.edited);
         // TODO: Validate incoming config details.
         break;
       case "outgoingConfigSubview":
+        // Move to the password stage where validateAndFinish is run.
+
+        await this.#initUI(this.#states[this.#currentState].nextStep);
         // TODO: Validate outgoing config details.
         this.#states[this.#currentState].subview.showNotification({
           fluentTitleId: "account-hub-password-info",
@@ -566,10 +575,35 @@ class AccountHubEmail extends HTMLElement {
    * @param {String} currentState - The current state of the email flow.
    */
   async #handleCustomAction(currentState) {
+    let stateData;
     switch (currentState) {
       case "incomingConfigSubview":
         break;
       case "outgoingConfigSubview":
+        stateData = this.#states[this.#currentState].subview.captureState();
+        stateData.incoming =
+          this.#states.incomingConfigSubview.subview.captureState().config.incoming;
+        stateData = this.#fillAccountConfig(stateData);
+
+        try {
+          const config = await this.#guessConfig(
+            this.#email.split("@")[1],
+            stateData
+          );
+
+          if (config.isComplete()) {
+            // TODO: Show success message here.
+            this.#emailFooter.toggleForwardDisabled(false);
+          } else {
+            // The config is not complete, go back to the incoming view and
+            // show an error.
+            this.#initUI(this.#states[this.#currentState].previousStep);
+            // TODO: Show error message here.
+          }
+        } catch (error) {
+          this.#initUI(this.#states[this.#currentState].previousStep);
+          // TODO: Show error message here.
+        }
         break;
       case "emailAddedSubview":
         break;
@@ -637,17 +671,6 @@ class AccountHubEmail extends HTMLElement {
     }
 
     return config;
-  }
-
-  /**
-   * Click handler for re-test button. Guesses the email account config after
-   * a user has inputted all manual config fields and pressed re-test.
-   */
-  async testManualConfig() {
-    // Clear error notifications.
-    this.#clearNotifications();
-
-    // TODO: Do guess config on manual config data.
   }
 
   /**

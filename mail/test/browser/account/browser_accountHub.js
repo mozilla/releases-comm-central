@@ -301,6 +301,11 @@ add_task(async function test_account_email_step() {
 add_task(async function test_account_email_config_found() {
   const dialog = await subtest_open_account_hub_dialog();
 
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
+    "The initial email template is in view."
+  );
+
   await subtest_fill_initial_config_fields(dialog);
 
   const configFoundTemplate = dialog.querySelector("email-config-found");
@@ -485,7 +490,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
     .querySelector("account-hub-footer")
     .querySelector("#forward");
 
-  const configFoundTemplate = dialog.querySelector("#emailConfigFoundSubview");
+  const configFoundTemplate = dialog.querySelector("email-config-found");
 
   await TestUtils.waitForCondition(
     () =>
@@ -572,6 +577,107 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
 
   // Confirm that the folder pane is visible.
   Assert.ok(BrowserTestUtils.isVisible(tabmail.currentAbout3Pane.folderTree));
+});
+
+add_task(async function test_account_email_manual_form() {
+  // Fill in email auto form and click continue, waiting for config found
+  // view to be shown.
+  const dialog = await subtest_open_account_hub_dialog();
+
+  await subtest_fill_initial_config_fields(dialog);
+  const footer = dialog.querySelector("account-hub-footer");
+  const footerForward = footer.querySelector("#forward");
+  const footerBack = footer.querySelector("#back");
+  const footerCustom = footer.querySelector("#custom");
+
+  const configFoundTemplate = dialog.querySelector("email-config-found");
+
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(configFoundTemplate),
+    "The email config found template is in view."
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
+    "The IMAP config option is visible"
+  );
+
+  // // Edit configuration button should lead to incoming config template.
+  EventUtils.synthesizeMouseAtCenter(
+    configFoundTemplate.querySelector("#editConfiguration"),
+    {},
+    window
+  );
+
+  const incomingConfigTemplate = dialog.querySelector(
+    "#emailIncomingConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template is in view."
+  );
+
+  // Continuing from incoming with a found config should keep the continue
+  // button on the outgoing config page enabled.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {}, window);
+  const outgoingConfigTemplate = dialog.querySelector(
+    "#emailOutgoingConfigSubview"
+  );
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing config template is in view."
+  );
+  Assert.ok(!footerForward.disabled, "Continue button is enabled");
+
+  // Go back and update the incoming hostname to have an invalid character,
+  // which should disable the continue button.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {}, window);
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(incomingConfigTemplate),
+    "The incoming config template is in view."
+  );
+
+  const incomingHostname =
+    incomingConfigTemplate.querySelector("#incomingHostname");
+  EventUtils.synthesizeMouseAtCenter(incomingHostname, {}, window);
+  const inputEvent = BrowserTestUtils.waitForEvent(
+    incomingHostname,
+    "input",
+    false,
+    event => event.target.value === "pop." + emailUser.incomingHost + "-"
+  );
+  EventUtils.sendString("-", window);
+  await inputEvent;
+
+  Assert.ok(footerForward.disabled, "Continue button is disabled");
+
+  // Delete the invalid character should renable the continue button.
+  const deleteEvent = BrowserTestUtils.waitForEvent(
+    incomingHostname,
+    "input",
+    false,
+    event => event.target.value === "pop." + emailUser.incomingHost
+  );
+  EventUtils.synthesizeKey("KEY_Backspace", {}, window);
+  await deleteEvent;
+
+  Assert.ok(!footerForward.disabled, "Continue button is enabled");
+
+  // Continuing on to outgoing should reveal a disbaled continue button and an
+  // enabled test button.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {}, window);
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing config template is in view."
+  );
+
+  Assert.ok(footerForward.disabled, "Continue button is disabled");
+  Assert.ok(!footerCustom.disabled, "Test button is enabled");
+
+  // TODO: Add tests for test functionality when notifications are merged.
+
+  await subtest_close_account_hub_dialog(dialog);
 });
 
 /**

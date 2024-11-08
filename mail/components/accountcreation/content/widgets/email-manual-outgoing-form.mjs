@@ -98,20 +98,27 @@ class EmailOutgoingForm extends AccountHubStep {
    * Set up the event listeners for this workflow.
    */
   setupEventListeners() {
-    this.#outgoingHostname.addEventListener("change", () => {
+    this.#outgoingHostname.addEventListener("input", () => {
+      this.#configChanged();
       this.#adjustOAuth2Visibility();
     });
-    this.#outgoingPort.addEventListener("change", () => {
+    this.#outgoingPort.addEventListener("input", () => {
+      this.#configChanged();
       this.#adjustSSLToPort();
     });
     this.#outgoingConnectionSecurity.addEventListener("command", () => {
+      this.#configChanged();
       this.#adjustPortToSSLAndProtocol();
     });
-
     this.#outgoingAuthenticationMethod.addEventListener("command", event => {
+      this.#configChanged();
       // Disable the outgoing username field if the "No Authentication" option
       // is selected.
       this.#outgoingUsername.disabled = event.target.value == 1;
+    });
+    this.#outgoingHostname.addEventListener("input", () => {
+      this.#configChanged();
+      this.#adjustOAuth2Visibility();
     });
 
     this.querySelector("#advancedConfigurationOutgoing").addEventListener(
@@ -142,6 +149,19 @@ class EmailOutgoingForm extends AccountHubStep {
    */
   captureState() {
     return this.getOutgoingUserConfig();
+  }
+
+  /**
+   * Dispatches an event to the email controller whenever there is a change in
+   * configuration which means the form needs to be retested.
+   */
+  #configChanged() {
+    this.dispatchEvent(
+      new CustomEvent("config-updated", {
+        bubbles: true,
+        detail: { completed: false },
+      })
+    );
   }
 
   /**
@@ -260,8 +280,10 @@ class EmailOutgoingForm extends AccountHubStep {
       const input = this.#outgoingHostname.value;
       config.outgoing.hostname = Sanitizer.hostname(input);
       this.#outgoingHostname.value = config.outgoing.hostname;
+      this.#outgoingHostname.setCustomValidity("");
     } catch (error) {
       gAccountSetupLogger.warn(error);
+      this.#outgoingHostname.setCustomValidity(error._message);
     }
 
     try {
@@ -270,9 +292,11 @@ class EmailOutgoingForm extends AccountHubStep {
         1,
         65535
       );
+      this.#outgoingPort.setCustomValidity("");
     } catch (error) {
       // Include default "Auto".
       config.outgoing.port = undefined;
+      this.#outgoingPort.setCustomValidity(error._message);
     }
 
     config.outgoing.socketType = Sanitizer.integer(

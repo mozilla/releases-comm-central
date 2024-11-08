@@ -41,24 +41,26 @@ class AccountHubFooter extends HTMLElement {
     this.dispatchEvent(new CustomEvent(event.target.id));
   }
 
-  canBack(val) {
-    this.querySelector("#back").hidden = !val;
+  canBack(value) {
+    this.querySelector("#back").hidden = !value;
   }
 
-  canForward(val) {
-    this.querySelector("#forward").hidden = !val;
+  canForward(value) {
+    this.querySelector("#forward").hidden = !value;
   }
 
-  toggleForwardDisabled(val) {
-    this.querySelector("#forward").disabled = val;
+  toggleForwardDisabled(value) {
+    this.querySelector("#forward").disabled = value;
   }
 
-  canCustom(val) {
+  canCustom(value) {
     const customAction = this.querySelector("#custom");
-    customAction.hidden = !val;
-    if (val) {
+    customAction.hidden = !value;
+    customAction.disabled = !value;
+    if (value) {
+      customAction.disabled = false;
       customAction.addEventListener("click", this);
-      document.l10n.setAttributes(customAction, val);
+      document.l10n.setAttributes(customAction, value);
     }
   }
 
