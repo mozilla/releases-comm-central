@@ -222,7 +222,16 @@ add_task(async function test_account_email_step() {
     "Name danger icon is visible."
   );
 
-  // Fill name and incorrect email input, error email icon should be showing.
+  // Hit the enter key when in the name form input, and the email danger
+  // icon should show.
+  EventUtils.synthesizeKey("KEY_Enter", {});
+  Assert.ok(
+    BrowserTestUtils.isVisible(emailTemplate.querySelector("#emailWarning")),
+    "Email danger icon is visible."
+  );
+
+  // Fill name and incorrect email input, error email icon should be still
+  // be showing.
   EventUtils.synthesizeMouseAtCenter(nameInput, {}, window);
   inputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
@@ -324,9 +333,9 @@ add_task(async function test_account_email_config_found() {
   const emailTemplate = dialog.querySelector("email-auto-form");
   const nameInput = emailTemplate.querySelector("#realName");
   const emailInput = emailTemplate.querySelector("#email");
-  const footerForward = dialog
-    .querySelector("#emailFooter")
-    .querySelector("#forward");
+  const footer = dialog.querySelector("#emailFooter");
+  const footerForward = footer.querySelector("#forward");
+  const footerBack = footer.querySelector("#back");
 
   // Ensure fields are empty.
   nameInput.value = "";
@@ -354,10 +363,24 @@ add_task(async function test_account_email_config_found() {
 
   Assert.ok(!footerForward.disabled, "Continue button is enabled.");
 
-  // Click continue and wait for config found template to be in view.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {}, window);
+  // Hit enter and wait for config found template to be in view.
+  EventUtils.synthesizeKey("KEY_Enter", {});
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(configFoundTemplate),
+    "The email config found template is in view."
+  );
+
+  // Press the back button and show the initial email template again.
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
+    "The initial email template is in view."
+  );
+
+  // Press the continue button to show the config found template.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(configFoundTemplate),
     "The email config found template is in view."

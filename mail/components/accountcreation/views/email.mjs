@@ -272,6 +272,8 @@ class AccountHubEmail extends HTMLElement {
     this.#email = "";
     this.#realName = "";
 
+    this.addEventListener("submit", this);
+
     await this.#initUI("autoConfigSubview");
   }
 
@@ -362,6 +364,12 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
+      case "submit":
+        event.preventDefault();
+        if (!event.target.checkValidity()) {
+          return;
+        }
+      // Fall through to handle like forward event.
       case "forward":
         try {
           this.#hasCancelled = false;

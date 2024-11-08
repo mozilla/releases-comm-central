@@ -82,8 +82,7 @@ class EmailAutoForm extends AccountHubStep {
    * update the hostname and domain for the complete form.
    */
   #checkValidEmailForm() {
-    const isValidForm =
-      this.#email.checkValidity() && this.#realName.checkValidity();
+    const isValidForm = this.querySelector("form").checkValidity();
 
     this.dispatchEvent(
       new CustomEvent("config-updated", {
