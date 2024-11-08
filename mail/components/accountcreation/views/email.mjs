@@ -32,6 +32,8 @@ const { FindConfig } = ChromeUtils.importESModule(
 const { gAccountSetupLogger, SuccessiveAbortable, UserCancelledException } =
   AccountCreationUtils;
 
+const l10n = new Localization(["messenger/accountcreation/accountSetup.ftl"]);
+
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import/no-unassigned-import
 
@@ -262,9 +264,11 @@ class AccountHubEmail extends HTMLElement {
     this.#emailFooter = this.querySelector("account-hub-footer");
     this.#emailFooter.addEventListener("back", this);
     this.#emailFooter.addEventListener("forward", this);
-    this.#emailFooter.addEventListener("custom", this);
+    this.#emailFooter.addEventListener("custom-footer-action", this);
     this.#emailAutoConfigSubview.addEventListener("config-updated", this);
     this.#emailConfigFoundSubview.addEventListener("edit-configuration", this);
+    this.#emailIncomingConfigSubview.addEventListener("advanced-config", this);
+    this.#emailOutgoingConfigSubview.addEventListener("advanced-config", this);
 
     this.abortable = null;
     this.#hasCancelled = false;
@@ -346,6 +350,11 @@ class AccountHubEmail extends HTMLElement {
     }
   }
 
+  /**
+   * Handle the events from the subviews.
+   *
+   * @param {Event} event
+   */
   async handleEvent(event) {
     const stateDetails = this.#states[this.#currentState];
     switch (event.type) {
@@ -385,18 +394,9 @@ class AccountHubEmail extends HTMLElement {
           stateDetails.subview.showErrorNotification(error.title, error.text);
         }
         break;
-      case "edit-configuration":
-        this.#currentConfig = this.#fillAccountConfig(
-          stateDetails.subview.captureState()
-        );
-        // The edit configuration button was pressed.
-        await this.#initUI("incomingConfigSubview");
-        // Apply the current state data to the new state.
-        this.#states[this.#currentState].subview.setState(this.#currentConfig);
-        break;
-      case "custom":
+      case "custom-footer-action":
         try {
-          await this.#handleCustomAction(this.#currentState);
+          await this.#handleCustomAction(this.#currentState, event);
         } catch (error) {
           stateDetails.subview.showNotification({
             title: error.title,
@@ -406,9 +406,37 @@ class AccountHubEmail extends HTMLElement {
           });
         }
         break;
+      case "edit-configuration":
+        this.#currentConfig = this.#fillAccountConfig(
+          stateDetails.subview.captureState()
+        );
+        // The edit configuration button was pressed.
+        await this.#initUI("incomingConfigSubview");
+        // Apply the current state data to the new state.
+        this.#states[this.#currentState].subview.setState(this.#currentConfig);
+        break;
       case "config-updated":
         try {
           this.#emailFooter.toggleForwardDisabled(!event.detail.completed);
+        } catch (error) {
+          stateDetails.subview.showNotification({
+            title: error.title,
+            description: error.text,
+            error,
+            type: "error",
+          });
+        }
+        break;
+      case "advanced-config":
+        try {
+          let stateData =
+            this.#states[this.#currentState].subview.captureState();
+          if (this.#currentState === "outgoingConfigSubview") {
+            stateData.incoming =
+              this.#states.incomingConfigSubview.subview.captureState().incoming;
+          }
+          stateData = this.#fillAccountConfig(stateData);
+          await this.#advancedSetup(stateData);
         } catch (error) {
           stateDetails.subview.showNotification({
             title: error.title,
@@ -501,21 +529,25 @@ class AccountHubEmail extends HTMLElement {
         break;
       case "outgoingConfigSubview":
         // TODO: Validate outgoing config details.
+        this.#states[this.#currentState].subview.showNotification({
+          fluentTitleId: "account-hub-password-info",
+          type: "info",
+        });
         break;
       case "emailConfigFoundSubview":
-        this.#states[currentState].subview.showNotification({
+        this.#states[this.#currentState].subview.showNotification({
           fluentTitleId: "account-hub-password-info",
           type: "info",
         });
         break;
       case "emailPasswordSubview":
-        this.#states[currentState].subview.showNotification({
+        this.#states[this.#currentState].subview.showNotification({
           fluentTitleId: "account-hub-sync-success",
           type: "success",
         });
         break;
       case "emailSyncAccountsSubview":
-        this.#states[currentState].subview.showNotification({
+        this.#states[this.#currentState].subview.showNotification({
           fluentTitleId: "account-hub-email-added-success",
           type: "success",
         });
@@ -535,6 +567,8 @@ class AccountHubEmail extends HTMLElement {
    */
   async #handleCustomAction(currentState) {
     switch (currentState) {
+      case "incomingConfigSubview":
+        break;
       case "outgoingConfigSubview":
         break;
       case "emailAddedSubview":
@@ -620,7 +654,7 @@ class AccountHubEmail extends HTMLElement {
    * Guess an account configuration with the provided domain.
    *
    * @param {String} domain - The domain from the email address.
-   * @param {AccountConifg} initialConifg - Account Config object.
+   * @param {AccountConfig} initialConfig - Account Config object.
    */
   #guessConfig(domain, initialConfig) {
     let configType = "both";
@@ -639,7 +673,7 @@ class AccountHubEmail extends HTMLElement {
         );
       },
       config => {
-        // The guessConifg was successful.
+        // The guessConfig was successful.
         this.abortable = null;
         resolve(config);
       },
@@ -662,10 +696,44 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
+   * Only active in manual edit mode, and goes straight into
+   * Account Settings tab. Requires a backend account,
+   * which requires proper hostname, port and protocol.
+   *
+   * @param {AccountConfig} accountConfig - Account Config object.
+   */
+  async #advancedSetup(accountConfig) {
+    if (CreateInBackend.checkIncomingServerAlreadyExists(accountConfig)) {
+      throw new Error({
+        title: "account-setup-creation-error-title",
+        description: "account-setup-error-server-exists",
+      });
+    }
+
+    const [title, description] = await l10n.formatValues([
+      "account-setup-confirm-advanced-title",
+      "account-setup-confirm-advanced-description",
+    ]);
+
+    // TODO: Create a custom styled dialog instead of using the old one.
+    if (!Services.prompt.confirm(null, title, description)) {
+      return;
+    }
+
+    gAccountSetupLogger.debug("Creating account in backend.");
+    const newAccount = await CreateInBackend.createAccountInBackend(
+      accountConfig
+    );
+
+    this.#moveToAccountManager(newAccount.incomingServer);
+  }
+
+  /**
    * Adds name and email address to AccountConfig object.
    *
    * @param {AccountConfig} accountConfig - AccountConfig from findConfig().
    * @param {String} password - The password for the account.
+   *
    * @returns {AccountConfig} - The concrete AccountConfig object.
    */
   #fillAccountConfig(configData, password = "") {
@@ -817,6 +885,23 @@ class AccountHubEmail extends HTMLElement {
     );
 
     this.#configVerifier.cleanup();
+  }
+
+  /**
+   * Request the opening of the account manager after the creation of a new
+   * account and reset any leftover data in the current setup flow.
+   *
+   * @param {Object} data - The data passed to the template.
+   */
+  #moveToAccountManager(data) {
+    this.dispatchEvent(
+      new CustomEvent("request-close", {
+        bubbles: true,
+      })
+    );
+    // eslint-disable-next-line no-undef
+    MsgAccountManager("am-server.xhtml", data);
+    this.reset();
   }
 
   /**

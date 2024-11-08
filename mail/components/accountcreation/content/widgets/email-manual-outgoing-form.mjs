@@ -113,6 +113,25 @@ class EmailOutgoingForm extends AccountHubStep {
       // is selected.
       this.#outgoingUsername.disabled = event.target.value == 1;
     });
+
+    this.querySelector("#advancedConfigurationOutgoing").addEventListener(
+      "click",
+      this
+    );
+  }
+
+  handleEvent(event) {
+    switch (event.target.id) {
+      case "advancedConfigurationOutgoing":
+        this.dispatchEvent(
+          new CustomEvent("advanced-config", {
+            bubbles: true,
+          })
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -122,7 +141,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * @return {AccountConfig}
    */
   captureState() {
-    return this.#currentConfig;
+    return this.getOutgoingUserConfig();
   }
 
   /**
@@ -199,7 +218,7 @@ class EmailOutgoingForm extends AccountHubStep {
    * @param {AccountConfig} [accountConfig] - Complete AccountConfig.
    */
   #adjustSSLToPort(accountConfig) {
-    const config = accountConfig;
+    const config = accountConfig || this.getOutgoingUserConfig();
 
     if (!standardPorts.includes(config.outgoing.port)) {
       return;

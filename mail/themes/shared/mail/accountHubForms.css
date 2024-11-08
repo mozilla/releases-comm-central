@@ -588,12 +588,16 @@ div:has(legend) {
         }
       }
     }
-
-    .edit-configuration-container {
-      grid-column: 1 / -1;
-      text-align: end;
-    }
   }
+}
+
+.custom-action-container {
+  grid-column: 1 / -1;
+  text-align: end;
+}
+
+.align-self-end {
+  align-self: end;
 }
 
 .remember-button-container {

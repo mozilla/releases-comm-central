@@ -34,6 +34,10 @@ class AccountHubFooter extends HTMLElement {
   }
 
   handleEvent(event) {
+    if (event.target.id === "custom") {
+      this.dispatchEvent(new CustomEvent("custom-footer-action"));
+      return;
+    }
     this.dispatchEvent(new CustomEvent(event.target.id));
   }
 

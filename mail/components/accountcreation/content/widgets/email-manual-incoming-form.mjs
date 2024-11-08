@@ -121,6 +121,25 @@ class EmailIncomingForm extends AccountHubStep {
     this.#incomingProtocol.addEventListener("change", () => {
       this.#adjustPortToSSLAndProtocol();
     });
+
+    this.querySelector("#advancedConfigurationIncoming").addEventListener(
+      "click",
+      this
+    );
+  }
+
+  handleEvent(event) {
+    switch (event.target.id) {
+      case "advancedConfigurationIncoming":
+        this.dispatchEvent(
+          new CustomEvent("advanced-config", {
+            bubbles: true,
+          })
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -130,7 +149,7 @@ class EmailIncomingForm extends AccountHubStep {
    * @return {AccountConfig}
    */
   captureState() {
-    return this.#currentConfig;
+    return this.getIncomingUserConfig();
   }
 
   /**
