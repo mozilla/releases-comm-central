@@ -353,6 +353,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
   // this needs to happen after we remove all the keys, since RowCountChanged()
   // will call our GetRowCount()
   if (mTree) mTree->RowCountChanged(0, -oldSize);
+  if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
   uint32_t folderFlags = 0;
   if (m_viewFolder) m_viewFolder->GetFlags(&folderFlags);
   // check if it's a virtual folder - if so, we should get the cached hits
