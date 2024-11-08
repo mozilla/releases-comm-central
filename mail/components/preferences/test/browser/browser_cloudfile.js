@@ -333,7 +333,8 @@ add_task(async function addRemoveAccounts() {
 
   const browser = browserWrapper.firstElementChild;
   if (
-    browser.webProgress?.isLoadingDocument ||
+    browser.ownerDocument.readyState != "complete" ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
     await BrowserTestUtils.browserLoaded(browser);
@@ -594,7 +595,8 @@ async function subtestBrowserStyle(assertMessage, expected) {
   is(browserWrapper.childElementCount, 1);
   const browser = browserWrapper.firstElementChild;
   if (
-    browser.webProgress?.isLoadingDocument ||
+    browser.ownerDocument.readyState != "complete" ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
     await BrowserTestUtils.browserLoaded(browser);

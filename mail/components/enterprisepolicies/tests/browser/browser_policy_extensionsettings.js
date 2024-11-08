@@ -10,10 +10,11 @@ const BASE_URL =
 async function openTab(url) {
   const tab = window.openContentTab(url, null, null);
   if (
-    tab.browser.webProgress?.isLoadingDocument ||
+    tab.browser.ownerDocument.readyState != "complete" ||
+    !tab.browser.currentURI ||
     tab.browser.currentURI?.spec == "about:blank"
   ) {
-    await BrowserTestUtils.browserLoaded(tab.browser);
+    await BrowserTestUtils.browserLoaded(tab.browser, false, url);
   }
   return tab;
 }

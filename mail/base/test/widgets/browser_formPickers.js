@@ -18,12 +18,13 @@ let testFolder;
 
 async function checkABrowser(browser) {
   if (
-    browser.webProgress?.isLoadingDocument ||
+    browser.ownerDocument.readyState != "complete" ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
     await BrowserTestUtils.browserLoaded(
       browser,
-      undefined,
+      false,
       url => url != "about:blank"
     );
   }

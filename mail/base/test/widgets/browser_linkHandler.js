@@ -194,10 +194,11 @@ async function clickOnLink(
   shouldLoadInternally
 ) {
   if (
-    browser.webProgress?.isLoadingDocument ||
+    browser.ownerDocument.readyState != "complete" ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
-    await BrowserTestUtils.browserLoaded(browser);
+    await BrowserTestUtils.browserLoaded(browser, false, pageURL);
 
     // Clear the event queue.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
