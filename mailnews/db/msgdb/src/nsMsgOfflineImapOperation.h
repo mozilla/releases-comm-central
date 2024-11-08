@@ -31,7 +31,6 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
 
   nsOfflineImapOperationType m_operation;
   nsMsgKey m_messageKey;
-  nsMsgKey m_sourceMessageKey;
   uint32_t m_operationFlags;        // what to do on sync
   imapMessageFlagsType m_newFlags;  // used for kFlagsChanged
 
