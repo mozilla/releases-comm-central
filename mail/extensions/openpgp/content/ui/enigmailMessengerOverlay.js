@@ -766,10 +766,10 @@ Enigmail.msg = {
         const p = Cc["@mozilla.org/parserutils;1"].createInstance(
           Ci.nsIParserUtils
         );
-        const de = Ci.nsIDocumentEncoder;
         msgText = p.convertToPlainText(
           topElement.innerHTML,
-          de.OutputRaw | de.OutputBodyOnly,
+          Ci.nsIDocumentEncoder.OutputRaw |
+            Ci.nsIDocumentEncoder.OutputBodyOnly,
           0
         );
       } else {

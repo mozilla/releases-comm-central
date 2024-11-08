@@ -18,7 +18,6 @@ AbAutoCompleteMyDomain.prototype = {
     const params = aSearchParam ? JSON.parse(aSearchParam) : {};
     const applicable =
       "type" in params && this.applicableHeaders.has(params.type);
-    const ACR = Ci.nsIAutoCompleteResult;
     var address = null;
     if (applicable && aString && !aString.includes(",")) {
       if ("idKey" in params && params.idKey != this.cachedIdKey) {
@@ -34,7 +33,9 @@ AbAutoCompleteMyDomain.prototype = {
 
     var result = {
       searchString: aString,
-      searchResult: address ? ACR.RESULT_SUCCESS : ACR.RESULT_FAILURE,
+      searchResult: address
+        ? Ci.nsIAutoCompleteResult.RESULT_SUCCESS
+        : Ci.nsIAutoCompleteResult.RESULT_FAILURE,
       defaultIndex: -1,
       errorDescription: null,
       matchCount: address ? 1 : 0,

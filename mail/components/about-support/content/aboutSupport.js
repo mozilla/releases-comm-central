@@ -917,37 +917,35 @@ var snapshotFormatters = {
     }
 
     function createDeviceInfoRow(device) {
-      const deviceInfo = Ci.nsIAudioDeviceInfo;
-
       const states = {};
-      states[deviceInfo.STATE_DISABLED] = "Disabled";
-      states[deviceInfo.STATE_UNPLUGGED] = "Unplugged";
-      states[deviceInfo.STATE_ENABLED] = "Enabled";
+      states[Ci.nsIAudioDeviceInfo.STATE_DISABLED] = "Disabled";
+      states[Ci.nsIAudioDeviceInfo.STATE_UNPLUGGED] = "Unplugged";
+      states[Ci.nsIAudioDeviceInfo.STATE_ENABLED] = "Enabled";
 
       const preferreds = {};
-      preferreds[deviceInfo.PREF_NONE] = "None";
-      preferreds[deviceInfo.PREF_MULTIMEDIA] = "Multimedia";
-      preferreds[deviceInfo.PREF_VOICE] = "Voice";
-      preferreds[deviceInfo.PREF_NOTIFICATION] = "Notification";
-      preferreds[deviceInfo.PREF_ALL] = "All";
+      preferreds[Ci.nsIAudioDeviceInfo.PREF_NONE] = "None";
+      preferreds[Ci.nsIAudioDeviceInfo.PREF_MULTIMEDIA] = "Multimedia";
+      preferreds[Ci.nsIAudioDeviceInfo.PREF_VOICE] = "Voice";
+      preferreds[Ci.nsIAudioDeviceInfo.PREF_NOTIFICATION] = "Notification";
+      preferreds[Ci.nsIAudioDeviceInfo.PREF_ALL] = "All";
 
       const formats = {};
-      formats[deviceInfo.FMT_S16LE] = "S16LE";
-      formats[deviceInfo.FMT_S16BE] = "S16BE";
-      formats[deviceInfo.FMT_F32LE] = "F32LE";
-      formats[deviceInfo.FMT_F32BE] = "F32BE";
+      formats[Ci.nsIAudioDeviceInfo.FMT_S16LE] = "S16LE";
+      formats[Ci.nsIAudioDeviceInfo.FMT_S16BE] = "S16BE";
+      formats[Ci.nsIAudioDeviceInfo.FMT_F32LE] = "F32LE";
+      formats[Ci.nsIAudioDeviceInfo.FMT_F32BE] = "F32BE";
 
       function toPreferredString(preferred) {
-        if (preferred == deviceInfo.PREF_NONE) {
-          return preferreds[deviceInfo.PREF_NONE];
-        } else if (preferred & deviceInfo.PREF_ALL) {
-          return preferreds[deviceInfo.PREF_ALL];
+        if (preferred == Ci.nsIAudioDeviceInfo.PREF_NONE) {
+          return preferreds[Ci.nsIAudioDeviceInfo.PREF_NONE];
+        } else if (preferred & Ci.nsIAudioDeviceInfo.PREF_ALL) {
+          return preferreds[Ci.nsIAudioDeviceInfo.PREF_ALL];
         }
         let str = "";
         for (const pref of [
-          deviceInfo.PREF_MULTIMEDIA,
-          deviceInfo.PREF_VOICE,
-          deviceInfo.PREF_NOTIFICATION,
+          Ci.nsIAudioDeviceInfo.PREF_MULTIMEDIA,
+          Ci.nsIAudioDeviceInfo.PREF_VOICE,
+          Ci.nsIAudioDeviceInfo.PREF_NOTIFICATION,
         ]) {
           if (preferred & pref) {
             str += " " + preferreds[pref];
@@ -959,10 +957,10 @@ var snapshotFormatters = {
       function toFromatString(dev) {
         let str = "default: " + formats[dev.defaultFormat] + ", support:";
         for (const fmt of [
-          deviceInfo.FMT_S16LE,
-          deviceInfo.FMT_S16BE,
-          deviceInfo.FMT_F32LE,
-          deviceInfo.FMT_F32BE,
+          Ci.nsIAudioDeviceInfo.FMT_S16LE,
+          Ci.nsIAudioDeviceInfo.FMT_S16BE,
+          Ci.nsIAudioDeviceInfo.FMT_F32LE,
+          Ci.nsIAudioDeviceInfo.FMT_F32BE,
         ]) {
           if (dev.supportedFormat & fmt) {
             str += " " + formats[fmt];

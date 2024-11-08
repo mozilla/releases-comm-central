@@ -196,8 +196,9 @@ function loadInboxForNewAccount() {
   // was created, the download messages box is checked, and the wizard was opened from the 3pane
   if (gNewAccountToLoad) {
     var rootMsgFolder = gNewAccountToLoad.incomingServer.rootMsgFolder;
-    const kInboxFlag = Ci.nsMsgFolderFlags.Inbox;
-    var inboxFolder = rootMsgFolder.getFolderWithFlags(kInboxFlag);
+    var inboxFolder = rootMsgFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Inbox
+    );
     SelectFolder(inboxFolder.URI);
     window.focus();
     setTimeout(MsgGetMessage, 0);

@@ -495,10 +495,9 @@ function saveFilter() {
         );
       }
     } else {
-      const otherHeader = Ci.nsMsgSearchAttrib.OtherHeader;
       const attribValue =
-        obj.searchattribute.value > otherHeader
-          ? otherHeader
+        obj.searchattribute.value > Ci.nsMsgSearchAttrib.OtherHeader
+          ? Ci.nsMsgSearchAttrib.OtherHeader
           : obj.searchattribute.value;
       if (
         !obj.searchattribute.validityTable.getAvailable(

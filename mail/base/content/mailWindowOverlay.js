@@ -727,14 +727,19 @@ function initMoveToFolderAgainMenu(aMenuItem) {
  * Update the "Show Header" menu items to reflect the current pref.
  */
 function InitViewHeadersMenu() {
-  const dt = Ci.nsMimeHeaderDisplayTypes;
   const headerchoice = Services.prefs.getIntPref("mail.show_headers");
   document
     .getElementById("cmd_viewAllHeader")
-    .setAttribute("checked", headerchoice == dt.AllHeaders);
+    .setAttribute(
+      "checked",
+      headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders
+    );
   document
     .getElementById("cmd_viewNormalHeader")
-    .setAttribute("checked", headerchoice == dt.NormalHeaders);
+    .setAttribute(
+      "checked",
+      headerchoice == Ci.nsMimeHeaderDisplayTypes.NormalHeaders
+    );
   document.commandDispatcher.updateCommands("create-menu-mark");
 }
 

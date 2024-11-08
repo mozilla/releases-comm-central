@@ -733,9 +733,10 @@ Enigmail.msg = {
     wrapresultObj.cancelled = false;
     wrapresultObj.usePpgMime = false;
     try {
-      const dce = Ci.nsIDocumentEncoder;
       var editor = gMsgCompose.editor.QueryInterface(Ci.nsIEditorMailSupport);
-      var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
+      var encoderFlags =
+        Ci.nsIDocumentEncoder.OutputFormatted |
+        Ci.nsIDocumentEncoder.OutputLFLineBreak;
 
       var wrapWidth = Services.prefs.getIntPref("mailnews.wraplength");
       if (wrapWidth > 0 && wrapWidth < 68 && editor.wrapWidth > 0) {
@@ -1709,8 +1710,9 @@ Enigmail.msg = {
 
     EnigmailCore.init();
 
-    const dce = Ci.nsIDocumentEncoder;
-    var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
+    var encoderFlags =
+      Ci.nsIDocumentEncoder.OutputFormatted |
+      Ci.nsIDocumentEncoder.OutputLFLineBreak;
 
     var docText = this.editorGetContentAs("text/plain", encoderFlags);
 

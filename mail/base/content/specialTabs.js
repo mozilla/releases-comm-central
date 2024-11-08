@@ -203,15 +203,16 @@ tabProgressListener.prototype = {
       this.mProgressListener.onSecurityChange(aWebProgress, aRequest, aState);
     }
 
-    const wpl = Ci.nsIWebProgressListener;
     const wpl_security_bits =
-      wpl.STATE_IS_SECURE | wpl.STATE_IS_BROKEN | wpl.STATE_IS_INSECURE;
+      Ci.nsIWebProgressListener.STATE_IS_SECURE |
+      Ci.nsIWebProgressListener.STATE_IS_BROKEN |
+      Ci.nsIWebProgressListener.STATE_IS_INSECURE;
     let level = "";
     switch (aState & wpl_security_bits) {
-      case wpl.STATE_IS_SECURE:
+      case Ci.nsIWebProgressListener.STATE_IS_SECURE:
         level = "high";
         break;
-      case wpl.STATE_IS_BROKEN:
+      case Ci.nsIWebProgressListener.STATE_IS_BROKEN:
         level = "broken";
         break;
     }

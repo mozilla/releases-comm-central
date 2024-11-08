@@ -11042,9 +11042,9 @@ function InitEditor() {
   // Set eEditorMailMask flag to avoid using content prefs for spell checker,
   // otherwise dictionary setting in preferences is ignored and dictionary is
   // inconsistent in subject and message body.
-  const eEditorMailMask = Ci.nsIEditor.eEditorMailMask;
-  editor.flags |= eEditorMailMask;
-  document.getElementById("msgSubject").editor.flags |= eEditorMailMask;
+  editor.flags |= Ci.nsIEditor.eEditorMailMask;
+  document.getElementById("msgSubject").editor.flags |=
+    Ci.nsIEditor.eEditorMailMask;
 
   // Control insertion of line breaks.
   editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(

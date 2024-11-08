@@ -2682,11 +2682,10 @@ const gHeaderCustomize = {
     document.getElementById("headerSubjectLarge").checked =
       this.customizeData.subjectLarge || false;
 
-    const type = Ci.nsMimeHeaderDisplayTypes;
     const pref = Services.prefs.getIntPref("mail.show_headers");
 
     document.getElementById("headerViewAllHeaders").checked =
-      type.AllHeaders == pref;
+      Ci.nsMimeHeaderDisplayTypes.AllHeaders == pref;
   },
 
   /**
@@ -3275,10 +3274,12 @@ function MarkSelectedMessagesFlagged(markFlagged) {
  * @param headermode {Ci.nsMimeHeaderDisplayTypes}
  */
 function AdjustHeaderView(headermode) {
-  const all = Ci.nsMimeHeaderDisplayTypes.AllHeaders;
   document
     .getElementById("messageHeader")
-    .setAttribute("show_header_mode", headermode == all ? "all" : "normal");
+    .setAttribute(
+      "show_header_mode",
+      headermode == Ci.nsMimeHeaderDisplayTypes.AllHeaders ? "all" : "normal"
+    );
 }
 
 /**
