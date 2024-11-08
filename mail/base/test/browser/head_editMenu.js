@@ -4,7 +4,7 @@
 
 /* global MenuTestHelper, promiseServerIdle */
 
-const { MailServices } = ChromeUtils.importESModule(
+var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 const { IMAPServer } = ChromeUtils.importESModule(
