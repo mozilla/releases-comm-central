@@ -1113,7 +1113,7 @@ window.addEventListener("aboutMessageLoaded", event => {
   // eslint-disable-next-line no-shadow
   event.target.document.addEventListener("keypress", event => {
     if ((event.key == "Backspace" || event.key == "Delete") && event.repeat) {
-      // Bail on delete event if there is a repeat event to prevent deleteing
+      // Bail on delete event if there is a repeat event to prevent deleting
       // multiple messages by mistake from a longer key press.
       event.preventDefault();
     }
