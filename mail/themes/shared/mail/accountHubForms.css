@@ -7,6 +7,18 @@
 form {
   --hub-input-bg-color: light-dark(var(--color-neutral-base), #18181b);
   --hub-select-color: light-dark(var(--color-text-base), currentColor);
+  --hub-menulist-color: var(--color-text-base);
+  --hub-menulist-background-color: var(--color-neutral-subtle);
+  --hub-menulist-background-color-hover-focus-open: var(--color-neutral-base);
+  --hub-menulist-border-color: var(--color-neutral-border);
+  --hub-menulist-border-color-hover-focus: var(--color-primary-pressed);
+  --hub-menulist-border-color-open: var(--color-primary-default);
+  --hub-menulist-outline-color-focus: var(--color-primary-default);
+  --hub-menulist-label-color: var(--color-text-base);
+  --hub-menupopup-border-color: var(--color-neutral-border);
+  --hub-menuitem-color-selected: var(--color-neutral-base);
+  --hub-menuitem-background-color-selected: var(--color-primary-default);
+  /* TODO: apply dark mode styling */
 
   grid-row: header / footer;
 
@@ -143,32 +155,60 @@ form {
   }
 
   .menulist {
-    margin: 5px 0 0;
+    margin-inline: 0px;
     padding-inline-start: 6px;
-    padding-block: 10px;
-    line-height: 1.6;
-    border: 1px solid var(--hub-input-border-color);
+    padding-block: 12px;
+    line-height: 1.5;
+    border: 1px solid var(--hub-menulist-border-color);
     border-radius: var(--hub-input-border-radius);
+    background-color: var(--hub-menulist-background-color);
 
-    &:hover {
-      border-color: var(--hub-input-border-color);
+    &:hover,
+    &[open="true"]:not([disabled="true"]) {
+      border-color: var(--hub-menulist-border-color-hover-focus);
+      background-color: var(--hub-menulist-background-color-hover-focus-open);
+    }
+
+    &[open="true"]:not([disabled="true"]) {
+      border-color: var(--hub-menulist-border-color-open);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--hub-menulist-outline-color-focus);
+      outline-offset: var(--focus-outline-offset);
     }
   }
 
-  .menupopup {
+  xul|menupopup.menupopup {
     --arrowpanel-padding: 4px 0;
     --panel-background: var(--arrowpanel-background);
     --panel-color: var(--arrowpanel-color);
-    --panel-border-color: var(--arrowpanel-border-color);
+    --panel-border-color: var(--hub-menupopup-border-color);
     --panel-border-radius: var(--arrowpanel-border-radius);
     --panel-padding: var(--arrowpanel-padding);
     --menu-color: var(--arrowpanel-color);
     --menu-border-color: var(--arrowpanel-border-color);
     --menu-background-color: var(--arrowpanel-background);
-  }
+    margin-block-start: 6px;
 
-  xul|menulist > xul|menupopup xul|menuitem {
-    padding-block: var(--menu-item-padding);
+    & > xul|menuitem {
+      padding: var(--menu-item-padding);
+      padding-inline: 6px;
+
+      & label {
+        color: var(--color-text-base);
+        font-weight: 400;
+      }
+
+      &:is([checked="true"], [selected="true"]) {
+        background-color: var(--hub-menuitem-background-color-selected);
+
+        & label {
+          color: var(--hub-menuitem-color-selected);
+          font-weight: 400;
+        }
+      }
+   }
   }
 
   legend {
