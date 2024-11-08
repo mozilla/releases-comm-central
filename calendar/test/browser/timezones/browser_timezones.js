@@ -51,7 +51,9 @@ add_setup(async () => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
+  info("Initializing <day> view.");
   await CalendarTestUtils.setCalendarView(window, "day");
+  info("Switching to 1/1/2009.");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
@@ -68,11 +70,12 @@ add_setup(async () => {
   const time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
     const eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, i + 11);
+    info(`Checking content of hour box for <${TIMEZONES[i]}>.`);
     const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
     time.hour = times[i][0];
     time.minute = times[i][1];
 
-    // Set event data.
+    info(`Setting event data for <${TIMEZONES[i]}>.`);
     await setData(dialogWindow, iframeWindow, {
       title: TIMEZONES[i],
       repeat: "weekly",
@@ -81,8 +84,10 @@ add_setup(async () => {
       timezone: TIMEZONES[i],
     });
 
+    info(`Saving event data for <${TIMEZONES[i]}> and closing item dialog.`);
     await saveAndCloseItemDialog(dialogWindow);
   }
+  info(`Completed setup for timezone test.`);
 });
 
 add_task(async function testTimezones3_checkStJohns() {
