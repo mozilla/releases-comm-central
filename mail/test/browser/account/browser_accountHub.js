@@ -115,51 +115,47 @@ add_task(async function test_account_hub_opening() {
   await window.openAccountHub();
 
   const hub = document.querySelector("account-hub-container");
-  await TestUtils.waitForCondition(
-    () => hub.modal,
-    "The dialog element was created"
+  await BrowserTestUtils.waitForMutationCondition(
+    hub,
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
   );
 
   const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
-  Assert.ok(dialog.open, "The dialog element was opened");
+  Assert.ok(dialog, "The dialog element should be created");
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {});
-  await TestUtils.waitForCondition(
-    () => !dialog.open,
-    "The dialog element was closed"
+  let closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await closeEvent;
+  Assert.ok(
+    !dialog.open,
+    "The dialog element should close when pressing Escape"
   );
 
   // Open the dialog again.
   await window.openAccountHub();
-  Assert.ok(dialog.open, "The dialog element was opened");
+  await BrowserTestUtils.waitForMutationCondition(
+    hub,
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
+  );
+  Assert.ok(dialog.open, "The dialog element should be opened again");
 
+  closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeMouseAtCenter(
     hub.shadowRoot.querySelector("#closeButton"),
     {}
   );
-  await TestUtils.waitForCondition(
-    () => !dialog.open,
-    "The dialog element was closed"
+  await closeEvent;
+  Assert.ok(
+    !dialog.open,
+    "The dialog element should close when clicking on the close button"
   );
 });
 
 add_task(async function test_account_email_step() {
   // Open the dialog.
   const dialog = await subtest_open_account_hub_dialog();
-  const emailFormPromise = BrowserTestUtils.waitForMutationCondition(
-    dialog,
-    {
-      subtree: true,
-      childList: true,
-    },
-    () => dialog.querySelector("email-auto-form")
-  );
-  await emailFormPromise;
-
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
-    "The initial email template is in view."
-  );
 
   const emailTemplate = dialog.querySelector("email-auto-form");
   const nameInput = emailTemplate.querySelector("#realName");
@@ -178,12 +174,12 @@ add_task(async function test_account_email_step() {
   const icons = emailTemplate.querySelectorAll("img");
 
   for (const icon of icons) {
-    Assert.ok(BrowserTestUtils.isHidden(icon), `${icon.src} is hidden.`);
+    Assert.ok(BrowserTestUtils.isHidden(icon), `${icon.src} should be hidden`);
   }
 
   Assert.ok(
     footerForward.disabled,
-    "Account Hub footer forward button is disabled."
+    "Account Hub footer forward button should be disabled"
   );
 
   // Type a full name into the name input element and check for success.
@@ -206,24 +202,23 @@ add_task(async function test_account_email_step() {
   );
   Assert.ok(
     BrowserTestUtils.isVisible(nameSuccessIcon),
-    "Name success icon is visible."
+    "Name success icon should be visible"
   );
 
-  EventUtils.synthesizeMouseAtCenter(nameInput, {});
+  EventUtils.synthesizeMouseAtCenter(nameInput, { clickCount: 3 });
   // Delete text and move back to name input to reveal error icon.
   const clearInputEvent = BrowserTestUtils.waitForEvent(
     nameInput,
     "input",
     false,
-    event => event.target.value === ""
+    event => !event.target.value
   );
-  nameInput.value = "a";
   EventUtils.synthesizeKey("KEY_Backspace", {});
   await clearInputEvent;
 
   Assert.ok(
     BrowserTestUtils.isHidden(nameSuccessIcon),
-    "Name success icon is hidden."
+    "Name success icon should be hidden"
   );
 
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
@@ -233,7 +228,7 @@ add_task(async function test_account_email_step() {
   );
   Assert.ok(
     BrowserTestUtils.isVisible(nameDangerIcon),
-    "Name danger icon is visible."
+    "Name danger icon should be visible"
   );
 
   // Hit the enter key when in the name form input, and the email danger
@@ -241,7 +236,7 @@ add_task(async function test_account_email_step() {
   EventUtils.synthesizeKey("KEY_Enter", {});
   Assert.ok(
     BrowserTestUtils.isVisible(emailTemplate.querySelector("#emailWarning")),
-    "Email danger icon is visible."
+    "Email danger icon should be visible"
   );
 
   // Fill name and incorrect email input, error email icon should be still
@@ -269,7 +264,7 @@ add_task(async function test_account_email_step() {
 
   Assert.ok(
     BrowserTestUtils.isVisible(emailTemplate.querySelector("#emailWarning")),
-    "Email danger icon is visible."
+    "Email danger icon should be visible"
   );
 
   // Fill in correct email input, see email success icon and continue should
@@ -281,19 +276,21 @@ add_task(async function test_account_email_step() {
     false,
     event => event.target.value === "testUser@testing.com"
   );
+  // Ensure we move to the end of the input.
+  EventUtils.synthesizeKey("KEY_End", {});
   EventUtils.sendString("testing.com", window);
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   Assert.ok(
     BrowserTestUtils.isHidden(emailTemplate.querySelector("#emailWarning")),
-    "Email danger icon is hidden."
+    "Email danger icon should be hidden"
   );
   Assert.ok(
     BrowserTestUtils.isVisible(emailTemplate.querySelector("#emailSuccess")),
-    "Email success icon is visible."
+    "Email success icon should be visible"
   );
 
-  Assert.ok(!footerForward.disabled, "Continue button is enabled.");
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   await subtest_close_account_hub_dialog(dialog);
 });
@@ -301,18 +298,13 @@ add_task(async function test_account_email_step() {
 add_task(async function test_account_email_config_found() {
   const dialog = await subtest_open_account_hub_dialog();
 
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
-    "The initial email template is in view."
-  );
-
   await subtest_fill_initial_config_fields(dialog);
 
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(configFoundTemplate),
-    "The email config found template is in view."
+    "The email config found template should be in view"
   );
 
   const footerBack = dialog
@@ -322,7 +314,7 @@ add_task(async function test_account_email_config_found() {
   EventUtils.synthesizeMouseAtCenter(footerBack, {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
-    "The initial email template is in view."
+    "The initial email template should be in view"
   );
 
   // Press the enter button after selecting the email input to show the config
@@ -334,24 +326,24 @@ add_task(async function test_account_email_config_found() {
   EventUtils.synthesizeKey("KEY_Enter", {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(configFoundTemplate),
-    "The email config found template is in view."
+    "The email config found template should be in view"
   );
 
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
-    "The IMAP config option is visible"
+    "The IMAP config option should be visible"
   );
 
   Assert.ok(
     BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#pop3")),
-    "POP3 config option is visible"
+    "POP3 config option should be visible"
   );
 
   // This config should not include exchange.
   Assert.ok(
     BrowserTestUtils.isHidden(configFoundTemplate.querySelector("#exchange")),
-    "Exchange config option is hidden"
+    "Exchange config option should be hidden"
   );
 
   // POP3 should be the recommended configuration.
@@ -359,13 +351,13 @@ add_task(async function test_account_email_config_found() {
     BrowserTestUtils.isVisible(
       configFoundTemplate.querySelector("#pop3").querySelector(".recommended")
     ),
-    "POP3 is the recommended config option."
+    "POP3 should be the recommended config option"
   );
 
   // POP3 should be the selected config.
   Assert.ok(
     configFoundTemplate.querySelector("#pop3").classList.contains("selected"),
-    "POP3 is the selected config option."
+    "POP3 should be the selected config option"
   );
 
   // The config details should show the POP3 details.
@@ -379,7 +371,7 @@ add_task(async function test_account_email_config_found() {
 
   Assert.ok(
     configFoundTemplate.querySelector("#imap").classList.contains("selected"),
-    "SMTP is the selected config option."
+    "SMTP should be the selected config option"
   );
 
   // The config details should show the IMAP details.
@@ -397,12 +389,12 @@ add_task(async function test_account_email_config_found() {
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template is in view."
+    "The incoming config template should be in view"
   );
 
   Assert.ok(
     BrowserTestUtils.isHidden(configFoundTemplate),
-    "The config found template is hidden."
+    "The config found template should be hidden"
   );
 
   await subtest_close_account_hub_dialog(dialog);
@@ -420,7 +412,7 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
-    "The IMAP config option is visible"
+    "The IMAP config option should be visible"
   );
 
   // Edit configuration button should lead to incoming config template.
@@ -435,7 +427,7 @@ add_task(async function test_account_email_advanced_setup_incoming() {
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template is in view."
+    "The incoming config template should be in view"
   );
 
   // Update the port number and click advanced config to confirm that the
@@ -466,10 +458,9 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   // The dialog should automatically close after clicking advanced config
   await BrowserTestUtils.waitForEvent(dialog, "close");
 
-  // The tab should have changed to the account settings tab.
   await BrowserTestUtils.waitForCondition(
     () => tabmail.selectedTab != oldTab,
-    "Timeout waiting for the currently active tab to change"
+    "The tab should change to the account settings tab"
   );
 
   await subtest_verify_account(tabmail.selectedTab, emailUser, "pop");
@@ -495,7 +486,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
-    "The IMAP config option is visible"
+    "The IMAP config option should be visible"
   );
 
   // Edit configuration button should lead to incoming config template.
@@ -510,7 +501,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template is in view."
+    "The incoming config template should be in view"
   );
 
   // Update the port numbers for both incoming and outgoing and click
@@ -529,15 +520,16 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   await inputEvent;
   emailUser.incomingPort = 123;
 
-  // Click continue and wait for outgoing config template to be in view.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {});
   const outgoingConfigTemplate = dialog.querySelector(
     "#emailOutgoingConfigSubview"
   );
-  await TestUtils.waitForCondition(
+  const isOutgoingVisible = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
-    "The outgoing config template is in view."
+    "The outgoing config template should be in view"
   );
+  // Click continue and wait for outgoing config template to be in view.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await isOutgoingVisible;
 
   const outgoingPort = outgoingConfigTemplate.querySelector("#outgoingPort");
   EventUtils.synthesizeMouseAtCenter(outgoingPort, {});
@@ -565,10 +557,9 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   // The dialog should automatically close after clicking advanced config
   await BrowserTestUtils.waitForEvent(dialog, "close");
 
-  // The tab should have changed to the account settings tab.
   await BrowserTestUtils.waitForCondition(
     () => tabmail.selectedTab != oldTab,
-    "Timeout waiting for the currently active tab to change"
+    "The tab should change to the account settings tab"
   );
 
   await subtest_verify_account(tabmail.selectedTab, emailUser, "pop");
@@ -594,16 +585,16 @@ add_task(async function test_account_email_manual_form() {
 
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(configFoundTemplate),
-    "The email config found template is in view."
+    "The email config found template should be in view"
   );
 
   await TestUtils.waitForCondition(
     () =>
       BrowserTestUtils.isVisible(configFoundTemplate.querySelector("#imap")),
-    "The IMAP config option is visible"
+    "The IMAP config option should be visible"
   );
 
-  // // Edit configuration button should lead to incoming config template.
+  // Edit configuration button should lead to incoming config template.
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {},
@@ -615,65 +606,70 @@ add_task(async function test_account_email_manual_form() {
   );
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template is in view."
+    "The incoming config template should be in view"
   );
 
-  // Continuing from incoming with a found config should keep the continue
-  // button on the outgoing config page enabled.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {}, window);
-  const outgoingConfigTemplate = dialog.querySelector(
+  let outgoingConfigTemplate = dialog.querySelector(
     "#emailOutgoingConfigSubview"
   );
-  await TestUtils.waitForCondition(
+  let isOutgoingVisible = TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
-    "The outgoing config template is in view."
+    "The outgoing config template should be in view"
   );
+  // Continuing from incoming with a found config should keep the continue
+  // button on the outgoing config page enabled.
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await isOutgoingVisible;
   Assert.ok(!footerForward.disabled, "Continue button is enabled");
 
   // Go back and update the incoming hostname to have an invalid character,
   // which should disable the continue button.
-  EventUtils.synthesizeMouseAtCenter(footerBack, {}, window);
+  EventUtils.synthesizeMouseAtCenter(footerBack, {});
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(incomingConfigTemplate),
-    "The incoming config template is in view."
+    "The incoming config template should be in view"
   );
 
   const incomingHostname =
     incomingConfigTemplate.querySelector("#incomingHostname");
-  EventUtils.synthesizeMouseAtCenter(incomingHostname, {}, window);
+  EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
   const inputEvent = BrowserTestUtils.waitForEvent(
     incomingHostname,
     "input",
     false,
-    event => event.target.value === "pop." + emailUser.incomingHost + "-"
+    event => event.target.value === `pop.${emailUser.incomingHost}-`
   );
+  // Ensure we move to the end of the input.
+  EventUtils.synthesizeKey("KEY_End", {});
   EventUtils.sendString("-", window);
   await inputEvent;
 
-  Assert.ok(footerForward.disabled, "Continue button is disabled");
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
 
   // Delete the invalid character should renable the continue button.
   const deleteEvent = BrowserTestUtils.waitForEvent(
     incomingHostname,
     "input",
     false,
-    event => event.target.value === "pop." + emailUser.incomingHost
+    event => event.target.value === `pop.${emailUser.incomingHost}`
   );
   EventUtils.synthesizeKey("KEY_Backspace", {}, window);
   await deleteEvent;
 
-  Assert.ok(!footerForward.disabled, "Continue button is enabled");
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
+  outgoingConfigTemplate = dialog.querySelector("#emailOutgoingConfigSubview");
+  isOutgoingVisible = TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
+    "The outgoing config template should be in view"
+  );
   // Continuing on to outgoing should reveal a disbaled continue button and an
   // enabled test button.
-  EventUtils.synthesizeMouseAtCenter(footerForward, {}, window);
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(outgoingConfigTemplate),
-    "The outgoing config template is in view."
-  );
+  EventUtils.synthesizeMouseAtCenter(footerForward, {});
+  await isOutgoingVisible;
 
-  Assert.ok(footerForward.disabled, "Continue button is disabled");
-  Assert.ok(!footerCustom.disabled, "Test button is enabled");
+  Assert.ok(footerForward.disabled, "Continue button should be disabled");
+  Assert.ok(!footerCustom.disabled, "Test button should be enabled");
 
   // TODO: Add tests for test functionality when notifications are merged.
 
@@ -684,48 +680,50 @@ add_task(async function test_account_email_manual_form() {
  * Subtest to open the account dialog, and returns the dialog for further
  * testing.
  *
- * @returns {HTMLElement}
+ * @returns {Promise<HTMLElement>}
  **/
 async function subtest_open_account_hub_dialog() {
   await window.openAccountHub();
+
   const hub = document.querySelector("account-hub-container");
   await BrowserTestUtils.waitForMutationCondition(
     hub,
-    { modal: true, subtree: true, childList: true },
-    () => hub.shadowRoot.querySelector(".account-hub-dialog"),
-    "The dialog element was created"
+    { childList: true },
+    () => !!hub.shadowRoot.querySelector(".account-hub-dialog")
   );
 
   const dialog = hub.shadowRoot.querySelector(".account-hub-dialog");
-  const emailFormPromise = BrowserTestUtils.waitForMutationCondition(
+  Assert.ok(dialog, "The dialog element should be created");
+
+  await BrowserTestUtils.waitForMutationCondition(
     dialog,
     {
-      subtree: true,
       childList: true,
     },
-    () => dialog.querySelector("email-auto-form")
+    () => !!dialog.querySelector("email-auto-form")
   );
-  await emailFormPromise;
+
+  const emailForm = dialog.querySelector("email-auto-form");
+  Assert.ok(emailForm, "The email element should be available");
+  await TestUtils.waitForCondition(
+    () => BrowserTestUtils.isVisible(emailForm),
+    "The initial email template should be in view"
+  );
 
   return dialog;
 }
 
 async function subtest_close_account_hub_dialog(dialog) {
   const hub = document.querySelector("account-hub-container");
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
   EventUtils.synthesizeMouseAtCenter(
     hub.shadowRoot.querySelector("#closeButton"),
     {}
   );
-
-  await BrowserTestUtils.waitForEvent(dialog, "close");
+  await closeEvent;
 }
 
 async function subtest_fill_initial_config_fields(dialog) {
-  await TestUtils.waitForCondition(
-    () => BrowserTestUtils.isVisible(dialog.querySelector("email-auto-form")),
-    "The initial email template is in view."
-  );
-
   const emailTemplate = dialog.querySelector("email-auto-form");
   const nameInput = emailTemplate.querySelector("#realName");
   const emailInput = emailTemplate.querySelector("#email");
@@ -757,7 +755,7 @@ async function subtest_fill_initial_config_fields(dialog) {
   EventUtils.sendString(emailUser.email, window);
   await inputEvent;
 
-  Assert.ok(!footerForward.disabled, "Continue button is enabled.");
+  Assert.ok(!footerForward.disabled, "Continue button should be enabled");
 
   // Click continue and wait for config found template to be in view.
   EventUtils.synthesizeMouseAtCenter(footerForward, {});
@@ -769,56 +767,56 @@ function subtest_config_results(template, configType) {
   Assert.equal(
     template.querySelector("#incomingType").textContent,
     type,
-    `Incoming type is expected type.`
+    "Incoming type should be expected type"
   );
 
   Assert.equal(
     template.querySelector("#outgoingType").textContent,
     "smtp",
-    `${configType}: Outgoing type is expected type.`
+    `${configType}: Outgoing type should be expected type`
   );
 
   Assert.equal(
     template.querySelector("#incomingHost").textContent,
     `${configType}.mail.momo.invalid`,
-    `${configType}: Incoming host is ${configType}.mail.momo.invalid.`
+    `${configType}: Incoming host should be ${configType}.mail.momo.invalid`
   );
 
   Assert.equal(
     template.querySelector("#outgoingHost").textContent,
     "smtp.mail.momo.invalid",
-    `${configType}: Outgoing host is expected host.`
+    `${configType}: Outgoing host should be expected host`
   );
 
   Assert.equal(
     template.l10n.getAttributes(template.querySelector("#incomingAuth")).id,
     "account-setup-result-ssl",
-    `${configType}: Incoming auth is expected auth.`
+    `${configType}: Incoming auth should be expected auth`
   );
 
   Assert.equal(
     template.l10n.getAttributes(template.querySelector("#outgoingAuth")).id,
     "account-setup-result-ssl",
-    `${configType}: Outgoing auth is expected auth.`
+    `${configType}: Outgoing auth should be expected auth`
   );
 
   Assert.equal(
     template.querySelector("#incomingUsername").textContent,
     "john.doe",
-    `${configType}: Incoming username is expected username.`
+    `${configType}: Incoming username should be expected username`
   );
 
   Assert.equal(
     template.querySelector("#outgoingUsername").textContent,
     "john.doe",
-    `${configType}: Outgoing username is expected username.`
+    `${configType}: Outgoing username should be expected username`
   );
 }
 
 async function subtest_verify_account(tab, user, type) {
   await BrowserTestUtils.waitForCondition(
-    () => tab.browser.contentWindow.currentAccount != null,
-    "Timeout waiting for current account to become non-null"
+    () => !!tab.browser.contentWindow.currentAccount,
+    "The new account should have been created"
   );
 
   const account = tab.browser.contentWindow.currentAccount;
@@ -840,12 +838,12 @@ async function subtest_verify_account(tab, user, type) {
     "incoming server hostname": {
       // Note: N in the hostName is uppercase
       actual: incoming.hostName,
-      expected: type + "." + user.incomingHost,
+      expected: `${type}.${user.incomingHost}`,
     },
     "outgoing server hostname": {
       // And this is lowercase
       actual: outgoing.serverURI.host,
-      expected: "smtp." + user.outgoingHost,
+      expected: `smtp.${user.outgoingHost}`,
     },
     "user real name": { actual: identity.fullName, expected: user.name },
     "user email address": { actual: identity.email, expected: user.email },
@@ -864,7 +862,7 @@ async function subtest_verify_account(tab, user, type) {
       Assert.equal(
         config[detail].actual,
         config[detail].expected,
-        `Configured ${detail} is ${config[detail].actual}. It should be ${config[detail].expected}.`
+        `Configured ${detail} is ${config[detail].actual}. It should be ${config[detail].expected}`
       );
     }
   } finally {
