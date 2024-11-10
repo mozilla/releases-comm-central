@@ -1172,9 +1172,9 @@ function pwin_onApply()
     try {
         // Get an array of all the (XUL) items we have to save.
         var list = getPrefTags();
-        
-        //if (!confirm("There are " + list.length + " pref tags to save. OK?")) return false;
-        
+
+        //if (!Services.prompt.confirm(window, MSG_CONFIRM, "There are " + list.length + " pref tags to save. OK?")) return false;
+
         for (var i = 0; i < list.length; i++)
         {
             // Save this one pref...
@@ -1540,7 +1540,8 @@ function pwin_onPrefListDelete(object)
     var list = getRelatedItem(object, "list");
     
     var listItem = list.selectedItems[0];
-    if (confirm(getMsg(MSG_PREFS_LIST_DELETE, listItem.value)))
+    if (Services.prompt.confirm(window, MSG_CONFIRM,
+                                getMsg(MSG_PREFS_LIST_DELETE, listItem.value)))
         list.removeChild(listItem);
 }
 
@@ -1610,7 +1611,7 @@ function pwin_onDeleteObject()
     var sel = this.currentObject;
     
     // Check they want to go ahead.
-    if (!confirm(getMsg(MSG_PREFS_OBJECT_DELETE, sel.parent.unicodeName)))
+    if (!Services.prompt.confirm(window, MSG_CONFIRM, getMsg(MSG_PREFS_OBJECT_DELETE, sel.parent.unicodeName)))
         return;
 
     // Select a new item BEFORE removing the current item, so the <tree> 
@@ -1645,7 +1646,7 @@ function pwin_onResetObject()
     var sel = this.currentObject;
     
     // Check they want to go ahead.
-    if (!confirm(getMsg(MSG_PREFS_OBJECT_RESET, sel.parent.unicodeName)))
+    if (!Services.prompt.confirm(window, MSG_CONFIRM, getMsg(MSG_PREFS_OBJECT_RESET, sel.parent.unicodeName)))
         return;
 
     // Reset the prefs.

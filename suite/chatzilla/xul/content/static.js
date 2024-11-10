@@ -3445,7 +3445,9 @@ var contentDNDObserver = {
     if (!url || url.search(client.linkRE) == -1)
         return;
 
-    if (url.search(/\.css$/i) != -1  && confirm(getMsg(MSG_TABDND_DROP, url)))
+    if (url.search(/\.css$/i) != -1 &&
+        Services.prompt.confirm(window, MSG_CONFIRM,
+                                getMsg(MSG_TABDND_DROP, url)))
         dispatch("motif", {"motif": url});
     else if (url.search(/^ircs?:\/\//i) != -1)
         dispatch("goto-url", {"url": url});

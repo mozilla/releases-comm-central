@@ -685,18 +685,6 @@ function alert(msg, parent, title)
     ps.alert (parent, title, msg);
 }
 
-function confirm(msg, parent, title)
-{
-    var PROMPT_CTRID = "@mozilla.org/embedcomp/prompt-service;1";
-    var nsIPromptService = Components.interfaces.nsIPromptService;
-    var ps = Components.classes[PROMPT_CTRID].getService(nsIPromptService);
-    if (!parent)
-        parent = window;
-    if (!title)
-        title = MSG_CONFIRM;
-    return ps.confirm (parent, title, msg);
-}
-
 function confirmEx(msg, buttons, defaultButton, checkText,
                    checkVal, parent, title)
 {

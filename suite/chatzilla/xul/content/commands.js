@@ -3732,7 +3732,9 @@ function cmdSave(e)
         }
 
         var askforreplace = (e.isInteractive && file.exists());
-        if (askforreplace && !confirm(getMsg(MSG_SAVE_FILEEXISTS, e.filename)))
+        if (askforreplace &&
+            !Services.prompt.confirm(window, MSG_CONFIRM,
+                                     getMsg(MSG_SAVE_FILEEXISTS, e.filename)))
             return;
     }
 
