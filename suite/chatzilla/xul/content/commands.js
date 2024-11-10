@@ -3592,8 +3592,14 @@ function cmdSave(e)
                 if (abortSaving)
                 {
                     // Cancel saving
-                    wbp.cancelSave();
-                    display(getMsg(MSG_SAVE_ERR_FAILED, aMessage), MT_ERROR);
+                    if (wbp)
+                    {
+                        wbp.progressListener = null;
+                        wbp.cancelSave();
+                    }
+                    pm = [e.sourceObject.viewName, getURLSpecFromFile(file),
+                          aStatus];
+                    display(getMsg(MSG_SAVE_ERR_FAILED, pm), MT_ERROR);
                     return;
                 }
 
@@ -3625,17 +3631,9 @@ function cmdSave(e)
         onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
         onSecurityChange: function(aWebProgress, aRequest, state) {},
 
-        QueryInterface: function(aIID)
-        {
-            if (aIID.equals(Ci.nsIWebProgressListener)
-                || aIID.equals(Ci.nsISupports)
-                || aIID.equals(Ci.nsISupportsWeakReference))
-            {
-                return this;
-            }
-
-            throw Components.results.NS_NOINTERFACE;
-        }
+        QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
+                                               Ci.nsISupportsWeakReference,
+                                               Ci.nsISupports]),
     };
 
     const kFileNotFound = 2152857618;
