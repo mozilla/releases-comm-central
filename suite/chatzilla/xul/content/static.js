@@ -127,6 +127,8 @@ function init()
     initApplicationCompatibility();
     initMessages();
 
+    client.list = document.getElementById("user-list");
+
     initCommands();
     initPrefs();
     initMunger();
@@ -175,8 +177,6 @@ function init()
     importFromFrame("changeCSS");
     importFromFrame("scrollToElement");
     importFromFrame("updateMotifSettings");
-    importFromFrame("addUsers");
-    importFromFrame("updateUsers");
     importFromFrame("removeUsers");
 
     processStartupScripts();
@@ -261,9 +261,6 @@ function initStatic()
         setListMode("symbol");
     else
         setListMode("graphic");
-
-    var tree = document.getElementById('user-list');
-    tree.setAttribute("ondragstart", "userlistDNDObserver.onDragStart(event);");
 
     setDebugMode(client.prefs["debugMode"]);
 
@@ -1031,14 +1028,19 @@ function getUserlistContext(cx)
     if (!cx.channel)
         return cx;
 
-    var user, tree = document.getElementById("user-list");
+    cx.nicknameList = [];
+
+    // Loop through the selection.
+    for (let item of client.list.selectedItems) {
+      cx.nicknameList.push(getNicknameForUserlistRow(item));
+    }
+
     cx.userList = new Array();
     cx.canonNickList = new Array();
-    cx.nicknameList = getSelectedNicknames(tree);
 
     for (var i = 0; i < cx.nicknameList.length; ++i)
     {
-        user = cx.channel.getUser(cx.nicknameList[i])
+        let user = cx.channel.getUser(cx.nicknameList[i])
         cx.userList.push(user);
         cx.canonNickList.push(user.canonicalName);
         if (i == 0)
@@ -1134,36 +1136,6 @@ function getViewsContext(cx)
     cx.views.sort(sortViews);
 
     return cx;
-}
-
-function getSelectedNicknames(tree)
-{
-    var rv = [];
-    if (!tree || !tree.view || !tree.view.selection)
-        return rv;
-    var rangeCount = tree.view.selection.getRangeCount();
-
-    // Loop through the selection ranges.
-    for (var i = 0; i < rangeCount; ++i)
-    {
-        var start = {}, end = {};
-        tree.view.selection.getRangeAt(i, start, end);
-
-        // If they == -1, we've got no selection, so bail.
-        if ((start.value == -1) && (end.value == -1))
-            continue;
-        /* Workaround: Because we use select(-1) instead of clearSelection()
-         * (see bug 197667) the tree will then give us selection ranges
-         * starting from -1 instead of 0! (See bug 319066.)
-         */
-        if (start.value == -1)
-            start.value = 0;
-
-        // Loop through the contents of the current selection range.
-        for (var k = start.value; k <= end.value; ++k)
-            rv.push(getNicknameForUserlistRow(k));
-    }
-    return rv;
 }
 
 function getFontContext(cx)
@@ -1891,7 +1863,7 @@ function gotoIRCURL(url, e)
                     key = window.promptPassword(getMsg(MSG_URL_KEY, url.spec));
             }
             client.pendingViewContext = e;
-            d = {channelToJoin: chan, key: key};
+            let d = {channelToJoin: chan, key: key};
             targetObject = network.dispatch("join", d);
             delete client.pendingViewContext;
 
@@ -2321,9 +2293,8 @@ function updateUserlistSide(shouldBeLeft)
         listParent.appendChild(listParent.childNodes[0]);
         listParent.childNodes[1].setAttribute("collapse", "after");
     }
-    var userlist = document.getElementById("user-list")
     if (client.currentObject && (client.currentObject.TYPE == "IRCChannel"))
-        userlist.view = client.currentObject.userList;
+        client.currentObject.updateUserList(true);
 }
 
 function multilineInputMode (state)
@@ -2476,8 +2447,7 @@ function setCurrentObject (obj)
     if (obj.frame && getContentWindow(obj.frame))
         window.content = getContentWindow(obj.frame);
 
-    var tb, userList;
-    userList = document.getElementById("user-list");
+    var tb;
 
     if ("currentObject" in client && client.currentObject)
         tb = getTabForObject(client.currentObject);
@@ -2492,11 +2462,14 @@ function setCurrentObject (obj)
     client.currentObject = obj;
 
     // Update userlist:
-    userList.view = null;
+    while (client.list.firstChild &&
+           client.list.firstChild.localName == "listitem")
+    {
+        client.list.firstChild.remove();
+    }
     if (obj.TYPE == "IRCChannel")
     {
-        userList.view = obj.userList;
-        updateUserList();
+        obj.updateUserList(true);
     }
 
     tb = dispatch("create-tab-for-view", { view: obj });
@@ -2557,10 +2530,9 @@ function advanceKeyboardFocus(amount)
 {
     var contentWin = getContentWindow(client.currentObject.frame);
     var contentDoc = getContentDocument(client.currentObject.frame);
-    var userList = document.getElementById("user-list");
 
     // Focus userlist, inputbox and outputwindow in turn:
-    var focusableElems = [userList, client.input.inputField, contentWin];
+    var focusableElems = [client.list, client.input.inputField, contentWin];
 
     var elem = document.commandDispatcher.focusedElement;
     // Finding focus in the content window is "hard". It's going to be null
@@ -2730,49 +2702,15 @@ function setDebugMode(mode)
 
 function setListMode(mode)
 {
-    var elem = document.getElementById("user-list");
     if (mode)
-        elem.setAttribute("mode", mode);
+        client.list.setAttribute("mode", mode);
     else
-        elem.removeAttribute("mode");
-    if (elem && elem.view && elem.treeBoxObject)
-    {
-        elem.treeBoxObject.clearStyleAndImageCaches();
-        elem.treeBoxObject.invalidate();
-    }
+        client.list.removeAttribute("mode");
 }
 
-function updateUserList()
+function getNicknameForUserlistRow(item)
 {
-    var node, chan;
-
-    node = document.getElementById("user-list");
-    if (!node.view)
-        return;
-
-    if (("currentObject" in client) && client.currentObject &&
-        client.currentObject.TYPE == "IRCChannel")
-    {
-        reSortUserlist(client.currentObject);
-    }
-}
-
-function reSortUserlist(channel)
-{
-    if (!channel || !channel.userList)
-        return;
-    channel.userList.childData.reSort();
-}
-
-function getNicknameForUserlistRow(index)
-{
-    // This wouldn't be so hard if APIs didn't change so much... see bug 221619
-    var userlist = document.getElementById("user-list");
-    if (userlist.columns)
-        var col = userlist.columns.getNamedColumn("usercol");
-    else
-        col = "usercol";
-    return userlist.view.getCellText(index, col);
+    return item.getAttribute("label");
 }
 
 function getFrameForDOMWindow(window)
@@ -3397,11 +3335,7 @@ function getTabForObject(source, create)
 
         if (!("userList" in source) && (source.TYPE == "IRCChannel"))
         {
-            source.userListShare = new Object();
-            source.userList = new XULTreeView(source.userListShare);
-            source.userList.getRowProperties = ul_getrowprops;
-            source.userList.getCellProperties = ul_getcellprops;
-            source.userList.childData.setSortDirection(1);
+            source.userList = new Array();
         }
     }
 
@@ -3493,49 +3427,6 @@ function updateTabAttributes()
                 tab.removeAttribute(attr);
         }
     }
-}
-
-// Properties getter for user list tree view
-function ul_getrowprops(index)
-{
-    if ((index < 0) || (index >= this.childData.childData.length))
-    {
-        return "";
-    }
-
-    // See bug 432482 - work around Gecko deficiency.
-    if (!this.selection.isSelected(index))
-    {
-        return "unselected";
-    }
-
-    return "";
-}
-
-// Properties getter for user list tree view
-function ul_getcellprops(index, column)
-{
-    if ((index < 0) || (index >= this.childData.childData.length))
-    {
-        return "";
-    }
-
-    var resultProps = [];
-
-    // See bug 432482 - work around Gecko deficiency.
-    if (!this.selection.isSelected(index))
-        resultProps.push("unselected");
-
-    var userObj = this.childData.childData[index]._userObj;
-
-    resultProps.push("voice-" + userObj.isVoice);
-    resultProps.push("op-" + userObj.isOp);
-    resultProps.push("halfop-" + userObj.isHalfOp);
-    resultProps.push("admin-" + userObj.isAdmin);
-    resultProps.push("founder-" + userObj.isFounder);
-    resultProps.push("away-" + userObj.isAway);
-
-    return resultProps.join(" ");
 }
 
 var contentDNDObserver = {
@@ -3663,24 +3554,6 @@ var tabsDNDObserver = {
     aEvent.dataTransfer.setData("text/plain", href);
     aEvent.dataTransfer.setData("text/html", "<a href='" + href + "'>" +
                                 name + "</a>");
-  },
-}
-
-var userlistDNDObserver = {
-  onDragStart(aEvent) {
-    var col = {};
-    var row = {};
-    var cell = {};
-    var tree = document.getElementById('user-list');
-    tree.treeBoxObject.getCellAt(aEvent.clientX, aEvent.clientY,
-                                 row, col, cell);
-    // Check whether we're actually on a normal row and cell
-    if (!cell.value || (row.value == -1))
-        return;
-
-    var nickname = getNicknameForUserlistRow(row.value);
-    aEvent.dataTransfer.setData("text/unicode", nickname);
-    aEvent.dataTransfer.setData("text/plain", nickname);
   },
 }
 

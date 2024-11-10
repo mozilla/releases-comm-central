@@ -39,7 +39,6 @@
     <script src="chrome://chatzilla/content/lib/js/text-serializer.js"/>
     <script src="chrome://chatzilla/content/lib/js/text-logger.js"/>
     <script src="chrome://chatzilla/content/lib/xul/munger.js"/>
-    <script src="chrome://chatzilla/content/lib/xul/tree-utils.js"/>
 
     <script src="chrome://chatzilla/content/static.js"/>
     <script src="chrome://chatzilla/content/commands.js"/>

@@ -2956,8 +2956,13 @@ function cmdAway(e)
                 if (awayNick && (normalNick != awayNick))
                     e.server.changeNick(awayNick);
                 else
+                {
                     if (client.currentObject.TYPE == "IRCChannel")
-                        updateUserList();
+                    {
+                        let user = e.server.me.unicodeName;
+                        client.currentObject.updateUser(user);
+                    }
+                }
                 e.server.sendData("AWAY :" + fromUnicode(e.reason, e.network) +
                                   "\n");
             }
@@ -2999,8 +3004,13 @@ function cmdAway(e)
                 if (awayNick && (curNick == awayNick))
                     e.server.changeNick(e.network.prefs["nickname"]);
                 else
+                {
                     if (client.currentObject.TYPE == "IRCChannel")
-                        updateUserList();
+                    {
+                        let user = e.server.me.unicodeName;
+                        client.currentObject.updateUser(user);
+                    }
+                }
                 e.server.sendData("AWAY\n");
             }
             // Go back to old nick, even if not connected:
@@ -3885,11 +3895,10 @@ function cmdDoCommand(e)
     }
     else if (e.cmdName == "cmd_selectAll")
     {
-        var userList = document.getElementById("user-list");
         var elemFocused = document.commandDispatcher.focusedElement;
 
-        if (userList.view && (elemFocused == userList))
-            userList.view.selection.selectAll();
+        if (elemFocused == client.list)
+            client.list.selectAll();
         else
             doCommand("cmd_selectAll");
     }

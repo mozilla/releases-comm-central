@@ -528,16 +528,9 @@ function xtvr_setcol (colID, propertyName)
 
     if (!("_colValues" in this))
         this._colValues = new Object();
-    
-    if (typeof propertyName == "function")
-    {
-        this._colValues.__defineGetter__(colID, propertyName);
-    }
-    else
-    {
-        this.__defineGetter__(propertyName, xtvr_getValueShim);
-        this.__defineSetter__(propertyName, xtvr_setValueShim);
-    }
+
+    this.__defineGetter__(propertyName, xtvr_getValueShim);
+    this.__defineSetter__(propertyName, xtvr_setValueShim);
 }
 
 XULTreeViewRecord.prototype.setColumnPropertyValue =

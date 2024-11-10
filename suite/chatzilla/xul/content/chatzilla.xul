@@ -26,7 +26,7 @@
   <script src="chrome://communicator/content/findUtils.js"/>
 
   <html:link rel="icon" href="chrome://chatzilla/skin/images/logo.png" style="display:none"/>
-  
+
   <overlaytarget id="scripts-overlay-target"/>
   <overlaytarget id="popup-overlay-target"/>
   <overlaytarget id="menu-overlay-target"/>
@@ -37,30 +37,26 @@
     <vbox id="upper-box" flex="1">
       <hbox id="tabpanels-contents-box" flex="1">
         <vbox id="user-list-box" width="125" persist="collapsed width">
- 
-          <tree id="user-list" flex="1" hidecolumnpicker="true"
-                ondblclick="onUserDoubleClick(event);"
-                context="context:userlist" aaa:live="off" aria-live="off"
-                aaa:relevant="additions removals text"
-                aria-relevant="additions removals text">
-            <treecols>
-              <treecol id="usercol" hideheader="true" flex="1"/>
-            </treecols>
-            <treechildren/>
-          </tree>
-    
+
+          <listbox id="user-list" flex="1"
+                   seltype="multiple"
+                   ondblclick="onUserDoubleClick(event);"
+                   ondragstart="onUserDragStart(event);"
+                   context="context:userlist" aria-live="off"
+                   aria-relevant="additions removals text"/>
+
         </vbox> <!-- user-list-box -->
-  
+
         <splitter id="main-splitter" collapse="before" persist="collapsed left">
           <grippy/>
         </splitter>
-  
+
         <vbox flex="1" id="browser-box">
           <deck id="output-deck" flex="1"/>
         </vbox>
-  
+
       </hbox> <!-- tabpanels-contents-box -->
-    
+
       <vbox id="tabstrip-box" flex="0" crop="right">
         <hbox id="view-tabs" persist="collapsed" flex="1"
             ondragover="tabsDNDObserver.onDragOver(event);"
@@ -77,12 +73,12 @@
           <hbox id="tabs-drop-indicator" mousethrough="always"/>
         </hbox>
       </vbox>
-  
+
     </vbox> <!-- upper-box -->
-  
+
     <splitter id="input-splitter" orient="vertical" collapse="after"
       collapsed="true"/>
-  
+
     <hbox id="input-widgets" align="center">
       <button id="server-nick" type="menu" label="" tooltiptext="&server-nick.tooltip;"/>
       <hbox id="multiline-box" flex="1" collapsed="true">

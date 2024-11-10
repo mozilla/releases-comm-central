@@ -784,7 +784,7 @@ function onPrefChanged(prefName, newValue, oldValue)
 
         case "sortUsersByMode":
             if (client.currentObject.TYPE == "IRCChannel")
-                updateUserList();
+                client.currentObject.updateUserList(true);
 
         case "motif.current":
             client.dispatch("sync-motif");

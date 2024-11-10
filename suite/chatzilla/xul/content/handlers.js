@@ -869,14 +869,15 @@ function onUserDoubleClick(event)
     {
         return;
     }
-    var userList = document.getElementById("user-list");
-    if (!userList.view || !userList.view.selection)
-        return;
-    var currentIndex = userList.view.selection.currentIndex;
-    if (currentIndex < 0)
-        return;
-    var nickname = getNicknameForUserlistRow(currentIndex);
+    let nickname = getNicknameForUserlistRow(event.target);
     dispatch("query", {nickname: nickname, source: "mouse"});
+}
+
+function onUserDragStart(event)
+{
+    let nickname = getNicknameForUserlistRow(event.target);
+    event.dataTransfer.setData("text/unicode", nickname);
+    event.dataTransfer.setData("text/plain", nickname);
 }
 
 client.onFindEnd =
@@ -1812,14 +1813,8 @@ function my_315 (e)
 
     if ("whoUpdates" in this)
     {
-        var userlist = document.getElementById("user-list");
         for (var c in this.whoUpdates)
         {
-            for (var i = 0; i < this.whoUpdates[c].length; i++)
-            {
-                var index = this.whoUpdates[c][i].chanListEntry.childIndex;
-                userlist.treeBoxObject.invalidateRow(index);
-            }
             this.primServ.channels[c].updateUsers(this.whoUpdates[c]);
         }
         delete this.whoUpdates;
@@ -2761,15 +2756,12 @@ function my_unknown_batch(e)
 CIRCNetwork.prototype.onAway =
 function my_away(e)
 {
-    var userlist = document.getElementById("user-list");
     for (var c in e.server.channels)
     {
         var chan = e.server.channels[c];
         if (chan.active && (e.user.collectionKey in chan.users))
         {
             let user = chan.users[e.user.collectionKey];
-            let index = user.chanListEntry.childIndex;
-            userlist.treeBoxObject.invalidateRow(index);
             e.server.channels[c].updateUsers([user]);
         }
     }
@@ -2934,24 +2926,9 @@ CIRCChannel.prototype.on366 =
 function my_366 (e)
 {
     // First clear up old users:
-    var removals = new Array();
-    while (this.userList.childData.childData.length > 0)
-    {
-        var userToRemove = this.userList.childData.childData[0]._userObj;
-        this.removeFromList(userToRemove);
-        removals.push(userToRemove);
-    }
-    this.removeUsers(removals);
+    this._clearUserList();
 
-    var entries = new Array(), updates = new Array();
-    for (var u in this.users)
-    {
-        entries.push(new UserEntry(this.users[u], this.userListShare));
-        updates.push(this.users[u]);
-    }
-    this.addUsers(updates);
-
-    this.userList.childData.appendChildren(entries);
+    this.addUsers(Object.values(this.users));
 
     if (this.pendingNamesReply)
     {
@@ -3160,9 +3137,6 @@ function my_cjoin (e)
     if (!userIsMe(e.user))
     {
         this.addUsers([e.user]);
-        var entry = new UserEntry(e.user, this.userListShare);
-        this.userList.childData.appendChild(entry);
-        this.userList.childData.reSort();
     }
     this.updateHeader();
 }
@@ -3267,15 +3241,73 @@ function my_ckick (e)
     this.updateHeader();
 }
 
+CIRCChannel.prototype.addUsers =
+function my_caddUsers(updates)
+{
+    let updateListBox = client.currentObject == this;
+    let entries = updates.map(item => new UserEntry(item));
+    for (let entry of entries)
+    {
+        this.userList.push(entry);
+        if (updateListBox)
+        {
+            client.list.appendChild(entry);
+        }
+    }
+    this.updateUserList(updateListBox);
+}
+
+CIRCChannel.prototype.updateUsers =
+function my_cupdateUsers(updates)
+{
+    for (let update of updates)
+    {
+        if (update.chanListEntry)
+        {
+            let idx = this.userList.indexOf(update.chanListEntry);
+            this.userList[idx] = updateListItem(update.chanListEntry, update);
+        }
+    }
+}
+
+CIRCChannel.prototype.updateUser =
+function my_cupdateUser(user)
+{
+    this.updateUsers([this.getUser(user)]);
+    this.updateUserList(true);
+}
+
 CIRCChannel.prototype.removeFromList =
 function my_removeFromList(user)
 {
     // Remove the user from the list and 'disconnect' the user from their entry:
-    var idx = user.chanListEntry.childIndex;
-    this.userList.childData.removeChildAtIndex(idx);
+    var idx = client.list.getIndexOfItem(user.chanListEntry);
+    client.list.removeItemAt(idx);
+    idx = this.userList.indexOf(user.chanListEntry);
+    if (idx > -1)
+    {
+        this.userList.splice(idx, 1);
+    }
 
     delete user.chanListEntry._userObj;
     delete user.chanListEntry;
+}
+
+CIRCChannel.prototype.updateUserList =
+function my_updateUserList(updateListBox)
+{
+    if (client.prefs["sortUsersByMode"])
+    {
+        this.userList.sort(ule_sortByMode);
+    }
+    else
+    {
+        this.userList.sort(ule_sortByName);
+    }
+    if (updateListBox)
+    {
+        this.userList.forEach((item) => client.list.appendChild(item));
+    }
 }
 
 CIRCChannel.prototype.onChanMode =
@@ -3302,15 +3334,12 @@ function my_cmode (e)
                      undefined, undefined, e.tags);
         delete this.pendingModeReply;
     }
-    var updates = new Array();
-    for (var u in e.usersAffected)
-        updates.push(e.usersAffected[u]);
-    this.updateUsers(updates);
+    this.updateUsers(Object.values(e.usersAffected));
 
     this.updateHeader();
     updateTitle(this);
     if (client.currentObject == this)
-        updateUserList();
+        this.updateUserList(true);
 }
 
 CIRCChannel.prototype.onNick =
@@ -3334,7 +3363,7 @@ function my_cnick (e)
 
     this.updateUsers([e.user]);
     if (client.currentObject == this)
-        updateUserList();
+        this.updateUserList(true);
 }
 
 CIRCChannel.prototype.onQuit =
@@ -3359,11 +3388,10 @@ function my_cquit (e)
                                  e.server.parent.unicodeName, e.reason]),
                          "QUIT", e.user, this, e.tags);
         }
+        this.removeFromList(e.user);
     }
 
     this.removeUsers([e.user]);
-    this.removeFromList(e.user);
-
     this.updateHeader();
 }
 
@@ -3383,20 +3411,17 @@ function my_cautoperform()
 CIRCChannel.prototype._clearUserList =
 function _my_clearuserlist()
 {
-    if (this.userList && this.userList.childData &&
-        this.userList.childData.childData)
+    if (client.currentObject == this)
     {
-        this.userList.freeze();
-        var len = this.userList.childData.childData.length;
-        while (len > 0)
+        while (client.list.firstChild &&
+               client.list.firstChild.localName == "listitem")
         {
-            var entry = this.userList.childData.childData[--len];
-            this.userList.childData.removeChildAtIndex(len);
-            delete entry._userObj.chanListEntry;
-            delete entry._userObj;
+            delete client.list.firstChild._userObj.chanListEntry;
+            delete client.list.firstChild._userObj;
+            client.list.firstChild.remove();
         }
-        this.userList.thaw();
     }
+    this.userList = new Array();
 }
 
 CIRCUser.prototype.onInit =
@@ -3866,59 +3891,45 @@ function my_dccfiledisconnect(e)
     client.munger.getRule(".inline-buttons").enabled = false;
 }
 
-function UserEntry(userObj, channelListShare)
+function updateListItem(item, userObj)
 {
-    var self = this;
-    function getUName()
-    {
-        return userObj.unicodeName;
-    };
-    function getSortFn()
-    {
-        if (client.prefs["sortUsersByMode"])
-            return ule_sortByMode;
-        return ule_sortByName;
-    };
-
-    // This object is used to represent a user in the userlist. To work with our
-    // JS tree view, it needs a bunch of stuff that is set through the
-    // constructor and the prototype (see also a couple of lines down). Here we
-    // call the original constructor to do some work for us:
-    XULTreeViewRecord.call(this, channelListShare);
-
-    // This magic function means the unicodeName is used for display:
-    this.setColumnPropertyName("usercol", getUName);
-
-    // We need this for sorting by mode (op, hop, voice, etc.)
-    this._userObj = userObj;
-
-    // When the user leaves, we need to have the entry so we can remove it:
-    userObj.chanListEntry = this;
-
-    // Gross hack: we set up the sort function by getter so we don't have to go
-    // back (array sort -> xpc -> our pref lib -> xpc -> pref interfaces) for
-    // every bloody compare. Now it will be a function that doesn't need prefs
-    // after being retrieved, which is much much faster.
-    this.__defineGetter__("sortCompare", getSortFn);
+    item.setAttribute("label", userObj.unicodeName);
+    item.setAttribute("value", userObj.unicodeName.toLowerCase());
+    item.setAttribute("sortName", userObj.sortName.toLowerCase());
+    item.setAttribute("voice", userObj.isVoice);
+    item.setAttribute("op", userObj.isOp);
+    item.setAttribute("halfop", userObj.isHalfOp);
+    item.setAttribute("admin", userObj.isAdmin);
+    item.setAttribute("founder", userObj.isFounder);
+    item.setAttribute("away", userObj.isAway);
+    return item;
 }
 
-// See explanation in the constructor.
-UserEntry.prototype = XULTreeViewRecord.prototype;
+function UserEntry(userObj)
+{
+    let item = document.createElement("listitem");
+    item.setAttribute("class", "listitem-iconic");
+    item = updateListItem(item, userObj);
+
+    // We need this for sorting by mode (op, hop, voice, etc.)
+    item._userObj = userObj;
+
+    // When the user leaves, we need to have the entry so we can remove it:
+    userObj.chanListEntry = item;
+
+    return item;
+}
 
 function ule_sortByName(a, b)
 {
-    if (a._userObj.unicodeName == b._userObj.unicodeName)
-        return 0;
-    var aName = a._userObj.unicodeName.toLowerCase();
-    var bName = b._userObj.unicodeName.toLowerCase();
-    return (aName < bName ? -1 : 1);
+    let aName = a.getAttribute("value");
+    let bName = b.getAttribute("value");
+    return aName.localeCompare(bName);
 }
 
 function ule_sortByMode(a, b)
 {
-    if (a._userObj.sortName == b._userObj.sortName)
-        return 0;
-    var aName = a._userObj.sortName.toLowerCase();
-    var bName = b._userObj.sortName.toLowerCase();
-    return (aName < bName ? -1 : 1);
+    let aName = a.getAttribute("sortName");
+    let bName = b.getAttribute("sortName");
+    return aName.localeCompare(bName);
 }
