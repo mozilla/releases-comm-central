@@ -685,8 +685,7 @@ function alert(msg, parent, title)
     ps.alert (parent, title, msg);
 }
 
-function confirmEx(msg, buttons, defaultButton, checkText,
-                   checkVal, parent, title)
+function confirmEx(msg, buttons, defaultButton, checkText, checkVal)
 {
     /* Note that on versions before Mozilla 0.9, using 3 buttons,
      * the revert or dontsave button, or custom button titles will NOT work.
@@ -696,9 +695,7 @@ function confirmEx(msg, buttons, defaultButton, checkText,
      * For example, on Windows this is usually [button 1] [button 3] [button 2],
      * and on Linux [button 3] [button 2] [button 1].
      */
-    var PROMPT_CTRID = "@mozilla.org/embedcomp/prompt-service;1";
-    var nsIPromptService = Components.interfaces.nsIPromptService;
-    var ps = Components.classes[PROMPT_CTRID].getService(nsIPromptService);
+    var ps = Services.prompt;
 
     var buttonConstants = {
         ok: ps.BUTTON_TITLE_OK,
@@ -733,47 +730,30 @@ function confirmEx(msg, buttons, defaultButton, checkText,
     if (defaultIsNumber && arrayHasElementAt(buttons, defaultButton))
         buttonFlags += ps["BUTTON_POS_" + defaultButton + "_DEFAULT"];
 
-    if (!parent)
-        parent = window;
-    if (!title)
-        title = MSG_CONFIRM;
     if (!checkVal)
         checkVal = new Object();
 
-    var rv = ps.confirmEx(parent, title, msg, buttonFlags, buttonText[0],
-                          buttonText[1], buttonText[2], checkText, checkVal);
-    return rv;
+    return ps.confirmEx(window, MSG_CONFIRM, msg, buttonFlags, buttonText[0],
+                        buttonText[1], buttonText[2], checkText, checkVal);
 }
 
-function prompt(msg, initial, parent, title)
+function prompt(msg, initial)
 {
-    var PROMPT_CTRID = "@mozilla.org/embedcomp/prompt-service;1";
-    var nsIPromptService = Components.interfaces.nsIPromptService;
-    var ps = Components.classes[PROMPT_CTRID].getService(nsIPromptService);
-    if (!parent)
-        parent = window;
-    if (!title)
-        title = MSG_PROMPT;
     var rv = { value: initial };
 
-    if (!ps.prompt (parent, title, msg, rv, null, {value: null}))
+    if (!Services.prompt.prompt(window, MSG_PROMPT, msg, rv, null,
+                                {value: null}))
         return null;
 
     return rv.value;
 }
 
-function promptPassword(msg, initial, parent, title)
+function promptPassword(msg, initial)
 {
-    var PROMPT_CTRID = "@mozilla.org/embedcomp/prompt-service;1";
-    var nsIPromptService = Components.interfaces.nsIPromptService;
-    var ps = Components.classes[PROMPT_CTRID].getService(nsIPromptService);
-    if (!parent)
-        parent = window;
-    if (!title)
-        title = MSG_PROMPT;
     var rv = { value: initial };
 
-    if (!ps.promptPassword (parent, title, msg, rv, null, {value: null}))
+    if (!Services.prompt.promptPassword(window, MSG_PROMPT, msg, rv, null,
+                                        {value: null}))
         return null;
 
     return rv.value;
