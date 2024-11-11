@@ -11,6 +11,7 @@ import { PlacesUtils } from "resource://gre/modules/PlacesUtils.sys.mjs";
  * @param { nsIPrincipal } principal - the principal to clone and attach the
  *    permission to
  * @param {nsIURI} uri - the uri which is to be opened
+ * @param {OriginAttributesDictionary} [originAttributes]
  *
  * @returns {nsIPrincipal}
  */
@@ -40,7 +41,7 @@ export function getClonedPrincipalWithProtocolPermission(
  */
 export function getContentPrincipalWithProtocolPermission(uri) {
   const principal = Services.scriptSecurityManager.createContentPrincipal(
-    Services.io.newURI("chrome:"),
+    Services.io.newURI("chrome://messenger/content/messenger.xhtml"),
     {}
   );
   Services.perms.addFromPrincipal(
@@ -58,16 +59,12 @@ export function getContentPrincipalWithProtocolPermission(uri) {
  * @param {string|nsIURI} url - A url string or an nsIURI containing the url to
  *   open.
  * @param {object} [options]
- * @param {boolean} [options.addPermission=true] - Whether to add the permission
- *   to use the external application associated with the protocol. If permission
- *   is not added, the user will be prompted.
  * @param {boolean} [options.addToHistory=true] - Whether to add the opened url
  *   to the history.
  * @param {nsIPrincipal} [options.principal] - A triggering principal.
  */
 export function openLinkExternally(url, options) {
   const addToHistory = options?.addToHistory ?? true;
-  const addPermission = options?.permissionPrompt ?? true;
 
   let uri = url;
   if (!(uri instanceof Ci.nsIURI)) {
@@ -87,11 +84,15 @@ export function openLinkExternally(url, options) {
       })
       .catch(console.error);
   }
+  const isHttp = ["http", "https"].includes(uri.scheme);
+  const promptForPermission =
+    !isHttp &&
+    Services.prefs.getBoolPref("mail.external_protocol_requires_permission");
 
-  let principal;
-  if (addPermission) {
-    principal = options?.principal
-      ? getClonedPrincipalWithProtocolPermission(options.principal, uri)
+  let principal = options?.principal;
+  if (!promptForPermission) {
+    principal = principal
+      ? getClonedPrincipalWithProtocolPermission(principal, uri)
       : getContentPrincipalWithProtocolPermission(uri);
   }
 

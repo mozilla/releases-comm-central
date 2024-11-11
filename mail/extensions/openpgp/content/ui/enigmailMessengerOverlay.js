@@ -2083,18 +2083,14 @@ Enigmail.msg = {
           } catch (ex) {
             // if the attachment file type is unknown, an exception is thrown,
             // so let it be handled by a browser window
-            Enigmail.msg.loadExternalURL(outFileUri.asciiSpec);
+            openLinkExternally(outFileUri.asciiSpec, { addToHistory: false });
           }
         } else {
           // open the attachment using an external application
-          Enigmail.msg.loadExternalURL(outFileUri.asciiSpec);
+          openLinkExternally(outFileUri.asciiSpec, { addToHistory: false });
         }
       }
     }
-  },
-
-  loadExternalURL(url) {
-    openLinkExternally(url, { addToHistory: false });
   },
 
   /**

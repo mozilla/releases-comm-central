@@ -469,9 +469,6 @@ pref("security.aboutcertificate.enabled", true);
 // has on a preloaded list, it causes S/MIME failures. (Bug 1777336)
 pref("security.intermediate_preloading_healer.enabled", false);
 
-// Don't show a prompt for external applications.
-pref("security.external_protocol_requires_permission", false);
-
 // Prompt for the primary password prior to opening application windows,
 // to avoid the race that triggers multiple prompts (see bug 177175).
 pref("security.prompt_for_master_password_on_startup", true);
@@ -518,6 +515,10 @@ pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%
 #ifndef XP_MACOSX
 pref("alerts.totalOpenTime", 10000);
 #endif
+
+// Don't show a prompt for external applications (http(s):// will never prompt).
+pref("mail.external_protocol_requires_permission", false);
+
 
 // analyze urls in mail messages for scams
 pref("mail.phishing.detection.enabled", true);
