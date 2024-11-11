@@ -10324,8 +10324,6 @@ var envelopeDragObserver = {
                 this.isNotDraggingOnlyImages(event.dataTransfer) ||
                 !gMsgCompose.composeHTML)
           );
-      } else {
-        event.dataTransfer.dropEffect = "none";
       }
     }
 
