@@ -181,6 +181,41 @@ add_task(async function test_account_sizes() {
 });
 
 /**
+ * Check that we are collecting account preferences.
+ */
+add_task(async function test_account_preferences() {
+  Services.fog.testResetFOG();
+  MailTelemetryForTests.reportAccountPreferences();
+
+  Assert.deepEqual(Glean.mail.accountPreferences.testGetValue(), [
+    {
+      protocol: "pop3",
+      socket_type: Ci.nsMsgSocketType.plain,
+      auth_method: Ci.nsMsgAuthMethod.passwordCleartext,
+      store_type: "mbox",
+      login_at_startup: false,
+      check_new_mail: false,
+      empty_trash_on_exit: false,
+      download_on_biff: true,
+      headers_only: false,
+      leave_on_server: false,
+    },
+    {
+      protocol: "imap",
+      socket_type: Ci.nsMsgSocketType.plain,
+      auth_method: Ci.nsMsgAuthMethod.passwordCleartext,
+      store_type: "mbox",
+      login_at_startup: false,
+      check_new_mail: false,
+      delete_model: Ci.nsMsgImapDeleteModels.MoveToTrash,
+      use_idle: true,
+      cleanup_inbox_on_exit: false,
+      empty_trash_on_exit: false,
+    },
+  ]);
+});
+
+/**
  * Verify counting of OAuth2 providers
  */
 add_task(async function test_account_oauth_providers() {

@@ -280,6 +280,61 @@ mail:
       - mail.ui.display.dateformat.thisweek
       - mail.ui.display.dateformat.today
 
+  account_preferences:
+    type: object
+    description:
+      Values of basic account preferences.
+    bugs:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1930400
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1930400
+    data_sensitivity:
+      - technical
+    notification_emails:
+      - telemetry-client-dev@thunderbird.net
+    expires: never
+    structure:
+      type: array
+      items:
+        type: object
+        properties:
+          protocol:
+            type: string
+          socket_type:
+            type: number
+          auth_method:
+            type: number
+          store_type:
+            type: string
+          login_at_startup:
+            type: boolean
+          check_new_mail:
+            type: boolean
+          check_time:
+            type: number
+          delete_model:
+            type: number
+          use_idle:
+            type: boolean
+          cleanup_inbox_on_exit:
+            type: boolean
+          empty_trash_on_exit:
+            type: boolean
+          download_on_biff:
+            type: boolean
+          headers_only:
+            type: boolean
+          leave_on_server:
+            type: boolean
+          delete_by_age_from_server:
+            type: boolean
+          num_days_to_leave_on_server:
+            type: number
+          notify_max_articles:
+            type: number
+          always_authenticate:
+            type: boolean
+
   mails_read:
     type: counter
     description: How many emails were read by the user.

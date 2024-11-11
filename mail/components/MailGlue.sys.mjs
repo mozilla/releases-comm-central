@@ -893,6 +893,7 @@ MailGlue.prototype = {
         reportAccountTypes();
         reportAddressBookTypes();
         reportAccountSizes();
+        reportAccountPreferences();
         await reportCalendars();
         reportPreferences();
         reportUIConfiguration();
@@ -1083,6 +1084,64 @@ function reportAccountSizes() {
   }
   Glean.mail.folderTotalMessages.Total.set(totalMessages);
   Glean.mail.folderSizeOnDisk.Total.set(totalSizeOnDisk);
+}
+
+/**
+ * Report the basic preferences of each incoming server to telemetry.
+ */
+function reportAccountPreferences() {
+  const accounts = [];
+  for (const server of lazy.MailServices.accounts.allServers) {
+    const type = server.type;
+    if (!["imap", "nntp", "pop3"].includes(type)) {
+      continue;
+    }
+
+    const account = {
+      protocol: type,
+      socket_type: server.socketType,
+      auth_method: server.authMethod,
+      store_type: server.msgStore.storeType,
+      login_at_startup: server.getBoolValue("login_at_startup"),
+      check_new_mail: server.getBoolValue("check_new_mail"),
+    };
+    if (account.check_new_mail) {
+      account.check_time = server.getIntValue("check_time");
+    }
+
+    if (type == "imap") {
+      account.delete_model = server.getIntValue("delete_model");
+      account.use_idle = server.getBoolValue("use_idle");
+      account.cleanup_inbox_on_exit = server.getBoolValue(
+        "cleanup_inbox_on_exit"
+      );
+      account.empty_trash_on_exit = server.getBoolValue("empty_trash_on_exit");
+    } else if (type == "nntp") {
+      if (server.getBoolValue("notify.on")) {
+        account.notify_max_articles = server.getIntValue("max_articles");
+      }
+      account.always_authenticate = server.getBoolValue("always_authenticate");
+    } else if (type == "pop3") {
+      account.download_on_biff = server.getBoolValue("download_on_biff");
+      account.headers_only = server.getBoolValue("headers_only");
+      account.leave_on_server = server.getBoolValue("leave_on_server");
+      if (account.leave_on_server) {
+        account.delete_by_age_from_server = server.getBoolValue(
+          "delete_by_age_from_server"
+        );
+        if (server.getBoolValue("delete_mail_left_on_server")) {
+          account.num_days_to_leave_on_server = server.getIntValue(
+            "num_days_to_leave_on_server"
+          );
+        }
+      }
+      account.empty_trash_on_exit = server.getBoolValue("empty_trash_on_exit");
+    }
+
+    accounts.push(account);
+  }
+
+  Glean.mail.accountPreferences.set(accounts);
 }
 
 /**
@@ -1490,6 +1549,7 @@ function reportUIConfiguration() {
 export var MailTelemetryForTests = {
   reportAccountTypes,
   reportAccountSizes,
+  reportAccountPreferences,
   reportAddressBookTypes,
   reportCalendars,
   reportPreferences,
