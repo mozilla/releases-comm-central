@@ -37,7 +37,7 @@ use xpcom::{
     RefPtr,
 };
 
-use crate::headers::MessageHeaders;
+use crate::headers::{Mailbox, MessageHeaders};
 use crate::{authentication::credentials::Credentials, cancellable_request::CancellableRequest};
 
 // Flags to use for setting the `PR_MESSAGE_FLAGS` MAPI property.
@@ -284,8 +284,11 @@ impl XpComEwsClient {
                         .clone()
                         .ok_or_else(|| XpComEwsError::MissingResponseItemId)
                         .map(|item_id| (item_id.id.to_owned(), message)),
+
+                    // We should have filtered above for only Message-related
+                    // changes.
                     #[allow(unreachable_patterns)]
-                    _ => panic!("Encountered unexpected non-Message item; this indicates a bug in this function."),
+                    _ => panic!("Encountered unexpected non-Message item in response"),
                 })
                 .collect::<Result<_, _>>()?;
 
@@ -335,7 +338,7 @@ impl XpComEwsClient {
                         }
 
                         let header = result?;
-                        populate_message_header_from_item(&header, msg)?;
+                        populate_db_message_header_from_message_headers(&header, msg)?;
 
                         unsafe { callbacks.CommitHeader(&*header) }.to_result()?;
                     }
@@ -1124,13 +1127,14 @@ impl XpComEwsClient {
     }
 }
 
-/// Sets the fields of a database message header object from an EWS `Message`.
-fn populate_message_header_from_item(
+/// Sets the fields of a database header object from a collection of message
+/// headers.
+fn populate_db_message_header_from_message_headers(
     header: &nsIMsgDBHdr,
     msg: impl MessageHeaders,
 ) -> Result<(), XpComEwsError> {
     let internet_message_id = if let Some(internet_message_id) = msg.internet_message_id() {
-        nsCString::from(internet_message_id)
+        nsCString::from(internet_message_id.as_ref())
     } else {
         // Lots of code assumes Message-ID is set and unique, so we need to
         // build something suitable. The value need not be stable, since we only
@@ -1172,12 +1176,12 @@ fn populate_message_header_from_item(
     }
 
     if let Some(author) = msg.author() {
-        let author = nsCString::from(make_header_string_for_mailbox(&author));
+        let author = nsCString::from(author.to_string());
         unsafe { header.SetAuthor(&*author) }.to_result()?;
     }
 
     if let Some(reply_to) = msg.reply_to_recipient() {
-        let reply_to = nsCString::from(make_header_string_for_mailbox(&reply_to));
+        let reply_to = nsCString::from(reply_to.to_string());
         unsafe { header.SetStringProperty(cstr::cstr!("replyTo").as_ptr(), &*reply_to) }
             .to_result()?;
     }
@@ -1198,7 +1202,7 @@ fn populate_message_header_from_item(
     }
 
     if let Some(subject) = msg.message_subject() {
-        let subject = nsCString::from(subject);
+        let subject = nsCString::from(subject.as_ref());
         unsafe { header.SetSubject(&*subject) }.to_result()?;
     }
 
@@ -1235,37 +1239,15 @@ fn maybe_get_backoff_delay_ms(err: &ews::Error) -> Option<u32> {
 
 /// Creates a string representation of a list of mailboxes, suitable for use as
 /// the value of an Internet Message Format header.
-fn make_header_string_for_mailbox_list(
-    mailboxes: impl IntoIterator<Item = ews::Mailbox>,
+fn make_header_string_for_mailbox_list<'a>(
+    mailboxes: impl IntoIterator<Item = Mailbox<'a>>,
 ) -> String {
     let strings: Vec<_> = mailboxes
         .into_iter()
-        .map(|mailbox| make_header_string_for_mailbox(&mailbox))
+        .map(|mailbox| mailbox.to_string())
         .collect();
 
     strings.join(", ")
-}
-
-/// Creates a string representation of a mailbox, suitable for use as the value
-/// of an Internet Message Format header.
-fn make_header_string_for_mailbox(mailbox: &ews::Mailbox) -> String {
-    let email_address = &mailbox.email_address;
-
-    if let Some(name) = mailbox.name.as_ref() {
-        let mut buf: Vec<u8> = Vec::new();
-
-        // TODO: It may not be okay to unwrap here (could hit OOM, mainly), but
-        // it isn't clear how we can handle that appropriately.
-        mail_builder::encoders::encode::rfc2047_encode(&name, &mut buf).unwrap();
-
-        // It's okay to unwrap here, as successful RFC 2047 encoding implies the
-        // result is ASCII.
-        let name = std::str::from_utf8(&buf).unwrap();
-
-        format!("{name} <{email_address}>")
-    } else {
-        email_address.clone()
-    }
 }
 
 /// Gets the Thunderbird flag corresponding to an EWS distinguished ID.
@@ -1411,24 +1393,19 @@ fn create_and_populate_header_from_save_response(
 ) -> Result<RefPtr<nsIMsgDBHdr>, XpComEwsError> {
     // If we're saving the message (rather than sending it), we must create a
     // new database entry for it and associate it with the message's EWS ID.
-    let items = &response_message.items.inner;
+    let items = response_message.items.inner;
     if items.len() != 1 {
         return Err(XpComEwsError::Processing {
             message: String::from("expected only one item in CreateItem response"),
         });
     }
 
-    let message = match &items[0] {
+    let message = match items.into_iter().next().unwrap() {
         RealItem::Message(message) => message,
     };
-    let ews_id = nsCString::from(
-        message
-            .item_id
-            .as_ref()
-            .ok_or(XpComEwsError::MissingResponseItemId)?
-            .id
-            .as_str(),
-    );
+
+    let ews_id = message.item_id.ok_or(XpComEwsError::MissingResponseItemId)?.id;
+    let ews_id = nsCString::from(ews_id);
 
     let hdr =
         getter_addrefs(|hdr| unsafe { message_callbacks.CreateNewHeaderForItem(&*ews_id, hdr) })?;
@@ -1444,7 +1421,7 @@ fn create_and_populate_header_from_save_response(
             message: String::from("failed to parse message"),
         })?;
 
-    populate_message_header_from_item(&hdr, &message)?;
+    populate_db_message_header_from_message_headers(&hdr, message)?;
     unsafe { message_callbacks.CommitHeader(&*hdr) }.to_result()?;
 
     Ok(hdr)

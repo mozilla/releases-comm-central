@@ -9,7 +9,7 @@ use xpcom::interfaces::{nsMsgPriority, nsMsgPriorityValue};
 /// A message from which email headers can be retrieved.
 pub(crate) trait MessageHeaders {
     /// The value of the `Message-ID` header for this message.
-    fn internet_message_id(&self) -> Option<String>;
+    fn internet_message_id(&self) -> Option<impl AsRef<str>>;
 
     /// Whether the message has already been read.
     fn is_read(&self) -> Option<bool>;
@@ -23,22 +23,22 @@ pub(crate) trait MessageHeaders {
 
     /// The author for this message. This can be the value of either the `From`
     /// or `Sender` header (in order of preference).
-    fn author(&self) -> Option<ews::Mailbox>;
+    fn author<'a>(&'a self) -> Option<Mailbox<'a>>;
 
     /// The `Reply-To` header for this message.
-    fn reply_to_recipient(&self) -> Option<ews::Mailbox>;
+    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>>;
 
     /// The `To` header for this message.
-    fn to_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>>;
+    fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>>;
 
     /// The `Cc` header for this message.
-    fn cc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>>;
+    fn cc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>>;
 
     /// The `Bcc` header for this message.
-    fn bcc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>>;
+    fn bcc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>>;
 
     /// The `Subject` header for this message.
-    fn message_subject(&self) -> Option<String>;
+    fn message_subject(&self) -> Option<impl AsRef<str>>;
 
     /// The message's priority/importance. Might be represented by its
     /// `X-Priority` header.
@@ -46,8 +46,8 @@ pub(crate) trait MessageHeaders {
 }
 
 impl MessageHeaders for &ews::Message {
-    fn internet_message_id(&self) -> Option<String> {
-        self.internet_message_id.clone()
+    fn internet_message_id(&self) -> Option<impl AsRef<str>> {
+        self.internet_message_id.as_ref()
     }
 
     fn is_read(&self) -> Option<bool> {
@@ -87,39 +87,39 @@ impl MessageHeaders for &ews::Message {
         })
     }
 
-    fn author(&self) -> Option<ews::Mailbox> {
+    fn author<'a>(&'a self) -> Option<Mailbox<'a>> {
         self.from
             .as_ref()
             .or(self.sender.as_ref())
-            .and_then(|recipient| Some(recipient.mailbox.clone()))
+            .map(|recipient| Mailbox::from(&recipient.mailbox))
     }
 
-    fn reply_to_recipient(&self) -> Option<ews::Mailbox> {
+    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>> {
         self.reply_to
             .as_ref()
-            .and_then(|recipient| Some(recipient.mailbox.clone()))
+            .map(|recipient| Mailbox::from(&recipient.mailbox))
     }
 
-    fn to_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
+    fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
         self.to_recipients
             .as_ref()
-            .and_then(|recipients| Some(array_of_recipients_to_mailboxes(recipients)))
+            .map(array_of_recipients_to_mailboxes)
     }
 
-    fn cc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
+    fn cc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
         self.cc_recipients
             .as_ref()
-            .and_then(|recipients| Some(array_of_recipients_to_mailboxes(recipients)))
+            .map(array_of_recipients_to_mailboxes)
     }
 
-    fn bcc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
+    fn bcc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
         self.bcc_recipients
             .as_ref()
-            .and_then(|recipients| Some(array_of_recipients_to_mailboxes(recipients)))
+            .map(array_of_recipients_to_mailboxes)
     }
 
-    fn message_subject(&self) -> Option<String> {
-        self.subject.clone()
+    fn message_subject(&self) -> Option<impl AsRef<str>> {
+        self.subject.as_ref()
     }
 
     fn priority(&self) -> Option<nsMsgPriorityValue> {
@@ -133,10 +133,9 @@ impl MessageHeaders for &ews::Message {
     }
 }
 
-impl MessageHeaders for &mail_parser::Message<'_> {
-    fn internet_message_id(&self) -> Option<String> {
+impl MessageHeaders for mail_parser::Message<'_> {
+    fn internet_message_id(&self) -> Option<impl AsRef<str>> {
         self.message_id()
-            .and_then(|message_id| Some(message_id.to_string()))
     }
 
     fn is_read(&self) -> Option<bool> {
@@ -163,36 +162,33 @@ impl MessageHeaders for &mail_parser::Message<'_> {
             })
     }
 
-    fn author(&self) -> Option<ews::Mailbox> {
+    fn author<'a>(&'a self) -> Option<Mailbox<'a>> {
         self.to()
             .or(self.sender())
-            .and_then(|author| author.first())
-            .and_then(addr_to_maybe_mailbox)
+            .and_then(mail_parser::Address::first)
+            .and_then(|addr| addr.try_into().ok())
     }
 
-    fn reply_to_recipient(&self) -> Option<ews::Mailbox> {
+    fn reply_to_recipient<'a>(&'a self) -> Option<Mailbox<'a>> {
         self.reply_to()
-            .and_then(|reply_to| reply_to.first())
-            .and_then(addr_to_maybe_mailbox)
+            .and_then(mail_parser::Address::first)
+            .and_then(|addr| addr.try_into().ok())
     }
 
-    fn to_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
-        self.to()
-            .and_then(|address| Some(address_to_mailboxes(address)))
+    fn to_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
+        self.to().map(address_to_mailboxes)
     }
 
-    fn cc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
-        self.cc()
-            .and_then(|address| Some(address_to_mailboxes(address)))
+    fn cc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
+        self.cc().map(address_to_mailboxes)
     }
 
-    fn bcc_recipients(&self) -> Option<impl IntoIterator<Item = ews::Mailbox>> {
-        self.bcc()
-            .and_then(|address| Some(address_to_mailboxes(address)))
+    fn bcc_recipients<'a>(&'a self) -> Option<impl IntoIterator<Item = Mailbox<'a>>> {
+        self.bcc().map(address_to_mailboxes)
     }
 
-    fn message_subject(&self) -> Option<String> {
-        self.subject().and_then(|subject| Some(subject.to_string()))
+    fn message_subject(&self) -> Option<impl AsRef<str>> {
+        self.subject()
     }
 
     fn priority(&self) -> Option<nsMsgPriorityValue> {
@@ -216,37 +212,72 @@ impl MessageHeaders for &mail_parser::Message<'_> {
     }
 }
 
-/// Turns a `mail_parser::Address` into a vector of `ews::Mailbox`es, filtering
-/// out any that does not have an e-mail address.
-fn address_to_mailboxes(address: &mail_parser::Address) -> Vec<ews::Mailbox> {
-    address
-        .clone()
-        .into_list()
-        .iter()
-        .filter_map(addr_to_maybe_mailbox)
-        .collect()
+/// Gets an iterator of mailboxes from a `mail_parser` address field, filtering
+/// out any addresses which do not have an associated email address.
+fn address_to_mailboxes<'a>(
+    address: &'a mail_parser::Address,
+) -> impl Iterator<Item = Mailbox<'a>> {
+    address.iter().filter_map(|addr| addr.try_into().ok())
 }
 
-/// Turns the given `mail_parser::Addr` into an `ews::Mailbox`, if its email
-/// address is not `None`.
-fn addr_to_maybe_mailbox(addr: &mail_parser::Addr) -> Option<ews::Mailbox> {
-    match addr.address() {
-        Some(address) => Some(ews::Mailbox {
-            name: addr
-                .name
-                .as_ref()
-                .and_then(|name| Some(name.clone().into_owned())),
-            email_address: address.into(),
-            ..Default::default()
-        }),
-        None => None,
+/// Gets an iterator of mailboxes from an EWS representation of a list of
+/// recipients.
+fn array_of_recipients_to_mailboxes<'a>(
+    recipients: &'a ews::ArrayOfRecipients,
+) -> impl Iterator<Item = Mailbox<'a>> {
+    recipients
+        .iter()
+        .map(|recipient| Mailbox::from(&recipient.mailbox))
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Mailbox<'a> {
+    pub name: Option<&'a str>,
+    pub email_address: &'a str,
+}
+
+impl<'a> From<&'a ews::Mailbox> for Mailbox<'a> {
+    fn from(value: &'a ews::Mailbox) -> Self {
+        Mailbox {
+            name: value.name.as_ref().map(|name| name.as_str()),
+            email_address: &value.email_address,
+        }
     }
 }
 
-/// Turns an `ews::ArrayOfRecipients` into a vector of `ews::Mailbox`es.
-fn array_of_recipients_to_mailboxes(recipients: &ews::ArrayOfRecipients) -> Vec<ews::Mailbox> {
-    recipients
-        .iter()
-        .map(|recipient| recipient.mailbox.clone())
-        .collect()
+impl<'a> TryFrom<&'a mail_parser::Addr<'_>> for Mailbox<'a> {
+    type Error = ();
+
+    fn try_from(value: &'a mail_parser::Addr) -> Result<Self, Self::Error> {
+        value.address.as_ref().ok_or(()).map(|address| Mailbox {
+            name: value.name.as_ref().map(|name| name.as_ref()),
+            email_address: address.as_ref(),
+        })
+    }
+}
+
+impl std::fmt::Display for Mailbox<'_> {
+    /// Writes the contents of the mailbox in a format suitable for use in an
+    /// Internet Message Format header.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(name) = self.name {
+            let mut buf: Vec<u8> = Vec::new();
+
+            // TODO: It may not be okay to unwrap here (could hit OOM, mainly), but
+            // it isn't clear how we can handle that appropriately.
+            mail_builder::encoders::encode::rfc2047_encode(&name, &mut buf).unwrap();
+
+            // It's okay to unwrap here, as successful RFC 2047 encoding implies the
+            // result is ASCII.
+            let name = std::str::from_utf8(&buf).unwrap();
+
+            write!(
+                f,
+                "{name} <{email_address}>",
+                email_address = self.email_address
+            )
+        } else {
+            write!(f, "{}", self.email_address)
+        }
+    }
 }
