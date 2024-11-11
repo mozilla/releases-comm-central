@@ -4,8 +4,6 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
-var ACR = Ci.nsIAutoCompleteResult;
-
 // nsAbLDAPAutoCompleteResult
 // Derived from nsIAbAutoCompleteResult, provides a LDAP specific result
 // implementation.
@@ -24,7 +22,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
   // nsIAutoCompleteResult
 
   searchString: null,
-  searchResult: ACR.RESULT_NOMATCH,
+  searchResult: Ci.nsIAutoCompleteResult.RESULT_NOMATCH,
   defaultIndex: -1,
   errorDescription: null,
 
@@ -45,7 +43,7 @@ nsAbLDAPAutoCompleteResult.prototype = {
   },
 
   getStyleAt() {
-    return this.searchResult == ACR.RESULT_FAILURE
+    return this.searchResult == Ci.nsIAutoCompleteResult.RESULT_FAILURE
       ? "remote-err"
       : "remote-abook";
   },
@@ -180,7 +178,7 @@ AbLDAPAutoCompleteSearch.prototype = {
     // The comma check is so that we don't autocomplete against the user
     // entering multiple addresses.
     if (!applicable || !aSearchString || aSearchString.includes(",")) {
-      this._result.searchResult = ACR.RESULT_IGNORED;
+      this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_IGNORED;
       aListener.onSearchResult(this, this._result);
       return;
     }
@@ -316,13 +314,13 @@ AbLDAPAutoCompleteSearch.prototype = {
 
     if (status == Cr.NS_OK) {
       if (this._result.matchCount) {
-        this._result.searchResult = ACR.RESULT_SUCCESS;
+        this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_SUCCESS;
         this._result.defaultIndex = 0;
       } else {
-        this._result.searchResult = ACR.RESULT_NOMATCH;
+        this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_NOMATCH;
       }
     } else {
-      this._result.searchResult = ACR.RESULT_FAILURE;
+      this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_FAILURE;
       this._result.defaultIndex = 0;
     }
     //    const long queryResultStopped  = 2;
@@ -342,9 +340,9 @@ AbLDAPAutoCompleteSearch.prototype = {
 
     /* XXX autocomplete doesn't expect you to rearrange while searching
     if (this._result.matchCount) {
-      this._result.searchResult = ACR.RESULT_SUCCESS_ONGOING;
+      this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING;
     } else {
-      this._result.searchResult = ACR.RESULT_NOMATCH_ONGOING;
+      this._result.searchResult = Ci.nsIAutoCompleteResult.RESULT_NOMATCH_ONGOING;
     }
     this._listener.onSearchResult(this, this._result);
     */

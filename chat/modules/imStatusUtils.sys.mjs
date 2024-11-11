@@ -10,16 +10,15 @@ ChromeUtils.defineLazyGetter(
   () => new Localization(["chat/status.ftl"], true)
 );
 
-var imIStatusInfo = Ci.imIStatusInfo;
 var statusAttributes = {};
-statusAttributes[imIStatusInfo.STATUS_UNKNOWN] = "unknown";
-statusAttributes[imIStatusInfo.STATUS_OFFLINE] = "offline";
-statusAttributes[imIStatusInfo.STATUS_INVISIBLE] = "invisible";
-statusAttributes[imIStatusInfo.STATUS_MOBILE] = "mobile";
-statusAttributes[imIStatusInfo.STATUS_IDLE] = "idle";
-statusAttributes[imIStatusInfo.STATUS_AWAY] = "away";
-statusAttributes[imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
-statusAttributes[imIStatusInfo.STATUS_AVAILABLE] = "available";
+statusAttributes[Ci.imIStatusInfo.STATUS_UNKNOWN] = "unknown";
+statusAttributes[Ci.imIStatusInfo.STATUS_OFFLINE] = "offline";
+statusAttributes[Ci.imIStatusInfo.STATUS_INVISIBLE] = "invisible";
+statusAttributes[Ci.imIStatusInfo.STATUS_MOBILE] = "mobile";
+statusAttributes[Ci.imIStatusInfo.STATUS_IDLE] = "idle";
+statusAttributes[Ci.imIStatusInfo.STATUS_AWAY] = "away";
+statusAttributes[Ci.imIStatusInfo.STATUS_UNAVAILABLE] = "unavailable";
+statusAttributes[Ci.imIStatusInfo.STATUS_AVAILABLE] = "available";
 
 export var Status = {
   toAttribute: aStatusType =>
@@ -56,6 +55,6 @@ export var Status = {
         return flag;
       }
     }
-    return imIStatusInfo.STATUS_UNKNOWN;
+    return Ci.imIStatusInfo.STATUS_UNKNOWN;
   },
 };

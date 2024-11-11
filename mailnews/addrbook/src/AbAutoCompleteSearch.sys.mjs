@@ -11,8 +11,6 @@ import {
   generateQueryURI,
 } from "resource:///modules/ABQueryUtils.sys.mjs";
 
-var ACR = Ci.nsIAutoCompleteResult;
-
 var MAX_ASYNC_RESULTS = 100;
 
 function nsAbAutoCompleteResult(aSearchString) {
@@ -37,7 +35,7 @@ nsAbAutoCompleteResult.prototype = {
   // nsIAutoCompleteResult
 
   searchString: null,
-  searchResult: ACR.RESULT_NOMATCH,
+  searchResult: Ci.nsIAutoCompleteResult.RESULT_NOMATCH,
   defaultIndex: -1,
   errorDescription: null,
 
@@ -379,7 +377,7 @@ AbAutoCompleteSearch.prototype = {
     const params = aSearchParam ? JSON.parse(aSearchParam) : {};
     var result = new nsAbAutoCompleteResult(aSearchString);
     if ("type" in params && !this.applicableHeaders.has(params.type)) {
-      result.searchResult = ACR.RESULT_IGNORED;
+      result.searchResult = Ci.nsIAutoCompleteResult.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
@@ -390,7 +388,7 @@ AbAutoCompleteSearch.prototype = {
     // If the search string is empty, or the user hasn't enabled autocomplete,
     // then just return no matches or the result ignored.
     if (!fullString) {
-      result.searchResult = ACR.RESULT_IGNORED;
+      result.searchResult = Ci.nsIAutoCompleteResult.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
@@ -411,7 +409,7 @@ AbAutoCompleteSearch.prototype = {
     if (
       aPreviousResult instanceof Ci.nsIAbAutoCompleteResult &&
       aSearchString.startsWith(aPreviousResult.searchString) &&
-      aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
+      aPreviousResult.searchResult == Ci.nsIAutoCompleteResult.RESULT_SUCCESS &&
       !result._modelQueryHasUserValue &&
       result.modelQuery == aPreviousResult.modelQuery
     ) {
@@ -517,7 +515,7 @@ AbAutoCompleteSearch.prototype = {
     });
 
     if (result.matchCount) {
-      result.searchResult = ACR.RESULT_SUCCESS;
+      result.searchResult = Ci.nsIAutoCompleteResult.RESULT_SUCCESS;
       result.defaultIndex = 0;
     }
 
@@ -529,8 +527,8 @@ AbAutoCompleteSearch.prototype = {
 
     // Let the widget know the sync results we have so far.
     result.searchResult = result.matchCount
-      ? ACR.RESULT_SUCCESS_ONGOING
-      : ACR.RESULT_NOMATCH_ONGOING;
+      ? Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING
+      : Ci.nsIAutoCompleteResult.RESULT_NOMATCH_ONGOING;
     aListener.onSearchResult(this, result);
 
     // Start searching our asynchronous autocomplete directories.
@@ -577,13 +575,13 @@ AbAutoCompleteSearch.prototype = {
           }
           if (result._searchResults.length) {
             result.searchResult = searches.size
-              ? ACR.RESULT_SUCCESS_ONGOING
-              : ACR.RESULT_SUCCESS;
+              ? Ci.nsIAutoCompleteResult.RESULT_SUCCESS_ONGOING
+              : Ci.nsIAutoCompleteResult.RESULT_SUCCESS;
             result.defaultIndex = 0;
           } else {
             result.searchResult = searches.size
-              ? ACR.RESULT_NOMATCH_ONGOING
-              : ACR.RESULT_NOMATCH;
+              ? Ci.nsIAutoCompleteResult.RESULT_NOMATCH_ONGOING
+              : Ci.nsIAutoCompleteResult.RESULT_NOMATCH;
           }
           aListener.onSearchResult(this, result);
         },

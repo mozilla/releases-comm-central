@@ -5,7 +5,6 @@
 
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 
-var kACR = Ci.nsIAutoCompleteResult;
 var kSupportedTypes = new Set(["addr_newsgroups", "addr_followup"]);
 
 function NewsAutoCompleteResult(aSearchString) {
@@ -21,7 +20,7 @@ NewsAutoCompleteResult.prototype = {
   // nsIAutoCompleteResult
 
   searchString: null,
-  searchResult: kACR.RESULT_NOMATCH,
+  searchResult: Ci.nsIAutoCompleteResult.RESULT_NOMATCH,
   defaultIndex: -1,
   errorDescription: null,
 
@@ -93,7 +92,7 @@ NewsAutoCompleteSearch.prototype = {
       !("accountKey" in params) ||
       !kSupportedTypes.has(params.type)
     ) {
-      result.searchResult = kACR.RESULT_IGNORED;
+      result.searchResult = Ci.nsIAutoCompleteResult.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;
     }
@@ -115,7 +114,7 @@ NewsAutoCompleteSearch.prototype = {
     }
 
     if (result.matchCount) {
-      result.searchResult = kACR.RESULT_SUCCESS;
+      result.searchResult = Ci.nsIAutoCompleteResult.RESULT_SUCCESS;
       // If the user does not select anything, use the first entry:
       result.defaultIndex = 0;
     }

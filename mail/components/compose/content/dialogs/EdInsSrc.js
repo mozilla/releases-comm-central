@@ -38,7 +38,9 @@ function Startup() {
   try {
     selection = editor.outputToString(
       "text/html",
-      kOutputFormatted | kOutputSelectionOnly | kOutputWrap
+      Ci.nsIDocumentEncoder.OutputFormatted |
+        Ci.nsIDocumentEncoder.OutputSelectionOnly |
+        Ci.nsIDocumentEncoder.OutputWrap
     );
   } catch (e) {}
   if (selection) {

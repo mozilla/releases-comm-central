@@ -88,7 +88,8 @@ function onAccept() {
   try {
     str = editor.outputToString(
       "text/html",
-      kOutputLFLineBreak | kOutputSelectionOnly
+      Ci.nsIDocumentEncoder.OutputLFLineBreak |
+        Ci.nsIDocumentEncoder.OutputSelectionOnly
     );
   } catch (e) {}
   if (!str) {

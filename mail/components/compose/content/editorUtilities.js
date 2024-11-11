@@ -14,17 +14,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 // Object to attach commonly-used widgets (all dialogs should use this)
 var gDialog = {};
 
-var kOutputEncodeBasicEntities =
-  Ci.nsIDocumentEncoder.OutputEncodeBasicEntities;
-var kOutputEncodeHTMLEntities = Ci.nsIDocumentEncoder.OutputEncodeHTMLEntities;
-var kOutputEncodeLatin1Entities =
-  Ci.nsIDocumentEncoder.OutputEncodeLatin1Entities;
-var kOutputEncodeW3CEntities = Ci.nsIDocumentEncoder.OutputEncodeW3CEntities;
-var kOutputFormatted = Ci.nsIDocumentEncoder.OutputFormatted;
-var kOutputLFLineBreak = Ci.nsIDocumentEncoder.OutputLFLineBreak;
-var kOutputSelectionOnly = Ci.nsIDocumentEncoder.OutputSelectionOnly;
-var kOutputWrap = Ci.nsIDocumentEncoder.OutputWrap;
-
 var gStringBundle;
 var gFilePickerDirectory;
 
@@ -159,7 +148,7 @@ function GetSelectionAsText() {
   try {
     return GetCurrentEditor().outputToString(
       "text/plain",
-      kOutputSelectionOnly
+      Ci.nsIDocumentEncoder.OutputSelectionOnly
     );
   } catch (e) {}
 
