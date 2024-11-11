@@ -4,7 +4,6 @@
 
 /* Insert Source HTML dialog */
 
-/* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
 var gFullDataStrings = new Map();

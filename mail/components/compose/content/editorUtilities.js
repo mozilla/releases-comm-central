@@ -11,9 +11,6 @@ var { AppConstants } = ChromeUtils.importESModule(
 // Each editor window must include this file
 // Variables  shared by all dialogs:
 
-// Object to attach commonly-used widgets (all dialogs should use this)
-var gDialog = {};
-
 var gStringBundle;
 var gFilePickerDirectory;
 

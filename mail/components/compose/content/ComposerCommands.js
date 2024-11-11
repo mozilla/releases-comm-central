@@ -31,7 +31,6 @@
 /* import-globals-from ../../../base/content/globalOverlay.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from editor.js */
-/* import-globals-from editorUtilities.js */
 /* import-globals-from MsgComposeCommands.js */
 
 var gComposerJSCommandControllerID = 0;

@@ -12,7 +12,6 @@
  We trim all spaces at the beginning and end of user's alt text
 */
 
-/* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 /* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 

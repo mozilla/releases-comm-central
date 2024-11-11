@@ -12,7 +12,6 @@
  User cannot select "use default" for individual colors
 */
 
-/* import-globals-from ../editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 /* global SetAttachCheckbox */ // From EdImageLinkLoader.js
 
