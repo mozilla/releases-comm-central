@@ -621,7 +621,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
         synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
         await popupshown;
 
-        timezoneMenuitem.scrollIntoView();
+        timezoneMenuitem.scrollIntoView({ block: "start", behavior: "instant" });
 
         const popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
         synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);

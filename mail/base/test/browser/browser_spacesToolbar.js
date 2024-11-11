@@ -464,7 +464,7 @@ add_task(async function testSpacesToolbarContextMenu() {
       info(`Tab ${tab.label} already in view`);
       return;
     }
-    tab.scrollIntoView();
+    tab.scrollIntoView({ block: "start", behavior: "instant" });
     await TestUtils.waitForCondition(
       tabInView,
       "Tab should be scrolled into view: " + tab.label

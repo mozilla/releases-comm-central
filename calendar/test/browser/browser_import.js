@@ -169,7 +169,7 @@ add_task(async function () {
 
   EventUtils.synthesizeMouseAtCenter(doc.getElementById("calendarSelectAll"), {}, win);
 
-  nextButton.scrollIntoView();
+  nextButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.isVisible(calendarsPane),

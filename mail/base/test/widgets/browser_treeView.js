@@ -2076,7 +2076,7 @@ async function subtestResize() {
 
   async function scrollVerticallyBy(scrollDistance) {
     await doListActionAndWaitForRowBuffer(() => {
-      list.scrollBy(0, scrollDistance);
+      list.scrollBy({ top: scrollDistance, behavior: "instant" });
     });
   }
 

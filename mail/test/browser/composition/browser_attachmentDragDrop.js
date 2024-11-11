@@ -455,7 +455,7 @@ function selectAttachments(bucket, itemSet) {
   const win = bucket.ownerGlobal;
   let first = true;
   for (const item of itemSet) {
-    item.scrollIntoView();
+    item.scrollIntoView({ block: "start", behavior: "instant" });
     EventUtils.synthesizeMouseAtCenter(item, { ctrlKey: !first }, win);
     first = false;
   }

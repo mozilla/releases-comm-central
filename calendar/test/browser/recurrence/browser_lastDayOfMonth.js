@@ -106,7 +106,7 @@ async function setRecurrence(recurrenceWindow) {
   await menulistSelect(recurrenceDocument.getElementById("monthly-weekday"), "-1");
 
   const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView();
+  button.scrollIntoView({ block: "start", behavior: "instant" });
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }

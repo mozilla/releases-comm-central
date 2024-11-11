@@ -1104,9 +1104,9 @@ export const CalendarTestUtils = {
         alignStart == (target.ownerDocument.dir == "ltr")
           ? targetRect.left - scrollRect.left
           : targetRect.right - scrollRect.right;
-      multidayView.grid.scrollBy(xDiff, yDiff);
+      multidayView.grid.scrollBy({ left: xDiff, top: yDiff, behavior: "instant" });
     } else {
-      target.scrollIntoView(alignStart);
+      target.scrollIntoView({ block: alignStart ? "start" : "end", behavior: "instant" });
     }
   },
 

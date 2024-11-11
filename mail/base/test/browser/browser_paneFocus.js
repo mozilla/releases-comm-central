@@ -256,7 +256,7 @@ add_task(async function testAddressBookTab() {
   Assert.equal(getActiveElement(), cardsList.table.body);
   Assert.ok(BrowserTestUtils.isVisible(detailsPane));
 
-  editButton.scrollIntoView();
+  editButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   Assert.equal(abDocument.activeElement.id, "vcard-n-firstname");
   EventUtils.synthesizeKey("KEY_F6", {}, abWindow);

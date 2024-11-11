@@ -89,7 +89,7 @@ add_task(async function testDefaultAlarms() {
 async function handlePrefTab(prefsWindow, prefsDocument) {
   function menuList(id, value) {
     const list = prefsDocument.getElementById(id);
-    list.scrollIntoView();
+    list.scrollIntoView({ block: "start", behavior: "instant" });
     list.click();
     list.querySelector(`menuitem[value="${value}"]`).click();
   }
@@ -103,7 +103,7 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
 
   function text(id, value) {
     const input = prefsDocument.getElementById(id);
-    input.scrollIntoView();
+    input.scrollIntoView({ block: "start", behavior: "instant" });
     EventUtils.synthesizeMouse(input, 5, 5, {}, prefsWindow);
     Assert.equal(prefsDocument.activeElement, input);
     EventUtils.synthesizeKey("a", { accelKey: true }, prefsWindow);

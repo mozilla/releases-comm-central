@@ -79,7 +79,7 @@ add_task(async function test_check_vcard_icon() {
     () => BrowserTestUtils.isVisible(saveEditButton),
     "entered edit mode"
   );
-  saveEditButton.scrollIntoView();
+  saveEditButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(saveEditButton, {}, abWindow);
 
   // Check new card was created from the vcard.

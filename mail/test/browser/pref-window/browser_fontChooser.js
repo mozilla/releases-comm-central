@@ -172,7 +172,7 @@ async function _verify_fonts_displayed(
   );
 
   const advancedFonts = contentDoc.getElementById("advancedFonts");
-  advancedFonts.scrollIntoView(false);
+  advancedFonts.scrollIntoView({ block: "end", behavior: "instant" });
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
   // Now open the advanced dialog.

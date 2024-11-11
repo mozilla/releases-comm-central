@@ -200,7 +200,7 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
       );
 
       const checkbox = prefsDocument.getElementById(test.checkboxID);
-      checkbox.scrollIntoView(false);
+      checkbox.scrollIntoView({ block: "end", behavior: "instant" });
       testUIState(test, initiallyChecked);
 
       EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
@@ -301,13 +301,13 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
           continue;
         }
         const radio = prefsDocument.getElementById(state.id);
-        radio.scrollIntoView(false);
+        radio.scrollIntoView({ block: "end", behavior: "instant" });
         EventUtils.synthesizeMouseAtCenter(radio, {}, prefsWindow);
         testUIState(state);
       }
       // Go back to the initial value.
       const initialRadio = prefsDocument.getElementById(initialState.id);
-      initialRadio.scrollIntoView(false);
+      initialRadio.scrollIntoView({ block: "end", behavior: "instant" });
       EventUtils.synthesizeMouseAtCenter(initialRadio, {}, prefsWindow);
       testUIState(initialState);
 

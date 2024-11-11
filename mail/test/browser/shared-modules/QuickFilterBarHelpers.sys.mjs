@@ -158,7 +158,7 @@ export async function toggle_tag_constraints(...aArgs) {
   aArgs.forEach(function (arg) {
     const tagId = "qfb-tag-" + arg;
     const button = about3Pane.document.getElementById(tagId);
-    button.scrollIntoView();
+    button.scrollIntoView({ block: "start", behavior: "instant" });
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, about3Pane);
   });
   await wait_for_all_messages_to_load(mc);

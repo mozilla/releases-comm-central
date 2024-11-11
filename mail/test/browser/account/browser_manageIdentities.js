@@ -233,13 +233,13 @@ async function test_identity_idx(idx) {
     const arrowHead = identityWin.document.querySelector(
       `#openPgpOption${keyId} button.arrowhead`
     );
-    arrowHead.scrollIntoView(); // Test window is small on CI...
+    arrowHead.scrollIntoView({ block: "start", behavior: "instant" }); // Test window is small on CI...
     EventUtils.synthesizeMouseAtCenter(arrowHead, {}, identityWin);
     const propsButton = identityWin.document.querySelector(
       `#openPgpOption${keyId} button.openpgp-props-btn`
     );
     Assert.ok(BrowserTestUtils.isVisible(propsButton));
-    propsButton.scrollIntoView(); // Test window is small on CI...
+    propsButton.scrollIntoView({ block: "start", behavior: "instant" }); // Test window is small on CI...
     EventUtils.synthesizeMouseAtCenter(propsButton, {}, identityWin);
     const keyDetailsDialog = await keyDetailsDialogLoaded;
     info(`Key details dialog for key 0x${keyId} loaded`);

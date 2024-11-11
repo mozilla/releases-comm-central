@@ -268,7 +268,7 @@ add_task(async function test_mail_account_setup() {
   );
 
   const advancedSetupButton = tabDocument.getElementById("advancedSetupButton");
-  advancedSetupButton.scrollIntoView();
+  advancedSetupButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   // Handle the confirmation dialog.
   const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
@@ -417,7 +417,7 @@ add_task(async function test_bad_password_uses_old_settings() {
     "Timeout waiting for error notification to be showed"
   );
 
-  createButton.scrollIntoView();
+  createButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     createButton,
     {},
@@ -432,7 +432,7 @@ add_task(async function test_bad_password_uses_old_settings() {
   );
 
   const manualConfigButton = tabDocument.getElementById("manualConfigButton");
-  manualConfigButton.scrollIntoView();
+  manualConfigButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(
     manualConfigButton,
@@ -447,7 +447,7 @@ add_task(async function test_bad_password_uses_old_settings() {
 
   const outgoingAuthSelect = tabDocument.getElementById("outgoingAuthMethod");
   // Make sure the select field is inside the viewport.
-  outgoingAuthSelect.scrollIntoView();
+  outgoingAuthSelect.scrollIntoView({ block: "start", behavior: "instant" });
   outgoingAuthSelect.focus();
 
   let popupOpened = BrowserTestUtils.waitForEvent(
@@ -497,7 +497,7 @@ add_task(async function test_bad_password_uses_old_settings() {
     "Timeout waiting for error notification to be removed"
   );
 
-  createButton.scrollIntoView();
+  createButton.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     createButton,
     {},
@@ -541,7 +541,7 @@ add_task(async function test_bad_password_uses_old_settings() {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 
   const closeButton = tabDocument.getElementById("cancelButton");
-  closeButton.scrollIntoView();
+  closeButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(
     closeButton,
@@ -619,7 +619,7 @@ async function remember_password_test(aPrefValue) {
   );
 
   const closeButton = tabDocument.getElementById("cancelButton");
-  closeButton.scrollIntoView();
+  closeButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   // Close the wizard.
   EventUtils.synthesizeMouseAtCenter(
@@ -700,7 +700,7 @@ add_task(async function test_full_account_setup() {
 
   // Click the acknowledge checkbox and confirm the insecure dialog.
   const acknowledgeCheckbox = tabDocument.getElementById("acknowledgeWarning");
-  acknowledgeCheckbox.scrollIntoView();
+  acknowledgeCheckbox.scrollIntoView({ block: "start", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(
     acknowledgeCheckbox,
@@ -722,7 +722,7 @@ add_task(async function test_full_account_setup() {
   );
 
   const confirmButton = tabDocument.getElementById("insecureConfirmButton");
-  confirmButton.scrollIntoView();
+  confirmButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   // Close the insecure dialog.
   EventUtils.synthesizeMouseAtCenter(
@@ -894,7 +894,7 @@ add_task(async function test_full_account_setup() {
 
   const finishButton = tabDocument.getElementById("finishButton");
   finishButton.focus();
-  finishButton.scrollIntoView();
+  finishButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   // Close the wizard.
   EventUtils.synthesizeMouseAtCenter(

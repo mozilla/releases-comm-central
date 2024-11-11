@@ -169,7 +169,7 @@ async function setRecurrence(recurrenceWindow) {
   EventUtils.synthesizeKey("VK_TAB", {}, recurrenceWindow);
 
   const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-  button.scrollIntoView();
+  button.scrollIntoView({ block: "start", behavior: "instant" });
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }

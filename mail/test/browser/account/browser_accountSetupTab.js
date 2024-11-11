@@ -40,7 +40,7 @@ add_task(async function test_use_thunderbird_without_email() {
   const tabDocument = tab.browser.contentWindow.document;
 
   const closeButton = tabDocument.getElementById("cancelButton");
-  closeButton.scrollIntoView();
+  closeButton.scrollIntoView({ block: "start", behavior: "instant" });
 
   // Close the account setup tab by clicking on the Cancel button.
   EventUtils.synthesizeMouseAtCenter(

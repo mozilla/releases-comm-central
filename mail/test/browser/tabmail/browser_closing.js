@@ -188,7 +188,7 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
       `tab #${tab.index} should be in the DOM tree before ${desc}`
     );
   }
-  fromTab.node.scrollIntoView();
+  fromTab.node.scrollIntoView({ block: "start", behavior: "instant" });
   await closeMethod(fromTab.node);
   for (const tab of closingTabs) {
     Assert.ok(

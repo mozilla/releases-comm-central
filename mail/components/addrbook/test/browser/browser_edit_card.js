@@ -111,7 +111,7 @@ function getInput(entryName, addIfNeeded = false) {
         abDocument.getElementById("vcard-email").children.length < 1
       ) {
         const addButton = abDocument.getElementById("vcard-add-email");
-        addButton.scrollIntoView({ block: "nearest" });
+        addButton.scrollIntoView({ block: "nearest", behavior: "instant" });
         EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
       return abDocument.querySelector(
@@ -128,7 +128,7 @@ function getInput(entryName, addIfNeeded = false) {
         abDocument.getElementById("vcard-email").children.length < 2
       ) {
         const addButton = abDocument.getElementById("vcard-add-email");
-        addButton.scrollIntoView({ block: "nearest" });
+        addButton.scrollIntoView({ block: "nearest", behavior: "instant" });
         EventUtils.synthesizeMouseAtCenter(addButton, {}, abWindow);
       }
       return abDocument.querySelector(
@@ -478,7 +478,7 @@ function setInputValues(changes) {
 async function activateTypeSelect(typeField, optionValue) {
   const abWindow = getAddressBookWindow();
   // Ensure that the select field is inside the viewport.
-  typeField.scrollIntoView({ block: "nearest" });
+  typeField.scrollIntoView({ block: "nearest", behavior: "instant" });
   const shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
   EventUtils.synthesizeMouseAtCenter(typeField, {}, abWindow);
   const selectPopup = await shownPromise;
@@ -530,7 +530,10 @@ async function setVCardInputValues(changes) {
               changeEntry &&
               changeEntry.pref == "1")
           ) {
-            field.checkboxEl.scrollIntoView({ block: "nearest" });
+            field.checkboxEl.scrollIntoView({
+              block: "nearest",
+              behavior: "instant",
+            });
             EventUtils.synthesizeMouseAtCenter(field.checkboxEl, {}, abWindow);
           }
           break;
@@ -2750,7 +2753,7 @@ add_task(async function test_vCard_minimal() {
   });
 
   const addOrgButton = abDocument.getElementById("vcard-add-org");
-  addOrgButton.scrollIntoView({ block: "nearest" });
+  addOrgButton.scrollIntoView({ block: "nearest", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(addOrgButton, {}, abWindow);
 
   Assert.ok(
@@ -3053,7 +3056,7 @@ add_task(async function test_special_date_field() {
   const addSpecialDate = abDocument.getElementById(
     "vcard-add-bday-anniversary"
   );
-  addSpecialDate.scrollIntoView({ block: "nearest" });
+  addSpecialDate.scrollIntoView({ block: "nearest", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(addSpecialDate, {}, abWindow);
 
   Assert.ok(
@@ -3082,7 +3085,7 @@ add_task(async function test_special_date_field() {
   firstYear.value = 2004;
 
   const shownPromise = BrowserTestUtils.waitForSelectPopupShown(window);
-  firstMonth.scrollIntoView({ block: "nearest" });
+  firstMonth.scrollIntoView({ block: "nearest", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(firstMonth, {}, abWindow);
   const selectPopup = await shownPromise;
 
@@ -3359,7 +3362,7 @@ add_task(async function test_remove_button() {
       .getElementById(fieldsetId)
       .querySelector(".remove-property-button");
 
-    removeButton.scrollIntoView({ block: "nearest" });
+    removeButton.scrollIntoView({ block: "nearest", behavior: "instant" });
     const removeEvent = BrowserTestUtils.waitForEvent(
       vCardEdit,
       "vcard-remove-property"

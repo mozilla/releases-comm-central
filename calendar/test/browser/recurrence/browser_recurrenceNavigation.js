@@ -39,7 +39,7 @@ add_task(async function testRecurrenceNavigation() {
 
         const nextButton = container.querySelector("#recurrenceNext");
         Assert.ok(nextButton, `Next button exists`);
-        nextButton.scrollIntoView();
+        nextButton.scrollIntoView({ block: "start", behavior: "instant" });
         EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
 
         const nextMonth = container.querySelector(`calendar-minimonth[month="2"][year="2020"]`);
@@ -48,12 +48,12 @@ add_task(async function testRecurrenceNavigation() {
 
         const previousButton = container.querySelector("#recurrencePrevious");
         Assert.ok(previousButton, `Previous button exists`);
-        previousButton.scrollIntoView();
+        previousButton.scrollIntoView({ block: "start", behavior: "instant" });
         EventUtils.synthesizeMouseAtCenter(previousButton, {}, win);
         Assert.ok(!initialMonth.hidden, `Previous month is visible after using previous button`);
 
         // Check that future dates display
-        nextButton.scrollIntoView();
+        nextButton.scrollIntoView({ block: "start", behavior: "instant" });
         for (let index = 0; index < 5; index++) {
           EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
         }
@@ -114,7 +114,7 @@ add_task(async function testRecurrenceCreationOfMonths() {
       async callback(win) {
         const container = win.document.querySelector("#recurrencePreviewContainer");
         const nextButton = container.querySelector("#recurrenceNext");
-        nextButton.scrollIntoView();
+        nextButton.scrollIntoView({ block: "start", behavior: "instant" });
         for (let index = 0; index < 10; index++) {
           EventUtils.synthesizeMouseAtCenter(nextButton, {}, win);
         }

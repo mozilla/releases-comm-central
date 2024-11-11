@@ -312,7 +312,9 @@ add_task(async function testDisplay() {
     items[0].children[1].querySelector("a").textContent,
     "www.thunderbird.net"
   );
-  items[0].children[1].querySelector("a").scrollIntoView();
+  items[0].children[1]
+    .querySelector("a")
+    .scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},
@@ -867,7 +869,9 @@ add_task(async function testGoogleEscaping() {
     items[0].children[1].querySelector("a").textContent,
     "host/url:url;url,url/url"
   );
-  items[0].children[1].querySelector("a").scrollIntoView();
+  items[0].children[1]
+    .querySelector("a")
+    .scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     items[0].children[1].querySelector("a"),
     {},

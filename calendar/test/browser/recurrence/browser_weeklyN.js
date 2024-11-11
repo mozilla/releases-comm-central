@@ -76,7 +76,7 @@ add_task(async function testWeeklyNRecurrence() {
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "4";
 
     const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-    button.scrollIntoView();
+    button.scrollIntoView({ block: "start", behavior: "instant" });
     // Close dialog
     EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
@@ -225,7 +225,7 @@ add_task(async function testRecurrenceAcrossWeekStart() {
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "6";
 
     const button = recurrenceDocument.querySelector("dialog").getButton("accept");
-    button.scrollIntoView();
+    button.scrollIntoView({ block: "start", behavior: "instant" });
     // Close dialog
     EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }

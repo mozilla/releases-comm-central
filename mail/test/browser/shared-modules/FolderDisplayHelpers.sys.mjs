@@ -1144,7 +1144,7 @@ export function select_click_folder(aFolder) {
   const win = get_about_3pane();
   const folderTree = win.document.getElementById("folderTree");
   const row = folderTree.rows.find(treeRow => treeRow.uri == aFolder.URI);
-  row.scrollIntoView();
+  row.scrollIntoView({ block: "start", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
 
