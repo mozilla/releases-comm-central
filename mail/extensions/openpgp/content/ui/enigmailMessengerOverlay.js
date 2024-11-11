@@ -209,8 +209,6 @@ Enigmail.msg = {
 
     Enigmail.msg.keyCollectCandidates = new Map();
 
-    EnigmailKeyRing.emailAddressesWithSecretKey = null;
-
     Enigmail.msg.attachedKeys = [];
     Enigmail.msg.attachedSenderEmailKeysIndex = [];
 

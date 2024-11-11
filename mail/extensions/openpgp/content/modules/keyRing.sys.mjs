@@ -178,10 +178,8 @@ export var EnigmailKeyRing = {
   emailAddressesWithSecretKey: null,
 
   async _populateEmailHasSecretKeyCache() {
-    this.emailAddressesWithSecretKey = new Set();
-
     this.getAllKeys(); // ensure keylist is loaded;
-
+    const emailAddressesWithSecretKey = new Set();
     for (const key of gKeyListObj.keyList) {
       if (!key.secretAvailable) {
         continue;
@@ -199,19 +197,20 @@ export var EnigmailKeyRing = {
         if (lazy.EnigmailTrust.isInvalid(userId.keyTrust)) {
           continue;
         }
-        this.emailAddressesWithSecretKey.add(
+        emailAddressesWithSecretKey.add(
           lazy.EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase()
         );
       }
     }
+    this.emailAddressesWithSecretKey = emailAddressesWithSecretKey;
   },
 
   /**
    * This API uses a cache. It helps when making lookups from multiple
    * places, during a longer transaction.
    * Currently, the cache isn't refreshed automatically.
-   * Set this.emailAddressesWithSecretKey to null when starting a new
-   * operation that needs fresh information.
+   * this.emailAddressesWithSecretKey should be set to null when keys have
+   * changed and the cache needs to be refreshed.
    *
    * @param {string} emailAddr
    */
@@ -489,6 +488,7 @@ export var EnigmailKeyRing = {
    * Empty the key cache, such that it will get loaded next time it is accessed.
    */
   clearCache() {
+    this.emailAddressesWithSecretKey = null;
     gKeyListObj = {
       keyList: [],
       keySortList: [],
