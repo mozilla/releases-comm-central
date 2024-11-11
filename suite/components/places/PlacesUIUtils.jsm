@@ -27,14 +27,14 @@ XPCOMUtils.defineLazyGetter(this, "bundle", function() {
 const gInContentProcess = Services.appinfo.processType == Ci.nsIXULRuntime.PROCESS_TYPE_CONTENT;
 const FAVICON_REQUEST_TIMEOUT = 60 * 1000;
 // Map from windows to arrays of data about pending favicon loads.
-var gFaviconLoadDataMap = new Map();
+let gFaviconLoadDataMap = new Map();
 
 const ITEM_CHANGED_BATCH_NOTIFICATION_THRESHOLD = 10;
 
 // copied from utilityOverlay.js
 const TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
 
-var InternalFaviconLoader = {
+let InternalFaviconLoader = {
   /**
    * This gets called for every inner window that is destroyed.
    * In the parent process, we process the destruction ourselves. In the child process,
