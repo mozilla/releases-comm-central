@@ -2346,6 +2346,9 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI* aURL,
     m_imapMailFolderSink = nullptr;
     rv = SetupWithUrl(aURL, aConsumer);
     m_lastActiveTime = PR_Now();
+    if (NS_FAILED(rv)) {
+      TellThreadToDie(true);
+    }
   }
   return rv;
 }

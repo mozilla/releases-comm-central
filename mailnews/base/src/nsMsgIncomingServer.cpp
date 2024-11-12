@@ -45,7 +45,8 @@
 #define PORT_NOT_SET -1
 
 nsMsgIncomingServer::nsMsgIncomingServer()
-    : m_rootFolder(nullptr),
+    : m_hasShutDown(false),
+      m_rootFolder(nullptr),
       m_downloadedHdrs(50),
       m_numMsgsDownloaded(0),
       m_biffState(nsIMsgFolder::nsMsgBiffState_Unknown),
@@ -295,6 +296,7 @@ NS_IMETHODIMP nsMsgIncomingServer::WriteToFolderCache(
 NS_IMETHODIMP
 nsMsgIncomingServer::Shutdown() {
   nsresult rv = CloseCachedConnections();
+  m_hasShutDown = true;
   mFilterPlugin = nullptr;
   NS_ENSURE_SUCCESS(rv, rv);
 

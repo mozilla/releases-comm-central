@@ -474,6 +474,7 @@ nsImapIncomingServer::RetryUrl(nsIImapUrl* aImapUrl,
 NS_IMETHODIMP
 nsImapIncomingServer::LoadNextQueuedUrl(nsIImapProtocol* aProtocol,
                                         bool* aResult) {
+  if (m_hasShutDown) return NS_ERROR_FAILURE;
   if (WeAreOffline()) return NS_MSG_ERROR_OFFLINE;
 
   nsresult rv = NS_OK;
