@@ -1404,7 +1404,10 @@ fn create_and_populate_header_from_save_response(
         RealItem::Message(message) => message,
     };
 
-    let ews_id = message.item_id.ok_or(XpComEwsError::MissingResponseItemId)?.id;
+    let ews_id = message
+        .item_id
+        .ok_or(XpComEwsError::MissingResponseItemId)?
+        .id;
     let ews_id = nsCString::from(ews_id);
 
     let hdr =
