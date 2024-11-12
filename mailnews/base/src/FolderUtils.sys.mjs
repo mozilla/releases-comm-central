@@ -189,7 +189,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     addIfRecent(folder);
   }
 
-  recentFolders.sort((a, b) => a.time < b.time);
+  recentFolders.sort((a, b) => b.time - a.time);
   return recentFolders.slice(0, aMaxHits).map(f => f.folder);
 }
 
